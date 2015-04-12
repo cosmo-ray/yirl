@@ -1,5 +1,5 @@
 /*
-**Copyright (C) <2013> <YIRL_Team>
+**Copyright (C) 2013 Matthias Gatto
 **
 **This program is free software: you can redistribute it and/or modify
 **it under the terms of the GNU Lesser General Public License as published by
@@ -14,6 +14,7 @@
 **You should have received a copy of the GNU Lesser General Public License
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 /*
  * This file contain the entity API.
  * All there's functions are made to be use in lua too
@@ -39,7 +40,7 @@
 /**
  * Here some macros to mutualise the code of entity
  */
-#define RETURN_ERROR_BAD_TYPE(function, entity, returnValue) DPRINT_ERR("%s: bad entity, this entity is of type %s\n", (function), entityTypeToString(tryGetType(entity))); return (returnValue)
+#define RETURN_ERROR_BAD_TYPE(function, entity, returnValue) DPRINT_ERR("%s: bad entity, this entity is of type %s\n", (function), yeTypeToString(yeType(entity))); return (returnValue)
 
 
 
@@ -55,14 +56,12 @@ extern "C"
       YINT,
       YFLOAT,
       YSTRING,
-      REF,
       ARRAY,
       FUNCTION, //here will the fun begin
-      GEN,
       STATIC
     } EntityType;
   
-#define	NBR_ENTITYTYPE	9
+#define	NBR_ENTITYTYPE	7
 
 #define	YE_TO_ENTITY(X) ((Entity *)X)
 #define	YE_TO_C_ENTITY(X) ((const Entity *)X)
@@ -91,22 +90,22 @@ extern "C"
   unsigned int refCount;
 
   /* macro for perf purpose */
-#define yeIncrRef(entity) do {			\
+#define YE_INCR_REF(entity) do {		\
     entity->refCount += 1;			\
   } while (0)
-
-#define yeDecrRef(entity) do {			\
-    entity->refCount -= 1;			\
+  
+#define YE_DECR_REF(entity) do {		\
+    entity->refCount -= 1;		       	\
   } while (0)
 
-#define DESTROY_ENTITY(entity, type) do {	\
-    yeDecrRef(entity);				\
+#define YE_DESTROY_ENTITY(entity, type) do {	\
+    YE_DECR_REF(entity);			\
     if (entity->refCount <= 0)			\
       free(((type *)entity));			\
   } while (0);
   
-#define ALLOC_ENTITY(RET, TYPE) do {		\
-    ret = malloc(sizeof(TYPE));			\
+#define YE_ALLOC_ENTITY(ret, type) do {		\
+    ret = malloc(sizeof(type));			\
     ret->refCount = 1;				\
   } while (0);
 
@@ -123,7 +122,6 @@ extern "C"
     unsigned int len;
     Entity	**values;
     const char	*structName;
-    // "link" to the prototype of this Structure
     // prototype is a void * because EntityStructPrototype can't contain a class(i think)
     const void	*prototype;
   } StructEntity;
@@ -180,23 +178,23 @@ extern "C"
    * @param str   the type name
    * @return      the corresponding type, -1 if type not found
    */
-  EntityType stringToEntityType(const char *str) WEAK;
+  EntityType yeStringToType(const char *str) WEAK;
 
   /**
    * @param type
    * @return the corresponding string of the type
    */
-  const char *entityTypeToString(int type) WEAK;
+  const char *yeTypeToString(int type) WEAK;
 
   /**
    * @return the entity at the position of the index or NULL
    */
-  Entity *getEntity(Entity *entity, unsigned int index) WEAK;
+  Entity *yeGetIdx(Entity *entity, unsigned int index) WEAK;
     
   /**
    * @return the entity at the position wich has the given name or NULL
    */
-  Entity *findEntity(Entity *entity, const char *name) WEAK;
+  Entity *yeGetStr(Entity *entity, const char *name) WEAK;
 
 #ifdef __cplusplus
   extern "C++"
@@ -209,151 +207,144 @@ extern "C"
   }
 #else
 #define yeGet(ENTITY, INDEX) _Generic((INDEX),			\
-				      unsigned int: getEntity,	\
-				      int: getEntity,		\
-				      const char *: findEntity,	\
-				      char *: findEntity) (ENTITY, INDEX)
+				      unsigned int: yeGetIdx,	\
+				      int: yeGetIdx,		\
+				      const char *: yeGetStr,	\
+				      char *: yeGetStr) (ENTITY, INDEX)
 
 #endif
 
 
   /**
-   * Like findEntity but dosn't work with sytaxe like this (entity1.entity11)
+   * Like yeGetStr but dosn't work with sytaxe like this (entity1.entity11)
    */
-  Entity *findDirectEntity(Entity *entity, const char *name) WEAK;
+  Entity *yeGetIdxFast(Entity *entity, const char *name) WEAK;
 
   
   /**
    * change the capacity than the array can store and init it to 0, "" or NULL
    */
-  ArrayEntity	*manageArrayEntity(ArrayEntity *entity, unsigned int size, EntityType arrayType) WEAK;
-  Entity	*manageArray(Entity *entity, unsigned int size, EntityType arrayType) WEAK;
-  void	pushBack(Entity *array, Entity *toPush) WEAK;
-  Entity *popBack(Entity *array) WEAK;
-  Entity *arrayRemove(Entity *array, Entity *toRemove, int deepSearch);
+  Entity	*yeExpandArray(Entity *entity, unsigned int size, EntityType arrayType) WEAK;
+  void	yePushBack(Entity *array, Entity *toPush) WEAK;
+  Entity *yePopBack(Entity *array) WEAK;
+  Entity *yeArrayRemove(Entity *array, Entity *toRemove);
   
   /**
    * function who alloc an entity and set it to  0, "" or NULL
    */
-  Entity *genericCreatEntity(EntityType type, Entity *father, EntityType typeArray) WEAK;
+  Entity *yeCreate(EntityType type, Entity *father, EntityType typeArray) WEAK;
 
    /** Ensemble de fonction pour cree et detruire chaque type d'entite.
     * Cannot initialise a structure in thers functions because the data are to complex
     */
-  Entity *creatStructEntity(Entity *father) WEAK;
-  Entity *creatIntEntity(int value, Entity *father) WEAK;
-  Entity *creatFloatEntity(double value, Entity *father) WEAK;
-  Entity *creatStringEntity(const char *string, Entity *father) WEAK;
-  Entity *creatFunctionEntity(const char *string, Entity *father) WEAK;
-  Entity *creatArrayEntity(EntityType contentType, Entity *father) WEAK;
-  Entity *creatRefEntity(Entity *value, Entity *father) WEAK;
-  Entity *creatStaticEntity(Entity *value, Entity *father) WEAK;
+  Entity *yeCreateStruct(Entity *father) WEAK;
+  Entity *yeCreateInt(int value, Entity *father) WEAK;
+  Entity *yeCreateFloat(double value, Entity *father) WEAK;
+  Entity *yeCreateString(const char *string, Entity *father) WEAK;
+  Entity *yeCreateFunction(const char *string, Entity *father) WEAK;
+  Entity *yeCreateArray(EntityType contentType, Entity *father) WEAK;
+  Entity *yeCreateStatic(Entity *value, Entity *father) WEAK;
 
-  void destroyEntity(Entity *entity) WEAK;
-  void destroyStructEntity(Entity *entity) WEAK;
-  void destroyIntEntity(Entity *entity) WEAK;
-  void destroyFloatEntity(Entity *entity) WEAK;
-  void destroyStringEntity(Entity *entity) WEAK;
-  void destroyFunctionEntity(Entity *entity) WEAK;
-  void destroyRefEntity(Entity *entity) WEAK;
-  void destroyStaticEntity(Entity *entity) WEAK;
-  void destroyArrayEntity(Entity *entity) WEAK;
+  void yeDestroy(Entity *entity) WEAK;
+  void yeDestroyStruct(Entity *entity) WEAK;
+  void yeDestroyInt(Entity *entity) WEAK;
+  void yeDestroyFloat(Entity *entity) WEAK;
+  void yeDestroyString(Entity *entity) WEAK;
+  void yeDestroyFunction(Entity *entity) WEAK;
+  void yeDestroyRef(Entity *entity) WEAK;
+  void yeDestroyStatic(Entity *entity) WEAK;
+  void yeDestroyArray(Entity *entity) WEAK;
 
   /**
    * Set a referenced Entity to a Entity after checking the type of the referencing entity
    * @param entity	the referencing Entity
    * @param other	the referenced Entity
    */
-  int	setInt(Entity *entity, int value) WEAK;
-  int	setFloat(Entity *entity, double value) WEAK;
-  void	setString(Entity *entity, const char *value) WEAK;
+  int	yeSetInt(Entity *entity, int value) WEAK;
+  int	yeSetFloat(Entity *entity, double value) WEAK;
+  void	yeSetString(Entity *entity, const char *value) WEAK;
 
   /**
    * @brief set a function entity to NULL
    */
-  void	unsetFunction(Entity *entity) WEAK;
+  void	yeUnsetFunction(Entity *entity) WEAK;
 
   
-  const char	*setFunction(Entity *entity, const char *value) WEAK;
+  const char	*yeSetFunction(Entity *entity, const char *value) WEAK;
   
   /**
-   * @brief set the information about the arguments of a function
+   * @brief set the informa
+tion about the arguments of a function
    * @param nArgs number of arguments
    * @param args the argument list, sould be alocate first.
    */
-  void	setFunctionArgs(Entity *entity, unsigned int nArgs, EntityType *args) WEAK;
+  void	yeSetFunctionArgs(Entity *entity, unsigned int nArgs, EntityType *args) WEAK;
   
 
-  Entity *setEntityBasicInfo(Entity *entity, const char *name, EntityType type, Entity *father)  WEAK;
+  Entity *yeInit(Entity *entity, const char *name, EntityType type, Entity *father)  WEAK;
   /**
    * set to a value to the index if the entity is an array or a generic array
    */
   
-  int	setIntAt(Entity *entity, unsigned int index, int value) WEAK;
-  int	setFloatAt(Entity *entity, unsigned int index, double value) WEAK;
-  void	setStringAt(Entity *entity, unsigned int index, const char *value) WEAK;
-  int	setIntAtStrIdx(Entity *entity, const char *index, int value) WEAK;
-  int	setFloatAtStrIdx(Entity *entity, const char *index, double value) WEAK;
-  void	setStringAtStrIdx(Entity *entity, const char *index, const char *value) WEAK;
+  int	yeSetIntAt(Entity *entity, unsigned int index, int value) WEAK;
+  int	yeSetFloatAt(Entity *entity, unsigned int index, double value) WEAK;
+  void	yeSetStringAt(Entity *entity, unsigned int index, const char *value) WEAK;
+  int	yeSetIntAtStrIdx(Entity *entity, const char *index, int value) WEAK;
+  int	yeSetFloatAtStrIdx(Entity *entity, const char *index, double value) WEAK;
+  void	yeSetStringAtStrIdx(Entity *entity, const char *index, const char *value) WEAK;
 
   
 #ifdef __cplusplus
 extern "C++"
 {
-  void setAt(Entity *entity, unsigned int index, const char *value) WEAK;
-  void setAt(Entity *entity, unsigned int index, int value) WEAK;
-  void setAt(Entity *entity, unsigned int index, Entity *value) WEAK;
-  void setAt(Entity *entity, unsigned int index, float value) WEAK;
-  void setAt(Entity *entity, const char *index, const char *value) WEAK;
-  void setAt(Entity *entity, const char *index, int value) WEAK;
-  void setAt(Entity *entity, const char *index, Entity *value) WEAK;
-  void setAt(Entity *entity, const char *index, float value) WEAK;
+  void yeSetAt(Entity *entity, unsigned int index, const char *value) WEAK;
+  void yeSetAt(Entity *entity, unsigned int index, int value) WEAK;
+  void yeSetAt(Entity *entity, unsigned int index, Entity *value) WEAK;
+  void yeSetAt(Entity *entity, unsigned int index, float value) WEAK;
+  void yeSetAt(Entity *entity, const char *index, const char *value) WEAK;
+  void yeSetAt(Entity *entity, const char *index, int value) WEAK;
+  void yeSetAt(Entity *entity, const char *index, Entity *value) WEAK;
+  void yeSetAt(Entity *entity, const char *index, float value) WEAK;
 }
 #else
-#define setAt(ENTITY, INDEX, VALUE) _Generic((VALUE),		\
-					     int: setIntAt,		\
-					     float: setFloatAt,		\
-					     const char *: setStringAt, \
-					     char *: setStringAt)(ENTITY, INDEX, VALUE)
+#define yeSetAt(ENTITY, INDEX, VALUE) _Generic((VALUE),		\
+					     int: yeSetIntAt,		\
+					     float: yeSetFloatAt,		\
+					     const char *: yeSetStringAt, \
+					     char *: yeSetStringAt)(ENTITY, INDEX, VALUE)
 
 #endif
   
   
-  unsigned int getLen(Entity *entity) WEAK;;
+  unsigned int yeLen(Entity *entity) WEAK;;
   /*Geter pour les entites 
     certain sont particuliere comme get Father qui permet de recuperer entite pere d'une entite (entite pere est celle qui a appeler/cree l'entite en parametre*/
-  Entity *getReferencedObj(Entity *entity) WEAK;
-  int	getIntVal(Entity *entity) WEAK;
-  double getFloatVal(Entity *entity) WEAK;
-  const char *getStringVal(Entity *entity) WEAK;
-  const char *getName(const Entity *entity) WEAK;
-  Entity *getFather(Entity *entity) WEAK;
-  const char	*getFunctionVal(Entity *entity) WEAK;
-  int	getFunctionNumberArgs(const Entity *entity) WEAK;
-  EntityType getFunctionArg(const Entity *entity, int i) WEAK;
-  EntityType getContentType(const Entity *entity) WEAK;
+  int	yeGetInt(Entity *entity) WEAK;
+  double yeGetFloat(Entity *entity) WEAK;
+  const char *yeGetString(Entity *entity) WEAK;
+  const char *yeName(const Entity *entity) WEAK;
+  Entity *yeFather(Entity *entity) WEAK;
+  const char	*yeGetFunction(Entity *entity) WEAK;
+  int	yeFunctionNumberArgs(const Entity *entity) WEAK;
+  EntityType yeGetFunctionArg(const Entity *entity, int i) WEAK;
+  EntityType yeContentType(const Entity *entity) WEAK;
 
-  /**
-   * check if the entity's type and type is the same
-   * check at the same time if the entity is NULL
-   */
-  int	checkType(const Entity *entity, EntityType type) WEAK;
-
-  const char *tryGetEntityName(const Entity *entity);
-  const char *tryGetStructEntityName(const Entity *entity);
+  /* as yeName but return a printable result */
+  const char *yePrintableName(const Entity *entity);
+  const char *yePrintableStructName(const Entity *entity);
 
   /**
    * @param entity
-   * @return if <entity> is not null return the type, -1 otherwise
+   * @return if entity is not null return the type, -1 otherwise
    */
-  int	tryGetType(const Entity *entity);
+  int	yeType(const Entity *entity);
 
   /**
    * @param buf the buffer where the string is store
    * @param sizeBuf the size of buf
    * @return the number of caracter write into buf, -1 if not enough place
    */
-  int entityToString(Entity *entity, char *buf, int sizeBuf);
+  int yeToString(Entity *entity, char *buf, int sizeBuf);
 
   /**
    * Check if Entity are the same type and if they are not NULL and copy the values from src to dest.
@@ -361,7 +352,7 @@ extern "C++"
    * @param dest	The destination Entity to where the values will be pasted.
    * @return	NULL if entities do not have the same type or are NULL, dest Entity otherwise.
    */
-  Entity*		copyEntity(Entity* src, Entity* dest);
+  Entity*		yeCopy(Entity* src, Entity* dest);
 
   /**
    * Copy the data from src Entity to dest Entity.
@@ -370,7 +361,7 @@ extern "C++"
    * @param dest	Destination Entity where the data will be past
    * @return	destination Entity if src AND dest or not null, NULL otherwise
    */
-  StructEntity*		copyStructEntity(StructEntity* src, StructEntity* dest);
+  StructEntity*		yeCopyStruct(StructEntity* src, StructEntity* dest);
 
 
 #ifdef __cplusplus

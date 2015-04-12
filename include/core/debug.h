@@ -29,7 +29,7 @@ extern "C"
   /**
    * @brief Initiate the logger
    */
-  void debug_init();
+  void debug_init(void);
   
   /**
    * @brief Add log to the file or print it to the specified file descriptor.
@@ -39,7 +39,7 @@ extern "C"
   /**
    * @brief Exit the logger
    */
-  void debug_exit();
+  void debug_exit(void);
 # ifdef __cplusplus
 }
 # endif

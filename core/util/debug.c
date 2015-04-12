@@ -39,7 +39,7 @@ t_log_mode log_confs[] = {
 };
 
 void	debug_print_(char const* mode, char const* format, va_list vl);
-FILE*	get_file();
+FILE*	get_file(int mode);
 void	debug_print_info(FILE* fd, const char* mode);
 
 void	debug_print(int mode, char const* format, ...)
