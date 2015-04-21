@@ -35,12 +35,13 @@ void (*destroyTab[])(Entity *) = {
   yeDestroyStatic
 };
 
-const char * EntityTypeStrings[] = { "struct", "int", "float", "string", "array", "function", "static" };
+const char * EntityTypeStrings[] = { "struct", "int", "float", "string",
+				     "array", "function", "static" };
 
 /**
  * @param entity
  * @param type
- * @return 1 if entity is not null and entity's type is the same as <type>, 0 otherwise
+ * @return 1 if entity is not null and entity's type is the same as type, 0 otherwise
  */
 static int	checkType(const Entity *entity, EntityType type)
 {
@@ -194,7 +195,8 @@ Entity *yeGetStr(Entity *entity, const char *name)
     DPRINT_ERR("can not find entity fot %s\n", name);
     return NULL;
     }
-  DPRINT_INFO("finding entity %s in entity %s\t[%s:%d]\n", name, tryGetEntityName(entity), __FILE__, __LINE__);
+  DPRINT_INFO("finding entity %s in entity %s\t[%s:%d]\n", name,
+	      tryGetEntityName(entity), __FILE__, __LINE__);
   i = findIdxPoint(name);
   return (i != -1) ?
     (yeGet(yeGetIdxFastWithEnd(entity, name, i), name + i + 1)) :
@@ -428,7 +430,8 @@ Entity *yeCreate(EntityType type, Entity *father, EntityType typeAyyar)
     case FUNCTION:
       return (yeCreateFunction(NULL, father));
     default:
-      DPRINT_ERR( "%s generic constructor not yet implemented\n", yeTypeToString(type));
+      DPRINT_ERR( "%s generic constructor not yet implemented\n",
+		  yeTypeToString(type));
       break;
     }
   return (NULL);
@@ -441,7 +444,9 @@ Entity *yeCreate(EntityType type, Entity *father, EntityType typeAyyar)
  * @param arraytype the type of the ArrayEntity's values
  * @return the ArrayEntity
  */
-static ArrayEntity	*manageArrayInternal(ArrayEntity *entity, unsigned int size, EntityType arrayType)
+static ArrayEntity	*manageArrayInternal(ArrayEntity *entity,
+					     unsigned int size,
+					     EntityType arrayType)
 {
   unsigned int	i;
   char	buf[1024];
@@ -493,7 +498,8 @@ void	yePushBack(Entity *entity, Entity *toPush)
   EntityType arrayType = YINT;
 
   if (!checkType(entity, ARRAY)) {
-    DPRINT_ERR("yePushBack: bad entity, should be of type array instead of %s\n", yeTypeToString( yeType(entity)));
+    DPRINT_ERR("yePushBack: bad entity, should be of type array instead of %s\n",
+	       yeTypeToString( yeType(entity)));
     return;
   }
   len = yeLen(entity);
@@ -833,7 +839,8 @@ Entity*		yeCopy(Entity* src, Entity* dest)
 
   if (src != NULL && dest != NULL
       && yeType(src) == yeType(dest)) {
-    DPRINT_INFO("\tentity '%s' are '%s'\n", yePrintableName(src), yeTypeToString(yeType(src)));
+    DPRINT_INFO("\tentity '%s' are '%s'\n", yePrintableName(src),
+		yeTypeToString(yeType(src)));
     switch (yeType(src))
     {
     case STRUCT:
@@ -847,7 +854,8 @@ Entity*		yeCopy(Entity* src, Entity* dest)
       break;
     case YSTRING:
       strVal = yeGetString(src);
-      DPRINT_INFO("\t\tvalue is string \"%s\"\n", (strVal != NULL) ? strVal : "null");
+      DPRINT_INFO("\t\tvalue is string \"%s\"\n",
+		  (strVal != NULL) ? strVal : "null");
       yeSetString(dest, strVal);
       break;
     case ARRAY:
@@ -887,7 +895,8 @@ StructEntity*		yeCopyStruct(StructEntity* src, StructEntity* dest)
 
     if (src == NULL || dest == NULL)
       return NULL;
-    DPRINT_INFO("There is %d attributes in '%s'\n", yeLen((Entity*)src), tryGetStructEntityName((const Entity*)src));
+    DPRINT_INFO("There is %d attributes in '%s'\n", yeLen((Entity*)src),
+		yePrintableStructName((const Entity*)src));
     for (i = 0; i < yeLen((Entity*)src) && i < yeLen((Entity*)dest); i++)
       {
 	yeCopy(src->values[i], dest->values[i]);
@@ -926,12 +935,15 @@ int yeToString(Entity *entity, char *buf, int sizeBuf)
       ETS_RETURN (snprintf(buf, sizeBuf, "%f", yeGetFloat(entity)));
     case FUNCTION: 
       if (yeGetFunction(entity) == NULL)
-	ETS_RETURN (snprintf(buf, sizeBuf, "function %s: (null)", yePrintableName(entity)));
-      retETS = snprintf(buf, sizeBuf, "function %s: nb arg: %d\n", yePrintableName(entity), yeFunctionNumberArgs(entity));
+	ETS_RETURN (snprintf(buf, sizeBuf, "function %s: (null)",
+			     yePrintableName(entity)));
+      retETS = snprintf(buf, sizeBuf, "function %s: nb arg: %d\n",
+			yePrintableName(entity), yeFunctionNumberArgs(entity));
       if (retETS < 0)
 	goto error;
       ETS_INCR_RET(retETS);
-      retETS = snprintf(buf, sizeBuf, "function to call: %s", yeGetFunction(entity));
+      retETS = snprintf(buf, sizeBuf, "function to call: %s",
+			yeGetFunction(entity));
       if (retETS < 0)
 	goto error;
       ETS_INCR_RET(retETS);
@@ -970,7 +982,8 @@ int yeToString(Entity *entity, char *buf, int sizeBuf)
       for (i = 0; i < yeLen(entity); ++i)
 	{
 	  /* printf("in for\n"); */
-	  retETS = snprintf(buf, sizeBuf, "%s : ", yePrintableName(yeGetIdx(entity, i)));
+	  retETS = snprintf(buf, sizeBuf, "%s : ",
+			    yePrintableName(yeGetIdx(entity, i)));
 	  if (retETS < 0)
 	    goto error;
 	  /* printf("cur buf(name): %s\n", buf); */
