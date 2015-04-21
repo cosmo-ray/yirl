@@ -1,16 +1,11 @@
 #include <stdlib.h>
 #include <glib.h>
 #include "entity.h"
+#include "tests.h"
 
-
-static void lifecycle(void)
+int main(int argc, char **argv)
 {
-  Entity *test = yeCreateStruct(NULL);
-  g_assert(test);
-  yeDestroy(test);
-}
-
-int main(void)
-{
-  lifecycle();
+  g_test_init(&argc, &argv, NULL);
+  g_test_add_func("/entity/lifecycle/simple", lifecycle);
+  g_test_run();
 }
