@@ -123,7 +123,7 @@ Entity *yeGetIdx(Entity *entity, unsigned int index)
   }
   if (tmp->type == STATIC) {
     ((StaticEntity *)tmp)->value->name = tmp->name;
-    ((StaticEntity *)tmp)->value->father = tmp->father;
+    ((StaticEntity *)tmp)->value->fathers = tmp->fathers;
     return (((StaticEntity *)tmp)->value);
   }
   return (tmp);
@@ -205,7 +205,7 @@ Entity *yeGetStr(Entity *entity, const char *name)
 
 /**
  * @param value   value of the InEntity
- * @param father  the parent entity of the new entity
+ * @param fathers  the parent entity of the new entity
  * @return  return the new created entity
  */
 Entity *yeCreateInt(int value, Entity *father)
@@ -219,7 +219,7 @@ Entity *yeCreateInt(int value, Entity *father)
 
 /**
  * @param contentType   the type of the content
- * @param father        the father of the created entity
+ * @param fathers        the fathers of the created entity
  * @return  return a new ArrayEntity 
  */
 Entity *yeCreateArray(EntityType contentType, Entity *father)
@@ -236,7 +236,7 @@ Entity *yeCreateArray(EntityType contentType, Entity *father)
 
 /**
  * @param value
- * @param father  the father of the entity to create
+ * @param fathers  the fathers of the entity to create
  * @return  a new StaticEntity
  */
 Entity *yeCreateStatic(Entity *value, Entity *father)
@@ -250,7 +250,7 @@ Entity *yeCreateStatic(Entity *value, Entity *father)
 
 /**
  * @param value
- * @param father  the father of the entity to create
+ * @param fathers  the fathers of the entity to create
  * @return  a new FloatEntity
  */
 Entity *yeCreateFloat(double value, Entity *father)
@@ -264,7 +264,7 @@ Entity *yeCreateFloat(double value, Entity *father)
 
 /**
  * @param value
- * @param father  the father of the entity to create
+ * @param fathers  the fathers of the entity to create
  * @return  a new StructEntity
  */
 Entity *yeCreateStruct(Entity *father)
@@ -279,7 +279,7 @@ Entity *yeCreateStruct(Entity *father)
 
 /**
  * @param value   the name of the function
- * @param father  the father of the entity to create
+ * @param fathers  the fathers of the entity to create
  * @return  a new FunctionEntity
  */
 Entity *yeCreateFunction(const char *value, Entity *father)
@@ -300,7 +300,7 @@ Entity *yeCreateFunction(const char *value, Entity *father)
 
 /**
  * @param value
- * @param father  the father of the entity to create
+ * @param fathers  the fathers of the entity to create
  * @return  a new StringEntity
  */
 Entity *yeCreateString(const char *string, Entity *father)
@@ -316,6 +316,12 @@ Entity *yeCreateString(const char *string, Entity *father)
     ret->len = strlen(string);
   }
   return ((Entity *)ret);
+}
+
+static void destroyChild(Entity *entity)
+{
+  for (int i = 0, end = yeLen(entity); i < end; ++i)
+    yeDestroy(yeGet(entity, i));
 }
 
 /**
@@ -363,17 +369,8 @@ void yeDestroyString(Entity *entity)
  */
 void yeDestroyStruct(Entity *entity)
 {
-  //TODO: free nested entity
+  destroyChild(entity);
   YE_DESTROY_ENTITY(entity, StructEntity);
-}
-
-/**
- * @TODO: TO IMPLEMENT
- * @param entity
- */
-void yeDestroyRef(Entity *entity)
-{
-  YE_DECR_REF(entity);
 }
 
 /**
@@ -390,13 +387,7 @@ void yeDestroyStatic(Entity *entity)
  */
 void yeDestroyArray(Entity *entity)
 {
-  unsigned int	i = 0;
-
-  while (i < ((ArrayEntity *)entity)->len)
-  {
-    destroyTab[((ArrayEntity *)entity)->contentType](((ArrayEntity *)entity)->values[i]);
-    ++i;
-  }
+  destroyChild(entity);
   YE_DESTROY_ENTITY(entity, ArrayEntity);
 }
 
@@ -408,7 +399,7 @@ void yeDestroy(Entity *entity)
 /**
  * Create a new entity of type <type>
  * @param type        the type of the entity we want to create
- * @param father      the father of the entity to create
+ * @param fathers      the fathers of the entity to create
  * @param typeAyyar   the type of content to create an ArrayEntity
  */
 Entity *yeCreate(EntityType type, Entity *father, EntityType typeAyyar)
@@ -559,12 +550,23 @@ Entity *yePopBack(Entity *entity)
   return (ret);
 }
 
+static void yeAttachFather(Entity *father, Entity *ref)
+{
+  if (father == NULL || ref == NULL)
+    return;
+  if (father->fathers == NULL)
+    father->fathers = malloc(sizeof(Entity *));
+  else
+    father->fathers = realloc(father->fathers, sizeof(Entity *) * father->refCount);
+  father->fathers[father->refCount] = ref;
+}
+
 /**
  * Set basic information to the entity <entity>
  * @param entity  the entity to set the basic informations
  * @param name    the name to set
  * @param type    the type of the entity
- * @param father  the parent entity of <entity>
+ * @param fathers  the parent entity of <entity>
  * @return the entity <entity>
  */
 Entity *yeInit(Entity *entity, const char *name, EntityType type, Entity *father)
@@ -579,7 +581,8 @@ Entity *yeInit(Entity *entity, const char *name, EntityType type, Entity *father
     entity->name = strdup(name);
   }
   entity->type = type;
-  entity->father = father;
+  entity->fathers = NULL;
+  yeAttachFather(father, entity);
   return (entity);
 }
 
@@ -600,6 +603,17 @@ void	yeSetString(Entity *entity, const char *val)
     ((StringEntity *)entity)->value = NULL;
     ((StringEntity *)entity)->len = 0;
   }
+}
+
+int yeAttach(Entity *on, Entity *entity, unsigned int idx)
+{
+  if (on->type != ARRAY || on->type != STRUCT)
+    return -1;
+  if (yeLen(on) >= idx)
+    return -1;
+  YE_TO_ARRAY(on)->values[idx] = entity;
+  yeAttachFather(on, entity);
+  return 0;
 }
 
 void	yeSetStringAt(Entity *entity, unsigned int index, const char *value)
@@ -797,11 +811,11 @@ const char *yeName(const Entity *entity)
 
 /**
  * @param entity
- * @return the entity's father
+ * @return the entity's fathers
  */
-Entity *yeFather(Entity *entity)
+Entity **yeFathers(Entity *entity)
 {
-  return (entity->father);
+  return (entity->fathers);
 }
 
 /**

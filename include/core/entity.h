@@ -86,7 +86,7 @@ extern "C"
 #define	ENTITY_HEADER				\
   EntityType	type;				\
   const char	*name;				\
-  struct Entity	*father;			\
+  struct Entity	**fathers;			\
   unsigned int refCount;
 
   /* macro for perf purpose */
@@ -100,8 +100,10 @@ extern "C"
 
 #define YE_DESTROY_ENTITY(entity, type) do {	\
     YE_DECR_REF(entity);			\
-    if (entity->refCount <= 0)			\
+    if (entity->refCount <= 0) {		\
+      free(entity->fathers);			\
       free(((type *)entity));			\
+    }						\
   } while (0);
   
 #define YE_ALLOC_ENTITY(ret, type) do {		\
@@ -232,18 +234,18 @@ extern "C"
   /**
    * function who alloc an entity and set it to  0, "" or NULL
    */
-  Entity *yeCreate(EntityType type, Entity *father, EntityType typeArray) WEAK;
+  Entity *yeCreate(EntityType type, Entity *fathers, EntityType typeArray) WEAK;
 
    /** Ensemble de fonction pour cree et detruire chaque type d'entite.
     * Cannot initialise a structure in thers functions because the data are to complex
     */
-  Entity *yeCreateStruct(Entity *father) WEAK;
-  Entity *yeCreateInt(int value, Entity *father) WEAK;
-  Entity *yeCreateFloat(double value, Entity *father) WEAK;
-  Entity *yeCreateString(const char *string, Entity *father) WEAK;
-  Entity *yeCreateFunction(const char *string, Entity *father) WEAK;
-  Entity *yeCreateArray(EntityType contentType, Entity *father) WEAK;
-  Entity *yeCreateStatic(Entity *value, Entity *father) WEAK;
+  Entity *yeCreateStruct(Entity *fathers) WEAK;
+  Entity *yeCreateInt(int value, Entity *fathers) WEAK;
+  Entity *yeCreateFloat(double value, Entity *fathers) WEAK;
+  Entity *yeCreateString(const char *string, Entity *fathers) WEAK;
+  Entity *yeCreateFunction(const char *string, Entity *fathers) WEAK;
+  Entity *yeCreateArray(EntityType contentType, Entity *fathers) WEAK;
+  Entity *yeCreateStatic(Entity *value, Entity *fathers) WEAK;
 
   void yeDestroy(Entity *entity) WEAK;
   void yeDestroyStruct(Entity *entity) WEAK;
@@ -282,10 +284,10 @@ tion about the arguments of a function
   
 
   Entity *yeInit(Entity *entity, const char *name, EntityType type, Entity *father)  WEAK;
+
   /**
    * set to a value to the index if the entity is an array or a generic array
    */
-  
   int	yeSetIntAt(Entity *entity, unsigned int index, int value) WEAK;
   int	yeSetFloatAt(Entity *entity, unsigned int index, double value) WEAK;
   void	yeSetStringAt(Entity *entity, unsigned int index, const char *value) WEAK;
@@ -293,17 +295,17 @@ tion about the arguments of a function
   int	yeSetFloatAtStrIdx(Entity *entity, const char *index, double value) WEAK;
   void	yeSetStringAtStrIdx(Entity *entity, const char *index, const char *value) WEAK;
 
-  
+
+  int yeAttach(Entity *on, Entity *entity, unsigned int idx);
+
 #ifdef __cplusplus
 extern "C++"
 {
   void yeSetAt(Entity *entity, unsigned int index, const char *value) WEAK;
   void yeSetAt(Entity *entity, unsigned int index, int value) WEAK;
-  void yeSetAt(Entity *entity, unsigned int index, Entity *value) WEAK;
   void yeSetAt(Entity *entity, unsigned int index, float value) WEAK;
   void yeSetAt(Entity *entity, const char *index, const char *value) WEAK;
   void yeSetAt(Entity *entity, const char *index, int value) WEAK;
-  void yeSetAt(Entity *entity, const char *index, Entity *value) WEAK;
   void yeSetAt(Entity *entity, const char *index, float value) WEAK;
 }
 #else
@@ -318,12 +320,12 @@ extern "C++"
   
   unsigned int yeLen(Entity *entity) WEAK;;
   /*Geter pour les entites 
-    certain sont particuliere comme get Father qui permet de recuperer entite pere d'une entite (entite pere est celle qui a appeler/cree l'entite en parametre*/
+    certain sont particuliere comme get Fathers qui permet de recuperer entite pere d'une entite (entite pere est celle qui a appeler/cree l'entite en parametre*/
   int	yeGetInt(Entity *entity) WEAK;
   double yeGetFloat(Entity *entity) WEAK;
   const char *yeGetString(Entity *entity) WEAK;
   const char *yeName(const Entity *entity) WEAK;
-  Entity *yeFather(Entity *entity) WEAK;
+  Entity **yeFathers(Entity *entity) WEAK;
   const char	*yeGetFunction(Entity *entity) WEAK;
   int	yeFunctionNumberArgs(const Entity *entity) WEAK;
   EntityType yeGetFunctionArg(const Entity *entity, int i) WEAK;
