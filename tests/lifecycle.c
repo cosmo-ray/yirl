@@ -15,7 +15,7 @@ void lifecycle(void)
   Entity *test3 = yeCreateFloat(1, NULL);
   Entity *test4 = yeCreateString("test", NULL);
   Entity *test5 = yeCreateFunction("funcName", NULL);
-  Entity *test6 = yeCreateArray(YINT, NULL);
+  Entity *test6 = yeCreateArray(NULL);
 
   g_assert(test1);
   g_assert(test2);

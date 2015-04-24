@@ -134,7 +134,6 @@ extern "C"
 
     unsigned int len;
     Entity	**values;
-    EntityType	contentType;
   } ArrayEntity;
 
   typedef	struct
@@ -226,7 +225,7 @@ extern "C"
   /**
    * change the capacity than the array can store and init it to 0, "" or NULL
    */
-  Entity	*yeExpandArray(Entity *entity, unsigned int size, EntityType arrayType) WEAK;
+  Entity	*yeExpandArray(Entity *entity, unsigned int size) WEAK;
   void	yePushBack(Entity *array, Entity *toPush) WEAK;
   Entity *yePopBack(Entity *array) WEAK;
   Entity *yeArrayRemove(Entity *array, Entity *toRemove);
@@ -234,7 +233,7 @@ extern "C"
   /**
    * function who alloc an entity and set it to  0, "" or NULL
    */
-  Entity *yeCreate(EntityType type, Entity *fathers, EntityType typeArray) WEAK;
+  Entity *yeCreate(EntityType type, Entity *fathers) WEAK;
 
    /** Ensemble de fonction pour cree et detruire chaque type d'entite.
     * Cannot initialise a structure in thers functions because the data are to complex
@@ -244,7 +243,7 @@ extern "C"
   Entity *yeCreateFloat(double value, Entity *fathers) WEAK;
   Entity *yeCreateString(const char *string, Entity *fathers) WEAK;
   Entity *yeCreateFunction(const char *string, Entity *fathers) WEAK;
-  Entity *yeCreateArray(EntityType contentType, Entity *fathers) WEAK;
+  Entity *yeCreateArray(Entity *fathers) WEAK;
   Entity *yeCreateStatic(Entity *value, Entity *fathers) WEAK;
 
   void yeDestroy(Entity *entity) WEAK;
@@ -329,7 +328,6 @@ extern "C++"
   const char	*yeGetFunction(Entity *entity) WEAK;
   int	yeFunctionNumberArgs(const Entity *entity) WEAK;
   EntityType yeGetFunctionArg(const Entity *entity, int i) WEAK;
-  EntityType yeContentType(const Entity *entity) WEAK;
 
   /* as yeName but return a printable result */
   const char *yePrintableName(const Entity *entity);

@@ -222,7 +222,7 @@ Entity *yeCreateInt(int value, Entity *father)
  * @param fathers        the fathers of the created entity
  * @return  return a new ArrayEntity 
  */
-Entity *yeCreateArray(EntityType contentType, Entity *father)
+Entity *yeCreateArray(Entity *father)
 {
   DPRINT_INFO("create array\n");
   ArrayEntity *ret;
@@ -230,7 +230,6 @@ Entity *yeCreateArray(EntityType contentType, Entity *father)
   yeInit((Entity *)ret, NULL, ARRAY, father);
   ret->len = 0;
   ret->values = NULL;
-  ret->contentType = contentType;
   return ((Entity *)ret);
 }
 
@@ -402,7 +401,7 @@ void yeDestroy(Entity *entity)
  * @param fathers      the fathers of the entity to create
  * @param typeAyyar   the type of content to create an ArrayEntity
  */
-Entity *yeCreate(EntityType type, Entity *father, EntityType typeAyyar)
+Entity *yeCreate(EntityType type, Entity *father)
 {
   switch (type)
     {
@@ -417,7 +416,7 @@ Entity *yeCreate(EntityType type, Entity *father, EntityType typeAyyar)
     case STATIC:
       return (yeCreateStatic(NULL, father));
     case ARRAY:
-      return (yeCreateArray(typeAyyar, father));
+      return (yeCreateArray(father));
     case FUNCTION:
       return (yeCreateFunction(NULL, father));
     default:
@@ -436,11 +435,9 @@ Entity *yeCreate(EntityType type, Entity *father, EntityType typeAyyar)
  * @return the ArrayEntity
  */
 static ArrayEntity	*manageArrayInternal(ArrayEntity *entity,
-					     unsigned int size,
-					     EntityType arrayType)
+					     unsigned int size)
 {
-  unsigned int	i;
-  char	buf[1024];
+  unsigned int	i = 0;
 
   if (entity->len == 0) {
     entity->values = malloc(sizeof(Entity *) * size);
@@ -449,14 +446,8 @@ static ArrayEntity	*manageArrayInternal(ArrayEntity *entity,
     entity->values = realloc(entity->values, sizeof(Entity *) * size);
     i = entity->len;
   }
-  while (i < size)
-  {
-    /* DPRINT_INFO("%s create a %d\n", entity->name, entity->contentType); */
-    entity->values[i] = yeCreate(entity->contentType, (Entity*)entity, arrayType );
-    snprintf(buf, 1024, "%s.At%di%d", entity->name, arrayType, i);
-    DPRINT_INFO("set name:%s\n", buf);
-    yeInit(entity->values[i], buf, entity->contentType, (Entity*)entity);
-    ++i;
+  for (; i < size; ++i) {
+    yeAttach(YE_TO_ENTITY(entity), NULL, i);
   }
   entity->len = size;
   return entity;
@@ -469,13 +460,13 @@ static ArrayEntity	*manageArrayInternal(ArrayEntity *entity,
  * @param arraytype the type of the ArrayEntity's values
  * @return the ArrayEntity if entity is an ArrayEntity, NULL otherwise
  */
-Entity *yeExpandArray(Entity *entity, unsigned int size, EntityType arrayType)
+Entity *yeExpandArray(Entity *entity, unsigned int size)
 {
   if (!checkType(entity, ARRAY)) {
     DPRINT_ERR("yeExpandArray: bad entity\n");
     return (NULL);
   }
-  return ((Entity*)manageArrayInternal((ArrayEntity*)entity, size, arrayType));
+  return ((Entity*)manageArrayInternal((ArrayEntity*)entity, size));
 }
 
 /**
@@ -486,7 +477,6 @@ Entity *yeExpandArray(Entity *entity, unsigned int size, EntityType arrayType)
 void	yePushBack(Entity *entity, Entity *toPush)
 {
   int	len;
-  EntityType arrayType = YINT;
 
   if (!checkType(entity, ARRAY)) {
     DPRINT_ERR("yePushBack: bad entity, should be of type array instead of %s\n",
@@ -494,11 +484,8 @@ void	yePushBack(Entity *entity, Entity *toPush)
     return;
   }
   len = yeLen(entity);
-  if (len > 1 && yeGet(entity, 0)->type == ARRAY)
-    arrayType = ((ArrayEntity *)yeGet(entity, 0))->contentType;
-
-  yeExpandArray(entity, len + 1, arrayType);
-  ((ArrayEntity *)entity)->values[len] = toPush;
+  yeExpandArray(entity, len + 1);
+  yeAttach(entity, toPush, len);
 }
 
 Entity *yeArrayRemove(Entity *array, Entity *toRemove)
@@ -533,7 +520,6 @@ Entity *yeArrayRemove(Entity *array, Entity *toRemove)
  */
 Entity *yePopBack(Entity *entity)
 {
-  EntityType arrayType = YINT;
   int	len;
   Entity *ret;
 
@@ -542,11 +528,8 @@ Entity *yePopBack(Entity *entity)
     return NULL;
   }
   len = yeLen(entity);
-  ret = yeGet(entity, 0);
-  if (len > 1 && ret->type == ARRAY)
-    arrayType = YE_TO_ARRAY(ret)->contentType;
   ret = yeGet(entity, len - 1);
-  yeExpandArray(entity, len - 1, arrayType);
+  yeExpandArray(entity, len - 1);
   return (ret);
 }
 
@@ -607,6 +590,8 @@ void	yeSetString(Entity *entity, const char *val)
 
 int yeAttach(Entity *on, Entity *entity, unsigned int idx)
 {
+  if (!on)
+    return -1;
   if (on->type != ARRAY || on->type != STRUCT)
     return -1;
   if (yeLen(on) >= idx)
@@ -715,18 +700,6 @@ int	yeSetFloat(Entity *entity, double value)
   }
   ((FloatEntity *)entity)->value = value;
   return (value);
-}
-
-/**
- * @param entity
- * @return the entity content type 
- */
-EntityType yeContentType(const Entity *entity)
-{
-  if (!checkType(entity, ARRAY)) {
-    RETURN_ERROR_BAD_TYPE("getContentType", entity, YINT);
-  }
-  return (((ArrayEntity*)entity)->contentType);
 }
 
 /**
