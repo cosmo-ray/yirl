@@ -165,7 +165,6 @@ extern "C"
     // the name of the function to call
     char	*value;
     unsigned int nArgs;
-    EntityType	*args; // including return value
   } FunctionEntity;
 
   typedef	struct
@@ -277,9 +276,8 @@ extern "C"
    * @brief set the informa
 tion about the arguments of a function
    * @param nArgs number of arguments
-   * @param args the argument list, sould be alocate first.
    */
-  void	yeSetFunctionArgs(Entity *entity, unsigned int nArgs, EntityType *args) WEAK;
+  void	yeSetFunctionArgs(Entity *entity, unsigned int nArgs) WEAK;
   
 
   Entity *yeInit(Entity *entity, const char *name, EntityType type, Entity *father)  WEAK;
@@ -327,7 +325,6 @@ extern "C++"
   Entity **yeFathers(Entity *entity) WEAK;
   const char	*yeGetFunction(Entity *entity) WEAK;
   int	yeFunctionNumberArgs(const Entity *entity) WEAK;
-  EntityType yeGetFunctionArg(const Entity *entity, int i) WEAK;
 
   /* as yeName but return a printable result */
   const char *yePrintableName(const Entity *entity);

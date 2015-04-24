@@ -287,7 +287,6 @@ Entity *yeCreateFunction(const char *value, Entity *father)
   YE_ALLOC_ENTITY(ret, FunctionEntity);
   yeInit((Entity *)ret, NULL, FUNCTION, father);
   ret->nArgs = 0;
-  ret->args = NULL;
   if (value == NULL)
     ret->value = NULL;
   else
@@ -344,9 +343,6 @@ void yeDestroyFloat(Entity *entity)
  */
 void yeDestroyFunction(Entity *entity)
 {
-  if (((FunctionEntity *)entity)->args != NULL &&
-      entity->refCount == 1)
-    free(((FunctionEntity *)entity)->args);
   YE_DESTROY_ENTITY(entity, FunctionEntity);
 }
 
@@ -643,7 +639,7 @@ int	yeSetFloatAtStrIdx(Entity *entity, const char *index, double value)
 void	yeUnsetFunction(Entity *entity)
 {
   yeSetFunction(entity, NULL);
-  yeSetFunctionArgs(entity, 0, NULL);
+  yeSetFunctionArgs(entity, 0);
 }
 
 /**
@@ -663,12 +659,9 @@ const char	*yeSetFunction(Entity *entity, const char *value)
   return (value);
 }
 
-void	yeSetFunctionArgs(Entity *entity, unsigned int nArgs, EntityType *args)
+void	yeSetFunctionArgs(Entity *entity, unsigned int nArgs)
 {
   ((FunctionEntity *)entity)->nArgs = nArgs;
-  if (((FunctionEntity *)entity)->args != NULL)
-    free(((FunctionEntity *)entity)->args);
-  ((FunctionEntity *)entity)->args = args;
 }
 
 
@@ -737,19 +730,6 @@ const char	*yeGetFunction(Entity *entity)
     RETURN_ERROR_BAD_TYPE("getFunctionVal", entity, NULL);
   }
   return YE_TO_FUNC(entity)->value;
-}
-
-EntityType yeGetFunctionArg(const Entity *entity, int i)
-{
-  if (!entity) {
-    DPRINT_WARN("yeGetFunctionArg: can not get arh from an NULL entity");
-    return (YINT);
-  }
-  if (i > yeFunctionNumberArgs(entity)) {
-      DPRINT_ERR("try to get an arguments superior to the number of argument in a function\n");
-      return (YINT);
-    }
-  return (YE_TO_FUNC(entity)->args[i]);
 }
 
 int	yeFunctionNumberArgs(const Entity *entity)
@@ -822,7 +802,6 @@ Entity*		yeCopy(Entity* src, Entity* dest)
 {
   const char* strVal = NULL;
   int	nArgs;
-  EntityType *args = NULL;
 
   if (src != NULL && dest != NULL
       && yeType(src) == yeType(dest)) {
@@ -850,18 +829,10 @@ Entity*		yeCopy(Entity* src, Entity* dest)
       break;
     case FUNCTION:
       nArgs = yeFunctionNumberArgs(src);
-      args = malloc(nArgs * sizeof(EntityType));
-
-      int i = 0;
-      while (i < nArgs)
-	{
-	  args[i] = yeGetFunctionArg(src, i);
-	  ++i;
-	}
       strVal = yeGetFunction(src);
       DPRINT_INFO("\t\tvalue is function '%s'\n", strVal);
       yeSetFunction(dest, strVal);
-      yeSetFunctionArgs(dest, nArgs, args);
+      yeSetFunctionArgs(dest, nArgs);
       break;
     case STATIC:
       DPRINT_WARN("Unimpleted case ! line %d\n", __LINE__);
