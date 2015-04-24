@@ -203,6 +203,12 @@ Entity *yeGetStr(Entity *entity, const char *name)
     (yeGetIdxFast(entity, name));
 }
 
+/* We want only one ref on a new entity */
+#define REAJUSTE_REF() do {			\
+  if (father)					\
+    ret->refCount -= 1;				\
+  } while (0);
+
 /**
  * @param value   value of the InEntity
  * @param fathers  the parent entity of the new entity
@@ -214,6 +220,7 @@ Entity *yeCreateInt(int value, Entity *father)
   YE_ALLOC_ENTITY(ret, IntEntity);
   yeInit((Entity *)ret, NULL, YINT, father);
   ret->value = value;
+  REAJUSTE_REF();
   return ((Entity *)ret);
 }
 
@@ -230,6 +237,7 @@ Entity *yeCreateArray(Entity *father)
   yeInit((Entity *)ret, NULL, ARRAY, father);
   ret->len = 0;
   ret->values = NULL;
+  REAJUSTE_REF();
   return ((Entity *)ret);
 }
 
@@ -244,6 +252,7 @@ Entity *yeCreateStatic(Entity *value, Entity *father)
   YE_ALLOC_ENTITY(ret, StaticEntity);
   yeInit((Entity *)ret, NULL, STATIC, father);
   ret->value = value;
+  REAJUSTE_REF();
   return ((Entity *)ret);
 }
 
@@ -258,6 +267,7 @@ Entity *yeCreateFloat(double value, Entity *father)
   YE_ALLOC_ENTITY(ret, FloatEntity);
   yeInit((Entity *)ret, NULL, YFLOAT, father);
   ret->value = value;
+  REAJUSTE_REF();
   return ((Entity *)ret);
 }
 
@@ -273,6 +283,7 @@ Entity *yeCreateStruct(Entity *father)
   yeInit(YE_TO_ENTITY(ret), NULL, STRUCT, father);
   ret->len = 0;
   ret->values = NULL;
+  REAJUSTE_REF();
   return (YE_TO_ENTITY(ret));
 }
 
@@ -291,6 +302,7 @@ Entity *yeCreateFunction(const char *value, Entity *father)
     ret->value = NULL;
   else
     ret->value = strdup(value);
+  REAJUSTE_REF();
   /* char buf[1024]; */
   /* entityToString((Entity *)ret, buf, 1024); */
   return ((Entity *)ret);
@@ -313,8 +325,11 @@ Entity *yeCreateString(const char *string, Entity *father)
     ret->value = strdup(string);
     ret->len = strlen(string);
   }
+  REAJUSTE_REF();
   return ((Entity *)ret);
 }
+
+#undef   REAJUSTE_REF
 
 static void destroyChild(Entity *entity)
 {
