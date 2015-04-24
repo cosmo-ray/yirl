@@ -1,14 +1,8 @@
 #include <glib.h>
 #include "entity.h"
-#include "tests.h"
+#include "tests.h"  
 
-#define LIFECYCLE_TEST(type)			\
-  Entity *test = yeCreate##type(NULL);		\
-  g_assert(test);				\
-  yeDestroy(test);				\
-  
-
-void lifecycle(void)
+void testLifecycleSimple(void)
 {
   Entity *test1 = yeCreateStruct(NULL);
   Entity *test2 = yeCreateInt(1, NULL);

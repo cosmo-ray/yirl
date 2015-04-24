@@ -1,6 +1,6 @@
 #ifndef _TESTS_H_
 #define _TESTS_H_
 
-void lifecycle(void);
+void testLifecycleSimple(void);
 
 #endif
