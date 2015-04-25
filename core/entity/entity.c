@@ -331,10 +331,29 @@ Entity *yeCreateString(const char *string, Entity *father)
 
 #undef   REAJUSTE_REF
 
+static void yeRemoveFather(Entity *entity, Entity *father)
+{
+  Entity **fathers = entity->fathers;
+
+  // if the father is in last position, so we don't care about it because
+  // we decr_ref at the end.
+  for (int i = 0, end = entity->refCount - 1; i < end ; ++i)
+    {
+      if (fathers[i] == father) {
+	fathers[i] = fathers[end];
+	break;
+      }
+    }
+  YE_DECR_REF(entity);
+}
+
 static void destroyChild(Entity *entity)
 {
-  for (int i = 0, end = yeLen(entity); i < end; ++i)
-    yeDestroy(yeGet(entity, i));
+  for (int i = 0, end = yeLen(entity); i < end; ++i) {
+    Entity *tmp = yeGet(entity, i);
+    yeRemoveFather(tmp, entity);
+    yeDestroy(tmp);
+  }
 }
 
 /**
@@ -489,7 +508,7 @@ void	yePushBack(Entity *entity, Entity *toPush)
 {
   int	len;
 
-  if (!checkType(entity, ARRAY)) {
+  if (!checkType(entity, ARRAY) || checkType(entity, STRUCT)) {
     DPRINT_ERR("yePushBack: bad entity, should be of type array instead of %s\n",
 	       yeTypeToString( yeType(entity)));
     return;
@@ -607,6 +626,8 @@ int yeAttach(Entity *on, Entity *entity, unsigned int idx)
     return -1;
   if (yeLen(on) >= idx)
     return -1;
+  if (YE_TO_ARRAY(on)->values[idx])
+    
   YE_TO_ARRAY(on)->values[idx] = entity;
   yeAttachFather(on, entity);
   return 0;
