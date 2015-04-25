@@ -686,15 +686,6 @@ int	yeSetFloatAtStrIdx(Entity *entity, const char *index, double value)
   return yeSetFloat(yeGet(entity, index), value);
 }
 
-/* int	setElemAt(Entity *entity, int index, const char *value) */
-/* { */
-/*     switch (entity->type) */
-/*     { */
-      
-/*     } */
-/* } */
-
-
 void	yeUnsetFunction(Entity *entity)
 {
   yeSetFunction(entity, NULL);
