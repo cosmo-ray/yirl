@@ -89,27 +89,6 @@ extern "C"
   struct Entity	**fathers;			\
   unsigned int refCount;
 
-  /* macro for perf purpose */
-#define YE_INCR_REF(entity) do {		\
-    entity->refCount += 1;			\
-  } while (0)
-  
-#define YE_DECR_REF(entity) do {		\
-    entity->refCount -= 1;		       	\
-  } while (0)
-
-#define YE_DESTROY_ENTITY(entity, type) do {	\
-    YE_DECR_REF(entity);			\
-    if (entity->refCount <= 0) {		\
-      free(entity->fathers);			\
-      free(((type *)entity));			\
-    }						\
-  } while (0);
-  
-#define YE_ALLOC_ENTITY(ret, type) do {		\
-    ret = malloc(sizeof(type));			\
-    ret->refCount = 1;				\
-  } while (0);
 
   typedef struct Entity
   {

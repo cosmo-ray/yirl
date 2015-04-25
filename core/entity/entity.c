@@ -20,6 +20,29 @@
 #include	"entity.h"
 #include	"debug_core.h"
 
+  /* macro for perf purpose */
+#define YE_INCR_REF(entity) do {		\
+    entity->refCount += 1;			\
+  } while (0)
+  
+#define YE_DECR_REF(entity) do {		\
+    entity->refCount -= 1;		       	\
+  } while (0)
+
+#define YE_DESTROY_ENTITY(entity, type) do {	\
+    YE_DECR_REF(entity);			\
+    if (entity->refCount <= 0) {		\
+      free(entity->fathers);			\
+      free(((type *)entity));			\
+    }						\
+  } while (0);
+  
+#define YE_ALLOC_ENTITY(ret, type) do {		\
+    ret = malloc(sizeof(type));			\
+    ret->refCount = 1;				\
+  } while (0);
+
+
 /**
  * contain all the functions use to destruct entity
  * Must be in the same order than the EntityType Enum
@@ -1017,3 +1040,13 @@ int yeToString(Entity *entity, char *buf, int sizeBuf)
 #undef	ETS_REC_CALL
 #undef	ETS_RETURN
 #undef	ETS_INCR_RET
+
+
+  /* macro for perf purpose */
+#undef YE_INCR_REF
+  
+#undef YE_DECR_REF
+
+#undef YE_DESTROY_ENTITY
+  
+#undef YE_ALLOC_ENTITY
