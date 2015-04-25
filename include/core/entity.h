@@ -206,7 +206,7 @@ extern "C"
   Entity	*yeExpandArray(Entity *entity, unsigned int size) WEAK;
   void	yePushBack(Entity *array, Entity *toPush) WEAK;
   Entity *yePopBack(Entity *array) WEAK;
-  Entity *yeArrayRemove(Entity *array, Entity *toRemove);
+  Entity *yeRemoveChild(Entity *array, Entity *toRemove);
   
   /**
    * function who alloc an entity and set it to  0, "" or NULL

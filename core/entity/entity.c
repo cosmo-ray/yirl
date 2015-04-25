@@ -370,7 +370,7 @@ static void yeRemoveFather(Entity *entity, Entity *father)
   YE_DECR_REF(entity);
 }
 
-static void destroyChild(Entity *entity)
+static void destroyChilds(Entity *entity)
 {
   for (int i = 0, end = yeLen(entity); i < end; ++i) {
     Entity *tmp = yeGet(entity, i);
@@ -421,7 +421,7 @@ void yeDestroyString(Entity *entity)
  */
 void yeDestroyStruct(Entity *entity)
 {
-  destroyChild(entity);
+  destroyChilds(entity);
   YE_DESTROY_ENTITY(entity, StructEntity);
 }
 
@@ -439,12 +439,15 @@ void yeDestroyStatic(Entity *entity)
  */
 void yeDestroyArray(Entity *entity)
 {
-  destroyChild(entity);
+  destroyChilds(entity);
   YE_DESTROY_ENTITY(entity, ArrayEntity);
 }
 
 void yeDestroy(Entity *entity)
 {
+  if (entity->fathers != NULL)
+    DPRINT_ERR("yeDestroy: can not destroy entity with father,"
+	       "use yeDestroyChild instead");
   destroyTab[entity->type](entity);
 }
 
@@ -541,14 +544,14 @@ void	yePushBack(Entity *entity, Entity *toPush)
   yeAttach(entity, toPush, len);
 }
 
-Entity *yeArrayRemove(Entity *array, Entity *toRemove)
+Entity *yeRemoveChild(Entity *array, Entity *toRemove)
 {
   int	len;
   Entity *tmp = NULL;
   Entity *ret;
 
-  if (!checkType(array, ARRAY)) {
-    DPRINT_ERR("yeArrayRemove: bad entity\n");
+  if (!checkType(array, ARRAY) || !checkType(array, STRUCT)) {
+    DPRINT_ERR("yeRemoveChild: bad entity\n");
     return NULL;
   }
   len = yeLen(array);
