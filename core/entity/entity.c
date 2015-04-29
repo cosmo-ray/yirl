@@ -20,6 +20,13 @@
 #include	"entity.h"
 #include	"debug_core.h"
 
+inline static void yeDestroyInternal(Entity *entity);
+
+/**
+ * Here some macros to mutualise the code of entity
+ */
+#define RETURN_ERROR_BAD_TYPE(function, entity, returnValue) DPRINT_ERR("%s: bad entity, this entity is of type %s\n", (function), yeTypeToString(yeType(entity))); return (returnValue)
+
   /* macro for perf purpose */
 #define YE_INCR_REF(entity) do {		\
     entity->refCount += 1;			\
@@ -243,7 +250,7 @@ Entity *yeCreateInt(int value, Entity *father)
   YE_ALLOC_ENTITY(ret, IntEntity);
   yeInit((Entity *)ret, NULL, YINT, father);
   ret->value = value;
-  REAJUSTE_REF();
+  /* REAJUSTE_REF(); */
   return ((Entity *)ret);
 }
 
@@ -260,7 +267,7 @@ Entity *yeCreateArray(Entity *father)
   yeInit((Entity *)ret, NULL, ARRAY, father);
   ret->len = 0;
   ret->values = NULL;
-  REAJUSTE_REF();
+  /* REAJUSTE_REF(); */
   return ((Entity *)ret);
 }
 
@@ -275,7 +282,7 @@ Entity *yeCreateStatic(Entity *value, Entity *father)
   YE_ALLOC_ENTITY(ret, StaticEntity);
   yeInit((Entity *)ret, NULL, STATIC, father);
   ret->value = value;
-  REAJUSTE_REF();
+  /* REAJUSTE_REF(); */
   return ((Entity *)ret);
 }
 
@@ -290,7 +297,7 @@ Entity *yeCreateFloat(double value, Entity *father)
   YE_ALLOC_ENTITY(ret, FloatEntity);
   yeInit((Entity *)ret, NULL, YFLOAT, father);
   ret->value = value;
-  REAJUSTE_REF();
+  /* REAJUSTE_REF(); */
   return ((Entity *)ret);
 }
 
@@ -306,7 +313,7 @@ Entity *yeCreateStruct(Entity *father)
   yeInit(YE_TO_ENTITY(ret), NULL, STRUCT, father);
   ret->len = 0;
   ret->values = NULL;
-  REAJUSTE_REF();
+  /* REAJUSTE_REF(); */
   return (YE_TO_ENTITY(ret));
 }
 
@@ -325,7 +332,7 @@ Entity *yeCreateFunction(const char *value, Entity *father)
     ret->value = NULL;
   else
     ret->value = strdup(value);
-  REAJUSTE_REF();
+  /* REAJUSTE_REF(); */
   /* char buf[1024]; */
   /* entityToString((Entity *)ret, buf, 1024); */
   return ((Entity *)ret);
@@ -348,7 +355,7 @@ Entity *yeCreateString(const char *string, Entity *father)
     ret->value = strdup(string);
     ret->len = strlen(string);
   }
-  REAJUSTE_REF();
+  /* REAJUSTE_REF(); */
   return ((Entity *)ret);
 }
 
@@ -367,7 +374,7 @@ static void yeRemoveFather(Entity *entity, Entity *father)
 	break;
       }
     }
-  YE_DECR_REF(entity);
+  entity->nbFathers -= 1;
 }
 
 static void destroyChilds(Entity *entity)
@@ -375,7 +382,7 @@ static void destroyChilds(Entity *entity)
   for (int i = 0, end = yeLen(entity); i < end; ++i) {
     Entity *tmp = yeGet(entity, i);
     yeRemoveFather(tmp, entity);
-    yeDestroy(tmp);
+    yeDestroyInternal(tmp);
   }
 }
 
@@ -400,6 +407,10 @@ void yeDestroyFloat(Entity *entity)
  */
 void yeDestroyFunction(Entity *entity)
 {
+  if (YE_TO_FUNC(entity)->value != NULL &&
+      entity->refCount == 1) {
+    free(YE_TO_FUNC(entity)->value);
+  }
   YE_DESTROY_ENTITY(entity, FunctionEntity);
 }
 
@@ -421,7 +432,10 @@ void yeDestroyString(Entity *entity)
  */
 void yeDestroyStruct(Entity *entity)
 {
-  destroyChilds(entity);
+  if(entity->refCount == 1) {
+    destroyChilds(entity);
+    free(YE_TO_STRUCT(entity)->values);
+  }
   YE_DESTROY_ENTITY(entity, StructEntity);
 }
 
@@ -439,16 +453,21 @@ void yeDestroyStatic(Entity *entity)
  */
 void yeDestroyArray(Entity *entity)
 {
-  destroyChilds(entity);
+  if(entity->refCount == 1) {
+    destroyChilds(entity);
+    free(YE_TO_ARRAY(entity)->values);
+  }
   YE_DESTROY_ENTITY(entity, ArrayEntity);
+}
+
+inline static void yeDestroyInternal(Entity *entity)
+{
+  destroyTab[entity->type](entity);
 }
 
 void yeDestroy(Entity *entity)
 {
-  if (entity->fathers != NULL)
-    DPRINT_ERR("yeDestroy: can not destroy entity with father,"
-	       "use yeDestroyChild instead");
-  destroyTab[entity->type](entity);
+  yeDestroyInternal(entity);
 }
 
 /**
@@ -502,10 +521,10 @@ static ArrayEntity	*manageArrayInternal(ArrayEntity *entity,
     entity->values = realloc(entity->values, sizeof(Entity *) * size);
     i = entity->len;
   }
-  for (; i < size; ++i) {
-    yeAttach(YE_TO_ENTITY(entity), NULL, i);
-  }
   entity->len = size;
+  for (; i < size; ++i) {
+    entity->values[i] = NULL;
+  }
   return entity;
 }
 
@@ -518,9 +537,9 @@ static ArrayEntity	*manageArrayInternal(ArrayEntity *entity,
  */
 Entity *yeExpandArray(Entity *entity, unsigned int size)
 {
-  if (!checkType(entity, ARRAY)) {
+  if (!checkType(entity, ARRAY) && !checkType(entity, STRUCT)) {
     DPRINT_ERR("yeExpandArray: bad entity\n");
-    return (NULL);
+    return NULL;
   }
   return ((Entity*)manageArrayInternal((ArrayEntity*)entity, size));
 }
@@ -530,18 +549,24 @@ Entity *yeExpandArray(Entity *entity, unsigned int size)
  * @param entity  the entity where we will add a new entity
  * @param toPush  the entity to add
  */
-void	yePushBack(Entity *entity, Entity *toPush)
+int	yePushBack(Entity *entity, Entity *toPush)
 {
   int	len;
 
-  if (!checkType(entity, ARRAY) || checkType(entity, STRUCT)) {
-    DPRINT_ERR("yePushBack: bad entity, should be of type array instead of %s\n",
+  if (!entity || !toPush)
+    return -1;
+  if (!checkType(entity, ARRAY) && !checkType(entity, STRUCT)) {
+    DPRINT_ERR("yePushBack: bad entity, "
+	       "should be of type array or struct instead of %s\n",
 	       yeTypeToString( yeType(entity)));
-    return;
+    return -1;
   }
   len = yeLen(entity);
-  yeExpandArray(entity, len + 1);
-  yeAttach(entity, toPush, len);
+  if (yeExpandArray(entity, len + 1) == NULL)
+    return -1;
+  if (yeAttach(entity, toPush, len))
+    return -1;
+  return 0;
 }
 
 Entity *yeRemoveChild(Entity *array, Entity *toRemove)
@@ -550,7 +575,7 @@ Entity *yeRemoveChild(Entity *array, Entity *toRemove)
   Entity *tmp = NULL;
   Entity *ret;
 
-  if (!checkType(array, ARRAY) || !checkType(array, STRUCT)) {
+  if (!checkType(array, ARRAY) && !checkType(array, STRUCT)) {
     DPRINT_ERR("yeRemoveChild: bad entity\n");
     return NULL;
   }
@@ -579,7 +604,7 @@ Entity *yePopBack(Entity *entity)
   int	len;
   Entity *ret;
 
-  if (!checkType(entity, ARRAY)) {
+  if (!checkType(entity, ARRAY) && !checkType(entity, STRUCT)) {
     DPRINT_ERR("yePopBack: bad entity\n");
     return NULL;
   }
@@ -589,15 +614,16 @@ Entity *yePopBack(Entity *entity)
   return (ret);
 }
 
-static void yeAttachFather(Entity *father, Entity *ref)
+static void yeAttachFather(Entity *entity, Entity *father)
 {
-  if (father == NULL || ref == NULL)
+  if (entity == NULL || father == NULL)
     return;
-  if (father->fathers == NULL)
-    father->fathers = malloc(sizeof(Entity *));
+  if (entity->fathers == NULL)
+    entity->fathers = malloc(sizeof(Entity *));
   else
-    father->fathers = realloc(father->fathers, sizeof(Entity *) * father->refCount);
-  father->fathers[father->refCount] = ref;
+    entity->fathers = realloc(entity->fathers, sizeof(Entity *) * entity->nbFathers);
+  entity->fathers[entity->nbFathers] = father;
+  entity->nbFathers += 1;
 }
 
 /**
@@ -620,8 +646,10 @@ Entity *yeInit(Entity *entity, const char *name, EntityType type, Entity *father
     entity->name = strdup(name);
   }
   entity->type = type;
+  entity->nbFathers = 0;
   entity->fathers = NULL;
-  yeAttachFather(father, entity);
+  if (!yePushBack(father, entity))
+    YE_DECR_REF(entity);
   return (entity);
 }
 
@@ -648,14 +676,15 @@ int yeAttach(Entity *on, Entity *entity, unsigned int idx)
 {
   if (!on)
     return -1;
-  if (on->type != ARRAY || on->type != STRUCT)
+  if (on->type != ARRAY && on->type != STRUCT)
     return -1;
-  if (yeLen(on) >= idx)
+  if (idx >= yeLen(on))
     return -1;
   if (YE_TO_ARRAY(on)->values[idx])
-    
+    yeDestroyInternal(YE_TO_ARRAY(on)->values[idx]);
   YE_TO_ARRAY(on)->values[idx] = entity;
-  yeAttachFather(on, entity);
+  yeAttachFather(entity, on);
+  entity->refCount += 1;
   return 0;
 }
 
@@ -1044,3 +1073,5 @@ int yeToString(Entity *entity, char *buf, int sizeBuf)
 #undef YE_DESTROY_ENTITY
   
 #undef YE_ALLOC_ENTITY
+
+#undef RETURN_ERROR_BAD_TYPE

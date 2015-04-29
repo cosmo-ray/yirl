@@ -37,13 +37,6 @@
 # define WEAK //nothing :)
 #endif
 
-/**
- * Here some macros to mutualise the code of entity
- */
-#define RETURN_ERROR_BAD_TYPE(function, entity, returnValue) DPRINT_ERR("%s: bad entity, this entity is of type %s\n", (function), yeTypeToString(yeType(entity))); return (returnValue)
-
-
-
 #ifdef __cplusplus
 extern "C"
 {
@@ -78,16 +71,27 @@ extern "C"
 #define	YE_TO_FUNC(X) ((FunctionEntity *)X)
 #define	YE_TO_C_FUNC(X) ((const FunctionEntity *)X)
 
+#define YE_DESTROY(X) do {			\
+  if (X->refCount == 1)	{			\
+    yeDestroy(X);				\
+    X = NULL;					\
+  } else {					\
+    yeDestroy(X);				\
+  }						\
+  } while (0);
+  
   struct	Entity;
 
   /**
    * @father is the entity contening this one (a struct or an array)
    */
 #define	ENTITY_HEADER				\
-  EntityType	type;				\
   const char	*name;				\
   struct Entity	**fathers;			\
-  unsigned int refCount;
+  unsigned int nbFathers;			\
+  unsigned int refCount;			\
+  EntityType	type;				\
+
 
 
   typedef struct Entity
@@ -142,8 +146,8 @@ extern "C"
     ENTITY_HEADER
     
     // the name of the function to call
-    char	*value;
     unsigned int nArgs;
+    char	*value;
   } FunctionEntity;
 
   typedef	struct
@@ -203,8 +207,8 @@ extern "C"
   /**
    * change the capacity than the array can store and init it to 0, "" or NULL
    */
-  Entity	*yeExpandArray(Entity *entity, unsigned int size) WEAK;
-  void	yePushBack(Entity *array, Entity *toPush) WEAK;
+  Entity *yeExpandArray(Entity *entity, unsigned int size) WEAK;
+  int yePushBack(Entity *array, Entity *toPush) WEAK;
   Entity *yePopBack(Entity *array) WEAK;
   Entity *yeRemoveChild(Entity *array, Entity *toRemove);
   
