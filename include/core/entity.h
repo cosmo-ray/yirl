@@ -215,18 +215,18 @@ extern "C"
   /**
    * function who alloc an entity and set it to  0, "" or NULL
    */
-  Entity *yeCreate(EntityType type, Entity *fathers) WEAK;
+  Entity *yeCreate(char *name, EntityType type, Entity *fathers) WEAK;
 
    /** Ensemble de fonction pour cree et detruire chaque type d'entite.
     * Cannot initialise a structure in thers functions because the data are to complex
     */
-  Entity *yeCreateStruct(Entity *fathers) WEAK;
-  Entity *yeCreateInt(int value, Entity *fathers) WEAK;
-  Entity *yeCreateFloat(double value, Entity *fathers) WEAK;
-  Entity *yeCreateString(const char *string, Entity *fathers) WEAK;
-  Entity *yeCreateFunction(const char *string, Entity *fathers) WEAK;
-  Entity *yeCreateArray(Entity *fathers) WEAK;
-  Entity *yeCreateStatic(Entity *value, Entity *fathers) WEAK;
+  Entity *yeCreateStruct(char *name, Entity *fathers) WEAK;
+  Entity *yeCreateInt(char *name, int value, Entity *fathers) WEAK;
+  Entity *yeCreateFloat(char *name, double value, Entity *fathers) WEAK;
+  Entity *yeCreateString(char *name, const char *string, Entity *fathers) WEAK;
+  Entity *yeCreateFunction(char *name, const char *string, Entity *fathers) WEAK;
+  Entity *yeCreateArray(char *name, Entity *fathers) WEAK;
+  Entity *yeCreateStatic(char *name, Entity *value, Entity *fathers) WEAK;
 
   void yeDestroy(Entity *entity) WEAK;
   void yeDestroyStruct(Entity *entity) WEAK;

@@ -1,4 +1,4 @@
-set (SOURCE main.c lifecycle.c)
+set (SOURCE main.c lifecycle.c setunset.c)
 
 add_executable(
 	tests

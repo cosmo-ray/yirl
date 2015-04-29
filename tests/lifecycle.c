@@ -4,12 +4,12 @@
 
 void testLifecycleSimple(void)
 {
-  Entity *test1 = yeCreateStruct(NULL);
-  Entity *test2 = yeCreateInt(1, NULL);
-  Entity *test3 = yeCreateFloat(1, NULL);
-  Entity *test4 = yeCreateString("test", NULL);
-  Entity *test5 = yeCreateFunction("funcName", NULL);
-  Entity *test6 = yeCreateArray(NULL);
+  Entity *test1 = yeCreateStruct(NULL, NULL);
+  Entity *test2 = yeCreateInt(NULL, 1, NULL);
+  Entity *test3 = yeCreateFloat(NULL, 1, NULL);
+  Entity *test4 = yeCreateString(NULL, "test", NULL);
+  Entity *test5 = yeCreateFunction(NULL, "funcName", NULL);
+  Entity *test6 = yeCreateArray(NULL, NULL);
 
   g_assert(test1);
   g_assert(test2);
@@ -36,16 +36,22 @@ void testLifecycleSimple(void)
 /* this tests is actually usefull only with valgrind */
 void testsLifecycleFlow(void)
 {
-  Entity *mainStruct = yeCreateStruct(NULL);
-  Entity *subStruct1 = yeCreateStruct(mainStruct);
-  Entity *subStruct2 = yeCreateStruct(NULL);
+  Entity *mainStruct = yeCreateStruct(NULL, NULL);
+  Entity *subStruct1 = yeCreateStruct(NULL, mainStruct);
+  Entity *subStruct2 = yeCreateArray(NULL, NULL);
+  Entity *test2 = yeCreateInt(NULL, 1, subStruct2);
+  Entity *test3 = yeCreateFloat(NULL, 1, subStruct2);
 
+  g_assert(test2);
+  g_assert(test3);
   g_assert(mainStruct);
   g_assert(subStruct1);
   g_assert(subStruct2);
   g_assert(!yePushBack(mainStruct, subStruct2));
   g_assert(mainStruct->refCount == 1);
   g_assert(subStruct1->refCount == 1);
+  g_assert(test3->refCount == 1);
+  g_assert(test2->refCount == 1);
   g_assert(subStruct2->refCount == 2);
   YE_DESTROY(subStruct2);
   g_assert(subStruct2->refCount == 1);  

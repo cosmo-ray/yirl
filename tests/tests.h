@@ -3,4 +3,6 @@
 
 void testLifecycleSimple(void);
 void testsLifecycleFlow(void);
+void testsSetSimple(void);
+
 #endif

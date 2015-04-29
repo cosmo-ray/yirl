@@ -244,11 +244,11 @@ Entity *yeGetStr(Entity *entity, const char *name)
  * @param fathers  the parent entity of the new entity
  * @return  return the new created entity
  */
-Entity *yeCreateInt(int value, Entity *father)
+Entity *yeCreateInt(char *name, int value, Entity *father)
 {
   IntEntity *ret;
   YE_ALLOC_ENTITY(ret, IntEntity);
-  yeInit((Entity *)ret, NULL, YINT, father);
+  yeInit((Entity *)ret, name, YINT, father);
   ret->value = value;
   /* REAJUSTE_REF(); */
   return ((Entity *)ret);
@@ -259,15 +259,14 @@ Entity *yeCreateInt(int value, Entity *father)
  * @param fathers        the fathers of the created entity
  * @return  return a new ArrayEntity 
  */
-Entity *yeCreateArray(Entity *father)
+Entity *yeCreateArray(char *name, Entity *father)
 {
   DPRINT_INFO("create array\n");
   ArrayEntity *ret;
   YE_ALLOC_ENTITY(ret, ArrayEntity);
-  yeInit((Entity *)ret, NULL, ARRAY, father);
+  yeInit((Entity *)ret, name, ARRAY, father);
   ret->len = 0;
   ret->values = NULL;
-  /* REAJUSTE_REF(); */
   return ((Entity *)ret);
 }
 
@@ -276,11 +275,11 @@ Entity *yeCreateArray(Entity *father)
  * @param fathers  the fathers of the entity to create
  * @return  a new StaticEntity
  */
-Entity *yeCreateStatic(Entity *value, Entity *father)
+Entity *yeCreateStatic(char *name, Entity *value, Entity *father)
 {
   StaticEntity *ret;
   YE_ALLOC_ENTITY(ret, StaticEntity);
-  yeInit((Entity *)ret, NULL, STATIC, father);
+  yeInit((Entity *)ret, name, STATIC, father);
   ret->value = value;
   /* REAJUSTE_REF(); */
   return ((Entity *)ret);
@@ -291,11 +290,11 @@ Entity *yeCreateStatic(Entity *value, Entity *father)
  * @param fathers  the fathers of the entity to create
  * @return  a new FloatEntity
  */
-Entity *yeCreateFloat(double value, Entity *father)
+Entity *yeCreateFloat(char *name, double value, Entity *father)
 {
   FloatEntity *ret;
   YE_ALLOC_ENTITY(ret, FloatEntity);
-  yeInit((Entity *)ret, NULL, YFLOAT, father);
+  yeInit((Entity *)ret, name, YFLOAT, father);
   ret->value = value;
   /* REAJUSTE_REF(); */
   return ((Entity *)ret);
@@ -306,11 +305,11 @@ Entity *yeCreateFloat(double value, Entity *father)
  * @param fathers  the fathers of the entity to create
  * @return  a new StructEntity
  */
-Entity *yeCreateStruct(Entity *father)
+Entity *yeCreateStruct(char *name, Entity *father)
 {
   StructEntity *ret;
   YE_ALLOC_ENTITY(ret, StructEntity);
-  yeInit(YE_TO_ENTITY(ret), NULL, STRUCT, father);
+  yeInit(YE_TO_ENTITY(ret), name, STRUCT, father);
   ret->len = 0;
   ret->values = NULL;
   /* REAJUSTE_REF(); */
@@ -322,11 +321,11 @@ Entity *yeCreateStruct(Entity *father)
  * @param fathers  the fathers of the entity to create
  * @return  a new FunctionEntity
  */
-Entity *yeCreateFunction(const char *value, Entity *father)
+Entity *yeCreateFunction(char *name, const char *value, Entity *father)
 {
   FunctionEntity *ret;
   YE_ALLOC_ENTITY(ret, FunctionEntity);
-  yeInit((Entity *)ret, NULL, FUNCTION, father);
+  yeInit((Entity *)ret, name, FUNCTION, father);
   ret->nArgs = 0;
   if (value == NULL)
     ret->value = NULL;
@@ -343,11 +342,11 @@ Entity *yeCreateFunction(const char *value, Entity *father)
  * @param fathers  the fathers of the entity to create
  * @return  a new StringEntity
  */
-Entity *yeCreateString(const char *string, Entity *father)
+Entity *yeCreateString(char *name, const char *string, Entity *father)
 {
   StringEntity *ret;
   YE_ALLOC_ENTITY(ret, StringEntity);
-  yeInit((Entity *)ret, NULL, YSTRING, father);
+  yeInit((Entity *)ret, name, YSTRING, father);
   if (string == NULL) {
     ret->value = NULL;
     ret->len = 0;
@@ -476,24 +475,24 @@ void yeDestroy(Entity *entity)
  * @param fathers      the fathers of the entity to create
  * @param typeAyyar   the type of content to create an ArrayEntity
  */
-Entity *yeCreate(EntityType type, Entity *father)
+Entity *yeCreate(char *name, EntityType type, Entity *father)
 {
   switch (type)
     {
     case STRUCT:
-      return (yeCreateStruct(father));
+      return (yeCreateStruct(name, father));
     case YSTRING:
-      return (yeCreateString(NULL, father));
+      return (yeCreateString(name, NULL, father));
     case YINT:
-      return (yeCreateInt(0, father));
+      return (yeCreateInt(name, 0, father));
     case YFLOAT:
-      return (yeCreateFloat(0, father));
+      return (yeCreateFloat(name, 0, father));
     case STATIC:
-      return (yeCreateStatic(NULL, father));
+      return (yeCreateStatic(name, NULL, father));
     case ARRAY:
-      return (yeCreateArray(father));
+      return (yeCreateArray(name, father));
     case FUNCTION:
-      return (yeCreateFunction(NULL, father));
+      return (yeCreateFunction(name, NULL, father));
     default:
       DPRINT_ERR( "%s generic constructor not yet implemented\n",
 		  yeTypeToString(type));
