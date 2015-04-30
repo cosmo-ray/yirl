@@ -4,7 +4,7 @@
 
 void testLifecycleSimple(void)
 {
-  Entity *test1 = yeCreateStruct(NULL, NULL);
+  Entity *test1 = yeCreateStruct("tests", NULL);
   Entity *test2 = yeCreateInt(NULL, 1, NULL);
   Entity *test3 = yeCreateFloat(NULL, 1, NULL);
   Entity *test4 = yeCreateString(NULL, "test", NULL);
@@ -55,6 +55,23 @@ void testsLifecycleFlow(void)
   g_assert(subStruct2->refCount == 2);
   YE_DESTROY(subStruct2);
   g_assert(subStruct2->refCount == 1);  
+  YE_DESTROY(mainStruct);
+  g_assert(mainStruct == NULL);
+}
+
+void testsLifecycleComplex(void)
+{
+  Entity *mainStruct = yeCreateStruct(NULL, NULL);
+  Entity *subStruct1 = yeCreateStruct(NULL, mainStruct);
+  Entity *subStruct2 = yeCreateArray(NULL, mainStruct);
+
+  g_assert(mainStruct);
+  g_assert(subStruct1);
+  g_assert(subStruct2);
+  g_assert(!yePushBack(subStruct1, subStruct2));
+  g_assert(mainStruct->refCount == 1);
+  g_assert(subStruct1->refCount == 1);
+  g_assert(subStruct2->refCount == 2);
   YE_DESTROY(mainStruct);
   g_assert(mainStruct == NULL);
 }

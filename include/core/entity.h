@@ -86,7 +86,7 @@ extern "C"
    * @father is the entity contening this one (a struct or an array)
    */
 #define	ENTITY_HEADER				\
-  const char	*name;				\
+  char	*name;					\
   struct Entity	**fathers;			\
   unsigned int nbFathers;			\
   unsigned int refCount;			\

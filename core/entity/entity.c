@@ -40,6 +40,7 @@ inline static void yeDestroyInternal(Entity *entity);
     YE_DECR_REF(entity);			\
     if (entity->refCount <= 0) {		\
       free(entity->fathers);			\
+      free(entity->name);			\
       free(((type *)entity));			\
     }						\
   } while (0);
@@ -620,7 +621,7 @@ static void yeAttachFather(Entity *entity, Entity *father)
   if (entity->fathers == NULL)
     entity->fathers = malloc(sizeof(Entity *));
   else
-    entity->fathers = realloc(entity->fathers, sizeof(Entity *) * entity->nbFathers);
+    entity->fathers = realloc(entity->fathers, sizeof(Entity *) * (entity->nbFathers + 1));
   entity->fathers[entity->nbFathers] = father;
   entity->nbFathers += 1;
 }
@@ -637,8 +638,6 @@ Entity *yeInit(Entity *entity, const char *name, EntityType type, Entity *father
 {
   if (!entity)
     return NULL;
-  if (name != NULL && entity->name != NULL)
-    free((char *)entity->name);
   if (name == NULL) {
     entity->name = NULL;
   }  else {
