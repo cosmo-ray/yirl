@@ -38,7 +38,7 @@ inline static void yeDestroyInternal(Entity *entity);
 
 #define YE_DESTROY_ENTITY(entity, type) do {	\
     YE_DECR_REF(entity);			\
-    if (entity->refCount <= 0) {		\
+    if (entity->refCount < 1) {			\
       free(entity->fathers);			\
       free(entity->name);			\
       free(((type *)entity));			\
@@ -573,7 +573,6 @@ Entity *yeRemoveChild(Entity *array, Entity *toRemove)
 {
   int	len;
   Entity *tmp = NULL;
-  Entity *ret;
 
   if (!checkType(array, ARRAY) && !checkType(array, STRUCT)) {
     DPRINT_ERR("yeRemoveChild: bad entity\n");
@@ -581,6 +580,8 @@ Entity *yeRemoveChild(Entity *array, Entity *toRemove)
   }
   len = yeLen(array);
   for (int i = 0; i < len; ++i) {
+    Entity *ret;
+
     tmp = yeGet(array, i);
     ret = tmp;
     if (tmp == toRemove) {
@@ -971,10 +972,11 @@ int yeToString(Entity *entity, char *buf, int sizeBuf)
     case YFLOAT:
       //printf("val: %f\n", yeGetFloat(entity));
       ETS_RETURN (snprintf(buf, sizeBuf, "%f", yeGetFloat(entity)));
-    case FUNCTION: 
-      if (yeGetFunction(entity) == NULL)
+    case FUNCTION:
+      if (yeGetFunction(entity) == NULL) {
 	ETS_RETURN (snprintf(buf, sizeBuf, "function %s: (null)",
 			     yePrintableName(entity)));
+      }
       retETS = snprintf(buf, sizeBuf, "function %s: nb arg: %d\n",
 			yePrintableName(entity), yeFunctionNumberArgs(entity));
       if (retETS < 0)

@@ -32,7 +32,7 @@ typedef struct s_log_mode {
   FILE*		file;
 }		t_log_mode;
 
-t_log_mode log_confs[] = {
+static t_log_mode log_confs[] = {
   { INFO_STR, NULL },
   { WARNING_STR, NULL },
   { ERROR_STR, NULL },
@@ -91,18 +91,20 @@ void	debug_print_info(FILE* fd, const char* mode)
 
 void	debug_print_(char const* mode, char const* format, va_list vl) {
   debug_print_info(log_confs[INFO].file, mode);
-  vfprintf(log_confs[INFO].file, format, vl);
+  if (format == NULL)
+    fprintf(log_confs[INFO].file, "Unknow Error");    
+  else
+    vfprintf(log_confs[INFO].file, format, vl);
   fflush(log_confs[INFO].file);
 }
 
 FILE*	get_file(int mode)
 {
-  const char *log_path = "log.txt";
   static FILE * file = NULL;
   
   (void)mode;
   if (file == NULL)
-    file = fopen(log_path, "a");
+    file = fopen("log.txt", "a");
   return file;
 }
 

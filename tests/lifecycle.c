@@ -54,6 +54,7 @@ void testsLifecycleFlow(void)
   g_assert(test2->refCount == 1);
   g_assert(subStruct2->refCount == 2);
   YE_DESTROY(subStruct2);
+  g_assert(subStruct2);
   g_assert(subStruct2->refCount == 1);  
   YE_DESTROY(mainStruct);
   g_assert(mainStruct == NULL);
