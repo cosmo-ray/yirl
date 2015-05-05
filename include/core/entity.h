@@ -50,11 +50,10 @@ extern "C"
       YFLOAT,
       YSTRING,
       ARRAY,
-      FUNCTION, //here will the fun begin
-      STATIC
+      FUNCTION
     } EntityType;
   
-#define	NBR_ENTITYTYPE	7
+#define	NBR_ENTITYTYPE	6
 
 #define	YE_TO_ENTITY(X) ((Entity *)X)
 #define	YE_TO_C_ENTITY(X) ((const Entity *)X)
@@ -146,16 +145,11 @@ extern "C"
     ENTITY_HEADER
     
     // the name of the function to call
-    unsigned int nArgs;
+    unsigned int len;
     char	*value;
+    unsigned int nArgs;
   } FunctionEntity;
 
-  typedef	struct
-  {
-    ENTITY_HEADER
-
-    Entity	*value;
-  } StaticEntity;
 
   /**
    * @param str   the type name
@@ -226,7 +220,6 @@ extern "C"
   Entity *yeCreateString(char *name, const char *string, Entity *fathers) WEAK;
   Entity *yeCreateFunction(char *name, const char *string, Entity *fathers) WEAK;
   Entity *yeCreateArray(char *name, Entity *fathers) WEAK;
-  Entity *yeCreateStatic(char *name, Entity *value, Entity *fathers) WEAK;
 
   void yeDestroy(Entity *entity) WEAK;
   void yeDestroyStruct(Entity *entity) WEAK;
@@ -235,7 +228,6 @@ extern "C"
   void yeDestroyString(Entity *entity) WEAK;
   void yeDestroyFunction(Entity *entity) WEAK;
   void yeDestroyRef(Entity *entity) WEAK;
-  void yeDestroyStatic(Entity *entity) WEAK;
   void yeDestroyArray(Entity *entity) WEAK;
 
   /**
@@ -243,8 +235,8 @@ extern "C"
    * @param entity	the referencing Entity
    * @param other	the referenced Entity
    */
-  int	yeSetInt(Entity *entity, int value) WEAK;
-  int	yeSetFloat(Entity *entity, double value) WEAK;
+  void	yeSetInt(Entity *entity, int value) WEAK;
+  void	yeSetFloat(Entity *entity, double value) WEAK;
   void	yeSetString(Entity *entity, const char *value) WEAK;
 
   /**
@@ -253,7 +245,14 @@ extern "C"
   void	yeUnsetFunction(Entity *entity) WEAK;
 
   
-  const char	*yeSetFunction(Entity *entity, const char *value) WEAK;
+  void	yeSetFunction(Entity *entity, const char *value) WEAK;
+
+#define yeSet(ENTITY, VALUE) _Generic((VALUE),				\
+				      int: yeSetInt,			\
+				      double: yeSetFloat,		\
+				      const char *: yeSetString,	\
+				      char *: yeSetString)(ENTITY, VALUE)
+
   
   /**
    * @brief set the informa
@@ -268,11 +267,11 @@ tion about the arguments of a function
   /**
    * set to a value to the index if the entity is an array or a generic array
    */
-  int	yeSetIntAt(Entity *entity, unsigned int index, int value) WEAK;
-  int	yeSetFloatAt(Entity *entity, unsigned int index, double value) WEAK;
+  void	yeSetIntAt(Entity *entity, unsigned int index, int value) WEAK;
+  void	yeSetFloatAt(Entity *entity, unsigned int index, double value) WEAK;
   void	yeSetStringAt(Entity *entity, unsigned int index, const char *value) WEAK;
-  int	yeSetIntAtStrIdx(Entity *entity, const char *index, int value) WEAK;
-  int	yeSetFloatAtStrIdx(Entity *entity, const char *index, double value) WEAK;
+  void	yeSetIntAtStrIdx(Entity *entity, const char *index, int value) WEAK;
+  void	yeSetFloatAtStrIdx(Entity *entity, const char *index, double value) WEAK;
   void	yeSetStringAtStrIdx(Entity *entity, const char *index, const char *value) WEAK;
 
 
@@ -289,12 +288,22 @@ extern "C++"
   void yeSetAt(Entity *entity, const char *index, float value) WEAK;
 }
 #else
-#define yeSetAt(ENTITY, INDEX, VALUE) _Generic((VALUE),		\
-					     int: yeSetIntAt,		\
-					     float: yeSetFloatAt,		\
-					     const char *: yeSetStringAt, \
-					     char *: yeSetStringAt)(ENTITY, INDEX, VALUE)
+#define yeSetAtIntIxd(ENTITY, INDEX, VALUE) _Generic((VALUE),		\
+						     int: yeSetIntAt,	\
+						     float: yeSetFloatAt, \
+						     const char *: yeSetStringAt, \
+						     char *: yeSetStringAt)(ENTITY, INDEX, VALUE)
 
+#define yeSetAtStrIdx(ENTITY, INDEX, VALUE) _Generic((VALUE),			\
+						     int: yeSetIntAtStrIdx, \
+						     float: yeSetFloatAtStrIdx,	\
+						     const char *: yeSetStringAtStrIdx, \
+						     char *: yeSetStringAtStrIdx)(ENTITY, INDEX, VALUE)
+
+#define yeSetAt(ENTITY, INDEX, VALUE) _Generic((INDEX), \
+					       int: yeSetAtIntIxd,	\
+					       char *:yeSetAtStrIdx)(ENTITY, INDEX, VALUE)
+  
 #endif
   
   

@@ -65,11 +65,14 @@ void testsLifecycleComplex(void)
   Entity *mainStruct = yeCreateStruct(NULL, NULL);
   Entity *subStruct1 = yeCreateStruct(NULL, mainStruct);
   Entity *subStruct2 = yeCreateArray(NULL, mainStruct);
+  Entity *test3 = yeCreateFloat(NULL, 1, subStruct2);
 
   g_assert(mainStruct);
   g_assert(subStruct1);
   g_assert(subStruct2);
   g_assert(!yePushBack(subStruct1, subStruct2));
+  yeExpandArray(subStruct2, 5);
+  yeAttach(subStruct2, test3, 2);
   g_assert(mainStruct->refCount == 1);
   g_assert(subStruct1->refCount == 1);
   g_assert(subStruct2->refCount == 2);

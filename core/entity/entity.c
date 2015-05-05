@@ -63,11 +63,10 @@ void (*destroyTab[])(Entity *) = {
   yeDestroyString,
   yeDestroyArray,
   yeDestroyFunction,
-  yeDestroyStatic
 };
 
 const char * EntityTypeStrings[] = { "struct", "int", "float", "string",
-				     "array", "function", "static" };
+				     "array", "function"};
 
 /**
  * @param entity
@@ -146,17 +145,8 @@ Entity *yeGetIdx(Entity *entity, unsigned int index)
   }
   Entity *tmp;
   if (index >= ((StructEntity *)entity)->len)
-    return (NULL);
+    return NULL;
   tmp = ((StructEntity *)entity)->values[index];
-  if (!tmp) {
-    DPRINT_WARN("can not get entity");
-    return (NULL);
-  }
-  if (tmp->type == STATIC) {
-    ((StaticEntity *)tmp)->value->name = tmp->name;
-    ((StaticEntity *)tmp)->value->fathers = tmp->fathers;
-    return (((StaticEntity *)tmp)->value);
-  }
   return (tmp);
 }
 
@@ -274,21 +264,6 @@ Entity *yeCreateArray(char *name, Entity *father)
 /**
  * @param value
  * @param fathers  the fathers of the entity to create
- * @return  a new StaticEntity
- */
-Entity *yeCreateStatic(char *name, Entity *value, Entity *father)
-{
-  StaticEntity *ret;
-  YE_ALLOC_ENTITY(ret, StaticEntity);
-  yeInit((Entity *)ret, name, STATIC, father);
-  ret->value = value;
-  /* REAJUSTE_REF(); */
-  return ((Entity *)ret);
-}
-
-/**
- * @param value
- * @param fathers  the fathers of the entity to create
  * @return  a new FloatEntity
  */
 Entity *yeCreateFloat(char *name, double value, Entity *father)
@@ -328,14 +303,9 @@ Entity *yeCreateFunction(char *name, const char *value, Entity *father)
   YE_ALLOC_ENTITY(ret, FunctionEntity);
   yeInit((Entity *)ret, name, FUNCTION, father);
   ret->nArgs = 0;
-  if (value == NULL)
-    ret->value = NULL;
-  else
-    ret->value = strdup(value);
-  /* REAJUSTE_REF(); */
-  /* char buf[1024]; */
-  /* entityToString((Entity *)ret, buf, 1024); */
-  return ((Entity *)ret);
+  ret->value = NULL;
+  yeSetString(YE_TO_ENTITY(ret), value);
+  return (YE_TO_ENTITY(ret));
 }
 
 /**
@@ -348,21 +318,17 @@ Entity *yeCreateString(char *name, const char *string, Entity *father)
   StringEntity *ret;
   YE_ALLOC_ENTITY(ret, StringEntity);
   yeInit((Entity *)ret, name, YSTRING, father);
-  if (string == NULL) {
-    ret->value = NULL;
-    ret->len = 0;
-  } else {
-    ret->value = strdup(string);
-    ret->len = strlen(string);
-  }
-  /* REAJUSTE_REF(); */
-  return ((Entity *)ret);
+  ret->value = NULL;
+  yeSetString(YE_TO_ENTITY(ret), string);
+  return (YE_TO_ENTITY(ret));
 }
 
 #undef   REAJUSTE_REF
 
 static void yeRemoveFather(Entity *entity, Entity *father)
 {
+  if (entity == NULL || father == NULL)
+    return;
   Entity **fathers = entity->fathers;
 
   // if the father is in last position, so we don't care about it because
@@ -440,15 +406,6 @@ void yeDestroyStruct(Entity *entity)
 }
 
 /**
- * @TODO: TO IMPLEMENT
- * @param entity
- */
-void yeDestroyStatic(Entity *entity)
-{
-  YE_DESTROY_ENTITY(entity, StaticEntity);
-}
-
-/**
  * @param entity
  */
 void yeDestroyArray(Entity *entity)
@@ -462,7 +419,8 @@ void yeDestroyArray(Entity *entity)
 
 inline static void yeDestroyInternal(Entity *entity)
 {
-  destroyTab[entity->type](entity);
+  if (entity)
+    destroyTab[entity->type](entity);
 }
 
 void yeDestroy(Entity *entity)
@@ -488,8 +446,6 @@ Entity *yeCreate(char *name, EntityType type, Entity *father)
       return (yeCreateInt(name, 0, father));
     case YFLOAT:
       return (yeCreateFloat(name, 0, father));
-    case STATIC:
-      return (yeCreateStatic(name, NULL, father));
     case ARRAY:
       return (yeCreateArray(name, father));
     case FUNCTION:
@@ -692,12 +648,12 @@ void	yeSetStringAt(Entity *entity, unsigned int index, const char *value)
   return yeSetString(yeGet(entity, index), value);
 }
 
-int	yeSetIntAt(Entity *entity, unsigned int index, int value)
+void	yeSetIntAt(Entity *entity, unsigned int index, int value)
 {
   return yeSetInt(yeGet(entity, index), value);
 }
 
-int	yeSetFloatAt(Entity *entity, unsigned int index, double value)
+void	yeSetFloatAt(Entity *entity, unsigned int index, double value)
 {
   return yeSetFloat(yeGet(entity, index), value);
 }
@@ -707,12 +663,12 @@ void	yeSetStringAtStrIdx(Entity *entity, const char *index, const char *value)
   return yeSetString(yeGet(entity, index), value);
 }
 
-int	yeSetIntAtStrIdx(Entity *entity, const char *index, int value)
+void	yeSetIntAtStrIdx(Entity *entity, const char *index, int value)
 {
   return yeSetInt(yeGet(entity, index), value);
 }
 
-int	yeSetFloatAtStrIdx(Entity *entity, const char *index, double value)
+void	yeSetFloatAtStrIdx(Entity *entity, const char *index, double value)
 {
   return yeSetFloat(yeGet(entity, index), value);
 }
@@ -729,15 +685,9 @@ void	yeUnsetFunction(Entity *entity)
  * @param value
  * @return return <value>
  */
-const char	*yeSetFunction(Entity *entity, const char *value)
+void	yeSetFunction(Entity *entity, const char *value)
 {
-  if (((FunctionEntity *)(entity))->value != NULL)
-    free(((FunctionEntity *)(entity))->value);
-  if (value != NULL)
-    ((FunctionEntity *)(entity))->value = strdup(value);
-  else
-    ((FunctionEntity *)(entity))->value = NULL;
-  return (value);
+  return yeSetString(entity, value);
 }
 
 void	yeSetFunctionArgs(Entity *entity, unsigned int nArgs)
@@ -751,14 +701,11 @@ void	yeSetFunctionArgs(Entity *entity, unsigned int nArgs)
  * @param value
  * @return -1 if entity is not og type YINT, <value> otherwise
  */
-int	yeSetInt(Entity *entity, int value)
+void	yeSetInt(Entity *entity, int value)
 {
-  DPRINT("setInt: set %s with a value of %d\n", yeName(entity), value);
-  if (!checkType(entity, YINT)) {
-    RETURN_ERROR_BAD_TYPE("setInt", entity, -1);
-  }
+  if (yeType(entity) == YFLOAT)
+    return (yeSetFloat(entity, value));
   ((IntEntity *)entity)->value = value;
-  return (value);
 }
 
 /**
@@ -766,14 +713,9 @@ int	yeSetInt(Entity *entity, int value)
  * @param value
  * @return -1 if entity is not og type YFLOAT, <value> otherwise
  */
-int	yeSetFloat(Entity *entity, double value)
+void	yeSetFloat(Entity *entity, double value)
 {
-  DPRINT("setFloat: set %s with a value of %f\n", yeName(entity), value);
-  if (!checkType(entity, YFLOAT)) {
-    RETURN_ERROR_BAD_TYPE("setFloat", entity, -1);
-  }
   ((FloatEntity *)entity)->value = value;
-  return (value);
 }
 
 /**
@@ -915,9 +857,6 @@ Entity*		yeCopy(Entity* src, Entity* dest)
       yeSetFunction(dest, strVal);
       yeSetFunctionArgs(dest, nArgs);
       break;
-    case STATIC:
-      DPRINT_WARN("Unimpleted case ! line %d\n", __LINE__);
-      break;
     default:
       DPRINT_ERR("type %s not handle", yeTypeToString(yeType(src)));
       goto error;
@@ -1002,16 +941,6 @@ int yeToString(Entity *entity, char *buf, int sizeBuf)
 	  ETS_INCR_RET(2);
 	}
       strcpy(buf, "]");  // may bug here if sizeBuf is too small
-      ETS_INCR_RET(1);
-      ETS_RETURN (ret);
-    case STATIC:
-      strcpy(buf, "static of ("); // may bug here if sizeBuf is too small
-      ETS_INCR_RET(8);
-      retETS = ETS_REC_CALL(((StaticEntity *)entity)->value, buf, sizeBuf);
-      if (retETS < 0)
-	goto error;
-      ETS_INCR_RET(retETS);
-      strcpy(buf, ")"); // may bug here if sizeBuf is too small
       ETS_INCR_RET(1);
       ETS_RETURN (ret);
     case STRUCT:
