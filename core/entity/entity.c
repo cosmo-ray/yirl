@@ -137,7 +137,7 @@ unsigned int yeLen(Entity *entity)
  * @param index   the index of the entity to get
  * @return  return entity is found, NULL otherwise
  */
-Entity *yeGetIdx(Entity *entity, unsigned int index)
+Entity *yeGetByIdx(Entity *entity, unsigned int index)
 {
   if (entity == NULL) {
     DPRINT_WARN("entity is NULL\n");
@@ -169,11 +169,11 @@ static int	findIdxPoint(const char *name)
  * @param end     the size of the <name> parameter we want to look for
  * @return        return the first entity in the parent <entity> found
  */
-static Entity *yeGetIdxFastWithEnd(Entity *entity, const char *name, int end)
+static Entity *yeGetByIdxFastWithEnd(Entity *entity, const char *name, int end)
 {
   int	i = 0;
   Entity *tmp;
-  while ((tmp = yeGetIdx(entity, i)) != NULL) {
+  while ((tmp = yeGetByIdx(entity, i)) != NULL) {
     if (!strncmp(tmp->name, name, end))
       return (tmp);
     ++i;
@@ -187,12 +187,12 @@ static Entity *yeGetIdxFastWithEnd(Entity *entity, const char *name, int end)
  * @name  The entity name we are looking for
  * @return return the entity named <name> in the entity <entity>
  */
-Entity *yeGetIdxFast(Entity *entity, const char *name)
+Entity *yeGetByStrFast(Entity *entity, const char *name)
 {
   unsigned int	i = 0;
   Entity *tmp;
 
-  while ((tmp = yeGetIdx(entity, i)) != NULL)
+  while ((tmp = yeGetByIdx(entity, i)) != NULL)
   {
     if (yStrEqual(yePrintableName(tmp), name))
     	return (tmp);
@@ -208,7 +208,7 @@ Entity *yeGetIdxFast(Entity *entity, const char *name)
  * @param name    the entity name whe are looking for
  * @return        The found Entity named <name> in <entity>
  */
-Entity *yeGetStr(Entity *entity, const char *name)
+Entity *yeGetByStr(Entity *entity, const char *name)
 {
   int	i;
 
@@ -220,8 +220,8 @@ Entity *yeGetStr(Entity *entity, const char *name)
 	      tryGetEntityName(entity), __FILE__, __LINE__);
   i = findIdxPoint(name);
   return (i != -1) ?
-    (yeGet(yeGetIdxFastWithEnd(entity, name, i), name + i + 1)) :
-    (yeGetIdxFast(entity, name));
+    (yeGet(yeGetByIdxFastWithEnd(entity, name, i), name + i + 1)) :
+    (yeGetByStrFast(entity, name));
 }
 
 /* We want only one ref on a new entity */
@@ -932,7 +932,7 @@ int yeToString(Entity *entity, char *buf, int sizeBuf)
       ETS_INCR_RET(1);
       for (i = 0; i < yeLen(entity); ++i)
 	{
-	  retETS = ETS_REC_CALL(yeGetIdx(entity, i), buf, sizeBuf);
+	  retETS = ETS_REC_CALL(yeGetByIdx(entity, i), buf, sizeBuf);
 	  if (retETS < 0)
 	    goto error;
 	  ETS_INCR_RET(retETS);
@@ -952,14 +952,14 @@ int yeToString(Entity *entity, char *buf, int sizeBuf)
 	{
 	  /* printf("in for\n"); */
 	  retETS = snprintf(buf, sizeBuf, "%s : ",
-			    yePrintableName(yeGetIdx(entity, i)));
+			    yePrintableName(yeGetByIdx(entity, i)));
 	  if (retETS < 0)
 	    goto error;
 	  /* printf("cur buf(name): %s\n", buf); */
 	  ETS_INCR_RET(retETS);
-	  testInfLoop[tifIndex] = yeGetIdx(entity, i);
+	  testInfLoop[tifIndex] = yeGetByIdx(entity, i);
 	  ++tifIndex;
-	  retETS = ETS_REC_CALL(yeGetIdx(entity, i), buf, sizeBuf);
+	  retETS = ETS_REC_CALL(yeGetByIdx(entity, i), buf, sizeBuf);
 	  if (retETS < 0)
 	    goto error;
 	  /* printf("cur buf(val): %s\n", buf); */

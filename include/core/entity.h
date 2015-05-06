@@ -166,12 +166,12 @@ extern "C"
   /**
    * @return the entity at the position of the index or NULL
    */
-  Entity *yeGetIdx(Entity *entity, unsigned int index) WEAK;
+  Entity *yeGetByIdx(Entity *entity, unsigned int index) WEAK;
     
   /**
    * @return the entity at the position wich has the given name or NULL
    */
-  Entity *yeGetStr(Entity *entity, const char *name) WEAK;
+  Entity *yeGetByStr(Entity *entity, const char *name) WEAK;
 
 #ifdef __cplusplus
   extern "C++"
@@ -184,10 +184,10 @@ extern "C"
   }
 #else
 #define yeGet(ENTITY, INDEX) _Generic((INDEX),			\
-				      unsigned int: yeGetIdx,	\
-				      int: yeGetIdx,		\
-				      const char *: yeGetStr,	\
-				      char *: yeGetStr) (ENTITY, INDEX)
+				      unsigned int: yeGetByIdx,	\
+				      int: yeGetByIdx,		\
+				      const char *: yeGetByStrFast,	\
+				      char *: yeGetByStrFast) (ENTITY, INDEX)
 
 #endif
 
@@ -195,7 +195,7 @@ extern "C"
   /**
    * Like yeGetStr but dosn't work with sytaxe like this (entity1.entity11)
    */
-  Entity *yeGetIdxFast(Entity *entity, const char *name) WEAK;
+  Entity *yeGetByStrFast(Entity *entity, const char *name) WEAK;
 
   
   /**
