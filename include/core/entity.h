@@ -300,9 +300,17 @@ extern "C++"
 						     const char *: yeSetStringAtStrIdx, \
 						     char *: yeSetStringAtStrIdx)(ENTITY, INDEX, VALUE)
 
-#define yeSetAt(ENTITY, INDEX, VALUE) _Generic((INDEX), \
-					       int: yeSetAtIntIxd,	\
-					       char *:yeSetAtStrIdx)(ENTITY, INDEX, VALUE)
+#define yeSetAt(ENTITY, INDEX, VALUE) _Generic((INDEX),			\
+    int: _Generic((VALUE),						\
+		  int: yeSetIntAt,					\
+		  float: yeSetFloatAt,					\
+		  const char *: yeSetStringAt,				\
+		  char *: yeSetStringAt),				\
+    char *: _Generic((VALUE),						\
+		     int: yeSetIntAtStrIdx,				\
+		     float: yeSetFloatAtStrIdx,				\
+		     const char *: yeSetStringAtStrIdx,			\
+		     char *: yeSetStringAtStrIdx))(ENTITY, INDEX, VALUE)
   
 #endif
   
