@@ -7,5 +7,6 @@ void testLifecycleComplex(void);
 
 void testSetSimple(void);
 void testSetComplex(void);
+void testSetGeneric(void);
 
 #endif

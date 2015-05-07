@@ -13,6 +13,7 @@ int main(int argc, char **argv)
   g_test_add_func("/entity/lifecycle/complex", testLifecycleComplex);
   g_test_add_func("/entity/setunset/simple", testSetSimple);
   g_test_add_func("/entity/setunset/complex", testSetComplex);
+  g_test_add_func("/entity/setunset/generic", testSetGeneric);
   g_test_run();
   debug_exit();
 }

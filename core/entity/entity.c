@@ -434,22 +434,22 @@ void yeDestroy(Entity *entity)
  * @param fathers      the fathers of the entity to create
  * @param typeAyyar   the type of content to create an ArrayEntity
  */
-Entity *yeCreate(char *name, EntityType type, Entity *father)
+Entity *yeCreate(char *name, EntityType type, void *val, Entity *father)
 {
   switch (type)
     {
     case STRUCT:
-      return (yeCreateStruct(name, NULL,father));
+      return (yeCreateStruct(name, val, father));
     case YSTRING:
-      return (yeCreateString(name, NULL, father));
+      return (yeCreateString(name, val, father));
     case YINT:
-      return (yeCreateInt(name, 0, father));
+      return (yeCreateInt(name, *((int *)val), father));
     case YFLOAT:
-      return (yeCreateFloat(name, 0, father));
+      return (yeCreateFloat(name, *((double *)val), father));
     case ARRAY:
       return (yeCreateArray(name, father));
     case FUNCTION:
-      return (yeCreateFunction(name, NULL, father));
+      return (yeCreateFunction(name, val, father));
     default:
       DPRINT_ERR( "%s generic constructor not yet implemented\n",
 		  yeTypeToString(type));
@@ -821,7 +821,7 @@ Entity*		yeCopy(Entity* src, Entity* dest)
     switch (yeType(src))
     {
     case STRUCT:
-      yeCopyStruct((StructEntity*)src, (StructEntity*)dest);
+      yeCopyContener((StructEntity*)src, (StructEntity*)dest);
       break;
     case YINT:
       yeSetInt(dest, yeGetInt(src));
@@ -836,7 +836,7 @@ Entity*		yeCopy(Entity* src, Entity* dest)
       yeSetString(dest, strVal);
       break;
     case ARRAY:
-      DPRINT_WARN("Unimpleted case ! line %d\n", __LINE__);
+      yeCopyContener((StructEntity*)src, (StructEntity*)dest);
       break;
     case FUNCTION:
       nArgs = yeFunctionNumberArgs(src);
@@ -855,14 +855,12 @@ Entity*		yeCopy(Entity* src, Entity* dest)
   return NULL;
 }
 
-StructEntity*		yeCopyStruct(StructEntity* src, StructEntity* dest)
+StructEntity*		yeCopyContener(StructEntity* src, StructEntity* dest)
   {
     unsigned int i;
 
     if (src == NULL || dest == NULL)
       return NULL;
-    DPRINT_INFO("There is %d attributes in '%s'\n", yeLen((Entity*)src),
-		yePrintableStructName((const Entity*)src));
     for (i = 0; i < yeLen((Entity*)src) && i < yeLen((Entity*)dest); i++)
       {
 	yeCopy(src->values[i], dest->values[i]);

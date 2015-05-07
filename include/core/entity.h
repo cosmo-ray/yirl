@@ -207,7 +207,7 @@ extern "C"
   /**
    * function who alloc an entity and set it to  0, "" or NULL
    */
-  Entity *yeCreate(char *name, EntityType type, Entity *fathers) WEAK;
+  Entity *yeCreate(char *name, EntityType type, void *val, Entity *fathers) WEAK;
 
    /** Ensemble de fonction pour cree et detruire chaque type d'entite.
     * Cannot initialise a structure in thers functions because the data are to complex
@@ -355,7 +355,7 @@ extern "C++"
    * @param dest	Destination Entity where the data will be past
    * @return	destination Entity if src AND dest or not null, NULL otherwise
    */
-  StructEntity*		yeCopyStruct(StructEntity* src, StructEntity* dest);
+  StructEntity*		yeCopyContener(StructEntity* src, StructEntity* dest);
 
 
 #ifdef __cplusplus

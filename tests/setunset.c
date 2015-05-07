@@ -46,9 +46,24 @@ void testSetSimple(void)
   g_assert(mainStruct == NULL);
 }
 
+void testSetGeneric(void)
+{
+  int val = 4;
+  Entity *test = yeCreate(NULL, YINT, &val, NULL);
+  Entity *testStr = yeCreate(NULL, YSTRING, "myJoeIsBigerThanYours", NULL);
+
+  g_assert(!strcmp(yeGetString(testStr), "myJoeIsBigerThanYours"));
+  g_assert(yeGetInt(test) == val);
+  YE_DESTROY(test);
+  g_assert(test == NULL);
+  YE_DESTROY(testStr);
+  g_assert(testStr == NULL);
+
+}
+
 void testSetComplex(void)
 {
   Entity *mainStruct = yeCreateArray(NULL, NULL);
- 
+
   (void)mainStruct;
 }
