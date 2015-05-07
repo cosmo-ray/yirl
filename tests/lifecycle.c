@@ -4,7 +4,7 @@
 
 void testLifecycleSimple(void)
 {
-  Entity *test1 = yeCreateStruct("tests", NULL);
+  Entity *test1 = yeCreateArray("tests", NULL);
   Entity *test2 = yeCreateInt(NULL, 1, NULL);
   Entity *test3 = yeCreateFloat(NULL, 1, NULL);
   Entity *test4 = yeCreateString(NULL, "test", NULL);
@@ -34,10 +34,10 @@ void testLifecycleSimple(void)
 }
 
 /* this tests is actually usefull only with valgrind */
-void testsLifecycleFlow(void)
+void testLifecycleFlow(void)
 {
-  Entity *mainStruct = yeCreateStruct(NULL, NULL);
-  Entity *subStruct1 = yeCreateStruct(NULL, mainStruct);
+  Entity *mainStruct = yeCreateArray(NULL, NULL);
+  Entity *subStruct1 = yeCreateArray(NULL, mainStruct);
   Entity *subStruct2 = yeCreateArray(NULL, NULL);
   Entity *test2 = yeCreateInt(NULL, 1, subStruct2);
   Entity *test3 = yeCreateFloat(NULL, 1, subStruct2);
@@ -60,10 +60,10 @@ void testsLifecycleFlow(void)
   g_assert(mainStruct == NULL);
 }
 
-void testsLifecycleComplex(void)
+void testLifecycleComplex(void)
 {
-  Entity *mainStruct = yeCreateStruct(NULL, NULL);
-  Entity *subStruct1 = yeCreateStruct(NULL, mainStruct);
+  Entity *mainStruct = yeCreateArray(NULL, NULL);
+  Entity *subStruct1 = yeCreateArray(NULL, mainStruct);
   Entity *subStruct2 = yeCreateArray(NULL, mainStruct);
   Entity *test3 = yeCreateFloat(NULL, 1, subStruct2);
 

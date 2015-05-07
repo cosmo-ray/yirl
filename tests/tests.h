@@ -2,9 +2,10 @@
 #define _TESTS_H_
 
 void testLifecycleSimple(void);
-void testsLifecycleFlow(void);
-void testsLifecycleComplex(void);
+void testLifecycleFlow(void);
+void testLifecycleComplex(void);
 
-void testsSetSimple(void);
+void testSetSimple(void);
+void testSetComplex(void);
 
 #endif

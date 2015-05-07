@@ -252,13 +252,12 @@ Entity *yeCreateInt(char *name, int value, Entity *father)
  */
 Entity *yeCreateArray(char *name, Entity *father)
 {
-  DPRINT_INFO("create array\n");
   ArrayEntity *ret;
   YE_ALLOC_ENTITY(ret, ArrayEntity);
   yeInit((Entity *)ret, name, ARRAY, father);
   ret->len = 0;
   ret->values = NULL;
-  return ((Entity *)ret);
+  return (YE_TO_ENTITY(ret));
 }
 
 /**
@@ -281,13 +280,14 @@ Entity *yeCreateFloat(char *name, double value, Entity *father)
  * @param fathers  the fathers of the entity to create
  * @return  a new StructEntity
  */
-Entity *yeCreateStruct(char *name, Entity *father)
+Entity *yeCreateStruct(char *name, void *proto, Entity *father)
 {
   StructEntity *ret;
   YE_ALLOC_ENTITY(ret, StructEntity);
   yeInit(YE_TO_ENTITY(ret), name, STRUCT, father);
   ret->len = 0;
   ret->values = NULL;
+  ret->prototype = proto;
   /* REAJUSTE_REF(); */
   return (YE_TO_ENTITY(ret));
 }
@@ -439,7 +439,7 @@ Entity *yeCreate(char *name, EntityType type, Entity *father)
   switch (type)
     {
     case STRUCT:
-      return (yeCreateStruct(name, father));
+      return (yeCreateStruct(name, NULL,father));
     case YSTRING:
       return (yeCreateString(name, NULL, father));
     case YINT:
@@ -804,18 +804,6 @@ const char *yePrintableName(const Entity *entity)
     return ("(null)");
   return (yeName(entity));
 }
-  
-/**
- * @param entity
- * @return the entity's structure's name if entity is not null, "(null)" otherwise
- */
-const char *yePrintableStructName(const Entity *entity)
-{
-  if (entity == NULL)
-    return ("(null)");
-  return (YE_TO_C_STRUCT(entity)->structName);
-}
-
 
 /**
  * @param src   the entity to copy from

@@ -105,9 +105,7 @@ extern "C"
 
     unsigned int len;
     Entity	**values;
-    const char	*structName;
-    // prototype is a void * because EntityStructPrototype can't contain a class(i think)
-    const void	*prototype;
+    void	*prototype;
   } StructEntity;
 
   typedef	struct
@@ -214,7 +212,7 @@ extern "C"
    /** Ensemble de fonction pour cree et detruire chaque type d'entite.
     * Cannot initialise a structure in thers functions because the data are to complex
     */
-  Entity *yeCreateStruct(char *name, Entity *fathers) WEAK;
+  Entity *yeCreateStruct(char *name, void *proto, Entity *fathers) WEAK;
   Entity *yeCreateInt(char *name, int value, Entity *fathers) WEAK;
   Entity *yeCreateFloat(char *name, double value, Entity *fathers) WEAK;
   Entity *yeCreateString(char *name, const char *string, Entity *fathers) WEAK;
@@ -328,7 +326,6 @@ extern "C++"
 
   /* as yeName but return a printable result */
   const char *yePrintableName(const Entity *entity);
-  const char *yePrintableStructName(const Entity *entity);
 
   /**
    * @param entity

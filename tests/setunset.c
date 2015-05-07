@@ -4,9 +4,9 @@
 #include "tests.h"
 #include "entity.h"
 
-void testsSetSimple(void)
+void testSetSimple(void)
 {
-  Entity *mainStruct = yeCreateStruct(NULL, NULL);
+  Entity *mainStruct = yeCreateArray(NULL, NULL);
   Entity *test1 = yeCreateInt(NULL, 1, mainStruct);
   Entity *test2 = yeCreateFloat(NULL, 1, mainStruct);
   Entity *test3 = yeCreateString(NULL, "test", mainStruct);
@@ -44,4 +44,11 @@ void testsSetSimple(void)
 
   YE_DESTROY(mainStruct);
   g_assert(mainStruct == NULL);
+}
+
+void testSetComplex(void)
+{
+  Entity *mainStruct = yeCreateArray(NULL, NULL);
+ 
+  (void)mainStruct;
 }
