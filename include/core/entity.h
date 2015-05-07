@@ -162,12 +162,14 @@ extern "C"
   const char *yeTypeToString(int type) WEAK;
 
   /**
-   * @return the entity at the position of the index or NULL
+   * @return the entity at the position of @index or NULL
    */
   Entity *yeGetByIdx(Entity *entity, unsigned int index) WEAK;
     
   /**
-   * @return the entity at the position wich has the given name or NULL
+   * @param entity  the entity whe are looking into
+   * @param name    the entity name whe are looking for
+   * @return        The found Entity named @name in @entity
    */
   Entity *yeGetByStr(Entity *entity, const char *name) WEAK;
 
@@ -197,11 +199,23 @@ extern "C"
 
   
   /**
-   * change the capacity than the array can store and init it to 0, "" or NULL
+   ~* change the capacity than the array can store
    */
   Entity *yeExpandArray(Entity *entity, unsigned int size) WEAK;
+
+  /**
+   * Add a new entity to the entity <entity>
+   * @param entity  the entity where we will add a new entity
+   * @param toPush  the entity to add
+   */
   int yePushBack(Entity *array, Entity *toPush) WEAK;
+
+  /**
+   * @param entity
+   * @return  the entity that is erased from the entity <entity>
+   */
   Entity *yePopBack(Entity *array) WEAK;
+
   Entity *yeRemoveChild(Entity *array, Entity *toRemove);
   
   /**
@@ -229,12 +243,24 @@ extern "C"
   void yeDestroyArray(Entity *entity) WEAK;
 
   /**
-   * Set a referenced Entity to a Entity after checking the type of the referencing entity
-   * @param entity	the referencing Entity
-   * @param other	the referenced Entity
+   * @parap entity
+   * @param value
+   * @return -1 if entity is not og type YINT, <value> otherwise
    */
   void	yeSetInt(Entity *entity, int value) WEAK;
+
+  /**
+   * @parap entity
+   * @param value
+   * @return -1 if entity is not og type YFLOAT, <value> otherwise
+   */
   void	yeSetFloat(Entity *entity, double value) WEAK;
+
+  /**
+   * Set a value to a StringEntity. Free the value if <entity> already had one
+   * @param entity  the StringEntity to set the string to
+   * @param val     the string to set to the StringEntity
+   */
   void	yeSetString(Entity *entity, const char *value) WEAK;
 
   /**
@@ -243,6 +269,12 @@ extern "C"
   void	yeUnsetFunction(Entity *entity) WEAK;
 
   
+  /**
+   * Free the entity's value and set the new value to the entity
+   * @param entity
+   * @param value
+   * @return return <value>
+   */
   void	yeSetFunction(Entity *entity, const char *value) WEAK;
 
 #define yeSet(ENTITY, VALUE) _Generic((VALUE),				\
@@ -253,13 +285,20 @@ extern "C"
 
   
   /**
-   * @brief set the informa
-tion about the arguments of a function
+   * @brief set the information about the arguments of a function
    * @param nArgs number of arguments
    */
   void	yeSetFunctionArgs(Entity *entity, unsigned int nArgs) WEAK;
   
 
+  /**
+   * Set basic information to the entity <entity>
+   * @param entity  the entity to set the basic informations
+   * @param name    the name to set
+   * @param type    the type of the entity
+   * @param fathers  the parent entity of <entity>
+   * @return the entity <entity>
+   */
   Entity *yeInit(Entity *entity, const char *name, EntityType type, Entity *father)  WEAK;
 
   /**
@@ -313,18 +352,56 @@ extern "C++"
 #endif
   
   
+  /**
+   * Get the len attribute of an Entity
+   * @param entity  The Entity we want to get the len
+   * @return    return the attribute len of the entity
+   */
   unsigned int yeLen(Entity *entity) WEAK;;
-  /*Geter pour les entites 
-    certain sont particuliere comme get Fathers qui permet de recuperer entite pere d'une entite (entite pere est celle qui a appeler/cree l'entite en parametre*/
+
+  /**
+   * @parap entity
+   * @param value
+   * @return -1 if entity is not og type YINT, <value> otherwise
+   */
   int	yeGetInt(Entity *entity) WEAK;
+
+  /**
+   * @param entity
+   * @return the entity's value if entity is of type YFLOAT, -1 otherwise
+   */
   double yeGetFloat(Entity *entity) WEAK;
+
+  /**
+   * @param entity
+   * @return the string value 
+   */
   const char *yeGetString(Entity *entity) WEAK;
+
+  /**
+   * @param entity
+   * @return the entity's name
+   */
   const char *yeName(const Entity *entity) WEAK;
+
+  /**
+   * @param entity
+   * @return the entity's fathers
+   */
   Entity **yeFathers(Entity *entity) WEAK;
+
+  /**
+   * @param entity
+   * @return the entity's value if entity is of type YFUNCTION, NULL otherwise
+   */
   const char	*yeGetFunction(Entity *entity) WEAK;
+
   int	yeFunctionNumberArgs(const Entity *entity) WEAK;
 
-  /* as yeName but return a printable result */
+  /**
+   * @param entity
+   * @return the entity's name if entity is not null, "(null)" otherwise
+   */
   const char *yePrintableName(const Entity *entity);
 
   /**

@@ -73,7 +73,7 @@ const char * EntityTypeStrings[] = { "struct", "int", "float", "string",
  * @param type
  * @return 1 if entity is not null and entity's type is the same as type, 0 otherwise
  */
-static int	checkType(const Entity *entity, EntityType type)
+static inline int	checkType(const Entity *entity, EntityType type)
 {
   return (entity != NULL && entity->type == type);
 }
@@ -107,10 +107,6 @@ EntityType yeStringToType(const char *str)
   return (-1);
 }
 
-/**
- * @param type
- * @return the corresponding string of the type
- */
 const char *yeTypeToString(int type)
 {
   return (type < 0 || type >= NBR_ENTITYTYPE)
@@ -118,11 +114,6 @@ const char *yeTypeToString(int type)
     : (EntityTypeStrings[type]);
 }
 
-/**
- * Get the len attribute of an StructEntity
- * @param entity  The Entity we want to get the len
- * @return    return the attribute len of the entity
- */
 unsigned int yeLen(Entity *entity)
 {
   if (!entity) {
@@ -132,11 +123,6 @@ unsigned int yeLen(Entity *entity)
   return (((StructEntity *)entity)->len);
 }
 
-/**
- * @param entity  the entity where we want to get an entity
- * @param index   the index of the entity to get
- * @return  return entity is found, NULL otherwise
- */
 Entity *yeGetByIdx(Entity *entity, unsigned int index)
 {
   if (entity == NULL) {
@@ -182,11 +168,6 @@ static Entity *yeGetByIdxFastWithEnd(Entity *entity, const char *name, int end)
   return (NULL);
 }
 
-/**
- * @param entity  The entity where we want to find the entity
- * @name  The entity name we are looking for
- * @return return the entity named <name> in the entity <entity>
- */
 Entity *yeGetByStrFast(Entity *entity, const char *name)
 {
   unsigned int	i = 0;
@@ -203,11 +184,6 @@ Entity *yeGetByStrFast(Entity *entity, const char *name)
   return NULL;
 }
 
-/**
- * @param entity  the entity whe are looking into
- * @param name    the entity name whe are looking for
- * @return        The found Entity named <name> in <entity>
- */
 Entity *yeGetByStr(Entity *entity, const char *name)
 {
   int	i;
@@ -224,32 +200,15 @@ Entity *yeGetByStr(Entity *entity, const char *name)
     (yeGetByStrFast(entity, name));
 }
 
-/* We want only one ref on a new entity */
-#define REAJUSTE_REF() do {			\
-  if (father)					\
-    ret->refCount -= 1;				\
-  } while (0);
-
-/**
- * @param value   value of the InEntity
- * @param fathers  the parent entity of the new entity
- * @return  return the new created entity
- */
 Entity *yeCreateInt(char *name, int value, Entity *father)
 {
   IntEntity *ret;
   YE_ALLOC_ENTITY(ret, IntEntity);
   yeInit((Entity *)ret, name, YINT, father);
   ret->value = value;
-  /* REAJUSTE_REF(); */
   return ((Entity *)ret);
 }
 
-/**
- * @param contentType   the type of the content
- * @param fathers        the fathers of the created entity
- * @return  return a new ArrayEntity 
- */
 Entity *yeCreateArray(char *name, Entity *father)
 {
   ArrayEntity *ret;
@@ -260,26 +219,15 @@ Entity *yeCreateArray(char *name, Entity *father)
   return (YE_TO_ENTITY(ret));
 }
 
-/**
- * @param value
- * @param fathers  the fathers of the entity to create
- * @return  a new FloatEntity
- */
 Entity *yeCreateFloat(char *name, double value, Entity *father)
 {
   FloatEntity *ret;
   YE_ALLOC_ENTITY(ret, FloatEntity);
   yeInit((Entity *)ret, name, YFLOAT, father);
   ret->value = value;
-  /* REAJUSTE_REF(); */
   return ((Entity *)ret);
 }
 
-/**
- * @param value
- * @param fathers  the fathers of the entity to create
- * @return  a new StructEntity
- */
 Entity *yeCreateStruct(char *name, void *proto, Entity *father)
 {
   StructEntity *ret;
@@ -288,15 +236,9 @@ Entity *yeCreateStruct(char *name, void *proto, Entity *father)
   ret->len = 0;
   ret->values = NULL;
   ret->prototype = proto;
-  /* REAJUSTE_REF(); */
   return (YE_TO_ENTITY(ret));
 }
 
-/**
- * @param value   the name of the function
- * @param fathers  the fathers of the entity to create
- * @return  a new FunctionEntity
- */
 Entity *yeCreateFunction(char *name, const char *value, Entity *father)
 {
   FunctionEntity *ret;
@@ -308,11 +250,6 @@ Entity *yeCreateFunction(char *name, const char *value, Entity *father)
   return (YE_TO_ENTITY(ret));
 }
 
-/**
- * @param value
- * @param fathers  the fathers of the entity to create
- * @return  a new StringEntity
- */
 Entity *yeCreateString(char *name, const char *string, Entity *father)
 {
   StringEntity *ret;
@@ -352,25 +289,16 @@ static void destroyChilds(Entity *entity)
   }
 }
 
-/**
- * @param entity
- */
 void yeDestroyInt(Entity *entity)
 {
   YE_DESTROY_ENTITY(entity, IntEntity);
 }
 
-/**
- * @param entity
- */
 void yeDestroyFloat(Entity *entity)
 {
   YE_DESTROY_ENTITY(entity, FloatEntity);
 }
 
-/**
- * @param entity
- */
 void yeDestroyFunction(Entity *entity)
 {
   if (YE_TO_FUNC(entity)->value != NULL &&
@@ -380,9 +308,6 @@ void yeDestroyFunction(Entity *entity)
   YE_DESTROY_ENTITY(entity, FunctionEntity);
 }
 
-/**
- * @param entity
- */
 void yeDestroyString(Entity *entity)
 {
   if (((StringEntity *)entity)->value != NULL &&
@@ -392,10 +317,6 @@ void yeDestroyString(Entity *entity)
   YE_DESTROY_ENTITY(entity, StringEntity);
 }
 
-/**
- * @TODO: TO IMPLEMENT
- * @param entity
- */
 void yeDestroyStruct(Entity *entity)
 {
   if(entity->refCount == 1) {
@@ -405,9 +326,6 @@ void yeDestroyStruct(Entity *entity)
   YE_DESTROY_ENTITY(entity, StructEntity);
 }
 
-/**
- * @param entity
- */
 void yeDestroyArray(Entity *entity)
 {
   if(entity->refCount == 1) {
@@ -428,12 +346,6 @@ void yeDestroy(Entity *entity)
   yeDestroyInternal(entity);
 }
 
-/**
- * Create a new entity of type <type>
- * @param type        the type of the entity we want to create
- * @param fathers      the fathers of the entity to create
- * @param typeAyyar   the type of content to create an ArrayEntity
- */
 Entity *yeCreate(char *name, EntityType type, void *val, Entity *father)
 {
   switch (type)
@@ -458,13 +370,6 @@ Entity *yeCreate(char *name, EntityType type, void *val, Entity *father)
   return (NULL);
 }
 
-/**
- * Will add new entity to the array entity
- * @param entity    the entity to manage
- * @param size      the new size
- * @param arraytype the type of the ArrayEntity's values
- * @return the ArrayEntity
- */
 static ArrayEntity	*manageArrayInternal(ArrayEntity *entity,
 					     unsigned int size)
 {
@@ -484,13 +389,6 @@ static ArrayEntity	*manageArrayInternal(ArrayEntity *entity,
   return entity;
 }
 
-/**
- * Will add new entity to the array entity
- * @param entity    the entity to manage
- * @param size      the new size
- * @param arraytype the type of the ArrayEntity's values
- * @return the ArrayEntity if entity is an ArrayEntity, NULL otherwise
- */
 Entity *yeExpandArray(Entity *entity, unsigned int size)
 {
   if (!checkType(entity, YARRAY) && !checkType(entity, YSTRUCT)) {
@@ -500,11 +398,6 @@ Entity *yeExpandArray(Entity *entity, unsigned int size)
   return ((Entity*)manageArrayInternal((ArrayEntity*)entity, size));
 }
 
-/**
- * Add a new entity to the entity <entity>
- * @param entity  the entity where we will add a new entity
- * @param toPush  the entity to add
- */
 int	yePushBack(Entity *entity, Entity *toPush)
 {
   int	len;
@@ -552,10 +445,6 @@ Entity *yeRemoveChild(Entity *array, Entity *toRemove)
 }
 
 
-/**
- * @param entity
- * @return  the entity that is erased from the entity <entity>
- */
 Entity *yePopBack(Entity *entity)
 {
   int	len;
@@ -583,14 +472,6 @@ static void yeAttachFather(Entity *entity, Entity *father)
   entity->nbFathers += 1;
 }
 
-/**
- * Set basic information to the entity <entity>
- * @param entity  the entity to set the basic informations
- * @param name    the name to set
- * @param type    the type of the entity
- * @param fathers  the parent entity of <entity>
- * @return the entity <entity>
- */
 Entity *yeInit(Entity *entity, const char *name, EntityType type, Entity *father)
 {
   if (!entity)
@@ -609,11 +490,6 @@ Entity *yeInit(Entity *entity, const char *name, EntityType type, Entity *father
 }
 
 
-/**
- * Set a value to a StringEntity. Free the value if <entity> already had one
- * @param entity  the StringEntity to set the string to
- * @param val     the string to set to the StringEntity
- */
 void	yeSetString(Entity *entity, const char *val)
 {
   if (((StringEntity *)entity)->value != NULL)
@@ -679,12 +555,6 @@ void	yeUnsetFunction(Entity *entity)
   yeSetFunctionArgs(entity, 0);
 }
 
-/**
- * Free the entity's value and set the new value to the entity
- * @param entity
- * @param value
- * @return return <value>
- */
 void	yeSetFunction(Entity *entity, const char *value)
 {
   return yeSetString(entity, value);
@@ -696,11 +566,6 @@ void	yeSetFunctionArgs(Entity *entity, unsigned int nArgs)
 }
 
 
-/**
- * @parap entity
- * @param value
- * @return -1 if entity is not og type YINT, <value> otherwise
- */
 void	yeSetInt(Entity *entity, int value)
 {
   if (yeType(entity) == YFLOAT)
@@ -708,20 +573,11 @@ void	yeSetInt(Entity *entity, int value)
   ((IntEntity *)entity)->value = value;
 }
 
-/**
- * @parap entity
- * @param value
- * @return -1 if entity is not og type YFLOAT, <value> otherwise
- */
 void	yeSetFloat(Entity *entity, double value)
 {
   ((FloatEntity *)entity)->value = value;
 }
 
-/**
- * @param entity
- * @return the string value 
- */
 const char *yeGetString(Entity *entity)
 {
   if (!checkType(entity, YSTRING)) {
@@ -730,11 +586,6 @@ const char *yeGetString(Entity *entity)
   return ((StringEntity *)entity)->value;
 }
 
-/**
- * @parap entity
- * @param value
- * @return -1 if entity is not og type YINT, <value> otherwise
- */
 int	yeGetInt(Entity *entity)
 {
   if (!checkType(entity, YINT)) {
@@ -743,10 +594,6 @@ int	yeGetInt(Entity *entity)
   return YE_TO_INT(entity)->value;
 }
 
-/**
- * @param entity
- * @return the entity's value if entity is of type YFUNCTION, NULL otherwise
- */
 const char	*yeGetFunction(Entity *entity)
 {
   if (!checkType(entity, YFUNCTION)) {
@@ -764,10 +611,6 @@ int	yeFunctionNumberArgs(const Entity *entity)
   return YE_TO_C_FUNC(entity)->nArgs;
 }
 
-/**
- * @param entity
- * @return the entity's value if entity is of type YFLOAT, -1 otherwise
- */
 double	yeGetFloat(Entity *entity)
 {
   if (!checkType(entity, YFLOAT)) {
@@ -776,28 +619,16 @@ double	yeGetFloat(Entity *entity)
   return ((FloatEntity *)entity)->value;
 }
 
-/**
- * @param entity
- * @return the entity's name
- */
 const char *yeName(const Entity *entity)
 {
   return (entity->name);
 }
 
-/**
- * @param entity
- * @return the entity's fathers
- */
 Entity **yeFathers(Entity *entity)
 {
   return (entity->fathers);
 }
 
-/**
- * @param entity
- * @return the entity's name if entity is not null, "(null)" otherwise
- */
 const char *yePrintableName(const Entity *entity)
 {
   if (entity == NULL)
@@ -805,10 +636,6 @@ const char *yePrintableName(const Entity *entity)
   return (yeName(entity));
 }
 
-/**
- * @param src   the entity to copy from
- * @param des   the entity to copy to
- */
 Entity*		yeCopy(Entity* src, Entity* dest)
 {
   const char* strVal = NULL;
