@@ -254,7 +254,7 @@ Entity *yeCreateArray(char *name, Entity *father)
 {
   ArrayEntity *ret;
   YE_ALLOC_ENTITY(ret, ArrayEntity);
-  yeInit((Entity *)ret, name, ARRAY, father);
+  yeInit((Entity *)ret, name, YARRAY, father);
   ret->len = 0;
   ret->values = NULL;
   return (YE_TO_ENTITY(ret));
@@ -284,7 +284,7 @@ Entity *yeCreateStruct(char *name, void *proto, Entity *father)
 {
   StructEntity *ret;
   YE_ALLOC_ENTITY(ret, StructEntity);
-  yeInit(YE_TO_ENTITY(ret), name, STRUCT, father);
+  yeInit(YE_TO_ENTITY(ret), name, YSTRUCT, father);
   ret->len = 0;
   ret->values = NULL;
   ret->prototype = proto;
@@ -301,7 +301,7 @@ Entity *yeCreateFunction(char *name, const char *value, Entity *father)
 {
   FunctionEntity *ret;
   YE_ALLOC_ENTITY(ret, FunctionEntity);
-  yeInit((Entity *)ret, name, FUNCTION, father);
+  yeInit((Entity *)ret, name, YFUNCTION, father);
   ret->nArgs = 0;
   ret->value = NULL;
   yeSetString(YE_TO_ENTITY(ret), value);
@@ -438,7 +438,7 @@ Entity *yeCreate(char *name, EntityType type, void *val, Entity *father)
 {
   switch (type)
     {
-    case STRUCT:
+    case YSTRUCT:
       return (yeCreateStruct(name, val, father));
     case YSTRING:
       return (yeCreateString(name, val, father));
@@ -446,9 +446,9 @@ Entity *yeCreate(char *name, EntityType type, void *val, Entity *father)
       return (yeCreateInt(name, *((int *)val), father));
     case YFLOAT:
       return (yeCreateFloat(name, *((double *)val), father));
-    case ARRAY:
+    case YARRAY:
       return (yeCreateArray(name, father));
-    case FUNCTION:
+    case YFUNCTION:
       return (yeCreateFunction(name, val, father));
     default:
       DPRINT_ERR( "%s generic constructor not yet implemented\n",
@@ -493,7 +493,7 @@ static ArrayEntity	*manageArrayInternal(ArrayEntity *entity,
  */
 Entity *yeExpandArray(Entity *entity, unsigned int size)
 {
-  if (!checkType(entity, ARRAY) && !checkType(entity, STRUCT)) {
+  if (!checkType(entity, YARRAY) && !checkType(entity, YSTRUCT)) {
     DPRINT_ERR("yeExpandArray: bad entity\n");
     return NULL;
   }
@@ -511,7 +511,7 @@ int	yePushBack(Entity *entity, Entity *toPush)
 
   if (!entity || !toPush)
     return -1;
-  if (!checkType(entity, ARRAY) && !checkType(entity, STRUCT)) {
+  if (!checkType(entity, YARRAY) && !checkType(entity, YSTRUCT)) {
     DPRINT_ERR("yePushBack: bad entity, "
 	       "should be of type array or struct instead of %s\n",
 	       yeTypeToString( yeType(entity)));
@@ -530,7 +530,7 @@ Entity *yeRemoveChild(Entity *array, Entity *toRemove)
   int	len;
   Entity *tmp = NULL;
 
-  if (!checkType(array, ARRAY) && !checkType(array, STRUCT)) {
+  if (!checkType(array, YARRAY) && !checkType(array, YSTRUCT)) {
     DPRINT_ERR("yeRemoveChild: bad entity\n");
     return NULL;
   }
@@ -561,7 +561,7 @@ Entity *yePopBack(Entity *entity)
   int	len;
   Entity *ret;
 
-  if (!checkType(entity, ARRAY) && !checkType(entity, STRUCT)) {
+  if (!checkType(entity, YARRAY) && !checkType(entity, YSTRUCT)) {
     DPRINT_ERR("yePopBack: bad entity\n");
     return NULL;
   }
@@ -631,7 +631,7 @@ int yeAttach(Entity *on, Entity *entity, unsigned int idx)
 {
   if (!on)
     return -1;
-  if (on->type != ARRAY && on->type != STRUCT)
+  if (on->type != YARRAY && on->type != YSTRUCT)
     return -1;
   if (idx >= yeLen(on))
     return -1;
@@ -745,11 +745,11 @@ int	yeGetInt(Entity *entity)
 
 /**
  * @param entity
- * @return the entity's value if entity is of type FUNCTION, NULL otherwise
+ * @return the entity's value if entity is of type YFUNCTION, NULL otherwise
  */
 const char	*yeGetFunction(Entity *entity)
 {
-  if (!checkType(entity, FUNCTION)) {
+  if (!checkType(entity, YFUNCTION)) {
     RETURN_ERROR_BAD_TYPE("getFunctionVal", entity, NULL);
   }
   return YE_TO_FUNC(entity)->value;
@@ -820,7 +820,7 @@ Entity*		yeCopy(Entity* src, Entity* dest)
 		yeTypeToString(yeType(src)));
     switch (yeType(src))
     {
-    case STRUCT:
+    case YSTRUCT:
       yeCopyContener((StructEntity*)src, (StructEntity*)dest);
       break;
     case YINT:
@@ -835,10 +835,10 @@ Entity*		yeCopy(Entity* src, Entity* dest)
 		  (strVal != NULL) ? strVal : "null");
       yeSetString(dest, strVal);
       break;
-    case ARRAY:
+    case YARRAY:
       yeCopyContener((StructEntity*)src, (StructEntity*)dest);
       break;
-    case FUNCTION:
+    case YFUNCTION:
       nArgs = yeFunctionNumberArgs(src);
       strVal = yeGetFunction(src);
       DPRINT_INFO("\t\tvalue is function '%s'\n", strVal);
@@ -897,7 +897,7 @@ int yeToString(Entity *entity, char *buf, int sizeBuf)
     case YFLOAT:
       //printf("val: %f\n", yeGetFloat(entity));
       ETS_RETURN (snprintf(buf, sizeBuf, "%f", yeGetFloat(entity)));
-    case FUNCTION:
+    case YFUNCTION:
       if (yeGetFunction(entity) == NULL) {
 	ETS_RETURN (snprintf(buf, sizeBuf, "function %s: (null)",
 			     yePrintableName(entity)));
@@ -913,7 +913,7 @@ int yeToString(Entity *entity, char *buf, int sizeBuf)
 	goto error;
       ETS_INCR_RET(retETS);
       ETS_RETURN (ret);
-    case ARRAY:
+    case YARRAY:
       strcpy(buf, "["); // may bug here if sizeBuf is too small
       ETS_INCR_RET(1);
       for (i = 0; i < yeLen(entity); ++i)
@@ -929,7 +929,7 @@ int yeToString(Entity *entity, char *buf, int sizeBuf)
       strcpy(buf, "]");  // may bug here if sizeBuf is too small
       ETS_INCR_RET(1);
       ETS_RETURN (ret);
-    case STRUCT:
+    case YSTRUCT:
       retETS = snprintf(buf, sizeBuf, "%s : {\n", yePrintableName(entity));
       if (retETS < 0)
 	goto error;

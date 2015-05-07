@@ -45,12 +45,12 @@ extern "C"
   typedef enum
     {
       BAD_TYPE = -1,
-      STRUCT = 0,
+      YSTRUCT = 0,
       YINT,
       YFLOAT,
       YSTRING,
-      ARRAY,
-      FUNCTION
+      YARRAY,
+      YFUNCTION
     } EntityType;
   
 #define	NBR_ENTITYTYPE	6
