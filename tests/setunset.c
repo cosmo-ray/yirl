@@ -65,5 +65,25 @@ void testSetComplex(void)
 {
   Entity *mainStruct = yeCreateArray(NULL, NULL);
 
-  (void)mainStruct;
+  for (int i = 0; i < 10; ++i) {
+    char *tmp = g_strdup_printf("Dude%d", i);
+    
+    yeCreateInt(tmp, i, mainStruct);
+    g_free(tmp);
+  }
+
+  for (int i = 0; i < 10; ++i) {
+    g_assert(yeGetInt(yeGet(mainStruct, i)) == i);
+    yeSetAt(mainStruct, i, i * i);
+  }
+
+  for (int i = 0; i < 10; ++i) {
+    char *tmp = g_strdup_printf("Dude%d", i);
+    g_assert(yeGetInt(yeGet(mainStruct, tmp)) == i * i);
+    g_free(tmp);
+  }
+
+  YE_DESTROY(mainStruct);
+  g_assert(mainStruct == NULL);
+
 }
