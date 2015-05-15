@@ -8,6 +8,7 @@ include_directories(
 
 add_subdirectory( ${PROJECT_SOURCE_DIR}/core/entity )
 add_subdirectory( ${PROJECT_SOURCE_DIR}/core/util )
+add_subdirectory( ${PROJECT_SOURCE_DIR}/core/script )
 add_subdirectory( ${PROJECT_SOURCE_DIR}/tests )
 
 		

@@ -8,5 +8,6 @@ void testLifecycleComplex(void);
 void testSetSimple(void);
 void testSetComplex(void);
 void testSetGeneric(void);
+void testLuaScritLifecycle(void);
 
 #endif

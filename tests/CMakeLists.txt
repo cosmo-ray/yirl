@@ -1,4 +1,4 @@
-set (SOURCE main.c lifecycle.c setunset.c)
+set (SOURCE main.c lifecycle.c setunset.c lua-script.c)
 
 add_executable(
 	tests
@@ -10,4 +10,5 @@ target_link_libraries(
 	glib-2.0
 	entity
 	util
+	luaScript
 )
