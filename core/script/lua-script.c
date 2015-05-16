@@ -19,7 +19,7 @@
 #include <lualib.h>
 #include <lauxlib.h>
 
-#include "luaScript.h"
+#include "lua-script.h"
 #include "debug.h"
 static int t = -1;
 

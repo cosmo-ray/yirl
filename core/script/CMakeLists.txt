@@ -1,4 +1,4 @@
-set (SOURCE luaScript.c
+set (SOURCE lua-script.c
     	    script.c)
 
 add_library (luaScript STATIC ${SOURCE})
