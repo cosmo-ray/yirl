@@ -18,7 +18,7 @@
 #ifndef _SCRIPT_H_
 #define _SCRIPT_H_
 
-#include "entity.h"
+#include <stdarg.h>
 
 #ifndef MAX_SCRIPT_LANG
 #define MAX_SCRIPT_LANG 64
@@ -31,17 +31,21 @@ typedef struct {
 
 
 typedef struct {
-  int (*init)(void *sm, void *args);
-  int (*loadFile)(void *, char *);
-  void *(*vCall)(void *, Entity *, va_list *ap);
-  void *(*call)(void *, Entity *, ...);
-  void *(*vNameCall)(void *, const char *name, int nbArg, va_list *ap);
-  void *(*nameCall)(void *, const char *name, int nbArg, ...);
-  int (*destroy)(void *);
+  int (*init)(void *opac, void *args);
+  int (*loadFile)(void *opac, char *);
+  /* void *(*vCall)(void *opac, const char *name, int nbArg, va_list *ap); */
+  void *(*call)(void *opac, const char *name, int nbArg, va_list *ap);
+  int (*destroy)(void *opac);
 } YScriptOps;
 
 YScriptsTab *ysScriptsTab(void);
 
+void *ysCall(void *sm, const char *name, int nbArg, ...);
+
+static inline void *ysVCall(void *sm, const char *name, int nbArg, va_list *ap)
+{
+  return ((YScriptOps *)sm)->call(sm, name, nbArg, ap);
+}
 /**
  * registre a new type in scriptsTab
  */

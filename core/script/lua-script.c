@@ -15,6 +15,7 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <stdlib.h>
 #include <glib.h>
 #include <lualib.h>
 #include <lauxlib.h>
@@ -44,7 +45,7 @@ static int luaLoadFile(void *sm, char *filename)
   return luaL_dofile(GET_L(sm), filename);
 }
 
-static void *luaVNameCall(void *sm, const char *name, int nbArg, va_list *ap)
+static void *luaCall(void *sm, const char *name, int nbArg, va_list *ap)
 {
   lua_State *l = GET_L(sm);
   
@@ -52,52 +53,16 @@ static void *luaVNameCall(void *sm, const char *name, int nbArg, va_list *ap)
   if (lua_isnil(l, -1))
     return NULL;
 
-  Entity *tmp;
+  void *tmp;
 
   for (int i = 0; i < nbArg; ++i)
     {
-      tmp = va_arg(*ap, Entity *);
+      tmp = va_arg(*ap, void *);
       DPRINT_INFO("pushing %p\n", tmp);
       lua_pushlightuserdata(l, tmp);
     }
   lua_call(l, nbArg, 1);
-  return (Entity *)lua_touserdata(l, 0);
-}
-
-static void *luaNameCall(void *sm, const char *name, int nbArg, ...)
-{
-  void *ret;
-  va_list ap;
-
-  va_start(ap, nbArg);
-  ret = luaVNameCall(sm, name, nbArg, &ap);
-  va_end(ap);
-  return ret;
-}
-
-static void *luaVCall(void *sm, Entity *func, va_list *ap)
-{
-  if (func == NULL)
-    {
-      DPRINT_ERR("entity is NULL\n");
-      return NULL;
-    }
-  if (!yeGetFunction(func))
-    return NULL;
-  return luaVNameCall(sm, yeGetFunction(func), YE_TO_FUNC(func)->nArgs, ap);
-}
-
-static void *luaCall(void *sm, Entity *func, ...)
-{
-  void *ret;
-  va_list ap;
-
-  if (!func)
-    return NULL;
-  va_start(ap, func);
-  ret = luaVCall(sm, func, &ap);
-  va_end(ap);
-  return ret;
+  return (void *)lua_touserdata(l, 0);
 }
 
 static int luaDestroy(void *sm)
@@ -118,9 +83,6 @@ static void *luaAllocator(void)
   ret->ops.init = luaInit;
   ret->ops.destroy = luaDestroy;
   ret->ops.loadFile = luaLoadFile;
-  ret->ops.vNameCall = luaVNameCall;
-  ret->ops.nameCall = luaNameCall;
-  ret->ops.vCall = luaVCall;
   ret->ops.call = luaCall;
   return (void *)ret;
 }
