@@ -231,7 +231,7 @@ extern "C"
   Entity *yeCreateFloat(char *name, double value, Entity *fathers) WEAK;
   Entity *yeCreateString(char *name, const char *string, Entity *fathers) WEAK;
   Entity *yeCreateFunction(char *name, const char *string, Entity *fathers) WEAK;
-  Entity *yeCreateArray(char *name, Entity *fathers) WEAK;
+  Entity *yeCreateArray(const char *name, Entity *fathers) WEAK;
 
   void yeDestroy(Entity *entity) WEAK;
   void yeDestroyStruct(Entity *entity) WEAK;

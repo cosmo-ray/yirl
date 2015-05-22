@@ -209,7 +209,7 @@ Entity *yeCreateInt(char *name, int value, Entity *father)
   return ((Entity *)ret);
 }
 
-Entity *yeCreateArray(char *name, Entity *father)
+Entity *yeCreateArray(const char *name, Entity *father)
 {
   ArrayEntity *ret;
   YE_ALLOC_ENTITY(ret, ArrayEntity);

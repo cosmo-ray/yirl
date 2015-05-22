@@ -1,4 +1,4 @@
-set (SOURCE entity-script.c)
+set (SOURCE entity-script.c lua-binding.c)
 
 add_library (yes STATIC ${SOURCE})
 
