@@ -45,6 +45,12 @@ static int luaLoadFile(void *sm, char *filename)
   return luaL_dofile(GET_L(sm), filename);
 }
 
+static int luaRegistreFunc(void *sm, char *name, void *arg)
+{
+  lua_register(GET_L(sm), name, arg);
+  return 0;
+}
+
 static void *luaCall(void *sm, const char *name, int nbArg, va_list *ap)
 {
   lua_State *l = GET_L(sm);
@@ -62,7 +68,7 @@ static void *luaCall(void *sm, const char *name, int nbArg, va_list *ap)
       lua_pushlightuserdata(l, tmp);
     }
   lua_call(l, nbArg, 1);
-  return (void *)lua_touserdata(l, 0);
+  return (void *)lua_topointer(l, 1);
 }
 
 static int luaDestroy(void *sm)
@@ -84,10 +90,9 @@ static void *luaAllocator(void)
   ret->ops.destroy = luaDestroy;
   ret->ops.loadFile = luaLoadFile;
   ret->ops.call = luaCall;
+  ret->ops.registreFunc = luaRegistreFunc;
   return (void *)ret;
 }
-
-
 
 int ysLuaGetType(void)
 {

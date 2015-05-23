@@ -16,9 +16,22 @@
 */
 
 #include <glib.h>
-
+#include <stdio.h>
 #include "tests.h"
 #include "lua-script.h"
+
+static void *addPtr(const void *arg1, const void *arg2)
+{
+  return (void *)((long)arg1 + (long)arg2);
+}
+
+static int     luaAddPtr(lua_State *l)
+{
+  void *ret = addPtr(lua_topointer(l, 1), lua_topointer(l, 2));
+
+  lua_pushlightuserdata(l, ret);
+  return (1);
+}
 
 void testLuaScritLifecycle(void)
 {
@@ -28,6 +41,9 @@ void testLuaScritLifecycle(void)
   g_assert(!ysLuaGetType());
   sm = ysNewScriptManager(NULL, 0);
   g_assert(sm);
+  g_assert((long)addPtr((void *)1, (void *)2) == 3);
+  g_assert(!ysRegistreFunc(sm, "addPtr", luaAddPtr));
+  g_assert((long)ysCall(sm, "addPtr", 2, 1, 2) == 3);
   g_assert(!ysDestroyScriptManager(sm));
   g_assert(!ysLuaEnd());
 }

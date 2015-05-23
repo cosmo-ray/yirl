@@ -33,6 +33,7 @@ typedef struct {
 typedef struct {
   int (*init)(void *opac, void *args);
   int (*loadFile)(void *opac, char *);
+  int (* registreFunc)(void *opac, char *name, void *arg);
   /* void *(*vCall)(void *opac, const char *name, int nbArg, va_list *ap); */
   void *(*call)(void *opac, const char *name, int nbArg, va_list *ap);
   int (*destroy)(void *opac);
@@ -46,6 +47,12 @@ static inline void *ysVCall(void *sm, const char *name, int nbArg, va_list *ap)
 {
   return ((YScriptOps *)sm)->call(sm, name, nbArg, ap);
 }
+
+static inline int ysRegistreFunc(void *sm, char *name, void *arg)
+{
+  return ((YScriptOps *)sm)->registreFunc(sm, name, arg);
+}
+
 /**
  * registre a new type in scriptsTab
  */
