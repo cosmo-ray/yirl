@@ -59,10 +59,10 @@ static void *luaCall(void *sm, const char *name, int nbArg, va_list *ap)
   if (lua_isnil(l, -1))
     return NULL;
 
-  void *tmp;
-
   for (int i = 0; i < nbArg; ++i)
     {
+      void *tmp;
+
       tmp = va_arg(*ap, void *);
       DPRINT_INFO("pushing %p\n", tmp);
       lua_pushlightuserdata(l, tmp);
