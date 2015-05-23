@@ -25,6 +25,18 @@ static void *addPtr(const void *arg1, const void *arg2)
   return (void *)((long)arg1 + (long)arg2);
 }
 
+static int     luaToNumber(lua_State *l)
+{
+  lua_pushnumber(l, (long)lua_topointer(l, 1));
+  return (1);
+}
+
+static int     luaToPtr(lua_State *l)
+{
+  lua_pushlightuserdata(l, (void *)lua_tointeger(l, 1));
+  return (1);
+}
+
 static int     luaAddPtr(lua_State *l)
 {
   void *ret = addPtr(lua_topointer(l, 1), lua_topointer(l, 2));
@@ -41,9 +53,17 @@ void testLuaScritLifecycle(void)
   g_assert(!ysLuaGetType());
   sm = ysNewScriptManager(NULL, 0);
   g_assert(sm);
-  g_assert((long)addPtr((void *)1, (void *)2) == 3);
   g_assert(!ysRegistreFunc(sm, "addPtr", luaAddPtr));
-  g_assert((long)ysCall(sm, "addPtr", 2, 1, 2) == 3);
+  g_assert(!ysRegistreFunc(sm, "toNbr", luaToNumber));
+  g_assert(!ysRegistreFunc(sm, "toPtr", luaToPtr));
+
+  if (ysLoadFile(sm, TESTS_PATH"/simple.lua")) {
+    ysPrintError(sm);
+    g_assert(0);
+  }
+
+  g_assert((long)ysCall(sm, "addPtr2", 2, 1, 2) == 3);
+
   g_assert(!ysDestroyScriptManager(sm));
   g_assert(!ysLuaEnd());
 }

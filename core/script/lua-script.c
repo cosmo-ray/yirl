@@ -40,15 +40,20 @@ static int luaInit(void *sm, void *args)
   return 0;
 }
 
-static int luaLoadFile(void *sm, char *filename)
+static int luaLoadFile(void *sm, const char *filename)
 {
   return luaL_dofile(GET_L(sm), filename);
 }
 
-static int luaRegistreFunc(void *sm, char *name, void *arg)
+static int luaRegistreFunc(void *sm, const char *name, void *arg)
 {
   lua_register(GET_L(sm), name, arg);
   return 0;
+}
+
+static void luaPrintError(void *sm)
+{
+  DPRINT_ERR("error in lua script\nerror: %s\n", lua_tostring(GET_L(sm), -1));
 }
 
 static void *luaCall(void *sm, const char *name, int nbArg, va_list *ap)
@@ -56,9 +61,9 @@ static void *luaCall(void *sm, const char *name, int nbArg, va_list *ap)
   lua_State *l = GET_L(sm);
   
   lua_getglobal(l, name);
-  if (lua_isnil(l, -1))
+  if (lua_isnil(l, -1)) {
     return NULL;
-
+  }
   for (int i = 0; i < nbArg; ++i)
     {
       void *tmp;
@@ -90,6 +95,7 @@ static void *luaAllocator(void)
   ret->ops.destroy = luaDestroy;
   ret->ops.loadFile = luaLoadFile;
   ret->ops.call = luaCall;
+  ret->ops.printError = luaPrintError;
   ret->ops.registreFunc = luaRegistreFunc;
   return (void *)ret;
 }

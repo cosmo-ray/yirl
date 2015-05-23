@@ -1,3 +1,5 @@
+add_definitions( -DTESTS_PATH="${CMAKE_SOURCE_DIR}/tests" )
+
 set (SOURCE main.c lifecycle.c setunset.c lua-script.c)
 
 add_executable(
