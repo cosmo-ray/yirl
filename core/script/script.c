@@ -18,12 +18,12 @@
 #include <stdlib.h>
 #include "script.h"
 
-static YScriptsTab scriptsTab = {
+static YManagerAllocator scriptsTab = {
   {NULL },
   0
 };
 
-YScriptsTab *ysScriptsTab(void)
+YManagerAllocator *ysScriptsTab(void)
 {
   return &scriptsTab;
 }

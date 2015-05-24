@@ -27,7 +27,7 @@
 typedef struct {
   void *(*allocator[MAX_SCRIPT_LANG])(void);
   int len;
-} YScriptsTab;
+} YManagerAllocator;
 
 
 typedef struct {
@@ -39,7 +39,7 @@ typedef struct {
   int (*destroy)(void *opac);
 } YScriptOps;
 
-YScriptsTab *ysScriptsTab(void);
+YManagerAllocator *ysScriptsTab(void);
 
 
 void *ysCall(void *sm, const char *name, int nbArg, ...);
