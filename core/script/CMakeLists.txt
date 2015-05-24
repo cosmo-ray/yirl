@@ -1,4 +1,5 @@
 set (SOURCE lua-script.c
+	    lua-convert.c
     	    script.c)
 
 add_library (luaScript STATIC ${SOURCE})

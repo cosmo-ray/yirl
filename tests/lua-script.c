@@ -19,22 +19,11 @@
 #include <stdio.h>
 #include "tests.h"
 #include "lua-script.h"
+#include "lua-convert.h"
 
 static void *addPtr(const void *arg1, const void *arg2)
 {
   return (void *)((long)arg1 + (long)arg2);
-}
-
-static int     luaToNumber(lua_State *l)
-{
-  lua_pushnumber(l, (long)lua_topointer(l, 1));
-  return (1);
-}
-
-static int     luaToPtr(lua_State *l)
-{
-  lua_pushlightuserdata(l, (void *)lua_tointeger(l, 1));
-  return (1);
 }
 
 static int     luaAddPtr(lua_State *l)
