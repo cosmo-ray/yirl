@@ -22,10 +22,43 @@
 #define MAX_NB_MANAGER 64
 #endif
 
-
 typedef struct {
   void *(*allocator[MAX_NB_MANAGER])(void);
   int len;
 } YManagerAllocator;
+
+#include	"debug.h"
+
+/**
+ * example:
+ * UNIMPLEMENTED_FUNCTION(false, bool	updateElems(std::list<IGameElm*> elems))
+ */
+#define	UNIMPLEMENTED_FUNCTION(ret, function...) \
+  function				    \
+  { \
+    DPRINT_WARN(#function" not implemented\n");	\
+    return (ret);\
+  }
+
+/**
+ * this macro is use for function unimplemented on a system
+ */
+#define	UNIMPLEMENTED_FUNCTIONALITY_SYSTEM(ret, cmdName, system, function...) \
+  function	\
+  {\
+  DPRINT_WARN(#cmdName" not implemented on %s\n", system);	\
+  return (ret);\
+  }
+
+
+/**
+ * this macro is use for function returning a void unimplemented on a system
+ */
+#define	V_UNIMPLEMENTED_FUNCTIONALITY_SYSTEM(cmdName, system, function...) \
+  function	\
+  {\
+  DPRINT_WARN(#cmdName" not implemented on %s\n", system);	\
+  }
+
 
 #endif
