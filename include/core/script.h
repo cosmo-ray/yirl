@@ -19,16 +19,7 @@
 #define _SCRIPT_H_
 
 #include <stdarg.h>
-
-#ifndef MAX_SCRIPT_LANG
-#define MAX_SCRIPT_LANG 64
-#endif
-
-typedef struct {
-  void *(*allocator[MAX_SCRIPT_LANG])(void);
-  int len;
-} YManagerAllocator;
-
+#include "utils.h"
 
 typedef struct {
   int (*init)(void *opac, void *args);

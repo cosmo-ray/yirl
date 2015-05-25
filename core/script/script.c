@@ -53,7 +53,7 @@ int ysDestroyScriptManager(void *sm)
 
 int ysRegister(void *(*allocator)(void))
 {
-  if (scriptsTab.len >= MAX_SCRIPT_LANG - 1)
+  if (scriptsTab.len >= MAX_NB_MANAGER - 1)
     return -1;
   scriptsTab.allocator[scriptsTab.len] = allocator;
   scriptsTab.len += 1;
