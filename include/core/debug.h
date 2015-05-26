@@ -15,9 +15,10 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #ifndef	DEBUG_H_
-# define	DEBUG_H_
-# include	<stdio.h>
-# include	<stdarg.h>
+#define	DEBUG_H_
+
+#include <stdio.h>
+#include <stdarg.h>
 
 /**
  * Contient les defines pour les fonction de debug, il faut compiler avec DEBUG en option pour pouvoir les rendre fonctionnelle
@@ -40,44 +41,46 @@ extern "C"
    * @brief Exit the logger
    */
   void debug_exit(void);
-# ifdef __cplusplus
+#ifdef __cplusplus
 }
-# endif
+#endif
 /*DIFFRENT defin selon les besoin*/
-#  define	LOG		DPRINT
-#  define	LOG_INFO       	DPRINT_INFO
-#  define	LOG_WARN    	DPRINT_WARN
-#  define	LOG_ERR		DPRINT_ERR
-#  define	DPRINT(format, args...)		DPRINT_INFO(format, ## args)
-#  define	DPRINT_INFO(format, args...)	_DPRINT(INFO, format, ## args)
-#  define	DPRINT_WARN(format, args...)	_F_DPRINT(WARNING, format, ## args)
-#  define	DPRINT_ERR(format, args...)	_F_DPRINT(D_ERROR, format, ## args)
-# ifdef		DEBUG
-#  define	_F_DPRINT(lvl, format, args...)	_DPRINT(lvl, format, ## args)
-#  define	_DPRINT(lvl, format, args...)	do { debug_print(lvl, "[%11s][%s : %d] " format "\n", __DATE__, __FILE__, __LINE__, ## args); } while (0)
-# else
-#  define	_DPRINT(lvl, format, args...)	do { } while (0)
-#  define	_F_DPRINT(lvl, format, args...)	do { debug_print(lvl, "[%11s][%s : %d] " format "\n", __DATE__, __FILE__, __LINE__, ## args); } while (0)
-# endif  // DEBUG
-#  define	STR(var)	 #var
+#define	LOG		DPRINT
+#define	LOG_INFO       	DPRINT_INFO
+#define	LOG_WARN    	DPRINT_WARN
+#define	LOG_ERR		DPRINT_ERR
+#define	DPRINT(format, args...)		DPRINT_INFO(format, ## args)
+#define	DPRINT_INFO(format, args...)	_DPRINT(INFO, format, ## args)
+#define	DPRINT_WARN(format, args...)	_F_DPRINT(WARNING, format, ## args)
+#define	DPRINT_ERR(format, args...)	_F_DPRINT(D_ERROR, format, ## args)
+
+#ifdef		DEBUG
+
+#define	_F_DPRINT(lvl, format, args...)	_DPRINT(lvl, format, ## args)
+#define	_DPRINT(lvl, format, args...)	do { debug_print(lvl, "[%11s][%s : %d] " format "\n", __DATE__, __FILE__, __LINE__, ## args); } while (0)
+#else
+#define	_DPRINT(lvl, format, args...)	do { } while (0)
+#define	_F_DPRINT(lvl, format, args...)	do { debug_print(lvl, "[%11s][%s : %d] " format "\n", __DATE__, __FILE__, __LINE__, ## args); } while (0)
+#endif  // DEBUG
+#define	STR(var)	 #var
 /**
  * Logging mode Macros
  * The macros have to be defined after other macros to be used by other macros.
  * @see http://gcc.gnu.org/onlinedocs/cpp/Object-like-Macros.html#Object-like-Macros
  */
 
-# define	INFO_STR	STR(INFO)
-# define	WARNING_STR	STR(WARNING)
-# define	ERROR_STR	STR(ERROR)
+#define	INFO_STR	STR(INFO)
+#define	WARNING_STR	STR(WARNING)
+#define	ERROR_STR	STR(ERROR)
 
-# define	INFO	0
-# define	WARNING	1
-# define	D_ERROR	2
+#define	INFO	0
+#define	WARNING	1
+#define	D_ERROR	2
 
 #ifdef	__unix__
-# define	y_vprintf(fd, format, vl)	vdprintf(fd, format, vl)
+#define	y_vprintf(fd, format, vl)	vdprintf(fd, format, vl)
 #else
-# include "Windows.h"
-# define	y_vprintf(fd, format, vl)	
+#include "Windows.h"
+#define	y_vprintf(fd, format, vl)	
 #endif
 #endif	// DEBUG_H_
