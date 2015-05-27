@@ -23,6 +23,16 @@ static YManagerAllocator scriptsTab = {
   0
 };
 
+int ysRegister(void *(*allocator)(void))
+{
+  return yuiRegister(&scriptsTab, allocator);
+}
+
+int ysUnregiste(int t)
+{
+  return yuiUnregiste(&scriptsTab, t);
+}
+
 YManagerAllocator *ysScriptsTab(void)
 {
   return &scriptsTab;
@@ -49,25 +59,6 @@ int ysDestroyScriptManager(void *sm)
   if (!sm)
     return -1;
   return ((YScriptOps *)sm)->destroy(sm);
-}
-
-int ysRegister(void *(*allocator)(void))
-{
-  if (scriptsTab.len >= MAX_NB_MANAGER - 1)
-    return -1;
-  scriptsTab.allocator[scriptsTab.len] = allocator;
-  scriptsTab.len += 1;
-  return scriptsTab.len - 1;
-}
-
-int ysUnregiste(int t)
-{
-  if (scriptsTab.len <= t)
-    return -1;
-  scriptsTab.allocator[scriptsTab.len] = NULL;
-  if (t == scriptsTab.len - 1)
-    scriptsTab.len -= 1;
-  return 0;
 }
 
 void *ysCall(void *sm, const char *name, int nbArg, ...)

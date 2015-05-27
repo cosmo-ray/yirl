@@ -29,6 +29,15 @@ typedef struct {
 
 #include	"debug.h"
 
+
+/**
+ * registre a new type in scriptsTab
+ */
+int yuiRegister(YManagerAllocator *ma, void *(*allocator)(void));
+
+int yuiUnregiste(YManagerAllocator *ma, int t);
+
+
 /**
  * example:
  * UNIMPLEMENTED_FUNCTION(false, bool	updateElems(std::list<IGameElm*> elems))

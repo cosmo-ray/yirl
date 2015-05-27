@@ -57,12 +57,9 @@ static inline void ysPrintError(void *sm)
   return ((YScriptOps *)sm)->printError(sm);
 }
 
-/**
- * registre a new type in scriptsTab
- */
 int ysRegister(void *(*allocator)(void));
-
 int ysUnregiste(int t);
+
 
 /**
  * @args the arguments 
