@@ -42,7 +42,7 @@ void	debug_print_(char const* mode, char const* format, va_list vl);
 FILE*	get_file(int mode);
 void	debug_print_info(FILE* fd, const char* mode);
 
-void	debug_print(int mode, char const* format, ...)
+void	yuiDebugPrint(int mode, char const* format, ...)
 {
   va_list	vl;
 
@@ -64,7 +64,7 @@ void	debug_print(int mode, char const* format, ...)
     }
 }
 
-void	debug_init()
+void	yuiDebugInit()
 {
   log_confs[INFO].file = get_file(0);
   debug_print_info(log_confs[INFO].file, log_confs[INFO].str);
@@ -77,7 +77,7 @@ void	debug_init()
   fprintf(log_confs[D_ERROR].file, "Initiate log file with %p\n", log_confs[D_ERROR].file);
 }
 
-void	debug_exit()
+void	yuiDebugExit()
 {
   debug_print_info(log_confs[INFO].file, INFO_STR);
   fprintf(log_confs[INFO].file, "Closing logging file with %p\n", log_confs[INFO].file);

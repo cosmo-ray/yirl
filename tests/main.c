@@ -24,7 +24,7 @@
 int main(int argc, char **argv)
 {
   g_test_init(&argc, &argv, NULL);
-  debug_init();
+  yuiDebugInit();
   g_test_add_func("/entity/lifecycle/simple", testLifecycleSimple);
   g_test_add_func("/entity/lifecycle/flow", testLifecycleFlow);
   g_test_add_func("/entity/lifecycle/complex", testLifecycleComplex);
@@ -33,5 +33,5 @@ int main(int argc, char **argv)
   g_test_add_func("/entity/setunset/generic", testSetGeneric);
   g_test_add_func("/script/luaScript/lifecycle", testLuaScritLifecycle);
   g_test_run();
-  debug_exit();
+  yuiDebugExit();
 }

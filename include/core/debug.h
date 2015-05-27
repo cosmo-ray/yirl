@@ -30,17 +30,17 @@ extern "C"
   /**
    * @brief Initiate the logger
    */
-  void debug_init(void);
+  void yuiDebugInit(void);
   
   /**
    * @brief Add log to the file or print it to the specified file descriptor.
    */
-  void	debug_print(int mode, char const* format, ...);
+  void	yuiDebugPrint(int mode, char const* format, ...);
   
   /**
    * @brief Exit the logger
    */
-  void debug_exit(void);
+  void yuiDebugExit(void);
 #ifdef __cplusplus
 }
 #endif
@@ -57,10 +57,10 @@ extern "C"
 #ifdef		DEBUG
 
 #define	_F_DPRINT(lvl, format, args...)	_DPRINT(lvl, format, ## args)
-#define	_DPRINT(lvl, format, args...)	do { debug_print(lvl, "[%11s][%s : %d] " format "\n", __DATE__, __FILE__, __LINE__, ## args); } while (0)
+#define	_DPRINT(lvl, format, args...)	do { yuiDebugPrint(lvl, "[%11s][%s : %d] " format "\n", __DATE__, __FILE__, __LINE__, ## args); } while (0)
 #else
 #define	_DPRINT(lvl, format, args...)	do { } while (0)
-#define	_F_DPRINT(lvl, format, args...)	do { debug_print(lvl, "[%11s][%s : %d] " format "\n", __DATE__, __FILE__, __LINE__, ## args); } while (0)
+#define	_F_DPRINT(lvl, format, args...)	do { yuiDebugPrint(lvl, "[%11s][%s : %d] " format "\n", __DATE__, __FILE__, __LINE__, ## args); } while (0)
 #endif  // DEBUG
 #define	STR(var)	 #var
 /**
