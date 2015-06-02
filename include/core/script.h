@@ -65,11 +65,11 @@ int ysUnregiste(int t);
  * @args the arguments 
  * @type the type of script
  */
-void *ysNewScriptManager(void *args, int type);
+void *ysNewManager(void *args, int type);
 
 /**
  * @scr the opaque scriptionManager object 
  */
-int ysDestroyScriptManager(void *sm);
+int ysDestroyManager(void *sm);
 
 #endif

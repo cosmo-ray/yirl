@@ -38,7 +38,7 @@ YManagerAllocator *ysScriptsTab(void)
   return &scriptsTab;
 }
 
-void *ysNewScriptManager(void *args, int t)
+void *ysNewManager(void *args, int t)
 {
   YScriptOps *ret;
 
@@ -54,7 +54,7 @@ void *ysNewScriptManager(void *args, int t)
   return ret;
 }
 
-int ysDestroyScriptManager(void *sm)
+int ysDestroyManager(void *sm)
 {
   if (!sm)
     return -1;
