@@ -71,12 +71,14 @@ extern "C"
 #define	YE_TO_C_FUNC(X) ((const FunctionEntity *)X)
 
 #define YE_DESTROY(X) do {			\
-  if (X->refCount == 1)	{			\
-    yeDestroy(X);				\
-    X = NULL;					\
-  } else {					\
-    yeDestroy(X);				\
-  }						\
+    if (X == NULL)				\
+      break;					\
+    if (X->refCount == 1)	{		\
+      yeDestroy(X);				\
+      X = NULL;					\
+    } else {					\
+      yeDestroy(X);				\
+    }						\
   } while (0);
   
   struct	Entity;
@@ -221,16 +223,16 @@ extern "C"
   /**
    * function who alloc an entity and set it to  0, "" or NULL
    */
-  Entity *yeCreate(char *name, EntityType type, void *val, Entity *fathers) WEAK;
+  Entity *yeCreate(const char *name, EntityType type, void *val, Entity *fathers) WEAK;
 
    /** Ensemble de fonction pour cree et detruire chaque type d'entite.
     * Cannot initialise a structure in thers functions because the data are to complex
     */
-  Entity *yeCreateStruct(char *name, void *proto, Entity *fathers) WEAK;
-  Entity *yeCreateInt(char *name, int value, Entity *fathers) WEAK;
-  Entity *yeCreateFloat(char *name, double value, Entity *fathers) WEAK;
-  Entity *yeCreateString(char *name, const char *string, Entity *fathers) WEAK;
-  Entity *yeCreateFunction(char *name, const char *string, Entity *fathers) WEAK;
+  Entity *yeCreateStruct(const char *name, void *proto, Entity *fathers) WEAK;
+  Entity *yeCreateInt(const char *name, int value, Entity *fathers) WEAK;
+  Entity *yeCreateFloat(const char *name, double value, Entity *fathers) WEAK;
+  Entity *yeCreateString(const char *name, const char *string, Entity *fathers) WEAK;
+  Entity *yeCreateFunction(const char *name, const char *string, Entity *fathers) WEAK;
   Entity *yeCreateArray(const char *name, Entity *fathers) WEAK;
 
   void yeDestroy(Entity *entity) WEAK;

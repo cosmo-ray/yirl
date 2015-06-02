@@ -15,17 +15,13 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _TESTS_H_
-#define _TESTS_H_
+#include "description.h"
 
-void testLifecycleSimple(void);
-void testLifecycleFlow(void);
-void testLifecycleComplex(void);
+#ifndef _JSON_DESC_H_
+#define _JSON_DESC_H_
 
-void testSetSimple(void);
-void testSetComplex(void);
-void testSetGeneric(void);
-void testLuaScritLifecycle(void);
-void testJsonLoadFile(void);
+int ydJsonGetType(void);
+int ydJsonInit(void);
+int ydJsonEnd(void);
 
 #endif

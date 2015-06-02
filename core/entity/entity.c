@@ -200,7 +200,7 @@ Entity *yeGetByStr(Entity *entity, const char *name)
     (yeGetByStrFast(entity, name));
 }
 
-Entity *yeCreateInt(char *name, int value, Entity *father)
+Entity *yeCreateInt(const char *name, int value, Entity *father)
 {
   IntEntity *ret;
   YE_ALLOC_ENTITY(ret, IntEntity);
@@ -219,7 +219,7 @@ Entity *yeCreateArray(const char *name, Entity *father)
   return (YE_TO_ENTITY(ret));
 }
 
-Entity *yeCreateFloat(char *name, double value, Entity *father)
+Entity *yeCreateFloat(const char *name, double value, Entity *father)
 {
   FloatEntity *ret;
   YE_ALLOC_ENTITY(ret, FloatEntity);
@@ -228,7 +228,7 @@ Entity *yeCreateFloat(char *name, double value, Entity *father)
   return ((Entity *)ret);
 }
 
-Entity *yeCreateStruct(char *name, void *proto, Entity *father)
+Entity *yeCreateStruct(const char *name, void *proto, Entity *father)
 {
   StructEntity *ret;
   YE_ALLOC_ENTITY(ret, StructEntity);
@@ -239,7 +239,7 @@ Entity *yeCreateStruct(char *name, void *proto, Entity *father)
   return (YE_TO_ENTITY(ret));
 }
 
-Entity *yeCreateFunction(char *name, const char *value, Entity *father)
+Entity *yeCreateFunction(const char *name, const char *value, Entity *father)
 {
   FunctionEntity *ret;
   YE_ALLOC_ENTITY(ret, FunctionEntity);
@@ -250,7 +250,7 @@ Entity *yeCreateFunction(char *name, const char *value, Entity *father)
   return (YE_TO_ENTITY(ret));
 }
 
-Entity *yeCreateString(char *name, const char *string, Entity *father)
+Entity *yeCreateString(const char *name, const char *string, Entity *father)
 {
   StringEntity *ret;
   YE_ALLOC_ENTITY(ret, StringEntity);
@@ -346,7 +346,7 @@ void yeDestroy(Entity *entity)
   yeDestroyInternal(entity);
 }
 
-Entity *yeCreate(char *name, EntityType type, void *val, Entity *father)
+Entity *yeCreate(const char *name, EntityType type, void *val, Entity *father)
 {
   switch (type)
     {

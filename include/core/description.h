@@ -28,10 +28,19 @@
 
 typedef struct {
   Entity *(*fromFile)(void *opac, const char *fileName);
-  Entity *(*toFile)(void *opac, const char *fileName);
+  int (*toFile)(void *opac, const char *fileName, Entity *entity);
   int (*destroy)(void *opac);
 } YDescriptionOps;
 
+static inline int ydToFile(void *opac, char *name, Entity *entity)
+{
+  return ((YDescriptionOps *)opac)->toFile(opac, name, entity);
+}
+
+static inline Entity *ydFromFile(void *opac, char *name)
+{
+  return ((YDescriptionOps *)opac)->fromFile(opac, name);
+}
 
 int ydRegister(void *(*allocator)(void));
 

@@ -1,4 +1,4 @@
-set (SOURCE description.c)
+set (SOURCE description.c json-desc.c)
 
 add_library (jsonDescrption STATIC ${SOURCE})
 

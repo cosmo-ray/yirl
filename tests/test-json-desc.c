@@ -15,24 +15,25 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <stdlib.h>
 #include <glib.h>
-#include "entity.h"
-#include "debug.h"
+#include <stdio.h>
 #include "tests.h"
+#include "entity.h"
+#include "json-desc.h"
 
-int main(int argc, char **argv)
+void testJsonLoadFile(void)
 {
-  g_test_init(&argc, &argv, NULL);
-  yuiDebugInit();
-  g_test_add_func("/entity/lifecycle/simple", testLifecycleSimple);
-  g_test_add_func("/entity/lifecycle/flow", testLifecycleFlow);
-  g_test_add_func("/entity/lifecycle/complex", testLifecycleComplex);
-  g_test_add_func("/entity/setunset/simple", testSetSimple);
-  g_test_add_func("/entity/setunset/complex", testSetComplex);
-  g_test_add_func("/entity/setunset/generic", testSetGeneric);
-  g_test_add_func("/script/luaScript/lifecycle", testLuaScritLifecycle);
-  g_test_add_func("/script/json/load-file", testJsonLoadFile);
-  g_test_run();
-  yuiDebugExit();
+  int t = ydJsonInit();
+  void *jsonManager;
+  Entity *ret;
+  
+  g_assert(t != -1);
+  g_assert(ydJsonGetType() == t);
+  jsonManager = ydNewManager(t);
+  g_assert(jsonManager != NULL);
+  ret = ydFromFile(jsonManager, TESTS_PATH"/simple.json");
+  g_assert(ret);
+  g_assert(!ydDestroyManager(jsonManager));
+  g_assert(!ydJsonEnd());
 }
+

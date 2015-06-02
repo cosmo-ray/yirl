@@ -42,7 +42,10 @@ void testLuaScritLifecycle(void)
   g_assert(!ysLuaGetType());
   sm = ysNewManager(NULL, 0);
   g_assert(sm);
+
   g_assert(!ysRegistreFunc(sm, "addPtr", luaAddPtr));
+  g_assert((long)ysCall(sm, "addPtr", 2, 1, 2) == 3);
+
   g_assert(!ysRegistreFunc(sm, "toNbr", luaToNumber));
   g_assert(!ysRegistreFunc(sm, "toPtr", luaToPtr));
 
