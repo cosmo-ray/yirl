@@ -17,6 +17,7 @@
 #include	<stdlib.h>
 #include	<stdio.h>
 #include	<string.h>
+#include	<glib.h>
 #include	"entity.h"
 #include	"debug_core.h"
 
@@ -489,6 +490,16 @@ Entity *yeInit(Entity *entity, const char *name, EntityType type, Entity *father
   return (entity);
 }
 
+int	yeSetName(Entity *entity, const char *name)
+{
+  if (!entity)
+    return -1;
+
+  if (yeName(entity))
+    free(entity->name);
+  entity->name = g_strdup(name);
+  return 0;
+}
 
 void	yeSetString(Entity *entity, const char *val)
 {

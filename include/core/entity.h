@@ -292,7 +292,8 @@ extern "C"
    */
   void	yeSetFunctionArgs(Entity *entity, unsigned int nArgs) WEAK;
   
-
+  int	yeSetName(Entity *entity, const char *name);
+  
   /**
    * Set basic information to the entity <entity>
    * @param entity  the entity to set the basic informations
