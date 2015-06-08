@@ -29,18 +29,19 @@ static Entity *parseObject(struct json_object *obj,
 			   const char *name, Entity *father)
 {
   Entity *ret = yeCreateArray(name, father);
-  int len = json_object_object_length(obj);
   
   if (ret == NULL) {
     YE_DESTROY(father); // change this to free the head entty on the tree
     return NULL;
   }
 
-  yeExpandArray(ret, len);
-
   json_object_object_foreach(obj, key, val) {
-    if (parseGen(val, key, ret) == NULL)
+    if (g_str_equal(key, "_name") &&
+	(json_object_get_type(val) == json_type_string)) {
+      yeSetName(ret, json_object_get_string(val));
+    } else if (parseGen(val, key, ret) == NULL) {
       return NULL;
+    }
   }
 
   return ret;
@@ -62,7 +63,7 @@ static Entity *parseArray(struct json_object *obj,
   for (int i = 0; i < len; ++i) {
     struct json_object *val = json_object_array_get_idx(obj, i);
 
-    if (parseGen(val, NULL, ret) == NULL)
+    if (yeAttach(ret, parseGen(val, NULL, NULL), i) < 0)
       return NULL;
   }
 
@@ -117,7 +118,7 @@ static Entity *jsonFromFile(void *opac, const char *fileName)
   if (!file) {
     return NULL;
   }
-  ret = parseGen(file, fileName, NULL);
+  ret = parseGen(file, NULL, NULL);
   json_object_put(file);
   return ret;
 }

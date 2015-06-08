@@ -33,7 +33,11 @@ void testJsonLoadFile(void)
   g_assert(jsonManager != NULL);
   ret = ydFromFile(jsonManager, TESTS_PATH"/simple.json");
   g_assert(ret);
+  g_assert(g_str_equal("Asamiya Saki", yeName(ret)));
   g_assert(!ydDestroyManager(jsonManager));
+  g_assert(yeLen(ret) == 2);
+  g_assert(g_str_equal(yeGetString(yeGet(ret, "clase")), "sukeban"));
+  g_assert(yeGetInt(yeGet(ret, "lvl")) == 1);
   g_assert(!ydJsonEnd());
 }
 
