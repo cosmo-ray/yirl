@@ -44,10 +44,10 @@ void	debug_print_info(FILE* fd, const char* mode);
 
 void	yuiDebugPrint(int mode, char const* format, ...)
 {
-  va_list	vl;
-
   if (mode >= 0 && mode < 3)
     {
+      va_list	vl;
+
       va_start(vl, format);
 #ifndef NO_PRINT_ON_CERR
       if (mode > 0)
