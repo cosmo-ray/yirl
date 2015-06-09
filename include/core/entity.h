@@ -45,8 +45,7 @@ extern "C"
   typedef enum
     {
       BAD_TYPE = -1,
-      YSTRUCT = 0,
-      YINT,
+      YINT= 0,
       YFLOAT,
       YSTRING,
       YARRAY,
@@ -63,8 +62,6 @@ extern "C"
 #define	YE_TO_C_FLOAT(X) ((const FloatEntity *)X)
 #define	YE_TO_STRING(X) ((StringEntity *)X)
 #define	YE_TO_C_STRING(X) ((const StringEntity *)X)
-#define	YE_TO_STRUCT(X) ((StructEntity *)X)
-#define	YE_TO_C_STRUCT(X) ((const StructEntity *)X)
 #define	YE_TO_ARRAY(X) ((ArrayEntity *)X)
 #define	YE_TO_C_ARRAY(X) ((const ArrayEntity *)X)
 #define	YE_TO_FUNC(X) ((FunctionEntity *)X)
@@ -100,15 +97,6 @@ extern "C"
     ENTITY_HEADER
 
   } Entity;
-
-  typedef	struct
-  {
-    ENTITY_HEADER
-
-    unsigned int len;
-    Entity	**values;
-    void	*prototype;
-  } StructEntity;
 
   typedef	struct
   {
@@ -228,7 +216,6 @@ extern "C"
    /** Ensemble de fonction pour cree et detruire chaque type d'entite.
     * Cannot initialise a structure in thers functions because the data are to complex
     */
-  Entity *yeCreateStruct(const char *name, void *proto, Entity *fathers) WEAK;
   Entity *yeCreateInt(const char *name, int value, Entity *fathers) WEAK;
   Entity *yeCreateFloat(const char *name, double value, Entity *fathers) WEAK;
   Entity *yeCreateString(const char *name, const char *string, Entity *fathers) WEAK;
@@ -236,7 +223,6 @@ extern "C"
   Entity *yeCreateArray(const char *name, Entity *fathers) WEAK;
 
   void yeDestroy(Entity *entity) WEAK;
-  void yeDestroyStruct(Entity *entity) WEAK;
   void yeDestroyInt(Entity *entity) WEAK;
   void yeDestroyFloat(Entity *entity) WEAK;
   void yeDestroyString(Entity *entity) WEAK;
@@ -435,7 +421,7 @@ extern "C++"
    * @param dest	Destination Entity where the data will be past
    * @return	destination Entity if src AND dest or not null, NULL otherwise
    */
-  StructEntity*		yeCopyContener(StructEntity* src, StructEntity* dest);
+  ArrayEntity*		yeCopyContener(ArrayEntity* src, ArrayEntity* dest);
 
 
 #ifdef __cplusplus

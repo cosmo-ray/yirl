@@ -58,7 +58,6 @@ inline static void yeDestroyInternal(Entity *entity);
  * TODO up to date
  */
 void (*destroyTab[])(Entity *) = {
-  yeDestroyStruct,
   yeDestroyInt,
   yeDestroyFloat,
   yeDestroyString,
@@ -66,7 +65,7 @@ void (*destroyTab[])(Entity *) = {
   yeDestroyFunction,
 };
 
-const char * EntityTypeStrings[] = { "struct", "int", "float", "string",
+const char * EntityTypeStrings[] = { "int", "float", "string",
 				     "array", "function"};
 
 /**
@@ -121,7 +120,7 @@ unsigned int yeLen(Entity *entity)
     LOG_WARN("entity NULL in getLen\n");
     return (0);
   }
-  return (((StructEntity *)entity)->len);
+  return (((ArrayEntity *)entity)->len);
 }
 
 Entity *yeGetByIdx(Entity *entity, unsigned int index)
@@ -131,9 +130,9 @@ Entity *yeGetByIdx(Entity *entity, unsigned int index)
     return NULL;
   }
   Entity *tmp;
-  if (index >= ((StructEntity *)entity)->len)
+  if (index >= ((ArrayEntity *)entity)->len)
     return NULL;
-  tmp = ((StructEntity *)entity)->values[index];
+  tmp = ((ArrayEntity *)entity)->values[index];
   return (tmp);
 }
 
@@ -229,17 +228,6 @@ Entity *yeCreateFloat(const char *name, double value, Entity *father)
   return ((Entity *)ret);
 }
 
-Entity *yeCreateStruct(const char *name, void *proto, Entity *father)
-{
-  StructEntity *ret;
-  YE_ALLOC_ENTITY(ret, StructEntity);
-  yeInit(YE_TO_ENTITY(ret), name, YSTRUCT, father);
-  ret->len = 0;
-  ret->values = NULL;
-  ret->prototype = proto;
-  return (YE_TO_ENTITY(ret));
-}
-
 Entity *yeCreateFunction(const char *name, const char *value, Entity *father)
 {
   FunctionEntity *ret;
@@ -318,15 +306,6 @@ void yeDestroyString(Entity *entity)
   YE_DESTROY_ENTITY(entity, StringEntity);
 }
 
-void yeDestroyStruct(Entity *entity)
-{
-  if(entity->refCount == 1) {
-    destroyChilds(entity);
-    free(YE_TO_STRUCT(entity)->values);
-  }
-  YE_DESTROY_ENTITY(entity, StructEntity);
-}
-
 void yeDestroyArray(Entity *entity)
 {
   if(entity->refCount == 1) {
@@ -351,8 +330,6 @@ Entity *yeCreate(const char *name, EntityType type, void *val, Entity *father)
 {
   switch (type)
     {
-    case YSTRUCT:
-      return (yeCreateStruct(name, val, father));
     case YSTRING:
       return (yeCreateString(name, val, father));
     case YINT:
@@ -392,7 +369,7 @@ static ArrayEntity	*manageArrayInternal(ArrayEntity *entity,
 
 Entity *yeExpandArray(Entity *entity, unsigned int size)
 {
-  if (!checkType(entity, YARRAY) && !checkType(entity, YSTRUCT)) {
+  if (!checkType(entity, YARRAY)) {
     DPRINT_ERR("yeExpandArray: bad entity\n");
     return NULL;
   }
@@ -405,7 +382,7 @@ int	yePushBack(Entity *entity, Entity *toPush)
 
   if (!entity || !toPush)
     return -1;
-  if (!checkType(entity, YARRAY) && !checkType(entity, YSTRUCT)) {
+  if (!checkType(entity, YARRAY)) {
     DPRINT_ERR("yePushBack: bad entity, "
 	       "should be of type array or struct instead of %s\n",
 	       yeTypeToString( yeType(entity)));
@@ -424,7 +401,7 @@ Entity *yeRemoveChild(Entity *array, Entity *toRemove)
   int	len;
   Entity *tmp = NULL;
 
-  if (!checkType(array, YARRAY) && !checkType(array, YSTRUCT)) {
+  if (!checkType(array, YARRAY)) {
     DPRINT_ERR("yeRemoveChild: bad entity\n");
     return NULL;
   }
@@ -451,7 +428,7 @@ Entity *yePopBack(Entity *entity)
   int	len;
   Entity *ret;
 
-  if (!checkType(entity, YARRAY) && !checkType(entity, YSTRUCT)) {
+  if (!checkType(entity, YARRAY)) {
     DPRINT_ERR("yePopBack: bad entity\n");
     return NULL;
   }
@@ -518,7 +495,7 @@ int yeAttach(Entity *on, Entity *entity, unsigned int idx)
 {
   if (!on)
     return -1;
-  if (on->type != YARRAY && on->type != YSTRUCT)
+  if (on->type != YARRAY)
     return -1;
   if (idx >= yeLen(on))
     return -1;
@@ -658,9 +635,6 @@ Entity*		yeCopy(Entity* src, Entity* dest)
 		yeTypeToString(yeType(src)));
     switch (yeType(src))
     {
-    case YSTRUCT:
-      yeCopyContener((StructEntity*)src, (StructEntity*)dest);
-      break;
     case YINT:
       yeSetInt(dest, yeGetInt(src));
       break;
@@ -674,7 +648,7 @@ Entity*		yeCopy(Entity* src, Entity* dest)
       yeSetString(dest, strVal);
       break;
     case YARRAY:
-      yeCopyContener((StructEntity*)src, (StructEntity*)dest);
+      yeCopyContener((ArrayEntity*)src, (ArrayEntity*)dest);
       break;
     case YFUNCTION:
       nArgs = yeFunctionNumberArgs(src);
@@ -693,7 +667,7 @@ Entity*		yeCopy(Entity* src, Entity* dest)
   return NULL;
 }
 
-StructEntity*		yeCopyContener(StructEntity* src, StructEntity* dest)
+ArrayEntity*		yeCopyContener(ArrayEntity* src, ArrayEntity* dest)
   {
     unsigned int i;
 
@@ -719,9 +693,6 @@ int yeToString(Entity *entity, char *buf, int sizeBuf)
   int ret = 0;
   int retETS; // the variable use to store the ETS_RETURN of the entityToString call inside EntityToString
   static int nbrSpace = 0; // nbr space before each printing
-  static Entity (*testInfLoop[256]); //array use to store structure alerady call to kepp entitytostring to infinitely recusively call himself
-  static int tifIndex = 0;
-  (void)testInfLoop; /*c'est juste que si on ne fait rien avec testInfLoop le compilateur sous windows fait une erreur*/
   
   if (sizeBuf <= 30)
     return (-1);
@@ -766,44 +737,6 @@ int yeToString(Entity *entity, char *buf, int sizeBuf)
 	}
       strcpy(buf, "]");  // may bug here if sizeBuf is too small
       ETS_INCR_RET(1);
-      ETS_RETURN (ret);
-    case YSTRUCT:
-      retETS = snprintf(buf, sizeBuf, "%s : {\n", yePrintableName(entity));
-      if (retETS < 0)
-	goto error;
-      ETS_INCR_RET(retETS);
-      for (i = 0; i < yeLen(entity); ++i)
-	{
-	  /* printf("in for\n"); */
-	  retETS = snprintf(buf, sizeBuf, "%s : ",
-			    yePrintableName(yeGetByIdx(entity, i)));
-	  if (retETS < 0)
-	    goto error;
-	  /* printf("cur buf(name): %s\n", buf); */
-	  ETS_INCR_RET(retETS);
-	  testInfLoop[tifIndex] = yeGetByIdx(entity, i);
-	  ++tifIndex;
-	  retETS = ETS_REC_CALL(yeGetByIdx(entity, i), buf, sizeBuf);
-	  if (retETS < 0)
-	    goto error;
-	  /* printf("cur buf(val): %s\n", buf); */
-	  ETS_INCR_RET(retETS);
-	  if (i + 1 < yeLen(entity))
-	    {
-	      strcpy(buf, ",\n");  // may bug here if sizeBuf is too small
-	      /* printf("cur buf(style): %s\n", buf); */
-	      ETS_INCR_RET(2);
-	    }
-	  else
-	    {
-	      strcpy(buf, "\n");  // may bug here if sizeBuf is too small
-	      /* printf("cur buf(style): %s\n", buf); */
-	      ETS_INCR_RET(1);
-	    }
-	}
-      strcpy(buf, "}");  // may bug here if sizeBuf is too small
-      ETS_INCR_RET(1);
-      buf[0] = 0;
       ETS_RETURN (ret);
     default:
       goto error;
