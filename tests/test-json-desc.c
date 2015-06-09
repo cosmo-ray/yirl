@@ -41,3 +41,38 @@ void testJsonLoadFile(void)
   g_assert(!ydJsonEnd());
 }
 
+void testJsonMultipleObj(void)
+{
+  int t = ydJsonInit();
+  void *jsonManager;
+  Entity *ret;
+  Entity *sub;
+  
+  g_assert(t != -1);
+  jsonManager = ydNewManager(t);
+  g_assert(jsonManager != NULL);
+
+  ret = ydFromFile(jsonManager, TESTS_PATH"/multipleObj.json");
+  g_assert(ret);
+  g_assert(g_str_equal("Yakuza Garden", yeName(ret)));
+  sub = yeGet(ret, "enemy position");
+  g_assert(yeLen(sub) == 3);
+
+  for (int i = 0; i < 3; ++i) {
+    Entity *sub2;
+
+    sub2 = yeGet(sub, i);
+    g_assert(yeLen(sub2) == 2);
+
+    g_assert(yeGetInt(yeGet(sub2, 0)) == (i + 1));
+    g_assert(yeGetInt(yeGet(sub2, 1)) == ((i + 1) * 2));
+  }
+  
+  sub = yeGet(ret, "size");
+  g_assert(yeLen(sub) == 2);
+  g_assert(yeGetInt(yeGet(sub, "x")) == 10);
+  g_assert(yeGetInt(yeGet(sub, "y")) == 12);
+
+  g_assert(!ydDestroyManager(jsonManager));
+  g_assert(!ydJsonEnd());
+}

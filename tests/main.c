@@ -32,7 +32,8 @@ int main(int argc, char **argv)
   g_test_add_func("/entity/setunset/complex", testSetComplex);
   g_test_add_func("/entity/setunset/generic", testSetGeneric);
   g_test_add_func("/script/luaScript/lifecycle", testLuaScritLifecycle);
-  g_test_add_func("/script/json/load-file", testJsonLoadFile);
+  g_test_add_func("/script/json/simple-file", testJsonLoadFile);
+  g_test_add_func("/script/json/complex-file", testJsonMultipleObj);
   g_test_run();
   yuiDebugExit();
 }
