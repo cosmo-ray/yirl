@@ -15,22 +15,49 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _TESTS_H_
-#define _TESTS_H_
+#include <glib.h>
+#include "text-screen.h"
 
-void testLifecycleSimple(void);
-void testLifecycleFlow(void);
-void testLifecycleComplex(void);
+static int t = -1;
 
-void testSetSimple(void);
-void testSetComplex(void);
-void testSetGeneric(void);
+static int tsInit(YWidgetState *opac, Entity *entity, void *args)
+{
+  printf("init ts\n");
+  opac->entity = entity;
+  ywidGenericInit(opac, t);
+  (void)args;
+  return 0;
+}
 
-void testLuaScritLifecycle(void);
+static int tsDestroy(YWidgetState *opac)
+{
+  g_free(opac);
+  return 0;
+}
 
-void testJsonLoadFile(void);
-void testJsonMultipleObj(void);
+static int tsRend(YWidgetState *opac)
+{
+  return ywidGenericRend(opac, t);
+}
 
-void testYWTextScreen(void);
+static void *alloc(void)
+{
+  YWidgetState *ret = g_new0(YWidgetState, 1);
 
-#endif
+  ret->render = tsRend;
+  ret->init = tsInit;
+  ret->destroy = tsDestroy;
+  return  ret;
+}
+
+int ywTextScreenInit(void)
+{
+  t = ywidRegister(alloc, "text-screen");
+  return t;
+}
+
+int ywTextScreeEnd(void)
+{
+  return ywidUnregiste(t);
+}
+

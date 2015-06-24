@@ -1,6 +1,7 @@
 add_definitions( -DTESTS_PATH="${CMAKE_SOURCE_DIR}/tests" )
 
-set (SOURCE main.c lifecycle.c setunset.c lua-script.c test-json-desc.c)
+set (SOURCE main.c lifecycle.c setunset.c lua-script.c
+    test-json-desc.c test-widgets.c)
 
 add_executable(
 	tests
@@ -15,4 +16,6 @@ target_link_libraries(
 	util
 	luaScript
 	jsonDescrption
+	widgets
+	wid-curses
 )

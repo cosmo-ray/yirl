@@ -4,6 +4,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -W -g3 -Wall -Wextra -Wstrict-prototypes -Wm
 
 include_directories(
 	${PROJECT_SOURCE_DIR}/include/core
+	${PROJECT_SOURCE_DIR}/include/widget
 )
 
 add_subdirectory( ${PROJECT_SOURCE_DIR}/core/entity )
@@ -11,6 +12,7 @@ add_subdirectory( ${PROJECT_SOURCE_DIR}/core/util )
 add_subdirectory( ${PROJECT_SOURCE_DIR}/core/script )
 add_subdirectory( ${PROJECT_SOURCE_DIR}/core/description )
 add_subdirectory( ${PROJECT_SOURCE_DIR}/core/entity-script )
+add_subdirectory( ${PROJECT_SOURCE_DIR}/widget )
 add_subdirectory( ${PROJECT_SOURCE_DIR}/tests )
 
 		

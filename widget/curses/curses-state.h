@@ -15,22 +15,27 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _TESTS_H_
-#define _TESTS_H_
+#ifndef _CURSES_STATE_H_
+#define _CURSES_STATE_H_
 
-void testLifecycleSimple(void);
-void testLifecycleFlow(void);
-void testLifecycleComplex(void);
+#include <curses.h>
+#include "widget.h"
+#include "curses-driver.h"
+#include "debug.h"
 
-void testSetSimple(void);
-void testSetComplex(void);
-void testSetGeneric(void);
+typedef struct
+{
+  WINDOW *win;
+  YWidgetState *wid;
+  int h;
+  int w;
+  int x;
+  int y;
+} CWidget;
 
-void testLuaScritLifecycle(void);
-
-void testJsonLoadFile(void);
-void testJsonMultipleObj(void);
-
-void testYWTextScreen(void);
+/* private curses func */
+void resize(YWidgetState *wid, int renderType);
+void CWidgetDestroy(YWidgetState *wid, int renderType);
+void CWidgetInit(YWidgetState *wid, int renderType);
 
 #endif

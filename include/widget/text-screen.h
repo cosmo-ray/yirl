@@ -15,22 +15,12 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _TESTS_H_
-#define _TESTS_H_
+#ifndef	_YTEXT_SCREEN_H_
+#define	_YTEXT_SCREEN_H_
 
-void testLifecycleSimple(void);
-void testLifecycleFlow(void);
-void testLifecycleComplex(void);
+#include "widget.h"
 
-void testSetSimple(void);
-void testSetComplex(void);
-void testSetGeneric(void);
-
-void testLuaScritLifecycle(void);
-
-void testJsonLoadFile(void);
-void testJsonMultipleObj(void);
-
-void testYWTextScreen(void);
+int ywTextScreenInit(void);
+int ywTextScreeEnd(void);
 
 #endif

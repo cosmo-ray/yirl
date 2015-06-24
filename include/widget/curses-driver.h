@@ -15,22 +15,12 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _TESTS_H_
-#define _TESTS_H_
+#ifndef	_CURSES_DRIVER_H_
+#define	_CURSES_DRIVER_H_
 
-void testLifecycleSimple(void);
-void testLifecycleFlow(void);
-void testLifecycleComplex(void);
-
-void testSetSimple(void);
-void testSetComplex(void);
-void testSetGeneric(void);
-
-void testLuaScritLifecycle(void);
-
-void testJsonLoadFile(void);
-void testJsonMultipleObj(void);
-
-void testYWTextScreen(void);
+int ycursInit(void);
+int ycursType(void);
+int ycursRegistreTextScreen(void);
+void ycursDestroy(void);
 
 #endif

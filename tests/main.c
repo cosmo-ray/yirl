@@ -34,6 +34,7 @@ int main(int argc, char **argv)
   g_test_add_func("/script/luaScript/lifecycle", testLuaScritLifecycle);
   g_test_add_func("/script/json/simple-file", testJsonLoadFile);
   g_test_add_func("/script/json/complex-file", testJsonMultipleObj);
+  g_test_add_func("/script/json/widget-textScreen", testYWTextScreen);
   g_test_run();
   yuiDebugExit();
 }
