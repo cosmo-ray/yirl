@@ -39,6 +39,7 @@ void testYWTextScreen(void)
   ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json");
   g_assert(ret);
   g_assert(!ydJsonEnd());
+  g_assert(!ydDestroyManager(jsonManager));
 
   t = ywTextScreenInit();
   g_assert(t != -1);
@@ -54,8 +55,10 @@ void testYWTextScreen(void)
   g_assert(ywidRend(wid) != -1);
   sleep(1);
   
-  ycursDestroy();
+  YWidDestroy(wid);
   g_assert(!ywTextScreeEnd());
+  ycursDestroy();
   /* end libs */
+  YE_DESTROY(ret);
 
 }

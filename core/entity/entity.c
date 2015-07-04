@@ -259,14 +259,15 @@ static void yeRemoveFather(Entity *entity, Entity *father)
 
   // if the father is in last position, so we don't care about it because
   // we decr_ref at the end.
-  for (int i = 0, end = entity->refCount - 1; i < end ; ++i)
+  for (int i = 0, end = entity->nbFathers; i < end ; ++i)
     {
       if (fathers[i] == father) {
-	fathers[i] = fathers[end];
-	break;
+	fathers[i] = fathers[end - 1];
+	fathers[end - 1] = NULL;
+	entity->nbFathers -= 1;
+	return;
       }
     }
-  entity->nbFathers -= 1;
 }
 
 static void destroyChilds(Entity *entity)

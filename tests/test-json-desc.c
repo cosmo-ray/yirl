@@ -39,6 +39,7 @@ void testJsonLoadFile(void)
   g_assert(g_str_equal(yeGetString(yeGet(ret, "clase")), "sukeban"));
   g_assert(yeGetInt(yeGet(ret, "lvl")) == 1);
   g_assert(!ydJsonEnd());
+  YE_DESTROY(ret);
 }
 
 void testJsonMultipleObj(void)
@@ -73,6 +74,7 @@ void testJsonMultipleObj(void)
   g_assert(yeGetInt(yeGet(sub, "x")) == 10);
   g_assert(yeGetInt(yeGet(sub, "y")) == 12);
 
+  YE_DESTROY(ret);
   g_assert(!ydDestroyManager(jsonManager));
   g_assert(!ydJsonEnd());
 }

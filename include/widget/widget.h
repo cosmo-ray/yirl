@@ -56,22 +56,6 @@ typedef struct WidgetState_ {
   int type;
 } YWidgetState;
 
-static inline void *ywidGetRenderData(YWidgetState *state, int t)
-{
- return state->renderStates[t].opac;
-}
-
-/**
- * Initialise a new widget.
- * @entity the description of the widget
- * @pos the position of the widget, if NULL take all the screen.
- * @arg the arguments for the child widget
- * @return -1 on failure
- */
-int ywidInit(void *init, Entity *entity, const YWidPos *pos, void *arg);
-
-YWidgetState *ywidNewWidget(int t, Entity *entity,
-			    const YWidPos *pos, void *args);
 
 int ywidRegister(void *(*allocator)(void), const char *name);
 int ywidUnregiste(int t);
@@ -85,7 +69,8 @@ int ywidRegistreTypeRender(const char *type, int t,
 					 int renderType),
 			   InputStatue (*tryHandleInput)(YWidgetState *wid,
 							 int renderType, void *ch),
-			   int (*init)(YWidgetState *opac, int t));
+			   int (*init)(YWidgetState *opac, int t),
+			   void (*destroy)(YWidgetState *opac, int t));
 
 void ywidResize(YWidgetState *wid);
 
@@ -104,5 +89,15 @@ static inline int ywidType(void *opac)
 {
   return ((YWidgetState *)opac)->type;
 }
+
+static inline void *ywidGetRenderData(YWidgetState *state, int t)
+{
+ return state->renderStates[t].opac;
+}
+
+YWidgetState *ywidNewWidget(int t, Entity *entity,
+			    const YWidPos *pos, void *args);
+
+void YWidDestroy(YWidgetState *wid);
 
 #endif

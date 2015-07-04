@@ -58,12 +58,10 @@ static Entity *parseArray(struct json_object *obj,
     return NULL;
   }
 
-  yeExpandArray(ret, len);
-
   for (int i = 0; i < len; ++i) {
     struct json_object *val = json_object_array_get_idx(obj, i);
 
-    if (yeAttach(ret, parseGen(val, NULL, NULL), i) < 0)
+    if (parseGen(val, NULL, ret) == NULL)
       return NULL;
   }
 

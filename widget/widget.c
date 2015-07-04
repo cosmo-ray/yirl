@@ -32,6 +32,7 @@ struct widgetOpt {
   InputStatue (*tryHandleInput[64])(YWidgetState *wid,
 				    int renderType, void *ch);
   int (*init[64])(YWidgetState *opac, int t);
+  void (*destroy[64])(YWidgetState *opac, int t);
 };
 
 static uint64_t rendersMask = 0;
@@ -101,6 +102,7 @@ YWidgetState *ywidNewWidget(int t, Entity *entity, const YWidPos *pos, void *arg
   ret = widgetTab.allocator[t]();
   if (ret == NULL)
     return NULL;
+  ret->type = t;
   if (copyPos(&ret->pos, pos) == -1)
     goto error;
   if (ret->init(ret, entity, args))
@@ -124,7 +126,8 @@ int ywidRegistreTypeRender(const char *type, int t,
 					 int renderType),
 			   InputStatue (*tryHandleInput)(YWidgetState *wid,
 							 int renderType, void *ch),
-			   int (*init)(YWidgetState *opac, int t))
+			   int (*init)(YWidgetState *opac, int t),
+			   void (*destroy)(YWidgetState *opac, int t))
 {
   int  i;
 
@@ -133,6 +136,7 @@ int ywidRegistreTypeRender(const char *type, int t,
       widgetOptTab[i].rendersMask |= 1 << t;
       widgetOptTab[i].render[t] = render;
       widgetOptTab[i].init[t] = init;
+      widgetOptTab[i].destroy[t] = destroy;
       widgetOptTab[i].tryHandleInput[t] = tryHandleInput;
       printf("ywidRegistreTypeRender %lu\n", widgetOptTab[i].rendersMask);
       return 0;
@@ -167,7 +171,7 @@ int ywidGenericRend(YWidgetState *opac, int widType)
 
 int ywidGenericInit(YWidgetState *opac, int widType)
 {
-  for (uint64_t i = 0; i < 20; ++i) {
+  for (uint64_t i = 0; i < 64; ++i) {
     if (widgetOptTab[widType].rendersMask & (1 << i) &&
 	widgetOptTab[widType].init[i] != NULL) {
       if (widgetOptTab[widType].init[i](opac, i))
@@ -175,4 +179,24 @@ int ywidGenericInit(YWidgetState *opac, int widType)
     }
   }
   return 0;
+}
+
+static int ywidGenericDestroy(YWidgetState *opac, int widType)
+{
+  for (uint64_t i = 0; i < 64; ++i) {
+    if (widgetOptTab[widType].rendersMask & (1 << i) &&
+	widgetOptTab[widType].destroy[i] != NULL) {
+      widgetOptTab[widType].destroy[i](opac, i);
+    }
+  }
+  return 0;
+}
+
+void YWidDestroy(YWidgetState *wid)
+{
+  ywidGenericDestroy(wid, wid->type);
+  if (wid->destroy)
+    wid->destroy(wid);
+  else
+    g_free(wid);
 }
