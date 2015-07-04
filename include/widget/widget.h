@@ -32,6 +32,14 @@ typedef enum
   } InputStatue;
 
 struct WidgetState_;
+typedef struct {
+  int type;
+  int key;
+  unsigned int xMouse;
+  unsigned int yMouse;
+  InputStatue stat;
+} YEvent;
+
 
 typedef struct {
   void *opac;
@@ -48,7 +56,7 @@ typedef struct WidgetState_ {
   Entity *entity;
   YRenderState renderStates[64];
   int (*render)(struct WidgetState_ *opac);
-  InputStatue (*tryHandleInput)(struct WidgetState_ *opac, void *ch);
+  InputStatue (*handleEvent)(struct WidgetState_ *opac, YEvent *event);
   void (*resize)(void);
   int (*init)(struct WidgetState_ *opac, Entity *entity, void *args);
   int (*destroy)(struct WidgetState_ *opac);
@@ -67,8 +75,6 @@ void ywidRemoveRender(int renderType);
 int ywidRegistreTypeRender(const char *type, int t,
 			   int (*render)(YWidgetState *wid,
 					 int renderType),
-			   InputStatue (*tryHandleInput)(YWidgetState *wid,
-							 int renderType, void *ch),
 			   int (*init)(YWidgetState *opac, int t),
 			   void (*destroy)(YWidgetState *opac, int t));
 
@@ -78,6 +84,13 @@ static inline int ywidRend(YWidgetState *opac)
 {
   if (opac->render)
     return (opac->render(opac));
+  return -1;
+}
+
+static inline int ywidHandleEvent(YWidgetState *opac)
+{
+  if (opac->handleEvent)
+    return (opac->handleEvent(opac, NULL));
   return -1;
 }
 

@@ -22,6 +22,8 @@
 #define MAX_NB_MANAGER 64
 #endif
 
+#include <stdint.h>
+
 typedef struct {
   void *(*allocator[MAX_NB_MANAGER])(void);
   int len;
@@ -37,6 +39,9 @@ int yuiRegister(YManagerAllocator *ma, void *(*allocator)(void));
 
 int yuiUnregiste(YManagerAllocator *ma, int t);
 
+#define YUI_FOREACH_BITMASK(mask, it, tmpmask)				\
+  for (uint64_t it = 0, tmpmask = mask; tmpmask;			\
+       tmpmask &= ~(1LLU << (it = __builtin_ctzl(tmpmask))))
 
 /**
  * example:

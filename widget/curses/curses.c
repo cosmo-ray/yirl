@@ -31,7 +31,7 @@ int ycursInit(void)
   initscr();
   noecho();
   cbreak();
-  curs_set(0);
+  curs_set(FALSE);
   keypad(stdscr, TRUE);
   start_color();
   init_pair(1, COLOR_BLACK, COLOR_WHITE);
@@ -44,6 +44,32 @@ void ycursDestroy(void)
 {
   endwin();
   ywidRemoveRender(type);
+}
+
+
+static inline YEvent *CGetEvent(void)
+{
+  YEvent *eve = g_new0(YEvent, 1);
+
+  eve->key = getch();
+  eve->type = KEY_DOWN;
+  eve->stat = NOTHANDLE;
+  return eve;
+}
+
+
+YEvent *CWaitEvent(void)
+{
+    timeout(-1);
+
+    return CGetEvent();
+}
+
+YEvent *CPollEvent(void)
+{
+    timeout(0);
+
+    return CGetEvent();
 }
 
 void CWidgetInit(YWidgetState *wid, int renderType)

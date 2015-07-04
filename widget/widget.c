@@ -29,8 +29,6 @@ struct widgetOpt {
   char *name;
   uint64_t rendersMask;
   int (*render[64])(YWidgetState *wid, int renderType);
-  InputStatue (*tryHandleInput[64])(YWidgetState *wid,
-				    int renderType, void *ch);
   int (*init[64])(YWidgetState *opac, int t);
   void (*destroy[64])(YWidgetState *opac, int t);
 };
@@ -38,6 +36,7 @@ struct widgetOpt {
 static uint64_t rendersMask = 0;
 
 struct renderOpt {
+  YEvent *(*pollEvent)(void);
   void (*resizePtr) (YWidgetState *wid, int renderType);
 };
 
@@ -54,7 +53,6 @@ void ywidRemoveRender(int renderType)
     widgetOptTab[i].rendersMask ^= (1 << renderType);    
     widgetOptTab[i].init[renderType] = NULL;
     widgetOptTab[i].render[renderType] = NULL;
-    widgetOptTab[i].tryHandleInput[renderType] = NULL;
   }
 }
 
@@ -71,7 +69,7 @@ int ywidRegister(void *(*allocator)(void), const char *name)
   widgetOptTab[ret].rendersMask = 0;
   memset(widgetOptTab[ret].init, 0, 64 * sizeof(void *));
   memset(widgetOptTab[ret].render, 0, 64 * sizeof(void *));
-  memset(widgetOptTab[ret].tryHandleInput, 0, 64 * sizeof(void *));
+  memset(widgetOptTab[ret].destroy, 0, 64 * sizeof(void *));
   return ret;
 }
 
@@ -124,8 +122,6 @@ void ywidResize(YWidgetState *wid)
 int ywidRegistreTypeRender(const char *type, int t,
 			   int (*render)(YWidgetState *wid,
 					 int renderType),
-			   InputStatue (*tryHandleInput)(YWidgetState *wid,
-							 int renderType, void *ch),
 			   int (*init)(YWidgetState *opac, int t),
 			   void (*destroy)(YWidgetState *opac, int t))
 {
@@ -137,7 +133,6 @@ int ywidRegistreTypeRender(const char *type, int t,
       widgetOptTab[i].render[t] = render;
       widgetOptTab[i].init[t] = init;
       widgetOptTab[i].destroy[t] = destroy;
-      widgetOptTab[i].tryHandleInput[t] = tryHandleInput;
       printf("ywidRegistreTypeRender %lu\n", widgetOptTab[i].rendersMask);
       return 0;
     }
@@ -160,22 +155,21 @@ int ywidRegistreRender(void (*resizePtr)(YWidgetState *wid,
 
 int ywidGenericRend(YWidgetState *opac, int widType)
 {
-  for (int i = 0; i < 64; ++i)
-    if ((widgetOptTab[widType].rendersMask & (1 << i)) &&
-	widgetOptTab[widType].render[i] != NULL) {
-      if (widgetOptTab[widType].render[i](opac, i))
-	return -1;
+  YUI_FOREACH_BITMASK(widgetOptTab[widType].rendersMask,
+		      i, tmask) {
+    if (widgetOptTab[widType].render[i] != NULL) {
+      widgetOptTab[widType].render[i](opac, i);
     }
+  }
   return 0;
 }
 
 int ywidGenericInit(YWidgetState *opac, int widType)
 {
-  for (uint64_t i = 0; i < 64; ++i) {
-    if (widgetOptTab[widType].rendersMask & (1 << i) &&
-	widgetOptTab[widType].init[i] != NULL) {
-      if (widgetOptTab[widType].init[i](opac, i))
-	return -1;
+  YUI_FOREACH_BITMASK(widgetOptTab[widType].rendersMask,
+		      i, tmask) {
+    if (widgetOptTab[widType].init[i] != NULL) {
+      widgetOptTab[widType].init[i](opac, i);
     }
   }
   return 0;
@@ -183,9 +177,9 @@ int ywidGenericInit(YWidgetState *opac, int widType)
 
 static int ywidGenericDestroy(YWidgetState *opac, int widType)
 {
-  for (uint64_t i = 0; i < 64; ++i) {
-    if (widgetOptTab[widType].rendersMask & (1 << i) &&
-	widgetOptTab[widType].destroy[i] != NULL) {
+  YUI_FOREACH_BITMASK(widgetOptTab[widType].rendersMask,
+		      i, tmask) {
+    if (widgetOptTab[widType].destroy[i] != NULL) {
       widgetOptTab[widType].destroy[i](opac, i);
     }
   }
