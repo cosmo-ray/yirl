@@ -65,11 +65,15 @@ typedef struct WidgetState_ {
 } YWidgetState;
 
 
+YEvent *ywidGenericWaitEvent(void);
+YEvent *ywidGenericPollEvent(void);
+
 int ywidRegister(void *(*allocator)(void), const char *name);
 int ywidUnregiste(int t);
 
-int ywidRegistreRender(void (*resizePtr)(YWidgetState *wid,
-					 int renderType));
+int ywidRegistreRender(void (*resizePtr)(YWidgetState *wid, int renderType),
+		       YEvent *(*pollEvent)(void),
+		       YEvent *(*waitEvent)(void));
 void ywidRemoveRender(int renderType);
 
 int ywidRegistreTypeRender(const char *type, int t,

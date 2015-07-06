@@ -36,7 +36,7 @@ int ycursInit(void)
   start_color();
   init_pair(1, COLOR_BLACK, COLOR_WHITE);
   if (type == -1)
-    type = ywidRegistreRender(resize);
+    type = ywidRegistreRender(resize, CPollEvent, CWaitEvent);
   return type;
 }
 

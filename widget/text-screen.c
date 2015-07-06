@@ -35,6 +35,16 @@ static int tsDestroy(YWidgetState *opac)
   return 0;
 }
 
+static InputStatue tsEvent(YWidgetState *opac, YEvent *event)
+{
+  if (!event)
+    event = ywidGenericWaitEvent();
+
+  (void)opac;
+  printf("t: %d key: %d\n", event->type, event->key);
+  return (NOTHANDLE);
+}
+
 static int tsRend(YWidgetState *opac)
 {
   return ywidGenericRend(opac, t);
@@ -47,6 +57,7 @@ static void *alloc(void)
   ret->render = tsRend;
   ret->init = tsInit;
   ret->destroy = tsDestroy;
+  ret->handleEvent = tsEvent;
   return  ret;
 }
 

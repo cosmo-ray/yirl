@@ -36,6 +36,7 @@ struct widgetOpt {
 static uint64_t rendersMask = 0;
 
 struct renderOpt {
+  YEvent *(*waitEvent)(void);
   YEvent *(*pollEvent)(void);
   void (*resizePtr) (YWidgetState *wid, int renderType);
 };
@@ -140,17 +141,43 @@ int ywidRegistreTypeRender(const char *type, int t,
   return -1;
 }
 
-int ywidRegistreRender(void (*resizePtr)(YWidgetState *wid,
-					 int renderType))
+int ywidRegistreRender(void (*resizePtr)(YWidgetState *wid, int renderType),
+		       YEvent *(*pollEvent)(void),
+		       YEvent *(*waitEvent)(void))
 {
   for (int i = 0; i < 64; ++i) {
     if (!((1 << i) & rendersMask)) {
       rendersMask |= (1 << i);
       renderOpTab[i].resizePtr = resizePtr;
+      renderOpTab[i].pollEvent = pollEvent;
+      renderOpTab[i].waitEvent = waitEvent;
       return i;
     }
   }
   return -1;
+}
+
+
+YEvent *ywidGenericPollEvent(void)
+{
+  YEvent *ret;
+  
+  YUI_FOREACH_BITMASK(rendersMask, i, tmask) {
+    ret = renderOpTab[i].waitEvent();
+    if (ret)
+      return ret;
+  }
+  return NULL;
+}
+
+YEvent *ywidGenericWaitEvent(void)
+{
+  if (!rendersMask)
+    return NULL;
+  YUI_FOREACH_BITMASK(rendersMask, i, tmask) {
+    return renderOpTab[i].waitEvent();
+  }
+  return NULL;
 }
 
 int ywidGenericRend(YWidgetState *opac, int widType)

@@ -52,11 +52,13 @@ void testYWTextScreen(void)
   wid = ywidNewWidget(t, ret, NULL, NULL);
   g_assert(wid);
 
-  g_assert(ywidRend(wid) != -1);
-  sleep(1);
   
-  YWidDestroy(wid);
+  do {
+    g_assert(ywidRend(wid) != -1);
+  } while(ywidHandleEvent(wid) != ACTION);
+
   g_assert(!ywTextScreeEnd());
+  YWidDestroy(wid);
   ycursDestroy();
   /* end libs */
   YE_DESTROY(ret);
