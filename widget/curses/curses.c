@@ -52,7 +52,7 @@ static inline YEvent *CGetEvent(void)
   YEvent *eve = g_new0(YEvent, 1);
 
   eve->key = getch();
-  eve->type = KEY_DOWN;
+  eve->type = YKEY_DOWN;
   eve->stat = NOTHANDLE;
   return eve;
 }

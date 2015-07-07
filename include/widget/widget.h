@@ -23,6 +23,7 @@
 #include <stdint.h>
 #include "entity.h"
 #include "utils.h"
+#include "keydef.h"
 
 typedef enum
   {
@@ -31,9 +32,16 @@ typedef enum
     ACTION
   } InputStatue;
 
+typedef enum
+  {
+    YKEY_DOWN,
+    YKEY_UP,
+    NONE
+  } EventType;
+
 struct WidgetState_;
 typedef struct {
-  int type;
+  EventType type;
   int key;
   unsigned int xMouse;
   unsigned int yMouse;
