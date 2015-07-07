@@ -82,6 +82,7 @@ void CWidgetInit(YWidgetState *wid, int renderType)
   state->y = wid->pos.y * LINES / 1000;
   state->win = newwin(state->h, state->w, state->y, state->x);
   wborder(state->win, '|', '|', '-','-','+','+','+','+');
+  refresh();
 }
 
 void CWidgetDestroy(YWidgetState *wid, int renderType)
@@ -103,4 +104,5 @@ void resize(YWidgetState *wid, int renderType)
 
   wresize(state->win, state->h, state->w);
   mvwin(state->win, state->y, state->x);
+  refresh();
 }

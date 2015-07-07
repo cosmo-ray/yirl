@@ -45,7 +45,8 @@ static InputStatue tsEvent(YWidgetState *opac, YEvent *event)
 
   if (event->key == Y_ESC_KEY)
     ret = ACTION;
-
+  else if (event->key == '\n')
+    ret = ACTION;
   g_free(event);
   return ret;
 }
