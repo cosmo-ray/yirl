@@ -68,5 +68,6 @@ static int cursesInit(YWidgetState *wid, int t)
 
 int ycursRegistreTextScreen(void)
 {
-  return ywidRegistreTypeRender("text-screen", ycursType(), cursesRender, cursesInit, CWidgetDestroy);
+  return ywidRegistreTypeRender("text-screen", ycursType(),
+				cursesRender, cursesInit, CWidgetDestroy);
 }
