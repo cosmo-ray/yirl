@@ -10,3 +10,4 @@ target_link_libraries(
 )
 
 add_subdirectory( ${PROJECT_SOURCE_DIR}/widget/curses )
+add_subdirectory( ${PROJECT_SOURCE_DIR}/widget/sdl2 )
