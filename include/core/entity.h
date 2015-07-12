@@ -52,7 +52,7 @@ extern "C"
       YFUNCTION
     } EntityType;
   
-#define	NBR_ENTITYTYPE	6
+#define	NBR_ENTITYTYPE	5
 
 #define	YE_TO_ENTITY(X) ((Entity *)X)
 #define	YE_TO_C_ENTITY(X) ((const Entity *)X)

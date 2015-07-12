@@ -126,9 +126,7 @@ int ywidRegistreTypeRender(const char *type, int t,
 			   int (*init)(YWidgetState *opac, int t),
 			   void (*destroy)(YWidgetState *opac, int t))
 {
-  int  i;
-
-  for (i = 0; i < 64; ++i) {
+  for (int i = 0; i < 64; ++i) {
     if (g_str_equal(type, widgetOptTab[i].name)) {
       widgetOptTab[i].rendersMask |= 1 << t;
       widgetOptTab[i].render[t] = render;
@@ -160,10 +158,8 @@ int ywidRegistreRender(void (*resizePtr)(YWidgetState *wid, int renderType),
 
 YEvent *ywidGenericPollEvent(void)
 {
-  YEvent *ret;
-  
   YUI_FOREACH_BITMASK(rendersMask, i, tmask) {
-    ret = renderOpTab[i].waitEvent();
+    YEvent *ret = renderOpTab[i].waitEvent();
     if (ret)
       return ret;
   }
