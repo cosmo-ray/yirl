@@ -28,6 +28,8 @@ int ycursType(void)
 
 int ycursInit(void)
 {
+  if (type != -1)
+    return type;
   initscr();
   noecho();
   cbreak();
@@ -35,15 +37,17 @@ int ycursInit(void)
   keypad(stdscr, TRUE);
   start_color();
   init_pair(1, COLOR_BLACK, COLOR_WHITE);
-  if (type == -1)
-    type = ywidRegistreRender(resize, CPollEvent, CWaitEvent);
+  type = ywidRegistreRender(resize, CPollEvent, CWaitEvent);
   return type;
 }
 
 void ycursDestroy(void)
 {
+  if (type == -1)
+    return;
   endwin();
   ywidRemoveRender(type);
+  type = -1;
 }
 
 

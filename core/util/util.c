@@ -30,8 +30,11 @@ int yuiUnregiste(YManagerAllocator *ma, int t)
 {
   if (!ma || ma->len <= t)
     return -1;
-  ma->allocator[ma->len] = NULL;
+  ma->allocator[t] = NULL;
   if (t == ma->len - 1)
     ma->len -= 1;
+  while (ma->len && ma->allocator[ma->len - 1] == NULL) {
+    ma->len -= 1;
+  }
   return 0;
 }

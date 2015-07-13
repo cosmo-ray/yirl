@@ -22,7 +22,32 @@
 #include "entity.h"
 #include "json-desc.h"
 #include "curses-driver.h"
+#include "sdl-driver.h"
 #include "text-screen.h"
+
+void testSdlLife(void)
+{
+  g_assert(ysdl2Init() != -1);
+  g_assert(ysdl2Type() == 0);
+  ysdl2Destroy();
+}
+
+void testAllLife(void)
+{
+  g_assert(ysdl2Init() != -1);
+  g_assert(ysdl2Type() == 0);
+  g_assert(ycursInit() != -1);
+  g_assert(ycursType() == 1);
+  ycursDestroy();
+  ysdl2Destroy();
+}
+
+void testCursesLife(void)
+{
+  g_assert(ycursInit() != -1);
+  g_assert(ycursType() == 0);
+  ycursDestroy();
+}
 
 void testYWTextScreen(void)
 {
@@ -46,6 +71,8 @@ void testYWTextScreen(void)
 
   g_assert(ycursInit() != -1);
   g_assert(ycursType() == 0);
+  g_assert(ysdl2Init() != -1);
+  g_assert(ysdl2Type() == 1);
   
   g_assert(!ycursRegistreTextScreen());
 
@@ -60,6 +87,7 @@ void testYWTextScreen(void)
   g_assert(!ywTextScreeEnd());
   YWidDestroy(wid);
   ycursDestroy();
+  ysdl2Destroy();
   /* end libs */
   YE_DESTROY(ret);
 

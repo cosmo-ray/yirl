@@ -18,6 +18,7 @@
 #ifndef _SDL_INTERNAL_H_
 #define _SDL_INTERNAL_H_
 
+#include "sdl-driver.h"
 #include "widget.h"
 
 #define WIN_W_SIZE 640
@@ -37,28 +38,12 @@ typedef struct
   SDL_Rect      rect;
 } SDLWid;
 
-void resize(YWidgetState *wid, int renderType);
-void resize(YWidgetState *wid, int renderType)
-{
-  SDLWid *swid = wid->renderStates[renderType].opac;
-
-  swid->rect.h = wid->pos.h * WIN_H_SIZE / 1000;
-  swid->rect.w = wid->pos.w * WIN_W_SIZE / 1000;
-  swid->rect.x = wid->pos.x * WIN_W_SIZE / 1000;
-  swid->rect.y = wid->pos.y * WIN_H_SIZE / 1000;
-}
+void sdlResize(YWidgetState *wid, int renderType);
 
 void sdlWidInit(YWidgetState *wid, int t);
-void sdlWidInit(YWidgetState *wid, int t)
-{
-  resize(wid, t);
-}
 
 
 SDL_Rect  getRect(void);
 SDL_Surface *wSurface(void);
-void ysdl2Destroy(void);
-int ysdl2Type(void);
-int ysdl2Init(void);
 
 #endif

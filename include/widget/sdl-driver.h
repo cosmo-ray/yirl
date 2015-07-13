@@ -15,26 +15,12 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _TESTS_H_
-#define _TESTS_H_
+#ifndef	_SDL_DRIVER_H_
+#define	_SDL_DRIVER_H_
 
-void testLifecycleSimple(void);
-void testLifecycleFlow(void);
-void testLifecycleComplex(void);
-
-void testSetSimple(void);
-void testSetComplex(void);
-void testSetGeneric(void);
-
-void testLuaScritLifecycle(void);
-
-void testJsonLoadFile(void);
-void testJsonMultipleObj(void);
-
-void testSdlLife(void);
-void testCursesLife(void);
-void testAllLife(void);
-
-void testYWTextScreen(void);
+void ysdl2Destroy(void);
+int ysdl2Type(void);
+int ysdl2Init(void);
+/* int ysdl2RegistreTextScreen(void); */
 
 #endif

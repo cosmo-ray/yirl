@@ -40,7 +40,7 @@ int yuiRegister(YManagerAllocator *ma, void *(*allocator)(void));
 int yuiUnregiste(YManagerAllocator *ma, int t);
 
 #define YUI_FOREACH_BITMASK(mask, it, tmpmask)				\
-  for (uint64_t it = 0, tmpmask = mask; tmpmask;			\
+  for (uint64_t tmpmask = mask, it = __builtin_ctzl(tmpmask); tmpmask;	\
        tmpmask &= ~(1LLU << (it = __builtin_ctzl(tmpmask))))
 
 /**

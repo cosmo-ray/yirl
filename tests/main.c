@@ -31,10 +31,17 @@ int main(int argc, char **argv)
   g_test_add_func("/entity/setunset/simple", testSetSimple);
   g_test_add_func("/entity/setunset/complex", testSetComplex);
   g_test_add_func("/entity/setunset/generic", testSetGeneric);
+
   g_test_add_func("/script/luaScript/lifecycle", testLuaScritLifecycle);
+
   g_test_add_func("/script/json/simple-file", testJsonLoadFile);
   g_test_add_func("/script/json/complex-file", testJsonMultipleObj);
-  g_test_add_func("/script/json/widget-textScreen", testYWTextScreen);
+
+  g_test_add_func("/script/json/gui/life/sdl", testSdlLife);
+  g_test_add_func("/script/json/gui/life/curses", testCursesLife);
+  g_test_add_func("/script/json/gui/life/all", testAllLife);
+
+  g_test_add_func("/script/json/widget/textScreen", testYWTextScreen);
   g_test_run();
   yuiDebugExit();
 }

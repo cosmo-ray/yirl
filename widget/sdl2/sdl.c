@@ -39,10 +39,14 @@ SDL_Surface *wSurface(void)
 
 void    ysdl2Destroy(void)
 {
+  if (type == -1)
+    return;
   SDL_DestroyWindow(sg.pWindow);
   IMG_Quit();
   TTF_Quit();
   SDL_Quit();
+  ywidRemoveRender(type);
+  type = -1;
 }
 
 int ysdl2Type(void)
@@ -52,7 +56,9 @@ int ysdl2Type(void)
 
 int    ysdl2Init(void)
 {
-  printf("init sdl\n");
+  if (type != -1)
+    return type;
+
   /* Initialisation simple */
   if (SDL_Init(SDL_INIT_EVERYTHING) != 0 ) {
     DPRINT_ERR("Échec de l'initialisation de la SDL (%s)\n",SDL_GetError());
@@ -85,12 +91,6 @@ int    ysdl2Init(void)
       DPRINT_ERR("Error to creeate window:: %s\n",SDL_GetError());
       goto win_fail;
   }
-  // load font.ttf at size 16 into font
-  sg.font=TTF_OpenFont("./gui/SDL2/font/FOO.ttf", 16);
-  if(!sg.font) {
-    DPRINT_ERR("TTF_OpenFont: %s\n", TTF_GetError());
-    goto fail;
-  }
   
   // Render for the main windows
   sg.renderer = SDL_CreateRenderer(sg.pWindow, -1, SDL_RENDERER_TARGETTEXTURE);
@@ -104,8 +104,7 @@ int    ysdl2Init(void)
 
   SDL_RenderClear(sg.renderer);
   SDL_RenderPresent(sg.renderer);
-  if (type == -1)
-    type = ywidRegistreRender(NULL, NULL, NULL);
+  type = ywidRegistreRender(NULL, NULL, NULL);
   return type;
 
  fail:
@@ -117,4 +116,19 @@ int    ysdl2Init(void)
  ttf_fail:
   SDL_Quit();
   return -1;
+}
+
+void sdlResize(YWidgetState *wid, int renderType)
+{
+  SDLWid *swid = wid->renderStates[renderType].opac;
+
+  swid->rect.h = wid->pos.h * WIN_H_SIZE / 1000;
+  swid->rect.w = wid->pos.w * WIN_W_SIZE / 1000;
+  swid->rect.x = wid->pos.x * WIN_W_SIZE / 1000;
+  swid->rect.y = wid->pos.y * WIN_H_SIZE / 1000;
+}
+
+void sdlWidInit(YWidgetState *wid, int t)
+{
+  sdlResize(wid, t);
 }

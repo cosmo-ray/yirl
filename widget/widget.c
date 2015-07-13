@@ -143,14 +143,12 @@ int ywidRegistreRender(void (*resizePtr)(YWidgetState *wid, int renderType),
 		       YEvent *(*pollEvent)(void),
 		       YEvent *(*waitEvent)(void))
 {
-  for (int i = 0; i < 64; ++i) {
-    if (!((1 << i) & rendersMask)) {
-      rendersMask |= (1 << i);
-      renderOpTab[i].resizePtr = resizePtr;
-      renderOpTab[i].pollEvent = pollEvent;
-      renderOpTab[i].waitEvent = waitEvent;
-      return i;
-    }
+  YUI_FOREACH_BITMASK(~rendersMask, i, tmask) {
+    rendersMask |= (1 << i);
+    renderOpTab[i].resizePtr = resizePtr;
+    renderOpTab[i].pollEvent = pollEvent;
+    renderOpTab[i].waitEvent = waitEvent;
+    return i;
   }
   return -1;
 }

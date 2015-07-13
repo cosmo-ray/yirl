@@ -18,4 +18,5 @@ target_link_libraries(
 	jsonDescrption
 	widgets
 	wid-curses
+	wid-sdl2
 )
