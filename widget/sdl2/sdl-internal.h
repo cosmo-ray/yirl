@@ -27,9 +27,9 @@
 typedef struct
 {
   int           fullscreen;
-  SDL_Window*   pWindow;
-  TTF_Font*     font;
-  SDL_Renderer* renderer;
+  SDL_Window	*pWindow;
+  TTF_Font	*font;
+  SDL_Renderer	*renderer;
 } SDL_Global;
 
 typedef struct
@@ -42,8 +42,16 @@ void sdlResize(YWidgetState *wid, int renderType);
 
 void sdlWidInit(YWidgetState *wid, int t);
 
+void sdlFillColorBg(SDLWid *swid, short r, short g, short b, short a);
+
+void sdlFillImgBg(SDLWid *swid, const char *cimg);
+
+void sdlWidDestroy(YWidgetState *wid, int t);
 
 SDL_Rect  getRect(void);
 SDL_Surface *wSurface(void);
+SDL_Renderer *sgRenderer(void);
+TTF_Font *sgDefaultFont(void);
+int sgSetDefaultFont(const char *path);
 
 #endif

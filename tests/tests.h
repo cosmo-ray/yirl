@@ -35,6 +35,7 @@ void testSdlLife(void);
 void testCursesLife(void);
 void testAllLife(void);
 
-void testYWTextScreen(void);
+void testYWTextScreenCurses(void);
+void testYWTextScreenSdl2(void);
 
 #endif

@@ -49,7 +49,7 @@ void testCursesLife(void)
   ycursDestroy();
 }
 
-void testYWTextScreen(void)
+void testYWTextScreenCurses(void)
 {
   int t = ydJsonInit();
   void *jsonManager;
@@ -71,8 +71,6 @@ void testYWTextScreen(void)
 
   g_assert(ycursInit() != -1);
   g_assert(ycursType() == 0);
-  g_assert(ysdl2Init() != -1);
-  g_assert(ysdl2Type() == 1);
   
   g_assert(!ycursRegistreTextScreen());
 
@@ -87,8 +85,47 @@ void testYWTextScreen(void)
   g_assert(!ywTextScreeEnd());
   YWidDestroy(wid);
   ycursDestroy();
-  ysdl2Destroy();
   /* end libs */
   YE_DESTROY(ret);
 
+}
+
+void testYWTextScreenSdl2(void)
+{
+  int t = ydJsonInit();
+  void *jsonManager;
+  Entity *ret;
+  YWidgetState *wid;
+
+  /* load files */
+  g_assert(t != -1);
+  g_assert(ydJsonGetType() == t);
+  jsonManager = ydNewManager(t);
+  g_assert(jsonManager != NULL);
+  ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json");
+  g_assert(ret);
+  g_assert(!ydJsonEnd());
+  g_assert(!ydDestroyManager(jsonManager));
+
+  t = ywTextScreenInit();
+  g_assert(t != -1);
+
+  g_assert(ysdl2Init() != -1);
+  g_assert(ysdl2Type() == 0);
+  
+  g_assert(!ysdl2RegistreTextScreen());
+
+  wid = ywidNewWidget(t, ret, NULL, NULL);
+  g_assert(wid);
+
+  
+  do {
+    g_assert(ywidRend(wid) != -1);
+  } while(ywidHandleEvent(wid) != ACTION);
+
+  g_assert(!ywTextScreeEnd());
+  YWidDestroy(wid);
+  ysdl2Destroy();
+  /* end libs */
+  YE_DESTROY(ret);
 }

@@ -15,6 +15,7 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <glib.h>
 #include <unistd.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
@@ -32,10 +33,56 @@ SDL_Rect      getRect(void)
   return (wSurface()->clip_rect);
 }
 
+SDL_Renderer *sgRenderer(void)
+{
+  return sg.renderer;
+}
+
+TTF_Font *sgDefaultFont(void)
+{
+  return sg.font;
+}
+
+int sgSetDefaultFont(const char *path)
+{
+  TTF_Font *font = TTF_OpenFont(path, 16);
+  sg.font = font;
+  if (!font)
+    return -1;
+  return -0;
+}
+
+
 SDL_Surface *wSurface(void)
 {
   return (SDL_GetWindowSurface(sg.pWindow));
 }
+
+void    sdlFillColorBg(SDLWid *swid, short r, short g, short b, short a)
+{
+  SDL_Surface *textSurface =  SDL_CreateRGBSurface(0, swid->rect.w,
+						   swid->rect.h,
+						   32, 0, 0, 0, 0);
+  SDL_FillRect(textSurface, NULL, SDL_MapRGBA(textSurface->format, r, g, b, a));
+  SDL_Texture* text = SDL_CreateTextureFromSurface(sg.renderer, textSurface);
+  SDL_RenderCopy(sg.renderer, text, NULL, &swid->rect);
+  SDL_RenderPresent(sg.renderer);
+  SDL_DestroyTexture(text);
+  SDL_FreeSurface(textSurface);
+}
+
+void    sdlFillImgBg(SDLWid *swid, const char *cimg)
+{
+  if (cimg) {
+    SDL_Surface *img = IMG_Load(cimg);
+    if (!img)
+      return ;
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(sg.renderer, img);
+    SDL_RenderCopy(sg.renderer, texture, NULL, &swid->rect);
+    SDL_DestroyTexture(texture);
+  }
+}
+
 
 void    ysdl2Destroy(void)
 {
@@ -99,6 +146,10 @@ int    ysdl2Init(void)
     goto fail;
   }
 
+  if (sgSetDefaultFont("./sample.ttf") < 0)
+    DPRINT_WARN("can not load \"./sample.ttf\"\n");
+
+  
   // fill the window with a black rectangle
   // SDL_Rect   rect = sg.getRect();
 
@@ -131,4 +182,11 @@ void sdlResize(YWidgetState *wid, int renderType)
 void sdlWidInit(YWidgetState *wid, int t)
 {
   sdlResize(wid, t);
+}
+
+void sdlWidDestroy(YWidgetState *wid, int t)
+{
+  SDLWid *swid = wid->renderStates[t].opac;
+
+  g_free(swid);
 }

@@ -179,7 +179,7 @@ Entity *yeGetByStrFast(Entity *entity, const char *name)
     	return (tmp);
     ++i;
   }
-  DPRINT_WARN("could not find %s in  %s\n", name,
+  DPRINT_INFO("could not find %s in  %s\n", name,
 	      yePrintableName(entity));
   return NULL;
 }
@@ -189,11 +189,10 @@ Entity *yeGetByStr(Entity *entity, const char *name)
   int	i;
 
   if (entity == NULL) {
-    DPRINT_ERR("can not find entity fot %s\n", name);
+    DPRINT_INFO("can not find entity fot %s\n", name);
     return NULL;
     }
-  DPRINT_INFO("finding entity %s in entity %s\t[%s:%d]\n", name,
-	      tryGetEntityName(entity), __FILE__, __LINE__);
+
   i = findIdxPoint(name);
   return (i != -1) ?
     (yeGet(yeGetByIdxFastWithEnd(entity, name, i), name + i + 1)) :
