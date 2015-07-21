@@ -132,7 +132,6 @@ int ywidRegistreTypeRender(const char *type, int t,
       widgetOptTab[i].render[t] = render;
       widgetOptTab[i].init[t] = init;
       widgetOptTab[i].destroy[t] = destroy;
-      printf("ywidRegistreTypeRender %lu\n", widgetOptTab[i].rendersMask);
       return 0;
     }
   }
@@ -169,7 +168,8 @@ YEvent *ywidGenericWaitEvent(void)
   if (!rendersMask)
     return NULL;
   YUI_FOREACH_BITMASK(rendersMask, i, tmask) {
-    return renderOpTab[i].waitEvent();
+    if (renderOpTab[i].waitEvent)
+      return renderOpTab[i].waitEvent();
   }
   return NULL;
 }

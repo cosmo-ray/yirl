@@ -41,8 +41,8 @@ int main(int argc, char **argv)
   g_test_add_func("/script/json/gui/life/curses", testCursesLife);
   g_test_add_func("/script/json/gui/life/all", testAllLife);
 
+  g_test_add_func("/script/json/widget/textScreen/sdl", testYWTextScreenSdl2);
   g_test_add_func("/script/json/widget/textScreen", testYWTextScreenCurses);
-  g_test_add_func("/script/json/widget/textScreen", testYWTextScreenSdl2);
   g_test_run();
   yuiDebugExit();
 }

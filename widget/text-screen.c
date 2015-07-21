@@ -22,7 +22,6 @@ static int t = -1;
 
 static int tsInit(YWidgetState *opac, Entity *entity, void *args)
 {
-  printf("init ts\n");
   opac->entity = entity;
   ywidGenericInit(opac, t);
   (void)args;
@@ -43,10 +42,14 @@ static InputStatue tsEvent(YWidgetState *opac, YEvent *event)
   if (!event)
     event = ywidGenericWaitEvent();
 
+  if (!event)
+    return NOTHANDLE;
+
   if (event->key == Y_ESC_KEY)
     ret = ACTION;
   else if (event->key == '\n')
     ret = ACTION;
+
   g_free(event);
   return ret;
 }

@@ -121,6 +121,7 @@ void testYWTextScreenSdl2(void)
   
   do {
     g_assert(ywidRend(wid) != -1);
+    usleep(100000);
   } while(ywidHandleEvent(wid) != ACTION);
 
   g_assert(!ywTextScreeEnd());

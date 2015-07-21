@@ -155,7 +155,7 @@ int    ysdl2Init(void)
 
   SDL_RenderClear(sg.renderer);
   SDL_RenderPresent(sg.renderer);
-  type = ywidRegistreRender(NULL, NULL, NULL);
+  type = ywidRegistreRender(sdlResize, NULL, NULL);
   return type;
 
  fail:

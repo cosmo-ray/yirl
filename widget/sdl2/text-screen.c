@@ -34,15 +34,13 @@ static int sdlRender(YWidgetState *state, int t)
   SDLWid *wid = ywidGetRenderData(state, t);
   const char *toPrint = yeGetString(yeGet(state->entity, "text"));
   const char *img = yeGetString(yeGet(state->entity, "img"));
-  int   len = strlen(toPrint);
   SDL_Color color;
   int text_width , text_height;
   int   y = wid->rect.y;
   int   x = wid->rect.x;
-  char  buff[CARACT_PER_LINE + 1];  
   SDL_Renderer *renderer = sgRenderer();
+  int   len = strlen(toPrint);
 
-  printf("in\n");
   color.r = 0;
   color.g = 0;
   color.b = 0;
@@ -51,26 +49,37 @@ static int sdlRender(YWidgetState *state, int t)
     sdlFillImgBg(wid, img);
   else
     sdlFillColorBg(wid, 255, 255, 255, 255);
+
   SDL_Rect      rect = wid->rect;
   SDL_RenderDrawRect(renderer, &rect);
   SDL_RenderPresent(renderer);
 
+  if (!sgDefaultFont()) {
+    DPRINT_WARN("NO Font Set !");
+    return 0;
+  }
   for (int i = 0; i < len; i += CARACT_PER_LINE)
     {
-      if (i + CARACT_PER_LINE > len) {
-	  strncpy(buff, toPrint + i, (i + CARACT_PER_LINE) - len);
-	  buff[(i + CARACT_PER_LINE) - len] = 0;
-	}
-      else {
-	  strncpy(buff, toPrint + i, CARACT_PER_LINE);
-	  buff[CARACT_PER_LINE] = 0;
-	}
-      SDL_Surface *textSurface = TTF_RenderUTF8_Solid(sgDefaultFont(), buff, color);
-      SDL_Texture* text = SDL_CreateTextureFromSurface(renderer, textSurface);
+      char  buff[CARACT_PER_LINE + 1];  
+      SDL_Surface *textSurface;
+      SDL_Texture* text;
+
+      if (len > (i + CARACT_PER_LINE)) {
+	strncpy(buff, toPrint + i, (i + CARACT_PER_LINE) - len);
+	buff[(i + CARACT_PER_LINE) - len] = 0;
+
+      } else {
+	strncpy(buff, toPrint + i, CARACT_PER_LINE);
+	buff[CARACT_PER_LINE] = 0;
+      }
+
+      textSurface = TTF_RenderUTF8_Solid(sgDefaultFont(),
+						      buff, color);
+      text = SDL_CreateTextureFromSurface(renderer, textSurface);
       text_width = textSurface->w;
       text_height = textSurface->h;
       SDL_FreeSurface(textSurface);
-      // printf("%s\nx:%d y:%d\nw:%dh:%d\n", txt, x, y, text_width, text_height);
+
       SDL_Rect renderQuad = { x, y, text_width, text_height };
       SDL_RenderCopy(renderer, text, NULL, &renderQuad);
       SDL_DestroyTexture(text);
