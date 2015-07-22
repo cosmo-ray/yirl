@@ -101,6 +101,62 @@ int ysdl2Type(void)
   return type;
 }
 
+static int  convertToYKEY(SDL_Keycode key)
+{
+  switch (key)
+    {
+    case SDLK_UP:
+      return (Y_UP_KEY);
+    case SDLK_DOWN:
+      return (Y_DOWN_KEY);
+    case SDLK_LEFT:
+      return (Y_LEFT_KEY);
+    case SDLK_RIGHT:
+      return (Y_RIGHT_KEY);
+    case SDLK_RETURN:
+      return ('\n');
+    case SDLK_TAB:
+      return ('\t');
+    default:
+      return (-1);
+    }
+}
+
+static inline YEvent *SDLConvertEvent(SDL_Event* event)
+{
+  YEvent *eve = g_new(YEvent, 1);
+  
+  switch(event->type)
+    {
+    case SDL_KEYUP:
+    case SDL_KEYDOWN:
+      eve->type = YKEY_UP;
+      break;
+      eve->type = YKEY_DOWN;
+      break;
+    default:
+      return NULL;
+    }
+  eve->key = convertToYKEY(event->key.keysym.sym);
+  return eve;
+}
+
+static YEvent *SDLWaitEvent(void)
+{
+  SDL_Event event;
+
+  SDL_WaitEvent(&event);
+  return SDLConvertEvent(&event);
+}
+
+static YEvent *SDLPollEvent(void)
+{
+  SDL_Event event;
+
+  SDL_PollEvent(&event);
+  return SDLConvertEvent(&event);
+}
+
 int    ysdl2Init(void)
 {
   if (type != -1)
@@ -155,7 +211,7 @@ int    ysdl2Init(void)
 
   SDL_RenderClear(sg.renderer);
   SDL_RenderPresent(sg.renderer);
-  type = ywidRegistreRender(sdlResize, NULL, NULL);
+  type = ywidRegistreRender(sdlResize, SDLPollEvent, SDLWaitEvent);
   return type;
 
  fail:
