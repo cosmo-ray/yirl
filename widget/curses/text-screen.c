@@ -54,7 +54,6 @@ static int cursesRender(YWidgetState *state, int t)
 	  ++it;
 	}
     }
-  wprintw(wid->win, "bye i love you %s\n", toPrint);
   wrefresh(wid->win);
   return 0;
 }

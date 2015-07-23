@@ -130,3 +130,49 @@ void testYWTextScreenSdl2(void)
   /* end libs */
   YE_DESTROY(ret);
 }
+
+void testYWTextScreenAll(void)
+{
+  int t = ydJsonInit();
+  void *jsonManager;
+  Entity *ret;
+  YWidgetState *wid;
+
+  /* load files */
+  g_assert(t != -1);
+  g_assert(ydJsonGetType() == t);
+  jsonManager = ydNewManager(t);
+  g_assert(jsonManager != NULL);
+  ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json");
+  g_assert(ret);
+  g_assert(!ydJsonEnd());
+  g_assert(!ydDestroyManager(jsonManager));
+
+  t = ywTextScreenInit();
+  g_assert(t != -1);
+
+  /* Init all */
+  g_assert(ysdl2Init() == 0);
+  g_assert(ycursInit() == 1);
+
+  /* registre curses and sdl text screen */
+  g_assert(!ysdl2RegistreTextScreen());
+  g_assert(!ycursRegistreTextScreen());
+
+  /* create widgets */
+  wid = ywidNewWidget(t, ret, NULL, NULL);
+  g_assert(wid);
+
+  
+  do {
+    g_assert(ywidRend(wid) != -1);
+    usleep(100000);
+  } while(ywidHandleEvent(wid) != ACTION);
+
+  /* end libs */
+  g_assert(!ywTextScreeEnd());
+  YWidDestroy(wid);
+  ycursDestroy();
+  ysdl2Destroy();
+  YE_DESTROY(ret);
+}
