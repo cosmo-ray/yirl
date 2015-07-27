@@ -16,6 +16,7 @@
 */
 /* TODO: improve perf by using gcc bultin for bitmask operations*/
 
+#include <unistd.h>
 #include <string.h>
 #include <glib.h>
 #include "widget.h"
@@ -156,7 +157,7 @@ int ywidRegistreRender(void (*resizePtr)(YWidgetState *wid, int renderType),
 YEvent *ywidGenericPollEvent(void)
 {
   YUI_FOREACH_BITMASK(rendersMask, i, tmask) {
-    YEvent *ret = renderOpTab[i].waitEvent();
+    YEvent *ret = renderOpTab[i].pollEvent();
     if (ret)
       return ret;
   }
@@ -167,9 +168,17 @@ YEvent *ywidGenericWaitEvent(void)
 {
   if (!rendersMask)
     return NULL;
-  YUI_FOREACH_BITMASK(rendersMask, i, tmask) {
-    if (renderOpTab[i].waitEvent)
-      return renderOpTab[i].waitEvent();
+  if (YUI_COUNT_1_BYTE(rendersMask) == 1) {
+    return renderOpTab[YUI_GET_FiRST_BYTE(rendersMask)].waitEvent();
+  } else {
+    YEvent *ret;
+    while (1) {
+      YUI_FOREACH_BITMASK(rendersMask, i, tmask) {
+	if (renderOpTab[i].pollEvent && (ret = renderOpTab[i].pollEvent()))
+	  return ret;
+      }
+      usleep(50);
+    }
   }
   return NULL;
 }
