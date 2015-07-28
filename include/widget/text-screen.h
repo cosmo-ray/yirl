@@ -21,6 +21,6 @@
 #include "widget.h"
 
 int ywTextScreenInit(void);
-int ywTextScreeEnd(void);
+int ywTextScreenEnd(void);
 
 #endif

@@ -82,7 +82,7 @@ void testYWTextScreenCurses(void)
     g_assert(ywidRend(wid) != -1);
   } while(ywidHandleEvent(wid) != ACTION);
 
-  g_assert(!ywTextScreeEnd());
+  g_assert(!ywTextScreenEnd());
   YWidDestroy(wid);
   ycursDestroy();
   /* end libs */
@@ -124,7 +124,7 @@ void testYWTextScreenSdl2(void)
     usleep(100000);
   } while(ywidHandleEvent(wid) != ACTION);
 
-  g_assert(!ywTextScreeEnd());
+  g_assert(!ywTextScreenEnd());
   YWidDestroy(wid);
   ysdl2Destroy();
   /* end libs */
@@ -170,7 +170,7 @@ void testYWTextScreenAll(void)
   } while(ywidHandleEvent(wid) != ACTION);
 
   /* end libs */
-  g_assert(!ywTextScreeEnd());
+  g_assert(!ywTextScreenEnd());
   YWidDestroy(wid);
   ycursDestroy();
   ysdl2Destroy();

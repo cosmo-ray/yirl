@@ -72,12 +72,17 @@ static void *alloc(void)
 
 int ywTextScreenInit(void)
 {
+  if (t != -1)
+    return t;
   t = ywidRegister(alloc, "text-screen");
   return t;
 }
 
-int ywTextScreeEnd(void)
+int ywTextScreenEnd(void)
 {
-  return ywidUnregiste(t);
+  if (ywidUnregiste(t) < 0)
+    return -1;
+  t = -1;
+  return 0;
 }
 
