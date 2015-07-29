@@ -15,30 +15,13 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _TESTS_H_
-#define _TESTS_H_
+#ifndef	_MENU_H_
+#define	_MENU_H_
 
-void testLifecycleSimple(void);
-void testLifecycleFlow(void);
-void testLifecycleComplex(void);
+#include "widget.h"
 
-void testSetSimple(void);
-void testSetComplex(void);
-void testSetGeneric(void);
-
-void testLuaScritLifecycle(void);
-
-void testJsonLoadFile(void);
-void testJsonMultipleObj(void);
-
-void testSdlLife(void);
-void testCursesLife(void);
-void testAllLife(void);
-
-void testYWTextScreenCurses(void);
-void testYWTextScreenSdl2(void);
-void testYWTextScreenAll(void);
-
-void testYWMenuCurses(void);
+int ywMenuInit(void);
+int ywMenuEnd(void);
+int ywMenuGetCurrent(YWidgetState *opac);
 
 #endif

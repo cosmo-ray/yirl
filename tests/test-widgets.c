@@ -62,6 +62,7 @@ void testYWTextScreenCurses(void)
   jsonManager = ydNewManager(t);
   g_assert(jsonManager != NULL);
   ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json");
+  ret = yeGet(ret, "TextScreenTest");
   g_assert(ret);
   g_assert(!ydJsonEnd());
   g_assert(!ydDestroyManager(jsonManager));
@@ -87,7 +88,6 @@ void testYWTextScreenCurses(void)
   ycursDestroy();
   /* end libs */
   YE_DESTROY(ret);
-
 }
 
 void testYWTextScreenSdl2(void)
@@ -103,6 +103,7 @@ void testYWTextScreenSdl2(void)
   jsonManager = ydNewManager(t);
   g_assert(jsonManager != NULL);
   ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json");
+  ret = yeGet(ret, "TextScreenTest");
   g_assert(ret);
   g_assert(!ydJsonEnd());
   g_assert(!ydDestroyManager(jsonManager));
@@ -144,6 +145,7 @@ void testYWTextScreenAll(void)
   jsonManager = ydNewManager(t);
   g_assert(jsonManager != NULL);
   ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json");
+  ret = yeGet(ret, "TextScreenTest");
   g_assert(ret);
   g_assert(!ydJsonEnd());
   g_assert(!ydDestroyManager(jsonManager));

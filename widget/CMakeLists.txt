@@ -1,4 +1,6 @@
-set (SOURCE widget.c text-screen.c)
+set (SOURCE widget.c
+    text-screen.c
+    menu.c)
 
 add_library (widgets STATIC ${SOURCE})
 

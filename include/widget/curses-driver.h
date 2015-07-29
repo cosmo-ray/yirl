@@ -21,6 +21,7 @@
 int ycursInit(void);
 int ycursType(void);
 int ycursRegistreTextScreen(void);
+int ycursRegistreMenu(void);
 void ycursDestroy(void);
 
 #endif

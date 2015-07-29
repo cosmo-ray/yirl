@@ -128,7 +128,7 @@ int ywidRegistreTypeRender(const char *type, int t,
 			   void (*destroy)(YWidgetState *opac, int t))
 {
   for (int i = 0; i < 64; ++i) {
-    if (g_str_equal(type, widgetOptTab[i].name)) {
+    if (widgetOptTab[i].name && g_str_equal(type, widgetOptTab[i].name)) {
       widgetOptTab[i].rendersMask |= 1 << t;
       widgetOptTab[i].render[t] = render;
       widgetOptTab[i].init[t] = init;

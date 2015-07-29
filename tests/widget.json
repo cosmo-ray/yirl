@@ -1,6 +1,20 @@
 {
-    "_name" : "Scrren2",
-    "<type>" : "TextScreen",
-    "text" : "All's death, something was living here, But today...",
-    "background": "hello.pnj"
+    "TextScreenTest" : {
+	"<type>" : "TextScreen",
+	"text" : "All's death, something was living here, But today...",
+	"background": "hello.pnj" // Not implemented yet :)
+    },
+    "MenuTest" : {
+	"<type>" : "Menu",
+	"entries" : [
+	    {"text" : "choose 1"},
+	    {
+		"text" : "choose 2",
+		"bg" : "hello.pnj"  // Not implemented yet :)
+	    },
+	    {"text" : "choose 3"}
+	],
+	"background": "rgba: 180 210 20 50", // Not implemented yet :)
+	"button_background": "hello.pnj" // Not implemented yet :)
+    }
 }

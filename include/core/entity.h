@@ -152,7 +152,7 @@ extern "C"
   const char *yeTypeToString(int type) WEAK;
 
   /**
-   * @return the entity at the position of @index or NULL
+   * @return:	the entity at the position of @index or NULL
    */
   Entity *yeGetByIdx(Entity *entity, unsigned int index) WEAK;
     
@@ -166,9 +166,6 @@ extern "C"
 #ifdef __cplusplus
   extern "C++"
   {
-    /**
-     * @return the entity at the position of the index or NULL
-     */
     Entity *yeGet(Entity *entity, unsigned int index) WEAK;
     Entity *yeGet(Entity *entity, const char *name) WEAK;
   }
@@ -194,28 +191,28 @@ extern "C"
   Entity *yeExpandArray(Entity *entity, unsigned int size) WEAK;
 
   /**
-   * Add a new entity to the entity <entity>
-   * @param entity  the entity where we will add a new entity
-   * @param toPush  the entity to add
+   * Add a new entity to @array>
+   * @array:	the entity where we will add a new entity
+   * @toPush:	the entity to add
    */
   int yePushBack(Entity *array, Entity *toPush) WEAK;
 
   /**
-   * @param entity
-   * @return  the entity that is erased from the entity <entity>
+   * @array:	the array
+   * @return:	the entity that is erased from the entity @array
    */
   Entity *yePopBack(Entity *array) WEAK;
 
   Entity *yeRemoveChild(Entity *array, Entity *toRemove);
   
   /**
-   * function who alloc an entity and set it to  0, "" or NULL
+   * function who which an entity and set it to  0, "" or NULL
    */
   Entity *yeCreate(const char *name, EntityType type, void *val, Entity *fathers) WEAK;
 
-   /** Ensemble de fonction pour cree et detruire chaque type d'entite.
-    * Cannot initialise a structure in thers functions because the data are to complex
-    */
+  /* 
+   * Destructor and constructors.
+   */
   Entity *yeCreateInt(const char *name, int value, Entity *fathers) WEAK;
   Entity *yeCreateFloat(const char *name, double value, Entity *fathers) WEAK;
   Entity *yeCreateString(const char *name, const char *string, Entity *fathers) WEAK;
