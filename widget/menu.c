@@ -89,6 +89,7 @@ static void *alloc(void)
   wstate->init = mnInit;
   wstate->destroy = mnDestroy;
   wstate->handleEvent = mnEvent;
+  wstate->type = t;
   return  ret;
 }
 
@@ -107,5 +108,8 @@ int ywMenuInit(void)
 
 int ywMenuEnd(void)
 {
-  return ywidUnregiste(t);
+  if (ywidUnregiste(t) < 0)
+    return -1;
+  t = -1;
+  return 0;
 }

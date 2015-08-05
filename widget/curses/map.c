@@ -30,8 +30,6 @@ static int cursesRender(YWidgetState *state, int t)
   unsigned int wMap = yeGetInt(yeGet(state->entity, "width"));
   unsigned int hMap = lenMap / wMap;
 
-  DPRINT_ERR("HELLO BITCH\n");
-
   wmove(wid->win,0,0);
   getyx(wid->win, y, x);
   getmaxyx(wid->win, h, w);

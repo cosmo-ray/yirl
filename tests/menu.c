@@ -49,7 +49,7 @@ void testYWMenuCurses(void)
   g_assert(ycursInit() != -1);
   g_assert(ycursType() == 0);
   
-  g_assert(!ycursRegistreMenu());
+  g_assert(ycursRegistreMenu() == 0);
 
   wid = ywidNewWidget(t, ret, NULL, NULL);
   g_assert(wid);
@@ -62,6 +62,48 @@ void testYWMenuCurses(void)
   g_assert(!ywMenuEnd());
   YWidDestroy(wid);
   ycursDestroy();
+  /* end libs */
+  YE_DESTROY(ret);
+}
+
+void testYWMenuSdl2(void)
+{
+  int t = ydJsonInit();
+  void *jsonManager;
+  Entity *ret;
+  YWidgetState *wid;
+
+  /* load files */
+  g_assert(t != -1);
+  g_assert(ydJsonGetType() == t);
+  jsonManager = ydNewManager(t);
+  g_assert(jsonManager != NULL);
+  ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json");
+  ret = yeGet(ret, "MenuTest");
+  g_assert(ret);
+  g_assert(!ydJsonEnd());
+  g_assert(!ydDestroyManager(jsonManager));
+
+  t = ywMenuInit();
+  g_assert(t == 0);
+
+  g_assert(ysdl2Init() != -1);
+  g_assert(ysdl2Type() == 0);
+  
+  /* if sdl have type 0, ywidRegistreTypeRender must register this func at 0*/ 
+  g_assert(ysdl2RegistreMenu() == 0);
+
+  wid = ywidNewWidget(t, ret, NULL, NULL);
+  g_assert(wid);
+
+  
+  do {
+    g_assert(ywidRend(wid) != -1);
+  } while(ywidHandleEvent(wid) != ACTION);
+
+  g_assert(!ywMenuEnd());
+  YWidDestroy(wid);
+  ysdl2Destroy();
   /* end libs */
   YE_DESTROY(ret);
 }

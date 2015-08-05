@@ -67,6 +67,7 @@ static void *alloc(void)
   ret->init = tsInit;
   ret->destroy = tsDestroy;
   ret->handleEvent = tsEvent;
+  ret->type = t;
   return  ret;
 }
 

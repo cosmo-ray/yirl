@@ -35,11 +35,7 @@ static int sdlRender(YWidgetState *state, int t)
   const char *toPrint = yeGetString(yeGet(state->entity, "text"));
   const char *img = yeGetString(yeGet(state->entity, "img"));
   SDL_Color color;
-  int text_width , text_height;
-  int   y = wid->rect.y;
-  int   x = wid->rect.x;
   SDL_Renderer *renderer = sgRenderer();
-  int   len = strlen(toPrint);
 
   color.r = 0;
   color.g = 0;
@@ -58,33 +54,7 @@ static int sdlRender(YWidgetState *state, int t)
     DPRINT_WARN("NO Font Set !");
     return 0;
   }
-  for (int i = 0; i < len; i += CARACT_PER_LINE)
-    {
-      char  buff[CARACT_PER_LINE + 1];  
-      SDL_Surface *textSurface;
-      SDL_Texture* text;
-
-      if (len > (i + CARACT_PER_LINE)) {
-	strncpy(buff, toPrint + i, (i + CARACT_PER_LINE) - len);
-	buff[(i + CARACT_PER_LINE) - len] = 0;
-
-      } else {
-	strncpy(buff, toPrint + i, CARACT_PER_LINE);
-	buff[CARACT_PER_LINE] = 0;
-      }
-
-      textSurface = TTF_RenderUTF8_Solid(sgDefaultFont(),
-						      buff, color);
-      text = SDL_CreateTextureFromSurface(renderer, textSurface);
-      text_width = textSurface->w;
-      text_height = textSurface->h;
-      SDL_FreeSurface(textSurface);
-
-      SDL_Rect renderQuad = { x, y, text_width, text_height };
-      SDL_RenderCopy(renderer, text, NULL, &renderQuad);
-      SDL_DestroyTexture(text);
-      y += text_height;
-    }
+  sdlPrintText(wid, toPrint, CARACT_PER_LINE, color, 0, 0);
 
   SDL_RenderPresent(renderer);
   return 0;

@@ -89,7 +89,8 @@ static void *alloc(void)
   wstate->init = mapInit;
   wstate->destroy = mapDestroy;
   wstate->handleEvent = mapEvent;
-  return  ret;
+  wstate->type = t;
+return  ret;
 }
 
 int ywMapInit(void)
@@ -102,5 +103,8 @@ int ywMapInit(void)
 
 int ywMapEnd(void)
 {
-  return ywidUnregiste(t);
+  if (ywidUnregiste(t) < 0)
+    return -1;
+  t = -1;
+  return 0;
 }

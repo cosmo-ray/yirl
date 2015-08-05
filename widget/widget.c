@@ -49,11 +49,12 @@ struct renderOpt renderOpTab[64];
 
 void ywidRemoveRender(int renderType)
 {
-  rendersMask ^= (1 << renderType);
+  rendersMask ^= (1LLU << renderType);
   renderOpTab[renderType].resizePtr = NULL;
   for(int i = 0; i < 64; ++i) {
-    widgetOptTab[i].rendersMask ^= (1 << renderType);    
+    widgetOptTab[i].rendersMask ^= (1LLU << renderType);    
     widgetOptTab[i].init[renderType] = NULL;
+    widgetOptTab[i].render[renderType] = NULL;
     widgetOptTab[i].render[renderType] = NULL;
   }
 }
@@ -66,7 +67,7 @@ int ywidRegister(void *(*allocator)(void), const char *name)
 
   widgetOptTab[ret].name = g_strdup(name);
   if (!widgetOptTab[ret].name)
-    return-1;
+    return -1;
 
   widgetOptTab[ret].rendersMask = 0;
   memset(widgetOptTab[ret].init, 0, 64 * sizeof(void *));
@@ -121,7 +122,11 @@ void ywidResize(YWidgetState *wid)
   }
 }
 
-int ywidRegistreTypeRender(const char *type, int t,
+/**
+ * this functions set the callbacks of the render of type
+ * @renderType use by the widget of type @type
+ */
+int ywidRegistreTypeRender(const char *type, int renderType,
 			   int (*render)(YWidgetState *wid,
 					 int renderType),
 			   int (*init)(YWidgetState *opac, int t),
@@ -129,11 +134,11 @@ int ywidRegistreTypeRender(const char *type, int t,
 {
   for (int i = 0; i < 64; ++i) {
     if (widgetOptTab[i].name && g_str_equal(type, widgetOptTab[i].name)) {
-      widgetOptTab[i].rendersMask |= 1 << t;
-      widgetOptTab[i].render[t] = render;
-      widgetOptTab[i].init[t] = init;
-      widgetOptTab[i].destroy[t] = destroy;
-      return 0;
+      widgetOptTab[i].rendersMask |= 1LLU << renderType;
+      widgetOptTab[i].render[renderType] = render;
+      widgetOptTab[i].init[renderType] = init;
+      widgetOptTab[i].destroy[renderType] = destroy;
+      return i;
     }
   }
   return -1;

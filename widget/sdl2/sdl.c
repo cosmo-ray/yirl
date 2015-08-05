@@ -46,6 +46,7 @@ TTF_Font *sgDefaultFont(void)
 int sgSetDefaultFont(const char *path)
 {
   TTF_Font *font = TTF_OpenFont(path, 16);
+  sg.fontSize = 16;
   sg.font = font;
   if (!font)
     return -1;
@@ -53,14 +54,34 @@ int sgSetDefaultFont(const char *path)
 }
 
 
+int sgGetFontSize(void)
+{
+  return sg.fontSize;
+}
+
 SDL_Surface *wSurface(void)
 {
   return (SDL_GetWindowSurface(sg.pWindow));
 }
 
+void	sdlDrawRect(SDLWid *swid, SDL_Rect rect, SDL_Color color)
+{
+  SDL_Surface *textSurface =  SDL_CreateRGBSurface(0, rect.w,
+						   rect.h,
+						   32, 0, 0, 0, 0);
+  SDL_FillRect(textSurface, NULL, SDL_MapRGBA(textSurface->format,
+					      color.r, color.g, color.b, color.a));
+  SDL_Texture* text = SDL_CreateTextureFromSurface(sg.renderer, textSurface);
+  (void)swid;
+  SDL_RenderCopy(sg.renderer, text, NULL, &rect);
+  SDL_RenderPresent(sg.renderer);
+  SDL_DestroyTexture(text);
+  SDL_FreeSurface(textSurface);
+}
+
 void    sdlFillColorBg(SDLWid *swid, short r, short g, short b, short a)
 {
-  SDL_Surface *textSurface =  SDL_CreateRGBSurface(0, swid->rect.w,
+ SDL_Surface *textSurface =  SDL_CreateRGBSurface(0, swid->rect.w,
 						   swid->rect.h,
 						   32, 0, 0, 0, 0);
   SDL_FillRect(textSurface, NULL, SDL_MapRGBA(textSurface->format, r, g, b, a));
@@ -71,16 +92,18 @@ void    sdlFillColorBg(SDLWid *swid, short r, short g, short b, short a)
   SDL_FreeSurface(textSurface);
 }
 
-void    sdlFillImgBg(SDLWid *swid, const char *cimg)
+int    sdlFillImgBg(SDLWid *swid, const char *cimg)
 {
   if (cimg) {
     SDL_Surface *img = IMG_Load(cimg);
     if (!img)
-      return ;
+      return -1;
     SDL_Texture *texture = SDL_CreateTextureFromSurface(sg.renderer, img);
     SDL_RenderCopy(sg.renderer, texture, NULL, &swid->rect);
     SDL_DestroyTexture(texture);
+    return 0;
   }
+  return -1;
 }
 
 
@@ -223,6 +246,47 @@ int    ysdl2Init(void)
  ttf_fail:
   SDL_Quit();
   return -1;
+}
+
+int sdlPrintText(SDLWid *wid,
+		 const char *str,
+		 unsigned int caract_per_line,
+		 SDL_Color color,
+		 int x, int y)
+{
+  unsigned int   len = strlen(str);
+  int text_width , text_height;
+  SDL_Renderer *renderer = sg.renderer;
+  
+  y += wid->rect.y;
+  x += wid->rect.x;
+  for (unsigned int i = 0; i < len; i += caract_per_line)
+    {
+      static char  buff[125];  
+      SDL_Surface *textSurface;
+      SDL_Texture* text;
+
+      if ((len - i) > caract_per_line) {
+	strncpy(buff, str + i, caract_per_line);
+	buff[caract_per_line] = 0;
+      } else {
+	strncpy(buff, str + i, caract_per_line - (len - i));
+	buff[caract_per_line - (len - i)] = 0;
+      }
+
+      textSurface = TTF_RenderUTF8_Solid(sgDefaultFont(),
+						      buff, color);
+      text = SDL_CreateTextureFromSurface(renderer, textSurface);
+      text_width = textSurface->w;
+      text_height = textSurface->h;
+      SDL_FreeSurface(textSurface);
+
+      SDL_Rect renderQuad = { x, y, text_width, text_height };
+      SDL_RenderCopy(renderer, text, NULL, &renderQuad);
+      SDL_DestroyTexture(text);
+      y += text_height;
+    }
+  return 0;
 }
 
 void sdlResize(YWidgetState *wid, int renderType)

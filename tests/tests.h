@@ -40,6 +40,7 @@ void testYWTextScreenSdl2(void);
 void testYWTextScreenAll(void);
 
 void testYWMenuCurses(void);
+void testYWMenuSdl2(void);
 
 void testYWMapCurses(void);
 
