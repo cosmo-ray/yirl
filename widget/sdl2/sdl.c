@@ -66,17 +66,23 @@ SDL_Surface *wSurface(void)
 
 void	sdlDrawRect(SDLWid *swid, SDL_Rect rect, SDL_Color color)
 {
-  SDL_Surface *textSurface =  SDL_CreateRGBSurface(0, rect.w,
-						   rect.h,
-						   32, 0, 0, 0, 0);
-  SDL_FillRect(textSurface, NULL, SDL_MapRGBA(textSurface->format,
-					      color.r, color.g, color.b, color.a));
-  SDL_Texture* text = SDL_CreateTextureFromSurface(sg.renderer, textSurface);
+  /* SDL_Surface *textSurface =  SDL_CreateRGBSurface(0, rect.w, */
+  /* 						   rect.h, */
+  /* 						   32, 0, 0, 0, 0); */
+  /* SDL_FillRect(textSurface, NULL, SDL_MapRGBA(textSurface->format, */
+  /* 					      color.r, color.g, color.b, color.a)); */
+  /* SDL_Texture* text = SDL_CreateTextureFromSurface(sg.renderer, textSurface); */
   (void)swid;
-  SDL_RenderCopy(sg.renderer, text, NULL, &rect);
-  SDL_RenderPresent(sg.renderer);
-  SDL_DestroyTexture(text);
-  SDL_FreeSurface(textSurface);
+  /* SDL_RenderCopy(sg.renderer, text, NULL, &rect); */
+  /* SDL_RenderPresent(sg.renderer); */
+  /* SDL_DestroyTexture(text); */
+  /* SDL_FreeSurface(textSurface); */
+  unsigned char r, g, b, a;
+
+  SDL_GetRenderDrawColor(sg.renderer, &r, &g, &b, &a);
+  SDL_SetRenderDrawColor(sg.renderer, color.r, color.g, color.b, color.a);
+  SDL_RenderFillRect(sg.renderer, &rect);
+  SDL_SetRenderDrawColor(sg.renderer, r, g, b, a);  
 }
 
 void    sdlFillColorBg(SDLWid *swid, short r, short g, short b, short a)
@@ -152,9 +158,9 @@ static inline YEvent *SDLConvertEvent(SDL_Event* event)
   switch(event->type)
     {
     case SDL_KEYUP:
-    case SDL_KEYDOWN:
       eve->type = YKEY_UP;
       break;
+    case SDL_KEYDOWN:
       eve->type = YKEY_DOWN;
       break;
     default:
@@ -222,6 +228,10 @@ int    ysdl2Init(void)
   sg.renderer = SDL_CreateRenderer(sg.pWindow, -1, SDL_RENDERER_TARGETTEXTURE);
   if (!sg.renderer) {
     DPRINT_ERR("Get render from window: %s\n", TTF_GetError());
+    goto fail;
+  }
+
+  if (SDL_SetRenderDrawBlendMode(sg.renderer, SDL_BLENDMODE_BLEND) < 0) {
     goto fail;
   }
 

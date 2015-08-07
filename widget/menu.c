@@ -23,6 +23,7 @@ static int t = -1;
 typedef struct {
   YWidgetState sate;
   unsigned int current;
+  unsigned int hasChange;
 } YMenuState;
 
 static int mnInit(YWidgetState *opac, Entity *entity, void *args)
@@ -41,7 +42,9 @@ static int mnDestroy(YWidgetState *opac)
 
 static int mnRend(YWidgetState *opac)
 {
-  return ywidGenericRend(opac, t);
+  int ret = ywidGenericRend(opac, t);  
+  ((YMenuState *)opac)->hasChange = 0;
+  return ret;
 }
 
 static InputStatue mnEvent(YWidgetState *opac, YEvent *event)
@@ -55,24 +58,31 @@ static InputStatue mnEvent(YWidgetState *opac, YEvent *event)
   if (!event)
     return NOTHANDLE;
 
+  if (event->type != YKEY_DOWN)
+    goto exit;
   if (event->key == Y_ESC_KEY) {
     ret = ACTION;
+
   } else if (event->key == '\n') {
     ret = ACTION;
+
   } else if (event->key == Y_DOWN_KEY) {
     ((YMenuState *)opac)->current += 1;
     ret = NOACTION;
+
     if (((YMenuState *)opac)->current > yeLen(yeGet(opac->entity, "entries")) - 1)
       ((YMenuState *)opac)->current = 0;
 
   } else if (event->key == Y_UP_KEY) {
     ((YMenuState *)opac)->current -= 1;
     ret = NOACTION;
+
     if (((YMenuState *)opac)->current > yeLen(yeGet(opac->entity, "entries")))
       ((YMenuState *)opac)->current = yeLen(yeGet(opac->entity, "entries")) - 1;
-
   }
 
+  ((YMenuState *)opac)->hasChange = 1;
+ exit:
   g_free(event);
   return ret;
 }
@@ -90,7 +100,13 @@ static void *alloc(void)
   wstate->destroy = mnDestroy;
   wstate->handleEvent = mnEvent;
   wstate->type = t;
+  ret->hasChange = 1;
   return  ret;
+}
+
+int ywMenuHasChange(YWidgetState *opac)
+{
+  return ((YMenuState *)opac)->hasChange;
 }
 
 int ywMenuGetCurrent(YWidgetState *opac)

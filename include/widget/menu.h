@@ -23,5 +23,6 @@
 int ywMenuInit(void);
 int ywMenuEnd(void);
 int ywMenuGetCurrent(YWidgetState *opac);
+int ywMenuHasChange(YWidgetState *opac);
 
 #endif
