@@ -1,4 +1,5 @@
 set (SOURCE widget.c
+    widget-callback.c
     text-screen.c
     menu.c
     map.c)
