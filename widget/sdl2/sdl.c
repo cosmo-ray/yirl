@@ -64,19 +64,8 @@ SDL_Surface *wSurface(void)
   return (SDL_GetWindowSurface(sg.pWindow));
 }
 
-void	sdlDrawRect(SDLWid *swid, SDL_Rect rect, SDL_Color color)
+void	sdlDrawRect(SDL_Rect rect, SDL_Color color)
 {
-  /* SDL_Surface *textSurface =  SDL_CreateRGBSurface(0, rect.w, */
-  /* 						   rect.h, */
-  /* 						   32, 0, 0, 0, 0); */
-  /* SDL_FillRect(textSurface, NULL, SDL_MapRGBA(textSurface->format, */
-  /* 					      color.r, color.g, color.b, color.a)); */
-  /* SDL_Texture* text = SDL_CreateTextureFromSurface(sg.renderer, textSurface); */
-  (void)swid;
-  /* SDL_RenderCopy(sg.renderer, text, NULL, &rect); */
-  /* SDL_RenderPresent(sg.renderer); */
-  /* SDL_DestroyTexture(text); */
-  /* SDL_FreeSurface(textSurface); */
   unsigned char r, g, b, a;
 
   SDL_GetRenderDrawColor(sg.renderer, &r, &g, &b, &a);
