@@ -18,6 +18,14 @@
 #ifndef WIDGET_CALLBACK_H
 #define WIDGET_CALLBACK_H
 
+#include "widget.h"
 
+typedef struct callback {
+  const char *name;
+}
+
+typedef struct callback_manager {
+  // map contening the callbacks
+}
 
 #endif

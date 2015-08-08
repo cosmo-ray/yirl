@@ -20,6 +20,11 @@
 
 static int t = -1;
 
+typedef struct {
+  YWidgetState sate;
+  unsigned int hasChange;
+} YTextScreenState;
+
 static int tsInit(YWidgetState *opac, Entity *entity, void *args)
 {
   opac->entity = entity;
@@ -56,18 +61,25 @@ static InputStatue tsEvent(YWidgetState *opac, YEvent *event)
 
 static int tsRend(YWidgetState *opac)
 {
-  return ywidGenericRend(opac, t);
+  int ret;
+
+  if (((YTextScreenState *)opac)->hasChange)
+    ret = ywidGenericRend(opac, t);
+  ((YTextScreenState *)opac)->hasChange = 0;
+  return ret;
 }
 
 static void *alloc(void)
 {
-  YWidgetState *ret = g_new0(YWidgetState, 1);
+  YTextScreenState *ret = g_new0(YTextScreenState, 1);
+  YWidgetState *wstate = (YWidgetState *)ret;
 
-  ret->render = tsRend;
-  ret->init = tsInit;
-  ret->destroy = tsDestroy;
-  ret->handleEvent = tsEvent;
-  ret->type = t;
+  wstate->render = tsRend;
+  wstate->init = tsInit;
+  wstate->destroy = tsDestroy;
+  wstate->handleEvent = tsEvent;
+  wstate->type = t;
+  ret->hasChange = 1;
   return  ret;
 }
 

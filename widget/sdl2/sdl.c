@@ -247,16 +247,16 @@ int    ysdl2Init(void)
   return -1;
 }
 
-int sdlPrintText(SDLWid *wid,
-		 const char *str,
-		 unsigned int caract_per_line,
-		 SDL_Color color,
-		 int x, int y)
+static int sdlPrintLine(SDLWid *wid,
+			const char *str,
+			unsigned int caract_per_line,
+			SDL_Color color,
+			int x, int y, int line)
 {
   unsigned int   len = strlen(str);
   int text_width , text_height;
   SDL_Renderer *renderer = sg.renderer;
-  
+
   y += wid->rect.y;
   x += wid->rect.x;
   for (unsigned int i = 0; i < len; i += caract_per_line)
@@ -269,16 +269,18 @@ int sdlPrintText(SDLWid *wid,
 	strncpy(buff, str + i, caract_per_line);
 	buff[caract_per_line] = 0;
       } else {
-	strncpy(buff, str + i, caract_per_line - (len - i));
-	buff[caract_per_line - (len - i)] = 0;
+	strncpy(buff, str + i, len - i);
+	buff[len - i] = 0;
       }
 
       textSurface = TTF_RenderUTF8_Solid(sgDefaultFont(),
-						      buff, color);
+					 buff, color);
       text = SDL_CreateTextureFromSurface(renderer, textSurface);
       text_width = textSurface->w;
       text_height = textSurface->h;
       SDL_FreeSurface(textSurface);
+      if (i == 0)
+	y += textSurface->h * line;	
 
       SDL_Rect renderQuad = { x, y, text_width, text_height };
       SDL_RenderCopy(renderer, text, NULL, &renderQuad);
@@ -286,6 +288,25 @@ int sdlPrintText(SDLWid *wid,
       y += text_height;
     }
   return 0;
+}
+
+int sdlPrintText(SDLWid *wid,
+		 const char *str,
+		 unsigned int caract_per_line,
+		 SDL_Color color,
+		 int x, int y)
+{
+  char **tmp = g_strsplit(str, "\n", 0);
+  int ret = 0;
+
+  for (int i = 0; tmp[i]; ++i) {
+    ret = sdlPrintLine(wid, tmp[i], caract_per_line, color, x, y, i);
+    if (ret < 0)
+      goto exit;
+  }
+ exit:
+  g_strfreev(tmp);
+  return ret;
 }
 
 void sdlResize(YWidgetState *wid, int renderType)
