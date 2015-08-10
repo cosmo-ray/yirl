@@ -20,6 +20,7 @@
 #ifndef	_WIDGET_H_
 #define	_WIDGET_H_
 
+#include <glib.h>
 #include <stdint.h>
 #include "entity.h"
 #include "utils.h"
@@ -68,6 +69,7 @@ typedef struct WidgetState_ {
   void (*resize)(void);
   int (*init)(struct WidgetState_ *opac, Entity *entity, void *args);
   int (*destroy)(struct WidgetState_ *opac);
+  GArray *callbacks;
   YWidPos pos;
   int type;
 } YWidgetState;

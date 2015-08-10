@@ -20,12 +20,27 @@
 
 #include "widget.h"
 
-typedef struct callback {
-  const char *name;
-}
+typedef enum {
+  YCALLBACK_NATIVE = 0,
+  YCALLBACK_NONE = 1
+} YCallbackType;
 
-typedef struct callback_manager {
-  // map contening the callbacks
-}
+typedef struct {
+  char *name;
+  /* Can be a entity script to call, or a native func from a widget */
+  int type;
+} YCallback;
+
+typedef struct {
+  YCallback base;
+  int (*callack)(YWidgetState *wid, void *arg);
+} YNativeCallback;
+
+int ywinAddCallback(YWidgetState *wid, YCallback *callback);
+YCallback *ywinCreateNativeCallback(const char *name,
+				    int (*callack)(YWidgetState *wid, void *arg));
+YCallback * ywinGetCallbackByIdx(YWidgetState *wid, int idx);
+YCallback *ywinGetCallbackByStr(YWidgetState *wid, const char *str);
+
 
 #endif

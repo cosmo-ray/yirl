@@ -19,6 +19,7 @@
 #include	<string.h>
 #include	<glib.h>
 #include	"entity.h"
+#include	"utils.h"
 #include	"debug_core.h"
 
 inline static void yeDestroyInternal(Entity *entity);
@@ -85,23 +86,13 @@ EntityType	yeType(const Entity *entity)
   return (-1);
 }
 
-static inline int yStrEqual(const char *str1, const char *str2)
-{
-  int i;
-
-  for (i = 0; str1[i]; ++i)
-    if (str1[i] != str2[i])
-      return 0;
-  return 1;
-}
-
 EntityType yeStringToType(const char *str)
 {
   int i;
   
   for (i = 0; i < NBR_ENTITYTYPE; ++i)
   {
-    if (yStrEqual(str, EntityTypeStrings[i]))
+    if (yuiStrEqual(str, EntityTypeStrings[i]))
     	return (i);
   }
   return (-1);
@@ -175,7 +166,7 @@ Entity *yeGetByStrFast(Entity *entity, const char *name)
 
   while ((tmp = yeGetByIdx(entity, i)) != NULL)
   {
-    if (yStrEqual(yePrintableName(tmp), name))
+    if (yuiStrEqual(yePrintableName(tmp), name))
     	return (tmp);
     ++i;
   }
