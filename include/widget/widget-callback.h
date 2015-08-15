@@ -26,6 +26,11 @@ typedef enum {
 } YCallbackType;
 
 typedef struct {
+  int callbackIdx;
+  char *name;
+} YSignal;
+
+typedef struct {
   char *name;
   /* Can be a entity script to call, or a native func from a widget */
   int type;
@@ -33,14 +38,28 @@ typedef struct {
 
 typedef struct {
   YCallback base;
-  int (*callack)(YWidgetState *wid, void *arg);
+  int (*callack)(YWidgetState *wid, YEvent *eve, Entity *arg);
 } YNativeCallback;
 
+int ywidAddSignal(YWidgetState *wid, const char *name);
+void ywidFinishSignal(YWidgetState *wid);
+
+int ywidBind(YWidgetState *wid, const char *signal, const char *callback);
+
 int ywinAddCallback(YWidgetState *wid, YCallback *callback);
+
 YCallback *ywinCreateNativeCallback(const char *name,
-				    int (*callack)(YWidgetState *wid, void *arg));
+				    int (*callack)(YWidgetState *wid,
+						   YEvent *eve, Entity *arg));
+
+void ywidDdestroyCallback(YWidgetState *wid, int idx);
+
+void ywidFinishCallbacks(YWidgetState *wid);
+
 YCallback * ywinGetCallbackByIdx(YWidgetState *wid, int idx);
 YCallback *ywinGetCallbackByStr(YWidgetState *wid, const char *str);
 
+int ywidCallSignal(YWidgetState *wid, YEvent *eve, Entity *arg, unsigned idx);
+int ywidCallCallback(YWidgetState *wid, YEvent *eve, Entity *arg, unsigned idx);
 
 #endif

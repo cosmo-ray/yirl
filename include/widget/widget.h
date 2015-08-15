@@ -70,6 +70,7 @@ typedef struct WidgetState_ {
   int (*init)(struct WidgetState_ *opac, Entity *entity, void *args);
   int (*destroy)(struct WidgetState_ *opac);
   GArray *callbacks;
+  GArray *signals;
   YWidPos pos;
   int type;
 } YWidgetState;

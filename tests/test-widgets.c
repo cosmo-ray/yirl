@@ -118,7 +118,6 @@ void testYWTextScreenSdl2(void)
 
   wid = ywidNewWidget(t, ret, NULL, NULL);
   g_assert(wid);
-
   
   do {
     g_assert(ywidRend(wid) != -1);
