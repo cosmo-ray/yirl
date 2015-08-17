@@ -13,5 +13,5 @@ target_link_libraries(
 	util
 )
 
-add_subdirectory( ${PROJECT_SOURCE_DIR}/widget/curses )
-add_subdirectory( ${PROJECT_SOURCE_DIR}/widget/sdl2 )
+add_subdirectory( ${PROJECT_SOURCE_DIR}/core/widget/curses )
+add_subdirectory( ${PROJECT_SOURCE_DIR}/core/widget/sdl2 )
