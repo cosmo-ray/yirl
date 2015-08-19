@@ -40,8 +40,8 @@ void testYWMenuCurses(void)
   ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json");
   ret = yeGet(ret, "MenuTest");
   g_assert(ret);
-  g_assert(!ydJsonEnd());
   g_assert(!ydDestroyManager(jsonManager));
+  g_assert(!ydJsonEnd());
 
   t = ywMenuInit();
   g_assert(t != -1);
@@ -51,7 +51,7 @@ void testYWMenuCurses(void)
   
   g_assert(ycursRegistreMenu() == 0);
 
-  wid = ywidNewWidget(t, ret, NULL, NULL);
+  wid = ywidNewWidget(ret, NULL, NULL);
   g_assert(wid);
 
   
@@ -93,7 +93,7 @@ void testYWMenuSdl2(void)
   /* if sdl have type 0, ywidRegistreTypeRender must register this func at 0*/ 
   g_assert(ysdl2RegistreMenu() == 0);
 
-  wid = ywidNewWidget(t, ret, NULL, NULL);
+  wid = ywidNewWidget(ret, NULL, NULL);
   g_assert(wid);
 
   

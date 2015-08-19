@@ -28,9 +28,9 @@ static YManagerAllocator widgetTab = {
 struct widgetOpt {
   char *name;
   uint64_t rendersMask;
-  int (*render[64])(YWidgetState *wid, int renderType);
-  int (*init[64])(YWidgetState *opac, int t);
-  void (*destroy[64])(YWidgetState *opac, int t);
+  int (*render[MAX_NB_MANAGER])(YWidgetState *wid, int renderType);
+  int (*init[MAX_NB_MANAGER])(YWidgetState *opac, int t);
+  void (*destroy[MAX_NB_MANAGER])(YWidgetState *opac, int t);
 };
 
 static uint64_t rendersMask = 0;
@@ -44,13 +44,13 @@ struct renderOpt {
 /* contain the options unique to one type of widget */
 struct widgetOpt widgetOptTab[MAX_NB_MANAGER];
 /* Contain the options unique to one type of render */
-struct renderOpt renderOpTab[64];
+struct renderOpt renderOpTab[MAX_NB_MANAGER];
 
 void ywidRemoveRender(int renderType)
 {
   rendersMask ^= (1LLU << renderType);
   renderOpTab[renderType].resizePtr = NULL;
-  for(int i = 0; i < 64; ++i) {
+  for(int i = 0; i < MAX_NB_MANAGER; ++i) {
     widgetOptTab[i].rendersMask ^= (1LLU << renderType);    
     widgetOptTab[i].init[renderType] = NULL;
     widgetOptTab[i].render[renderType] = NULL;
@@ -90,7 +90,11 @@ static int copyPos(YWidPos *dst, const YWidPos *src)
   return 0;
 }
 
-YWidgetState *ywidNewWidget(int t, Entity *entity, const YWidPos *pos, void *args)
+
+static YWidgetState *ywidNewWidgetInternal(int t,
+					   Entity *entity,
+					   const YWidPos *pos,
+					   void *args)
 {
   YWidgetState *ret;
   YWidPos defaultPos = {0,0,1000,1000};
@@ -110,6 +114,24 @@ YWidgetState *ywidNewWidget(int t, Entity *entity, const YWidPos *pos, void *arg
   return ret;
  error:
   ret->destroy(ret);
+  return NULL;
+}
+
+YWidgetState *ywidNewWidget(Entity *entity, const YWidPos *pos, void *args)
+{
+  Entity *tmp;
+
+  if (!entity)
+    return NULL;
+  tmp = yeGet(entity, "<type>");
+  if (!tmp)
+    return NULL;
+  for (int i = 0; i < 64; ++i) {
+    if (widgetOptTab[i].name &&
+	yuiStrEqual(yeGetString(tmp), widgetOptTab[i].name)) {
+      return ywidNewWidgetInternal(i, entity, pos, args);
+    }
+  }
   return NULL;
 }
 

@@ -49,7 +49,7 @@ void testYWMapCurses(void)
   
   g_assert(!ycursRegistreMap());
 
-  wid = ywidNewWidget(t, ret, NULL, NULL);
+  wid = ywidNewWidget(ret, NULL, NULL);
   g_assert(wid);
 
   

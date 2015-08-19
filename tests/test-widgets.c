@@ -75,7 +75,7 @@ void testYWTextScreenCurses(void)
   
   g_assert(!ycursRegistreTextScreen());
 
-  wid = ywidNewWidget(t, ret, NULL, NULL);
+  wid = ywidNewWidget(ret, NULL, NULL);
   g_assert(wid);
 
   
@@ -116,7 +116,7 @@ void testYWTextScreenSdl2(void)
   
   g_assert(!ysdl2RegistreTextScreen());
 
-  wid = ywidNewWidget(t, ret, NULL, NULL);
+  wid = ywidNewWidget(ret, NULL, NULL);
   g_assert(wid);
   
   do {
@@ -161,7 +161,7 @@ void testYWTextScreenAll(void)
   g_assert(!ycursRegistreTextScreen());
 
   /* create widgets */
-  wid = ywidNewWidget(t, ret, NULL, NULL);
+  wid = ywidNewWidget(ret, NULL, NULL);
   g_assert(wid);
 
   

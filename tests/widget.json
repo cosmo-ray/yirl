@@ -17,12 +17,12 @@
 
 {
     "TextScreenTest" : {
-	"<type>" : "TextScreen",
+	"<type>" : "text-screen",
 	"text" : "All's death, something was living here, But today...\nbut far in the dark i see light",
 	"background": "hello.pnj" // Not yet implemented :)
     },
     "MenuTest" : {
-	"<type>" : "Menu",
+	"<type>" : "menu",
 	"entries" : [
 	    {"text" : "choose 1"},
 	    {
@@ -35,7 +35,7 @@
 	"button_background": "hello.pnj" // Not yet implemented  :)
     },
     "MapTest" : {
-	"<type>" : "Map",
+	"<type>" : "map",
 	"*&resources" : "MapTestResources", // Not yet implemented :)
 	"map" : [
 	    [0], [0], [0], [0], [0],

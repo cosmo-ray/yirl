@@ -123,7 +123,7 @@ static inline void *ywidGetRenderData(YWidgetState *state, int t)
  return state->renderStates[t].opac;
 }
 
-YWidgetState *ywidNewWidget(int t, Entity *entity,
+YWidgetState *ywidNewWidget(Entity *entity,
 			    const YWidPos *pos, void *args);
 
 void YWidDestroy(YWidgetState *wid);
