@@ -21,6 +21,7 @@
 #include "json-desc.h"
 
 static int t = -1;
+static const char *nameType = "json";
 
 static Entity *parseGen(struct json_object *obj, const char *name,
 			Entity *father);
@@ -142,6 +143,7 @@ static void *jsonAllocator(void)
   ret = g_new(YDescriptionOps, 1);
   if (ret == NULL)
     return NULL;
+  ret->name = nameType;
   ret->toFile = jsonToFile;
   ret->fromFile = jsonFromFile;
   ret->destroy = jsonDestroy;

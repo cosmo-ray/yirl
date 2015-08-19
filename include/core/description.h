@@ -27,19 +27,20 @@
 #include "entity.h"
 
 typedef struct {
+  const char *name;
   Entity *(*fromFile)(void *opac, const char *fileName);
   int (*toFile)(void *opac, const char *fileName, Entity *entity);
   int (*destroy)(void *opac);
 } YDescriptionOps;
 
-static inline int ydToFile(void *opac, char *name, Entity *entity)
+static inline int ydToFile(void *opac, char *path, Entity *entity)
 {
-  return ((YDescriptionOps *)opac)->toFile(opac, name, entity);
+  return ((YDescriptionOps *)opac)->toFile(opac, path, entity);
 }
 
-static inline Entity *ydFromFile(void *opac, char *name)
+static inline Entity *ydFromFile(void *opac, char *path)
 {
-  return ((YDescriptionOps *)opac)->fromFile(opac, name);
+  return ((YDescriptionOps *)opac)->fromFile(opac, path);
 }
 
 int ydRegister(void *(*allocator)(void));
