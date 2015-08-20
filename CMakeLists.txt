@@ -13,6 +13,7 @@ add_subdirectory( ${PROJECT_SOURCE_DIR}/core/script )
 add_subdirectory( ${PROJECT_SOURCE_DIR}/core/description )
 add_subdirectory( ${PROJECT_SOURCE_DIR}/core/entity-script )
 add_subdirectory( ${PROJECT_SOURCE_DIR}/core/widget )
+add_subdirectory( ${PROJECT_SOURCE_DIR}/core/game )
 add_subdirectory( ${PROJECT_SOURCE_DIR}/tests )
 
 		
