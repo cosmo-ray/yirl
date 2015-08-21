@@ -15,35 +15,9 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _TESTS_H_
-#define _TESTS_H_
+#include "tests.h"
+#include "game.h"
 
-void testLifecycleSimple(void);
-void testLifecycleFlow(void);
-void testLifecycleComplex(void);
-
-void testSetSimple(void);
-void testSetComplex(void);
-void testSetGeneric(void);
-
-void testLuaScritLifecycle(void);
-
-void testJsonLoadFile(void);
-void testJsonMultipleObj(void);
-
-void testSdlLife(void);
-void testCursesLife(void);
-void testAllLife(void);
-
-void testYWTextScreenCurses(void);
-void testYWTextScreenSdl2(void);
-void testYWTextScreenAll(void);
-
-void testYWMenuCurses(void);
-void testYWMenuSdl2(void);
-
-void testYWMapCurses(void);
-
-void testYGameAllLibBasic(void);
-
-#endif
+void testYGameAllLibBasic(void)
+{
+}
