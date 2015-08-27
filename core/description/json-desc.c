@@ -115,6 +115,10 @@ static Entity *jsonFromFile(void *opac, const char *fileName)
   
   (void)opac;
   if (!file) {
+    if (!g_file_test(fileName, G_FILE_TEST_EXISTS))
+      DPRINT_ERR("can not open %s, no sure file", fileName);
+    else
+      DPRINT_ERR("Error in json of %s", fileName);
     return NULL;
   }
   ret = parseGen(file, NULL, NULL);
