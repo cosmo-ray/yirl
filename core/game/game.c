@@ -15,7 +15,10 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <unistd.h>
+#include <sched.h>
 #include "game.h"
+
 /* description */
 #include "json-desc.h"
 #include "description.h"
@@ -23,6 +26,7 @@
 /* scripting */
 #include "lua-script.h"
 
+#include "utils.h"
 #include "entity.h"
 #include "curses-driver.h"
 #include "sdl-driver.h"
@@ -37,53 +41,127 @@ static void *luaManager;
 
 static YDescriptionOps *parsers[MAX_NB_MANAGER];
 
-#define CHECK_RET_AND_RET(operation, err_val, ret) do {	\
-    if ((operation) == (err_val))			\
-      return (ret);					\
+#define CHECK_AND_RET(operation, err_val, ret, fmt, args...) do {	\
+    if ((operation) == (err_val)) {					\
+      DPRINT_ERR(fmt, ## args);						\
+      return (ret);							\
+    }									\
   } while (0)
 
-#define CHECK_RET_AND_GOTO(operation, err_val, label)		\
-    if ((operation) == (err_val))				\
-      goto label;
+#define CHECK_AND_GOTO(operation, err_val, label, fmt, args...) do { \
+    if ((operation) == (err_val)) {					\
+      DPRINT_ERR(fmt, ## args);						\
+      goto label;							\
+    }									\
+  } while (0)
 
-int ygInit(void)
+#define TO_RC(X) ((RenderConf *)(X))
+
+int ygInit(GameConfig *cfg)
 {
   static int t;
 
   /* Init parseurs */
-  CHECK_RET_AND_RET(t = ydJsonInit(), -1, -1);
-  CHECK_RET_AND_RET(jsonManager = ydNewManager(t), NULL, -1);
+  CHECK_AND_RET(t = ydJsonInit(), -1, -1,
+		    "json init failed");
+  CHECK_AND_RET(jsonManager = ydNewManager(t), NULL, -1,
+		    "json init failed");
   parsers[t] = jsonManager; 
 
   /* Init scripting */
   /* TODO init internal lua function */
-  CHECK_RET_AND_RET(t = ysLuaInit(), -1, -1);
-  CHECK_RET_AND_RET(luaManager = ysNewManager(NULL, t), NULL, -1);
+  CHECK_AND_RET(t = ysLuaInit(), -1, -1, "lua init failed");
+  CHECK_AND_RET(luaManager = ysNewManager(NULL, t), NULL, -1,
+		    "lua init failed");
 
   /* Init widgets */
-  CHECK_RET_AND_RET(ywMenuInit(), -1, -1);
-  CHECK_RET_AND_RET(ywMapInit(), -1, -1);
-  CHECK_RET_AND_RET(ywTextScreenInit(), -1, -1);
+  CHECK_AND_RET(ywMenuInit(), -1, -1, "Menu init failed");
+  CHECK_AND_RET(ywMapInit(), -1, -1, "Map init failed");
+  CHECK_AND_RET(ywTextScreenInit(), -1, -1, "Text Screen init failed");
 
-  //TODO check which render to use :)
-  ysdl2Init();
-  ycursInit();
-  CHECK_RET_AND_RET(ycursRegistreMenu(), -1, -1);
-  CHECK_RET_AND_RET(ycursRegistreTextScreen(), -1, -1);
-  CHECK_RET_AND_RET(ycursRegistreMap(), -1, -1);
-  CHECK_RET_AND_RET(ysdl2RegistreTextScreen(), -1, -1);
-  CHECK_RET_AND_RET(ysdl2RegistreMenu(), -1, -1);
-
+  for (GList *tmp = cfg->rConf; tmp; tmp = tmp->next) {
+    //TODO check which render to use :)
+    if (yuiStrEqual(TO_RC(tmp->data)->name, "curses")) {
+      ycursInit();
+      CHECK_AND_RET(ycursRegistreMenu(), -1, -1, "Menu init failed");
+      CHECK_AND_RET(ycursRegistreTextScreen(), -1, -1,
+			"Text Screen init failed");
+      CHECK_AND_RET(ycursRegistreMap(), -1, -1, "Map init failed");
+    } else if (yuiStrEqual(TO_RC(tmp->data)->name, "sdl2")) {
+      ysdl2Init();
+      CHECK_AND_RET(ysdl2RegistreTextScreen(), -1, -1,
+			"Text Screen init failed");
+      CHECK_AND_RET(ysdl2RegistreMenu(), -1, -1, "Menu init failed");
+    }
+  }
+  init = 1;
   return 0;
 }
+
+#undef TO_RC
 
 void ygEnd()
 {
   ydDestroyManager(jsonManager);
   ydJsonEnd();
   ywTextScreenEnd();
+  ywMapEnd();
+  ywMenuEnd();
   ycursDestroy();
   ysdl2Destroy();
+  init = 0;
+}
+
+static inline int checkStartingPoint(Entity *type, Entity *file,
+				     Entity *starting_widget)
+{
+  CHECK_AND_RET(file, NULL, -1, "No file in start");
+  CHECK_AND_RET(type, NULL, -1, "No type in start");
+  CHECK_AND_RET(starting_widget, NULL, -1, "No starting widget in start");
+  if (yeType(type) != YSTRING ||
+      yeType(file) != YSTRING ||
+      yeType(starting_widget) != YSTRING) {
+    DPRINT_ERR("Bad entity type in start, all type's should be strigs");
+    return -1;
+  }
+
+  
+  return 0;
+}
+
+static int ygParseStartAndGame(GameConfig *config, Entity *mainMod)
+{
+  Entity *type = yeGet(mainMod, "type");
+  Entity *file = yeGet(mainMod, "file");
+  Entity *starting_widget = yeGet(mainMod, "starting widget");
+  YWidgetState *wid;
+
+  if (checkStartingPoint(type, file, starting_widget) < 0)
+    return -1;
+
+  if (yuiStrEqual(yeGetString(type), "json")) {
+    char *tmp = NULL;
+
+    tmp = g_strconcat(config->startingMod->path, "/", yeGetString(file), NULL);
+    file = ydFromFile(jsonManager, tmp);
+    g_free(tmp);
+    if (!file) {
+      return -1;
+    }
+
+    starting_widget = yeGet(file, yeGetString(starting_widget));
+  } else {
+    DPRINT_ERR("start does not suport loader of type %s", yeGetString(type));
+    return -1;
+  }
+
+  wid = ywidNewWidget(starting_widget, NULL, NULL);
+  do {
+    g_assert(ywidRend(wid) != -1);
+    sched_yield();
+  } while(ywidHandleEvent(wid) != ACTION);
+
+  return 0;
 }
 
 int ygStartLoop(GameConfig *config)
@@ -96,33 +174,35 @@ int ygStartLoop(GameConfig *config)
         DPRINT_ERR("ygInit() should be call before calling ygStartLoop");
     return -1;
   }
+
   if (!config || !config->rConf || !config->startingMod) {
     DPRINT_ERR("GameConfig is brocken(some ptr are NULL)");
     return -1;
   }
+
   if (!config->startingMod->path) {
     DPRINT_ERR("!config->startingMod->path is NULL");
     return -1;
   }
-
 
   tmp = g_strconcat(config->startingMod->path, "/start.json", NULL);
   if (!tmp) {
     DPRINT_ERR("can not allocated path(like something went really wrong)");
     return -1;
   }
+
   mainMod = ydFromFile(jsonManager, tmp);
   if (!mainMod) {
     DPRINT_ERR("fail to parse file: %s", tmp);
     goto cleanup;
   }
-
-  ret = 0;
+  
+  ret = ygParseStartAndGame(config, mainMod);
  cleanup:
   g_free(tmp);
   YE_DESTROY(mainMod);
   return ret;
 }
 
-#undef CHECK_RET_AND_GOTO
-#undef CHECK_RET_AND_RET
+#undef CHECK_AND_GOTO
+#undef CHECK_AND_RET

@@ -33,12 +33,12 @@ typedef struct {
   int (*destroy)(void *opac);
 } YDescriptionOps;
 
-static inline int ydToFile(void *opac, char *path, Entity *entity)
+static inline int ydToFile(void *opac, const char *path, Entity *entity)
 {
   return ((YDescriptionOps *)opac)->toFile(opac, path, entity);
 }
 
-static inline Entity *ydFromFile(void *opac, char *path)
+static inline Entity *ydFromFile(void *opac, const  char *path)
 {
   return ((YDescriptionOps *)opac)->fromFile(opac, path);
 }

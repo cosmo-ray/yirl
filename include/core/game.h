@@ -19,23 +19,31 @@
 #ifndef GAME_H
 #define GAME_H
 
+#include <glib.h>
+#include "entity.h"
+
+typedef enum {
+  SDL2 = 1,
+  CURSES = 2,
+  ALL = CURSES | SDL2
+} RenderType;
+
 /* For now this is in game and should move after */
 typedef struct {
   const char *path;
-} Module;
+} ModuleConf;
 
 typedef struct RenderConf_ {
   const char *name;
-  struct RenderConf_ *next;
 } RenderConf;
 
 typedef struct {
-  Module *startingMod;
-  RenderConf *rConf;
+  ModuleConf *startingMod;
+  GList *rConf;
 } GameConfig;
 
 
-int ygInit(void);
+int ygInit(GameConfig *config);
 
 int ygStartLoop(GameConfig *config);
 

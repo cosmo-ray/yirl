@@ -17,7 +17,50 @@
 
 #include "tests.h"
 #include "game.h"
+#include "utils.h"
+
+static const char *testPath = "./testMod"; 
+
+static const char *sdl2 = "sdl2";
+static const char *curses = "curses";
+
+static int ygInitGameConfig(GameConfig *cfg, const char *path, RenderType t)
+{
+  if (!t) {
+    return -1;
+  }
+
+  cfg->startingMod = g_new(ModuleConf, 1);
+  cfg->startingMod->path = path;
+
+  YUI_FOREACH_BITMASK(t, i, tmp) {
+    RenderConf *rConf = g_new(RenderConf, 1);
+
+    if (t || SDL2)
+      rConf->name = sdl2;
+    else if (t || CURSES)
+      rConf->name = curses;
+
+    cfg->rConf = g_list_append(cfg->rConf,
+			       rConf);
+  }
+  return 0;
+}
+
+static void ygCleanGameConfig(GameConfig *cfg)
+{
+  g_free(cfg->startingMod);
+  g_list_free(cfg->rConf);
+}
 
 void testYGameAllLibBasic(void)
 {
+  GameConfig cfg;
+
+  g_assert(!ygInitGameConfig(&cfg, testPath, ALL));
+  g_assert(!ygInit(&cfg));
+  g_assert(!ygStartLoop(&cfg));
+
+  ygCleanGameConfig(&cfg);
+  ygEnd();
 }

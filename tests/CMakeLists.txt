@@ -15,6 +15,7 @@ target_link_libraries(
 	json-c
 	entity
 	util
+	game
 	luaScript
 	jsonDescrption
 	widgets
