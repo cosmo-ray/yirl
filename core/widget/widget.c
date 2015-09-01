@@ -25,6 +25,8 @@ static YManagerAllocator widgetTab = {
   0
 };
 
+
+/* struct which define what are common to every rendableWidget of the same type */
 struct widgetOpt {
   char *name;
   uint64_t rendersMask;
@@ -35,6 +37,7 @@ struct widgetOpt {
 
 static uint64_t rendersMask = 0;
 
+/* struct which define what are common to every render of the same type */
 struct renderOpt {
   YEvent *(*waitEvent)(void);
   YEvent *(*pollEvent)(void);

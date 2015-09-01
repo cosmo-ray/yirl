@@ -73,6 +73,7 @@ typedef struct WidgetState_ {
   GArray *signals;
   YWidPos pos;
   int type;
+  int rendableType;  
 } YWidgetState;
 
 
