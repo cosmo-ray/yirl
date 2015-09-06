@@ -21,6 +21,7 @@
 
 #include <glib.h>
 #include "entity.h"
+#include "widget.h"
 
 typedef enum {
   SDL2 = 1,
@@ -48,5 +49,7 @@ int ygInit(GameConfig *config);
 int ygStartLoop(GameConfig *config);
 
 void ygEnd(void);
+
+int ygTerminateCallback(YWidgetState *wid, YEvent *eve, Entity *arg);
 
 #endif

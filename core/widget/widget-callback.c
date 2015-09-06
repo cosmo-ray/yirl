@@ -18,11 +18,38 @@
 #include "widget-callback.h"
 #include "utils.h"
 
-int ywidCallCallback(YWidgetState *wid, YEvent *eve, Entity *arg, unsigned idx)
-{
-  YCallback *callback = ywinGetCallbackByIdx(wid, idx);
+static GArray *callbacks;
 
-  if (!callback)
+static inline void ywidDdestroyCallbackInt(YCallback *callback)
+{
+  if (callback) {
+    g_free(callback->name);
+    g_free(callback);
+  }
+}
+
+int ywidInitCallback(void)
+{
+    callbacks = g_array_new(1, 1, sizeof(YCallback *));
+    return (callbacks == NULL) * -1;
+}
+
+void ywidFinishCallbacks(void)
+{
+  YCallback *ret;
+
+  for (unsigned int i = 0;
+       (ret = g_array_index(callbacks, YCallback *, i)) != NULL; ++i)
+    ywidDdestroyCallbackInt(ret);
+  g_array_free(callbacks, 0);
+}
+
+
+int ywidCallCallback(YWidgetState *wid, YEvent *eve, Entity *arg, int idx)
+{
+  YCallback *callback = ywinGetCallbackByIdx(idx);
+
+  if (idx < 0 || !callback)
     return -1;
   switch (callback->type) {
   case YCALLBACK_NATIVE:
@@ -32,14 +59,6 @@ int ywidCallCallback(YWidgetState *wid, YEvent *eve, Entity *arg, unsigned idx)
     break;
   }
   return -1;
-}
-
-static inline void ywidDdestroyCallbackInt(YCallback *callback)
-{
-  if (callback) {
-    g_free(callback->name);
-    g_free(callback);
-  }
 }
 
 YCallback *ywinCreateNativeCallback(const char *name,
@@ -71,7 +90,7 @@ int ywidAddSignal(YWidgetState *wid, const char *name)
   }
   ret->callbackIdx = -1;
   wid->signals = g_array_append_val(wid->signals, ret);
-  if (!wid->callbacks)
+  if (!callbacks)
     return -1;
   return wid->signals->len - 1;
 }
@@ -89,12 +108,12 @@ static YSignal *getSinByStr(YWidgetState *wid, const char *str)
   return NULL;
 }
 
-static unsigned int getCallbackIdx(YWidgetState *wid, const char *str)
+static unsigned int getCallbackIdx(const char *str)
 {
   YCallback *ret;
 
   for (unsigned int i = 0;
-       (ret = g_array_index(wid->callbacks, YCallback *, i)) != NULL; ++i) {
+       (ret = g_array_index(callbacks, YCallback *, i)) != NULL; ++i) {
 
     if (yuiStrEqual(ret->name, str))
       return (int)i;
@@ -102,6 +121,16 @@ static unsigned int getCallbackIdx(YWidgetState *wid, const char *str)
   return -1;
 }
 
+int ywidBindBySinIdx(YWidgetState *wid, int idx, const char *callback)
+{
+  YSignal *sin = g_array_index(wid->signals, YSignal *, idx);
+  if (!sin)
+    return -1;
+  sin->callbackIdx = getCallbackIdx(callback);
+  if (sin->callbackIdx < 0)
+    return -1;
+  return 0;
+}
 
 int ywidBind(YWidgetState *wid, const char *signal, const char *callback)
 {
@@ -109,13 +138,13 @@ int ywidBind(YWidgetState *wid, const char *signal, const char *callback)
   if (!sin)
     return -1;
 
-  sin->callbackIdx = getCallbackIdx(wid, callback);
+  sin->callbackIdx = getCallbackIdx(callback);
   if (sin->callbackIdx < 0)
     return -1;
   return 0;
 }
 
-int ywidCallSignal(YWidgetState *wid, YEvent *eve, Entity *arg, unsigned idx)
+int ywidCallSignal(YWidgetState *wid, YEvent *eve, Entity *arg, int idx)
 {
   YSignal *signal = g_array_index(wid->signals, YSignal *, idx);
 
@@ -125,23 +154,23 @@ int ywidCallSignal(YWidgetState *wid, YEvent *eve, Entity *arg, unsigned idx)
 }
 
 
-int ywinAddCallback(YWidgetState *wid,  YCallback *callback)
+int ywinAddCallback(YCallback *callback)
 {
-  wid->callbacks = g_array_append_val(wid->callbacks, callback);
-  return (wid->callbacks == NULL) * -1;
+  callbacks = g_array_append_val(callbacks, callback);
+  return (callbacks == NULL) * -1;
 }
 
-YCallback * ywinGetCallbackByIdx(YWidgetState *wid, int idx)
+YCallback * ywinGetCallbackByIdx(int idx)
 {
-  return (g_array_index(wid->callbacks, YCallback *, idx));
+  return (g_array_index(callbacks, YCallback *, idx));
 }
 
-YCallback *ywinGetCallbackByStr(YWidgetState *wid, const char *str)
+YCallback *ywinGetCallbackByStr(const char *str)
 {
   YCallback *ret;
 
   for (unsigned int i = 0;
-       (ret = g_array_index(wid->callbacks, YCallback *, i)) != NULL; ++i) {
+       (ret = g_array_index(callbacks, YCallback *, i)) != NULL; ++i) {
 
     if (yuiStrEqual(ret->name, str))
       return ret;
@@ -149,10 +178,9 @@ YCallback *ywinGetCallbackByStr(YWidgetState *wid, const char *str)
   return NULL;
 }
 
-void ywidDdestroyCallback(YWidgetState *wid, int idx)
+void ywidDdestroyCallback(int idx)
 {
-  ywidDdestroyCallbackInt(ywinGetCallbackByIdx(wid, idx));
-  ywidDdestroyCallbackInt(ywinGetCallbackByIdx(wid, idx));
+  ywidDdestroyCallbackInt(ywinGetCallbackByIdx(idx));
 }
 
 void ywidFinishSignal(YWidgetState *wid)
@@ -163,14 +191,4 @@ void ywidFinishSignal(YWidgetState *wid)
        (ret = g_array_index(wid->signals, YSignal *, i)) != NULL; ++i)
     g_free(ret->name);
   g_array_free(wid->signals, 0);
-}
-
-void ywidFinishCallbacks(YWidgetState *wid)
-{
-  YCallback *ret;
-
-  for (unsigned int i = 0;
-       (ret = g_array_index(wid->callbacks, YCallback *, i)) != NULL; ++i)
-    ywidDdestroyCallbackInt(ret);
-  g_array_free(wid->callbacks, 0);
 }

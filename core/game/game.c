@@ -26,6 +26,7 @@
 /* scripting */
 #include "lua-script.h"
 
+#include "widget-callback.h"
 #include "utils.h"
 #include "entity.h"
 #include "curses-driver.h"
@@ -40,6 +41,7 @@ static void *jsonManager;
 static void *luaManager;
 
 static YDescriptionOps *parsers[MAX_NB_MANAGER];
+
 
 #define CHECK_AND_RET(operation, err_val, ret, fmt, args...) do {	\
     if ((operation) == (err_val)) {					\
@@ -56,6 +58,17 @@ static YDescriptionOps *parsers[MAX_NB_MANAGER];
   } while (0)
 
 #define TO_RC(X) ((RenderConf *)(X))
+
+static int alive = 1;
+
+int ygTerminateCallback(YWidgetState *wid, YEvent *eve, Entity *arg)
+{
+  (void)wid;
+  (void)eve;
+  (void)arg;
+  alive = 0;
+  return ACTION;
+}
 
 int ygInit(GameConfig *cfg)
 {
@@ -75,6 +88,10 @@ int ygInit(GameConfig *cfg)
 		    "lua init failed");
 
   /* Init widgets */
+  CHECK_AND_RET(ywidInitCallback(), -1, -1, "can not init callback");
+  CHECK_AND_RET(ywinAddCallback(ywinCreateNativeCallback("FinishGame",
+							 ygTerminateCallback)),
+		-1, -1, "can not add game's callback");
   CHECK_AND_RET(ywMenuInit(), -1, -1, "Menu init failed");
   CHECK_AND_RET(ywMapInit(), -1, -1, "Map init failed");
   CHECK_AND_RET(ywTextScreenInit(), -1, -1, "Text Screen init failed");
@@ -109,6 +126,7 @@ void ygEnd()
   ywMenuEnd();
   ycursDestroy();
   ysdl2Destroy();
+  ywidFinishCallbacks();
   init = 0;
 }
 
@@ -135,6 +153,9 @@ static int ygParseStartAndGame(GameConfig *config, Entity *mainMod)
   Entity *file = yeGet(mainMod, "file");
   Entity *starting_widget = yeGet(mainMod, "starting widget");
   YWidgetState *wid;
+  int ret = ACTION;
+
+  (void)ret;
 
   if (checkStartingPoint(type, file, starting_widget) < 0)
     return -1;
@@ -159,7 +180,8 @@ static int ygParseStartAndGame(GameConfig *config, Entity *mainMod)
   do {
     g_assert(ywidRend(wid) != -1);
     sched_yield();
-  } while(ywidHandleEvent(wid) != ACTION);
+    ywidHandleEvent(wid);
+  } while(alive);
 
   return 0;
 }

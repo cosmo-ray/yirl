@@ -21,12 +21,13 @@
 
 static int t = -1;
 
-static int moveSinIdx = -1;
 
 typedef struct {
   YWidgetState sate;
   unsigned int current;
   unsigned int hasChange;
+  int moveSinIdx;
+  int actionSin0;
 } YMenuState;
 
 static int nmMenuDown(YWidgetState *wid, YEvent *eve, Entity *arg)
@@ -63,21 +64,39 @@ if (eve->key == Y_DOWN_KEY) {
  return NOTHANDLE;
 }
 
+#define yeForeach(entity, idx, entry)					\
+  Entity *entry = yeGet(entity, 0);					\
+  for (int idx = 0; (entry = yeGet(entries, idx)); ++idx)
+
 static int mnInit(YWidgetState *opac, Entity *entity, void *args)
 {
   (void)args;
+  YMenuState *state = ((YMenuState *)opac);
+  Entity *entries = yeGet(entity, "entries");
+
   opac->entity = entity;
-  ywinAddCallback(opac, ywinCreateNativeCallback("menuMove", nmMenuMove));
-  moveSinIdx = ywidAddSignal(opac, "move");
+  state->moveSinIdx = ywidAddSignal(opac, "move");
   ywidBind(opac, "move", "menuMove");
   ywidGenericInit(opac, t);
+  state->actionSin0 = state->moveSinIdx + 1;
+  yeForeach(entries, i, entry) {
+    char *tmp = g_strdup_printf("action-%d", i);
+    int ret = ywidAddSignal(opac, tmp);
+    Entity *action;
+
+    g_free(tmp);
+    if (ret != state->actionSin0 + i)
+      return -1;
+    action = yeGet(entry, "action");
+    if (action)
+      ywidBindBySinIdx(opac, ret, yeGetString(yeGet(entry, "action")));
+  }
   return 0;
 }
 
 static int mnDestroy(YWidgetState *opac)
 {
   ywidFinishSignal(opac);
-  ywidFinishCallbacks(opac);
   g_free(opac);
   return 0;
 }
@@ -106,10 +125,14 @@ static InputStatue mnEvent(YWidgetState *opac, YEvent *event)
     ret = ACTION;
 
   } else if (event->key == '\n') {
-    ret = ACTION;
+    ret = ywidCallSignal(opac, event, NULL,
+			 ((YMenuState *)opac)->current +
+			 ((YMenuState *)opac)->actionSin0);
+    if (ret == BUG)
+      ret = ACTION;
 
   } else {
-    ywidCallSignal(opac, event, NULL, moveSinIdx);
+    ywidCallSignal(opac, event, NULL,  ((YMenuState *)opac)->moveSinIdx);
   }
 
   ((YMenuState *)opac)->hasChange = 1;
@@ -131,7 +154,6 @@ static void *alloc(void)
   wstate->destroy = mnDestroy;
   wstate->handleEvent = mnEvent;
   wstate->type = t;
-  wstate->callbacks = g_array_new(1, 1, sizeof(YCallback *));
   wstate->signals = g_array_new(1, 1, sizeof(YSignal *));
   ret->hasChange = 1;
   return  ret;
@@ -152,6 +174,7 @@ int ywMenuInit(void)
   if (t != -1)
     return t;
   t = ywidRegister(alloc, "menu");
+  ywinAddCallback(ywinCreateNativeCallback("menuMove", nmMenuMove));
   return t;
 }
 

@@ -45,21 +45,24 @@ int ywidAddSignal(YWidgetState *wid, const char *name);
 void ywidFinishSignal(YWidgetState *wid);
 
 int ywidBind(YWidgetState *wid, const char *signal, const char *callback);
+int ywidBindBySinIdx(YWidgetState *wid, int, const char *callback);
 
-int ywinAddCallback(YWidgetState *wid, YCallback *callback);
+
+int ywinAddCallback(YCallback *callback);
 
 YCallback *ywinCreateNativeCallback(const char *name,
 				    int (*callack)(YWidgetState *wid,
 						   YEvent *eve, Entity *arg));
 
-void ywidDdestroyCallback(YWidgetState *wid, int idx);
+void ywidDdestroyCallback(int idx);
 
-void ywidFinishCallbacks(YWidgetState *wid);
+int ywidInitCallback(void);
+void ywidFinishCallbacks(void);
 
-YCallback * ywinGetCallbackByIdx(YWidgetState *wid, int idx);
-YCallback *ywinGetCallbackByStr(YWidgetState *wid, const char *str);
+YCallback * ywinGetCallbackByIdx(int idx);
+YCallback *ywinGetCallbackByStr(const char *str);
 
-int ywidCallSignal(YWidgetState *wid, YEvent *eve, Entity *arg, unsigned idx);
-int ywidCallCallback(YWidgetState *wid, YEvent *eve, Entity *arg, unsigned idx);
+int ywidCallSignal(YWidgetState *wid, YEvent *eve, Entity *arg, int idx);
+int ywidCallCallback(YWidgetState *wid, YEvent *eve, Entity *arg, int idx);
 
 #endif

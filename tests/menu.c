@@ -24,6 +24,7 @@
 #include "curses-driver.h"
 #include "sdl-driver.h"
 #include "menu.h"
+#include "widget-callback.h"
 
 void testYWMenuCurses(void)
 {
@@ -33,6 +34,7 @@ void testYWMenuCurses(void)
   YWidgetState *wid;
 
   /* load files */
+  g_assert(ywidInitCallback() >= 0);
   g_assert(t != -1);
   g_assert(ydJsonGetType() == t);
   jsonManager = ydNewManager(t);
@@ -64,6 +66,7 @@ void testYWMenuCurses(void)
   ycursDestroy();
   /* end libs */
   YE_DESTROY(ret);
+  ywidFinishCallbacks();
 }
 
 void testYWMenuSdl2(void)
@@ -74,6 +77,7 @@ void testYWMenuSdl2(void)
   YWidgetState *wid;
 
   /* load files */
+  ywidInitCallback();
   g_assert(t != -1);
   g_assert(ydJsonGetType() == t);
   jsonManager = ydNewManager(t);
@@ -106,4 +110,5 @@ void testYWMenuSdl2(void)
   ysdl2Destroy();
   /* end libs */
   YE_DESTROY(ret);
+  ywidFinishCallbacks();
 }

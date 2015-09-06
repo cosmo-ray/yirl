@@ -28,9 +28,10 @@
 
 typedef enum
   {
-    NOTHANDLE,
-    NOACTION,
-    ACTION
+    BUG = -1,
+    NOTHANDLE = 0,
+    NOACTION = 1,
+    ACTION = 2
   } InputStatue;
 
 typedef enum
@@ -69,6 +70,8 @@ typedef struct WidgetState_ {
   void (*resize)(void);
   int (*init)(struct WidgetState_ *opac, Entity *entity, void *args);
   int (*destroy)(struct WidgetState_ *opac);
+  /* callback must be in the global structure
+   * but signals must be in this structure */
   GArray *callbacks;
   GArray *signals;
   YWidPos pos;
