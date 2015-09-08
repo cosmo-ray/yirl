@@ -330,3 +330,15 @@ void sdlWidDestroy(YWidgetState *wid, int t)
 
   g_free(swid);
 }
+
+int sdlDisplaySprites(SDLWid *wid, int x, int y, char id,
+		      int w, int h, int thresholdX)
+{
+  char str[2] = {id, 0};
+  SDL_Color color = {0,0,0,255};
+
+  (void)w;
+  (void)h;
+  (void)thresholdX;
+  return sdlPrintText(wid, str, 2, color, x * w, y * h);
+}

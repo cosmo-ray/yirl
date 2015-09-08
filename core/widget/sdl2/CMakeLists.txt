@@ -1,4 +1,4 @@
-set (SOURCE sdl.c text-screen.c  menu.c)
+set (SOURCE sdl.c text-screen.c menu.c map.c)
 
 add_library (wid-sdl2 STATIC ${SOURCE})
 

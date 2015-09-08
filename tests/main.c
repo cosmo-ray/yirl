@@ -49,6 +49,7 @@ int main(int argc, char **argv)
   g_test_add_func("/widget/menu/sdl", testYWMenuSdl2);
 
   g_test_add_func("/widget/map/curses", testYWMapCurses);
+  g_test_add_func("/widget/map/sdl2", testYWMapSdl2);
 
   g_test_add_func("/game/all/simple", testYGameAllLibBasic);
 

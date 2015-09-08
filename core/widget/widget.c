@@ -49,6 +49,30 @@ struct widgetOpt widgetOptTab[MAX_NB_MANAGER];
 /* Contain the options unique to one type of render */
 struct renderOpt renderOpTab[MAX_NB_MANAGER];
 
+int ywidBgConfFill(Entity *cfg, YBgConf *cfg)
+{
+  char *str = (char *)yeGetString(cfg);
+  char tmp;
+  size_t len;
+  ret = -1;
+
+  if (!str)
+    return -1;
+  len = strlen(str);
+  tmp = str[5];
+  str[5] = '\0';
+
+  if (yuiStrEqual(str, "rgba:")) {
+    ret = 0;
+  }
+
+  str[5] = tmp;
+  if (!ret) {
+  }
+
+  return ret;
+}
+
 void ywidRemoveRender(int renderType)
 {
   rendersMask ^= (1LLU << renderType);

@@ -31,6 +31,8 @@ typedef struct
   TTF_Font	*font;
   unsigned int  fontSize;
   SDL_Renderer	*renderer;
+  /* uin16_t w = WIN_W_SIZE; */
+  /* uin16_t h = WIN_H_SIZE; */
 } SDL_Global;
 
 typedef struct
@@ -64,5 +66,8 @@ int sdlPrintText(SDLWid *wid,
 		 unsigned int caract_per_line,
 		 SDL_Color color,
 		 int x, int y);
+
+int sdlDisplaySprites(SDLWid *wid, int x, int y, char id,
+		      int spriteWidth, int spriteHeight, int thresholdX);
 
 #endif

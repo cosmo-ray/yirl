@@ -41,6 +41,27 @@ typedef enum
     NONE
   } EventType;
 
+typedef enum
+  {
+    BG_IMG,
+    BG_COLOR
+  } BGType;
+
+typedef struct {
+  int type;
+  union {
+    struct {
+      uint8_t r;
+      uint8_t g;
+      uint8_t b;
+      uint8_t a;
+    };
+    struct {
+      const char *path;
+    };
+  };
+} YBgConf;
+
 struct WidgetState_;
 typedef struct {
   EventType type;
@@ -79,6 +100,7 @@ typedef struct WidgetState_ {
   int rendableType;  
 } YWidgetState;
 
+int ywidBgConfFill(Entity *cfg, YBgConf *cfg);
 
 YEvent *ywidGenericWaitEvent(void);
 YEvent *ywidGenericPollEvent(void);

@@ -63,3 +63,44 @@ void testYWMapCurses(void)
   /* end libs */
   YE_DESTROY(ret);  
 }
+
+void testYWMapSdl2(void)
+{
+  int t = ydJsonInit();
+  void *jsonManager;
+  Entity *ret;
+  YWidgetState *wid;
+
+  /* load files */
+  g_assert(t != -1);
+  g_assert(ydJsonGetType() == t);
+  jsonManager = ydNewManager(t);
+  g_assert(jsonManager != NULL);
+  ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json");
+  ret = yeGet(ret, "MapTest");
+  g_assert(ret);
+  g_assert(!ydJsonEnd());
+  g_assert(!ydDestroyManager(jsonManager));
+
+  t = ywMapInit();
+  g_assert(t != -1);
+
+  g_assert(ysdl2Init() != -1);
+  g_assert(ysdl2Type() == 0);
+  
+  g_assert(!ysdl2RegistreMap());
+
+  wid = ywidNewWidget(ret, NULL, NULL);
+  g_assert(wid);
+
+  
+  do {
+    g_assert(ywidRend(wid) != -1);
+  } while(ywidHandleEvent(wid) != ACTION);
+
+  g_assert(!ywMapEnd());
+  YWidDestroy(wid);
+  ysdl2Destroy();
+  /* end libs */
+  YE_DESTROY(ret);  
+}

@@ -43,6 +43,7 @@ void testYWMenuCurses(void);
 void testYWMenuSdl2(void);
 
 void testYWMapCurses(void);
+void testYWMapSdl2(void);
 
 void testYGameAllLibBasic(void);
 
