@@ -34,10 +34,19 @@ static int sdl2Render(YWidgetState *state, int t)
   Entity *map = yeGet(state->entity, "map");
   unsigned int lenMap = yeLen(map);
   unsigned int wMap = yeGetInt(yeGet(state->entity, "width"));
+  YBgConf cfg;
   /* unsigned int hMap = lenMap / wMap; */
 
   /* if (!ywMenuHasChange(state)) */
   /*   return 0; */
+  if (ywidBgConfFill(yeGet(state->entity, "background"), &cfg) < 0) {
+    DPRINT_ERR("fail to pasre background");
+    cfg.type = BG_COLOR;
+    cfg.path = (char *)&cury; // eat you not so random color b****
+    sdlFillBg(wid, &cfg);
+  } else if (sdlFillBg(wid, &cfg) < 0) {
+    DPRINT_ERR("fail to draw background");    
+  }
 
   for (unsigned int i = 0; i < lenMap; ++i)
     {

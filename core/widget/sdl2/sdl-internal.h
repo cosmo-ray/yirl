@@ -45,9 +45,11 @@ void sdlResize(YWidgetState *wid, int renderType);
 
 void sdlWidInit(YWidgetState *wid, int t);
 
-void sdlFillColorBg(SDLWid *swid, short r, short g, short b, short a);
+int sdlFillColorBg(SDLWid *swid, short r, short g, short b, short a);
 
 int sdlFillImgBg(SDLWid *swid, const char *cimg);
+
+int sdlFillBg(SDLWid *swid, YBgConf *cfg);
 
 void sdlDrawRect(SDL_Rect rect, SDL_Color color);
 

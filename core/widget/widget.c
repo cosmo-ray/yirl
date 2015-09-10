@@ -18,6 +18,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <glib.h>
+#include <stdlib.h>
 #include "widget.h"
 
 static YManagerAllocator widgetTab = {
@@ -49,25 +50,68 @@ struct widgetOpt widgetOptTab[MAX_NB_MANAGER];
 /* Contain the options unique to one type of render */
 struct renderOpt renderOpTab[MAX_NB_MANAGER];
 
-int ywidBgConfFill(Entity *cfg, YBgConf *cfg)
+int ywidBgConfFill(Entity *entity, YBgConf *cfg)
 {
-  char *str = (char *)yeGetString(cfg);
-  char tmp;
+  char *str = (char *)yeGetString(entity);
   size_t len;
-  ret = -1;
+  int limiterPos = 0;
+  int ret = -1;
 
+  cfg->type = BG_BUG;
   if (!str)
     return -1;
-  len = strlen(str);
-  tmp = str[5];
-  str[5] = '\0';
 
-  if (yuiStrEqual(str, "rgba:")) {
-    ret = 0;
+  for (int i = 0; str[i]; ++i) {
+    if (str[i] == ':') {
+      limiterPos = i;
+      break;
+    }
   }
 
-  str[5] = tmp;
-  if (!ret) {
+  len = strlen(str);
+  // collor or whatever
+  if (limiterPos) {
+    char tmp;
+
+    tmp = str[limiterPos];
+    str[limiterPos] = '\0';
+
+    if (yuiStrEqual(str, "rgba:")) {
+      char **rgba;
+      int i;
+
+      str += sizeof("rgba:" + 1);
+      if (len < sizeof("r,g,b,q"))
+	goto exit;
+
+      rgba = g_strsplit_set(str, ", :", 5);
+      for (i = 0; i < 4 && rgba[i] != NULL; ++i);
+
+      if (i >= 4) {
+	cfg->r = atoi(rgba[0]);
+	cfg->g = atoi(rgba[1]);
+	cfg->b = atoi(rgba[2]);
+	cfg->a = atoi(rgba[3]);
+	cfg->type = BG_COLOR;
+	ret = 0;
+
+      } else {
+	DPRINT_ERR("invalide rgba color string: %s", str);
+      }
+
+      g_strfreev(rgba);
+    }
+
+    ret = 0;
+  exit:
+    str -= sizeof("rgba:" + 1);
+    str[limiterPos] = tmp;
+
+  } else { // path
+    if ((cfg->path = g_strdup(str)) != NULL) {
+      cfg->type = BG_COLOR;
+      ret = 0;
+    }
   }
 
   return ret;

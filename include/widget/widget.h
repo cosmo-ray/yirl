@@ -43,12 +43,13 @@ typedef enum
 
 typedef enum
   {
+    BG_BUG = -1,
     BG_IMG,
     BG_COLOR
-  } BGType;
+  } BgType;
 
 typedef struct {
-  int type;
+  BgType type;
   union {
     struct {
       uint8_t r;
@@ -57,7 +58,7 @@ typedef struct {
       uint8_t a;
     };
     struct {
-      const char *path;
+      char *path;
     };
   };
 } YBgConf;
@@ -100,7 +101,7 @@ typedef struct WidgetState_ {
   int rendableType;  
 } YWidgetState;
 
-int ywidBgConfFill(Entity *cfg, YBgConf *cfg);
+int ywidBgConfFill(Entity *entity, YBgConf *cfg);
 
 YEvent *ywidGenericWaitEvent(void);
 YEvent *ywidGenericPollEvent(void);

@@ -74,9 +74,9 @@ void	sdlDrawRect(SDL_Rect rect, SDL_Color color)
   SDL_SetRenderDrawColor(sg.renderer, r, g, b, a);  
 }
 
-void    sdlFillColorBg(SDLWid *swid, short r, short g, short b, short a)
+int   sdlFillColorBg(SDLWid *swid, short r, short g, short b, short a)
 {
- SDL_Surface *textSurface =  SDL_CreateRGBSurface(0, swid->rect.w,
+  SDL_Surface *textSurface =  SDL_CreateRGBSurface(0, swid->rect.w,
 						   swid->rect.h,
 						   32, 0, 0, 0, 0);
   SDL_FillRect(textSurface, NULL, SDL_MapRGBA(textSurface->format, r, g, b, a));
@@ -85,6 +85,7 @@ void    sdlFillColorBg(SDLWid *swid, short r, short g, short b, short a)
   SDL_RenderPresent(sg.renderer);
   SDL_DestroyTexture(text);
   SDL_FreeSurface(textSurface);
+  return 0;
 }
 
 int    sdlFillImgBg(SDLWid *swid, const char *cimg)
@@ -101,6 +102,14 @@ int    sdlFillImgBg(SDLWid *swid, const char *cimg)
   return -1;
 }
 
+int    sdlFillBg(SDLWid *swid, YBgConf *cfg)
+{
+  if (cfg->type == BG_COLOR)
+    return sdlFillColorBg(swid, cfg->r, cfg->g, cfg->b, cfg->a);
+  else if (cfg->type == BG_IMG)
+    return sdlFillImgBg(swid, cfg->path);
+  return -1;
+}
 
 void    ysdl2Destroy(void)
 {
