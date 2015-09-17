@@ -37,14 +37,15 @@ static int sdl2Render(YWidgetState *state, int t)
   YBgConf cfg;
   /* unsigned int hMap = lenMap / wMap; */
 
-  /* if (!ywMenuHasChange(state)) */
-  /*   return 0; */
+  if (!ywMapHasChange(state))
+    return 0;
   if (ywidBgConfFill(yeGet(state->entity, "background"), &cfg) < 0) {
     DPRINT_ERR("fail to pasre background");
     cfg.type = BG_COLOR;
-    cfg.path = (char *)&cury; // eat you not so random color b****
+    cfg.path = (char *)&cury; // eat your not so random color b****
     sdlFillBg(wid, &cfg);
   } else if (sdlFillBg(wid, &cfg) < 0) {
+
     DPRINT_ERR("fail to draw background");    
   }
 
@@ -63,7 +64,7 @@ static int sdl2Render(YWidgetState *state, int t)
 			SIZE_SPRITE_W, SIZE_SPRITE_H, 0);
       ++curx;
     }
-  
+
   SDL_RenderPresent(sgRenderer());
   return 0;
 }

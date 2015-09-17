@@ -22,12 +22,15 @@ static int t = -1;
 
 typedef struct {
   YWidgetState sate;
+  Entity *entity;
 } YMapState;
 
 static int mapInit(YWidgetState *opac, Entity *entity, void *args)
 {
   opac->entity = entity;
   ywidGenericInit(opac, t);
+  DPRINT_ERR("%p", yeGet(entity, "resources"));
+  DPRINT_ERR("%s", yeGetString(yeGet(entity, "&resources")));
   (void)args;
   return 0;
 }
@@ -77,6 +80,12 @@ static InputStatue mapEvent(YWidgetState *opac, YEvent *event)
   return ret;
 }
 
+
+int ywMapHasChange(YWidgetState *state)
+{
+  (void)state;
+  return 1;
+}
 
 static void *alloc(void)
 {

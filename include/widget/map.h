@@ -24,5 +24,6 @@ int ywMapInit(void);
 int ywMapEnd(void);
 int ycursRegistreMap(void);
 int ysdl2RegistreMap(void);
+int ywMapHasChange(YWidgetState *state);
 
 #endif
