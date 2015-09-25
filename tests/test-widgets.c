@@ -25,22 +25,7 @@
 #include "sdl-driver.h"
 #include "text-screen.h"
 
-void testSdlLife(void)
-{
-  g_assert(ysdl2Init() != -1);
-  g_assert(ysdl2Type() == 0);
-  ysdl2Destroy();
-}
-
-void testAllLife(void)
-{
-  g_assert(ysdl2Init() != -1);
-  g_assert(ysdl2Type() == 0);
-  g_assert(ycursInit() != -1);
-  g_assert(ycursType() == 1);
-  ycursDestroy();
-  ysdl2Destroy();
-}
+#ifdef WITH_CURSES
 
 void testCursesLife(void)
 {
@@ -90,6 +75,10 @@ void testYWTextScreenCurses(void)
   YE_DESTROY(ret);
 }
 
+#endif
+
+#ifdef WITH_SDL
+
 void testYWTextScreenSdl2(void)
 {
   int t = ydJsonInit();
@@ -130,6 +119,15 @@ void testYWTextScreenSdl2(void)
   /* end libs */
   YE_DESTROY(ret);
 }
+
+void testSdlLife(void)
+{
+  g_assert(ysdl2Init() != -1);
+  g_assert(ysdl2Type() == 0);
+  ysdl2Destroy();
+}
+
+#ifdef WITH_CURSES
 
 void testYWTextScreenAll(void)
 {
@@ -177,3 +175,16 @@ void testYWTextScreenAll(void)
   ysdl2Destroy();
   YE_DESTROY(ret);
 }
+
+void testAllLife(void)
+{
+  g_assert(ysdl2Init() != -1);
+  g_assert(ysdl2Type() == 0);
+  g_assert(ycursInit() != -1);
+  g_assert(ycursType() == 1);
+  ycursDestroy();
+  ysdl2Destroy();
+}
+
+#endif
+#endif

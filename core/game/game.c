@@ -99,16 +99,24 @@ int ygInit(GameConfig *cfg)
   for (GList *tmp = cfg->rConf; tmp; tmp = tmp->next) {
     //TODO check which render to use :)
     if (yuiStrEqual(TO_RC(tmp->data)->name, "curses")) {
+#ifdef WITH_CURSES
       ycursInit();
       CHECK_AND_RET(ycursRegistreMenu(), -1, -1, "Menu init failed");
       CHECK_AND_RET(ycursRegistreTextScreen(), -1, -1,
 			"Text Screen init failed");
       CHECK_AND_RET(ycursRegistreMap(), -1, -1, "Map init failed");
+#else
+      /* print error */
+#endif
     } else if (yuiStrEqual(TO_RC(tmp->data)->name, "sdl2")) {
+#ifdef WITH_SDL
       ysdl2Init();
       CHECK_AND_RET(ysdl2RegistreTextScreen(), -1, -1,
 			"Text Screen init failed");
       CHECK_AND_RET(ysdl2RegistreMenu(), -1, -1, "Menu init failed");
+#else
+      /* print error */
+#endif
     }
   }
   init = 1;
@@ -124,8 +132,12 @@ void ygEnd()
   ywTextScreenEnd();
   ywMapEnd();
   ywMenuEnd();
+#ifdef WITH_CURSES
   ycursDestroy();
+#endif
+#ifdef WITH_SDL
   ysdl2Destroy();
+#endif
   ywidFinishCallbacks();
   init = 0;
 }

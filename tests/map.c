@@ -23,6 +23,8 @@
 #include "tests.h"
 #include "map.h"
 
+#ifdef WITH_CURSES
+
 void testYWMapCurses(void)
 {
   int t = ydJsonInit();
@@ -64,6 +66,9 @@ void testYWMapCurses(void)
   YE_DESTROY(ret);  
 }
 
+#endif
+#ifdef WITH_SDL
+
 void testYWMapSdl2(void)
 {
   int t = ydJsonInit();
@@ -104,3 +109,4 @@ void testYWMapSdl2(void)
   /* end libs */
   YE_DESTROY(ret);  
 }
+#endif

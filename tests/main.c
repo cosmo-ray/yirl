@@ -39,21 +39,23 @@ int main(int argc, char **argv)
   g_test_add_func("/parser/json/simple-file", testJsonLoadFile);
   g_test_add_func("/parser/json/complex-file", testJsonMultipleObj);
 
-  g_test_add_func("/widget/lifecycle/sdl", testSdlLife);
+  #ifdef WITH_CURSES
   g_test_add_func("/widget/lifecycle/curses", testCursesLife);
-  g_test_add_func("/widget/lifecycle/all", testAllLife);
-
-  g_test_add_func("/widget/textScreen/sdl", testYWTextScreenSdl2);
   g_test_add_func("/widget/textScreen/curses", testYWTextScreenCurses);
-  g_test_add_func("/widget/textScreen/all", testYWTextScreenAll);
-
   g_test_add_func("/widget/menu/curses", testYWMenuCurses);
-  g_test_add_func("/widget/menu/sdl", testYWMenuSdl2);
-
   g_test_add_func("/widget/map/curses", testYWMapCurses);
+  #endif
+  #ifdef WITH_SDL
+  g_test_add_func("/widget/lifecycle/sdl", testSdlLife);
+  g_test_add_func("/widget/textScreen/sdl", testYWTextScreenSdl2);
+  g_test_add_func("/widget/menu/sdl", testYWMenuSdl2);
   g_test_add_func("/widget/map/sdl2", testYWMapSdl2);
-
+  #ifdef WITH_CURSES
+  g_test_add_func("/widget/lifecycle/all", testAllLife);
+  g_test_add_func("/widget/textScreen/all", testYWTextScreenAll);
   g_test_add_func("/game/all/simple", testYGameAllLibBasic);
+  #endif
+  #endif
 
   g_test_run();
   yuiDebugExit();

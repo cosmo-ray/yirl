@@ -13,5 +13,11 @@ target_link_libraries(
 	util
 )
 
-add_subdirectory( ${PROJECT_SOURCE_DIR}/core/widget/curses )
-add_subdirectory( ${PROJECT_SOURCE_DIR}/core/widget/sdl2 )
+if( WITH_CURSES)
+  message( "i have l'option WITH_CURSES" )
+  add_subdirectory( ${PROJECT_SOURCE_DIR}/core/widget/curses )
+endif()
+if( WITH_SDL)
+  message( "j'ai the option WITH_SDL" )
+  add_subdirectory( ${PROJECT_SOURCE_DIR}/core/widget/sdl2 )
+endif()

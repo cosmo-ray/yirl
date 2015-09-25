@@ -9,8 +9,23 @@ add_executable(
 	${SOURCE}
 )
 
+
+
+if( WITH_CURSES)
+  set (RENDER_LIBS ${RENDER_LIBS} wid-curses)
+  add_definitions(-DWITH_CURSES=1)
+endif()
+
+if( WITH_SDL)
+  set (RENDER_LIBS ${RENDER_LIBS} wid-sdl2)
+  add_definitions(-DWITH_SDL=1)
+endif()
+
+message("rendre: ${RENDER_LIBS}")
+
 target_link_libraries(
 	tests
+	${RENDER_LIBS}
 	glib-2.0
 	json-c
 	entity
@@ -20,6 +35,4 @@ target_link_libraries(
 	luaScript
 	jsonDescrption
 	widgets
-	wid-curses
-	wid-sdl2
 )

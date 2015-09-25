@@ -26,6 +26,7 @@
 #include "menu.h"
 #include "widget-callback.h"
 
+#ifdef WITH_CURSES
 void testYWMenuCurses(void)
 {
   int t = ydJsonInit();
@@ -68,7 +69,9 @@ void testYWMenuCurses(void)
   YE_DESTROY(ret);
   ywidFinishCallbacks();
 }
+#endif
 
+#ifdef WITH_SDL
 void testYWMenuSdl2(void)
 {
   int t = ydJsonInit();
@@ -112,3 +115,4 @@ void testYWMenuSdl2(void)
   YE_DESTROY(ret);
   ywidFinishCallbacks();
 }
+#endif
