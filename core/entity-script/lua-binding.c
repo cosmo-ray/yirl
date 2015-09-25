@@ -25,18 +25,6 @@ int	luaYAnd(lua_State *L)
   return (1);
 }
 
-int	luaPrintableName(lua_State *L)
-{
-  if (lua_gettop(L) != 1 || !lua_islightuserdata (L, 1))
-    {
-      DPRINT_ERR("function arguments are incorect\n"
-		 "real prototyre is: yePrintableName(lightuserdata entity)");
-      return (-1);
-    }
-  lua_pushstring(L, yePrintableName((Entity *)lua_topointer (L, 1)));
-  return (1);
-}
-
 /* int	luaGetObject(lua_State *L) */
 /* { */
 /*   if (lua_gettop(L) != 2 || !lua_isstring (L, 1) || !lua_isstring (L, 2)) */
@@ -119,8 +107,8 @@ int	luaCreateArray(lua_State *L)
 	     "real prototyre is: yeCreateArray(int type, lightuserdata father)\n");
       return -1;
     }
-  lua_pushlightuserdata(L, yeCreateArray(lua_tostring(L, 1),
-					 (Entity *)lua_topointer(L, 2)));
+  lua_pushlightuserdata(L, yeCreateArray((Entity *)lua_topointer(L, 2),
+					 lua_tostring(L, 1)));
   return 1;
 }
 
@@ -141,15 +129,19 @@ int	luaPopBack(lua_State *L)
 
 int	luaPushBack(lua_State *L)
 {
-  if (lua_gettop(L) != 2 || !lua_islightuserdata(L, 1) ||
+  if (lua_gettop(L) < 2 || !lua_islightuserdata(L, 1) ||
       !lua_islightuserdata(L, 2))
     {
       DPRINT_ERR("function arguments are incorect\n"
-	     "real prototyre is: yePushBack(lightuserdata entity, lightuserdata toPush)\n");
+	     "real prototyre is: yePushBack(lightuserdata entity, lightuserdata toPush, string name)\n");
       return -1;
     }
-
-  yePushBack(((Entity *)lua_topointer(L, 1)), (Entity *)lua_topointer(L, 2));
+  if (!lua_isstring(L, 3))
+    yePushBack(((Entity *)lua_topointer(L, 1)), (Entity *)lua_topointer(L, 2),
+	       lua_tostring(L, 3));
+  else
+    yePushBack(((Entity *)lua_topointer(L, 1)), (Entity *)lua_topointer(L, 2),
+	       NULL);
   return 0;
 }
 

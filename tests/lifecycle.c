@@ -21,32 +21,29 @@
 
 void testLifecycleSimple(void)
 {
-  Entity *test1 = yeCreateArray("tests", NULL);
-  Entity *test2 = yeCreateInt(NULL, 1, NULL);
-  Entity *test3 = yeCreateFloat(NULL, 1, NULL);
-  Entity *test4 = yeCreateString(NULL, "test", NULL);
-  Entity *test5 = yeCreateFunction(NULL, "funcName", NULL);
-  Entity *test6 = yeCreateArray(NULL, NULL);
+  Entity *test1 = yeCreateArray(NULL, NULL);
+  Entity *test2 = yeCreateInt(1, NULL, NULL);
+  Entity *test3 = yeCreateFloat(1, NULL, NULL);
+  Entity *test4 = yeCreateString("test", NULL, NULL);
+  Entity *test5 = yeCreateFunction("funcName", NULL, NULL);
 
   g_assert(test1);
   g_assert(test2);
   g_assert(test3);
   g_assert(test4);
   g_assert(test5);
-  g_assert(test6);
 
   YE_DESTROY(test1);
   YE_DESTROY(test2);
   YE_DESTROY(test3);
   YE_DESTROY(test4);
   YE_DESTROY(test5);
-  YE_DESTROY(test6);
+
   g_assert(test1 == NULL);
   g_assert(test2 == NULL);
   g_assert(test3 == NULL);
   g_assert(test4 == NULL);
   g_assert(test5 == NULL);
-  g_assert(test6 == NULL);
 
 }
 
@@ -54,17 +51,17 @@ void testLifecycleSimple(void)
 void testLifecycleFlow(void)
 {
   Entity *mainStruct = yeCreateArray(NULL, NULL);
-  Entity *subStruct1 = yeCreateArray(NULL, mainStruct);
+  Entity *subStruct1 = yeCreateArray(mainStruct, NULL);
   Entity *subStruct2 = yeCreateArray(NULL, NULL);
-  Entity *test2 = yeCreateInt(NULL, 1, subStruct2);
-  Entity *test3 = yeCreateFloat(NULL, 1, subStruct2);
+  Entity *test2 = yeCreateInt(1, subStruct2, NULL);
+  Entity *test3 = yeCreateFloat(1, subStruct2, NULL);
 
   g_assert(test2);
   g_assert(test3);
   g_assert(mainStruct);
   g_assert(subStruct1);
   g_assert(subStruct2);
-  g_assert(!yePushBack(mainStruct, subStruct2));
+  g_assert(!yePushBack(mainStruct, subStruct2, NULL));
   g_assert(mainStruct->refCount == 1);
   g_assert(subStruct1->refCount == 1);
   g_assert(test3->refCount == 1);
@@ -80,16 +77,16 @@ void testLifecycleFlow(void)
 void testLifecycleComplex(void)
 {
   Entity *mainStruct = yeCreateArray(NULL, NULL);
-  Entity *subStruct1 = yeCreateArray(NULL, mainStruct);
-  Entity *subStruct2 = yeCreateArray(NULL, mainStruct);
-  Entity *test3 = yeCreateFloat(NULL, 1, subStruct2);
+  Entity *subStruct1 = yeCreateArray(mainStruct, NULL);
+  Entity *subStruct2 = yeCreateArray(mainStruct, NULL);
+  Entity *test3 = yeCreateFloat(1, subStruct2, NULL);
 
   g_assert(mainStruct);
   g_assert(subStruct1);
   g_assert(subStruct2);
-  g_assert(!yePushBack(subStruct1, subStruct2));
+  g_assert(!yePushBack(subStruct1, subStruct2, NULL));
   yeExpandArray(subStruct2, 5);
-  yeAttach(subStruct2, test3, 2);
+  yeAttach(subStruct2, test3, 2, NULL);
   g_assert(mainStruct->refCount == 1);
   g_assert(subStruct1->refCount == 1);
   g_assert(subStruct2->refCount == 2);

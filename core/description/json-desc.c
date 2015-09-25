@@ -44,11 +44,8 @@ static int jsonLink(Entity *father, Entity *target, const char *refName,
 {
   Entity *ret;
 
-  (void)refName;
-  DPRINT_ERR("json link: %s, %s, look for %s\n",
-	       father->name, target->name, targetName);
   if ((ret = yeGet(father, targetName)) != NULL) {
-    yePushBack(target, ret);
+    yePushBack(target, ret, refName);
     return 1;
   }
   return 0;
@@ -109,7 +106,7 @@ static void addLinkInfo(Entity *refFather, const char *refName,
 static Entity *parseObject(struct json_object *obj,
 			   const char *name, Entity *father)
 {
-  Entity *ret = yeCreateArray(name, father);
+  Entity *ret = yeCreateArray(father, name);
   
   if (ret == NULL) {
     YE_DESTROY(father); // change this to free the head entty on the tree
@@ -119,14 +116,17 @@ static Entity *parseObject(struct json_object *obj,
   json_object_object_foreach(obj, key, val) {
     if (key[0] == '&') {
       addLinkInfo(ret, key + 1, json_object_get_string(val));
-      DPRINT_ERR("%s", json_object_get_string(val));
       continue;
     }
     if (g_str_equal(key, "_name") &&
-	(json_object_get_type(val) == json_type_string)) {
-      yeSetName(ret, json_object_get_string(val));
-    } else if (parseGen(val, key, ret) == NULL) {
-      return NULL;
+    	(json_object_get_type(val) == json_type_string)) {
+      continue;
+    /*   yeSetName(ret, json_object_get_string(val)); */
+    } else {
+      if (parseGen(val, key, ret) == NULL) {
+	DPRINT_ERR("fail to parse json obj %s", name);
+	return NULL;
+      }
     }
   }
 
@@ -136,7 +136,7 @@ static Entity *parseObject(struct json_object *obj,
 static Entity *parseArray(struct json_object *obj,
 			  const char *name, Entity *father)
 {
-  Entity *ret = yeCreateArray(name, father);
+  Entity *ret = yeCreateArray(father, name);
   int len = json_object_array_length(obj);
   
   if (ret == NULL) {
@@ -157,19 +157,19 @@ static Entity *parseArray(struct json_object *obj,
 static Entity *parseInt(struct json_object *obj, const char *name,
 			Entity *father)
 {
-  return yeCreateInt(name, json_object_get_int(obj), father);
+  return yeCreateInt(json_object_get_int(obj), father, name);
 }
 
 static Entity *parseFloat(struct json_object *obj, const char *name,
 			  Entity *father)
 {
-  return yeCreateFloat(name, json_object_get_double(obj), father);
+  return yeCreateFloat(json_object_get_double(obj), father, name);
 }
 
 static Entity *parseString(struct json_object *obj, const char *name,
 			   Entity *father)
 {
-  return yeCreateString(name, json_object_get_string(obj), father);
+  return yeCreateString(json_object_get_string(obj), father, name);
 }
 
 

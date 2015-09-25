@@ -24,10 +24,10 @@
 void testSetSimple(void)
 {
   Entity *mainStruct = yeCreateArray(NULL, NULL);
-  Entity *test1 = yeCreateInt(NULL, 1, mainStruct);
-  Entity *test2 = yeCreateFloat(NULL, 1, mainStruct);
-  Entity *test3 = yeCreateString(NULL, "test", mainStruct);
-  Entity *test4 = yeCreateFunction(NULL, "funcName", mainStruct);
+  Entity *test1 = yeCreateInt(1, mainStruct, NULL);
+  Entity *test2 = yeCreateFloat(1, mainStruct,NULL);
+  Entity *test3 = yeCreateString("test", mainStruct, NULL);
+  Entity *test4 = yeCreateFunction("funcName", mainStruct, NULL);
 
   int testInt;
   double testDouble;
@@ -66,8 +66,8 @@ void testSetSimple(void)
 void testSetGeneric(void)
 {
   int val = 4;
-  Entity *test = yeCreate(NULL, YINT, &val, NULL);
-  Entity *testStr = yeCreate(NULL, YSTRING, "myJoeIsBigerThanYours", NULL);
+  Entity *test = yeCreate(YINT, &val, NULL, NULL);
+  Entity *testStr = yeCreate(YSTRING, "myJoeIsBigerThanYours", NULL, NULL);
 
   g_assert(!strcmp(yeGetString(testStr), "myJoeIsBigerThanYours"));
   g_assert(yeGetInt(test) == val);
@@ -85,11 +85,12 @@ void testSetComplex(void)
   for (int i = 0; i < 10; ++i) {
     char *tmp = g_strdup_printf("Dude%d", i);
     
-    yeCreateInt(tmp, i, mainStruct);
+    yeCreateInt(i, mainStruct, tmp);
     g_free(tmp);
   }
 
   for (int i = 0; i < 10; ++i) {
+    g_assert(yeGet(mainStruct, i));
     g_assert(yeGetInt(yeGet(mainStruct, i)) == i);
     yeSetAt(mainStruct, i, i * i);
   }

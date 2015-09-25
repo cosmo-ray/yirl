@@ -24,6 +24,7 @@
 #define	ENTITY_H
 
 #include <stdio.h>
+#include <glib.h>
 
 #define NONNULL(arg) __attribute__ ((nonnull (arg)))
 
@@ -67,6 +68,7 @@ extern "C"
 #define	YE_TO_FUNC(X) ((FunctionEntity *)X)
 #define	YE_TO_C_FUNC(X) ((const FunctionEntity *)X)
 
+  /* TODO: move most of this code to yeDestroy, remove this */
 #define YE_DESTROY(X) do {			\
     if (X == NULL)				\
       break;					\
@@ -78,32 +80,33 @@ extern "C"
     }						\
   } while (0);
   
-  struct	Entity;
-
   /**
    * @father is the entity contening this one (a struct or an array)
    */
 #define	ENTITY_HEADER				\
-  char	*name;					\
-  struct Entity	**fathers;			\
+  struct Entity_	**fathers;		\
   unsigned int nbFathers;			\
   unsigned int refCount;			\
   EntityType	type;				\
 
 
-
-  typedef struct Entity
+  typedef struct Entity_
   {
     ENTITY_HEADER
 
   } Entity;
 
+  typedef	struct {
+    Entity *entity;
+    char *name;
+  } ArrayEntry;
+  
   typedef	struct
   {
     ENTITY_HEADER
 
     unsigned int len;
-    Entity	**values;
+    ArrayEntry	*values;
   } ArrayEntity;
 
   typedef	struct
@@ -132,7 +135,6 @@ extern "C"
   {
     ENTITY_HEADER
     
-    // the name of the function to call
     unsigned int len;
     char	*value;
     unsigned int nArgs;
@@ -195,8 +197,7 @@ extern "C"
    * @array:	the entity where we will add a new entity
    * @toPush:	the entity to add
    */
-  int yePushBack(Entity *array, Entity *toPush) WEAK;
-
+  int yePushBack(Entity *array, Entity *toPush, const char *name) WEAK;
   /**
    * @array:	the array
    * @return:	the entity that is erased from the entity @array
@@ -208,16 +209,16 @@ extern "C"
   /**
    * function who which an entity and set it to  0, "" or NULL
    */
-  Entity *yeCreate(const char *name, EntityType type, void *val, Entity *fathers) WEAK;
+  Entity *yeCreate(EntityType type, void *val, Entity *fathers, const char *name) WEAK;
 
   /* 
    * Destructor and constructors.
    */
-  Entity *yeCreateInt(const char *name, int value, Entity *fathers) WEAK;
-  Entity *yeCreateFloat(const char *name, double value, Entity *fathers) WEAK;
-  Entity *yeCreateString(const char *name, const char *string, Entity *fathers) WEAK;
-  Entity *yeCreateFunction(const char *name, const char *string, Entity *fathers) WEAK;
-  Entity *yeCreateArray(const char *name, Entity *fathers) WEAK;
+  Entity *yeCreateInt(int value, Entity *fathers, const char *name) WEAK;
+  Entity *yeCreateFloat(double value, Entity *fathers, const char *name) WEAK;
+  Entity *yeCreateString(const char *string, Entity *fathers, const char *name) WEAK;
+  Entity *yeCreateFunction(const char *string, Entity *fathers, const char *name) WEAK;
+  Entity *yeCreateArray(Entity *fathers, const char *name) WEAK;
 
   void yeDestroy(Entity *entity) WEAK;
   void yeDestroyInt(Entity *entity) WEAK;
@@ -275,8 +276,6 @@ extern "C"
    */
   void	yeSetFunctionArgs(Entity *entity, unsigned int nArgs) WEAK;
   
-  int	yeSetName(Entity *entity, const char *name);
-  
   /**
    * Set basic information to the entity <entity>
    * @param entity  the entity to set the basic informations
@@ -285,7 +284,8 @@ extern "C"
    * @param fathers  the parent entity of <entity>
    * @return the entity <entity>
    */
-  Entity *yeInit(Entity *entity, const char *name, EntityType type, Entity *father)  WEAK;
+  Entity *yeInit(Entity *entity, EntityType type,
+		 Entity *father, const char *name)  WEAK;
 
   /**
    * set to a value to the index if the entity is an array or a generic array
@@ -298,7 +298,7 @@ extern "C"
   void	yeSetStringAtStrIdx(Entity *entity, const char *index, const char *value) WEAK;
 
 
-  int yeAttach(Entity *on, Entity *entity, unsigned int idx);
+  int yeAttach(Entity *on, Entity *entity, unsigned int idx, const char *name);
 
 #ifdef __cplusplus
 extern "C++"
@@ -364,12 +364,15 @@ extern "C++"
    */
   const char *yeGetString(Entity *entity) WEAK;
 
-  /**
-   * @param entity
-   * @return the entity's name
-   */
-  const char *yeName(const Entity *entity) WEAK;
-
+#define YE_FOREACH_FATHER_SET_FATHER(child, father, idx)	\
+  ((father = yeFathers(child)[(idx)]) || 1)
+  
+#define YE_FOREACH_FATHER(child, father)				\
+  Entity *father = NULL;						\
+  for (uint32_t father##idx = 0; father##idx < child->nbFathers &&	\
+	 YE_FOREACH_FATHER_SET_FATHER(child, father, father##idx);	\
+       ++father##idx)
+  
   /**
    * @param entity
    * @return the entity's fathers
@@ -386,22 +389,9 @@ extern "C++"
 
   /**
    * @param entity
-   * @return the entity's name if entity is not null, "(null)" otherwise
-   */
-  const char *yePrintableName(const Entity *entity);
-
-  /**
-   * @param entity
    * @return if entity is not null return the type, -1 otherwise
    */
   int	yeType(const Entity *entity);
-
-  /**
-   * @param buf the buffer where the string is store
-   * @param sizeBuf the size of buf
-   * @return the number of caracter write into buf, -1 if not enough place
-   */
-  int yeToString(Entity *entity, char *buf, int sizeBuf);
 
   /**
    * Check if Entity are the same type and if they are not NULL and copy the values from src to dest.

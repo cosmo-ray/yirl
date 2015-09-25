@@ -42,7 +42,6 @@ inline static void yeDestroyInternal(Entity *entity);
     YE_DECR_REF(entity);			\
     if (entity->refCount < 1) {			\
       free(entity->fathers);			\
-      free(entity->name);			\
       free(((type *)entity));			\
     }						\
   } while (0);
@@ -121,10 +120,10 @@ Entity *yeGetByIdx(Entity *entity, unsigned int index)
     return NULL;
   }
   Entity *tmp;
-  if (index >= ((ArrayEntity *)entity)->len)
+  if (index >= YE_TO_ARRAY(entity)->len)
     return NULL;
-  tmp = ((ArrayEntity *)entity)->values[index];
-  return (tmp);
+  tmp = YE_TO_ARRAY(entity)->values[index].entity;
+  return tmp;
 }
 
 /**
@@ -139,6 +138,12 @@ static int	findIdxPoint(const char *name)
     : res - name;
 }
 
+
+static inline ArrayEntry *yeGetArrayEntryByIdx(Entity *entity, uint32_t i)
+{
+  return &YE_TO_ARRAY(entity)->values[i];
+}
+
 /**
  * Look for an entity situated directly in <entity> wich have a name wich begin like <name> for a length of <end>
  * @param entity  the parent entity where we want to find the entity
@@ -148,31 +153,30 @@ static int	findIdxPoint(const char *name)
  */
 static Entity *yeGetByIdxFastWithEnd(Entity *entity, const char *name, int end)
 {
-  int	i = 0;
-  Entity *tmp;
-  while ((tmp = yeGetByIdx(entity, i)) != NULL) {
-    if (!strncmp(tmp->name, name, end))
-      return (tmp);
-    ++i;
-  }
-  DPRINT_INFO( "could not find %s\n", name);
-  return (NULL);
+  unsigned int  i;
+  ArrayEntry *tmp;
+
+  for (i = 0; i < YE_TO_ARRAY(entity)->len; ++i) {
+      tmp = yeGetArrayEntryByIdx(entity, i);
+      if (strncmp(tmp->name, name, end))
+	return tmp->entity;
+    }
+  return NULL;
 }
 
 Entity *yeGetByStrFast(Entity *entity, const char *name)
 {
-  unsigned int	i = 0;
-  Entity *tmp;
+  unsigned int  i;
+  ArrayEntry *tmp;
 
-  while ((tmp = yeGetByIdx(entity, i)) != NULL)
-  {
-    if (yuiStrEqual(yePrintableName(tmp), name))
-    	return (tmp);
-    ++i;
-  }
-  DPRINT_INFO("could not find %s in  %s\n", name,
-	      yePrintableName(entity));
-  return NULL;
+  for (i = 0; i < YE_TO_ARRAY(entity)->len; ++i) {
+      tmp = yeGetArrayEntryByIdx(entity, i);
+      if (!tmp)
+	continue;
+      if (yuiStrEqual(tmp->name, name))
+	return tmp->entity;
+    }
+  return NULL; 
 }
 
 Entity *yeGetByStr(Entity *entity, const char *name)
@@ -190,50 +194,50 @@ Entity *yeGetByStr(Entity *entity, const char *name)
     (yeGetByStrFast(entity, name));
 }
 
-Entity *yeCreateInt(const char *name, int value, Entity *father)
+Entity *yeCreateInt(int value, Entity *father, const char *name)
 {
   IntEntity *ret;
   YE_ALLOC_ENTITY(ret, IntEntity);
-  yeInit((Entity *)ret, name, YINT, father);
+  yeInit((Entity *)ret, YINT, father, name);
   ret->value = value;
   return ((Entity *)ret);
 }
 
-Entity *yeCreateArray(const char *name, Entity *father)
+Entity *yeCreateArray(Entity *father, const char *name)
 {
   ArrayEntity *ret;
   YE_ALLOC_ENTITY(ret, ArrayEntity);
-  yeInit((Entity *)ret, name, YARRAY, father);
+  yeInit((Entity *)ret, YARRAY, father, name);
   ret->len = 0;
   ret->values = NULL;
   return (YE_TO_ENTITY(ret));
 }
 
-Entity *yeCreateFloat(const char *name, double value, Entity *father)
+Entity *yeCreateFloat(double value, Entity *father, const char *name)
 {
   FloatEntity *ret;
   YE_ALLOC_ENTITY(ret, FloatEntity);
-  yeInit((Entity *)ret, name, YFLOAT, father);
+  yeInit((Entity *)ret, YFLOAT, father, name);
   ret->value = value;
   return ((Entity *)ret);
 }
 
-Entity *yeCreateFunction(const char *name, const char *value, Entity *father)
+Entity *yeCreateFunction(const char *value, Entity *father, const char *name)
 {
   FunctionEntity *ret;
   YE_ALLOC_ENTITY(ret, FunctionEntity);
-  yeInit((Entity *)ret, name, YFUNCTION, father);
+  yeInit((Entity *)ret, YFUNCTION, father, name);
   ret->nArgs = 0;
   ret->value = NULL;
   yeSetString(YE_TO_ENTITY(ret), value);
   return (YE_TO_ENTITY(ret));
 }
 
-Entity *yeCreateString(const char *name, const char *string, Entity *father)
+Entity *yeCreateString(const char *string, Entity *father, const char *name)
 {
   StringEntity *ret;
   YE_ALLOC_ENTITY(ret, StringEntity);
-  yeInit((Entity *)ret, name, YSTRING, father);
+  yeInit((Entity *)ret, YSTRING, father, name);
   ret->value = NULL;
   yeSetString(YE_TO_ENTITY(ret), string);
   return (YE_TO_ENTITY(ret));
@@ -301,7 +305,8 @@ void yeDestroyArray(Entity *entity)
 {
   if(entity->refCount == 1) {
     destroyChilds(entity);
-    free(YE_TO_ARRAY(entity)->values);
+    g_free(YE_TO_ARRAY(entity)->values);
+    YE_TO_ARRAY(entity)->values = NULL;
   }
   YE_DESTROY_ENTITY(entity, ArrayEntity);
 }
@@ -317,20 +322,20 @@ void yeDestroy(Entity *entity)
   yeDestroyInternal(entity);
 }
 
-Entity *yeCreate(const char *name, EntityType type, void *val, Entity *father)
+Entity *yeCreate(EntityType type, void *val, Entity *father, const char *name)
 {
   switch (type)
     {
     case YSTRING:
-      return (yeCreateString(name, val, father));
+      return (yeCreateString(val, father, name));
     case YINT:
-      return (yeCreateInt(name, *((int *)val), father));
+      return (yeCreateInt(*((int *)val), father, name));
     case YFLOAT:
-      return (yeCreateFloat(name, *((double *)val), father));
+      return (yeCreateFloat(*((double *)val), father, name));
     case YARRAY:
-      return (yeCreateArray(name, father));
+      return (yeCreateArray(father, name));
     case YFUNCTION:
-      return (yeCreateFunction(name, val, father));
+      return (yeCreateFunction(val, father, name));
     default:
       DPRINT_ERR( "%s generic constructor not yet implemented\n",
 		  yeTypeToString(type));
@@ -339,21 +344,41 @@ Entity *yeCreate(const char *name, EntityType type, void *val, Entity *father)
   return (NULL);
 }
 
+
+static inline void arrayEntryInit(ArrayEntry *ae)
+{
+  ae->entity = NULL;
+  ae->name = NULL;
+}
+
+static inline void arrayEntryDestroy(ArrayEntry *ae)
+{
+  g_free(ae->name);
+  yeDestroy(ae->entity);
+}
+
 static ArrayEntity	*manageArrayInternal(ArrayEntity *entity,
 					     unsigned int size)
 {
-  unsigned int	i = 0;
+  unsigned int	i;
+
+  if (size < entity->len) {
+    for (i = size - 1; i < entity->len; ++i) {
+      arrayEntryDestroy(&entity->values[i]);
+    }
+  }
 
   if (entity->len == 0) {
-    entity->values = malloc(sizeof(Entity *) * size);
+    entity->values = malloc(sizeof(ArrayEntry) * size);
     i = 0;
   } else {
-    entity->values = realloc(entity->values, sizeof(Entity *) * size);
+    entity->values = realloc(entity->values, sizeof(ArrayEntry) * size);
     i = entity->len;
   }
+
   entity->len = size;
   for (; i < size; ++i) {
-    entity->values[i] = NULL;
+    arrayEntryInit(&entity->values[i]);
   }
   return entity;
 }
@@ -367,7 +392,7 @@ Entity *yeExpandArray(Entity *entity, unsigned int size)
   return ((Entity*)manageArrayInternal((ArrayEntity*)entity, size));
 }
 
-int	yePushBack(Entity *entity, Entity *toPush)
+int	yePushBack(Entity *entity, Entity *toPush, const char *name)
 {
   int	len;
 
@@ -382,7 +407,7 @@ int	yePushBack(Entity *entity, Entity *toPush)
   len = yeLen(entity);
   if (yeExpandArray(entity, len + 1) == NULL)
     return -1;
-  if (yeAttach(entity, toPush, len))
+  if (yeAttach(entity, toPush, len, name))
     return -1;
   return 0;
 }
@@ -390,7 +415,7 @@ int	yePushBack(Entity *entity, Entity *toPush)
 Entity *yeRemoveChild(Entity *array, Entity *toRemove)
 {
   int	len;
-  Entity *tmp = NULL;
+  ArrayEntry *tmp = NULL;
 
   if (!checkType(array, YARRAY)) {
     DPRINT_ERR("yeRemoveChild: bad entity\n");
@@ -400,9 +425,10 @@ Entity *yeRemoveChild(Entity *array, Entity *toRemove)
   for (int i = 0; i < len; ++i) {
     Entity *ret;
 
-    tmp = yeGet(array, i);
-    ret = tmp;
-    if (tmp == toRemove) {
+    tmp = yeGetArrayEntryByIdx(array, i);
+    ret = tmp->entity;
+    if (ret == toRemove) {
+      arrayEntryDestroy(tmp);
       for (int i2 = i + 1; i2 < len; ++i, ++i2) {
 	YE_TO_ARRAY(array)->values[i] = YE_TO_ARRAY(array)->values[i2];
       }
@@ -441,32 +467,16 @@ static void yeAttachFather(Entity *entity, Entity *father)
   entity->nbFathers += 1;
 }
 
-Entity *yeInit(Entity *entity, const char *name, EntityType type, Entity *father)
+Entity *yeInit(Entity *entity, EntityType type, Entity *father, const char *name)
 {
   if (!entity)
     return NULL;
-  if (name == NULL) {
-    entity->name = NULL;
-  }  else {
-    entity->name = strdup(name);
-  }
   entity->type = type;
   entity->nbFathers = 0;
   entity->fathers = NULL;
-  if (!yePushBack(father, entity))
+  if (!yePushBack(father, entity, name))
     YE_DECR_REF(entity);
   return (entity);
-}
-
-int	yeSetName(Entity *entity, const char *name)
-{
-  if (!entity)
-    return -1;
-
-  if (yeName(entity))
-    free(entity->name);
-  entity->name = g_strdup(name);
-  return 0;
 }
 
 void	yeSetString(Entity *entity, const char *val)
@@ -482,7 +492,8 @@ void	yeSetString(Entity *entity, const char *val)
   }
 }
 
-int yeAttach(Entity *on, Entity *entity, unsigned int idx)
+int yeAttach(Entity *on, Entity *entity,
+	     unsigned int idx, const char *name)
 {
   if (!on)
     return -1;
@@ -490,9 +501,13 @@ int yeAttach(Entity *on, Entity *entity, unsigned int idx)
     return -1;
   if (idx >= yeLen(on))
     return -1;
-  if (YE_TO_ARRAY(on)->values[idx])
-    yeDestroyInternal(YE_TO_ARRAY(on)->values[idx]);
-  YE_TO_ARRAY(on)->values[idx] = entity;
+  if (YE_TO_ARRAY(on)->values[idx].entity) {
+    arrayEntryDestroy(&YE_TO_ARRAY(on)->values[idx]);
+  }
+
+  YE_TO_ARRAY(on)->values[idx].entity = entity;
+  if (name)
+    YE_TO_ARRAY(on)->values[idx].name = g_strdup(name);  
   yeAttachFather(entity, on);
   entity->refCount += 1;
   return 0;
@@ -598,21 +613,10 @@ double	yeGetFloat(Entity *entity)
   return ((FloatEntity *)entity)->value;
 }
 
-const char *yeName(const Entity *entity)
-{
-  return (entity->name);
-}
 
 Entity **yeFathers(Entity *entity)
 {
   return (entity->fathers);
-}
-
-const char *yePrintableName(const Entity *entity)
-{
-  if (entity == NULL)
-    return ("(null)");
-  return (yeName(entity));
 }
 
 Entity*		yeCopy(Entity* src, Entity* dest)
@@ -622,8 +626,7 @@ Entity*		yeCopy(Entity* src, Entity* dest)
 
   if (src != NULL && dest != NULL
       && yeType(src) == yeType(dest)) {
-    DPRINT_INFO("\tentity '%s' are '%s'\n", yePrintableName(src),
-		yeTypeToString(yeType(src)));
+    DPRINT_INFO("\tentity are '%s'\n", yeTypeToString(yeType(src)));
     switch (yeType(src))
     {
     case YINT:
@@ -666,81 +669,11 @@ ArrayEntity*		yeCopyContener(ArrayEntity* src, ArrayEntity* dest)
       return NULL;
     for (i = 0; i < yeLen((Entity*)src) && i < yeLen((Entity*)dest); i++)
       {
-	yeCopy(src->values[i], dest->values[i]);
+	dest->values[i].name = g_strdup(dest->values[i].name);
+	yeCopy(src->values[i].entity, dest->values[i].entity);
       }
     return dest;
   }
-
-
-#define	ETS_REC_CALL(A,B,C) yeToString(A,B,C);++nbrSpace;
-#define	ETS_RETURN(X) --nbrSpace;return(X);
-#define	ETS_INCR_RET(I)	\
-  ret += I;\
-  sizeBuf -= I;\
-  buf += I
-int yeToString(Entity *entity, char *buf, int sizeBuf)
-{
-  unsigned int i;
-  int ret = 0;
-  int retETS; // the variable use to store the ETS_RETURN of the entityToString call inside EntityToString
-  static int nbrSpace = 0; // nbr space before each printing
-  
-  if (sizeBuf <= 30)
-    return (-1);
-  switch (yeType(entity))
-    {
-    case YSTRING:
-      ETS_RETURN (snprintf(buf, sizeBuf, "%s", yeGetString(entity)));
-    case YINT:
-      //printf("val: %d\n", getIntVal(entity));
-      ETS_RETURN (snprintf(buf, sizeBuf, "%d", yeGetInt(entity)));
-    case YFLOAT:
-      //printf("val: %f\n", yeGetFloat(entity));
-      ETS_RETURN (snprintf(buf, sizeBuf, "%f", yeGetFloat(entity)));
-    case YFUNCTION:
-      if (yeGetFunction(entity) == NULL) {
-	ETS_RETURN (snprintf(buf, sizeBuf, "function %s: (null)",
-			     yePrintableName(entity)));
-      }
-      retETS = snprintf(buf, sizeBuf, "function %s: nb arg: %d\n",
-			yePrintableName(entity), yeFunctionNumberArgs(entity));
-      if (retETS < 0)
-	goto error;
-      ETS_INCR_RET(retETS);
-      retETS = snprintf(buf, sizeBuf, "function to call: %s",
-			yeGetFunction(entity));
-      if (retETS < 0)
-	goto error;
-      ETS_INCR_RET(retETS);
-      ETS_RETURN (ret);
-    case YARRAY:
-      strcpy(buf, "["); // may bug here if sizeBuf is too small
-      ETS_INCR_RET(1);
-      for (i = 0; i < yeLen(entity); ++i)
-	{
-	  retETS = ETS_REC_CALL(yeGetByIdx(entity, i), buf, sizeBuf);
-	  if (retETS < 0)
-	    goto error;
-	  ETS_INCR_RET(retETS);
-	  if (yeLen(entity) > i + 1)
-	    strcpy(buf, ", ");  // may bug here if sizeBuf is too small
-	  ETS_INCR_RET(2);
-	}
-      strcpy(buf, "]");  // may bug here if sizeBuf is too small
-      ETS_INCR_RET(1);
-      ETS_RETURN (ret);
-    default:
-      goto error;
-    }
- error:
-  DPRINT_ERR("Error occured in entityToString on %s\n", yePrintableName(entity));
-  nbrSpace = 0;
-  return (-1);
-}
-#undef	ETS_REC_CALL
-#undef	ETS_RETURN
-#undef	ETS_INCR_RET
-
 
   /* macro for perf purpose */
 #undef YE_INCR_REF
