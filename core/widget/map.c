@@ -29,8 +29,11 @@ static int mapInit(YWidgetState *opac, Entity *entity, void *args)
 {
   opac->entity = entity;
   ywidGenericInit(opac, t);
-  DPRINT_ERR("%p", yeGet(entity, "resources"));
-  DPRINT_ERR("%s", yeGetString(yeGet(entity, "&resources")));
+
+  YE_ARRAY_FOREACH(yeGet(entity, "resources"), tmp) {
+    DPRINT_ERR("%s", yeGetString(tmp));
+  }
+  /* DPRINT_ERR("%s", yeGetString(yeGet(entity, "&resources"))); */
   (void)args;
   return 0;
 }

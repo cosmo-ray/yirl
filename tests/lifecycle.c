@@ -93,3 +93,30 @@ void testLifecycleComplex(void)
   YE_DESTROY(mainStruct);
   g_assert(mainStruct == NULL);
 }
+
+void testLifecycleAwakwar(void)
+{
+  Entity *mainStruct = yeCreateArray(NULL, NULL);
+  Entity *subStruct1 = yeCreateArray(mainStruct, NULL);
+  Entity *subStruct2 = yeCreateArray(subStruct1, NULL);
+  Entity *test3 = yeCreateString("i am an int entity", NULL, NULL);
+
+  g_assert(mainStruct);
+  g_assert(subStruct1);
+  g_assert(subStruct2);
+  g_assert(test3);  
+  g_assert(mainStruct->refCount == 1);
+  g_assert(subStruct1->refCount == 1);
+  g_assert(subStruct2->refCount == 1);
+  g_assert(test3->refCount == 1);
+  g_assert(!yePushBack(subStruct1, test3, NULL));
+  g_assert(test3->refCount == 2);
+  g_assert(!yePushBack(mainStruct, test3, NULL));
+  g_assert(test3->refCount == 3);
+  g_assert(!yePushBack(subStruct2, test3, NULL));
+  g_assert(test3->refCount == 4);
+  YE_DESTROY(mainStruct);
+  g_assert(test3->refCount == 1);
+  g_assert(mainStruct == NULL);
+  YE_DESTROY(test3);
+}

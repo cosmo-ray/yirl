@@ -153,6 +153,15 @@ extern "C"
    */
   const char *yeTypeToString(int type) WEAK;
 
+#define YE_ARRAY_FOREACH_SET_VAL(array, val, idx)	\
+  ((val = yeGet(array, idx)) || 1)
+
+#define YE_ARRAY_FOREACH(array, val)					\
+  Entity *val;								\
+  for (uint32_t i##val = 0; i##val < yeLen(array) &&			\
+	 YE_ARRAY_FOREACH_SET_VAL(array, val, i##val); ++i##val)
+
+  
   /**
    * @return:	the entity at the position of @index or NULL
    */

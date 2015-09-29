@@ -55,7 +55,7 @@ static inline int yuiStrEqual(const char *str1, const char *str2)
   for (i = 0; str1[i]; ++i)
     if (str1[i] != str2[i])
       return 0;
-  return 1;
+  return (str1[i] == str2[i]);
 }
 
 

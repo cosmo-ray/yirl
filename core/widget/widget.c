@@ -76,7 +76,7 @@ int ywidBgConfFill(Entity *entity, YBgConf *cfg)
     tmp = str[limiterPos];
     str[limiterPos] = '\0';
 
-    if (yuiStrEqual(str, "rgba:")) {
+    if (yuiStrEqual(str, "rgba")) {
       char **rgba;
       int i;
 
@@ -102,14 +102,13 @@ int ywidBgConfFill(Entity *entity, YBgConf *cfg)
       g_strfreev(rgba);
     }
 
-    ret = 0;
   exit:
     str -= sizeof("rgba:" + 1);
     str[limiterPos] = tmp;
 
   } else { // path
     if ((cfg->path = g_strdup(str)) != NULL) {
-      cfg->type = BG_COLOR;
+      cfg->type = BG_IMG;
       ret = 0;
     }
   }

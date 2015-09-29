@@ -45,7 +45,7 @@ static int sdlRender(YWidgetState *state, int t)
   for (unsigned int i = 0; i < len; ++i) {
     Entity *entry = yeGet(entries, i);
     SDL_Color color = {0,0,0,255};
-    const char *toPrint = yeGetString(yeGet(entry, "texts"));
+    const char *toPrint = yeGetString(yeGet(entry, "text"));
     unsigned int cur = ywMenuGetCurrent(state);
 
     sdlPrintText(wid, toPrint, CARACT_PER_LINE, color, 0, i * sgGetFontSize() + 1);

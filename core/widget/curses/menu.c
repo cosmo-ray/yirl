@@ -39,7 +39,7 @@ static int cursesRender(YWidgetState *state, int t)
   for (unsigned int i = 0; i < len; ++i)
     {
       Entity *entry = yeGet(entries, i);
-      const char *toPrint = yeGetString(yeGet(entry, "texts"));
+      const char *toPrint = yeGetString(yeGet(entry, "text"));
       unsigned int cur = ywMenuGetCurrent(state);
       if (toPrint) {
 	if (cur == i)
