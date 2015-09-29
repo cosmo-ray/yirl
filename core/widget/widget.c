@@ -80,7 +80,7 @@ int ywidBgConfFill(Entity *entity, YBgConf *cfg)
       char **rgba;
       int i;
 
-      str += sizeof("rgba:" + 1);
+      str += (limiterPos + 1);
       if (len < sizeof("r,g,b,q"))
 	goto exit;
 
@@ -103,7 +103,7 @@ int ywidBgConfFill(Entity *entity, YBgConf *cfg)
     }
 
   exit:
-    str -= sizeof("rgba:" + 1);
+    str -= (limiterPos + 1);
     str[limiterPos] = tmp;
 
   } else { // path
