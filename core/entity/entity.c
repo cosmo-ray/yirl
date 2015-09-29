@@ -153,11 +153,8 @@ static inline ArrayEntry *yeGetArrayEntryByIdx(Entity *entity, uint32_t i)
  */
 static Entity *yeGetByIdxFastWithEnd(Entity *entity, const char *name, int end)
 {
-  unsigned int  i;
-  ArrayEntry *tmp;
-
-  for (i = 0; i < YE_TO_ARRAY(entity)->len; ++i) {
-      tmp = yeGetArrayEntryByIdx(entity, i);
+  for (unsigned int i = 0; i < YE_TO_ARRAY(entity)->len; ++i) {
+      ArrayEntry *tmp = yeGetArrayEntryByIdx(entity, i);
       if (strncmp(tmp->name, name, end))
 	return tmp->entity;
     }
@@ -166,16 +163,13 @@ static Entity *yeGetByIdxFastWithEnd(Entity *entity, const char *name, int end)
 
 Entity *yeGetByStrFast(Entity *entity, const char *name)
 {
-  unsigned int  i;
-  ArrayEntry *tmp;
-
-  for (i = 0; i < YE_TO_ARRAY(entity)->len; ++i) {
-      tmp = yeGetArrayEntryByIdx(entity, i);
-      if (!tmp)
-	continue;
-      if (yuiStrEqual(tmp->name, name))
-	return tmp->entity;
-    }
+  for (unsigned int i = 0; i < YE_TO_ARRAY(entity)->len; ++i) {
+    ArrayEntry *tmp = yeGetArrayEntryByIdx(entity, i);
+    if (!tmp)
+      continue;
+    if (yuiStrEqual(tmp->name, name))
+      return tmp->entity;
+  }
   return NULL; 
 }
 

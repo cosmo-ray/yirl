@@ -61,7 +61,7 @@ static InputStatue tsEvent(YWidgetState *opac, YEvent *event)
 
 static int tsRend(YWidgetState *opac)
 {
-  int ret;
+  int ret = 0;
 
   if (((YTextScreenState *)opac)->hasChange)
     ret = ywidGenericRend(opac, t);
