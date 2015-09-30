@@ -20,12 +20,21 @@
 #include "entity.h"
 #include "map.h"
 
+static char getPrintableChar(Entity *mapCases, Entity *res)
+{
+  int ret = yeGetInt(yeGet(mapCases, yeLen(mapCases) - 1));
+
+  res = yeGet(yeGet(res, ret), "map-char");
+  return res != NULL ? yeGetString(res)[0] : '-';
+}
+
 static int cursesRender(YWidgetState *state, int t)
 {
   CWidget *wid = ywidGetRenderData(state, t);
   int x,y,h,w;
   unsigned int curx = 0, cury = 0;
   Entity *map = yeGet(state->entity, "map");
+  Entity *res = ywMapGetResources(state);
   unsigned int lenMap = yeLen(map);
   unsigned int wMap = yeGetInt(yeGet(state->entity, "width"));
   unsigned int hMap = lenMap / wMap;
@@ -47,10 +56,9 @@ static int cursesRender(YWidgetState *state, int t)
 	}
 
       mvwaddch(wid->win,
-	       (cury+1) + (h/2 - hMap / 2),
+	       (cury + 1) + (h/2 - hMap / 2),
 	       (curx + 1) + (w/2 - wMap / 2),
-	       yeGetInt(yeGet(mapCase,
-			      yeLen(mapCase) - 1)) + '0');
+	       getPrintableChar(mapCase, res));
       ++curx;
     }
   

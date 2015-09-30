@@ -20,10 +20,20 @@
 
 #include "widget.h"
 
+typedef struct {
+  YWidgetState sate;
+  Entity *resources;
+} YMapState;
+
 int ywMapInit(void);
 int ywMapEnd(void);
 int ycursRegistreMap(void);
 int ysdl2RegistreMap(void);
 int ywMapHasChange(YWidgetState *state);
+
+static inline Entity *ywMapGetResources(YWidgetState *state)
+{
+  return ((YMapState *)state)->resources;
+}
 
 #endif

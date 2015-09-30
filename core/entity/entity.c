@@ -163,9 +163,11 @@ static Entity *yeGetByIdxFastWithEnd(Entity *entity, const char *name, int end)
 
 Entity *yeGetByStrFast(Entity *entity, const char *name)
 {
+  if (!entity)
+    return NULL;
   for (unsigned int i = 0; i < YE_TO_ARRAY(entity)->len; ++i) {
     ArrayEntry *tmp = yeGetArrayEntryByIdx(entity, i);
-    if (!tmp)
+    if (!tmp || !tmp->name)
       continue;
     if (yuiStrEqual(tmp->name, name))
       return tmp->entity;
@@ -180,7 +182,7 @@ Entity *yeGetByStr(Entity *entity, const char *name)
   if (entity == NULL) {
     DPRINT_INFO("can not find entity fot %s\n", name);
     return NULL;
-    }
+  }
 
   i = findIdxPoint(name);
   return (i != -1) ?

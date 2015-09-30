@@ -20,23 +20,15 @@
 
 static int t = -1;
 
-typedef struct {
-  YWidgetState sate;
-  Entity *entity;
-} YMapState;
-
 static int mapInit(YWidgetState *opac, Entity *entity, void *args)
 {
   opac->entity = entity;
   ywidGenericInit(opac, t);
 
-  YE_ARRAY_FOREACH(yeGet(entity, "resources"), tmp) {
-    DPRINT_ERR("%s", yeGetString(tmp));
-  }
-  /* DPRINT_ERR("%s", yeGetString(yeGet(entity, "&resources"))); */
+  ((YMapState *)opac)->resources = yeGet(entity, "resources");
   (void)args;
   return 0;
-}
+} 
 
 static int mapDestroy(YWidgetState *opac)
 {

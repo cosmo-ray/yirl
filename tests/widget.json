@@ -49,18 +49,16 @@
 	"width" : 5,
 	"background": "rgba: 180 210 20 50", // Not yet implemented :)
     },
-    "MapTestResources" : {
-	"<type>" : "map-elems",
-	"elems" : [
-	    {
-		"name" : "floar",
-		"map-srite" : "bg.png",
-		"map-char" : "."
-	    },
-	    {
-		"name" : "floar",
-		"map-srite" : "head.png",
-		"map-char" : "@"
-	    }]
-    }
+    "MapTestResources" : [
+	{
+	    "name" : "floar",
+	    "map-srite" : "bg.png",
+	    "map-char" : "."
+	},
+	{
+	    "name" : "pj", // for text screen ?
+	    "map-srite" : "head.png", // sdl map
+	    "map-char" : "@" // curses map
+	}
+    ]
 }
