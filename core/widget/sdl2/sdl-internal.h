@@ -69,7 +69,7 @@ int sdlPrintText(SDLWid *wid,
 		 SDL_Color color,
 		 int x, int y);
 
-int sdlDisplaySprites(SDLWid *wid, int x, int y, char id,
-		      int spriteWidth, int spriteHeight, int thresholdX);
+int sdlDisplaySprites(SDLWid *wid, int x, int y, Entity *elem,
+		      int w, int h, int thresholdX);
 
 #endif

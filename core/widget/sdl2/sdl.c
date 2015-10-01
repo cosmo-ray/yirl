@@ -340,14 +340,28 @@ void sdlWidDestroy(YWidgetState *wid, int t)
   g_free(swid);
 }
 
-int sdlDisplaySprites(SDLWid *wid, int x, int y, char id,
+int sdlDisplaySprites(SDLWid *wid, int x, int y, Entity *elem,
 		      int w, int h, int thresholdX)
 {
-  char str[2] = {id, 0};
   SDL_Color color = {0,0,0,255};
+  SDL_Rect DestR;
+  const char *path = yeGetString(yeGet(elem, "map-srite"));
+  SDL_Surface *image = path ? IMG_Load(path) : NULL;
 
-  (void)w;
-  (void)h;
-  (void)thresholdX;
-  return sdlPrintText(wid, str, 2, color, x * w, y * h);
+
+  if (image) {
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(sg.renderer, image);
+
+    DestR.x = x * w + wid->rect.x + thresholdX;
+    DestR.y = y * h + wid->rect.y;
+    DestR.w = w;
+    DestR.h = h;
+    SDL_RenderCopy(sg.renderer, texture, NULL, &DestR);
+    SDL_DestroyTexture(texture);
+    SDL_FreeSurface(image);
+  } else {
+    return sdlPrintText(wid, yeGetString(yeGet(elem, "map-char")),
+			2, color, x * w, y * h);
+  }
+  return 0;
 }

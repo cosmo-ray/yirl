@@ -52,7 +52,8 @@ static int sdl2Render(YWidgetState *state, int t)
   for (unsigned int i = 0; i < lenMap; ++i)
     {
       Entity *mapCase = yeGet(map, i);
-      int id = yeGetInt(yeGet(mapCase, yeLen(mapCase) - 1)) + '0';
+      int id = yeGetInt(yeGet(mapCase, yeLen(mapCase) - 1));
+      Entity *curRes = yeGet(ywMapGetResources(state), id);
 
       if (curx >= wMap)
 	{
@@ -60,7 +61,7 @@ static int sdl2Render(YWidgetState *state, int t)
 	  ++cury;
 	}
 
-      sdlDisplaySprites(wid, curx, cury, id,
+      sdlDisplaySprites(wid, curx, cury, curRes,
 			SIZE_SPRITE_W, SIZE_SPRITE_H, 0);
       ++curx;
     }
