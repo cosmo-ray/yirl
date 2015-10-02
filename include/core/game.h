@@ -43,6 +43,9 @@ typedef struct {
   GList *rConf;
 } GameConfig;
 
+int ygInitGameConfig(GameConfig *cfg, const char *path, RenderType t);
+
+void ygCleanGameConfig(GameConfig *cfg);
 
 int ygInit(GameConfig *config);
 
