@@ -99,6 +99,7 @@ typedef struct WidgetState_ {
   YWidPos pos;
   int type;
   int rendableType;  
+  unsigned int hasChange;
 } YWidgetState;
 
 int ywidBgConfFill(Entity *entity, YBgConf *cfg);

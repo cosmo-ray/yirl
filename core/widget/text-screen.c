@@ -63,9 +63,9 @@ static int tsRend(YWidgetState *opac)
 {
   int ret = 0;
 
-  if (((YTextScreenState *)opac)->hasChange)
+  if (opac->hasChange)
     ret = ywidGenericRend(opac, t);
-  ((YTextScreenState *)opac)->hasChange = 0;
+  opac->hasChange = 0;
   return ret;
 }
 
@@ -79,7 +79,7 @@ static void *alloc(void)
   wstate->destroy = tsDestroy;
   wstate->handleEvent = tsEvent;
   wstate->type = t;
-  ret->hasChange = 1;
+  wstate->hasChange = 1;
   return  ret;
 }
 

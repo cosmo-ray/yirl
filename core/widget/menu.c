@@ -25,7 +25,6 @@ static int t = -1;
 typedef struct {
   YWidgetState sate;
   unsigned int current;
-  unsigned int hasChange;
   int moveSinIdx;
   int actionSin0;
 } YMenuState;
@@ -104,7 +103,7 @@ static int mnDestroy(YWidgetState *opac)
 static int mnRend(YWidgetState *opac)
 {
   int ret = ywidGenericRend(opac, t);  
-  ((YMenuState *)opac)->hasChange = 0;
+  opac->hasChange = 0;
   return ret;
 }
 
@@ -135,7 +134,7 @@ static InputStatue mnEvent(YWidgetState *opac, YEvent *event)
     ywidCallSignal(opac, event, NULL,  ((YMenuState *)opac)->moveSinIdx);
   }
 
-  ((YMenuState *)opac)->hasChange = 1;
+  opac->hasChange = 1;
  exit:
   g_free(event);
   return ret;
@@ -155,13 +154,12 @@ static void *alloc(void)
   wstate->handleEvent = mnEvent;
   wstate->type = t;
   wstate->signals = g_array_new(1, 1, sizeof(YSignal *));
-  ret->hasChange = 1;
   return  ret;
 }
 
 int ywMenuHasChange(YWidgetState *opac)
 {
-  return ((YMenuState *)opac)->hasChange;
+  return opac->hasChange;
 }
 
 int ywMenuGetCurrent(YWidgetState *opac)

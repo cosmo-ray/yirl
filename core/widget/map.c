@@ -49,8 +49,10 @@ static InputStatue mapEvent(YWidgetState *opac, YEvent *event)
   if (!event)
     event = ywidGenericWaitEvent();
 
-  if (!event)
+  if (!event) {
+    opac->hasChange = 0;
     return NOTHANDLE;
+  }
 
   if (event->key == Y_ESC_KEY) {
     ret = ACTION;
@@ -70,7 +72,8 @@ static InputStatue mapEvent(YWidgetState *opac, YEvent *event)
   /*     ((YMapState *)opac)->current = yeLen(yeGet(opac->entity, "entries")) - 1; */
 
   /* } */
-
+  /* if (ret == NOTHANDLE) */
+  opac->hasChange = ret == NOTHANDLE ? 0 : 1;
   g_free(event);
   return ret;
 }
@@ -78,8 +81,7 @@ static InputStatue mapEvent(YWidgetState *opac, YEvent *event)
 
 int ywMapHasChange(YWidgetState *state)
 {
-  (void)state;
-  return 1;
+  return state->hasChange;
 }
 
 static void *alloc(void)

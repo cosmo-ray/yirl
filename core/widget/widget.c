@@ -181,6 +181,7 @@ static YWidgetState *ywidNewWidgetInternal(int t,
     goto error;
   if (ret->init(ret, entity, args))
     goto error;
+  ret->hasChange = 1;
   return ret;
  error:
   ret->destroy(ret);
