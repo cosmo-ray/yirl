@@ -18,27 +18,82 @@
 #ifndef _LUA_BINDING_H_
 #define _LUA_BINDING_H_
 
+#include "script.h"
 #include <lualib.h>
 
+/* love lua */
 int	luaYAnd(lua_State *L);
-int	luaPrintableName(lua_State *L);
+
+/* Array */
 int	luaGet(lua_State *L);
 int	luaLen(lua_State *L);
-int	luaCopy(lua_State *L);
 int	luaCreateArray(lua_State *L);
 int	luaPopBack(lua_State *L);
 int	luaPushBack(lua_State *L);
-int	luaGetString(lua_State *L);
-int	luaGetInt(lua_State *L);
-int	luaGetFloat(lua_State *L);
-int	luaSetFunction(lua_State *L);
-int	luaSetInt(lua_State *L);
-int	luaSetFloat(lua_State *L);
 int	luaRemoveChild(lua_State *L);
-int	luaUnsetFunction(lua_State *L);
-int	luaFunctionNumberArgs(lua_State *L);
+
+/* Entity */
+int	luaCopy(lua_State *L);
 int	luaType(lua_State *L);
 
+/* string */
+int	luaGetString(lua_State *L);
+int	luaCreateString(lua_State *L);
 
+/* int */
+int	luaGetInt(lua_State *L);
+int	luaSetInt(lua_State *L);
+int	luaCreateInt(lua_State *L);
+
+/* float */
+int	luaGetFloat(lua_State *L);
+int	luaSetFloat(lua_State *L);
+int	luaCreateFloat(lua_State *L);
+
+/* Function */
+int	luaSetFunction(lua_State *L);
+int	luaUnsetFunction(lua_State *L);
+int	luaFunctionNumberArgs(lua_State *L);
+
+#define YES_RET_IF_FAIL(OPERATION)		\
+  if (OPERATION < 0) return -1;
+
+static inline int	yesLuaRegister(void *sm)
+{
+  /*love lua*/
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yAnd", luaYAnd));
+
+  /*array*/
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeGet", luaGet));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeLen", luaLen));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeCreateArray", luaCreateArray));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yePushBack", luaPushBack));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yePopBack", luaPopBack));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeRemoveChild", luaRemoveChild));
+
+  /* Entity */
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeCopy", luaCopy));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeType", luaType));
+
+  /* string */
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeGetString", luaGetString));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeCreateString", luaCreateString));
+
+
+  /* int */
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeGetInt", luaGetInt));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeSetInt", luaSetInt));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeCreateInt", luaCreateInt));
+
+
+  /* float */
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeGetFloat", luaGetFloat));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeSetFloat", luaSetFloat));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeCreateFloat", luaCreateFloat));
+
+  return 0;
+}
+
+#undef YES_RET_IF_FAIL
 
 #endif

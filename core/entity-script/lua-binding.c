@@ -25,30 +25,6 @@ int	luaYAnd(lua_State *L)
   return (1);
 }
 
-/* int	luaGetObject(lua_State *L) */
-/* { */
-/*   if (lua_gettop(L) != 2 || !lua_isstring (L, 1) || !lua_isstring (L, 2)) */
-/*     { */
-/*       DPRINT_ERR("function arguments are incorect\n" */
-/* 	     "real prototyre is: getEntity(string objType, string objName)"); */
-/*       return (-1); */
-/*     } */
-/*   lua_pushlightuserdata(L, getObject(lua_tostring (L, 1), lua_tostring (L, 2))); */
-/*   return (1); */
-/* } */
-
-/* int	luaGetEntityByName(lua_State *L) */
-/* { */
-/*   if (lua_gettop(L) != 1 || !lua_isstring (L, 1)) */
-/*     { */
-/*       DPRINT_ERR("function arguments are incorect\n" */
-/* 	     "real prototyre is: getEntityByName(string objName)"); */
-/*       return -1; */
-/*     } */
-/*   lua_pushlightuserdata(L, getEntityByName(lua_tostring (L, 1))); */
-/*   return 1; */
-/* } */
-
 
 int	luaGet(lua_State *L)
 {
@@ -56,7 +32,7 @@ int	luaGet(lua_State *L)
     goto error;
   }
   if (lua_isstring(L, 2)) {
-    lua_pushlightuserdata(L, yeGetByStr(((Entity *)lua_topointer(L, 1)),
+    lua_pushlightuserdata(L, yeGetByStrFast(((Entity *)lua_topointer(L, 1)),
 					lua_tostring (L, 2)));
     return 1;
   } else if (lua_isnumber(L, 2)) {
@@ -100,15 +76,41 @@ int	luaCopy(lua_State *L)
 
 int	luaCreateArray(lua_State *L)
 {
-  DPRINT_INFO("enter luaCreateArray\n");
-  if (lua_gettop(L) != 2)
-    {
-      DPRINT_ERR("function arguments are incorect\n"
-	     "real prototyre is: yeCreateArray(int type, lightuserdata father)\n");
-      return -1;
-    }
-  lua_pushlightuserdata(L, yeCreateArray((Entity *)lua_topointer(L, 2),
-					 lua_tostring(L, 1)));
+  lua_pushlightuserdata(L, yeCreateArray((Entity *)lua_topointer(L, 1),
+					 lua_tostring(L, 2)));
+  return 1;
+}
+
+int	luaCreateString(lua_State *L)
+{
+  if (!lua_isstring(L, 1)) {
+    DPRINT_ERR("missing string");
+  }
+  lua_pushlightuserdata(L, yeCreateString(lua_tostring(L, 1),
+					  (Entity *)lua_topointer(L, 2),
+					  lua_tostring(L, 3)));
+  return 1;
+}
+
+int	luaCreateInt(lua_State *L)
+{
+  if (!lua_isnumber(L, 1)) {
+    DPRINT_ERR("missing string");
+  }
+  lua_pushlightuserdata(L, yeCreateInt((int)lua_tonumber(L, 1),
+				       (Entity *)lua_topointer(L, 2),
+				       lua_tostring(L, 3)));
+  return 1;
+}
+
+int	luaCreateFloat(lua_State *L)
+{
+  if (!lua_isnumber(L, 1)) {
+    DPRINT_ERR("missing string");
+  }
+  lua_pushlightuserdata(L, yeCreateFloat(lua_tonumber(L, 1),
+					 (Entity *)lua_topointer(L, 2),
+					 lua_tostring(L, 3)));
   return 1;
 }
 
@@ -234,18 +236,6 @@ int	luaRemoveChild(lua_State *L)
 }
 
 
-/* int	luaAddEntity(lua_State *L) */
-/* { */
-/*   if (lua_gettop(L) != 2) */
-/*     { */
-/*       DPRINT_ERR("function arguments are incorect\n" */
-/* 	     "real prototyre is: addEntity(string objType, string objName)\n"); */
-/*       return (-1); */
-/*     } */
-/*   lua_pushlightuserdata(L, addEntity(lua_tostring(L, 1), lua_tostring(L, 2))); */
-/*   return (1); */
-/* } */
-
 int	luaUnsetFunction(lua_State *L)
 {
   DPRINT_INFO("enter luaUnsetFunction\n");
@@ -258,102 +248,6 @@ int	luaUnsetFunction(lua_State *L)
   yeUnsetFunction(YE_TO_ENTITY(lua_topointer(L, 1)));
   return (0);
 }
-
-/* int	luaEndGame(lua_State *) */
-/* { */
-/*   endGame(true); */
-/*   return (0);   */
-/* } */
-
-/* int	luaNameCall(lua_State *L) */
-/* { */
-/*   int	nArg = lua_gettop(L); */
-/*   const char *name; */
-/*   if (nArg < 1) */
-/*     { */
-/*       DPRINT_ERR("error in callByName\n" */
-/* 		 "Prototype is callByName(name, ...)"); */
-/*       return (-1); */
-/*     } */
-
-/*   name = lua_tostring(L, 1); */
-/*   switch (nArg) */
-/*     { */
-/*     case 1: */
-/*       DPRINT_INFO("callByName 0 args"); */
-/*       lua_pushlightuserdata(L, callByName(name, 0)); */
-/*       return (1); */
-/*     case 2: */
-/*       DPRINT_INFO("callByName 1 args"); */
-/*       lua_pushlightuserdata(L, callByName(name, 1, */
-/* 				    T_E(lua_topointer(L, 2)))); */
-/*       return (1); */
-/*     case 3: */
-/*       DPRINT_INFO("callByName 2 args"); */
-/*       lua_pushlightuserdata(L, callByName(name, 2, */
-/* 				    T_E(lua_topointer(L, 2)), */
-/* 				    T_E(lua_topointer(L, 3)))); */
-/*       return (1); */
-/*     default: */
-/*       /\* a good api is always nice with his user(but hey it's lua :) ) *\/ */
-/*       DPRINT_ERR("screw you"); */
-/*     } */
-/*   return (-1); */
-/* } */
-
-/* int	luaCall(lua_State *L) */
-/* { */
-/*   int	nArg = lua_gettop(L); */
-/*   if (!nArg) */
-/*     { */
-/*       DPRINT_ERR("error in luaCall: missing function entity\n"); */
-/*       return (-1); */
-/*     }  */
-
-/*   if (!lua_topointer(L, 1)) */
-/*     return (-1); */
-/*   int	entityNArg = getFunctionNumberArgs(T_CE(lua_topointer(L, 1))); */
-/*   (void)entityNArg; */
-/*   DPRINT_INFO("call with nArg %d %d\n", nArg, entityNArg); */
-
-/*   // DPRINT_ERR("something went really wrong $d $d", nArg, ); */
-
-/*   switch (nArg) */
-/*     { */
-/*     case 1: */
-/*       DPRINT_INFO("call 0 args"); */
-/*       lua_pushlightuserdata(L, call(T_F(lua_topointer(L, 1)))); */
-/*       return (1); */
-/*     case 2: */
-/*       DPRINT_INFO("call 1 args"); */
-/*       lua_pushlightuserdata(L, call(T_F(lua_topointer(L, 1)), */
-/* 				    T_E(lua_topointer(L, 2)))); */
-/*       return (1); */
-/*     case 3: */
-/*       DPRINT_INFO("call 2 args"); */
-/*       lua_pushlightuserdata(L, call(T_F(lua_topointer(L, 1)), */
-/* 				    T_E(lua_topointer(L, 2)), */
-/* 				    T_E(lua_topointer(L, 3)))) ; */
-/*       return (1); */
-/*     default: */
-/*       DPRINT_ERR("screw you"); */
-/*     } */
-/*   return (-1); */
-/* } */
-
-/* int    	luaPushChangeWidgetEvent(lua_State *L) */
-/* { */
-/*   if (lua_gettop(L) != 2 || !lua_islightuserdata (L, 1) || !lua_islightuserdata (L, 2)) */
-/*     { */
-/*       DPRINT_ERR("function arguments are incorect\n" */
-/* 		 "real prototyre is: pushChangeWidgetEvent(lightuserdata entity, lightuserdata toSet)\n"); */
-/*       return -1; */
-/*     } */
-
-/*   pushChangeWidgetEvent((StructEntity *)lua_topointer(L, 1), (StructEntity *)lua_topointer(L, 2)); */
-/*   return 0; */
-/* } */
-
 int	luaFunctionNumberArgs(lua_State *L)
 {
   int	nArg = lua_gettop(L);
@@ -375,30 +269,3 @@ int	luaType(lua_State *L)
   lua_pushnumber(L, yeType(YE_TO_ENTITY(lua_topointer(L, 1))));
   return 1;
 }
-
-/* int	luaSetTimeType(lua_State *L) */
-/* { */
-/*   DPRINT_INFO("luaSetInt\n");   */
-/*   if (lua_gettop(L) != 1 || !lua_isnumber (L, 1)) */
-/*     { */
-/*       DPRINT_ERR("function arguments are incorect\n" */
-/* 	     "real prototyre is: luaSetTimeType(int type)\n"); */
-/*       return -1; */
-/*     } */
-/*   setTimeType(lua_tonumber(L, 1)); */
-/*   return 0; */
-/* } */
-
-/* int	luaPlaySound(lua_State *L) */
-/* { */
-/*   if (lua_gettop(L) != 1 || !lua_isstring (L, 1)) */
-/*     { */
-/*       DPRINT_ERR("function arguments are incorect\n" */
-/* 		 "real prototyre is: playSound(string PathFile)"); */
-/*       return (-1); */
-/*     } */
-/*   static std::vector<MgrSound *> test; */
-/*   test.push_back(new MgrSound()); */
-/*   test[test.size()-1]->play(lua_tostring(L, 1)); */
-/*   return (0);   */
-/* } */
