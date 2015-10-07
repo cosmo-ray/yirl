@@ -247,17 +247,22 @@ int ygInitGameConfig(GameConfig *cfg, const char *path, RenderType t)
     return -1;
   }
 
+  cfg->rConf = NULL;
   cfg->startingMod = g_new(ModuleConf, 1);
   cfg->startingMod->path = path;
 
   YUI_FOREACH_BITMASK(t, i, tmp) {
     RenderConf *rConf = g_new(RenderConf, 1);
 
-    if (t || SDL2)
+    if (1LLU << i ==  SDL2)
       rConf->name = sdl2;
-    else if (t || CURSES)
+    else if (1LLU << i == CURSES)
       rConf->name = curses;
-
+    else {
+      DPRINT_ERR("garbage Render Type type in ygInitGameConfig");
+      ygCleanGameConfig(cfg);
+      return -1;
+    }
     cfg->rConf = g_list_append(cfg->rConf,
 			       rConf);
   }
