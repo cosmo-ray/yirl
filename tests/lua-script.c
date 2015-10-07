@@ -20,6 +20,8 @@
 #include "tests.h"
 #include "lua-script.h"
 #include "lua-convert.h"
+#include "lua-binding.h"
+#include "entity-script.h"
 
 static void *addPtr(const void *arg1, const void *arg2)
 {
@@ -46,8 +48,8 @@ void testLuaScritLifecycle(void)
   g_assert(!ysRegistreFunc(sm, "addPtr", luaAddPtr));
   g_assert((long)ysCall(sm, "addPtr", 2, 1, 2) == 3);
 
-  g_assert(!ysRegistreFunc(sm, "toNbr", luaToNumber));
-  g_assert(!ysRegistreFunc(sm, "toPtr", luaToPtr));
+  g_assert(!ysRegistreFunc(sm, "toNbr", luaPtrToNumber));
+  g_assert(!ysRegistreFunc(sm, "toPtr", luaNbrToPtr));
 
   if (ysLoadFile(sm, TESTS_PATH"/simple.lua")) {
     ysPrintError(sm);
@@ -58,4 +60,30 @@ void testLuaScritLifecycle(void)
 
   g_assert(!ysDestroyManager(sm));
   g_assert(!ysLuaEnd());
+}
+
+void testLuaScritEntityBind(void)
+{
+  Entity *ret;
+  void *sm;
+
+  g_assert(!ysLuaInit());
+  sm = ysNewManager(NULL, 0);
+  yesLuaRegister(sm);
+  g_assert(sm);
+
+  if (ysLoadFile(sm, TESTS_PATH"/test-entity.lua")) {
+    ysPrintError(sm);
+    g_assert(0);
+  }
+  ret = ysCall(sm, "yeCreateArray", 0);
+  g_assert(ret);
+  g_assert(yeType(ret) == YARRAY);
+  YE_DESTROY(ret);
+  ret = ysCall(sm, "createString", 1, "tests");
+  g_assert(ret);
+  g_assert(yeType(ret) == YSTRING);
+  g_assert(yuiStrEqual(yeGetString(ret), "tests"));
+  YE_DESTROY(ret);
+  g_assert(!ysLuaEnd());  
 }

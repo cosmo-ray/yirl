@@ -73,7 +73,7 @@ static void *luaCall(void *sm, const char *name, int nbArg, va_list *ap)
       lua_pushlightuserdata(l, tmp);
     }
   lua_call(l, nbArg, 1);
-  return (void *)lua_topointer(l, 1);
+  return (void *)lua_topointer(l, lua_gettop(l));
 }
 
 static int luaDestroy(void *sm)

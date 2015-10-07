@@ -29,12 +29,13 @@ int main(int argc, char **argv)
   g_test_add_func("/entity/lifecycle/flow", testLifecycleFlow);
   g_test_add_func("/entity/lifecycle/complex", testLifecycleComplex);
   g_test_add_func("/entity/lifecycle/awakware", testLifecycleAwakwar);
+
   g_test_add_func("/entity/setunset/simple", testSetSimple);
   g_test_add_func("/entity/setunset/complex", testSetComplex);
   g_test_add_func("/entity/setunset/generic", testSetGeneric);
 
-  g_test_add_func("/script/luaScript/lifecycle", testLuaScritLifecycle);
-
+  g_test_add_func("/script/lua/lifecycle", testLuaScritLifecycle);
+  g_test_add_func("/script/lua/entity", testLuaScritEntityBind);
   g_test_add_func("/parser/json/simple-file", testJsonLoadFile);
   g_test_add_func("/parser/json/complex-file", testJsonMultipleObj);
 

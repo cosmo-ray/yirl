@@ -28,6 +28,7 @@ void testSetComplex(void);
 void testSetGeneric(void);
 
 void testLuaScritLifecycle(void);
+void testLuaScritEntityBind(void);
 
 void testJsonLoadFile(void);
 void testJsonMultipleObj(void);

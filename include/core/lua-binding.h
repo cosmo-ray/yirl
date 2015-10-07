@@ -19,6 +19,7 @@
 #define _LUA_BINDING_H_
 
 #include "script.h"
+#include "lua-convert.h"
 #include <lualib.h>
 
 /* love lua */
@@ -60,9 +61,14 @@ int	luaFunctionNumberArgs(lua_State *L);
 
 static inline int	yesLuaRegister(void *sm)
 {
-  /*love lua*/
+  /* I love lua */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yAnd", luaYAnd));
 
+  /* Lua conceptor should love me */
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yloveNbrToPtr", luaNbrToPtr));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ylovePtrToString", luaPtrToString));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yLovePtrToNumber", luaPtrToNumber));
+  
   /*array*/
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeGet", luaGet));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeLen", luaLen));

@@ -17,5 +17,6 @@
 
 #include "lua-script.h"
 
-int     luaToNumber(lua_State *l);
-int     luaToPtr(lua_State *l);
+int     luaNbrToPtr(lua_State *l);
+int     luaPtrToString(lua_State *l);
+int     luaPtrToNumber(lua_State *l);

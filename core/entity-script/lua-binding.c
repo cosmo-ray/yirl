@@ -85,10 +85,12 @@ int	luaCreateString(lua_State *L)
 {
   if (!lua_isstring(L, 1)) {
     DPRINT_ERR("missing string");
+    return -1;
   }
-  lua_pushlightuserdata(L, yeCreateString(lua_tostring(L, 1),
-					  (Entity *)lua_topointer(L, 2),
-					  lua_tostring(L, 3)));
+  Entity *ret = yeCreateString(lua_tostring(L, 1),
+			       (Entity *)lua_topointer(L, 2),
+			       lua_tostring(L, 3));
+  lua_pushlightuserdata(L, ret);
   return 1;
 }
 
@@ -96,6 +98,7 @@ int	luaCreateInt(lua_State *L)
 {
   if (!lua_isnumber(L, 1)) {
     DPRINT_ERR("missing string");
+    return -1;
   }
   lua_pushlightuserdata(L, yeCreateInt((int)lua_tonumber(L, 1),
 				       (Entity *)lua_topointer(L, 2),
@@ -107,6 +110,7 @@ int	luaCreateFloat(lua_State *L)
 {
   if (!lua_isnumber(L, 1)) {
     DPRINT_ERR("missing string");
+    return -1;
   }
   lua_pushlightuserdata(L, yeCreateFloat(lua_tonumber(L, 1),
 					 (Entity *)lua_topointer(L, 2),

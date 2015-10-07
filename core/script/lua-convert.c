@@ -17,14 +17,20 @@
 
 #include "lua-convert.h"
 
-int     luaToNumber(lua_State *l)
+int     luaPtrToNumber(lua_State *l)
 {
   lua_pushnumber(l, (long)lua_topointer(l, 1));
-  return (1);
+  return 1;
 }
 
-int     luaToPtr(lua_State *l)
+int     luaPtrToString(lua_State *l)
+{
+  lua_pushstring(l, (char *)lua_topointer(l, 1));
+  return 1;
+}
+
+int     luaNbrToPtr(lua_State *l)
 {
   lua_pushlightuserdata(l, (void *)lua_tointeger(l, 1));
-  return (1);
+  return 1;
 }
