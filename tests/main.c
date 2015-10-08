@@ -23,7 +23,26 @@
 
 int main(int argc, char **argv)
 {
+  int no_wid = 0;
+  GOptionContext *ctx;
+  const GOptionEntry entries[] = {{"no-widget", 0, 0,  G_OPTION_ARG_NONE, &no_wid,
+				   "don't test gui(usefull for perf)", NULL},
+				  {NULL}};
+  GError *error = NULL;
+
+  ctx = g_option_context_new(NULL);
+  g_option_context_set_help_enabled(ctx, 1);
+  g_option_context_add_main_entries(ctx, entries, NULL);
+  if (!g_option_context_parse(ctx, &argc, &argv, &error)) {
+    printf("option parsing failed: %s\n", error->message);
+    g_option_context_free(ctx);
+    return 1;
+  }
+  g_option_context_free(ctx);
+
+  // TODO: add [MY-OPTIONS] -- [TEST-OPTIONS] like syntaxe
   g_test_init(&argc, &argv, NULL);
+
   yuiDebugInit();
   g_test_add_func("/entity/lifecycle/simple", testLifecycleSimple);
   g_test_add_func("/entity/lifecycle/flow", testLifecycleFlow);
@@ -38,8 +57,10 @@ int main(int argc, char **argv)
   g_test_add_func("/script/lua/entity", testLuaScritEntityBind);
   g_test_add_func("/parser/json/simple-file", testJsonLoadFile);
   g_test_add_func("/parser/json/complex-file", testJsonMultipleObj);
+  if (no_wid)
+    goto run_test;
 
-  #ifdef WITH_CURSES
+#ifdef WITH_CURSES
   g_test_add_func("/widget/lifecycle/curses", testCursesLife);
   g_test_add_func("/widget/textScreen/curses", testYWTextScreenCurses);
   g_test_add_func("/widget/menu/curses", testYWMenuCurses);
@@ -57,6 +78,7 @@ int main(int argc, char **argv)
   #endif
   #endif
 
+ run_test:
   g_test_run();
   yuiDebugExit();
 }
