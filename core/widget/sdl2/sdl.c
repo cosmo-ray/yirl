@@ -287,10 +287,10 @@ static int sdlPrintLine(SDLWid *wid,
       text = SDL_CreateTextureFromSurface(renderer, textSurface);
       text_width = textSurface->w;
       text_height = textSurface->h;
-      SDL_FreeSurface(textSurface);
       if (i == 0)
 	y += textSurface->h * line;	
 
+      SDL_FreeSurface(textSurface);
       SDL_Rect renderQuad = { x, y, text_width, text_height };
       SDL_RenderCopy(renderer, text, NULL, &renderQuad);
       SDL_DestroyTexture(text);
