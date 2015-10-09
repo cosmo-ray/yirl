@@ -86,7 +86,7 @@ static int luaDestroy(void *sm)
 static void *luaAllocator(void)
 {
   YScriptLua *ret;
-  
+
   ret = g_new(YScriptLua, 1);
   if (ret == NULL)
     return NULL;

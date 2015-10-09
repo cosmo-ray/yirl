@@ -263,7 +263,9 @@ static void yeRemoveFather(Entity *entity, Entity *father)
 static void destroyChilds(Entity *entity)
 {
   for (int i = 0, end = yeLen(entity); i < end; ++i) {
-    Entity *tmp = yeGet(entity, i);
+    ArrayEntry *ae = yeGetArrayEntryByIdx(entity, i);
+    g_free(ae->name);
+    Entity *tmp = ae->entity;
     yeRemoveFather(tmp, entity);
     yeDestroyInternal(tmp);
   }

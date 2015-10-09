@@ -85,5 +85,6 @@ void testLuaScritEntityBind(void)
   g_assert(yeType(ret) == YSTRING);
   g_assert(yuiStrEqual(yeGetString(ret), "tests"));
   YE_DESTROY(ret);
-  g_assert(!ysLuaEnd());  
+  g_assert(!ysDestroyManager(sm));
+  g_assert(!ysLuaEnd());
 }
