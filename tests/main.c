@@ -17,16 +17,25 @@
 
 #include <stdlib.h>
 #include <glib.h>
+#include <string.h>
 #include "entity.h"
 #include "debug.h"
 #include "tests.h"
 
+#define TEST_TRY_ADD(name, func, only) do	{			\
+    if (!only || !strcmp(only, name))					\
+      g_test_add_func(name, func);					\
+  } while (0)
+
 int main(int argc, char **argv)
 {
   int no_wid = 0;
+  char *only = NULL;
   GOptionContext *ctx;
   const GOptionEntry entries[] = {{"no-widget", 0, 0,  G_OPTION_ARG_NONE, &no_wid,
 				   "don't test gui(usefull for perf)", NULL},
+				  {"just", 0, 0,  G_OPTION_ARG_STRING, &only,
+				   "jut do the given test", NULL},
 				  {NULL}};
   GError *error = NULL;
 
@@ -44,37 +53,37 @@ int main(int argc, char **argv)
   g_test_init(&argc, &argv, NULL);
 
   yuiDebugInit();
-  g_test_add_func("/entity/lifecycle/simple", testLifecycleSimple);
-  g_test_add_func("/entity/lifecycle/flow", testLifecycleFlow);
-  g_test_add_func("/entity/lifecycle/complex", testLifecycleComplex);
-  g_test_add_func("/entity/lifecycle/awakware", testLifecycleAwakwar);
+  TEST_TRY_ADD("/entity/lifecycle/simple", testLifecycleSimple, only);
+  TEST_TRY_ADD("/entity/lifecycle/flow", testLifecycleFlow, only);
+  TEST_TRY_ADD("/entity/lifecycle/complex", testLifecycleComplex, only);
+  TEST_TRY_ADD("/entity/lifecycle/awakware", testLifecycleAwakwar, only);
 
-  g_test_add_func("/entity/setunset/simple", testSetSimple);
-  g_test_add_func("/entity/setunset/complex", testSetComplex);
-  g_test_add_func("/entity/setunset/generic", testSetGeneric);
+  TEST_TRY_ADD("/entity/setunset/simple", testSetSimple, only);
+  TEST_TRY_ADD("/entity/setunset/complex", testSetComplex, only);
+  TEST_TRY_ADD("/entity/setunset/generic", testSetGeneric, only);
 
-  g_test_add_func("/script/lua/lifecycle", testLuaScritLifecycle);
-  g_test_add_func("/script/lua/entity", testLuaScritEntityBind);
-  g_test_add_func("/parser/json/simple-file", testJsonLoadFile);
-  g_test_add_func("/parser/json/complex-file", testJsonMultipleObj);
+  TEST_TRY_ADD("/script/lua/lifecycle", testLuaScritLifecycle, only);
+  TEST_TRY_ADD("/script/lua/entity", testLuaScritEntityBind, only);
+  TEST_TRY_ADD("/parser/json/simple-file", testJsonLoadFile, only);
+  TEST_TRY_ADD("/parser/json/complex-file", testJsonMultipleObj, only);
   if (no_wid)
     goto run_test;
 
 #ifdef WITH_CURSES
-  g_test_add_func("/widget/lifecycle/curses", testCursesLife);
-  g_test_add_func("/widget/textScreen/curses", testYWTextScreenCurses);
-  g_test_add_func("/widget/menu/curses", testYWMenuCurses);
-  g_test_add_func("/widget/map/curses", testYWMapCurses);
+  TEST_TRY_ADD("/widget/lifecycle/curses", testCursesLife, only);
+  TEST_TRY_ADD("/widget/textScreen/curses", testYWTextScreenCurses, only);
+  TEST_TRY_ADD("/widget/menu/curses", testYWMenuCurses, only);
+  TEST_TRY_ADD("/widget/map/curses", testYWMapCurses, only);
   #endif
   #ifdef WITH_SDL
-  g_test_add_func("/widget/lifecycle/sdl", testSdlLife);
-  g_test_add_func("/widget/textScreen/sdl", testYWTextScreenSdl2);
-  g_test_add_func("/widget/menu/sdl", testYWMenuSdl2);
-  g_test_add_func("/widget/map/sdl2", testYWMapSdl2);
+  TEST_TRY_ADD("/widget/lifecycle/sdl", testSdlLife, only);
+  TEST_TRY_ADD("/widget/textScreen/sdl", testYWTextScreenSdl2, only);
+  TEST_TRY_ADD("/widget/menu/sdl", testYWMenuSdl2, only);
+  TEST_TRY_ADD("/widget/map/sdl2", testYWMapSdl2, only);
   #ifdef WITH_CURSES
-  g_test_add_func("/widget/lifecycle/all", testAllLife);
-  g_test_add_func("/widget/textScreen/all", testYWTextScreenAll);
-  g_test_add_func("/game/all/simple", testYGameAllLibBasic);
+  TEST_TRY_ADD("/widget/lifecycle/all", testAllLife, only);
+  TEST_TRY_ADD("/widget/textScreen/all", testYWTextScreenAll, only);
+  TEST_TRY_ADD("/game/all/simple", testYGameAllLibBasic, only);
   #endif
   #endif
 
@@ -82,3 +91,5 @@ int main(int argc, char **argv)
   g_test_run();
   yuiDebugExit();
 }
+
+#undef TEST_TRY_ADD
