@@ -79,7 +79,8 @@ int main(int argc, char **argv)
   TEST_TRY_ADD("/widget/lifecycle/sdl", testSdlLife, only);
   TEST_TRY_ADD("/widget/textScreen/sdl", testYWTextScreenSdl2, only);
   TEST_TRY_ADD("/widget/menu/sdl", testYWMenuSdl2, only);
-  TEST_TRY_ADD("/widget/map/sdl2", testYWMapSdl2, only);
+  TEST_TRY_ADD("/widget/map/sdl", testYWMapSdl2, only);
+  TEST_TRY_ADD("/game/sdl/simple", testYGameSdlLibBasic, only);
   #ifdef WITH_CURSES
   TEST_TRY_ADD("/widget/lifecycle/all", testAllLife, only);
   TEST_TRY_ADD("/widget/textScreen/all", testYWTextScreenAll, only);

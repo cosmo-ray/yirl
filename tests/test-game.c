@@ -21,6 +21,18 @@
 
 static const char *testPath = "./testMod"; 
 
+void testYGameSdlLibBasic(void)
+{
+  GameConfig cfg;
+
+  g_assert(!ygInitGameConfig(&cfg, testPath, SDL2));
+  g_assert(!ygInit(&cfg));
+  g_assert(!ygStartLoop(&cfg));
+
+  ygCleanGameConfig(&cfg);
+  ygEnd();
+}
+
 void testYGameAllLibBasic(void)
 {
   GameConfig cfg;
