@@ -36,6 +36,17 @@ static GList *linkList;
 static Entity *parseGen(struct json_object *obj, const char *name,
 			Entity *father);
 
+static inline void destroyLinkInfo(LinkInfo *li)
+  __attribute__((nonnull));
+
+
+static inline void destroyLinkInfo(LinkInfo *li)
+{
+  g_free(li->refName);
+  g_free(li->targetName);
+  g_free(li);  
+}
+
 /**
  * @return 1 if the link was sucessful
  */
@@ -45,8 +56,22 @@ static int jsonLink(Entity *father, Entity *target, const char *refName,
   Entity *ret;
 
   if ((ret = yeGet(father, targetName)) != NULL) {
+    printf("pushing %s as %s in %p:\n", targetName, refName, target);
     yePushBack(target, ret, refName);
     return 1;
+  }
+  return 0;
+}
+
+static int tryLinkForeachFathers(LinkInfo *data,
+				 Entity *current)
+{
+  printf("looking for %s, set as %s\n", data->targetName, data->refName);
+  YE_FOREACH_FATHER(current, father) {
+    if (jsonLink(father, data->refFather, data->refName, data->targetName) ||
+	(father->nbFathers && tryLinkForeachFathers(data, father))) {
+      return 1;
+    }
   }
   return 0;
 }
@@ -62,17 +87,15 @@ static int jsonLinker(void)
     LinkInfo *data = cur->data;
     GList *next = cur->next;
 
-    YE_FOREACH_FATHER(data->refFather, father) {
-      if (jsonLink(father, data->refFather, data->refName, data->targetName)) {
-	g_free(data->refName);
-	g_free(data->targetName);
-	g_free(data);
-	linkList = g_list_delete_link(linkList, cur);
-	++ret;
-	break;
-      }
+    if (jsonLink(data->refFather, data->refFather,
+		 data->refName, data->targetName) ||
+	tryLinkForeachFathers(data, data->refFather)) {
+      destroyLinkInfo(data);
+      linkList = g_list_delete_link(linkList, cur);
+      ++ret;
+      goto next;
     }
-
+  next:
     cur = next;
   }
 
@@ -84,9 +107,7 @@ static void jsonClearLinker(void)
   for (GList *cur = linkList; cur != NULL; cur = cur->next) {
     LinkInfo *tmp;
     tmp = cur->data;
-    g_free(tmp->refName);
-    g_free(tmp->targetName);
-    g_free(tmp);
+    destroyLinkInfo(tmp);
   }
   g_list_free(linkList);
   linkList = NULL;
@@ -96,7 +117,7 @@ static void addLinkInfo(Entity *refFather, const char *refName,
 			const char *targetName)
 {
   LinkInfo *linkInfo = g_new(LinkInfo, 1);
-
+  
   linkInfo->refName = g_strdup(refName);
   linkInfo->targetName = g_strdup(targetName);
   linkInfo->refFather = refFather;
