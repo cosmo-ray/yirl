@@ -59,20 +59,7 @@ static InputStatue mapEvent(YWidgetState *opac, YEvent *event)
   } else if (event->key == '\n') {
     ret = ACTION;
   }
-  /*  else if (event->key == Y_DOWN_KEY) { */
-  /*   ((YMapState *)opac)->current += 1; */
-  /*   ret = NOACTION; */
-  /*   if (((YMapState *)opac)->current > yeLen(yeGet(opac->entity, "entries")) - 1) */
-  /*     ((YMapState *)opac)->current = 0; */
 
-  /* } else if (event->key == Y_UP_KEY) { */
-  /*   ((YMapState *)opac)->current -= 1; */
-  /*   ret = NOACTION; */
-  /*   if (((YMapState *)opac)->current > yeLen(yeGet(opac->entity, "entries"))) */
-  /*     ((YMapState *)opac)->current = yeLen(yeGet(opac->entity, "entries")) - 1; */
-
-  /* } */
-  /* if (ret == NOTHANDLE) */
   opac->hasChange = ret == NOTHANDLE ? 0 : 1;
   g_free(event);
   return ret;
