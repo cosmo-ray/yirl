@@ -168,7 +168,7 @@ static int ygParseStartAndGame(GameConfig *config, Entity *mainMod)
   int ret = ACTION;
 
   (void)ret;
-
+  alive = 1;
   if (checkStartingPoint(type, file, starting_widget) < 0)
     return -1;
 
