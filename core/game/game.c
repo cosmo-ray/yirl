@@ -114,6 +114,7 @@ int ygInit(GameConfig *cfg)
       CHECK_AND_RET(ysdl2RegistreTextScreen(), -1, -1,
 			"Text Screen init failed");
       CHECK_AND_RET(ysdl2RegistreMenu(), -1, -1, "Menu init failed");
+      CHECK_AND_RET(ysdl2RegistreMap(), -1, -1, "Map init failed");
 #else
       /* print error */
 #endif
@@ -188,8 +189,9 @@ static int ygParseStartAndGame(GameConfig *config, Entity *mainMod)
     return -1;
   }
 
-  wid = ywidNewWidget(starting_widget, NULL, NULL);
+  ywidSetMainWid(ywidNewWidget(starting_widget, NULL, NULL), 0);
   do {
+    wid = ywidGetMainWid();
     g_assert(ywidRend(wid) != -1);
     sched_yield();
     ywidHandleEvent(wid);

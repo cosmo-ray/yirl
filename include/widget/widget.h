@@ -107,7 +107,12 @@ int ywidBgConfFill(Entity *entity, YBgConf *cfg);
 YEvent *ywidGenericWaitEvent(void);
 YEvent *ywidGenericPollEvent(void);
 
+/**
+ * Registre a new type of widget
+ * @return: the type of the new type
+ */
 int ywidRegister(void *(*allocator)(void), const char *name);
+
 int ywidUnregiste(int t);
 
 int ywidRegistreRender(void (*resizePtr)(YWidgetState *wid, int renderType),
@@ -155,5 +160,9 @@ YWidgetState *ywidNewWidget(Entity *entity,
 			    const YWidPos *pos, void *args);
 
 void YWidDestroy(YWidgetState *wid);
+
+void ywidSetMainWid(YWidgetState *wid, int free);
+YWidgetState *ywidGetMainWid(void);
+
 
 #endif

@@ -56,7 +56,6 @@ static int jsonLink(Entity *father, Entity *target, const char *refName,
   Entity *ret;
 
   if ((ret = yeGet(father, targetName)) != NULL) {
-    printf("pushing %s as %s in %p:\n", targetName, refName, target);
     yePushBack(target, ret, refName);
     return 1;
   }
@@ -66,7 +65,6 @@ static int jsonLink(Entity *father, Entity *target, const char *refName,
 static int tryLinkForeachFathers(LinkInfo *data,
 				 Entity *current)
 {
-  printf("looking for %s, set as %s\n", data->targetName, data->refName);
   YE_FOREACH_FATHER(current, father) {
     if (jsonLink(father, data->refFather, data->refName, data->targetName) ||
 	(father->nbFathers && tryLinkForeachFathers(data, father))) {

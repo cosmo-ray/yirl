@@ -22,6 +22,8 @@
 	    {"text" : "choose 1"},
 	    {
 		"text" : "choose 2",
+		"&next" : "MapTest",
+		"action" : "next",
 		"bg" : "hello.pnj"  // Not yet implemented :)
 	    },
 	    {
@@ -31,5 +33,32 @@
 	],
 	"background": "rgba: 180 210 20 50", // Not yet implemented :)
 	"button_background": "hello.pnj" // Not yet implemented  :)
-    }
+    },
+    "MapTest" : {
+	"<type>" : "map",
+	
+	"&resources" : "MapTestResources", // Not yet implemented :)
+	"map" : [
+	    [0], [0], [0], [0], [0],
+	    [0], [0], [0], [0], [0],
+	    [0], [0], [0, 1], [0], [0],
+	    [0], [0], [0], [0], [0],
+	    [0], [0], [0], [0], [0]
+	],
+	
+	"width" : 5,
+	"background": "rgba: 180 210 20 50", // Not yet implemented :)
+    },
+    "MapTestResources" : [
+	{
+	    "name" : "floar",
+	    "map-srite" : "bg.png",
+	    "map-char" : "."
+	},
+	{
+	    "name" : "pj", // for text screen ?
+	    "map-srite" : "head.png", // sdl map
+	    "map-char" : "@" // curses map
+	}
+    ]
 }

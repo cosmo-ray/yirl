@@ -63,6 +63,24 @@ if (eve->key == Y_DOWN_KEY) {
  return NOTHANDLE;
 }
 
+static int nmMenuNext(YWidgetState *wid, YEvent *eve, Entity *arg)
+{
+  Entity *next = yeGet(wid->entity, "entries");
+  YWidgetState *newWid;
+
+  next = yeGet(next, ((YMenuState *)wid)->current);
+  next = yeGet(next, "next");
+  (void)eve;
+  (void)arg;
+
+  if (!next)
+    return BUG;
+  if ((newWid = ywidNewWidget(next, NULL, NULL)) == NULL)
+    return BUG;
+  ywidSetMainWid(newWid, 0);
+  return ACTION;
+}
+
 #define yeForeach(entity, idx, entry)					\
   Entity *entry = yeGet(entity, 0);					\
   for (int idx = 0; (entry = yeGet(entries, idx)); ++idx)
@@ -173,6 +191,7 @@ int ywMenuInit(void)
     return t;
   t = ywidRegister(alloc, "menu");
   ywinAddCallback(ywinCreateNativeCallback("menuMove", nmMenuMove));
+  ywinAddCallback(ywinCreateNativeCallback("next", nmMenuNext));
   return t;
 }
 
