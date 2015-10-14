@@ -24,12 +24,19 @@
     "MenuTest" : {
 	"<type>" : "menu",
 	"entries" : [
-	    {"text" : "choose 1"},
+	    {
+		"text" : "choose 1",
+	    	"action" : "menuTest"
+	    },
 	    {
 		"text" : "choose 2",
+		"action" : "menuTest",
 		"bg" : "hello.pnj"  // Not yet implemented :)
 	    },
-	    {"text" : "choose 3"}
+	    {
+		"text" : "choose 3",
+		"action" : "menuTest"
+	    }
 	],
 	"background": "rgba: 180 210 20 50", // Not yet implemented :)
 	"button_background": "hello.pnj" // Not yet implemented  :)

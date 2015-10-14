@@ -31,7 +31,8 @@ typedef enum
     BUG = -1,
     NOTHANDLE = 0,
     NOACTION = 1,
-    ACTION = 2
+    ACTION = 2,
+    FAST_QUIT = 32 // for now, this one is a flag
   } InputStatue;
 
 typedef enum

@@ -26,6 +26,14 @@
 #include "menu.h"
 #include "widget-callback.h"
 
+static int testMenuEnter(YWidgetState *wid, YEvent *eve, Entity *arg)
+{
+  (void)wid;
+  (void)eve;
+  (void)arg;
+  return ACTION;
+}
+
 #ifdef WITH_CURSES
 void testYWMenuCurses(void)
 {
@@ -36,6 +44,7 @@ void testYWMenuCurses(void)
 
   /* load files */
   g_assert(ywidInitCallback() >= 0);
+  ywinAddCallback(ywinCreateNativeCallback("menuTest", testMenuEnter));
   g_assert(t != -1);
   g_assert(ydJsonGetType() == t);
   jsonManager = ydNewManager(t);
@@ -81,6 +90,7 @@ void testYWMenuSdl2(void)
 
   /* load files */
   ywidInitCallback();
+  ywinAddCallback(ywinCreateNativeCallback("menuTest", testMenuEnter));
   g_assert(t != -1);
   g_assert(ydJsonGetType() == t);
   jsonManager = ydNewManager(t);
