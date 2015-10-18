@@ -92,9 +92,9 @@ static int mnInit(YWidgetState *opac, Entity *entity, void *args)
   Entity *entries = yeGet(entity, "entries");
 
   opac->entity = entity;
+  ywidGenericInit(opac, t);
   state->moveSinIdx = ywidAddSignal(opac, "move");
   ywidBind(opac, "move", "menuMove");
-  ywidGenericInit(opac, t);
   state->actionSin0 = state->moveSinIdx + 1;
   yeForeach(entries, i, entry) {
     char *tmp = g_strdup_printf("action-%d", i);
@@ -113,7 +113,6 @@ static int mnInit(YWidgetState *opac, Entity *entity, void *args)
 
 static int mnDestroy(YWidgetState *opac)
 {
-  ywidFinishSignal(opac);
   g_free(opac);
   return 0;
 }
@@ -169,7 +168,6 @@ static void *alloc(void)
   wstate->destroy = mnDestroy;
   wstate->handleEvent = mnEvent;
   wstate->type = t;
-  wstate->signals = g_array_new(1, 1, sizeof(YSignal *));
   return  ret;
 }
 
@@ -185,6 +183,7 @@ int ywMenuGetCurrent(YWidgetState *opac)
 
 int ywMenuInit(void)
 {
+  ywidInitCallback();
   if (t != -1)
     return t;
   t = ywidRegister(alloc, "menu");

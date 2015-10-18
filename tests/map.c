@@ -17,6 +17,7 @@
 
 #include <glib.h>
 #include "curses-driver.h"
+#include "widget-callback.h"
 #include "sdl-driver.h"
 #include "json-desc.h"
 #include "entity.h"
@@ -24,6 +25,25 @@
 #include "map.h"
 
 #ifdef WITH_CURSES
+
+/* static unsigned int testMapPosToIdx(int w, int x, int y) */
+/* { */
+/*   return w * y + x; */
+/* } */
+
+static int testMapEnter(YWidgetState *wid, YEvent *eve, Entity *arg)
+{
+  /* Entity *mapEnt = yeGet(wid->entity, "map"); */
+  /* int w = yeToInt(yeGet(mapEnt, "width")); */
+
+  /* g_assert(yeGetInt(yeGet(arg, "x")) == 2); */
+  /* g_assert(yeGetInt(yeGet(arg, "y")) == 2); */
+  /* g_assert(yeGet(yeGet(mapEnt, "map"), testMapPosToIdx(w, x, y))); */
+  (void)wid;
+  (void)arg;
+  (void)eve;
+  return ACTION;
+}
 
 void testYWMapCurses(void)
 {
@@ -35,6 +55,7 @@ void testYWMapCurses(void)
   /* load files */
   g_assert(t != -1);
   g_assert(ydJsonGetType() == t);
+  g_assert(ywidInitCallback() >= 0);
   jsonManager = ydNewManager(t);
   g_assert(jsonManager != NULL);
   ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json");
@@ -50,6 +71,7 @@ void testYWMapCurses(void)
   g_assert(ycursType() == 0);
   
   g_assert(!ycursRegistreMap());
+  ywinAddCallback(ywinCreateNativeCallback("mapTest", testMapEnter));
 
   wid = ywidNewWidget(ret, NULL, NULL);
   g_assert(wid);
@@ -79,6 +101,7 @@ void testYWMapSdl2(void)
   /* load files */
   g_assert(t != -1);
   g_assert(ydJsonGetType() == t);
+  g_assert(ywidInitCallback() >= 0);
   jsonManager = ydNewManager(t);
   g_assert(jsonManager != NULL);
   ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json");
@@ -95,6 +118,7 @@ void testYWMapSdl2(void)
   
   g_assert(!ysdl2RegistreMap());
 
+  ywinAddCallback(ywinCreateNativeCallback("mapTest", testMapEnter));
   wid = ywidNewWidget(ret, NULL, NULL);
   g_assert(wid);
 

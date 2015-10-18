@@ -20,6 +20,7 @@
 #include <glib.h>
 #include <stdlib.h>
 #include "widget.h"
+#include "widget-callback.h"
 
 static YManagerAllocator widgetTab = {
   {NULL },
@@ -309,6 +310,7 @@ int ywidGenericRend(YWidgetState *opac, int widType)
 
 int ywidGenericInit(YWidgetState *opac, int widType)
 {
+  opac->signals = g_array_new(1, 1, sizeof(YSignal *));
   YUI_FOREACH_BITMASK(widgetOptTab[widType].rendersMask,
 		      i, tmask) {
     if (widgetOptTab[widType].init[i] != NULL) {
@@ -320,6 +322,7 @@ int ywidGenericInit(YWidgetState *opac, int widType)
 
 static int ywidGenericDestroy(YWidgetState *opac, int widType)
 {
+  ywidFinishSignal(opac);
   YUI_FOREACH_BITMASK(widgetOptTab[widType].rendersMask,
 		      i, tmask) {
     if (widgetOptTab[widType].destroy[i] != NULL) {

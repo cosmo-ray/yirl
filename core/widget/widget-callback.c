@@ -18,7 +18,7 @@
 #include "widget-callback.h"
 #include "utils.h"
 
-static GArray *callbacks;
+static GArray *callbacks = NULL;
 
 static inline void ywidDdestroyCallbackInt(YCallback *callback)
 {
@@ -30,8 +30,10 @@ static inline void ywidDdestroyCallbackInt(YCallback *callback)
 
 int ywidInitCallback(void)
 {
-    callbacks = g_array_new(1, 1, sizeof(YCallback *));
-    return (callbacks == NULL) * -1;
+  if (callbacks)
+    return 0;
+  callbacks = g_array_new(1, 1, sizeof(YCallback *));
+  return (callbacks == NULL) * -1;
 }
 
 void ywidFinishCallbacks(void)
@@ -42,6 +44,7 @@ void ywidFinishCallbacks(void)
        (ret = g_array_index(callbacks, YCallback *, i)) != NULL; ++i)
     ywidDdestroyCallbackInt(ret);
   g_array_free(callbacks, 0);
+  callbacks = NULL;
 }
 
 
@@ -135,7 +138,7 @@ int ywidBindBySinIdx(YWidgetState *wid, int idx, const char *callback)
 int ywidBind(YWidgetState *wid, const char *signal, const char *callback)
 {
   YSignal *sin = getSinByStr(wid, signal);
-  if (!sin)
+  if (!sin || !callback)
     return -1;
 
   sin->callbackIdx = getCallbackIdx(callback);

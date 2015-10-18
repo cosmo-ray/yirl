@@ -17,21 +17,31 @@
 
 #include <glib.h>
 #include "map.h"
+#include "widget-callback.h"
 
 static int t = -1;
 
 static int mapInit(YWidgetState *opac, Entity *entity, void *args)
 {
+  const char *action;
+
   opac->entity = entity;
   ywidGenericInit(opac, t);
 
   ((YMapState *)opac)->resources = yeGet(entity, "resources");
+  ((YMapState *)opac)->pos = yeCreateArray(NULL, NULL);
+  yeCreateInt(0, ((YMapState *)opac)->pos, "x");
+  yeCreateInt(0, ((YMapState *)opac)->pos, "y");
+  ((YMapState *)opac)->actionIdx = ywidAddSignal(opac, "action");
+  action = yeGetString(yeGet(entity, "action"));
+  ywidBind(opac, "action", action);
   (void)args;
   return 0;
 } 
 
 static int mapDestroy(YWidgetState *opac)
 {
+  YE_DESTROY(((YMapState *)opac)->pos);
   g_free(opac);
   return 0;
 }
@@ -45,7 +55,6 @@ static InputStatue mapEvent(YWidgetState *opac, YEvent *event)
 {
   InputStatue ret = NOTHANDLE;
 
-  (void)opac;
   if (!event)
     event = ywidGenericWaitEvent();
 
@@ -54,11 +63,9 @@ static InputStatue mapEvent(YWidgetState *opac, YEvent *event)
     return NOTHANDLE;
   }
 
-  if (event->key == Y_ESC_KEY) {
-    ret = ACTION;
-  } else if (event->key == '\n') {
-    ret = ACTION;
-  }
+  /* set pos */
+  ret = ywidCallSignal(opac, event, NULL,
+		       ((YMapState *)opac)->actionIdx);
 
   opac->hasChange = ret == NOTHANDLE ? 0 : 1;
   g_free(event);
@@ -88,6 +95,7 @@ return  ret;
 
 int ywMapInit(void)
 {
+  ywidInitCallback();
   if (t != -1)
     return t;
   t = ywidRegister(alloc, "map");

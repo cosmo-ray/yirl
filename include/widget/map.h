@@ -23,6 +23,8 @@
 typedef struct {
   YWidgetState sate;
   Entity *resources;
+  Entity *pos;
+  int actionIdx;
 } YMapState;
 
 int ywMapInit(void);

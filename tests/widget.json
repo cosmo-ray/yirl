@@ -54,6 +54,7 @@
 	],
 	
 	"width" : 5,
+	"action" : "mapTest",
 	"background": "rgba: 180 210 20 50", // Not yet implemented :)
     },
     "MapTestResources" : [
