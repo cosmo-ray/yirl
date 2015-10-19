@@ -79,7 +79,6 @@ static void *alloc(void)
   wstate->destroy = tsDestroy;
   wstate->handleEvent = tsEvent;
   wstate->type = t;
-  wstate->hasChange = 1;
   return  ret;
 }
 

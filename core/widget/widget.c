@@ -191,14 +191,13 @@ static YWidgetState *ywidNewWidgetInternal(int t,
   if (pos == NULL)
     pos = &defaultPos;
   ret = widgetTab.allocator[t]();
+  ret->signals = g_array_new(1, 1, sizeof(YSignal *));
   if (ret == NULL)
     return NULL;
-  ret->type = t;
   if (copyPos(&ret->pos, pos) == -1)
     goto error;
   if (ret->init(ret, entity, args))
     goto error;
-  ret->hasChange = 1;
   return ret;
  error:
   ret->destroy(ret);
@@ -211,9 +210,12 @@ YWidgetState *ywidNewWidget(Entity *entity, const YWidPos *pos, void *args)
 
   if (!entity)
     return NULL;
+
   tmp = yeGet(entity, "<type>");
+
   if (!tmp)
     return NULL;
+
   for (int i = 0; i < 64; ++i) {
     if (widgetOptTab[i].name &&
 	yuiStrEqual(yeGetString(tmp), widgetOptTab[i].name)) {
@@ -225,7 +227,7 @@ YWidgetState *ywidNewWidget(Entity *entity, const YWidPos *pos, void *args)
 
 void ywidResize(YWidgetState *wid)
 {
-  for (int i =0; i < 64; ++i) {
+  for (int i = 0; i < 64; ++i) {
     if ((1 << i) & rendersMask)
       renderOpTab[i].resizePtr(wid, i);
   }
@@ -310,7 +312,7 @@ int ywidGenericRend(YWidgetState *opac, int widType)
 
 int ywidGenericInit(YWidgetState *opac, int widType)
 {
-  opac->signals = g_array_new(1, 1, sizeof(YSignal *));
+  opac->hasChange = 1;
   YUI_FOREACH_BITMASK(widgetOptTab[widType].rendersMask,
 		      i, tmask) {
     if (widgetOptTab[widType].init[i] != NULL) {
