@@ -38,15 +38,7 @@
 	"<type>" : "map",
 	
 	"&resources" : "MapTestResources", // Not yet implemented :)
-	"map" : [
-	    [0], [0], [0], [0], [0],
-	    [0], [0], [0], [0], [0],
-	    [0], [0], [0], [0], [0],
-	    [0], [0], [0], [0], [0],
-	    [0], [0], [0], [0], [0]
-	],
-	
-	"width" : 5,
+	"init" : "shooterInit",
 	"background": "rgba: 180 210 20 50", // Not yet implemented :)
     },
     "MapTestResources" : [

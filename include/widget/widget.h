@@ -99,8 +99,6 @@ typedef struct WidgetState_ {
   GArray *signals;
   YWidPos pos;
   int type;
-  /* the type the engine will call to rand a widget */
-  /* usefull for inrance */
   unsigned int hasChange;
 } YWidgetState;
 

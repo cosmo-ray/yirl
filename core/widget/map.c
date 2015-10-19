@@ -24,6 +24,7 @@ static int t = -1;
 static int mapInit(YWidgetState *opac, Entity *entity, void *args)
 {
   const char *action;
+  Entity *initer = yeGet(entity, "init");
 
   opac->entity = entity;
   ywidGenericInit(opac, t);
@@ -35,6 +36,12 @@ static int mapInit(YWidgetState *opac, Entity *entity, void *args)
   ((YMapState *)opac)->actionIdx = ywidAddSignal(opac, "action");
   action = yeGetString(yeGet(entity, "action"));
   ywidBind(opac, "action", action);
+  if (initer) {
+    YCallback *callback = ywinGetCallbackByStr(yeGetString(initer));
+
+    if (callback)
+      ywidCallCallback(callback, opac, NULL, entity);
+  }
   (void)args;
   return 0;
 } 
