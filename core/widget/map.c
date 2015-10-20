@@ -46,6 +46,14 @@ static int mapInit(YWidgetState *opac, Entity *entity, void *args)
   return 0;
 } 
 
+Entity *ywMapGetCase(YWidgetState *state, int x, int y)
+{
+  Entity *map = yeGet(state->entity, "map");
+  int w = yeGetInt(yeGet(state->entity, "width"));
+
+  return yeGet(map, x + (w * y));
+}
+
 static int mapDestroy(YWidgetState *opac)
 {
   YE_DESTROY(((YMapState *)opac)->pos);
