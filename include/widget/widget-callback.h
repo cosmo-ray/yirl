@@ -66,5 +66,11 @@ int ywidCallSignal(YWidgetState *wid, YEvent *eve, Entity *arg, int idx);
 int ywidCallCallback(YCallback *callback, YWidgetState *wid,
 		     YEvent *eve, Entity *arg);
 int ywidCallCallbackByIdx(YWidgetState *wid, YEvent *eve, Entity *arg, int idx);
+static inline int ywidCallCallbackByStr(const char *str,
+					YWidgetState *wid,
+					YEvent *eve, Entity *arg)
+{
+  return ywidCallCallback(ywinGetCallbackByStr(str), wid, eve, arg);
+}
 
 #endif

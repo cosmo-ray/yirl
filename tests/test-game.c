@@ -18,13 +18,50 @@
 #include "tests.h"
 #include "game.h"
 #include "utils.h"
+#include "widget-callback.h"
 
 static const char *testPath = "./testMod"; 
+
+#define MAP_SIZE_W 5
+#define MAP_SIZE_H 5
+
+static int shooterAction(YWidgetState *wid, YEvent *eve, Entity *arg)
+{
+  InputStatue ret = NOTHANDLE;
+
+  (void)wid;
+  (void)arg;
+  if (eve->key == '\t') {
+    ywidCallCallbackByStr("FinishGame", wid, eve, arg);
+    ret = ACTION;
+  }
+
+  return ret;
+}
+
+static int shooterInit(YWidgetState *wid, YEvent *eve, Entity *arg)
+{
+  Entity *tmp;
+
+  (void)wid;
+  (void)eve;
+  yeCreateInt(MAP_SIZE_W, arg, "width");
+  arg = yeCreateArray(arg, "map");
+  for (int i = 0; i < MAP_SIZE_W * MAP_SIZE_H; ++i) {
+    tmp = yeCreateArray(arg, NULL);
+    yeCreateInt(0, tmp, NULL);
+  }
+  ywinAddCallback(ywinCreateNativeCallback("shooterAction", shooterAction));  
+  ywidBind(wid, "action", "shooterAction");
+  return NOTHANDLE;
+}
 
 void testYGameSdlLibBasic(void)
 {
   GameConfig cfg;
 
+  g_assert(ywidInitCallback() >= 0);
+  ywinAddCallback(ywinCreateNativeCallback("shooterInit", shooterInit));
   g_assert(!ygInitGameConfig(&cfg, testPath, SDL2));
   g_assert(!ygInit(&cfg));
   g_assert(!ygStartLoop(&cfg));
@@ -37,10 +74,11 @@ void testYGameAllLibBasic(void)
 {
   GameConfig cfg;
 
+  g_assert(ywidInitCallback() >= 0);
+  ywinAddCallback(ywinCreateNativeCallback("shooterInit", shooterInit));
   g_assert(!ygInitGameConfig(&cfg, testPath, ALL));
   g_assert(!ygInit(&cfg));
   g_assert(!ygStartLoop(&cfg));
-
   ygCleanGameConfig(&cfg);
   ygEnd();
 }
