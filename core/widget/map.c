@@ -46,6 +46,20 @@ static int mapInit(YWidgetState *opac, Entity *entity, void *args)
   return 0;
 } 
 
+
+Entity *ywMapGetPos(YWidgetState *state)
+{
+  return ((YMapState *)state)->pos;
+}
+
+Entity *ywMapGetCurrentCase(YWidgetState *state)
+{
+  Entity *pos = ywMapGetPos(state);
+  
+  return ywMapGetCase(state, yeGetInt(yeGet(pos, "x")),
+		      yeGetInt(yeGet(pos, "y")));
+}
+
 Entity *ywMapGetCase(YWidgetState *state, int x, int y)
 {
   Entity *map = yeGet(state->entity, "map");

@@ -33,6 +33,8 @@ int ycursRegistreMap(void);
 int ysdl2RegistreMap(void);
 int ywMapHasChange(YWidgetState *state);
 Entity *ywMapGetCase(YWidgetState *state, int x, int y);
+Entity *ywMapGetPos(YWidgetState *state);
+Entity *ywMapGetCurrentCase(YWidgetState *state);
 
 static inline Entity *ywMapGetResources(YWidgetState *state)
 {
