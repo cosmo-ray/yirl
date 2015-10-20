@@ -1,6 +1,6 @@
 add_definitions( -DTESTS_PATH="${CMAKE_SOURCE_DIR}/tests" )
 
-set (SOURCE main.c lifecycle.c setunset.c lua-script.c
+set (SOURCE main.c lifecycle.c setunset.c lua-script.c tcc-script.c
     test-json-desc.c test-widgets.c menu.c map.c
     test-game.c)
 
@@ -31,6 +31,7 @@ target_link_libraries(
 	yes
 	game
 	luaScript
+	tccScript
 	jsonDescrption
 	widgets
 )

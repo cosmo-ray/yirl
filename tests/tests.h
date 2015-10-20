@@ -31,6 +31,8 @@ void testSetGeneric(void);
 void testLuaScritLifecycle(void);
 void testLuaScritEntityBind(void);
 
+void testTccScritLifecycle(void);
+
 void testJsonLoadFile(void);
 void testJsonMultipleObj(void);
 
