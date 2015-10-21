@@ -17,8 +17,8 @@
 
 #include "shooter.h"
 
-#define MAP_SIZE_W 5
-#define MAP_SIZE_H 5
+#define MAP_SIZE_W 40
+#define MAP_SIZE_H 40
 
 int shooterAction(YWidgetState *wid, YEvent *eve, Entity *arg)
 {

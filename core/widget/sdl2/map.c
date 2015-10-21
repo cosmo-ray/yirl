@@ -26,6 +26,11 @@
 #define	SIZE_SPRITE_W  50
 #define	SIZE_SPRITE_H  50
 
+static inline unsigned int nbSprite(int sizePix, int sizeCase)
+{
+  return sizePix * sizeCase;
+}
+
 static int sdl2Render(YWidgetState *state, int t)
 {
   SDLWid *wid = ywidGetRenderData(state, t);
@@ -35,8 +40,12 @@ static int sdl2Render(YWidgetState *state, int t)
   unsigned int lenMap = yeLen(map);
   unsigned int wMap = yeGetInt(yeGet(state->entity, "width"));
   YBgConf cfg;
-  /* unsigned int hMap = lenMap / wMap; */
+  unsigned int winPixWidth = wid->rect.w;
+  unsigned int winPixHight = wid->rect.h;
+  unsigned int hMap = lenMap / wMap;
 
+  (void)winPixWidth;
+  (void)winPixHight;
   if (!ywMapHasChange(state))
     return 0;
   if (ywidBgConfFill(yeGet(state->entity, "background"), &cfg) < 0) {
@@ -49,24 +58,50 @@ static int sdl2Render(YWidgetState *state, int t)
     DPRINT_ERR("fail to draw background");    
   }
 
-  for (unsigned int i = 0; i < lenMap; ++i)
-    {
-      Entity *mapCase = yeGet(map, i);
-      for (uint32_t j = 0; j < yeLen(mapCase); ++j) {
-	int id = yeGetInt(yeGet(mapCase, j));
-	Entity *curRes = yeGet(ywMapGetResources(state), id);
+  printf("%u - %u\n", nbSprite(SIZE_SPRITE_W, wMap), winPixWidth);
+  if (nbSprite(SIZE_SPRITE_W, wMap) <  winPixWidth) {
+    for (unsigned int i = 0; i < lenMap; ++i)
+      {
+	Entity *mapCase = yeGet(map, i);
+	for (uint32_t j = 0; j < yeLen(mapCase); ++j) {
+	  int id = yeGetInt(yeGet(mapCase, j));
+	  Entity *curRes = yeGet(ywMapGetResources(state), id);
 
-	if (curx >= wMap)
-	  {
-	    curx = 0;
-	    ++cury;
-	  }
+	  if (curx >= wMap)
+	    {
+	      curx = 0;
+	      ++cury;
+	    }
 
-	sdlDisplaySprites(wid, curx, cury, curRes,
-			  SIZE_SPRITE_W, SIZE_SPRITE_H, 0);
+	  sdlDisplaySprites(wid, curx, cury, curRes,
+			    SIZE_SPRITE_W, SIZE_SPRITE_H, 0);
+	}
+	++curx;
       }
-      ++curx;
-    }
+  } else {
+    unsigned int sizeSpriteW = SIZE_SPRITE_W * winPixWidth /
+      nbSprite(SIZE_SPRITE_W, wMap);
+    unsigned int sizeSpriteH = SIZE_SPRITE_H * winPixHight /
+      nbSprite(SIZE_SPRITE_H, hMap);
+    for (unsigned int i = 0; i < lenMap; ++i)
+      {
+	Entity *mapCase = yeGet(map, i);
+	for (uint32_t j = 0; j < yeLen(mapCase); ++j) {
+	  int id = yeGetInt(yeGet(mapCase, j));
+	  Entity *curRes = yeGet(ywMapGetResources(state), id);
+
+	  if (curx >= wMap)
+	    {
+	      curx = 0;
+	      ++cury;
+	    }
+
+	  sdlDisplaySprites(wid, curx, cury, curRes,
+			    sizeSpriteW, sizeSpriteH, 0);
+	}
+	++curx;
+      }
+  }
 
   SDL_RenderPresent(sgRenderer());
   return 0;
