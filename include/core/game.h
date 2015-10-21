@@ -22,6 +22,8 @@
 #include <glib.h>
 #include "entity.h"
 #include "widget.h"
+#include "widget-callback.h"
+#include "utils.h"
 
 typedef enum {
   SDL2 = 1,

@@ -15,33 +15,39 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "game.h"
 #include "shooter.h"
 
-static const char *gamePath = "./"; 
+#define MAP_SIZE_W 5
+#define MAP_SIZE_H 5
 
-static inline int die(int ret, GameConfig *cfg)
+int shooterAction(YWidgetState *wid, YEvent *eve, Entity *arg)
 {
-  ygCleanGameConfig(cfg);
+  InputStatue ret = NOTHANDLE;
+
+  (void)wid;
+  (void)arg;
+  if (eve->key == '\t') {
+    ywidCallCallbackByStr("FinishGame", wid, eve, arg);
+    ret = ACTION;
+  }
+
   return ret;
 }
 
-#define TRY_OR_DIE(cmd, die)	 do {		\
-    if (cmd)					\
-      return die;				\
-  } while (0);
-
-int main(void)
+int shooterInit(YWidgetState *wid, YEvent *eve, Entity *arg)
 {
-  GameConfig cfg;
+  Entity *tmp;
 
-  yuiDebugInit(); //Can not be init twice :)  
-  TRY_OR_DIE(ywidInitCallback(), -1);
-  ywinAddCallback(ywinCreateNativeCallback("shooterInit", shooterInit));
-  TRY_OR_DIE(ygInitGameConfig(&cfg, gamePath, SDL2), -1);
-  TRY_OR_DIE(ygInit(&cfg), die(-1, &cfg));
-  TRY_OR_DIE(ygStartLoop(&cfg), die(-1, &cfg));
-  return die(0, &cfg);
+  (void)wid;
+  (void)eve;
+  yeCreateInt(MAP_SIZE_W, arg, "width");
+  arg = yeCreateArray(arg, "map");
+  for (int i = 0; i < MAP_SIZE_W * MAP_SIZE_H; ++i) {
+    tmp = yeCreateArray(arg, NULL);
+    yeCreateInt(0, tmp, NULL);
+  }
+  ywinAddCallback(ywinCreateNativeCallback("shooterAction", shooterAction));  
+  ywidBind(wid, "action", "shooterAction");
+  
+  return NOTHANDLE;
 }
-
-#undef TRY_OR_DIE

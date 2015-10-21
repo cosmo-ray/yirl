@@ -15,33 +15,12 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef _SHOOTER_H_
+#define _SHOOTER_H_
+
 #include "game.h"
-#include "shooter.h"
 
-static const char *gamePath = "./"; 
+int shooterAction(YWidgetState *wid, YEvent *eve, Entity *arg);
+int shooterInit(YWidgetState *wid, YEvent *eve, Entity *arg);
 
-static inline int die(int ret, GameConfig *cfg)
-{
-  ygCleanGameConfig(cfg);
-  return ret;
-}
-
-#define TRY_OR_DIE(cmd, die)	 do {		\
-    if (cmd)					\
-      return die;				\
-  } while (0);
-
-int main(void)
-{
-  GameConfig cfg;
-
-  yuiDebugInit(); //Can not be init twice :)  
-  TRY_OR_DIE(ywidInitCallback(), -1);
-  ywinAddCallback(ywinCreateNativeCallback("shooterInit", shooterInit));
-  TRY_OR_DIE(ygInitGameConfig(&cfg, gamePath, SDL2), -1);
-  TRY_OR_DIE(ygInit(&cfg), die(-1, &cfg));
-  TRY_OR_DIE(ygStartLoop(&cfg), die(-1, &cfg));
-  return die(0, &cfg);
-}
-
-#undef TRY_OR_DIE
+#endif
