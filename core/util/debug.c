@@ -68,13 +68,18 @@ void	yuiDebugInit()
 {
   log_confs[INFO].file = get_file(0);
   debug_print_info(log_confs[INFO].file, log_confs[INFO].str);
-  fprintf(log_confs[INFO].file, "Initiate log file with %p\n", log_confs[INFO].file);
+  fprintf(log_confs[INFO].file, "Initiate log file with %p\n",
+	  log_confs[INFO].file);
+
   log_confs[WARNING].file = get_file(0);
   debug_print_info(log_confs[WARNING].file, log_confs[WARNING].str);
-  fprintf(log_confs[WARNING].file, "Initiate log file with %p\n", log_confs[WARNING].file);
+  fprintf(log_confs[WARNING].file, "Initiate log file with %p\n",
+	  log_confs[WARNING].file);
+
   log_confs[D_ERROR].file = get_file(0);
   debug_print_info(log_confs[D_ERROR].file, log_confs[D_ERROR].str);
-  fprintf(log_confs[D_ERROR].file, "Initiate log file with %p\n", log_confs[D_ERROR].file);
+  fprintf(log_confs[D_ERROR].file, "Initiate log file with %p\n",
+	  log_confs[D_ERROR].file);
 }
 
 void	yuiDebugExit()
