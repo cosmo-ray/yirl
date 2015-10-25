@@ -120,3 +120,43 @@ void testLifecycleAwakwar(void)
   g_assert(mainStruct == NULL);
   YE_DESTROY(test3);
 }
+
+void testLifeDeathRebirdAndAgain(void)
+{
+  Entity *mainEnt = yeCreateArray(NULL, NULL);
+  Entity *map;
+  Entity *tmp;
+
+  yeCreateInt(100, mainEnt, "width");
+  map = yeCreateArray(mainEnt, "map");
+  g_assert(map);
+  for (int i = 0; i < 2000; ++i) {
+    tmp = yeCreateArray(map, NULL);
+    g_assert(tmp);
+    yeCreateInt(0, tmp, NULL);
+  }
+
+  tmp = yeGet(map, 500);
+  g_assert(tmp);
+  yeCreateInt(1, tmp, "hr");
+
+  int good = 0;;
+  for (int j = 500; j < 1000; ++j) {
+    tmp = yeGet(map, j);
+    good = 0;
+    for (unsigned int i = 0; i < yeLen(tmp); ++i) {
+      Entity *curHero = yeGet(tmp, i);
+      if (yeGetInt(curHero) == 1) {
+	good = 1;
+	++j;
+	/* You can get it Noww !!!! */
+	yePushBack(tmp, yeGet(map, j), "hr");
+	yeRemoveChild(curHero, curHero);
+	break;
+      }
+      g_assert(good);
+    }
+  }
+
+  YE_DESTROY(mainEnt);
+}

@@ -22,6 +22,7 @@ void testLifecycleSimple(void);
 void testLifecycleFlow(void);
 void testLifecycleComplex(void);
 void testLifecycleAwakwar(void);
+void testLifeDeathRebirdAndAgain(void);
 
 void testSetSimple(void);
 void testSetComplex(void);
