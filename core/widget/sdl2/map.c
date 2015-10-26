@@ -48,17 +48,10 @@ static int sdl2Render(YWidgetState *state, int t)
   (void)winPixHight;
   if (!ywMapHasChange(state))
     return 0;
-  if (ywidBgConfFill(yeGet(state->entity, "background"), &cfg) < 0) {
-    DPRINT_ERR("fail to pasre background");
-    cfg.type = BG_COLOR;
-    cfg.path = (char *)&cury; // eat your not so random color b****
+  if (ywidBgConfFill(yeGet(state->entity, "background"), &cfg) >= 0) {
     sdlFillBg(wid, &cfg);
-  } else if (sdlFillBg(wid, &cfg) < 0) {
-
-    DPRINT_ERR("fail to draw background");    
   }
 
-  printf("%u - %u\n", nbSprite(SIZE_SPRITE_W, wMap), winPixWidth);
   if (nbSprite(SIZE_SPRITE_W, wMap) <  winPixWidth) {
     for (unsigned int i = 0; i < lenMap; ++i)
       {

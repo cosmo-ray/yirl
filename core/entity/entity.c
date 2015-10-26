@@ -355,12 +355,20 @@ static inline void arrayEntryDestroy(ArrayEntry *ae)
   yeDestroy(ae->entity);
 }
 
+typedef enum
+  {
+    NONE = 0,
+    NO_ENTITY_DESTROY = 1
+  } ManageArrayFlag;
+
+
 static ArrayEntity	*manageArrayInternal(ArrayEntity *entity,
-					     unsigned int size)
+					     unsigned int size,
+					     ManageArrayFlag flag)
 {
   unsigned int	i;
 
-  if (size < entity->len) {
+  if (size < entity->len && !(flag & NO_ENTITY_DESTROY)) {
     for (i = size - 1; i < entity->len; ++i) {
       arrayEntryDestroy(&entity->values[i]);
     }
@@ -387,7 +395,7 @@ Entity *yeExpandArray(Entity *entity, unsigned int size)
     DPRINT_ERR("yeExpandArray: bad entity\n");
     return NULL;
   }
-  return ((Entity*)manageArrayInternal((ArrayEntity*)entity, size));
+  return ((Entity*)manageArrayInternal((ArrayEntity*)entity, size, NONE));
 }
 
 int	yePushBack(Entity *entity, Entity *toPush, const char *name)
@@ -430,7 +438,7 @@ Entity *yeRemoveChild(Entity *array, Entity *toRemove)
       for (int i2 = i + 1; i2 < len; ++i, ++i2) {
 	YE_TO_ARRAY(array)->values[i] = YE_TO_ARRAY(array)->values[i2];
       }
-      yePopBack(array);
+      manageArrayInternal(YE_TO_ARRAY(array), yeLen(array) - 1, NO_ENTITY_DESTROY);
       return ret;
     }
   }

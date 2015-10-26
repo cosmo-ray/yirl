@@ -20,25 +20,53 @@
 #define MAP_SIZE_W 40
 #define MAP_SIZE_H 40
 
+static void move(YWidgetState *wid, int x, int y)
+{
+  Entity *pos = ywMapGetPos(wid);
+  Entity *cur = ywMapGetCurrentCase(wid);
+  Entity *curHero;
+  Entity *posX = yeGet(pos, "x");
+  Entity *posY = yeGet(pos, "y");
+
+  for (unsigned int i = 0; i < yeLen(cur); ++i) {
+    curHero = yeGet(cur, i);
+    if (yeGetInt(curHero) == 1) {
+      /* You can get it Noww !!!! */
+      yeOpsAddInt(posX, x);
+      yeOpsAddInt(posY, y);
+      ywMapPushElem(wid, curHero, yeGetInt(posX), yeGetInt(posY), "hr");
+      yeRemoveChild(cur, curHero);
+      break;
+    }
+  }
+}
+
 int shooterAction(YWidgetState *wid, YEvent *eve, Entity *arg)
 {
   InputStatue ret = NOTHANDLE;
 
   (void)wid;
   (void)arg;
+  if (eve->type != YKEY_DOWN) {
+    return ret;
+  }
   if (eve->key == '\t') {
     ywidCallCallbackByStr("FinishGame", wid, eve, arg);
     ret = ACTION;
   }
 
+  if (eve->key == '\n') {
+    move(wid, 0, 1);
+    ret = ACTION;
+  }
   return ret;
 }
 
 int shooterInit(YWidgetState *wid, YEvent *eve, Entity *arg)
 {
   Entity *tmp;
+  Entity *pos;
 
-  (void)wid;
   (void)eve;
   yeCreateInt(MAP_SIZE_W, arg, "width");
   arg = yeCreateArray(arg, "map");
@@ -46,6 +74,15 @@ int shooterInit(YWidgetState *wid, YEvent *eve, Entity *arg)
     tmp = yeCreateArray(arg, NULL);
     yeCreateInt(0, tmp, NULL);
   }
+
+  ((YMapState *)wid)->pos = yeCreateArray(NULL, NULL);
+  pos = ywMapGetPos(wid);
+  yeCreateInt(MAP_SIZE_W / 2, pos, "x");
+  yeCreateInt(MAP_SIZE_H / 2, pos, "y");
+
+  tmp = ywMapGetCase(wid, MAP_SIZE_W / 2, MAP_SIZE_H / 2);
+  yeCreateInt(1, tmp, "hr");
+
   ywinAddCallback(ywinCreateNativeCallback("shooterAction", shooterAction));  
   ywidBind(wid, "action", "shooterAction");
   

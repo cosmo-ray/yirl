@@ -46,6 +46,11 @@ static int mapInit(YWidgetState *opac, Entity *entity, void *args)
   return 0;
 } 
 
+int ywMapPushElem(YWidgetState *state, Entity *toPush,
+		  int x, int y, const char *name)
+{
+  return yePushBack(ywMapGetCase(state, x, y), toPush, name);
+}
 
 Entity *ywMapGetPos(YWidgetState *state)
 {

@@ -42,6 +42,7 @@
 extern "C"
 {
 #endif
+
   /*Les differents type d'entite, chacune est definie par une structure apres*/
   typedef enum
     {
@@ -207,6 +208,7 @@ extern "C"
    * @toPush:	the entity to add
    */
   int yePushBack(Entity *array, Entity *toPush, const char *name) WEAK;
+
   /**
    * @array:	the array
    * @return:	the entity that is erased from the entity @array
@@ -419,6 +421,21 @@ extern "C++"
    */
   ArrayEntity*		yeCopyContener(ArrayEntity* src, ArrayEntity* dest);
 
+
+  static inline int yeOpsIntAddInt(IntEntity *e, int i)
+  {
+    e->value += i;
+    return 0;
+  }
+
+  static inline int yeOpsAddInt(Entity *e, int i)
+  {
+    switch (yeType(e)) {
+    case YINT:
+      return yeOpsIntAddInt(YE_TO_INT(e), i);
+    }
+    return -1;
+  }
 
 #ifdef __cplusplus
 }

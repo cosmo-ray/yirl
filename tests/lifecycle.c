@@ -150,8 +150,10 @@ void testLifeDeathRebirdAndAgain(void)
 	good = 1;
 	++j;
 	/* You can get it Noww !!!! */
-	yePushBack(tmp, yeGet(map, j), "hr");
+	yePushBack(yeGet(map, j), tmp, "hr");
+	g_assert(curHero->refCount == 2);
 	yeRemoveChild(curHero, curHero);
+	g_assert(curHero->refCount == 1);
 	break;
       }
       g_assert(good);

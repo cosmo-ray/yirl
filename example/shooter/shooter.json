@@ -45,8 +45,7 @@
 	
 	"&resources" : "ShooterResources", 
 	"init" : "shooterInit",
-	"&next": "PrintScore",
-	"background": "rgba: 180 210 20 50"
+	"&next": "PrintScore"
     },
     "ShooterResources" : [
 	{
@@ -56,7 +55,7 @@
 	},
 	{
 	    "name" : "pj", // for text screen ?
-	    "map-srite" : "head.png", // sdl map
+	    "map-srite" : "hero.png", // sdl map
 	    "map-char" : "@" // curses map
 	}
     ]

@@ -35,6 +35,8 @@ int ywMapHasChange(YWidgetState *state);
 Entity *ywMapGetCase(YWidgetState *state, int x, int y);
 Entity *ywMapGetPos(YWidgetState *state);
 Entity *ywMapGetCurrentCase(YWidgetState *state);
+int ywMapPushElem(YWidgetState *state, Entity *toPush,
+		  int x, int y, const char *name);
 
 static inline Entity *ywMapGetResources(YWidgetState *state)
 {
