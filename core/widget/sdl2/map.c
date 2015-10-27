@@ -50,7 +50,6 @@ static inline unsigned int nbSprite(int sizePix, int sizeCase)
 static int sdl2Render(YWidgetState *state, int t)
 {
   SDLWid *wid = ywidGetRenderData(state, t);
-  /* int x,y,h,w; */
   unsigned int curx = 0, cury = 0;
   Entity *map = yeGet(state->entity, "map");
   unsigned int lenMap = yeLen(map);
@@ -62,8 +61,6 @@ static int sdl2Render(YWidgetState *state, int t)
   unsigned int sizeSpriteW;
   unsigned int sizeSpriteH;
 
-  (void)winPixWidth;
-  (void)winPixHight;
   if (!ywMapHasChange(state))
     return 0;
   if (ywidBgConfFill(yeGet(state->entity, "background"), &cfg) >= 0) {
