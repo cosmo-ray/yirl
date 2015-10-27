@@ -31,6 +31,22 @@ static inline unsigned int nbSprite(int sizePix, int sizeCase)
   return sizePix * sizeCase;
 }
 
+#define YMAP_FOREACH_ELEMS(map, elem, caseIncrOp)	\
+  YMAP_FOREACH_CASES(map, mapCaseTmp)			\
+    YMAP_FOREACH_ELEMS_IN_CASE(mapCaseTmp, elem)
+
+#define YMAP_FOREACH_ELEMS_IN_CASE(mapCase, elem)		\
+  Entity *elem;							\
+  for (uint32_t j = 0; j < yeLen(mapCase) &&			\
+	 (elem = yeGet(mapCase, j)); ++j)
+
+
+#define YMAP_FOREACH_CASES(map, mapCase)		\
+  Entity *mapCase;					\
+  for(uint32_t i = 0; i < yeLen(map) &&			\
+	(mapCase = yeGet(map, i)); ++i)
+
+
 static int sdl2Render(YWidgetState *state, int t)
 {
   SDLWid *wid = ywidGetRenderData(state, t);
@@ -43,6 +59,8 @@ static int sdl2Render(YWidgetState *state, int t)
   unsigned int winPixWidth = wid->rect.w;
   unsigned int winPixHight = wid->rect.h;
   unsigned int hMap = lenMap / wMap;
+  unsigned int sizeSpriteW;
+  unsigned int sizeSpriteH;
 
   (void)winPixWidth;
   (void)winPixHight;
@@ -52,53 +70,43 @@ static int sdl2Render(YWidgetState *state, int t)
     sdlFillBg(wid, &cfg);
   }
 
+    
   if (nbSprite(SIZE_SPRITE_W, wMap) <  winPixWidth) {
-    for (unsigned int i = 0; i < lenMap; ++i)
-      {
-	Entity *mapCase = yeGet(map, i);
-	for (uint32_t j = 0; j < yeLen(mapCase); ++j) {
-	  int id = yeGetInt(yeGet(mapCase, j));
-	  Entity *curRes = yeGet(ywMapGetResources(state), id);
+    sizeSpriteW = SIZE_SPRITE_W;
+    sizeSpriteH = SIZE_SPRITE_H;
 
-	  if (curx >= wMap)
-	    {
-	      curx = 0;
-	      ++cury;
-	    }
-
-	  sdlDisplaySprites(wid, curx, cury, curRes,
-			    SIZE_SPRITE_W, SIZE_SPRITE_H, 0);
-	}
-	++curx;
-      }
   } else {
-    unsigned int sizeSpriteW = SIZE_SPRITE_W * winPixWidth /
+    sizeSpriteW = SIZE_SPRITE_W * winPixWidth /
       nbSprite(SIZE_SPRITE_W, wMap);
-    unsigned int sizeSpriteH = SIZE_SPRITE_H * winPixHight /
+    sizeSpriteH = SIZE_SPRITE_H * winPixHight /
       nbSprite(SIZE_SPRITE_H, hMap);
-    for (unsigned int i = 0; i < lenMap; ++i)
-      {
-	Entity *mapCase = yeGet(map, i);
-	for (uint32_t j = 0; j < yeLen(mapCase); ++j) {
-	  int id = yeGetInt(yeGet(mapCase, j));
-	  Entity *curRes = yeGet(ywMapGetResources(state), id);
-
-	  if (curx >= wMap)
-	    {
-	      curx = 0;
-	      ++cury;
-	    }
-
-	  sdlDisplaySprites(wid, curx, cury, curRes,
-			    sizeSpriteW, sizeSpriteH, 0);
-	}
-	++curx;
-      }
   }
+  YMAP_FOREACH_CASES(map, mapCase) {
+
+    if (curx >= wMap) {
+      curx = 0;
+      ++cury;
+    }
+
+    YMAP_FOREACH_ELEMS_IN_CASE(mapCase, mapElem) {
+      int id = yeGetInt(mapElem);
+      Entity *curRes = yeGet(ywMapGetResources(state), id);
+
+
+      sdlDisplaySprites(wid, curx, cury, curRes,
+			sizeSpriteW, sizeSpriteH, 0);
+    }
+    ++curx;
+  }
+
 
   SDL_RenderPresent(sgRenderer());
   return 0;
 }
+
+#undef YMAP_FOREACH_ELEMS
+#undef YMAP_FOREACH_CASES
+#undef YMAP_FOREACH_ELEMS_IN_CASES
 
 static int sdl2Init(YWidgetState *wid, int t)
 {
