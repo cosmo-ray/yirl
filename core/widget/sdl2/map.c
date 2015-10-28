@@ -67,7 +67,8 @@ static int sdl2Render(YWidgetState *state, int t)
     sdlFillBg(wid, &cfg);
   }
 
-    
+  /* Check if the number of sprites this window can
+   * contain is superior to the actual width of the window */
   if (nbSprite(SIZE_SPRITE_W, wMap) <  winPixWidth) {
     sizeSpriteW = SIZE_SPRITE_W;
     sizeSpriteH = SIZE_SPRITE_H;
@@ -78,6 +79,7 @@ static int sdl2Render(YWidgetState *state, int t)
     sizeSpriteH = SIZE_SPRITE_H * winPixHight /
       nbSprite(SIZE_SPRITE_H, hMap);
   }
+
   YMAP_FOREACH_CASES(map, mapCase) {
 
     if (curx >= wMap) {
@@ -89,13 +91,11 @@ static int sdl2Render(YWidgetState *state, int t)
       int id = yeGetInt(mapElem);
       Entity *curRes = yeGet(ywMapGetResources(state), id);
 
-
       sdlDisplaySprites(wid, curx, cury, curRes,
 			sizeSpriteW, sizeSpriteH, 0);
     }
     ++curx;
   }
-
 
   SDL_RenderPresent(sgRenderer());
   return 0;

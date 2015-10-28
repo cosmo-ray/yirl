@@ -63,10 +63,11 @@ void (*destroyTab[])(Entity *) = {
   yeDestroyString,
   yeDestroyArray,
   yeDestroyFunction,
+  yeDestroyData,
 };
 
 const char * EntityTypeStrings[] = { "int", "float", "string",
-				     "array", "function"};
+				     "array", "function", "data"};
 
 /**
  * @param entity
@@ -199,6 +200,16 @@ Entity *yeCreateInt(int value, Entity *father, const char *name)
   return ((Entity *)ret);
 }
 
+Entity *yeCreateData(void *value, Entity *father, const char *name)
+{
+  DataEntity *ret;
+
+  YE_ALLOC_ENTITY(ret, DataEntity);
+  yeInit((Entity *)ret, YDATA, father, name);
+  ret->value = value;
+  return ((Entity *)ret);
+}
+
 Entity *yeCreateArray(Entity *father, const char *name)
 {
   ArrayEntity *ret;
@@ -299,6 +310,13 @@ void yeDestroyString(Entity *entity)
   YE_DESTROY_ENTITY(entity, StringEntity);
 }
 
+void yeDestroyData(Entity *entity)
+{
+  if (YE_TO_DATA(entity)->value && YE_TO_DATA(entity)->destroy)
+    YE_TO_DATA(entity)->destroy(entity);
+  YE_DESTROY_ENTITY(entity, DataEntity);
+}
+
 void yeDestroyArray(Entity *entity)
 {
   if(entity->refCount == 1) {
@@ -334,6 +352,8 @@ Entity *yeCreate(EntityType type, void *val, Entity *father, const char *name)
       return (yeCreateArray(father, name));
     case YFUNCTION:
       return (yeCreateFunction(val, father, name));
+    case YDATA:
+      return (yeCreateData(val, father, name));
     default:
       DPRINT_ERR( "%s generic constructor not yet implemented\n",
 		  yeTypeToString(type));

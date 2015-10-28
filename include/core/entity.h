@@ -51,10 +51,11 @@ extern "C"
       YFLOAT,
       YSTRING,
       YARRAY,
-      YFUNCTION
+      YFUNCTION,
+      YDATA
     } EntityType;
   
-#define	NBR_ENTITYTYPE	5
+#define	NBR_ENTITYTYPE	6
 
 #define	YE_TO_ENTITY(X) ((Entity *)X)
 #define	YE_TO_C_ENTITY(X) ((const Entity *)X)
@@ -68,6 +69,8 @@ extern "C"
 #define	YE_TO_C_ARRAY(X) ((const ArrayEntity *)X)
 #define	YE_TO_FUNC(X) ((FunctionEntity *)X)
 #define	YE_TO_C_FUNC(X) ((const FunctionEntity *)X)
+#define	YE_TO_DATA(X) ((DataEntity *)X)
+#define	YE_TO_C_DATA(X) ((const DataEntity *)X)
 
   /* TODO: move most of this code to yeDestroy, remove this */
 #define YE_DESTROY(X) do {			\
@@ -89,7 +92,6 @@ extern "C"
   unsigned int nbFathers;			\
   unsigned int refCount;			\
   EntityType	type;				\
-
 
   typedef struct Entity_
   {
@@ -131,6 +133,14 @@ extern "C"
     unsigned int len;
     char	*value;
   } StringEntity;
+
+  typedef	struct
+  {
+    ENTITY_HEADER
+
+    void	*value;
+    void	(*destroy)(Entity *);
+  } DataEntity;
 
   typedef	struct
   {
@@ -190,7 +200,6 @@ extern "C"
 
 #endif
 
-
   /**
    * Like yeGetStr but dosn't work with sytaxe like this (entity1.entity11)
    */
@@ -231,6 +240,8 @@ extern "C"
   Entity *yeCreateFunction(const char *string, Entity *fathers, const char *name) WEAK;
   Entity *yeCreateArray(Entity *fathers, const char *name) WEAK;
 
+  Entity *yeCreateData(void *value, Entity *father, const char *name) WEAK;
+
   void yeDestroy(Entity *entity) WEAK;
   void yeDestroyInt(Entity *entity) WEAK;
   void yeDestroyFloat(Entity *entity) WEAK;
@@ -238,7 +249,8 @@ extern "C"
   void yeDestroyFunction(Entity *entity) WEAK;
   void yeDestroyRef(Entity *entity) WEAK;
   void yeDestroyArray(Entity *entity) WEAK;
-
+  void yeDestroyData(Entity *entity)  WEAK;
+ 
   /**
    * @parap entity
    * @param value
