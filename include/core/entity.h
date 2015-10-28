@@ -286,6 +286,8 @@ extern "C"
    */
   void	yeSetFunction(Entity *entity, const char *value) WEAK;
 
+  void  yeSetDestroy(Entity *entity, void (*)(Entity *)) WEAK;
+
 #define yeSet(ENTITY, VALUE) _Generic((VALUE),				\
 				      int: yeSetInt,			\
 				      double: yeSetFloat,		\

@@ -518,6 +518,11 @@ void	yeSetString(Entity *entity, const char *val)
   }
 }
 
+void yeSetDestroy(Entity *entity, void (*destroyFunc)(Entity *))
+{
+  YE_TO_DATA(entity)->destroy = destroyFunc;
+}
+
 int yeAttach(Entity *on, Entity *entity,
 	     unsigned int idx, const char *name)
 {
