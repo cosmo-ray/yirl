@@ -511,14 +511,14 @@ Entity *yeInit(Entity *entity, EntityType type, Entity *father, const char *name
 
 void	yeSetString(Entity *entity, const char *val)
 {
-  if (((StringEntity *)entity)->value != NULL)
-    free(((StringEntity *)entity)->value);
+  if (YE_TO_STRING(entity)->value != NULL)
+    free(YE_TO_STRING(entity)->value);
   if (val != NULL) {
-    ((StringEntity *)entity)->value = strdup(val);
-    ((StringEntity *)entity)->len = strlen(val);
+    YE_TO_STRING(entity)->value = strdup(val);
+    YE_TO_STRING(entity)->len = strlen(val);
   } else {
-    ((StringEntity *)entity)->value = NULL;
-    ((StringEntity *)entity)->len = 0;
+    YE_TO_STRING(entity)->value = NULL;
+    YE_TO_STRING(entity)->len = 0;
   }
 }
 
