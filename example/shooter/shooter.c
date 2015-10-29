@@ -45,12 +45,10 @@ int shooterAction(YWidgetState *wid, YEvent *eve, Entity *arg)
 {
   InputStatue ret = NOTHANDLE;
 
-  (void)wid;
-  (void)arg;
   if (eve->type != YKEY_DOWN) {
     return ret;
   }
-  if (eve->key == '\t') {
+  if (eve->key == 'q') {
     ywidCallCallbackByStr("FinishGame", wid, eve, arg);
     ret = ACTION;
   }
