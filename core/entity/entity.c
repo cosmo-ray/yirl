@@ -317,7 +317,7 @@ void yeDestroyString(Entity *entity)
 void yeDestroyData(Entity *entity)
 {
   if (YE_TO_DATA(entity)->value && YE_TO_DATA(entity)->destroy)
-    YE_TO_DATA(entity)->destroy(entity);
+    YE_TO_DATA(entity)->destroy(YE_TO_DATA(entity)->value);
   YE_DESTROY_ENTITY(entity, DataEntity);
 }
 
@@ -522,7 +522,7 @@ void	yeSetString(Entity *entity, const char *val)
   }
 }
 
-void yeSetDestroy(Entity *entity, void (*destroyFunc)(Entity *))
+void yeSetDestroy(Entity *entity, void (*destroyFunc)(void *))
 {
   YE_TO_DATA(entity)->destroy = destroyFunc;
 }
@@ -622,6 +622,15 @@ int	yeGetInt(Entity *entity)
   }
   return YE_TO_INT(entity)->value;
 }
+
+void	*yeGetData(Entity *entity)
+{
+  if (!checkType(entity, YDATA)) {
+    RETURN_ERROR_BAD_TYPE("getDataVal", entity, NULL);
+  }
+  return YE_TO_DATA(entity)->value;
+}
+
 
 const char	*yeGetFunction(Entity *entity)
 {

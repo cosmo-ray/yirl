@@ -139,7 +139,7 @@ extern "C"
     ENTITY_HEADER
 
     void	*value;
-    void	(*destroy)(Entity *);
+    void	(*destroy)(void *);
   } DataEntity;
 
   typedef	struct
@@ -286,7 +286,7 @@ extern "C"
    */
   void	yeSetFunction(Entity *entity, const char *value) WEAK;
 
-  void  yeSetDestroy(Entity *entity, void (*)(Entity *)) WEAK;
+  void  yeSetDestroy(Entity *entity, void (*)(void *)) WEAK;
 
 #define yeSet(ENTITY, VALUE) _Generic((VALUE),				\
 				      int: yeSetInt,			\
@@ -388,6 +388,8 @@ extern "C++"
    * @return the string value 
    */
   const char *yeGetString(Entity *entity) WEAK;
+
+  void *yeGetData(Entity *entity) WEAK;
 
 #define YE_FOREACH_FATHER_SET_FATHER(child, father, idx)	\
   ((father = yeFathers(child)[(idx)]) || 1)
