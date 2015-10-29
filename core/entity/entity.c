@@ -27,7 +27,11 @@ inline static void yeDestroyInternal(Entity *entity);
 /**
  * Here some macros to mutualise the code of entity
  */
-#define RETURN_ERROR_BAD_TYPE(function, entity, returnValue) DPRINT_INFO("%s: bad entity, this entity is of type %s\n", (function), yeTypeToString(yeType(entity))); return (returnValue)
+#define RETURN_ERROR_BAD_TYPE(function, entity, returnValue) do {	\
+  DPRINT_INFO("%s: bad entity, this entity is of type %s\n",		\
+	      (function), yeTypeToString(yeType(entity)));		\
+  return (returnValue);							\
+  } while (0)
 
   /* macro for perf purpose */
 #define YE_INCR_REF(entity) do {		\
