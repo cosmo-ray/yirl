@@ -198,6 +198,7 @@ Entity *yeGetByStr(Entity *entity, const char *name)
 Entity *yeCreateInt(int value, Entity *father, const char *name)
 {
   IntEntity *ret;
+
   YE_ALLOC_ENTITY(ret, IntEntity);
   yeInit((Entity *)ret, YINT, father, name);
   ret->value = value;
@@ -217,6 +218,7 @@ Entity *yeCreateData(void *value, Entity *father, const char *name)
 Entity *yeCreateArray(Entity *father, const char *name)
 {
   ArrayEntity *ret;
+
   YE_ALLOC_ENTITY(ret, ArrayEntity);
   yeInit((Entity *)ret, YARRAY, father, name);
   ret->len = 0;
@@ -227,6 +229,7 @@ Entity *yeCreateArray(Entity *father, const char *name)
 Entity *yeCreateFloat(double value, Entity *father, const char *name)
 {
   FloatEntity *ret;
+
   YE_ALLOC_ENTITY(ret, FloatEntity);
   yeInit((Entity *)ret, YFLOAT, father, name);
   ret->value = value;
@@ -236,6 +239,7 @@ Entity *yeCreateFloat(double value, Entity *father, const char *name)
 Entity *yeCreateFunction(const char *value, Entity *father, const char *name)
 {
   FunctionEntity *ret;
+
   YE_ALLOC_ENTITY(ret, FunctionEntity);
   yeInit((Entity *)ret, YFUNCTION, father, name);
   ret->nArgs = 0;
@@ -247,6 +251,7 @@ Entity *yeCreateFunction(const char *value, Entity *father, const char *name)
 Entity *yeCreateString(const char *string, Entity *father, const char *name)
 {
   StringEntity *ret;
+
   YE_ALLOC_ENTITY(ret, StringEntity);
   yeInit((Entity *)ret, YSTRING, father, name);
   ret->value = NULL;
@@ -307,9 +312,9 @@ void yeDestroyFunction(Entity *entity)
 
 void yeDestroyString(Entity *entity)
 {
-  if (((StringEntity *)entity)->value != NULL &&
+  if (YE_TO_STRING(entity)->value != NULL &&
       entity->refCount == 1) {
-    free(((StringEntity *)entity)->value);
+    free(YE_TO_STRING(entity)->value);
   }
   YE_DESTROY_ENTITY(entity, StringEntity);
 }
