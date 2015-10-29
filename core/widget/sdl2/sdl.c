@@ -340,13 +340,32 @@ void sdlWidDestroy(YWidgetState *wid, int t)
   g_free(swid);
 }
 
+/* Wrapper for DataEntity destroy */
+static void sdlFreeSurface(void *surface)
+{
+  SDL_FreeSurface(surface);
+}
+
+static SDL_Surface *sdlLoasAndCachImg(Entity *elem)
+{
+  const char *path;
+  SDL_Surface *image = yeGetData(yeGet(elem, "$sdl-img"));
+
+  if (image)
+    return image;
+  path = yeGetString(yeGet(elem, "map-srite"));
+  image = path ? IMG_Load(path) : NULL;
+  yeCreateData(image, elem, "$sdl-img");
+  yeSetDestroy(elem, sdlFreeSurface);
+  return image;
+}
+
 int sdlDisplaySprites(SDLWid *wid, int x, int y, Entity *elem,
 		      int w, int h, int thresholdX)
 {
   SDL_Color color = {0,0,0,255};
   SDL_Rect DestR;
-  const char *path = yeGetString(yeGet(elem, "map-srite"));
-  SDL_Surface *image = path ? IMG_Load(path) : NULL;
+  SDL_Surface *image = sdlLoasAndCachImg(elem);
 
 
   if (image) {
@@ -358,7 +377,6 @@ int sdlDisplaySprites(SDLWid *wid, int x, int y, Entity *elem,
     DestR.h = h;
     SDL_RenderCopy(sg.renderer, texture, NULL, &DestR);
     SDL_DestroyTexture(texture);
-    SDL_FreeSurface(image);
   } else {
     return sdlPrintText(wid, yeGetString(yeGet(elem, "map-char")),
 			2, color, x * w, y * h);
