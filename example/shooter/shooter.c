@@ -48,14 +48,27 @@ int shooterAction(YWidgetState *wid, YEvent *eve, Entity *arg)
   if (eve->type != YKEY_DOWN) {
     return ret;
   }
-  if (eve->key == 'q') {
-    ywidCallCallbackByStr("FinishGame", wid, eve, arg);
-    ret = ACTION;
-  }
 
-  if (eve->key == '\n') {
+  switch (eve->key) {
+  case Y_DOWN_KEY:
     move(wid, 0, 1);
+    goto end_switch;
+  case Y_UP_KEY:
+    move(wid, 0, -1);
+    goto end_switch;
+  case Y_RIGHT_KEY:
+    move(wid, 1, 0);
+    goto end_switch;
+  case Y_LEFT_KEY:
+    move(wid, -1, 0);
+    goto end_switch;
+  case 'q':
+    ywidCallCallbackByStr("FinishGame", wid, eve, arg);
+    goto end_switch;    
+  end_switch:
     ret = ACTION;
+  default:
+    break;
   }
   return ret;
 }
