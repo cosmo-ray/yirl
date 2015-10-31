@@ -21,7 +21,7 @@
 #define Y_ESC_KEY 27
 #define Y_UP_KEY 259
 #define Y_DOWN_KEY 258
-#define Y_RIGHT_KEY 260
-#define Y_LEFT_KEY 261
+#define Y_LEFT_KEY 260
+#define Y_RIGHT_KEY 261
 
 #endif

@@ -41,6 +41,21 @@ static void move(YWidgetState *wid, int x, int y)
   }
 }
 
+
+static void shooterSpamBullet(YWidgetState *wid, int x, int y)
+{
+  Entity *pos = ywMapGetPos(wid);
+  Entity *posX = yeGet(pos, "x");
+  Entity *posY = yeGet(pos, "y");
+  static Entity *bullet = NULL;
+
+  if (!bullet) {
+    bullet = yeCreateInt(2, NULL, NULL);
+    yeCreateArray(wid->entity, "bullet-manager");
+  }
+  ywMapPushElem(wid, bullet, yeGetInt(posX) + x, yeGetInt(posY) + y, "bl");
+}
+
 int shooterAction(YWidgetState *wid, YEvent *eve, Entity *arg)
 {
   InputStatue ret = NOTHANDLE;
@@ -50,6 +65,8 @@ int shooterAction(YWidgetState *wid, YEvent *eve, Entity *arg)
   }
 
   switch (eve->key) {
+
+    /* move cases */
   case Y_DOWN_KEY:
     move(wid, 0, 1);
     goto end_switch;
@@ -62,6 +79,22 @@ int shooterAction(YWidgetState *wid, YEvent *eve, Entity *arg)
   case Y_LEFT_KEY:
     move(wid, -1, 0);
     goto end_switch;
+
+    /* shoot cases */
+  case 's':
+    shooterSpamBullet(wid, 0, 1);
+    goto end_switch;
+  case 'w':
+    shooterSpamBullet(wid, 0, -1);
+    goto end_switch;
+  case 'd':
+    shooterSpamBullet(wid, 1, 0);
+    goto end_switch;
+  case 'a':
+    shooterSpamBullet(wid, -1, 0);
+    goto end_switch;
+
+    /* exit */
   case 'q':
     ywidCallCallbackByStr("FinishGame", wid, eve, arg);
     goto end_switch;    

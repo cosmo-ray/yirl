@@ -57,6 +57,12 @@
 	    "name" : "pj", // for text screen ?
 	    "map-srite" : "hero.png", // sdl map
 	    "map-char" : "@" // curses map
+	},
+	{
+	    "name" : "bullet", // for text screen ?
+	    "map-srite" : "bullet.png", // sdl map
+	    "map-char" : "o" // curses map
 	}
+
     ]
 }
