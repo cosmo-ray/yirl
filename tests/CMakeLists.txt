@@ -9,8 +9,6 @@ add_executable(
 	${SOURCE}
 )
 
-
-
 if( WITH_CURSES)
   set (RENDER_LIBS ${RENDER_LIBS} wid-curses)
   add_definitions(-DWITH_CURSES=1)

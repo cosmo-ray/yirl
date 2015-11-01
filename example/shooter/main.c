@@ -23,6 +23,7 @@ static const char *gamePath = "./";
 static inline int die(int ret, GameConfig *cfg)
 {
   ygCleanGameConfig(cfg);
+  ygEnd();
   return ret;
 }
 
