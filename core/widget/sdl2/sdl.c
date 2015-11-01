@@ -343,23 +343,31 @@ void sdlWidDestroy(YWidgetState *wid, int t)
 }
 
 /* Wrapper for DataEntity destroy */
-static void sdlFreeSurface(void *surface)
+static void sdlFreeTexture(void *txt)
 {
-  SDL_FreeSurface(surface);
+  SDL_DestroyTexture(txt);
 }
 
-static SDL_Surface *sdlLoasAndCachImg(Entity *elem)
+static SDL_Texture *sdlLoasAndCachImg(Entity *elem)
 {
   const char *path;
-  SDL_Surface *image = yeGetData(yeGet(elem, "$sdl-img"));
+  SDL_Texture *texture = yeGetData(yeGet(elem, "$sdl-img"));
 
-  if (image)
-    return image;
+  if (texture)
+    return texture;
+  SDL_Surface *image;
+
   path = yeGetString(yeGet(elem, "map-srite"));
-  image = path ? IMG_Load(path) : NULL;
-  yeCreateData(image, elem, "$sdl-img");
-  yeSetDestroy(elem, sdlFreeSurface);
-  return image;
+  if (!path)
+    return NULL;
+  image = IMG_Load(path);
+  if (!image)
+    return NULL;
+  texture = SDL_CreateTextureFromSurface(sg.renderer, image);
+  yeCreateData(texture, elem, "$sdl-img");
+  yeSetDestroy(elem, sdlFreeTexture);
+  SDL_FreeSurface(image);
+  return texture;
 }
 
 int sdlDisplaySprites(SDLWid *wid, int x, int y, Entity *elem,
@@ -367,18 +375,15 @@ int sdlDisplaySprites(SDLWid *wid, int x, int y, Entity *elem,
 {
   SDL_Color color = {0,0,0,255};
   SDL_Rect DestR;
-  SDL_Surface *image = sdlLoasAndCachImg(elem);
+  SDL_Texture *texture = sdlLoasAndCachImg(elem);
 
 
-  if (image) {
-    SDL_Texture *texture = SDL_CreateTextureFromSurface(sg.renderer, image);
-
+  if (texture) {
     DestR.x = x * w + wid->rect.x + thresholdX;
     DestR.y = y * h + wid->rect.y;
     DestR.w = w;
     DestR.h = h;
     SDL_RenderCopy(sg.renderer, texture, NULL, &DestR);
-    SDL_DestroyTexture(texture);
   } else {
     return sdlPrintText(wid, yeGetString(yeGet(elem, "map-char")),
 			2, color, x * w, y * h);
