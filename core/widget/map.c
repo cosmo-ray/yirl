@@ -30,9 +30,8 @@ static int mapInit(YWidgetState *opac, Entity *entity, void *args)
   ywidGenericInit(opac, t);
 
   ((YMapState *)opac)->resources = yeGet(entity, "resources");
-  ((YMapState *)opac)->pos = yeCreateArray(NULL, NULL);
-  yeCreateInt(0, ((YMapState *)opac)->pos, "x");
-  yeCreateInt(0, ((YMapState *)opac)->pos, "y");
+  ((YMapState *)opac)->pos = ywMapCreatePos(0, 0, NULL, NULL);
+
   ((YMapState *)opac)->actionIdx = ywidAddSignal(opac, "action");
   action = yeGetString(yeGet(entity, "action"));
   ywidBind(opac, "action", action);
@@ -45,6 +44,15 @@ static int mapInit(YWidgetState *opac, Entity *entity, void *args)
   (void)args;
   return 0;
 } 
+
+Entity *ywMapCreatePos(int posX, int posY, Entity *bullet, const char *str)
+{
+  Entity *ret = yeCreateArray(bullet, str);
+
+  yeCreateInt(posX, ret, "x");
+  yeCreateInt(posY, ret, "y");
+  return ret;
+}
 
 int ywMapPushElem(YWidgetState *state, Entity *toPush,
 		  int x, int y, const char *name)

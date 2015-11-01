@@ -41,19 +41,27 @@ static void move(YWidgetState *wid, int x, int y)
   }
 }
 
-
 static void shooterSpamBullet(YWidgetState *wid, int x, int y)
 {
   Entity *pos = ywMapGetPos(wid);
-  Entity *posX = yeGet(pos, "x");
-  Entity *posY = yeGet(pos, "y");
-  static Entity *bullet = NULL;
+  int posX = yeGetInt(yeGet(pos, "x")) + x;
+  int posY = yeGetInt(yeGet(pos, "y")) + y;
+  Entity *bullet = NULL;
 
-  if (!bullet) {
-    bullet = yeCreateInt(2, NULL, NULL);
-    yeCreateArray(wid->entity, "bullet-manager");
+  static Entity *bulletSprite = NULL;
+  static Entity *bulletManager = NULL;
+
+  if (!bulletManager) {
+    /* We add this inside wid->entity, like this when destroying wid->entity
+     * bulletSprite and bulletManager will be destroy too :) */
+    bulletSprite = yeCreateInt(2, wid->entity, "$bullet-sprite");
+    bulletManager = yeCreateArray(wid->entity, "$bullet-manager");
   }
-  ywMapPushElem(wid, bullet, yeGetInt(posX) + x, yeGetInt(posY) + y, "bl");
+  bullet = yeCreateArray(bulletManager, NULL);
+  ywMapCreatePos(posX, posY, bullet, "pos");
+  yePushBack(bullet, bulletSprite, "id");
+
+  ywMapPushElem(wid, yeGet(bullet, "id"), posX, posY, "bl");
 }
 
 int shooterAction(YWidgetState *wid, YEvent *eve, Entity *arg)

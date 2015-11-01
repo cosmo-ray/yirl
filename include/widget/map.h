@@ -31,10 +31,15 @@ int ywMapInit(void);
 int ywMapEnd(void);
 int ycursRegistreMap(void);
 int ysdl2RegistreMap(void);
+
 int ywMapHasChange(YWidgetState *state);
+
 Entity *ywMapGetCase(YWidgetState *state, int x, int y);
 Entity *ywMapGetPos(YWidgetState *state);
 Entity *ywMapGetCurrentCase(YWidgetState *state);
+
+Entity *ywMapCreatePos(int posX, int posY, Entity *bullet, const char *str);
+
 int ywMapPushElem(YWidgetState *state, Entity *toPush,
 		  int x, int y, const char *name);
 
