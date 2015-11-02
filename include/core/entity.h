@@ -438,6 +438,7 @@ extern "C++"
   ArrayEntity*		yeCopyContener(ArrayEntity* src, ArrayEntity* dest);
 
 
+
   static inline int yeOpsIntAddInt(IntEntity *e, int i)
   {
     e->value += i;
@@ -453,6 +454,20 @@ extern "C++"
     return -1;
   }
 
+  static inline int yeOpsAddEntInt(Entity *e, IntEntity *ie)
+  {
+    return yeOpsAddInt(e, yeGetInt(YE_TO_ENTITY(ie)));
+  }
+
+  static inline int yeOpsAddEnt(Entity *e, Entity *e2)
+  {
+    switch (yeType(e2)) {
+    case YINT:
+      return yeOpsAddEntInt(e, YE_TO_INT(e2));
+    }
+    return -1;
+  }
+  
 #ifdef __cplusplus
 }
 #endif
