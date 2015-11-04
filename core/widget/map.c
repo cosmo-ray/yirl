@@ -114,7 +114,6 @@ static InputStatue mapEvent(YWidgetState *opac, YEvent *event)
   return ret;
 }
 
-
 int ywMapHasChange(YWidgetState *state)
 {
   return state->hasChange;

@@ -34,6 +34,16 @@ int ysdl2RegistreMap(void);
 
 int ywMapHasChange(YWidgetState *state);
 
+static inline int ywMapW(YWidgetState *state)
+{
+  return yeGetInt(yeGet(state->entity, "width"));
+}
+
+static inline int ywMapH(YWidgetState *state)
+{
+  return yeLen(yeGet(state->entity, "map")) / ywMapW(state);
+}
+
 Entity *ywMapGetCase(YWidgetState *state, int x, int y);
 Entity *ywMapGetPos(YWidgetState *state);
 Entity *ywMapGetCurrentCase(YWidgetState *state);

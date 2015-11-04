@@ -48,6 +48,14 @@ static void moveMainCaracter(YWidgetState *wid, int x, int y)
       /* You can get it Noww !!!! */
       yeOpsAddInt(posX, x);
       yeOpsAddInt(posY, y);
+      if (yeGetInt(posX) < 0)
+	yeSetInt(posX, 0);
+      else if (yeGetInt(posX) >= ywMapW(wid) - 1)
+	yeSetInt(posX, ywMapW(wid) - 1);
+      if (yeGetInt(posY) < 0)
+	yeSetInt(posY, 0);
+      else if (yeGetInt(posY) >= ywMapH(wid) - 1)
+	yeSetInt(posY, ywMapH(wid) - 1);
       ywMapPushElem(wid, curHero, yeGetInt(posX), yeGetInt(posY), "hr");
       yeRemoveChild(cur, curHero);
       break;
