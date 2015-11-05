@@ -464,10 +464,10 @@ Entity *yeRemoveChild(Entity *array, Entity *toRemove)
     ret = tmp->entity;
     if (ret == toRemove) {
       arrayEntryDestroy(tmp);
-      for (int i2 = i + 1; i2 < len; ++i, ++i2) {
-	YE_TO_ARRAY(array)->values[i] = YE_TO_ARRAY(array)->values[i2];
-      }
-      manageArrayInternal(YE_TO_ARRAY(array), yeLen(array) - 1, NO_ENTITY_DESTROY);
+
+      if (i == (len - 1))
+	manageArrayInternal(YE_TO_ARRAY(array),
+			    yeLen(array) - 1, NO_ENTITY_DESTROY);
       return ret;
     }
   }

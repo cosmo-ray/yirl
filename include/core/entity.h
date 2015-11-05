@@ -83,7 +83,7 @@ extern "C"
       yeDestroy(X);				\
     }						\
   } while (0);
-  
+
   /**
    * @father is the entity contening this one (a struct or an array)
    */
@@ -103,7 +103,7 @@ extern "C"
     Entity *entity;
     char *name;
   } ArrayEntry;
-  
+
   typedef	struct
   {
     ENTITY_HEADER
@@ -145,7 +145,7 @@ extern "C"
   typedef	struct
   {
     ENTITY_HEADER
-    
+
     unsigned int len;
     char	*value;
     unsigned int nArgs;

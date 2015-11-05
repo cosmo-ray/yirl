@@ -20,18 +20,44 @@
 #define MAP_SIZE_W 40
 #define MAP_SIZE_H 40
 
-static void move(YWidgetState *wid, Entity *what,
+#define OUT_LEFT 10
+#define OUT_RIGHT 11
+#define OUT_TOP 20
+#define OUT_BOTOM 21
+
+static inline int isOut(YWidgetState *wid, Entity *pos)
+{
+  int posX = yeGetInt(yeGet(pos, "x"));
+  int posY = yeGetInt(yeGet(pos, "y"));
+
+  if (posX < 0)
+    return OUT_LEFT;
+  else if (posX >= ywMapW(wid) - 1)
+    return OUT_RIGHT;
+  if (posY < 0)
+    return OUT_TOP;
+  else if (posY >= ywMapH(wid) - 1)
+    return OUT_BOTOM;
+
+  return 0;  
+}
+
+static int move(YWidgetState *wid, Entity *what,
 		 Entity *pos, Entity *to)
 {
   Entity *posX = yeGet(pos, "x");
   Entity *posY = yeGet(pos, "y");
   Entity *cur = ywMapGetCase(wid, yeGetInt(posX), yeGetInt(posY));
+  int ret = 0;
+
+  if ((ret = isOut(wid, pos)))
+    return ret;
 
   yeRemoveChild(cur, what);
   yeOpsAddEnt(yeGet(pos, "x"), yeGet(to, "x"));
   yeOpsAddEnt(yeGet(pos, "y"), yeGet(to, "y"));
   ywMapPushElem(wid, what, yeGetInt(posX), yeGetInt(posY), "bl");
-
+  return 0;
 }
 
 static void moveMainCaracter(YWidgetState *wid, int x, int y)
@@ -71,11 +97,16 @@ static void shooterHandleBullets(YWidgetState *wid)
     return;
 
   YE_ARRAY_FOREACH(bulletManager, bullet) {
+    if (!bullet)
+      continue;
     Entity *pos = yeGet(bullet, "pos");
     Entity *speedAndDir = yeGet(bullet, "speedAndDir");
     Entity *id = yeGet(bullet, "id");
+    int out = 0;
 
-    move(wid, id, pos, speedAndDir);
+    if ((out = move(wid, id, pos, speedAndDir))) {
+      yeRemoveChild(bulletManager, bullet);
+    }
   }
 }
 
