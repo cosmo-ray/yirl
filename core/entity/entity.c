@@ -168,11 +168,11 @@ static Entity *yeGetByIdxFastWithEnd(Entity *entity, const char *name, int end)
 
 Entity *yeGetByStrFast(Entity *entity, const char *name)
 {
-  if (!entity)
+  if (!entity || !name)
     return NULL;
   for (unsigned int i = 0; i < YE_TO_ARRAY(entity)->len; ++i) {
     ArrayEntry *tmp = yeGetArrayEntryByIdx(entity, i);
-    if (!tmp || !tmp->name)
+    if (!tmp->name)
       continue;
     if (yuiStrEqual(tmp->name, name))
       return tmp->entity;
@@ -381,7 +381,9 @@ static inline void arrayEntryInit(ArrayEntry *ae)
 static inline void arrayEntryDestroy(ArrayEntry *ae)
 {
   g_free(ae->name);
+  ae->name = NULL;
   yeDestroy(ae->entity);
+  ae->entity = NULL;
 }
 
 typedef enum

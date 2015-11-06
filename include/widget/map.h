@@ -58,4 +58,13 @@ static inline Entity *ywMapGetResources(YWidgetState *state)
   return ((YMapState *)state)->resources;
 }
 
+static inline void ywMapRemove(YWidgetState *state, Entity *pos, Entity *elem)
+{
+  Entity *posX = yeGet(pos, "x");
+  Entity *posY = yeGet(pos, "y");
+  Entity *cur = ywMapGetCase(state, yeGetInt(posX), yeGetInt(posY));
+
+  yeRemoveChild(cur, elem);
+}
+
 #endif

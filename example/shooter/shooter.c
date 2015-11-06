@@ -27,22 +27,40 @@
 
 static inline int isOut(YWidgetState *wid, Entity *pos)
 {
+  Entity *entX = yeGet(pos, "x");
+  Entity *entY = yeGet(pos, "y");
   int posX = yeGetInt(yeGet(pos, "x"));
   int posY = yeGetInt(yeGet(pos, "y"));
 
-  if (posX < 0)
+  if (posX < 0) {
+    yeSetInt(entX, 0);
     return OUT_LEFT;
-  else if (posX >= ywMapW(wid) - 1)
+  } else if (posX >= ywMapW(wid) - 1) {
+    yeSetInt(entX, ywMapH(wid) - 1);
     return OUT_RIGHT;
-  if (posY < 0)
-    return OUT_TOP;
-  else if (posY >= ywMapH(wid) - 1)
-    return OUT_BOTOM;
+  }
 
+  if (posY < 0) {
+    yeSetInt(entY, 0);
+    return OUT_TOP;
+  } else if (posY >= ywMapH(wid) - 1) {
+    yeSetInt(entY, ywMapH(wid) - 1);
+    return OUT_BOTOM;
+  }
   return 0;  
 }
 
-static int move(YWidgetState *wid, Entity *what,
+static int removeBullet(YWidgetState *wid, Entity *bullet,
+			Entity *what, Entity *pos)
+{
+  Entity *bulletManager = yeGet(wid->entity, "$bullet-manager");
+
+  ywMapRemove(wid, pos, what);
+  yeRemoveChild(bulletManager, bullet);
+  return 0;
+}
+
+static int move(YWidgetState *wid, Entity *bullet, Entity *what,
 		 Entity *pos, Entity *to)
 {
   Entity *posX = yeGet(pos, "x");
@@ -51,13 +69,31 @@ static int move(YWidgetState *wid, Entity *what,
   int ret = 0;
 
   if ((ret = isOut(wid, pos)))
-    return ret;
+    return removeBullet(wid, bullet, what, pos);
 
   yeRemoveChild(cur, what);
-  yeOpsAddEnt(yeGet(pos, "x"), yeGet(to, "x"));
-  yeOpsAddEnt(yeGet(pos, "y"), yeGet(to, "y"));
+  yeOpsAddEnt(posX, yeGet(to, "x"));
+  yeOpsAddEnt(posY, yeGet(to, "y"));
   ywMapPushElem(wid, what, yeGetInt(posX), yeGetInt(posY), "bl");
   return 0;
+}
+
+static void shooterHandleBullets(YWidgetState *wid)
+{
+  Entity *bulletManager = yeGet(wid->entity, "$bullet-manager");
+
+  if (!bulletManager)
+    return;
+
+  YE_ARRAY_FOREACH(bulletManager, bullet) {
+    if (!bullet)
+      continue;
+    Entity *pos = yeGet(bullet, "pos");
+    Entity *speedAndDir = yeGet(bullet, "speedAndDir");
+    Entity *id = yeGet(bullet, "id");
+
+    move(wid, bullet, id, pos, speedAndDir);
+  }
 }
 
 static void moveMainCaracter(YWidgetState *wid, int x, int y)
@@ -88,28 +124,6 @@ static void moveMainCaracter(YWidgetState *wid, int x, int y)
     }
   }
 }
-
-static void shooterHandleBullets(YWidgetState *wid)
-{
-  Entity *bulletManager = yeGet(wid->entity, "$bullet-manager");
-
-  if (!bulletManager)
-    return;
-
-  YE_ARRAY_FOREACH(bulletManager, bullet) {
-    if (!bullet)
-      continue;
-    Entity *pos = yeGet(bullet, "pos");
-    Entity *speedAndDir = yeGet(bullet, "speedAndDir");
-    Entity *id = yeGet(bullet, "id");
-    int out = 0;
-
-    if ((out = move(wid, id, pos, speedAndDir))) {
-      yeRemoveChild(bulletManager, bullet);
-    }
-  }
-}
-
 
 static void shooterSpamBullet(YWidgetState *wid, int x, int y)
 {
