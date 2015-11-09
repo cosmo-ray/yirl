@@ -78,10 +78,8 @@ YCallback *ywinCreateNativeCallback(const char *name,
     return NULL;
   ret->base.type = YCALLBACK_NATIVE;
   ret->base.name = g_strdup(name);
-  if (!ret->base.name) {
-    g_free(ret->base.name);
+  if (!ret->base.name)
     return NULL;
-  }
   ret ->callack = callack;
   return (YCallback *)ret;
 }
