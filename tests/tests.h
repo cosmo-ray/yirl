@@ -18,6 +18,8 @@
 #ifndef _TESTS_H_
 #define _TESTS_H_
 
+void testBlockArray(void);
+
 void testLifecycleSimple(void);
 void testLifecycleFlow(void);
 void testLifecycleComplex(void);
