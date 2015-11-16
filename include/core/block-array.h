@@ -142,14 +142,17 @@ static inline int8_t *yBlockArrayGetInternal(BlockArray *ba, size_t pos)
   return ba->elems + (pos * ba->elemSize);
 }
 
+#define yBlockArrayGetPtr(ba, pos, type)	\
+  ((type *)yBlockArrayGetInternal((ba), (pos)))
+
 #define yBlockArrayGet(ba, pos, type)		\
   (*((type *)yBlockArrayGetInternal((ba), (pos))))
 
 #define MAKE_SET(i)				\
   ((1LLU << (i)) - 1)
 
-#define Y_BLOCK_ARRAY_FOREACH_SINCE(ba, beg, elem, it, type)		\
-  type elem;								\
+#define Y_BLOCK_ARRAY_FOREACH_INT(ba, beg, elem, it, type, elemType, getter) \
+  elemType elem;							\
   size_t tmpBeg##elem = (beg);						\
   for (uint16_t yfi = yBlockArrayBlockPos(beg);				\
        yfi < (ba)->nbBlock;						\
@@ -160,12 +163,21 @@ static inline int8_t *yBlockArrayGetInternal(BlockArray *ba, size_t pos)
 	   tmp##it, it;							\
 	 ((tmp##it = YUI_GET_FiRST_BYTE(tmpmask)) || 1) &&		\
 	   ((it = yfi * 64 + tmp##it) || 1) &&				\
-	   ((elem = yBlockArrayGet(ba, it, type)) || 1) &&		\
+	   ((elem = getter(ba, it, type)) || 1) &&			\
 	   tmpmask;							\
 	 tmpmask &= ~(1LLU << it))
 
 
-#define Y_BLOCK_ARRAY_FOREACH(ba, elem, it, type)			\
+#define Y_BLOCK_ARRAY_FOREACH_SINCE(ba, beg, elem, it, type)		\
+  Y_BLOCK_ARRAY_FOREACH_INT(ba, beg, elem, it, type, type, yBlockArrayGet)
+
+#define Y_BLOCK_ARRAY_FOREACH_PTR_SINCE(ba, beg, elem, it, type)	\
+  Y_BLOCK_ARRAY_FOREACH_INT(ba, beg, elem, it, type, type *, yBlockArrayGetPtr)
+
+#define Y_BLOCK_ARRAY_FOREACH_PTR(ba, elem, it, type)		\
+  Y_BLOCK_ARRAY_FOREACH_PTR_SINCE(ba, 0, elem, it, type)
+
+#define Y_BLOCK_ARRAY_FOREACH(ba, elem, it, type)	\
   Y_BLOCK_ARRAY_FOREACH_SINCE(ba, 0, elem, it, type)
 
 static inline void yBlockArrayFree(BlockArray *ba)

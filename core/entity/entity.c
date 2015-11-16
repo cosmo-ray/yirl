@@ -127,7 +127,7 @@ Entity *yeGetByIdx(Entity *entity, unsigned int index)
   Entity *tmp;
   if (index >= YE_TO_ARRAY(entity)->len)
     return NULL;
-  tmp = YE_TO_ARRAY(entity)->values[index].entity;
+  tmp = yBlockArrayGet(&YE_TO_ARRAY(entity)->values, index, ArrayEntry).entity;
   return tmp;
 }
 
@@ -146,7 +146,7 @@ static int	findIdxPoint(const char *name)
 
 static inline ArrayEntry *yeGetArrayEntryByIdx(Entity *entity, uint32_t i)
 {
-  return &YE_TO_ARRAY(entity)->values[i];
+  return yBlockArrayGetPtr(&YE_TO_ARRAY(entity)->values, i, ArrayEntry);
 }
 
 /**
@@ -158,11 +158,11 @@ static inline ArrayEntry *yeGetArrayEntryByIdx(Entity *entity, uint32_t i)
  */
 static Entity *yeGetByIdxFastWithEnd(Entity *entity, const char *name, int end)
 {
-  for (unsigned int i = 0; i < YE_TO_ARRAY(entity)->len; ++i) {
-      ArrayEntry *tmp = yeGetArrayEntryByIdx(entity, i);
-      if (strncmp(tmp->name, name, end))
-	return tmp->entity;
-    }
+
+  Y_BLOCK_ARRAY_FOREACH_PTR(&YE_TO_ARRAY(entity)->values, tmp, it, ArrayEntry) {
+    if (strncmp(tmp->name, name, end))
+      return tmp->entity;
+  }
   return NULL;
 }
 
@@ -170,8 +170,8 @@ Entity *yeGetByStrFast(Entity *entity, const char *name)
 {
   if (!entity || !name)
     return NULL;
-  for (unsigned int i = 0; i < YE_TO_ARRAY(entity)->len; ++i) {
-    ArrayEntry *tmp = yeGetArrayEntryByIdx(entity, i);
+
+  Y_BLOCK_ARRAY_FOREACH_PTR(&YE_TO_ARRAY(entity)->values, tmp, it, ArrayEntry) {
     if (!tmp->name)
       continue;
     if (yuiStrEqual(tmp->name, name))
@@ -222,7 +222,7 @@ Entity *yeCreateArray(Entity *father, const char *name)
   YE_ALLOC_ENTITY(ret, ArrayEntity);
   yeInit((Entity *)ret, YARRAY, father, name);
   ret->len = 0;
-  ret->values = NULL;
+  yBlockArrayInit(&ret->values, BlockArray);
   return (YE_TO_ENTITY(ret));
 }
 
@@ -330,8 +330,7 @@ void yeDestroyArray(Entity *entity)
 {
   if(entity->refCount == 1) {
     destroyChilds(entity);
-    g_free(YE_TO_ARRAY(entity)->values);
-    YE_TO_ARRAY(entity)->values = NULL;
+    yBlockArrayFree(&YE_TO_ARRAY(entity)->values);
   }
   YE_DESTROY_ENTITY(entity, ArrayEntity);
 }
@@ -381,9 +380,8 @@ static inline void arrayEntryInit(ArrayEntry *ae)
 static inline void arrayEntryDestroy(ArrayEntry *ae)
 {
   g_free(ae->name);
-  ae->name = NULL;
   yeDestroy(ae->entity);
-  ae->entity = NULL;
+  arrayEntryInit(ae);
 }
 
 typedef enum
@@ -397,25 +395,21 @@ static ArrayEntity	*manageArrayInternal(ArrayEntity *entity,
 					     unsigned int size,
 					     ManageArrayFlag flag)
 {
-  unsigned int	i;
+  unsigned int	i = size - 1;
 
   if (size < entity->len && !(flag & NO_ENTITY_DESTROY)) {
-    for (i = size - 1; i < entity->len; ++i) {
-      arrayEntryDestroy(&entity->values[i]);
+    for (; i < entity->len; ++i) {
+      arrayEntryDestroy(&yBlockArrayGet(&entity->values, i, ArrayEntry));
+      yBlockArrayUnset(&entity->values, i);
     }
   }
 
-  if (entity->len == 0) {
-    entity->values = malloc(sizeof(ArrayEntry) * size);
-    i = 0;
-  } else {
-    entity->values = realloc(entity->values, sizeof(ArrayEntry) * size);
-    i = entity->len;
-  }
-
+  yBlockArrayAssureBlock(&entity->values, size);
   entity->len = size;
+
   for (; i < size; ++i) {
-    arrayEntryInit(&entity->values[i]);
+    yBlockArraySet(&entity->values, i);
+    arrayEntryInit(yeGetArrayEntryByIdx(YE_TO_ENTITY(entity), i));
   }
   return entity;
 }
@@ -537,19 +531,20 @@ void yeSetDestroy(Entity *entity, void (*destroyFunc)(void *))
 int yeAttach(Entity *on, Entity *entity,
 	     unsigned int idx, const char *name)
 {
+  ArrayEntry *entry;
+  
   if (!on)
     return -1;
   if (on->type != YARRAY)
     return -1;
   if (idx >= yeLen(on))
     return -1;
-  if (YE_TO_ARRAY(on)->values[idx].entity) {
-    arrayEntryDestroy(&YE_TO_ARRAY(on)->values[idx]);
-  }
 
-  YE_TO_ARRAY(on)->values[idx].entity = entity;
-  if (name)
-    YE_TO_ARRAY(on)->values[idx].name = g_strdup(name);  
+  entry = yeGetArrayEntryByIdx(on, idx);
+  arrayEntryDestroy(entry);
+
+  entry->entity = entity;
+  entry->name = g_strdup(name);  
   yeAttachFather(entity, on);
   entity->refCount += 1;
   return 0;
@@ -712,17 +707,21 @@ Entity*		yeCopy(Entity* src, Entity* dest)
   return NULL;
 }
 
-ArrayEntity*		yeCopyContener(ArrayEntity* src, ArrayEntity* dest)
+ArrayEntity	*yeCopyContener(ArrayEntity* src, ArrayEntity* dest)
   {
-    unsigned int i;
-
     if (src == NULL || dest == NULL)
       return NULL;
-    for (i = 0; i < yeLen((Entity*)src) && i < yeLen((Entity*)dest); i++)
-      {
-	dest->values[i].name = g_strdup(dest->values[i].name);
-	yeCopy(src->values[i].entity, dest->values[i].entity);
-      }
+
+    ArrayEntry *destElem;
+
+    Y_BLOCK_ARRAY_FOREACH_PTR(&src->values, elem, it, ArrayEntry) {
+
+      yBlockArrayCopyElem(&dest->values, it, elem);
+
+      destElem = yBlockArrayGetPtr(&dest->values, it, ArrayEntry);
+      destElem->name = g_strdup(elem->name);
+      yeCopy(elem->entity, destElem->entity);
+    }
     return dest;
   }
 

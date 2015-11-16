@@ -25,6 +25,7 @@
 
 #include <stdio.h>
 #include <glib.h>
+#include "block-array.h"
 
 #define NONNULL(arg) __attribute__ ((nonnull (arg)))
 
@@ -109,7 +110,7 @@ extern "C"
     ENTITY_HEADER
 
     unsigned int len;
-    ArrayEntry	*values;
+    BlockArray values;
   } ArrayEntity;
 
   typedef	struct
