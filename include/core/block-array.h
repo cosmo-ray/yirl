@@ -21,6 +21,7 @@
 #include <glib.h>
 #include <stdint.h>
 #include <string.h>
+#include "utils.h"
 
 #define Y_BLOCK_ARRAY_BLOCK_SIZE 64
 
@@ -43,11 +44,13 @@ static inline void yBlockArrayInitInternal(BlockArray *ba, size_t elemSize)
   ba->lastElem = 0;
 }
 
+
 #define yBlockArrayInit(ba, elemType)			\
   (yBlockArrayInitInternal((ba), sizeof(elemType)))
 
-#define yBlockArrayGetBlock(ba, pos)			\
-  (ba)->blocks[(pos)]
+#define yBlockArrayGetBlock(ba, bPos)			\
+  ((ba)->blocks[(bPos)])
+
 
 #define BLOCK_REAL_SIZE(ba)			\
   ((ba)->elemSize * 64)
@@ -58,13 +61,12 @@ static inline void yBlockArrayExpandBlocks(BlockArray *ba, int nb)
 
   ba->nbBlock += nb;
   ba->elems = g_realloc(ba->elems, ba->nbBlock * BLOCK_REAL_SIZE(ba));
-  ba->blocks = g_realloc(ba->blocks, sizeof(uint64_t) * ba->nbBlock);
+  ba->blocks = g_realloc(ba->blocks, ba->nbBlock * sizeof(uint64_t));
 
   if (nb > 0) {
     memset(ba->elems + (oldPos  * BLOCK_REAL_SIZE(ba)), 0,
 	   nb * BLOCK_REAL_SIZE(ba));
-    memset(ba->blocks + (oldPos  * sizeof(uint64_t)),
-	   0, nb * sizeof(uint64_t));
+    memset(ba->blocks + oldPos, 0, nb * sizeof(uint64_t));
   }
 }
 
@@ -94,7 +96,7 @@ static inline int yBlockArrayIsFree(BlockArray *ba, size_t pos)
   return !(ba->blocks[yBlockArrayBlockPos(pos)] & (1LLU << (pos & 63LLU)));
 }
 
-static inline void yBlockUnset(BlockArray *ba, size_t pos)
+static inline void yBlockArrayUnset(BlockArray *ba, size_t pos)
 {
   int16_t toFree = 0;
   uint16_t bPos = yBlockArrayBlockPos(pos);
@@ -142,6 +144,29 @@ static inline int8_t *yBlockArrayGetInternal(BlockArray *ba, size_t pos)
 
 #define yBlockArrayGet(ba, pos, type)		\
   (*((type *)yBlockArrayGetInternal((ba), (pos))))
+
+#define MAKE_SET(i)				\
+  ((1LLU << (i)) - 1)
+
+#define Y_BLOCK_ARRAY_FOREACH_SINCE(ba, beg, elem, it, type)		\
+  type elem;								\
+  size_t tmpBeg##elem = (beg);						\
+  for (uint16_t yfi = yBlockArrayBlockPos(beg);				\
+       yfi < (ba)->nbBlock;						\
+       tmpBeg##elem = 0, ++yfi)						\
+    for (uint64_t tmpmask =						\
+	   (yBlockArrayGetBlock((ba),					\
+				yfi) ^ MAKE_SET(tmpBeg##elem & 63)),	\
+	   tmp##it, it;							\
+	 ((tmp##it = YUI_GET_FiRST_BYTE(tmpmask)) || 1) &&		\
+	   ((it = yfi * 64 + tmp##it) || 1) &&				\
+	   ((elem = yBlockArrayGet(ba, it, type)) || 1) &&		\
+	   tmpmask;							\
+	 tmpmask &= ~(1LLU << it))
+
+
+#define Y_BLOCK_ARRAY_FOREACH(ba, elem, it, type)			\
+  Y_BLOCK_ARRAY_FOREACH_SINCE(ba, 0, elem, it, type)
 
 static inline void yBlockArrayFree(BlockArray *ba)
 {
