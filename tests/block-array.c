@@ -30,8 +30,14 @@ void testBlockArray(void)
 {
   struct block_test test;
   uint64_t tmp = 1337;
+  BlockArrayIterator iterator;
 
   yBlockArrayInit(&test.array, uint64_t);
+
+  iterator = yBlockArrayIteratorCreate(&test.array, 0);
+  g_assert(yBlockArrayIteratorIsEnd(&iterator));
+  yBlockArrayIteratorIncr(&iterator);
+  g_assert(yBlockArrayIteratorIsEnd(&iterator));
   Y_BLOCK_ARRAY_FOREACH(&test.array, useless1, useless2, uint64_t) {
     /* should not be here */
     g_assert(0);
@@ -62,6 +68,7 @@ void testBlockArray(void)
     yBlockArrayInit(&test.array, int);
     yBlockArrayCopyElem(&test.array, i, i);
     g_assert(yBlockArrayGet(&test.array, i, int) == i);
+    g_assert(yBlockArrayIsSet(&test.array, i));
     g_assert(!yBlockArrayIsFree(&test.array, i));
     yBlockArrayFree(&test.array);
   }
@@ -78,6 +85,14 @@ void testBlockArray(void)
       g_assert(yBlockArrayIsFree(&test.array, i));
     }
   }
+
+  yBlockArrayIteratorInit(iterator, &test.array, 0);
+  g_assert(!yBlockArrayIteratorIsEnd(&iterator));
+  g_assert(yBlockArrayIteratorGet(iterator, uint64_t) == tmp);
+  g_assert(*yBlockArrayIteratorGetPtr(iterator, uint64_t) == tmp);
+  yBlockArrayIteratorIncr(&iterator);
+  g_assert(yBlockArrayIteratorIsEnd(&iterator));
+
   yBlockArrayFree(&test.array);
     Y_BLOCK_ARRAY_FOREACH(&test.array, useless3, useless2, uint64_t) {
     /* should not be here */
@@ -111,6 +126,23 @@ void testBlockArray(void)
   }
   g_assert(nbIteration == 2);
 
+
+  yBlockArrayIteratorInit(iterator, &test.array, 0);
+  g_assert(!yBlockArrayIteratorIsEnd(&iterator));
+  g_assert(yBlockArrayIteratorGet(iterator, uint64_t) == tmp);
+  g_assert(*yBlockArrayIteratorGetPtr(iterator, uint64_t) == tmp);
+  g_assert(iterator.blockPos == 3);
+  g_assert(iterator.pos == 63);
+  yBlockArrayIteratorIncr(&iterator);
+
+  g_assert(!yBlockArrayIteratorIsEnd(&iterator));
+  g_assert(yBlockArrayIteratorGet(iterator, uint64_t) == tmp);
+  g_assert(*yBlockArrayIteratorGetPtr(iterator, uint64_t) == tmp);
+  g_assert(iterator.blockPos == 4);
+  g_assert(iterator.pos == 0);
+  yBlockArrayIteratorIncr(&iterator);
+  g_assert(yBlockArrayIteratorIsEnd(&iterator));
+  
   nbIteration = 0;
   Y_BLOCK_ARRAY_FOREACH_SINCE(&test.array, 64 * 4, elem0, it, uint64_t) {
     g_assert(elem0 == tmp);
@@ -118,7 +150,7 @@ void testBlockArray(void)
     ++nbIteration;    
   }
   g_assert(nbIteration == 1);
-  
+
   yBlockArrayUnset(&test.array, 64 * 4);
 
   g_assert(!yBlockArrayGetBlock(&test.array, 0));

@@ -284,8 +284,8 @@ YEvent *ywidGenericWaitEvent(void)
 {
   if (!rendersMask)
     return NULL;
-  if (YUI_COUNT_1_BYTE(rendersMask) == 1) {
-    return renderOpTab[YUI_GET_FiRST_BYTE(rendersMask)].waitEvent();
+  if (YUI_COUNT_1_BIT(rendersMask) == 1) {
+    return renderOpTab[YUI_GET_FIRST_BIT(rendersMask)].waitEvent();
   } else {
     YEvent *ret;
     while (1) {

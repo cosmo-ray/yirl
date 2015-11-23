@@ -1,3 +1,4 @@
+
 /*
 **Copyright (C) 2015 Matthias Gatto
 **
@@ -35,6 +36,13 @@ typedef struct {
 
 static intptr_t nullPtr = 0;
 
+typedef struct {
+  BlockArray *array;
+  uint64_t mask;
+  uint16_t blockPos;
+  uint16_t pos;
+} BlockArrayIterator;
+
 static inline void yBlockArrayInitInternal(BlockArray *ba, size_t elemSize)
 {
   ba->elemSize = elemSize;
@@ -48,8 +56,8 @@ static inline void yBlockArrayInitInternal(BlockArray *ba, size_t elemSize)
 #define yBlockArrayInit(ba, elemType)			\
   (yBlockArrayInitInternal((ba), sizeof(elemType)))
 
-#define yBlockArrayGetBlock(ba, bPos)			\
-  ((ba)->blocks[(bPos)])
+#define yBlockArrayGetBlock(ba, bPos)					\
+  (yBlockArrayIsBlockAllocated(ba, bPos) ? (ba)->blocks[(bPos)] : 0LLU)
 
 
 #define BLOCK_REAL_SIZE(ba)			\
@@ -91,9 +99,15 @@ static inline int8_t *yBlockArrayAssureBlock(BlockArray *ba, size_t pos)
   return ba->elems + (pos * ba->elemSize);
 }
 
+static inline int yBlockArrayIsSet(BlockArray *ba, size_t pos)
+{
+  return !!(yBlockArrayGetBlock(ba, yBlockArrayBlockPos(pos)) &
+	    (1LLU << (pos & 63)));
+}
+
 static inline int yBlockArrayIsFree(BlockArray *ba, size_t pos)
 {
-  return !(ba->blocks[yBlockArrayBlockPos(pos)] & (1LLU << (pos & 63LLU)));
+  return !yBlockArrayIsSet(ba, pos);
 }
 
 static inline void yBlockArrayUnset(BlockArray *ba, size_t pos)
@@ -148,7 +162,7 @@ static inline int8_t *yBlockArrayGetInternal(BlockArray *ba, size_t pos)
 #define yBlockArrayGet(ba, pos, type)		\
   (*((type *)yBlockArrayGetInternal((ba), (pos))))
 
-#define MAKE_SET(i)				\
+#define Y_BLOCK_ARRAY_MAKE_SET(i)		\
   ((1LLU << (i)) - 1)
 
 #define Y_BLOCK_ARRAY_FOREACH_INT(ba, beg, elem, it, type, elemType, getter) \
@@ -158,14 +172,14 @@ static inline int8_t *yBlockArrayGetInternal(BlockArray *ba, size_t pos)
        yfi < (ba)->nbBlock;						\
        tmpBeg##elem = 0, ++yfi)						\
     for (uint64_t tmpmask =						\
-	   (yBlockArrayGetBlock((ba),					\
-				yfi) ^ MAKE_SET(tmpBeg##elem & 63)),	\
+	   (yBlockArrayGetBlock((ba), yfi) ^				\
+	    Y_BLOCK_ARRAY_MAKE_SET(tmpBeg##elem & 63)),			\
 	   tmp##it, it;							\
-	 ((tmp##it = YUI_GET_FiRST_BYTE(tmpmask)) || 1) &&		\
+	 ((tmp##it = YUI_GET_FIRST_BIT(tmpmask)) || 1) &&		\
 	   ((it = yfi * 64 + tmp##it) || 1) &&				\
 	   ((elem = getter(ba, it, type)) || 1) &&			\
 	   tmpmask;							\
-	 tmpmask &= ~(1LLU << it))
+	 tmpmask &= ~(1LLU << tmp##it))
 
 
 #define Y_BLOCK_ARRAY_FOREACH_SINCE(ba, beg, elem, it, type)		\
@@ -179,6 +193,50 @@ static inline int8_t *yBlockArrayGetInternal(BlockArray *ba, size_t pos)
 
 #define Y_BLOCK_ARRAY_FOREACH(ba, elem, it, type)	\
   Y_BLOCK_ARRAY_FOREACH_SINCE(ba, 0, elem, it, type)
+
+static inline int yBlockArrayIteratorIsEnd(BlockArrayIterator *it)
+{
+  return (!it->mask && !yBlockArrayIsBlockAllocated(it->array, it->blockPos));
+}
+
+static inline void yBlockArrayIteratorIncr(BlockArrayIterator *it)
+{
+  if (!it->mask) {
+    int j = 1;
+    for (int i = it->blockPos + 1; i < it->array->nbBlock &&
+	   !yBlockArrayGetBlock(it->array, i); ++i, ++j);
+    it->blockPos += j;
+    it->mask = yBlockArrayGetBlock(it->array, it->blockPos);
+    it->pos = 0;
+  }
+  it->pos = YUI_GET_FIRST_BIT(it->mask);
+  it->mask &= ~(1LLU << it->pos);
+}
+
+#define yBlockArrayIteratorInit(it, arrayPtr, beg)	do {		\
+    (it).blockPos = yBlockArrayBlockPos((beg));				\
+    (it).mask = yBlockArrayGetBlock((arrayPtr), (it).blockPos) ^	\
+      Y_BLOCK_ARRAY_MAKE_SET(beg & 63);					\
+    (it).pos = YUI_GET_FIRST_BIT((it).mask);				\
+    (it).array = (arrayPtr);						\
+    if (yBlockArrayIsFree((arrayPtr), (beg))) yBlockArrayIteratorIncr(&(it)); \
+  } while (0);
+
+static inline BlockArrayIterator yBlockArrayIteratorCreate(BlockArray *array,
+							   int beg)
+{
+  BlockArrayIterator ret;
+
+  yBlockArrayIteratorInit(ret, array, beg);
+  return ret;
+}
+
+#define yBlockArrayIteratorGetPtr(it, type)				\
+  ((type *)yBlockArrayGetInternal((it.array), (it.blockPos * 64 + it.pos)))
+
+#define yBlockArrayIteratorGet(it, type)				\
+  (*((type *)yBlockArrayGetInternal((it.array), (it.blockPos * 64 + it.pos))))
+
 
 static inline void yBlockArrayFree(BlockArray *ba)
 {

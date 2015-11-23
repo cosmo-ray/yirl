@@ -165,13 +165,16 @@ extern "C"
    */
   const char *yeTypeToString(int type) WEAK;
 
-#define YE_ARRAY_FOREACH_SET_VAL(array, val, idx)	\
-  ((val = yeGet(array, idx)) || 1)
+#define YE_ARRAY_FOREACH_SET_VAL(it, val)	\
+  ((val = yBlockArrayIteratorGetPtr(it, ArrayEntry)->entity) || 1)
 
 #define YE_ARRAY_FOREACH(array, val)					\
   Entity *val;								\
-  for (uint32_t i##val = 0; i##val < yeLen(array) &&			\
-	 YE_ARRAY_FOREACH_SET_VAL(array, val, i##val); ++i##val)
+  for (BlockArrayIterator it##val =					\
+	 yBlockArrayIteratorCreate(&YE_TO_ARRAY(array)->values, 0);	\
+       !yBlockArrayIteratorIsEnd(&it##val) &&				\
+	 YE_ARRAY_FOREACH_SET_VAL(it##val, val);			\
+       yBlockArrayIteratorIncr(&it##val))
 
   
   /**
