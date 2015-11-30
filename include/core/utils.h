@@ -36,7 +36,7 @@ typedef struct {
 /**
  * registre a new Type to a Manager.
  * @ma: The manager
- * @allocator: The functiont which will be use to allocate a new type.
+ * @allocator: The function which will be use to allocate a new type.
  */
 int yuiRegister(YManagerAllocator *ma, void *(*allocator)(void));
 
