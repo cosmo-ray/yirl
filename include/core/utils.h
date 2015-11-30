@@ -31,9 +31,12 @@ typedef struct {
 
 #include	"debug.h"
 
+/* These functions are helpers to manage "drivers" */
 
 /**
- * registre a new type in scriptsTab
+ * registre a new Type to a Manager.
+ * @ma: The manager
+ * @allocator: The functiont which will be use to allocate a new type.
  */
 int yuiRegister(YManagerAllocator *ma, void *(*allocator)(void));
 
