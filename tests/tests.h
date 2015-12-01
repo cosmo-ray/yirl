@@ -23,7 +23,7 @@ void testBlockArray(void);
 void testLifecycleSimple(void);
 void testLifecycleFlow(void);
 void testLifecycleComplex(void);
-void testLifecycleAwakwar(void);
+void testLifecycleAkwarde(void);
 void testLifeDeathRebirdAndAgain(void);
 
 void testSetSimple(void);

@@ -97,6 +97,7 @@ void testSetComplex(void)
 
   for (int i = 0; i < 10; ++i) {
     char *tmp = g_strdup_printf("Dude%d", i);
+
     g_assert(yeGetInt(yeGet(mainStruct, tmp)) == i * i);
     g_free(tmp);
   }

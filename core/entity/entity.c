@@ -22,8 +22,6 @@
 #include	"utils.h"
 #include	"debug_core.h"
 
-inline static void yeDestroyInternal(Entity *entity);
-
 /**
  * Here some macros to mutualise the code of entity
  */
@@ -49,12 +47,11 @@ inline static void yeDestroyInternal(Entity *entity);
       free(((type *)entity));			\
     }						\
   } while (0);
-  
+
 #define YE_ALLOC_ENTITY(ret, type) do {		\
     ret = malloc(sizeof(type));			\
     ret->refCount = 1;				\
   } while (0);
-
 
 /**
  * contain all the functions use to destruct entity
@@ -109,24 +106,27 @@ const char *yeTypeToString(int type)
     : (EntityTypeStrings[type]);
 }
 
-unsigned int yeLen(Entity *entity)
+size_t yeLen(Entity *entity)
 {
-  if (!entity) {
-    LOG_WARN("entity NULL in getLen\n");
+  if (!entity)
     return (0);
+
+  if (yeType(entity) == YARRAY) {
+    if (!yBlockArrayIsBlockAllocated(&YE_TO_ARRAY(entity)->values, 0))
+      return 0;
+    return yBlockArrayLastPos(&YE_TO_ARRAY(entity)->values) + 1;
   }
-  return (((ArrayEntity *)entity)->len);
+ 
+  return YE_TO_STRING(entity)->len;
 }
 
-Entity *yeGetByIdx(Entity *entity, unsigned int index)
+Entity *yeGetByIdx(Entity *entity, size_t index)
 {
   if (entity == NULL) {
     DPRINT_WARN("entity is NULL\n");
     return NULL;
   }
   Entity *tmp;
-  if (index >= YE_TO_ARRAY(entity)->len)
-    return NULL;
   tmp = yBlockArrayGet(&YE_TO_ARRAY(entity)->values, index, ArrayEntry).entity;
   return tmp;
 }
@@ -221,7 +221,6 @@ Entity *yeCreateArray(Entity *father, const char *name)
 
   YE_ALLOC_ENTITY(ret, ArrayEntity);
   yeInit((Entity *)ret, YARRAY, father, name);
-  ret->len = 0;
   yBlockArrayInit(&ret->values, BlockArray);
   return (YE_TO_ENTITY(ret));
 }
@@ -259,7 +258,20 @@ Entity *yeCreateString(const char *string, Entity *father, const char *name)
   return (YE_TO_ENTITY(ret));
 }
 
-#undef   REAJUSTE_REF
+static inline void arrayEntryInit(ArrayEntry *ae)
+{
+  ae->entity = NULL;
+  ae->name = NULL;
+}
+
+static inline void arrayEntryDestroy(ArrayEntry *ae)
+{
+  if (!ae)
+    return;
+  g_free(ae->name);
+  YE_DESTROY(ae->entity);
+  arrayEntryInit(ae);
+}
 
 static void yeRemoveFather(Entity *entity, Entity *father)
 {
@@ -282,12 +294,13 @@ static void yeRemoveFather(Entity *entity, Entity *father)
 
 static void destroyChilds(Entity *entity)
 {
+  
   for (int i = 0, end = yeLen(entity); i < end; ++i) {
     ArrayEntry *ae = yeGetArrayEntryByIdx(entity, i);
-    g_free(ae->name);
-    Entity *tmp = ae->entity;
-    yeRemoveFather(tmp, entity);
-    yeDestroyInternal(tmp);
+
+    yeRemoveFather(ae->entity, entity);
+    arrayEntryDestroy(ae);
+    yBlockArrayUnset(&YE_TO_ARRAY(entity)->values, i);
   }
 }
 
@@ -335,15 +348,9 @@ void yeDestroyArray(Entity *entity)
   YE_DESTROY_ENTITY(entity, ArrayEntity);
 }
 
-inline static void yeDestroyInternal(Entity *entity)
-{
-  if (entity)
-    destroyTab[entity->type](entity);
-}
-
 void yeDestroy(Entity *entity)
 {
-  yeDestroyInternal(entity);
+  destroyTab[entity->type](entity);
 }
 
 Entity *yeCreate(EntityType type, void *val, Entity *father, const char *name)
@@ -370,20 +377,6 @@ Entity *yeCreate(EntityType type, void *val, Entity *father, const char *name)
   return (NULL);
 }
 
-
-static inline void arrayEntryInit(ArrayEntry *ae)
-{
-  ae->entity = NULL;
-  ae->name = NULL;
-}
-
-static inline void arrayEntryDestroy(ArrayEntry *ae)
-{
-  g_free(ae->name);
-  yeDestroy(ae->entity);
-  arrayEntryInit(ae);
-}
-
 typedef enum
   {
     NONE = 0,
@@ -397,15 +390,14 @@ static ArrayEntity	*manageArrayInternal(ArrayEntity *entity,
 {
   unsigned int	i = size - 1;
 
-  if (size < entity->len && !(flag & NO_ENTITY_DESTROY)) {
-    for (; i < entity->len; ++i) {
+  if (size < yeLen(YE_TO_ENTITY(entity)) && !(flag & NO_ENTITY_DESTROY)) {
+    for (; i < yeLen(YE_TO_ENTITY(entity)); ++i) {
       arrayEntryDestroy(&yBlockArrayGet(&entity->values, i, ArrayEntry));
       yBlockArrayUnset(&entity->values, i);
     }
   }
 
   yBlockArrayAssureBlock(&entity->values, size);
-  entity->len = size;
 
   for (; i < size; ++i) {
     yBlockArraySet(&entity->values, i);
@@ -425,7 +417,7 @@ Entity *yeExpandArray(Entity *entity, unsigned int size)
 
 int	yePushBack(Entity *entity, Entity *toPush, const char *name)
 {
-  int	len;
+  int ret;
 
   if (!entity || !toPush)
     return -1;
@@ -435,37 +427,29 @@ int	yePushBack(Entity *entity, Entity *toPush, const char *name)
 	       yeTypeToString( yeType(entity)));
     return -1;
   }
-  len = yeLen(entity);
-  if (yeExpandArray(entity, len + 1) == NULL)
-    return -1;
-  if (yeAttach(entity, toPush, len, name))
-    return -1;
-  return 0;
+  ret =  yeAttach(entity, toPush, yeLen(entity), name);
+  return ret;
 }
 
 Entity *yeRemoveChild(Entity *array, Entity *toRemove)
 {
-  int	len;
-  ArrayEntry *tmp = NULL;
-
   if (!checkType(array, YARRAY)) {
     DPRINT_ERR("yeRemoveChild: bad entity\n");
     return NULL;
   }
-  len = yeLen(array);
-  for (int i = 0; i < len; ++i) {
+
+  Y_BLOCK_ARRAY_FOREACH_PTR(&YE_TO_ARRAY(array)->values, tmp, it, ArrayEntry) {
     Entity *ret;
 
-    tmp = yeGetArrayEntryByIdx(array, i);
+    tmp = yeGetArrayEntryByIdx(array, it);
     ret = tmp->entity;
     if (ret == toRemove) {
       arrayEntryDestroy(tmp);
 
-      if (i == (len - 1))
-	manageArrayInternal(YE_TO_ARRAY(array),
-			    yeLen(array) - 1, NO_ENTITY_DESTROY);
+      yBlockArrayUnset(&YE_TO_ARRAY(array)->values, it);
       return ret;
     }
+    ++it;
   }
   return NULL;
 }
@@ -537,12 +521,13 @@ int yeAttach(Entity *on, Entity *entity,
     return -1;
   if (on->type != YARRAY)
     return -1;
-  if (idx >= yeLen(on))
-    return -1;
 
+  yBlockArrayAssureBlock(&YE_TO_ARRAY(on)->values, idx);
   entry = yeGetArrayEntryByIdx(on, idx);
-  arrayEntryDestroy(entry);
+  if (yBlockArrayIsSet(&YE_TO_ARRAY(on)->values, idx))
+    arrayEntryDestroy(entry);
 
+  yBlockArraySet(&YE_TO_ARRAY(on)->values, idx);
   entry->entity = entity;
   entry->name = g_strdup(name);  
   yeAttachFather(entity, on);

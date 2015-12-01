@@ -57,7 +57,13 @@ Entity *ywMapCreatePos(int posX, int posY, Entity *bullet, const char *str)
 int ywMapPushElem(YWidgetState *state, Entity *toPush,
 		  int x, int y, const char *name)
 {
-  return yePushBack(ywMapGetCase(state, x, y), toPush, name);
+  printf("push in %d - %d on %p - len: %lu\n", x, y, ywMapGetCase(state, x, y),
+	 yeLen(ywMapGetCase(state, x, y)));
+  
+  int ret =  yePushBack(ywMapGetCase(state, x, y), toPush, name);
+
+  printf("after push %lu\n", yeLen(ywMapGetCase(state, x, y)));
+  return ret;
 }
 
 Entity *ywMapGetPos(YWidgetState *state)

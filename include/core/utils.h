@@ -42,14 +42,18 @@ int yuiRegister(YManagerAllocator *ma, void *(*allocator)(void));
 
 int yuiUnregiste(YManagerAllocator *ma, int t);
 
+
+/*TODO: change this name to YUI_GET_FIRST_MASK_POS*/
 #define YUI_GET_FIRST_BIT(mask) __builtin_ctzl(mask)
 
-#define YUI_COUNT_1_BIT(mask) __builtin_popcountl(mask)
+#define YUI_GET_LAST_MASK_POS(mask) (mask == 0LU ? 0LU : 63LU - __builtin_clzl(mask))
+
+#define YUI_COUNT_1_BIT(mask) (mask == 0LU ? 0LU : __builtin_popcountl(mask))
 
 #define YUI_FOREACH_BITMASK(mask, it, tmpmask)				\
   for (uint64_t tmpmask = mask, it; ((it = YUI_GET_FIRST_BIT(tmpmask)) || 1) && \
 	 tmpmask;							\
-       tmpmask &= ~(1LLU << it))
+       tmpmask &= ~(1LU << it))
 
 static inline int yuiStrEqual(const char *str1, const char *str2)
 {

@@ -25,16 +25,17 @@
 #include "utils.h"
 
 #define Y_BLOCK_ARRAY_BLOCK_SIZE 64
+#define YBA_MAX_ELEM_SIZE 1024
 
 typedef struct {
   uint64_t *blocks;
   int8_t *elems;
-  size_t lastElem;
+  size_t size;
   size_t elemSize;
   uint16_t nbBlock;
 } BlockArray;
 
-static intptr_t nullPtr = 0;
+static uint8_t nullPtr[YBA_MAX_ELEM_SIZE];
 
 typedef struct {
   BlockArray *array;
@@ -45,11 +46,12 @@ typedef struct {
 
 static inline void yBlockArrayInitInternal(BlockArray *ba, size_t elemSize)
 {
+  g_assert(elemSize < YBA_MAX_ELEM_SIZE);
   ba->elemSize = elemSize;
   ba->elems = NULL;
   ba->blocks = NULL;
   ba->nbBlock = 0;
-  ba->lastElem = 0;
+  ba->size = 0;
 }
 
 
@@ -57,7 +59,7 @@ static inline void yBlockArrayInitInternal(BlockArray *ba, size_t elemSize)
   (yBlockArrayInitInternal((ba), sizeof(elemType)))
 
 #define yBlockArrayGetBlock(ba, bPos)					\
-  (yBlockArrayIsBlockAllocated(ba, bPos) ? (ba)->blocks[(bPos)] : 0LLU)
+  (yBlockArrayIsBlockAllocated(ba, bPos) ? (ba)->blocks[(bPos)] : 0LU)
 
 
 #define BLOCK_REAL_SIZE(ba)			\
@@ -70,6 +72,7 @@ static inline void yBlockArrayExpandBlocks(BlockArray *ba, int nb)
   ba->nbBlock += nb;
   ba->elems = g_realloc(ba->elems, ba->nbBlock * BLOCK_REAL_SIZE(ba));
   ba->blocks = g_realloc(ba->blocks, ba->nbBlock * sizeof(uint64_t));
+  ba->size = ba->nbBlock * 64 - (1 * !!ba->nbBlock);
 
   if (nb > 0) {
     memset(ba->elems + (oldPos  * BLOCK_REAL_SIZE(ba)), 0,
@@ -99,15 +102,15 @@ static inline int8_t *yBlockArrayAssureBlock(BlockArray *ba, size_t pos)
   return ba->elems + (pos * ba->elemSize);
 }
 
-static inline int yBlockArrayIsSet(BlockArray *ba, size_t pos)
-{
-  return !!(yBlockArrayGetBlock(ba, yBlockArrayBlockPos(pos)) &
-	    (1LLU << (pos & 63)));
-}
-
 static inline int yBlockArrayIsFree(BlockArray *ba, size_t pos)
 {
-  return !yBlockArrayIsSet(ba, pos);
+  return !(yBlockArrayGetBlock(ba, yBlockArrayBlockPos(pos)) &
+	   (1LLU << (pos & 63)));
+}
+
+static inline int yBlockArrayIsSet(BlockArray *ba, size_t pos)
+{
+  return !yBlockArrayIsFree(ba, pos);
 }
 
 static inline void yBlockArrayUnset(BlockArray *ba, size_t pos)
@@ -137,8 +140,6 @@ static inline void yBlockArrayCopyElemInternal(BlockArray *ba, size_t pos,
 {  
   yBlockArrayAssureBlock(ba, pos);
   memcpy(ba->elems + (pos * ba->elemSize), elem, ba->elemSize);
-  if (pos > ba->lastElem)
-    ba->lastElem = pos;
   yBlockArraySet(ba, pos);
   return;
 }
@@ -152,6 +153,14 @@ static inline int8_t *yBlockArrayGetInternal(BlockArray *ba, size_t pos)
 
   if (!yBlockArrayIsBlockAllocated(ba, blockPos)) {
     return (int8_t *)nullPtr;
+  }
+  return ba->elems + (pos * ba->elemSize);
+}
+
+static inline int8_t *yBlockArrayGetPtrInternal(BlockArray *ba, size_t pos)
+{
+  if (yBlockArrayIsFree(ba, pos)) {
+    return NULL;
   }
   return ba->elems + (pos * ba->elemSize);
 }
@@ -243,7 +252,14 @@ static inline void yBlockArrayFree(BlockArray *ba)
   g_free(ba->elems);
   g_free(ba->blocks);
   ba->nbBlock = 0;
-  ba->lastElem = 0;
+  ba->size = 0;
+}
+
+/* Get the pos of the last used bit */
+static inline size_t yBlockArrayLastPos(BlockArray *ba)
+{
+  return (ba->nbBlock - (1 * !!ba->nbBlock)) * 64 +
+    YUI_GET_LAST_MASK_POS(yBlockArrayGetBlock(ba, ba->nbBlock - 1));
 }
 
 

@@ -22,7 +22,7 @@
 
 static char getPrintableChar(Entity *mapCases, Entity *res)
 {
-  int ret = yeGetInt(yeGet(mapCases, yeLen(mapCases) - 1));
+  size_t ret = yeGetInt(yeGet(mapCases, yeLen(mapCases) - 1));
 
   res = yeGet(yeGet(res, ret), "map-char");
   return res != NULL ? yeGetString(res)[0] : '-';

@@ -94,7 +94,7 @@ void testLifecycleComplex(void)
   g_assert(mainStruct == NULL);
 }
 
-void testLifecycleAwakwar(void)
+void testLifecycleAkwarde(void)
 {
   Entity *mainStruct = yeCreateArray(NULL, NULL);
   Entity *subStruct1 = yeCreateArray(mainStruct, NULL);
@@ -104,18 +104,19 @@ void testLifecycleAwakwar(void)
   g_assert(mainStruct);
   g_assert(subStruct1);
   g_assert(subStruct2);
-  g_assert(test3);  
+  g_assert(test3);
   g_assert(mainStruct->refCount == 1);
   g_assert(subStruct1->refCount == 1);
   g_assert(subStruct2->refCount == 1);
   g_assert(test3->refCount == 1);
-  g_assert(!yePushBack(subStruct1, test3, NULL));
-  g_assert(test3->refCount == 2);
   g_assert(!yePushBack(mainStruct, test3, NULL));
+  g_assert(test3->refCount == 2);
+  g_assert(!yePushBack(subStruct1, test3, NULL));
   g_assert(test3->refCount == 3);
   g_assert(!yePushBack(subStruct2, test3, NULL));
   g_assert(test3->refCount == 4);
   YE_DESTROY(mainStruct);
+  printf("ref count: %d on %p\n", test3->refCount, test3);
   g_assert(test3->refCount == 1);
   g_assert(mainStruct == NULL);
   YE_DESTROY(test3);
@@ -133,7 +134,7 @@ void testLifeDeathRebirdAndAgain(void)
   for (int i = 0; i < 2000; ++i) {
     tmp = yeCreateArray(map, NULL);
     g_assert(tmp);
-    yeCreateInt(0, tmp, NULL);
+    g_assert(yeCreateInt(0, tmp, NULL));
   }
 
   tmp = yeGet(map, 500);
@@ -141,24 +142,24 @@ void testLifeDeathRebirdAndAgain(void)
   yeCreateInt(1, tmp, "hr");
 
   int good = 0;;
+
   for (int j = 500; j < 1000; ++j) {
     tmp = yeGet(map, j);
-    good = 0;
     for (unsigned int i = 0; i < yeLen(tmp); ++i) {
       Entity *curHero = yeGet(tmp, i);
+
       if (yeGetInt(curHero) == 1) {
 	good = 1;
-	++j;
+
 	/* You can get it Noww !!!! */
-	yePushBack(yeGet(map, j), tmp, "hr");
-	g_assert(curHero->refCount == 2);
-	yeRemoveChild(curHero, curHero);
-	g_assert(curHero->refCount == 1);
+	g_assert(yeLen(tmp) == 2);
+	yeRemoveChild(tmp, curHero);
+	g_assert(yeLen(tmp) == 1);
 	break;
       }
-      g_assert(good);
     }
   }
+  g_assert(good);
 
   YE_DESTROY(mainEnt);
 }

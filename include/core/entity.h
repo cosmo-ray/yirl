@@ -53,11 +53,10 @@ extern "C"
       YSTRING,
       YARRAY,
       YFUNCTION,
-      YDATA
+      YDATA,
+      NBR_ENTITYTYPE
     } EntityType;
   
-#define	NBR_ENTITYTYPE	6
-
 #define	YE_TO_ENTITY(X) ((Entity *)X)
 #define	YE_TO_C_ENTITY(X) ((const Entity *)X)
 #define	YE_TO_INT(X) ((IntEntity *)X)
@@ -109,7 +108,6 @@ extern "C"
   {
     ENTITY_HEADER
 
-    unsigned int len;
     BlockArray values;
   } ArrayEntity;
 
@@ -165,7 +163,7 @@ extern "C"
    */
   const char *yeTypeToString(int type) WEAK;
 
-#define YE_ARRAY_FOREACH_SET_VAL(it, val)	\
+#define YE_ARRAY_FOREACH_SET_VAL(it, val)				\
   ((val = yBlockArrayIteratorGetPtr(it, ArrayEntry)->entity) || 1)
 
 #define YE_ARRAY_FOREACH(array, val)					\
@@ -180,7 +178,7 @@ extern "C"
   /**
    * @return:	the entity at the position of @index or NULL
    */
-  Entity *yeGetByIdx(Entity *entity, unsigned int index) WEAK;
+  Entity *yeGetByIdx(Entity *entity, size_t index) WEAK;
     
   /**
    * @param entity  the entity whe are looking into
@@ -196,9 +194,11 @@ extern "C"
     Entity *yeGet(Entity *entity, const char *name) WEAK;
   }
 #else
-#define yeGet(ENTITY, INDEX) _Generic((INDEX),			\
-				      unsigned int: yeGetByIdx,	\
-				      int: yeGetByIdx,		\
+#define yeGet(ENTITY, INDEX) _Generic((INDEX),				\
+				      unsigned int: yeGetByIdx,		\
+				      int: yeGetByIdx,			\
+				      long : yeGetByIdx,		\
+				      unsigned long: yeGetByIdx,	\
 				      const char *: yeGetByStrFast,	\
 				      char *: yeGetByStrFast) (ENTITY, INDEX)
 
@@ -372,7 +372,7 @@ extern "C++"
    * @param entity  The Entity we want to get the len
    * @return    return the attribute len of the entity
    */
-  unsigned int yeLen(Entity *entity) WEAK;;
+  size_t yeLen(Entity *entity) WEAK;;
 
   /**
    * @parap entity

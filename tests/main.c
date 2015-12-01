@@ -58,8 +58,8 @@ int main(int argc, char **argv)
   TEST_TRY_ADD("/entity/lifecycle/simple", testLifecycleSimple, only);
   TEST_TRY_ADD("/entity/lifecycle/flow", testLifecycleFlow, only);
   TEST_TRY_ADD("/entity/lifecycle/complex", testLifecycleComplex, only);
-  TEST_TRY_ADD("/entity/lifecycle/akward", testLifecycleAwakwar, only);
-  TEST_TRY_ADD("/entity/lifecycle/again", testLifecycleAwakwar, only);
+  TEST_TRY_ADD("/entity/lifecycle/akward", testLifecycleAkwarde, only);
+  TEST_TRY_ADD("/entity/lifecycle/again", testLifeDeathRebirdAndAgain, only);
 
   TEST_TRY_ADD("/entity/setunset/simple", testSetSimple, only);
   TEST_TRY_ADD("/entity/setunset/complex", testSetComplex, only);
