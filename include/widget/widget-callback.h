@@ -22,7 +22,8 @@
 
 typedef enum {
   YCALLBACK_NATIVE = 0,
-  YCALLBACK_NONE = 1
+  YCALLBACK_ENTITY,
+  YCALLBACK_NONE
 } YCallbackType;
 
 typedef struct {
@@ -41,6 +42,11 @@ typedef struct {
   int (*callack)(YWidgetState *wid, YEvent *eve, Entity *arg);
 } YNativeCallback;
 
+typedef struct {
+  YCallback base;
+  Entity *callback;
+} YEntityCallback;
+
 int ywidAddSignal(YWidgetState *wid, const char *name);
 void ywidFinishSignal(YWidgetState *wid);
 
@@ -53,6 +59,13 @@ int ywinAddCallback(YCallback *callback);
 YCallback *ywinCreateNativeCallback(const char *name,
 				    int (*callack)(YWidgetState *wid,
 						   YEvent *eve, Entity *arg));
+/**
+ * Create a callback from an entity.
+ *
+ * @callback: the functions entity use as a callback
+ */
+YCallback *ywinCreateEntityCallback(const char *name,
+				    Entity *callback);
 
 void ywidDdestroyCallback(int idx);
 
