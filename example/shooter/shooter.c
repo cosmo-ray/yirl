@@ -213,10 +213,9 @@ int shooterInit(YWidgetState *wid, YEvent *eve, Entity *arg)
     yeCreateInt(0, tmp, NULL);
   }
 
-  ((YMapState *)wid)->pos = yeCreateArray(NULL, NULL);
   pos = ywMapGetPos(wid);
-  yeCreateInt(MAP_SIZE_W / 2, pos, "x");
-  yeCreateInt(MAP_SIZE_H / 2, pos, "y");
+  yeSetInt(yeGet(pos, "x"), MAP_SIZE_W / 2);
+  yeSetInt(yeGet(pos, "y"), MAP_SIZE_H / 2);
 
   tmp = ywMapGetCurrentCase(wid);
   yeCreateInt(1, tmp, "hr");
