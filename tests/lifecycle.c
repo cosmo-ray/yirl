@@ -61,7 +61,10 @@ void testLifecycleFlow(void)
   g_assert(mainStruct);
   g_assert(subStruct1);
   g_assert(subStruct2);
+  g_assert(yeLen(mainStruct) == 1);
+  g_assert(yeLen(subStruct2) == 2);
   g_assert(!yePushBack(mainStruct, subStruct2, NULL));
+  g_assert(yeLen(mainStruct) == 2);
   g_assert(mainStruct->refCount == 1);
   g_assert(subStruct1->refCount == 1);
   g_assert(test3->refCount == 1);
