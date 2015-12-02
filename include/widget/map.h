@@ -48,7 +48,7 @@ Entity *ywMapGetCase(YWidgetState *state, int x, int y);
 Entity *ywMapGetPos(YWidgetState *state);
 Entity *ywMapGetCurrentCase(YWidgetState *state);
 
-Entity *ywMapCreatePos(int posX, int posY, Entity *bullet, const char *str);
+Entity *ywMapCreatePos(int posX, int posY, Entity *father, const char *str);
 
 int ywMapPushElem(YWidgetState *state, Entity *toPush,
 		  int x, int y, const char *name);

@@ -45,9 +45,9 @@ static int mapInit(YWidgetState *opac, Entity *entity, void *args)
   return 0;
 } 
 
-Entity *ywMapCreatePos(int posX, int posY, Entity *bullet, const char *str)
+Entity *ywMapCreatePos(int posX, int posY, Entity *father, const char *str)
 {
-  Entity *ret = yeCreateArray(bullet, str);
+  Entity *ret = yeCreateArray(father, str);
 
   yeCreateInt(posX, ret, "x");
   yeCreateInt(posY, ret, "y");
