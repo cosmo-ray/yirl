@@ -116,7 +116,6 @@ void testLifecycleAkwarde(void)
   g_assert(!yePushBack(subStruct2, test3, NULL));
   g_assert(test3->refCount == 4);
   YE_DESTROY(mainStruct);
-  printf("ref count: %d on %p\n", test3->refCount, test3);
   g_assert(test3->refCount == 1);
   g_assert(mainStruct == NULL);
   YE_DESTROY(test3);
