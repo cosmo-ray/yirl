@@ -44,14 +44,14 @@ static inline int ywMapH(YWidgetState *state)
   return yeLen(yeGet(state->entity, "map")) / ywMapW(state);
 }
 
-Entity *ywMapGetCase(YWidgetState *state, int x, int y);
+Entity *ywMapGetCase(YWidgetState *state, Entity *pos);
 Entity *ywMapGetPos(YWidgetState *state);
 Entity *ywMapGetCurrentCase(YWidgetState *state);
 
 Entity *ywMapCreatePos(int posX, int posY, Entity *father, const char *str);
 
 int ywMapPushElem(YWidgetState *state, Entity *toPush,
-		  int x, int y, const char *name);
+		  Entity *pos, const char *name);
 
 static inline Entity *ywMapGetResources(YWidgetState *state)
 {
@@ -60,9 +60,7 @@ static inline Entity *ywMapGetResources(YWidgetState *state)
 
 static inline void ywMapRemove(YWidgetState *state, Entity *pos, Entity *elem)
 {
-  Entity *posX = yeGet(pos, "x");
-  Entity *posY = yeGet(pos, "y");
-  Entity *cur = ywMapGetCase(state, yeGetInt(posX), yeGetInt(posY));
+  Entity *cur = ywMapGetCase(state, pos);
 
   yeRemoveChild(cur, elem);
 }

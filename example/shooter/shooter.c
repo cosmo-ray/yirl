@@ -63,9 +63,9 @@ static int removeBullet(YWidgetState *wid, Entity *bullet,
 static int move(YWidgetState *wid, Entity *bullet, Entity *what,
 		 Entity *pos, Entity *to)
 {
+  Entity *cur = ywMapGetCase(wid, pos);
   Entity *posX = yeGet(pos, "x");
   Entity *posY = yeGet(pos, "y");
-  Entity *cur = ywMapGetCase(wid, yeGetInt(posX), yeGetInt(posY));
   int ret = 0;
 
   if ((ret = isOut(wid, pos)))
@@ -74,7 +74,7 @@ static int move(YWidgetState *wid, Entity *bullet, Entity *what,
   yeRemoveChild(cur, what);
   yeOpsAddEnt(posX, yeGet(to, "x"));
   yeOpsAddEnt(posY, yeGet(to, "y"));
-  ywMapPushElem(wid, what, yeGetInt(posX), yeGetInt(posY), "bl");
+  ywMapPushElem(wid, what, pos, "bl");
   return 0;
 }
 
@@ -118,7 +118,7 @@ static void moveMainCaracter(YWidgetState *wid, int x, int y)
 	yeSetInt(posY, 0);
       else if (yeGetInt(posY) >= ywMapH(wid) - 1)
 	yeSetInt(posY, ywMapH(wid) - 1);
-      ywMapPushElem(wid, curHero, yeGetInt(posX), yeGetInt(posY), "hr");
+      ywMapPushElem(wid, curHero, pos, "hr");
       yeRemoveChild(cur, curHero);
       break;
     }
@@ -146,7 +146,7 @@ static void shooterSpamBullet(YWidgetState *wid, int x, int y)
   ywMapCreatePos(x, y, bullet, "speedAndDir");
   yePushBack(bullet, bulletSprite, "id");
 
-  ywMapPushElem(wid, bulletSprite, posX, posY, "bl");
+  ywMapPushElem(wid, bulletSprite, pos, "bl");
 }
 
 int shooterAction(YWidgetState *wid, YEvent *eve, Entity *arg)
@@ -218,7 +218,7 @@ int shooterInit(YWidgetState *wid, YEvent *eve, Entity *arg)
   yeCreateInt(MAP_SIZE_W / 2, pos, "x");
   yeCreateInt(MAP_SIZE_H / 2, pos, "y");
 
-  tmp = ywMapGetCase(wid, MAP_SIZE_W / 2, MAP_SIZE_H / 2);
+  tmp = ywMapGetCurrentCase(wid);
   yeCreateInt(1, tmp, "hr");
 
   ywinAddCallback(ywinCreateNativeCallback("shooterAction", shooterAction));  

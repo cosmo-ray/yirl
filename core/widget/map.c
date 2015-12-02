@@ -55,9 +55,9 @@ Entity *ywMapCreatePos(int posX, int posY, Entity *father, const char *str)
 }
 
 int ywMapPushElem(YWidgetState *state, Entity *toPush,
-		  int x, int y, const char *name)
+		  Entity *pos, const char *name)
 {
-  int ret =  yePushBack(ywMapGetCase(state, x, y), toPush, name);
+  int ret =  yePushBack(ywMapGetCase(state, pos), toPush, name);
   return ret;
 }
 
@@ -70,16 +70,15 @@ Entity *ywMapGetCurrentCase(YWidgetState *state)
 {
   Entity *pos = ywMapGetPos(state);
   
-  return ywMapGetCase(state, yeGetInt(yeGet(pos, "x")),
-		      yeGetInt(yeGet(pos, "y")));
+  return ywMapGetCase(state, pos);
 }
 
-Entity *ywMapGetCase(YWidgetState *state, int x, int y)
+Entity *ywMapGetCase(YWidgetState *state, Entity *pos)
 {
   Entity *map = yeGet(state->entity, "map");
   int w = yeGetInt(yeGet(state->entity, "width"));
 
-  return yeGet(map, x + (w * y));
+  return yeGet(map, yeGetInt(yeGet(pos, "x")) + (w * yeGetInt(yeGet(pos, "y"))));
 }
 
 static int mapDestroy(YWidgetState *opac)
