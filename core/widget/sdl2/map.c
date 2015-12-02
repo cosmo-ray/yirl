@@ -38,7 +38,7 @@ static inline unsigned int nbSprite(int sizePix, int sizeCase)
 #define YMAP_FOREACH_ELEMS_IN_CASE(mapCase, elem)		\
   Entity *elem;							\
   for (uint32_t j = 0; j < yeLen(mapCase) &&			\
-	 (elem = yeGet(mapCase, j)); ++j)
+	 ((elem = yeGet(mapCase, j)) || 1); ++j)
 
 
 #define YMAP_FOREACH_CASES(map, mapCase)		\
@@ -88,9 +88,13 @@ static int sdl2Render(YWidgetState *state, int t)
     }
 
     YMAP_FOREACH_ELEMS_IN_CASE(mapCase, mapElem) {
-      int id = yeGetInt(mapElem);
-      Entity *curRes = yeGet(ywMapGetResources(state), id);
+      int id;
+      Entity *curRes;
 
+      if (!mapElem)
+	continue;
+      id = yeGetInt(mapElem);
+      curRes = yeGet(ywMapGetResources(state), id);
       sdlDisplaySprites(wid, curx, cury, curRes,
 			sizeSpriteW, sizeSpriteH, 0);
     }
