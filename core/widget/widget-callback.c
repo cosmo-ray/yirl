@@ -68,6 +68,22 @@ int ywidCallCallbackByIdx(YWidgetState *wid, YEvent *eve, Entity *arg, int idx)
   return ywidCallCallback(ywinGetCallbackByIdx(idx), wid, eve, arg);
 }
 
+
+YCallback *ywinCreateEntityCallback(const char *name,
+				    Entity *callback)
+{
+  YEntityCallback *ret = g_new(YEntityCallback, 1);
+
+  if (!ret)
+    return NULL;
+  ret->base.type = YCALLBACK_ENTITY;
+  ret->base.name = g_strdup(name);
+  if (!ret->base.name)
+    return NULL;
+  ret ->callback = callback;
+  return (YCallback *)ret;
+}
+
 YCallback *ywinCreateNativeCallback(const char *name,
 				    int (*callack)(YWidgetState *wid,
 						   YEvent *eve, Entity *arg))
