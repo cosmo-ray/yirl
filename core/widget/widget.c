@@ -198,6 +198,7 @@ static YWidgetState *ywidNewWidgetInternal(int t,
     goto error;
   if (ret->init(ret, entity, args))
     goto error;
+  ret->hasChange = 1;
   return ret;
  error:
   ret->destroy(ret);
@@ -312,7 +313,6 @@ int ywidGenericRend(YWidgetState *opac, int widType)
 
 int ywidGenericInit(YWidgetState *opac, int widType)
 {
-  opac->hasChange = 1;
   YUI_FOREACH_BITMASK(widgetOptTab[widType].rendersMask,
 		      i, tmask) {
     if (widgetOptTab[widType].init[i] != NULL) {

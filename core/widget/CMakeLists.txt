@@ -2,7 +2,8 @@ set (SOURCE widget.c
     widget-callback.c
     text-screen.c
     menu.c
-    map.c)
+    map.c
+    contener.c)
 
 add_library (widgets STATIC ${SOURCE})
 
