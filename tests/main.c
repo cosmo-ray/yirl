@@ -78,19 +78,20 @@ int main(int argc, char **argv)
   TEST_TRY_ADD("/widget/textScreen/curses", testYWTextScreenCurses, only);
   TEST_TRY_ADD("/widget/menu/curses", testYWMenuCurses, only);
   TEST_TRY_ADD("/widget/map/curses", testYWMapCurses, only);
-  #endif
-  #ifdef WITH_SDL
+#endif
+#ifdef WITH_SDL
   TEST_TRY_ADD("/widget/lifecycle/sdl", testSdlLife, only);
   TEST_TRY_ADD("/widget/textScreen/sdl", testYWTextScreenSdl2, only);
   TEST_TRY_ADD("/widget/menu/sdl", testYWMenuSdl2, only);
   TEST_TRY_ADD("/widget/map/sdl", testYWMapSdl2, only);
+  TEST_TRY_ADD("/widget/contener/vertical/sdl", testVerticalContenerSdl, only);
   TEST_TRY_ADD("/game/sdl/simple", testYGameSdlLibBasic, only);
-  #ifdef WITH_CURSES
+#ifdef WITH_CURSES
   TEST_TRY_ADD("/widget/lifecycle/all", testAllLife, only);
   TEST_TRY_ADD("/widget/textScreen/all", testYWTextScreenAll, only);
   TEST_TRY_ADD("/game/all/simple", testYGameAllLibBasic, only);
-  #endif
-  #endif
+#endif
+#endif
 
  run_test:
   g_test_run();

@@ -24,6 +24,7 @@ static int cntInit(YWidgetState *opac, Entity *entity, void *args)
 {
   opac->entity = entity;
   (void)args;
+  printf("hello i love you!\n");
   return 0;
 }
 
