@@ -74,10 +74,9 @@ void testYGameAllLibBasic(void)
 {
   GameConfig cfg;
 
-  g_assert(ywidInitCallback() >= 0);
-  ywinAddCallback(ywinCreateNativeCallback("shooterInit", shooterInit));
   g_assert(!ygInitGameConfig(&cfg, testPath, ALL));
   g_assert(!ygInit(&cfg));
+  ywinAddCallback(ywinCreateNativeCallback("shooterInit", shooterInit));
   g_assert(!ygStartLoop(&cfg));
   ygCleanGameConfig(&cfg);
   ygEnd();
