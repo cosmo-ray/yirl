@@ -41,7 +41,7 @@
 	"background": "rgba: 180 210 20 50", // Not yet implemented :)
 	"button_background": "hello.pnj" // Not yet implemented  :)
     },
-    "CntTest" : {
+    "ContenerTest" : {
 	"<type>" : "contener",
 	"entries" : [
 	    "TextScreenTest",

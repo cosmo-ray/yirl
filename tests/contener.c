@@ -23,12 +23,31 @@
 #include "game.h"
 #include "utils.h"
 #include "widget-callback.h"
+#include "json-desc.h"
 
 void testVerticalContenerSdl(void)
 {
   GameConfig cfg;
+  Entity *ret;
+  YWidgetState *wid;
+  int t = ydJsonInit();
+  void *jsonManager;
 
   g_assert(!ygInitGameConfig(&cfg, NULL, SDL2));
   g_assert(!ygInit(&cfg));
+
+  jsonManager = ydNewManager(t);
+  ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json");
+  ret = yeGet(ret, "ContenerTest");
+  g_assert(ret);
+
+  wid = ywidNewWidget(ret, NULL, NULL);
+  g_assert(wid);
+
+  do {
+    g_assert(ywidRend(wid) != -1);
+  } while(ywidHandleEvent(wid) != ACTION);
+
+  YE_DESTROY(ret);
   ygEnd();
 }

@@ -34,6 +34,7 @@
 #include "menu.h"
 #include "map.h"
 #include "text-screen.h"
+#include "contener.h"
 
 
 static int init;
@@ -95,6 +96,7 @@ int ygInit(GameConfig *cfg)
   CHECK_AND_RET(ywMenuInit(), -1, -1, "Menu init failed");
   CHECK_AND_RET(ywMapInit(), -1, -1, "Map init failed");
   CHECK_AND_RET(ywTextScreenInit(), -1, -1, "Text Screen init failed");
+  CHECK_AND_RET(ywContenerInit(), -1, -1, "Contener init failed");
 
   for (GList *tmp = cfg->rConf; tmp; tmp = tmp->next) {
     //TODO check which render to use :)
