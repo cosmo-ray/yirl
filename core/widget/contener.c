@@ -56,7 +56,12 @@ static InputStatue cntEvent(YWidgetState *opac, YEvent *event)
 
 static int cntRend(YWidgetState *opac)
 {
-  (void)opac;
+  int i = 0;
+  printf("len %lu\n", yeLen(yeGet(opac->entity, "entries")));
+  YE_ARRAY_FOREACH(yeGet(opac->entity, "entries"), tmp) {
+    printf("tmp %d: %s\n", i, yeGetString(tmp));
+    ++i;
+  }
   return 0;
 }
 

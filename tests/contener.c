@@ -33,9 +33,11 @@ void testVerticalContenerSdl(void)
   int t = ydJsonInit();
   void *jsonManager;
 
+  /* Init libs */
   g_assert(!ygInitGameConfig(&cfg, NULL, SDL2));
   g_assert(!ygInit(&cfg));
 
+  /* Parsing json */
   jsonManager = ydNewManager(t);
   ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json");
   ret = yeGet(ret, "ContenerTest");

@@ -224,11 +224,9 @@ static inline void yBlockArrayIteratorIncr(BlockArrayIterator *it)
 
 #define yBlockArrayIteratorInit(it, arrayPtr, beg)	do {		\
     (it).blockPos = yBlockArrayBlockPos((beg));				\
-    (it).mask = yBlockArrayGetBlock((arrayPtr), (it).blockPos) ^	\
-      Y_BLOCK_ARRAY_MAKE_SET(beg & 63);					\
-    (it).pos = YUI_GET_FIRST_BIT((it).mask);				\
     (it).array = (arrayPtr);						\
-    if (yBlockArrayIsFree((arrayPtr), (beg))) yBlockArrayIteratorIncr(&(it)); \
+    (it).mask = yBlockArrayGetBlock((it).array, (it).blockPos);		\
+    yBlockArrayIteratorIncr(&(it));					\
   } while (0);
 
 static inline BlockArrayIterator yBlockArrayIteratorCreate(BlockArray *array,
