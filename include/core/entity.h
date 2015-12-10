@@ -44,6 +44,12 @@ extern "C"
 {
 #endif
 
+  typedef enum {
+    YE_FIND_MONE = 0,
+    YE_FIND_LINK_NO_GET = 1,
+    YE_FIND_LINK_NO_DEEP = 2
+  } YeFindFlag;
+
   /*Les differents type d'entite, chacune est definie par une structure apres*/
   typedef enum
     {
@@ -476,7 +482,9 @@ extern "C++"
     }
     return -1;
   }
-  
+
+  Entity *yeFindLink(Entity *father, const char *targetPath, int flag);
+ 
 #ifdef __cplusplus
 }
 #endif

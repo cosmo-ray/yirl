@@ -168,7 +168,7 @@ static Entity *yeGetByIdxFastWithEnd(Entity *entity, const char *name, int end)
 
 Entity *yeGetByStrFast(Entity *entity, const char *name)
 {
-  if (!entity || !name)
+  if (!entity || !name || yeType(entity) != YARRAY)
     return NULL;
 
   Y_BLOCK_ARRAY_FOREACH_PTR(&YE_TO_ARRAY(entity)->values, tmp, it, ArrayEntry) {
@@ -709,6 +709,32 @@ ArrayEntity	*yeCopyContener(ArrayEntity* src, ArrayEntity* dest)
     }
     return dest;
   }
+
+Entity *yeFindLink(Entity *array, const char *targetPath, int flag)
+{
+  Entity *ret = NULL;
+  
+  if (yeType(array) != YARRAY)
+    return NULL;
+  if (!(flag & YE_FIND_LINK_NO_GET) && (ret = yeGet(array, targetPath)) != NULL)
+    return ret;
+
+  if (flag & YE_FIND_LINK_NO_DEEP)
+    return NULL;
+
+  YE_FOREACH_FATHER(array, tmp) {
+    if ((ret = yeGet(tmp, targetPath)) != NULL)
+      return ret;
+  }
+
+  YE_FOREACH_FATHER(array, tmp2) {
+    ret = yeFindLink(tmp2, targetPath, YE_FIND_LINK_NO_GET | flag);
+    if (ret)
+      return ret;
+  }
+
+  return NULL;
+}
 
   /* macro for perf purpose */
 #undef YE_INCR_REF
