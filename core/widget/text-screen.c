@@ -27,8 +27,8 @@ typedef struct {
 
 static int tsInit(YWidgetState *opac, Entity *entity, void *args)
 {
-  opac->entity = entity;
   ywidGenericInit(opac, t);
+  (void)entity;
   (void)args;
   return 0;
 }

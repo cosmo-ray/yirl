@@ -26,7 +26,6 @@ static int mapInit(YWidgetState *opac, Entity *entity, void *args)
   const char *action;
   Entity *initer = yeGet(entity, "init");
 
-  opac->entity = entity;
   ywidGenericInit(opac, t);
 
   ((YMapState *)opac)->resources = yeGet(entity, "resources");

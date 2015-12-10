@@ -91,7 +91,6 @@ static int mnInit(YWidgetState *opac, Entity *entity, void *args)
   YMenuState *state = ((YMenuState *)opac);
   Entity *entries = yeGet(entity, "entries");
 
-  opac->entity = entity;
   ywidGenericInit(opac, t);
   state->moveSinIdx = ywidAddSignal(opac, "move");
   ywidBind(opac, "move", "menuMove");

@@ -191,6 +191,7 @@ static YWidgetState *ywidNewWidgetInternal(int t,
   if (pos == NULL)
     pos = &defaultPos;
   ret = widgetTab.allocator[t]();
+  ret->entity = entity;
   ret->signals = g_array_new(1, 1, sizeof(YSignal *));
   if (ret == NULL)
     return NULL;
