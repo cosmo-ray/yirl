@@ -229,6 +229,11 @@ extern "C"
   Entity *yePopBack(Entity *array) WEAK;
 
   Entity *yeRemoveChild(Entity *array, Entity *toRemove);
+
+  static inline Entity *yeRemoveChildByStr(Entity *array, const char *toRemove)
+  {
+    return yeRemoveChild(array, yeGetByStr(array, toRemove));
+  }
   
   /**
    * function who which an entity and set it to  0, "" or NULL
