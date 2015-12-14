@@ -73,7 +73,7 @@ void testYWMapCurses(void)
   g_assert(!ycursRegistreMap());
   ywinAddCallback(ywinCreateNativeCallback("mapTest", testMapEnter));
 
-  wid = ywidNewWidget(ret, NULL, NULL);
+  wid = ywidNewWidget(ret, NULL);
   g_assert(wid);
 
   
@@ -119,7 +119,7 @@ void testYWMapSdl2(void)
   g_assert(!ysdl2RegistreMap());
 
   ywinAddCallback(ywinCreateNativeCallback("mapTest", testMapEnter));
-  wid = ywidNewWidget(ret, NULL, NULL);
+  wid = ywidNewWidget(ret, NULL);
   g_assert(wid);
 
   

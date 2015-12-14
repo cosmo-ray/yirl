@@ -169,44 +169,44 @@ int ywidUnregiste(int t)
   return yuiUnregiste(&widgetTab, t);
 }
 
-static int copyPos(YWidPos *dst, const YWidPos *src)
-{
-  if (!dst || !src)
-    return -1;
-  memcpy(dst, src, sizeof(YWidPos));
-  return 0;
-}
-
 
 static YWidgetState *ywidNewWidgetInternal(int t,
 					   Entity *entity,
-					   const YWidPos *pos,
 					   void *args)
 {
   YWidgetState *ret;
-  YWidPos defaultPos = {0,0,1000,1000};
+  Entity *pos= yeGet(entity, "pos");
 
   if (widgetTab.len <= t || widgetTab.allocator[t] == NULL)
     return NULL;
-  if (pos == NULL)
-    pos = &defaultPos;
+
+  if (pos == NULL) {
+    pos = yeCreateArray(entity, "pos");
+    yeCreateInt(0, pos, "x");
+    yeCreateInt(0, pos, "y");
+    yeCreateInt(1000, pos, "w");
+    yeCreateInt(1000, pos, "h");
+  }
+
   ret = widgetTab.allocator[t]();
   ret->entity = entity;
   ret->signals = g_array_new(1, 1, sizeof(YSignal *));
+
   if (ret == NULL)
     return NULL;
-  if (copyPos(&ret->pos, pos) == -1)
-    goto error;
+
   if (ret->init(ret, entity, args))
     goto error;
+
   ret->hasChange = 1;
   return ret;
+
  error:
   ret->destroy(ret);
   return NULL;
 }
 
-YWidgetState *ywidNewWidget(Entity *entity, const YWidPos *pos, void *args)
+YWidgetState *ywidNewWidget(Entity *entity, void *args)
 {
   Entity *tmp;
 
@@ -221,7 +221,7 @@ YWidgetState *ywidNewWidget(Entity *entity, const YWidPos *pos, void *args)
   for (int i = 0; i < 64; ++i) {
     if (widgetOptTab[i].name &&
 	yuiStrEqual(yeGetString(tmp), widgetOptTab[i].name)) {
-      return ywidNewWidgetInternal(i, entity, pos, args);
+      return ywidNewWidgetInternal(i, entity, args);
     }
   }
   return NULL;

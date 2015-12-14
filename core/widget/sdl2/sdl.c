@@ -323,11 +323,12 @@ int sdlPrintText(SDLWid *wid,
 void sdlResize(YWidgetState *wid, int renderType)
 {
   SDLWid *swid = wid->renderStates[renderType].opac;
+  Entity *pos = yeGet(wid->entity, "pos");
 
-  swid->rect.h = wid->pos.h * WIN_H_SIZE / 1000;
-  swid->rect.w = wid->pos.w * WIN_W_SIZE / 1000;
-  swid->rect.x = wid->pos.x * WIN_W_SIZE / 1000;
-  swid->rect.y = wid->pos.y * WIN_H_SIZE / 1000;
+  swid->rect.h = yeGetInt(yeGet(pos, "h")) * WIN_H_SIZE / 1000;
+  swid->rect.w = yeGetInt(yeGet(pos, "w")) * WIN_W_SIZE / 1000;
+  swid->rect.x = yeGetInt(yeGet(pos, "x")) * WIN_W_SIZE / 1000;
+  swid->rect.y = yeGetInt(yeGet(pos, "y")) * WIN_H_SIZE / 1000;
 }
 
 void sdlWidInit(YWidgetState *wid, int t)

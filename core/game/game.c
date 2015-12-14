@@ -191,7 +191,7 @@ static int ygParseStartAndGame(GameConfig *config, Entity *mainMod)
     return -1;
   }
 
-  ywidSetMainWid(ywidNewWidget(starting_widget, NULL, NULL), 0);
+  ywidSetMainWid(ywidNewWidget(starting_widget, NULL), 0);
   do {
     wid = ywidGetMainWid();
     g_assert(ywidRend(wid) != -1);

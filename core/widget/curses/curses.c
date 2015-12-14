@@ -80,13 +80,8 @@ void CWidgetInit(YWidgetState *wid, int renderType)
 {
   CWidget *state = wid->renderStates[renderType].opac;
 
-  state->h = wid->pos.h * LINES / 1000;
-  state->w = wid->pos.w * COLS / 1000;
-  state->x = wid->pos.x * COLS / 1000;
-  state->y = wid->pos.y * LINES / 1000;
-  state->win = newwin(state->h, state->w, state->y, state->x);
-  wborder(state->win, '|', '|', '-','-','+','+','+','+');
-  refresh();
+  state->win = newwin(10, 10, 0, 0);
+  resize(wid, renderType);
 }
 
 void CWidgetDestroy(YWidgetState *wid, int renderType)
@@ -100,13 +95,15 @@ void CWidgetDestroy(YWidgetState *wid, int renderType)
 void resize(YWidgetState *wid, int renderType)
 {
   CWidget *state = wid->renderStates[renderType].opac;
+  Entity *pos = yeGet(wid->entity, "pos");
 
-  state->h = wid->pos.h * LINES / 1000;
-  state->w = wid->pos.w * COLS / 1000;
-  state->x = wid->pos.x * COLS / 1000;
-  state->y = wid->pos.y * LINES / 1000;
+  state->h = yeGetInt(yeGet(pos, "h")) * LINES / 1000;
+  state->w = yeGetInt(yeGet(pos, "w")) * COLS / 1000;
+  state->x = yeGetInt(yeGet(pos, "x")) * COLS / 1000;
+  state->y = yeGetInt(yeGet(pos, "y")) * LINES / 1000;
 
   wresize(state->win, state->h, state->w);
   mvwin(state->win, state->y, state->x);
+  wborder(state->win, '|', '|', '-','-','+','+','+','+');
   refresh();
 }

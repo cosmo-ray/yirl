@@ -43,7 +43,7 @@ void testVerticalContenerSdl(void)
   ret = yeGet(ret, "ContenerTest");
   g_assert(ret);
 
-  wid = ywidNewWidget(ret, NULL, NULL);
+  wid = ywidNewWidget(ret, NULL);
   g_assert(wid);
 
   do {

@@ -63,7 +63,7 @@ void testYWMenuCurses(void)
   
   g_assert(ycursRegistreMenu() == 0);
 
-  wid = ywidNewWidget(ret, NULL, NULL);
+  wid = ywidNewWidget(ret, NULL);
   g_assert(wid);
 
   
@@ -110,7 +110,7 @@ void testYWMenuSdl2(void)
   /* if sdl have type 0, ywidRegistreTypeRender must register this func at 0*/ 
   g_assert(ysdl2RegistreMenu() == 0);
 
-  wid = ywidNewWidget(ret, NULL, NULL);
+  wid = ywidNewWidget(ret, NULL);
   g_assert(wid);
 
   

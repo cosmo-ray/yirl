@@ -78,13 +78,6 @@ typedef struct {
   void *opac;
 } YRenderState;
 
-typedef struct {
-  unsigned int x;
-  unsigned int y;
-  unsigned int w;
-  unsigned int h;
-} YWidPos;
-
 typedef struct WidgetState_ {
   Entity *entity;
   YRenderState renderStates[64];
@@ -97,7 +90,6 @@ typedef struct WidgetState_ {
    * but signals must be in this structure */
   GArray *callbacks;
   GArray *signals;
-  YWidPos pos;
   int type;
   unsigned int hasChange;
 } YWidgetState;
@@ -157,7 +149,7 @@ static inline void *ywidGetRenderData(YWidgetState *state, int t)
 }
 
 YWidgetState *ywidNewWidget(Entity *entity,
-			    const YWidPos *pos, void *args);
+			    void *args);
 
 void YWidDestroy(YWidgetState *wid);
 

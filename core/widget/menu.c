@@ -75,7 +75,7 @@ static int nmMenuNext(YWidgetState *wid, YEvent *eve, Entity *arg)
 
   if (!next)
     return BUG;
-  if ((newWid = ywidNewWidget(next, NULL, NULL)) == NULL)
+  if ((newWid = ywidNewWidget(next, NULL)) == NULL)
     return BUG;
   ywidSetMainWid(newWid, 1);
   return ACTION | FAST_QUIT;
