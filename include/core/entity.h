@@ -301,7 +301,7 @@ extern "C"
    */
   void	yeSetFunction(Entity *entity, const char *value) WEAK;
 
-  void  yeSetDestroy(Entity *entity, void (*)(void *)) WEAK;
+  void  yeSetDestroy(Entity *entity, void (*func)(void *)) WEAK;
 
 #define yeSet(ENTITY, VALUE) _Generic((VALUE),				\
 				      int: yeSetInt,			\

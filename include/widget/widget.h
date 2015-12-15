@@ -118,6 +118,7 @@ int ywidRegistreTypeRender(const char *type, int t,
 			   int (*init)(YWidgetState *opac, int t),
 			   void (*destroy)(YWidgetState *opac, int t));
 
+/* rename to push size */
 void ywidResize(YWidgetState *wid);
 
 static inline int ywidRend(YWidgetState *opac)

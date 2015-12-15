@@ -20,13 +20,56 @@
 
 static int t = -1;
 
+static void widDestroyWrapper(void *wid)
+{
+  YWidDestroy(wid);
+}
+
+#define yCntType(opac) CNT_HORIZONTAL
 static int cntInit(YWidgetState *opac, Entity *entity, void *args)
 {
-  opac->entity = entity;
+  Entity *entries = yeGet(entity, "entries");
+  Entity *pos = yeGet(entity, "pos");
+  int i = 0;
+  size_t len = yeLen(entries);
+  int caseSize = 0;
+  int casePos;
+
+  (void)opac;
   (void)args;
-  printf("hello i love you!\n");
+
+  caseSize =  yCntType(opac) == CNT_HORIZONTAL ?
+    yeGetInt(yeGet(pos, "h")) / len : yeGetInt(yeGet(pos, "w")) / len;
+
+  YE_ARRAY_FOREACH(entries, tmp) {
+    Entity *ptr = yeFindLink(entity, yeGetString(yeGet(tmp, "name")), 0);
+    Entity *tmpPos;
+    YWidgetState *wid = ywidNewWidget(ptr, NULL);
+    Entity *widData = yeCreateData(wid, tmp, "$wid");
+
+    tmpPos = yeGet(ptr, "pos");
+    casePos = i * caseSize;
+
+    if (yCntType(opac) == CNT_HORIZONTAL) {
+      /* modify y and h pos in internal struct */
+      yeSet(yeGet(tmpPos, "y"), casePos);
+      yeSet(yeGet(tmpPos, "h"), caseSize);
+    } else if (yCntType(opac) == CNT_VERTICAL) {
+
+      /* modify x and w pos in internal struct */
+      yeSet(yeGet(tmpPos, "x"), casePos);
+      yeSet(yeGet(tmpPos, "w"), caseSize);
+    }
+
+    /* else nothing */
+    ywidResize(wid);
+    yeSetDestroy(widData, widDestroyWrapper);
+    ++i;
+  }
+
   return 0;
 }
+#undef yCntType
 
 static int cntDestroy(YWidgetState *opac)
 {
@@ -56,11 +99,10 @@ static InputStatue cntEvent(YWidgetState *opac, YEvent *event)
 
 static int cntRend(YWidgetState *opac)
 {
-  int i = 0;
-  printf("len %lu\n", yeLen(yeGet(opac->entity, "entries")));
-  YE_ARRAY_FOREACH(yeGet(opac->entity, "entries"), tmp) {
-    printf("tmp %d: %s\n", i, yeGetString(tmp));
-    ++i;
+  Entity *entries = yeGet(opac->entity, "entries");
+
+  YE_ARRAY_FOREACH(entries, tmp) {
+    ywidRend(yeGetData(yeGet(tmp, "$wid")));
   }
   return 0;
 }

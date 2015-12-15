@@ -229,9 +229,8 @@ YWidgetState *ywidNewWidget(Entity *entity, void *args)
 
 void ywidResize(YWidgetState *wid)
 {
-  for (int i = 0; i < 64; ++i) {
-    if ((1 << i) & rendersMask)
-      renderOpTab[i].resizePtr(wid, i);
+  YUI_FOREACH_BITMASK(rendersMask, i, tmask) {
+    renderOpTab[i].resizePtr(wid, i);
   }
 }
 

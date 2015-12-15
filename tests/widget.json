@@ -44,8 +44,8 @@
     "ContenerTest" : {
 	"<type>" : "contener",
 	"entries" : [
-	    "TextScreenTest",
-	    "MenuTest"
+	    {"name" : "MenuTest"},
+	    {"name" : "TextScreenTest"}
 	]
     },
     "MapTest" : {
