@@ -25,6 +25,14 @@
 #include "widget-callback.h"
 #include "json-desc.h"
 
+static int testMenuEnter(YWidgetState *wid, YEvent *eve, Entity *arg)
+{
+  (void)wid;
+  (void)eve;
+  (void)arg;
+  return ACTION;
+}
+
 void testVerticalContenerSdl(void)
 {
   GameConfig cfg;
@@ -42,6 +50,7 @@ void testVerticalContenerSdl(void)
   ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json");
   ret = yeGet(ret, "ContenerTest");
   g_assert(ret);
+  ywinAddCallback(ywinCreateNativeCallback("menuTest", testMenuEnter));
 
   wid = ywidNewWidget(ret, NULL);
   g_assert(wid);
