@@ -41,6 +41,7 @@ static int cntInit(YWidgetState *opac, Entity *entity, void *args)
   caseSize =  yCntType(opac) == CNT_HORIZONTAL ?
     yeGetInt(yeGet(pos, "h")) / len : yeGetInt(yeGet(pos, "w")) / len;
 
+  yeCreateInt(0, entity, "current");
   YE_ARRAY_FOREACH(entries, tmp) {
     Entity *ptr = yeFindLink(entity, yeGetString(yeGet(tmp, "name")), 0);
     Entity *tmpPos;
@@ -77,9 +78,12 @@ static int cntDestroy(YWidgetState *opac)
   return 0;
 }
 
+#define yCntIsOverloading(eve) 0
+
 static InputStatue cntEvent(YWidgetState *opac, YEvent *event)
 {
   InputStatue ret = NOTHANDLE;
+  Entity *entries = yeGet(opac->entity, "entries");
 
   (void)opac;
   if (!event)
@@ -88,12 +92,21 @@ static InputStatue cntEvent(YWidgetState *opac, YEvent *event)
   if (!event)
     return NOTHANDLE;
 
-  if (event->key == Y_ESC_KEY)
-    ret = ACTION;
-  else if (event->key == '\n')
-    ret = ACTION;
-
-  g_free(event);
+  if (yCntIsOverloading(event)) {
+    if (event->key == Y_ESC_KEY)
+      ret = ACTION;
+    else if (event->key == '\n')
+      ret = ACTION;
+  } else {
+    ret = ywidHandleEvent(yeGetData(yeGet(yeGet(entries,
+						yeGetInt(yeGet(opac->entity,
+							       "current"))),
+					  "$wid")),
+			  event);
+    event = NULL;
+  }
+  if (ret == NOTHANDLE)
+    g_free(event);
   return ret;
 }
 

@@ -196,7 +196,7 @@ static int ygParseStartAndGame(GameConfig *config, Entity *mainMod)
     wid = ywidGetMainWid();
     g_assert(ywidRend(wid) != -1);
     sched_yield();
-    ywidHandleEvent(wid);
+    ywidHandleEvent(wid, NULL);
   } while(alive);
 
   return 0;

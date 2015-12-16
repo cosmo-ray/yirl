@@ -69,7 +69,7 @@ void testYWMenuCurses(void)
   
   do {
     g_assert(ywidRend(wid) != -1);
-  } while(ywidHandleEvent(wid) != ACTION);
+  } while(ywidHandleEvent(wid, NULL) != ACTION);
 
   g_assert(!ywMenuEnd());
   YWidDestroy(wid);
@@ -116,7 +116,7 @@ void testYWMenuSdl2(void)
   
   do {
     g_assert(ywidRend(wid) != -1);
-  } while(ywidHandleEvent(wid) != ACTION);
+  } while(ywidHandleEvent(wid, NULL) != ACTION);
 
   g_assert(!ywMenuEnd());
   YWidDestroy(wid);

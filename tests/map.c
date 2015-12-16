@@ -79,7 +79,7 @@ void testYWMapCurses(void)
   
   do {
     g_assert(ywidRend(wid) != -1);
-  } while(ywidHandleEvent(wid) != ACTION);
+  } while(ywidHandleEvent(wid, NULL) != ACTION);
 
   g_assert(!ywMapEnd());
   YWidDestroy(wid);
@@ -125,7 +125,7 @@ void testYWMapSdl2(void)
   
   do {
     g_assert(ywidRend(wid) != -1);
-  } while(ywidHandleEvent(wid) != ACTION);
+  } while(ywidHandleEvent(wid, NULL) != ACTION);
 
   g_assert(!ywMapEnd());
   YWidDestroy(wid);
