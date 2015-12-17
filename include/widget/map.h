@@ -25,6 +25,7 @@ typedef struct {
   Entity *resources;
   Entity *pos;
   int actionIdx;
+  int animIdx;
 } YMapState;
 
 int ywMapInit(void);

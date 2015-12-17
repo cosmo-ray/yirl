@@ -78,12 +78,14 @@ static int move(YWidgetState *wid, Entity *bullet, Entity *what,
   return 0;
 }
 
-static void shooterHandleBullets(YWidgetState *wid)
+static int shooterHandleBullets(YWidgetState *wid, YEvent *eve, Entity *arg)
 {
   Entity *bulletManager = yeGet(wid->entity, "$bullet-manager");
 
+  (void)eve;
+  (void)arg;
   if (!bulletManager)
-    return;
+    return 0;
 
   YE_ARRAY_FOREACH(bulletManager, bullet) {
     if (!bullet)
@@ -94,6 +96,7 @@ static void shooterHandleBullets(YWidgetState *wid)
 
     move(wid, bullet, id, pos, speedAndDir);
   }
+  return ACTION;
 }
 
 static void moveMainCaracter(YWidgetState *wid, int x, int y)
@@ -192,7 +195,6 @@ int shooterAction(YWidgetState *wid, YEvent *eve, Entity *arg)
     ywidCallCallbackByStr("FinishGame", wid, eve, arg);
     goto end_switch;    
   end_switch:
-    shooterHandleBullets(wid);
     ret = ACTION;
   default:
     break;
@@ -222,6 +224,8 @@ int shooterInit(YWidgetState *wid, YEvent *eve, Entity *arg)
 
   ywinAddCallback(ywinCreateNativeCallback("shooterAction", shooterAction));  
   ywidBind(wid, "action", "shooterAction");
+  ywinAddCallback(ywinCreateNativeCallback("shooterAnim", shooterHandleBullets));  
+  ywidBind(wid, "anim", "shooterAnim");
   
   return NOTHANDLE;
 }

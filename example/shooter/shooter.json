@@ -45,6 +45,7 @@
 	
 	"&resources" : "ShooterResources", 
 	"init" : "shooterInit",
+	"turn-length" : 10000,
 	"&next": "PrintScore"
     },
     "ShooterResources" : [
