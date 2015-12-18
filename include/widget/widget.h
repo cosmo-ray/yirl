@@ -17,8 +17,8 @@
 /*
  * This work is based on the widget work of YIRL V2
  */
-#ifndef	_WIDGET_H_
-#define	_WIDGET_H_
+#ifndef	_YIRL_WIDGET_H_
+#define	_YIRL_WIDGET_H_
 
 #include <glib.h>
 #include <stdint.h>
