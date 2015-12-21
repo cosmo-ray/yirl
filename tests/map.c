@@ -26,23 +26,15 @@
 
 #ifdef WITH_CURSES
 
-/* static unsigned int testMapPosToIdx(int w, int x, int y) */
-/* { */
-/*   return w * y + x; */
-/* } */
-
 static int testMapEnter(YWidgetState *wid, YEvent *eve, Entity *arg)
 {
-  /* Entity *mapEnt = yeGet(wid->entity, "map"); */
-  /* int w = yeToInt(yeGet(mapEnt, "width")); */
-
-  /* g_assert(yeGetInt(yeGet(arg, "x")) == 2); */
-  /* g_assert(yeGetInt(yeGet(arg, "y")) == 2); */
-  /* g_assert(yeGet(yeGet(mapEnt, "map"), testMapPosToIdx(w, x, y))); */
   (void)wid;
   (void)arg;
   (void)eve;
-  return ACTION;
+
+  if (eve && (eve->type == YKEY_DOWN))
+      return ACTION;
+  return NOTHANDLE;
 }
 
 void testYWMapCurses(void)
@@ -79,7 +71,7 @@ void testYWMapCurses(void)
   
   do {
     g_assert(ywidRend(wid) != -1);
-  } while(ywidHandleEvent(wid, NULL) != ACTION);
+  } while(ywidDoTurn(wid) != ACTION);
 
   g_assert(!ywMapEnd());
   YWidDestroy(wid);
@@ -125,7 +117,7 @@ void testYWMapSdl2(void)
   
   do {
     g_assert(ywidRend(wid) != -1);
-  } while(ywidHandleEvent(wid, NULL) != ACTION);
+  } while(ywidDoTurn(wid) != ACTION);
 
   g_assert(!ywMapEnd());
   YWidDestroy(wid);

@@ -152,7 +152,7 @@ static void shooterSpamBullet(YWidgetState *wid, int x, int y)
   ywMapPushElem(wid, bulletSprite, pos, "bl");
 }
 
-int shooterAction(YWidgetState *wid, YEvent *eve, Entity *arg)
+static int shooterActionInt(YWidgetState *wid, YEvent *eve, Entity *arg)
 {
   InputStatue ret = NOTHANDLE;
 
@@ -161,7 +161,6 @@ int shooterAction(YWidgetState *wid, YEvent *eve, Entity *arg)
   }
 
   switch (eve->key) {
-
     /* move cases */
   case Y_DOWN_KEY:
     moveMainCaracter(wid, 0, 1);
@@ -203,6 +202,19 @@ int shooterAction(YWidgetState *wid, YEvent *eve, Entity *arg)
   return ret;
 }
 
+int shooterAction(YWidgetState *wid, YEvent *eve, Entity *arg)
+{
+  shooterHandleBullets(wid, eve, arg);
+  if (eve) {
+    YEvent *curEve;
+    
+    SLIST_FOREACH(curEve, eve->head, lst) {
+      shooterActionInt(wid, curEve, arg);
+    }
+  }
+  return ACTION;
+}
+
 int shooterInit(YWidgetState *wid, YEvent *eve, Entity *arg)
 {
   Entity *tmp;
@@ -227,8 +239,6 @@ int shooterInit(YWidgetState *wid, YEvent *eve, Entity *arg)
 
   ywinAddCallback(ywinCreateNativeCallback("shooterAction", shooterAction));
   ywidBind(wid, "action", "shooterAction");
-  ywinAddCallback(ywinCreateNativeCallback("shooterAnim", shooterHandleBullets));
-  ywidBind(wid, "anim", "shooterAnim");
 
   return NOTHANDLE;
 }

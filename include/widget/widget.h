@@ -22,6 +22,7 @@
 
 #include <glib.h>
 #include <stdint.h>
+#include <sys/queue.h>
 #include "entity.h"
 #include "utils.h"
 #include "keydef.h"
@@ -51,6 +52,7 @@ typedef enum
 
 typedef struct {
   BgType type;
+
   union {
     struct {
       uint8_t r;
@@ -58,21 +60,28 @@ typedef struct {
       uint8_t b;
       uint8_t a;
     };
+
     struct {
       char *path;
     };
+
   };
+
 } YBgConf;
 
 struct WidgetState_;
-typedef struct {
+struct yevent;
+
+
+typedef struct yevent {
   EventType type;
   int key;
   unsigned int xMouse;
   unsigned int yMouse;
   InputStatue stat;
+  SLIST_HEAD(EveListHead, yevent) *head;
+  SLIST_ENTRY(yevent) lst;
 } YEvent;
-
 
 typedef struct {
   void *opac;
@@ -83,6 +92,7 @@ typedef struct WidgetState_ {
   YRenderState renderStates[64];
   int (*render)(struct WidgetState_ *opac);
   InputStatue (*handleEvent)(struct WidgetState_ *opac, YEvent *event);
+  InputStatue (*handleAnim)(struct WidgetState_ *opac);
   void (*resize)(void);
   int (*init)(struct WidgetState_ *opac, Entity *entity, void *args);
   int (*destroy)(struct WidgetState_ *opac);
@@ -134,6 +144,10 @@ static inline int ywidHandleEvent(YWidgetState *opac, YEvent *event)
     return (opac->handleEvent(opac, event));
   return -1;
 }
+
+int ywidHandleAnim(YWidgetState *opac);
+
+int ywidDoTurn(YWidgetState *opac);
 
 int ywidGenericRend(YWidgetState *opac, int widType);
 int ywidGenericInit(YWidgetState *opac, int widType);

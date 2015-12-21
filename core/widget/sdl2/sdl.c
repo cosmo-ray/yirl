@@ -182,7 +182,8 @@ static YEvent *SDLPollEvent(void)
 {
   SDL_Event event;
 
-  SDL_PollEvent(&event);
+  if (!SDL_PollEvent(&event))
+    return NULL;
   return SDLConvertEvent(&event);
 }
 

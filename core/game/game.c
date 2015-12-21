@@ -199,7 +199,7 @@ static int ygParseStartAndGame(GameConfig *config, Entity *mainMod)
     wid = ywidGetMainWid();
     g_assert(ywidRend(wid) != -1);
     sched_yield();
-    ywidHandleEvent(wid, NULL);
+    ywidDoTurn(wid);
   } while(alive);
 
   return 0;

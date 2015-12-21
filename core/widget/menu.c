@@ -128,8 +128,6 @@ static InputStatue mnEvent(YWidgetState *opac, YEvent *event)
   InputStatue ret = NOTHANDLE;
 
   (void)opac;
-  if (!event)
-    event = ywidGenericWaitEvent();
 
   if (!event)
     return NOTHANDLE;
@@ -149,8 +147,8 @@ static InputStatue mnEvent(YWidgetState *opac, YEvent *event)
 
   if (!(ret & FAST_QUIT))
     opac->hasChange = 1;
+
  exit:
-  g_free(event);
   return ret;
 }
 

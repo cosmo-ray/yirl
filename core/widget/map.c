@@ -24,7 +24,6 @@ static int t = -1;
 static int mapInit(YWidgetState *opac, Entity *entity, void *args)
 {
   const char *action;
-  const char *anim;
   Entity *initer = yeGet(entity, "init");
 
   ywidGenericInit(opac, t);
@@ -33,11 +32,8 @@ static int mapInit(YWidgetState *opac, Entity *entity, void *args)
   ((YMapState *)opac)->pos = ywMapCreatePos(0, 0, NULL, NULL);
 
   ((YMapState *)opac)->actionIdx = ywidAddSignal(opac, "action");
-  ((YMapState *)opac)->animIdx = ywidAddSignal(opac, "anim");
   action = yeGetString(yeGet(entity, "action"));
-  anim = yeGetString(yeGet(entity, "anim"));
   ywidBind(opac, "action", action);
-  ywidBind(opac, "anim", anim);
   if (initer) {
     YCallback *callback = ywinGetCallbackByStr(yeGetString(initer));
 
@@ -100,30 +96,11 @@ static InputStatue mapEvent(YWidgetState *opac, YEvent *event)
 {
   InputStatue ret = NOTHANDLE;
 
-  if (!event) {
-    int turnLength = yeGetInt(yeGet(opac->entity, "turn-length"));
-
-    if (turnLength > 0) {
-      usleep(turnLength);
-      event = ywidGenericPollEvent();
-    } else {
-      event = ywidGenericWaitEvent();
-    }
-  }
-
-
   /* set pos */
-  if (event) {    
-    ywidCallSignal(opac, event, NULL,
-		   ((YMapState *)opac)->actionIdx);
-  }
-
   ret = ywidCallSignal(opac, event, NULL,
-		       ((YMapState *)opac)->animIdx);
+		       ((YMapState *)opac)->actionIdx);
 
   opac->hasChange = ret == NOTHANDLE ? 0 : 1;
-
-  g_free(event);
   return ret;
 }
 

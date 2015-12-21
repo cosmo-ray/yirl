@@ -342,3 +342,48 @@ void YWidDestroy(YWidgetState *wid)
   else
     g_free(wid);
 }
+
+static void ywidFreeEvents(YEvent *event)
+{
+  struct EveListHead *head;
+
+  if (!event)
+    return;
+  head = event->head;
+  while (!SLIST_EMPTY(head)) {
+    event = SLIST_FIRST(head);
+    SLIST_REMOVE_HEAD(head, lst);
+    free(event);
+  }
+}
+
+int ywidDoTurn(YWidgetState *opac)
+{
+  YEvent *event;
+  int turnLength = yeGetInt(yeGet(opac->entity, "turn-length"));
+  int ret;
+  struct EveListHead head = SLIST_HEAD_INITIALIZER(head);
+
+  if (turnLength > 0) {
+    usleep(turnLength);
+
+    int i = 0;
+    for (event = ywidGenericPollEvent(); event;
+	 event = ywidGenericPollEvent()) {
+      event->head = &head;
+      SLIST_INSERT_HEAD(&head, event, lst);
+      ++i;
+    }
+
+  } else {
+    event = ywidGenericWaitEvent();
+    if (!event)
+      return NOTHANDLE;
+    event->head = &head;
+    SLIST_INSERT_HEAD(&head, event, lst);
+  }
+
+  ret = ywidHandleEvent(opac, SLIST_FIRST(&head));
+  ywidFreeEvents(SLIST_FIRST(&head));
+  return ret;
+}

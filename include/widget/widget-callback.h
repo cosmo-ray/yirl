@@ -70,15 +70,20 @@ YCallback *ywinCreateEntityCallback(const char *name,
 void ywidDdestroyCallback(int idx);
 
 int ywidInitCallback(void);
+
 void ywidFinishCallbacks(void);
 
 YCallback * ywinGetCallbackByIdx(int idx);
+
 YCallback *ywinGetCallbackByStr(const char *str);
 
 int ywidCallSignal(YWidgetState *wid, YEvent *eve, Entity *arg, int idx);
+
 int ywidCallCallback(YCallback *callback, YWidgetState *wid,
 		     YEvent *eve, Entity *arg);
+
 int ywidCallCallbackByIdx(YWidgetState *wid, YEvent *eve, Entity *arg, int idx);
+
 static inline int ywidCallCallbackByStr(const char *str,
 					YWidgetState *wid,
 					YEvent *eve, Entity *arg)
