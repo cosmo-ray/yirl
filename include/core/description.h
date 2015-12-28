@@ -20,8 +20,8 @@
  */
 
 
-#ifndef _DESCRIPTION_H_
-#define _DESCRIPTION_H_
+#ifndef _YIRL_DESCRIPTION_H_
+#define _YIRL_DESCRIPTION_H_
 
 #include "utils.h"
 #include "entity.h"

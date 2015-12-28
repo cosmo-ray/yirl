@@ -20,8 +20,8 @@
  * All there's functions are made to be use in lua too
  */
 
-#ifndef	ENTITY_H
-#define	ENTITY_H
+#ifndef	_YIRL_ENTITY_H
+#define	_YIRL_ENTITY_H
 
 #include <stdio.h>
 #include <glib.h>

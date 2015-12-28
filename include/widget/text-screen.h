@@ -15,8 +15,8 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef	_YTEXT_SCREEN_H_
-#define	_YTEXT_SCREEN_H_
+#ifndef	_YIRL_TEXT_SCREEN_H_
+#define	_YIRL_TEXT_SCREEN_H_
 
 #include "widget.h"
 

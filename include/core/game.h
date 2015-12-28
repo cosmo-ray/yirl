@@ -16,8 +16,8 @@
 */
 
 
-#ifndef GAME_H
-#define GAME_H
+#ifndef _YIRL_GAME_H_
+#define _YIRL_GAME_H_
 
 #include <glib.h>
 #include "entity.h"

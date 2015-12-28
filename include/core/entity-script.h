@@ -15,8 +15,8 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _ENTITY_SCRIPT_H_
-#define _ENTITY_SCRIPT_H_
+#ifndef _YIRL_ENTITY_SCRIPT_H_
+#define _YIRL_ENTITY_SCRIPT_H_
 
 #include <stdarg.h>
 #include "entity.h"

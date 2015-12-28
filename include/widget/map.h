@@ -15,8 +15,8 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef	_MAP_H_
-#define	_MAP_H_
+#ifndef	_YIRL_MAP_H_
+#define	_YIRL_MAP_H_
 
 #include "widget.h"
 

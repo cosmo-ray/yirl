@@ -15,8 +15,8 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _KEYDEF_H_
-#define _KEYDEF_H_
+#ifndef _YIRL_KEYDEF_H_
+#define _YIRL_KEYDEF_H_
 
 #define Y_ESC_KEY 27
 #define Y_UP_KEY 259

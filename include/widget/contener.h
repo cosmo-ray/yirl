@@ -15,8 +15,8 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef	_CONTENER_H_
-#define	_CONTENER_H_
+#ifndef	_YIRL_CONTENER_H_
+#define	_YIRL_CONTENER_H_
 
 #include "widget.h"
 

@@ -15,8 +15,8 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _LUA_BINDING_H_
-#define _LUA_BINDING_H_
+#ifndef _YIRL_LUA_BINDING_H_
+#define _YIRL_LUA_BINDING_H_
 
 #include "script.h"
 #include "lua-convert.h"
