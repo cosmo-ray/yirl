@@ -57,6 +57,8 @@ inline void yBlockArrayUnset(BlockArray *ba, size_t pos)
 
   ba->blocks[bPos] ^= (1LLU << (pos & 63));
 
+  if (bPos != yBlockArrayBlockPos(ba->size))
+    return;
  again:
   if ((bPos + toFree) >= 0 && ba->blocks[bPos + toFree] == 0) {
     --toFree;
