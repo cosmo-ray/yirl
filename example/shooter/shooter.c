@@ -50,51 +50,49 @@ static inline int isOut(YWidgetState *wid, Entity *pos)
   return 0;
 }
 
-static int removeBullet(YWidgetState *wid, Entity *bullet,
-			Entity *what, Entity *pos)
+static int removeBullet(YWidgetState *wid, Entity *obj)
 {
   Entity *bulletManager = yeGet(wid->entity, "$bullet-manager");
+  Entity *id = yeGet(obj, "id");
+  Entity *pos = yeGet(obj, "pos");
 
-  ywMapRemove(wid, pos, what);
-  yeRemoveChild(bulletManager, bullet);
+  ywMapRemove(wid, pos, id);
+  yeRemoveChild(bulletManager, obj);
   return 0;
 }
 
-static int move(YWidgetState *wid, Entity *bullet, Entity *what,
-		 Entity *pos, Entity *to)
+static int move(YWidgetState *wid, Entity *obj, Entity *dir)
 {
+  Entity *id = yeGet(obj, "id");
+  Entity *pos = yeGet(obj, "pos");
   Entity *cur = ywMapGetCase(wid, pos);
   Entity *posX = yeGet(pos, "x");
   Entity *posY = yeGet(pos, "y");
-  int ret = 0;
+  int ret = isOut(wid, pos);
 
-  if ((ret = isOut(wid, pos)))
-    return removeBullet(wid, bullet, what, pos);
+  if (!!ret)
+    return removeBullet(wid, obj);
 
-  yeRemoveChild(cur, what);
-  yeOpsAddEnt(posX, yeGet(to, "x"));
-  yeOpsAddEnt(posY, yeGet(to, "y"));
-  ywMapPushElem(wid, what, pos, "bl");
+  yeRemoveChild(cur, id);
+  yeOpsAddEnt(posX, yeGet(dir, "x"));
+  yeOpsAddEnt(posY, yeGet(dir, "y"));
+  ywMapPushElem(wid, id, pos, "bl");
   return 0;
 }
 
-static int shooterHandleBullets(YWidgetState *wid, YEvent *eve, Entity *arg)
+static int shooterHandleBullets(YWidgetState *wid)
 {
   Entity *bulletManager = yeGet(wid->entity, "$bullet-manager");
 
-  (void)eve;
-  (void)arg;
   if (!bulletManager)
     return 0;
 
   YE_ARRAY_FOREACH(bulletManager, bullet) {
     if (!bullet)
       continue;
-    Entity *pos = yeGet(bullet, "pos");
     Entity *speedAndDir = yeGet(bullet, "speedAndDir");
-    Entity *id = yeGet(bullet, "id");
 
-    move(wid, bullet, id, pos, speedAndDir);
+    move(wid, bullet, speedAndDir);
   }
   return ACTION;
 }
@@ -204,7 +202,7 @@ static int shooterActionInt(YWidgetState *wid, YEvent *eve, Entity *arg)
 
 int shooterAction(YWidgetState *wid, YEvent *eve, Entity *arg)
 {
-  shooterHandleBullets(wid, eve, arg);
+  shooterHandleBullets(wid);
   if (eve) {
     YEvent *curEve;
     
