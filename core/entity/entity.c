@@ -449,7 +449,6 @@ Entity *yeRemoveChild(Entity *array, Entity *toRemove)
       yBlockArrayUnset(&YE_TO_ARRAY(array)->values, it);
       return ret;
     }
-    ++it;
   }
   return NULL;
 }
