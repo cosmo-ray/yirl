@@ -36,7 +36,7 @@ static inline int isOut(YWidgetState *wid, Entity *pos)
     yeSetInt(entX, 0);
     return OUT_LEFT;
   } else if (posX >= ywMapW(wid) - 1) {
-    yeSetInt(entX, ywMapH(wid) - 1);
+    yeSetInt(entX, ywMapW(wid) - 1);
     return OUT_RIGHT;
   }
 
