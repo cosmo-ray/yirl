@@ -19,6 +19,7 @@
 #include <string.h>
 #include <glib.h>
 #include <stdlib.h>
+#include "timer.h"
 #include "widget.h"
 #include "widget-callback.h"
 
@@ -363,11 +364,19 @@ int ywidDoTurn(YWidgetState *opac)
   int turnLength = yeGetInt(yeGet(opac->entity, "turn-length"));
   int ret;
   struct EveListHead head = SLIST_HEAD_INITIALIZER(head);
+  static YTimer *cnt = NULL;
+
+  if (!cnt)
+    cnt = YTimerCreate();
 
   if (turnLength > 0) {
-    usleep(turnLength);
+    int64_t i = 0;
 
-    int i = 0;
+    i = turnLength - YTimerGet(cnt);
+    if (i > 0)
+      usleep(i);
+    YTimerReset(cnt);
+
     for (event = ywidGenericPollEvent(); event;
 	 event = ywidGenericPollEvent()) {
       event->head = &head;
