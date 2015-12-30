@@ -1,3 +1,3 @@
-file ( GLOB util_SRCS *.c )
+set (SOURCE util.c debug.c block-array.c)
 
-add_library ( util STATIC ${util_SRCS} )
+add_library ( util STATIC ${SOURCE} )
