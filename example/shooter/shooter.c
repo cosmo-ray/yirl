@@ -15,6 +15,7 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "timer.h"
 #include "shooter.h"
 
 #define MAP_SIZE_W 40
@@ -135,7 +136,14 @@ static void shooterSpamBullet(YWidgetState *wid, int x, int y)
 
   Entity *bulletSprite = yeGet(wid->entity, "$bullet-sprite");
   Entity *bulletManager = yeGet(wid->entity, "$bullet-manager");
+  static YTimer *bulletTimeout = NULL;
 
+  if (!bulletTimeout)
+    bulletTimeout = YTimerCreate();
+
+  if (YTimerGet(bulletTimeout) < 100000)
+    return;
+  YTimerReset(bulletTimeout);
   if (!yeGet(wid->entity, "$bullet-manager")) {
     /* We add this inside wid->entity, like this when destroying wid->entity
      * bulletSprite and bulletManager will be destroy too :) */
