@@ -129,6 +129,7 @@ int ywMapInit(void)
   ywidInitCallback();
   if (t != -1)
     return t;
+
   t = ywidRegister(alloc, "map");
   return t;
 }
