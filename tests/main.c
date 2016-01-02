@@ -92,6 +92,7 @@ int main(int argc, char **argv)
 #ifdef WITH_CURSES
   TEST_TRY_ADD("/widget/lifecycle/all", testAllLife, only);
   TEST_TRY_ADD("/widget/textScreen/all", testYWTextScreenAll, only);
+  TEST_TRY_ADD("/widget/map/all", testYWMapAll, only);
   TEST_TRY_ADD("/game/all/simple", testYGameAllLibBasic, only);
 #endif
 #endif

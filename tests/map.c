@@ -32,7 +32,7 @@ static int testMapEnter(YWidgetState *wid, YEvent *eve, Entity *arg)
   (void)arg;
   (void)eve;
 
-  if (eve && (eve->type == YKEY_DOWN))
+  if (eve && (eve->type == YKEY_DOWN && eve->key == '\n'))
       return ACTION;
   return NOTHANDLE;
 }
@@ -114,7 +114,6 @@ void testYWMapSdl2(void)
   wid = ywidNewWidget(ret, NULL);
   g_assert(wid);
 
-  
   do {
     g_assert(ywidRend(wid) != -1);
   } while(ywidDoTurn(wid) != ACTION);
@@ -123,6 +122,57 @@ void testYWMapSdl2(void)
   YWidDestroy(wid);
   ysdl2Destroy();
   /* end libs */
-  YE_DESTROY(ret);  
+  YE_DESTROY(ret);
 }
+
+#ifdef WITH_CURSES
+
+void testYWMapAll(void)
+{
+  int t = ydJsonInit();
+  void *jsonManager;
+  Entity *ret;
+  YWidgetState *wid;
+
+  /* load files */
+  g_assert(t != -1);
+  g_assert(ydJsonGetType() == t);
+  g_assert(ywidInitCallback() >= 0);
+  jsonManager = ydNewManager(t);
+  g_assert(jsonManager != NULL);
+  ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json");
+  ret = yeGet(ret, "MapTest++");
+  g_assert(ret);
+  g_assert(!ydJsonEnd());
+  g_assert(!ydDestroyManager(jsonManager));
+
+  t = ywMapInit();
+  g_assert(t != -1);
+
+  g_assert(ysdl2Init() != -1);
+  g_assert(ysdl2Type() == 0);
+  g_assert(ycursInit() != -1);
+  g_assert(ycursType() == 1);
+  
+  g_assert(!ysdl2RegistreMap());
+  g_assert(!ycursRegistreMap());
+
+  ywinAddCallback(ywinCreateNativeCallback("mapTest", testMapEnter));
+  wid = ywidNewWidget(ret, NULL);
+  g_assert(wid);
+
+  do {
+    g_assert(ywidRend(wid) != -1);
+  } while(ywidDoTurn(wid) != ACTION);
+
+  g_assert(!ywMapEnd());
+  YWidDestroy(wid);
+  ysdl2Destroy();
+  ycursDestroy();
+  /* end libs */
+  YE_DESTROY(ret);
+}
+
+#endif
+
 #endif
