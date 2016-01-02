@@ -44,6 +44,8 @@ static inline int ywMapH(YWidgetState *state)
   return yeLen(yeGet(state->entity, "map")) / ywMapW(state);
 }
 
+int ywMapGetIdByElem(Entity *mapElem);
+
 Entity *ywMapGetCase(YWidgetState *state, Entity *pos);
 Entity *ywMapGetPos(YWidgetState *state);
 Entity *ywMapGetCurrentCase(YWidgetState *state);

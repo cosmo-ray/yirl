@@ -116,12 +116,23 @@ static void *alloc(void)
 
   if (!ret)
     return NULL;
+
   wstate->render = mapRend;
   wstate->init = mapInit;
   wstate->destroy = mapDestroy;
   wstate->handleEvent = mapEvent;
   wstate->type = t;
-return  ret;
+  return  ret;
+}
+
+int ywMapGetIdByElem(Entity *mapElem)
+{
+  if (yeType(mapElem) == YINT)
+    return yeGetInt(mapElem);
+  if (yeType(mapElem) == YARRAY)
+    return yeGetInt(yeGet(mapElem, "id"));
+
+  return -1;
 }
 
 int ywMapInit(void)
