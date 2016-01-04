@@ -47,7 +47,7 @@ static inline int isOut(YWidgetState *wid, Entity *pos)
     yeSetInt(entY, ywMapH(wid) - 1);
     return OUT_BOTOM;
   }
-  return 0;  
+  return 0;
 }
 
 static int removeBullet(YWidgetState *wid, Entity *bullet,
@@ -193,7 +193,8 @@ int shooterAction(YWidgetState *wid, YEvent *eve, Entity *arg)
     /* exit */
   case 'q':
     ywidCallCallbackByStr("FinishGame", wid, eve, arg);
-    goto end_switch;    
+    sound_stop("42");
+    goto end_switch;
   end_switch:
     ret = ACTION;
   default:
@@ -206,6 +207,8 @@ int shooterInit(YWidgetState *wid, YEvent *eve, Entity *arg)
 {
   Entity *tmp;
   Entity *pos;
+
+  sound_play_loop("42", "BlablablaMrFreeman.mp3");
 
   (void)eve;
   yeCreateInt(MAP_SIZE_W, arg, "width");
@@ -222,10 +225,10 @@ int shooterInit(YWidgetState *wid, YEvent *eve, Entity *arg)
   tmp = ywMapGetCurrentCase(wid);
   yeCreateInt(1, tmp, "hr");
 
-  ywinAddCallback(ywinCreateNativeCallback("shooterAction", shooterAction));  
+  ywinAddCallback(ywinCreateNativeCallback("shooterAction", shooterAction));
   ywidBind(wid, "action", "shooterAction");
-  ywinAddCallback(ywinCreateNativeCallback("shooterAnim", shooterHandleBullets));  
+  ywinAddCallback(ywinCreateNativeCallback("shooterAnim", shooterHandleBullets));
   ywidBind(wid, "anim", "shooterAnim");
-  
+
   return NOTHANDLE;
 }
