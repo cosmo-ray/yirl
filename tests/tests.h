@@ -57,4 +57,6 @@ void testVerticalContenerSdl(void);
 void testYGameSdlLibBasic(void);
 void testYGameAllLibBasic(void);
 
+void testYSoundLib(void);
+
 #endif
