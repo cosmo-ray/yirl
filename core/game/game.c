@@ -80,7 +80,7 @@ int ygInit(GameConfig *cfg)
 		    "json init failed");
   CHECK_AND_RET(jsonManager = ydNewManager(t), NULL, -1,
 		    "json init failed");
-  parsers[t] = jsonManager; 
+  parsers[t] = jsonManager;
 
   /* Init scripting */
   /* TODO init internal lua function */
@@ -97,6 +97,9 @@ int ygInit(GameConfig *cfg)
   CHECK_AND_RET(ywMapInit(), -1, -1, "Map init failed");
   CHECK_AND_RET(ywTextScreenInit(), -1, -1, "Text Screen init failed");
   CHECK_AND_RET(ywContenerInit(), -1, -1, "Contener init failed");
+
+  /* Init sound */
+  sound_init(LIB_VLC);
 
   for (GList *tmp = cfg->rConf; tmp; tmp = tmp->next) {
     //TODO check which render to use :)
@@ -158,7 +161,7 @@ static inline int checkStartingPoint(Entity *type, Entity *file,
     return -1;
   }
 
-  
+
   return 0;
 }
 
@@ -234,7 +237,7 @@ int ygStartLoop(GameConfig *config)
     DPRINT_ERR("fail to parse file: %s", tmp);
     goto cleanup;
   }
-  
+
   ret = ygParseStartAndGame(config, mainMod);
  cleanup:
   g_free(tmp);

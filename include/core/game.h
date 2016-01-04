@@ -25,6 +25,7 @@
 #include "widget-callback.h"
 #include "utils.h"
 #include "map.h"
+#include "sound.h"
 
 typedef enum {
   SDL2 = 1,
