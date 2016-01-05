@@ -170,6 +170,8 @@ static int ygParseStartAndGame(GameConfig *config, Entity *mainMod)
   Entity *type = yeGet(mainMod, "type");
   Entity *file = yeGet(mainMod, "file");
   Entity *starting_widget = yeGet(mainMod, "starting widget");
+  Entity *preLoad = yeGet(mainMod, "pre-load");
+  Entity *initScripts = yeGet(mainMod, "init-scripts");
   YWidgetState *wid;
   int ret = ACTION;
 
@@ -178,12 +180,25 @@ static int ygParseStartAndGame(GameConfig *config, Entity *mainMod)
   if (checkStartingPoint(type, file, starting_widget) < 0)
     return -1;
 
-  if (yuiStrEqual(yeGetString(type), "json")) {
-    char *tmp = NULL;
+  YE_ARRAY_FOREACH(preLoad, var) {
+    Entity *tmpType = yeGet(preLoad, "type");
+    Entity *tmpFile = yeGet(preLoad, "file");
 
-    tmp = g_strconcat(config->startingMod->path, "/", yeGetString(file), NULL);
-    file = ydFromFile(jsonManager, tmp);
-    g_free(tmp);
+    if (yuiStrEqual(yeGetString(tmpType), "lua")) {
+      ysLoadFile(luaManager, yeGetString(tmpFile));
+    }
+  }
+
+  YE_ARRAY_FOREACH(initScripts, var2) {
+    ysCall(luaManager, yeGetString(var2), 0);
+  }
+
+  if (yuiStrEqual(yeGetString(type), "json")) {
+    char *fileStr = NULL;
+
+    fileStr = g_strconcat(config->startingMod->path, "/", yeGetString(file), NULL);
+    file = ydFromFile(jsonManager, fileStr);
+    g_free(fileStr);
     if (!file) {
       return -1;
     }
