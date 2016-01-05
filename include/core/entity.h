@@ -82,7 +82,7 @@ extern "C"
 #define YE_DESTROY(X) do {			\
     if (X == NULL)				\
       break;					\
-    if (X->refCount == 1)	{		\
+    if (X->refCount == 1) {			\
       yeDestroy(X);				\
       X = NULL;					\
     } else {					\
