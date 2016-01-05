@@ -124,8 +124,10 @@ inline void yBlockArrayIteratorIncr(BlockArrayIterator *it)
 inline BlockArrayIterator yBlockArrayIteratorCreate(BlockArray *array,
 						    int beg)
 {
-  BlockArrayIterator ret;
+  BlockArrayIterator ret = {NULL, 0, 0, 0};
 
+  if (!array)
+    return ret;
   yBlockArrayIteratorInit(ret, array, beg);
   return ret;
 }

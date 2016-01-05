@@ -169,13 +169,18 @@ extern "C"
    */
   const char *yeTypeToString(int type) WEAK;
 
+#define YE_ARRAY_FOREACH_INIT(array)				\
+  (array == NULL ? yBlockArrayIteratorCreate(NULL, 0) :		\
+   yBlockArrayIteratorCreate(&YE_TO_ARRAY(array)->values, 0))
+
 #define YE_ARRAY_FOREACH_SET_VAL(it, val)				\
   ((val = yBlockArrayIteratorGetPtr(it, ArrayEntry)->entity) || 1)
+
 
 #define YE_ARRAY_FOREACH(array, val)					\
   Entity *val;								\
   for (BlockArrayIterator it##val =					\
-	 yBlockArrayIteratorCreate(&YE_TO_ARRAY(array)->values, 0);	\
+	 YE_ARRAY_FOREACH_INIT(array);					\
        !yBlockArrayIteratorIsEnd(&it##val) &&				\
 	 YE_ARRAY_FOREACH_SET_VAL(it##val, val);			\
        yBlockArrayIteratorIncr(&it##val))
