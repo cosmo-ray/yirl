@@ -27,6 +27,11 @@ typedef struct {
   int actionIdx;
 } YMapState;
 
+/**
+ * @return A new entity of type YARRAY, need to be free.
+ */
+Entity *ywMapCreateDefaultEntity(void);
+
 int ywMapInit(void);
 int ywMapEnd(void);
 int ycursRegistreMap(void);

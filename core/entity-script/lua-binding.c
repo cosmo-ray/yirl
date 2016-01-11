@@ -18,6 +18,8 @@
 #include	"lua-binding.h"
 #include	"debug.h"
 #include	"entity.h"
+#include	"widget.h"
+#include	"map.h"
 
 int	luaYAnd(lua_State *L)
 {
@@ -73,6 +75,18 @@ int	luaCopy(lua_State *L)
   return 1;
 }
 
+
+int	luaSetMainWid(lua_State *L)
+{
+  ywidSetMainWid(lua_touserdata(L, 1), lua_tonumber(L, 2));
+  return 0;
+}
+
+int	luaNewWidget(lua_State *L)
+{
+  lua_pushlightuserdata(L, ywidNewWidget((Entity *)lua_touserdata(L, 1), NULL));
+  return 1;
+}
 
 int	luaCreateArray(lua_State *L)
 {

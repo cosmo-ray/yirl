@@ -52,7 +52,7 @@ void testLuaScritLifecycle(void)
   g_assert(!ysRegistreFunc(sm, "toPtr", luaNbrToPtr));
 
   if (ysLoadFile(sm, TESTS_PATH"/simple.lua")) {
-    ysPrintError(sm);
+    DPRINT_ERR("%s\n", ysGetError(sm));
     g_assert(0);
   }
 
@@ -72,10 +72,16 @@ void testLuaScritEntityBind(void)
   yesLuaRegister(sm);
   g_assert(sm);
 
+  g_assert(ysLoadFile(sm,  "I should fail") < 0);
+
   if (ysLoadFile(sm, TESTS_PATH"/test-entity.lua")) {
-    ysPrintError(sm);
+    g_assert(ysGetError(sm));
     g_assert(0);
   }
+
+  ret = ysCall(sm, "fail incoming", 1, "tests");
+  printf("%p\n", ret);
+  g_assert(ret == NULL);
   ret = ysCall(sm, "yeCreateArray", 0);
   g_assert(ret);
   g_assert(yeType(ret) == YARRAY);

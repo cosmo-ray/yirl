@@ -18,6 +18,7 @@ target_link_libraries(
 	glib-2.0
 	json-c
 	entity
+	yes
 	util
 	luaScript
 	jsonDescrption

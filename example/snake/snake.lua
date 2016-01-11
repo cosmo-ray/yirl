@@ -15,6 +15,32 @@
 --along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
-function init()
-   print("hello");
+print("loading snake.lua");
+
+function snakeMap(entity)
+   local map = yeCreateArray(entity, "start");
+   local i = 0;
+
+   yeCreateString( "map", map, "<type>")
+   yeCreateString("SnakeResources", map, "&resources")
+   yeCreateInt(10000, map, "turn-length")
+   yeCreateInt(20, map, "width")
+   local case = yeCreateArray(map, "map");
+
+   while i < 20 * 20 do
+      local tmp = yeCreateArray(case, NULL)
+      yeCreateInt(0, tmp, NULL)
+      i = i + 1
+   end
+   return map
+end
+
+function initSnake(entity)
+   -- TODO: this functions: C/lua
+   local mapEntity = snakeMap(entity)
+
+   print("init ", mapEntity)
+   local map = ywidNewWidget(mapEntity)
+   print("init ", map)
+   ywidSetMainWid(map, 0)
 end

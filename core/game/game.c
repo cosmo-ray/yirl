@@ -25,7 +25,9 @@
 
 /* scripting */
 #include "lua-script.h"
+#include "lua-binding.h"
 
+/* widgets */
 #include "widget-callback.h"
 #include "utils.h"
 #include "entity.h"
@@ -88,6 +90,8 @@ int ygInit(GameConfig *cfg)
   CHECK_AND_RET(luaManager = ysNewManager(NULL, t), NULL, -1,
 		    "lua init failed");
 
+  CHECK_AND_RET(yesLuaRegister(luaManager), -1, -1, "lua init failed");
+
   /* Init widgets */
   CHECK_AND_RET(ywidInitCallback(), -1, -1, "can not init callback");
   CHECK_AND_RET(ywinAddCallback(ywinCreateNativeCallback("FinishGame",
@@ -148,23 +152,6 @@ void ygEnd()
   init = 0;
 }
 
-static inline int checkStartingPoint(Entity *type, Entity *file,
-				     Entity *starting_widget)
-{
-  CHECK_AND_RET(file, NULL, -1, "No file in start");
-  CHECK_AND_RET(type, NULL, -1, "No type in start");
-  CHECK_AND_RET(starting_widget, NULL, -1, "No starting widget in start");
-  if (yeType(type) != YSTRING ||
-      yeType(file) != YSTRING ||
-      yeType(starting_widget) != YSTRING) {
-    DPRINT_ERR("Bad entity type in start, all type's should be strigs");
-    return -1;
-  }
-
-
-  return 0;
-}
-
 static int ygParseStartAndGame(GameConfig *config, Entity *mainMod)
 {
   Entity *type = yeGet(mainMod, "type");
@@ -173,43 +160,56 @@ static int ygParseStartAndGame(GameConfig *config, Entity *mainMod)
   Entity *preLoad = yeGet(mainMod, "pre-load");
   Entity *initScripts = yeGet(mainMod, "init-scripts");
   YWidgetState *wid;
-  int ret = ACTION;
 
-  (void)ret;
   alive = 1;
-  if (checkStartingPoint(type, file, starting_widget) < 0)
-    return -1;
 
   YE_ARRAY_FOREACH(preLoad, var) {
-    Entity *tmpType = yeGet(preLoad, "type");
-    Entity *tmpFile = yeGet(preLoad, "file");
+    Entity *tmpType = yeGet(var, "type");
+    Entity *tmpFile = yeGet(var, "file");
 
-    if (yuiStrEqual(yeGetString(tmpType), "lua")) {
-      ysLoadFile(luaManager, yeGetString(tmpFile));
+    if (yuiStrEqual0(yeGetString(tmpType), "lua")) {
+      if (ysLoadFile(luaManager, yeGetString(tmpFile)) < 0) {
+	DPRINT_ERR("Error when loading '%s': %s\n",
+		   yeGetString(tmpFile), ysGetError(luaManager));
+      }
     }
   }
 
   YE_ARRAY_FOREACH(initScripts, var2) {
-    ysCall(luaManager, yeGetString(var2), 0);
+    ysCall(luaManager, yeGetString(var2), 1, mainMod);
   }
 
-  if (yuiStrEqual(yeGetString(type), "json")) {
-    char *fileStr = NULL;
 
-    fileStr = g_strconcat(config->startingMod->path, "/", yeGetString(file), NULL);
-    file = ydFromFile(jsonManager, fileStr);
-    g_free(fileStr);
-    if (!file) {
-      return -1;
+  if (type) {
+    if (yuiStrEqual(yeGetString(type), "json")) {
+      char *fileStr = NULL;
+
+      fileStr = g_strconcat(config->startingMod->path, "/",
+			    yeGetString(file), NULL);
+      file = ydFromFile(jsonManager, fileStr);
+      g_free(fileStr);
+      if (!file) {
+	return -1;
+      }
+
+      starting_widget = yeGet(file, yeGetString(starting_widget));
+    } else {
+      DPRINT_ERR("start does not suport loader of type %s", yeGetString(type));
     }
-
-    starting_widget = yeGet(file, yeGetString(starting_widget));
   } else {
-    DPRINT_ERR("start does not suport loader of type %s", yeGetString(type));
-    return -1;
+    starting_widget = yeGet(mainMod, yeGetString(starting_widget));
   }
 
-  ywidSetMainWid(ywidNewWidget(starting_widget, NULL), 0);
+  if (starting_widget)
+    ywidSetMainWid(ywidNewWidget(starting_widget, NULL), 0);
+
+  if (!ywidGetMainWid()) {
+      DPRINT_ERR("No main widget has been set.\n"
+		 "see docomentation about starting_widget\n"
+		 "or set it manually with \"ywidSetMainWid()\"");
+      return -1;
+  }
+
   do {
     wid = ywidGetMainWid();
     g_assert(ywidRend(wid) != -1);

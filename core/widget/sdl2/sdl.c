@@ -308,6 +308,8 @@ int sdlPrintText(SDLWid *wid,
 		 SDL_Color color,
 		 int x, int y)
 {
+  if (!str)
+    return 0;
   char **tmp = g_strsplit(str, "\n", 0);
   int ret = 0;
 

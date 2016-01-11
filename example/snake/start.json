@@ -17,15 +17,35 @@
 
 {
     "_name" : "start",
-    "type" : "json",
-    "file" : "shooter.json",
     "init-scripts" : [
 	"initSnake"
     ],
     "pre-load" : [
-	{ "file" : "snake.lua"
-	  "type" : "lua"
+	{
+	    "file" : "snake.lua",
+	    "type" : "lua"
 	}
     ],
-    "starting widget" : "Menu"
+    
+    "starting widget" : "Menu",
+
+    "SnakeResources" : [
+	{
+	    "name" : "floar",
+	    "map-srite" : "bg.png",
+	    "map-char" : "."
+	},
+	{
+	    "name" : "pj", // for text screen ?
+	    "map-srite" : "hero.png", // sdl map
+	    "map-char" : "@" // curses map
+	},
+	{
+	    "name" : "bullet", // for text screen ?
+	    "map-srite" : "bullet.png", // sdl map
+	    "map-char" : "o" // curses map
+	}
+
+    ]
 }
+
