@@ -122,10 +122,8 @@ size_t yeLen(Entity *entity)
 
 Entity *yeGetByIdx(Entity *entity, size_t index)
 {
-  if (entity == NULL) {
-    DPRINT_WARN("entity is NULL\n");
+  if (entity == NULL)
     return NULL;
-  }
   Entity *tmp;
   tmp = yBlockArrayGet(&YE_TO_ARRAY(entity)->values, index, ArrayEntry).entity;
   return tmp;
