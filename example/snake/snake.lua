@@ -22,7 +22,9 @@ function snakeMap(entity)
    local i = 0;
 
    yeCreateString( "map", map, "<type>")
-   yeCreateString("SnakeResources", map, "&resources")
+   yePushBack(map, yeGet(entity, "SnakeResources"), "resources")
+   print("res ", yeGet(entity, "SnakeResources"))
+   print("res ", yeGet(map, "resources"))
    yeCreateInt(10000, map, "turn-length")
    yeCreateInt(20, map, "width")
    local case = yeCreateArray(map, "map");

@@ -149,19 +149,19 @@ int	luaPopBack(lua_State *L)
 
 int	luaPushBack(lua_State *L)
 {
-  if (lua_gettop(L) < 2 || !lua_islightuserdata(L, 1) ||
-      !lua_islightuserdata(L, 2))
+  if (lua_gettop(L) < 2)
     {
       DPRINT_ERR("function arguments are incorect\n"
 	     "real prototyre is: yePushBack(lightuserdata entity, lightuserdata toPush, string name)\n");
       return -1;
     }
-  if (!lua_isstring(L, 3))
+  if (lua_isstring(L, 3)) {
     yePushBack(((Entity *)lua_topointer(L, 1)), (Entity *)lua_topointer(L, 2),
 	       lua_tostring(L, 3));
-  else
+  } else {
     yePushBack(((Entity *)lua_topointer(L, 1)), (Entity *)lua_topointer(L, 2),
 	       NULL);
+  }
   return 0;
 }
 
