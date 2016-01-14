@@ -59,6 +59,7 @@ int	luaFunctionNumberArgs(lua_State *L);
 /* widgets */
 int	luaSetMainWid(lua_State *L);
 int	luaNewWidget(lua_State *L);
+int	luaWidBind(lua_State *L);
 
 #define YES_RET_IF_FAIL(OPERATION)		\
   if (OPERATION < 0) return -1;
@@ -104,6 +105,8 @@ static inline int	yesLuaRegister(void *sm)
   /* widgets */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidNewWidget", luaNewWidget));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidSetMainWid", luaSetMainWid));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidBind", luaWidBind));
+
   return 0;
 }
 

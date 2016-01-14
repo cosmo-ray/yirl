@@ -44,5 +44,6 @@ function initSnake(entity)
    print("init ", mapEntity)
    local map = ywidNewWidget(mapEntity)
    print("init ", map)
+   ywidBind(map, "action", "FinishGame");
    ywidSetMainWid(map, 0)
 end

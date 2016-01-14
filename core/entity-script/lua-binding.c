@@ -18,7 +18,7 @@
 #include	"lua-binding.h"
 #include	"debug.h"
 #include	"entity.h"
-#include	"widget.h"
+#include	"widget-callback.h"
 #include	"map.h"
 
 int	luaYAnd(lua_State *L)
@@ -165,6 +165,17 @@ int	luaPushBack(lua_State *L)
   return 0;
 }
 
+int	luaWidBind(lua_State *L)
+{
+  if (lua_gettop(L) != 3)
+    {
+      DPRINT_ERR("function arguments are incorect\n"
+		 "real prototyre is: ywidBind(lightuserdata map, string signal, string callback)\n");
+      return -1;
+    }
+  ywidBind(lua_touserdata(L, 1), lua_tostring(L, 2), lua_tostring(L, 3));
+  return 0;
+}
 
 int	luaGetString(lua_State *L)
 {
