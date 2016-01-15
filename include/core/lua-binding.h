@@ -52,6 +52,7 @@ int	luaSetFloat(lua_State *L);
 int	luaCreateFloat(lua_State *L);
 
 /* Function */
+int     luaCreateFunction(lua_State *L);
 int	luaSetFunction(lua_State *L);
 int	luaUnsetFunction(lua_State *L);
 int	luaFunctionNumberArgs(lua_State *L);
@@ -101,6 +102,9 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeGetFloat", luaGetFloat));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeSetFloat", luaSetFloat));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeCreateFloat", luaCreateFloat));
+
+  /* functions */
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeCreateFunction", luaCreateFunction));
 
   /* widgets */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidNewWidget", luaNewWidget));

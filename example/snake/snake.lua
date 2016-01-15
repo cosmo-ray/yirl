@@ -15,7 +15,6 @@
 --along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
-print("loading snake.lua");
 
 function snakeMap(entity)
    local map = yeCreateArray(entity, "start");
@@ -37,6 +36,10 @@ function snakeMap(entity)
    return map
 end
 
+function snakeAction(wid, eve, arg)
+   print("I've got an action ho ho ho")   
+end
+
 function initSnake(entity)
    -- TODO: this functions: C/lua
    local mapEntity = snakeMap(entity)
@@ -44,6 +47,10 @@ function initSnake(entity)
    print("init ", mapEntity)
    local map = ywidNewWidget(mapEntity)
    print("init ", map)
-   ywidBind(map, "action", "FinishGame");
+
+   local action = yeCreateFunction("snakeAction", entity, "snakeAction", 3)
+   --ywinAddCallback(ywinCreateEntityCallback("snakeAction", action))
+
+   ywidBind(map, "action", "FinishGame")
    ywidSetMainWid(map, 0)
 end

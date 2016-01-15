@@ -27,7 +27,6 @@ int	luaYAnd(lua_State *L)
   return (1);
 }
 
-
 int	luaGet(lua_State *L)
 {
   if (lua_gettop(L) != 2 || !lua_islightuserdata(L, 1)) {
@@ -130,6 +129,16 @@ int	luaCreateFloat(lua_State *L)
 					 (Entity *)lua_topointer(L, 2),
 					 lua_tostring(L, 3)));
   return 1;
+}
+
+int     luaCreateFunction(lua_State *L)
+{
+  void *ret = yeCreateFunction(lua_tostring(L, 1), lua_touserdata(L, 2),
+			       lua_tostring(L, 3));
+
+  yeSetFunctionArgs(ret, lua_tonumber(L, 4));
+  lua_pushlightuserdata(L, ret);
+  return 0;
 }
 
 int	luaPopBack(lua_State *L)
