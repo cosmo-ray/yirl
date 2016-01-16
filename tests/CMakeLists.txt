@@ -28,7 +28,6 @@ target_link_libraries(
 	json-c
 	entity
 	util
-	yes
 	game
 	luaScript
 	tccScript

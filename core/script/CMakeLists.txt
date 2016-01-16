@@ -1,9 +1,12 @@
 set (LUA_SOURCE
 	lua-script.c
+	entity-script.c
+	lua-binding.c
 	lua-convert.c
 	script.c)
 
 set (TCC_SOURCE
+	entity-script.c
         tcc-script.c
 	script.c)
 
