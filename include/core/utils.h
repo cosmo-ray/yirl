@@ -24,6 +24,19 @@
 
 #include <stdint.h>
 
+/* Define to use for error handeling */
+#define MAYBE(var) var
+
+/* example usage: */
+/* MAYBE(void *) test; */
+/* MAYDO((test = myFunc()), pocessMyPtr()) */
+
+
+#define MAYDO(var, cmd)				\
+  if (var) {					\
+    cmd;					\
+  }
+
 typedef struct {
   void *(*allocator[MAX_NB_MANAGER])(void);
   int len;
