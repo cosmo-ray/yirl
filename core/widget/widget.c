@@ -62,7 +62,6 @@ inline YWidgetState *ywidGetMainWid(void)
 
 void ywidSetMainWid(YWidgetState *wid, int free)
 {
-  printf("hello %p\n", wid);
   YWidgetState *tmp = mainWid;
   mainWid = wid;
   if (free)

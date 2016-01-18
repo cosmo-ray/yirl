@@ -29,7 +29,6 @@ static int mapInit(YWidgetState *opac, Entity *entity, void *args)
   ywidGenericInit(opac, t);
 
   ((YMapState *)opac)->resources = yeGet(entity, "resources");
-  printf("recources: %p\n", ((YMapState *)opac)->resources);
   ((YMapState *)opac)->pos = ywMapCreatePos(0, 0, NULL, NULL);
 
   ((YMapState *)opac)->actionIdx = ywidAddSignal(opac, "action");
