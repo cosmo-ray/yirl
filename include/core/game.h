@@ -59,4 +59,8 @@ void ygEnd(void);
 
 int ygTerminateCallback(YWidgetState *wid, YEvent *eve, Entity *arg);
 
+/* scrits managers */
+void *ygGetLuaManager(void);
+void *ygGetTccManager(void);
+
 #endif

@@ -17,6 +17,7 @@
 
 #include "widget-callback.h"
 #include "utils.h"
+#include "entity-script.h"
 
 static GArray *callbacks = NULL;
 
@@ -55,6 +56,9 @@ int ywidCallCallback(YCallback *callback, YWidgetState *wid,
   switch (callback->type) {
   case YCALLBACK_NATIVE:
     return ((YNativeCallback *)callback)->callack(wid, eve, arg);
+    break;
+  case YCALLBACK_ENTITY:
+    yesCall(((YEntityCallback *)callback)->callback, wid, eve, arg);
     break;
   default:
     break;

@@ -17,16 +17,17 @@
 
 #include "entity-script.h"
 
-void *yesVCall(void *sm, Entity *func, va_list *ap)
+void *yesVCall(Entity *func, va_list *ap)
 {
   if (!func)
     return NULL;
   if (!yeGetFunction(func))
     return NULL;
-  return ysVCall(sm, yeGetFunction(func), YE_TO_FUNC(func)->nArgs, ap);
+  return ysVCall(YE_TO_FUNC(func)->manager, yeGetFunction(func), YE_TO_FUNC(func)->nArgs, ap);
+  return NULL;
 }
 
-void *yesCall(void *sm, Entity *func, ...)
+void *yesCall(Entity *func, ...)
 {
   void *ret;
   va_list ap;
@@ -34,7 +35,7 @@ void *yesCall(void *sm, Entity *func, ...)
   if (!func)
     return NULL;
   va_start(ap, func);
-  ret = yesVCall(sm, func, &ap);
+  ret = yesVCall(func, &ap);
   va_end(ap);
   return ret;
 }

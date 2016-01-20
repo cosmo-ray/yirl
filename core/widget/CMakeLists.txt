@@ -10,6 +10,7 @@ add_library (widgets STATIC ${SOURCE})
 target_link_libraries(
 	widgets
 	glib-2.0
+	tccScript
 	entity
 	util
 )

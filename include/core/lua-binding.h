@@ -20,6 +20,8 @@
 
 #include "script.h"
 #include "lua-convert.h"
+#include "widget.h"
+#include "keydef.h"
 #include <lualib.h>
 
 /* love lua */
@@ -61,12 +63,41 @@ int	luaFunctionNumberArgs(lua_State *L);
 int	luaSetMainWid(lua_State *L);
 int	luaNewWidget(lua_State *L);
 int	luaWidBind(lua_State *L);
+int	luaCreateCallback(lua_State *L);
+int	luaWidAddCallback(lua_State *L);
+int	luaCallCallbackByStr(lua_State *L);
+
+/* event */
+int	luaWidNextEve(lua_State *L);
+int	luaWidEveIsEnd(lua_State *L);
+int	luaEveType(lua_State *L);
+int	luaEveKey(lua_State *L);
+
 
 #define YES_RET_IF_FAIL(OPERATION)		\
   if (OPERATION < 0) return -1;
 
 static inline int	yesLuaRegister(void *sm)
 {
+  /* set gobales */
+  lua_pushnumber(((YScriptLua *)sm)->l, YKEY_DOWN);
+  lua_setglobal(((YScriptLua *)sm)->l, "YKEY_DOWN");
+  lua_pushnumber(((YScriptLua *)sm)->l, YKEY_UP);
+  lua_setglobal(((YScriptLua *)sm)->l, "YKEY_UP");
+  lua_pushnumber(((YScriptLua *)sm)->l, YKEY_NONE);
+  lua_setglobal(((YScriptLua *)sm)->l, "YKEY_NONE");
+
+  lua_pushnumber(((YScriptLua *)sm)->l, 27);
+  lua_setglobal(((YScriptLua *)sm)->l, "Y_ESC_KEY");
+  lua_pushnumber(((YScriptLua *)sm)->l, 259);
+  lua_setglobal(((YScriptLua *)sm)->l, "Y_UP_KEY");
+  lua_pushnumber(((YScriptLua *)sm)->l, 258);
+  lua_setglobal(((YScriptLua *)sm)->l, "Y_DOWN_KEY");
+  lua_pushnumber(((YScriptLua *)sm)->l, 260);
+  lua_setglobal(((YScriptLua *)sm)->l, "Y_LEFT_KEY");
+  lua_pushnumber(((YScriptLua *)sm)->l, 261);
+  lua_setglobal(((YScriptLua *)sm)->l, "Y_RIGHT_KEY");
+    
   /* I love lua */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yAnd", luaYAnd));
 
@@ -110,6 +141,21 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidNewWidget", luaNewWidget));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidSetMainWid", luaSetMainWid));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidBind", luaWidBind));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidCreateCallback", luaCreateCallback));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidAddCallback", luaWidAddCallback));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidCallCallbackByStr",
+				 luaCallCallbackByStr));
+
+  /* evenements */
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidNextEve", luaWidNextEve));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidEveIsEnd", luaWidEveIsEnd));
+
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidEveType", luaEveType));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidEveKey", luaEveKey));
+
+  // Add ywidEveStat()
+  // Add ywidEveMouseX()
+  // Add ywidEveMouseY()
 
   return 0;
 }

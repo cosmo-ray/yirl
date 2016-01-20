@@ -40,7 +40,7 @@ typedef enum
   {
     YKEY_DOWN,
     YKEY_UP,
-    NONE
+    YKEY_NONE
   } EventType;
 
 typedef enum
@@ -72,7 +72,6 @@ typedef struct {
 struct WidgetState_;
 struct yevent;
 
-
 typedef struct yevent {
   EventType type;
   int key;
@@ -103,6 +102,13 @@ typedef struct WidgetState_ {
   int type;
   unsigned int hasChange;
 } YWidgetState;
+
+#define YEVE_FOREACH(curEve, eve)		\
+  if (eve)					\
+    SLIST_FOREACH(curEve, eve->head, lst)
+
+#define ywidNextEve(eve)			\
+  (SLIST_NEXT(eve, lst))
 
 int ywidBgConfFill(Entity *entity, YBgConf *cfg);
 

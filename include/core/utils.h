@@ -30,8 +30,6 @@
 /* example usage: */
 /* MAYBE(void *) test; */
 /* MAYDO((test = myFunc()), pocessMyPtr()) */
-
-
 #define MAYDO(var, cmd)				\
   if (var) {					\
     cmd;					\

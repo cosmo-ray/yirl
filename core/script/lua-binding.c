@@ -20,6 +20,7 @@
 #include	"entity.h"
 #include	"widget-callback.h"
 #include	"map.h"
+#include	"game.h"
 
 int	luaYAnd(lua_State *L)
 {
@@ -131,15 +132,68 @@ int	luaCreateFloat(lua_State *L)
   return 1;
 }
 
+/**
+ * This is not a strict binding of the original yeCreateFunction,
+ * because the original has to handle managers,
+ * In this functions we use the lua manager inside game.c by calling
+ * ygGetLuaManager()
+ */
 int     luaCreateFunction(lua_State *L)
 {
-  void *ret = yeCreateFunction(lua_tostring(L, 1), lua_touserdata(L, 2),
-			       lua_tostring(L, 3));
-
-  yeSetFunctionArgs(ret, lua_tonumber(L, 4));
+  void *ret = yeCreateFunction(lua_tostring(L, 1), lua_tonumber(L, 2),
+			       ygGetLuaManager(), lua_touserdata(L, 3),
+			       lua_tostring(L, 4));
   lua_pushlightuserdata(L, ret);
+  return 1;
+}
+
+int	luaCreateCallback(lua_State *L)
+{
+  YCallback *ret = ywinCreateEntityCallback(lua_tostring(L, 1),
+						  lua_touserdata(L, 2));
+  lua_pushlightuserdata(L, ret);
+  return 1;
+}
+
+int	luaWidAddCallback(lua_State *L)
+{
+  lua_pushnumber(L, ywinAddCallback(lua_touserdata(L, 1)));
+  return 1;
+}
+
+int	luaWidNextEve(lua_State *L)
+{
+  lua_pushlightuserdata(L, ywidNextEve((YEvent *)lua_touserdata(L, 1)));
+  return 1;
+}
+
+int	luaWidEveIsEnd(lua_State *L)
+{
+  lua_pushboolean(L, lua_touserdata(L, 1) == NULL);
+  return 1;
+}
+
+int	luaEveType(lua_State *L)
+{
+  lua_pushnumber(L, ((YEvent *)lua_touserdata(L, 1))->type);
+  return 1;
+}
+
+int	luaEveKey(lua_State *L)
+{
+  lua_pushnumber(L, ((YEvent *)lua_touserdata(L, 1))->key);
+  return 1;
+}
+
+int	luaCallCallbackByStr(lua_State *L)
+{
+  ywidCallCallbackByStr(lua_tostring(L, 1), lua_touserdata(L, 2),
+			lua_touserdata(L, 3), lua_touserdata(L, 4));
   return 0;
 }
+
+/* TODO: Add luaEveMouseX() */
+/* TODO: Add luaEveMouseY() */
 
 int	luaPopBack(lua_State *L)
 {
@@ -286,6 +340,7 @@ int	luaUnsetFunction(lua_State *L)
   yeUnsetFunction(YE_TO_ENTITY(lua_topointer(L, 1)));
   return (0);
 }
+
 int	luaFunctionNumberArgs(lua_State *L)
 {
   int	nArg = lua_gettop(L);

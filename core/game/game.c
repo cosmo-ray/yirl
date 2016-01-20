@@ -42,6 +42,17 @@
 static int init;
 static void *jsonManager;
 static void *luaManager;
+static void *tccManager;
+
+void *ygGetLuaManager(void)
+{
+  return luaManager;
+}
+
+void *ygGetTccManager(void)
+{
+  return tccManager;
+}
 
 static YDescriptionOps *parsers[MAX_NB_MANAGER];
 

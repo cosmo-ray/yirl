@@ -233,15 +233,18 @@ Entity *yeCreateFloat(double value, Entity *father, const char *name)
   return ((Entity *)ret);
 }
 
-Entity *yeCreateFunction(const char *value, Entity *father, const char *name)
+Entity *yeCreateFunction(const char *funcName, int nArgs, void *manager,
+			 Entity *father, const char *name)
 {
   FunctionEntity *ret;
 
   YE_ALLOC_ENTITY(ret, FunctionEntity);
   yeInit((Entity *)ret, YFUNCTION, father, name);
-  ret->nArgs = 0;
+  ret->nArgs = nArgs;
   ret->value = NULL;
-  yeSetString(YE_TO_ENTITY(ret), value);
+  ret->manager = manager;
+  ret->fastPath = NULL;
+  yeSetString(YE_TO_ENTITY(ret), funcName);
   return (YE_TO_ENTITY(ret));
 }
 
@@ -363,10 +366,9 @@ Entity *yeCreate(EntityType type, void *val, Entity *father, const char *name)
       return (yeCreateFloat(*((double *)val), father, name));
     case YARRAY:
       return (yeCreateArray(father, name));
-    case YFUNCTION:
-      return (yeCreateFunction(val, father, name));
     case YDATA:
       return (yeCreateData(val, father, name));
+    case YFUNCTION:
     default:
       DPRINT_ERR( "%s generic constructor not yet implemented\n",
 		  yeTypeToString(type));
@@ -678,6 +680,7 @@ Entity*		yeCopy(Entity* src, Entity* dest)
       DPRINT_INFO("\t\tvalue is function '%s'\n", strVal);
       yeSetFunction(dest, strVal);
       yeSetFunctionArgs(dest, nArgs);
+      YE_TO_FUNC(dest)->manager = YE_TO_FUNC(src)->manager;
       break;
     default:
       DPRINT_ERR("type %s not handle", yeTypeToString(yeType(src)));

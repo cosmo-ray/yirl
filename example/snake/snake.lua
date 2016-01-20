@@ -22,9 +22,7 @@ function snakeMap(entity)
 
    yeCreateString( "map", map, "<type>")
    yePushBack(map, yeGet(entity, "SnakeResources"), "resources")
-   print("res ", yeGet(entity, "SnakeResources"))
-   print("res ", yeGet(map, "resources"))
-   yeCreateInt(10000, map, "turn-length")
+   yeCreateInt(100000, map, "turn-length")
    yeCreateInt(20, map, "width")
    local case = yeCreateArray(map, "map");
 
@@ -36,21 +34,30 @@ function snakeMap(entity)
    return map
 end
 
+Q_KEY = 113
+
 function snakeAction(wid, eve, arg)
-   print("I've got an action ho ho ho")   
+  while ywidEveIsEnd(eve) == false do
+    if ywidEveType(eve) == YKEY_DOWN then
+       if ywidEveKey(eve) == Q_KEY then
+          ywidCallCallbackByStr("FinishGame", wid, eve, false)
+       else
+       	  print("hello: ", ywidEveKey(eve))
+       end
+    end
+    eve = ywidNextEve(eve)
+  end
 end
 
 function initSnake(entity)
    -- TODO: this functions: C/lua
    local mapEntity = snakeMap(entity)
 
-   print("init ", mapEntity)
    local map = ywidNewWidget(mapEntity)
-   print("init ", map)
 
    local action = yeCreateFunction("snakeAction", entity, "snakeAction", 3)
-   --ywinAddCallback(ywinCreateEntityCallback("snakeAction", action))
+   ywidAddCallback(ywidCreateCallback("snakeAction", action))
 
-   ywidBind(map, "action", "FinishGame")
+   ywidBind(map, "action", "snakeAction")
    ywidSetMainWid(map, 0)
 end

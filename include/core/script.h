@@ -21,6 +21,7 @@
 #include <stdarg.h>
 #include "utils.h"
 
+
 typedef struct {
   int (*init)(void *opac, void *args);
   int (*loadFile)(void *opac, const char *fileName);

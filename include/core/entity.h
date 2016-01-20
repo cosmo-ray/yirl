@@ -151,9 +151,18 @@ extern "C"
   {
     ENTITY_HEADER
 
-    unsigned int len;
-    char	*value;
+    /* number of arguments */
     unsigned int nArgs;
+    /* Name of the function */
+    char	*value;
+    /* A pointer to the coresponding script manager */
+    void	*manager;
+    /* 
+     * A ptr use by the scripts to call a function faster
+     * than if we was using the name of the function.
+     * This is initialyse to NULL
+     */
+    void	*fastPath;
   } FunctionEntity;
 
 
@@ -257,7 +266,8 @@ extern "C"
   Entity *yeCreateInt(int value, Entity *fathers, const char *name) WEAK;
   Entity *yeCreateFloat(double value, Entity *fathers, const char *name) WEAK;
   Entity *yeCreateString(const char *string, Entity *fathers, const char *name) WEAK;
-  Entity *yeCreateFunction(const char *string, Entity *fathers, const char *name) WEAK;
+  Entity *yeCreateFunction(const char *funcName, int nArgs, void *manager,
+			   Entity *father, const char *name);
   Entity *yeCreateArray(Entity *fathers, const char *name) WEAK;
 
   Entity *yeCreateData(void *value, Entity *father, const char *name) WEAK;

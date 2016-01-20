@@ -197,8 +197,8 @@ static int shooterActionInt(YWidgetState *wid, YEvent *eve, Entity *arg)
 
     /* exit */
   case 'q':
-    ywidCallCallbackByStr("FinishGame", wid, eve, arg);
     sound_stop("42");
+    ywidCallCallbackByStr("FinishGame", wid, eve, arg);
     goto end_switch;
   end_switch:
     ret = ACTION;
@@ -211,12 +211,10 @@ static int shooterActionInt(YWidgetState *wid, YEvent *eve, Entity *arg)
 int shooterAction(YWidgetState *wid, YEvent *eve, Entity *arg)
 {
   shooterHandleBullets(wid);
-  if (eve) {
-    YEvent *curEve;
-    
-    SLIST_FOREACH(curEve, eve->head, lst) {
-      shooterActionInt(wid, curEve, arg);
-    }
+  YEvent *curEve;
+
+  YEVE_FOREACH(curEve, eve) {
+    shooterActionInt(wid, curEve, arg);
   }
   return ACTION;
 }
