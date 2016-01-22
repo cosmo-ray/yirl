@@ -66,6 +66,7 @@ int	luaWidBind(lua_State *L);
 int	luaCreateCallback(lua_State *L);
 int	luaWidAddCallback(lua_State *L);
 int	luaCallCallbackByStr(lua_State *L);
+int	luaWidEntity(lua_State *L);
 
 /* event */
 int	luaWidNextEve(lua_State *L);
@@ -73,6 +74,8 @@ int	luaWidEveIsEnd(lua_State *L);
 int	luaEveType(lua_State *L);
 int	luaEveKey(lua_State *L);
 
+/* map */
+int	luaMapCreatePos(lua_State *L);
 
 #define YES_RET_IF_FAIL(OPERATION)		\
   if (OPERATION < 0) return -1;
@@ -145,18 +148,20 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidAddCallback", luaWidAddCallback));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidCallCallbackByStr",
 				 luaCallCallbackByStr));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidEntity", luaWidEntity));
+  // TODO: Add get entity
 
   /* evenements */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidNextEve", luaWidNextEve));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidEveIsEnd", luaWidEveIsEnd));
-
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidEveType", luaEveType));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidEveKey", luaEveKey));
-
   // Add ywidEveStat()
   // Add ywidEveMouseX()
   // Add ywidEveMouseY()
-
+  /* map */
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapCreatePos", luaMapCreatePos));
+  
   return 0;
 }
 

@@ -30,16 +30,15 @@ int	luaYAnd(lua_State *L)
 
 int	luaGet(lua_State *L)
 {
-  if (lua_gettop(L) != 2 || !lua_islightuserdata(L, 1)) {
+  if (lua_gettop(L) != 2 || !lua_isuserdata(L, 1)) {
     goto error;
-  }
-  if (lua_isstring(L, 2)) {
-    lua_pushlightuserdata(L, yeGetByStrFast(((Entity *)lua_topointer(L, 1)),
-					lua_tostring (L, 2)));
-    return 1;
   } else if (lua_isnumber(L, 2)) {
-    lua_pushlightuserdata(L, yeGetByIdx(((Entity *)lua_topointer(L, 1)),
+    lua_pushlightuserdata(L, yeGetByIdx(lua_touserdata(L, 1),
 				       lua_tonumber (L, 2)));
+    return 1;
+  } else if (lua_isstring(L, 2)) {
+    lua_pushlightuserdata(L, yeGetByStrFast(lua_touserdata(L, 1),
+					lua_tostring (L, 2)));
     return 1;
   }
  error:
@@ -150,7 +149,7 @@ int     luaCreateFunction(lua_State *L)
 int	luaCreateCallback(lua_State *L)
 {
   YCallback *ret = ywinCreateEntityCallback(lua_tostring(L, 1),
-						  lua_touserdata(L, 2));
+					    lua_touserdata(L, 2));
   lua_pushlightuserdata(L, ret);
   return 1;
 }
@@ -360,5 +359,20 @@ int	luaType(lua_State *L)
     return -1;
   }
   lua_pushnumber(L, yeType(YE_TO_ENTITY(lua_topointer(L, 1))));
+  return 1;
+}
+
+int	luaMapCreatePos(lua_State *L)
+{
+  lua_pushlightuserdata(L, ywMapCreatePos(lua_tonumber(L, 1),
+					  lua_tonumber(L, 2),
+					  lua_touserdata(L, 3),
+					  lua_tostring(L, 4)));
+  return 1;
+}
+
+int	luaWidEntity(lua_State *L)
+{
+  lua_pushlightuserdata(L, ((YWidgetState *)lua_touserdata(L, 1))->entity);
   return 1;
 }

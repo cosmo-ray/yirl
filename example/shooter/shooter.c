@@ -145,8 +145,8 @@ static void shooterSpamBullet(YWidgetState *wid, int x, int y)
     return;
   YTimerReset(bulletTimeout);
   if (!yeGet(wid->entity, "$bullet-manager")) {
-    /* We add this inside wid->entity, like this when destroying wid->entity
-     * bulletSprite and bulletManager will be destroy too :) */
+    /* We add this inside wid->entity, because we want to destroy
+     * bulletSprite and bulletManager at the same time than wid->entity */
     bulletSprite = yeCreateInt(2, wid->entity, "$bullet-sprite");
     bulletManager = yeCreateArray(wid->entity, "$bullet-manager");
   }

@@ -16,37 +16,53 @@
 --
 
 
+Q_KEY = 113
+
 function snakeMap(entity)
-   local map = yeCreateArray(entity, "start");
+   local map = yeCreateArray(entity, "start")
    local i = 0;
 
    yeCreateString( "map", map, "<type>")
    yePushBack(map, yeGet(entity, "SnakeResources"), "resources")
    yeCreateInt(100000, map, "turn-length")
    yeCreateInt(20, map, "width")
-   local case = yeCreateArray(map, "map");
+   local cases = yeCreateArray(map, "map")
 
    while i < 20 * 20 do
-      local tmp = yeCreateArray(case, NULL)
+      local tmp = yeCreateArray(cases, NULL)
       yeCreateInt(0, tmp, NULL)
       i = i + 1
    end
+   
+   -- pos hero :)
+   local heroPos = 20 * 10 + 10
+   yeCreateInt(1, yeGet(cases, heroPos), "head")
+   local head = yeCreateArray(map, "head")
+   ywMapCreatePos(0, 1, head, "dir");
+   local body = yeCreateArray(map, "body")
+   yeCreateInt(heroPos, head, "pos")
+
    return map
 end
 
-Q_KEY = 113
+function moveHead(map)
+   local mapEnt = ywidEntity(map);
+   print("new line", mapEnt, yeGet(mapEnt, "map"))
+end
 
 function snakeAction(wid, eve, arg)
-  while ywidEveIsEnd(eve) == false do
-    if ywidEveType(eve) == YKEY_DOWN then
-       if ywidEveKey(eve) == Q_KEY then
-          ywidCallCallbackByStr("FinishGame", wid, eve, false)
-       else
-       	  print("hello: ", ywidEveKey(eve))
-       end
-    end
-    eve = ywidNextEve(eve)
-  end
+   while ywidEveIsEnd(eve) == false do
+      if ywidEveType(eve) == YKEY_DOWN then
+	 if ywidEveKey(eve) == Q_KEY then
+	    ywidCallCallbackByStr("FinishGame", wid, eve, false)
+	 elseif ywidEveKey(eve) == 10 then
+	    moveHead(wid)
+	 else
+	    print("hello: ", ywidEveKey(eve))
+	 end
+      end
+      eve = ywidNextEve(eve)
+   end
 end
 
 function initSnake(entity)
