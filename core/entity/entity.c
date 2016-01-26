@@ -434,7 +434,8 @@ int	yePushBack(Entity *entity, Entity *toPush, const char *name)
 Entity *yeRemoveChild(Entity *array, Entity *toRemove)
 {
   if (!checkType(array, YARRAY)) {
-    DPRINT_ERR("yeRemoveChild: bad entity\n");
+    DPRINT_ERR("yeRemoveChild: bad entity of type %s(should be array)\n",
+	       yeTypeToString(yeType(array)));
     return NULL;
   }
 
