@@ -24,8 +24,9 @@ function snakeMap(entity)
 
    yeCreateString( "map", map, "<type>")
    yePushBack(map, yeGet(entity, "SnakeResources"), "resources")
-   yeCreateInt(100000, map, "turn-length")
+   yeCreateInt(300000, map, "turn-length")
    yeCreateInt(20, map, "width")
+
    local cases = yeCreateArray(map, "map")
 
    while i < 20 * 20 do
@@ -33,32 +34,85 @@ function snakeMap(entity)
       yeCreateInt(0, tmp, NULL)
       i = i + 1
    end
-   
-   -- pos hero :)
-   local heroPos = 20 * 10 + 10
-   yeCreateInt(1, yeGet(cases, heroPos), "head")
+
+   -- pos head :)
+   local headPos = 20 * 10 + 10
+   local tmp = yeCreateInt(1, yeGet(cases, headPos), NULL)
    local head = yeCreateArray(map, "head")
-   ywMapCreatePos(0, 1, head, "dir");
+
+   ywMapCreatePos(0, 1, head, "dir")
+   yePushBack(head, tmp, "elem")
+   yeCreateInt(headPos, head, "pos")
+
    local body = yeCreateArray(map, "body")
-   yeCreateInt(heroPos, head, "pos")
+   yeCreateInt(headPos, head, "pos")
 
    return map
 end
 
 function moveHead(map)
-   local mapEnt = ywidEntity(map);
-   print("new line", mapEnt, yeGet(mapEnt, "map"))
+   local mapEnt = ywidEntity(map)
+   local lenMap = yeLen(yeGet(mapEnt, "map"))
+   local width = yeGetInt(yeGet(mapEnt, "width"))
+   local head = yeGet(mapEnt, "head")
+   local headElem = yeGet(head, "elem")
+   local dir = yeGet(head, "dir")
+
+   local oldPos = yeGetInt(yeGet(head, "pos"))
+   local newPos = oldPos +
+      yeGetInt(yeGet(dir, "y")) * yeGetInt(yeGet(mapEnt, "width")) +
+      yeGetInt(yeGet(dir, "x"))
+
+   if (oldPos % width) == 0 and (newPos % width) == (width - 1) then
+      return
+   elseif (newPos % width) == 0 and (oldPos % width) == (width - 1) then
+      return
+   elseif (newPos < 0) then
+      return
+   elseif (newPos > lenMap) then
+      return
+   end
+
+   yePushBack(yeGet(yeGet(mapEnt, "map"), newPos), headElem, nil)
+   yeSetInt(yeGet(head, "pos"), newPos)
+   yeRemoveChild(yeGet(yeGet(mapEnt, "map"), oldPos),
+		 headElem)
+end
+
+function changeDir(wid, eve)
+   local mapEnt = ywidEntity(wid)
+   local head = yeGet(mapEnt, "head")
+   local dir = yeGet(head, "dir")
+   local x = yeGet(dir, "x")
+   local y = yeGet(dir, "y")
+
+   if ywidEveKey(eve) == Y_UP_KEY then
+      yeSetInt(x, 0)
+      yeSetInt(y, -1)
+   elseif ywidEveKey(eve) == Y_DOWN_KEY then
+      yeSetInt(x, 0)
+      yeSetInt(y, 1)
+   elseif ywidEveKey(eve) == Y_RIGHT_KEY then
+      yeSetInt(x, 1)
+      yeSetInt(y, 0)
+   elseif ywidEveKey(eve) == Y_LEFT_KEY then
+      yeSetInt(x, -1)
+      yeSetInt(y, 0)
+   end
 end
 
 function snakeAction(wid, eve, arg)
+   moveHead(wid)
    while ywidEveIsEnd(eve) == false do
       if ywidEveType(eve) == YKEY_DOWN then
 	 if ywidEveKey(eve) == Q_KEY then
 	    ywidCallCallbackByStr("FinishGame", wid, eve, false)
-	 elseif ywidEveKey(eve) == 10 then
-	    moveHead(wid)
-	 else
-	    print("hello: ", ywidEveKey(eve))
+	 elseif ywidEveKey(eve) == Y_UP_KEY
+	    or ywidEveKey(eve) == Y_DOWN_KEY
+	    or ywidEveKey(eve) == Y_RIGHT_KEY
+	    or ywidEveKey(eve) == Y_LEFT_KEY
+	 then
+	    changeDir(wid, eve)
 	 end
       end
       eve = ywidNextEve(eve)

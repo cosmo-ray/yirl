@@ -92,13 +92,13 @@ static inline int	yesLuaRegister(void *sm)
 
   lua_pushnumber(((YScriptLua *)sm)->l, 27);
   lua_setglobal(((YScriptLua *)sm)->l, "Y_ESC_KEY");
-  lua_pushnumber(((YScriptLua *)sm)->l, 259);
+  lua_pushnumber(((YScriptLua *)sm)->l, Y_UP_KEY);
   lua_setglobal(((YScriptLua *)sm)->l, "Y_UP_KEY");
-  lua_pushnumber(((YScriptLua *)sm)->l, 258);
+  lua_pushnumber(((YScriptLua *)sm)->l, Y_DOWN_KEY);
   lua_setglobal(((YScriptLua *)sm)->l, "Y_DOWN_KEY");
-  lua_pushnumber(((YScriptLua *)sm)->l, 260);
+  lua_pushnumber(((YScriptLua *)sm)->l, Y_LEFT_KEY);
   lua_setglobal(((YScriptLua *)sm)->l, "Y_LEFT_KEY");
-  lua_pushnumber(((YScriptLua *)sm)->l, 261);
+  lua_pushnumber(((YScriptLua *)sm)->l, Y_RIGHT_KEY);
   lua_setglobal(((YScriptLua *)sm)->l, "Y_RIGHT_KEY");
     
   /* I love lua */
