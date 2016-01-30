@@ -126,6 +126,7 @@ function initSnake(entity)
    local map = ywidNewWidget(mapEntity)
 
    local action = yeCreateFunction("snakeAction", entity, "snakeAction", 3)
+   yuiRandInit()
    ywidAddCallback(ywidCreateCallback("snakeAction", action))
 
    ywidBind(map, "action", "snakeAction")

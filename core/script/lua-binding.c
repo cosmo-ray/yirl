@@ -376,3 +376,16 @@ int	luaWidEntity(lua_State *L)
   lua_pushlightuserdata(L, ((YWidgetState *)lua_touserdata(L, 1))->entity);
   return 1;
 }
+
+int	luaRand(lua_State *L)
+{
+  lua_pushnumber(L, yuiRand());
+  return 1;
+}
+
+int	luaRandInit(lua_State *L)
+{
+  (void)L;
+  yuiRandInit();
+  return 0;
+}

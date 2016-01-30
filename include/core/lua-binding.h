@@ -26,6 +26,8 @@
 
 /* love lua */
 int	luaYAnd(lua_State *L);
+int	luaRand(lua_State *L);
+int	luaRandInit(lua_State *L);
 
 /* Array */
 int	luaGet(lua_State *L);
@@ -161,6 +163,8 @@ static inline int	yesLuaRegister(void *sm)
   // Add ywidEveMouseY()
   /* map */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapCreatePos", luaMapCreatePos));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yuiRand", luaRand));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yuiRandInit", luaRandInit));
   
   return 0;
 }

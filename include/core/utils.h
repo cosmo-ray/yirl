@@ -18,11 +18,14 @@
 #ifndef _UTILS_H_
 #define _UTILS_H_
 
+#include <stdlib.h>
+#include <sys/time.h>
+#include <stdint.h>
+#include <unistd.h>
+
 #ifndef MAX_NB_MANAGER
 #define MAX_NB_MANAGER 64
 #endif
-
-#include <stdint.h>
 
 /* Define to use for error handeling */
 #define MAYBE(var) var
@@ -86,6 +89,9 @@ static inline int yuiStrEqual0(const char *str1, const char *str2)
   return yuiStrEqual(str1, str2);
 }
 
+
+#define yuiRand()	rand()
+#define yuiRandInit()	srand(time(NULL) + getpid() + getuid())
 
 /**
  * example:
