@@ -373,6 +373,7 @@ int ywidDoTurn(YWidgetState *opac)
     int64_t i = 0;
 
     i = turnLength - YTimerGet(cnt);
+    printf("turning %d - %ld\n", turnLength, i);
     if (i > 0)
       usleep(i);
     YTimerReset(cnt);

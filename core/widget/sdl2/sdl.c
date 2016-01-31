@@ -164,7 +164,8 @@ static inline YEvent *SDLConvertEvent(SDL_Event* event)
       eve->type = YKEY_DOWN;
       break;
     default:
-      return NULL;
+      eve->type = YKEY_NONE;
+      break;
     }
   eve->key = convertToYKEY(event->key.keysym.sym);
   return eve;
