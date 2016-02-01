@@ -358,17 +358,21 @@ static SDL_Texture *sdlLoasAndCachImg(Entity *elem)
   const char *path;
   SDL_Texture *texture = yeGetData(yeGet(elem, "$sdl-img"));
   Entity *data;
-  
+
   if (texture)
     return texture;
   SDL_Surface *image;
 
   path = yeGetString(yeGet(elem, "map-srite"));
-  if (!path)
+  if (!path) {
     return NULL;
+  }
+
   image = IMG_Load(path);
-  if (!image)
+  if (!image) {
     return NULL;
+  }
+
   texture = SDL_CreateTextureFromSurface(sg.renderer, image);
   data = yeCreateData(texture, elem, "$sdl-img");
   yeSetDestroy(data, sdlFreeTexture);

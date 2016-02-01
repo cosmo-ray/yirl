@@ -388,10 +388,10 @@ static ArrayEntity	*manageArrayInternal(ArrayEntity *entity,
 					     unsigned int size,
 					     ManageArrayFlag flag)
 {
-  unsigned int	i = size - 1;
+  unsigned int len = yeLen(YE_TO_ENTITY(entity));
 
   if (size < yeLen(YE_TO_ENTITY(entity)) && !(flag & NO_ENTITY_DESTROY)) {
-    for (; i < yeLen(YE_TO_ENTITY(entity)); ++i) {
+    for (unsigned int i = size; i < len; ++i) {
       arrayEntryDestroy(&yBlockArrayGet(&entity->values, i, ArrayEntry));
       yBlockArrayUnset(&entity->values, i);
     }
@@ -399,7 +399,7 @@ static ArrayEntity	*manageArrayInternal(ArrayEntity *entity,
 
   yBlockArrayAssureBlock(&entity->values, size);
 
-  for (; i < size; ++i) {
+  for (unsigned int i = len; i < size; ++i) {
     yBlockArraySet(&entity->values, i);
     arrayEntryInit(yeGetArrayEntryByIdx(YE_TO_ENTITY(entity), i));
   }

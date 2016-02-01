@@ -27,6 +27,7 @@ function snakeMap(entity)
    yeCreateInt(200000, map, "turn-length")
    yeCreateInt(20, map, "width")
    yeCreateInt(0, map, "nbPeanut")
+   --yeCreateString( "rgba: 180 210 20 50", map, "background")
 
    local cases = yeCreateArray(map, "map")
 
@@ -73,7 +74,12 @@ end
 function rmPeanut(map, case)
    local nbPeanut = yeGet(map, "nbPeanut")
 
+   print("len: ", yeLen(case))
+   print("fst: ", yeGetInt(yeGet(case, 0)))
+   print("2nd: ", yeGetInt(yeGet(case, 1)))
    yePopBack(case)
+   print("len: ", yeLen(case))
+   print("fst: ", yeGetInt(yeGet(case, 0)))
    yeSetInt(nbPeanut, yeGetInt(nbPeanut) - 1)
 end
 
@@ -89,6 +95,7 @@ function moveHead(map)
       yeGetInt(yeGet(dir, "y")) * yeGetInt(yeGet(map, "width")) +
       yeGetInt(yeGet(dir, "x"))
 
+   -- check out of border
    if (oldPos % width) == 0 and (newPos % width) == (width - 1) then
       return
    elseif (newPos % width) == 0 and (oldPos % width) == (width - 1) then
@@ -159,10 +166,9 @@ end
 function initSnake(entity)
    -- TODO: this functions: C/lua
    local mapEntity = snakeMap(entity)
-
    local map = ywidNewWidget(mapEntity)
-
    local action = yeCreateFunction("snakeAction", entity, "snakeAction", 3)
+
    yuiRandInit()
    ywidAddCallback(ywidCreateCallback("snakeAction", action))
 
