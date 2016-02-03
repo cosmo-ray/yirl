@@ -36,14 +36,23 @@
 	    "map-char" : "."
 	},
 	{
-	    "name" : "pj", // for text screen ?
+	    "name" : "head", // for text screen ?
 	    "map-srite" : "hero.png", // sdl map
-	    "map-char" : "@" // curses map
+	    "map-char" : "X" // curses map
 	},
 	{
-	    "name" : "bullet", // for text screen ?
+	    "name" : "peanut", // for text screen ?
 	    "map-srite" : "bullet.png", // sdl map
-	    "map-char" : "o" // curses map
+	    "map-char" : "C" // curses map
+	},
+	{
+	    "name" : "eatead", // for text screen ?
+	    "map-srite" : "bullet.png", // sdl map
+	    "map-char" : "O" // curses map
+	},
+	{
+	    "name" : "body",
+	    "map-char" : "0" // curses map
 	}
 
     ]

@@ -52,6 +52,13 @@ function snakeMap(entity)
    return map
 end
 
+function addBody(map, oldPos)
+   local body = yeGet(map, "body")
+
+   yeCreateInt(oldPos, body, nil)
+   yeCreateInt(3, yeGet(yeGet(map, "map"), oldPos), nil)
+end
+
 function addPeanut(map)
    local nbPeanut = yeGet(map, "nbPeanut")
    local lenMap = yeLen(yeGet(map, "map"))
@@ -74,17 +81,13 @@ end
 function rmPeanut(map, case)
    local nbPeanut = yeGet(map, "nbPeanut")
 
-   print("len: ", yeLen(case))
-   print("fst: ", yeGetInt(yeGet(case, 0)))
-   print("2nd: ", yeGetInt(yeGet(case, 1)))
    yePopBack(case)
-   print("len: ", yeLen(case))
-   print("fst: ", yeGetInt(yeGet(case, 0)))
    yeSetInt(nbPeanut, yeGetInt(nbPeanut) - 1)
 end
 
 function moveHead(map)
-   local lenMap = yeLen(yeGet(map, "map"))
+   local mapElems = yeGet(map, "map")
+   local lenMap = yeLen(mapElems)
    local width = yeGetInt(yeGet(map, "width"))
    local head = yeGet(map, "head")
    local headElem = yeGet(head, "elem")
@@ -94,6 +97,8 @@ function moveHead(map)
    local newPos = oldPos +
       yeGetInt(yeGet(dir, "y")) * yeGetInt(yeGet(map, "width")) +
       yeGetInt(yeGet(dir, "x"))
+   local body = yeGet(map, "body")
+   local bodyLen = yeLen(body)
 
    -- check out of border
    if (oldPos % width) == 0 and (newPos % width) == (width - 1) then
@@ -109,13 +114,42 @@ function moveHead(map)
    local destCase = yeGet(yeGet(map, "map"), newPos)
 
    if yeLen(destCase) > 1 then
+      if (yeGetInt(yeGet(destCase, 1)) ~= 2) then
+	 print("a noob just lose, when eating a ", yeGetInt(yeGet(destCase, 1)))
+	 ywidCallCallbackByStr("FinishGame", wid, eve, false)
+      end
       rmPeanut(map, destCase)
+      --add body :)
+      addBody(map, oldPos)
+      bodyLen = 0
    end
 
-   yePushBack(yeGet(yeGet(map, "map"), newPos), headElem, nil)
+   yePushBack(yeGet(mapElems, newPos), headElem, nil)
    yeSetInt(yeGet(head, "pos"), newPos)
    yeRemoveChild(yeGet(yeGet(map, "map"), oldPos),
 		 headElem)
+
+   if bodyLen == 0 then
+      return
+   end
+
+   local tailingBody = yeGet(body, 0)
+   yePopBack(yeGet(mapElems, yeGetInt(tailingBody)))
+   -- pop back tail body
+
+   local i = 0
+   while i < bodyLen do
+      local curBody = yeGet(body, bodyLen - 1 - i)
+      local oldPos2 = yeGetInt(curBody)
+
+      yeSetInt(curBody, oldPos)
+      oldPos = oldPos2
+      i = i + 1
+   end
+
+   local headBody = yeGet(body, bodyLen - 1)
+   yeCreateInt(4, yeGet(mapElems, yeGetInt(headBody)))
+   -- push first body
 end
 
 
@@ -126,15 +160,27 @@ function changeDir(map, eve)
    local y = yeGet(dir, "y")
 
    if ywidEveKey(eve) == Y_UP_KEY then
+      if (yeGetInt(x) == 0 and yeGetInt(y) == 1) then
+	 return
+      end
       yeSetInt(x, 0)
       yeSetInt(y, -1)
    elseif ywidEveKey(eve) == Y_DOWN_KEY then
+      if (yeGetInt(x) == 0 and yeGetInt(y) == -1) then
+	 return
+      end
       yeSetInt(x, 0)
       yeSetInt(y, 1)
    elseif ywidEveKey(eve) == Y_RIGHT_KEY then
+      if (yeGetInt(x) == -1 and yeGetInt(y) == 0) then
+	 return
+      end
       yeSetInt(x, 1)
       yeSetInt(y, 0)
    elseif ywidEveKey(eve) == Y_LEFT_KEY then
+      if (yeGetInt(x) == 1 and yeGetInt(y) == 0) then
+	 return
+      end
       yeSetInt(x, -1)
       yeSetInt(y, 0)
    end
