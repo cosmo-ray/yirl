@@ -52,7 +52,7 @@ void testLuaScritLifecycle(void)
   g_assert(!ysRegistreFunc(sm, "toPtr", luaNbrToPtr));
 
   if (ysLoadFile(sm, TESTS_PATH"/simple.lua")) {
-    ysPrintError(sm);
+    DPRINT_ERR("%s\n", ysGetError(sm));
     g_assert(0);
   }
 
@@ -66,16 +66,23 @@ void testLuaScritEntityBind(void)
 {
   Entity *ret;
   void *sm;
-
+  Entity *func;
+  
   g_assert(!ysLuaInit());
   sm = ysNewManager(NULL, 0);
   yesLuaRegister(sm);
   g_assert(sm);
+  func = yeCreateFunction("createInt", 1, sm, NULL, NULL);
+
+  g_assert(ysLoadFile(sm,  "I should fail") < 0);
 
   if (ysLoadFile(sm, TESTS_PATH"/test-entity.lua")) {
-    ysPrintError(sm);
+    g_assert(ysGetError(sm));
     g_assert(0);
   }
+
+  ret = ysCall(sm, "fail incoming", 1, "tests");
+  g_assert(ret == NULL);
   ret = ysCall(sm, "yeCreateArray", 0);
   g_assert(ret);
   g_assert(yeType(ret) == YARRAY);
@@ -84,7 +91,14 @@ void testLuaScritEntityBind(void)
   g_assert(ret);
   g_assert(yeType(ret) == YSTRING);
   g_assert(yuiStrEqual(yeGetString(ret), "tests"));
+  //call func
   YE_DESTROY(ret);
+  ret = yesCall(func, 6);
+  g_assert(ret);
+  g_assert(yeType(ret) == YINT);
+  g_assert(yeGetInt(ret));
+  YE_DESTROY(ret);
+  YE_DESTROY(func);
   g_assert(!ysDestroyManager(sm));
   g_assert(!ysLuaEnd());
 }

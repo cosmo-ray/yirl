@@ -138,7 +138,8 @@ int8_t *yBlockArrayGetPtrInternal(BlockArray *ba, size_t pos);
 
 static inline int yBlockArrayIteratorIsEnd(BlockArrayIterator *it)
 {
-  return (!it->mask && !yBlockArrayIsBlockAllocated(it->array, it->blockPos));
+  return (!it->array ||
+	  (!it->mask && !yBlockArrayIsBlockAllocated(it->array, it->blockPos)));
 }
 
 void yBlockArrayIteratorIncr(BlockArrayIterator *it);
@@ -152,6 +153,7 @@ void yBlockArrayIteratorIncr(BlockArrayIterator *it);
 
 BlockArrayIterator yBlockArrayIteratorCreate(BlockArray *array,
 					     int beg);
+
 
 #define yBlockArrayIteratorGetPtr(it, type)				\
   ((type *)yBlockArrayGetInternal((it.array), (it.blockPos * 64 + it.pos)))

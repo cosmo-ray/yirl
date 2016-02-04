@@ -15,8 +15,8 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef WIDGET_CALLBACK_H
-#define WIDGET_CALLBACK_H
+#ifndef _YIRL_WIDGET_CALLBACK_H_
+#define _YIRL_WIDGET_CALLBACK_H_
 
 #include "widget.h"
 
@@ -70,15 +70,20 @@ YCallback *ywinCreateEntityCallback(const char *name,
 void ywidDdestroyCallback(int idx);
 
 int ywidInitCallback(void);
+
 void ywidFinishCallbacks(void);
 
 YCallback * ywinGetCallbackByIdx(int idx);
+
 YCallback *ywinGetCallbackByStr(const char *str);
 
 int ywidCallSignal(YWidgetState *wid, YEvent *eve, Entity *arg, int idx);
+
 int ywidCallCallback(YCallback *callback, YWidgetState *wid,
 		     YEvent *eve, Entity *arg);
+
 int ywidCallCallbackByIdx(YWidgetState *wid, YEvent *eve, Entity *arg, int idx);
+
 static inline int ywidCallCallbackByStr(const char *str,
 					YWidgetState *wid,
 					YEvent *eve, Entity *arg)

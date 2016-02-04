@@ -18,11 +18,25 @@
 #ifndef _UTILS_H_
 #define _UTILS_H_
 
+#include <stdlib.h>
+#include <sys/time.h>
+#include <stdint.h>
+#include <unistd.h>
+
 #ifndef MAX_NB_MANAGER
 #define MAX_NB_MANAGER 64
 #endif
 
-#include <stdint.h>
+/* Define to use for error handeling */
+#define MAYBE(var) var
+
+/* example usage: */
+/* MAYBE(void *) test; */
+/* MAYDO((test = myFunc()), pocessMyPtr()) */
+#define MAYDO(var, cmd)				\
+  if (var) {					\
+    cmd;					\
+  }
 
 typedef struct {
   void *(*allocator[MAX_NB_MANAGER])(void);
@@ -65,6 +79,19 @@ static inline int yuiStrEqual(const char *str1, const char *str2)
   return (str1[i] == str2[i]);
 }
 
+static inline int yuiStrEqual0(const char *str1, const char *str2)
+{
+  if (!str1 || !str2) {
+    if (str1 == str2)
+      return 1;
+    return 0;
+  }
+  return yuiStrEqual(str1, str2);
+}
+
+
+#define yuiRand()	rand()
+#define yuiRandInit()	srand(time(NULL) + getpid() + getuid())
 
 /**
  * example:

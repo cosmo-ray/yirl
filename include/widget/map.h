@@ -15,8 +15,8 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef	_MAP_H_
-#define	_MAP_H_
+#ifndef	_YIRL_MAP_H_
+#define	_YIRL_MAP_H_
 
 #include "widget.h"
 
@@ -25,8 +25,12 @@ typedef struct {
   Entity *resources;
   Entity *pos;
   int actionIdx;
-  int animIdx;
 } YMapState;
+
+/**
+ * @return A new entity of type YARRAY, need to be free.
+ */
+Entity *ywMapCreateDefaultEntity(void);
 
 int ywMapInit(void);
 int ywMapEnd(void);
@@ -44,6 +48,8 @@ static inline int ywMapH(YWidgetState *state)
 {
   return yeLen(yeGet(state->entity, "map")) / ywMapW(state);
 }
+
+int ywMapGetIdByElem(Entity *mapElem);
 
 Entity *ywMapGetCase(YWidgetState *state, Entity *pos);
 Entity *ywMapGetPos(YWidgetState *state);

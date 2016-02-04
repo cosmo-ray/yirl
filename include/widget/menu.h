@@ -15,8 +15,8 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef	_MENU_H_
-#define	_MENU_H_
+#ifndef	_YIRL_MENU_H_
+#define	_YIRL_MENU_H_
 
 #include "widget.h"
 

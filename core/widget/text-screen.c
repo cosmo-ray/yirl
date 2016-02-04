@@ -44,9 +44,7 @@ static InputStatue tsEvent(YWidgetState *opac, YEvent *event)
   InputStatue ret = NOTHANDLE;
 
   (void)opac;
-  if (!event)
-    event = ywidGenericWaitEvent();
-
+ 
   if (!event)
     return NOTHANDLE;
 
@@ -55,7 +53,6 @@ static InputStatue tsEvent(YWidgetState *opac, YEvent *event)
   else if (event->key == '\n')
     ret = ACTION;
 
-  g_free(event);
   return ret;
 }
 

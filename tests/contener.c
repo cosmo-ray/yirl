@@ -57,7 +57,7 @@ void testVerticalContenerSdl(void)
 
   do {
     g_assert(ywidRend(wid) != -1);
-  } while(ywidHandleEvent(wid, NULL) != ACTION);
+  } while(ywidDoTurn(wid) != ACTION);
 
   YE_DESTROY(ret);
   ygEnd();

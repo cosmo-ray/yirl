@@ -15,15 +15,19 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _LUA_BINDING_H_
-#define _LUA_BINDING_H_
+#ifndef _YIRL_LUA_BINDING_H_
+#define _YIRL_LUA_BINDING_H_
 
 #include "script.h"
 #include "lua-convert.h"
+#include "widget.h"
+#include "keydef.h"
 #include <lualib.h>
 
 /* love lua */
 int	luaYAnd(lua_State *L);
+int	luaRand(lua_State *L);
+int	luaRandInit(lua_State *L);
 
 /* Array */
 int	luaGet(lua_State *L);
@@ -52,15 +56,53 @@ int	luaSetFloat(lua_State *L);
 int	luaCreateFloat(lua_State *L);
 
 /* Function */
+int     luaCreateFunction(lua_State *L);
 int	luaSetFunction(lua_State *L);
 int	luaUnsetFunction(lua_State *L);
 int	luaFunctionNumberArgs(lua_State *L);
+
+/* widgets */
+int	luaSetMainWid(lua_State *L);
+int	luaNewWidget(lua_State *L);
+int	luaWidBind(lua_State *L);
+int	luaCreateCallback(lua_State *L);
+int	luaWidAddCallback(lua_State *L);
+int	luaCallCallbackByStr(lua_State *L);
+int	luaWidEntity(lua_State *L);
+
+/* event */
+int	luaWidNextEve(lua_State *L);
+int	luaWidEveIsEnd(lua_State *L);
+int	luaEveType(lua_State *L);
+int	luaEveKey(lua_State *L);
+
+/* map */
+int	luaMapCreatePos(lua_State *L);
 
 #define YES_RET_IF_FAIL(OPERATION)		\
   if (OPERATION < 0) return -1;
 
 static inline int	yesLuaRegister(void *sm)
 {
+  /* set gobales */
+  lua_pushnumber(((YScriptLua *)sm)->l, YKEY_DOWN);
+  lua_setglobal(((YScriptLua *)sm)->l, "YKEY_DOWN");
+  lua_pushnumber(((YScriptLua *)sm)->l, YKEY_UP);
+  lua_setglobal(((YScriptLua *)sm)->l, "YKEY_UP");
+  lua_pushnumber(((YScriptLua *)sm)->l, YKEY_NONE);
+  lua_setglobal(((YScriptLua *)sm)->l, "YKEY_NONE");
+
+  lua_pushnumber(((YScriptLua *)sm)->l, 27);
+  lua_setglobal(((YScriptLua *)sm)->l, "Y_ESC_KEY");
+  lua_pushnumber(((YScriptLua *)sm)->l, Y_UP_KEY);
+  lua_setglobal(((YScriptLua *)sm)->l, "Y_UP_KEY");
+  lua_pushnumber(((YScriptLua *)sm)->l, Y_DOWN_KEY);
+  lua_setglobal(((YScriptLua *)sm)->l, "Y_DOWN_KEY");
+  lua_pushnumber(((YScriptLua *)sm)->l, Y_LEFT_KEY);
+  lua_setglobal(((YScriptLua *)sm)->l, "Y_LEFT_KEY");
+  lua_pushnumber(((YScriptLua *)sm)->l, Y_RIGHT_KEY);
+  lua_setglobal(((YScriptLua *)sm)->l, "Y_RIGHT_KEY");
+    
   /* I love lua */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yAnd", luaYAnd));
 
@@ -97,6 +139,33 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeSetFloat", luaSetFloat));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeCreateFloat", luaCreateFloat));
 
+  /* functions */
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeCreateFunction", luaCreateFunction));
+
+  /* widgets */
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidNewWidget", luaNewWidget));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidSetMainWid", luaSetMainWid));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidBind", luaWidBind));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidCreateCallback", luaCreateCallback));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidAddCallback", luaWidAddCallback));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidCallCallbackByStr",
+				 luaCallCallbackByStr));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidEntity", luaWidEntity));
+  // TODO: Add get entity
+
+  /* evenements */
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidNextEve", luaWidNextEve));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidEveIsEnd", luaWidEveIsEnd));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidEveType", luaEveType));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidEveKey", luaEveKey));
+  // Add ywidEveStat()
+  // Add ywidEveMouseX()
+  // Add ywidEveMouseY()
+  /* map */
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapCreatePos", luaMapCreatePos));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yuiRand", luaRand));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yuiRandInit", luaRandInit));
+  
   return 0;
 }
 

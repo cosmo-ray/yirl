@@ -51,6 +51,7 @@ void testYWMenuSdl2(void);
 
 void testYWMapCurses(void);
 void testYWMapSdl2(void);
+void testYWMapAll(void);
 
 void testVerticalContenerSdl(void);
 

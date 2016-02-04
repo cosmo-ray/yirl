@@ -15,14 +15,14 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _ENTITY_SCRIPT_H_
-#define _ENTITY_SCRIPT_H_
+#ifndef _YIRL_ENTITY_SCRIPT_H_
+#define _YIRL_ENTITY_SCRIPT_H_
 
 #include <stdarg.h>
 #include "entity.h"
 #include "script.h"
 
-void *yesVCall(void *sm, Entity *func, va_list *ap);
-void *yesCall(void *sm, Entity *func, ...);
+void *yesVCall(Entity *func, va_list *ap);
+void *yesCall(Entity *func, ...);
 
 #endif

@@ -18,6 +18,9 @@
 #include	"lua-binding.h"
 #include	"debug.h"
 #include	"entity.h"
+#include	"widget-callback.h"
+#include	"map.h"
+#include	"game.h"
 
 int	luaYAnd(lua_State *L)
 {
@@ -25,19 +28,17 @@ int	luaYAnd(lua_State *L)
   return (1);
 }
 
-
 int	luaGet(lua_State *L)
 {
-  if (lua_gettop(L) != 2 || !lua_islightuserdata(L, 1)) {
+  if (lua_gettop(L) != 2 || !lua_isuserdata(L, 1)) {
     goto error;
-  }
-  if (lua_isstring(L, 2)) {
-    lua_pushlightuserdata(L, yeGetByStrFast(((Entity *)lua_topointer(L, 1)),
-					lua_tostring (L, 2)));
-    return 1;
   } else if (lua_isnumber(L, 2)) {
-    lua_pushlightuserdata(L, yeGetByIdx(((Entity *)lua_topointer(L, 1)),
+    lua_pushlightuserdata(L, yeGetByIdx(lua_touserdata(L, 1),
 				       lua_tonumber (L, 2)));
+    return 1;
+  } else if (lua_isstring(L, 2)) {
+    lua_pushlightuserdata(L, yeGetByStrFast(lua_touserdata(L, 1),
+					lua_tostring (L, 2)));
     return 1;
   }
  error:
@@ -73,6 +74,18 @@ int	luaCopy(lua_State *L)
   return 1;
 }
 
+
+int	luaSetMainWid(lua_State *L)
+{
+  ywidSetMainWid(lua_touserdata(L, 1), lua_tonumber(L, 2));
+  return 0;
+}
+
+int	luaNewWidget(lua_State *L)
+{
+  lua_pushlightuserdata(L, ywidNewWidget((Entity *)lua_touserdata(L, 1), NULL));
+  return 1;
+}
 
 int	luaCreateArray(lua_State *L)
 {
@@ -118,6 +131,69 @@ int	luaCreateFloat(lua_State *L)
   return 1;
 }
 
+/**
+ * This is not a strict binding of the original yeCreateFunction,
+ * because the original has to handle managers,
+ * In this functions we use the lua manager inside game.c by calling
+ * ygGetLuaManager()
+ */
+int     luaCreateFunction(lua_State *L)
+{
+  void *ret = yeCreateFunction(lua_tostring(L, 1), lua_tonumber(L, 2),
+			       ygGetLuaManager(), lua_touserdata(L, 3),
+			       lua_tostring(L, 4));
+  lua_pushlightuserdata(L, ret);
+  return 1;
+}
+
+int	luaCreateCallback(lua_State *L)
+{
+  YCallback *ret = ywinCreateEntityCallback(lua_tostring(L, 1),
+					    lua_touserdata(L, 2));
+  lua_pushlightuserdata(L, ret);
+  return 1;
+}
+
+int	luaWidAddCallback(lua_State *L)
+{
+  lua_pushnumber(L, ywinAddCallback(lua_touserdata(L, 1)));
+  return 1;
+}
+
+int	luaWidNextEve(lua_State *L)
+{
+  lua_pushlightuserdata(L, ywidNextEve((YEvent *)lua_touserdata(L, 1)));
+  return 1;
+}
+
+int	luaWidEveIsEnd(lua_State *L)
+{
+  lua_pushboolean(L, lua_touserdata(L, 1) == NULL);
+  return 1;
+}
+
+int	luaEveType(lua_State *L)
+{
+  lua_pushnumber(L, ((YEvent *)lua_touserdata(L, 1))->type);
+  return 1;
+}
+
+int	luaEveKey(lua_State *L)
+{
+  lua_pushnumber(L, ((YEvent *)lua_touserdata(L, 1))->key);
+  return 1;
+}
+
+int	luaCallCallbackByStr(lua_State *L)
+{
+  ywidCallCallbackByStr(lua_tostring(L, 1), lua_touserdata(L, 2),
+			lua_touserdata(L, 3), lua_touserdata(L, 4));
+  return 0;
+}
+
+/* TODO: Add luaEveMouseX() */
+/* TODO: Add luaEveMouseY() */
+
 int	luaPopBack(lua_State *L)
 {
   DPRINT_INFO("enter luaArrayPopBack\n");
@@ -135,22 +211,33 @@ int	luaPopBack(lua_State *L)
 
 int	luaPushBack(lua_State *L)
 {
-  if (lua_gettop(L) < 2 || !lua_islightuserdata(L, 1) ||
-      !lua_islightuserdata(L, 2))
+  if (lua_gettop(L) < 2)
     {
       DPRINT_ERR("function arguments are incorect\n"
 	     "real prototyre is: yePushBack(lightuserdata entity, lightuserdata toPush, string name)\n");
       return -1;
     }
-  if (!lua_isstring(L, 3))
+  if (lua_isstring(L, 3)) {
     yePushBack(((Entity *)lua_topointer(L, 1)), (Entity *)lua_topointer(L, 2),
 	       lua_tostring(L, 3));
-  else
+  } else {
     yePushBack(((Entity *)lua_topointer(L, 1)), (Entity *)lua_topointer(L, 2),
 	       NULL);
+  }
   return 0;
 }
 
+int	luaWidBind(lua_State *L)
+{
+  if (lua_gettop(L) != 3)
+    {
+      DPRINT_ERR("function arguments are incorect\n"
+		 "real prototyre is: ywidBind(lightuserdata map, string signal, string callback)\n");
+      return -1;
+    }
+  ywidBind(lua_touserdata(L, 1), lua_tostring(L, 2), lua_tostring(L, 3));
+  return 0;
+}
 
 int	luaGetString(lua_State *L)
 {
@@ -252,6 +339,7 @@ int	luaUnsetFunction(lua_State *L)
   yeUnsetFunction(YE_TO_ENTITY(lua_topointer(L, 1)));
   return (0);
 }
+
 int	luaFunctionNumberArgs(lua_State *L)
 {
   int	nArg = lua_gettop(L);
@@ -272,4 +360,32 @@ int	luaType(lua_State *L)
   }
   lua_pushnumber(L, yeType(YE_TO_ENTITY(lua_topointer(L, 1))));
   return 1;
+}
+
+int	luaMapCreatePos(lua_State *L)
+{
+  lua_pushlightuserdata(L, ywMapCreatePos(lua_tonumber(L, 1),
+					  lua_tonumber(L, 2),
+					  lua_touserdata(L, 3),
+					  lua_tostring(L, 4)));
+  return 1;
+}
+
+int	luaWidEntity(lua_State *L)
+{
+  lua_pushlightuserdata(L, ((YWidgetState *)lua_touserdata(L, 1))->entity);
+  return 1;
+}
+
+int	luaRand(lua_State *L)
+{
+  lua_pushnumber(L, yuiRand());
+  return 1;
+}
+
+int	luaRandInit(lua_State *L)
+{
+  (void)L;
+  yuiRandInit();
+  return 0;
 }

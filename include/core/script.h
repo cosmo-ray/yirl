@@ -15,18 +15,19 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _SCRIPT_H_
-#define _SCRIPT_H_
+#ifndef _YIRL_SCRIPT_H_
+#define _YIRL_SCRIPT_H_
 
 #include <stdarg.h>
 #include "utils.h"
+
 
 typedef struct {
   int (*init)(void *opac, void *args);
   int (*loadFile)(void *opac, const char *fileName);
   int (* registreFunc)(void *opac, const char *name, void *arg);
   void *(*call)(void *opac, const char *name, int nbArg, va_list *ap);
-  void (*printError)(void *opac);
+  const char *(*getError)(void *opac);
   int (*destroy)(void *opac);
 } YScriptOps;
 
@@ -52,9 +53,9 @@ static inline int ysLoadFile(void *sm, const char *name)
   return ((YScriptOps *)sm)->loadFile(sm, name);
 }
 
-static inline void ysPrintError(void *sm)
+static inline const char *ysGetError(void *sm)
 {
-  return ((YScriptOps *)sm)->printError(sm);
+  return ((YScriptOps *)sm)->getError(sm);
 }
 
 int ysRegister(void *(*allocator)(void));

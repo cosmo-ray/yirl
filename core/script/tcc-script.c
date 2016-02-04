@@ -84,7 +84,7 @@ static void *tccAllocator(void)
   ret->ops.destroy = tccDestroy;
   ret->ops.loadFile = tccLoadFile;
   ret->ops.call = tccCall;
-  ret->ops.printError = NULL;
+  ret->ops.getError = NULL;
   ret->ops.registreFunc = tccRegistreFunc;
   return (void *)ret;
 }

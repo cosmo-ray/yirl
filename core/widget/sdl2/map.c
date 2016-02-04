@@ -93,7 +93,7 @@ static int sdl2Render(YWidgetState *state, int t)
 
       if (!mapElem)
 	continue;
-      id = yeGetInt(mapElem);
+      id = ywMapGetIdByElem(mapElem);
       curRes = yeGet(ywMapGetResources(state), id);
       sdlDisplaySprites(wid, curx, cury, curRes,
 			sizeSpriteW, sizeSpriteH, 0);

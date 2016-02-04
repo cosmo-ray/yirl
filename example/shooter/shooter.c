@@ -15,6 +15,7 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "timer.h"
 #include "shooter.h"
 
 #define MAP_SIZE_W 40
@@ -35,66 +36,64 @@ static inline int isOut(YWidgetState *wid, Entity *pos)
   if (posX < 0) {
     yeSetInt(entX, 0);
     return OUT_LEFT;
-  } else if (posX >= ywMapW(wid) - 1) {
-    yeSetInt(entX, ywMapH(wid) - 1);
+  } else if (posX > ywMapW(wid) - 1) {
+    yeSetInt(entX, ywMapW(wid) - 1);
     return OUT_RIGHT;
   }
 
   if (posY < 0) {
     yeSetInt(entY, 0);
     return OUT_TOP;
-  } else if (posY >= ywMapH(wid) - 1) {
+  } else if (posY > ywMapH(wid) - 1) {
     yeSetInt(entY, ywMapH(wid) - 1);
     return OUT_BOTOM;
   }
   return 0;
 }
 
-static int removeBullet(YWidgetState *wid, Entity *bullet,
-			Entity *what, Entity *pos)
+static int removeBullet(YWidgetState *wid, Entity *obj)
 {
   Entity *bulletManager = yeGet(wid->entity, "$bullet-manager");
+  Entity *id = yeGet(obj, "id");
+  Entity *pos = yeGet(obj, "pos");
 
-  ywMapRemove(wid, pos, what);
-  yeRemoveChild(bulletManager, bullet);
+  ywMapRemove(wid, pos, id);
+  yeRemoveChild(bulletManager, obj);
   return 0;
 }
 
-static int move(YWidgetState *wid, Entity *bullet, Entity *what,
-		 Entity *pos, Entity *to)
+static int move(YWidgetState *wid, Entity *obj, Entity *dir)
 {
+  Entity *id = yeGet(obj, "id");
+  Entity *pos = yeGet(obj, "pos");
   Entity *cur = ywMapGetCase(wid, pos);
   Entity *posX = yeGet(pos, "x");
   Entity *posY = yeGet(pos, "y");
-  int ret = 0;
+  int ret = isOut(wid, pos);
 
-  if ((ret = isOut(wid, pos)))
-    return removeBullet(wid, bullet, what, pos);
+  if (!!ret)
+    return removeBullet(wid, obj);
 
-  yeRemoveChild(cur, what);
-  yeOpsAddEnt(posX, yeGet(to, "x"));
-  yeOpsAddEnt(posY, yeGet(to, "y"));
-  ywMapPushElem(wid, what, pos, "bl");
+  yeRemoveChild(cur, id);
+  yeOpsAddEnt(posX, yeGet(dir, "x"));
+  yeOpsAddEnt(posY, yeGet(dir, "y"));
+  ywMapPushElem(wid, id, pos, "bl");
   return 0;
 }
 
-static int shooterHandleBullets(YWidgetState *wid, YEvent *eve, Entity *arg)
+static int shooterHandleBullets(YWidgetState *wid)
 {
   Entity *bulletManager = yeGet(wid->entity, "$bullet-manager");
 
-  (void)eve;
-  (void)arg;
   if (!bulletManager)
     return 0;
 
   YE_ARRAY_FOREACH(bulletManager, bullet) {
     if (!bullet)
       continue;
-    Entity *pos = yeGet(bullet, "pos");
     Entity *speedAndDir = yeGet(bullet, "speedAndDir");
-    Entity *id = yeGet(bullet, "id");
 
-    move(wid, bullet, id, pos, speedAndDir);
+    move(wid, bullet, speedAndDir);
   }
   return ACTION;
 }
@@ -137,10 +136,17 @@ static void shooterSpamBullet(YWidgetState *wid, int x, int y)
 
   Entity *bulletSprite = yeGet(wid->entity, "$bullet-sprite");
   Entity *bulletManager = yeGet(wid->entity, "$bullet-manager");
+  static YTimer *bulletTimeout = NULL;
 
+  if (!bulletTimeout)
+    bulletTimeout = YTimerCreate();
+
+  if (YTimerGet(bulletTimeout) < 100000)
+    return;
+  YTimerReset(bulletTimeout);
   if (!yeGet(wid->entity, "$bullet-manager")) {
-    /* We add this inside wid->entity, like this when destroying wid->entity
-     * bulletSprite and bulletManager will be destroy too :) */
+    /* We add this inside wid->entity, because we want to destroy
+     * bulletSprite and bulletManager at the same time than wid->entity */
     bulletSprite = yeCreateInt(2, wid->entity, "$bullet-sprite");
     bulletManager = yeCreateArray(wid->entity, "$bullet-manager");
   }
@@ -152,7 +158,7 @@ static void shooterSpamBullet(YWidgetState *wid, int x, int y)
   ywMapPushElem(wid, bulletSprite, pos, "bl");
 }
 
-int shooterAction(YWidgetState *wid, YEvent *eve, Entity *arg)
+static int shooterActionInt(YWidgetState *wid, YEvent *eve, Entity *arg)
 {
   InputStatue ret = NOTHANDLE;
 
@@ -161,7 +167,6 @@ int shooterAction(YWidgetState *wid, YEvent *eve, Entity *arg)
   }
 
   switch (eve->key) {
-
     /* move cases */
   case Y_DOWN_KEY:
     moveMainCaracter(wid, 0, 1);
@@ -192,8 +197,8 @@ int shooterAction(YWidgetState *wid, YEvent *eve, Entity *arg)
 
     /* exit */
   case 'q':
-    ywidCallCallbackByStr("FinishGame", wid, eve, arg);
     sound_stop("42");
+    ywidCallCallbackByStr("FinishGame", wid, eve, arg);
     goto end_switch;
   end_switch:
     ret = ACTION;
@@ -201,6 +206,17 @@ int shooterAction(YWidgetState *wid, YEvent *eve, Entity *arg)
     break;
   }
   return ret;
+}
+
+int shooterAction(YWidgetState *wid, YEvent *eve, Entity *arg)
+{
+  shooterHandleBullets(wid);
+  YEvent *curEve;
+
+  YEVE_FOREACH(curEve, eve) {
+    shooterActionInt(wid, curEve, arg);
+  }
+  return ACTION;
 }
 
 int shooterInit(YWidgetState *wid, YEvent *eve, Entity *arg)
@@ -227,8 +243,6 @@ int shooterInit(YWidgetState *wid, YEvent *eve, Entity *arg)
 
   ywinAddCallback(ywinCreateNativeCallback("shooterAction", shooterAction));
   ywidBind(wid, "action", "shooterAction");
-  ywinAddCallback(ywinCreateNativeCallback("shooterAnim", shooterHandleBullets));
-  ywidBind(wid, "anim", "shooterAnim");
 
   return NOTHANDLE;
 }

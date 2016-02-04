@@ -122,10 +122,8 @@ size_t yeLen(Entity *entity)
 
 Entity *yeGetByIdx(Entity *entity, size_t index)
 {
-  if (entity == NULL) {
-    DPRINT_WARN("entity is NULL\n");
+  if (entity == NULL)
     return NULL;
-  }
   Entity *tmp;
   tmp = yBlockArrayGet(&YE_TO_ARRAY(entity)->values, index, ArrayEntry).entity;
   return tmp;
@@ -235,15 +233,18 @@ Entity *yeCreateFloat(double value, Entity *father, const char *name)
   return ((Entity *)ret);
 }
 
-Entity *yeCreateFunction(const char *value, Entity *father, const char *name)
+Entity *yeCreateFunction(const char *funcName, int nArgs, void *manager,
+			 Entity *father, const char *name)
 {
   FunctionEntity *ret;
 
   YE_ALLOC_ENTITY(ret, FunctionEntity);
   yeInit((Entity *)ret, YFUNCTION, father, name);
-  ret->nArgs = 0;
+  ret->nArgs = nArgs;
   ret->value = NULL;
-  yeSetString(YE_TO_ENTITY(ret), value);
+  ret->manager = manager;
+  ret->fastPath = NULL;
+  yeSetString(YE_TO_ENTITY(ret), funcName);
   return (YE_TO_ENTITY(ret));
 }
 
@@ -365,10 +366,9 @@ Entity *yeCreate(EntityType type, void *val, Entity *father, const char *name)
       return (yeCreateFloat(*((double *)val), father, name));
     case YARRAY:
       return (yeCreateArray(father, name));
-    case YFUNCTION:
-      return (yeCreateFunction(val, father, name));
     case YDATA:
       return (yeCreateData(val, father, name));
+    case YFUNCTION:
     default:
       DPRINT_ERR( "%s generic constructor not yet implemented\n",
 		  yeTypeToString(type));
@@ -388,10 +388,10 @@ static ArrayEntity	*manageArrayInternal(ArrayEntity *entity,
 					     unsigned int size,
 					     ManageArrayFlag flag)
 {
-  unsigned int	i = size - 1;
+  unsigned int len = yeLen(YE_TO_ENTITY(entity));
 
   if (size < yeLen(YE_TO_ENTITY(entity)) && !(flag & NO_ENTITY_DESTROY)) {
-    for (; i < yeLen(YE_TO_ENTITY(entity)); ++i) {
+    for (unsigned int i = size; i < len; ++i) {
       arrayEntryDestroy(&yBlockArrayGet(&entity->values, i, ArrayEntry));
       yBlockArrayUnset(&entity->values, i);
     }
@@ -399,7 +399,7 @@ static ArrayEntity	*manageArrayInternal(ArrayEntity *entity,
 
   yBlockArrayAssureBlock(&entity->values, size);
 
-  for (; i < size; ++i) {
+  for (unsigned int i = len; i < size; ++i) {
     yBlockArraySet(&entity->values, i);
     arrayEntryInit(yeGetArrayEntryByIdx(YE_TO_ENTITY(entity), i));
   }
@@ -434,7 +434,8 @@ int	yePushBack(Entity *entity, Entity *toPush, const char *name)
 Entity *yeRemoveChild(Entity *array, Entity *toRemove)
 {
   if (!checkType(array, YARRAY)) {
-    DPRINT_ERR("yeRemoveChild: bad entity\n");
+    DPRINT_ERR("yeRemoveChild: bad entity of type %s(should be array)\n",
+	       yeTypeToString(yeType(array)));
     return NULL;
   }
 
@@ -449,7 +450,6 @@ Entity *yeRemoveChild(Entity *array, Entity *toRemove)
       yBlockArrayUnset(&YE_TO_ARRAY(array)->values, it);
       return ret;
     }
-    ++it;
   }
   return NULL;
 }
@@ -681,6 +681,7 @@ Entity*		yeCopy(Entity* src, Entity* dest)
       DPRINT_INFO("\t\tvalue is function '%s'\n", strVal);
       yeSetFunction(dest, strVal);
       yeSetFunctionArgs(dest, nArgs);
+      YE_TO_FUNC(dest)->manager = YE_TO_FUNC(src)->manager;
       break;
     default:
       DPRINT_ERR("type %s not handle", yeTypeToString(yeType(src)));

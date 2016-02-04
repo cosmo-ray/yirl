@@ -15,8 +15,13 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef _YIRL_LUA_CONVERT_H_
+#define _YIRL_LUA_CONVERT_H_
+
 #include "lua-script.h"
 
 int     luaNbrToPtr(lua_State *l);
 int     luaPtrToString(lua_State *l);
 int     luaPtrToNumber(lua_State *l);
+
+#endif

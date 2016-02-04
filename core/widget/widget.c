@@ -19,6 +19,7 @@
 #include <string.h>
 #include <glib.h>
 #include <stdlib.h>
+#include "timer.h"
 #include "widget.h"
 #include "widget-callback.h"
 
@@ -341,4 +342,57 @@ void YWidDestroy(YWidgetState *wid)
     wid->destroy(wid);
   else
     g_free(wid);
+}
+
+static void ywidFreeEvents(YEvent *event)
+{
+  struct EveListHead *head;
+
+  if (!event)
+    return;
+  head = event->head;
+  while (!SLIST_EMPTY(head)) {
+    event = SLIST_FIRST(head);
+    SLIST_REMOVE_HEAD(head, lst);
+    free(event);
+  }
+}
+
+int ywidDoTurn(YWidgetState *opac)
+{
+  YEvent *event;
+  int turnLength = yeGetInt(yeGet(opac->entity, "turn-length"));
+  int ret;
+  struct EveListHead head = SLIST_HEAD_INITIALIZER(head);
+  static YTimer *cnt = NULL;
+
+  if (!cnt)
+    cnt = YTimerCreate();
+
+  if (turnLength > 0) {
+    int64_t i = 0;
+
+    i = turnLength - YTimerGet(cnt);
+    if (i > 0)
+      usleep(i);
+    YTimerReset(cnt);
+
+    for (event = ywidGenericPollEvent(); event;
+	 event = ywidGenericPollEvent()) {
+      event->head = &head;
+      SLIST_INSERT_HEAD(&head, event, lst);
+      ++i;
+    }
+
+  } else {
+    event = ywidGenericWaitEvent();
+    if (!event)
+      return NOTHANDLE;
+    event->head = &head;
+    SLIST_INSERT_HEAD(&head, event, lst);
+  }
+
+  ret = ywidHandleEvent(opac, SLIST_FIRST(&head));
+  ywidFreeEvents(SLIST_FIRST(&head));
+  return ret;
 }

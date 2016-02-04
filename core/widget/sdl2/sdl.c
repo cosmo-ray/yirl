@@ -164,7 +164,8 @@ static inline YEvent *SDLConvertEvent(SDL_Event* event)
       eve->type = YKEY_DOWN;
       break;
     default:
-      return NULL;
+      eve->type = YKEY_NONE;
+      break;
     }
   eve->key = convertToYKEY(event->key.keysym.sym);
   return eve;
@@ -182,7 +183,8 @@ static YEvent *SDLPollEvent(void)
 {
   SDL_Event event;
 
-  SDL_PollEvent(&event);
+  if (!SDL_PollEvent(&event))
+    return NULL;
   return SDLConvertEvent(&event);
 }
 
@@ -307,6 +309,8 @@ int sdlPrintText(SDLWid *wid,
 		 SDL_Color color,
 		 int x, int y)
 {
+  if (!str)
+    return 0;
   char **tmp = g_strsplit(str, "\n", 0);
   int ret = 0;
 
@@ -354,17 +358,21 @@ static SDL_Texture *sdlLoasAndCachImg(Entity *elem)
   const char *path;
   SDL_Texture *texture = yeGetData(yeGet(elem, "$sdl-img"));
   Entity *data;
-  
+
   if (texture)
     return texture;
   SDL_Surface *image;
 
   path = yeGetString(yeGet(elem, "map-srite"));
-  if (!path)
+  if (!path) {
     return NULL;
+  }
+
   image = IMG_Load(path);
-  if (!image)
+  if (!image) {
     return NULL;
+  }
+
   texture = SDL_CreateTextureFromSurface(sg.renderer, image);
   data = yeCreateData(texture, elem, "$sdl-img");
   yeSetDestroy(data, sdlFreeTexture);

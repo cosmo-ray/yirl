@@ -57,6 +57,8 @@ inline void yBlockArrayUnset(BlockArray *ba, size_t pos)
 
   ba->blocks[bPos] ^= (1LLU << (pos & 63));
 
+  if (bPos != yBlockArrayBlockPos(ba->size))
+    return;
  again:
   if ((bPos + toFree) >= 0 && ba->blocks[bPos + toFree] == 0) {
     --toFree;
@@ -122,8 +124,10 @@ inline void yBlockArrayIteratorIncr(BlockArrayIterator *it)
 inline BlockArrayIterator yBlockArrayIteratorCreate(BlockArray *array,
 						    int beg)
 {
-  BlockArrayIterator ret;
+  BlockArrayIterator ret = {NULL, 0, 0, 0};
 
+  if (!array)
+    return ret;
   yBlockArrayIteratorInit(ret, array, beg);
   return ret;
 }
