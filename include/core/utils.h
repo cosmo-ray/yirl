@@ -27,6 +27,18 @@
 #define MAX_NB_MANAGER 64
 #endif
 
+#if   __SIZEOF_POINTER__ == 4
+#define ONE64      1LLU
+#define ctz64 	   __builtin_ctzll
+#define clz64      __builtin_clzll
+#define popcount64 __builtin_popcountll
+#elif __SIZEOF_POINTER__ == 8
+#define ONE64      1LU
+#define ctz64      __builtin_ctzl
+#define clz64      __builtin_clzl
+#define popcount64 __builtin_popcountl
+#endif
+
 /* Define to use for error handeling */
 #define MAYBE(var) var
 
@@ -58,16 +70,16 @@ int yuiUnregiste(YManagerAllocator *ma, int t);
 
 
 /*TODO: change this name to YUI_GET_FIRST_MASK_POS*/
-#define YUI_GET_FIRST_BIT(mask) __builtin_ctzl(mask)
+#define YUI_GET_FIRST_BIT(mask) ctz64(mask)
 
-#define YUI_GET_LAST_MASK_POS(mask) (mask == 0LU ? 0LU : 63LU - __builtin_clzl(mask))
+#define YUI_GET_LAST_MASK_POS(mask) (mask == 0LU ? 0LU : 63LU - clz64(mask))
 
-#define YUI_COUNT_1_BIT(mask) (mask == 0LU ? 0LU : __builtin_popcountl(mask))
+#define YUI_COUNT_1_BIT(mask) (mask == 0LU ? 0LU : popcount64(mask))
 
 #define YUI_FOREACH_BITMASK(mask, it, tmpmask)				\
   for (uint64_t tmpmask = mask, it; ((it = YUI_GET_FIRST_BIT(tmpmask)) || 1) && \
 	 tmpmask;							\
-       tmpmask &= ~(1LU << it))
+       tmpmask &= ~(ONE64 << it))
 
 static inline int yuiStrEqual(const char *str1, const char *str2)
 {
