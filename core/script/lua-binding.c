@@ -77,7 +77,7 @@ int	luaCopy(lua_State *L)
 
 int	luaSetMainWid(lua_State *L)
 {
-  ywidSetMainWid(lua_touserdata(L, 1), lua_tonumber(L, 2));
+  ywidSetMainWid(lua_touserdata(L, 1));
   return 0;
 }
 

@@ -148,6 +148,7 @@ int ygInit(GameConfig *cfg)
 
 void ygEnd()
 {
+  ywidFreeWidgets();
   ydDestroyManager(jsonManager);
   ydJsonEnd();
   ywTextScreenEnd();
@@ -212,7 +213,7 @@ static int ygParseStartAndGame(GameConfig *config, Entity *mainMod)
   }
 
   if (starting_widget)
-    ywidSetMainWid(ywidNewWidget(starting_widget, NULL), 0);
+    ywidSetMainWid(ywidNewWidget(starting_widget, NULL));
 
   if (!ywidGetMainWid()) {
       DPRINT_ERR("No main widget has been set.\n"

@@ -33,7 +33,6 @@ typedef enum
     NOTHANDLE = 0,
     NOACTION = 1,
     ACTION = 2,
-    FAST_QUIT = 32 // for now, this one is a flag
   } InputStatue;
 
 typedef enum
@@ -174,8 +173,9 @@ YWidgetState *ywidNewWidget(Entity *entity,
 
 void YWidDestroy(YWidgetState *wid);
 
-void ywidSetMainWid(YWidgetState *wid, int free);
+void ywidSetMainWid(YWidgetState *wid);
 YWidgetState *ywidGetMainWid(void);
+void ywidFreeWidgets(void);
 
 
 #endif

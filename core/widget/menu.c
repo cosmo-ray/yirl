@@ -77,8 +77,8 @@ static int nmMenuNext(YWidgetState *wid, YEvent *eve, Entity *arg)
     return BUG;
   if ((newWid = ywidNewWidget(next, NULL)) == NULL)
     return BUG;
-  ywidSetMainWid(newWid, 1);
-  return ACTION | FAST_QUIT;
+  ywidSetMainWid(newWid);
+  return ACTION;
 }
 
 #define yeForeach(entity, idx, entry)					\
@@ -145,8 +145,7 @@ static InputStatue mnEvent(YWidgetState *opac, YEvent *event)
     ywidCallSignal(opac, event, NULL,  ((YMenuState *)opac)->moveSinIdx);
   }
 
-  if (!(ret & FAST_QUIT))
-    opac->hasChange = 1;
+  opac->hasChange = 1;
 
  exit:
   return ret;

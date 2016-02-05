@@ -52,20 +52,27 @@ struct widgetOpt widgetOptTab[MAX_NB_MANAGER];
 /* Contain the options unique to one type of render */
 struct renderOpt renderOpTab[MAX_NB_MANAGER];
 
-static YWidgetState *mainWid;
+static YWidgetState *mainWid = NULL;
+static YWidgetState *oldWid = NULL;
 
+void ywidFreeWidgets(void)
+{
+  YWidDestroy(mainWid);
+  YWidDestroy(oldWid);
+  mainWid = NULL;
+  oldWid = NULL;
+}
 
 inline YWidgetState *ywidGetMainWid(void)
 {
   return mainWid;
 }
 
-void ywidSetMainWid(YWidgetState *wid, int free)
+void ywidSetMainWid(YWidgetState *wid)
 {
-  YWidgetState *tmp = mainWid;
+  YWidDestroy(oldWid);
+  oldWid = mainWid;
   mainWid = wid;
-  if (free)
-    YWidDestroy(tmp);
 }
 
 int ywidBgConfFill(Entity *entity, YBgConf *cfg)
