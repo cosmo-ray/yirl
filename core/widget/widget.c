@@ -337,6 +337,8 @@ static int ywidGenericDestroy(YWidgetState *opac, int widType)
 
 void YWidDestroy(YWidgetState *wid)
 {
+  if (!wid)
+    return;
   ywidGenericDestroy(wid, wid->type);
   if (wid->destroy)
     wid->destroy(wid);
