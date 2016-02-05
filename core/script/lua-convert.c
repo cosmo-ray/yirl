@@ -31,6 +31,6 @@ int     luaPtrToString(lua_State *l)
 
 int     luaNbrToPtr(lua_State *l)
 {
-  lua_pushlightuserdata(l, (void *)lua_tointeger(l, 1));
+  lua_pushlightuserdata(l, (void *)(uintptr_t)lua_tointeger(l, 1));
   return 1;
 }
