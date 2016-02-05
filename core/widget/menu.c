@@ -184,7 +184,7 @@ int ywMenuInit(void)
     return t;
   t = ywidRegister(alloc, "menu");
   ywinAddCallback(ywinCreateNativeCallback("menuMove", nmMenuMove));
-  ywinAddCallback(ywinCreateNativeCallback("next", nmMenuNext));
+  ywinAddCallback(ywinCreateNativeCallback("menuNext", nmMenuNext));
   return t;
 }
 

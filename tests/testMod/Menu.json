@@ -23,7 +23,7 @@
 	    {
 		"text" : "choose 2",
 		"&next" : "MapTest",
-		"action" : "next",
+		"action" : "menuNext",
 		"bg" : "hello.pnj"  // Not yet implemented :)
 	    },
 	    {
