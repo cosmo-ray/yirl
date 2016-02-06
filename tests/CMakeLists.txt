@@ -19,7 +19,7 @@ if( WITH_SDL)
   add_definitions(-DWITH_SDL=1)
 endif()
 
-message("rendre: ${RENDER_LIBS}")
+message("-- Render use: ${RENDER_LIBS}")
 
 target_link_libraries(
 	tests

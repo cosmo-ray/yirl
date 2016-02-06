@@ -64,7 +64,7 @@ static YDescriptionOps *parsers[MAX_NB_MANAGER];
     }									\
   } while (0)
 
-#define CHECK_AND_GOTO(operation, err_val, label, fmt, args...) do { \
+#define CHECK_AND_GOTO(operation, err_val, label, fmt, args...) do {    \
     if ((operation) == (err_val)) {					\
       DPRINT_ERR(fmt, ## args);						\
       goto label;							\
@@ -109,7 +109,7 @@ int ygInit(GameConfig *cfg)
   CHECK_AND_GOTO(ywidInitCallback(), -1, error, "can not init callback");
   CHECK_AND_GOTO(ywinAddCallback(ywinCreateNativeCallback("FinishGame",
 							 ygTerminateCallback)),
-		-1, error, "can not add game's callback");
+		 -1, error, "cannot add game's callback");
   CHECK_AND_GOTO(ywMenuInit(), -1, error, "Menu init failed");
   CHECK_AND_GOTO(ywMapInit(), -1, error, "Map init failed");
   CHECK_AND_GOTO(ywTextScreenInit(), -1, error, "Text Screen init failed");

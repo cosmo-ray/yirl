@@ -31,7 +31,7 @@
   return (returnValue);							\
   } while (0)
 
-  /* macro for perf purpose */
+/* macro for perf purpose */
 #define YE_INCR_REF(entity) do {		\
     entity->refCount += 1;			\
   } while (0)
@@ -54,7 +54,7 @@
   } while (0);
 
 /**
- * contain all the functions use to destruct entity
+ * Contain all functions used to destruct entity
  * Must be in the same order than the EntityType Enum
  * TODO up to date
  */
@@ -148,11 +148,11 @@ static inline ArrayEntry *yeGetArrayEntryByIdx(Entity *entity, uint32_t i)
 }
 
 /**
- * Look for an entity situated directly in <entity> wich have a name wich begin like <name> for a length of <end>
- * @param entity  the parent entity where we want to find the entity
+ * Look for an entity in @entity
+ * @param entity  the parent entity
  * @param name    The entity name we are looking for
- * @param end     the size of the <name> parameter we want to look for
- * @return        return the first entity in the parent <entity> found
+ * @param end     the size of the @name parameter we look for
+ * @return        return the first entity in the parent @entity found
  */
 static Entity *yeGetByIdxFastWithEnd(Entity *entity, const char *name, int end)
 {
@@ -217,7 +217,7 @@ Entity *yeGetByStr(Entity *entity, const char *name)
   int	i;
 
   if (entity == NULL) {
-    DPRINT_INFO("can not find entity fot %s\n", name);
+    DPRINT_INFO("can not find entity for %s\n", name);
     return NULL;
   }
 

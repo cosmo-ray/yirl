@@ -22,5 +22,5 @@ target_link_libraries(
 	luaScript
 	jsonDescrption
 	widgets
-    sound
+        sound
 )

@@ -197,7 +197,7 @@ int    ysdl2Init(void)
 
   /* Initialisation simple */
   if (SDL_Init(SDL_INIT_EVERYTHING) != 0 ) {
-    DPRINT_ERR("Échec de l'initialisation de la SDL (%s)\n",SDL_GetError());
+    DPRINT_ERR("SDL initialisation failed: (%s)\n",SDL_GetError());
     return -1;
   }
 
@@ -217,7 +217,7 @@ int    ysdl2Init(void)
     goto img_fail;
   }
 
-  /* Création de la fenêtre */
+  /* Make a window */
   sg.pWindow = SDL_CreateWindow("YIRL isn't a rogue like", SDL_WINDOWPOS_UNDEFINED,
 				SDL_WINDOWPOS_UNDEFINED,
 				WIN_W_SIZE,
@@ -240,7 +240,7 @@ int    ysdl2Init(void)
   }
 
   if (sgSetDefaultFont("./sample.ttf") < 0)
-    DPRINT_WARN("can not load \"./sample.ttf\"\n");
+    DPRINT_WARN("Cannot load \"./sample.ttf\"\n");
 
   
   // fill the window with a black rectangle

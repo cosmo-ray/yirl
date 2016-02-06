@@ -14,6 +14,7 @@
 **You should have received a copy of the GNU Lesser General Public License
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 /*
  * This work is based on the widget work of YIRL V2
  */
@@ -115,7 +116,7 @@ YEvent *ywidGenericPollEvent(void);
 
 /**
  * Registre a new type of widget
- * @return: the type of the new type
+ * @return the type of the new type
  */
 int ywidRegister(void *(*allocator)(void), const char *name);
 
