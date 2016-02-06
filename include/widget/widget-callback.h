@@ -53,12 +53,12 @@ void ywidFinishSignal(YWidgetState *wid);
 int ywidBind(YWidgetState *wid, const char *signal, const char *callback);
 int ywidBindBySinIdx(YWidgetState *wid, int, const char *callback);
 
-
 int ywinAddCallback(YCallback *callback);
 
 YCallback *ywinCreateNativeCallback(const char *name,
 				    int (*callack)(YWidgetState *wid,
 						   YEvent *eve, Entity *arg));
+
 /**
  * Create a callback from an entity.
  *

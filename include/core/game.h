@@ -28,9 +28,9 @@
 #include "sound.h"
 
 typedef enum {
-  SDL2 = 1,
+  SDL2   = 1,
   CURSES = 2,
-  ALL = CURSES | SDL2
+  ALL    = CURSES | SDL2
 } RenderType;
 
 /* For now this is in game and should move after */
