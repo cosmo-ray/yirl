@@ -14,6 +14,7 @@
 **You should have received a copy of the GNU Lesser General Public License
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 #ifndef	DEBUG_H_
 #define	DEBUG_H_
 
@@ -21,7 +22,8 @@
 #include <stdarg.h>
 
 /**
- * Contient les defines pour les fonction de debug, il faut compiler avec DEBUG en option pour pouvoir les rendre fonctionnelle
+ * Content of DEFINE for debug function.
+ * Compilling with DEBUG option for use it.
  */
 # ifdef __cplusplus
 extern "C"

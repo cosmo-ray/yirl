@@ -16,10 +16,10 @@ target_link_libraries(
 )
 
 if( WITH_CURSES)
-  message( "i have l'option WITH_CURSES" )
+  message( "-- Option WITH_CURSES is enable" )
   add_subdirectory( ${PROJECT_SOURCE_DIR}/core/widget/curses )
 endif()
 if( WITH_SDL)
-  message( "j'ai the option WITH_SDL" )
+  message( "-- Option WITH_SDL is enable" )
   add_subdirectory( ${PROJECT_SOURCE_DIR}/core/widget/sdl2 )
 endif()

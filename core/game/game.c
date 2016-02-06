@@ -64,7 +64,7 @@ static YDescriptionOps *parsers[MAX_NB_MANAGER];
     }									\
   } while (0)
 
-#define CHECK_AND_GOTO(operation, err_val, label, fmt, args...) do { \
+#define CHECK_AND_GOTO(operation, err_val, label, fmt, args...) do {    \
     if ((operation) == (err_val)) {					\
       DPRINT_ERR(fmt, ## args);						\
       goto label;							\
@@ -111,7 +111,7 @@ int ygInit(GameConfig *cfg)
   CHECK_AND_RET(ywMenuInit(), -1, -1, "Menu init failed");
   CHECK_AND_RET(ywMapInit(), -1, -1, "Map init failed");
   CHECK_AND_RET(ywTextScreenInit(), -1, -1, "Text Screen init failed");
-  CHECK_AND_RET(ywContenerInit(), -1, -1, "Contener init failed");
+  CHECK_AND_RET(ywContenerInit(), -1, -1, "Container init failed");
 
   /* Init sound */
   sound_init(LIB_VLC);
@@ -216,7 +216,7 @@ static int ygParseStartAndGame(GameConfig *config, Entity *mainMod)
 
   if (!ywidGetMainWid()) {
       DPRINT_ERR("No main widget has been set.\n"
-		 "see docomentation about starting_widget\n"
+		 "see documentation about starting_widget\n"
 		 "or set it manually with \"ywidSetMainWid()\"");
       return -1;
   }

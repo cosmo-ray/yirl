@@ -34,7 +34,7 @@
 # define WEAK __attribute__((weak))
 # else
 # define WEAK //nothing :)
-	#endif
+# endif
 #else
 # define WEAK //nothing :)
 #endif
@@ -50,7 +50,7 @@ extern "C"
     YE_FIND_LINK_NO_DEEP = 2
   } YeFindFlag;
 
-  /*Les differents type d'entite, chacune est definie par une structure apres*/
+  /* All entity type, each is defined later inside a struture */
   typedef enum
     {
       BAD_TYPE = -1,
@@ -168,7 +168,7 @@ extern "C"
 
   /**
    * @param str   the type name
-   * @return      the corresponding type, -1 if type not found
+   * @return the corresponding type, -1 if type not found
    */
   EntityType yeStringToType(const char *str) WEAK;
 
@@ -196,14 +196,14 @@ extern "C"
 
   
   /**
-   * @return:	the entity at the position of @index or NULL
+   * @return the entity at the position of @index or NULL
    */
   Entity *yeGetByIdx(Entity *entity, size_t index) WEAK;
     
   /**
    * @param entity  the entity whe are looking into
    * @param name    the entity name whe are looking for
-   * @return        The found Entity named @name in @entity
+   * @return The found Entity named @name in @entity
    */
   Entity *yeGetByStr(Entity *entity, const char *name) WEAK;
 
@@ -231,7 +231,7 @@ extern "C"
 
   
   /**
-   ~* change the capacity than the array can store
+   * change the capacity than the array can store
    */
   Entity *yeExpandArray(Entity *entity, unsigned int size) WEAK;
 
@@ -244,7 +244,7 @@ extern "C"
 
   /**
    * @array:	the array
-   * @return:	the entity that is erased from the entity @array
+   * @return the entity that is erased from the entity @array
    */
   Entity *yePopBack(Entity *array) WEAK;
 
@@ -327,15 +327,15 @@ extern "C"
   
   /**
    * @brief set the information about the arguments of a function
-   * @param nArgs number of arguments
+   * @param nArgs	 number of arguments
    */
   void	yeSetFunctionArgs(Entity *entity, unsigned int nArgs) WEAK;
   
   /**
    * Set basic information to the entity <entity>
-   * @param entity  the entity to set the basic informations
-   * @param name    the name to set
-   * @param type    the type of the entity
+   * @param entity   the entity to set the basic informations
+   * @param name     the name to set
+   * @param type     the type of the entity
    * @param fathers  the parent entity of <entity>
    * @return the entity <entity>
    */
@@ -396,7 +396,7 @@ extern "C++"
   /**
    * Get the len attribute of an Entity
    * @param entity  The Entity we want to get the len
-   * @return    return the attribute len of the entity
+   * @return the attribute len of the entity
    */
   size_t yeLen(Entity *entity) WEAK;;
 
@@ -452,18 +452,18 @@ extern "C++"
 
   /**
    * Check if Entity are the same type and if they are not NULL and copy the values from src to dest.
-   * @param src	The source Entity from where the values will be copied from.
+   * @param src		The source Entity from where the values will be copied from.
    * @param dest	The destination Entity to where the values will be pasted.
-   * @return	NULL if entities do not have the same type or are NULL, dest Entity otherwise.
+   * @return NULL if entities do not have the same type or are NULL, dest Entity otherwise.
    */
   Entity*		yeCopy(Entity* src, Entity* dest);
 
   /**
    * Copy the data from src Entity to dest Entity.
    * Get the values and copy each Entity in the StructEntity.
-   * @param src	Source Entity from where the data will be copy
+   * @param src		Source Entity from where the data will be copy
    * @param dest	Destination Entity where the data will be past
-   * @return	destination Entity if src AND dest or not null, NULL otherwise
+   * @return destination Entity if src AND dest or not null, NULL otherwise
    */
   ArrayEntity*		yeCopyContener(ArrayEntity* src, ArrayEntity* dest);
 
