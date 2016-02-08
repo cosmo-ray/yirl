@@ -172,8 +172,11 @@ int ywidBind(YWidgetState *wid, const char *signal, const char *callback)
 
 int ywidCallSignal(YWidgetState *wid, YEvent *eve, Entity *arg, int idx)
 {
-  YSignal *signal = g_array_index(wid->signals, YSignal *, idx);
+  YSignal *signal;
 
+  if (idx < 0)
+    return -1;
+  signal = g_array_index(wid->signals, YSignal *, idx);
   if (!signal || signal->callbackIdx < 0)
     return -1;
   return ywidCallCallbackByIdx(wid, eve, arg, signal->callbackIdx);

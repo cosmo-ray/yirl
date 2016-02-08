@@ -146,6 +146,8 @@ static int  convertToYKEY(SDL_Keycode key)
       return ('\n');
     case SDLK_TAB:
       return ('\t');
+    case SDLK_ESCAPE:
+      return Y_ESC_KEY;
     default:
       return (-1);
     }
