@@ -166,6 +166,12 @@ int	luaWidNextEve(lua_State *L)
   return 1;
 }
 
+int	luaWidNext(lua_State *L)
+{
+  lua_pushnumber(L, ywidNext(lua_touserdata(L, 1)));
+  return 1;
+}
+
 int	luaWidEveIsEnd(lua_State *L)
 {
   lua_pushboolean(L, lua_touserdata(L, 1) == NULL);

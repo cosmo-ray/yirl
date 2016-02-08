@@ -69,6 +69,7 @@ int	luaCreateCallback(lua_State *L);
 int	luaWidAddCallback(lua_State *L);
 int	luaCallCallbackByStr(lua_State *L);
 int	luaWidEntity(lua_State *L);
+int	luaWidNext(lua_State *L);
 
 /* event */
 int	luaWidNextEve(lua_State *L);
@@ -105,6 +106,8 @@ static inline int	yesLuaRegister(void *sm)
     
   /* I love lua */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yAnd", luaYAnd));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yuiRand", luaRand));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yuiRandInit", luaRandInit));
 
   /* Lua conceptor should love me */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yloveNbrToPtr", luaNbrToPtr));
@@ -151,6 +154,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidCallCallbackByStr",
 				 luaCallCallbackByStr));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidEntity", luaWidEntity));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidNext", luaWidNext));
   // TODO: Add get entity
 
   /* evenements */
@@ -161,10 +165,9 @@ static inline int	yesLuaRegister(void *sm)
   // Add ywidEveStat()
   // Add ywidEveMouseX()
   // Add ywidEveMouseY()
+
   /* map */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapCreatePos", luaMapCreatePos));
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yuiRand", luaRand));
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yuiRandInit", luaRandInit));
   
   return 0;
 }

@@ -51,7 +51,7 @@ static int shooterInit(YWidgetState *wid, YEvent *eve, Entity *arg)
     tmp = yeCreateArray(arg, NULL);
     yeCreateInt(0, tmp, NULL);
   }
-  ywinAddCallback(ywinCreateNativeCallback("shooterAction", shooterAction));  
+  ywinAddCallback(ywinCreateNativeCallback("shooterAction", shooterAction));
   ywidBind(wid, "action", "shooterAction");
   return NOTHANDLE;
 }

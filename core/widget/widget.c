@@ -75,6 +75,24 @@ void ywidSetMainWid(YWidgetState *wid)
   mainWid = wid;
 }
 
+int ywidNext(Entity *next)
+{
+  YWidgetState *newWid;
+
+  if (!next) {
+    DPRINT_ERR("next is null");
+    return -1;
+  }
+
+  if ((newWid = ywidNewWidget(next, NULL)) == NULL) {
+    DPRINT_ERR("fail when creating new widget");
+    return -1;
+  }
+
+  ywidSetMainWid(newWid);
+  return 0;
+}
+
 int ywidBgConfFill(Entity *entity, YBgConf *cfg)
 {
   char *str = (char *)yeGetString(entity);

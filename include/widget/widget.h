@@ -173,6 +173,8 @@ YWidgetState *ywidNewWidget(Entity *entity,
 
 void YWidDestroy(YWidgetState *wid);
 
+int ywidNext(Entity *next);
+
 void ywidSetMainWid(YWidgetState *wid);
 YWidgetState *ywidGetMainWid(void);
 void ywidFreeWidgets(void);

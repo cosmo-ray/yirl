@@ -184,6 +184,18 @@ static int ygParseStartAndGame(GameConfig *config, Entity *mainMod)
 	DPRINT_ERR("Error when loading '%s': %s\n",
 		   yeGetString(tmpFile), ysGetError(luaManager));
       }
+    } else if (yuiStrEqual0(yeGetString(tmpType), "json")) {
+      char *fileStr = NULL;
+      Entity *as = yeGet(var, "as");
+
+      fileStr = g_strconcat(config->startingMod->path, "/",
+			    yeGetString(tmpFile), NULL);
+      tmpFile = ydFromFile(jsonManager, fileStr);
+      g_free(fileStr);
+      if (tmpFile && yeGetString(as) != NULL) {
+	yePushBack(mainMod, tmpFile, yeGetString(as));
+	YE_DESTROY(tmpFile);
+      }
     }
   }
 

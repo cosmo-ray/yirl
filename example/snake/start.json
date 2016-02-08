@@ -16,7 +16,7 @@
 */
 
 {
-    "_name" : "start",
+    "name" : "snake",
     "init-scripts" : [
 	"initSnake"
     ],
@@ -24,11 +24,13 @@
 	{
 	    "file" : "snake.lua",
 	    "type" : "lua"
+	},
+	{
+	    "file" : "menus.json",
+	    "type" : "json",
+	    "as" : "menus"
 	}
     ],
-    
-    "starting widget" : "Menu",
-
     "SnakeResources" : [
 	{
 	    "name" : "floar",
