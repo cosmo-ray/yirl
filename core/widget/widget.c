@@ -215,11 +215,13 @@ static YWidgetState *ywidNewWidgetInternal(int t,
   }
 
   ret = widgetTab.allocator[t]();
-  ret->entity = entity;
-  ret->signals = g_array_new(1, 1, sizeof(YSignal *));
 
   if (ret == NULL)
     return NULL;
+
+  ret->entity = entity;
+  ret->signals = g_array_new(1, 1, sizeof(YSignal *));
+
 
   if (ret->init(ret, entity, args))
     goto error;
