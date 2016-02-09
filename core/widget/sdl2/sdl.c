@@ -135,21 +135,21 @@ static int  convertToYKEY(SDL_Keycode key)
   switch (key)
     {
     case SDLK_UP:
-      return (Y_UP_KEY);
+      return Y_UP_KEY;
     case SDLK_DOWN:
-      return (Y_DOWN_KEY);
+      return Y_DOWN_KEY;
     case SDLK_LEFT:
-      return (Y_LEFT_KEY);
+      return Y_LEFT_KEY;
     case SDLK_RIGHT:
-      return (Y_RIGHT_KEY);
+      return Y_RIGHT_KEY;
     case SDLK_RETURN:
-      return ('\n');
+      return '\n';
     case SDLK_TAB:
-      return ('\t');
+      return '\t';
     case SDLK_ESCAPE:
       return Y_ESC_KEY;
     default:
-      return (-1);
+      return -1;
     }
 }
 
