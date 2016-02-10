@@ -18,17 +18,20 @@
 
 Q_KEY = 113
 
+function getLooseScreen(entity)
+  return yeGet(yeGet(entity, "menus"), "LooseScreen")
+end
+
 function snakeMap(entity)
    local map = yeCreateArray(entity, "start")
    local i = 0;
 
-   yePushBack(map, yeGet(yeGet(entity, "menus"), "LooseScreen"), "next")
+   yePushBack(map, getLooseScreen(entity), "next")
    yeCreateString( "map", map, "<type>")
    yePushBack(map, yeGet(entity, "SnakeResources"), "resources")
    yeCreateInt(200000, map, "turn-length")
    yeCreateInt(20, map, "width")
    yeCreateInt(0, map, "nbPeanut")
-   yePushBack(map, "next", "LooseScreen")
    --yeCreateString( "rgba: 180 210 20 50", map, "background")
 
    local cases = yeCreateArray(map, "map")
@@ -117,7 +120,6 @@ function moveHead(map)
 
    if yeLen(destCase) > 1 then
       if (yeGetInt(yeGet(destCase, 1)) ~= 2) then
-	 print("a noob just lose, when eating a ", yeGetInt(yeGet(destCase, 1)))
 	 ywidNext(yeGet(map, "next"))
       end
       rmPeanut(map, destCase)
@@ -210,16 +212,20 @@ function snakeAction(wid, eve, arg)
    end
 end
 
+function scoreInit(wid, entity, args)
+   print("hello")
+end
 
 function initSnake(entity)
    -- TODO: this functions: C/lua
    local mapEntity = snakeMap(entity)
    local map = ywidNewWidget(mapEntity)
    local action = yeCreateFunction("snakeAction", entity, "snakeAction", 3)
+   local menuInit = yeCreateFunction("scoreInit", entity, "scoreInit", 3)
 
    yuiRandInit()
    ywidAddCallback(ywidCreateCallback("snakeAction", action))
-
+   ywidAddCallback(ywidCreateCallback("scoreInit", menuInit))
    ywidBind(map, "action", "snakeAction")
    ywidSetMainWid(map, 0)
 end

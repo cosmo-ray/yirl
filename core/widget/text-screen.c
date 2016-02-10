@@ -36,7 +36,8 @@ static int tsInit(YWidgetState *opac, Entity *entity, void *args)
   ywidGenericInit(opac, t);
   ((YTextScreenState *)opac)->actionIdx = ywidAddSignal(opac, "action");
   ywidBind(opac, "action", yeGetString(yeGet(entity, "action")));
- return 0;
+  ywidCallCallbackByStr(yeGetString(yeGet(entity, "init")), opac, NULL, NULL);
+  return 0;
 }
 
 static int tsDestroy(YWidgetState *opac)
