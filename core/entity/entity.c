@@ -496,6 +496,8 @@ Entity *yeInit(Entity *entity, EntityType type, Entity *father, const char *name
 
 void	yeSetString(Entity *entity, const char *val)
 {
+  if (!entity)
+    return;
   if (YE_TO_STRING(entity)->value != NULL)
     free(YE_TO_STRING(entity)->value);
   if (val != NULL) {
