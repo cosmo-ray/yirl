@@ -212,8 +212,9 @@ function snakeAction(wid, eve, arg)
    end
 end
 
-function scoreInit(wid, entity, args)
-   print("hello")
+function scoreInit(wid, eve, args)
+   local scoreStr = "you have a score of " .. 17 .. "points"
+   yeSetString(yeGet(ywidEntity(wid), "text"), scoreStr);
 end
 
 function initSnake(entity)
