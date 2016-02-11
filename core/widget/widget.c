@@ -21,7 +21,10 @@
 #include <stdlib.h>
 #include "timer.h"
 #include "widget.h"
+#include "entity-script.h"
 #include "widget-callback.h"
+
+Entity *subTypes = NULL;
 
 static YManagerAllocator widgetTab = {
   {NULL },
@@ -245,6 +248,11 @@ YWidgetState *ywidNewWidget(Entity *entity, void *args)
 
   if (!tmp)
     return NULL;
+
+  YE_ARRAY_FOREACH(subTypes, type) {
+    if (yuiStrEqual0(yeGetString(tmp), yeGetString(yeGet(type, "name"))))
+      yesCall(yeGet(type, "callback"), entity);
+  }
 
   for (int i = 0; i < 64; ++i) {
     if (widgetOptTab[i].name &&
