@@ -44,7 +44,7 @@ int	luaType(lua_State *L);
 /* string */
 int	luaGetString(lua_State *L);
 int	luaCreateString(lua_State *L);
-
+int	luaSetString(lua_State *L);
 /* int */
 int	luaGetInt(lua_State *L);
 int	luaSetInt(lua_State *L);
@@ -128,6 +128,7 @@ static inline int	yesLuaRegister(void *sm)
 
   /* string */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeGetString", luaGetString));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeSetString", luaSetString));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeCreateString", luaCreateString));
 
 

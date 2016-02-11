@@ -245,6 +245,12 @@ int	luaWidBind(lua_State *L)
   return 0;
 }
 
+int	luaSetString(lua_State *L)
+{
+  yeSetString(lua_touserdata(L, 1), lua_tostring(L, 2));
+  return 0;
+}
+
 int	luaGetString(lua_State *L)
 {
   if (lua_gettop(L) != 1 || !lua_islightuserdata(L, 1))
