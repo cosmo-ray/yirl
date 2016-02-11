@@ -88,30 +88,32 @@ int ygInit(GameConfig *cfg)
 {
   static int t;
 
+  /* trick use in case of failure in thbis function to free all */
+  init = 1;
   /* Init parseurs */
   CHECK_AND_RET(t = ydJsonInit(), -1, -1,
 		    "json init failed");
-  CHECK_AND_RET(jsonManager = ydNewManager(t), NULL, -1,
+  CHECK_AND_GOTO(jsonManager = ydNewManager(t), NULL, error,
 		    "json init failed");
   parsers[t] = jsonManager;
 
   /* Init scripting */
   /* TODO init internal lua function */
-  CHECK_AND_RET(t = ysLuaInit(), -1, -1, "lua init failed");
-  CHECK_AND_RET(luaManager = ysNewManager(NULL, t), NULL, -1,
+  CHECK_AND_GOTO(t = ysLuaInit(), -1, error, "lua init failed");
+  CHECK_AND_GOTO(luaManager = ysNewManager(NULL, t), NULL, error,
 		    "lua init failed");
 
-  CHECK_AND_RET(yesLuaRegister(luaManager), -1, -1, "lua init failed");
+  CHECK_AND_GOTO(yesLuaRegister(luaManager), -1, error, "lua init failed");
 
   /* Init widgets */
-  CHECK_AND_RET(ywidInitCallback(), -1, -1, "can not init callback");
-  CHECK_AND_RET(ywinAddCallback(ywinCreateNativeCallback("FinishGame",
+  CHECK_AND_GOTO(ywidInitCallback(), -1, error, "can not init callback");
+  CHECK_AND_GOTO(ywinAddCallback(ywinCreateNativeCallback("FinishGame",
 							 ygTerminateCallback)),
-		-1, -1, "can not add game's callback");
-  CHECK_AND_RET(ywMenuInit(), -1, -1, "Menu init failed");
-  CHECK_AND_RET(ywMapInit(), -1, -1, "Map init failed");
-  CHECK_AND_RET(ywTextScreenInit(), -1, -1, "Text Screen init failed");
-  CHECK_AND_RET(ywContenerInit(), -1, -1, "Contener init failed");
+		-1, error, "can not add game's callback");
+  CHECK_AND_GOTO(ywMenuInit(), -1, error, "Menu init failed");
+  CHECK_AND_GOTO(ywMapInit(), -1, error, "Map init failed");
+  CHECK_AND_GOTO(ywTextScreenInit(), -1, error, "Text Screen init failed");
+  CHECK_AND_GOTO(ywContenerInit(), -1, error, "Contener init failed");
 
   /* Init sound */
   sound_init(LIB_VLC);
@@ -121,33 +123,38 @@ int ygInit(GameConfig *cfg)
     if (yuiStrEqual(TO_RC(tmp->data)->name, "curses")) {
 #ifdef WITH_CURSES
       ycursInit();
-      CHECK_AND_RET(ycursRegistreMenu(), -1, -1, "Menu init failed");
-      CHECK_AND_RET(ycursRegistreTextScreen(), -1, -1,
+      CHECK_AND_GOTO(ycursRegistreMenu(), -1, error, "Menu init failed");
+      CHECK_AND_GOTO(ycursRegistreTextScreen(), -1, error,
 			"Text Screen init failed");
-      CHECK_AND_RET(ycursRegistreMap(), -1, -1, "Map init failed");
+      CHECK_AND_GOTO(ycursRegistreMap(), -1, error, "Map init failed");
 #else
       /* print error */
 #endif
     } else if (yuiStrEqual(TO_RC(tmp->data)->name, "sdl2")) {
 #ifdef WITH_SDL
       ysdl2Init();
-      CHECK_AND_RET(ysdl2RegistreTextScreen(), -1, -1,
+      CHECK_AND_GOTO(ysdl2RegistreTextScreen(), -1, error,
 			"Text Screen init failed");
-      CHECK_AND_RET(ysdl2RegistreMenu(), -1, -1, "Menu init failed");
-      CHECK_AND_RET(ysdl2RegistreMap(), -1, -1, "Map init failed");
+      CHECK_AND_GOTO(ysdl2RegistreMenu(), -1, error, "Menu init failed");
+      CHECK_AND_GOTO(ysdl2RegistreMap(), -1, error, "Map init failed");
 #else
       /* print error */
 #endif
     }
   }
-  init = 1;
   return 0;
+error:
+  ygEnd();
+  return -1;
 }
 
 #undef TO_RC
 
 void ygEnd()
 {
+  if (!init)
+    return;
+
   ywidFreeWidgets();
   ydDestroyManager(jsonManager);
   ydJsonEnd();
