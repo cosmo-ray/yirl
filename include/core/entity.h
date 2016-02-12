@@ -194,6 +194,8 @@ extern "C"
 	 YE_ARRAY_FOREACH_SET_VAL(it##val, val);			\
        yBlockArrayIteratorIncr(&it##val))
 
+
+  int	yeArrayIdx(Entity *array, const char *lookup);
   
   /**
    * @return:	the entity at the position of @index or NULL

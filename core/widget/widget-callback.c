@@ -19,7 +19,7 @@
 #include "utils.h"
 #include "entity-script.h"
 
-static GArray *callbacks = NULL;
+static Entity *callbacks = NULL;
 
 static inline void ywidDdestroyCallbackInt(YCallback *callback)
 {
@@ -29,22 +29,22 @@ static inline void ywidDdestroyCallbackInt(YCallback *callback)
   }
 }
 
+static void callbackDestroy(void *callback)
+{
+  return ywidDdestroyCallbackInt(callback);
+}
+
 int ywidInitCallback(void)
 {
   if (callbacks)
     return 0;
-  callbacks = g_array_new(1, 1, sizeof(YCallback *));
+  callbacks = yeCreateArray(NULL, NULL);
   return (callbacks == NULL) * -1;
 }
 
 void ywidFinishCallbacks(void)
 {
-  YCallback *ret;
-
-  for (unsigned int i = 0;
-       (ret = g_array_index(callbacks, YCallback *, i)) != NULL; ++i)
-    ywidDdestroyCallbackInt(ret);
-  g_array_free(callbacks, 0);
+  YE_DESTROY(callbacks);
   callbacks = NULL;
 }
 
@@ -135,15 +135,8 @@ static YSignal *getSinByStr(YWidgetState *wid, const char *str)
 
 static unsigned int getCallbackIdx(const char *str)
 {
-  YCallback *ret;
-
-  for (unsigned int i = 0;
-       (ret = g_array_index(callbacks, YCallback *, i)) != NULL; ++i) {
-
-    if (yuiStrEqual(ret->name, str))
-      return (int)i;
-  }
-  return -1;
+  unsigned int ret = yeArrayIdx(callbacks, str);
+  return ret;
 }
 
 int ywidBindBySinIdx(YWidgetState *wid, int idx, const char *callback)
@@ -185,33 +178,24 @@ int ywidCallSignal(YWidgetState *wid, YEvent *eve, Entity *arg, int idx)
 
 int ywinAddCallback(YCallback *callback)
 {
-  callbacks = g_array_append_val(callbacks, callback);
-  return (callbacks == NULL) * -1;
+  Entity *tmp = yeCreateData(callback, callbacks, callback->name);
+  yeSetDestroy(tmp, callbackDestroy);
+  return 0;
 }
 
 YCallback * ywinGetCallbackByIdx(int idx)
 {
-  return (g_array_index(callbacks, YCallback *, idx));
+  return yeGetData(yeGet(callbacks, idx));
 }
 
 YCallback *ywinGetCallbackByStr(const char *str)
 {
-  YCallback *ret;
-
-  if (!str)
-    return NULL;
-  for (unsigned int i = 0;
-       (ret = g_array_index(callbacks, YCallback *, i)) != NULL; ++i) {
-
-    if (yuiStrEqual(ret->name, str))
-      return ret;
-  }
-  return NULL;
+  return yeGetData(yeGet(callbacks, str));
 }
 
 void ywidDdestroyCallback(int idx)
 {
-  ywidDdestroyCallbackInt(ywinGetCallbackByIdx(idx));
+  yeDestroy(yeGet(callbacks, idx));
 }
 
 void ywidFinishSignal(YWidgetState *wid)
