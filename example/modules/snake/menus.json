@@ -6,9 +6,37 @@
 	"background": "rgba: 180 210 20 50", // Not yet implemented :)
 	"action" : "FinishGame",
 	"&next" : "AskReplay"
-    }
+    },
     "Snake" : {
 	"<type>" : "snake",
-	"&next" : "LooseScreen"
-    }
+	"&next" : "LooseScreen",
+	"&resources" : "SnakeResources"
+    },
+    "SnakeResources" : [
+	{
+	    "name" : "floar",
+	    "map-srite" : "bg.png",
+	    "map-char" : "."
+	},
+	{
+	    "name" : "head", // for text screen ?
+	    "map-srite" : "hero.png", // sdl map
+	    "map-char" : "X" // curses map
+	},
+	{
+	    "name" : "peanut", // for text screen ?
+	    "map-srite" : "bullet.png", // sdl map
+	    "map-char" : "C" // curses map
+	},
+	{
+	    "name" : "eatead", // for text screen ?
+	    "map-srite" : "bullet.png", // sdl map
+	    "map-char" : "O" // curses map
+	},
+	{
+	    "name" : "body",
+	    "map-char" : "0" // curses map
+	}
+
+    ]
 }

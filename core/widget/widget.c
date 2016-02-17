@@ -62,6 +62,8 @@ void ywidFreeWidgets(void)
 {
   YWidDestroy(mainWid);
   YWidDestroy(oldWid);
+  YE_DESTROY(subTypes);
+  subTypes = NULL;
   mainWid = NULL;
   oldWid = NULL;
 }
@@ -200,8 +202,7 @@ int ywidUnregiste(int t)
 
 
 static YWidgetState *ywidNewWidgetInternal(int t,
-					   Entity *entity,
-					   void *args)
+					   Entity *entity)
 {
   YWidgetState *ret;
   Entity *pos= yeGet(entity, "pos");
@@ -226,7 +227,7 @@ static YWidgetState *ywidNewWidgetInternal(int t,
   ret->signals = g_array_new(1, 1, sizeof(YSignal *));
 
 
-  if (ret->init(ret, entity, args))
+  if (ret->init(ret, entity, NULL))
     goto error;
 
   ret->hasChange = 1;
@@ -237,27 +238,40 @@ static YWidgetState *ywidNewWidgetInternal(int t,
   return NULL;
 }
 
-YWidgetState *ywidNewWidget(Entity *entity, void *args)
+int ywidAddSubType(Entity *subType)
+{
+  if (!subTypes)
+    subTypes = yeCreateArray(NULL, NULL);
+  yePushBack(subTypes, subType, NULL);
+  YE_DESTROY(subType);
+  return 0;
+}
+
+YWidgetState *ywidNewWidget(Entity *entity, const char *type)
 {
   Entity *tmp;
 
   if (!entity)
     return NULL;
 
-  tmp = yeGet(entity, "<type>");
+  if (!type) {
+    tmp = yeGet(entity, "<type>");
+    type = yeGetString(tmp);
+  }
 
-  if (!tmp)
+  if (!type)
     return NULL;
 
-  YE_ARRAY_FOREACH(subTypes, type) {
-    if (yuiStrEqual0(yeGetString(tmp), yeGetString(yeGet(type, "name"))))
-      yesCall(yeGet(type, "callback"), entity);
+  YE_ARRAY_FOREACH(subTypes, tmpType) {
+    if (yuiStrEqual0(type, yeGetString(yeGet(tmpType, "name")))) {
+      return yesCall(yeGet(tmpType, "callback"), entity);
+    }
   }
 
   for (int i = 0; i < 64; ++i) {
     if (widgetOptTab[i].name &&
-	yuiStrEqual(yeGetString(tmp), widgetOptTab[i].name)) {
-      return ywidNewWidgetInternal(i, entity, args);
+	yuiStrEqual(type, widgetOptTab[i].name)) {
+      return ywidNewWidgetInternal(i, entity);
     }
   }
   return NULL;

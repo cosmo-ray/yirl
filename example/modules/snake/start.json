@@ -17,16 +17,16 @@
 
 {
     "name" : "snake",
+    "file" : "menus.json",
+    "type" : "json",
     "starting widget" : "Snake",
+    "init-scripts" : [
+	"initSnake"
+    ],
     "pre-load" : [
 	{
 	    "file" : "snake.lua",
 	    "type" : "lua"
-	},
-	{
-	    "file" : "menus.json",
-	    "type" : "json",
-	    "as" : "menus"
 	}
     ],
     "SnakeResources" : [

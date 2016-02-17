@@ -168,8 +168,10 @@ static inline void *ywidGetRenderData(YWidgetState *state, int t)
  return state->renderStates[t].opac;
 }
 
+int ywidAddSubType(Entity *subType);
+
 YWidgetState *ywidNewWidget(Entity *entity,
-			    void *args);
+			    const char *type);
 
 void YWidDestroy(YWidgetState *wid);
 

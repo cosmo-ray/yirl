@@ -81,9 +81,17 @@ int	luaSetMainWid(lua_State *L)
   return 0;
 }
 
+int	luaAddSubType(lua_State *L)
+{
+  ywidAddSubType(lua_touserdata(L, 1));
+  return 0;
+}
+
+
 int	luaNewWidget(lua_State *L)
 {
-  lua_pushlightuserdata(L, ywidNewWidget((Entity *)lua_touserdata(L, 1), NULL));
+  lua_pushlightuserdata(L, ywidNewWidget((Entity *)lua_touserdata(L, 1),
+					 lua_tostring(L, 2)));
   return 1;
 }
 

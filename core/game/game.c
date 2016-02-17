@@ -231,12 +231,19 @@ static int ygParseStartAndGame(GameConfig *config, Entity *mainMod)
     starting_widget = yeGet(mainMod, yeGetString(starting_widget));
   }
 
-  if (starting_widget)
-    ywidSetMainWid(ywidNewWidget(starting_widget, NULL));
+  if (starting_widget) {
+    wid = ywidNewWidget(starting_widget, NULL);
+    if (!wid) {
+      DPRINT_ERR("Fail to create widget of type '%s'.",
+		 yeGetString(yeGet(starting_widget, "<type>")));
+      return -1;
+    }
+    ywidSetMainWid(wid);
+  }
 
   if (!ywidGetMainWid()) {
       DPRINT_ERR("No main widget has been set.\n"
-		 "see docomentation about starting_widget\n"
+		 "see documentation about starting_widget\n"
 		 "or set it manually with \"ywidSetMainWid()\"");
       return -1;
   }

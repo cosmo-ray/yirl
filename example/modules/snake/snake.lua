@@ -16,18 +16,18 @@
 --
 
 
-Q_KEY = 113
+local action = yeCreateFunction("snakeAction", 3, nil, nil)
+local menuInit = yeCreateFunction("scoreInit", 3, nil, nil)
+local Q_KEY = 113
 
 function getLooseScreen(entity)
   return yeGet(yeGet(entity, "menus"), "LooseScreen")
 end
 
 function snakeMap(entity)
-   local map = yeCreateArray(entity, "start")
+   local map = entity
    local i = 0;
 
-   yePushBack(map, getLooseScreen(entity), "next")
-   yeCreateString( "map", map, "<type>")
    yePushBack(map, yeGet(entity, "SnakeResources"), "resources")
    yeCreateInt(200000, map, "turn-length")
    yeCreateInt(20, map, "width")
@@ -217,16 +217,22 @@ function scoreInit(wid, eve, args)
    yeSetString(yeGet(ywidEntity(wid), "text"), scoreStr);
 end
 
-function initSnake(entity)
+function createSnake(entity)
    -- TODO: this functions: C/lua
-   local mapEntity = snakeMap(entity)
-   local map = ywidNewWidget(mapEntity)
-   local action = yeCreateFunction("snakeAction", entity, "snakeAction", 3)
-   local menuInit = yeCreateFunction("scoreInit", entity, "scoreInit", 3)
+   snakeMap(entity)
+   local map = ywidNewWidget(entity, "map")
 
    yuiRandInit()
+   ywidBind(map, "action", "snakeAction")
+   return map
+end
+
+function initSnake(entity)
    ywidAddCallback(ywidCreateCallback("snakeAction", action))
    ywidAddCallback(ywidCreateCallback("scoreInit", menuInit))
-   ywidBind(map, "action", "snakeAction")
-   ywidSetMainWid(map, 0)
+
+   local init = yeCreateArray(nil, nil)
+   yeCreateString("snake", init, "name")
+   yeCreateFunction("createSnake", 1, init, "callback")
+   ywidAddSubType(init)
 end
