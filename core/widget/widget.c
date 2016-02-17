@@ -231,6 +231,10 @@ static YWidgetState *ywidNewWidgetInternal(int t,
     goto error;
 
   ret->hasChange = 1;
+  YE_ARRAY_FOREACH(yeGet(ret->entity, "bind"), bindInfo) {
+    ywidBind(ret, yeGetString(yeGet(bindInfo, 0)),
+	     yeGetString(yeGet(bindInfo, 1)));
+  }
   return ret;
 
  error:

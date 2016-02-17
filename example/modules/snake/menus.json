@@ -4,7 +4,7 @@
 	"text" : "You lose with { snake:score }\nNoob !",
 	"init" : "scoreInit",
 	"background": "rgba: 180 210 20 50", // Not yet implemented :)
-	"action" : "FinishGame",
+	"bind" : [["action", "FinishGame"]],
 	"&next" : "AskReplay"
     },
     "Snake" : {
