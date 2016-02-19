@@ -73,7 +73,7 @@ int8_t *yBlockArrayAssureBlock(BlockArray *ba, size_t pos);
 static inline int yBlockArrayIsFree(BlockArray *ba, size_t pos)
 {
   return !(yBlockArrayGetBlock(ba, yBlockArrayBlockPos(pos)) &
-	   (1LLU << (pos & 63)));
+	   (ONE64 << (pos & 63)));
 }
 
 static inline int yBlockArrayIsSet(BlockArray *ba, size_t pos)
