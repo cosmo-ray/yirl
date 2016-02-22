@@ -209,6 +209,11 @@ extern "C"
    */
   Entity *yeGetByStr(Entity *entity, const char *name) WEAK;
 
+  /**
+   * Same as yeGetByStrFast, but store the index in @idx
+   */
+  Entity *yeGetByStrExt(Entity *entity, const char *name, int64_t *idx) WEAK;
+
 #ifdef __cplusplus
   extern "C++"
   {

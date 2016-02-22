@@ -178,6 +178,24 @@ Entity *yeGetByStrFast(Entity *entity, const char *name)
   return NULL; 
 }
 
+Entity *yeGetByStrExt(Entity *entity, const char *name, int64_t *idx)
+{
+  if (!entity || !name || yeType(entity) != YARRAY)
+    return NULL;
+
+  Y_BLOCK_ARRAY_FOREACH_PTR(&YE_TO_ARRAY(entity)->values, tmp, it, ArrayEntry) {
+    if (!tmp->name)
+      continue;
+    if (yuiStrEqual(tmp->name, name)) {
+      *idx = it;
+      return tmp->entity;
+    }
+  }
+  *idx = -1;
+  return NULL;
+}
+
+
 int yeArrayIdx(Entity *entity, const char *lookup)
 {
   if (!entity || !lookup || yeType(entity) != YARRAY)
