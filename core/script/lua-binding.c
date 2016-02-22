@@ -223,6 +223,21 @@ int	luaPopBack(lua_State *L)
   return 1;
 }
 
+int	luaCallSignal(lua_State *L)
+{
+  lua_pushnumber(L, ywidCallSignal(lua_touserdata(L, 1),
+				   lua_touserdata(L, 2),
+				   lua_touserdata(L, 3),
+				   lua_tonumber(L, 4)));
+  return 1;
+}
+
+int	luaAddSignal(lua_State *L)
+{
+  lua_pushnumber(L, ywidAddSignal(lua_touserdata(L, 1), lua_tostring(L, 2)));
+  return 1;
+}
+
 int	luaPushBack(lua_State *L)
 {
   if (lua_gettop(L) < 2)

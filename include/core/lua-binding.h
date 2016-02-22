@@ -71,6 +71,8 @@ int	luaCallCallbackByStr(lua_State *L);
 int	luaWidEntity(lua_State *L);
 int	luaWidNext(lua_State *L);
 int	luaAddSubType(lua_State *L);
+int	luaAddSignal(lua_State *L);
+int	luaCallSignal(lua_State *L);
 
 /* event */
 int	luaWidNextEve(lua_State *L);
@@ -158,6 +160,8 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidEntity", luaWidEntity));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidNext", luaWidNext));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidAddSubType", luaAddSubType));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidAddSignal", luaAddSignal));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidCallSignal", luaCallSignal));
   // TODO: Add get entity
 
   /* evenements */
