@@ -27,11 +27,6 @@ typedef enum {
 } YCallbackType;
 
 typedef struct {
-  int callbackIdx;
-  char *name;
-} YSignal;
-
-typedef struct {
   char *name;
   /* Can be a entity script to call, or a native func from a widget */
   int type;

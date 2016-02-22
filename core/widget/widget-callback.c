@@ -106,31 +106,11 @@ YCallback *ywinCreateNativeCallback(const char *name,
 
 int ywidAddSignal(YWidgetState *wid, const char *name)
 {
-  YSignal *ret = g_new(YSignal, 1); 
+  int64_t idx;
 
-  ret->name = g_strdup(name);
-  if (!ret->name) {
-    g_free(ret->name);
-    return -1;
-  }
-  ret->callbackIdx = -1;
-  wid->signals = g_array_append_val(wid->signals, ret);
-  if (!callbacks)
-    return -1;
-  return wid->signals->len - 1;
-}
-
-static YSignal *getSinByStr(YWidgetState *wid, const char *str)
-{
-  YSignal *ret;
-
-  for (unsigned int i = 0;
-       (ret = g_array_index(wid->signals, YSignal *, i)) != NULL; ++i) {
-
-    if (yuiStrEqual(ret->name, str))
-      return ret;
-  }
-  return NULL;
+  yeCreateInt(-1, wid->signals, name);
+  yeGetByStrExt(wid->signals, name, &idx);
+  return idx;
 }
 
 static unsigned int getCallbackIdx(const char *str)
@@ -141,38 +121,40 @@ static unsigned int getCallbackIdx(const char *str)
 
 int ywidBindBySinIdx(YWidgetState *wid, int idx, const char *callback)
 {
-  YSignal *sin = g_array_index(wid->signals, YSignal *, idx);
+  Entity *sin = yeGet(wid->signals, idx);
+  int ret;
 
   if (!sin || !callback)
     return -1;
-  sin->callbackIdx = getCallbackIdx(callback);
-  if (sin->callbackIdx < 0)
+  ret = getCallbackIdx(callback);
+  yeSetInt(sin, ret);
+  if (ret < 0)
     return -1;
   return 0;
 }
 
 int ywidBind(YWidgetState *wid, const char *signal, const char *callback)
 {
-  YSignal *sin = getSinByStr(wid, signal);
+  Entity *sin = yeGet(wid->signals, signal);
+
   if (!sin || !callback)
     return -1;
 
-  sin->callbackIdx = getCallbackIdx(callback);
-  if (sin->callbackIdx < 0)
-    return -1;
+  yeSetInt(sin, getCallbackIdx(callback));
   return 0;
 }
 
 int ywidCallSignal(YWidgetState *wid, YEvent *eve, Entity *arg, int idx)
 {
-  YSignal *signal;
+  Entity *signal;
 
   if (idx < 0)
     return -1;
-  signal = g_array_index(wid->signals, YSignal *, idx);
-  if (!signal || signal->callbackIdx < 0)
+
+  signal = yeGet(wid->signals, idx);
+  if (!signal || yeGetInt(signal) < 0)
     return -1;
-  return ywidCallCallbackByIdx(wid, eve, arg, signal->callbackIdx);
+  return ywidCallCallbackByIdx(wid, eve, arg, yeGetInt(signal));
 }
 
 
@@ -200,10 +182,6 @@ void ywidDdestroyCallback(int idx)
 
 void ywidFinishSignal(YWidgetState *wid)
 {
-  YSignal *ret;
-
-  for (unsigned int i = 0;
-       (ret = g_array_index(wid->signals, YSignal *, i)) != NULL; ++i)
-    g_free(ret->name);
-  g_array_free(wid->signals, 0);
+  yeRemoveChild(wid->entity, wid->signals);
+  wid->signals = NULL;
 }

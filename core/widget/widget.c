@@ -224,7 +224,9 @@ static YWidgetState *ywidNewWidgetInternal(int t,
     return NULL;
 
   ret->entity = entity;
-  ret->signals = g_array_new(1, 1, sizeof(YSignal *));
+  ret->signals = yeGet(entity, "signals");
+  if (!ret->signals)
+    ret->signals = yeCreateArray(entity, "signals");
 
 
   if (ret->init(ret, entity, NULL))

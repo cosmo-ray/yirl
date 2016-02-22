@@ -96,8 +96,7 @@ typedef struct WidgetState_ {
   int (*destroy)(struct WidgetState_ *opac);
   /* callback must be in the global structure
    * but signals must be in this structure */
-  GArray *callbacks;
-  GArray *signals;
+  Entity *signals;
   int type;
   unsigned int hasChange;
 } YWidgetState;
