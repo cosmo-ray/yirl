@@ -90,7 +90,7 @@ function rmPeanut(map, case)
    yeSetInt(nbPeanut, yeGetInt(nbPeanut) - 1)
 end
 
-function moveHead(map)
+function moveHead(wid, map)
    local mapElems = yeGet(map, "map")
    local lenMap = yeLen(mapElems)
    local width = yeGetInt(yeGet(map, "width"))
@@ -107,12 +107,16 @@ function moveHead(map)
 
    -- check out of border
    if (oldPos % width) == 0 and (newPos % width) == (width - 1) then
+      ywidCallSignal(wid, nil, nil, yeGetInt(yeGet(map, "hitWallIdx")))
       return
    elseif (newPos % width) == 0 and (oldPos % width) == (width - 1) then
+      ywidCallSignal(wid, nil, nil, yeGetInt(yeGet(map, "hitWallIdx")))
       return
    elseif (newPos < 0) then
+      ywidCallSignal(wid, nil, nil, yeGetInt(yeGet(map, "hitWallIdx")))
       return
    elseif (newPos > lenMap) then
+      ywidCallSignal(wid, nil, nil, yeGetInt(yeGet(map, "hitWallIdx")))
       return
    end
 
@@ -195,7 +199,7 @@ function snakeAction(wid, eve, arg)
    local map = ywidEntity(wid)
 
    addPeanut(map)
-   moveHead(map)
+   moveHead(wid, map)
    while ywidEveIsEnd(eve) == false do
       if ywidEveType(eve) == YKEY_DOWN then
 	 if ywidEveKey(eve) == Q_KEY then
@@ -220,11 +224,18 @@ end
 function createSnake(entity)
    -- TODO: this functions: C/lua
    snakeMap(entity)
+   yuiRandInit()
+   local hitWallIdx = yeCreateInt(ywidAddSignal(entity, "hitWall"),
+				  entity, "hitWallIdx")
    local map = ywidNewWidget(entity, "map")
 
-   yuiRandInit()
    ywidBind(map, "action", "snakeAction")
+   --ywidAddSignal(map, "loose");
    return map
+end
+
+function hitWall(wid, useless1, useless2)
+   print("hit and run")
 end
 
 function initSnake(entity)

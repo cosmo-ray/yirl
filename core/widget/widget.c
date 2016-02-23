@@ -228,7 +228,6 @@ static YWidgetState *ywidNewWidgetInternal(int t,
   if (!ret->signals)
     ret->signals = yeCreateArray(entity, "signals");
 
-
   if (ret->init(ret, entity, NULL))
     goto error;
 

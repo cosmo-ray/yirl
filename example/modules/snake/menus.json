@@ -10,7 +10,8 @@
     "Snake" : {
 	"<type>" : "snake",
 	"&next" : "LooseScreen",
-	"&resources" : "SnakeResources"
+	"&resources" : "SnakeResources",
+	"bind" : [["hitWall", "FinishGame"]],
     },
     "SnakeResources" : [
 	{

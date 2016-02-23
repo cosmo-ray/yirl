@@ -104,7 +104,20 @@ YCallback *ywinCreateNativeCallback(const char *name,
   return (YCallback *)ret;
 }
 
-int ywidAddSignal(YWidgetState *wid, const char *name)
+int ywidAddSignalByEntity(Entity *wid, const char *name)
+{
+  int64_t idx;
+  Entity *sin = yeGet(wid, "signals");
+
+  if (!sin) {
+    sin = yeCreateArray(wid, "signals");
+  }
+  yeCreateInt(-1, sin, name);
+  yeGetByStrExt(sin, name, &idx);
+  return idx;
+}
+
+int ywidAddSignalByWid(YWidgetState *wid, const char *name)
 {
   int64_t idx;
 
@@ -139,7 +152,6 @@ int ywidBind(YWidgetState *wid, const char *signal, const char *callback)
 
   if (!sin || !callback)
     return -1;
-
   yeSetInt(sin, getCallbackIdx(callback));
   return 0;
 }

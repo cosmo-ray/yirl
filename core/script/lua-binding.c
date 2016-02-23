@@ -234,7 +234,8 @@ int	luaCallSignal(lua_State *L)
 
 int	luaAddSignal(lua_State *L)
 {
-  lua_pushnumber(L, ywidAddSignal(lua_touserdata(L, 1), lua_tostring(L, 2)));
+  lua_pushnumber(L, ywidAddSignal((Entity *)lua_touserdata(L, 1),
+				  lua_tostring(L, 2)));
   return 1;
 }
 

@@ -42,7 +42,14 @@ typedef struct {
   Entity *callback;
 } YEntityCallback;
 
-int ywidAddSignal(YWidgetState *wid, const char *name);
+#define ywidAddSignal(WID, VALUE)					\
+  _Generic((WID),							\
+	   YWidgetState *: ywidAddSignalByWid,				\
+	   Entity *: ywidAddSignalByEntity)(WID, VALUE)
+
+int ywidAddSignalByWid(YWidgetState *wid, const char *name);
+int ywidAddSignalByEntity(Entity *wid, const char *name);
+
 void ywidFinishSignal(YWidgetState *wid);
 
 int ywidBind(YWidgetState *wid, const char *signal, const char *callback);
