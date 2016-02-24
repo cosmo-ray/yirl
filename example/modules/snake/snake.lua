@@ -29,7 +29,6 @@ function snakeMap(entity)
    local map = entity
    local i = 0;
 
-   yePushBack(map, yeGet(entity, "SnakeResources"), "resources")
    yeCreateInt(200000, map, "turn-length")
    yeCreateInt(20, map, "width")
    yeCreateInt(0, map, "nbPeanut")
