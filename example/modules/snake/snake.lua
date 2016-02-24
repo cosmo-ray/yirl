@@ -18,6 +18,7 @@
 
 local action = yeCreateFunction("snakeAction", 3, nil, nil)
 local menuInit = yeCreateFunction("scoreInit", 3, nil, nil)
+local die = yeCreateFunction("snakeDie", 3, nil, nil)
 local Q_KEY = 113
 
 function getLooseScreen(entity)
@@ -90,6 +91,11 @@ function rmPeanut(map, case)
    yeSetInt(nbPeanut, yeGetInt(nbPeanut) - 1)
 end
 
+function hitWall(wid, map)
+   ywidCallSignal(wid, nil, nil, yeGetInt(yeGet(map, "hitWallIdx")))
+   ywidCallSignal(wid, nil, nil, yeGetInt(yeGet(map, "endTurnIdx")))
+end
+
 function moveHead(wid, map)
    local mapElems = yeGet(map, "map")
    local lenMap = yeLen(mapElems)
@@ -107,16 +113,16 @@ function moveHead(wid, map)
 
    -- check out of border
    if (oldPos % width) == 0 and (newPos % width) == (width - 1) then
-      ywidCallSignal(wid, nil, nil, yeGetInt(yeGet(map, "hitWallIdx")))
+      hitWall(wid, map)
       return
    elseif (newPos % width) == 0 and (oldPos % width) == (width - 1) then
-      ywidCallSignal(wid, nil, nil, yeGetInt(yeGet(map, "hitWallIdx")))
+      hitWall(wid, map)
       return
    elseif (newPos < 0) then
-      ywidCallSignal(wid, nil, nil, yeGetInt(yeGet(map, "hitWallIdx")))
+      hitWall(wid, map)
       return
    elseif (newPos > lenMap) then
-      ywidCallSignal(wid, nil, nil, yeGetInt(yeGet(map, "hitWallIdx")))
+      hitWall(wid, map)
       return
    end
 
@@ -157,6 +163,7 @@ function moveHead(wid, map)
 
    local headBody = yeGet(body, bodyLen - 1)
    yeCreateInt(4, yeGet(mapElems, yeGetInt(headBody)))
+   ywidCallSignal(wid, nil, nil, yeGetInt(yeGet(map, "endTurnIdx")))
    -- push first body
 end
 
@@ -217,7 +224,7 @@ function snakeAction(wid, eve, arg)
 end
 
 function scoreInit(wid, eve, args)
-   local scoreStr = "you have a score of " .. 17 .. "points"
+   local scoreStr = "you have a score of " .. 17 .. " points"
    yeSetString(yeGet(ywidEntity(wid), "text"), scoreStr);
 end
 
@@ -225,8 +232,10 @@ function createSnake(entity)
    -- TODO: this functions: C/lua
    snakeMap(entity)
    yuiRandInit()
-   local hitWallIdx = yeCreateInt(ywidAddSignal(entity, "hitWall"),
-				  entity, "hitWallIdx")
+   yeCreateInt(ywidAddSignal(entity, "hitWall"),
+	       entity, "hitWallIdx")
+   yeCreateInt(ywidAddSignal(entity, "endTurn"),
+	       entity, "endTurnIdx")
    local map = ywidNewWidget(entity, "map")
 
    ywidBind(map, "action", "snakeAction")
@@ -234,14 +243,14 @@ function createSnake(entity)
    return map
 end
 
-function hitWall(wid, useless1, useless2)
-   print("hit and run")
+function snakeDie(wid, useless1, useless2)
+   ywidNext(yeGet(ywidEntity(wid), "next"))
 end
 
 function initSnake(entity)
    ywidAddCallback(ywidCreateCallback("snakeAction", action))
    ywidAddCallback(ywidCreateCallback("scoreInit", menuInit))
-
+   ywidAddCallback(ywidCreateCallback("snakeDie", die))
    local init = yeCreateArray(nil, nil)
    yeCreateString("snake", init, "name")
    yeCreateFunction("createSnake", 1, init, "callback")
