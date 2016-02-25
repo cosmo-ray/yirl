@@ -171,16 +171,30 @@ void ygEnd()
   init = 0;
 }
 
-static int ygParseStartAndGame(GameConfig *config, Entity *mainMod)
+Entity *ygLoadMod(const char *path)
 {
-  Entity *type = yeGet(mainMod, "type");
-  Entity *file = yeGet(mainMod, "file");
-  Entity *starting_widget = yeGet(mainMod, "starting widget");
-  Entity *preLoad = yeGet(mainMod, "pre-load");
-  Entity *initScripts = yeGet(mainMod, "init-scripts");
-  YWidgetState *wid;
+  char *tmp;
+  Entity *mod;
+  Entity *type;
+  Entity *file;
+  Entity *starting_widget;
+  Entity *preLoad;
+  Entity *initScripts;
 
-  alive = 1;
+  tmp = g_strconcat(path, "/start.json", NULL);
+  if (!tmp) {
+    DPRINT_ERR("cannot allocated path(like something went really wrong)");
+    return NULL;
+  }
+  mod = ydFromFile(jsonManager, tmp);
+  g_free(tmp);
+  if (!mod)
+    return NULL;
+  type = yeGet(mod, "type");
+  file = yeGet(mod, "file");
+  starting_widget = yeGet(mod, "starting widget");
+  preLoad = yeGet(mod, "pre-load");
+  initScripts = yeGet(mod, "init-scripts");
 
   YE_ARRAY_FOREACH(preLoad, var) {
     Entity *tmpType = yeGet(var, "type");
@@ -195,19 +209,19 @@ static int ygParseStartAndGame(GameConfig *config, Entity *mainMod)
       char *fileStr = NULL;
       Entity *as = yeGet(var, "as");
 
-      fileStr = g_strconcat(config->startingMod->path, "/",
+      fileStr = g_strconcat(path, "/",
 			    yeGetString(tmpFile), NULL);
       tmpFile = ydFromFile(jsonManager, fileStr);
       g_free(fileStr);
       if (tmpFile && yeGetString(as) != NULL) {
-	yePushBack(mainMod, tmpFile, yeGetString(as));
+	yePushBack(mod, tmpFile, yeGetString(as));
 	YE_DESTROY(tmpFile);
       }
     }
   }
 
   YE_ARRAY_FOREACH(initScripts, var2) {
-    ysCall(luaManager, yeGetString(var2), 1, mainMod);
+    ysCall(luaManager, yeGetString(var2), 1, mod);
   }
 
 
@@ -215,12 +229,12 @@ static int ygParseStartAndGame(GameConfig *config, Entity *mainMod)
     if (yuiStrEqual(yeGetString(type), "json")) {
       char *fileStr = NULL;
 
-      fileStr = g_strconcat(config->startingMod->path, "/",
+      fileStr = g_strconcat(path, "/",
 			    yeGetString(file), NULL);
       file = ydFromFile(jsonManager, fileStr);
       g_free(fileStr);
       if (!file) {
-	return -1;
+	return NULL;
       }
 
       starting_widget = yeGet(file, yeGetString(starting_widget));
@@ -228,9 +242,23 @@ static int ygParseStartAndGame(GameConfig *config, Entity *mainMod)
       DPRINT_ERR("start does not suport loader of type %s", yeGetString(type));
     }
   } else {
-    starting_widget = yeGet(mainMod, yeGetString(starting_widget));
+    starting_widget = yeGet(mod, yeGetString(starting_widget));
   }
 
+  yePushBack(mod, starting_widget, "$starting widget");
+  return mod;
+}
+
+static int ygParseStartAndGame(GameConfig *config)
+{
+  YWidgetState *wid;
+  Entity *mainMod = ygLoadMod(config->startingMod->path);
+  Entity *starting_widget;
+
+  alive = 1;
+
+  starting_widget = yeGet(mainMod, "$starting widget");
+  
   if (starting_widget) {
     wid = ywidNewWidget(starting_widget, NULL);
     if (!wid) {
@@ -260,8 +288,6 @@ static int ygParseStartAndGame(GameConfig *config, Entity *mainMod)
 
 int ygStartLoop(GameConfig *config)
 {
-  char *tmp;
-  Entity *mainMod;
   int ret = -1;
 
   if (!init) {
@@ -279,22 +305,7 @@ int ygStartLoop(GameConfig *config)
     return -1;
   }
 
-  tmp = g_strconcat(config->startingMod->path, "/start.json", NULL);
-  if (!tmp) {
-    DPRINT_ERR("can not allocated path(like something went really wrong)");
-    return -1;
-  }
-
-  mainMod = ydFromFile(jsonManager, tmp);
-  if (!mainMod) {
-    DPRINT_ERR("fail to parse file: %s", tmp);
-    goto cleanup;
-  }
-
-  ret = ygParseStartAndGame(config, mainMod);
- cleanup:
-  g_free(tmp);
-  YE_DESTROY(mainMod);
+  ret = ygParseStartAndGame(config);
   return ret;
 }
 

@@ -33,7 +33,6 @@ typedef enum {
   ALL = CURSES | SDL2
 } RenderType;
 
-/* For now this is in game and should move after */
 typedef struct {
   const char *path;
 } ModuleConf;
@@ -54,6 +53,8 @@ void ygCleanGameConfig(GameConfig *cfg);
 int ygInit(GameConfig *config);
 
 int ygStartLoop(GameConfig *config);
+
+Entity *ygLoadMod(const char *path);
 
 void ygEnd(void);
 
