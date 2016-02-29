@@ -128,7 +128,7 @@ int ygInit(GameConfig *cfg)
 			"Text Screen init failed");
       CHECK_AND_GOTO(ycursRegistreMap(), -1, error, "Map init failed");
 #else
-      /* print error */
+      DPRINT_ERR("yirl is not compille with curses support");
 #endif
     } else if (yuiStrEqual(TO_RC(tmp->data)->name, "sdl2")) {
 #ifdef WITH_SDL
@@ -138,7 +138,7 @@ int ygInit(GameConfig *cfg)
       CHECK_AND_GOTO(ysdl2RegistreMenu(), -1, error, "Menu init failed");
       CHECK_AND_GOTO(ysdl2RegistreMap(), -1, error, "Map init failed");
 #else
-      /* print error */
+      DPRINT_ERR("yirl is not compille with SDL2 support");
 #endif
     }
   }
