@@ -48,6 +48,14 @@
 	    {"name" : "TextScreenTest"}
 	]
     },
+    "VContenerTest" : {
+	"<type>" : "contener",
+	"cnt-type" : "vertical",
+	"entries" : [
+	    {"name" : "MenuTest"},
+	    {"name" : "TextScreenTest"}
+	]
+    },
     "MapTest" : {
 	"<type>" : "map",
 	

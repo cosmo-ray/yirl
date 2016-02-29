@@ -33,7 +33,7 @@ static int testMenuEnter(YWidgetState *wid, YEvent *eve, Entity *arg)
   return ACTION;
 }
 
-void testVerticalContenerSdl(void)
+void testHorizontalContenerSdl(void)
 {
   GameConfig cfg;
   Entity *ret;
@@ -49,6 +49,36 @@ void testVerticalContenerSdl(void)
   jsonManager = ydNewManager(t);
   ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json");
   ret = yeGet(ret, "ContenerTest");
+  g_assert(ret);
+  ywinAddCallback(ywinCreateNativeCallback("menuTest", testMenuEnter));
+
+  wid = ywidNewWidget(ret, NULL);
+  g_assert(wid);
+
+  do {
+    g_assert(ywidRend(wid) != -1);
+  } while(ywidDoTurn(wid) != ACTION);
+
+  YE_DESTROY(ret);
+  ygEnd();
+}
+
+void testVerticalContenerSdl(void)
+{
+  GameConfig cfg;
+  Entity *ret;
+  YWidgetState *wid;
+  int t = ydJsonInit();
+  void *jsonManager;
+
+  /* Init libs */
+  g_assert(!ygInitGameConfig(&cfg, NULL, SDL2));
+  g_assert(!ygInit(&cfg));
+
+  /* Parsing json */
+  jsonManager = ydNewManager(t);
+  ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json");
+  ret = yeGet(ret, "VContenerTest");
   g_assert(ret);
   ywinAddCallback(ywinCreateNativeCallback("menuTest", testMenuEnter));
 
