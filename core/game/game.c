@@ -43,6 +43,14 @@ static int init;
 static void *jsonManager;
 static void *luaManager;
 static void *tccManager;
+static Entity *mainMod;
+
+static YDescriptionOps *parsers[MAX_NB_MANAGER];
+
+static int alive = 1;
+
+static const char *sdl2 = "sdl2";
+static const char *curses = "curses";
 
 void *ygGetLuaManager(void)
 {
@@ -53,9 +61,6 @@ void *ygGetTccManager(void)
 {
   return tccManager;
 }
-
-static YDescriptionOps *parsers[MAX_NB_MANAGER];
-
 
 #define CHECK_AND_RET(operation, err_val, ret, fmt, args...) do {	\
     if ((operation) == (err_val)) {					\
@@ -72,8 +77,6 @@ static YDescriptionOps *parsers[MAX_NB_MANAGER];
   } while (0)
 
 #define TO_RC(X) ((RenderConf *)(X))
-
-static int alive = 1;
 
 int ygTerminateCallback(YWidgetState *wid, YEvent *eve, Entity *arg)
 {
@@ -252,9 +255,9 @@ Entity *ygLoadMod(const char *path)
 static int ygParseStartAndGame(GameConfig *config)
 {
   YWidgetState *wid;
-  Entity *mainMod = ygLoadMod(config->startingMod->path);
   Entity *starting_widget;
 
+  mainMod = ygLoadMod(config->startingMod->path);
   alive = 1;
 
   starting_widget = yeGet(mainMod, "$starting widget");
@@ -308,9 +311,6 @@ int ygStartLoop(GameConfig *config)
   ret = ygParseStartAndGame(config);
   return ret;
 }
-
-static const char *sdl2 = "sdl2";
-static const char *curses = "curses";
 
 int ygInitGameConfig(GameConfig *cfg, const char *path, RenderType t)
 {
