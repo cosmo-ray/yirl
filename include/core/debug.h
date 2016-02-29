@@ -22,7 +22,6 @@
 #include <stdarg.h>
 
 /**
- * Content of DEFINE for debug function.
  * Compilling with DEBUG option for use it.
  */
 # ifdef __cplusplus

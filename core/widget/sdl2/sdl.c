@@ -215,7 +215,6 @@ int    ysdl2Init(void)
     goto img_fail;
   }
 
-  /* Make a window */
   sg.pWindow = SDL_CreateWindow("YIRL isn't a rogue like", SDL_WINDOWPOS_UNDEFINED,
 				SDL_WINDOWPOS_UNDEFINED,
 				WIN_W_SIZE,

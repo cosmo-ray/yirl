@@ -51,7 +51,7 @@ int	luaLen(lua_State *L)
   DPRINT_INFO("luaGetArrayMenber\n");
   if (lua_gettop(L) != 1 || !lua_islightuserdata(L, 1))
     {
-      DPRINT_ERR("The yeGet argument is incorrect\n"
+      DPRINT_ERR("yeGet argument is incorrect\n"
 	     "real prototyre is: getLen(lightuserdata entity)\n");
       return -1;
     }
