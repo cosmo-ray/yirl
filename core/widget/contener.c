@@ -25,9 +25,9 @@ static void widDestroyWrapper(void *wid)
   YWidDestroy(wid);
 }
 
-#define yCntType(opac) CNT_HORIZONTAL
 static int cntInit(YWidgetState *opac, Entity *entity, void *args)
 {
+  YContenerState *cnt = ((YContenerState *)opac);
   Entity *entries = yeGet(entity, "entries");
   Entity *pos = yeGet(entity, "pos");
   int i = 0;
@@ -38,7 +38,11 @@ static int cntInit(YWidgetState *opac, Entity *entity, void *args)
   (void)opac;
   (void)args;
 
-  caseSize =  yCntType(opac) == CNT_HORIZONTAL ?
+  cnt->type = CNT_HORIZONTAL;
+  if (yuiStrEqual0(yeGetString(yeGet(entity, "cnt-type")), "vertical")) {
+    cnt->type = CNT_VERTICAL;
+  }
+  caseSize =  ywCntType(opac) == CNT_HORIZONTAL ?
     yeGetInt(yeGet(pos, "h")) / len : yeGetInt(yeGet(pos, "w")) / len;
 
   yeCreateInt(0, entity, "current");
@@ -51,11 +55,11 @@ static int cntInit(YWidgetState *opac, Entity *entity, void *args)
     tmpPos = yeGet(ptr, "pos");
     casePos = i * caseSize;
 
-    if (yCntType(opac) == CNT_HORIZONTAL) {
+    if (ywCntType(opac) == CNT_HORIZONTAL) {
       /* modify y and h pos in internal struct */
       yeSet(yeGet(tmpPos, "y"), casePos);
       yeSet(yeGet(tmpPos, "h"), caseSize);
-    } else if (yCntType(opac) == CNT_VERTICAL) {
+    } else if (ywCntType(opac) == CNT_VERTICAL) {
 
       /* modify x and w pos in internal struct */
       yeSet(yeGet(tmpPos, "x"), casePos);

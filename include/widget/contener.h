@@ -31,10 +31,12 @@ typedef struct {
   YWidgetState sate;
   int curent;
   /* Default type is vertical */
-  int CntType;
+  int type;
 } YContenerState;
 
 int ywContenerInit(void);
 int ywContenerEnd(void);
+
+#define ywCntType(opac) (((YContenerState *)opac)->type)
 
 #endif
