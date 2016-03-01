@@ -43,8 +43,9 @@ static int init;
 static void *jsonManager;
 static void *luaManager;
 static void *tccManager;
-static Entity *mainMod;
 
+static Entity *mainMod;
+static Entity *modList;
 static YDescriptionOps *parsers[MAX_NB_MANAGER];
 
 static int alive = 1;
@@ -171,6 +172,7 @@ void ygEnd()
 #ifdef WITH_SDL
   ysdl2Destroy();
 #endif
+  YE_DESTROY(modList);
   ywidFinishCallbacks();
   init = 0;
 }
@@ -178,12 +180,13 @@ void ygEnd()
 Entity *ygLoadMod(const char *path)
 {
   char *tmp;
-  Entity *mod;
+  Entity *mod = NULL;
   Entity *type;
   Entity *file;
   Entity *starting_widget;
   Entity *preLoad;
   Entity *initScripts;
+  Entity *name;
 
   tmp = g_strconcat(path, "/start.json", NULL);
   if (!tmp) {
@@ -191,9 +194,14 @@ Entity *ygLoadMod(const char *path)
     return NULL;
   }
   mod = ydFromFile(jsonManager, tmp);
-  g_free(tmp);
   if (!mod)
-    return NULL;
+    goto exit;
+
+  name = yeGet(mod, "name");
+  if (!name) {
+    DPRINT_ERR("name not found in %s\n", tmp);
+    goto exit;
+  }
   type = yeGet(mod, "type");
   file = yeGet(mod, "file");
   starting_widget = yeGet(mod, "starting widget");
@@ -238,7 +246,7 @@ Entity *ygLoadMod(const char *path)
       file = ydFromFile(jsonManager, fileStr);
       g_free(fileStr);
       if (!file) {
-	return NULL;
+	goto exit;
       }
 
       starting_widget = yeGet(file, yeGetString(starting_widget));
@@ -250,7 +258,15 @@ Entity *ygLoadMod(const char *path)
   }
 
   yePushBack(mod, starting_widget, "$starting widget");
+  yePushBack(modList, mod, yeGetString(name));
+ exit:
+  g_free(tmp);
   return mod;
+}
+
+Entity *ygGetCurentMod(void)
+{
+  return mainMod;
 }
 
 static int ygParseStartAndGame(GameConfig *config)
