@@ -76,7 +76,6 @@ void *ygGetTccManager(void)
     }									\
   } while (0)
 
-#define TO_RC(X) ((RenderConf *)(X))
 
 int ygTerminateCallback(YWidgetState *wid, YEvent *eve, Entity *arg)
 {
@@ -86,6 +85,8 @@ int ygTerminateCallback(YWidgetState *wid, YEvent *eve, Entity *arg)
   alive = 0;
   return ACTION;
 }
+
+#define TO_RC(X) ((RenderConf *)(X))
 
 int ygInit(GameConfig *cfg)
 {
