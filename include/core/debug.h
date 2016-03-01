@@ -43,10 +43,6 @@ extern "C"
 }
 #endif
 /*DIFFRENT defin selon les besoin*/
-#define	LOG		DPRINT
-#define	LOG_INFO       	DPRINT_INFO
-#define	LOG_WARN    	DPRINT_WARN
-#define	LOG_ERR		DPRINT_ERR
 #define	DPRINT(format, args...)		DPRINT_INFO(format, ## args)
 #define	DPRINT_INFO(format, args...)	_DPRINT(INFO, format, ## args)
 #define	DPRINT_WARN(format, args...)	_F_DPRINT(WARNING, format, ## args)
@@ -55,10 +51,17 @@ extern "C"
 #ifdef		DEBUG
 
 #define	_F_DPRINT(lvl, format, args...)	_DPRINT(lvl, format, ## args)
-#define	_DPRINT(lvl, format, args...)	do { yuiDebugPrint(lvl, "[%11s][%s : %d] " format "\n", __DATE__, __FILE__, __LINE__, ## args); } while (0)
+#define	_DPRINT(lvl, format, args...) do {				\
+		yuiDebugPrint(lvl, "[%11s][%s : %d] " format "\n",	\
+			      __DATE__, __FILE__, __LINE__, ## args);	\
+	} while (0)
 #else
 #define	_DPRINT(lvl, format, args...)	do { } while (0)
-#define	_F_DPRINT(lvl, format, args...)	do { yuiDebugPrint(lvl, "[%11s][%s : %d] " format "\n", __DATE__, __FILE__, __LINE__, ## args); } while (0)
+#define	_F_DPRINT(lvl, format, args...)	do {				\
+		yuiDebugPrint(lvl, "[%11s][%s : %d] " format "\n",	\
+			      __DATE__, __FILE__, __LINE__, ## args);	\
+	} while (0)
+
 #endif  // DEBUG
 #define	STR(var)	 #var
 /**
