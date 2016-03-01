@@ -83,6 +83,10 @@ int	luaEveKey(lua_State *L);
 /* map */
 int	luaMapCreatePos(lua_State *L);
 
+/* Game and Module */
+int	luaGetCurentMod(lua_State *L);
+
+
 #define YES_RET_IF_FAIL(OPERATION)		\
   if (OPERATION < 0) return -1;
 
@@ -176,6 +180,9 @@ static inline int	yesLuaRegister(void *sm)
   /* map */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapCreatePos", luaMapCreatePos));
   
+/* Game and Modules */
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygGetCurentMod", luaGetCurentMod));
+
   return 0;
 }
 
