@@ -131,7 +131,7 @@ function moveHead(wid, map)
       if (yeGetInt(yeGet(destCase, 1)) ~= 2) then
 	 ywidNext(yeGet(map, "next"))
       end
-      local score = yeGet(ygGetCurentMod(), "score")
+      local score = yeGet(ygGetMod("snake"), "score")
       rmPeanut(map, destCase)
       --add body :)
       yeSetInt(score, yeGetInt(score) + 1)
@@ -225,7 +225,7 @@ function snakeAction(wid, eve, arg)
 end
 
 function scoreInit(wid, eve, args)
-   local score = yeGet(ygGetCurentMod(), "score")
+   local score = yeGet(ygGetMod("snake"), "score")
    local scoreStr = "you have a score of " .. yeGetInt(score) .. " points"
    yeSetString(yeGet(ywidEntity(wid), "text"), scoreStr);
 end
@@ -241,7 +241,7 @@ function createSnake(entity)
    local map = ywidNewWidget(entity, "map")
 
    ywidBind(map, "action", "snakeAction")
-   yeSetInt(yeGet(ygGetCurentMod(), "score"), 0)
+   yeSetAt(ygGetMod("snake"), "score", 0)
    --ywidAddSignal(map, "loose");
    return map
 end

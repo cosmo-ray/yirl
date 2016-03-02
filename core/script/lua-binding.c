@@ -426,9 +426,9 @@ int	luaRandInit(lua_State *L)
   return 0;
 }
 
-int	luaGetCurentMod(lua_State *L)
+int	luaGetMod(lua_State *L)
 {
-  lua_pushlightuserdata(L, ygGetCurentMod());
+  lua_pushlightuserdata(L, ygGetMod(lua_tostring(L, 1)));
   return 1;
 }
 

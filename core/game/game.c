@@ -258,15 +258,18 @@ Entity *ygLoadMod(const char *path)
   }
 
   yePushBack(mod, starting_widget, "$starting widget");
+  if (!modList) {
+    modList = yeCreateArray(NULL, NULL);
+  }
   yePushBack(modList, mod, yeGetString(name));
  exit:
   g_free(tmp);
   return mod;
 }
 
-Entity *ygGetCurentMod(void)
+Entity *ygGetMod(const char *path)
 {
-  return mainMod;
+  return yeGet(modList, path);
 }
 
 static int ygParseStartAndGame(GameConfig *config)

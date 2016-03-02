@@ -55,7 +55,7 @@ int ygInit(GameConfig *config);
 int ygStartLoop(GameConfig *config);
 
 Entity *ygLoadMod(const char *path);
-Entity *ygGetCurentMod(void);
+Entity *ygGetMod(const char *path);
 
 void ygEnd(void);
 
