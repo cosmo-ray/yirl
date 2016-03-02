@@ -603,12 +603,16 @@ void	yeSetFloatAtStrIdx(Entity *entity, const char *index, double value)
 
 void	yeUnsetFunction(Entity *entity)
 {
+  if (!entity)
+    return;
   yeSetFunction(entity, NULL);
   yeSetFunctionArgs(entity, 0);
 }
 
 void	yeSetFunction(Entity *entity, const char *value)
 {
+  if (!entity)
+    return;
   return yeSetString(entity, value);
 }
 
@@ -620,6 +624,8 @@ void	yeSetFunctionArgs(Entity *entity, unsigned int nArgs)
 
 void	yeSetInt(Entity *entity, int value)
 {
+  if (!entity)
+    return;
   if (yeType(entity) == YFLOAT)
     return (yeSetFloat(entity, value));
   ((IntEntity *)entity)->value = value;
@@ -627,6 +633,8 @@ void	yeSetInt(Entity *entity, int value)
 
 void	yeSetFloat(Entity *entity, double value)
 {
+  if (!entity)
+    return;
   ((FloatEntity *)entity)->value = value;
 }
 
