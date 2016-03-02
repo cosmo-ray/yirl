@@ -431,3 +431,25 @@ int	luaGetCurentMod(lua_State *L)
   lua_pushlightuserdata(L, ygGetCurentMod());
   return 1;
 }
+
+int	luaSetAt(lua_State *L)
+{
+  Entity *ent = NULL;
+  if (lua_gettop(L) != 3)
+    return -1;
+
+  if (lua_isnumber(L, 2)) {
+    ent = yeGet(lua_touserdata(L, 1), (int64_t)lua_tonumber(L, 2));
+  } else if (lua_isstring(L, 2)) {
+    ent = yeGet(lua_touserdata(L, 1), lua_tostring(L, 2));
+  } else {
+    return -1;
+  }
+
+  if (lua_isnumber(L, 3)) {
+    yeSetInt(ent, lua_tonumber(L, 3));
+  } else if (lua_isstring(L, 3)) {
+    yeSetString(ent, lua_tostring(L, 3));
+  }
+  return 0;
+}
