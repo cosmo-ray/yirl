@@ -57,13 +57,13 @@ static int cntInit(YWidgetState *opac, Entity *entity, void *args)
 
     if (ywCntType(opac) == CNT_HORIZONTAL) {
       /* modify y and h pos in internal struct */
-      yeSet(yeGet(tmpPos, "y"), casePos);
-      yeSet(yeGet(tmpPos, "h"), caseSize);
+      yeSetAt(tmpPos, "y", casePos);
+      yeSetAt(tmpPos, "h", caseSize);
     } else if (ywCntType(opac) == CNT_VERTICAL) {
 
       /* modify x and w pos in internal struct */
-      yeSet(yeGet(tmpPos, "x"), casePos);
-      yeSet(yeGet(tmpPos, "w"), caseSize);
+      yeSetAt(tmpPos, "x", casePos);
+      yeSetAt(tmpPos, "w", caseSize);
     }
 
     /* else nothing */
