@@ -32,15 +32,6 @@ static YManagerAllocator widgetTab = {
 };
 
 
-/* struct which define what are common to every rendableWidget of the same type */
-struct widgetOpt {
-  char *name;
-  uint64_t rendersMask;
-  int (*render[MAX_NB_MANAGER])(YWidgetState *wid, int renderType);
-  int (*init[MAX_NB_MANAGER])(YWidgetState *opac, int t);
-  void (*destroy[MAX_NB_MANAGER])(YWidgetState *opac, int t);
-};
-
 static uint64_t rendersMask = 0;
 
 /* struct which define what are common to every render of the same type */
@@ -355,36 +346,12 @@ YEvent *ywidGenericWaitEvent(void)
   return NULL;
 }
 
-void ywidGenericRend(YWidgetState *opac, int widType)
-{
-  YUI_FOREACH_BITMASK(widgetOptTab[widType].rendersMask,
-		      i, tmask) {
-    widgetOptTab[widType].render[i](opac, i);
-  }
-}
-
-void ywidGenericInit(YWidgetState *opac, int widType)
-{
-  YUI_FOREACH_BITMASK(widgetOptTab[widType].rendersMask,
-		      i, tmask) {
-    widgetOptTab[widType].init[i](opac, i);
-  }
-}
-
-static void ywidGenericDestroy(YWidgetState *opac, int widType)
-{
-  YUI_FOREACH_BITMASK(widgetOptTab[widType].rendersMask,
-		      i, tmask) {
-    widgetOptTab[widType].destroy[i](opac, i);
-  }
-}
-
 void YWidDestroy(YWidgetState *wid)
 {
   if (!wid)
     return;
   ywidFinishSignal(wid);
-  ywidGenericDestroy(wid, wid->type);
+  ywidGenericCall(wid, wid->type, destroy);
   if (wid->destroy)
     wid->destroy(wid);
   else

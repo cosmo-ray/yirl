@@ -33,7 +33,7 @@ static int tsInit(YWidgetState *opac, Entity *entity, void *args)
   (void)entity;
   (void)args;
 
-  ywidGenericInit(opac, t);
+  ywidGenericCall(opac, t, init);
   ((YTextScreenState *)opac)->actionIdx = ywidAddSignal(opac, "action");
   ywidBind(opac, "action", yeGetString(yeGet(entity, "action")));
   ywidCallCallbackByStr(yeGetString(yeGet(entity, "init")), opac, NULL, NULL);
@@ -67,7 +67,7 @@ static InputStatue tsEvent(YWidgetState *opac, YEvent *event)
 static int tsRend(YWidgetState *opac)
 {
   if (opac->hasChange)
-    ywidGenericRend(opac, t);
+    ywidGenericCall(opac, t, render);
   opac->hasChange = 0;
   return 0;
 }

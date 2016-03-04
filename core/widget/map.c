@@ -26,7 +26,7 @@ static int mapInit(YWidgetState *opac, Entity *entity, void *args)
   const char *action;
   Entity *initer = yeGet(entity, "init");
 
-  ywidGenericInit(opac, t);
+  ywidGenericCall(opac, t, init);
 
   ((YMapState *)opac)->resources = yeGet(entity, "resources");
   ((YMapState *)opac)->pos = ywMapCreatePos(0, 0, NULL, NULL);
@@ -89,7 +89,7 @@ static int mapDestroy(YWidgetState *opac)
 
 static int mapRend(YWidgetState *opac)
 {
-  ywidGenericRend(opac, t);
+  ywidGenericCall(opac, t, render);
   return 0;
 }
 

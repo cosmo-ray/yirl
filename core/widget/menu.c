@@ -91,7 +91,7 @@ static int mnInit(YWidgetState *opac, Entity *entity, void *args)
   YMenuState *state = ((YMenuState *)opac);
   Entity *entries = yeGet(entity, "entries");
 
-  ywidGenericInit(opac, t);
+  ywidGenericCall(opac, t, init);
   state->moveSinIdx = ywidAddSignal(opac, "move");
   ywidBind(opac, "move", "menuMove");
   state->actionSin0 = state->moveSinIdx + 1;
@@ -118,7 +118,7 @@ static int mnDestroy(YWidgetState *opac)
 
 static int mnRend(YWidgetState *opac)
 {
-  ywidGenericRend(opac, t);
+  ywidGenericCall(opac, t, render);
   opac->hasChange = 0;
   return 0;
 }

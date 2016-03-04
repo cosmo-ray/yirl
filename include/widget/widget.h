@@ -102,6 +102,17 @@ typedef struct WidgetState_ {
   unsigned int hasChange;
 } YWidgetState;
 
+/* struct which define what are common to every rendableWidget of the same type */
+struct widgetOpt {
+  char *name;
+  uint64_t rendersMask;
+  int (*render[MAX_NB_MANAGER])(YWidgetState *wid, int renderType);
+  int (*init[MAX_NB_MANAGER])(YWidgetState *opac, int t);
+  void (*destroy[MAX_NB_MANAGER])(YWidgetState *opac, int t);
+};
+
+extern struct widgetOpt widgetOptTab[MAX_NB_MANAGER];
+
 #define YEVE_FOREACH(curEve, eve)		\
   if (eve)					\
     SLIST_FOREACH(curEve, eve->head, lst)
@@ -154,9 +165,11 @@ int ywidHandleAnim(YWidgetState *opac);
 
 int ywidDoTurn(YWidgetState *opac);
 
-void ywidGenericRend(YWidgetState *opac, int widType);
-void ywidGenericInit(YWidgetState *opac, int widType);
-
+#define ywidGenericCall(opac, widType, func)				\
+  YUI_FOREACH_BITMASK(widgetOptTab[widType].rendersMask,		\
+		      ywidGenericCallIt, useless_tmask) {		\
+    widgetOptTab[widType].func[ywidGenericCallIt](opac, ywidGenericCallIt); \
+  }
 
 static inline int ywidType(void *opac)
 {
