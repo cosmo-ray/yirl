@@ -32,8 +32,10 @@ static int cntInit(YWidgetState *opac, Entity *entity, void *args)
   Entity *pos = yeGet(entity, "pos");
   int i = 0;
   size_t len = yeLen(entries);
-  int caseSize = 0;
-  int casePos;
+  int widSize = 0;
+  int usable;
+  int casePos = 0;
+  int caseLen = 0;
 
   (void)opac;
   (void)args;
@@ -42,33 +44,40 @@ static int cntInit(YWidgetState *opac, Entity *entity, void *args)
   if (yuiStrEqual0(yeGetString(yeGet(entity, "cnt-type")), "vertical")) {
     cnt->type = CNT_VERTICAL;
   }
-  caseSize =  ywCntType(opac) == CNT_HORIZONTAL ?
-    yeGetInt(yeGet(pos, "h")) / len : yeGetInt(yeGet(pos, "w")) / len;
+  widSize =  ywCntType(opac) == CNT_HORIZONTAL ?
+    yeGetInt(yeGet(pos, "h")) : yeGetInt(yeGet(pos, "w"));
+  usable = widSize;
 
   yeCreateInt(0, entity, "current");
   YE_ARRAY_FOREACH(entries, tmp) {
     Entity *ptr = yeFindLink(entity, yeGetString(yeGet(tmp, "name")), 0);
-    Entity *tmpPos;
     YWidgetState *wid = ywidNewWidget(ptr, NULL);
     Entity *widData = yeCreateData(wid, tmp, "$wid");
+    Entity *tmpPos = yeGet(ptr, "pos");
+    int size = yeGetInt(yeGet(tmp, "size"));
 
-    tmpPos = yeGet(ptr, "pos");
-    casePos = i * caseSize;
+    if (size < 0) { /* We equally size the sub-widgets */
+      caseLen = usable * (i + 1) / len;
+    } else {
+      caseLen = usable * size / 100;
+    }
 
     if (ywCntType(opac) == CNT_HORIZONTAL) {
       /* modify y and h pos in internal struct */
       yeSetAt(tmpPos, "y", casePos);
-      yeSetAt(tmpPos, "h", caseSize);
+      yeSetAt(tmpPos, "h", caseLen);
     } else if (ywCntType(opac) == CNT_VERTICAL) {
 
       /* modify x and w pos in internal struct */
       yeSetAt(tmpPos, "x", casePos);
-      yeSetAt(tmpPos, "w", caseSize);
+      yeSetAt(tmpPos, "w", caseLen);
     }
 
     /* else nothing */
     ywidResize(wid);
     yeSetDestroy(widData, widDestroyWrapper);
+    usable -= caseLen;
+    casePos = widSize - usable;
     ++i;
   }
 

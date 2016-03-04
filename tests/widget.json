@@ -52,7 +52,7 @@
 	"<type>" : "contener",
 	"cnt-type" : "vertical",
 	"entries" : [
-	    {"name" : "MenuTest"},
+	    {"name" : "MenuTest", "size" : 20},
 	    {"name" : "TextScreenTest"}
 	]
     },
