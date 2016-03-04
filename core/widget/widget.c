@@ -359,9 +359,7 @@ int ywidGenericRend(YWidgetState *opac, int widType)
 {
   YUI_FOREACH_BITMASK(widgetOptTab[widType].rendersMask,
 		      i, tmask) {
-    if (widgetOptTab[widType].render[i] != NULL) {
-      widgetOptTab[widType].render[i](opac, i);
-    }
+    widgetOptTab[widType].render[i](opac, i);
   }
   return 0;
 }
@@ -370,9 +368,7 @@ int ywidGenericInit(YWidgetState *opac, int widType)
 {
   YUI_FOREACH_BITMASK(widgetOptTab[widType].rendersMask,
 		      i, tmask) {
-    if (widgetOptTab[widType].init[i] != NULL) {
-      widgetOptTab[widType].init[i](opac, i);
-    }
+    widgetOptTab[widType].init[i](opac, i);
   }
   return 0;
 }
@@ -381,9 +377,7 @@ static int ywidGenericDestroy(YWidgetState *opac, int widType)
 {
   YUI_FOREACH_BITMASK(widgetOptTab[widType].rendersMask,
 		      i, tmask) {
-    if (widgetOptTab[widType].destroy[i] != NULL) {
-      widgetOptTab[widType].destroy[i](opac, i);
-    }
+    widgetOptTab[widType].destroy[i](opac, i);
   }
   return 0;
 }
