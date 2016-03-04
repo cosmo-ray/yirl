@@ -154,8 +154,8 @@ int ywidHandleAnim(YWidgetState *opac);
 
 int ywidDoTurn(YWidgetState *opac);
 
-int ywidGenericRend(YWidgetState *opac, int widType);
-int ywidGenericInit(YWidgetState *opac, int widType);
+void ywidGenericRend(YWidgetState *opac, int widType);
+void ywidGenericInit(YWidgetState *opac, int widType);
 
 
 static inline int ywidType(void *opac)

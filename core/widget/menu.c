@@ -118,9 +118,9 @@ static int mnDestroy(YWidgetState *opac)
 
 static int mnRend(YWidgetState *opac)
 {
-  int ret = ywidGenericRend(opac, t);  
+  ywidGenericRend(opac, t);
   opac->hasChange = 0;
-  return ret;
+  return 0;
 }
 
 static InputStatue mnEvent(YWidgetState *opac, YEvent *event)

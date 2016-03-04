@@ -355,31 +355,28 @@ YEvent *ywidGenericWaitEvent(void)
   return NULL;
 }
 
-int ywidGenericRend(YWidgetState *opac, int widType)
+void ywidGenericRend(YWidgetState *opac, int widType)
 {
   YUI_FOREACH_BITMASK(widgetOptTab[widType].rendersMask,
 		      i, tmask) {
     widgetOptTab[widType].render[i](opac, i);
   }
-  return 0;
 }
 
-int ywidGenericInit(YWidgetState *opac, int widType)
+void ywidGenericInit(YWidgetState *opac, int widType)
 {
   YUI_FOREACH_BITMASK(widgetOptTab[widType].rendersMask,
 		      i, tmask) {
     widgetOptTab[widType].init[i](opac, i);
   }
-  return 0;
 }
 
-static int ywidGenericDestroy(YWidgetState *opac, int widType)
+static void ywidGenericDestroy(YWidgetState *opac, int widType)
 {
   YUI_FOREACH_BITMASK(widgetOptTab[widType].rendersMask,
 		      i, tmask) {
     widgetOptTab[widType].destroy[i](opac, i);
   }
-  return 0;
 }
 
 void YWidDestroy(YWidgetState *wid)

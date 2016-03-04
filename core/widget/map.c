@@ -89,7 +89,8 @@ static int mapDestroy(YWidgetState *opac)
 
 static int mapRend(YWidgetState *opac)
 {
-  return ywidGenericRend(opac, t);
+  ywidGenericRend(opac, t);
+  return 0;
 }
 
 static InputStatue mapEvent(YWidgetState *opac, YEvent *event)

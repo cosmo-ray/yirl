@@ -66,12 +66,10 @@ static InputStatue tsEvent(YWidgetState *opac, YEvent *event)
 
 static int tsRend(YWidgetState *opac)
 {
-  int ret = 0;
-
   if (opac->hasChange)
-    ret = ywidGenericRend(opac, t);
+    ywidGenericRend(opac, t);
   opac->hasChange = 0;
-  return ret;
+  return 0;
 }
 
 static void *alloc(void)
