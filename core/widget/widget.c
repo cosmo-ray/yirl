@@ -379,7 +379,6 @@ int ywidGenericInit(YWidgetState *opac, int widType)
 
 static int ywidGenericDestroy(YWidgetState *opac, int widType)
 {
-  ywidFinishSignal(opac);
   YUI_FOREACH_BITMASK(widgetOptTab[widType].rendersMask,
 		      i, tmask) {
     if (widgetOptTab[widType].destroy[i] != NULL) {
@@ -393,6 +392,7 @@ void YWidDestroy(YWidgetState *wid)
 {
   if (!wid)
     return;
+  ywidFinishSignal(wid);
   ywidGenericDestroy(wid, wid->type);
   if (wid->destroy)
     wid->destroy(wid);
