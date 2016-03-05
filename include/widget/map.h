@@ -20,11 +20,17 @@
 
 #include "widget.h"
 
+typedef enum {
+  YMAP_PARTIAL,
+  YMAP_FULL
+} YMapRenderType;
+
 typedef struct {
   YWidgetState sate;
   Entity *resources;
   Entity *pos;
   int actionIdx;
+  YMapRenderType renderType;
 } YMapState;
 
 /**

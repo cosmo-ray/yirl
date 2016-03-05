@@ -75,6 +75,7 @@ static int cursesInit(YWidgetState *wid, int t)
 
 int ycursRegistreMap(void)
 {
-  return ywidRegistreTypeRender("map", ycursType(),
+  int ret = ywidRegistreTypeRender("map", ycursType(),
 				cursesRender, cursesInit, CWidgetDestroy);
+  return ret;
 }

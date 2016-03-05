@@ -53,6 +53,8 @@ void testYWMapCurses(void);
 void testYWMapSdl2(void);
 void testYWMapAll(void);
 
+void testYBigWMapSdl2(void);
+
 void testHorizontalContenerSdl(void);
 void testVerticalContenerSdl(void);
 

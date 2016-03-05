@@ -108,7 +108,7 @@ struct widgetOpt {
   uint64_t rendersMask;
   int (*render[MAX_NB_MANAGER])(YWidgetState *wid, int renderType);
   int (*init[MAX_NB_MANAGER])(YWidgetState *opac, int t);
-  void (*destroy[MAX_NB_MANAGER])(YWidgetState *opac, int t);
+  void (*destroy[MAX_NB_MANAGER])(YWidgetState *opac, int t);  
 };
 
 extern struct widgetOpt widgetOptTab[MAX_NB_MANAGER];

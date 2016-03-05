@@ -125,6 +125,61 @@ void testYWMapSdl2(void)
   YE_DESTROY(ret);
 }
 
+static void genBigMap(Entity *map)
+{
+  Entity *cases = yeCreateArray(map, "map");
+
+  for (int i = 0; i < 10000; ++i) {
+    Entity *tmp = yeCreateArray(cases, NULL);
+    yeCreateInt(0, tmp, NULL);
+  }
+  yeCreateString("center", map, "aff-type");
+}
+
+void testYBigWMapSdl2(void)
+{
+  int t = ydJsonInit();
+  void *jsonManager;
+  Entity *ret;
+  YWidgetState *wid;
+
+  /* load files */
+  g_assert(t != -1);
+  g_assert(ydJsonGetType() == t);
+  g_assert(ywidInitCallback() >= 0);
+  jsonManager = ydNewManager(t);
+  g_assert(jsonManager != NULL);
+  ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json");
+  ret = yeGet(ret, "BigMap");
+  g_assert(ret);
+  g_assert(!ydJsonEnd());
+  g_assert(!ydDestroyManager(jsonManager));
+
+  t = ywMapInit();
+  g_assert(t != -1);
+
+  g_assert(ysdl2Init() != -1);
+  g_assert(ysdl2Type() == 0);
+
+  g_assert(!ysdl2RegistreMap());
+
+  genBigMap(ret);
+  ywinAddCallback(ywinCreateNativeCallback("mapTest", testMapEnter));
+  wid = ywidNewWidget(ret, NULL);
+  g_assert(wid);
+
+  do {
+    g_assert(ywidRend(wid) != -1);
+  } while(ywidDoTurn(wid) != ACTION);
+
+  g_assert(!ywMapEnd());
+  YWidDestroy(wid);
+  ysdl2Destroy();
+  /* end libs */
+  YE_DESTROY(ret);
+}
+
+
 #ifdef WITH_CURSES
 
 void testYWMapAll(void)

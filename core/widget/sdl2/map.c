@@ -47,13 +47,23 @@ static inline unsigned int nbSprite(int sizePix, int sizeCase)
 	(mapCase = yeGet(map, i)); ++i)
 
 
-static int sdl2Render(YWidgetState *state, int t)
+/* crop the map and print the miiddle of it */
+static int sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
 {
-  SDLWid *wid = ywidGetRenderData(state, t);
+  printf("rendering =D =D");
+  (void)state;
+  (void)wid;
+  (void)entity;
+  return 0;
+}
+
+/* rend all the map, regardeless if the map is bigger than the screen */
+static int sdl2FullRender(YWidgetState *state, SDLWid *wid, Entity *entity)
+{
   unsigned int curx = 0, cury = 0;
-  Entity *map = yeGet(state->entity, "map");
+  Entity *map = yeGet(entity, "map");
   unsigned int lenMap = yeLen(map);
-  unsigned int wMap = yeGetInt(yeGet(state->entity, "width"));
+  unsigned int wMap = yeGetInt(yeGet(entity, "width"));
   YBgConf cfg;
   unsigned int winPixWidth = wid->rect.w;
   unsigned int winPixHight = wid->rect.h;
@@ -63,7 +73,7 @@ static int sdl2Render(YWidgetState *state, int t)
 
   if (!ywMapHasChange(state))
     return 0;
-  if (ywidBgConfFill(yeGet(state->entity, "background"), &cfg) >= 0) {
+  if (ywidBgConfFill(yeGet(entity, "background"), &cfg) >= 0) {
     sdlFillBg(wid, &cfg);
   }
 
@@ -105,6 +115,18 @@ static int sdl2Render(YWidgetState *state, int t)
   return 0;
 }
 
+
+static int sdl2Render(YWidgetState *state, int t)
+{
+  SDLWid *wid = ywidGetRenderData(state, t);
+  Entity *ent = state->entity;
+
+  if (((YMapState *)state)->renderType == YMAP_PARTIAL)
+    return sdl2PartialRender(state, wid, ent);
+  return sdl2FullRender(state, wid, ent);
+}
+
+
 #undef YMAP_FOREACH_ELEMS
 #undef YMAP_FOREACH_CASES
 #undef YMAP_FOREACH_ELEMS_IN_CASES
@@ -118,6 +140,7 @@ static int sdl2Init(YWidgetState *wid, int t)
 
 int ysdl2RegistreMap(void)
 {
-  return ywidRegistreTypeRender("map", ysdl2Type(),
-				sdl2Render, sdl2Init, sdlWidDestroy);
+  int ret = ywidRegistreTypeRender("map", ysdl2Type(),
+				   sdl2Render, sdl2Init, sdlWidDestroy);
+  return ret;
 }

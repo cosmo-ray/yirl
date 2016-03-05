@@ -86,7 +86,8 @@ int main(int argc, char **argv)
   TEST_TRY_ADD("/widget/lifecycle/sdl", testSdlLife, only);
   TEST_TRY_ADD("/widget/textScreen/sdl", testYWTextScreenSdl2, only);
   TEST_TRY_ADD("/widget/menu/sdl", testYWMenuSdl2, only);
-  TEST_TRY_ADD("/widget/map/sdl", testYWMapSdl2, only);
+  TEST_TRY_ADD("/widget/map/resized/sdl", testYWMapSdl2, only);
+  TEST_TRY_ADD("/widget/map/big/sdl", testYBigWMapSdl2, only);
   TEST_TRY_ADD("/widget/contener/horizontal/sdl", testHorizontalContenerSdl, only);
   TEST_TRY_ADD("/widget/contener/vertical/sdl", testVerticalContenerSdl, only);
   TEST_TRY_ADD("/game/sdl/simple", testYGameSdlLibBasic, only);
