@@ -50,10 +50,69 @@ static inline unsigned int nbSprite(int sizePix, int sizeCase)
 /* crop the map and print the miiddle of it */
 static int sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
 {
-  printf("rendering =D =D");
-  (void)state;
-  (void)wid;
-  (void)entity;
+  unsigned int curx = 0, cury = 0;
+  Entity *map = yeGet(entity, "map");
+  unsigned int lenMap = yeLen(map);
+  unsigned int wMap = yeGetInt(yeGet(entity, "width"));
+  unsigned int hMap = lenMap / wMap;
+  unsigned int wCam = yeGetInt(yeGet(entity, "cam-w"));
+  unsigned int hCam = yeGetInt(yeGet(entity, "cam-h"));
+  YBgConf cfg;
+  unsigned int winPixWidth = wid->rect.w;
+  unsigned int winPixHight = wid->rect.h;
+  unsigned int sizeSpriteW;
+  unsigned int sizeSpriteH;
+  int posCam = yeGetInt(yeGet(entity, "cam-pos"));
+
+  (void)hMap;
+  if (!ywMapHasChange(state))
+    return 0;
+
+  if (posCam < 0)
+    posCam = 0;
+
+  if (ywidBgConfFill(yeGet(entity, "background"), &cfg) >= 0) {
+    sdlFillBg(wid, &cfg);
+  }
+
+  /* Check if the number of sprites this window can
+   * contain is superior to the actual width of the window */
+  if (nbSprite(SIZE_SPRITE_W, wCam) <  winPixWidth) {
+    sizeSpriteW = SIZE_SPRITE_W;
+    sizeSpriteH = SIZE_SPRITE_H;
+
+  } else {
+    sizeSpriteW = SIZE_SPRITE_W * winPixWidth /
+      nbSprite(SIZE_SPRITE_W, wCam);
+    sizeSpriteH = SIZE_SPRITE_H * winPixHight /
+      nbSprite(SIZE_SPRITE_H, hCam);
+  }
+
+  int32_t begX = posCam;
+  Entity *mapCase;
+  for(unsigned int i = 0; i < wCam * hCam &&
+	(mapCase = yeGet(map, begX + curx + (cury * wMap))); ++i) {
+
+    if (curx >= wCam) {
+      curx = 0;
+      ++cury;
+    }
+
+    YMAP_FOREACH_ELEMS_IN_CASE(mapCase, mapElem) {
+      int id;
+      Entity *curRes;
+
+      if (!mapElem)
+	continue;
+      id = ywMapGetIdByElem(mapElem);
+      curRes = yeGet(ywMapGetResources(state), id);
+      sdlDisplaySprites(wid, curx, cury, curRes,
+			sizeSpriteW, sizeSpriteH, 0);
+    }
+    ++curx;
+  }
+
+  SDL_RenderPresent(sgRenderer());
   return 0;
 }
 

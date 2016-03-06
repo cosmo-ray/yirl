@@ -40,7 +40,13 @@ static int mapInit(YWidgetState *opac, Entity *entity, void *args)
     if (callback)
       ywidCallCallback(callback, opac, NULL, entity);
   }
-  ((YMapState *)opac)->renderType = YMAP_FULL;
+
+  if (yuiStrEqual0(yeGetString(yeGet(entity, "cam-type")), "center")) {
+    ((YMapState *)opac)->renderType = YMAP_PARTIAL;
+  } else {
+    ((YMapState *)opac)->renderType = YMAP_FULL;
+  }
+
   (void)args;
   return 0;
 }

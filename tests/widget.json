@@ -90,12 +90,11 @@
     },
     "BigMap" : {
 	"<type>" : "map",
-	
 	"&resources" : "MapTestResources", // Not yet implemented :)
-	
+
 	"width" : 1000,
-	"cam-width-h" : 15,
-	"cam-width-w" : 15,
+	"cam-h" : 25,
+	"cam-w" : 25,
 	"cam-type" : "center",
 	"action" : "mapTest",
 	"background": "rgba: 180 210 20 50", // Not yet implemented :)
