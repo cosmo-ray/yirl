@@ -93,10 +93,8 @@ static int sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
   for(unsigned int i = 0; i < wCam * hCam &&
 	(mapCase = yeGet(map, begX + curx + (cury * wMap))); ++i) {
 
-    if (curx >= wCam) {
-      curx = 0;
-      ++cury;
-    }
+    /* printf("get %d - x: %d - y: %d\n", begX + curx + (cury * wMap), */
+    /* 	   curx, cury); */
 
     YMAP_FOREACH_ELEMS_IN_CASE(mapCase, mapElem) {
       int id;
@@ -110,6 +108,10 @@ static int sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
 			sizeSpriteW, sizeSpriteH, 0);
     }
     ++curx;
+    if (curx >= wCam) {
+      curx = 0;
+      ++cury;
+    }
   }
 
   SDL_RenderPresent(sgRenderer());
@@ -151,11 +153,6 @@ static int sdl2FullRender(YWidgetState *state, SDLWid *wid, Entity *entity)
 
   YMAP_FOREACH_CASES(map, mapCase) {
 
-    if (curx >= wMap) {
-      curx = 0;
-      ++cury;
-    }
-
     YMAP_FOREACH_ELEMS_IN_CASE(mapCase, mapElem) {
       int id;
       Entity *curRes;
@@ -168,6 +165,12 @@ static int sdl2FullRender(YWidgetState *state, SDLWid *wid, Entity *entity)
 			sizeSpriteW, sizeSpriteH, 0);
     }
     ++curx;
+    
+    if (curx >= wMap) {
+      curx = 0;
+      ++cury;
+    }
+
   }
 
   SDL_RenderPresent(sgRenderer());

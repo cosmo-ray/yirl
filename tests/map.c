@@ -133,6 +133,15 @@ static void genBigMap(Entity *map)
     Entity *tmp = yeCreateArray(cases, NULL);
     yeCreateInt(0, tmp, NULL);
   }
+  yeCreateInt(1, yeGet(cases, 2), NULL);
+  yeCreateInt(1, yeGet(cases, 1002), NULL);
+  yeCreateInt(1, yeGet(cases, 2002), NULL);
+  yeCreateInt(1, yeGet(cases, 3002), NULL);
+  yeCreateInt(1, yeGet(cases, 4002), NULL);
+  yeCreateInt(1, yeGet(cases, 5002), NULL);
+  yeCreateInt(1, yeGet(cases, 6002), NULL);
+  yeCreateInt(1, yeGet(cases, 9024), NULL);
+  yeCreateInt(1, yeGet(cases, 9000), NULL);
   yeCreateString("center", map, "aff-type");
 }
 

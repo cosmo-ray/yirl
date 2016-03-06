@@ -93,7 +93,7 @@
 	"&resources" : "MapTestResources", // Not yet implemented :)
 
 	"width" : 1000,
-	"cam-h" : 25,
+	"cam-h" : 15,
 	"cam-w" : 25,
 	"cam-type" : "center",
 	"action" : "mapTest",
