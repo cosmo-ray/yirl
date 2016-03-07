@@ -31,6 +31,28 @@ static inline unsigned int nbSprite(int sizePix, int sizeCase)
   return sizePix * sizeCase;
 }
 
+static inline  void setSpritesSize(unsigned int *sizeSpriteW,
+				   unsigned int *sizeSpriteH,
+				   unsigned int winWidth,
+				   unsigned int winHeight,
+				   unsigned int winPixWidth,
+				   unsigned int winPixHight)
+{
+  /* Check if the number of sprites this window can
+   * contain is superior to the actual width of the window */
+  if (nbSprite(SIZE_SPRITE_W, winWidth) <  winPixWidth) {
+    *sizeSpriteW = SIZE_SPRITE_W;
+    *sizeSpriteH = SIZE_SPRITE_H;
+
+  } else {
+    *sizeSpriteW = SIZE_SPRITE_W * winPixWidth / nbSprite(SIZE_SPRITE_W,
+							  winWidth);
+
+    *sizeSpriteH = SIZE_SPRITE_H * winPixHight / nbSprite(SIZE_SPRITE_H,
+							  winHeight);
+  }
+}
+
 #define YMAP_FOREACH_ELEMS(map, elem, caseIncrOp)	\
   YMAP_FOREACH_CASES(map, mapCaseTmp)			\
     YMAP_FOREACH_ELEMS_IN_CASE(mapCaseTmp, elem)
@@ -52,19 +74,14 @@ static int sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
 {
   unsigned int curx = 0, cury = 0;
   Entity *map = yeGet(entity, "map");
-  unsigned int lenMap = yeLen(map);
   unsigned int wMap = yeGetInt(yeGet(entity, "width"));
-  unsigned int hMap = lenMap / wMap;
   unsigned int wCam = yeGetInt(yeGet(entity, "cam-w"));
   unsigned int hCam = yeGetInt(yeGet(entity, "cam-h"));
   YBgConf cfg;
-  unsigned int winPixWidth = wid->rect.w;
-  unsigned int winPixHight = wid->rect.h;
   unsigned int sizeSpriteW;
   unsigned int sizeSpriteH;
   int posCam = yeGetInt(yeGet(entity, "cam-pos"));
 
-  (void)hMap;
   if (!ywMapHasChange(state))
     return 0;
 
@@ -75,18 +92,8 @@ static int sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
     sdlFillBg(wid, &cfg);
   }
 
-  /* Check if the number of sprites this window can
-   * contain is superior to the actual width of the window */
-  if (nbSprite(SIZE_SPRITE_W, wCam) <  winPixWidth) {
-    sizeSpriteW = SIZE_SPRITE_W;
-    sizeSpriteH = SIZE_SPRITE_H;
-
-  } else {
-    sizeSpriteW = SIZE_SPRITE_W * winPixWidth /
-      nbSprite(SIZE_SPRITE_W, wCam);
-    sizeSpriteH = SIZE_SPRITE_H * winPixHight /
-      nbSprite(SIZE_SPRITE_H, hCam);
-  }
+  setSpritesSize(&sizeSpriteW, &sizeSpriteH, wCam,
+		hCam, wid->rect.w, wid->rect.h);
 
   int32_t begX = posCam;
   Entity *mapCase;
@@ -126,8 +133,6 @@ static int sdl2FullRender(YWidgetState *state, SDLWid *wid, Entity *entity)
   unsigned int lenMap = yeLen(map);
   unsigned int wMap = yeGetInt(yeGet(entity, "width"));
   YBgConf cfg;
-  unsigned int winPixWidth = wid->rect.w;
-  unsigned int winPixHight = wid->rect.h;
   unsigned int hMap = lenMap / wMap;
   unsigned int sizeSpriteW;
   unsigned int sizeSpriteH;
@@ -138,18 +143,8 @@ static int sdl2FullRender(YWidgetState *state, SDLWid *wid, Entity *entity)
     sdlFillBg(wid, &cfg);
   }
 
-  /* Check if the number of sprites this window can
-   * contain is superior to the actual width of the window */
-  if (nbSprite(SIZE_SPRITE_W, wMap) <  winPixWidth) {
-    sizeSpriteW = SIZE_SPRITE_W;
-    sizeSpriteH = SIZE_SPRITE_H;
-
-  } else {
-    sizeSpriteW = SIZE_SPRITE_W * winPixWidth /
-      nbSprite(SIZE_SPRITE_W, wMap);
-    sizeSpriteH = SIZE_SPRITE_H * winPixHight /
-      nbSprite(SIZE_SPRITE_H, hMap);
-  }
+  setSpritesSize(&sizeSpriteW, &sizeSpriteH, wMap,
+		 hMap, wid->rect.w, wid->rect.h); 
 
   YMAP_FOREACH_CASES(map, mapCase) {
 
