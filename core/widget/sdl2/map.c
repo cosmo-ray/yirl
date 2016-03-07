@@ -81,6 +81,8 @@ static int sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
   unsigned int sizeSpriteW;
   unsigned int sizeSpriteH;
   int posCam = yeGetInt(yeGet(entity, "cam-pos"));
+  int32_t begX = posCam;
+  Entity *mapCase;
 
   if (!ywMapHasChange(state))
     return 0;
@@ -95,13 +97,8 @@ static int sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
   setSpritesSize(&sizeSpriteW, &sizeSpriteH, wCam,
 		hCam, wid->rect.w, wid->rect.h);
 
-  int32_t begX = posCam;
-  Entity *mapCase;
   for(unsigned int i = 0; i < wCam * hCam &&
 	(mapCase = yeGet(map, begX + curx + (cury * wMap))); ++i) {
-
-    /* printf("get %d - x: %d - y: %d\n", begX + curx + (cury * wMap), */
-    /* 	   curx, cury); */
 
     YMAP_FOREACH_ELEMS_IN_CASE(mapCase, mapElem) {
       int id;
