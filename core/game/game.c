@@ -213,10 +213,16 @@ Entity *ygLoadMod(const char *path)
     Entity *tmpFile = yeGet(var, "file");
 
     if (yuiStrEqual0(yeGetString(tmpType), "lua")) {
-      if (ysLoadFile(luaManager, yeGetString(tmpFile)) < 0) {
+      char *fileStr = NULL;
+
+      fileStr = g_strconcat(path, "/",
+			    yeGetString(tmpFile), NULL);
+      if (ysLoadFile(luaManager, fileStr) < 0) {
 	DPRINT_ERR("Error when loading '%s': %s\n",
 		   yeGetString(tmpFile), ysGetError(luaManager));
       }
+      g_free(fileStr);
+
     } else if (yuiStrEqual0(yeGetString(tmpType), "json")) {
       char *fileStr = NULL;
       Entity *as = yeGet(var, "as");
@@ -225,10 +231,20 @@ Entity *ygLoadMod(const char *path)
 			    yeGetString(tmpFile), NULL);
       tmpFile = ydFromFile(jsonManager, fileStr);
       g_free(fileStr);
+
       if (tmpFile && yeGetString(as) != NULL) {
 	yePushBack(mod, tmpFile, yeGetString(as));
 	YE_DESTROY(tmpFile);
       }
+    } else if (yuiStrEqual0(yeGetString(tmpType), "module")) {
+      char *fileStr = NULL;
+
+      fileStr = g_strconcat(path, "/",
+			    yeGetString(tmpFile), NULL);
+      if (!ygLoadMod(fileStr)) {
+	DPRINT_ERR("fail to load module: %s");
+      }
+      g_free(fileStr);
     }
   }
 

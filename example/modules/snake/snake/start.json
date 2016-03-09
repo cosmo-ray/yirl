@@ -1,0 +1,13 @@
+{
+    "name" : "snake",
+    "init-scripts" : [
+	"initSnake"
+    ],
+    "pre-load" : [
+	{
+	    "file" : "snake.lua",
+	    "type" : "lua"
+	}
+    ]
+}
+
