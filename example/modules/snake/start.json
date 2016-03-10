@@ -5,7 +5,7 @@
     "starting widget" : "Snake",
     "pre-load" : [
 	{
-	    "file" : "snake/",
+	    "file" : "../../../modules/snake/",
 	    "type" : "module"
 	},
 	{
