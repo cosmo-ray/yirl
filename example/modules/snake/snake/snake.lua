@@ -17,7 +17,6 @@
 
 
 local action = yeCreateFunction("snakeAction", 3, nil, nil)
-local menuInit = yeCreateFunction("scoreInit", 3, nil, nil)
 local die = yeCreateFunction("snakeDie", 3, nil, nil)
 local Q_KEY = 113
 
@@ -224,12 +223,6 @@ function snakeAction(wid, eve, arg)
    end
 end
 
-function scoreInit(wid, eve, args)
-   local score = yeGet(ygGetMod("snake"), "score")
-   local scoreStr = "you have a score of " .. yeGetInt(score) .. " points"
-   yeSetString(yeGet(ywidEntity(wid), "text"), scoreStr);
-end
-
 function createSnake(entity)
    -- TODO: this functions: C/lua
    snakeMap(entity)
@@ -252,7 +245,6 @@ end
 
 function initSnake(entity)
    ywidAddCallback(ywidCreateCallback("snakeAction", action))
-   ywidAddCallback(ywidCreateCallback("scoreInit", menuInit))
    ywidAddCallback(ywidCreateCallback("snakeDie", die))
    local init = yeCreateArray(nil, nil)
    yeCreateString("snake", init, "name")
