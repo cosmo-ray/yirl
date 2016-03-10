@@ -95,7 +95,7 @@ void CWidgetDestroy(YWidgetState *wid, int renderType)
 void resize(YWidgetState *wid, int renderType)
 {
   CWidget *state = wid->renderStates[renderType].opac;
-  Entity *pos = yeGet(wid->entity, "pos");
+  Entity *pos = yeGet(wid->entity, "wid-pos");
 
   state->h = yeGetInt(yeGet(pos, "h")) * LINES / 1000;
   state->w = yeGetInt(yeGet(pos, "w")) * COLS / 1000;

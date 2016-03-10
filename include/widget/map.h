@@ -28,7 +28,6 @@ typedef enum {
 typedef struct {
   YWidgetState sate;
   Entity *resources;
-  Entity *pos;
   int actionIdx;
   YMapRenderType renderType;
 } YMapState;
@@ -58,8 +57,6 @@ static inline int ywMapH(YWidgetState *state)
 int ywMapGetIdByElem(Entity *mapElem);
 
 Entity *ywMapGetCase(YWidgetState *state, Entity *pos);
-Entity *ywMapGetPos(YWidgetState *state);
-Entity *ywMapGetCurrentCase(YWidgetState *state);
 
 Entity *ywMapCreatePos(int posX, int posY, Entity *father, const char *str);
 

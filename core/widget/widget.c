@@ -196,13 +196,13 @@ static YWidgetState *ywidNewWidgetInternal(int t,
 					   Entity *entity)
 {
   YWidgetState *ret;
-  Entity *pos= yeGet(entity, "pos");
+  Entity *pos = yeGet(entity, "wid-pos");
 
   if (widgetTab.len <= t || widgetTab.allocator[t] == NULL)
     return NULL;
 
   if (pos == NULL) {
-    pos = yeCreateArray(entity, "pos");
+    pos = yeCreateArray(entity, "wid-pos");
     yeCreateInt(0, pos, "x");
     yeCreateInt(0, pos, "y");
     yeCreateInt(1000, pos, "w");

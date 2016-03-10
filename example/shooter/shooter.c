@@ -100,11 +100,12 @@ static int shooterHandleBullets(YWidgetState *wid)
 
 static void moveMainCaracter(YWidgetState *wid, int x, int y)
 {
-  Entity *pos = ywMapGetPos(wid);
-  Entity *cur = ywMapGetCurrentCase(wid);
+  Entity *pos = yeGet(wid->entity, "pos");
+  Entity *cur = ywMapGetCase(wid, pos);
   Entity *curHero;
   Entity *posX = yeGet(pos, "x");
   Entity *posY = yeGet(pos, "y");
+
 
   for (unsigned int i = 0; i < yeLen(cur); ++i) {
     curHero = yeGet(cur, i);
@@ -112,6 +113,7 @@ static void moveMainCaracter(YWidgetState *wid, int x, int y)
       /* You can get it Noww !!!! */
       yeOpsAddInt(posX, x);
       yeOpsAddInt(posY, y);
+
       if (yeGetInt(posX) < 0)
 	yeSetInt(posX, 0);
       else if (yeGetInt(posX) >= ywMapW(wid) - 1)
@@ -120,6 +122,7 @@ static void moveMainCaracter(YWidgetState *wid, int x, int y)
 	yeSetInt(posY, 0);
       else if (yeGetInt(posY) >= ywMapH(wid) - 1)
 	yeSetInt(posY, ywMapH(wid) - 1);
+
       ywMapPushElem(wid, curHero, pos, "hr");
       yeRemoveChild(cur, curHero);
       break;
@@ -129,7 +132,7 @@ static void moveMainCaracter(YWidgetState *wid, int x, int y)
 
 static void shooterSpamBullet(YWidgetState *wid, int x, int y)
 {
-  Entity *pos = ywMapGetPos(wid);
+  Entity *pos = yeGet(wid->entity, "pos");
   int posX = yeGetInt(yeGet(pos, "x"));
   int posY = yeGetInt(yeGet(pos, "y"));
   Entity *bullet = NULL;
@@ -228,17 +231,18 @@ int shooterInit(YWidgetState *wid, YEvent *eve, Entity *arg)
 
   (void)eve;
   yeCreateInt(MAP_SIZE_W, arg, "width");
+  if (!(pos = yeGet(arg, "pos")))
+    pos = ywMapCreatePos(0, 0, arg, "pos");
   arg = yeCreateArray(arg, "map");
   for (int i = 0; i < MAP_SIZE_W * MAP_SIZE_H; ++i) {
     tmp = yeCreateArray(arg, NULL);
     yeCreateInt(0, tmp, NULL);
   }
 
-  pos = ywMapGetPos(wid);
   yeSetInt(yeGet(pos, "x"), MAP_SIZE_W / 2);
   yeSetInt(yeGet(pos, "y"), MAP_SIZE_H / 2);
 
-  tmp = ywMapGetCurrentCase(wid);
+  tmp = ywMapGetCase(wid, pos);
   yeCreateInt(1, tmp, "hr");
 
   ywinAddCallback(ywinCreateNativeCallback("shooterAction", shooterAction));

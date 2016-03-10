@@ -29,7 +29,6 @@ static int mapInit(YWidgetState *opac, Entity *entity, void *args)
   ywidGenericCall(opac, t, init);
 
   ((YMapState *)opac)->resources = yeGet(entity, "resources");
-  ((YMapState *)opac)->pos = ywMapCreatePos(0, 0, NULL, NULL);
 
   ((YMapState *)opac)->actionIdx = ywidAddSignal(opac, "action");
   action = yeGetString(yeGet(entity, "action"));
@@ -67,18 +66,6 @@ int ywMapPushElem(YWidgetState *state, Entity *toPush,
   return ret;
 }
 
-Entity *ywMapGetPos(YWidgetState *state)
-{
-  return ((YMapState *)state)->pos;
-}
-
-Entity *ywMapGetCurrentCase(YWidgetState *state)
-{
-  Entity *pos = ywMapGetPos(state);
-  
-  return ywMapGetCase(state, pos);
-}
-
 Entity *ywMapGetCase(YWidgetState *state, Entity *pos)
 {
   Entity *map = yeGet(state->entity, "map");
@@ -89,7 +76,6 @@ Entity *ywMapGetCase(YWidgetState *state, Entity *pos)
 
 static int mapDestroy(YWidgetState *opac)
 {
-  YE_DESTROY(((YMapState *)opac)->pos);
   g_free(opac);
   return 0;
 }

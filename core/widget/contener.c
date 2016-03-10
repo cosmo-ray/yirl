@@ -29,7 +29,7 @@ static int cntInit(YWidgetState *opac, Entity *entity, void *args)
 {
   YContenerState *cnt = ((YContenerState *)opac);
   Entity *entries = yeGet(entity, "entries");
-  Entity *pos = yeGet(entity, "pos");
+  Entity *pos = yeGet(entity, "wid-pos");
   int i = 0;
   size_t len = yeLen(entries);
   int widSize = 0;
@@ -53,7 +53,7 @@ static int cntInit(YWidgetState *opac, Entity *entity, void *args)
     Entity *ptr = yeFindLink(entity, yeGetString(yeGet(tmp, "name")), 0);
     YWidgetState *wid = ywidNewWidget(ptr, NULL);
     Entity *widData = yeCreateData(wid, tmp, "$wid");
-    Entity *tmpPos = yeGet(ptr, "pos");
+    Entity *tmpPos = yeGet(ptr, "wid-pos");
     int size = yeGetInt(yeGet(tmp, "size"));
 
     if (size < 0) { /* We equally size the sub-widgets */
