@@ -42,6 +42,8 @@ static int mapInit(YWidgetState *opac, Entity *entity, void *args)
 
   if (yuiStrEqual0(yeGetString(yeGet(entity, "cam-type")), "center")) {
     ((YMapState *)opac)->renderType = YMAP_PARTIAL;
+    if (!yeGet(entity, "cam-pos"))
+      yeCreateInt(0, entity, "cam-pos");
   } else {
     ((YMapState *)opac)->renderType = YMAP_FULL;
   }

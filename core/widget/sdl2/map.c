@@ -87,12 +87,8 @@ static int sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
   if (!ywMapHasChange(state))
     return 0;
 
-  if (posCam < 0)
-    posCam = 0;
-
-  if (ywidBgConfFill(yeGet(entity, "background"), &cfg) >= 0) {
+  if (ywidBgConfFill(yeGet(entity, "background"), &cfg) >= 0)
     sdlFillBg(wid, &cfg);
-  }
 
   setSpritesSize(&sizeSpriteW, &sizeSpriteH, wCam,
 		hCam, wid->rect.w, wid->rect.h);
