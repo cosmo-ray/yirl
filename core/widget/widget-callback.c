@@ -160,7 +160,7 @@ int ywidCallSignal(YWidgetState *wid, YEvent *eve, Entity *arg, int idx)
 {
   Entity *signal;
 
-  if (idx < 0)
+  if (idx < 0 || !wid)
     return -1;
 
   signal = yeGet(wid->signals, idx);
