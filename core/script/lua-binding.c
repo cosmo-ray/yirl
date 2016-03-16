@@ -292,7 +292,7 @@ int	luaGetInt(lua_State *L)
   if (lua_gettop(L) != 1 || !lua_islightuserdata(L, 1))
     {
       DPRINT_ERR("function arguments are incorect\n"
-	     "real prototyre is: getEntityIntue(lightuserdata entity)\n");
+	     "real prototyre is: yeGetInt(lightuserdata entity)\n");
       return -1;
     }
   lua_pushnumber(L, (yeGetInt(((Entity *)lua_topointer(L, 1)))));
@@ -304,7 +304,7 @@ int	luaGetFloat(lua_State *L)
   if (lua_gettop(L) != 1 || !lua_islightuserdata(L, 1))
     {
       DPRINT_ERR("function arguments are incorect\n"
-	     "real prototyre is: getEntityIntue(lightuserdata entity)\n");
+	     "real prototyre is: yeGetFloat(lightuserdata entity)\n");
       return -1;
     }
   lua_pushnumber(L, (yeGetFloat(((Entity *)lua_topointer(L, 1)))));
@@ -317,7 +317,7 @@ int	luaSetFunction(lua_State *L)
   if (lua_gettop(L) != 2)
     {
       DPRINT_ERR("function arguments are incorect\n"
-	     "real prototyre is: unsetFunction(lightuserdata entity, string functionName)\n");
+	     "real prototyre is: yeSetFunction(lightuserdata entity, string functionName)\n");
       return -1;
     }
   yeSetFunction(YE_TO_ENTITY(lua_topointer(L, 1)), lua_tostring(L, 2));
@@ -347,6 +347,12 @@ int	luaSetFloat(lua_State *L)
     }
   yeSetFloat(((Entity *)lua_topointer(L, 1)), lua_tonumber(L, 2));
   return (0);
+}
+
+int	luaDestroy(lua_State *L)
+{
+  yeDestroy(lua_touserdata(L, 1));
+  return 0;
 }
 
 int	luaRemoveChild(lua_State *L)

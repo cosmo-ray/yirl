@@ -18,6 +18,8 @@
 
 local action = yeCreateFunction("snakeAction", 3, nil, nil)
 local die = yeCreateFunction("snakeDie", 3, nil, nil)
+local warp = yeCreateFunction("snakeWarp", 3, nil, nil)
+
 local Q_KEY = 113
 
 function getLooseScreen(entity)
@@ -78,7 +80,6 @@ function addPeanut(map)
       end
       yeCreateInt(2, case, NULL)
       yeSetInt(nbPeanut, yeGetInt(nbPeanut) + 1)
-      
    end
 end
 
@@ -89,42 +90,25 @@ function rmPeanut(map, case)
    yeSetInt(nbPeanut, yeGetInt(nbPeanut) - 1)
 end
 
-function hitWall(wid, map)
-   ywidCallSignal(wid, nil, nil, yeGetInt(yeGet(map, "hitWallIdx")))
-   ywidCallSignal(wid, nil, nil, yeGetInt(yeGet(map, "endTurnIdx")))
+function hitWall(wid, map, oldPos, newPos, dir)
+   local arg = yeCreateArray(nil, nil);
+
+   yeCreateInt(oldPos, arg, "oldPos")
+   yeCreateInt(newPos, arg, "newPos")
+   yeCreateInt(dir, arg, "dir")
+   ywidCallSignal(wid, nil, arg, yeGetInt(yeGet(map, "hitWallIdx")))
+   ywidCallSignal(wid, nil, arg, yeGetInt(yeGet(map, "endTurnIdx")))
+   yeDestroy(arg)
 end
 
-function moveHead(wid, map)
+function moveHeadInternal(wid, map, oldPos, newPos)
    local mapElems = yeGet(map, "map")
-   local lenMap = yeLen(mapElems)
-   local width = yeGetInt(yeGet(map, "width"))
+   local destCase = yeGet(mapElems, newPos)
+   local body = yeGet(map, "body")
+   local bodyLen = yeLen(body)
    local head = yeGet(map, "head")
    local headElem = yeGet(head, "elem")
    local dir = yeGet(head, "dir")
-
-   local oldPos = yeGetInt(yeGet(head, "pos"))
-   local newPos = oldPos +
-      yeGetInt(yeGet(dir, "y")) * yeGetInt(yeGet(map, "width")) +
-      yeGetInt(yeGet(dir, "x"))
-   local body = yeGet(map, "body")
-   local bodyLen = yeLen(body)
-
-   -- check out of border
-   if (oldPos % width) == 0 and (newPos % width) == (width - 1) then
-      hitWall(wid, map)
-      return
-   elseif (newPos % width) == 0 and (oldPos % width) == (width - 1) then
-      hitWall(wid, map)
-      return
-   elseif (newPos < 0) then
-      hitWall(wid, map)
-      return
-   elseif (newPos > lenMap) then
-      hitWall(wid, map)
-      return
-   end
-
-   local destCase = yeGet(yeGet(map, "map"), newPos)
 
    if yeLen(destCase) > 1 then
       if (yeGetInt(yeGet(destCase, 1)) ~= 2) then
@@ -144,6 +128,7 @@ function moveHead(wid, map)
 		 headElem)
 
    if bodyLen == 0 then
+      ywidCallSignal(wid, nil, nil, yeGetInt(yeGet(map, "endTurnIdx")))
       return
    end
 
@@ -165,6 +150,36 @@ function moveHead(wid, map)
    yeCreateInt(4, yeGet(mapElems, yeGetInt(headBody)))
    ywidCallSignal(wid, nil, nil, yeGetInt(yeGet(map, "endTurnIdx")))
    -- push first body
+end
+
+function moveHead(wid, map)
+   local mapElems = yeGet(map, "map")
+   local lenMap = yeLen(mapElems)
+   local width = yeGetInt(yeGet(map, "width"))
+   local head = yeGet(map, "head")
+   local headElem = yeGet(head, "elem")
+   local dir = yeGet(head, "dir")
+
+   local oldPos = yeGetInt(yeGet(head, "pos"))
+   local newPos = oldPos +
+      yeGetInt(yeGet(dir, "y")) * yeGetInt(yeGet(map, "width")) +
+      yeGetInt(yeGet(dir, "x"))
+
+   -- check out of border
+   if (oldPos % width) == 0 and (newPos % width) == (width - 1) then
+      hitWall(wid, map, oldPos, newPos, 0)
+      return
+   elseif (newPos % width) == 0 and (oldPos % width) == (width - 1) then
+      hitWall(wid, map, oldPos, newPos, 1)
+      return
+   elseif (newPos < 0) then
+      hitWall(wid, map, oldPos, newPos, 2)
+      return
+   elseif (newPos > lenMap - 1) then
+      hitWall(wid, map, oldPos, newPos, 3)
+      return
+   end
+   moveHeadInternal(wid, map, oldPos, newPos)
 end
 
 
@@ -243,9 +258,29 @@ function snakeDie(wid, useless1, useless2)
    ywidNext(yeGet(ywidEntity(wid), "next"))
 end
 
+function snakeWarp(wid, useless1, arg)
+   local dir = yeGetInt(yeGet(arg, "dir"))
+   local ent = ywidEntity(wid);
+   local mapLen = yeLen(yeGet(ent, "map"))
+   local mapW = yeGetInt(yeGet(ent, "width"))
+   local newPos = yeGet(arg, "newPos")
+
+   if (dir == 3) then
+      yeSetInt(newPos, yeGetInt(newPos) - mapLen)
+   elseif (dir == 2) then
+      yeSetInt(newPos, yeGetInt(newPos) + mapLen)
+   elseif (dir == 1) then
+      yeSetInt(newPos, yeGetInt(newPos) - mapW)
+   elseif (dir == 0) then
+      yeSetInt(newPos, yeGetInt(newPos) + mapW)
+   end
+   moveHeadInternal(wid, ent, yeGetInt(yeGet(arg, "oldPos")), yeGetInt(newPos))
+end
+
 function initSnake(entity)
    ywidAddCallback(ywidCreateCallback("snakeAction", action))
    ywidAddCallback(ywidCreateCallback("snakeDie", die))
+   ywidAddCallback(ywidCreateCallback("snakeWarp", warp))
    local init = yeCreateArray(nil, nil)
    yeCreateString("snake", init, "name")
    yeCreateFunction("createSnake", 1, init, "callback")

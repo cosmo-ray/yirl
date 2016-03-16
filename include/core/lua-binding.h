@@ -36,6 +36,7 @@ int	luaCreateArray(lua_State *L);
 int	luaPopBack(lua_State *L);
 int	luaPushBack(lua_State *L);
 int	luaRemoveChild(lua_State *L);
+int	luaDestroy(lua_State *L);
 int	luaSetAt(lua_State *L);
 
 /* Entity */
@@ -130,6 +131,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yePushBack", luaPushBack));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yePopBack", luaPopBack));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeRemoveChild", luaRemoveChild));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeDestroy", luaDestroy));
 
   /* Entity */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeCopy", luaCopy));

@@ -11,7 +11,7 @@
 	"<type>" : "snake",
 	"&next" : "LooseScreen",
 	"&resources" : "SnakeResources",
-	"bind" : [["hitWall", "snakeDie"]],
+	"bind" : [["hitWall", "snakeWarp"]],
     },
     "SnakeResources" : [
 	{
