@@ -39,7 +39,8 @@ static int cntInit(YWidgetState *opac, Entity *entity, void *args)
 
   (void)opac;
   (void)args;
-
+  if (!entries)
+    return -1;
   cnt->type = CNT_HORIZONTAL;
   if (yuiStrEqual0(yeGetString(yeGet(entity, "cnt-type")), "vertical")) {
     cnt->type = CNT_VERTICAL;
