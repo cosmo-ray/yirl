@@ -1,0 +1,13 @@
+{
+    "name" : "sukeban-screen",
+    "init-scripts" : [
+	"initSukeScreen"
+    ],
+    "pre-load" : [
+	{
+	    "file" : "sukeban-screen.lua",
+	    "type" : "lua"
+	}
+    ]
+}
+

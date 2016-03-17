@@ -1,0 +1,12 @@
+{
+    "name" : "sukeban",
+    "file" : "menus.json",
+    "type" : "json",
+    "starting widget" : "main",
+    "pre-load" : [
+	{
+	    "file" : "../modules/sukeban-screen/",
+	    "type" : "module"
+	}
+    ]
+}
