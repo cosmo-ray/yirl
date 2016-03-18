@@ -148,8 +148,11 @@ int ywidBindBySinIdx(YWidgetState *wid, int idx, const char *callback)
 
 int ywidBind(YWidgetState *wid, const char *signal, const char *callback)
 {
-  Entity *sin = yeGet(wid->signals, signal);
+  Entity *sin;
 
+  if (!wid)
+    return -1;
+  sin = yeGet(wid->signals, signal);
   if (!sin || !callback)
     return -1;
   yeSetInt(sin, getCallbackIdx(callback));
