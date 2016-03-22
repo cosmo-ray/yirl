@@ -17,6 +17,7 @@
 
 #include <glib.h>
 #include "contener.h"
+#include "widget-callback.h"
 
 static int t = -1;
 
@@ -106,21 +107,18 @@ static InputStatue cntEvent(YWidgetState *opac, YEvent *event)
   if (!event)
     return NOTHANDLE;
 
-  if (yCntIsOverloading(event)) {
-    if (event->key == Y_ESC_KEY)
-      ret = ACTION;
-    else if (event->key == '\n')
-      ret = ACTION;
-  } else {
-    ret = ywidHandleEvent(yeGetData(yeGet(yeGet(entries,
-						yeGetInt(yeGet(opac->entity,
-							       "current"))),
-					  "$wid")),
-			  event);
-    event = NULL;
-  }
-  if (ret == NOTHANDLE)
-    g_free(event);
+  ywidCallSignal(opac, event, NULL,
+		 opac->actionIdx);
+  ret = event->stat;
+
+  if (ret != NOTHANDLE)
+    return ret;
+
+  ret = ywidHandleEvent(yeGetData(yeGet(yeGet(entries,
+					      yeGetInt(yeGet(opac->entity,
+							     "current"))),
+					"$wid")),
+			event);
   return ret;
 }
 
