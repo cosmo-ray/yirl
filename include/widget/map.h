@@ -28,7 +28,6 @@ typedef enum {
 typedef struct {
   YWidgetState sate;
   Entity *resources;
-  int actionIdx;
   YMapRenderType renderType;
 } YMapState;
 

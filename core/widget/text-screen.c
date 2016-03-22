@@ -24,7 +24,6 @@ static int t = -1;
 typedef struct {
   YWidgetState sate;
   unsigned int hasChange;
-  int actionIdx;
 
 } YTextScreenState;
 
@@ -34,8 +33,6 @@ static int tsInit(YWidgetState *opac, Entity *entity, void *args)
   (void)args;
 
   ywidGenericCall(opac, t, init);
-  ((YTextScreenState *)opac)->actionIdx = ywidAddSignal(opac, "action");
-  ywidBind(opac, "action", yeGetString(yeGet(entity, "action")));
   ywidCallCallbackByStr(yeGetString(yeGet(entity, "init")), opac, NULL, NULL);
   return 0;
 }
@@ -58,8 +55,7 @@ static InputStatue tsEvent(YWidgetState *opac, YEvent *event)
   if (event->key == Y_ESC_KEY)
     ret = ACTION;
   else if (event->key == '\n') {
-    ret = ywidCallSignal(opac, event, NULL,
-			 ((YTextScreenState *)opac)->actionIdx);
+    ret = ywidCallSignal(opac, event, NULL, opac->actionIdx);
   }
   return ret;
 }

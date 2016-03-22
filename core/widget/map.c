@@ -23,16 +23,12 @@ static int t = -1;
 
 static int mapInit(YWidgetState *opac, Entity *entity, void *args)
 {
-  const char *action;
   Entity *initer = yeGet(entity, "init");
 
   ywidGenericCall(opac, t, init);
 
   ((YMapState *)opac)->resources = yeGet(entity, "resources");
 
-  ((YMapState *)opac)->actionIdx = ywidAddSignal(opac, "action");
-  action = yeGetString(yeGet(entity, "action"));
-  ywidBind(opac, "action", action);
   if (initer) {
     YCallback *callback = ywinGetCallbackByStr(yeGetString(initer));
 
@@ -93,8 +89,7 @@ static InputStatue mapEvent(YWidgetState *opac, YEvent *event)
   InputStatue ret = NOTHANDLE;
 
   /* set pos */
-  ret = ywidCallSignal(opac, event, NULL,
-		       ((YMapState *)opac)->actionIdx);
+  ret = ywidCallSignal(opac, event, NULL, opac->actionIdx);
 
   opac->hasChange = ret == NOTHANDLE ? 0 : 1;
   return ret;

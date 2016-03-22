@@ -99,6 +99,7 @@ typedef struct WidgetState_ {
    * but signals must be in this structure */
   Entity *signals;
   int type;
+  int actionIdx;
   unsigned int hasChange;
 } YWidgetState;
 

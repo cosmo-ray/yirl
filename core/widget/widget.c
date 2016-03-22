@@ -197,6 +197,7 @@ static YWidgetState *ywidNewWidgetInternal(int t,
 {
   YWidgetState *ret;
   Entity *pos = yeGet(entity, "wid-pos");
+  const char *action;
 
   if (widgetTab.len <= t || widgetTab.allocator[t] == NULL)
     return NULL;
@@ -223,6 +224,11 @@ static YWidgetState *ywidNewWidgetInternal(int t,
     goto error;
 
   ret->hasChange = 1;
+
+  ret->actionIdx = ywidAddSignal(ret, "action");
+  action = yeGetString(yeGet(entity, "action"));
+  ywidBind(ret, "action", action);
+
   YE_ARRAY_FOREACH(yeGet(ret->entity, "bind"), bindInfo) {
     ywidBind(ret, yeGetString(yeGet(bindInfo, 0)),
 	     yeGetString(yeGet(bindInfo, 1)));
