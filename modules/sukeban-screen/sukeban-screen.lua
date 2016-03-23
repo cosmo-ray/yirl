@@ -15,8 +15,6 @@
 --along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
-local sksAction = yeCreateFunction("sksAction", 3, nil, nil)
-
 function sksAction(wid, eve, arg)
    print("action")
 end
@@ -27,7 +25,7 @@ function sukeScreeenNewWid(entity)
    yeCreateInt(75, yeGet(yeGet(entity, "entries"), 0), "size")
 
    local cnt = ywidNewWidget(entity, "contener")
-   ywidBind(cnt, "action", "snakeAction")
+   ywidBind(cnt, "action", "sks-action")
    return cnt;
 end
 
@@ -36,6 +34,8 @@ function initSukeScreen(entity)
    local init = yeCreateArray(nil, nil)
    yeCreateString("sukeban-screen", init, "name")
    yeCreateFunction("sukeScreeenNewWid", 1, init, "callback")
+
+   local sksAction = yeCreateFunction("sksAction", 3, entity, "action")
    ywidAddCallback(ywidCreateCallback("sks-action", sksAction))
    ywidAddSubType(init)
 
