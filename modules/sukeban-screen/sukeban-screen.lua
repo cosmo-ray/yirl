@@ -15,8 +15,18 @@
 --along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
+local Q_KEY = 113
+
+
 function sksAction(wid, eve, arg)
-   print("action")
+   while ywidEveIsEnd(eve) == false do
+      if ywidEveType(eve) == YKEY_DOWN then
+	 if ywidEveKey(eve) == Q_KEY then
+	    ywidCallCallbackByStr("FinishGame", wid, eve, false)
+	 end
+      end
+      eve = ywidNextEve(eve)
+   end
 end
 
 function sukeScreeenNewWid(entity)
