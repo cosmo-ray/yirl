@@ -24,8 +24,19 @@
 #include "curses-driver.h"
 #include "sdl-driver.h"
 #include "text-screen.h"
+#include "widget-callback.h"
 
 #ifdef WITH_CURSES
+static int testTXQuitOnQ(YWidgetState *wid, YEvent *eve, Entity *arg)
+{
+  (void)wid;
+  (void)arg;
+  (void)eve;
+
+  if (eve && (eve->type == YKEY_DOWN && (eve->key == '\n' || eve->key == 'q' )))
+    return ACTION;
+  return NOTHANDLE;
+}
 
 void testCursesLife(void)
 {
@@ -44,6 +55,7 @@ void testYWTextScreenCurses(void)
   /* load files */
   g_assert(t != -1);
   g_assert(ydJsonGetType() == t);
+  g_assert(ywidInitCallback() >= 0);
   jsonManager = ydNewManager(t);
   g_assert(jsonManager != NULL);
   ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json");
@@ -60,6 +72,7 @@ void testYWTextScreenCurses(void)
   
   g_assert(!ycursRegistreTextScreen());
 
+  ywinAddCallback(ywinCreateNativeCallback("txQuitOnQ", testTXQuitOnQ));
   wid = ywidNewWidget(ret, NULL);
   g_assert(wid);
 
@@ -89,6 +102,7 @@ void testYWTextScreenSdl2(void)
   /* load files */
   g_assert(t != -1);
   g_assert(ydJsonGetType() == t);
+  g_assert(ywidInitCallback() >= 0);
   jsonManager = ydNewManager(t);
   g_assert(jsonManager != NULL);
   ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json");
@@ -104,6 +118,7 @@ void testYWTextScreenSdl2(void)
   g_assert(ysdl2Type() == 0);
   
   g_assert(!ysdl2RegistreTextScreen());
+  ywinAddCallback(ywinCreateNativeCallback("txQuitOnQ", testTXQuitOnQ));
 
   wid = ywidNewWidget(ret, NULL);
   g_assert(wid);
@@ -139,6 +154,7 @@ void testYWTextScreenAll(void)
   /* load files */
   g_assert(t != -1);
   g_assert(ydJsonGetType() == t);
+  g_assert(ywidInitCallback() >= 0);
   jsonManager = ydNewManager(t);
   g_assert(jsonManager != NULL);
   ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json");
@@ -158,6 +174,7 @@ void testYWTextScreenAll(void)
   g_assert(!ysdl2RegistreTextScreen());
   g_assert(!ycursRegistreTextScreen());
 
+  ywinAddCallback(ywinCreateNativeCallback("txQuitOnQ", testTXQuitOnQ));
   /* create widgets */
   wid = ywidNewWidget(ret, NULL);
   g_assert(wid);

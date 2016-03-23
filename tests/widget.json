@@ -19,6 +19,7 @@
     "TextScreenTest" : {
 	"<type>" : "text-screen",
 	"text" : "All's death, something was living here, But today...\nbut far in the dark i see light",
+	"bind" : [["action", "txQuitOnQ"]],
 	"background": "hello.pnj" // Not yet implemented :)
     },
     "MenuTest" : {

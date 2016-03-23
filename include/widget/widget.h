@@ -195,5 +195,6 @@ void ywidSetMainWid(YWidgetState *wid);
 YWidgetState *ywidGetMainWid(void);
 void ywidFreeWidgets(void);
 
+InputStatue ywidEventCallActionSin(YWidgetState *opac, YEvent *event);
 
 #endif

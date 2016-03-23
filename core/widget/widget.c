@@ -220,12 +220,12 @@ static YWidgetState *ywidNewWidgetInternal(int t,
   if (!ret->signals)
     ret->signals = yeCreateArray(entity, "signals");
 
+  ret->actionIdx = ywidAddSignal(ret, "action");
   if (ret->init(ret, entity, NULL))
     goto error;
 
   ret->hasChange = 1;
 
-  ret->actionIdx = ywidAddSignal(ret, "action");
   action = yeGetString(yeGet(entity, "action"));
   ywidBind(ret, "action", action);
 
@@ -414,5 +414,16 @@ int ywidDoTurn(YWidgetState *opac)
 
   ret = ywidHandleEvent(opac, SLIST_FIRST(&head));
   ywidFreeEvents(SLIST_FIRST(&head));
+  return ret;
+}
+
+InputStatue ywidEventCallActionSin(YWidgetState *opac, YEvent *event)
+{
+  InputStatue ret = NOTHANDLE;
+
+  /* set pos */
+  ret = ywidCallSignal(opac, event, NULL, opac->actionIdx);
+
+  opac->hasChange = ret == NOTHANDLE ? 0 : 1;
   return ret;
 }

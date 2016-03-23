@@ -43,23 +43,6 @@ static int tsDestroy(YWidgetState *opac)
   return 0;
 }
 
-static InputStatue tsEvent(YWidgetState *opac, YEvent *event)
-{
-  InputStatue ret = NOTHANDLE;
-
-  (void)opac;
- 
-  if (!event)
-    return NOTHANDLE;
-
-  if (event->key == Y_ESC_KEY)
-    ret = ACTION;
-  else if (event->key == '\n') {
-    ret = ywidCallSignal(opac, event, NULL, opac->actionIdx);
-  }
-  return ret;
-}
-
 static int tsRend(YWidgetState *opac)
 {
   if (opac->hasChange)
@@ -76,7 +59,7 @@ static void *alloc(void)
   wstate->render = tsRend;
   wstate->init = tsInit;
   wstate->destroy = tsDestroy;
-  wstate->handleEvent = tsEvent;
+  wstate->handleEvent = ywidEventCallActionSin;
   wstate->type = t;
   return  ret;
 }

@@ -31,7 +31,9 @@ static int shooterAction(YWidgetState *wid, YEvent *eve, Entity *arg)
 
   (void)wid;
   (void)arg;
-  if (eve->key == '\t') {
+  if (!eve)
+    return NOTHANDLE;
+  if (eve->key == '\t' || eve->key == 'q') {
     ywidCallCallbackByStr("FinishGame", wid, eve, arg);
     ret = ACTION;
   }
@@ -53,6 +55,7 @@ static int shooterInit(YWidgetState *wid, YEvent *eve, Entity *arg)
   }
   ywinAddCallback(ywinCreateNativeCallback("shooterAction", shooterAction));
   ywidBind(wid, "action", "shooterAction");
+  ywidCallCallbackByStr("shooterAction", wid, eve, arg);
   return NOTHANDLE;
 }
 

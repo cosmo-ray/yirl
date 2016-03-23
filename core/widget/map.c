@@ -84,17 +84,6 @@ static int mapRend(YWidgetState *opac)
   return 0;
 }
 
-static InputStatue mapEvent(YWidgetState *opac, YEvent *event)
-{
-  InputStatue ret = NOTHANDLE;
-
-  /* set pos */
-  ret = ywidCallSignal(opac, event, NULL, opac->actionIdx);
-
-  opac->hasChange = ret == NOTHANDLE ? 0 : 1;
-  return ret;
-}
-
 int ywMapHasChange(YWidgetState *state)
 {
   return state->hasChange;
@@ -111,7 +100,7 @@ static void *alloc(void)
   wstate->render = mapRend;
   wstate->init = mapInit;
   wstate->destroy = mapDestroy;
-  wstate->handleEvent = mapEvent;
+  wstate->handleEvent = ywidEventCallActionSin;
   wstate->type = t;
   return  ret;
 }
