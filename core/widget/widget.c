@@ -198,6 +198,7 @@ static YWidgetState *ywidNewWidgetInternal(int t,
   YWidgetState *ret;
   Entity *pos = yeGet(entity, "wid-pos");
   const char *action;
+  Entity *initer = yeGet(entity, "init");
 
   if (widgetTab.len <= t || widgetTab.allocator[t] == NULL)
     return NULL;
@@ -221,8 +222,18 @@ static YWidgetState *ywidNewWidgetInternal(int t,
     ret->signals = yeCreateArray(entity, "signals");
 
   ret->actionIdx = ywidAddSignal(ret, "action");
+
+  /* Init widget */
   if (ret->init(ret, entity, NULL))
     goto error;
+
+  /* Init sub widget */
+  if (initer) {
+    YCallback *callback = ywinGetCallbackByStr(yeGetString(initer));
+
+    if (callback)
+      ywidCallCallback(callback, ret, NULL, entity);
+  }
 
   ret->hasChange = 1;
 

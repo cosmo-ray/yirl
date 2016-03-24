@@ -23,18 +23,9 @@ static int t = -1;
 
 static int mapInit(YWidgetState *opac, Entity *entity, void *args)
 {
-  Entity *initer = yeGet(entity, "init");
-
   ywidGenericCall(opac, t, init);
 
   ((YMapState *)opac)->resources = yeGet(entity, "resources");
-
-  if (initer) {
-    YCallback *callback = ywinGetCallbackByStr(yeGetString(initer));
-
-    if (callback)
-      ywidCallCallback(callback, opac, NULL, entity);
-  }
 
   if (yuiStrEqual0(yeGetString(yeGet(entity, "cam-type")), "center")) {
     ((YMapState *)opac)->renderType = YMAP_PARTIAL;
