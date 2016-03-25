@@ -55,6 +55,8 @@ static inline int ysLoadFile(void *sm, const char *name)
 
 static inline const char *ysGetError(void *sm)
 {
+  if (!sm)
+    return "script manager is NULL";
   return ((YScriptOps *)sm)->getError(sm);
 }
 
