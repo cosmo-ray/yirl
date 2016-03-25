@@ -57,6 +57,8 @@ static inline const char *ysGetError(void *sm)
 {
   if (!sm)
     return "script manager is NULL";
+  if (!((YScriptOps *)sm)->getError)
+    return "(nil)";
   return ((YScriptOps *)sm)->getError(sm);
 }
 
