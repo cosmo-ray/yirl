@@ -1,0 +1,9 @@
+{
+    "name" : "testMapReader",
+    "pre-load" : [
+	{
+	    "file" : "../../../modules/sm-reader/",
+	    "type" : "module"
+	},
+    ]
+}

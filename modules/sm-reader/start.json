@@ -1,0 +1,12 @@
+{
+    "name" : "sm-reader",
+    "init-scripts" : [
+	["tcc" ,  "init_sm_reader" ]
+    ],
+    "pre-load" : [
+	{
+	    "file" : "sm-reader.c",
+	    "type" : "tcc"
+	}
+    ]
+}
