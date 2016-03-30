@@ -18,6 +18,8 @@
 #ifndef _TESTS_H_
 #define _TESTS_H_
 
+#include <glib.h>
+
 void testBlockArray(void);
 
 void testLifecycleSimple(void);

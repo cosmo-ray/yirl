@@ -22,6 +22,7 @@
 #include <sys/time.h>
 #include <stdint.h>
 #include <unistd.h>
+#include <time.h>
 
 #ifndef MAX_NB_MANAGER
 #define MAX_NB_MANAGER 64

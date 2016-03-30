@@ -15,6 +15,7 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <glib.h>
 #include "block-array.h"
 
 static uint8_t nullPtr[YBA_MAX_ELEM_SIZE];

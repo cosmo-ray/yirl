@@ -17,6 +17,8 @@
 
 #include <unistd.h>
 #include <sched.h>
+#include <glib.h>
+
 #include "game.h"
 
 /* description */
@@ -26,6 +28,7 @@
 /* scripting */
 #include "lua-script.h"
 #include "lua-binding.h"
+#include "tcc-script.h"
 
 /* widgets */
 #include "widget-callback.h"
@@ -107,8 +110,11 @@ int ygInit(GameConfig *cfg)
   CHECK_AND_GOTO(t = ysLuaInit(), -1, error, "lua init failed");
   CHECK_AND_GOTO(luaManager = ysNewManager(NULL, t), NULL, error,
 		    "lua init failed");
-
   CHECK_AND_GOTO(yesLuaRegister(luaManager), -1, error, "lua init failed");
+
+  CHECK_AND_GOTO(t = ysTccInit(), -1, error, "tcc init failed");
+  CHECK_AND_GOTO(tccManager = ysNewManager(NULL, t), NULL, error,
+		    "tcc init failed");
 
   /* Init widgets */
   CHECK_AND_GOTO(ywidInitCallback(), -1, error, "can not init callback");
@@ -177,6 +183,16 @@ void ygEnd()
   init = 0;
 }
 
+void *ygGetManager(const char *name)
+{
+  if (yuiStrEqual0(name, "tcc"))
+    return tccManager;
+  else if (yuiStrEqual0(name, "lua"))
+    return luaManager;
+  return NULL;
+}
+
+
 Entity *ygLoadMod(const char *path)
 {
   char *tmp;
@@ -223,6 +239,17 @@ Entity *ygLoadMod(const char *path)
       }
       g_free(fileStr);
 
+    } else if (yuiStrEqual0(yeGetString(tmpType), "tcc")) {
+      char *fileStr = NULL;
+
+      fileStr = g_strconcat(path, "/",
+			    yeGetString(tmpFile), NULL);
+      if (ysLoadFile(tccManager, fileStr) < 0) {
+	DPRINT_ERR("Error when loading '%s': %s\n",
+		   yeGetString(tmpFile), ysGetError(tccManager));
+      }
+      g_free(fileStr);
+
     } else if (yuiStrEqual0(yeGetString(tmpType), "json")) {
       char *fileStr = NULL;
       Entity *as = yeGet(var, "as");
@@ -249,7 +276,12 @@ Entity *ygLoadMod(const char *path)
   }
 
   YE_ARRAY_FOREACH(initScripts, var2) {
-    ysCall(luaManager, yeGetString(var2), 1, mod);
+    if (yeType(var2) == YSTRING) {
+      ysCall(luaManager, yeGetString(var2), 1, mod);
+    } else if (yeType(var2) == YARRAY) {
+      ysCall(ygGetManager(yeGetString(yeGet(var2, 0))),
+	     yeGetString(yeGet(var2, 1)), 1, mod);
+    }
   }
 
 

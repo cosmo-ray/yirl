@@ -274,10 +274,10 @@ Entity *yeCreateFunction(const char *funcName, int nArgs, void *manager,
 
   YE_ALLOC_ENTITY(ret, FunctionEntity);
   yeInit((Entity *)ret, YFUNCTION, father, name);
-  ret->nArgs = nArgs;
   ret->value = NULL;
   ret->manager = manager;
   ret->fastPath = NULL;
+  ret->nArgs = nArgs;
   yeSetString(YE_TO_ENTITY(ret), funcName);
   return (YE_TO_ENTITY(ret));
 }
@@ -536,10 +536,12 @@ void	yeSetString(Entity *entity, const char *val)
     free(YE_TO_STRING(entity)->value);
   if (val != NULL) {
     YE_TO_STRING(entity)->value = strdup(val);
-    YE_TO_STRING(entity)->len = strlen(val);
+    if (entity->type == YSTRING)
+      YE_TO_STRING(entity)->len = strlen(val);
   } else {
     YE_TO_STRING(entity)->value = NULL;
-    YE_TO_STRING(entity)->len = 0;
+    if (entity->type == YSTRING)
+      YE_TO_STRING(entity)->len = 0;
   }
 }
 

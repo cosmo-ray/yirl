@@ -19,7 +19,6 @@
 #ifndef _YIRL_GAME_H_
 #define _YIRL_GAME_H_
 
-#include <glib.h>
 #include "entity.h"
 #include "widget.h"
 #include "widget-callback.h"
@@ -41,10 +40,14 @@ typedef struct RenderConf_ {
   const char *name;
 } RenderConf;
 
+#define GList void
+
 typedef struct {
   ModuleConf *startingMod;
   GList *rConf;
 } GameConfig;
+
+#undef GList
 
 int ygInitGameConfig(GameConfig *cfg, const char *path, RenderType t);
 
@@ -56,6 +59,8 @@ int ygStartLoop(GameConfig *config);
 
 Entity *ygLoadMod(const char *path);
 Entity *ygGetMod(const char *path);
+
+void *ygGetManager(const char *name);
 
 void ygEnd(void);
 

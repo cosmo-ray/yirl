@@ -36,12 +36,20 @@ static int tccInit(void *sm, void *args)
   if (l == NULL)
     return -1;
   GET_TCC_S(sm) = l;
+  tcc_add_sysinclude_path(l, "/usr/include/");
+  tcc_add_sysinclude_path(l, "/usr/lib/tcc/include/");
+  tcc_add_sysinclude_path(l, YIRL_INCLUDE_PATH "/widget");
+  tcc_add_sysinclude_path(l, YIRL_INCLUDE_PATH "/core");
   return 0;
 }
 
 static int tccLoadFile(void *sm, const char *filename)
 {
-  return tcc_add_file(GET_TCC_S(sm), filename);
+  int ret = tcc_add_file(GET_TCC_S(sm), filename);
+
+  if (ret < 0)
+    return ret;
+  return tcc_relocate(GET_TCC_S(sm), TCC_RELOCATE_AUTO);
 }
 
 static int tccRegistreFunc(void *sm, const char *name, void *arg)
@@ -50,19 +58,27 @@ static int tccRegistreFunc(void *sm, const char *name, void *arg)
   return 0;
 }
 
-/* static void tccPrintError(void *sm) */
-/* { */
-/*   DPRINT_ERR("error in lua script\nerror: %s\n", lua_tostring(GET_TCC_S(sm), -1)); */
-/* } */
-
 static void *tccCall(void *sm, const char *name, int nbArg, va_list *ap)
 {
+  /* should be declared as thread local */
+  static void *args[16];
   TCCState *tcc_s = GET_TCC_S(sm);
   void *sym;
 
-  if ((sym = tcc_get_symbol(tcc_s, name)) == NULL)
+  if (!name) {
+    DPRINT_ERR("can not call anonymous function...");
     return NULL;
-  return ((void *(*)(int, va_list *ap))sym)(nbArg, ap);
+  }
+
+  if ((sym = tcc_get_symbol(tcc_s, name)) == NULL) {
+    DPRINT_ERR("unable to find '%s' symbol", name);
+    return NULL;
+  }
+
+  for (int i = 0; i < nbArg || i < 16; ++i) {
+    args[i] = va_arg(ap, void *);
+  }
+  return ((void *(*)(int, void **args))sym)(nbArg, args);
 }
 
 static int tccDestroy(void *sm)

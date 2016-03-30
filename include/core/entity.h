@@ -24,7 +24,6 @@
 #define	_YIRL_ENTITY_H
 
 #include <stdio.h>
-#include <glib.h>
 #include "block-array.h"
 
 #define NONNULL(arg) __attribute__ ((nonnull (arg)))

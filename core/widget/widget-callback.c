@@ -18,6 +18,7 @@
 #include "widget-callback.h"
 #include "utils.h"
 #include "entity-script.h"
+#include <glib.h>
 
 static Entity *callbacks = NULL;
 

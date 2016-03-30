@@ -1,5 +1,7 @@
 cmake_minimum_required ( VERSION 2.8 )
 
+add_definitions( -DYIRL_INCLUDE_PATH="${CMAKE_SOURCE_DIR}/include/" )
+
 option(WITH_SDL "use SDL driver" ON)
 option(WITH_CURSES "use curses driver" ON)
 
