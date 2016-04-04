@@ -399,6 +399,35 @@ extern "C++"
 #endif
   
   
+#define YE_IMPL_RECREATE(type, value, father, name)	\
+  Entity *ret = yeGetByStr(father, name);		\
+							\
+  if (ret) {						\
+    yeSet##type(ret, value);				\
+    return ret;						\
+  }							\
+  return yeCreate##type(value, father, name);		\
+
+  static inline Entity *yeReCreateInt(double value, Entity *father,
+					const char *name)
+  {
+    YE_IMPL_RECREATE(Int, value, father, name)
+  }
+
+
+  static inline Entity *yeReCreateFloat(double value, Entity *father,
+					const char *name)
+  {
+    YE_IMPL_RECREATE(Float, value, father, name)
+  }
+
+  static inline Entity *yeReCreateString(const char *string,
+					 Entity *father, const char *name)
+  {
+    YE_IMPL_RECREATE(String, string, father, name)
+  }
+
+
   /**
    * Get the len attribute of an Entity
    * @param entity  The Entity we want to get the len
