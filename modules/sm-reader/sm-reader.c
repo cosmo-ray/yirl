@@ -15,15 +15,43 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
 #include <stdio.h>
 #include <entity.h>
 #include <widget.h>
 #include <game.h>
 
+#define SM_BUFF_LEN 1024
+
 void *load_map(int nb, void **args)
 {
-  printf("hi from map loader: %d - %s\n", nb, args[0]);
-  return 0x32;
+  int fd = open(args[0], O_RDONLY);
+  char buff[SM_BUFF_LEN];
+  int width = 0;
+  Entity *father = nb > 1 ? args[1] : yeCreateArray(NULL, NULL);
+  char *name = name = nb > 2 ? args[2] : NULL;
+  Entity *ret = yeCreateArray(father, name);
+  int check;
+
+ again:
+  check = read(fd, buff, SM_BUFF_LEN);
+
+  for (int i = 0; i < check; ++i) {
+    if (buff[i] == '\n') {
+      width = width ? width : i;
+    } else {
+      yeCreateInt(buff[i], yeCreateArray(ret, NULL), NULL);
+    }
+  }
+
+  if (check > 0)
+    goto again;
+  yeReCreateInt(width, father, "width");
+  return father;
 }
 
 void *init_sm_reader(int nbArg, void **args)

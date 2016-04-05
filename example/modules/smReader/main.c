@@ -1,3 +1,4 @@
+#include <unistd.h>
 #include "entity-script.h"
 #include "game.h"
 
@@ -18,6 +19,7 @@ static inline int die(int ret, GameConfig *cfg)
 int main(void)
 {
   GameConfig cfg;
+  char buff[1024];
 
   yuiDebugInit(); //Can not be init twice :)
   TRY_OR_DIE(ygInitGameConfig(&cfg, gamePath, SDL2), -1);
@@ -25,8 +27,12 @@ int main(void)
   printf("mod: %p\n", ygLoadMod("../../../modules/sm-reader/"));
   printf("mod(again): %p\n", ygGetMod("sm-reader"));
   printf("func: %p\n", yeGet(ygGetMod("sm-reader"), "load-map"));
-  printf("map: %p\n", (char *)yesCall(yeGet(ygGetMod("sm-reader"), "load-map"),
-				      "./test.sm"));
+  getcwd(buff, 1024);
+  printf("%s\n", buff);
+  strcpy(buff + strlen(buff), "/test.sm");
+  printf("%s\n", buff);
+  printf("map: %s\n", yeToString(yesCall(yeGet(ygGetMod("sm-reader"), "load-map"),
+					 buff), 3, 0));
   return die(0, &cfg);
 }
 
