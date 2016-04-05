@@ -783,7 +783,63 @@ Entity *yeFindLink(Entity *array, const char *targetPath, int flag)
   return NULL;
 }
 
-  /* macro for perf purpose */
+static void yeToStringInternal(Entity *entity, int deep, GString *str, int flag)
+{
+  if (!deep)
+    return;
+  switch (yeType(entity)) {
+  case YSTRING :
+    g_string_append_printf(str, "\"%s\"", yeGetString(entity));
+    break;
+  case YINT :
+    g_string_append_printf(str, "'%d'", yeGetInt(entity));
+    break;
+  case YFLOAT :
+    g_string_append_printf(str, "'%f'", yeGetFloat(entity));
+    break;
+  case YFUNCTION :
+    g_string_append_printf(str, "(%s: %d)", yeGetFunction(entity),
+			   yeFunctionNumberArgs(entity));
+    break;
+  case YARRAY :
+    g_string_append_c(str, '[');
+    if (yeLen(entity) > 20)
+      flag |= YE_FORMAT_OPT_PRINT_ONLY_VAL_ARRAY;
+    Y_BLOCK_ARRAY_FOREACH_PTR(&YE_TO_ARRAY(entity)->values,
+			      tmp, it, ArrayEntry) {
+      if (!(flag & YE_FORMAT_OPT_PRINT_ONLY_VAL_ARRAY)) {
+	if (tmp->name)
+	  g_string_append_printf(str, "name: '%s, '", tmp->name);
+	g_string_append_printf(str, "idx: %lu, ", it);
+	g_string_append_printf(str, "val: ");
+	g_string_append_c(str, '|');
+	g_string_append_c(str, ' ');
+      }
+      yeToStringInternal(tmp->entity, deep - 1, str, flag);
+    }
+
+    g_string_append_c(str, ']');
+    if (flag & YE_FORMAT_OPT_BREAK_ARRAY_END)
+      g_string_append_c(str, '\n');
+    break;
+  case YDATA :
+    g_string_append_printf(str, "'%p'", yeGetData(entity));
+    break;
+  default :
+    break;
+  }
+}
+
+char *yeToString(Entity *entity, int deep, int flag)
+{
+  GString *str = g_string_new(NULL);
+
+  yeToStringInternal(entity, deep, str, flag);
+  return g_string_free(str, 0);
+}
+
+
+/* macro for perf purpose */
 #undef YE_INCR_REF
   
 #undef YE_DECR_REF

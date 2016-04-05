@@ -61,6 +61,9 @@ extern "C"
       YDATA,
       NBR_ENTITYTYPE
     } EntityType;
+
+#define YE_FORMAT_OPT_BREAK_ARRAY_END 1
+#define YE_FORMAT_OPT_PRINT_ONLY_VAL_ARRAY 2
   
 #define	YE_TO_ENTITY(X) ((Entity *)X)
 #define	YE_TO_C_ENTITY(X) ((const Entity *)X)
@@ -276,7 +279,7 @@ extern "C"
   Entity *yeCreateFloat(double value, Entity *fathers, const char *name) WEAK;
   Entity *yeCreateString(const char *string, Entity *fathers, const char *name) WEAK;
   Entity *yeCreateFunction(const char *funcName, int nArgs, void *manager,
-			   Entity *father, const char *name);
+			   Entity *father, const char *name) WEAK;
   Entity *yeCreateArray(Entity *fathers, const char *name) WEAK;
 
   Entity *yeCreateData(void *value, Entity *father, const char *name) WEAK;
@@ -549,6 +552,8 @@ extern "C++"
 
   Entity *yeFindLink(Entity *father, const char *targetPath, int flag);
  
+  char *yeToString(Entity *entity, int deep, int flag);
+
 #ifdef __cplusplus
 }
 #endif
