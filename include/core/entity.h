@@ -425,6 +425,18 @@ extern "C++"
   }							\
   return yeCreate##type(value, father, name);		\
 
+  static inline Entity *yeReCreateArray(Entity *father,
+					const char *name, Entity *newArray)
+  {
+    Entity *ret = yeGetByStr(father, name);
+
+    yeRemoveChild(father, ret);
+    if (newArray) {
+      return yePushBack(father, newArray, name) < 0 ? NULL : newArray;
+    }
+    return yeCreateArray(father, name);
+  }
+
   static inline Entity *yeReCreateInt(double value, Entity *father,
 					const char *name)
   {
