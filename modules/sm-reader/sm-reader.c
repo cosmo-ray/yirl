@@ -32,8 +32,9 @@ void *load_map(int nb, void **args)
   int fd = open(args[0], O_RDONLY);
   char buff[SM_BUFF_LEN];
   int width = 0;
-  Entity *father = nb > 1 ? args[1] : yeCreateArray(NULL, NULL);
-  char *name = name = nb > 2 ? args[2] : NULL;
+  Entity *mod_description = nb > 1 ? args[1] : NULL;
+  Entity *father = nb > 2 ? args[1] : yeCreateArray(NULL, NULL);
+  char *name = name = nb > 3 ? args[2] : NULL;
   Entity *ret = yeCreateArray(father, name);
   int check;
 
