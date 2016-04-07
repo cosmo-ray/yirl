@@ -415,6 +415,8 @@ int	luaMapCreatePos(lua_State *L)
 
 int	luaWidEntity(lua_State *L)
 {
+  if (!lua_touserdata(L, 1))
+    return -1;
   lua_pushlightuserdata(L, ((YWidgetState *)lua_touserdata(L, 1))->entity);
   return 1;
 }
