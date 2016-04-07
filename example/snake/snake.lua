@@ -221,8 +221,8 @@ function initSnake(entity)
    -- TODO: this functions: C/lua
    local mapEntity = snakeMap(entity)
    local map = ywidNewWidget(mapEntity)
-   local action = yeCreateFunction("snakeAction", entity, "snakeAction", 3)
-   local menuInit = yeCreateFunction("scoreInit", entity, "scoreInit", 3)
+   local action = yeCreateFunction("snakeAction", 3, entity, "snakeAction")
+   local menuInit = yeCreateFunction("scoreInit", 3, entity, "scoreInit")
 
    yuiRandInit()
    ywidAddCallback(ywidCreateCallback("snakeAction", action))
