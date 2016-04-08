@@ -103,13 +103,18 @@
     "MapTestResources" : [
 	{
 	    "name" : "floar",
-	    "map-srite" : "bg.png",
+	    "map-tild" : "bg.png",
 	    "map-char" : "."
 	},
 	{
 	    "name" : "pj", // for text screen ?
-	    "map-srite" : "head.png", // sdl map
+	    "map-tild" : "head.png", // sdl map
 	    "map-char" : "@" // curses map
+	},
+	{
+	    "name" : "pj", // for text screen ?
+	    "map-sprite" : "hero.png", // sdl map
+	    "map-char" : "C" // curses map
 	}
     ]
 }

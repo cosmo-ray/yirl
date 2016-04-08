@@ -355,6 +355,9 @@ static void sdlFreeTexture(void *txt)
   SDL_DestroyTexture(txt);
 }
 
+#define Y_SDL_TILD 1
+#define Y_SDL_SPRITE 2
+
 static SDL_Texture *sdlLoasAndCachImg(Entity *elem)
 {
   const char *path;
@@ -365,10 +368,12 @@ static SDL_Texture *sdlLoasAndCachImg(Entity *elem)
     return texture;
   SDL_Surface *image;
 
-  path = yeGetString(yeGet(elem, "map-srite"));
-  if (!path) {
+  if ((path = yeGetString(yeGet(elem, "map-tild"))) != NULL)
+    yeCreateInt(Y_SDL_TILD, elem, "$sdl-type");
+  else if ((path = yeGetString(yeGet(elem, "map-srite"))) != NULL)
+    yeCreateInt(Y_SDL_SPRITE, elem, "$sdl-type");
+  else
     return NULL;
-  }
 
   image = IMG_Load(path);
   if (!image) {
@@ -391,11 +396,20 @@ int sdlDisplaySprites(SDLWid *wid, int x, int y, Entity *elem,
 
 
   if (texture) {
-    DestR.x = x * w + wid->rect.x + thresholdX;
-    DestR.y = y * h + wid->rect.y;
-    DestR.w = w;
-    DestR.h = h;
-    SDL_RenderCopy(sg.renderer, texture, NULL, &DestR);
+    int type = yeGetInt(yeGet(elem, "$sdl-type"));
+    
+    if (type == Y_SDL_TILD) {
+      DestR.x = x * w + wid->rect.x + thresholdX;
+      DestR.y = y * h + wid->rect.y;
+      DestR.w = w;
+      DestR.h = h;
+      SDL_RenderCopy(sg.renderer, texture, NULL, &DestR);
+    } else {
+      SDL_QueryTexture(texture, NULL, NULL, &DestR.w, &DestR.h);
+      DestR.x = x * w + wid->rect.x + thresholdX;
+      DestR.y = y * h - (DestR.h - h) + wid->rect.y;
+      SDL_RenderCopy(sg.renderer, texture, NULL, &DestR);
+    }
   } else {
     return sdlPrintText(wid, yeGetString(yeGet(elem, "map-char")),
 			2, color, x * w, y * h);
