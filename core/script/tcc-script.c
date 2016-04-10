@@ -82,7 +82,7 @@ static void *tccCall(void *sm, const char *name, int nbArg, va_list *ap)
   }
 
   for (int i = 0; i < nbArg || i < 16; ++i) {
-    args[i] = va_arg(ap, void *);
+    args[i] = va_arg(*ap, void *);
   }
   return ((void *(*)(int, void **args))sym)(nbArg, args);
 }

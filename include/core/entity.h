@@ -224,7 +224,10 @@ extern "C"
 				      unsigned int: yeGetByIdx,		\
 				      int: yeGetByIdx,			\
 				      long : yeGetByIdx,		\
+				      long long : yeGetByIdx,		\
+				      unsigned long long : yeGetByIdx,	\
 				      unsigned long: yeGetByIdx,	\
+				      Y_GEN_CLANG_ARRAY(char, yeGetByStrFast), \
 				      const char *: yeGetByStrFast,	\
 				      char *: yeGetByStrFast) (ENTITY, INDEX)
 
@@ -328,6 +331,7 @@ extern "C"
 				      int: yeSetInt,			\
 				      double: yeSetFloat,		\
 				      const char *: yeSetString,	\
+				      Y_GEN_CLANG_ARRAY(char, yeSetString), \
 				      char *: yeSetString)(ENTITY, VALUE)
 
   
@@ -372,29 +376,39 @@ extern "C++"
   void yeSetAt(Entity *entity, const char *index, float value) WEAK;
 }
 #else
-#define yeSetAtIntIxd(ENTITY, INDEX, VALUE) _Generic((VALUE),		\
-						     int: yeSetIntAt,	\
-						     float: yeSetFloatAt, \
-						     const char *: yeSetStringAt, \
-						     char *: yeSetStringAt)(ENTITY, INDEX, VALUE)
+#define yeSetAtIntIxd(ENTITY, INDEX, VALUE)	\
+  _Generic((VALUE),							\
+	   int: yeSetIntAt,						\
+	   float: yeSetFloatAt,						\
+	   Y_GEN_CLANG_ARRAY(char, yeSetStringAt),			\
+	   const char *: yeSetStringAt,					\
+	   char *: yeSetStringAt)(ENTITY, INDEX, VALUE)
 
-#define yeSetAtStrIdx(ENTITY, INDEX, VALUE) _Generic((VALUE),			\
-						     int: yeSetIntAtStrIdx, \
-						     float: yeSetFloatAtStrIdx,	\
-						     const char *: yeSetStringAtStrIdx, \
-						     char *: yeSetStringAtStrIdx)(ENTITY, INDEX, VALUE)
+#define YE_SET_AT_STRIDX_INTERNAL(WHAT)				\
+  _Generic((WHAT),						\
+	   int: yeSetIntAtStrIdx,				\
+	   float: yeSetFloatAtStrIdx,				\
+	   const char *: yeSetStringAtStrIdx,			\
+	   Y_GEN_CLANG_ARRAY(char, yeSetStringAtStrIdx),	\
+	   char *: yeSetStringAtStrIdx)
 
-#define yeSetAt(ENTITY, INDEX, VALUE) _Generic((INDEX),			\
-    int: _Generic((VALUE),						\
-		  int: yeSetIntAt,					\
-		  float: yeSetFloatAt,					\
-		  const char *: yeSetStringAt,				\
-		  char *: yeSetStringAt),				\
-    char *: _Generic((VALUE),						\
-		     int: yeSetIntAtStrIdx,				\
-		     float: yeSetFloatAtStrIdx,				\
-		     const char *: yeSetStringAtStrIdx,			\
-		     char *: yeSetStringAtStrIdx))(ENTITY, INDEX, VALUE)
+#define yeSetAtStrIdx(ENTITY, INDEX, VALUE)				\
+  yeSetAtStrIdxInternal(VALUE)(ENTITY, INDEX, VALUE)
+
+#define yeSetAt(ENTITY, INDEX, VALUE)					\
+  _Generic((INDEX),							\
+	   int: _Generic((VALUE),					\
+			 int: yeSetIntAt,				\
+			 float: yeSetFloatAt,				\
+			 const char *: yeSetStringAt,			\
+			 Y_GEN_CLANG_ARRAY(char, yeSetStringAt),	\
+			 char *: yeSetStringAt),			\
+	   char *: YE_SET_AT_STRIDX_INTERNAL(VALUE),			\
+	   Y_GEN_CLANG_ARRAY(char, YE_SET_AT_STRIDX_INTERNAL(VALUE)),	\
+	   const char *: YE_SET_AT_STRIDX_INTERNAL(VALUE)		\
+	   )(ENTITY, INDEX, VALUE)
+
+  //char *: YE_SET_AT_STRIDX_INTERNAL(VALUE))(ENTITY, INDEX, VALUE)
   
 #endif
   

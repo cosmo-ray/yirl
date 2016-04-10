@@ -40,6 +40,30 @@
 #define popcount64 __builtin_popcountl
 #endif
 
+/*
+ * because clang is unable to guess that a 'char[1]' may be cast in 'char *'
+ * when using generic
+ */
+#define Y_GEN_CLANG_ARRAY(type, func)		\
+  type [1]: func,				\
+    type [2]: func,				\
+    type [3]: func,				\
+    type [4]: func,				\
+    type [5]: func,				\
+    type [6]: func,				\
+    type [7]: func,				\
+    type [8]: func,				\
+    type [9]: func,				\
+    type [10]: func,				\
+    type [11]: func,				\
+    type [12]: func,				\
+    type [13]: func,				\
+    type [14]: func,				\
+    type [15]: func,				\
+    type [16]: func,				\
+    type [17]: func				\
+
+
 /* Define to use for error handeling */
 #define MAYBE(var) var
 

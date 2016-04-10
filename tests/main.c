@@ -32,11 +32,12 @@ int main(int argc, char **argv)
   int no_wid = 0;
   char *only = NULL;
   GOptionContext *ctx;
-  const GOptionEntry entries[] = {{"no-widget", 0, 0,  G_OPTION_ARG_NONE, &no_wid,
-				   "don't test gui(usefull for perf)", NULL},
-				  {"just", 0, 0,  G_OPTION_ARG_STRING, &only,
-				   "jut do the given test", NULL},
-				  {NULL}};
+  const GOptionEntry entries[3] = {{"no-widget", 0, 0,  G_OPTION_ARG_NONE,
+				    &no_wid,
+				    "don't test gui(usefull for perf)", NULL},
+				   {"just", 0, 0,  G_OPTION_ARG_STRING, &only,
+				    "jut do the given test", NULL},
+				   {NULL, 0, 0, 0, NULL, NULL, NULL}};
   GError *error = NULL;
 
   ctx = g_option_context_new(NULL);
@@ -71,7 +72,7 @@ int main(int argc, char **argv)
   TEST_TRY_ADD("/parser/json/simple-file", testJsonLoadFile, only);
   TEST_TRY_ADD("/parser/json/complex-file", testJsonMultipleObj, only);
 
-  TEST_TRY_ADD("/sound/soundManager/all", testYSoundLib, only);
+  /* TEST_TRY_ADD("/sound/soundManager/all", testYSoundLib, only); */
 
   if (no_wid)
     goto run_test;

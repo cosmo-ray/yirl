@@ -28,7 +28,7 @@ and fprintf need FILE handler.
 */
 
 typedef struct s_log_mode {
-  const char const *str;
+  const char * const str;
   FILE*		file;
 }		t_log_mode;
 

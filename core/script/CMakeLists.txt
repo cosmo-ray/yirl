@@ -15,12 +15,13 @@ add_library (tccScript STATIC ${TCC_SOURCE})
 
 target_link_libraries(
 	luaScript
-	lua
+	lua5.2
 	entity
 )
 
 target_link_libraries(
 	tccScript
+	dl
 	tcc
 	entity
 )
