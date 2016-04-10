@@ -155,7 +155,7 @@ static int  convertToYKEY(SDL_Keycode key)
 
 static inline YEvent *SDLConvertEvent(SDL_Event* event)
 {
-  YEvent *eve = g_new(YEvent, 1);
+  YEvent *eve = g_new0(YEvent, 1);
   
   switch(event->type)
     {
