@@ -38,6 +38,7 @@ void *load_map(int nb, void **args)
   Entity *ret = yeCreateArray(father, name);
   int check;
 
+  printf("m-d: %p\n", mod_description);
  again:
   check = read(fd, buff, SM_BUFF_LEN);
 

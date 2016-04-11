@@ -4,6 +4,23 @@
 	{
 	    "file" : "../../../modules/sm-reader/",
 	    "type" : "module"
+	}
+    ],
+    "resources" : [
+	{
+	    "name" : "floar",
+	    "map-srite" : "bg.png",
+	    "map-char" : "."
+	},
+	{
+	    "name" : "head", // for text screen ?
+	    "map-srite" : "hero.png", // sdl map
+	    "map-char" : "X" // curses map
+	},
+	{
+	    "name" : "wall", // for text screen ?
+	    "map-srite" : "bullet.png", // sdl map
+	    "map-char" : "-" // curses map
 	},
     ]
 }
