@@ -67,7 +67,7 @@ void *ysCall(void *sm, const char *name, int nbArg, ...)
   va_list ap;
 
   va_start(ap, nbArg);
-  ret = ysVCall(sm, name, nbArg, &ap);
+  ret = ysVCall(sm, name, nbArg, ap);
   va_end(ap);
   return ret;
 }

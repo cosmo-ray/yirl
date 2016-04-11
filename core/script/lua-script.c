@@ -56,7 +56,7 @@ static const char *luaGetError(void *sm)
   return (lua_tostring(GET_L(sm), -1));
 }
 
-static void *luaCall(void *sm, const char *name, int nbArg, va_list *ap)
+static void *luaCall(void *sm, const char *name, int nbArg, va_list ap)
 {
   lua_State *l = GET_L(sm);
   
@@ -68,7 +68,7 @@ static void *luaCall(void *sm, const char *name, int nbArg, va_list *ap)
     {
       void *tmp;
 
-      tmp = va_arg(*ap, void *);
+      tmp = va_arg(ap, void *);
       DPRINT_INFO("pushing %p\n", tmp);
       lua_pushlightuserdata(l, tmp);
     }

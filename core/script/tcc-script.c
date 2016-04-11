@@ -64,7 +64,7 @@ static int tccRegistreFunc(void *sm, const char *name, void *arg)
   return 0;
 }
 
-static void *tccCall(void *sm, const char *name, int nbArg, va_list *ap)
+static void *tccCall(void *sm, const char *name, int nbArg, va_list ap)
 {
   /* should be declared as thread local */
   static void *args[16];

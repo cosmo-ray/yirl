@@ -22,7 +22,7 @@
 #include "entity.h"
 #include "script.h"
 
-void *yesVCall(Entity *func, va_list *ap);
+void *yesVCall(Entity *func, va_list ap);
 void *yesCall(Entity *func, ...);
 
 #endif

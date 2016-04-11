@@ -17,7 +17,7 @@
 
 #include "entity-script.h"
 
-void *yesVCall(Entity *func, va_list *ap)
+void *yesVCall(Entity *func, va_list ap)
 {
   if (!func)
     return NULL;
@@ -36,7 +36,7 @@ void *yesCall(Entity *func, ...)
   if (!func)
     return NULL;
   va_start(ap, func);
-  ret = yesVCall(func, &ap);
+  ret = yesVCall(func, ap);
   va_end(ap);
   return ret;
 }
