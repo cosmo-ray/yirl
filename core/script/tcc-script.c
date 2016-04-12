@@ -24,6 +24,12 @@
 
 static int t = -1;
 
+#ifdef TCC_FILETYPE_C
+#define tcc_add_c_file(s, filename) tcc_add_file(s, filename, TCC_FILETYPE_C)
+#else
+#define tcc_add_c_file(s, filename) tcc_add_file(s, filename)
+#endif
+
 #define GET_OPS(sm) (((YTccScript *)(sm))->ops)
 #define GET_TCC_S(sm) (((YTccScript *)(sm))->l)
 
@@ -45,7 +51,7 @@ static int tccInit(void *sm, void *args)
 
 static int tccLoadFile(void *sm, const char *filename)
 {
-  int ret = tcc_add_file(GET_TCC_S(sm), filename);
+  int ret = tcc_add_c_file(GET_TCC_S(sm), filename);
 
   if (ret < 0)
     return ret;
