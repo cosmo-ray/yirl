@@ -51,17 +51,17 @@
     "ShooterResources" : [
 	{
 	    "name" : "floar",
-	    "map-srite" : "bg.png",
+	    "map-tild" : "bg.png",
 	    "map-char" : "."
 	},
 	{
 	    "name" : "pj", // for text screen ?
-	    "map-srite" : "hero.png", // sdl map
+	    "map-tild" : "hero.png",
 	    "map-char" : "@" // curses map
 	},
 	{
 	    "name" : "bullet", // for text screen ?
-	    "map-srite" : "bullet.png", // sdl map
+	    "map-tild" : "bullet.png",
 	    "map-char" : "o" // curses map
 	}
 
