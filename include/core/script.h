@@ -21,12 +21,13 @@
 #include <stdarg.h>
 #include "utils.h"
 
+#define Y_END_VA_LIST ((void *)0xDEAD0000)
 
 typedef struct {
   int (*init)(void *opac, void *args);
   int (*loadFile)(void *opac, const char *fileName);
   int (* registreFunc)(void *opac, const char *name, void *arg);
-  void *(*call)(void *opac, const char *name, int nbArg, va_list ap);
+  void *(*call)(void *opac, const char *name, va_list ap);
   const char *(*getError)(void *opac);
   int (*destroy)(void *opac);
 } YScriptOps;
@@ -34,13 +35,15 @@ typedef struct {
 YManagerAllocator *ysScriptsTab(void);
 
 
-void *ysCall(void *sm, const char *name, int nbArg, ...);
+void *ysCallInt(void *sm, const char *name, ...);
+
+#define ysCall0(sm, name) ysCallInt(sm, name, Y_END_VA_LIST)
+#define ysCall(sm, name, args...) ysCallInt(sm, name, args, Y_END_VA_LIST)
 
 
-
-static inline void *ysVCall(void *sm, const char *name, int nbArg, va_list ap)
+static inline void *ysVCall(void *sm, const char *name, va_list ap)
 {
-  return ((YScriptOps *)sm)->call(sm, name, nbArg, ap);
+  return ((YScriptOps *)sm)->call(sm, name, ap);
 }
 
 static inline int ysRegistreFunc(void *sm, char *name, void *arg)

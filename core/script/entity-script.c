@@ -23,12 +23,11 @@ void *yesVCall(Entity *func, va_list ap)
     return NULL;
   if (!yeGetFunction(func))
     return NULL;
-  return ysVCall(YE_TO_FUNC(func)->manager, yeGetFunction(func),
-		 YE_TO_FUNC(func)->nArgs, ap);
+  return ysVCall(YE_TO_FUNC(func)->manager, yeGetFunction(func), ap);
   return NULL;
 }
 
-void *yesCall(Entity *func, ...)
+void *yesCallInt(Entity *func, ...)
 {
   void *ret;
   va_list ap;

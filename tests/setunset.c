@@ -27,7 +27,7 @@ void testSetSimple(void)
   Entity *test1 = yeCreateInt(1, mainStruct, NULL);
   Entity *test2 = yeCreateFloat(1, mainStruct,NULL);
   Entity *test3 = yeCreateString("test", mainStruct, NULL);
-  Entity *test4 = yeCreateFunction("funcName", 3, NULL, mainStruct, NULL);
+  Entity *test4 = yeCreateFunction("funcName", NULL, mainStruct, NULL);
 
   int testInt;
   double testDouble;

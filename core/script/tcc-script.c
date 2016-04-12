@@ -64,11 +64,12 @@ static int tccRegistreFunc(void *sm, const char *name, void *arg)
   return 0;
 }
 
-static void *tccCall(void *sm, const char *name, int nbArg, va_list ap)
+static void *tccCall(void *sm, const char *name, va_list ap)
 {
   /* should be declared as thread local */
   static void *args[16];
   TCCState *tcc_s = GET_TCC_S(sm);
+  int nbArg = 0;
   void *sym;
 
   if (!name) {
@@ -81,8 +82,10 @@ static void *tccCall(void *sm, const char *name, int nbArg, va_list ap)
     return NULL;
   }
 
-  for (int i = 0; i < nbArg || i < 16; ++i) {
-    args[i] = va_arg(*ap, void *);
+  for (void *tmp = va_arg(ap, void *); tmp != Y_END_VA_LIST;
+       tmp = va_arg(ap, void *)) {
+    args[nbArg] = tmp;
+    ++nbArg;
   }
   return ((void *(*)(int, void **args))sym)(nbArg, args);
 }

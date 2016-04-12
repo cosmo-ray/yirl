@@ -283,7 +283,7 @@ function initSnake(entity)
    ywidAddCallback(ywidCreateCallback("snakeWarp", warp))
    local init = yeCreateArray(nil, nil)
    yeCreateString("snake", init, "name")
-   yeCreateFunction("createSnake", 1, init, "callback")
+   yeCreateFunction("createSnake", init, "callback")
    ywidAddSubType(init)
    yeCreateInt(0, entity, "score");
 end

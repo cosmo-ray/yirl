@@ -59,7 +59,7 @@ void *load_map(int nb, void **args)
 void *init_sm_reader(int nbArg, void **args)
 {
   Entity *t = YE_TO_ENTITY(args[0]);
-  Entity *f = yeCreateFunction("load_map", 1, ygGetManager("tcc"), t, "load-map");
+  Entity *f = yeCreateFunction("load_map", ygGetManager("tcc"), t, "load-map");
 
   return NULL;
 }

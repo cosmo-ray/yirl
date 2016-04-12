@@ -56,22 +56,21 @@ static const char *luaGetError(void *sm)
   return (lua_tostring(GET_L(sm), -1));
 }
 
-static void *luaCall(void *sm, const char *name, int nbArg, va_list ap)
+static void *luaCall(void *sm, const char *name, va_list ap)
 {
   lua_State *l = GET_L(sm);
-  
+  int nbArg = 0;
+
   lua_getglobal(l, name);
   if (lua_isnil(l, -1)) {
     return NULL;
   }
-  for (int i = 0; i < nbArg; ++i)
-    {
-      void *tmp;
-
-      tmp = va_arg(ap, void *);
-      DPRINT_INFO("pushing %p\n", tmp);
-      lua_pushlightuserdata(l, tmp);
-    }
+  for (void *tmp = va_arg(ap, void *); tmp != Y_END_VA_LIST;
+       tmp = va_arg(ap, void *)) {
+    DPRINT_INFO("pushing %p\n", tmp);
+    lua_pushlightuserdata(l, tmp);
+    ++nbArg;
+  }
   lua_call(l, nbArg, 1);
   return (void *)lua_topointer(l, lua_gettop(l));
 }

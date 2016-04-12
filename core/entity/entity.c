@@ -267,7 +267,7 @@ Entity *yeCreateFloat(double value, Entity *father, const char *name)
   return ((Entity *)ret);
 }
 
-Entity *yeCreateFunction(const char *funcName, int nArgs, void *manager,
+Entity *yeCreateFunction(const char *funcName, void *manager,
 			 Entity *father, const char *name)
 {
   FunctionEntity *ret;
@@ -277,7 +277,6 @@ Entity *yeCreateFunction(const char *funcName, int nArgs, void *manager,
   ret->value = NULL;
   ret->manager = manager;
   ret->fastPath = NULL;
-  ret->nArgs = nArgs;
   yeSetString(YE_TO_ENTITY(ret), funcName);
   return (YE_TO_ENTITY(ret));
 }
@@ -608,7 +607,6 @@ void	yeUnsetFunction(Entity *entity)
   if (!entity)
     return;
   yeSetFunction(entity, NULL);
-  yeSetFunctionArgs(entity, 0);
 }
 
 void	yeSetFunction(Entity *entity, const char *value)
@@ -617,12 +615,6 @@ void	yeSetFunction(Entity *entity, const char *value)
     return;
   return yeSetString(entity, value);
 }
-
-void	yeSetFunctionArgs(Entity *entity, unsigned int nArgs)
-{
-  ((FunctionEntity *)entity)->nArgs = nArgs;
-}
-
 
 void	yeSetInt(Entity *entity, int value)
 {
@@ -673,15 +665,6 @@ const char	*yeGetFunction(Entity *entity)
   return YE_TO_FUNC(entity)->value;
 }
 
-int	yeFunctionNumberArgs(const Entity *entity)
-{
-  if (!entity) {
-    DPRINT_WARN("yeFunctionNumberArgs: entity is NULL");
-    return (YINT);
-  }  
-  return YE_TO_C_FUNC(entity)->nArgs;
-}
-
 double	yeGetFloat(Entity *entity)
 {
   if (!checkType(entity, YFLOAT)) {
@@ -699,7 +682,6 @@ Entity **yeFathers(Entity *entity)
 Entity*		yeCopy(Entity* src, Entity* dest)
 {
   const char* strVal = NULL;
-  int	nArgs;
 
   if (src != NULL && dest != NULL
       && yeType(src) == yeType(dest)) {
@@ -722,11 +704,9 @@ Entity*		yeCopy(Entity* src, Entity* dest)
       yeCopyContener((ArrayEntity*)src, (ArrayEntity*)dest);
       break;
     case YFUNCTION:
-      nArgs = yeFunctionNumberArgs(src);
       strVal = yeGetFunction(src);
       DPRINT_INFO("\t\tvalue is function '%s'\n", strVal);
       yeSetFunction(dest, strVal);
-      yeSetFunctionArgs(dest, nArgs);
       YE_TO_FUNC(dest)->manager = YE_TO_FUNC(src)->manager;
       break;
     default:
@@ -798,8 +778,7 @@ static void yeToStringInternal(Entity *entity, int deep, GString *str, int flag)
     g_string_append_printf(str, "'%f'", yeGetFloat(entity));
     break;
   case YFUNCTION :
-    g_string_append_printf(str, "(%s: %d)", yeGetFunction(entity),
-			   yeFunctionNumberArgs(entity));
+    g_string_append_printf(str, "(%s)", yeGetFunction(entity));
     break;
   case YARRAY :
     g_string_append_c(str, '[');

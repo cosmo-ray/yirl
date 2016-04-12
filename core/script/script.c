@@ -61,13 +61,13 @@ int ysDestroyManager(void *sm)
   return ((YScriptOps *)sm)->destroy(sm);
 }
 
-void *ysCall(void *sm, const char *name, int nbArg, ...)
+void *ysCallInt(void *sm, const char *name, ...)
 {
   void *ret;
   va_list ap;
 
-  va_start(ap, nbArg);
-  ret = ysVCall(sm, name, nbArg, ap);
+  va_start(ap, name);
+  ret = ysVCall(sm, name, ap);
   va_end(ap);
   return ret;
 }

@@ -46,7 +46,7 @@ void testLuaScritLifecycle(void)
   g_assert(sm);
 
   g_assert(!ysRegistreFunc(sm, "addPtr", luaAddPtr));
-  g_assert((long)ysCall(sm, "addPtr", 2, 1, 2) == 3);
+  g_assert((long)ysCall(sm, "addPtr", 1, 2) == 3);
 
   g_assert(!ysRegistreFunc(sm, "toNbr", luaPtrToNumber));
   g_assert(!ysRegistreFunc(sm, "toPtr", luaNbrToPtr));
@@ -56,7 +56,7 @@ void testLuaScritLifecycle(void)
     g_assert(0);
   }
 
-  g_assert((long)ysCall(sm, "addPtr2", 2, 1, 2) == 3);
+  g_assert((long)ysCall(sm, "addPtr2", 1, 2) == 3);
 
   g_assert(!ysDestroyManager(sm));
   g_assert(!ysLuaEnd());
@@ -72,7 +72,7 @@ void testLuaScritEntityBind(void)
   sm = ysNewManager(NULL, 0);
   yesLuaRegister(sm);
   g_assert(sm);
-  func = yeCreateFunction("createInt", 1, sm, NULL, NULL);
+  func = yeCreateFunction("createInt", sm, NULL, NULL);
 
   g_assert(ysLoadFile(sm,  "I should fail") < 0);
 
@@ -81,13 +81,13 @@ void testLuaScritEntityBind(void)
     g_assert(0);
   }
 
-  ret = ysCall(sm, "fail incoming", 1, "tests");
+  ret = ysCall(sm, "fail incoming", "tests");
   g_assert(ret == NULL);
-  ret = ysCall(sm, "yeCreateArray", 0);
+  ret = ysCall0(sm, "yeCreateArray");
   g_assert(ret);
   g_assert(yeType(ret) == YARRAY);
   YE_DESTROY(ret);
-  ret = ysCall(sm, "createString", 1, "tests");
+  ret = ysCall(sm, "createString", "tests");
   g_assert(ret);
   g_assert(yeType(ret) == YSTRING);
   g_assert(yuiStrEqual(yeGetString(ret), "tests"));

@@ -153,8 +153,6 @@ extern "C"
   {
     ENTITY_HEADER
 
-    /* number of arguments */
-    unsigned int nArgs;
     /* Name of the function */
     char	*value;
     /* A pointer to the coresponding script manager */
@@ -278,7 +276,7 @@ extern "C"
   Entity *yeCreateInt(int value, Entity *fathers, const char *name) WEAK;
   Entity *yeCreateFloat(double value, Entity *fathers, const char *name) WEAK;
   Entity *yeCreateString(const char *string, Entity *fathers, const char *name) WEAK;
-  Entity *yeCreateFunction(const char *funcName, int nArgs, void *manager,
+  Entity *yeCreateFunction(const char *funcName, void *manager,
 			   Entity *father, const char *name) WEAK;
   Entity *yeCreateArray(Entity *fathers, const char *name) WEAK;
 
@@ -505,8 +503,6 @@ extern "C++"
    * @return the entity's value if entity is of type YFUNCTION, NULL otherwise
    */
   const char	*yeGetFunction(Entity *entity) WEAK;
-
-  int	yeFunctionNumberArgs(const Entity *entity) WEAK;
 
   /**
    * @param entity

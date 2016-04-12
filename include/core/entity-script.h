@@ -23,6 +23,9 @@
 #include "script.h"
 
 void *yesVCall(Entity *func, va_list ap);
-void *yesCall(Entity *func, ...);
+void *yesCallInt(Entity *func, ...);
+
+#define yesCall0(func) yesCallInt(func, Y_END_VA_LIST)
+#define yesCall(func, args...) yesCallInt(func, args, Y_END_VA_LIST)
 
 #endif

@@ -147,9 +147,9 @@ int	luaCreateFloat(lua_State *L)
  */
 int     luaCreateFunction(lua_State *L)
 {
-  void *ret = yeCreateFunction(lua_tostring(L, 1), lua_tonumber(L, 2),
-			       ygGetLuaManager(), lua_touserdata(L, 3),
-			       lua_tostring(L, 4));
+  void *ret = yeCreateFunction(lua_tostring(L, 1),
+			       ygGetLuaManager(), lua_touserdata(L, 2),
+			       lua_tostring(L, 3));
   lua_pushlightuserdata(L, ret);
   return 1;
 }
@@ -380,18 +380,6 @@ int	luaUnsetFunction(lua_State *L)
     }
   yeUnsetFunction(YE_TO_ENTITY(lua_topointer(L, 1)));
   return (0);
-}
-
-int	luaFunctionNumberArgs(lua_State *L)
-{
-  int	nArg = lua_gettop(L);
-  if (!nArg)
-    {
-      DPRINT_ERR("error in luaGetFunctionNumberArgs: missing function entity\n");
-      return -1;
-    }
-  lua_pushnumber(L, yeFunctionNumberArgs(YE_TO_C_ENTITY(lua_topointer(L, 1))));
-  return 1;
 }
 
 int	luaType(lua_State *L)

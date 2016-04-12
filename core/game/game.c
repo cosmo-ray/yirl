@@ -277,10 +277,10 @@ Entity *ygLoadMod(const char *path)
 
   YE_ARRAY_FOREACH(initScripts, var2) {
     if (yeType(var2) == YSTRING) {
-      ysCall(luaManager, yeGetString(var2), 1, mod);
+      ysCall(luaManager, yeGetString(var2), mod);
     } else if (yeType(var2) == YARRAY) {
       ysCall(ygGetManager(yeGetString(yeGet(var2, 0))),
-	     yeGetString(yeGet(var2, 1)), 1, mod);
+	     yeGetString(yeGet(var2, 1)), mod);
     }
   }
 

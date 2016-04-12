@@ -43,9 +43,9 @@ function initSukeScreen(entity)
    print("init ", entity)
    local init = yeCreateArray(nil, nil)
    yeCreateString("sukeban-screen", init, "name")
-   yeCreateFunction("sukeScreeenNewWid", 1, init, "callback")
+   yeCreateFunction("sukeScreeenNewWid", init, "callback")
 
-   local sksAction = yeCreateFunction("sksAction", 3, entity, "action")
+   local sksAction = yeCreateFunction("sksAction", entity, "action")
    ywidAddCallback(ywidCreateCallback("sks-action", sksAction))
    ywidAddSubType(init)
 
