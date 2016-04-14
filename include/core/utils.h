@@ -30,15 +30,83 @@
 
 #if   __SIZEOF_POINTER__ == 4
 #define ONE64      1LLU
-#define ctz64 	   __builtin_ctzll
-#define clz64      __builtin_clzll
-#define popcount64 __builtin_popcountll
 #elif __SIZEOF_POINTER__ == 8
 #define ONE64      1LU
-#define ctz64      __builtin_ctzl
-#define clz64      __builtin_clzl
-#define popcount64 __builtin_popcountl
 #endif
+
+// if compiller gcc
+#if defined(__GNUC__) && (__GNUC__ >= 4)
+
+# if   __SIZEOF_POINTER__ == 4
+# define ctz64 	   __builtin_ctzll
+# define clz64      __builtin_clzll
+# define popcount64 __builtin_popcountll
+# elif __SIZEOF_POINTER__ == 8
+# define ctz64      __builtin_ctzl
+# define clz64      __builtin_clzl
+# define popcount64 __builtin_popcountl
+# endif
+
+#else
+/* TODO: test this */
+# define ctz64 yuiCtz64
+# define clz64 yuiClz64
+# define popcount64 yuiPopcount64
+#endif
+
+
+/*
+ * yuiPopcount64, yuiClz64, and yuiCtz64 come from
+ * qCountTrailingZeroBits, qPopulationCount and
+ * qCountLeadingZeroBits from Qt(QtCore/qalgorithms.h)
+ * http://www.qt.io
+ */
+
+static inline uint yuiPopcount64(uint64_t v)
+{
+  /*
+   * See http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel
+   */
+  return
+    (((v) & 0xfff) * __UINT64_C(0x1001001001001) & __UINT64_C(0x84210842108421)) % 0x1f +
+    (((v >> 12) & 0xfff) * __UINT64_C(0x1001001001001) & __UINT64_C(0x84210842108421)) % 0x1f +
+    (((v >> 24) & 0xfff) * __UINT64_C(0x1001001001001) & __UINT64_C(0x84210842108421)) % 0x1f +
+    (((v >> 36) & 0xfff) * __UINT64_C(0x1001001001001) & __UINT64_C(0x84210842108421)) % 0x1f +
+    (((v >> 48) & 0xfff) * __UINT64_C(0x1001001001001) & __UINT64_C(0x84210842108421)) % 0x1f +
+    (((v >> 60) & 0xfff) * __UINT64_C(0x1001001001001) & __UINT64_C(0x84210842108421)) % 0x1f;
+}
+
+static inline unsigned int yuiClz64(uint64_t v)
+{
+  v = v | (v >> 1);
+  v = v | (v >> 2);
+  v = v | (v >> 4);
+  v = v | (v >> 8);
+  v = v | (v >> 16);
+  return yuiPopcount64(~v);
+}
+
+static inline unsigned int yuiCtz32(int32_t v)
+{
+  unsigned int c = 32; // c will be the number of zero bits on the right
+
+  v &= -v;
+  if (v) c--;
+  if (v & 0x0000FFFF) c -= 16;
+  if (v & 0x00FF00FF) c -= 8;
+  if (v & 0x0F0F0F0F) c -= 4;
+  if (v & 0x33333333) c -= 2;
+  if (v & 0x55555555) c -= 1;
+  return c;
+}
+
+static inline unsigned int yuiCtz64(uint64_t v)
+{
+  uint32_t x = (uint32_t)v;
+  return x ? yuiCtz32(x)
+    : 32 + yuiCtz32((uint32_t)(v >> 32));
+}
+
 
 /*
  * because clang is unable to guess that a 'char[1]' may be cast in 'char *'
@@ -62,7 +130,6 @@
     type [15]: func,				\
     type [16]: func,				\
     type [17]: func				\
-
 
 /* Define to use for error handeling */
 #define MAYBE(var) var
@@ -97,7 +164,7 @@ int yuiUnregiste(YManagerAllocator *ma, int t);
 /*TODO: change this name to YUI_GET_FIRST_MASK_POS*/
 #define YUI_GET_FIRST_BIT(mask) ctz64(mask)
 
-#define YUI_GET_LAST_MASK_POS(mask) (mask == 0LU ? 0LU : 63LU - clz64(mask))
+#define YUI_GET_LAST_MASK_POS(mask) (mask == 0 ? 0 : __UINT64_C(63) - clz64(mask))
 
 #define YUI_COUNT_1_BIT(mask) (mask == 0LU ? 0LU : popcount64(mask))
 
