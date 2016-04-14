@@ -14,8 +14,8 @@ endif()
 
 target_link_libraries(
 	game
-	${RENDER_LIBS}
 	glib-2.0
+	${RENDER_LIBS}
 	json-c
 	entity
 	util

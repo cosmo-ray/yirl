@@ -23,14 +23,5 @@ message("-- Render use: ${RENDER_LIBS}")
 
 target_link_libraries(
 	tests
-	${RENDER_LIBS}
-	glib-2.0
-	json-c
-	entity
-	util
 	game
-	luaScript
-	tccScript
-	jsonDescrption
-	widgets
 )
