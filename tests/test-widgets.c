@@ -26,7 +26,6 @@
 #include "text-screen.h"
 #include "widget-callback.h"
 
-#ifdef WITH_CURSES
 static int testTXQuitOnQ(YWidgetState *wid, YEvent *eve, Entity *arg)
 {
   (void)wid;
@@ -37,6 +36,8 @@ static int testTXQuitOnQ(YWidgetState *wid, YEvent *eve, Entity *arg)
     return ACTION;
   return NOTHANDLE;
 }
+
+#ifdef WITH_CURSES
 
 void testCursesLife(void)
 {

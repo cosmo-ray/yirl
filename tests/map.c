@@ -24,7 +24,6 @@
 #include "tests.h"
 #include "map.h"
 
-#ifdef WITH_CURSES
 
 static int testMapEnter(YWidgetState *wid, YEvent *eve, Entity *arg)
 {
@@ -36,6 +35,8 @@ static int testMapEnter(YWidgetState *wid, YEvent *eve, Entity *arg)
       return ACTION;
   return NOTHANDLE;
 }
+
+#ifdef WITH_CURSES
 
 void testYWMapCurses(void)
 {
