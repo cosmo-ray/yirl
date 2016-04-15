@@ -58,6 +58,8 @@ static int cntInit(YWidgetState *opac, Entity *entity, void *args)
     Entity *tmpPos = yeGet(ptr, "wid-pos");
     int size = yeGetInt(yeGet(tmp, "size"));
 
+    if (!wid)
+      continue;
     if (size < 0) { /* We equally size the sub-widgets */
       caseLen = usable * (i + 1) / len;
     } else {
@@ -99,7 +101,8 @@ static InputStatue cntEvent(YWidgetState *opac, YEvent *event)
 {
   InputStatue ret = NOTHANDLE;
   Entity *entries = yeGet(opac->entity, "entries");
-
+  YWidgetState *cur;
+  
   (void)opac;
   if (!event)
     event = ywidGenericWaitEvent();
@@ -114,11 +117,12 @@ static InputStatue cntEvent(YWidgetState *opac, YEvent *event)
   if (ret != NOTHANDLE)
     return ret;
 
-  ret = ywidHandleEvent(yeGetData(yeGet(yeGet(entries,
-					      yeGetInt(yeGet(opac->entity,
-							     "current"))),
-					"$wid")),
-			event);
+  cur = yeGetData(yeGet(
+			yeGet(entries, yeGetInt(yeGet(opac->entity,
+						      "current"))),
+			"$wid"));
+  if (cur)
+    ret = ywidHandleEvent(cur, event);
   return ret;
 }
 
@@ -127,6 +131,10 @@ static int cntRend(YWidgetState *opac)
   Entity *entries = yeGet(opac->entity, "entries");
 
   YE_ARRAY_FOREACH(entries, tmp) {
+    YWidgetState *wid = yeGetData(yeGet(tmp, "$wid"));
+
+    if (!wid)
+      continue;
     ywidRend(yeGetData(yeGet(tmp, "$wid")));
   }
   return 0;
