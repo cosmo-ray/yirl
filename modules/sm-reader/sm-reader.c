@@ -21,11 +21,25 @@
 #include <fcntl.h>
 
 #include <stdio.h>
+#include <utils.h>
 #include <entity.h>
 #include <widget.h>
 #include <game.h>
 
 #define SM_BUFF_LEN 1024
+
+void create_tild(Entity *mod_description, int tild, Entity *map)
+{
+  /* YE_ARRAY_FOREACH(mod_description, tmp) { */
+  Y_BLOCK_ARRAY_FOREACH_PTR(&YE_TO_ARRAY(mod_description)->values, tmp,
+			    it, ArrayEntry) {
+    if (tmp && tmp->name[0] == tild) {
+      yePushBack(yeCreateArray(map, NULL), tmp->entity, NULL);
+      return;
+    }
+  }
+  yeCreateInt(tild, yeCreateArray(map, NULL), NULL);
+}
 
 void *load_map(int nb, void **args)
 {
@@ -35,10 +49,9 @@ void *load_map(int nb, void **args)
   Entity *mod_description = nb > 1 ? args[1] : NULL;
   Entity *father = nb > 2 ? args[1] : yeCreateArray(NULL, NULL);
   char *name = name = nb > 3 ? args[2] : NULL;
-  Entity *ret = yeCreateArray(father, name);
+  Entity *map = yeCreateArray(father, name);
   int check;
 
-  printf("m-d: %p\n", mod_description);
  again:
   check = read(fd, buff, SM_BUFF_LEN);
 
@@ -46,13 +59,15 @@ void *load_map(int nb, void **args)
     if (buff[i] == '\n') {
       width = width ? width : i;
     } else {
-      yeCreateInt(buff[i], yeCreateArray(ret, NULL), NULL);
+      create_tild(mod_description, buff[i], map);
     }
   }
 
   if (check > 0)
     goto again;
+
   yeReCreateInt(width, father, "width");
+  printf("%d - %d - %d\n", ctz64(4L), clz64(4L), popcount64(4L));
   return father;
 }
 

@@ -30,11 +30,16 @@ int main(void)
   getcwd(buff, 1024);
   strcpy(buff + strlen(buff), "/test.sm");
 
-  printf("modDesc %p\n", modDesc);
+  yeCreateInt(0, modDesc, ".");
+  yeCreateInt(1, modDesc, "#");
+  yeCreateInt(2, modDesc, "_");
   ygLoadMod("../../../modules/sm-reader/");
   map = yesCall(yeGet(ygGetMod("sm-reader"), "load-map"), buff, modDesc);
-  printf("map: %s\n", yeToString(map, 3, 0));
+  printf("map: %s\n", yeToString(map, 2, 0));
+  printf("m-d: %s\n", yeToString(modDesc, 3, 0));
 
+  YE_DESTROY(map);
+  YE_DESTROY(modDesc);
   return die(0, &cfg);
 }
 

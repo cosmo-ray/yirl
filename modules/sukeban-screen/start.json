@@ -5,6 +5,10 @@
     ],
     "pre-load" : [
 	{
+	    "file" : "../sm-reader/",
+	    "type" : "module"
+	},
+	{
 	    "file" : "sukeban-screen.lua",
 	    "type" : "lua"
 	}
