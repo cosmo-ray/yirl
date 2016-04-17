@@ -4,6 +4,9 @@ set (SOURCE main.c lifecycle.c setunset.c lua-script.c #tcc-script.c
     test-json-desc.c test-widgets.c menu.c map.c
     test-game.c block-array.c contener.c test-sound.c)
 
+add_executable(tests-entity EXCLUDE_FROM_ALL
+			    main-entity.c lifecycle.c setunset.c)
+
 add_executable(
 	tests
 	${SOURCE}
@@ -24,4 +27,11 @@ message("-- Render use: ${RENDER_LIBS}")
 target_link_libraries(
 	tests
 	game
+)
+
+target_link_libraries(
+	tests-entity
+	glib-2.0
+	util
+	entity
 )
