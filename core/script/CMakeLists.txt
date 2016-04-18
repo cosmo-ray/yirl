@@ -19,9 +19,11 @@ target_link_libraries(
 	entity
 )
 
+message("tcc path: " ${TCC_LIB_PATH})
+
 target_link_libraries(
 	tccScript
 	dl
-	tcc
+	${TCC_LIB_PATH}
 	entity
 )

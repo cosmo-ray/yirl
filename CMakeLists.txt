@@ -1,5 +1,9 @@
 cmake_minimum_required ( VERSION 2.8 )
 
+if( NOT TCC_LIB_PATH)
+  set (TCC_LIB_PATH /usr/lib/libtcc.a)
+endif()
+
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
