@@ -15,6 +15,7 @@ add_library (tccScript STATIC ${TCC_SOURCE})
 
 target_link_libraries(
 	luaScript
+	widgets
 	lua5.2
 	entity
 )

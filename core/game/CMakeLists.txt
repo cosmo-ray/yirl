@@ -19,8 +19,9 @@ target_link_libraries(
 	json-c
 	entity
 	util
-	luaScript
-	jsonDescrption
 	widgets
+	luaScript
+	tccScript
+	jsonDescrption
         sound
 )

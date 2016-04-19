@@ -10,7 +10,6 @@ add_library (widgets STATIC ${SOURCE})
 target_link_libraries(
 	widgets
 	entity
-	tccScript
 )
 
 if( WITH_CURSES)
