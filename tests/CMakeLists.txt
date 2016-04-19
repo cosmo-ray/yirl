@@ -1,11 +1,17 @@
 add_definitions( -DTESTS_PATH="${CMAKE_SOURCE_DIR}/tests" )
 
-set (SOURCE main.c lifecycle.c setunset.c lua-script.c #tcc-script.c
+set (SOURCE main.c lifecycle.c setunset.c lua-script.c tcc-script.c
     test-json-desc.c test-widgets.c menu.c map.c
     test-game.c block-array.c contener.c test-sound.c)
 
 add_executable(tests-entity EXCLUDE_FROM_ALL
-			    main-entity.c lifecycle.c setunset.c)
+			    main-entity.c  lifecycle.c setunset.c)
+
+add_executable(tests-lua EXCLUDE_FROM_ALL
+			    main-lua.c  lua-script.c)
+
+add_executable(tests-tcc EXCLUDE_FROM_ALL
+			    main-tcc.c  tcc-script.c)
 
 add_executable(
 	tests
@@ -34,4 +40,18 @@ target_link_libraries(
 	glib-2.0
 	util
 	entity
+)
+
+target_link_libraries(
+	tests-tcc
+	entity
+	util
+	tccScript
+)
+
+target_link_libraries(
+	tests-lua
+	entity
+	util
+	luaScript
 )
