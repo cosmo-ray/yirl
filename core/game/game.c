@@ -26,6 +26,7 @@
 #include "description.h"
 
 /* scripting */
+#include "entity-script.h"
 #include "lua-script.h"
 #include "lua-binding.h"
 #include "tcc-script.h"
@@ -412,6 +413,22 @@ void ygCleanGameConfig(GameConfig *cfg)
 {
   g_free(cfg->startingMod);
   g_list_free(cfg->rConf);
+}
+
+void *ygCallInt(const char *mod, const char *callName, ...)
+{
+  void *ret;
+  va_list ap;
+  Entity *modEntity;
+
+  if (!mod || !callName)
+    return NULL;
+  modEntity = ygGetMod(mod);
+  va_start(ap, callName);
+  ret = yesVCall(yeGet(modEntity, callName), ap);
+  va_end(ap);
+  return ret;
+
 }
 
 #undef CHECK_AND_GOTO

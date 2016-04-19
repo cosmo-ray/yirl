@@ -428,6 +428,36 @@ int	luaGetMod(lua_State *L)
   return 1;
 }
 
+#define LUA_YG_CALL(args...)					\
+  lua_pushlightuserdata(L, ygCall(lua_tostring(L, 1),		\
+				  lua_tostring(L, 2), args))
+
+int	luaGCall(lua_State *L)
+{
+
+  switch (lua_gettop(L)) {
+  case 3:
+    LUA_YG_CALL(lua_touserdata(L, 3));
+    return 1;
+  case 4:
+    LUA_YG_CALL(lua_touserdata(L, 3), lua_touserdata(L, 4));
+    return 1;
+  case 5:
+    LUA_YG_CALL(lua_touserdata(L, 3),
+		lua_touserdata(L, 4), lua_touserdata(L, 5));
+    return 1;
+  case 6:
+    LUA_YG_CALL(lua_touserdata(L, 3), lua_touserdata(L, 4),
+		lua_touserdata(L, 5), lua_touserdata(L, 6));
+    return 1;
+  default:
+    return -1;
+  }
+
+  return -1;
+}
+#undef LUA_YG_CALL
+
 int	luaSetAt(lua_State *L)
 {
   Entity *ent = NULL;
