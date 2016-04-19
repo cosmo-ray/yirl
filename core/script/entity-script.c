@@ -32,8 +32,6 @@ void *yesCallInt(Entity *func, ...)
   void *ret;
   va_list ap;
 
-  if (!func)
-    return NULL;
   va_start(ap, func);
   ret = yesVCall(func, ap);
   va_end(ap);
