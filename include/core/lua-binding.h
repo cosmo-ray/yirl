@@ -28,6 +28,7 @@
 int	luaYAnd(lua_State *L);
 int	luaRand(lua_State *L);
 int	luaRandInit(lua_State *L);
+int     luaStringToPtr(lua_State *l);
 
 /* Array */
 int	luaGet(lua_State *L);
@@ -123,6 +124,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yloveNbrToPtr", luaNbrToPtr));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ylovePtrToString", luaPtrToString));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yLovePtrToNumber", luaPtrToNumber));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yloveStringToPtr", luaStringToPtr));
   
   /*array*/
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeGet", luaGet));

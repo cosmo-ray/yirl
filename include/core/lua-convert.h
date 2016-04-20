@@ -23,5 +23,6 @@
 int     luaNbrToPtr(lua_State *l);
 int     luaPtrToString(lua_State *l);
 int     luaPtrToNumber(lua_State *l);
+int     luaStringToPtr(lua_State *l);
 
 #endif
