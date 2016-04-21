@@ -21,7 +21,9 @@ int main(void)
   GameConfig cfg;
   char buff[1024];
   Entity *modDesc = yeCreateArray(NULL, NULL);
+  Entity *tmp;
   Entity *map;
+  Entity *path;
 
   yuiDebugInit(); //Can not be init twice :)
   TRY_OR_DIE(ygInitGameConfig(&cfg, gamePath, SDL2), -1);
@@ -29,15 +31,22 @@ int main(void)
   /* put current path inside buff */
   getcwd(buff, 1024);
   strcpy(buff + strlen(buff), "/test.sm");
+  path = yeCreateString(buff, NULL, NULL);
 
-  yeCreateInt(0, modDesc, ".");
-  yeCreateInt(1, modDesc, "#");
-  yeCreateInt(2, modDesc, "_");
+  tmp = yeCreateArray(modDesc, NULL);
+  yeCreateString(".", tmp, "map-char");
+  tmp = yeCreateArray(modDesc, NULL);
+  yeCreateString("#",tmp, "map-char");
+  tmp = yeCreateArray(modDesc, NULL);
+  yeCreateString("_", tmp, "map-char");
+
   ygLoadMod("../../../modules/sm-reader/");
-  map = yesCall(yeGet(ygGetMod("sm-reader"), "load-map"), buff, modDesc);
-  printf("map: %s\n", yeToString(map, 2, 0));
+  map = yesCall(yeGet(ygGetMod("sm-reader"), "load-map"),
+		path, modDesc);
+  printf("map: %s\n", yeToString(map, 4, 0));
   printf("m-d: %s\n", yeToString(modDesc, 3, 0));
 
+  YE_DESTROY(path);
   YE_DESTROY(map);
   YE_DESTROY(modDesc);
   return die(0, &cfg);

@@ -31,11 +31,19 @@
 void create_tild(Entity *mod_description, int tild, Entity *map)
 {
   /* YE_ARRAY_FOREACH(mod_description, tmp) { */
-  Y_BLOCK_ARRAY_FOREACH_PTR(&YE_TO_ARRAY(mod_description)->values, tmp,
-			    it, ArrayEntry) {
-    if (tmp && tmp->name[0] == tild) {
-      yePushBack(yeCreateArray(map, NULL), tmp->entity, NULL);
-      return;
+  if (mod_description) {
+    Y_BLOCK_ARRAY_FOREACH_PTR(&YE_TO_ARRAY(mod_description)->values, tmp,
+			      it, ArrayEntry) {
+      const char *char_str;
+
+      if (!tmp)
+	continue;
+
+      char_str = yeGetString(yeGetByStr(tmp->entity, "map-char"));
+      if (char_str[0] == tild) {
+	yeCreateInt(it, yeCreateArray(map, NULL), NULL);
+	return;
+      }
     }
   }
   yeCreateInt(tild, yeCreateArray(map, NULL), NULL);
@@ -43,17 +51,26 @@ void create_tild(Entity *mod_description, int tild, Entity *map)
 
 void *load_map(int nb, void **args)
 {
-  int fd = open(args[0], O_RDONLY);
+  int fd = open(yeGetString(args[0]), O_RDONLY);
   char buff[SM_BUFF_LEN];
   int width = 0;
   Entity *mod_description = nb > 1 ? args[1] : NULL;
-  Entity *father = nb > 2 ? args[1] : yeCreateArray(NULL, NULL);
-  char *name = name = nb > 3 ? args[2] : NULL;
+  Entity *father = nb > 2 ? args[2] : yeCreateArray(NULL, NULL);
+  char *name = name = nb > 3 ? args[3] : NULL;
   Entity *map = yeCreateArray(father, name);
   int check;
 
+  if (fd < 0) {
+    DPRINT_ERR("error when opening '%s'\n", args[0]);
+    goto error;
+  }
+
  again:
   check = read(fd, buff, SM_BUFF_LEN);
+  if (check < 0) {
+    DPRINT_ERR("error when reading '%s'\n", args[0]);
+    goto error;
+  }
 
   for (int i = 0; i < check; ++i) {
     if (buff[i] == '\n') {
@@ -67,8 +84,12 @@ void *load_map(int nb, void **args)
     goto again;
 
   yeReCreateInt(width, father, "width");
-  printf("%d - %d - %d\n", ctz64(4L), clz64(4L), popcount64(4L));
   return father;
+ error:
+  if (nb > 2)
+    YE_DESTROY(father);
+  YE_DESTROY(map);
+  return NULL;
 }
 
 void *init_sm_reader(int nbArg, void **args)

@@ -56,7 +56,7 @@
 	},
 	{
 	    "name" : "pj", // for text screen ?
-	    "map-tild" : "hero.png",
+	    "map-srite" : "hero.png",
 	    "map-char" : "@" // curses map
 	},
 	{

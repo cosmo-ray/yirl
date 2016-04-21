@@ -7,7 +7,7 @@
 	]
     },
     "mapiMapo" : {
-	"<type>" : "sk-map",
+	"<type>" : "sukeban-map",
 
 	"&resources" : "houseResources",
 	"map" : "house.sm",

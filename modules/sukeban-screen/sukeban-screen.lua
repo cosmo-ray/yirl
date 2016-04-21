@@ -29,8 +29,14 @@ function sksAction(wid, eve, arg)
    end
 end
 
+function sukeNewMap(entity)
+   local mapPath = yeGetString(yeGet(entity, "map"));
+   print("res:", yeGet(entity, "resources"));
+   print(mapPath)
+   print("call", ygCall("sm-reader", "load-map", mapPath))
+end
+
 function sukeScreeenNewWid(entity)
-   print("sukebanScreen creation :)", entity)
    print(yeGet(entity, "entries"))
    yeCreateInt(75, yeGet(yeGet(entity, "entries"), 0), "size")
 
@@ -49,5 +55,9 @@ function initSukeScreen(entity)
    ywidAddCallback(ywidCreateCallback("sks-action", sksAction))
    ywidAddSubType(init)
 
+   init = yeCreateArray(nil, nil) -- this has been destroy by ywidAddSubType
+   yeCreateString("sukeban-map", init, "name")
+   yeCreateFunction("sukeNewMap", init, "callback")
+   ywidAddSubType(init)
 end
 
