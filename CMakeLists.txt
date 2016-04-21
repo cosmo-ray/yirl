@@ -4,6 +4,10 @@ if( NOT TCC_LIB_PATH)
   set (TCC_LIB_PATH /usr/lib/libtcc.a)
 endif()
 
+if( NOT LUA_LIB_PATH)
+  set (LUA_LIB_PATH lua)
+endif()
+
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
 
