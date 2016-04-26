@@ -61,7 +61,7 @@ void *load_map(int nb, void **args)
   int check;
 
   if (fd < 0) {
-    DPRINT_ERR("error when opening '%s'\n", args[0]);
+    DPRINT_ERR("error when opening '%s'\n", yeGetString(args[0]));
     goto error;
   }
 

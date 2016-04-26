@@ -74,6 +74,14 @@ int	luaCopy(lua_State *L)
   return 1;
 }
 
+int	luaYeToString(lua_State *L)
+{
+  char *str = yeToString(lua_touserdata(L, 1), -1, 0);
+
+  lua_pushstring(L, str);
+  free(str);
+  return 1;
+}
 
 int	luaSetMainWid(lua_State *L)
 {

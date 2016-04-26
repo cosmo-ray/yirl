@@ -129,7 +129,8 @@ static inline unsigned int yuiCtz64(uint64_t v)
     type [14]: func,				\
     type [15]: func,				\
     type [16]: func,				\
-    type [17]: func				\
+    type [17]: func,				\
+    type [18]: func
 
 /* Define to use for error handeling */
 #define MAYBE(var) var

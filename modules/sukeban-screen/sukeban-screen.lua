@@ -30,10 +30,15 @@ function sksAction(wid, eve, arg)
 end
 
 function sukeNewMap(entity)
-   local mapPath = yeGetString(yeGet(entity, "map"));
-   print("res:", yeGet(entity, "resources"));
+   local mapPath = yeGet(entity, "map");
+   local skMap
+   local resources = yeGet(entity, "resources");
+
+   print("res:", resources);
    print(mapPath)
-   print("call", ygCall("sm-reader", "load-map", mapPath))
+   print(yeGetString(mapPath))
+   skMap = ygCall("sm-reader", "load-map", mapPath, resources)
+   print(yeToString(skMap))
 end
 
 function sukeScreeenNewWid(entity)
