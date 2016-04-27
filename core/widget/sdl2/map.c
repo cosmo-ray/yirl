@@ -84,9 +84,6 @@ static int sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
   int32_t begX = posCam;
   Entity *mapCase;
 
-  if (!ywMapHasChange(state))
-    return 0;
-
   if (ywidBgConfFill(yeGet(entity, "background"), &cfg) >= 0)
     sdlFillBg(wid, &cfg);
 
@@ -130,8 +127,6 @@ static int sdl2FullRender(YWidgetState *state, SDLWid *wid, Entity *entity)
   unsigned int sizeSpriteW;
   unsigned int sizeSpriteH;
 
-  if (!ywMapHasChange(state))
-    return 0;
   if (ywidBgConfFill(yeGet(entity, "background"), &cfg) >= 0) {
     sdlFillBg(wid, &cfg);
   }
