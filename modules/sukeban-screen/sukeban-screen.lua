@@ -34,11 +34,13 @@ function sukeNewMap(entity)
    local skMap
    local resources = yeGet(entity, "resources");
 
-   print("res:", resources);
-   print(mapPath)
-   print(yeGetString(mapPath))
    skMap = ygCall("sm-reader", "load-map", mapPath, resources)
-   print(yeToString(skMap))
+   yeRemoveChild(entity, mapPath)
+   yePushBack(entity, yeGet(skMap, 0), "map")
+   yePushBack(entity, yeGet(skMap, 1), "width")
+   yeDestroy(skMap)
+   local map = ywidNewWidget(entity, "map")
+   return map
 end
 
 function sukeScreeenNewWid(entity)
@@ -47,7 +49,7 @@ function sukeScreeenNewWid(entity)
 
    local cnt = ywidNewWidget(entity, "contener")
    ywidBind(cnt, "action", "sks-action")
-   return cnt;
+   return cnt
 end
 
 function initSukeScreen(entity)

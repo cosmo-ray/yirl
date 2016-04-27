@@ -69,7 +69,7 @@ static inline  void setSpritesSize(unsigned int *sizeSpriteW,
 	(mapCase = yeGet(map, i)); ++i)
 
 
-/* crop the map and print the miiddle of it */
+/* crop the map and print the middle of it */
 static int sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
 {
   unsigned int curx = 0, cury = 0;
