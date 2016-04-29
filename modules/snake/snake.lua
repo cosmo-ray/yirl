@@ -236,6 +236,7 @@ function snakeAction(wid, eve, arg)
       end
       eve = ywidNextEve(eve)
    end
+   return YEVE_ACTION
 end
 
 function createSnake(entity)

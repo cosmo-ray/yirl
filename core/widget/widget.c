@@ -430,11 +430,5 @@ int ywidDoTurn(YWidgetState *opac)
 
 InputStatue ywidEventCallActionSin(YWidgetState *opac, YEvent *event)
 {
-  InputStatue ret = NOTHANDLE;
-
-  /* set pos */
-  ret = ywidCallSignal(opac, event, NULL, opac->actionIdx);
-
-  opac->hasChange = ret == NOTHANDLE ? 0 : 1;
-  return ret;
+  return ywidCallSignal(opac, event, NULL, opac->actionIdx);
 }

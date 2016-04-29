@@ -122,7 +122,7 @@ static InputStatue cntEvent(YWidgetState *opac, YEvent *event)
 						      "current"))),
 			"$wid"));
   if (cur)
-    ret = ywidHandleEvent(cur, event);
+    return ywidHandleEvent(cur, event);
   return ret;
 }
 
@@ -130,12 +130,15 @@ static int cntRend(YWidgetState *opac)
 {
   Entity *entries = yeGet(opac->entity, "entries");
 
+  if (!opac->hasChange)
+    return 0;
   YE_ARRAY_FOREACH(entries, tmp) {
     YWidgetState *wid = yeGetData(yeGet(tmp, "$wid"));
 
     if (!wid)
       continue;
-    ywidRend(yeGetData(yeGet(tmp, "$wid")));
+    ywidRend(wid);
+    wid->hasChange = 0;
   }
   return 0;
 }

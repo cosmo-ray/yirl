@@ -27,6 +27,7 @@ function sksAction(wid, eve, arg)
       end
       eve = ywidNextEve(eve)
    end
+   return YEVE_NOTHANDLE
 end
 
 function sukeNewMap(entity)

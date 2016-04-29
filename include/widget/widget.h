@@ -150,15 +150,19 @@ void ywidResize(YWidgetState *wid);
 static inline int ywidRend(YWidgetState *opac)
 {
   if (opac->render)
-    return (opac->render(opac));
+    return opac->render(opac);
   return -1;
 }
 
 static inline int ywidHandleEvent(YWidgetState *opac, YEvent *event)
 {
+  int ret;
+
   if (opac->handleEvent)
-    return (opac->handleEvent(opac, event));
-  return -1;
+    ret = opac->handleEvent(opac, event);
+
+  opac->hasChange = ret == NOTHANDLE ? 0 : 1;
+  return ret;
 }
 
 int ywidHandleAnim(YWidgetState *opac);

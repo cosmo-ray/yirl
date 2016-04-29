@@ -57,10 +57,8 @@ int ywidCallCallback(YCallback *callback, YWidgetState *wid,
   switch (callback->type) {
   case YCALLBACK_NATIVE:
     return ((YNativeCallback *)callback)->callack(wid, eve, arg);
-    break;
   case YCALLBACK_ENTITY:
-    yesCall(((YEntityCallback *)callback)->callback, wid, eve, arg);
-    break;
+    return (long)yesCall(((YEntityCallback *)callback)->callback, wid, eve, arg);
   default:
     break;
   }
@@ -169,7 +167,7 @@ int ywidCallSignal(YWidgetState *wid, YEvent *eve, Entity *arg, int idx)
 
   signal = yeGet(wid->signals, idx);
   if (!signal || yeGetInt(signal) < 0)
-    return -1;
+    return NOTHANDLE;
   return ywidCallCallbackByIdx(wid, eve, arg, yeGetInt(signal));
 }
 

@@ -142,10 +142,8 @@ static InputStatue mnEvent(YWidgetState *opac, YEvent *event)
 			 ((YMenuState *)opac)->current +
 			 ((YMenuState *)opac)->actionSin0);
   } else {
-    ywidCallSignal(opac, event, NULL,  ((YMenuState *)opac)->moveSinIdx);
+    ret = ywidCallSignal(opac, event, NULL,  ((YMenuState *)opac)->moveSinIdx);
   }
-
-  opac->hasChange = 1;
 
  exit:
   return ret;
