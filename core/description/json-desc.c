@@ -91,9 +91,10 @@ static int jsonLinker(void)
       destroyLinkInfo(data);
       linkList = g_list_delete_link(linkList, cur);
       ++ret;
-      goto next;
+    } else {
+      DPRINT_WARN("unable to link '%s' to '%s'", data->refName,
+		  data->targetName);
     }
-  next:
     cur = next;
   }
 
