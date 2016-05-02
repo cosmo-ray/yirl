@@ -5,6 +5,11 @@
     "starting widget" : "main",
     "pre-load" : [
 	{
+	    "file" : "./resources.json",
+	    "type" : "json",
+	    "as" : "resources-global"
+	},
+	{
 	    "file" : "../modules/sukeban-screen/",
 	    "type" : "module"
 	}

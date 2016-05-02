@@ -13,46 +13,12 @@
 	"map" : "house.sm",
 	"bind" : [["action", "mapTest"]],
 	"background": "rgba: 255 255 255 0",
+	"start" : [7, 26],
+	"overwrite" : "houseOverwriter"
     },
     "text, tatata =D" : {
 	"<type>" : "text-screen",
-	"text" : "here who fight the yoyo. must look at himself to not be kill by a yoyo\nwhen you gaze into the hight school boy, she will gaze after you\n-seriousely",
+	"text" : "he who fight the yoyo. must look at himself to not be kill by a yoyo\nwhen you gaze into the hight school boy, she will gaze after you\n-seriousely",
 	"background": "hello.pnj"
-    },
-    "houseResources" : [
-	{
-	    "map-char" : "."
-	},
-	{
-	    "map-char" : "|" // curses map
-	},
-	{
-	    "map-char" : "#" // curses map
-	},
-	{
-	    "map-char" : "b" // curses map
-	},
-	{
-	    "map-char" : "B" // curses map
-	},
-	{
-	    "map-char" : "T" // curses map
-	},
-	{
-	    "map-char" : "t" // curses map
-	},
-	{
-	    "map-char" : "S" // curses map
-	},
-	{
-	    "map-char" : "V" // curses map
-	},
-	{
-	    "map-char" : "K" // curses map
-	},
-	{
-	    "map-char" : "c" // curses map
-	}
-
-    ]
+    }
 }

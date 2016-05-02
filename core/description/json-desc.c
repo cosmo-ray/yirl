@@ -227,7 +227,7 @@ static Entity *jsonFromFile(void *opac, const char *fileName)
   }
   ret = parseGen(file, NULL, NULL);
   json_object_put(file);
-  jsonLinker(); // if jsonLinker is not empty fre it, return an error ?
+  jsonLinker(); // if jsonLinker is not empty free it, return an error ?
   jsonClearLinker();
   return ret;
 }

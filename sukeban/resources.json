@@ -1,0 +1,41 @@
+{
+    "houseResources" : [
+	{
+	    "map-char" : "."
+	},
+	{
+	    "map-char" : "|"
+	},
+	{
+	    "map-char" : "-"
+	},
+	{
+	    "map-char" : "#"
+	},
+	{
+	    "map-char" : "b"
+	},
+	{
+	    "map-char" : "B"
+	},
+	{
+	    "map-char" : "T"
+	},
+	{
+	    "map-char" : "t"
+	},
+	{
+	    "map-char" : "S"
+	},
+	{
+	    "map-char" : "V"
+	},
+	{
+	    "map-char" : "k"
+	},
+	{
+	    "map-char" : "c"
+	}
+
+    ]
+}
