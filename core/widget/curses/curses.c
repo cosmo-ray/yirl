@@ -58,6 +58,10 @@ static inline YEvent *CGetEvent(void)
   eve->key = getch();
   eve->type = YKEY_DOWN;
   eve->stat = NOTHANDLE;
+  if (eve->key == ERR) {
+    free(eve);
+    return NULL;
+  }
   return eve;
 }
 
