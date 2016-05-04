@@ -31,7 +31,7 @@ void testJsonLoadFile(void)
   g_assert(ydJsonGetType() == t);
   jsonManager = ydNewManager(t);
   g_assert(jsonManager != NULL);
-  ret = ydFromFile(jsonManager, TESTS_PATH"/simple.json");
+  ret = ydFromFile(jsonManager, TESTS_PATH"/simple.json", NULL);
   g_assert(ret);
   g_assert(!ydDestroyManager(jsonManager));
   g_assert(yeLen(ret) == 2);
@@ -55,7 +55,7 @@ void testJsonMultipleObj(void)
   jsonManager = ydNewManager(t);
   g_assert(jsonManager != NULL);
 
-  ret = ydFromFile(jsonManager, TESTS_PATH"/multipleObj.json");
+  ret = ydFromFile(jsonManager, TESTS_PATH"/multipleObj.json", NULL);
   g_assert(ret);
   sub = yeGet(ret, "enemy position");
   g_assert(yeLen(sub) == 3);

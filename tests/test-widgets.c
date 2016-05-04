@@ -59,7 +59,7 @@ void testYWTextScreenCurses(void)
   g_assert(ywidInitCallback() >= 0);
   jsonManager = ydNewManager(t);
   g_assert(jsonManager != NULL);
-  ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json");
+  ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
   ret = yeGet(ret, "TextScreenTest");
   g_assert(ret);
   g_assert(!ydJsonEnd());
@@ -106,7 +106,7 @@ void testYWTextScreenSdl2(void)
   g_assert(ywidInitCallback() >= 0);
   jsonManager = ydNewManager(t);
   g_assert(jsonManager != NULL);
-  ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json");
+  ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
   ret = yeGet(ret, "TextScreenTest");
   g_assert(ret);
   g_assert(!ydJsonEnd());
@@ -158,7 +158,7 @@ void testYWTextScreenAll(void)
   g_assert(ywidInitCallback() >= 0);
   jsonManager = ydNewManager(t);
   g_assert(jsonManager != NULL);
-  ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json");
+  ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
   ret = yeGet(ret, "TextScreenTest");
   g_assert(ret);
   g_assert(!ydJsonEnd());

@@ -42,6 +42,10 @@
 #include "text-screen.h"
 #include "contener.h"
 
+#define yeMoveFromPtrToStr(a, b, c)		\
+  (void)a;					\
+  (void)b;					\
+  (void)c;
 
 static int init;
 static void *jsonManager;
@@ -210,7 +214,7 @@ Entity *ygLoadMod(const char *path)
     DPRINT_ERR("cannot allocated path(like something went really wrong)");
     return NULL;
   }
-  mod = ydFromFile(jsonManager, tmp);
+  mod = ydFromFile(jsonManager, tmp, NULL);
   if (!mod)
     goto exit;
 
@@ -257,13 +261,10 @@ Entity *ygLoadMod(const char *path)
 
       fileStr = g_strconcat(path, "/",
 			    yeGetString(tmpFile), NULL);
-      tmpFile = ydFromFile(jsonManager, fileStr);
+      tmpFile = ydFromFile(jsonManager, fileStr, mod);
       g_free(fileStr);
 
-      if (tmpFile && yeGetString(as) != NULL) {
-	yePushBack(mod, tmpFile, yeGetString(as));
-	YE_DESTROY(tmpFile);
-      }
+      yeMoveFromPtrToStr(mod, tmpFile, yeGetString(as));
     } else if (yuiStrEqual0(yeGetString(tmpType), "module")) {
       char *fileStr = NULL;
 
@@ -292,11 +293,12 @@ Entity *ygLoadMod(const char *path)
 
       fileStr = g_strconcat(path, "/",
 			    yeGetString(file), NULL);
-      file = ydFromFile(jsonManager, fileStr);
+      file = ydFromFile(jsonManager, fileStr, mod);
       g_free(fileStr);
       if (!file) {
 	goto exit;
       }
+      yeMoveFromPtrToStr(mod, file, "$main file");
 
       starting_widget = yeGet(file, yeGetString(starting_widget));
     } else {
@@ -305,7 +307,6 @@ Entity *ygLoadMod(const char *path)
   } else {
     starting_widget = yeGet(mod, yeGetString(starting_widget));
   }
-
   yePushBack(mod, starting_widget, "$starting widget");
   if (!modList) {
     modList = yeCreateArray(NULL, NULL);

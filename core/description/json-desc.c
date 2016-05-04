@@ -32,6 +32,7 @@ typedef struct {
 static int t = -1;
 static const char *nameType = "json";
 static GList *linkList;
+static GList *done;
 
 static Entity *parseGen(struct json_object *obj, const char *name,
 			Entity *father);
@@ -55,10 +56,18 @@ static int jsonLink(Entity *father, Entity *target, const char *refName,
 {
   Entity *ret;
 
+  done = g_list_prepend(done, father);
   if ((ret = yeGet(father, targetName)) != NULL) {
     yePushBack(target, ret, refName);
     return 1;
   }
+  YE_ARRAY_FOREACH(father, tmp) {
+    if (tmp && tmp->type == YARRAY && !g_list_find(done, tmp)) {
+      if (jsonLink(tmp, target, refName, targetName))
+	return 1;
+    }
+  }
+
   return 0;
 }
 
@@ -74,6 +83,12 @@ static int tryLinkForeachFathers(LinkInfo *data,
   return 0;
 }
 
+static void dont_free(void *useless)
+{
+  (void)useless;
+  return;
+}
+
 /**
  * @return the number of entity that have been linked, -1 on error
  */
@@ -83,6 +98,7 @@ static int jsonLinker(void)
 
   for (GList *cur = linkList; cur != NULL;) {
     LinkInfo *data = cur->data;
+    done = NULL;
     GList *next = cur->next;
 
     if (jsonLink(data->refFather, data->refFather,
@@ -95,6 +111,7 @@ static int jsonLinker(void)
       DPRINT_WARN("unable to link '%s' to '%s'", data->refName,
 		  data->targetName);
     }
+    g_list_free_full(done, dont_free);
     cur = next;
   }
 
@@ -120,7 +137,7 @@ static void addLinkInfo(Entity *refFather, const char *refName,
   linkInfo->refName = g_strdup(refName);
   linkInfo->targetName = g_strdup(targetName);
   linkInfo->refFather = refFather;
-  linkList = g_list_append(linkList, linkInfo);
+  linkList = g_list_prepend(linkList, linkInfo);
 }
 
 static Entity *parseObject(struct json_object *obj,
@@ -213,7 +230,7 @@ static Entity *parseGen(struct json_object *obj, const char *name,
     }
 }
 
-static Entity *jsonFromFile(void *opac, const char *fileName)
+static Entity *jsonFromFile(void *opac, const char *fileName, Entity *father)
 {
   struct json_object *file = json_object_from_file(fileName);
   Entity *ret;
@@ -226,7 +243,7 @@ static Entity *jsonFromFile(void *opac, const char *fileName)
       DPRINT_ERR("Error in json of %s", fileName);
     return NULL;
   }
-  ret = parseGen(file, NULL, NULL);
+  ret = parseGen(file, NULL, father);
   json_object_put(file);
   jsonLinker(); // if jsonLinker is not empty free it, return an error ?
   jsonClearLinker();

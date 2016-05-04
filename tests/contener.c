@@ -47,7 +47,7 @@ void testHorizontalContenerSdl(void)
 
   /* Parsing json */
   jsonManager = ydNewManager(t);
-  ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json");
+  ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
   ret = yeGet(ret, "ContenerTest");
   g_assert(ret);
   ywinAddCallback(ywinCreateNativeCallback("menuTest", testMenuEnter));
@@ -77,7 +77,7 @@ void testVerticalContenerSdl(void)
 
   /* Parsing json */
   jsonManager = ydNewManager(t);
-  ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json");
+  ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
   ret = yeGet(ret, "VContenerTest");
   g_assert(ret);
   ywinAddCallback(ywinCreateNativeCallback("menuTest", testMenuEnter));

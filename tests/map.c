@@ -51,7 +51,7 @@ void testYWMapCurses(void)
   g_assert(ywidInitCallback() >= 0);
   jsonManager = ydNewManager(t);
   g_assert(jsonManager != NULL);
-  ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json");
+  ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
   ret = yeGet(ret, "MapTest");
   g_assert(ret);
   g_assert(!ydJsonEnd());
@@ -97,7 +97,7 @@ void testYWMapSdl2(void)
   g_assert(ywidInitCallback() >= 0);
   jsonManager = ydNewManager(t);
   g_assert(jsonManager != NULL);
-  ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json");
+  ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
   ret = yeGet(ret, "MapTest");
   g_assert(ret);
   g_assert(!ydJsonEnd());
@@ -159,7 +159,7 @@ void testYBigWMapSdl2(void)
   g_assert(ywidInitCallback() >= 0);
   jsonManager = ydNewManager(t);
   g_assert(jsonManager != NULL);
-  ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json");
+  ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
   ret = yeGet(ret, "BigMap");
   g_assert(ret);
   g_assert(!ydJsonEnd());
@@ -205,7 +205,7 @@ void testYWMapAll(void)
   g_assert(ywidInitCallback() >= 0);
   jsonManager = ydNewManager(t);
   g_assert(jsonManager != NULL);
-  ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json");
+  ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
   ret = yeGet(ret, "MapTest++");
   g_assert(ret);
   g_assert(!ydJsonEnd());

@@ -99,7 +99,7 @@ extern "C"
   struct Entity_	**fathers;		\
   unsigned int nbFathers;			\
   unsigned int refCount;			\
-  EntityType	type;				\
+  EntityType type;				\
 
   typedef struct Entity_
   {

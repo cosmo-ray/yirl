@@ -507,10 +507,8 @@ static void yeAttachFather(Entity *entity, Entity *father)
 {
   if (entity == NULL || father == NULL)
     return;
-  if (entity->fathers == NULL)
-    entity->fathers = malloc(sizeof(Entity *));
-  else
-    entity->fathers = realloc(entity->fathers, sizeof(Entity *) * (entity->nbFathers + 1));
+  entity->fathers =
+    realloc(entity->fathers, sizeof(Entity *) * (entity->nbFathers + 1));
   entity->fathers[entity->nbFathers] = father;
   entity->nbFathers += 1;
 }
@@ -554,7 +552,7 @@ int yeAttach(Entity *on, Entity *entity,
 {
   ArrayEntry *entry;
   
-  if (!on)
+  if (!on || !entity)
     return -1;
   if (on->type != YARRAY)
     return -1;

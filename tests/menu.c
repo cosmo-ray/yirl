@@ -49,7 +49,7 @@ void testYWMenuCurses(void)
   g_assert(ydJsonGetType() == t);
   jsonManager = ydNewManager(t);
   g_assert(jsonManager != NULL);
-  ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json");
+  ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
   ret = yeGet(ret, "MenuTest");
   g_assert(ret);
   g_assert(!ydDestroyManager(jsonManager));
@@ -95,7 +95,7 @@ void testYWMenuSdl2(void)
   g_assert(ydJsonGetType() == t);
   jsonManager = ydNewManager(t);
   g_assert(jsonManager != NULL);
-  ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json");
+  ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
   ret = yeGet(ret, "MenuTest");
   g_assert(ret);
   g_assert(!ydJsonEnd());
