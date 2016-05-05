@@ -442,7 +442,8 @@ static ArrayEntity	*manageArrayInternal(ArrayEntity *entity,
 Entity *yeExpandArray(Entity *entity, unsigned int size)
 {
   if (!checkType(entity, YARRAY)) {
-    DPRINT_ERR("yeExpandArray: bad entity\n");
+    DPRINT_ERR("bad argument 1 of type '%s', should be array\n",
+	       yeTypeToString( yeType(entity)));
     return NULL;
   }
   return ((Entity*)manageArrayInternal((ArrayEntity*)entity, size, NONE));
@@ -455,8 +456,7 @@ int	yePushBack(Entity *entity, Entity *toPush, const char *name)
   if (!entity || !toPush)
     return -1;
   if (!checkType(entity, YARRAY)) {
-    DPRINT_ERR("yePushBack: bad entity, "
-	       "should be of type array or struct instead of %s\n",
+    DPRINT_ERR("bad argument 1 of type '%s', should be array\n",
 	       yeTypeToString( yeType(entity)));
     return -1;
   }
@@ -467,7 +467,7 @@ int	yePushBack(Entity *entity, Entity *toPush, const char *name)
 Entity *yeRemoveChild(Entity *array, Entity *toRemove)
 {
   if (!checkType(array, YARRAY)) {
-    DPRINT_ERR("yeRemoveChild: bad entity of type %s(should be array)\n",
+    DPRINT_ERR("bad argument 1 of type '%s', should be array\n",
 	       yeTypeToString(yeType(array)));
     return NULL;
   }
