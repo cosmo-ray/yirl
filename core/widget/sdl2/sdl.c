@@ -157,6 +157,8 @@ static inline YEvent *SDLConvertEvent(SDL_Event* event)
 {
   YEvent *eve = g_new0(YEvent, 1);
   
+  if (!event)
+    return NULL;
   switch(event->type)
     {
     case SDL_KEYUP:
@@ -175,15 +177,16 @@ static inline YEvent *SDLConvertEvent(SDL_Event* event)
 
 static YEvent *SDLWaitEvent(void)
 {
-  SDL_Event event;
+  static SDL_Event event;
 
-  SDL_WaitEvent(&event);
+  if (!SDL_WaitEvent(&event))
+    return NULL;
   return SDLConvertEvent(&event);
 }
 
 static YEvent *SDLPollEvent(void)
 {
-  SDL_Event event;
+  static SDL_Event event;
 
   if (!SDL_PollEvent(&event))
     return NULL;
