@@ -368,7 +368,8 @@ void yeDestroyString(Entity *entity)
 
 void yeDestroyData(Entity *entity)
 {
-  if (YE_TO_DATA(entity)->value && YE_TO_DATA(entity)->destroy)
+  if (YE_TO_DATA(entity)->value && YE_TO_DATA(entity)->destroy &&
+      entity->refCount == 1)
     YE_TO_DATA(entity)->destroy(YE_TO_DATA(entity)->value);
   YE_DESTROY_ENTITY(entity, DataEntity);
 }
@@ -566,7 +567,7 @@ int yeAttach(Entity *on, Entity *entity,
   entry->entity = entity;
   entry->name = g_strdup(name);  
   yeAttachFather(entity, on);
-  entity->refCount += 1;
+  YE_INCR_REF(entity);
   return 0;
 }
 
@@ -815,6 +816,14 @@ char *yeToString(Entity *entity, int deep, int flag)
   return g_string_free(str, 0);
 }
 
+int yeMoveFromPtrToStr(Entity *array, Entity *ptr, const char *str)
+{
+  YE_INCR_REF(ptr);
+  yeRemoveChild(array, ptr);
+  yePushBack(array, ptr, str);
+  YE_DESTROY(ptr);
+  return 0;
+}
 
 /* macro for perf purpose */
 #undef YE_INCR_REF

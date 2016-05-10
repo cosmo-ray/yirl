@@ -562,6 +562,8 @@ extern "C++"
  
   char *yeToString(Entity *entity, int deep, int flag);
 
+  int yeMoveFromPtrToStr(Entity *array, Entity *ptr, const char *str);
+
 #ifdef __cplusplus
 }
 #endif

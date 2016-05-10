@@ -42,11 +42,6 @@
 #include "text-screen.h"
 #include "contener.h"
 
-#define yeMoveFromPtrToStr(a, b, c)		\
-  (void)a;					\
-  (void)b;					\
-  (void)c;
-
 static int init;
 static void *jsonManager;
 static void *luaManager;
