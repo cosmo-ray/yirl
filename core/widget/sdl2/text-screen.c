@@ -33,7 +33,7 @@ static int sdlRender(YWidgetState *state, int t)
 {
   SDLWid *wid = ywidGetRenderData(state, t);
   const char *toPrint = yeGetString(yeGet(state->entity, "text"));
-  const char *img = yeGetString(yeGet(state->entity, "img"));
+  YBgConf cfg;
   SDL_Color color;
   SDL_Renderer *renderer = sgRenderer();
 
@@ -41,10 +41,9 @@ static int sdlRender(YWidgetState *state, int t)
   color.g = 0;
   color.b = 0;
   color.a = 250;
-  if (img)
-    sdlFillImgBg(wid, img);
-  else
-    sdlFillColorBg(wid, 255, 255, 255, 255);
+
+  if (ywidBgConfFill(yeGet(state->entity, "background"), &cfg) >= 0)
+    sdlFillBg(wid, &cfg);
 
   SDL_Rect      rect = wid->rect;
   SDL_RenderDrawRect(renderer, &rect);

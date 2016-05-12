@@ -59,6 +59,7 @@ void testYBigWMapSdl2(void);
 
 void testHorizontalContenerSdl(void);
 void testVerticalContenerSdl(void);
+void testStackContenerSdl(void);
 
 void testYGameSdlLibBasic(void);
 void testYGameAllLibBasic(void);

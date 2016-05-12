@@ -20,7 +20,7 @@
 	"<type>" : "text-screen",
 	"text" : "All's death, something was living here, But today...\nbut far in the dark i see light",
 	"bind" : [["action", "txQuitOnQ"]],
-	"background": "hello.pnj" // Not yet implemented :)
+	"background": "rgba: 180 210 20 50", // Not yet implemented :)
     },
     "MenuTest" : {
 	"<type>" : "menu",
@@ -54,6 +54,14 @@
 	"cnt-type" : "vertical",
 	"entries" : [
 	    {"name" : "MenuTest", "size" : 20},
+	    {"name" : "TextScreenTest"}
+	]
+    },
+    "SContenerTest" : {
+	"<type>" : "contener",
+	"cnt-type" : "stacking",
+	"entries" : [
+	    {"name" : "MenuTest"},
 	    {"name" : "TextScreenTest"}
 	]
     },

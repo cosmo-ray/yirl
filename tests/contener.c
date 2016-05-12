@@ -92,3 +92,33 @@ void testVerticalContenerSdl(void)
   YE_DESTROY(ret);
   ygEnd();
 }
+
+void testStackContenerSdl(void)
+{
+  GameConfig cfg;
+  Entity *ret;
+  YWidgetState *wid;
+  int t = ydJsonInit();
+  void *jsonManager;
+
+  /* Init libs */
+  g_assert(!ygInitGameConfig(&cfg, NULL, SDL2));
+  g_assert(!ygInit(&cfg));
+
+  /* Parsing json */
+  jsonManager = ydNewManager(t);
+  ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
+  ret = yeGet(ret, "SContenerTest");
+  g_assert(ret);
+  ywinAddCallback(ywinCreateNativeCallback("menuTest", testMenuEnter));
+
+  wid = ywidNewWidget(ret, NULL);
+  g_assert(wid);
+
+  do {
+    g_assert(ywidRend(wid) != -1);
+  } while(ywidDoTurn(wid) != ACTION);
+
+  YE_DESTROY(ret);
+  ygEnd();
+}

@@ -91,6 +91,7 @@ int main(int argc, char **argv)
   TEST_TRY_ADD("/widget/map/big/sdl", testYBigWMapSdl2, only);
   TEST_TRY_ADD("/widget/contener/horizontal/sdl", testHorizontalContenerSdl, only);
   TEST_TRY_ADD("/widget/contener/vertical/sdl", testVerticalContenerSdl, only);
+  TEST_TRY_ADD("/widget/contener/stack/sdl", testStackContenerSdl, only);
   TEST_TRY_ADD("/game/sdl/simple", testYGameSdlLibBasic, only);
 #ifdef WITH_CURSES
   TEST_TRY_ADD("/widget/lifecycle/all", testAllLife, only);

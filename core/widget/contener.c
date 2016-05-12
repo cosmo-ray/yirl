@@ -26,6 +26,16 @@ static void widDestroyWrapper(void *wid)
   YWidDestroy(wid);
 }
 
+static inline CntType cntGetTypeFromEntity(Entity *entity) {
+  const char *cntType = yeGetString(yeGet(entity, "cnt-type"));
+
+  if (yuiStrEqual0(cntType, "vertical")) {
+    return CNT_VERTICAL;
+  } else if (yuiStrEqual0(cntType, "stacking"))
+    return CNT_STACK;
+  return CNT_HORIZONTAL;
+}
+
 static int cntInit(YWidgetState *opac, Entity *entity, void *args)
 {
   YContenerState *cnt = ((YContenerState *)opac);
@@ -38,14 +48,11 @@ static int cntInit(YWidgetState *opac, Entity *entity, void *args)
   int casePos = 0;
   int caseLen = 0;
 
-  (void)opac;
   (void)args;
   if (!entries)
     return -1;
-  cnt->type = CNT_HORIZONTAL;
-  if (yuiStrEqual0(yeGetString(yeGet(entity, "cnt-type")), "vertical")) {
-    cnt->type = CNT_VERTICAL;
-  }
+  cnt->type = cntGetTypeFromEntity(entity);
+
   widSize =  ywCntType(opac) == CNT_HORIZONTAL ?
     yeGetInt(yeGet(pos, "h")) : yeGetInt(yeGet(pos, "w"));
   usable = widSize;
@@ -129,6 +136,7 @@ static InputStatue cntEvent(YWidgetState *opac, YEvent *event)
 static int cntRend(YWidgetState *opac)
 {
   Entity *entries = yeGet(opac->entity, "entries");
+  int needChange = 0;
 
   if (!opac->hasChange)
     return 0;
@@ -137,6 +145,11 @@ static int cntRend(YWidgetState *opac)
 
     if (!wid)
       continue;
+    if (needChange)
+      wid->hasChange = 1;
+    else if (ywCntType(opac) == CNT_STACK && wid->hasChange)
+      needChange = 1;
+
     ywidRend(wid);
     wid->hasChange = 0;
   }
