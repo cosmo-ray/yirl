@@ -76,15 +76,9 @@ void	sdlDrawRect(SDL_Rect rect, SDL_Color color)
 
 int   sdlFillColorBg(SDLWid *swid, short r, short g, short b, short a)
 {
-  SDL_Surface *textSurface =  SDL_CreateRGBSurface(0, swid->rect.w,
-						   swid->rect.h,
-						   32, 0, 0, 0, 0);
-  SDL_FillRect(textSurface, NULL, SDL_MapRGBA(textSurface->format, r, g, b, a));
-  SDL_Texture* text = SDL_CreateTextureFromSurface(sg.renderer, textSurface);
-  SDL_RenderCopy(sg.renderer, text, NULL, &swid->rect);
-  SDL_RenderPresent(sg.renderer);
-  SDL_DestroyTexture(text);
-  SDL_FreeSurface(textSurface);
+  SDL_Color color = {r, g, b, a};
+
+  sdlDrawRect(swid->rect, color);
   return 0;
 }
 

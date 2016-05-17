@@ -20,7 +20,7 @@
 	"<type>" : "text-screen",
 	"text" : "All's death, something was living here, But today...\nbut far in the dark i see light",
 	"bind" : [["action", "txQuitOnQ"]],
-	"background": "rgba: 180 210 20 50", // Not yet implemented :)
+	"background": "rgba: 100 100 100 150", // Not yet implemented :)
     },
     "MenuTest" : {
 	"<type>" : "menu",
