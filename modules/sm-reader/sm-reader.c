@@ -30,7 +30,6 @@
 
 void create_tild(Entity *mod_description, int tild, Entity *map)
 {
-  /* YE_ARRAY_FOREACH(mod_description, tmp) { */
   if (mod_description) {
     Y_BLOCK_ARRAY_FOREACH_PTR(&YE_TO_ARRAY(mod_description)->values, tmp,
 			      it, ArrayEntry) {
