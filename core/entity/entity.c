@@ -31,11 +31,6 @@
   return (returnValue);							\
   } while (0)
 
-/* macro for perf purpose */
-#define YE_INCR_REF(entity) do {		\
-    entity->refCount += 1;			\
-  } while (0)
-  
 #define YE_DECR_REF(entity) do {		\
     entity->refCount -= 1;		       	\
   } while (0)
@@ -825,8 +820,6 @@ int yeMoveFromPtrToStr(Entity *array, Entity *ptr, const char *str)
   return 0;
 }
 
-/* macro for perf purpose */
-#undef YE_INCR_REF
   
 #undef YE_DECR_REF
 

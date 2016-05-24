@@ -92,6 +92,16 @@ extern "C"
     }						\
   } while (0);
 
+
+#define YE_INCR_REF(entity) do {		\
+    entity->refCount += 1;			\
+  } while (0)
+
+
+  /* TODO: remove thers macros and do a static inline function  */
+#define yeIncrRef YE_INCR_REF
+
+
   /**
    * @father is the entity contening this one (a struct or an array)
    */
@@ -290,7 +300,7 @@ extern "C"
   void yeDestroyRef(Entity *entity) WEAK;
   void yeDestroyArray(Entity *entity) WEAK;
   void yeDestroyData(Entity *entity)  WEAK;
- 
+
   /**
    * @parap entity
    * @param value
@@ -563,6 +573,22 @@ extern "C++"
   char *yeToString(Entity *entity, int deep, int flag);
 
   int yeMoveFromPtrToStr(Entity *array, Entity *ptr, const char *str);
+
+  static inline int yeReplaceBack(Entity *array, Entity *toPush, const char *name)
+  {
+    Entity *tmp = yeGetByStrFast(array, name);
+    int ret;
+
+    yeIncrRef(toPush);
+    if (tmp) {
+      yeRemoveChild(array, tmp);
+    }
+    ret = yePushBack(array, toPush, name);
+    yeDestroy(toPush);
+    return ret;
+  }
+
+
 
 #ifdef __cplusplus
 }
