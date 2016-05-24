@@ -36,6 +36,13 @@ static inline CntType cntGetTypeFromEntity(Entity *entity) {
   return CNT_HORIZONTAL;
 }
 
+static inline Entity *getEntry(Entity *father, Entity *tmp)
+{
+  if (!yeGet(tmp, "<type>"))
+      return yeFindLink(father, yeGetString(yeGet(tmp, "name")), 0);
+    return tmp;
+}
+
 static int cntInit(YWidgetState *opac, Entity *entity, void *args)
 {
   YContenerState *cnt = ((YContenerState *)opac);
@@ -59,7 +66,8 @@ static int cntInit(YWidgetState *opac, Entity *entity, void *args)
 
   yeCreateInt(0, entity, "current");
   YE_ARRAY_FOREACH(entries, tmp) {
-    Entity *ptr = yeFindLink(entity, yeGetString(yeGet(tmp, "name")), 0);
+    Entity *ptr = getEntry(entity, tmp);
+    // push father here
     YWidgetState *wid = ywidNewWidget(ptr, NULL);
     Entity *widData = yeCreateData(wid, tmp, "$wid");
     Entity *tmpPos = yeGet(ptr, "wid-pos");
