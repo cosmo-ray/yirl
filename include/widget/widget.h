@@ -169,10 +169,11 @@ int ywidHandleAnim(YWidgetState *opac);
 
 int ywidDoTurn(YWidgetState *opac);
 
-#define ywidGenericCall(opac, widType, func)				\
+#define ywidGenericCall(wid_, widType, func)				\
   YUI_FOREACH_BITMASK(widgetOptTab[widType].rendersMask,		\
 		      ywidGenericCallIt, useless_tmask) {		\
-    widgetOptTab[widType].func[ywidGenericCallIt](opac, ywidGenericCallIt); \
+    widgetOptTab[widType].func[ywidGenericCallIt](wid_,			\
+						  ywidGenericCallIt);	\
   }
 
 static inline int ywidType(void *opac)
