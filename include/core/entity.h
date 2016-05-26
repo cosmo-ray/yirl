@@ -588,6 +588,21 @@ extern "C++"
     return ret;
   }
 
+  static inline int yeReplace(Entity *array, Entity *toReplace, Entity *toPush)
+  {
+    if (!array || !toReplace || !toPush)
+      return -1;
+    Y_BLOCK_ARRAY_FOREACH_PTR(&YE_TO_ARRAY(array)->values, tmp,
+			      it, ArrayEntry) {
+      if (tmp->entity == toReplace) {
+	YE_DESTROY(toReplace);
+	tmp->entity = toPush;
+	YE_INCR_REF(toPush);
+	return 0;
+      }
+    }
+    return -1;
+  }
 
 
 #ifdef __cplusplus

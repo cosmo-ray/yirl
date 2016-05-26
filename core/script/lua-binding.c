@@ -487,3 +487,13 @@ int	luaSetAt(lua_State *L)
   }
   return 0;
 }
+
+int	luaYeReplace(lua_State *L)
+{
+  if (lua_gettop(L) != 3)
+    return -1;
+  lua_pushnumber(L, yeReplace(lua_touserdata(L, 1),
+			      lua_touserdata(L, 2),
+			      lua_touserdata(L, 3)));
+  return 1;
+}
