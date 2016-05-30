@@ -67,7 +67,8 @@ static int cntInit(YWidgetState *opac, Entity *entity, void *args)
   yeCreateInt(0, entity, "current");
   YE_ARRAY_FOREACH(entries, tmp) {
     Entity *ptr = getEntry(entity, tmp);
-    // push father here
+
+    yeReplaceBack(ptr, entity, "$father-contener");
     YWidgetState *wid = ywidNewWidget(ptr, NULL);
     Entity *widData = yeCreateData(wid, tmp, "$wid");
     Entity *tmpPos = yeGet(ptr, "wid-pos");
@@ -86,7 +87,6 @@ static int cntInit(YWidgetState *opac, Entity *entity, void *args)
       yeSetAt(tmpPos, "y", casePos);
       yeSetAt(tmpPos, "h", caseLen);
     } else if (ywCntType(opac) == CNT_VERTICAL) {
-
       /* modify x and w pos in internal struct */
       yeSetAt(tmpPos, "x", casePos);
       yeSetAt(tmpPos, "w", caseLen);

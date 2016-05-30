@@ -31,21 +31,38 @@ function sksAction(wid, eve, arg)
 end
 
 function sukeNewMap(entity)
-   local mapPath = yeGet(entity, "map");
+   local layers = yeCreateArray()
+   local mapPath = yeGet(entity, "map")
    local skMap
-   local resources = yeGet(entity, "resources");
+   local resources = yeGet(entity, "resources")
 
    skMap = ygCall("sm-reader", "load-map", mapPath, resources)
    yeRemoveChild(entity, mapPath)
-   yePushBack(entity, yeGet(skMap, 0), "map")
-   yePushBack(entity, yeGet(skMap, 1), "width")
-   yeDestroy(skMap)
-   local map = ywidNewWidget(entity, "map")
-   return map
+   yeCreateString("stacking", layers, "cnt-type")
+   yePushBack(layers, yeGet(entity, "wid-pos"), "wid-pos")
+
+   local entries = yeCreateArray(layers, "entries")
+   --create floor layer
+   local map = yeCreateArray(entries)
+   yeCreateString("map", map, "<type>")
+   yePushBack(map, yeGet(skMap, 0), "map")
+   yePushBack(map, yeGet(skMap, 1), "width")
+   yePushBack(map, resources, "resources")
+   -- the background go to the first layer
+   yePushBack(map, yeGet(entity, "background"), "background")
+   --create 'object' layer
+   map = yeCreateArray(entries)
+   yeCreateString("map", map, "<type>")
+   yeCreateArray(map, "map")
+   yePushBack(map, yeGet(skMap, 1), "width")
+   yePushBack(map, resources, "resources")
+
+   local fatherContener = yeGet(entity, "$father-contener")
+   yeReplace(yeGet(fatherContener, "entries"), entity, layers)
+   return ywidNewWidget(layers, "contener")
 end
 
 function sukeScreeenNewWid(entity)
-   print(yeGet(entity, "entries"))
    yeCreateInt(75, yeGet(yeGet(entity, "entries"), 0), "size")
 
    local cnt = ywidNewWidget(entity, "contener")

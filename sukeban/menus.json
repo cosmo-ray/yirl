@@ -19,6 +19,6 @@
     "text, tatata =D" : {
 	"<type>" : "text-screen",
 	"text" : "he who fight the yoyo. must look at himself to not be kill by a yoyo\nwhen you gaze into the hight school boy, she will gaze after you\n-seriousely",
-	"background": "hello.pnj"
+	"background": "rgba: 255 255 255 0" // Not yet implemented :)
     }
 }
