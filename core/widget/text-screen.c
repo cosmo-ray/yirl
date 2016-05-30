@@ -45,9 +45,7 @@ static int tsDestroy(YWidgetState *opac)
 
 static int tsRend(YWidgetState *opac)
 {
-  if (opac->hasChange)
-    ywidGenericCall(opac, t, render);
-  opac->hasChange = 0;
+  ywidGenericCall(opac, t, render);
   return 0;
 }
 
