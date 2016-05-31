@@ -40,16 +40,6 @@ void testTccScritLifecycle(void)
   g_assert(!ysRegistreFunc(sm, "addPtr", addPtr));
   g_assert((long)ysCall(sm, "addPtr", 2, 1, 2) == 3);
 
-  /* g_assert(!ysRegistreFunc(sm, "toNbr", luaToNumber)); */
-  /* g_assert(!ysRegistreFunc(sm, "toPtr", luaToPtr)); */
-
-  /* if (ysLoadFile(sm, TESTS_PATH"/simple.lua")) { */
-  /*   ysPrintError(sm); */
-  /*   g_assert(0); */
-  /* } */
-
-  /* g_assert((long)ysCall(sm, "addPtr2", 2, 1, 2) == 3); */
-
   g_assert(!ysDestroyManager(sm));
   g_assert(!ysTccEnd());
 }
