@@ -20,12 +20,10 @@
 #include "tests.h"
 #include "tcc-script.h"
 
-static void *addPtr(int nbArg, va_list *ap)
+static void *addPtr(int nbArg, void **args)
 {
-  void *arg1 = va_arg(ap, void *);
-  void *arg2 = va_arg(ap, void*);
-
-  printf("hello %d\n", nbArg);
+  void *arg1 = args[0];
+  void *arg2 = args[1];
 
   return (void *)((long)arg1 + (long)arg2);
 }
