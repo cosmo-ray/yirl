@@ -37,6 +37,11 @@
 // if compiller gcc
 #if defined(__GNUC__) && (__GNUC__ >= 4)
 
+# ifndef likely
+# define likely(x)      __builtin_expect(!!(x), 1)
+# define unlikely(x)    __builtin_expect(!!(x), 0)
+# endif
+
 # if   __SIZEOF_POINTER__ == 4
 # define ctz64 	   __builtin_ctzll
 # define clz64      __builtin_clzll
@@ -52,6 +57,12 @@
 # define ctz64 yuiCtz64
 # define clz64 yuiClz64
 # define popcount64 yuiPopcount64
+
+# ifndef likely
+# define likely(x)
+# define unlikely(x)
+# endif
+
 #endif
 
 
@@ -218,6 +229,8 @@ static inline int yuiStrEqual0(const char *str1, const char *str2)
   {\
   DPRINT_WARN(#cmdName" not implemented on %s\n", system);	\
   }
+
+
 
 
 #endif
