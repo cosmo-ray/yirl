@@ -25,6 +25,7 @@ static void *addPtr(int nbArg, void **args)
   void *arg1 = args[0];
   void *arg2 = args[1];
 
+  (void)nbArg;
   return (void *)((long)arg1 + (long)arg2);
 }
 
