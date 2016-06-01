@@ -132,16 +132,6 @@ static inline unsigned int yuiCtz64(uint64_t v)
     type [17]: func,				\
     type [18]: func
 
-/* Define to use for error handeling */
-#define MAYBE(var) var
-
-/* example usage: */
-/* MAYBE(void *) test; */
-/* MAYDO((test = myFunc()), pocessMyPtr()) */
-#define MAYDO(var, cmd)				\
-  if (var) {					\
-    cmd;					\
-  }
 
 typedef struct {
   void *(*allocator[MAX_NB_MANAGER])(void);
