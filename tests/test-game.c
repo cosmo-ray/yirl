@@ -43,15 +43,12 @@ static int shooterAction(YWidgetState *wid, YEvent *eve, Entity *arg)
 
 static int shooterInit(YWidgetState *wid, YEvent *eve, Entity *arg)
 {
-  Entity *tmp;
-
   (void)wid;
   (void)eve;
   yeCreateInt(MAP_SIZE_W, arg, "width");
   arg = yeCreateArray(arg, "map");
   for (int i = 0; i < MAP_SIZE_W * MAP_SIZE_H; ++i) {
-    tmp = yeCreateArray(arg, NULL);
-    yeCreateInt(0, tmp, NULL);
+    yeCreateInt(0, yeCreateArray(arg, NULL), NULL);
   }
   ywinAddCallback(ywinCreateNativeCallback("shooterAction", shooterAction));
   ywidBind(wid, "action", "shooterAction");

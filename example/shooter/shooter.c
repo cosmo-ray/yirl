@@ -102,13 +102,12 @@ static void moveMainCaracter(YWidgetState *wid, int x, int y)
 {
   Entity *pos = yeGet(wid->entity, "pos");
   Entity *cur = ywMapGetCase(wid, pos);
-  Entity *curHero;
   Entity *posX = yeGet(pos, "x");
   Entity *posY = yeGet(pos, "y");
 
 
   for (unsigned int i = 0; i < yeLen(cur); ++i) {
-    curHero = yeGet(cur, i);
+      Entity *curHero = yeGet(cur, i);
     if (yeGetInt(curHero) == 1) {
       /* You can get it Noww !!!! */
       yeOpsAddInt(posX, x);

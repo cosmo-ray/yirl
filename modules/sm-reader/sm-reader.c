@@ -55,7 +55,7 @@ void *load_map(int nb, void **args)
   int width = 0;
   Entity *mod_description = nb > 1 ? args[1] : NULL;
   Entity *father = nb > 2 ? args[2] : yeCreateArray(NULL, NULL);
-  char *name = name = nb > 3 ? args[3] : NULL;
+  char *name = nb > 3 ? args[3] : NULL;
   Entity *map = yeCreateArray(father, name);
   int check;
 
@@ -94,7 +94,7 @@ void *load_map(int nb, void **args)
 void *init_sm_reader(int nbArg, void **args)
 {
   Entity *t = YE_TO_ENTITY(args[0]);
-  Entity *f = yeCreateFunction("load_map", ygGetManager("tcc"), t, "load-map");
+  yeCreateFunction("load_map", ygGetManager("tcc"), t, "load-map");
 
   return NULL;
 }

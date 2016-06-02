@@ -262,14 +262,12 @@ int ywidAddSubType(Entity *subType)
 
 YWidgetState *ywidNewWidget(Entity *entity, const char *type)
 {
-  Entity *tmp;
 
   if (!entity)
     return NULL;
 
   if (!type) {
-    tmp = yeGet(entity, "<type>");
-    type = yeGetString(tmp);
+    type = yeGetString(yeGet(entity, "<type>"));
   }
 
   if (!type)
