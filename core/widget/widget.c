@@ -120,20 +120,20 @@ int ywidBgConfFill(Entity *entity, YBgConf *cfg)
       int i;
 
       str += (limiterPos + 1);
-      if (len < sizeof("r,g,b,q"))
+      if (len < sizeof("rgba:r,g,b,a"))
 	goto exit;
 
       rgba = g_strsplit_set(str, ", :", 5);
       for (i = 0; i < 4 && rgba[i] != NULL; ++i);
 
       if (i >= 4) {
-	cfg->r = atoi(rgba[0]);
-	cfg->g = atoi(rgba[1]);
-	cfg->b = atoi(rgba[2]);
-	cfg->a = atoi(rgba[3]);
+	/* rgba[0] contain "rgba:" */
+	cfg->r = atoi(rgba[1]);
+	cfg->g = atoi(rgba[2]);
+	cfg->b = atoi(rgba[3]);
+	cfg->a = atoi(rgba[4]);
 	cfg->type = BG_COLOR;
 	ret = 0;
-
       } else {
 	DPRINT_ERR("invalide rgba color string: %s", str);
       }
