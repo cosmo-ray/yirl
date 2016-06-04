@@ -77,7 +77,7 @@ static inline int	checkType(const Entity *entity, EntityType type)
 
 EntityType	yeType(const Entity *entity)
 {
-  if (entity != NULL)
+  if (likely(entity != NULL))
     return (entity->type);
   return (-1);
 }
@@ -103,10 +103,10 @@ const char *yeTypeToString(int type)
 
 size_t yeLen(Entity *entity)
 {
-  if (!entity)
+  if (unlikely(!entity))
     return (0);
 
-  if (yeType(entity) == YARRAY) {
+  if (likely(yeType(entity) == YARRAY)) {
     if (!yBlockArrayIsBlockAllocated(&YE_TO_ARRAY(entity)->values, 0))
       return 0;
     return yBlockArrayLastPos(&YE_TO_ARRAY(entity)->values) + 1;
@@ -117,7 +117,7 @@ size_t yeLen(Entity *entity)
 
 Entity *yeGetByIdx(Entity *entity, size_t index)
 {
-  if (entity == NULL)
+  if (unlikely(entity == NULL))
     return NULL;
   Entity *tmp;
   tmp = yBlockArrayGet(&YE_TO_ARRAY(entity)->values, index, ArrayEntry).entity;
@@ -128,9 +128,9 @@ Entity *yeGetByIdx(Entity *entity, size_t index)
  * @param name  the name we will search the character '.' into
  * @return the index of the charactere '.' in name
  */
-static int	findIdxPoint(const char *name)
+static inline int	findIdxPoint(const char *name)
 {
-  char* res = strchr(name, '.');
+  char *res = strchr(name, '.');
   return (res == NULL)
     ? -1
     : res - name;
@@ -161,7 +161,7 @@ static Entity *yeGetByIdxFastWithEnd(Entity *entity, const char *name, int end)
 
 Entity *yeGetByStrFast(Entity *entity, const char *name)
 {
-  if (!entity || !name || yeType(entity) != YARRAY)
+  if (unlikely(!entity || !name || yeType(entity) != YARRAY))
     return NULL;
 
   Y_BLOCK_ARRAY_FOREACH_PTR(&YE_TO_ARRAY(entity)->values, tmp, it, ArrayEntry) {
@@ -211,7 +211,7 @@ Entity *yeGetByStr(Entity *entity, const char *name)
 {
   int	i;
 
-  if (entity == NULL) {
+  if (unlikely(!entity)) {
     DPRINT_INFO("can not find entity for %s\n", name);
     return NULL;
   }
@@ -295,7 +295,7 @@ static inline void arrayEntryInit(ArrayEntry *ae)
 
 static inline void arrayEntryDestroy(ArrayEntry *ae)
 {
-  if (!ae)
+  if (unlikely(!ae))
     return;
   g_free(ae->name);
   YE_DESTROY(ae->entity);
@@ -304,7 +304,7 @@ static inline void arrayEntryDestroy(ArrayEntry *ae)
 
 static void yeRemoveFather(Entity *entity, Entity *father)
 {
-  if (entity == NULL || father == NULL)
+  if (unlikely(!entity || !father))
     return;
   Entity **fathers = entity->fathers;
 
@@ -449,9 +449,9 @@ int	yePushBack(Entity *entity, Entity *toPush, const char *name)
 {
   int ret;
 
-  if (!entity || !toPush)
+  if (unlikely(!entity || !toPush))
     return -1;
-  if (!checkType(entity, YARRAY)) {
+  if (unlikely(!checkType(entity, YARRAY))) {
     DPRINT_ERR("bad argument 1 of type '%s', should be array\n",
 	       yeTypeToString( yeType(entity)));
     return -1;
@@ -501,7 +501,7 @@ Entity *yePopBack(Entity *entity)
 
 static void yeAttachFather(Entity *entity, Entity *father)
 {
-  if (entity == NULL || father == NULL)
+  if (unlikely(!entity || !father))
     return;
   entity->fathers =
     realloc(entity->fathers, sizeof(Entity *) * (entity->nbFathers + 1));
@@ -511,7 +511,7 @@ static void yeAttachFather(Entity *entity, Entity *father)
 
 Entity *yeInit(Entity *entity, EntityType type, Entity *father, const char *name)
 {
-  if (!entity)
+  if (unlikely(!entity))
     return NULL;
   entity->type = type;
   entity->nbFathers = 0;
@@ -523,7 +523,7 @@ Entity *yeInit(Entity *entity, EntityType type, Entity *father, const char *name
 
 void	yeSetString(Entity *entity, const char *val)
 {
-  if (!entity)
+  if (unlikely(!entity))
     return;
   if (YE_TO_STRING(entity)->value != NULL)
     free(YE_TO_STRING(entity)->value);
@@ -598,21 +598,21 @@ void	yeSetFloatAtStrIdx(Entity *entity, const char *index, double value)
 
 void	yeUnsetFunction(Entity *entity)
 {
-  if (!entity)
+  if (unlikely(!entity))
     return;
   yeSetFunction(entity, NULL);
 }
 
 void	yeSetFunction(Entity *entity, const char *value)
 {
-  if (!entity)
+  if (unlikely(!entity))
     return;
   return yeSetString(entity, value);
 }
 
 void	yeSetInt(Entity *entity, int value)
 {
-  if (!entity)
+  if (unlikely(!entity))
     return;
   if (yeType(entity) == YFLOAT)
     return (yeSetFloat(entity, value));
@@ -621,8 +621,8 @@ void	yeSetInt(Entity *entity, int value)
 
 void	yeSetFloat(Entity *entity, double value)
 {
-  if (!entity)
-    return;
+  if (unlikely(!entity))
+      return;
   ((FloatEntity *)entity)->value = value;
 }
 
