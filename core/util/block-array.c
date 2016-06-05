@@ -16,6 +16,7 @@
 */
 
 #include <glib.h>
+#include "utils.h"
 #include "block-array.h"
 
 static uint8_t nullPtr[YBA_MAX_ELEM_SIZE];
@@ -127,7 +128,7 @@ inline BlockArrayIterator yBlockArrayIteratorCreate(BlockArray *array,
 {
   BlockArrayIterator ret = {NULL, 0, 0, 0};
 
-  if (!array)
+  if (unlikely(!array))
     return ret;
   yBlockArrayIteratorInit(ret, array, beg);
   return ret;

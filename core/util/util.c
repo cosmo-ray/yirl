@@ -19,7 +19,7 @@
 
 int yuiRegister(YManagerAllocator *ma, void *(*allocator)(void))
 {
-  if (!ma || ma->len >= MAX_NB_MANAGER - 1)
+  if (unlikely(!ma || ma->len >= MAX_NB_MANAGER - 1))
     return -1;
   ma->allocator[ma->len] = allocator;
   ma->len += 1;
@@ -28,7 +28,7 @@ int yuiRegister(YManagerAllocator *ma, void *(*allocator)(void))
 
 int yuiUnregiste(YManagerAllocator *ma, int t)
 {
-  if (!ma || ma->len <= t)
+  if (unlikely(!ma || ma->len <= t))
     return -1;
   ma->allocator[t] = NULL;
   if (t == ma->len - 1)
