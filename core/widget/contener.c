@@ -39,14 +39,15 @@ static inline CntType cntGetTypeFromEntity(Entity *entity) {
 static inline Entity *getEntry(Entity *father, Entity *tmp)
 {
   if (!yeGet(tmp, "<type>"))
-      return yeFindLink(father, yeGetString(yeGet(tmp, "name")), 0);
-    return tmp;
+    return yeFindLink(father, yeGetString(yeGet(tmp, "name")), 0);
+  return tmp;
 }
 
-static int cntInit(YWidgetState *opac, Entity *entity, void *args)
+static void cntResize(YWidgetState *opac)
 {
-  YContenerState *cnt = ((YContenerState *)opac);
+  Entity *entity = opac->entity;
   Entity *entries = yeGet(entity, "entries");
+  YContenerState *cnt = ((YContenerState *)opac);
   Entity *pos = yeGet(entity, "wid-pos");
   int i = 0;
   size_t len = yeLen(entries);
@@ -54,24 +55,16 @@ static int cntInit(YWidgetState *opac, Entity *entity, void *args)
   int usable;
   int casePos = 0;
   int caseLen = 0;
-
-  (void)args;
-  if (!entries)
-    return -1;
   cnt->type = cntGetTypeFromEntity(entity);
 
   widSize =  ywCntType(opac) == CNT_HORIZONTAL ?
     yeGetInt(yeGet(pos, "h")) : yeGetInt(yeGet(pos, "w"));
   usable = widSize;
 
-  yeCreateInt(0, entity, "current");
   YE_ARRAY_FOREACH(entries, tmp) {
-    Entity *ptr = getEntry(entity, tmp);
-
-    yeReplaceBack(ptr, entity, "$father-contener");
-    YWidgetState *wid = ywidNewWidget(ptr, NULL);
-    Entity *widData = yeCreateData(wid, tmp, "$wid");
-    Entity *tmpPos = yeGet(ptr, "wid-pos");
+    YWidgetState *wid = yeGetData(yeGet(tmp, "$wid"));
+    Entity *ptr = wid->entity;
+    Entity *tmpPos = yeReplaceBack(ptr, pos, "wid-pos");
     int size = yeGetInt(yeGet(tmp, "size"));
 
     if (!wid)
@@ -91,18 +84,37 @@ static int cntInit(YWidgetState *opac, Entity *entity, void *args)
       yeSetAt(tmpPos, "x", casePos);
       yeSetAt(tmpPos, "w", caseLen);
     }
-
+  
     /* else nothing */
     ywidResize(wid);
-    yeSetDestroy(widData, widDestroyWrapper);
     usable -= caseLen;
     casePos = widSize - usable;
     ++i;
   }
+}
 
+static int cntInit(YWidgetState *opac, Entity *entity, void *args)
+{
+  Entity *entries = yeGet(entity, "entries");
+
+  (void)args;
+  if (!entries)
+    return -1;
+
+  yeCreateInt(0, entity, "current");
+  YE_ARRAY_FOREACH(entries, tmp) {
+    Entity *ptr = getEntry(entity, tmp);
+    YWidgetState *wid;
+    Entity *widData;
+
+    yeReplaceBack(ptr, entity, "$father-contener");
+    wid = ywidNewWidget(ptr, NULL);
+    widData = yeCreateData(wid, tmp, "$wid");
+    yeSetDestroy(widData, widDestroyWrapper);
+  }
+  cntResize(opac);
   return 0;
 }
-#undef yCntType
 
 static int cntDestroy(YWidgetState *opac)
 {
@@ -173,6 +185,7 @@ static void *alloc(void)
   wstate->init = cntInit;
   wstate->destroy = cntDestroy;
   wstate->handleEvent = cntEvent;
+  wstate->resize = cntResize;
   wstate->type = t;
   ret->curent = -1;
   return  ret;

@@ -91,7 +91,7 @@ typedef struct WidgetState_ {
   int (*render)(struct WidgetState_ *opac);
   InputStatue (*handleEvent)(struct WidgetState_ *opac, YEvent *event);
   InputStatue (*handleAnim)(struct WidgetState_ *opac);
-  void (*resize)(void);
+  void (*resize)(struct WidgetState_ *opac);
   int (*init)(struct WidgetState_ *opac, Entity *entity, void *args);
   int (*destroy)(struct WidgetState_ *opac);
   /* callback must be in the global structure

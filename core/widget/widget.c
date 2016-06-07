@@ -290,6 +290,8 @@ YWidgetState *ywidNewWidget(Entity *entity, const char *type)
 
 void ywidResize(YWidgetState *wid)
 {
+  if (wid->resize)
+    wid->resize(wid);
   YUI_FOREACH_BITMASK(rendersMask, i, tmask) {
     if (wid->renderStates[i].opac)
       renderOpTab[i].resizePtr(wid, i);

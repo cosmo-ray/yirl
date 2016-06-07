@@ -574,16 +574,28 @@ extern "C++"
 
   int yeMoveFromPtrToStr(Entity *array, Entity *ptr, const char *str);
 
-  static inline int yeReplaceBack(Entity *array, Entity *toPush, const char *name)
+  /**
+   * @brief remove all entity name @name inside @array and push @toPush
+   * @return the entity that have been push
+   */
+  static inline Entity * yeReplaceBack(Entity *array, Entity *toPush,
+				       const char *name)
   {
-    Entity *tmp = yeGetByStrFast(array, name);
-    int ret;
+    Entity *tmp;
+    Entity *ret = NULL;
 
     yeIncrRef(toPush);
+
+  again:
+    tmp = yeGetByStrFast(array, name);
     if (tmp) {
       yeRemoveChild(array, tmp);
+      goto again;
     }
-    ret = yePushBack(array, toPush, name);
+
+    if (!yePushBack(array, toPush, name))
+      ret = toPush;
+
     yeDestroy(toPush);
     return ret;
   }
