@@ -100,17 +100,29 @@ static void cntResize(YWidgetState *opac)
 static int cntInit(YWidgetState *opac, Entity *entity, void *args)
 {
   Entity *entries = yeGet(entity, "entries");
+  Entity *bg = yeGet(entity, "background");
+  YWidgetState *wid;
+  Entity *bg_tx;
+  Entity *widData;
 
   (void)args;
   if (!entries)
     return -1;
 
+  if (bg) {
+    bg_tx = yeCreateArray(NULL, NULL);
+    yeCreateString("text-screen", bg_tx, "<type>");
+    yeCreateString("", bg_tx, "text");
+    yePushBack(bg_tx, bg, "background");
+    wid = ywidNewWidget(bg_tx, NULL);
+    widData = yeCreateData(wid, entity, "$bg-wid");
+    yeSetDestroy(widData, widDestroyWrapper);
+  }
+
   yeCreateInt(0, entity, "current");
   YE_ARRAY_FOREACH(entries, tmp) {
     Entity *ptr = getEntry(entity, tmp);
-    YWidgetState *wid;
-    Entity *widData;
-
+ 
     yeReplaceBack(ptr, entity, "$father-contener");
     wid = ywidNewWidget(ptr, NULL);
     widData = yeCreateData(wid, tmp, "$wid");
@@ -161,9 +173,15 @@ static int cntRend(YWidgetState *opac)
 {
   Entity *entries = yeGet(opac->entity, "entries");
   int needChange = 0;
+  YWidgetState *bg_wid = yeGetData(yeGet(opac->entity, "$bg-wid"));
 
   if (!opac->hasChange)
     return 0;
+
+  if (bg_wid) {
+    yeReplaceBack(bg_wid->entity, yeGet(opac->entity, "wid-pos"), "wid-pos");
+    ywidRend(bg_wid);
+  }
   YE_ARRAY_FOREACH(entries, tmp) {
     YWidgetState *wid = yeGetData(yeGet(tmp, "$wid"));
 
