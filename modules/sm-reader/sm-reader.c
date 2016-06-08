@@ -48,42 +48,53 @@ void create_tild(Entity *mod_description, int tild, Entity *map)
   yeCreateInt(tild, yeCreateArray(map, NULL), NULL);
 }
 
-void *load_map(int nb, void **args)
+static int read_map(int fd, Entity *map, Entity *resources,
+		    const char *file_name, int *width)
 {
-  int fd = open(yeGetString(args[0]), O_RDONLY);
-  char buff[SM_BUFF_LEN];
-  int width = 0;
-  Entity *mod_description = nb > 1 ? args[1] : NULL;
-  Entity *father = nb > 2 ? args[2] : yeCreateArray(NULL, NULL);
-  char *name = nb > 3 ? args[3] : NULL;
-  Entity *map = yeCreateArray(father, name);
   int check;
-
-  if (fd < 0) {
-    DPRINT_ERR("error when opening '%s'\n", yeGetString(args[0]));
-    goto error;
-  }
+  char buff[SM_BUFF_LEN];
 
  again:
   check = read(fd, buff, SM_BUFF_LEN);
   if (check < 0) {
-    DPRINT_ERR("error when reading '%s'\n", args[0]);
-    goto error;
+    DPRINT_ERR("error when reading '%s'\n", file_name);
+    return -1;
   }
 
   for (int i = 0; i < check; ++i) {
     if (buff[i] == '\n') {
-      width = width ? width : i;
+      *width = *width ? *width : i;
     } else {
-      create_tild(mod_description, buff[i], map);
+      create_tild(resources, buff[i], map);
     }
   }
 
   if (check > 0)
     goto again;
+  
+  return 0;
+}
 
-  yeReCreateInt(width, father, "width");
-  return father;
+void *load_map(int nb, void **args)
+{
+  const char *file_name = args[0];
+  int fd = open(yeGetString(file_name), O_RDONLY);
+  int width = 0;
+  Entity *mod_description = nb > 1 ? args[1] : NULL;
+  char *name = nb > 3 ? args[3] : NULL;
+  Entity *father = nb > 2 ? args[2] : yeCreateArray(NULL, name);
+  Entity *map = yeCreateArray(father, "map");
+
+  if (fd < 0) {
+    DPRINT_ERR("error when opening '%s'\n", yeGetString(file_name));
+    goto error;
+  }
+
+  if (!read_map(fd, map, mod_description, file_name, &width)) {
+    yeReCreateInt(width, father, "width");
+    return father;
+  }
+
  error:
   if (nb > 2)
     YE_DESTROY(father);
@@ -95,6 +106,7 @@ void *init_sm_reader(int nbArg, void **args)
 {
   Entity *t = YE_TO_ENTITY(args[0]);
   yeCreateFunction("load_map", ygGetManager("tcc"), t, "load-map");
+  /* yeCreateFunction("load_entity", ygGetManager("tcc"), t, "load-entity"); */
 
   return NULL;
 }
