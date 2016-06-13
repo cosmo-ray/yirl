@@ -97,7 +97,7 @@ static int sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
       int id;
       Entity *curRes;
 
-      if (!mapElem)
+      if (unlikely(!mapElem))
 	continue;
       id = ywMapGetIdByElem(mapElem);
       curRes = yeGet(ywMapGetResources(state), id);
@@ -142,7 +142,7 @@ static int sdl2FullRender(YWidgetState *state, SDLWid *wid, Entity *entity)
       int id;
       Entity *curRes;
 
-      if (!mapElem)
+      if (unlikely(!mapElem))
 	continue;
       id = ywMapGetIdByElem(mapElem);
       curRes = yeGet(ywMapGetResources(state), id);

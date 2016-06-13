@@ -19,6 +19,7 @@
 #include <glib.h>
 #include "map.h"
 #include "widget-callback.h"
+
 static int t = -1;
 
 static int mapInit(YWidgetState *opac, Entity *entity, void *args)
@@ -71,7 +72,7 @@ static int mapDestroy(YWidgetState *opac)
 
 static int mapRend(YWidgetState *opac)
 {
-  if (!opac->hasChange)
+  if (unlikely(!opac->hasChange))
     return 0;
 
   ywidGenericCall(opac, t, render);
