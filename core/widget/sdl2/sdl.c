@@ -203,12 +203,8 @@ int    ysdl2Init(void)
     goto ttf_fail;
   }
 
-
-  // initializing Flags for PNG Images
-  int imgFlags = IMG_INIT_PNG | IMG_INIT_JPG | IMG_INIT_TIF;
-
   // Simple check of the Flags
-  if(!(IMG_Init(imgFlags)&imgFlags)) {
+  if(!IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG | IMG_INIT_TIF)) {
     DPRINT_ERR("SDL_image could not initialize! SDL_image Error: %s\n",
 	       IMG_GetError());
     goto img_fail;
