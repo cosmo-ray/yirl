@@ -147,8 +147,8 @@ extern "C"
   {
     ENTITY_HEADER
 
-    unsigned int len;
     char	*value;
+    unsigned int len;
   } StringEntity;
 
   typedef	struct

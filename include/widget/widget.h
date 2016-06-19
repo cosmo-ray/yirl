@@ -156,7 +156,7 @@ static inline int ywidRend(YWidgetState *opac)
 
 static inline int ywidHandleEvent(YWidgetState *opac, YEvent *event)
 {
-  int ret;
+  int ret = 0;
 
   if (opac->handleEvent)
     ret = opac->handleEvent(opac, event);

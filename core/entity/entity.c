@@ -18,6 +18,7 @@
 #include	<stdio.h>
 #include	<string.h>
 #include	<glib.h>
+#include	<inttypes.h>
 #include	"entity.h"
 #include	"utils.h"
 #include	"debug_core.h"
@@ -783,7 +784,7 @@ static void yeToStringInternal(Entity *entity, int deep, GString *str, int flag)
       if (!(flag & YE_FORMAT_OPT_PRINT_ONLY_VAL_ARRAY)) {
 	if (tmp->name)
 	  g_string_append_printf(str, "name: '%s, '", tmp->name);
-	g_string_append_printf(str, "idx: %lu, ", it);
+	g_string_append_printf(str, "idx: %"PRIu64", ", it);
 	g_string_append_printf(str, "val: ");
 	g_string_append_c(str, '|');
 	g_string_append_c(str, ' ');
