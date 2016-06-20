@@ -63,12 +63,16 @@ static void cntResize(YWidgetState *opac)
 
   YE_ARRAY_FOREACH(entries, tmp) {
     YWidgetState *wid = yeGetData(yeGet(tmp, "$wid"));
-    Entity *ptr = wid->entity;
-    Entity *tmpPos = yeReplaceBack(ptr, pos, "wid-pos");
-    int size = yeGetInt(yeGet(tmp, "size"));
+    Entity *ptr;
+    Entity *tmpPos;
+    int size;
 
-    if (!wid)
+    if (unlikely(!wid))
       continue;
+
+    ptr = wid->entity;
+    size = yeGetInt(yeGet(tmp, "size"));
+    tmpPos = yeReplaceBack(ptr, pos, "wid-pos");
     if (size < 0) { /* We equally size the sub-widgets */
       caseLen = usable * (i + 1) / len;
     } else {
