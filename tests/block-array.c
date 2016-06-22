@@ -206,5 +206,5 @@ void testBlockArray(void)
     ++nbIteration;
   }
   g_assert(nbIteration == 134 - 43);
-
+  yBlockArrayFree(&test.array);
 }
