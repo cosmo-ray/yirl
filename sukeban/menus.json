@@ -13,8 +13,9 @@
 	"&resources" : "houseResources",
 	"map" : "house.sm",
 	"bind" : [["action", "mapTest"]],
-	"start" : [7, 26],
-	"overwrite" : "houseOverwriter"
+	"start_pos" : [7, 26],
+	"start_id" : 1,
+	"ground_char" : "."
     },
     "text, tatata =D" : {
 	"<type>" : "text-screen",

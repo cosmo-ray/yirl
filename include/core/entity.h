@@ -195,15 +195,17 @@ extern "C"
 #define YE_ARRAY_FOREACH_SET_VAL(it, val)				\
   ((val = yBlockArrayIteratorGetPtr(it, ArrayEntry)->entity) || 1)
 
+#define YE_ARRAY_FOREACH_EXT(array, val, it)		\
+  Entity *val;						\
+  for (BlockArrayIterator it =				\
+	 YE_ARRAY_FOREACH_INIT(array);			\
+       !yBlockArrayIteratorIsEnd(&it) &&		\
+	 YE_ARRAY_FOREACH_SET_VAL(it, val);		\
+       yBlockArrayIteratorIncr(&it))
+
 
 #define YE_ARRAY_FOREACH(array, val)					\
-  Entity *val;								\
-  for (BlockArrayIterator it##val =					\
-	 YE_ARRAY_FOREACH_INIT(array);					\
-       !yBlockArrayIteratorIsEnd(&it##val) &&				\
-	 YE_ARRAY_FOREACH_SET_VAL(it##val, val);			\
-       yBlockArrayIteratorIncr(&it##val))
-
+  YE_ARRAY_FOREACH_EXT(array, val, it##val)
 
   int	yeArrayIdx(Entity *array, const char *lookup);
   
@@ -263,6 +265,11 @@ extern "C"
   int yePushBack(Entity *array, Entity *toPush, const char *name) WEAK;
 
   /**
+   * Push @toPush at @idx if the element is not empty, return -1 othervise
+   */
+  int yPushAt(Entity *array, Entity *toPush, int idx);
+  
+  /**
    * @array:	the array
    * @return the entity that is erased from the entity @array
    */
@@ -289,6 +296,7 @@ extern "C"
   Entity *yeCreateFunction(const char *funcName, void *manager,
 			   Entity *father, const char *name) WEAK;
   Entity *yeCreateArray(Entity *fathers, const char *name) WEAK;
+  Entity *yeCreateArrayAt(Entity *fathers, const char *name, int idx) WEAK;
 
   Entity *yeCreateData(void *value, Entity *father, const char *name) WEAK;
 
@@ -364,7 +372,7 @@ extern "C"
 		 Entity *father, const char *name)  WEAK;
 
   /**
-   * set to a value to the index if the entity is an array or a generic array
+   * set @value to @index if the entity is an array
    */
   void	yeSetIntAt(Entity *entity, unsigned int index, int value) WEAK;
   void	yeSetFloatAt(Entity *entity, unsigned int index, double value) WEAK;
@@ -374,6 +382,10 @@ extern "C"
   void	yeSetStringAtStrIdx(Entity *entity, const char *index, const char *value) WEAK;
 
 
+  /**
+   * Attach @entity on @on at @idx, set @name as ... name
+   * we could rename this function as: "yePushAt"
+   */
   int yeAttach(Entity *on, Entity *entity, unsigned int idx, const char *name);
 
 #ifdef __cplusplus
@@ -387,6 +399,8 @@ extern "C++"
   void yeSetAt(Entity *entity, const char *index, float value) WEAK;
 }
 #else
+
+  /* TODO: should create an element if doesn't exist */
 #define yeSetAtIntIxd(ENTITY, INDEX, VALUE)	\
   _Generic((VALUE),							\
 	   int: yeSetIntAt,						\
@@ -537,7 +551,40 @@ extern "C++"
    */
   ArrayEntity*		yeCopyContener(ArrayEntity* src, ArrayEntity* dest);
 
+  static inline int yeArrayContainEntity(Entity *array, const char *str)
+  {
+    return !!yeGet(array, str);
+  }
 
+  static inline int yeArrayContainEntitiesInternal(Entity *entity, ...)
+  {
+    va_list ap;
+    const char *tmp;
+
+    va_start(ap, entity);
+    while((tmp = va_arg(ap, const char *)) != NULL) {
+      if (!yeArrayContainEntity(entity, tmp))
+	return 0;
+    }
+    return 1;
+  }
+
+#define yeArrayContainEntities(array, ARGS...)		\
+  yeArrayContainEntitiesInternal(array, ARRAY, NULL)
+
+  static inline int yeStringIndexChar(Entity *entityStr, const char *chars)
+  {
+    const char *str = yeGetString(entityStr);
+    int len = yeLen(entityStr);
+
+    for (int i = 0; i < len; ++i) {
+      for (int j = 0; chars[j]; ++j) {
+	if (str[i] == chars[j])
+	  return i;
+      }
+    }
+    return -1;
+  }
 
   static inline int yeOpsIntAddInt(IntEntity *e, int i)
   {
@@ -572,6 +619,10 @@ extern "C++"
  
   char *yeToString(Entity *entity, int deep, int flag);
 
+  /**
+   * remove @ptr inside @array and push back @ptr with the name @name if
+   * @ptr has been remove.
+   */
   int yeMoveFromPtrToStr(Entity *array, Entity *ptr, const char *str);
 
   /**

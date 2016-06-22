@@ -153,6 +153,7 @@ void yBlockArrayIteratorIncr(BlockArrayIterator *it);
 BlockArrayIterator yBlockArrayIteratorCreate(BlockArray *array,
 					     int beg);
 
+#define yBlockArrayIteratorIdx(it) ((it).blockPos * 64 + (it).pos)
 
 #define yBlockArrayIteratorGetPtr(it, type)				\
   ((type *)yBlockArrayGetInternal((it.array), (it.blockPos * 64 + it.pos)))

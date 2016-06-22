@@ -33,33 +33,10 @@ end
 function sukeNewMap(entity)
    local layers = yeCreateArray()
    local mapPath = yeGet(entity, "map")
-   local skMap
    local resources = yeGet(entity, "resources")
 
-   skMap = ygCall("sm-reader", "load-map", mapPath, resources)
-   yeRemoveChild(entity, mapPath)
-   yeCreateString("stacking", layers, "cnt-type")
-   yePushBack(layers, yeGet(entity, "wid-pos"), "wid-pos")
-
-   local entries = yeCreateArray(layers, "entries")
-   --create floor layer
-   local map = yeCreateArray(entries)
-   yeCreateString("map", map, "<type>")
-   yePushBack(map, yeGet(skMap, 0), "map")
-   yePushBack(map, yeGet(skMap, 1), "width")
-   yePushBack(map, resources, "resources")
-   -- the background go to the first layer
-   yePushBack(map, yeGet(entity, "background"), "background")
-   --create 'object' layer
-   map = yeCreateArray(entries)
-   yeCreateString("map", map, "<type>")
-   yeCreateArray(map, "map")
-   yePushBack(map, yeGet(skMap, 1), "width")
-   yePushBack(map, resources, "resources")
-
-   local fatherContener = yeGet(entity, "$father-contener")
-   yeReplace(yeGet(fatherContener, "entries"), entity, layers)
-   return ywidNewWidget(layers, "contener")
+   ygCall("sm-reader", "load-entity", entity)
+   return ywidNewWidget(entity, nil)
 end
 
 function sukeScreeenNewWid(entity)
@@ -71,7 +48,6 @@ function sukeScreeenNewWid(entity)
 end
 
 function initSukeScreen(entity)
-   print("init ", entity)
    local init = yeCreateArray(nil, nil)
    yeCreateString("sukeban-screen", init, "name")
    yeCreateFunction("sukeScreeenNewWid", init, "callback")

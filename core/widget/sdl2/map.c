@@ -53,20 +53,16 @@ static inline  void setSpritesSize(unsigned int *sizeSpriteW,
   }
 }
 
-#define YMAP_FOREACH_ELEMS(map, elem, caseIncrOp)	\
-  YMAP_FOREACH_CASES(map, mapCaseTmp)			\
-    YMAP_FOREACH_ELEMS_IN_CASE(mapCaseTmp, elem)
-
 #define YMAP_FOREACH_ELEMS_IN_CASE(mapCase, elem)		\
   Entity *elem;							\
   for (uint32_t j = 0; j < yeLen(mapCase) &&			\
 	 ((elem = yeGet(mapCase, j)) || 1); ++j)
 
 
-#define YMAP_FOREACH_CASES(map, mapCase)		\
-  Entity *mapCase;					\
-  for(uint32_t i = 0; i < yeLen(map) &&			\
-	(mapCase = yeGet(map, i)); ++i)
+/* #define YMAP_FOREACH_CASES(map, mapCase)		\ */
+/*   Entity *mapCase;					\ */
+/*   for(uint32_t i = 0; i < lenMap &&			\ */
+/* 	(mapCase = yeGet(map, i)); ++i) */
 
 
 /* crop the map and print the middle of it */
@@ -118,9 +114,9 @@ static int sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
 /* rend all the map, regardeless if the map is bigger than the screen */
 static int sdl2FullRender(YWidgetState *state, SDLWid *wid, Entity *entity)
 {
-  unsigned int curx = 0, cury = 0;
   Entity *map = yeGet(entity, "map");
-  unsigned int lenMap = yeLen(map);
+  Entity *tmpLen = yeGet(entity, "len");
+  unsigned int lenMap =  tmpLen ? (uint32_t)yeGetInt(tmpLen) : yeLen(map);
   unsigned int wMap = yeGetInt(yeGet(entity, "width"));
   YBgConf cfg;
   unsigned int hMap = lenMap / wMap;
@@ -136,7 +132,9 @@ static int sdl2FullRender(YWidgetState *state, SDLWid *wid, Entity *entity)
   setSpritesSize(&sizeSpriteW, &sizeSpriteH, wMap,
 		 hMap, wid->rect.w, wid->rect.h); 
 
-  YMAP_FOREACH_CASES(map, mapCase) {
+  YE_ARRAY_FOREACH_EXT(map, mapCase, it) {
+    unsigned int curx = yBlockArrayIteratorIdx(it) % wMap;
+    unsigned int cury = yBlockArrayIteratorIdx(it) / wMap;
 
     YMAP_FOREACH_ELEMS_IN_CASE(mapCase, mapElem) {
       int id;
@@ -149,14 +147,8 @@ static int sdl2FullRender(YWidgetState *state, SDLWid *wid, Entity *entity)
       sdlDisplaySprites(wid, curx, cury, curRes,
 			sizeSpriteW, sizeSpriteH, 0);
     }
-    ++curx;
-    
-    if (curx >= wMap) {
-      curx = 0;
-      ++cury;
-    }
-
   }
+  printf(" end \n");
 
   SDL_RenderPresent(sgRenderer());
   return 0;

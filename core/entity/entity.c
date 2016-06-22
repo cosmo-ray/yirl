@@ -49,6 +49,11 @@
     ret->refCount = 1;				\
   } while (0);
 
+
+static inline Entity *yeInitAt(Entity *entity, EntityType type,
+			       Entity *father, const char *name,
+			       int at);
+
 /**
  * Contain all functions used to destruct entity
  * Must be in the same order than the EntityType Enum
@@ -249,6 +254,16 @@ Entity *yeCreateArray(Entity *father, const char *name)
 
   YE_ALLOC_ENTITY(ret, ArrayEntity);
   yeInit((Entity *)ret, YARRAY, father, name);
+  yBlockArrayInit(&ret->values, BlockArray);
+  return (YE_TO_ENTITY(ret));
+}
+
+Entity *yeCreateArrayAt(Entity *father, const char *name, int idx)
+{
+  ArrayEntity *ret;
+
+  YE_ALLOC_ENTITY(ret, ArrayEntity);
+  yeInitAt((Entity *)ret, YARRAY, father, name, idx);
   yBlockArrayInit(&ret->values, BlockArray);
   return (YE_TO_ENTITY(ret));
 }
@@ -510,16 +525,30 @@ static void yeAttachFather(Entity *entity, Entity *father)
   entity->nbFathers += 1;
 }
 
-Entity *yeInit(Entity *entity, EntityType type, Entity *father, const char *name)
+static inline Entity *yeInitAt(Entity *entity, EntityType type,
+			       Entity *father, const char *name,
+			       int at)
 {
   if (unlikely(!entity))
     return NULL;
   entity->type = type;
   entity->nbFathers = 0;
   entity->fathers = NULL;
-  if (!yePushBack(father, entity, name))
-    YE_DECR_REF(entity);
-  return (entity);
+  /* this can be simplifie */
+  if (at < 0) {
+    if (!yePushBack(father, entity, name))
+      YE_DECR_REF(entity);
+  } else {
+    if (!yeAttach(father, entity, at, name))
+      YE_DECR_REF(entity);
+  }
+  return entity;
+}
+
+
+Entity *yeInit(Entity *entity, EntityType type, Entity *father, const char *name)
+{
+  return yeInitAt(entity, type, father, name, -1);
 }
 
 void	yeSetString(Entity *entity, const char *val)
@@ -549,7 +578,7 @@ int yeAttach(Entity *on, Entity *entity,
 {
   ArrayEntry *entry;
   
-  if (!on || !entity)
+  if (unlikely(!on || !entity))
     return -1;
   if (on->type != YARRAY)
     return -1;
@@ -815,8 +844,8 @@ char *yeToString(Entity *entity, int deep, int flag)
 int yeMoveFromPtrToStr(Entity *array, Entity *ptr, const char *str)
 {
   YE_INCR_REF(ptr);
-  yeRemoveChild(array, ptr);
-  yePushBack(array, ptr, str);
+  if (yeRemoveChild(array, ptr))
+    yePushBack(array, ptr, str);
   YE_DESTROY(ptr);
   return 0;
 }
