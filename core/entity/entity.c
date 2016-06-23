@@ -787,7 +787,7 @@ Entity *yeFindLink(Entity *array, const char *targetPath, int flag)
   return NULL;
 }
 
-static void yeToStringInternal(Entity *entity, int deep, GString *str, int flag)
+static void yeToCStrInternal(Entity *entity, int deep, GString *str, int flag)
 {
   if (!deep)
     return;
@@ -818,7 +818,7 @@ static void yeToStringInternal(Entity *entity, int deep, GString *str, int flag)
 	g_string_append_c(str, '|');
 	g_string_append_c(str, ' ');
       }
-      yeToStringInternal(tmp->entity, deep - 1, str, flag);
+      yeToCStrInternal(tmp->entity, deep - 1, str, flag);
     }
 
     g_string_append_c(str, ']');
@@ -833,11 +833,11 @@ static void yeToStringInternal(Entity *entity, int deep, GString *str, int flag)
   }
 }
 
-char *yeToString(Entity *entity, int deep, int flag)
+char *yeToCStr(Entity *entity, int deep, int flag)
 {
   GString *str = g_string_new(NULL);
 
-  yeToStringInternal(entity, deep, str, flag);
+  yeToCStrInternal(entity, deep, str, flag);
   return g_string_free(str, 0);
 }
 

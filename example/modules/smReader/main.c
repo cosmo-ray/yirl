@@ -43,8 +43,8 @@ int main(void)
   ygLoadMod("../../../modules/sm-reader/");
   map = yesCall(yeGet(ygGetMod("sm-reader"), "load-map"),
 		path, modDesc);
-  printf("map: %s\n", yeToString(map, 4, 0));
-  printf("m-d: %s\n", yeToString(modDesc, 3, 0));
+  printf("map: %s\n", yeToCStr(map, 4, 0));
+  printf("m-d: %s\n", yeToCStr(modDesc, 3, 0));
 
   YE_DESTROY(path);
   YE_DESTROY(map);

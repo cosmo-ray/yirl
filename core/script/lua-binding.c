@@ -74,9 +74,9 @@ int	luaCopy(lua_State *L)
   return 1;
 }
 
-int	luaYeToString(lua_State *L)
+int	luaYeToLuaString(lua_State *L)
 {
-  char *str = yeToString(lua_touserdata(L, 1), -1, 0);
+  char *str = yeToCStr(lua_touserdata(L, 1), -1, 0);
 
   lua_pushstring(L, str);
   free(str);

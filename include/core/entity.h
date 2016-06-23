@@ -617,7 +617,14 @@ extern "C++"
 
   Entity *yeFindLink(Entity *father, const char *targetPath, int flag);
  
-  char *yeToString(Entity *entity, int deep, int flag);
+  /**
+   * Convert an Entity to a C String (char *)
+   * @entity	The entity
+   * @deep	If @entity is an array, how deep we should print it
+   * @flag	Aditional falg
+   * @return	the newly allocated string, need to be free
+   */
+  char *yeToCStr(Entity *entity, int deep, int flag);
 
   /**
    * remove @ptr inside @array and push back @ptr with the name @name if
