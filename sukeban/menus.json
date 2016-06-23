@@ -14,7 +14,7 @@
 	"map" : "house.sm",
 	"bind" : [["action", "mapTest"]],
 	"start_pos" : [7, 26],
-	"start_id" : 1,
+	"start_id" : {"id" : 1},
 	"ground_char" : "."
     },
     "text, tatata =D" : {

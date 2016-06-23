@@ -144,7 +144,7 @@ void testBlockArray(void)
   g_assert(iterator.pos == 0);
   yBlockArrayIteratorIncr(&iterator);
   g_assert(yBlockArrayIteratorIsEnd(&iterator));
-  
+
   nbIteration = 0;
   Y_BLOCK_ARRAY_FOREACH_SINCE(&test.array, 64 * 4, elem0, it, uint64_t) {
     g_assert(elem0 == tmp);

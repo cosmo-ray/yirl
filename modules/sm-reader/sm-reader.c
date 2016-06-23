@@ -30,8 +30,18 @@
 
 // I have no index...
 static void create_tild_multi_layers(Entity *mod_description, int tild,
-				     Entity **map, Entity *desc, int pos)
+				     Entity **map, Entity *desc, int pos,
+				     int width)
 {
+  Entity *sp = yeGetByStrFast(desc, "start_pos");
+  int start_pos = yeGetInt(yeGetByIdx(sp, 0)) +
+    yeGetInt(yeGetByIdx(sp, 0)) * (width ? width : 8000);
+
+  if (start_pos == pos) {
+    yePushBack(yeCreateArrayAt(map[1], NULL, pos),
+	       yeGetByStrFast(desc, "start_id"), NULL);
+  }
+
   Y_BLOCK_ARRAY_FOREACH_PTR(&YE_TO_ARRAY(mod_description)->values, tmp,
 			    it, ArrayEntry) {
     const char *char_str;
@@ -44,13 +54,12 @@ static void create_tild_multi_layers(Entity *mod_description, int tild,
       if (yeStringIndexChar(yeGetByStrFast(desc, "ground_char"), char_str) >= 0) {
 	yeCreateInt(it, yeCreateArrayAt(map[0], NULL, pos), NULL);
       } else {
-	yeCreateInt(it, yeCreateArrayAt(map[1], NULL, pos), NULL);
+	yeCreateInt(it, yeCreateArrayAt(map[2], NULL, pos), NULL);
       }
       return;
     }
   }
   yeCreateInt(tild, yeCreateArrayAt(map[0], NULL, pos), NULL);
-  printf("%d", tild);
 }
 
 static void create_tild(Entity *mod_description, int tild,
@@ -105,7 +114,7 @@ static int read_map(int fd, Entity *map, Entity *resources,
       *width = *width ? *width : i;
     } else {
       if (desc) {
-	create_tild_multi_layers(resources, buff[i], layers, desc, pos);
+	create_tild_multi_layers(resources, buff[i], layers, desc, pos, *width);
       } else {
 	create_tild(resources, buff[i], map);	
       }

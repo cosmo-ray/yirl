@@ -148,7 +148,6 @@ static int sdl2FullRender(YWidgetState *state, SDLWid *wid, Entity *entity)
 			sizeSpriteW, sizeSpriteH, 0);
     }
   }
-  printf(" end \n");
 
   SDL_RenderPresent(sgRenderer());
   return 0;
