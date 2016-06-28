@@ -23,6 +23,31 @@ function sksAction(wid, eve, arg)
       if ywidEveType(eve) == YKEY_DOWN then
 	 if ywidEveKey(eve) == Q_KEY then
 	    ywidCallCallbackByStr("FinishGame", wid, eve, false)
+	    return  YEVE_ACTION
+	 end
+      end
+      eve = ywidNextEve(eve)
+   end
+   return YEVE_NOTHANDLE
+end
+
+
+function sukeMapAction(wid, eve, arg)
+   while ywidEveIsEnd(eve) == false do
+      if ywidEveType(eve) == YKEY_DOWN then
+	 print("to the ")
+	 if ywidEveKey(eve) == Y_UP_KEY then
+	    print("up")
+	    return  YEVE_ACTION
+	 elseif ywidEveKey(eve) == Y_DOWN_KEY then
+	    print("down of victory")
+	    return  YEVE_ACTION
+	 elseif ywidEveKey(eve) == Y_LEFT_KEY then
+	    print("left")
+	    return  YEVE_ACTION
+	 elseif ywidEveKey(eve) == Y_RIGHT_KEY then
+	    print("right")
+	    return  YEVE_ACTION
 	 end
       end
       eve = ywidNextEve(eve)
@@ -31,19 +56,17 @@ function sksAction(wid, eve, arg)
 end
 
 function sukeNewMap(entity)
-   local layers = yeCreateArray()
-   local mapPath = yeGet(entity, "map")
-   local resources = yeGet(entity, "resources")
-
    ygCall("sm-reader", "load-entity", entity)
-   return ywidNewWidget(entity, nil)
+   local cnt = ywidNewWidget(entity, nil)
+   ywidBind(cnt, "action", "sks-action")
+   return cnt
 end
 
 function sukeScreeenNewWid(entity)
    yeCreateInt(75, yeGet(yeGet(entity, "entries"), 0), "size")
 
    local cnt = ywidNewWidget(entity, "contener")
-   ywidBind(cnt, "action", "sks-action")
+   ywidBind(cnt, "action", "suke-map-action")
    return cnt
 end
 
@@ -51,10 +74,13 @@ function initSukeScreen(entity)
    local init = yeCreateArray(nil, nil)
    yeCreateString("sukeban-screen", init, "name")
    yeCreateFunction("sukeScreeenNewWid", init, "callback")
+   ywidAddSubType(init)
 
    local sksAction = yeCreateFunction("sksAction", entity, "action")
    ywidAddCallback(ywidCreateCallback("sks-action", sksAction))
-   ywidAddSubType(init)
+
+   local sksAction = yeCreateFunction("sukeMapAction", entity, "action")
+   ywidAddCallback(ywidCreateCallback("suke-map-action", sksAction))
 
    init = yeCreateArray(nil, nil) -- this has been destroy by ywidAddSubType
    yeCreateString("sukeban-map", init, "name")
