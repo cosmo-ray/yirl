@@ -48,20 +48,16 @@ extern "C"
 #define	DPRINT_WARN(format, args...)	_F_DPRINT(WARNING, format, ## args)
 #define	DPRINT_ERR(format, args...)	_F_DPRINT(D_ERROR, format, ## args)
 
-#ifdef		DEBUG
-
-#define	_F_DPRINT(lvl, format, args...)	_DPRINT(lvl, format, ## args)
-#define	_DPRINT(lvl, format, args...) do {				\
-		yuiDebugPrint(lvl, "[%11s][%s : %d] " format "\n",	\
-			      __DATE__, __FILE__, __LINE__, ## args);	\
+#define	_F_DPRINT(lvl, format, args...)	do {				\
+		yuiDebugPrint(lvl, "[%s: %s : %d]\n" format "\n",	\
+			      __FILE__, __FUNCTION__, __LINE__, ## args); \
 	} while (0)
+
+
+#ifdef		DEBUG
+#define	_DPRINT(lvl, format, args...)	_F_DPRINT(lvl, format, ## args)
 #else
 #define	_DPRINT(lvl, format, args...)	do { } while (0)
-#define	_F_DPRINT(lvl, format, args...)	do {				\
-		yuiDebugPrint(lvl, "[%11s][%s : %d] " format "\n",	\
-			      __DATE__, __FILE__, __LINE__, ## args);	\
-	} while (0)
-
 #endif  // DEBUG
 #define	STR(var)	 #var
 /**
