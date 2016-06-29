@@ -57,7 +57,16 @@ int ywMapGetIdByElem(Entity *mapElem);
 
 Entity *ywMapGetCase(YWidgetState *state, Entity *pos);
 
-Entity *ywMapCreatePos(int posX, int posY, Entity *father, const char *str);
+/**
+ * @posX The position in X
+ * @posY The position in Y
+ * @father the father of the returned entity in which we store the return,
+ * can be NULL.
+ * @name string index at which we store the returned entity,
+ * if NULL but not @father, the return is push back
+ * @return an Entity that store a "Map Position", Must be free if @father is NULL
+ */
+Entity *ywMapCreatePos(int posX, int posY, Entity *father, const char *name);
 
 int ywMapPushElem(YWidgetState *state, Entity *toPush,
 		  Entity *pos, const char *name);
@@ -72,6 +81,31 @@ static inline void ywMapRemove(YWidgetState *state, Entity *pos, Entity *elem)
   Entity *cur = ywMapGetCase(state, pos);
 
   yeRemoveChild(cur, elem);
+}
+
+
+static inline int ywMapMoveByStr(YWidgetState *state, Entity *from,
+				 Entity *to, const char *elem)
+{
+  Entity *cur = ywMapGetCase(state, from);
+  Entity *tmp;
+
+  if ((tmp = yeGetByStrFast(cur, elem)) == NULL)
+    return -1;
+
+  YE_INCR_REF(tmp);
+  yeRemoveChild(cur, tmp);
+  ywMapPushElem(state, tmp, to, elem);
+  YE_DESTROY(tmp);
+}
+
+static inline void ywMapMoveByEntity(YWidgetState *state, Entity *from,
+				     Entity *to, Entity *elem)
+{
+  YE_INCR_REF(elem);
+  ywMapRemove(state, from, elem);
+  ywMapPushElem(state, elem, to, NULL);
+  YE_DESTROY(elem);
 }
 
 #endif

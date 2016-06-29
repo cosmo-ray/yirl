@@ -409,6 +409,32 @@ int	luaMapCreatePos(lua_State *L)
   return 1;
 }
 
+int	luaYwMapMove(lua_State *L)
+{
+  if (lua_isstring(L, 4))
+    lua_pushnumber(ywMapMoveByStr(lua_touserdata(L, 1), lua_touserdata(L, 2),
+				  lua_touserdata(L, 3), lua_touserdata(L, 4)));
+  else
+    lua_pushnumber(ywMapMoveByEntity(lua_touserdata(L, 1), lua_touserdata(L, 2),
+				     lua_touserdata(L, 3), lua_touserdata(L, 4)));
+  return 1;
+}
+
+int	luaYwMapRemove(lua_State *L)
+{
+  ywMapRemove(lua_touserdata(L, 1), lua_touserdata(L, 2), lua_touserdata(L, 3));
+  return 0;
+}
+
+int	luaYwMapPushElem(lua_State *L)
+{
+  lua_pushnumber(L,
+		 ywMapPushElem(lua_touserdata(L, 1), lua_touserdata(L, 2),
+			       lua_touserdata(L, 3), lua_tostring(L, 4))
+		 );
+  return 1;
+}
+
 int	luaWidEntity(lua_State *L)
 {
   if (!lua_touserdata(L, 1))
