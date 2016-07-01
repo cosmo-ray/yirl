@@ -841,7 +841,7 @@ char *yeToCStr(Entity *entity, int deep, int flag)
   return g_string_free(str, 0);
 }
 
-int yeMoveFromPtrToStr(Entity *array, Entity *ptr, const char *str)
+int yeRenamePtrStr(Entity *array, Entity *ptr, const char *str)
 {
   YE_INCR_REF(ptr);
   if (yeRemoveChild(array, ptr))

@@ -259,7 +259,7 @@ Entity *ygLoadMod(const char *path)
       tmpFile = ydFromFile(jsonManager, fileStr, mod);
       g_free(fileStr);
 
-      yeMoveFromPtrToStr(mod, tmpFile, yeGetString(as));
+      yeRenamePtrStr(mod, tmpFile, yeGetString(as));
     } else if (yuiStrEqual0(yeGetString(tmpType), "module")) {
       char *fileStr = NULL;
 
@@ -293,7 +293,7 @@ Entity *ygLoadMod(const char *path)
       if (!file) {
 	goto exit;
       }
-      yeMoveFromPtrToStr(mod, file, "$main file");
+      yeRenamePtrStr(mod, file, "$main file");
 
       starting_widget = yeGet(file, yeGetString(starting_widget));
     } else {

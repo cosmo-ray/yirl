@@ -627,10 +627,10 @@ extern "C++"
   char *yeToCStr(Entity *entity, int deep, int flag);
 
   /**
-   * remove @ptr inside @array and push back @ptr with the name @name if
-   * @ptr has been remove.
+   * rename @ptr inside @array with @name if
+   * @ptr is found.
    */
-  int yeMoveFromPtrToStr(Entity *array, Entity *ptr, const char *str);
+  int yeRenamePtrStr(Entity *array, Entity *ptr, const char *str);
 
   /**
    * @brief remove all entity name @name inside @array and push @toPush
