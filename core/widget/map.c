@@ -69,8 +69,24 @@ Entity *ywMapGetCase(YWidgetState *state, Entity *pos)
 {
   Entity *map = yeGet(state->entity, "map");
   int w = yeGetInt(yeGet(state->entity, "width"));
+  Entity *ret;
 
-  return yeGet(map, yeGetInt(yeGet(pos, "x")) + (w * yeGetInt(yeGet(pos, "y"))));
+  ret = yeGet(map, yeGetInt(yeGet(pos, "x")) + (w * yeGetInt(yeGet(pos, "y"))));
+  if (unlikely(!ret)) {
+    if (!state->entity)
+      DPRINT_ERR("state->entity is NULL");
+    else if (!map)
+      DPRINT_ERR("unable to get 'map'");
+    else if (!w)
+      DPRINT_ERR("unable to get 'width'");
+    else if (!pos)
+      DPRINT_ERR("pos is NULL");
+    else if (!yeGet(pos, "x"))
+      DPRINT_ERR("unable to get 'x' in pos");
+    else if (!yeGet(pos, "y"))
+      DPRINT_ERR("unable to get 'w' in pos");
+  }
+  return ret;
 }
 
 static int mapDestroy(YWidgetState *opac)
