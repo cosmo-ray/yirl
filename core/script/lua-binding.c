@@ -412,11 +412,24 @@ int	luaMapCreatePos(lua_State *L)
 int	luaYwMapMove(lua_State *L)
 {
   if (lua_isstring(L, 4))
-    lua_pushnumber(ywMapMoveByStr(lua_touserdata(L, 1), lua_touserdata(L, 2),
-				  lua_touserdata(L, 3), lua_touserdata(L, 4)));
+    lua_pushnumber(L, ywMapMoveByStr(lua_touserdata(L, 1),
+				     lua_touserdata(L, 2),
+				     lua_touserdata(L, 3),
+				     lua_tostring(L, 4)));
   else
-    lua_pushnumber(ywMapMoveByEntity(lua_touserdata(L, 1), lua_touserdata(L, 2),
-				     lua_touserdata(L, 3), lua_touserdata(L, 4)));
+    lua_pushnumber(L, ywMapMoveByEntity(lua_touserdata(L, 1),
+					lua_touserdata(L, 2),
+					lua_touserdata(L, 3),
+					lua_touserdata(L, 4)));
+  return 1;
+}
+
+int	luaYwMapPosFromInt(lua_State *L)
+{
+  lua_pushlightuserdata(L, ywMapPosFromInt(lua_touserdata(L, 1),
+					   lua_tonumber(L, 2),
+					   lua_touserdata(L, 3),
+					   lua_tostring(L, 4)));
   return 1;
 }
 

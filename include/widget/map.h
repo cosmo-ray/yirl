@@ -68,6 +68,9 @@ Entity *ywMapGetCase(YWidgetState *state, Entity *pos);
  */
 Entity *ywMapCreatePos(int posX, int posY, Entity *father, const char *name);
 
+Entity *ywMapPosFromInt(YWidgetState *wid, int newPos,
+			Entity *father, const char *name);
+
 int ywMapPushElem(YWidgetState *state, Entity *toPush,
 		  Entity *pos, const char *name);
 
@@ -97,15 +100,17 @@ static inline int ywMapMoveByStr(YWidgetState *state, Entity *from,
   yeRemoveChild(cur, tmp);
   ywMapPushElem(state, tmp, to, elem);
   YE_DESTROY(tmp);
+  return 0;
 }
 
-static inline void ywMapMoveByEntity(YWidgetState *state, Entity *from,
-				     Entity *to, Entity *elem)
+static inline int ywMapMoveByEntity(YWidgetState *state, Entity *from,
+				    Entity *to, Entity *elem)
 {
   YE_INCR_REF(elem);
   ywMapRemove(state, from, elem);
   ywMapPushElem(state, elem, to, NULL);
   YE_DESTROY(elem);
+  return 0;
 }
 
 #endif

@@ -122,10 +122,9 @@ function moveHeadInternal(wid, map, oldPos, newPos)
       bodyLen = 0
    end
 
-   yePushBack(yeGet(mapElems, newPos), headElem, nil)
+   local opos = ywMapPosFromInt(wid, oldPos);
+   local npos = ywMapPosFromInt(wid, newPos);
    yeSetInt(yeGet(head, "pos"), newPos)
-   yeRemoveChild(yeGet(yeGet(map, "map"), oldPos),
-		 headElem)
 
    if bodyLen == 0 then
       ywidCallSignal(wid, nil, nil, yeGetInt(yeGet(map, "endTurnIdx")))
