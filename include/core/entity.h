@@ -300,6 +300,19 @@ extern "C"
 
   Entity *yeCreateData(void *value, Entity *father, const char *name) WEAK;
 
+  /**
+   * Create an Array which is a pair of 2 elements contening: value1 and value2
+   * Names are optional
+   */
+  static inline Entity *yeCreateTuple(Entity *value1, Entity *value2,
+				      Entity *father, const char *name)
+  {
+    Entity *ret = yeCreateArray(father, name);
+    yePushBack(ret, value1, NULL);
+    yePushBack(ret, value2, NULL);
+    return ret;
+  }
+
   void yeDestroy(Entity *entity) WEAK;
   void yeDestroyInt(Entity *entity) WEAK;
   void yeDestroyFloat(Entity *entity) WEAK;

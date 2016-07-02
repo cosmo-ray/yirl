@@ -83,6 +83,9 @@ static inline void ywMapRemove(YWidgetState *state, Entity *pos, Entity *elem)
 {
   Entity *cur = ywMapGetCase(state, pos);
 
+  if (unlikely(!cur)) {
+    return;
+  }
   yeRemoveChild(cur, elem);
 }
 
