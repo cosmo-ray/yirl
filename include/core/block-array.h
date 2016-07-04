@@ -40,13 +40,6 @@ typedef struct {
   uint16_t pos;
 } BlockArrayIterator;
 
-typedef struct {
-   void (*expand)(BlockArray *ba, int nb);
-   void (*assure)(BlockArray *ba, int nb);
-   void (*copy)(BlockArray *ba, int nb);
-   void (*free)(BlockArray *ba, int nb);
-} BlockArrayDriver;
-
 void yBlockArrayInitInternal(BlockArray *ba, size_t elemSize);
 
 #define yBlockArrayInit(ba, elemType)			\
