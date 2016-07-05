@@ -38,7 +38,7 @@ function snakeMap(entity)
    local cases = yeCreateArray(map, "map")
 
    while i < 20 * 20 do
-      local tmp = yeCreateArray(cases, NULL)
+     local tmp = yeCreateArray(cases, NULL)
       yeCreateInt(0, tmp, NULL)
       i = i + 1
    end
@@ -58,11 +58,11 @@ function snakeMap(entity)
    return map
 end
 
-function addBody(map, oldPos)
+function addBody(map, pos)
    local body = yeGet(map, "body")
 
-   yeCreateInt(oldPos, body, nil)
-   yeCreateInt(3, yeGet(yeGet(map, "map"), oldPos), nil)
+   yeCreateInt(pos, body, nil)
+   yeCreateInt(3, yeGet(yeGet(map, "map"), pos), "bd")
 end
 
 function addPeanut(map)
@@ -102,8 +102,11 @@ function hitWall(wid, map, oldPos, newPos, dir)
 end
 
 function moveHeadInternal(wid, map, oldPos, newPos)
+   local gc = yeCreateArray()
+   local opos = ywMapPosFromInt(wid, oldPos, gc)
+   local npos = ywMapPosFromInt(wid, newPos, gc)
    local mapElems = yeGet(map, "map")
-   local destCase = yeGet(mapElems, newPos)
+   local destCase = ywMapGetCase(wid, npos)
    local body = yeGet(map, "body")
    local bodyLen = yeLen(body)
    local head = yeGet(map, "head")
@@ -122,8 +125,7 @@ function moveHeadInternal(wid, map, oldPos, newPos)
       bodyLen = 0
    end
 
-   local opos = ywMapPosFromInt(wid, oldPos);
-   local npos = ywMapPosFromInt(wid, newPos);
+   ywMapMove(wid, opos, npos, headElem)
    yeSetInt(yeGet(head, "pos"), newPos)
 
    if bodyLen == 0 then
@@ -131,8 +133,7 @@ function moveHeadInternal(wid, map, oldPos, newPos)
       return
    end
 
-   local tailingBody = yeGet(body, 0)
-   yePopBack(yeGet(mapElems, yeGetInt(tailingBody)))
+   ywMapRemove(wid, ywMapPosFromInt(wid, yeGetInt(yeGet(body, 0))), "bd");
    -- pop back tail body
 
    local i = 0
@@ -146,8 +147,9 @@ function moveHeadInternal(wid, map, oldPos, newPos)
    end
 
    local headBody = yeGet(body, bodyLen - 1)
-   yeCreateInt(4, yeGet(mapElems, yeGetInt(headBody)))
+   yeCreateInt(4, yeGet(mapElems, yeGetInt(headBody)), "bd")
    ywidCallSignal(wid, nil, nil, yeGetInt(yeGet(map, "endTurnIdx")))
+   yeDestroy(gc)
    -- push first body
 end
 
@@ -181,37 +183,21 @@ function moveHead(wid, map)
    moveHeadInternal(wid, map, oldPos, newPos)
 end
 
-
 function changeDir(map, eve)
-   local head = yeGet(map, "head")
-   local dir = yeGet(head, "dir")
-   local x = yeGet(dir, "x")
-   local y = yeGet(dir, "y")
+   local dir = yeGet(yeGet(map, "head"), "dir")
 
    if ywidEveKey(eve) == Y_UP_KEY then
-      if (yeGetInt(x) == 0 and yeGetInt(y) == 1) then
-	 return
-      end
-      yeSetInt(x, 0)
-      yeSetInt(y, -1)
+      if ywMapPosIsSame(dir, 0, 1) then return end
+      ywMapSetPos(dir, 0, -1)
    elseif ywidEveKey(eve) == Y_DOWN_KEY then
-      if (yeGetInt(x) == 0 and yeGetInt(y) == -1) then
-	 return
-      end
-      yeSetInt(x, 0)
-      yeSetInt(y, 1)
+      if ywMapPosIsSame(dir, 0, -1) then return end
+      ywMapSetPos(dir, 0, 1)
    elseif ywidEveKey(eve) == Y_RIGHT_KEY then
-      if (yeGetInt(x) == -1 and yeGetInt(y) == 0) then
-	 return
-      end
-      yeSetInt(x, 1)
-      yeSetInt(y, 0)
+      if ywMapPosIsSame(dir, -1, 0) then return end
+      ywMapSetPos(dir, 1, 0)
    elseif ywidEveKey(eve) == Y_LEFT_KEY then
-      if (yeGetInt(x) == 1 and yeGetInt(y) == 0) then
-	 return
-      end
-      yeSetInt(x, -1)
-      yeSetInt(y, 0)
+      if ywMapPosIsSame(dir, 1, 0) then return end
+      ywMapSetPos(dir, -1, 0)
    end
 end
 

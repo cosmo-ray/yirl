@@ -68,6 +68,34 @@ Entity *ywMapGetCase(YWidgetState *state, Entity *pos);
  */
 Entity *ywMapCreatePos(int posX, int posY, Entity *father, const char *name);
 
+static inline Entity *ywMapSetPos(Entity *pos, int posX, int posY)
+{
+  yeSetInt(yeGet(pos, 0), posX);
+  yeSetInt(yeGet(pos, 1), posY);
+  return pos;
+}
+
+static inline int ywMapPosIsSameEnt(Entity *pos1, Entity *pos2, int y)
+{
+  (void)y;
+  return ((yeGetInt(yeGet(pos1, 0)) == yeGetInt(yeGet(pos2, 0))) &&
+	  (yeGetInt(yeGet(pos1, 1)) == yeGetInt(yeGet(pos2, 1))));
+}
+
+static inline int ywMapPosIsSameInts(Entity *pos1, int x, int y)
+{
+  return ((yeGetInt(yeGet(pos1, 0)) == x) &&
+	  (yeGetInt(yeGet(pos1, 1)) == y));
+}
+
+#define ywMapPosIsSame(pos, x, y)				\
+  _Generic(x, Entity *: ywMapPosIsSameEnt,			\
+	   void *: ywMapPosIsSameEnt,				\
+	   const Entity *: ywMapPosIsSameEnt,				\
+	   double : ywMapPosIsSameInts,				\
+	   int : ywMapPosIsSameInts) (pos, x, y)
+
+
 Entity *ywMapPosFromInt(YWidgetState *wid, int newPos,
 			Entity *father, const char *name);
 
@@ -79,7 +107,8 @@ static inline Entity *ywMapGetResources(YWidgetState *state)
   return ((YMapState *)state)->resources;
 }
 
-static inline void ywMapRemove(YWidgetState *state, Entity *pos, Entity *elem)
+static inline void ywMapRemoveByEntity(YWidgetState *state, Entity *pos,
+				       Entity *elem)
 {
   Entity *cur = ywMapGetCase(state, pos);
 
@@ -88,6 +117,24 @@ static inline void ywMapRemove(YWidgetState *state, Entity *pos, Entity *elem)
   }
   yeRemoveChild(cur, elem);
 }
+
+static inline void ywMapRemoveByStr(YWidgetState *state, Entity *pos,
+				    const char *str)
+{
+  Entity *cur = ywMapGetCase(state, pos);
+
+  if (unlikely(!cur)) {
+    return;
+  }
+  yeRemoveChild(cur, yeGetByStrFast(cur, str));
+}
+
+#define ywMapRemove(sate, pos, elem)					\
+  _Generic(elem,							\
+	  Entity *: ywMapRemoveByEntity,				\
+	  Y_GEN_CLANG_ARRAY(char, ywMapRemoveByStr),			\
+	  const char *: ywMapRemoveByStr,				\
+	  char *: ywMapRemoveByStr) (sate, pos, elem)
 
 
 static inline int ywMapMoveByStr(YWidgetState *state, Entity *from,

@@ -92,6 +92,10 @@ int	luaYwMapPosFromInt(lua_State *L);
 int	luaYwMapMove(lua_State *L);
 int	luaYwMapRemove(lua_State *L);
 int	luaYwMapPushElem(lua_State *L);
+int	luaYwMapGetCase(lua_State *L);
+int	luaYwMapSetPos(lua_State *L);
+int	luYwMapPosIsSame(lua_State *L);
+
 /* Game and Module */
 int	luaGetMod(lua_State *L);
 int	luaGCall(lua_State *L);
@@ -202,9 +206,12 @@ static inline int	yesLuaRegister(void *sm)
   /* map */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapCreatePos", luaMapCreatePos));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapPosFromInt",luaYwMapPosFromInt));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapGetCase", luaYwMapGetCase));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapMove", luaYwMapMove));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapRemove", luaYwMapRemove));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapPushElem", luaYwMapPushElem));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapSetPos", luaYwMapSetPos));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapPosIsSame", luYwMapPosIsSame));
 
 /* Game and Modules */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygGetMod", luaGetMod));
