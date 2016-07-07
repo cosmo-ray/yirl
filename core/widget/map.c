@@ -46,9 +46,7 @@ Entity *ywMapPosFromInt(YWidgetState *wid, int pos,
 {
   int w = yeGetInt(yeGet(wid->entity, "width"));
 
-  return ywPosCreate(pos % w,
-		     pos / w,
-		     father, name);
+  return ywPosCreate(pos % w, pos / w, father, name);
 }
 int ywMapPushElem(YWidgetState *state, Entity *toPush,
 		  Entity *pos, const char *name)
