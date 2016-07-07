@@ -1,3 +1,4 @@
+
 /*
 **Copyright (C) 2015 Matthias Gatto
 **
@@ -40,23 +41,14 @@ static int mapInit(YWidgetState *opac, Entity *entity, void *args)
   return 0;
 }
 
-Entity *ywMapCreatePos(int posX, int posY, Entity *father, const char *str)
-{
-  Entity *ret = yeCreateArray(father, str);
-
-  yeCreateInt(posX, ret, "x");
-  yeCreateInt(posY, ret, "y");
-  return ret;
-}
-
 Entity *ywMapPosFromInt(YWidgetState *wid, int pos,
 			Entity *father, const char *name)
 {
   int w = yeGetInt(yeGet(wid->entity, "width"));
 
-  return ywMapCreatePos(pos % w,
-			pos / w,
-			father, name);
+  return ywPosCreate(pos % w,
+		     pos / w,
+		     father, name);
 }
 int ywMapPushElem(YWidgetState *state, Entity *toPush,
 		  Entity *pos, const char *name)

@@ -19,6 +19,7 @@
 #define	_YIRL_MAP_H_
 
 #include "widget.h"
+#include "pos.h"
 
 typedef enum {
   YMAP_PARTIAL,
@@ -56,45 +57,6 @@ static inline int ywMapH(YWidgetState *state)
 int ywMapGetIdByElem(Entity *mapElem);
 
 Entity *ywMapGetCase(YWidgetState *state, Entity *pos);
-
-/**
- * @posX The position in X
- * @posY The position in Y
- * @father the father of the returned entity in which we store the return,
- * can be NULL.
- * @name string index at which we store the returned entity,
- * if NULL but not @father, the return is push back
- * @return an Entity that store a "Map Position", Must be free if @father is NULL
- */
-Entity *ywMapCreatePos(int posX, int posY, Entity *father, const char *name);
-
-static inline Entity *ywMapSetPos(Entity *pos, int posX, int posY)
-{
-  yeSetInt(yeGet(pos, 0), posX);
-  yeSetInt(yeGet(pos, 1), posY);
-  return pos;
-}
-
-static inline int ywMapPosIsSameEnt(Entity *pos1, Entity *pos2, int y)
-{
-  (void)y;
-  return ((yeGetInt(yeGet(pos1, 0)) == yeGetInt(yeGet(pos2, 0))) &&
-	  (yeGetInt(yeGet(pos1, 1)) == yeGetInt(yeGet(pos2, 1))));
-}
-
-static inline int ywMapPosIsSameInts(Entity *pos1, int x, int y)
-{
-  return ((yeGetInt(yeGet(pos1, 0)) == x) &&
-	  (yeGetInt(yeGet(pos1, 1)) == y));
-}
-
-#define ywMapPosIsSame(pos, x, y)				\
-  _Generic(x, Entity *: ywMapPosIsSameEnt,			\
-	   void *: ywMapPosIsSameEnt,				\
-	   const Entity *: ywMapPosIsSameEnt,				\
-	   double : ywMapPosIsSameInts,				\
-	   int : ywMapPosIsSameInts) (pos, x, y)
-
 
 Entity *ywMapPosFromInt(YWidgetState *wid, int newPos,
 			Entity *father, const char *name);

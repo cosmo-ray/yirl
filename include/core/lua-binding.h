@@ -86,15 +86,19 @@ int	luaWidEveIsEnd(lua_State *L);
 int	luaEveType(lua_State *L);
 int	luaEveKey(lua_State *L);
 
+/* pos */
+int	luaYwPosCreate(lua_State *L);
+int	luaYwPosSet(lua_State *L);
+int	luYwPosIsSameX(lua_State *L);
+int	luYwPosIsSameY(lua_State *L);
+int	luYwPosIsSame(lua_State *L);
+
 /* map */
-int	luaMapCreatePos(lua_State *L);
 int	luaYwMapPosFromInt(lua_State *L);
 int	luaYwMapMove(lua_State *L);
 int	luaYwMapRemove(lua_State *L);
 int	luaYwMapPushElem(lua_State *L);
 int	luaYwMapGetCase(lua_State *L);
-int	luaYwMapSetPos(lua_State *L);
-int	luYwMapPosIsSame(lua_State *L);
 
 /* Game and Module */
 int	luaGetMod(lua_State *L);
@@ -204,15 +208,19 @@ static inline int	yesLuaRegister(void *sm)
   // Add ywidEveMouseY()
 
   /* map */
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapCreatePos", luaMapCreatePos));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapPosFromInt",luaYwMapPosFromInt));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapGetCase", luaYwMapGetCase));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapMove", luaYwMapMove));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapRemove", luaYwMapRemove));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapPushElem", luaYwMapPushElem));
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapSetPos", luaYwMapSetPos));
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapPosIsSame", luYwMapPosIsSame));
 
+  /* pos */
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywPosCreate", luaYwPosCreate));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywPosSet", luaYwPosSet));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywPosIsSame", luYwPosIsSame));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywPosIsSameX", luYwPosIsSameX));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywPosIsSameY", luYwPosIsSameY));
+  
 /* Game and Modules */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygGetMod", luaGetMod));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygCall", luaGCall));

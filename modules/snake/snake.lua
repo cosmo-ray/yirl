@@ -48,7 +48,7 @@ function snakeMap(entity)
    local tmp = yeCreateInt(1, yeGet(cases, headPos), NULL)
    local head = yeCreateArray(map, "head")
 
-   ywMapCreatePos(0, 1, head, "dir")
+   ywPosCreate(0, 1, head, "dir")
    yePushBack(head, tmp, "elem")
    yeCreateInt(headPos, head, "pos")
 
@@ -165,12 +165,14 @@ function moveHead(wid, map)
    local newPos = oldPos +
       yeGetInt(yeGet(dir, "y")) * yeGetInt(yeGet(map, "width")) +
       yeGetInt(yeGet(dir, "x"))
+   local opos = ywMapPosFromInt(wid, oldPos, gc)
+   local npos = ywMapPosFromInt(wid, newPos, gc)
 
    -- check out of border
-   if (oldPos % width) == 0 and (newPos % width) == (width - 1) then
+   if ywPosIsSameX(opos, 0) and ywPosIsSameX(npos, width - 1) then
       hitWall(wid, map, oldPos, newPos, 0)
       return
-   elseif (newPos % width) == 0 and (oldPos % width) == (width - 1) then
+   elseif ywPosIsSameX(npos, 0) and ywPosIsSameX(opos, width - 1) then
       hitWall(wid, map, oldPos, newPos, 1)
       return
    elseif (newPos < 0) then
@@ -187,17 +189,17 @@ function changeDir(map, eve)
    local dir = yeGet(yeGet(map, "head"), "dir")
 
    if ywidEveKey(eve) == Y_UP_KEY then
-      if ywMapPosIsSame(dir, 0, 1) then return end
-      ywMapSetPos(dir, 0, -1)
+      if ywPosIsSame(dir, 0, 1) then return end
+      ywPosSet(dir, 0, -1)
    elseif ywidEveKey(eve) == Y_DOWN_KEY then
-      if ywMapPosIsSame(dir, 0, -1) then return end
-      ywMapSetPos(dir, 0, 1)
+      if ywPosIsSame(dir, 0, -1) then return end
+      ywPosSet(dir, 0, 1)
    elseif ywidEveKey(eve) == Y_RIGHT_KEY then
-      if ywMapPosIsSame(dir, -1, 0) then return end
-      ywMapSetPos(dir, 1, 0)
+      if ywPosIsSame(dir, -1, 0) then return end
+      ywPosSet(dir, 1, 0)
    elseif ywidEveKey(eve) == Y_LEFT_KEY then
-      if ywMapPosIsSame(dir, 1, 0) then return end
-      ywMapSetPos(dir, -1, 0)
+      if ywPosIsSame(dir, 1, 0) then return end
+      ywPosSet(dir, -1, 0)
    end
 end
 

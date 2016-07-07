@@ -153,8 +153,8 @@ static void shooterSpamBullet(YWidgetState *wid, int x, int y)
     bulletManager = yeCreateArray(wid->entity, "$bullet-manager");
   }
   bullet = yeCreateArray(bulletManager, NULL);
-  ywMapCreatePos(posX, posY, bullet, "pos");
-  ywMapCreatePos(x, y, bullet, "speedAndDir");
+  ywPosCreate(posX, posY, bullet, "pos");
+  ywPosCreate(x, y, bullet, "speedAndDir");
   yePushBack(bullet, bulletSprite, "id");
 
   ywMapPushElem(wid, bulletSprite, pos, "bl");
@@ -231,7 +231,7 @@ int shooterInit(YWidgetState *wid, YEvent *eve, Entity *arg)
   (void)eve;
   yeCreateInt(MAP_SIZE_W, arg, "width");
   if (!(pos = yeGet(arg, "pos")))
-    pos = ywMapCreatePos(0, 0, arg, "pos");
+    pos = ywPosCreate(0, 0, arg, "pos");
   arg = yeCreateArray(arg, "map");
   for (int i = 0; i < MAP_SIZE_W * MAP_SIZE_H; ++i) {
     tmp = yeCreateArray(arg, NULL);

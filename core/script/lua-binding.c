@@ -407,30 +407,52 @@ int	luaYwMapGetCase(lua_State *L)
   return 1;
 }
 
-int	luaMapCreatePos(lua_State *L)
+int	luaYwPosCreate(lua_State *L)
 {
-  lua_pushlightuserdata(L, ywMapCreatePos(lua_tonumber(L, 1),
+  lua_pushlightuserdata(L, ywPosCreate(lua_tonumber(L, 1),
 					  lua_tonumber(L, 2),
 					  lua_touserdata(L, 3),
 					  lua_tostring(L, 4)));
   return 1;
 }
 
-int	luaYwMapSetPos(lua_State *L)
+int	luaYwPosSet(lua_State *L)
 {
-  lua_pushlightuserdata(L, ywMapSetPos(lua_touserdata(L, 1), lua_tonumber(L, 2),
+  lua_pushlightuserdata(L, ywPosSet(lua_touserdata(L, 1), lua_tonumber(L, 2),
 				       lua_tonumber(L, 3)));
   return 1;
 }
 
-int	luYwMapPosIsSame(lua_State *L)
+int	luYwPosIsSame(lua_State *L)
 {
   if (lua_isnumber(L, 2))
-    lua_pushboolean(L, ywMapPosIsSame(lua_touserdata(L, 1),
+    lua_pushboolean(L, ywPosIsSame(lua_touserdata(L, 1),
 				      lua_tonumber(L, 2), lua_tonumber(L, 3)));
   else
-    lua_pushboolean(L, ywMapPosIsSame(lua_touserdata(L, 1),
+    lua_pushboolean(L, ywPosIsSame(lua_touserdata(L, 1),
 				      lua_touserdata(L, 2), 0));
+  return 1;
+}
+
+int	luYwPosIsSameX(lua_State *L)
+{
+  if (lua_isnumber(L, 2))
+    lua_pushboolean(L, ywPosIsSameX(lua_touserdata(L, 1),
+				       lua_tonumber(L, 2)));
+  else
+    lua_pushboolean(L, ywPosIsSameX(lua_touserdata(L, 1),
+				       lua_touserdata(L, 2)));
+  return 1;
+}
+
+int	luYwPosIsSameY(lua_State *L)
+{
+  if (lua_isnumber(L, 2))
+    lua_pushboolean(L, ywPosIsSameY(lua_touserdata(L, 1),
+				       lua_tonumber(L, 2)));
+  else
+    lua_pushboolean(L, ywPosIsSameY(lua_touserdata(L, 1),
+				       lua_touserdata(L, 2)));
   return 1;
 }
 

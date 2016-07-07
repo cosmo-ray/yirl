@@ -47,7 +47,7 @@ function snakeMap(entity)
    local tmp = yeCreateInt(1, yeGet(cases, headPos), NULL)
    local head = yeCreateArray(map, "head")
 
-   ywMapCreatePos(0, 1, head, "dir")
+   ywPosCreate(0, 1, head, "dir")
    yePushBack(head, tmp, "elem")
    yeCreateInt(headPos, head, "pos")
 
