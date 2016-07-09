@@ -111,14 +111,7 @@ const char * EntityTypeStrings[] = { "int", "float", "string",
  */
 static inline int	checkType(const Entity *entity, EntityType type)
 {
-  return (entity != NULL && entity->type == type);
-}
-
-EntityType	yeType(const Entity *entity)
-{
-  if (likely(entity != NULL))
-    return (entity->type);
-  return (-1);
+  return (likely(entity != NULL && entity->type == type));
 }
 
 EntityType yeStringToType(const char *str)
@@ -204,7 +197,7 @@ Entity *yeGetByStrFast(Entity *entity, const char *name)
     return NULL;
 
   Y_BLOCK_ARRAY_FOREACH_PTR(&YE_TO_ARRAY(entity)->values, tmp, it, ArrayEntry) {
-    if (!tmp->name)
+    if (!tmp || !tmp->name)
       continue;
     if (yuiStrEqual(tmp->name, name))
       return tmp->entity;
@@ -218,7 +211,7 @@ Entity *yeGetByStrExt(Entity *entity, const char *name, int64_t *idx)
     return NULL;
 
   Y_BLOCK_ARRAY_FOREACH_PTR(&YE_TO_ARRAY(entity)->values, tmp, it, ArrayEntry) {
-    if (!tmp->name)
+    if (!tmp || !tmp->name)
       continue;
     if (yuiStrEqual(tmp->name, name)) {
       *idx = it;
@@ -250,7 +243,7 @@ int yeArrayIdx(Entity *entity, const char *lookup)
     return -1;
 
   Y_BLOCK_ARRAY_FOREACH_PTR(&YE_TO_ARRAY(entity)->values, tmp, it, ArrayEntry) {
-    if (!tmp->name)
+    if (!tmp || !tmp->name)
       continue;
     if (yuiStrEqual(tmp->name, lookup))
       return it;
@@ -678,8 +671,6 @@ void	yeSetInt(Entity *entity, int value)
 {
   if (unlikely(!entity))
     return;
-  if (yeType(entity) == YFLOAT)
-    return (yeSetFloat(entity, value));
   ((IntEntity *)entity)->value = value;
 }
 

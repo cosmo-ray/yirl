@@ -513,6 +513,23 @@ const char	*yeGetFunction(Entity *entity);
  * @param entity
  * @return if entity is not null return the type, -1 otherwise
  */
+static inline EntityType yeType(const Entity *entity)
+{
+	if (likely(entity != NULL))
+		return (entity->type);
+	return (-1);
+}
+
+/**
+ * @param entity
+ * @return the entity's value if entity is of type YFUNCTION, NULL otherwise
+ */
+const char	*yeGetFunction(Entity *entity);
+
+/**
+ * @param entity
+ * @return if entity is not null return the type, -1 otherwise
+ */
 int	yeType(const Entity *entity);
 
 /**
@@ -565,9 +582,9 @@ static inline int yeStringIndexChar(Entity *entityStr, const char *chars)
     for (int j = 0; chars[j]; ++j) {
       if (str[i] == chars[j])
 	return i;
+      return -1;
     }
   }
-  return -1;
 }
 
 static inline int yeOpsIntAddInt(IntEntity *e, int i)
@@ -576,13 +593,15 @@ static inline int yeOpsIntAddInt(IntEntity *e, int i)
   return 0;
 }
 
+
 static inline int yeAddInt(Entity *e, int i)
 {
   switch (yeType(e)) {
   case YINT:
     return yeOpsIntAddInt(YE_TO_INT(e), i);
+  default :
+    return -1;
   }
-  return -1;
 }
 
 static inline int yeAddEntInt(Entity *e, IntEntity *ie)
@@ -590,11 +609,14 @@ static inline int yeAddEntInt(Entity *e, IntEntity *ie)
   return yeAddInt(e, yeGetInt(YE_TO_ENTITY(ie)));
 }
 
+
 static inline int yeAddEnt(Entity *e, Entity *e2)
 {
   switch (yeType(e2)) {
   case YINT:
     return yeAddEntInt(e, YE_TO_INT(e2));
+  default :
+    return -1;
   }
   return -1;
 }
