@@ -51,7 +51,7 @@ static inline int ywMapW(YWidgetState *state)
 
 static inline int ywMapH(YWidgetState *state)
 {
-  return yeLen(yeGet(state->entity, "map")) / ywMapW(state);
+  return yeLen(yeGet(state->entity, "map")) / ywMapW(state) + 1;
 }
 
 int ywMapGetIdByElem(Entity *mapElem);
@@ -60,6 +60,7 @@ Entity *ywMapGetCase(YWidgetState *state, Entity *pos);
 
 Entity *ywMapPosFromInt(YWidgetState *wid, int newPos,
 			Entity *father, const char *name);
+int ywMapIntFromPos(YWidgetState *wid, Entity *pos);
 
 int ywMapPushElem(YWidgetState *state, Entity *toPush,
 		  Entity *pos, const char *name);

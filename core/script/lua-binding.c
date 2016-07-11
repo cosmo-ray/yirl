@@ -471,6 +471,13 @@ int	luaYwMapMove(lua_State *L)
   return 1;
 }
 
+int	luaYwMapIntFromPos(lua_State *L)
+{
+  lua_pushnumber(L, ywMapIntFromPos(lua_touserdata(L, 1),
+				    lua_touserdata(L, 2)));
+  return 1;
+}
+
 int	luaYwMapPosFromInt(lua_State *L)
 {
   lua_pushlightuserdata(L, ywMapPosFromInt(lua_touserdata(L, 1),
@@ -488,6 +495,18 @@ int	luaYwMapRemove(lua_State *L)
     ywMapRemove(lua_touserdata(L, 1), lua_touserdata(L, 2),
 		YE_TO_ENTITY(lua_touserdata(L, 3)));
   return 0;
+}
+
+int	luaYwMapW(lua_State *L)
+{
+  lua_pushnumber(L, ywMapW(lua_touserdata(L, 1)));
+  return 1;
+}
+
+int	luaYwMapH(lua_State *L)
+{
+  lua_pushnumber(L, ywMapH(lua_touserdata(L, 1)));
+  return 1;
 }
 
 int	luaYwMapPushElem(lua_State *L)
