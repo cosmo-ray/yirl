@@ -92,6 +92,7 @@ int	luaYwPosSet(lua_State *L);
 int	luYwPosIsSameX(lua_State *L);
 int	luYwPosIsSameY(lua_State *L);
 int	luYwPosIsSame(lua_State *L);
+int	luYwPosAdd(lua_State *L);
 
 /* map */
 int	luaYwMapPosFromInt(lua_State *L);
@@ -226,6 +227,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywPosIsSame", luYwPosIsSame));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywPosIsSameX", luYwPosIsSameX));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywPosIsSameY", luYwPosIsSameY));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywPosAdd", luYwPosAdd));
   
 /* Game and Modules */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygGetMod", luaGetMod));

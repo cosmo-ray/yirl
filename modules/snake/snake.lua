@@ -158,29 +158,27 @@ function moveHead(wid, map)
    local head = yeGet(map, "head")
    local headElem = yeGet(head, "elem")
    local dir = yeGet(head, "dir")
+   local gc = yeCreateArray()
 
    local oldPos = yeGetInt(yeGet(head, "pos"))
-   local newPos = oldPos +
-      yeGetInt(yeGet(dir, "y")) * yeGetInt(yeGet(map, "width")) +
-      yeGetInt(yeGet(dir, "x"))
-   local opos = ywMapPosFromInt(wid, oldPos, nil)
-   local npos = ywMapPosFromInt(wid, newPos, nil)
-
+   --local newPos = oldPos + yeGetInt(yeGet(dir, "y")) * yeGetInt(yeGet(map, "width")) + yeGetInt(yeGet(dir, "x"))
+   local opos = ywMapPosFromInt(wid, oldPos, gc)
+   local npos = ywMapPosFromInt(wid, oldPos, gc)
+   
+   ywPosAdd(npos, dir)
    -- check out of border
-   if ywPosIsSameX(opos, 0) and ywPosIsSameX(npos, width - 1) then
+   if ywPosIsSameX(npos, -1) then
       hitWall(wid, map, opos, npos, 0)
-      return
-   elseif ywPosIsSameX(npos, 0) and ywPosIsSameX(opos, width - 1) then
+   elseif ywPosIsSameX(npos, ywMapW(wid)) then
       hitWall(wid, map, opos, npos, 1)
-      return
-   elseif (newPos < 0) then
+   elseif (ywPosIsSameY(npos, -1)) then
       hitWall(wid, map, opos, npos, 2)
-      return
-   elseif (newPos > lenMap - 1) then
+   elseif (ywPosIsSameY(npos, ywMapH(wid))) then
       hitWall(wid, map, opos, npos, 3)
-      return
+   else
+      moveHeadInternal(wid, map, opos, npos)
    end
-   moveHeadInternal(wid, map, opos, npos)
+   yeDestroy(gc)
 end
 
 function changeDir(map, eve)

@@ -456,6 +456,13 @@ int	luYwPosIsSameY(lua_State *L)
   return 1;
 }
 
+int	luYwPosAdd(lua_State *L)
+{
+  lua_pushlightuserdata(L, ywPosAdd(lua_touserdata(L, 1),
+				    lua_touserdata(L, 2)));
+  return 1;
+}
+
 int	luaYwMapMove(lua_State *L)
 {
   if (lua_isstring(L, 4))
