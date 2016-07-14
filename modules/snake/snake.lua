@@ -16,9 +16,9 @@
 --
 
 
-local action = yeCreateFunction("snakeAction", 3, nil, nil)
-local die = yeCreateFunction("snakeDie", 3, nil, nil)
-local warp = yeCreateFunction("snakeWarp", 3, nil, nil)
+local action = yeCreateFunction("snakeAction", 3)
+local die = yeCreateFunction("snakeDie", 3)
+local warp = yeCreateFunction("snakeWarp", 3)
 
 local Q_KEY = 113
 
