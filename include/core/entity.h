@@ -576,9 +576,12 @@ extern "C++"
 
     va_start(ap, entity);
     while((tmp = va_arg(ap, const char *)) != NULL) {
-      if (!yeArrayContainEntity(entity, tmp))
+      if (!yeArrayContainEntity(entity, tmp)) {
+	va_end(ap);
 	return 0;
+      }
     }
+    va_end(ap);
     return 1;
   }
 
@@ -675,6 +678,7 @@ extern "C++"
   {
     if (!array || !toReplace || !toPush)
       return -1;
+
     Y_BLOCK_ARRAY_FOREACH_PTR(&YE_TO_ARRAY(array)->values, tmp,
 			      it, ArrayEntry) {
       if (tmp->entity == toReplace) {
@@ -684,6 +688,7 @@ extern "C++"
 	return 0;
       }
     }
+
     return -1;
   }
 

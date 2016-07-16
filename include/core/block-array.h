@@ -56,6 +56,11 @@ static inline uint16_t yBlockArrayBlockPos(size_t pos)
   return (pos / 64);
 }
 
+static inline size_t yBlockArrayPosMask(size_t pos)
+{
+  return ONE64 << (pos & 63);
+}
+
 static inline int yBlockArrayIsBlockAllocated(BlockArray *ba, uint16_t bPos) {
   return bPos < ba->nbBlock;
 }
@@ -65,7 +70,7 @@ int8_t *yBlockArrayAssureBlock(BlockArray *ba, size_t pos);
 static inline int yBlockArrayIsFree(BlockArray *ba, size_t pos)
 {
   return !(yBlockArrayGetBlock(ba, yBlockArrayBlockPos(pos)) &
-	   (ONE64 << (pos & 63)));
+	   yBlockArrayPosMask(pos));
 }
 
 static inline int yBlockArrayIsSet(BlockArray *ba, size_t pos)
@@ -77,7 +82,7 @@ void yBlockArrayUnset(BlockArray *ba, size_t pos);
 
 static inline void yBlockArraySet(BlockArray *ba, size_t pos)
 {
-  ba->blocks[yBlockArrayBlockPos(pos)] |= (1LLU << (pos & 63));
+  ba->blocks[yBlockArrayBlockPos(pos)] |= yBlockArrayPosMask(pos);
 }
 
 void yBlockArrayCopyElemInternal(BlockArray *ba, size_t pos,
