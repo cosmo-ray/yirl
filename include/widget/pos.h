@@ -20,6 +20,24 @@
 
 #include "entity.h"
 
+static inline void ywPosPrint(Entity *pos)
+{
+  printf("x: %d - y: %d\n",
+	 yeGetInt(yeGet(pos, 0)), yeGetInt(yeGet(pos, 1)));
+}
+
+static inline char * ywPosToString(Entity *pos)
+{
+  static char tmp[4][256];
+  static int i;
+
+  ++i;
+  i &= 3;
+  snprintf(tmp[i], 256, "x: %d - y: %d\n",
+	   yeGetInt(yeGet(pos, 0)), yeGetInt(yeGet(pos, 1)));
+  return tmp[i];
+}
+
 /**
  * @posX The position in X
  * @posY The position in Y
@@ -29,18 +47,53 @@
  * if NULL but not @father, the return is push back
  * @return an Entity that store a "Map Position", Must be free if @father is NULL
  */
-Entity *ywPosCreate(int posX, int posY, Entity *father, const char *name);
+Entity *ywPosCreateInts(int posX, int posY, Entity *father,
+			const char *name);
 
-static inline Entity *ywPosSet(Entity *pos, int posX, int posY)
+static inline Entity *ywPosCreateEnt(Entity *other, int useless,
+				     Entity *father, const char *name)
+{
+  (void)useless;
+  return ywPosCreateInts(yeGetInt(yeGet(other, 0)), yeGetInt(yeGet(other, 1)),
+			 father, name);
+}
+
+#define ywPosCreate(x, y, father, name)			\
+  _Generic(x, Entity *: ywPosCreateEnt,			\
+	   void *: ywPosCreateEnt,			\
+	   const Entity *: ywPosCreateEnt,		\
+	   double : ywPosCreateInts,			\
+	   int : ywPosCreateInts) (x, y, father, name)
+
+static inline Entity *ywPosSetInts(Entity *pos, int posX, int posY)
 {
   yeSetInt(yeGet(pos, 0), posX);
   yeSetInt(yeGet(pos, 1), posY);
   return pos;
 }
 
-static inline int ywPosIsSameEnt(Entity *pos1, Entity *pos2, int y)
+
+static inline Entity *ywPosSetEnt(Entity *pos, Entity *other,
+				  int useless)
 {
-  (void)y;
+  (void)useless;
+  yeSetInt(yeGet(pos, 0), yeGetInt(yeGet(other, 0)));
+  yeSetInt(yeGet(pos, 1), yeGetInt(yeGet(other, 1)));
+  return pos;
+}
+
+#define ywPosSet(pos, x, y)			\
+  _Generic(x, Entity *: ywPosSetEnt,		\
+	   void *: ywPosSetEnt,			\
+	   const Entity *: ywPosSetEnt,		\
+	   double : ywPosSetInts,		\
+	   int : ywPosSetInts) (pos, x, y)
+
+
+static inline int ywPosIsSameEnt(Entity *pos1, Entity *pos2,
+				 int useless)
+{
+  (void)useless;
   return ((yeGetInt(yeGet(pos1, 0)) == yeGetInt(yeGet(pos2, 0))) &&
 	  (yeGetInt(yeGet(pos1, 1)) == yeGetInt(yeGet(pos2, 1))));
 }

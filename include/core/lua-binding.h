@@ -40,6 +40,7 @@ int	luaRemoveChild(lua_State *L);
 int	luaDestroy(lua_State *L);
 int	luaSetAt(lua_State *L);
 int	luaYeReplace(lua_State *L);
+int	luaYeReplaceBack(lua_State *L);
 
 /* Entity */
 int	luaCopy(lua_State *L);
@@ -93,6 +94,8 @@ int	luYwPosIsSameX(lua_State *L);
 int	luYwPosIsSameY(lua_State *L);
 int	luYwPosIsSame(lua_State *L);
 int	luYwPosAdd(lua_State *L);
+int	luaYwPosPrint(lua_State *L);
+int	luaYwPosToString(lua_State *L);
 
 /* map */
 int	luaYwMapPosFromInt(lua_State *L);
@@ -100,6 +103,7 @@ int	luaYwMapIntFromPos(lua_State *L);
 int	luaYwMapMove(lua_State *L);
 int	luaYwMapRemove(lua_State *L);
 int	luaYwMapPushElem(lua_State *L);
+int	luaYwMapPushNbr(lua_State *L);
 int	luaYwMapGetCase(lua_State *L);
 int	luaYwMapW(lua_State *L);
 int	luaYwMapH(lua_State *L);
@@ -160,6 +164,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeRemoveChild", luaRemoveChild));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeDestroy", luaDestroy));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeReplace", luaYeReplace));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeReplaceBack", luaYeReplaceBack));
 
   /* Entity */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeCopy", luaCopy));
@@ -218,6 +223,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapMove", luaYwMapMove));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapRemove", luaYwMapRemove));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapPushElem", luaYwMapPushElem));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapPushNbr", luaYwMapPushNbr));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapW", luaYwMapW));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapH", luaYwMapH));
 
@@ -228,7 +234,9 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywPosIsSameX", luYwPosIsSameX));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywPosIsSameY", luYwPosIsSameY));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywPosAdd", luYwPosAdd));
-  
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywPosPrint", luaYwPosPrint));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywPosToString", luaYwPosToString));
+
 /* Game and Modules */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygGetMod", luaGetMod));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygCall", luaGCall));

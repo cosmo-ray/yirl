@@ -17,7 +17,7 @@
 
 #include "pos.h"
 
-Entity *ywPosCreate(int posX, int posY, Entity *father, const char *str)
+Entity *ywPosCreateInts(int posX, int posY, Entity *father, const char *str)
 {
   Entity *ret = yeCreateArray(father, str);
 

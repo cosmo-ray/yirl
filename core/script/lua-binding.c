@@ -409,17 +409,40 @@ int	luaYwMapGetCase(lua_State *L)
 
 int	luaYwPosCreate(lua_State *L)
 {
-  lua_pushlightuserdata(L, ywPosCreate(lua_tonumber(L, 1),
-					  lua_tonumber(L, 2),
-					  lua_touserdata(L, 3),
-					  lua_tostring(L, 4)));
+  if (lua_isnumber(L, 1)) {
+    lua_pushlightuserdata(L, ywPosCreate(lua_tonumber(L, 1),
+					 lua_tonumber(L, 2),
+					 lua_touserdata(L, 3),
+					 lua_tostring(L, 4)));
+  } else {
+    lua_pushlightuserdata(L, ywPosCreate(lua_touserdata(L, 1),
+					 0, lua_touserdata(L, 2),
+					 lua_tostring(L, 3)));
+  }
+  return 1;
+}
+
+int	luaYwPosPrint(lua_State *L)
+{
+  ywPosPrint(lua_touserdata(L, 1));
+  return 0;
+}
+
+int	luaYwPosToString(lua_State *L)
+{
+  lua_pushstring(L, ywPosToString(lua_touserdata(L, 1)));
   return 1;
 }
 
 int	luaYwPosSet(lua_State *L)
 {
-  lua_pushlightuserdata(L, ywPosSet(lua_touserdata(L, 1), lua_tonumber(L, 2),
-				       lua_tonumber(L, 3)));
+  if (lua_isnumber(L, 2)) {
+    lua_pushlightuserdata(L, ywPosSet(lua_touserdata(L, 1), lua_tonumber(L, 2),
+				      lua_tonumber(L, 3)));
+  } else {
+    lua_pushlightuserdata(L, ywPosSet(lua_touserdata(L, 1),
+				      lua_touserdata(L, 2), 0));
+  }
   return 1;
 }
 
@@ -518,10 +541,19 @@ int	luaYwMapH(lua_State *L)
 
 int	luaYwMapPushElem(lua_State *L)
 {
-  lua_pushnumber(L,
-		 ywMapPushElem(lua_touserdata(L, 1), lua_touserdata(L, 2),
-			       lua_touserdata(L, 3), lua_tostring(L, 4))
-		 );
+  lua_pushlightuserdata(L,
+			ywMapPushElem(lua_touserdata(L, 1), lua_touserdata(L, 2),
+				      lua_touserdata(L, 3), lua_tostring(L, 4))
+			);
+  return 1;
+}
+
+int	luaYwMapPushNbr(lua_State *L)
+{
+  lua_pushlightuserdata(L,
+			ywMapPushNbr(lua_touserdata(L, 1), lua_tonumber(L, 2),
+				     lua_touserdata(L, 3), lua_tostring(L, 4))
+			);
   return 1;
 }
 
@@ -611,5 +643,15 @@ int	luaYeReplace(lua_State *L)
   lua_pushnumber(L, yeReplace(lua_touserdata(L, 1),
 			      lua_touserdata(L, 2),
 			      lua_touserdata(L, 3)));
+  return 1;
+}
+
+int	luaYeReplaceBack(lua_State *L)
+{
+  if (lua_gettop(L) != 3)
+    return -1;
+  lua_pushlightuserdata(L, yeReplaceBack(lua_touserdata(L, 1),
+					 lua_touserdata(L, 2),
+					 lua_tostring(L, 3)));
   return 1;
 }

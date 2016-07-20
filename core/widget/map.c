@@ -1,4 +1,3 @@
-
 /*
 **Copyright (C) 2015 Matthias Gatto
 **
@@ -59,11 +58,17 @@ int ywMapIntFromPos(YWidgetState *wid, Entity *pos)
 }
 
 
-int ywMapPushElem(YWidgetState *state, Entity *toPush,
-		  Entity *pos, const char *name)
+Entity *ywMapPushElem(YWidgetState *state, Entity *toPush,
+		      Entity *pos, const char *name)
 {
-  int ret =  yePushBack(ywMapGetCase(state, pos), toPush, name);
-  return ret;
+  int ret = yePushBack(ywMapGetCase(state, pos), toPush, name);
+  return ret ? toPush : NULL;
+}
+
+Entity *ywMapPushNbr(YWidgetState *state, int toPush,
+		     Entity *pos, const char *name)
+{
+  return yeCreateInt(toPush, ywMapGetCase(state, pos), name);
 }
 
 Entity *ywMapGetCase(YWidgetState *state, Entity *pos)

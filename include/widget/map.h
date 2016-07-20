@@ -62,8 +62,11 @@ Entity *ywMapPosFromInt(YWidgetState *wid, int newPos,
 			Entity *father, const char *name);
 int ywMapIntFromPos(YWidgetState *wid, Entity *pos);
 
-int ywMapPushElem(YWidgetState *state, Entity *toPush,
+Entity *ywMapPushElem(YWidgetState *state, Entity *toPush,
 		  Entity *pos, const char *name);
+
+Entity *ywMapPushNbr(YWidgetState *state, int toPush,
+		     Entity *pos, const char *name);
 
 static inline Entity *ywMapGetResources(YWidgetState *state)
 {
