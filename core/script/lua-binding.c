@@ -592,6 +592,8 @@ int	luaGCall(lua_State *L)
 {
 
   switch (lua_gettop(L)) {
+  case 2:
+    lua_pushlightuserdata(L, ygCall0(lua_tostring(L, 1), lua_tostring(L, 2)));
   case 3:
     LUA_YG_CALL(lua_touserdata(L, 3));
     return 1;
