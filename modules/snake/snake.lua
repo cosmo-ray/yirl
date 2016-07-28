@@ -61,7 +61,7 @@ function addBody(wid, map, pos)
    local body = yeGet(map, "body")
 
    local tmp = ywPosCreate(pos, body)
-   yeCreateInt(3, yeGet(yeGet(map, "map"), ywMapIntFromPos(wid, pos)), "bd")
+   ywMapPushNbr(wid, 3, pos, "bd");
 end
 
 function addPeanut(map)
