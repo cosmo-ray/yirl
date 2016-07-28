@@ -152,8 +152,8 @@ static inline int ywPosIsSameYInt(Entity *pos1, int x)
 
 static inline Entity *ywPosAdd(Entity *pos1, Entity *pos2)
 {
-  yeOpsAddEnt(yeGet(pos1, 0), yeGet(pos2, 0));
-  yeOpsAddEnt(yeGet(pos1, 1), yeGet(pos2, 1));
+  yeAddEnt(yeGet(pos1, 0), yeGet(pos2, 0));
+  yeAddEnt(yeGet(pos1, 1), yeGet(pos2, 1));
   return pos1;
 }
 

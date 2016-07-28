@@ -75,8 +75,8 @@ static int move(YWidgetState *wid, Entity *obj, Entity *dir)
     return removeBullet(wid, obj);
 
   yeRemoveChild(cur, id);
-  yeOpsAddEnt(posX, yeGet(dir, "x"));
-  yeOpsAddEnt(posY, yeGet(dir, "y"));
+  yeAddEnt(posX, yeGet(dir, "x"));
+  yeAddEnt(posY, yeGet(dir, "y"));
   ywMapPushElem(wid, id, pos, "bl");
   return 0;
 }
@@ -110,8 +110,8 @@ static void moveMainCaracter(YWidgetState *wid, int x, int y)
       Entity *curHero = yeGet(cur, i);
     if (yeGetInt(curHero) == 1) {
       /* You can get it Noww !!!! */
-      yeOpsAddInt(posX, x);
-      yeOpsAddInt(posY, y);
+      yeAddInt(posX, x);
+      yeAddInt(posY, y);
 
       if (yeGetInt(posX) < 0)
 	yeSetInt(posX, 0);

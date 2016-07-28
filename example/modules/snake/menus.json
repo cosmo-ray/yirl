@@ -16,7 +16,7 @@
     "SnakeResources" : [
 	{
 	    "name" : "floar",
-	    "map-srite" : "bg.png",
+	    "map-tild" : "bg.png",
 	    "map-char" : "."
 	},
 	{
@@ -31,7 +31,6 @@
 	},
 	{
 	    "name" : "eatead", // for text screen ?
-	    "map-srite" : "bullet.png", // sdl map
 	    "map-char" : "O" // curses map
 	},
 	{

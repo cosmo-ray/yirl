@@ -582,7 +582,7 @@
     return 0;
   }
 
-  static inline int yeOpsAddInt(Entity *e, int i)
+  static inline int yeAddInt(Entity *e, int i)
   {
     switch (yeType(e)) {
     case YINT:
@@ -591,16 +591,16 @@
     return -1;
   }
 
-  static inline int yeOpsAddEntInt(Entity *e, IntEntity *ie)
+  static inline int yeAddEntInt(Entity *e, IntEntity *ie)
   {
-    return yeOpsAddInt(e, yeGetInt(YE_TO_ENTITY(ie)));
+    return yeAddInt(e, yeGetInt(YE_TO_ENTITY(ie)));
   }
 
-  static inline int yeOpsAddEnt(Entity *e, Entity *e2)
+  static inline int yeAddEnt(Entity *e, Entity *e2)
   {
     switch (yeType(e2)) {
     case YINT:
-      return yeOpsAddEntInt(e, YE_TO_INT(e2));
+      return yeAddEntInt(e, YE_TO_INT(e2));
     }
     return -1;
   }
