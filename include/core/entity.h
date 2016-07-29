@@ -28,16 +28,6 @@
 
 #define NONNULL(arg) __attribute__ ((nonnull (arg)))
 
-#ifdef __linux__
-# ifdef LIB
-# define WEAK __attribute__((weak))
-# else
-# define WEAK //nothing :)
-# endif
-#else
-# define WEAK //nothing :)
-#endif
-
 
   typedef enum {
     YE_FIND_MONE = 0,
@@ -176,13 +166,13 @@
    * @param str   the type name
    * @return the corresponding type, -1 if type not found
    */
-  EntityType yeStringToType(const char *str) WEAK;
+  EntityType yeStringToType(const char *str);
 
   /**
    * @param type
    * @return the corresponding string of the type
    */
-  const char *yeTypeToString(int type) WEAK;
+  const char *yeTypeToString(int type);
 
 #define YE_ARRAY_FOREACH_INIT(array)				\
   (array == NULL ? yBlockArrayIteratorCreate(NULL, 0) :		\
@@ -208,19 +198,19 @@
   /**
    * @return the entity at the position of @index or NULL
    */
-  Entity *yeGetByIdx(Entity *entity, size_t index) WEAK;
+  Entity *yeGetByIdx(Entity *entity, size_t index);
     
   /**
    * @param entity  the entity whe are looking into
    * @param name    the entity name whe are looking for
    * @return The found Entity named @name in @entity
    */
-  Entity *yeGetByStr(Entity *entity, const char *name) WEAK;
+  Entity *yeGetByStr(Entity *entity, const char *name);
 
   /**
    * Same as yeGetByStrFast, but store the index in @idx
    */
-  Entity *yeGetByStrExt(Entity *entity, const char *name, int64_t *idx) WEAK;
+  Entity *yeGetByStrExt(Entity *entity, const char *name, int64_t *idx);
 
 #define yeGet(ENTITY, INDEX) _Generic((INDEX),				\
 				      unsigned int: yeGetByIdx,		\
@@ -237,20 +227,20 @@
   /**
    * Like yeGetStr but dosn't work with sytaxe like this (entity1.entity11)
    */
-  Entity *yeGetByStrFast(Entity *entity, const char *name) WEAK;
+  Entity *yeGetByStrFast(Entity *entity, const char *name);
 
   
   /**
    * change the capacity than the array can store
    */
-  Entity *yeExpandArray(Entity *entity, unsigned int size) WEAK;
+  Entity *yeExpandArray(Entity *entity, unsigned int size);
 
   /**
    * Add a new entity to @array>
    * @array:	the entity where we will add a new entity
    * @toPush:	the entity to add
    */
-  int yePushBack(Entity *array, Entity *toPush, const char *name) WEAK;
+  int yePushBack(Entity *array, Entity *toPush, const char *name);
 
   /**
    * Push @toPush at @idx if the element is not empty, return -1 othervise
@@ -261,7 +251,7 @@
    * @array:	the array
    * @return the entity that is erased from the entity @array
    */
-  Entity *yePopBack(Entity *array) WEAK;
+  Entity *yePopBack(Entity *array);
 
   Entity *yeRemoveChild(Entity *array, Entity *toRemove);
 
@@ -273,20 +263,20 @@
   /**
    * function who which an entity and set it to  0, "" or NULL
    */
-  Entity *yeCreate(EntityType type, void *val, Entity *fathers, const char *name) WEAK;
+  Entity *yeCreate(EntityType type, void *val, Entity *fathers, const char *name);
 
   /* 
    * Destructor and constructors.
    */
-  Entity *yeCreateInt(int value, Entity *fathers, const char *name) WEAK;
-  Entity *yeCreateFloat(double value, Entity *fathers, const char *name) WEAK;
-  Entity *yeCreateString(const char *string, Entity *fathers, const char *name) WEAK;
+  Entity *yeCreateInt(int value, Entity *fathers, const char *name);
+  Entity *yeCreateFloat(double value, Entity *fathers, const char *name);
+  Entity *yeCreateString(const char *string, Entity *fathers, const char *name);
   Entity *yeCreateFunction(const char *funcName, void *manager,
-			   Entity *father, const char *name) WEAK;
-  Entity *yeCreateArray(Entity *fathers, const char *name) WEAK;
-  Entity *yeCreateArrayAt(Entity *fathers, const char *name, int idx) WEAK;
+			   Entity *father, const char *name);
+  Entity *yeCreateArray(Entity *fathers, const char *name);
+  Entity *yeCreateArrayAt(Entity *fathers, const char *name, int idx);
 
-  Entity *yeCreateData(void *value, Entity *father, const char *name) WEAK;
+  Entity *yeCreateData(void *value, Entity *father, const char *name);
 
   /**
    * Create an Array which is a pair of 2 elements contening: value1 and value2
@@ -301,40 +291,40 @@
     return ret;
   }
 
-  void yeDestroy(Entity *entity) WEAK;
-  void yeDestroyInt(Entity *entity) WEAK;
-  void yeDestroyFloat(Entity *entity) WEAK;
-  void yeDestroyString(Entity *entity) WEAK;
-  void yeDestroyFunction(Entity *entity) WEAK;
-  void yeDestroyRef(Entity *entity) WEAK;
-  void yeDestroyArray(Entity *entity) WEAK;
-  void yeDestroyData(Entity *entity)  WEAK;
+  void yeDestroy(Entity *entity);
+  void yeDestroyInt(Entity *entity);
+  void yeDestroyFloat(Entity *entity);
+  void yeDestroyString(Entity *entity);
+  void yeDestroyFunction(Entity *entity);
+  void yeDestroyRef(Entity *entity);
+  void yeDestroyArray(Entity *entity);
+  void yeDestroyData(Entity *entity) ;
 
   /**
    * @parap entity
    * @param value
    * @return -1 if entity is not og type YINT, <value> otherwise
    */
-  void	yeSetInt(Entity *entity, int value) WEAK;
+  void	yeSetInt(Entity *entity, int value);
 
   /**
    * @parap entity
    * @param value
    * @return -1 if entity is not og type YFLOAT, <value> otherwise
    */
-  void	yeSetFloat(Entity *entity, double value) WEAK;
+  void	yeSetFloat(Entity *entity, double value);
 
   /**
    * Set a value to a StringEntity. Free the value if <entity> already had one
    * @param entity  the StringEntity to set the string to
    * @param val     the string to set to the StringEntity
    */
-  void	yeSetString(Entity *entity, const char *value) WEAK;
+  void	yeSetString(Entity *entity, const char *value);
 
   /**
    * @brief set a function entity to NULL
    */
-  void	yeUnsetFunction(Entity *entity) WEAK;
+  void	yeUnsetFunction(Entity *entity);
 
   
   /**
@@ -343,9 +333,9 @@
    * @param value
    * @return return <value>
    */
-  void	yeSetFunction(Entity *entity, const char *value) WEAK;
+  void	yeSetFunction(Entity *entity, const char *value);
 
-  void  yeSetDestroy(Entity *entity, void (*func)(void *)) WEAK;
+  void  yeSetDestroy(Entity *entity, void (*func)(void *));
 
 #define yeSet(ENTITY, VALUE) _Generic((VALUE),				\
 				      int: yeSetInt,			\
@@ -359,7 +349,7 @@
    * @brief set the information about the arguments of a function
    * @param nArgs	 number of arguments
    */
-  void	yeSetFunctionArgs(Entity *entity, unsigned int nArgs) WEAK;
+  void	yeSetFunctionArgs(Entity *entity, unsigned int nArgs);
   
   /**
    * Set basic information to the entity <entity>
@@ -370,17 +360,17 @@
    * @return the entity <entity>
    */
   Entity *yeInit(Entity *entity, EntityType type,
-		 Entity *father, const char *name)  WEAK;
+		 Entity *father, const char *name) ;
 
   /**
    * set @value to @index if the entity is an array
    */
-  void	yeSetIntAt(Entity *entity, unsigned int index, int value) WEAK;
-  void	yeSetFloatAt(Entity *entity, unsigned int index, double value) WEAK;
-  void	yeSetStringAt(Entity *entity, unsigned int index, const char *value) WEAK;
-  void	yeSetIntAtStrIdx(Entity *entity, const char *index, int value) WEAK;
-  void	yeSetFloatAtStrIdx(Entity *entity, const char *index, double value) WEAK;
-  void	yeSetStringAtStrIdx(Entity *entity, const char *index, const char *value) WEAK;
+  void	yeSetIntAt(Entity *entity, unsigned int index, int value);
+  void	yeSetFloatAt(Entity *entity, unsigned int index, double value);
+  void	yeSetStringAt(Entity *entity, unsigned int index, const char *value);
+  void	yeSetIntAtStrIdx(Entity *entity, const char *index, int value);
+  void	yeSetFloatAtStrIdx(Entity *entity, const char *index, double value);
+  void	yeSetStringAtStrIdx(Entity *entity, const char *index, const char *value);
 
 
   /**
@@ -471,28 +461,28 @@
    * @param entity  The Entity we want to get the len
    * @return the attribute len of the entity
    */
-  size_t yeLen(Entity *entity) WEAK;;
+  size_t yeLen(Entity *entity);;
 
   /**
    * @parap entity
    * @param value
    * @return -1 if entity is not og type YINT, <value> otherwise
    */
-  int	yeGetInt(Entity *entity) WEAK;
+  int	yeGetInt(Entity *entity);
 
   /**
    * @param entity
    * @return the entity's value if entity is of type YFLOAT, -1 otherwise
    */
-  double yeGetFloat(Entity *entity) WEAK;
+  double yeGetFloat(Entity *entity);
 
   /**
    * @param entity
    * @return the string value 
    */
-  const char *yeGetString(Entity *entity) WEAK;
+  const char *yeGetString(Entity *entity);
 
-  void *yeGetData(Entity *entity) WEAK;
+  void *yeGetData(Entity *entity);
 
 #define YE_FOREACH_FATHER_SET_FATHER(child, father, idx)	\
   ((father = yeFathers(child)[(idx)]) || 1)
@@ -507,13 +497,13 @@
    * @param entity
    * @return the entity's fathers
    */
-  Entity **yeFathers(Entity *entity) WEAK;
+  Entity **yeFathers(Entity *entity);
 
   /**
    * @param entity
    * @return the entity's value if entity is of type YFUNCTION, NULL otherwise
    */
-  const char	*yeGetFunction(Entity *entity) WEAK;
+  const char	*yeGetFunction(Entity *entity);
 
   /**
    * @param entity

@@ -119,6 +119,7 @@ function moveHeadInternal(wid, map, opos, npos)
       yeSetInt(score, yeGetInt(score) + 1)
       addBody(wid, map, opos)
       bodyLen = 0
+      ywidCallSignal(wid, score, nil, yeGetInt(yeGet(map, "eatIdx")))
    end
 
    ywMapMove(wid, opos, npos, headElem)
@@ -223,6 +224,8 @@ function createSnake(entity)
    yuiRandInit()
    yeCreateInt(ywidAddSignal(entity, "hitWall"),
 	       entity, "hitWallIdx")
+   yeCreateInt(ywidAddSignal(entity, "eat"),
+	       entity, "eatIdx")
    yeCreateInt(ywidAddSignal(entity, "endTurn"),
 	       entity, "endTurnIdx")
    local map = ywidNewWidget(entity, "map")
