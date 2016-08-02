@@ -101,7 +101,7 @@ static void *tccAllocator(void)
 {
   YTccScript *ret;
   
-  ret = g_new(YTccScript, 1);
+  ret = g_new0(YTccScript, 1);
   if (ret == NULL)
     return NULL;
   ret->l = NULL;

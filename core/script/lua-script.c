@@ -86,7 +86,7 @@ static void *luaAllocator(void)
 {
   YScriptLua *ret;
 
-  ret = g_new(YScriptLua, 1);
+  ret = g_new0(YScriptLua, 1);
   if (ret == NULL)
     return NULL;
   ret->l = NULL;

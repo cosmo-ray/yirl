@@ -68,7 +68,6 @@ static inline const char *ysGetError(void *sm)
 int ysRegister(void *(*allocator)(void));
 int ysUnregiste(int t);
 
-
 /**
  * @args the arguments 
  * @type the type of script

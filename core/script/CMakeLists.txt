@@ -1,3 +1,5 @@
+#TODO: use an object lib for script.c and native-script.c
+
 set (LUA_SOURCE
 	lua-script.c
 	entity-script.c
@@ -8,6 +10,7 @@ set (LUA_SOURCE
 set (TCC_SOURCE
 	entity-script.c
         tcc-script.c
+	native-script.c
 	script.c)
 
 add_library (luaScript STATIC ${LUA_SOURCE})
