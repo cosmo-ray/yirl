@@ -7,4 +7,11 @@ Don't wait to get something functional for now :)
 YIRL is a game engine aiming to be fully configruable, fully scriptable and
 fully modfiable.
 
-It's compose by a multitude of library's and one binary to rule them all.
+Tree:
+
+* include: headers
+* core: engine sources
+* test: unit tests
+* modules: set of yirl modules
+* example: set of examples
+* cmake: cmake dependencies
