@@ -34,6 +34,7 @@ static int cursesRender(YWidgetState *state, int t)
   w -= x;
   h -= y;
   (void) h; // for debug print
+  (void) w; // for debug print
   DPRINT_INFO("pos: h: %d w: %d x: %d y: %d\n", h, w, x, y);
 
   for (unsigned int i = 0; i < len; ++i)

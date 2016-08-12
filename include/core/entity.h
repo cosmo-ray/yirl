@@ -499,7 +499,7 @@
   
 #define YE_FOREACH_FATHER(child, father)				\
   Entity *father = NULL;						\
-  for (uint32_t father##idx = 0; father##idx < child->nbFathers &&	\
+  for (uint32_t father##idx = 0; child && father##idx < child->nbFathers && \
 	 YE_FOREACH_FATHER_SET_FATHER(child, father, father##idx);	\
        ++father##idx)
   
@@ -655,7 +655,7 @@
 
     Y_BLOCK_ARRAY_FOREACH_PTR(&YE_TO_ARRAY(array)->values, tmp,
 			      it, ArrayEntry) {
-      if (tmp->entity == toReplace) {
+      if (tmp && tmp->entity == toReplace) {
 	YE_DESTROY(toReplace);
 	tmp->entity = toPush;
 	YE_INCR_REF(toPush);
