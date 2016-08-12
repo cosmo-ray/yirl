@@ -38,10 +38,6 @@
 # define WEAK //nothing :)
 #endif
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
 
   typedef enum {
     YE_FIND_MONE = 0,
@@ -226,13 +222,6 @@ extern "C"
    */
   Entity *yeGetByStrExt(Entity *entity, const char *name, int64_t *idx) WEAK;
 
-#ifdef __cplusplus
-  extern "C++"
-  {
-    Entity *yeGet(Entity *entity, unsigned int index) WEAK;
-    Entity *yeGet(Entity *entity, const char *name) WEAK;
-  }
-#else
 #define yeGet(ENTITY, INDEX) _Generic((INDEX),				\
 				      unsigned int: yeGetByIdx,		\
 				      int: yeGetByIdx,			\
@@ -244,7 +233,6 @@ extern "C"
 				      const char *: yeGetByStrFast,	\
 				      char *: yeGetByStrFast) (ENTITY, INDEX)
 
-#endif
 
   /**
    * Like yeGetStr but dosn't work with sytaxe like this (entity1.entity11)
@@ -401,18 +389,6 @@ extern "C"
    */
   int yeAttach(Entity *on, Entity *entity, unsigned int idx, const char *name);
 
-#ifdef __cplusplus
-extern "C++"
-{
-  void yeSetAt(Entity *entity, unsigned int index, const char *value) WEAK;
-  void yeSetAt(Entity *entity, unsigned int index, int value) WEAK;
-  void yeSetAt(Entity *entity, unsigned int index, float value) WEAK;
-  void yeSetAt(Entity *entity, const char *index, const char *value) WEAK;
-  void yeSetAt(Entity *entity, const char *index, int value) WEAK;
-  void yeSetAt(Entity *entity, const char *index, float value) WEAK;
-}
-#else
-
   /* TODO: should create an element if doesn't exist */
 #define yeSetAtIntIxd(ENTITY, INDEX, VALUE)	\
   _Generic((VALUE),							\
@@ -447,9 +423,7 @@ extern "C++"
 	   )(ENTITY, INDEX, VALUE)
 
   //char *: YE_SET_AT_STRIDX_INTERNAL(VALUE))(ENTITY, INDEX, VALUE)
-  
-#endif
-  
+    
   
 #define YE_IMPL_RECREATE(type, value, father, name)	\
   Entity *ret = yeGetByStr(father, name);		\
@@ -691,11 +665,5 @@ extern "C++"
 
     return -1;
   }
-
-
-#ifdef __cplusplus
-}
-#endif
-
 
 #endif
