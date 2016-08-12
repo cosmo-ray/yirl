@@ -21,7 +21,6 @@
 #include	<inttypes.h>
 #include	"entity.h"
 #include	"utils.h"
-#include	"debug_core.h"
 
 /**
  * Here some macros to mutualise the code of entity
