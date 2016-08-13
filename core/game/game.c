@@ -30,6 +30,7 @@
 #include "lua-script.h"
 #include "lua-binding.h"
 #include "tcc-script.h"
+#include "native-script.h"
 
 /* widgets */
 #include "widget-callback.h"
@@ -47,8 +48,11 @@ static void *jsonManager;
 static void *luaManager;
 static void *tccManager;
 
+static Entity *globFunctions;
+
 static Entity *mainMod;
 static Entity *modList;
+static Entity *baseMod;
 static YDescriptionOps *parsers[MAX_NB_MANAGER];
 
 static int alive = 1;
@@ -81,16 +85,20 @@ void *ygGetTccManager(void)
   } while (0)
 
 
-int ygTerminateCallback(YWidgetState *wid, YEvent *eve, Entity *arg)
+void *ygTerminateCallback(va_list va)
 {
-  (void)wid;
-  (void)eve;
-  (void)arg;
+  (void)va;
   alive = 0;
-  return ACTION;
+  return (void *)ACTION;
 }
 
 #define TO_RC(X) ((RenderConf *)(X))
+
+static void addNativeFuncToBaseMod(void)
+{
+  yeCreateFunctionSimple("menuMove", ysNativeManager(), baseMod);
+  yeCreateFunctionSimple("menuNext", ysNativeManager(), baseMod);
+}
 
 int ygInit(GameConfig *cfg)
 {
@@ -117,10 +125,10 @@ int ygInit(GameConfig *cfg)
 		    "tcc init failed");
 
   /* Init widgets */
-  CHECK_AND_GOTO(ywidInitCallback(), -1, error, "can not init callback");
-  CHECK_AND_GOTO(ywinAddCallback(ywinCreateNativeCallback("FinishGame",
-							 ygTerminateCallback)),
-		 -1, error, "cannot add game's callback");
+  baseMod = yeCreateArray(NULL, NULL);
+  ysRegistreCreateNativeEntity(ygTerminateCallback, "FinishGame", baseMod, NULL);
+  addNativeFuncToBaseMod();
+
   CHECK_AND_GOTO(ywMenuInit(), -1, error, "Menu init failed");
   CHECK_AND_GOTO(ywMapInit(), -1, error, "Map init failed");
   CHECK_AND_GOTO(ywTextScreenInit(), -1, error, "Text Screen init failed");
@@ -179,7 +187,7 @@ void ygEnd()
   ysdl2Destroy();
 #endif
   YE_DESTROY(modList);
-  ywidFinishCallbacks();
+  ysNativeEnd();
   init = 0;
 }
 
@@ -204,6 +212,10 @@ Entity *ygLoadMod(const char *path)
   Entity *initScripts;
   Entity *name;
 
+  if (unlikely(!modList)) {
+    modList = yeCreateArray(NULL, NULL);
+  }
+
   tmp = g_strconcat(path, "/start.json", NULL);
   if (!tmp) {
     DPRINT_ERR("cannot allocated path(like something went really wrong)");
@@ -211,13 +223,15 @@ Entity *ygLoadMod(const char *path)
   }
   mod = ydFromFile(jsonManager, tmp, NULL);
   if (!mod)
-    goto exit;
+    goto failure;
 
   name = yeGet(mod, "name");
   if (!name) {
     DPRINT_ERR("name not found in %s\n", tmp);
-    goto exit;
+    goto failure;
   }
+
+  yePushBack(modList, mod, yeGetString(name));
   type = yeGet(mod, "type");
   file = yeGet(mod, "file");
   starting_widget = yeGet(mod, "starting widget");
@@ -291,7 +305,7 @@ Entity *ygLoadMod(const char *path)
       file = ydFromFile(jsonManager, fileStr, mod);
       g_free(fileStr);
       if (!file) {
-	goto exit;
+	goto failure;
       }
       yeRenamePtrStr(mod, file, "$main file");
 
@@ -303,10 +317,11 @@ Entity *ygLoadMod(const char *path)
     starting_widget = yeGet(mod, yeGetString(starting_widget));
   }
   yePushBack(mod, starting_widget, "$starting widget");
-  if (!modList) {
-    modList = yeCreateArray(NULL, NULL);
-  }
-  yePushBack(modList, mod, yeGetString(name));
+  printf(" === add module: \"%s\" === \n", yeGetString(name));
+
+  goto exit;
+ failure:
+  yeRemoveChild(modList, mod);
  exit:
   g_free(tmp);
   return mod;
@@ -314,7 +329,78 @@ Entity *ygLoadMod(const char *path)
 
 Entity *ygGetMod(const char *path)
 {
+  if (!path)
+    return NULL;
   return yeGet(modList, path);
+}
+
+static Entity *ygGetFunc(Entity *mod, const char *funcName)
+{
+  Entity *ret;
+
+  if (mod)
+    return yeGet(mod, funcName);
+
+  ret = yeGet(globFunctions, funcName);
+  if (!ret) {
+    ret = yeCreateFunctionSimple(funcName, ysNativeManager(), globFunctions);
+  }
+  return ret;
+}
+
+static int isNestedCallback(const char *str, char *modName, const char **funName)
+{
+  uint32_t cpLen;
+  
+  *funName = g_strrstr(str, ":");
+  if (!(*funName)) {
+    *funName = str; 
+    return 0;
+  }
+  *funName = *funName + 1;
+
+  cpLen = (*funName) - str - 1;
+  strncpy(modName, str, cpLen);
+  modName[cpLen] = '\0';
+  return 1;
+}
+
+Entity *ygGetFuncExt(const char *func)
+{
+  char modName[254];
+  const char *funcName;
+  char *tmp;
+  intptr_t ret;
+  Entity *tmpMod;
+
+  if (!func)
+    return NULL;
+  ret = isNestedCallback(func, modName, &funcName);
+  if (ret)
+    tmp = modName;
+  else
+    return ygGetFunc(NULL, funcName);
+
+  tmpMod = ygGetMod(tmp);
+  if (!tmpMod) {
+    DPRINT_WARN("%s module desn't existe", tmp);
+    return NULL;
+  }
+  return ygGetFunc(tmpMod, funcName);
+}
+
+int ygBindBySinIdx(YWidgetState *wid, int idx, const char *callback)
+{
+  return ywidBindBySinIdx(wid, idx, ygGetFuncExt(callback));
+}
+
+int ygBind(YWidgetState *wid, const char *signal, const char *callback)
+{
+  Entity *callbackEnt = ygGetFuncExt(callback);
+  if (!callbackEnt) {
+    DPRINT_WARN("unable to find '%s'\n", callback);
+  }
+  return ywidBind(wid, signal, callbackEnt);
 }
 
 static int ygParseStartAndGame(GameConfig *config)
@@ -417,11 +503,11 @@ void *ygCallInt(const char *mod, const char *callName, ...)
   va_list ap;
   Entity *modEntity;
 
-  if (!mod || !callName)
+  if (!callName)
     return NULL;
   modEntity = ygGetMod(mod);
   va_start(ap, callName);
-  ret = yesVCall(yeGet(modEntity, callName), ap);
+  ret = yesVCall(ygGetFunc(modEntity, callName), ap);
   va_end(ap);
   return ret;
 

@@ -196,10 +196,6 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidNewWidget", luaNewWidget));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidSetMainWid", luaSetMainWid));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidBind", luaWidBind));
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidCreateCallback", luaCreateCallback));
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidAddCallback", luaWidAddCallback));
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidCallCallbackByStr",
-				 luaCallCallbackByStr));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidEntity", luaWidEntity));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidNext", luaWidNext));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidAddSubType", luaAddSubType));

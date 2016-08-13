@@ -18,6 +18,8 @@
 #include <glib.h>
 #include "widget-callback.h"
 #include "menu.h"
+#include "native-script.h"
+#include "game.h"
 
 static int t = -1;
 
@@ -29,56 +31,52 @@ typedef struct {
   int actionSin0;
 } YMenuState;
 
-static int nmMenuDown(YWidgetState *wid, YEvent *eve, Entity *arg)
+static void *nmMenuDown(YWidgetState *wid)
 {
-  (void)arg;
-  (void)eve;
-
   ((YMenuState *)wid)->current += 1;
 
   if (((YMenuState *)wid)->current > yeLen(yeGet(wid->entity, "entries")) - 1)
     ((YMenuState *)wid)->current = 0;
-  return NOACTION;
+  return (void *)NOACTION;
 }
 
-static int nmMenuUp(YWidgetState *wid, YEvent *eve, Entity *arg)
+static void *nmMenuUp(YWidgetState *wid)
 {
-  (void)arg;
-  (void)eve;
-  
   ((YMenuState *)wid)->current -= 1;
 
   if (((YMenuState *)wid)->current > yeLen(yeGet(wid->entity, "entries")))
     ((YMenuState *)wid)->current = yeLen(yeGet(wid->entity, "entries")) - 1;
-  return NOACTION;
+  return (void *)NOACTION;
 }
 
-static int nmMenuMove(YWidgetState *wid, YEvent *eve, Entity *arg)
+static void *nmMenuMove(va_list ap)
 {
-if (eve->key == Y_DOWN_KEY) {
-  return nmMenuDown(wid, eve, arg);
- } else if (eve->key == Y_UP_KEY) {
-  return nmMenuUp(wid, eve, arg);
- }
- return NOTHANDLE;
+  YWidgetState *wid = va_arg(ap, YWidgetState *);
+  YEvent *eve = va_arg(ap, YEvent *);
+
+  if (eve->key == Y_DOWN_KEY) {
+    return nmMenuDown(wid);
+  } else if (eve->key == Y_UP_KEY) {
+    return nmMenuUp(wid);
+  }
+  return (void *)NOTHANDLE;
 }
 
-static int nmMenuNext(YWidgetState *wid, YEvent *eve, Entity *arg)
+static void *nmMenuNext(va_list ap)
 {
+  YWidgetState *wid = va_arg(ap, YWidgetState *);
   Entity *next = yeGet(wid->entity, "entries");
   YWidgetState *newWid;
 
   next = yeGet(next, ((YMenuState *)wid)->current);
   next = yeGet(next, "next");
-  (void)eve;
-  (void)arg;
 
   if (!next)
-    return BUG;
+    return (void *)BUG;
   if ((newWid = ywidNewWidget(next, NULL)) == NULL)
-    return BUG;
+    return (void *)BUG;
   ywidSetMainWid(newWid);
-  return ACTION;
+  return (void *)ACTION;
 }
 
 #define yeForeach(entity, idx, entry)					\
@@ -93,7 +91,7 @@ static int mnInit(YWidgetState *opac, Entity *entity, void *args)
 
   ywidGenericCall(opac, t, init);
   state->moveSinIdx = ywidAddSignal(opac, "move");
-  ywidBind(opac, "move", "menuMove");
+  ygBind(opac, "move", "menuMove");
   state->actionSin0 = state->moveSinIdx + 1;
   yeForeach(entries, i, entry) {
     char *tmp = g_strdup_printf("action-%d", i);
@@ -105,7 +103,7 @@ static int mnInit(YWidgetState *opac, Entity *entity, void *args)
       return -1;
     action = yeGet(entry, "action");
     if (action)
-      ywidBindBySinIdx(opac, ret, yeGetString(yeGet(entry, "action")));
+      ygBindBySinIdx(opac, ret, yeGetString(yeGet(entry, "action")));
   }
   return 0;
 }
@@ -177,12 +175,11 @@ int ywMenuGetCurrent(YWidgetState *opac)
 
 int ywMenuInit(void)
 {
-  ywidInitCallback();
   if (t != -1)
     return t;
   t = ywidRegister(alloc, "menu");
-  ywinAddCallback(ywinCreateNativeCallback("menuMove", nmMenuMove));
-  ywinAddCallback(ywinCreateNativeCallback("menuNext", nmMenuNext));
+  ysRegistreNativeFunc("menuMove", nmMenuMove);
+  ysRegistreNativeFunc("menuNext", nmMenuNext);
   return t;
 }
 

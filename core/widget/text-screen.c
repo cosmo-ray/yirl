@@ -33,7 +33,6 @@ static int tsInit(YWidgetState *opac, Entity *entity, void *args)
   (void)args;
 
   ywidGenericCall(opac, t, init);
-  ywidCallCallbackByStr(yeGetString(yeGet(entity, "init")), opac, NULL, NULL);
   return 0;
 }
 

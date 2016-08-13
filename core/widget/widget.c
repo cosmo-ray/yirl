@@ -19,6 +19,7 @@
 #include <string.h>
 #include <glib.h>
 #include <stdlib.h>
+#include "game.h"
 #include "timer.h"
 #include "widget.h"
 #include "entity-script.h"
@@ -197,8 +198,7 @@ static YWidgetState *ywidNewWidgetInternal(int t,
 {
   YWidgetState *ret;
   Entity *pos = yeGet(entity, "wid-pos");
-  const char *action;
-  Entity *initer = yeGet(entity, "init");
+  Entity *initer = ygGetFuncExt(yeGetString(yeGet(entity, "init")));
 
   if (widgetTab.len <= t || widgetTab.allocator[t] == NULL)
     return NULL;
@@ -228,20 +228,15 @@ static YWidgetState *ywidNewWidgetInternal(int t,
     goto error;
 
   /* Init sub widget */
-  if (initer) {
-    YCallback *callback = ywinGetCallbackByStr(yeGetString(initer));
-
-    if (callback)
-      ywidCallCallback(callback, ret, NULL, entity);
-  }
+  if (initer)
+    yesCall(initer, ret, NULL, entity);
 
   ret->hasChange = 1;
 
-  action = yeGetString(yeGet(entity, "action"));
-  ywidBind(ret, "action", action);
+  ygBindBySinIdx(ret, ret->actionIdx, yeGetString(yeGet(entity, "action")));
 
   YE_ARRAY_FOREACH(yeGet(ret->entity, "bind"), bindInfo) {
-    ywidBind(ret, yeGetString(yeGet(bindInfo, 0)),
+    ygBind(ret, yeGetString(yeGet(bindInfo, 0)),
 	     yeGetString(yeGet(bindInfo, 1)));
   }
   return ret;

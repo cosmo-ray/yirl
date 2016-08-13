@@ -155,24 +155,18 @@ int	luaCreateFloat(lua_State *L)
  */
 int     luaCreateFunction(lua_State *L)
 {
-  void *ret = yeCreateFunction(lua_tostring(L, 1),
-			       ygGetLuaManager(), lua_touserdata(L, 2),
-			       lua_tostring(L, 3));
-  lua_pushlightuserdata(L, ret);
-  return 1;
-}
+  void *ret;
 
-int	luaCreateCallback(lua_State *L)
-{
-  YCallback *ret = ywinCreateEntityCallback(lua_tostring(L, 1),
-					    lua_touserdata(L, 2));
-  lua_pushlightuserdata(L, ret);
-  return 1;
-}
+  if (!lua_tostring(L, 3)) {
+    ret = yeCreateFunctionSimple(lua_tostring(L, 1),
+				 ygGetLuaManager(), lua_touserdata(L, 2));
+  } else {
+    ret = yeCreateFunction(lua_tostring(L, 1),
+			   ygGetLuaManager(), lua_touserdata(L, 2),
+			   lua_tostring(L, 3));
+  }
 
-int	luaWidAddCallback(lua_State *L)
-{
-  lua_pushnumber(L, ywinAddCallback(lua_touserdata(L, 1)));
+  lua_pushlightuserdata(L, ret);
   return 1;
 }
 
@@ -204,13 +198,6 @@ int	luaEveKey(lua_State *L)
 {
   lua_pushnumber(L, ((YEvent *)lua_touserdata(L, 1))->key);
   return 1;
-}
-
-int	luaCallCallbackByStr(lua_State *L)
-{
-  ywidCallCallbackByStr(lua_tostring(L, 1), lua_touserdata(L, 2),
-			lua_touserdata(L, 3), lua_touserdata(L, 4));
-  return 0;
 }
 
 /* TODO: Add luaEveMouseX() */
@@ -273,8 +260,9 @@ int	luaWidBind(lua_State *L)
 		 "real prototyre is: ywidBind(lightuserdata map, string signal, string callback)\n");
       return -1;
     }
-  ywidBind(lua_touserdata(L, 1), lua_tostring(L, 2), lua_tostring(L, 3));
-  return 0;
+  lua_pushnumber(L, ygBind(lua_touserdata(L, 1),
+			   lua_tostring(L, 2), lua_tostring(L, 3)));
+  return 1;
 }
 
 int	luaSetString(lua_State *L)

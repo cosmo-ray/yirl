@@ -25,12 +25,10 @@
 #include "widget-callback.h"
 #include "json-desc.h"
 
-static int testMenuEnter(YWidgetState *wid, YEvent *eve, Entity *arg)
+static void *testMenuEnter(va_list ap)
 {
-  (void)wid;
-  (void)eve;
-  (void)arg;
-  return ACTION;
+  (void)ap;
+  return (void *)ACTION;
 }
 
 void testHorizontalContenerSdl(void)
@@ -50,7 +48,7 @@ void testHorizontalContenerSdl(void)
   ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
   ret = yeGet(ret, "ContenerTest");
   g_assert(ret);
-  ywinAddCallback(ywinCreateNativeCallback("menuTest", testMenuEnter));
+  ysRegistreNativeFunc("menuTest", testMenuEnter);
 
   wid = ywidNewWidget(ret, NULL);
   g_assert(wid);
@@ -80,7 +78,7 @@ void testVerticalContenerSdl(void)
   ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
   ret = yeGet(ret, "VContenerTest");
   g_assert(ret);
-  ywinAddCallback(ywinCreateNativeCallback("menuTest", testMenuEnter));
+  ysRegistreNativeFunc("menuTest", testMenuEnter);
 
   wid = ywidNewWidget(ret, NULL);
   g_assert(wid);
@@ -110,7 +108,7 @@ void testStackContenerSdl(void)
   ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
   ret = yeGet(ret, "SContenerTest");
   g_assert(ret);
-  ywinAddCallback(ywinCreateNativeCallback("menuTest", testMenuEnter));
+  ysRegistreNativeFunc("menuTest", testMenuEnter);
 
   wid = ywidNewWidget(ret, NULL);
   g_assert(wid);

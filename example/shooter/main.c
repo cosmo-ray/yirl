@@ -39,7 +39,7 @@ int main(void)
   yuiDebugInit(); //Can not be init twice :)  
   TRY_OR_DIE(ygInitGameConfig(&cfg, gamePath, SDL2), -1);
   TRY_OR_DIE(ygInit(&cfg), die(-1, &cfg));
-  ywinAddCallback(ywinCreateNativeCallback("shooterInit", shooterInit));
+  ysRegistreFunc(ysNativeManager(), "shooterInit", shooterInit);
   TRY_OR_DIE(ygStartLoop(&cfg), die(-1, &cfg));
   return die(0, &cfg);
 }

@@ -271,6 +271,10 @@
   Entity *yeCreateInt(int value, Entity *fathers, const char *name);
   Entity *yeCreateFloat(double value, Entity *fathers, const char *name);
   Entity *yeCreateString(const char *string, Entity *fathers, const char *name);
+
+#define yeCreateFunctionSimple(name, manager, father)	\
+  yeCreateFunction(name, manager, father, name)
+
   Entity *yeCreateFunction(const char *funcName, void *manager,
 			   Entity *father, const char *name);
   Entity *yeCreateArray(Entity *fathers, const char *name);

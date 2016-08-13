@@ -23,17 +23,17 @@
 #include "entity.h"
 #include "tests.h"
 #include "map.h"
+#include "native-script.h"
 
 
-static int testMapEnter(YWidgetState *wid, YEvent *eve, Entity *arg)
+static void *testMapEnter(va_list ap)
 {
-  (void)wid;
-  (void)arg;
-  (void)eve;
+  va_arg(ap, YWidgetState *);
+  YEvent *eve = va_arg(ap, YEvent *);
 
   if (eve && (eve->type == YKEY_DOWN && eve->key == '\n'))
-      return ACTION;
-  return NOTHANDLE;
+    return (void *)ACTION;
+  return (void *)NOTHANDLE;
 }
 
 #ifdef WITH_CURSES
@@ -48,7 +48,6 @@ void testYWMapCurses(void)
   /* load files */
   g_assert(t != -1);
   g_assert(ydJsonGetType() == t);
-  g_assert(ywidInitCallback() >= 0);
   jsonManager = ydNewManager(t);
   g_assert(jsonManager != NULL);
   ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
@@ -64,7 +63,7 @@ void testYWMapCurses(void)
   g_assert(ycursType() == 0);
   
   g_assert(!ycursRegistreMap());
-  ywinAddCallback(ywinCreateNativeCallback("mapTest", testMapEnter));
+  ysRegistreFunc(ysNativeManager(), "mapTest", testMapEnter);
 
   wid = ywidNewWidget(ret, NULL);
   g_assert(wid);
@@ -94,7 +93,6 @@ void testYWMapSdl2(void)
   /* load files */
   g_assert(t != -1);
   g_assert(ydJsonGetType() == t);
-  g_assert(ywidInitCallback() >= 0);
   jsonManager = ydNewManager(t);
   g_assert(jsonManager != NULL);
   ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
@@ -111,7 +109,7 @@ void testYWMapSdl2(void)
   
   g_assert(!ysdl2RegistreMap());
 
-  ywinAddCallback(ywinCreateNativeCallback("mapTest", testMapEnter));
+  ysRegistreFunc(ysNativeManager(), "mapTest", testMapEnter);
   wid = ywidNewWidget(ret, NULL);
   g_assert(wid);
 
@@ -156,7 +154,6 @@ void testYBigWMapSdl2(void)
   /* load files */
   g_assert(t != -1);
   g_assert(ydJsonGetType() == t);
-  g_assert(ywidInitCallback() >= 0);
   jsonManager = ydNewManager(t);
   g_assert(jsonManager != NULL);
   ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
@@ -174,7 +171,7 @@ void testYBigWMapSdl2(void)
   g_assert(!ysdl2RegistreMap());
 
   genBigMap(ret);
-  ywinAddCallback(ywinCreateNativeCallback("mapTest", testMapEnter));
+  ysRegistreFunc(ysNativeManager(), "mapTest", testMapEnter);
   wid = ywidNewWidget(ret, NULL);
   g_assert(wid);
 
@@ -202,7 +199,6 @@ void testYWMapAll(void)
   /* load files */
   g_assert(t != -1);
   g_assert(ydJsonGetType() == t);
-  g_assert(ywidInitCallback() >= 0);
   jsonManager = ydNewManager(t);
   g_assert(jsonManager != NULL);
   ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
@@ -222,7 +218,7 @@ void testYWMapAll(void)
   g_assert(!ysdl2RegistreMap());
   g_assert(!ycursRegistreMap());
 
-  ywinAddCallback(ywinCreateNativeCallback("mapTest", testMapEnter));
+  ysRegistreNativeFunc("mapTest", testMapEnter);
   wid = ywidNewWidget(ret, NULL);
   g_assert(wid);
 

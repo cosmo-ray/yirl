@@ -25,6 +25,7 @@
 #include "utils.h"
 #include "map.h"
 #include "sound.h"
+#include "native-script.h"
 
 typedef enum {
   SDL2   = 1,
@@ -67,15 +68,21 @@ int ygStartLoop(GameConfig *config);
 
 Entity *ygLoadMod(const char *path);
 Entity *ygGetMod(const char *path);
+Entity *ygGetFuncExt(const char *func);
 
 void *ygGetManager(const char *name);
 
 void ygEnd(void);
 
-int ygTerminateCallback(YWidgetState *wid, YEvent *eve, Entity *arg);
+void *ygTerminateCallback(va_list a);
 
 /* scrits managers */
 void *ygGetLuaManager(void);
 void *ygGetTccManager(void);
+
+int ygBindBySinIdx(YWidgetState *wid, int idx, const char *callback);
+
+int ygBind(YWidgetState *wid, const char *signal, const char *callback);
+
 
 #endif

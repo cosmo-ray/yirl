@@ -22,7 +22,7 @@ function sksAction(wid, eve, arg)
    while ywidEveIsEnd(eve) == false do
       if ywidEveType(eve) == YKEY_DOWN then
 	 if ywidEveKey(eve) == Q_KEY then
-	    ywidCallCallbackByStr("FinishGame", wid, eve, false)
+	    ygCall(nil, "FinishGame")
 	    return  YEVE_ACTION
 	 end
       end
@@ -58,29 +58,25 @@ end
 function sukeNewMap(entity)
    ygCall("sm-reader", "load-entity", entity)
    local cnt = ywidNewWidget(entity, nil)
-   ywidBind(cnt, "action", "sks-action")
+   ywidBind(cnt, "action", "sukeban-screen:action")
    return cnt
 end
 
-function sukeScreeenNewWid(entity)
+function sukeScreenNewWid(entity)
    yeCreateInt(75, yeGet(yeGet(entity, "entries"), 0), "size")
 
    local cnt = ywidNewWidget(entity, "contener")
-   ywidBind(cnt, "action", "suke-map-action")
    return cnt
 end
 
 function initSukeScreen(entity)
    local init = yeCreateArray(nil, nil)
    yeCreateString("sukeban-screen", init, "name")
-   yeCreateFunction("sukeScreeenNewWid", init, "callback")
+   yeCreateFunction("sukeScreenNewWid", init, "callback")
    ywidAddSubType(init)
 
-   local sksAction = yeCreateFunction("sksAction", entity, "action")
-   ywidAddCallback(ywidCreateCallback("sks-action", sksAction))
-
-   local sksAction = yeCreateFunction("sukeMapAction", entity, "action")
-   ywidAddCallback(ywidCreateCallback("suke-map-action", sksAction))
+   yeCreateFunction("sksAction", entity, "action")
+   yeCreateFunction("sukeMapAction", entity, "map-action")
 
    init = yeCreateArray(nil, nil) -- this has been destroy by ywidAddSubType
    yeCreateString("sukeban-map", init, "name")

@@ -77,12 +77,6 @@ int main(int argc, char **argv)
   if (no_wid)
     goto run_test;
 
-#ifdef WITH_CURSES
-  TEST_TRY_ADD("/widget/lifecycle/curses", testCursesLife, only);
-  TEST_TRY_ADD("/widget/textScreen/curses", testYWTextScreenCurses, only);
-  TEST_TRY_ADD("/widget/menu/curses", testYWMenuCurses, only);
-  TEST_TRY_ADD("/widget/map/curses", testYWMapCurses, only);
-#endif
 #ifdef WITH_SDL
   TEST_TRY_ADD("/widget/lifecycle/sdl", testSdlLife, only);
   TEST_TRY_ADD("/widget/textScreen/sdl", testYWTextScreenSdl2, only);
@@ -93,7 +87,13 @@ int main(int argc, char **argv)
   TEST_TRY_ADD("/widget/contener/vertical/sdl", testVerticalContenerSdl, only);
   TEST_TRY_ADD("/widget/contener/stack/sdl", testStackContenerSdl, only);
   TEST_TRY_ADD("/game/sdl/simple", testYGameSdlLibBasic, only);
+#endif
 #ifdef WITH_CURSES
+  TEST_TRY_ADD("/widget/lifecycle/curses", testCursesLife, only);
+  TEST_TRY_ADD("/widget/textScreen/curses", testYWTextScreenCurses, only);
+  TEST_TRY_ADD("/widget/menu/curses", testYWMenuCurses, only);
+  TEST_TRY_ADD("/widget/map/curses", testYWMapCurses, only);
+#ifdef WITH_SDL
   TEST_TRY_ADD("/widget/lifecycle/all", testAllLife, only);
   TEST_TRY_ADD("/widget/textScreen/all", testYWTextScreenAll, only);
   TEST_TRY_ADD("/widget/map/all", testYWMapAll, only);

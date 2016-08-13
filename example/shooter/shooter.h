@@ -20,7 +20,7 @@
 
 #include "game.h"
 
-int shooterAction(YWidgetState *wid, YEvent *eve, Entity *arg);
-int shooterInit(YWidgetState *wid, YEvent *eve, Entity *arg);
+void *shooterAction(va_list);
+void *shooterInit(va_list);
 
 #endif

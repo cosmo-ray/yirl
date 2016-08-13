@@ -92,9 +92,11 @@ void *ysNativeManager(void)
 }
 
 Entity *ysRegistreCreateNativeEntity(void *(*value)(va_list), const char *name,
-				     Entity *father, const char *fatherName)
+				     Entity *father, const char *entityName)
 {
   ysRegistreFunc(ysNativeManager(), (char *)name, value);
-  return yeCreateFunction(name, ysNativeManager(), father, fatherName);
+  if (!entityName)
+    entityName = name;
+  return yeCreateFunction(name, ysNativeManager(), father, entityName);
 
 }

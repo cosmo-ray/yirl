@@ -810,12 +810,13 @@ static void yeToCStrInternal(Entity *entity, int deep, GString *str, int flag)
     Y_BLOCK_ARRAY_FOREACH_PTR(&YE_TO_ARRAY(entity)->values,
 			      tmp, it, ArrayEntry) {
       if (!(flag & YE_FORMAT_OPT_PRINT_ONLY_VAL_ARRAY)) {
+	if (it) {
+	  g_string_append(str, " | ");
+	}
 	if (tmp->name)
-	  g_string_append_printf(str, "name: '%s, '", tmp->name);
+	  g_string_append_printf(str, "name: \"%s\", ", tmp->name);
 	g_string_append_printf(str, "idx: %"PRIu64", ", it);
 	g_string_append_printf(str, "val: ");
-	g_string_append_c(str, '|');
-	g_string_append_c(str, ' ');
       }
       yeToCStrInternal(tmp->entity, deep - 1, str, flag);
     }

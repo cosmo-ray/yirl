@@ -16,10 +16,6 @@
 --
 
 
-local action = yeCreateFunction("snakeAction", 3)
-local die = yeCreateFunction("snakeDie", 3)
-local warp = yeCreateFunction("snakeWarp", 3)
-
 local Q_KEY = 113
 
 function getLooseScreen(entity)
@@ -28,7 +24,7 @@ end
 
 function snakeMap(entity)
    local map = entity
-   local i = 0;
+   local i = 0
 
    yeCreateInt(200000, map, "turn-length")
    yeCreateInt(20, map, "width")
@@ -204,7 +200,7 @@ function snakeAction(wid, eve, arg)
    while ywidEveIsEnd(eve) == false do
       if ywidEveType(eve) == YKEY_DOWN then
 	 if ywidEveKey(eve) == Q_KEY then
-	    ywidCallCallbackByStr("FinishGame", wid, eve, false)
+	    ygCall(nil, "FinishGame")
 	 elseif ywidEveKey(eve) == Y_UP_KEY
 	    or ywidEveKey(eve) == Y_DOWN_KEY
 	    or ywidEveKey(eve) == Y_RIGHT_KEY
@@ -230,9 +226,8 @@ function createSnake(entity)
 	       entity, "endTurnIdx")
    local map = ywidNewWidget(entity, "map")
 
-   ywidBind(map, "action", "snakeAction")
+   ywidBind(map, "action", "snake:snakeAction")
    yeSetAt(ygGetMod("snake"), "score", 0)
-   --ywidAddSignal(map, "loose");
    return map
 end
 
@@ -263,10 +258,12 @@ function snakeWarp(wid, useless1, arg)
 end
 
 function initSnake(entity)
-   ywidAddCallback(ywidCreateCallback("snakeAction", action))
-   ywidAddCallback(ywidCreateCallback("snakeDie", die))
-   ywidAddCallback(ywidCreateCallback("snakeWarp", warp))
+   yeCreateFunction("snakeAction", entity, nil)
+   yeCreateFunction("snakeDie", entity, nil)
+   yeCreateFunction("snakeWarp", entity)
+
    local init = yeCreateArray(nil, nil)
+
    yeCreateString("snake", init, "name")
    yeCreateFunction("createSnake", init, "callback")
    ywidAddSubType(init)

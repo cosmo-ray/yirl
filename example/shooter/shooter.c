@@ -160,7 +160,7 @@ static void shooterSpamBullet(YWidgetState *wid, int x, int y)
   ywMapPushElem(wid, bulletSprite, pos, "bl");
 }
 
-static int shooterActionInt(YWidgetState *wid, YEvent *eve, Entity *arg)
+static int shooterActionInt(YWidgetState *wid, YEvent *eve)
 {
   InputStatue ret = NOTHANDLE;
 
@@ -200,7 +200,7 @@ static int shooterActionInt(YWidgetState *wid, YEvent *eve, Entity *arg)
     /* exit */
   case 'q':
     sound_stop("42");
-    ywidCallCallbackByStr("FinishGame", wid, eve, arg);
+    ygCall0(NULL, "FinishGame");
     goto end_switch;
   end_switch:
     ret = ACTION;
@@ -210,25 +210,32 @@ static int shooterActionInt(YWidgetState *wid, YEvent *eve, Entity *arg)
   return ret;
 }
 
-int shooterAction(YWidgetState *wid, YEvent *eve, Entity *arg)
+void *shooterAction(va_list ap)
 {
+  //YWidgetState *wid, YEvent *eve, Entity *arg
+  YWidgetState *wid = va_arg(ap, YWidgetState *);
+  YEvent *eve = va_arg(ap, YEvent *);
+
   shooterHandleBullets(wid);
   YEvent *curEve;
 
   YEVE_FOREACH(curEve, eve) {
-    shooterActionInt(wid, curEve, arg);
+    shooterActionInt(wid, curEve);
   }
-  return ACTION;
+  return (void *)ACTION;
 }
 
-int shooterInit(YWidgetState *wid, YEvent *eve, Entity *arg)
+void *shooterInit(va_list ap)
 {
+  YWidgetState *wid = va_arg(ap, YWidgetState *);
+  Entity *arg;
   Entity *tmp;
   Entity *pos;
 
+  va_arg(ap, YEvent *);
+  arg = va_arg(ap, Entity *);
   sound_play_loop("42", "BlablablaMrFreeman.mp3");
 
-  (void)eve;
   yeCreateInt(MAP_SIZE_W, arg, "width");
   if (!(pos = yeGet(arg, "pos")))
     pos = ywPosCreate(0, 0, arg, "pos");
@@ -244,8 +251,8 @@ int shooterInit(YWidgetState *wid, YEvent *eve, Entity *arg)
   tmp = ywMapGetCase(wid, pos);
   yeCreateInt(1, tmp, "hr");
 
-  ywinAddCallback(ywinCreateNativeCallback("shooterAction", shooterAction));
-  ywidBind(wid, "action", "shooterAction");
+  ysRegistreFunc(ysNativeManager(), "shooterAction", shooterAction);
+  ygBind(wid, "action", "shooterAction");
 
-  return NOTHANDLE;
+  return (void *)NOTHANDLE;
 }

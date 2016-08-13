@@ -25,13 +25,12 @@
 #include "sdl-driver.h"
 #include "menu.h"
 #include "widget-callback.h"
+#include "native-script.h"
 
-static int testMenuEnter(YWidgetState *wid, YEvent *eve, Entity *arg)
+static void *testMenuEnter(va_list ap)
 {
-  (void)wid;
-  (void)eve;
-  (void)arg;
-  return ACTION;
+  (void)ap;
+  return (void *)ACTION;
 }
 
 #ifdef WITH_CURSES
@@ -43,8 +42,8 @@ void testYWMenuCurses(void)
   YWidgetState *wid;
 
   /* load files */
-  g_assert(ywidInitCallback() >= 0);
-  ywinAddCallback(ywinCreateNativeCallback("menuTest", testMenuEnter));
+  ysRegistreFunc(ysNativeManager(), "menuTest", testMenuEnter);
+
   g_assert(t != -1);
   g_assert(ydJsonGetType() == t);
   jsonManager = ydNewManager(t);
@@ -76,7 +75,6 @@ void testYWMenuCurses(void)
   ycursDestroy();
   /* end libs */
   YE_DESTROY(ret);
-  ywidFinishCallbacks();
 }
 #endif
 
@@ -88,9 +86,9 @@ void testYWMenuSdl2(void)
   Entity *ret;
   YWidgetState *wid;
 
+  ysRegistreFunc(ysNativeManager(), "menuTest", testMenuEnter);
+
   /* load files */
-  ywidInitCallback();
-  ywinAddCallback(ywinCreateNativeCallback("menuTest", testMenuEnter));
   g_assert(t != -1);
   g_assert(ydJsonGetType() == t);
   jsonManager = ydNewManager(t);
@@ -123,6 +121,5 @@ void testYWMenuSdl2(void)
   ysdl2Destroy();
   /* end libs */
   YE_DESTROY(ret);
-  ywidFinishCallbacks();
 }
 #endif

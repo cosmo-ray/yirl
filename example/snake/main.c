@@ -19,7 +19,7 @@ int main(void)
   GameConfig cfg;
 
   yuiDebugInit(); //Can not be init twice :)
-  TRY_OR_DIE(ygInitGameConfig(&cfg, gamePath, CURSES), -1);
+  TRY_OR_DIE(ygInitGameConfig(&cfg, gamePath, SDL2), -1);
   TRY_OR_DIE(ygInit(&cfg), die(-1, &cfg));
   TRY_OR_DIE(ygStartLoop(&cfg), die(-1, &cfg));
   return die(0, &cfg);

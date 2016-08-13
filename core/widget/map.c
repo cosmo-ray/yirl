@@ -143,7 +143,6 @@ int ywMapGetIdByElem(Entity *mapElem)
 
 int ywMapInit(void)
 {
-  ywidInitCallback();
   if (t != -1)
     return t;
 

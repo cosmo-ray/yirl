@@ -199,7 +199,7 @@ function snakeAction(wid, eve, arg)
    while ywidEveIsEnd(eve) == false do
       if ywidEveType(eve) == YKEY_DOWN then
 	 if ywidEveKey(eve) == Q_KEY then
-	    ywidCallCallbackByStr("FinishGame", wid, eve, false)
+	    ygCall(nil, "FinishGame")
 	 elseif ywidEveKey(eve) == Y_UP_KEY
 	    or ywidEveKey(eve) == Y_DOWN_KEY
 	    or ywidEveKey(eve) == Y_RIGHT_KEY
@@ -222,12 +222,10 @@ function initSnake(entity)
    -- TODO: this functions: C/lua
    local mapEntity = snakeMap(entity)
    local map = ywidNewWidget(mapEntity)
-   local action = yeCreateFunction("snakeAction", 3, entity, "snakeAction")
-   local menuInit = yeCreateFunction("scoreInit", 3, entity, "scoreInit")
+   local action = yeCreateFunction("snakeAction", entity)
+   local menuInit = yeCreateFunction("scoreInit", entity)
 
    yuiRandInit()
-   ywidAddCallback(ywidCreateCallback("snakeAction", action))
-   ywidAddCallback(ywidCreateCallback("scoreInit", menuInit))
-   ywidBind(map, "action", "snakeAction")
+   ywidBind(map, "action", "snake:snakeAction")
    ywidSetMainWid(map, 0)
 end

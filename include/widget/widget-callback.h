@@ -20,28 +20,6 @@
 
 #include "widget.h"
 
-typedef enum {
-  YCALLBACK_NATIVE = 0,
-  YCALLBACK_ENTITY,
-  YCALLBACK_NONE
-} YCallbackType;
-
-typedef struct {
-  char *name;
-  /* Can be a entity script to call, or a native func from a widget */
-  int type;
-} YCallback;
-
-typedef struct {
-  YCallback base;
-  int (*callack)(YWidgetState *wid, YEvent *eve, Entity *arg);
-} YNativeCallback;
-
-typedef struct {
-  YCallback base;
-  Entity *callback;
-} YEntityCallback;
-
 #define ywidAddSignal(WID, VALUE)					\
   _Generic((WID),							\
 	   YWidgetState *: ywidAddSignalByWid,				\
@@ -52,45 +30,10 @@ int ywidAddSignalByEntity(Entity *wid, const char *name);
 
 void ywidFinishSignal(YWidgetState *wid);
 
-int ywidBind(YWidgetState *wid, const char *signal, const char *callback);
-int ywidBindBySinIdx(YWidgetState *wid, int, const char *callback);
+int ywidBind(YWidgetState *wid, const char *signal, Entity *callback);
+int ywidBindBySinIdx(YWidgetState *wid, int, Entity *callback);
 
-int ywinAddCallback(YCallback *callback);
-
-YCallback *ywinCreateNativeCallback(const char *name,
-				    int (*callack)(YWidgetState *wid,
-						   YEvent *eve, Entity *arg));
-
-/**
- * Create a callback from an entity.
- *
- * @callback: the functions entity use as a callback
- */
-YCallback *ywinCreateEntityCallback(const char *name,
-				    Entity *callback);
-
-void ywidDdestroyCallback(int idx);
-
-int ywidInitCallback(void);
-
-void ywidFinishCallbacks(void);
-
-YCallback * ywinGetCallbackByIdx(int idx);
-
-YCallback *ywinGetCallbackByStr(const char *str);
-
-int ywidCallSignal(YWidgetState *wid, YEvent *eve, Entity *arg, int idx);
-
-int ywidCallCallback(YCallback *callback, YWidgetState *wid,
-		     YEvent *eve, Entity *arg);
-
-int ywidCallCallbackByIdx(YWidgetState *wid, YEvent *eve, Entity *arg, int idx);
-
-static inline int ywidCallCallbackByStr(const char *str,
-					YWidgetState *wid,
-					YEvent *eve, Entity *arg)
-{
-  return ywidCallCallback(ywinGetCallbackByStr(str), wid, eve, arg);
-}
+InputStatue ywidCallSignal(YWidgetState *wid, YEvent *eve,
+			   Entity *arg, int idx);
 
 #endif

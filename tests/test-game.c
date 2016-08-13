@@ -19,40 +19,42 @@
 #include "game.h"
 #include "utils.h"
 #include "widget-callback.h"
+#include "native-script.h"
 
 static const char *testPath = "./testMod"; 
 
 #define MAP_SIZE_W 5
 #define MAP_SIZE_H 5
 
-static int shooterAction(YWidgetState *wid, YEvent *eve, Entity *arg)
+static void *shooterAction(va_list ap)
 {
+  va_arg(ap, YWidgetState *);
+  YEvent *eve = va_arg(ap, YEvent *);
   InputStatue ret = NOTHANDLE;
 
-  (void)wid;
-  (void)arg;
   if (!eve)
     return NOTHANDLE;
   if (eve->key == '\t' || eve->key == 'q') {
-    ywidCallCallbackByStr("FinishGame", wid, eve, arg);
+    ygCall0(NULL, "FinishGame");
     ret = ACTION;
   }
 
-  return ret;
+  return (void *)ret;
 }
 
-static int shooterInit(YWidgetState *wid, YEvent *eve, Entity *arg)
+static void *shooterInit(va_list ap)
 {
-  (void)wid;
-  (void)eve;
+  YWidgetState *wid = va_arg(ap, YWidgetState *);
+  va_arg(ap, YEvent *);
+  Entity *arg = va_arg(ap, Entity *);
+
   yeCreateInt(MAP_SIZE_W, arg, "width");
   arg = yeCreateArray(arg, "map");
   for (int i = 0; i < MAP_SIZE_W * MAP_SIZE_H; ++i) {
     yeCreateInt(0, yeCreateArray(arg, NULL), NULL);
   }
-  ywinAddCallback(ywinCreateNativeCallback("shooterAction", shooterAction));
-  ywidBind(wid, "action", "shooterAction");
-  ywidCallCallbackByStr("shooterAction", wid, eve, arg);
+  ysRegistreNativeFunc("shooterAction", shooterAction);
+  ygBind(wid, "action", "shooterAction");
   return NOTHANDLE;
 }
 
@@ -60,8 +62,7 @@ void testYGameSdlLibBasic(void)
 {
   GameConfig cfg;
 
-  g_assert(ywidInitCallback() >= 0);
-  ywinAddCallback(ywinCreateNativeCallback("shooterInit", shooterInit));
+  ysRegistreNativeFunc("shooterInit", shooterInit);
   g_assert(!ygInitGameConfig(&cfg, testPath, SDL2));
   g_assert(!ygInit(&cfg));
   g_assert(!ygStartLoop(&cfg));
@@ -76,7 +77,7 @@ void testYGameAllLibBasic(void)
 
   g_assert(!ygInitGameConfig(&cfg, testPath, ALL));
   g_assert(!ygInit(&cfg));
-  ywinAddCallback(ywinCreateNativeCallback("shooterInit", shooterInit));
+  ysRegistreNativeFunc("shooterInit", shooterInit);
   g_assert(!ygStartLoop(&cfg));
   ygCleanGameConfig(&cfg);
   ygEnd();

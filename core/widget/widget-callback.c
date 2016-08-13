@@ -20,89 +20,6 @@
 #include "entity-script.h"
 #include <glib.h>
 
-static Entity *callbacks = NULL;
-
-static inline void ywidDdestroyCallbackInt(YCallback *callback)
-{
-  if (callback) {
-    g_free(callback->name);
-    g_free(callback);
-  }
-}
-
-static void callbackDestroy(void *callback)
-{
-  return ywidDdestroyCallbackInt(callback);
-}
-
-int ywidInitCallback(void)
-{
-  if (callbacks)
-    return 0;
-  callbacks = yeCreateArray(NULL, NULL);
-  return (callbacks == NULL) * -1;
-}
-
-void ywidFinishCallbacks(void)
-{
-  YE_DESTROY(callbacks);
-  callbacks = NULL;
-}
-
-int ywidCallCallback(YCallback *callback, YWidgetState *wid,
-		     YEvent *eve, Entity *arg)
-{
-  if (!callback)
-    return -1;
-  switch (callback->type) {
-  case YCALLBACK_NATIVE:
-    return ((YNativeCallback *)callback)->callack(wid, eve, arg);
-  case YCALLBACK_ENTITY:
-    return (long)yesCall(((YEntityCallback *)callback)->callback, wid, eve, arg);
-  default:
-    break;
-  }
-  return -1;
-}  
-
-
-int ywidCallCallbackByIdx(YWidgetState *wid, YEvent *eve, Entity *arg, int idx)
-{
-  return ywidCallCallback(ywinGetCallbackByIdx(idx), wid, eve, arg);
-}
-
-
-YCallback *ywinCreateEntityCallback(const char *name,
-				    Entity *callback)
-{
-  YEntityCallback *ret = g_new(YEntityCallback, 1);
-
-  if (!ret)
-    return NULL;
-  ret->base.type = YCALLBACK_ENTITY;
-  ret->base.name = g_strdup(name);
-  if (!ret->base.name)
-    return NULL;
-  ret ->callback = callback;
-  return (YCallback *)ret;
-}
-
-YCallback *ywinCreateNativeCallback(const char *name,
-				    int (*callack)(YWidgetState *wid,
-						   YEvent *eve, Entity *arg))
-{
-  YNativeCallback *ret = g_new(YNativeCallback, 1);
-
-  if (!ret)
-    return NULL;
-  ret->base.type = YCALLBACK_NATIVE;
-  ret->base.name = g_strdup(name);
-  if (!ret->base.name)
-    return NULL;
-  ret ->callack = callack;
-  return (YCallback *)ret;
-}
-
 int ywidAddSignalByEntity(Entity *wid, const char *name)
 {
   int64_t idx;
@@ -125,73 +42,28 @@ int ywidAddSignalByWid(YWidgetState *wid, const char *name)
   return idx;
 }
 
-static unsigned int getCallbackIdx(const char *str)
-{
-  unsigned int ret = yeArrayIdx(callbacks, str);
-  return ret;
+int ywidBindBySinIdx(YWidgetState *wid, int idx, Entity *callback)
+{ 
+  if (callback)
+    return yeReplace(wid->signals, yeGet(wid->signals, idx), callback);
+  return -1;
 }
 
-int ywidBindBySinIdx(YWidgetState *wid, int idx, const char *callback)
+int ywidBind(YWidgetState *wid, const char *signal, Entity *callback)
 {
-  Entity *sin = yeGet(wid->signals, idx);
-  int ret;
-
-  if (!sin || !callback)
-    return -1;
-  ret = getCallbackIdx(callback);
-  yeSetInt(sin, ret);
-  if (ret < 0)
-    return -1;
-  return 0;
+  if (callback) {
+    int ret = yeReplace(wid->signals, yeGet(wid->signals, signal), callback);
+    return ret;
+  }
+  return -1;
 }
 
-int ywidBind(YWidgetState *wid, const char *signal, const char *callback)
+InputStatue ywidCallSignal(YWidgetState *wid,
+			   YEvent *eve,
+			   Entity *arg,
+			   int idx)
 {
-  Entity *sin;
-
-  if (!wid)
-    return -1;
-  sin = yeGet(wid->signals, signal);
-  if (!sin || !callback)
-    return -1;
-  yeSetInt(sin, getCallbackIdx(callback));
-  return 0;
-}
-
-int ywidCallSignal(YWidgetState *wid, YEvent *eve, Entity *arg, int idx)
-{
-  Entity *signal;
-
-  if (idx < 0 || !wid)
-    return -1;
-
-  signal = yeGet(wid->signals, idx);
-  if (!signal || yeGetInt(signal) < 0)
-    return NOTHANDLE;
-  return ywidCallCallbackByIdx(wid, eve, arg, yeGetInt(signal));
-}
-
-
-int ywinAddCallback(YCallback *callback)
-{
-  Entity *tmp = yeCreateData(callback, callbacks, callback->name);
-  yeSetDestroy(tmp, callbackDestroy);
-  return 0;
-}
-
-YCallback * ywinGetCallbackByIdx(int idx)
-{
-  return yeGetData(yeGet(callbacks, idx));
-}
-
-YCallback *ywinGetCallbackByStr(const char *str)
-{
-  return yeGetData(yeGet(callbacks, str));
-}
-
-void ywidDdestroyCallback(int idx)
-{
-  yeDestroy(yeGet(callbacks, idx));
+  return (InputStatue)yesCall(yeGet(wid->signals, idx), wid, eve, arg);
 }
 
 void ywidFinishSignal(YWidgetState *wid)
