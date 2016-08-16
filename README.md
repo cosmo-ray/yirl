@@ -4,6 +4,8 @@ YIRL is a WIP,
 This README is a WIP.
 Don't expect to get something functional for now.
 
+YIRL is a game engine aiming to be fully configurable, fully scriptable and mod friendly.
+
 # Concept:
 The idea behind yirl is to give to the user some basic tools and widgets that everyone can reuse or warp into more complex widgets.
 We can see yirl as a CMS for video game:
