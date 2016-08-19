@@ -10,7 +10,7 @@
 	    "as" : "resources-global"
 	},
 	{
-	    "file" : "../modules/sukeban-screen/",
+	    "file" : "../../modules/sukeban-screen/",
 	    "type" : "module"
 	}
     ]

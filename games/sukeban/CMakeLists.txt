@@ -1,4 +1,4 @@
-add_definitions( -DSUKEBAN_PATH="${CMAKE_SOURCE_DIR}/sukeban" )
+add_definitions( -DSUKEBAN_PATH="${CMAKE_SOURCE_DIR}/games/sukeban" )
 
 set (SOURCE main.c)
 
