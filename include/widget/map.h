@@ -44,28 +44,28 @@ int ysdl2RegistreMap(void);
 
 int ywMapHasChange(YWidgetState *state);
 
-static inline int ywMapW(YWidgetState *state)
+static inline int ywMapW(Entity *state)
 {
-  return yeGetInt(yeGet(state->entity, "width"));
+  return yeGetInt(yeGet(state, "width"));
 }
 
-static inline int ywMapH(YWidgetState *state)
+static inline int ywMapH(Entity *state)
 {
-  return yeLen(yeGet(state->entity, "map")) / ywMapW(state);
+  return yeLen(yeGet(state, "map")) / ywMapW(state);
 }
 
 int ywMapGetIdByElem(Entity *mapElem);
 
-Entity *ywMapGetCase(YWidgetState *state, Entity *pos);
+Entity *ywMapGetCase(Entity *state, Entity *pos);
 
-Entity *ywMapPosFromInt(YWidgetState *wid, int newPos,
+Entity *ywMapPosFromInt(Entity *wid, int newPos,
 			Entity *father, const char *name);
-int ywMapIntFromPos(YWidgetState *wid, Entity *pos);
+int ywMapIntFromPos(Entity *wid, Entity *pos);
 
-Entity *ywMapPushElem(YWidgetState *state, Entity *toPush,
-		  Entity *pos, const char *name);
+Entity *ywMapPushElem(Entity *state, Entity *toPush,
+		      Entity *pos, const char *name);
 
-Entity *ywMapPushNbr(YWidgetState *state, int toPush,
+Entity *ywMapPushNbr(Entity *state, int toPush,
 		     Entity *pos, const char *name);
 
 static inline Entity *ywMapGetResources(YWidgetState *state)
@@ -73,7 +73,7 @@ static inline Entity *ywMapGetResources(YWidgetState *state)
   return ((YMapState *)state)->resources;
 }
 
-static inline void ywMapRemoveByEntity(YWidgetState *state, Entity *pos,
+static inline void ywMapRemoveByEntity(Entity *state, Entity *pos,
 				       Entity *elem)
 {
   Entity *cur = ywMapGetCase(state, pos);
@@ -84,7 +84,7 @@ static inline void ywMapRemoveByEntity(YWidgetState *state, Entity *pos,
   yeRemoveChild(cur, elem);
 }
 
-static inline void ywMapRemoveByStr(YWidgetState *state, Entity *pos,
+static inline void ywMapRemoveByStr(Entity *state, Entity *pos,
 				    const char *str)
 {
   Entity *cur = ywMapGetCase(state, pos);
@@ -103,7 +103,7 @@ static inline void ywMapRemoveByStr(YWidgetState *state, Entity *pos,
 	  char *: ywMapRemoveByStr) (sate, pos, elem)
 
 
-static inline int ywMapMoveByStr(YWidgetState *state, Entity *from,
+static inline int ywMapMoveByStr(Entity *state, Entity *from,
 				 Entity *to, const char *elem)
 {
   Entity *cur = ywMapGetCase(state, from);
@@ -119,7 +119,7 @@ static inline int ywMapMoveByStr(YWidgetState *state, Entity *from,
   return 0;
 }
 
-static inline int ywMapMoveByEntity(YWidgetState *state, Entity *from,
+static inline int ywMapMoveByEntity(Entity *state, Entity *from,
 				    Entity *to, Entity *elem)
 {
   YE_INCR_REF(elem);

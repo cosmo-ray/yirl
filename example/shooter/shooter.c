@@ -36,16 +36,16 @@ static inline int isOut(YWidgetState *wid, Entity *pos)
   if (posX < 0) {
     yeSetInt(entX, 0);
     return OUT_LEFT;
-  } else if (posX > ywMapW(wid) - 1) {
-    yeSetInt(entX, ywMapW(wid) - 1);
+  } else if (posX > ywMapW(wid->entity) - 1) {
+    yeSetInt(entX, ywMapW(wid->entity) - 1);
     return OUT_RIGHT;
   }
 
   if (posY < 0) {
     yeSetInt(entY, 0);
     return OUT_TOP;
-  } else if (posY > ywMapH(wid) - 1) {
-    yeSetInt(entY, ywMapH(wid) - 1);
+  } else if (posY > ywMapH(wid->entity) - 1) {
+    yeSetInt(entY, ywMapH(wid->entity) - 1);
     return OUT_BOTOM;
   }
   return 0;
@@ -57,7 +57,7 @@ static int removeBullet(YWidgetState *wid, Entity *obj)
   Entity *id = yeGet(obj, "id");
   Entity *pos = yeGet(obj, "pos");
 
-  ywMapRemove(wid, pos, id);
+  ywMapRemove(wid->entity, pos, id);
   yeRemoveChild(bulletManager, obj);
   return 0;
 }
@@ -66,7 +66,7 @@ static int move(YWidgetState *wid, Entity *obj, Entity *dir)
 {
   Entity *id = yeGet(obj, "id");
   Entity *pos = yeGet(obj, "pos");
-  Entity *cur = ywMapGetCase(wid, pos);
+  Entity *cur = ywMapGetCase(wid->entity, pos);
   Entity *posX = yeGet(pos, "x");
   Entity *posY = yeGet(pos, "y");
   int ret = isOut(wid, pos);
@@ -77,7 +77,7 @@ static int move(YWidgetState *wid, Entity *obj, Entity *dir)
   yeRemoveChild(cur, id);
   yeAddEnt(posX, yeGet(dir, "x"));
   yeAddEnt(posY, yeGet(dir, "y"));
-  ywMapPushElem(wid, id, pos, "bl");
+  ywMapPushElem(wid->entity, id, pos, "bl");
   return 0;
 }
 
@@ -101,7 +101,7 @@ static int shooterHandleBullets(YWidgetState *wid)
 static void moveMainCaracter(YWidgetState *wid, int x, int y)
 {
   Entity *pos = yeGet(wid->entity, "pos");
-  Entity *cur = ywMapGetCase(wid, pos);
+  Entity *cur = ywMapGetCase(wid->entity, pos);
   Entity *posX = yeGet(pos, "x");
   Entity *posY = yeGet(pos, "y");
 
@@ -115,14 +115,14 @@ static void moveMainCaracter(YWidgetState *wid, int x, int y)
 
       if (yeGetInt(posX) < 0)
 	yeSetInt(posX, 0);
-      else if (yeGetInt(posX) >= ywMapW(wid) - 1)
-	yeSetInt(posX, ywMapW(wid) - 1);
+      else if (yeGetInt(posX) >= ywMapW(wid->entity) - 1)
+	yeSetInt(posX, ywMapW(wid->entity) - 1);
       if (yeGetInt(posY) < 0)
 	yeSetInt(posY, 0);
-      else if (yeGetInt(posY) >= ywMapH(wid) - 1)
-	yeSetInt(posY, ywMapH(wid) - 1);
+      else if (yeGetInt(posY) >= ywMapH(wid->entity) - 1)
+	yeSetInt(posY, ywMapH(wid->entity) - 1);
 
-      ywMapPushElem(wid, curHero, pos, "hr");
+      ywMapPushElem(wid->entity, curHero, pos, "hr");
       yeRemoveChild(cur, curHero);
       break;
     }
@@ -157,7 +157,7 @@ static void shooterSpamBullet(YWidgetState *wid, int x, int y)
   ywPosCreate(x, y, bullet, "speedAndDir");
   yePushBack(bullet, bulletSprite, "id");
 
-  ywMapPushElem(wid, bulletSprite, pos, "bl");
+  ywMapPushElem(wid->entity, bulletSprite, pos, "bl");
 }
 
 static int shooterActionInt(YWidgetState *wid, YEvent *eve)
@@ -248,7 +248,7 @@ void *shooterInit(va_list ap)
   yeSetInt(yeGet(pos, "x"), MAP_SIZE_W / 2);
   yeSetInt(yeGet(pos, "y"), MAP_SIZE_H / 2);
 
-  tmp = ywMapGetCase(wid, pos);
+  tmp = ywMapGetCase(wid->entity, pos);
   yeCreateInt(1, tmp, "hr");
 
   ysRegistreFunc(ysNativeManager(), "shooterAction", shooterAction);

@@ -40,17 +40,17 @@ static int mapInit(YWidgetState *opac, Entity *entity, void *args)
   return 0;
 }
 
-Entity *ywMapPosFromInt(YWidgetState *wid, int pos,
+Entity *ywMapPosFromInt(Entity *wid, int pos,
 			Entity *father, const char *name)
 {
-  int w = yeGetInt(yeGet(wid->entity, "width"));
+  int w = yeGetInt(yeGet(wid, "width"));
 
   return ywPosCreate(pos % w, pos / w, father, name);
 }
 
-int ywMapIntFromPos(YWidgetState *wid, Entity *pos)
+int ywMapIntFromPos(Entity *wid, Entity *pos)
 {
-  int w = yeGetInt(yeGet(wid->entity, "width"));
+  int w = yeGetInt(yeGet(wid, "width"));
   int x = yeGetInt(yeGet(pos, 0));
   int y = yeGetInt(yeGet(pos, 1));
 
@@ -58,29 +58,29 @@ int ywMapIntFromPos(YWidgetState *wid, Entity *pos)
 }
 
 
-Entity *ywMapPushElem(YWidgetState *state, Entity *toPush,
+Entity *ywMapPushElem(Entity *state, Entity *toPush,
 		      Entity *pos, const char *name)
 {
   int ret = yePushBack(ywMapGetCase(state, pos), toPush, name);
   return ret ? toPush : NULL;
 }
 
-Entity *ywMapPushNbr(YWidgetState *state, int toPush,
+Entity *ywMapPushNbr(Entity *state, int toPush,
 		     Entity *pos, const char *name)
 {
   return yeCreateInt(toPush, ywMapGetCase(state, pos), name);
 }
 
-Entity *ywMapGetCase(YWidgetState *state, Entity *pos)
+Entity *ywMapGetCase(Entity *state, Entity *pos)
 {
-  Entity *map = yeGet(state->entity, "map");
-  int w = yeGetInt(yeGet(state->entity, "width"));
+  Entity *map = yeGet(state, "map");
+  int w = yeGetInt(yeGet(state, "width"));
   Entity *ret;
 
   ret = yeGet(map, yeGetInt(yeGet(pos, "x")) + (w * yeGetInt(yeGet(pos, "y"))));
   if (unlikely(!ret)) {
-    if (!state->entity)
-      DPRINT_ERR("state->entity is NULL");
+    if (!state)
+      DPRINT_ERR("entity is NULL");
     else if (!map)
       DPRINT_ERR("unable to get 'map'");
     else if (!w)

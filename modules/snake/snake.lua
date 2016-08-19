@@ -57,7 +57,7 @@ function addBody(wid, map, pos)
    local body = yeGet(map, "body")
 
    local tmp = ywPosCreate(pos, body)
-   ywMapPushNbr(wid, 3, pos, "bd");
+   ywMapPushNbr(map, 3, pos, "bd");
 end
 
 function addPeanut(map)
@@ -98,7 +98,7 @@ end
 
 function moveHeadInternal(wid, map, opos, npos)
    local mapElems = yeGet(map, "map")
-   local destCase = ywMapGetCase(wid, npos)
+   local destCase = ywMapGetCase(map, npos)
    local body = yeGet(map, "body")
    local bodyLen = yeLen(body)
    local head = yeGet(map, "head")
@@ -118,7 +118,7 @@ function moveHeadInternal(wid, map, opos, npos)
       ywidCallSignal(wid, score, nil, yeGetInt(yeGet(map, "eatIdx")))
    end
 
-   ywMapMove(wid, opos, npos, headElem)
+   ywMapMove(map, opos, npos, headElem)
 
    if bodyLen == 0 then
       yeReplaceBack(head, npos, "pos")
@@ -126,7 +126,7 @@ function moveHeadInternal(wid, map, opos, npos)
       return
    end
 
-   ywMapRemove(wid, yeGet(body, 0), "bd");
+   ywMapRemove(map, yeGet(body, 0), "bd");
    -- pop back tail body
 
    local i = 0
@@ -140,7 +140,7 @@ function moveHeadInternal(wid, map, opos, npos)
    end
 
    local headBody = yeGet(body, bodyLen - 1)
-   ywMapPushNbr(wid, 4, headBody, "bd")
+   ywMapPushNbr(map, 4, headBody, "bd")
    yeReplaceBack(head, npos, "pos")
    ywidCallSignal(wid, nil, nil, yeGetInt(yeGet(map, "endTurnIdx")))
    -- push first body
@@ -161,11 +161,11 @@ function moveHead(wid, map)
    -- check out of border
    if ywPosIsSameX(npos, -1) then
       hitWall(wid, map, opos, npos, 0)
-   elseif ywPosIsSameX(npos, ywMapW(wid)) then
+   elseif ywPosIsSameX(npos, ywMapW(map)) then
       hitWall(wid, map, opos, npos, 1)
    elseif (ywPosIsSameY(npos, -1)) then
       hitWall(wid, map, opos, npos, 2)
-   elseif (ywPosIsSameY(npos, ywMapH(wid))) then
+   elseif (ywPosIsSameY(npos, ywMapH(map))) then
       hitWall(wid, map, opos, npos, 3)
    else
       moveHeadInternal(wid, map, opos, npos)
@@ -246,12 +246,12 @@ function snakeWarp(wid, useless1, arg)
    if (dir == 3) then
       yeSetAt(npos, "y", 0)
    elseif (dir == 2) then
-      yeSetAt(npos, "y", ywMapH(wid) - 1)
+      yeSetAt(npos, "y", ywMapH(ent) - 1)
    elseif (dir == 1) then
       yeSetAt(npos, "x", 0)
       yeSetAt(npos, "y", yeGetInt(yeGet(opos, "y")))
    elseif (dir == 0) then
-      yeSetAt(npos, "x", ywMapW(wid) - 1)
+      yeSetAt(npos, "x", ywMapW(ent) - 1)
       yeSetAt(npos, "y", yeGetInt(yeGet(opos, "y")))
    end
    moveHeadInternal(wid, ent, opos, npos)
