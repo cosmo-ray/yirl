@@ -71,10 +71,16 @@ static void *nmMenuNext(va_list ap)
   next = yeGet(next, ((YMenuState *)wid)->current);
   next = yeGet(next, "next");
 
-  if (!next)
+  if (!next) {
+    DPRINT_ERR("unable to get next widget");
     return (void *)BUG;
-  if ((newWid = ywidNewWidget(next, NULL)) == NULL)
+  }
+
+  if ((newWid = ywidNewWidget(next, NULL)) == NULL) {
+    DPRINT_ERR("unable to create next widget");
     return (void *)BUG;
+  }
+
   ywidSetMainWid(newWid);
   return (void *)ACTION;
 }
