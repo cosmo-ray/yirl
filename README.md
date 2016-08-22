@@ -42,6 +42,7 @@ YIRL is licensed under the LGPL licence, the idea behind that, is that you can a
     * script.h: generic api for scripting manipulation
     * lua-script.h
     * tcc-script.h
+    * native-script.h: allow to create FunctionEntity from YIRL internal API
     * lua-binding.h: binding between yirl api and lua
     * block-array.h: yirl internal array use by ArrayEntity
     * sound.h: yirl abstract sound system
