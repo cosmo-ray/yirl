@@ -28,6 +28,7 @@ typedef struct {
   int (*loadFile)(void *opac, const char *fileName);
   int (* registreFunc)(void *opac, const char *name, void *arg);
   void *(*call)(void *opac, const char *name, va_list ap);
+  int (*addDefine)(void *opac, const char *name);
   const char *(*getError)(void *opac);
   int (*destroy)(void *opac);
 } YScriptOps;
@@ -40,6 +41,12 @@ void *ysCallInt(void *sm, const char *name, ...);
 #define ysCall0(sm, name) ysCallInt(sm, name, Y_END_VA_LIST)
 #define ysCall(sm, name, args...) ysCallInt(sm, name, args, Y_END_VA_LIST)
 
+static inline int ysAddDefine(void *sm, const char *name)
+{
+  if (!((YScriptOps *)sm)->addDefine)
+    return -1;
+  return ((YScriptOps *)sm)->addDefine(sm, name);
+}
 
 static inline void *ysVCall(void *sm, const char *name, va_list ap)
 {
