@@ -29,6 +29,13 @@
 
 typedef enum
   {
+    YRECALL_INIT = 0,
+    YRESET = 1,
+    YNOTHING = 2,
+  } RecreateLogic;
+
+typedef enum
+  {
     BUG = -1,
     NOTHANDLE = 0,
     NOACTION = 1,

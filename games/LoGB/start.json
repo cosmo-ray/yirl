@@ -1,0 +1,26 @@
+{
+    "name" : "logb",
+    "file" : "main.json",
+    "type" : "json",
+    "starting widget" : "main",
+    "init-scripts" : [
+	["tcc", "init"]
+    ],
+    "pre-load" : [
+	{
+	    "file" : "./resources.json",
+	    "type" : "json",
+	    "as" : "resources"
+	},
+	{
+	    "file" : "./battle.json",
+	    "type" : "json",
+	    "as" : "battle"
+	},
+	{
+	    "file" : "init.c",
+	    "type" : "tcc"
+	},
+
+    ]
+}

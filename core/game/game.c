@@ -92,10 +92,28 @@ void *ygTerminateCallback(va_list va)
   return (void *)ACTION;
 }
 
+static void *nextWid(va_list ap)
+{
+  YWidgetState *wid = va_arg(ap, YWidgetState *);
+  Entity *next = yeGet(wid->entity, "next");
+
+  printf("next wid\n");
+  if (!next) {
+    DPRINT_ERR("unable to get next widget");
+    return (void *)BUG;
+  }
+
+  if (ywidNext(next) < 0)
+    return (void *)BUG;
+  return (void *)ACTION;  
+}
+
 #define TO_RC(X) ((RenderConf *)(X))
 
 static void addNativeFuncToBaseMod(void)
 {
+  ysRegistreCreateNativeEntity(ygTerminateCallback, "FinishGame", baseMod, NULL);
+  ysRegistreCreateNativeEntity(nextWid, "callNext", baseMod, NULL);  
   yeCreateFunctionSimple("menuMove", ysNativeManager(), baseMod);
   yeCreateFunctionSimple("menuNext", ysNativeManager(), baseMod);
 }
@@ -127,7 +145,6 @@ int ygInit(GameConfig *cfg)
 
   /* Init widgets */
   baseMod = yeCreateArray(NULL, NULL);
-  ysRegistreCreateNativeEntity(ygTerminateCallback, "FinishGame", baseMod, NULL);
   addNativeFuncToBaseMod();
 
   CHECK_AND_GOTO(ywMenuInit(), -1, error, "Menu init failed");

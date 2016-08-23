@@ -84,7 +84,7 @@ typedef enum
     } while (0)
 
 
-    /* TODO: remove thers macros and do a static inline function  */
+    /* TODO: remove this macros and do a static inline function  */
 #define yeIncrRef YE_INCR_REF
 
 typedef enum {

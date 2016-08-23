@@ -17,6 +17,7 @@
 
 
 local Q_KEY = 113
+local L_KEY = 108
 
 function getLooseScreen(entity)
   return yeGet(yeGet(entity, "menus"), "LooseScreen")
@@ -27,14 +28,14 @@ function snakeMap(map)
    yeCreateInt(20, map, "width")
    yeCreateInt(0, map, "nbPeanut")
    --yeCreateString( "rgba: 180 210 20 50", map, "background")
-
+   print("newmap");
    local cases = yeCreateArray(map, "map")
 
    local i = 0
    while i < 20 * 20 do
-     local tmp = yeCreateArray(cases, NULL)
-     yeCreateInt(0, tmp, NULL)
-     i = i + 1
+     local tmp = yeCreateArray(cases)
+      yeCreateInt(0, tmp)
+      i = i + 1
    end
 
    -- pos head :)
@@ -103,6 +104,10 @@ function moveHeadInternal(wid, map, opos, npos)
    local headElem = yeGet(head, "elem")
    local dir = yeGet(head, "dir")
 
+   print("args", wid, map, opos, npos)
+   print("vars", mapElems, body, head, headElem, dir)
+   print("body len:", bodyLen)
+   print("----")
    if yeLen(destCase) > 1 then
       if (yeGetInt(yeGet(destCase, 1)) ~= 2) then
 	 ywidNext(yeGet(map, "next"))
@@ -202,9 +207,10 @@ function snakeAction(wid, eve, arg)
 	 elseif ywidEveKey(eve) == Y_UP_KEY
 	    or ywidEveKey(eve) == Y_DOWN_KEY
 	    or ywidEveKey(eve) == Y_RIGHT_KEY
-	    or ywidEveKey(eve) == Y_LEFT_KEY
-	 then
+	    or ywidEveKey(eve) == Y_LEFT_KEY then
 	    changeDir(map, eve)
+	 elseif ywidEveKey(eve) == L_KEY then
+	    ywidNext(yeGet(map, "next"))
 	 end
       end
       eve = ywidNextEve(eve)
@@ -214,6 +220,7 @@ end
 
 function createSnake(entity)
    -- TODO: this functions: C/lua
+   print("create snake")
    snakeMap(entity)
    yuiRandInit()
    yeCreateInt(ywidAddSignal(entity, "hitWall"),
@@ -222,17 +229,20 @@ function createSnake(entity)
 	       entity, "eatIdx")
    yeCreateInt(ywidAddSignal(entity, "endTurn"),
 	       entity, "endTurnIdx")
-   local map = ywidNewWidget(entity, "map")
 
-   ywidBind(map, "action", "snake:snakeAction")
    yeSetAt(ygGetMod("snake"), "score", 0)
-   yeCreateInt(1, entity, "recreate-logic")
    yeCreateFunction("reset", entity)
-   print("orig: ", yeToLuaString(entity))
-   print("-----------------------------")
+
+
    local bak = yeCreateArray()
    yeCopy(entity, bak)
    yePushBack(entity, bak, "initial-state");
+   yeDestroy(bak);
+
+   local map = ywidNewWidget(entity, "map")
+   yeCreateInt(1, entity, "recreate-logic")
+   ywidBind(map, "action", "snake:snakeAction")
+
    print("bak: ", yeToLuaString(bak))
    return map
 end
@@ -263,9 +273,23 @@ function snakeWarp(wid, useless1, arg)
    moveHeadInternal(wid, ent, opos, npos)
 end
 
+function reset(entity)
+   local bak = yeGet(entity, "initial-state")
+   yeIncrRef(bak)
+   print("------------- reset ---------------")
+   yeCopy(bak, entity)
+   print("entity: ", yeToLuaString(bak))
+   yePushBack(entity, bak, "initial-state")
+   local map = ywidNewWidget(entity, "map")
+   yeCreateInt(1, entity, "recreate-logic")
+   ywidBind(map, "action", "snake:snakeAction")
+   yeDestroy(bak)
+   return map
+end
+
 function initSnake(entity)
-   yeCreateFunction("snakeAction", entity, nil)
-   yeCreateFunction("snakeDie", entity, nil)
+   yeCreateFunction("snakeAction", entity)
+   yeCreateFunction("snakeDie", entity)
    yeCreateFunction("snakeWarp", entity)
 
    local init = yeCreateArray(nil, nil)

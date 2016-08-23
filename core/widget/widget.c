@@ -212,7 +212,8 @@ int ywidUnregiste(int t)
 
 
 static YWidgetState *ywidNewWidgetInternal(int t,
-					   Entity *entity)
+					   Entity *entity,
+					   int shouldInit)
 {
   YWidgetState *ret;
   Entity *pos = yeGet(entity, "wid-pos");
@@ -243,6 +244,7 @@ static YWidgetState *ywidNewWidgetInternal(int t,
 
   ret->actionIdx = ywidAddSignal(ret, "action");
 
+  
   /* Init widget */
   if (ret->init(ret, entity, NULL)) {
     DPRINT_ERR("fail durring init\n");
@@ -250,8 +252,9 @@ static YWidgetState *ywidNewWidgetInternal(int t,
   }
 
   /* Init sub widget */
-  if (initer)
+  if (shouldInit && initer) {
     yesCall(initer, ret, NULL, entity);
+  }
 
   ret->hasChange = 1;
   ret->shouldDraw = 1;
@@ -280,6 +283,8 @@ int ywidAddSubType(Entity *subType)
 
 YWidgetState *ywidNewWidget(Entity *entity, const char *type)
 {
+  Entity *recreateLogic;
+  int shouldInit = 1;
 
   if (!entity) {
     DPRINT_ERR("entity is NULL");
@@ -295,16 +300,30 @@ YWidgetState *ywidNewWidget(Entity *entity, const char *type)
     return NULL;
   }
 
-  YE_ARRAY_FOREACH(subTypes, tmpType) {
-    if (yuiStrEqual0(type, yeGetString(yeGet(tmpType, "name")))) {
-      return yesCall(yeGet(tmpType, "callback"), entity);
+  ;
+  if ((recreateLogic = yeGet(entity, "recreate-logic")) != NULL) {
+    switch (yeGetInt(recreateLogic)) {
+    case YRECALL_INIT:
+      break;
+    case YRESET:
+      return yesCall(yeGet(entity, "reset"), entity);
+    case YNOTHING:
+      shouldInit = 0;
+    }
+  }
+
+  if (shouldInit) {
+    YE_ARRAY_FOREACH(subTypes, tmpType) {
+      if (yuiStrEqual0(type, yeGetString(yeGet(tmpType, "name")))) {
+	return yesCall(yeGet(tmpType, "callback"), entity);
+      }
     }
   }
 
   for (int i = 0; i < 64; ++i) {
     if (widgetOptTab[i].name &&
 	yuiStrEqual(type, widgetOptTab[i].name)) {
-      return ywidNewWidgetInternal(i, entity);
+      return ywidNewWidgetInternal(i, entity, shouldInit);
     }
   }
   return NULL;

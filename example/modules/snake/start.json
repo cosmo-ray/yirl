@@ -3,6 +3,8 @@
     "file" : "menus.json",
     "type" : "json",
     "starting widget" : "AskReplay",
+    "as" : "scenes",
+    "starting widget" : "Snake",
     "pre-load" : [
 	{
 	    "file" : "../../../modules/snake/",

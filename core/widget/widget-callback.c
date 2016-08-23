@@ -28,7 +28,7 @@ int ywidAddSignalByEntity(Entity *wid, const char *name)
   if (!sin) {
     sin = yeCreateArray(wid, "signals");
   }
-  yeCreateInt(-1, sin, name);
+  yeReCreateInt(-1, sin, name);
   yeGetByStrExt(sin, name, &idx);
   return idx;
 }
@@ -37,7 +37,7 @@ int ywidAddSignalByWid(YWidgetState *wid, const char *name)
 {
   int64_t idx;
 
-  yeCreateInt(-1, wid->signals, name);
+  yeReCreateInt(-1, wid->signals, name);
   yeGetByStrExt(wid->signals, name, &idx);
   return idx;
 }
