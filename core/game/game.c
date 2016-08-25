@@ -299,6 +299,7 @@ Entity *ygLoadMod(const char *path)
   if (type) {
     if (yuiStrEqual(yeGetString(type), "json")) {
       char *fileStr = NULL;
+      const char *mod_name = "$main file";
 
       fileStr = g_strconcat(path, "/",
 			    yeGetString(file), NULL);
@@ -307,7 +308,9 @@ Entity *ygLoadMod(const char *path)
       if (!file) {
 	goto failure;
       }
-      yeRenamePtrStr(mod, file, "$main file");
+      if (yeGet(mod, "as"))
+	mod_name = yeGetString(yeGet(mod, "as"));
+      yeRenamePtrStr(mod, file, mod_name);
 
       starting_widget = yeGet(file, yeGetString(starting_widget));
     } else {
@@ -348,18 +351,18 @@ static Entity *ygGetFunc(Entity *mod, const char *funcName)
   return ret;
 }
 
-static int isNestedCallback(const char *str, char *modName, const char **funName)
+static int isNestedEntity(const char *str, char *modName, const char **entName)
 {
   uint32_t cpLen;
   
-  *funName = g_strrstr(str, ":");
-  if (!(*funName)) {
-    *funName = str; 
+  *entName = g_strrstr(str, ":");
+  if (!(*entName)) {
+    *entName = str; 
     return 0;
   }
-  *funName = *funName + 1;
+  *entName = *entName + 1;
 
-  cpLen = (*funName) - str - 1;
+  cpLen = (*entName) - str - 1;
   strncpy(modName, str, cpLen);
   modName[cpLen] = '\0';
   return 1;
@@ -375,7 +378,7 @@ Entity *ygGetFuncExt(const char *func)
 
   if (!func)
     return NULL;
-  ret = isNestedCallback(func, modName, &funcName);
+  ret = isNestedEntity(func, modName, &funcName);
   if (ret)
     tmp = modName;
   else
@@ -387,6 +390,25 @@ Entity *ygGetFuncExt(const char *func)
     return NULL;
   }
   return ygGetFunc(tmpMod, funcName);
+}
+
+Entity *ygGet(const char *toFind)
+{
+  char modName[254];
+
+  const char *funcName;
+  char *tmp;
+  intptr_t ret;
+  Entity *tmpMod;
+
+  if (!toFind)
+    return NULL;
+  ret = isNestedEntity(toFind, modName, &funcName);
+  tmp = modName;
+
+  // if not module give in toFind, use modList as base
+  tmpMod = ret ? ygGetMod(tmp) : modList;
+  return yeGetByStr(tmpMod, funcName);
 }
 
 int ygBindBySinIdx(YWidgetState *wid, int idx, const char *callback)

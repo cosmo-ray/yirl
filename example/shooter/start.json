@@ -19,5 +19,6 @@
     "name" : "shooter",
     "type" : "json",
     "file" : "shooter.json",
-    "starting widget" : "Menu"
+    "starting widget" : "Menu",
+    "as" : "shooter"
 }

@@ -21,7 +21,7 @@
 	"entries" : [
 	    {
 		"text" : "New Game",
-		"&next" : "MainMap",
+		"next" : "shooter:shooter.MainMap",
 		"action" : "menuNext",
 		"bg" : "hello.pnj"  // Not yet implemented :)
 	    },

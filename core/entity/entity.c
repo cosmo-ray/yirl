@@ -158,7 +158,7 @@ static Entity *yeGetByIdxFastWithEnd(Entity *entity, const char *name, int end)
 {
 
   Y_BLOCK_ARRAY_FOREACH_PTR(&YE_TO_ARRAY(entity)->values, tmp, it, ArrayEntry) {
-    if (strncmp(tmp->name, name, end))
+    if (!strncmp(tmp->name, name, end))
       return tmp->entity;
   }
   return NULL;
@@ -195,6 +195,20 @@ Entity *yeGetByStrExt(Entity *entity, const char *name, int64_t *idx)
   return NULL;
 }
 
+Entity *yeGetByStr(Entity *entity, const char *name)
+{
+  int	i;
+
+  if (unlikely(!entity)) {
+    DPRINT_INFO("can not find entity for %s\n", name);
+    return NULL;
+  }
+
+  i = findIdxPoint(name);
+  return (i != -1) ?
+    (yeGetByStr(yeGetByIdxFastWithEnd(entity, name, i), name + i + 1)) :
+    (yeGet(entity, name));
+}
 
 int yeArrayIdx(Entity *entity, const char *lookup)
 {
@@ -209,22 +223,6 @@ int yeArrayIdx(Entity *entity, const char *lookup)
   }
   return -1; 
   
-}
-
-
-Entity *yeGetByStr(Entity *entity, const char *name)
-{
-  int	i;
-
-  if (unlikely(!entity)) {
-    DPRINT_INFO("can not find entity for %s\n", name);
-    return NULL;
-  }
-
-  i = findIdxPoint(name);
-  return (i != -1) ?
-    (yeGet(yeGetByIdxFastWithEnd(entity, name, i), name + i + 1)) :
-    (yeGetByStrFast(entity, name));
 }
 
 Entity *yeCreateInt(int value, Entity *father, const char *name)

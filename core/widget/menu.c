@@ -76,6 +76,10 @@ static void *nmMenuNext(va_list ap)
     return (void *)BUG;
   }
 
+  if (yeType(next) == YSTRING) {
+    next = ygGet(yeGetString(next));
+  }
+
   if ((newWid = ywidNewWidget(next, NULL)) == NULL) {
     DPRINT_ERR("unable to create next widget");
     return (void *)BUG;
