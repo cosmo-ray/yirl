@@ -19,5 +19,6 @@
     "name" : "start",
     "type" : "json",
     "file" : "Menu.json",
-    "starting widget" : "MainMenu"
+    "starting widget" : "MainMenu",
+    "as" : "scenes"
 }

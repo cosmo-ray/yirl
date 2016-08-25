@@ -22,7 +22,8 @@
 	    {"text" : "choose 1"},
 	    {
 		"text" : "choose 2",
-		"&next" : "MapTest",
+		"next" : "start.scenes.MapTest",
+		// "next" : "start:scenes.MapTest" is the same
 		"action" : "menuNext",
 		"bg" : "hello.pnj"  // Not yet implemented :)
 	    },

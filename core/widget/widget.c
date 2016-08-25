@@ -82,9 +82,7 @@ int ywidNext(Entity *next)
     return -1;
   }
 
-  if (yeType(next) == YSTRING) {
-    next = ygGet(yeGetString(next));
-  }
+  next = ygGet(yeGetString(next));
 
   if ((newWid = ywidNewWidget(next, NULL)) == NULL) {
     DPRINT_ERR("fail when creating new widget");
