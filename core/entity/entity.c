@@ -403,16 +403,17 @@ Entity *yeCreate(EntityType type, void *val, Entity *father, const char *name)
   switch (type)
     {
     case YSTRING:
-      return (yeCreateString(val, father, name));
+      return yeCreateString(val, father, name);
     case YINT:
-      return (yeCreateInt(*((int *)val), father, name));
+      return yeCreateInt(*((int *)&val), father, name);
     case YFLOAT:
-      return (yeCreateFloat(*((double *)val), father, name));
+      return yeCreateFloat(*((double *)&val), father, name);
     case YARRAY:
-      return (yeCreateArray(father, name));
+      return yeCreateArray(father, name);
     case YDATA:
-      return (yeCreateData(val, father, name));
+      return yeCreateData(val, father, name);
     case YFUNCTION:
+      return yeCreateFunction(val, NULL, father, name);
     default:
       DPRINT_ERR( "%s generic constructor not yet implemented\n",
 		  yeTypeToString(type));
@@ -699,7 +700,7 @@ double	yeGetFloat(Entity *entity)
 
 Entity **yeFathers(Entity *entity)
 {
-  return (entity->fathers);
+  return entity->fathers;
 }
 
 Entity*		yeCopy(Entity* src, Entity* dest)
