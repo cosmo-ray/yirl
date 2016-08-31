@@ -395,6 +395,8 @@ void yeDestroyArray(Entity *entity)
 
 void yeDestroy(Entity *entity)
 {
+  if (unlikely(!entity))
+    return;
   destroyTab[entity->type](entity);
 }
 
