@@ -21,7 +21,6 @@
 #include <fcntl.h>
 
 #include <stdio.h>
-#include <utils.h>
 #include <entity.h>
 #include <widget.h>
 #include <game.h>

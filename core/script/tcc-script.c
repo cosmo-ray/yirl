@@ -46,6 +46,7 @@ static int tccInit(void *sm, void *args)
   tcc_add_sysinclude_path(l, "/usr/lib/tcc/include/");
   tcc_add_sysinclude_path(l, YIRL_INCLUDE_PATH "/widget");
   tcc_add_sysinclude_path(l, YIRL_INCLUDE_PATH "/core");
+  tcc_set_lib_path(l, TCC_LIB_PATH);
   return 0;
 }
 

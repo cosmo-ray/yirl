@@ -1,8 +1,9 @@
 cmake_minimum_required ( VERSION 2.8 )
 
 if( NOT TCC_LIB_PATH)
-  set (TCC_LIB_PATH /usr/lib/libtcc.a)
+  set (TCC_LIB_PATH /usr/lib/)
 endif()
+add_definitions( -DTCC_LIB_PATH="${TCC_LIB_PATH}" )
 
 if( NOT LUA_LIB_PATH)
   set (LUA_LIB_PATH lua)
