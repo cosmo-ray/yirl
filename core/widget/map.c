@@ -103,10 +103,7 @@ static int mapDestroy(YWidgetState *opac)
 
 static int mapRend(YWidgetState *opac)
 {
-  if (unlikely(!opac->hasChange))
-    return 0;
-
-  ywidGenericCall(opac, t, render);
+  ywidGenericRend(opac, t, render);
   return 0;
 }
 

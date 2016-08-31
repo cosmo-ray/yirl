@@ -58,7 +58,6 @@ static int sdlRender(YWidgetState *state, int t)
       /* color.a = 255; */
     }
   }
-  SDL_RenderPresent(sgRenderer());
   return 0;
 }
 

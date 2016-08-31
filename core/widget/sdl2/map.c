@@ -107,7 +107,6 @@ static int sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
     }
   }
 
-  SDL_RenderPresent(sgRenderer());
   return 0;
 }
 
@@ -149,7 +148,6 @@ static int sdl2FullRender(YWidgetState *state, SDLWid *wid, Entity *entity)
     }
   }
 
-  SDL_RenderPresent(sgRenderer());
   return 0;
 }
 

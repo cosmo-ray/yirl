@@ -64,10 +64,17 @@ SDL_Surface *wSurface(void)
   return (SDL_GetWindowSurface(sg.pWindow));
 }
 
+static int	sdlDraw(void)
+{
+  SDL_RenderPresent(sg.renderer);
+  return 0;
+}
+
 void	sdlDrawRect(SDL_Rect rect, SDL_Color color)
 {
   unsigned char r, g, b, a;
 
+  /* printf("drawing rect x:%d y:%d h:%d w:%d\n", rect.x, rect.y, rect.h, rect.w); */
   SDL_GetRenderDrawColor(sg.renderer, &r, &g, &b, &a);
   SDL_SetRenderDrawColor(sg.renderer, color.r, color.g, color.b, color.a);
   SDL_RenderFillRect(sg.renderer, &rect);
@@ -151,7 +158,7 @@ static inline YEvent *SDLConvertEvent(SDL_Event* event)
 {
   YEvent *eve = g_new0(YEvent, 1);
   
-  if (!event)
+  if (!event || !eve)
     return NULL;
   switch(event->type)
     {
@@ -240,8 +247,7 @@ int    ysdl2Init(void)
   // SDL_Rect   rect = sg.getRect();
 
   SDL_RenderClear(sg.renderer);
-  SDL_RenderPresent(sg.renderer);
-  type = ywidRegistreRender(sdlResize, SDLPollEvent, SDLWaitEvent);
+  type = ywidRegistreRender(sdlResize, SDLPollEvent, SDLWaitEvent, sdlDraw);
   return type;
 
  fail:

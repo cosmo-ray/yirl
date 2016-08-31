@@ -44,7 +44,7 @@ static int tsDestroy(YWidgetState *opac)
 
 static int tsRend(YWidgetState *opac)
 {
-  ywidGenericCall(opac, t, render);
+  ywidGenericRend(opac, t, render);
   return 0;
 }
 

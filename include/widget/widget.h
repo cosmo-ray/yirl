@@ -99,7 +99,8 @@ typedef struct WidgetState_ {
   Entity *signals;
   int type;
   int actionIdx;
-  unsigned int hasChange;
+  unsigned int hasChange : 1;
+  unsigned int shouldDraw : 1;
 } YWidgetState;
 
 /* struct which define what are common to every rendableWidget of the same type */
@@ -135,7 +136,8 @@ int ywidUnregiste(int t);
 
 int ywidRegistreRender(void (*resizePtr)(YWidgetState *wid, int renderType),
 		       YEvent *(*pollEvent)(void),
-		       YEvent *(*waitEvent)(void));
+		       YEvent *(*waitEvent)(void),
+		       int (*draw)(void));
 void ywidRemoveRender(int renderType);
 
 int ywidRegistreTypeRender(const char *type, int t,
@@ -154,6 +156,11 @@ static inline int ywidRend(YWidgetState *opac)
   return -1;
 }
 
+/**
+ * @brief interal function use to draw screen when the texture has been update
+ */
+int ywidDrawScreen(void);
+
 static inline int ywidHandleEvent(YWidgetState *opac, YEvent *event)
 {
   int ret = 0;
@@ -169,12 +176,18 @@ int ywidHandleAnim(YWidgetState *opac);
 
 int ywidDoTurn(YWidgetState *opac);
 
+
 #define ywidGenericCall(wid_, widType, func)				\
   YUI_FOREACH_BITMASK(widgetOptTab[widType].rendersMask,		\
 		      ywidGenericCallIt, useless_tmask) {		\
     widgetOptTab[widType].func[ywidGenericCallIt](wid_,			\
 						  ywidGenericCallIt);	\
   }
+
+#define ywidGenericRend(wid_, widType, func) do {	\
+    ywidGenericCall(wid_, widType, func);		\
+    if (wid_->shouldDraw) {ywidDrawScreen();}		\
+  } while (0);
 
 static inline int ywidType(void *opac)
 {

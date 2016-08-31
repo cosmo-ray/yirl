@@ -47,15 +47,12 @@ static int sdlRender(YWidgetState *state, int t)
 
   SDL_Rect      rect = wid->rect;
   SDL_RenderDrawRect(renderer, &rect);
-  SDL_RenderPresent(renderer);
 
   if (!sgDefaultFont()) {
     DPRINT_WARN("NO Font Set !");
     return 0;
   }
   sdlPrintText(wid, toPrint, CARACT_PER_LINE, color, 0, 0);
-
-  SDL_RenderPresent(renderer);
   return 0;
 }
 

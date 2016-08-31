@@ -28,7 +28,7 @@
 Entity *subTypes = NULL;
 
 static YManagerAllocator widgetTab = {
-  {NULL },
+  {NULL},
   0
 };
 
@@ -39,6 +39,7 @@ static uint64_t rendersMask = 0;
 struct renderOpt {
   YEvent *(*waitEvent)(void);
   YEvent *(*pollEvent)(void);
+  int (*draw)(void);
   void (*resizePtr) (YWidgetState *wid, int renderType);
 };
 
@@ -164,7 +165,6 @@ void ywidRemoveRender(int renderType)
     widgetOptTab[i].rendersMask ^= (1LLU << renderType);    
     widgetOptTab[i].init[renderType] = NULL;
     widgetOptTab[i].render[renderType] = NULL;
-    widgetOptTab[i].render[renderType] = NULL;
   }
 }
 
@@ -232,6 +232,7 @@ static YWidgetState *ywidNewWidgetInternal(int t,
     yesCall(initer, ret, NULL, entity);
 
   ret->hasChange = 1;
+  ret->shouldDraw = 1;
 
   ygBindBySinIdx(ret, ret->actionIdx, yeGetString(yeGet(entity, "action")));
 
@@ -317,13 +318,15 @@ int ywidRegistreTypeRender(const char *type, int renderType,
 
 int ywidRegistreRender(void (*resizePtr)(YWidgetState *wid, int renderType),
 		       YEvent *(*pollEvent)(void),
-		       YEvent *(*waitEvent)(void))
+		       YEvent *(*waitEvent)(void),
+		       int (*draw)(void))
 {
   YUI_FOREACH_BITMASK(~rendersMask, i, tmask) {
     rendersMask |= (1 << i);
     renderOpTab[i].resizePtr = resizePtr;
     renderOpTab[i].pollEvent = pollEvent;
     renderOpTab[i].waitEvent = waitEvent;
+    renderOpTab[i].draw = draw;
     return i;
   }
   return -1;
@@ -339,6 +342,19 @@ YEvent *ywidGenericPollEvent(void)
   }
   return NULL;
 }
+
+int ywidDrawScreen(void)
+{
+  YUI_FOREACH_BITMASK(rendersMask, i, tmask) {
+    int ret;
+
+    ret = renderOpTab[i].draw();
+    if (ret)
+      return ret;
+  }
+  return 0;
+}
+
 
 YEvent *ywidGenericWaitEvent(void)
 {

@@ -116,7 +116,7 @@ static int mnDestroy(YWidgetState *opac)
 
 static int mnRend(YWidgetState *opac)
 {
-  ywidGenericCall(opac, t, render);
+  ywidGenericRend(opac, t, render);
   opac->hasChange = 0;
   return 0;
 }

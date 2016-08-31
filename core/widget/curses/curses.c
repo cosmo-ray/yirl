@@ -26,6 +26,11 @@ int ycursType(void)
   return type;
 }
 
+static int CDraw(void)
+{
+  return 0;
+}
+
 int ycursInit(void)
 {
   if (type != -1)
@@ -37,7 +42,7 @@ int ycursInit(void)
   keypad(stdscr, TRUE);
   start_color();
   init_pair(1, COLOR_BLACK, COLOR_WHITE);
-  type = ywidRegistreRender(resize, CPollEvent, CWaitEvent);
+  type = ywidRegistreRender(resize, CPollEvent, CWaitEvent, CDraw);
   return type;
 }
 
