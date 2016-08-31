@@ -231,7 +231,7 @@ int    ysdl2Init(void)
   // Render for the main windows
   sg.renderer = SDL_CreateRenderer(sg.pWindow, -1, SDL_RENDERER_TARGETTEXTURE);
   if (!sg.renderer) {
-    DPRINT_ERR("Get render from window: %s\n", TTF_GetError());
+    DPRINT_ERR("Get render from window: %s\n", SDL_GetError());
     goto fail;
   }
 
