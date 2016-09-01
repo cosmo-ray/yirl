@@ -406,7 +406,7 @@ Entity *ygGet(const char *toFind)
   ret = isNestedEntity(toFind, modName, &funcName);
   tmp = modName;
 
-  // if not module give in toFind, use modList as base
+  // if no module give in toFind, use modList as base
   tmpMod = ret ? ygGetMod(tmp) : modList;
   return yeGetByStr(tmpMod, funcName);
 }

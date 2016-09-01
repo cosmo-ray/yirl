@@ -76,14 +76,25 @@ void ywidSetMainWid(YWidgetState *wid)
 int ywidNext(Entity *next)
 {
   YWidgetState *newWid;
+  const char *str = yeGetString(next);
 
   if (!next) {
     DPRINT_ERR("next is null");
     return -1;
   }
 
-  next = ygGet(yeGetString(next));
+  if (yeType(next) != YSTRING) {
+    DPRINT_ERR("next is of type %s, should be a sting",
+	       yeTypeToString(yeType(next)));
+    return -1;
+  }
 
+  next = ygGet(str);
+  if (!next) {
+    DPRINT_ERR("fail to retrive %s", str);
+    return -1;
+  }
+  
   if ((newWid = ywidNewWidget(next, NULL)) == NULL) {
     DPRINT_ERR("fail when creating new widget");
     return -1;
