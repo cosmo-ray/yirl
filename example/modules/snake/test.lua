@@ -15,10 +15,6 @@
 --along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
-local menuInit = yeCreateFunction("scoreInit", 3, nil, nil)
-
-ywidAddCallback(ywidCreateCallback("scoreInit", menuInit))
-
 function scoreInit(wid, eve, args)
    -- Get the score from the snake module
    local score = yeGet(ygGetMod("snake"), "score")

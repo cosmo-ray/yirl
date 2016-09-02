@@ -226,6 +226,13 @@ function createSnake(entity)
 
    ywidBind(map, "action", "snake:snakeAction")
    yeSetAt(ygGetMod("snake"), "score", 0)
+   yeCreateInt(1, entity, "recreate-logic")
+   yeCreateFunction("reset", entity)
+
+   local bak = yeCreateArray()
+   yeCopy(entity, bak)
+   yePushBack(entity, bak, "initial-state");
+   print("bak: ", yeToLuaString(bak))
    return map
 end
 

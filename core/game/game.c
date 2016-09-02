@@ -410,6 +410,7 @@ Entity *ygGet(const char *toFind)
 
   // if no module give in toFind, use modList as base
   tmpMod = ret ? ygGetMod(tmp) : modList;
+  printf("%p, %s\n", tmpMod, funcName);
   return yeGetByStr(tmpMod, funcName);
 }
 

@@ -36,6 +36,8 @@ union FatEntity {
 /* Globale array that store every entitys */
 static STACK_CREATE(freedElems, int64);
 static BlockArray entitysArray;
+static inline Entity *yeInit(Entity *entity, EntityType type,
+			     Entity *father, const char *name);
 
 #define YE_DECR_REF(entity) do {		\
     entity->refCount -= 1;		       	\
@@ -95,8 +97,6 @@ void (*destroyTab[])(Entity *) = {
 const char * EntityTypeStrings[] = { "int", "float", "string",
 				     "array", "function", "data"};
 
-static inline Entity *yeInit(Entity *entity, EntityType type,
-			     Entity *father, const char *name);
 
 /**
  * @param entity
@@ -547,8 +547,6 @@ static void yeAttachFather(Entity *entity, Entity *father)
   entity->nbFathers += 1;
 }
 
-static inline void yeAttachChild(Entity *on, Entity *entity,
-				 const char *name);
 
 static inline Entity *yeInitAt(Entity *entity, EntityType type,
 			       Entity *father, const char *name,
@@ -566,19 +564,6 @@ static inline Entity *yeInitAt(Entity *entity, EntityType type,
     if (!yeAttach(father, entity, at, name))
       YE_DECR_REF(entity);
   }
-  return entity;
-}
-
-
-static inline Entity *yeInit(Entity *entity, EntityType type,
-			     Entity *father, const char *name)
-{
-  if (unlikely(!entity))
-    return NULL;
-  /* printf("%u - %s\n", yBlockArrayLastPos(&entitysArray), name); */
-  entity->type = type;
-  entity->nbFathers = 0;
-  yeAttachChild(father, entity, name);
   return entity;
 }
 
@@ -617,6 +602,26 @@ static inline void yeAttachChild(Entity *on, Entity *entity,
   entry->name = g_strdup(name);
   yeAttachFather(entity, on);
   return;
+}
+
+/**
+ * Set basic information to the entity <entity>
+ * @param entity   the entity to set the basic informations
+ * @param name     the name to set
+ * @param type     the type of the entity
+ * @param fathers  the parent entity of <entity>
+ * @return the entity <entity>
+ */
+static inline Entity *yeInit(Entity *entity, EntityType type,
+			     Entity *father, const char *name)
+{
+  if (unlikely(!entity))
+    return NULL;
+  /* printf("%u - %s\n", yBlockArrayLastPos(&entitysArray), name); */
+  entity->type = type;
+  entity->nbFathers = 0;
+  yeAttachChild(father, entity, name);
+  return entity;
 }
 
 int yeAttach(Entity *on, Entity *entity,
@@ -744,13 +749,51 @@ Entity **yeFathers(Entity *entity)
   return entity->fathers;
 }
 
-Entity*		yeCopy(Entity* src, Entity* dest)
+static Entity*		yeCopyInternal(Entity* src, Entity* dest, Entity *used);
+
+static ArrayEntity	*yeCopyContener(ArrayEntity* src, ArrayEntity* dest, Entity *used)
+{
+  ArrayEntry *destElem;
+
+  if (src == NULL || dest == NULL)
+    return NULL;
+
+  printf("coping\n");
+  yeClearArray(YE_TO_ENTITY(dest));
+  yBlockArrayAssureBlock(&dest->values, yeLen(YE_TO_ENTITY(src)));
+  Y_BLOCK_ARRAY_FOREACH_PTR(src->values, elem, it, ArrayEntry) {
+    printf("choululu: %p\n", elem);
+
+    if (!elem || !elem->entity)
+      continue;
+    if (yeDoestInclude(used, elem->entity)) {
+      DPRINT_ERR("inifnit loop referance, at elem %s",
+		 elem->name ? elem->name : "(null)");
+      return NULL;
+    }
+    destElem = yBlockArrayGetPtr(&dest->values, it, ArrayEntry);
+    yBlockArraySet(&dest->values, it);
+    printf("choulala: %p\n", destElem);
+    destElem->entity = yeCreate(elem->entity->type, 0,
+				YE_TO_ENTITY(dest), elem->name);
+    if (!yeCopyInternal(elem->entity, destElem->entity, used)) {
+      DPRINT_ERR("fail to copy elem %s",
+		 elem->name ? elem->name : "(null)");
+      return NULL;
+    }
+  }
+  printf("yeLen: %ld\n", yeLen(YE_TO_ENTITY(dest)));
+  return dest;
+}
+
+static Entity*		yeCopyInternal(Entity* src, Entity* dest, Entity *used)
 {
   const char* strVal = NULL;
 
+  yePushBack(used, dest, NULL);
   if (src != NULL && dest != NULL
       && yeType(src) == yeType(dest)) {
-    DPRINT_INFO("\tentity are '%s'\n", yeTypeToString(yeType(src)));
+
     switch (yeType(src))
     {
     case YINT:
@@ -761,21 +804,19 @@ Entity*		yeCopy(Entity* src, Entity* dest)
       break;
     case YSTRING:
       strVal = yeGetString(src);
-      DPRINT_INFO("\t\tvalue is string \"%s\"\n",
-		  (strVal != NULL) ? strVal : "null");
       yeSetString(dest, strVal);
       break;
     case YARRAY:
-      yeCopyContener((ArrayEntity*)src, (ArrayEntity*)dest);
+      yeCopyContener((ArrayEntity*)src, (ArrayEntity*)dest, used);
       break;
     case YFUNCTION:
       strVal = yeGetFunction(src);
-      DPRINT_INFO("\t\tvalue is function '%s'\n", strVal);
       yeSetFunction(dest, strVal);
       YE_TO_FUNC(dest)->manager = YE_TO_FUNC(src)->manager;
       break;
     default:
-      DPRINT_ERR("type %s not handle", yeTypeToString(yeType(src)));
+      DPRINT_ERR("entity of type %s not handle",
+		 yeTypeToString(yeType(src)));
       goto error;
     }
     return dest;
@@ -784,23 +825,13 @@ Entity*		yeCopy(Entity* src, Entity* dest)
   return NULL;
 }
 
-ArrayEntity	*yeCopyContener(ArrayEntity* src, ArrayEntity* dest)
-  {
-    if (src == NULL || dest == NULL)
-      return NULL;
-
-    ArrayEntry *destElem;
-
-    Y_BLOCK_ARRAY_FOREACH_PTR(src->values, elem, it, ArrayEntry) {
-
-      yBlockArrayCopyElem(&dest->values, it, elem);
-
-      destElem = yBlockArrayGetPtr(&dest->values, it, ArrayEntry);
-      destElem->name = g_strdup(elem->name);
-      yeCopy(elem->entity, destElem->entity);
-    }
-    return dest;
-  }
+Entity*		yeCopy(Entity* src, Entity* dest)
+{
+  Entity *used = yeCreateArray(NULL, NULL);
+  Entity *ret = yeCopyInternal(src, dest, used);
+  yeDestroy(used);
+  return ret;
+}
 
 Entity *yeFindLink(Entity *array, const char *targetPath, int flag)
 {
@@ -892,7 +923,18 @@ int yeRenamePtrStr(Entity *array, Entity *ptr, const char *str)
   return 0;
 }
 
-  
+
+void yeIncrChildsRef(Entity *array)
+{
+  YE_ARRAY_FOREACH(array, child) {
+    if (!child)
+      continue;
+    yeIncrRef(child);
+    if (yeType(child) == YARRAY)
+      yeIncrChildsRef(child);
+  }
+}
+
 #undef YE_DECR_REF
 
 #undef YE_DESTROY_ENTITY

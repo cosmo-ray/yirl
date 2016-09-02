@@ -202,6 +202,7 @@ int	yeArrayIdx(Entity *array, const char *lookup);
  * @return the entity at the position of @index or NULL
  */
 Entity *yeGetByIdx(Entity *entity, size_t index);
+
 static inline Entity *yeGetByIdxDirect(Entity *entity, size_t index)
 {
   return yBlockArrayGet(&YE_TO_ARRAY(entity)->values, index, ArrayEntry).entity;
@@ -317,6 +318,7 @@ void yeClearArray(Entity *entity);
 
 
 #define yeSetIntDirect(entity, value_) (((IntEntity *)entity)->value = (value_))
+
 /**
  * @parap entity
  * @param value
@@ -357,7 +359,6 @@ void	yeSetFunction(Entity *entity, const char *value);
 
 void  yeSetDestroy(Entity *entity, void (*func)(void *));
 
-
 #define yeSet(ENTITY, VALUE) _Generic((VALUE),				\
 				      int: yeSetInt,			\
 				      double: yeSetFloat,		\
@@ -371,7 +372,6 @@ void  yeSetDestroy(Entity *entity, void (*func)(void *));
  * @param nArgs	 number of arguments
  */
 void	yeSetFunctionArgs(Entity *entity, unsigned int nArgs);
-  
 
 /**
  * set @value to @index if the entity is an array
@@ -518,22 +518,12 @@ Entity **yeFathers(Entity *entity);
  */
 const char	*yeGetFunction(Entity *entity);
 
-/**
- * @param entity
- * @return if entity is not null return the type, -1 otherwise
- */
 static inline EntityType yeType(const Entity *entity)
 {
 	if (likely(entity != NULL))
 		return (entity->type);
 	return (-1);
 }
-
-/**
- * @param entity
- * @return the entity's value if entity is of type YFUNCTION, NULL otherwise
- */
-const char	*yeGetFunction(Entity *entity);
 
 /**
  * Check if Entity are the same type and if they are not NULL and copy the values from src to dest.
@@ -543,14 +533,6 @@ const char	*yeGetFunction(Entity *entity);
  */
 Entity*		yeCopy(Entity* src, Entity* dest);
 
-/**
- * Copy the data from src Entity to dest Entity.
- * Get the values and copy each Entity in the StructEntity.
- * @param src		Source Entity from where the data will be copy
- * @param dest	Destination Entity where the data will be past
- * @return destination Entity if src AND dest or not null, NULL otherwise
- */
-ArrayEntity*		yeCopyContener(ArrayEntity* src, ArrayEntity* dest);
 
 static inline int yeArrayContainEntity(Entity *array, const char *str)
 {
@@ -611,7 +593,6 @@ static inline int yeAddEntInt(Entity *e, IntEntity *ie)
 {
   return yeAddInt(e, yeGetInt(YE_TO_ENTITY(ie)));
 }
-
 
 static inline int yeAddEnt(Entity *e, Entity *e2)
 {
@@ -684,5 +665,23 @@ static inline int yeReplace(Entity *array, Entity *toReplace, Entity *toPush)
 
   return -1;
 }
+
+/**
+ * Check if @array contain @toFind
+ * @return 1 if the @toFind is found, 0 otherwise.
+ */
+static inline int yeDoestInclude(Entity *array, Entity *toFind)
+{
+  if (!array || !toFind)
+    return 0;
+  Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(array)->values, tmp,
+			    it, ArrayEntry) {
+    if (tmp && tmp->entity == toFind)
+      return 1;
+  }
+  return 0;
+}
+
+void yeIncrChildsRef(Entity *array);
 
 #endif

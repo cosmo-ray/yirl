@@ -2,7 +2,7 @@
     "name" : "testSnake",
     "file" : "menus.json",
     "type" : "json",
-    "starting widget" : "Snake",
+    "starting widget" : "AskReplay",
     "pre-load" : [
 	{
 	    "file" : "../../../modules/snake/",
