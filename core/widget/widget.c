@@ -213,8 +213,10 @@ static YWidgetState *ywidNewWidgetInternal(int t,
 
   ret = widgetTab.allocator[t]();
 
-  if (ret == NULL)
+  if (ret == NULL) {
+    DPRINT_ERR("fail to allocate widget\n");
     return NULL;
+  }
 
   ret->entity = entity;
   ret->signals = yeGet(entity, "signals");
@@ -224,8 +226,10 @@ static YWidgetState *ywidNewWidgetInternal(int t,
   ret->actionIdx = ywidAddSignal(ret, "action");
 
   /* Init widget */
-  if (ret->init(ret, entity, NULL))
+  if (ret->init(ret, entity, NULL)) {
+    DPRINT_ERR("fail durring init\n");
     goto error;
+  }
 
   /* Init sub widget */
   if (initer)
