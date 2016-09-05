@@ -763,7 +763,6 @@ static ArrayEntity	*yeCopyContener(ArrayEntity* src, ArrayEntity* dest, Entity *
   if (src == NULL || dest == NULL)
     return NULL;
 
-  printf("coping\n");
   yeClearArray(YE_TO_ENTITY(dest));
   yBlockArrayAssureBlock(&dest->values, yeLen(YE_TO_ENTITY(src)));
   Y_BLOCK_ARRAY_FOREACH_PTR(src->values, elem, it, ArrayEntry) {

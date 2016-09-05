@@ -5,14 +5,14 @@
 	"init" : "scoreInit",
 	"background": "rgba: 180 210 20 50", // Not yet implemented :)
 	"bind" : [["action", "callNext"]],
-	"next" : "snake:scenes.AskReplay"
+	"next" : "testSnake:scenes.AskReplay"
     },
     "AskReplay" : {
 	"<type>" : "menu",
 	"entries" : [
 	    {
 		"text" : "Play Again",
-		"next" : "snake:scenes.Snake",
+		"next" : "testSnake:scenes.Snake",
 		"action" : "menuNext",
 	    },
 	    {
@@ -23,7 +23,7 @@
     },
     "Snake" : {
 	"<type>" : "snake",
-	"next" : "snake:scenes.LooseScreen",
+	"next" : "testSnake:scenes.LooseScreen",
 	"&resources" : "SnakeResources",
 	"bind" : [["hitWall", "snake:snakeWarp"]],
     },
