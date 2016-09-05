@@ -760,8 +760,6 @@ static Entity*		yeCopyInternal(Entity* src, Entity* dest, Entity *used);
 
 static ArrayEntity	*yeCopyContener(ArrayEntity* src, ArrayEntity* dest, Entity *used)
 {
-  ArrayEntry *destElem;
-
   if (src == NULL || dest == NULL)
     return NULL;
 
@@ -769,27 +767,45 @@ static ArrayEntity	*yeCopyContener(ArrayEntity* src, ArrayEntity* dest, Entity *
   yeClearArray(YE_TO_ENTITY(dest));
   yBlockArrayAssureBlock(&dest->values, yeLen(YE_TO_ENTITY(src)));
   Y_BLOCK_ARRAY_FOREACH_PTR(src->values, elem, it, ArrayEntry) {
-    printf("choululu: %p\n", elem);
+    ArrayEntry *destElem;
 
+    yBlockArraySet(&dest->values, it);
+    destElem  = yBlockArrayGetPtr(&dest->values, it, ArrayEntry);
+
+    printf("choululu: %s - %lu\n", elem->name, it);
     if (!elem || !elem->entity)
       continue;
+
+    destElem->flags = elem->flags;
+    if (elem->flags & YE_FLAG_NO_COPY) {
+      yeIncrRef(elem->entity);
+      destElem->entity = elem->entity;
+      destElem->name = g_strdup(elem->name);
+      continue;
+    }
+    /* printf("it a: %lu - %lu\n", it, yeLen((Entity *)dest)); */
+
     if (yeDoestInclude(used, elem->entity)) {
       DPRINT_ERR("inifnit loop referance, at elem %s",
 		 elem->name ? elem->name : "(null)");
       return NULL;
     }
-    destElem = yBlockArrayGetPtr(&dest->values, it, ArrayEntry);
-    yBlockArraySet(&dest->values, it);
-    printf("choulala: %p\n", destElem);
+
+    /* printf("it b: %lu - %lu\n", it, yeLen((Entity *)dest)); */
     destElem->entity = yeCreate(elem->entity->type, 0,
-				YE_TO_ENTITY(dest), elem->name);
+				NULL, NULL);
+    /* printf("it c: %lu - %lu\n", it, yeLen((Entity *)dest)); */
+
     if (!yeCopyInternal(elem->entity, destElem->entity, used)) {
       DPRINT_ERR("fail to copy elem %s",
 		 elem->name ? elem->name : "(null)");
       return NULL;
     }
+    destElem->name = g_strdup(elem->name);
+    /* printf("it d: %lu - %lu\n", it, yeLen((Entity *)dest)); */
+
   }
-  printf("yeLen: %ld\n", yeLen(YE_TO_ENTITY(dest)));
+
   return dest;
 }
 

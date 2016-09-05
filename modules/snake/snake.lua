@@ -228,7 +228,8 @@ function createSnake(entity)
    yeSetAt(ygGetMod("snake"), "score", 0)
    yeCreateInt(1, entity, "recreate-logic")
    yeCreateFunction("reset", entity)
-
+   print("orig: ", yeToLuaString(entity))
+   print("-----------------------------")
    local bak = yeCreateArray()
    yeCopy(entity, bak)
    yePushBack(entity, bak, "initial-state");

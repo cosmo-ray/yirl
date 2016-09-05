@@ -69,7 +69,7 @@ void testSetGeneric(void)
 {
   yeInitMem();
   int val = 4;
-  Entity *test = yeCreate(YINT, &val, NULL, NULL);
+  Entity *test = yeCreate(YINT, (void *)(size_t)val, NULL, NULL);
   Entity *testStr = yeCreate(YSTRING, "myJoeIsBigerThanYours", NULL, NULL);
 
   g_assert(!strcmp(yeGetString(testStr), "myJoeIsBigerThanYours"));
