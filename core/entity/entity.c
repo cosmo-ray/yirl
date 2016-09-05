@@ -222,9 +222,9 @@ Entity *yeGetByStr(Entity *entity, const char *name)
   }
 
   i = findIdxPoint(name);
-  return (i != -1) ?
-    (yeGetByStr(yeGetByIdxFastWithEnd(entity, name, i), name + i + 1)) :
-    (yeGet(entity, name));
+  if (i == -1)
+    return yeGet(entity, name);
+ return yeGetByStr(yeGetByIdxFastWithEnd(entity, name, i), name + i + 1);
 }
 
 int yeArrayIdx(Entity *entity, const char *lookup)
