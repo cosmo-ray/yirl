@@ -143,7 +143,7 @@ void testLifeDeathRebirdAndAgain(void)
   g_assert(tmp);
   yeCreateInt(1, tmp, "hr");
 
-  int good = 0;;
+  int good = 0;
 
   for (int j = 500; j < 1000; ++j) {
     tmp = yeGet(map, j);

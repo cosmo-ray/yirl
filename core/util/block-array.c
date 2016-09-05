@@ -18,15 +18,22 @@
 #include <glib.h>
 #include "utils.h"
 #include "block-array.h"
+#include <numa.h>
 
 static uint8_t nullPtr[YBA_MAX_ELEM_SIZE];
 
-inline void yBlockArrayInitInternal(BlockArray *ba, size_t elemSize)
+#define NUMA_SIZE 0xffffff
+
+inline void yBlockArrayInitInternal(BlockArray *ba, size_t elemSize, int flag)
 {
   g_assert(elemSize < YBA_MAX_ELEM_SIZE);
   ba->elemSize = elemSize;
-  ba->elems = NULL;
+  if (flag & YBLOCK_ARRAY_NUMA)
+    ba->elems = numa_alloc(NUMA_SIZE);
+  else
+    ba->elems = NULL;
   ba->blocks = NULL;
+  ba->flag = flag;
   ba->nbBlock = 0;
   ba->size = 0;
 }
@@ -39,7 +46,8 @@ void yBlockArrayExpandBlocks(BlockArray *ba, int nb)
   uint16_t oldPos = ba->nbBlock;
 
   ba->nbBlock += nb;
-  ba->elems = g_realloc(ba->elems, ba->nbBlock * BLOCK_REAL_SIZE(ba));
+  if (!(ba->flag & YBLOCK_ARRAY_NUMA))
+    ba->elems = g_realloc(ba->elems, ba->nbBlock * BLOCK_REAL_SIZE(ba));
   ba->blocks = g_realloc(ba->blocks, ba->nbBlock * sizeof(uint64_t));
   ba->size = ba->nbBlock * 64 - (1 * !!ba->nbBlock);
 
@@ -136,7 +144,10 @@ inline BlockArrayIterator yBlockArrayIteratorCreate(BlockArray *array,
 
 inline void yBlockArrayFree(BlockArray *ba)
 {
-  g_free(ba->elems);
+  if (ba->flag & YBLOCK_ARRAY_NUMA)
+    numa_free(ba->elems, NUMA_SIZE);
+  else
+    g_free(ba->elems);
   g_free(ba->blocks);
   ba->nbBlock = 0;
   ba->size = 0;

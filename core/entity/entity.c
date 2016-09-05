@@ -21,6 +21,22 @@
 #include	<inttypes.h>
 #include	"entity.h"
 #include	"utils.h"
+#include	"stack.h"
+
+union FatEntity {
+	Entity Entity;
+	ArrayEntity ArrayEntity;
+	IntEntity IntEntity;
+	FloatEntity FloatEntity;
+	StringEntity StringEntity;
+	DataEntity DataEntity;
+	FunctionEntity FunctionEntity;
+};
+
+/* Globale array that store every entitys */
+static STACK_CREATE(freedElems, int64);
+static BlockArray entitysArray;
+static int entitysArrayisInit;
 
 /**
  * Here some macros to mutualise the code of entity
@@ -35,17 +51,35 @@
     entity->refCount -= 1;		       	\
   } while (0)
 
-#define YE_DESTROY_ENTITY(entity, type) do {	\
-    YE_DECR_REF(entity);			\
-    if (entity->refCount < 1) {			\
-      free(entity->fathers);			\
-      free(((type *)entity));			\
-    }						\
+#define YE_DESTROY_ENTITY(entity, type) do {				\
+    YE_DECR_REF(entity);						\
+    if (entity->refCount < 1) {						\
+      size_t unset =							\
+	(size_t)(((union FatEntity *)entity)				\
+		 - yBlockArrayGetPtr(&entitysArray, 0, union FatEntity));\
+      free(entity->fathers);						\
+      yBlockArrayUnset(&entitysArray, unset);				\
+      STACK_PUSH(freedElems, unset);					\
+    }									\
   } while (0);
+/* free(((type *)entity));			\ */
 
-#define YE_ALLOC_ENTITY(ret, type) do {		\
-    ret = malloc(sizeof(type));			\
-    ret->refCount = 1;				\
+#define YE_ALLOC_ENTITY(ret, type) do {					\
+    if (unlikely(!entitysArrayisInit)) {				\
+      yBlockArrayInitExt(&entitysArray, union FatEntity, YBLOCK_ARRAY_NUMA); \
+      entitysArrayisInit = 1;						\
+      ret = &(yBlockArraySetGetPtr(&entitysArray,			\
+				   stack_pop(freedElems,		\
+					     0),			\
+				   union FatEntity)->type);		\
+      ret->refCount = 1;						\
+    } else {								\
+      ret = &(yBlockArraySetGetPtr(&entitysArray,			\
+				   stack_pop(freedElems,		\
+					     yBlockArrayLastPos(&entitysArray) + 1), \
+				   union FatEntity)->type);		\
+      ret->refCount = 1;						\
+    }									\
   } while (0);
 
 
@@ -472,7 +506,7 @@ int	yePushBack(Entity *entity, Entity *toPush, const char *name)
 	       yeTypeToString( yeType(entity)));
     return -1;
   }
-  ret =  yeAttach(entity, toPush, yeLen(entity), name);
+  ret = yeAttach(entity, toPush, yeLen(entity), name);
   return ret;
 }
 

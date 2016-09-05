@@ -22,6 +22,8 @@
 #include <string.h>
 #include "utils.h"
 
+/* TODO: uniformize that ... */
+#define YBLOCK_ARRAY_NUMA 1
 #define Y_BLOCK_ARRAY_BLOCK_SIZE 64
 #define YBA_MAX_ELEM_SIZE 1024
 
@@ -31,6 +33,7 @@ typedef struct {
   size_t size;
   size_t elemSize;
   uint16_t nbBlock;
+  uint16_t flag;
 } BlockArray;
 
 typedef struct {
@@ -40,10 +43,13 @@ typedef struct {
   uint16_t pos;
 } BlockArrayIterator;
 
-void yBlockArrayInitInternal(BlockArray *ba, size_t elemSize);
+void yBlockArrayInitInternal(BlockArray *ba, size_t elemSize, int flag);
 
 #define yBlockArrayInit(ba, elemType)			\
-  (yBlockArrayInitInternal((ba), sizeof(elemType)))
+  (yBlockArrayInitInternal((ba), sizeof(elemType), 0))
+
+#define yBlockArrayInitExt(ba, elemType, flag)			\
+  (yBlockArrayInitInternal((ba), sizeof(elemType), flag))
 
 #define yBlockArrayGetBlock(ba, bPos)					\
   (yBlockArrayIsBlockAllocated(ba, bPos) ? (ba)->blocks[(bPos)] : 0LU)
@@ -82,6 +88,7 @@ void yBlockArrayUnset(BlockArray *ba, size_t pos);
 
 static inline void yBlockArraySet(BlockArray *ba, size_t pos)
 {
+  yBlockArrayAssureBlock(ba, pos);
   ba->blocks[yBlockArrayBlockPos(pos)] |= yBlockArrayPosMask(pos);
 }
 
@@ -94,6 +101,15 @@ void yBlockArrayCopyElemInternal(BlockArray *ba, size_t pos,
 int8_t *yBlockArrayGetInternal(BlockArray *ba, size_t pos);
 
 int8_t *yBlockArrayGetPtrInternal(BlockArray *ba, size_t pos);
+
+static inline int8_t *yBlockArraySetGetPtrInternal(BlockArray *ba, size_t pos)
+{
+  yBlockArraySet(ba, pos);
+  return yBlockArrayGetInternal(ba, pos);
+}
+
+#define yBlockArraySetGetPtr(ba, pos, type)		\
+  ((type *)yBlockArraySetGetPtrInternal((ba), (pos)))
 
 #define yBlockArrayGetPtr(ba, pos, type)	\
   ((type *)yBlockArrayGetInternal((ba), (pos)))
@@ -146,7 +162,7 @@ void yBlockArrayIteratorIncr(BlockArrayIterator *it);
     (it).array = (arrayPtr);						\
     (it).mask = yBlockArrayGetBlock((it).array, (it).blockPos);		\
     yBlockArrayIteratorIncr(&(it));					\
-  } while (0);
+  } while (0)
 
 BlockArrayIterator yBlockArrayIteratorCreate(BlockArray *array,
 					     int beg);
@@ -163,7 +179,7 @@ BlockArrayIterator yBlockArrayIteratorCreate(BlockArray *array,
 void yBlockArrayFree(BlockArray *ba);
 
 /* Get the pos of the last used bit */
-	size_t yBlockArrayLastPos(BlockArray *ba);
+size_t yBlockArrayLastPos(BlockArray *ba);
 
 
 #endif
