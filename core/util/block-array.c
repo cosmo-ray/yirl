@@ -22,7 +22,7 @@
 
 static uint8_t nullPtr[YBA_MAX_ELEM_SIZE];
 
-#define NUMA_SIZE 0xffffff
+#define NUMA_SIZE 0xfffffff
 
 inline void yBlockArrayInitInternal(BlockArray *ba, size_t elemSize, int flag)
 {
@@ -34,6 +34,7 @@ inline void yBlockArrayInitInternal(BlockArray *ba, size_t elemSize, int flag)
     ba->elems = NULL;
   ba->blocks = NULL;
   ba->flag = flag;
+  ba->lastPos = 0;
   ba->nbBlock = 0;
   ba->size = 0;
 }
@@ -45,6 +46,8 @@ void yBlockArrayExpandBlocks(BlockArray *ba, int nb)
 {
   uint16_t oldPos = ba->nbBlock;
 
+  if (ba->flag & YBLOCK_ARRAY_NUMA)
+    nb += 16;
   ba->nbBlock += nb;
   if (!(ba->flag & YBLOCK_ARRAY_NUMA))
     ba->elems = g_realloc(ba->elems, ba->nbBlock * BLOCK_REAL_SIZE(ba));
@@ -52,39 +55,20 @@ void yBlockArrayExpandBlocks(BlockArray *ba, int nb)
   ba->size = ba->nbBlock * 64 - (1 * !!ba->nbBlock);
 
   if (nb > 0) {
-    memset(ba->elems + (oldPos  * BLOCK_REAL_SIZE(ba)), 0,
-	   nb * BLOCK_REAL_SIZE(ba));
+    if (!(ba->flag & YBLOCK_ARRAY_NOINIT))
+      memset(ba->elems + (oldPos  * BLOCK_REAL_SIZE(ba)), 0,
+	     nb * BLOCK_REAL_SIZE(ba));
     memset(ba->blocks + oldPos, 0, nb * sizeof(uint64_t));
   }
 }
 
 #undef BLOCK_REAL_SIZE
 
-inline void yBlockArrayUnset(BlockArray *ba, size_t pos)
-{
-  int16_t toFree = 0;
-  uint16_t bPos = yBlockArrayBlockPos(pos);
-
-  ba->blocks[bPos] ^= (1LLU << (pos & 63));
-
-  if (bPos != yBlockArrayBlockPos(ba->size))
-    return;
- again:
-  if ((bPos + toFree) >= 0 && ba->blocks[bPos + toFree] == 0) {
-    --toFree;
-    goto again;
-  }
-
-  if (toFree)
-    yBlockArrayExpandBlocks(ba, toFree);
-}
-
-
 int8_t *yBlockArrayAssureBlock(BlockArray *ba, size_t pos)
 {
   uint16_t blockPos = yBlockArrayBlockPos(pos);
 
-  if (!yBlockArrayIsBlockAllocated(ba, blockPos)) {
+  if (unlikely(!yBlockArrayIsBlockAllocated(ba, blockPos))) {
     yBlockArrayExpandBlocks(ba, blockPos - ba->nbBlock + 1);
   }
   return ba->elems + (pos * ba->elemSize);
@@ -99,11 +83,10 @@ inline void yBlockArrayCopyElemInternal(BlockArray *ba, size_t pos,
   return;
 }
 
+
 inline int8_t *yBlockArrayGetInternal(BlockArray *ba, size_t pos)
 {
-  uint16_t blockPos = yBlockArrayBlockPos(pos);
-
-  if (!yBlockArrayIsBlockAllocated(ba, blockPos)) {
+  if (unlikely(!yBlockArrayIsBlockAllocated(ba, yBlockArrayBlockPos(pos)))) {
     return (int8_t *)nullPtr;
   }
   return ba->elems + (pos * ba->elemSize);
@@ -128,7 +111,7 @@ inline void yBlockArrayIteratorIncr(BlockArrayIterator *it)
     it->pos = 0;
   }
   it->pos = YUI_GET_FIRST_BIT(it->mask);
-  it->mask &= ~(1LLU << it->pos);
+  it->mask &= ~(ONE64 << it->pos);
 }
 
 inline BlockArrayIterator yBlockArrayIteratorCreate(BlockArray *array,
@@ -151,10 +134,4 @@ inline void yBlockArrayFree(BlockArray *ba)
   g_free(ba->blocks);
   ba->nbBlock = 0;
   ba->size = 0;
-}
-
-inline size_t yBlockArrayLastPos(BlockArray *ba)
-{
-  return (ba->nbBlock - (1 * !!ba->nbBlock)) * 64 +
-    YUI_GET_LAST_MASK_POS(yBlockArrayGetBlock(ba, ba->nbBlock - 1));
 }

@@ -24,6 +24,9 @@
 
 /* TODO: uniformize that ... */
 #define YBLOCK_ARRAY_NUMA 1
+#define YBLOCK_ARRAY_NOINIT 2
+#define YBLOCK_ARRAY_NOMIDFREE 4
+
 #define Y_BLOCK_ARRAY_BLOCK_SIZE 64
 #define YBA_MAX_ELEM_SIZE 1024
 
@@ -32,6 +35,7 @@ typedef struct {
   int8_t *elems;
   size_t size;
   size_t elemSize;
+  uint32_t lastPos;
   uint16_t nbBlock;
   uint16_t flag;
 } BlockArray;
@@ -43,6 +47,18 @@ typedef struct {
   uint16_t pos;
 } BlockArrayIterator;
 
+#define yBlockArrayIsBlockAllocated(ba, bPos) (bPos < (ba)->nbBlock)
+
+#define yBlockArrayGetBlock(ba, bPos)					\
+  (yBlockArrayIsBlockAllocated(ba, bPos) ? (ba)->blocks[(bPos)] : 0LU)
+
+#define yBlockArrayComputeLastPos(ba)					\
+  ( ((ba)->nbBlock - 1) * 64 +			\
+   YUI_GET_LAST_MASK_POS(yBlockArrayGetBlock((ba), (ba)->nbBlock - 1)))
+/* size_t yBlockArrayLastPos(BlockArray *ba); */
+
+#define yBlockArrayLastPos(ba) ((ba)->lastPos)
+
 void yBlockArrayInitInternal(BlockArray *ba, size_t elemSize, int flag);
 
 #define yBlockArrayInit(ba, elemType)			\
@@ -51,24 +67,14 @@ void yBlockArrayInitInternal(BlockArray *ba, size_t elemSize, int flag);
 #define yBlockArrayInitExt(ba, elemType, flag)			\
   (yBlockArrayInitInternal((ba), sizeof(elemType), flag))
 
-#define yBlockArrayGetBlock(ba, bPos)					\
-  (yBlockArrayIsBlockAllocated(ba, bPos) ? (ba)->blocks[(bPos)] : 0LU)
-
 
 void yBlockArrayExpandBlocks(BlockArray *ba, int nb);
 
-static inline uint16_t yBlockArrayBlockPos(size_t pos)
-{
-  return (pos / 64);
-}
+#define yBlockArrayBlockPos(pos) (pos / 64)
 
 static inline size_t yBlockArrayPosMask(size_t pos)
 {
   return ONE64 << (pos & 63);
-}
-
-static inline int yBlockArrayIsBlockAllocated(BlockArray *ba, uint16_t bPos) {
-  return bPos < ba->nbBlock;
 }
 
 int8_t *yBlockArrayAssureBlock(BlockArray *ba, size_t pos);
@@ -84,11 +90,33 @@ static inline int yBlockArrayIsSet(BlockArray *ba, size_t pos)
   return !yBlockArrayIsFree(ba, pos);
 }
 
-void yBlockArrayUnset(BlockArray *ba, size_t pos);
+static inline void yBlockArrayUnset(BlockArray *ba, size_t pos)
+{
+  int16_t toFree = 0;
+  uint16_t bPos = yBlockArrayBlockPos(pos);
+
+  ba->blocks[bPos] ^= (ONE64 << (pos & 63));
+  if (pos == ba->lastPos)
+    ba->lastPos = yBlockArrayComputeLastPos(ba);
+  if (likely((bPos != yBlockArrayBlockPos(ba->size)) ||
+	     (ba->flag & YBLOCK_ARRAY_NOMIDFREE))) {
+    return;
+  }
+ again:
+  if ((bPos + toFree) >= 0 && ba->blocks[bPos + toFree] == 0) {
+    --toFree;
+    goto again;
+  }
+
+  if (toFree)
+    yBlockArrayExpandBlocks(ba, toFree);
+}
 
 static inline void yBlockArraySet(BlockArray *ba, size_t pos)
 {
   yBlockArrayAssureBlock(ba, pos);
+  if (ba->lastPos < pos)
+    ba->lastPos = pos;
   ba->blocks[yBlockArrayBlockPos(pos)] |= yBlockArrayPosMask(pos);
 }
 
@@ -98,6 +126,9 @@ void yBlockArrayCopyElemInternal(BlockArray *ba, size_t pos,
 #define yBlockArrayCopyElem(ba, pos, elem)	\
   (yBlockArrayCopyElemInternal((ba), (pos), (const void *)&(elem)))
 
+#define yBlockArrayFastGet(ba, pos) ((ba)->elems + ((pos) * (ba)->elemSize))
+
+
 int8_t *yBlockArrayGetInternal(BlockArray *ba, size_t pos);
 
 int8_t *yBlockArrayGetPtrInternal(BlockArray *ba, size_t pos);
@@ -105,7 +136,7 @@ int8_t *yBlockArrayGetPtrInternal(BlockArray *ba, size_t pos);
 static inline int8_t *yBlockArraySetGetPtrInternal(BlockArray *ba, size_t pos)
 {
   yBlockArraySet(ba, pos);
-  return yBlockArrayGetInternal(ba, pos);
+  return yBlockArrayFastGet(ba, pos);
 }
 
 #define yBlockArraySetGetPtr(ba, pos, type)		\
@@ -179,7 +210,5 @@ BlockArrayIterator yBlockArrayIteratorCreate(BlockArray *array,
 void yBlockArrayFree(BlockArray *ba);
 
 /* Get the pos of the last used bit */
-size_t yBlockArrayLastPos(BlockArray *ba);
-
 
 #endif

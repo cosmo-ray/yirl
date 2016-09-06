@@ -45,7 +45,7 @@ void testSetSimple(void)
   g_assert(!strcmp("funcName", testFunc));
 
   yeSet(test1, 2);
-  yeSet(test2, 2);
+  yeSet(test2, (double)2.0);
   yeSet(test3, "test2");
   yeSet(test4, "funcName2");
 

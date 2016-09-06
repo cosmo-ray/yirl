@@ -23,11 +23,12 @@
 	i += (nb_args + 1);				\
 	break
 
-Entity *yscript_exec(Entity *stack, uint64_t *script)
+Entity *yscript_exec(Entity *stack, int64_t *script)
 {
   Entity *ret = NULL;
+  int64_t *origin = script;
 
-  if (!*script) { // compille time :p
+  if (unlikely(!*script)) { // compille time :p
 	  int i;
 
 	  script[0] = 1;
@@ -37,7 +38,8 @@ Entity *yscript_exec(Entity *stack, uint64_t *script)
 			  inst_compille('-', sub, 3);
 			  inst_compille('/', div, 3);
 			  inst_compille('*', mult, 3);
-			  inst_compille('s', stack, 1);
+			  inst_compille('<', inf_comp, 3);
+			  inst_compille('j', jmp, 1);
 			  inst_compille('i', create_int, 1);
 			  inst_compille('u', unstack, 0);
 		  default:
@@ -48,6 +50,8 @@ Entity *yscript_exec(Entity *stack, uint64_t *script)
 		  script[i] = (uint64_t)&&end;
 	  else if (script[i] == 'E')
 		  script[i] = (uint64_t)&&end_ret;
+	  else
+		  abort();
   }
 #undef inst_compille
 
@@ -86,12 +90,18 @@ mult:
   goto *((void *)*script);
 
   /* stack manipulations */
-
-stack:
-  ++script;
-  yePushBack(stack, YE_TO_ENTITY(*script), NULL);
-  ++script;
+inf_comp:
+  if (yeGetInt(yeGet(stack, script[1])) < yeGetInt(yeGet(stack, script[2]))) {
+	  script = origin + script[3];
+	  goto *((void *)*script);
+  }
+  script += 4;
   goto *((void *)*script);
+		 
+jmp:
+  script = origin + script[1];
+  goto *((void *)*script);
+
 create_int:
   ++script;
   yeCreateInt(*script, stack, NULL);
@@ -107,28 +117,56 @@ end_ret:
   ret = yeGet(stack, *script);
   yeIncrRef(ret);
 end:
-  YE_DESTROY(stack);
+  yeClearArray(stack);
   return ret;
 }
 
-int main(void)
+int main(int ac, char **av)
 {
-	Entity *args = yeCreateArray(NULL, NULL);
-	// return (4 + 3)
-	uint64_t test0[] = {0,
-			    'i', 4, //stack 4
-			    'i', 3, //stack 3
-			    'i', 0, //stack 0 will be use to store resulte
-			    '+', 0, 1, 2, // add stack 0 to stack 1
-					  // and store resulte in stack 2
-			    'E', 2 // return 2nd elem
-	};
+	(void) av;
+	if (ac == 1) {
+		Entity *args = yeCreateArrayExt(NULL, NULL,
+						YBLOCK_ARRAY_NOINIT |
+						YBLOCK_ARRAY_NOMIDFREE);
 
-	printf("%d\n", yeGetInt(yscript_exec(args, test0)));
-	args = yeCreateArray(NULL, NULL);
-	printf("%d\n", yeGetInt(yscript_exec(args, test0)));
-	for (int i = 0; i < 500000; ++i) {
-		args = yeCreateArray(NULL, NULL);
-		yscript_exec(args, test0);
+		int64_t test0[] = {0,
+				   'i', 4, //stack 4
+				   'i', 3, //stack 3
+				   //stack 0 will be use to store resulte
+				   'i', 0,
+				   // add stack 0 to stack 1
+				   // and store resulte in stack 2
+				   '+', 0, 1, 2,
+				   'E', 2 // return 2nd elem
+		};
+
+		for (int i = 0; i < 500000; ++i) {
+			yeDestroy(yscript_exec(args, test0));
+		}
+		yeDestroy(args);
+	} else if (ac == 2) {
+		Entity *args = yeCreateArrayExt(NULL, NULL,
+						YBLOCK_ARRAY_NOINIT |
+						YBLOCK_ARRAY_NOMIDFREE);
+		Entity *tmp;
+
+		// this is a simple for(int i = 0; i < 500 000; ++i)
+		int64_t test1[] = {0,
+				   'i', 0, //stack 1 - 2
+				   'i', 1, //stack 0 - 4
+				   'i', 500000, // 6
+				   'j', 13, // jmp to loop - 8
+				   '+', 0, 1, 0, // 12
+				   // if stack 0 is iferior to stack 2, goto 7
+				   '<', 0, 2, 9,
+				   'i', 2, // stack 2 in 3
+				   '*', 0, 3, 0, // mult 0 by 2
+				   'E', 0 // return 2nd elem
+		};
+
+		tmp = yscript_exec(args, test1);
+		printf("%d\n", yeGetInt(tmp));
+		yeDestroy(tmp);
+		yeDestroy(args);
 	}
 }

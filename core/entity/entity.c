@@ -57,7 +57,6 @@ static int entitysArrayisInit;
       size_t unset =							\
 	(size_t)(((union FatEntity *)entity)				\
 		 - yBlockArrayGetPtr(&entitysArray, 0, union FatEntity));\
-      free(entity->fathers);						\
       yBlockArrayUnset(&entitysArray, unset);				\
       stack_push(freedElems, unset);					\
     }									\
@@ -66,11 +65,13 @@ static int entitysArrayisInit;
 
 #define YE_ALLOC_ENTITY(ret, type) do {					\
     if (unlikely(!entitysArrayisInit)) {				\
-      yBlockArrayInitExt(&entitysArray, union FatEntity, YBLOCK_ARRAY_NUMA); \
+      yBlockArrayInitExt(&entitysArray, union FatEntity,		\
+			 YBLOCK_ARRAY_NUMA | YBLOCK_ARRAY_NOINIT |	\
+			 YBLOCK_ARRAY_NOMIDFREE);			\
       entitysArrayisInit = 1;						\
+      size_t tmp = stack_pop(freedElems, 0);				\
       ret = &(yBlockArraySetGetPtr(&entitysArray,			\
-				   stack_pop(freedElems,		\
-					     0),			\
+				   tmp,					\
 				   union FatEntity)->type);		\
       ret->refCount = 1;						\
     } else {								\
@@ -103,6 +104,9 @@ void (*destroyTab[])(Entity *) = {
 
 const char * EntityTypeStrings[] = { "int", "float", "string",
 				     "array", "function", "data"};
+
+static inline Entity *yeInit(Entity *entity, EntityType type,
+			     Entity *father, const char *name);
 
 /**
  * @param entity
@@ -139,9 +143,10 @@ size_t yeLen(Entity *entity)
     return (0);
 
   if (likely(yeType(entity) == YARRAY)) {
-    if (!yBlockArrayIsBlockAllocated(&YE_TO_ARRAY(entity)->values, 0))
-      return 0;
-    return yBlockArrayLastPos(&YE_TO_ARRAY(entity)->values) + 1;
+    size_t ret = yBlockArrayLastPos(&YE_TO_ARRAY(entity)->values);
+    if (!ret)
+      return yBlockArrayIsSet(&YE_TO_ARRAY(entity)->values, 0);
+    return ret + 1;
   }
  
   return YE_TO_STRING(entity)->len;
@@ -346,30 +351,27 @@ static void yeRemoveFather(Entity *entity, Entity *father)
 {
   if (unlikely(!entity || !father))
     return;
-  Entity **fathers = entity->fathers;
 
   // if the father is in last position, so we don't care about it because
   // we decr_ref at the end.
   for (int i = 0, end = entity->nbFathers; i < end ; ++i)
     {
-      if (fathers[i] == father) {
-	fathers[i] = fathers[end - 1];
-	fathers[end - 1] = NULL;
+      if (entity->fathers[i] == father) {
+	entity->fathers[i] = entity->fathers[end - 1];
+	entity->fathers[end - 1] = NULL;
 	entity->nbFathers -= 1;
 	return;
       }
     }
 }
 
-static void destroyChilds(Entity *entity)
+static void destroyChildsNoFree(Entity *entity)
 {
-  
   for (int i = 0, end = yeLen(entity); i < end; ++i) {
     ArrayEntry *ae = yeGetArrayEntryByIdx(entity, i);
 
     yeRemoveFather(ae->entity, entity);
     arrayEntryDestroy(ae);
-    yBlockArrayUnset(&YE_TO_ARRAY(entity)->values, i);
   }
 }
 
@@ -409,10 +411,21 @@ void yeDestroyData(Entity *entity)
   YE_DESTROY_ENTITY(entity, DataEntity);
 }
 
+void yeClearArray(Entity *entity)
+{
+  for (int i = 0, end = yeLen(entity); i < end; ++i) {
+    ArrayEntry *ae = yeGetArrayEntryByIdx(entity, i);
+
+    yeRemoveFather(ae->entity, entity);
+    arrayEntryDestroy(ae);
+    yBlockArrayUnset(&YE_TO_ARRAY(entity)->values, i);
+  }
+}
+
 void yeDestroyArray(Entity *entity)
 {
   if(entity->refCount == 1) {
-    destroyChilds(entity);
+    destroyChildsNoFree(entity);
     yBlockArrayFree(&YE_TO_ARRAY(entity)->values);
   }
   YE_DESTROY_ENTITY(entity, ArrayEntity);
@@ -432,9 +445,9 @@ Entity *yeCreate(EntityType type, void *val, Entity *father, const char *name)
     case YSTRING:
       return yeCreateString(val, father, name);
     case YINT:
-      return yeCreateInt(*((int *)&val), father, name);
+      return yeCreateInt(((size_t)val), father, name);
     case YFLOAT:
-      return yeCreateFloat(*((double *)&val), father, name);
+      return yeCreateFloat(((size_t)&val), father, name);
     case YARRAY:
       return yeCreateArray(father, name);
     case YDATA:
@@ -490,17 +503,7 @@ Entity *yeExpandArray(Entity *entity, unsigned int size)
 
 int	yePushBack(Entity *entity, Entity *toPush, const char *name)
 {
-  int ret;
-
-  if (unlikely(!entity || !toPush))
-    return -1;
-  if (unlikely(!checkType(entity, YARRAY))) {
-    DPRINT_ERR("bad argument 1 of type '%s', should be array\n",
-	       yeTypeToString( yeType(entity)));
-    return -1;
-  }
-  ret = yeAttach(entity, toPush, yeLen(entity), name);
-  return ret;
+  return yeAttach(entity, toPush, yeLen(entity), name);
 }
 
 Entity *yeRemoveChild(Entity *array, Entity *toRemove)
@@ -546,8 +549,6 @@ static void yeAttachFather(Entity *entity, Entity *father)
 {
   if (unlikely(!entity || !father))
     return;
-  entity->fathers =
-    realloc(entity->fathers, sizeof(Entity *) * (entity->nbFathers + 1));
   entity->fathers[entity->nbFathers] = father;
   entity->nbFathers += 1;
 }
@@ -560,7 +561,6 @@ static inline Entity *yeInitAt(Entity *entity, EntityType type,
     return NULL;
   entity->type = type;
   entity->nbFathers = 0;
-  entity->fathers = NULL;
   /* this can be simplifie */
   if (at < 0) {
     if (!yePushBack(father, entity, name))
@@ -573,9 +573,16 @@ static inline Entity *yeInitAt(Entity *entity, EntityType type,
 }
 
 
-Entity *yeInit(Entity *entity, EntityType type, Entity *father, const char *name)
+static inline Entity *yeInit(Entity *entity, EntityType type,
+			     Entity *father, const char *name)
 {
-  return yeInitAt(entity, type, father, name, -1);
+  if (unlikely(!entity))
+    return NULL;
+  entity->type = type;
+  entity->nbFathers = 0;
+  if (!yePushBack(father, entity, name))
+    YE_DECR_REF(entity);
+  return entity;
 }
 
 void	yeSetString(Entity *entity, const char *val)
@@ -605,18 +612,15 @@ int yeAttach(Entity *on, Entity *entity,
 {
   ArrayEntry *entry;
   
-  if (unlikely(!on || !entity))
-    return -1;
-  if (on->type != YARRAY)
+  if (unlikely(!on || !entity || on->type != YARRAY))
     return -1;
 
-  yBlockArrayAssureBlock(&YE_TO_ARRAY(on)->values, idx);
-  entry = yeGetArrayEntryByIdx(on, idx);
-  if (yBlockArrayIsSet(&YE_TO_ARRAY(on)->values, idx))
-    arrayEntryDestroy(entry);
+  entry = yBlockArraySetGetPtr(&YE_TO_ARRAY(on)->values,
+			       idx, ArrayEntry);
 
-  yBlockArraySet(&YE_TO_ARRAY(on)->values, idx);
+  YE_DESTROY(entry->entity);
   entry->entity = entity;
+  g_free(entry->name);
   entry->name = g_strdup(name);  
   yeAttachFather(entity, on);
   YE_INCR_REF(entity);

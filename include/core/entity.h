@@ -92,7 +92,7 @@ typedef enum
  * @father is the entity contening this one (a struct or an array)
  */
 #define	ENTITY_HEADER				\
-  struct Entity_	**fathers;		\
+  struct Entity_ *fathers[16];			\
   unsigned int nbFathers;			\
   unsigned int refCount;			\
   EntityType type;				\
@@ -304,6 +304,8 @@ void yeDestroyRef(Entity *entity);
 void yeDestroyArray(Entity *entity);
 void yeDestroyData(Entity *entity) ;
 
+void yeClearArray(Entity *entity);
+
 /**
  * @parap entity
  * @param value
@@ -341,6 +343,7 @@ void	yeSetFunction(Entity *entity, const char *value);
 
 void  yeSetDestroy(Entity *entity, void (*func)(void *));
 
+
 #define yeSet(ENTITY, VALUE) _Generic((VALUE),				\
 				      int: yeSetInt,			\
 				      double: yeSetFloat,		\
@@ -355,16 +358,6 @@ void  yeSetDestroy(Entity *entity, void (*func)(void *));
  */
 void	yeSetFunctionArgs(Entity *entity, unsigned int nArgs);
   
-/**
- * Set basic information to the entity <entity>
- * @param entity   the entity to set the basic informations
- * @param name     the name to set
- * @param type     the type of the entity
- * @param fathers  the parent entity of <entity>
- * @return the entity <entity>
- */
-Entity *yeInit(Entity *entity, EntityType type,
-	       Entity *father, const char *name) ;
 
 /**
  * set @value to @index if the entity is an array

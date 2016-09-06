@@ -17,4 +17,4 @@
 
 #include "entity.h"
 
-Entity *yscript_exec(Entity *args, uint64_t *script);
+Entity *yscript_exec(Entity *args, int64_t *script);
