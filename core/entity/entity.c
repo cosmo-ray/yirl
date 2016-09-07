@@ -495,9 +495,15 @@ Entity *yeExpandArray(Entity *entity, unsigned int size)
   return ((Entity*)manageArrayInternal((ArrayEntity*)entity, size, NONE));
 }
 
+int	yePushBackExt(Entity *entity, Entity *toPush,
+		      const char *name, int flag)
+{
+  return yeAttach(entity, toPush, yeLen(entity), name, flag);
+}
+
 int	yePushBack(Entity *entity, Entity *toPush, const char *name)
 {
-  return yeAttach(entity, toPush, yeLen(entity), name);
+  return yePushBackExt(entity, toPush, name, 0);
 }
 
 Entity *yeRemoveChild(Entity *array, Entity *toRemove)
@@ -561,7 +567,7 @@ static inline Entity *yeInitAt(Entity *entity, EntityType type,
     if (!yePushBack(father, entity, name))
       YE_DECR_REF(entity);
   } else {
-    if (!yeAttach(father, entity, at, name))
+    if (!yeAttach(father, entity, at, name, 0))
       YE_DECR_REF(entity);
   }
   return entity;
@@ -625,7 +631,7 @@ static inline Entity *yeInit(Entity *entity, EntityType type,
 }
 
 int yeAttach(Entity *on, Entity *entity,
-	     unsigned int idx, const char *name)
+	     unsigned int idx, const char *name, uint32_t flag)
 {
   ArrayEntry *entry;
   
@@ -639,8 +645,9 @@ int yeAttach(Entity *on, Entity *entity,
   entry->entity = entity;
   g_free(entry->name);
   entry->name = g_strdup(name);  
+  entry->flags = flag;
   yeAttachFather(entity, on);
-  YE_INCR_REF(entity);
+  yeIncrRef(entity);
   return 0;
 }
 

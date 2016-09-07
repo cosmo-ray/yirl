@@ -95,7 +95,7 @@ void testLifecycleComplex(void)
   g_assert(subStruct2);
   g_assert(!yePushBack(subStruct1, subStruct2, NULL));
   yeExpandArray(subStruct2, 5);
-  yeAttach(subStruct2, test3, 2, NULL);
+  yeAttach(subStruct2, test3, 2, NULL, 0);
   g_assert(mainStruct->refCount == 1);
   g_assert(subStruct1->refCount == 1);
   g_assert(subStruct2->refCount == 2);

@@ -87,6 +87,10 @@ typedef enum
     /* TODO: remove thers macros and do a static inline function  */
 #define yeIncrRef YE_INCR_REF
 
+typedef enum {
+  YE_FLAG_NULL = 0,
+  YE_FLAG_NO_COPY = 1
+} ArrayEntryFlags;
 
 /**
  * @father is the entity contening this one (a struct or an array)
@@ -106,6 +110,7 @@ typedef struct Entity_
 typedef	struct {
   Entity *entity;
   char *name;
+  uint32_t flags;
 } ArrayEntry;
 
 typedef	struct
@@ -247,8 +252,11 @@ Entity *yeExpandArray(Entity *entity, unsigned int size);
  * Add a new entity to @array>
  * @array:	the entity where we will add a new entity
  * @toPush:	the entity to add
+ * @name:	the name
  */
 int yePushBack(Entity *array, Entity *toPush, const char *name);
+int yePushBackExt(Entity *entity, Entity *toPush,
+		  const char *name, int flag);
 
 /**
  * Push @toPush at @idx if the element is not empty, return -1 othervise
@@ -388,7 +396,8 @@ void	yeSetStringAtStrIdx(Entity *entity, const char *index, const char *value);
  * Attach @entity on @on at @idx, set @name as ... name
  * we could rename this function as: "yePushAt"
  */
-int yeAttach(Entity *on, Entity *entity, unsigned int idx, const char *name);
+int yeAttach(Entity *on, Entity *entity, unsigned int idx,
+	     const char *name, uint32_t flag);
 
 /* TODO: should create an element if doesn't exist */
 #define yeSetAtIntIxd(ENTITY, INDEX, VALUE)		\

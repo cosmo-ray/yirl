@@ -58,7 +58,7 @@ static int jsonLink(Entity *father, Entity *target, const char *refName,
 
   done = g_list_prepend(done, father);
   if ((ret = yeGet(father, targetName)) != NULL) {
-    yePushBack(target, ret, refName);
+    yePushBackExt(target, ret, refName, YE_FLAG_NO_COPY);
     return 1;
   }
   YE_ARRAY_FOREACH(father, tmp) {
