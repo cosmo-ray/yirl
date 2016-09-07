@@ -20,8 +20,6 @@
 #include "block-array.h"
 #include <numa.h>
 
-static uint8_t nullPtr[YBA_MAX_ELEM_SIZE];
-
 #define NUMA_SIZE 0xfffffff
 
 inline void yBlockArrayInitInternal(BlockArray *ba, size_t elemSize, int flag)
@@ -83,14 +81,6 @@ inline void yBlockArrayCopyElemInternal(BlockArray *ba, size_t pos,
   return;
 }
 
-
-inline int8_t *yBlockArrayGetInternal(BlockArray *ba, size_t pos)
-{
-  if (unlikely(!yBlockArrayIsBlockAllocated(ba, yBlockArrayBlockPos(pos)))) {
-    return (int8_t *)nullPtr;
-  }
-  return ba->elems + (pos * ba->elemSize);
-}
 
 inline int8_t *yBlockArrayGetPtrInternal(BlockArray *ba, size_t pos)
 {
