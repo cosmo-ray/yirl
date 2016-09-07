@@ -278,6 +278,17 @@ Entity *yeCreateArray(Entity *father, const char *name)
   return (YE_TO_ENTITY(ret));
 }
 
+
+Entity *yeCreateArrayExt(Entity *father, const char *name, uint32_t flags)
+{
+  ArrayEntity *ret;
+
+  YE_ALLOC_ENTITY(ret, ArrayEntity);
+  yeInit((Entity *)ret, YARRAY, father, name);
+  yBlockArrayInitExt(&ret->values, ArrayEntry, flags);
+  return (YE_TO_ENTITY(ret));
+}
+
 Entity *yeCreateArrayAt(Entity *father, const char *name, int idx)
 {
   ArrayEntity *ret;
@@ -544,6 +555,9 @@ static void yeAttachFather(Entity *entity, Entity *father)
   entity->nbFathers += 1;
 }
 
+static inline void yeAttachChild(Entity *on, Entity *entity,
+				 const char *name);
+
 static inline Entity *yeInitAt(Entity *entity, EntityType type,
 			       Entity *father, const char *name,
 			       int at)
@@ -571,8 +585,7 @@ static inline Entity *yeInit(Entity *entity, EntityType type,
     return NULL;
   entity->type = type;
   entity->nbFathers = 0;
-  if (!yePushBack(father, entity, name))
-    YE_DECR_REF(entity);
+  yeAttachChild(father, entity, name);
   return entity;
 }
 
@@ -596,6 +609,21 @@ void	yeSetString(Entity *entity, const char *val)
 void yeSetDestroy(Entity *entity, void (*destroyFunc)(void *))
 {
   YE_TO_DATA(entity)->destroy = destroyFunc;
+}
+
+static inline void yeAttachChild(Entity *on, Entity *entity,
+				const char *name)
+{
+  ArrayEntry *entry;
+
+  if (!on)
+    return;
+  entry = yBlockArraySetGetPtr(&YE_TO_ARRAY(on)->values,
+			       yeLen(on), ArrayEntry);
+  entry->entity = entity;
+  entry->name = g_strdup(name);
+  yeAttachFather(entity, on);
+  return;
 }
 
 int yeAttach(Entity *on, Entity *entity,

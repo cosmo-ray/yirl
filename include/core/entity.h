@@ -280,6 +280,8 @@ Entity *yeCreateFunction(const char *funcName, void *manager,
 Entity *yeCreateArray(Entity *fathers, const char *name);
 Entity *yeCreateArrayAt(Entity *fathers, const char *name, int idx);
 
+Entity *yeCreateArrayExt(Entity *fathers, const char *name, uint32_t flags);
+
 Entity *yeCreateData(void *value, Entity *father, const char *name);
 
 /**
