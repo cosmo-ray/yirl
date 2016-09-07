@@ -28,6 +28,8 @@ void testLifecycleComplex(void);
 void testLifecycleAkwarde(void);
 void testLifeDeathRebirdAndAgain(void);
 
+void testCopy(void);
+
 void testSetSimple(void);
 void testSetComplex(void);
 void testSetGeneric(void);
