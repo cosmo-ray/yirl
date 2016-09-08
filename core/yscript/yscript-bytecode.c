@@ -62,36 +62,37 @@ Entity *yscript_exec(Entity *stack, int64_t *script)
 
 add:
   yeSetInt(yeGet(stack, script[3]),
-	   yeGetInt(yeGet(stack, script[1])) +
-	   yeGetInt(yeGet(stack, script[2]))
+	   yeGetIntDirect(yeGet(stack, script[1])) +
+	   yeGetIntDirect(yeGet(stack, script[2]))
 	  );
   script += 4;
   goto *((void *)*script);
 sub:
   yeSetInt(yeGet(stack, script[3]),
-	   yeGetInt(yeGet(stack, script[1])) -
-	   yeGetInt(yeGet(stack, script[2]))
+	   yeGetIntDirect(yeGet(stack, script[1])) -
+	   yeGetIntDirect(yeGet(stack, script[2]))
 	  );
   script += 4;
   goto *((void *)*script);
 div:
   yeSetInt(yeGet(stack, script[3]),
-	   yeGetInt(yeGet(stack, script[1])) /
-	   yeGetInt(yeGet(stack, script[2]))
+	   yeGetIntDirect(yeGet(stack, script[1])) /
+	   yeGetIntDirect(yeGet(stack, script[2]))
 	  );
   script += 4;
   goto *((void *)*script);
 mult:
   yeSetInt(yeGet(stack, script[3]),
-	   yeGetInt(yeGet(stack, script[1])) *
-	   yeGetInt(yeGet(stack, script[2]))
+	   yeGetIntDirect(yeGet(stack, script[1])) *
+	   yeGetIntDirect(yeGet(stack, script[2]))
 	  );
   script += 4;
   goto *((void *)*script);
 
   /* stack manipulations */
 inf_comp:
-  if (yeGetInt(yeGet(stack, script[1])) < yeGetInt(yeGet(stack, script[2]))) {
+  if (yeGetIntDirect(yeGet(stack, script[1])) <
+      yeGetIntDirect(yeGet(stack, script[2]))) {
 	  script = origin + script[3];
 	  goto *((void *)*script);
   }
@@ -165,7 +166,7 @@ int main(int ac, char **av)
 		};
 
 		tmp = yscript_exec(args, test1);
-		printf("%d\n", yeGetInt(tmp));
+		printf("%d\n", yeGetIntDirect(tmp));
 		yeDestroy(tmp);
 		yeDestroy(args);
 	}

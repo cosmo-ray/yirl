@@ -462,6 +462,8 @@ static inline Entity *yeReCreateString(const char *string,
  */
 size_t yeLen(Entity *entity);;
 
+#define yeGetIntDirect(entity) (YE_TO_INT(entity)->value)
+
 /**
  * @parap entity
  * @param value
