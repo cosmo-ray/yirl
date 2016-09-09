@@ -42,7 +42,7 @@ inline void yBlockArrayInitInternal(BlockArray *ba, size_t elemSize, int flag)
 
 void yBlockArrayExpandBlocks(BlockArray *ba, int nb)
 {
-  uint16_t oldPos = ba->nbBlock;
+  uint64_t oldPos = ba->nbBlock;
 
   if (ba->flag & YBLOCK_ARRAY_NUMA)
     nb += 16;
@@ -64,7 +64,7 @@ void yBlockArrayExpandBlocks(BlockArray *ba, int nb)
 
 int8_t *yBlockArrayAssureBlock(BlockArray *ba, size_t pos)
 {
-  uint16_t blockPos = yBlockArrayBlockPos(pos);
+  uint64_t blockPos = yBlockArrayBlockPos(pos);
 
   if (unlikely(!yBlockArrayIsBlockAllocated(ba, blockPos))) {
     yBlockArrayExpandBlocks(ba, blockPos - ba->nbBlock + 1);
@@ -93,8 +93,8 @@ inline int8_t *yBlockArrayGetPtrInternal(BlockArray *ba, size_t pos)
 inline void yBlockArrayIteratorIncr(BlockArrayIterator *it)
 {
   if (!it->mask) {
-    int j = 1;
-    for (int i = it->blockPos + 1; i < it->array->nbBlock &&
+    uint64_t j = 1;
+    for (uint64_t i = it->blockPos + 1; i < it->array->nbBlock &&
 	   !yBlockArrayGetBlock(it->array, i); ++i, ++j);
     it->blockPos += j;
     it->mask = yBlockArrayGetBlock(it->array, it->blockPos);

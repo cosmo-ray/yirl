@@ -58,41 +58,39 @@ Entity *yscript_exec(Entity *stack, int64_t *script)
   ++script;
   goto *((void *)*script);
 
-  /* Arithemetic operations */
-
 add:
-  yeSetInt(yeGet(stack, script[3]),
-	   yeGetIntDirect(yeGet(stack, script[1])) +
-	   yeGetIntDirect(yeGet(stack, script[2]))
+  yeSetInt(yeGetByIdxDirect(stack, script[3]),
+	   yeGetIntDirect(yeGetByIdxDirect(stack, script[1])) +
+	   yeGetIntDirect(yeGetByIdxDirect(stack, script[2]))
 	  );
   script += 4;
   goto *((void *)*script);
 sub:
-  yeSetInt(yeGet(stack, script[3]),
-	   yeGetIntDirect(yeGet(stack, script[1])) -
-	   yeGetIntDirect(yeGet(stack, script[2]))
+  yeSetInt(yeGetByIdxDirect(stack, script[3]),
+	   yeGetIntDirect(yeGetByIdxDirect(stack, script[1])) -
+	   yeGetIntDirect(yeGetByIdxDirect(stack, script[2]))
 	  );
   script += 4;
   goto *((void *)*script);
 div:
-  yeSetInt(yeGet(stack, script[3]),
-	   yeGetIntDirect(yeGet(stack, script[1])) /
-	   yeGetIntDirect(yeGet(stack, script[2]))
+  yeSetInt(yeGetByIdxDirect(stack, script[3]),
+	   yeGetIntDirect(yeGetByIdxDirect(stack, script[1])) /
+	   yeGetIntDirect(yeGetByIdxDirect(stack, script[2]))
 	  );
   script += 4;
   goto *((void *)*script);
 mult:
-  yeSetInt(yeGet(stack, script[3]),
-	   yeGetIntDirect(yeGet(stack, script[1])) *
-	   yeGetIntDirect(yeGet(stack, script[2]))
+  yeSetInt(yeGetByIdxDirect(stack, script[3]),
+	   yeGetIntDirect(yeGetByIdxDirect(stack, script[1])) *
+	   yeGetIntDirect(yeGetByIdxDirect(stack, script[2]))
 	  );
   script += 4;
   goto *((void *)*script);
 
   /* stack manipulations */
 inf_comp:
-  if (yeGetIntDirect(yeGet(stack, script[1])) <
-      yeGetIntDirect(yeGet(stack, script[2]))) {
+  if (yeGetIntDirect(yeGetByIdxDirect(stack, script[1])) <
+      yeGetIntDirect(yeGetByIdxDirect(stack, script[2]))) {
 	  script = origin + script[3];
 	  goto *((void *)*script);
   }
@@ -141,7 +139,7 @@ int main(int ac, char **av)
 				   'E', 2 // return 2nd elem
 		};
 
-		for (int i = 0; i < 500000; ++i) {
+		for (int i = 0; i < 5000000; ++i) {
 			yeDestroy(yscript_exec(args, test0));
 		}
 		yeDestroy(args);
@@ -155,7 +153,7 @@ int main(int ac, char **av)
 		int64_t test1[] = {0,
 				   'i', 0, //stack 1 - 2
 				   'i', 1, //stack 0 - 4
-				   'i', 500000, // 6
+				   'i', 50000000, // 6
 				   'j', 13, // jmp to loop - 8
 				   '+', 0, 1, 0, // 12
 				   // if stack 0 is iferior to stack 2, goto 7

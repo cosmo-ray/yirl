@@ -93,8 +93,8 @@ typedef enum
  */
 #define	ENTITY_HEADER				\
   struct Entity_ *fathers[16];			\
-  unsigned int nbFathers;			\
   unsigned int refCount;			\
+  unsigned int nbFathers;			\
   EntityType type;				\
 
 typedef struct Entity_
@@ -199,7 +199,11 @@ int	yeArrayIdx(Entity *array, const char *lookup);
  * @return the entity at the position of @index or NULL
  */
 Entity *yeGetByIdx(Entity *entity, size_t index);
-    
+static inline Entity *yeGetByIdxDirect(Entity *entity, size_t index)
+{
+  return yBlockArrayGet(&YE_TO_ARRAY(entity)->values, index, ArrayEntry).entity;
+}
+
 /**
  * @param entity  the entity whe are looking into
  * @param name    the entity name whe are looking for

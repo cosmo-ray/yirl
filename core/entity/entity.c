@@ -147,9 +147,7 @@ Entity *yeGetByIdx(Entity *entity, size_t index)
 {
   if (unlikely(entity == NULL))
     return NULL;
-  Entity *tmp;
-  tmp = yBlockArrayGet(&YE_TO_ARRAY(entity)->values, index, ArrayEntry).entity;
-  return tmp;
+  return yeGetByIdxDirect(entity, index);
 }
 
 /**

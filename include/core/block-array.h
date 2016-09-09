@@ -26,6 +26,7 @@
 #define YBLOCK_ARRAY_NUMA 1
 #define YBLOCK_ARRAY_NOINIT 2
 #define YBLOCK_ARRAY_NOMIDFREE 4
+#define YBLOCK_ARRAY_NO_ALIGN 8
 
 #define Y_BLOCK_ARRAY_BLOCK_SIZE 64
 #define YBA_MAX_ELEM_SIZE 1024
@@ -47,7 +48,7 @@ typedef struct {
   uint16_t pos;
 } BlockArrayIterator;
 
-#define yBlockArrayIsBlockAllocated(ba, bPos) (bPos < (ba)->nbBlock)
+#define yBlockArrayIsBlockAllocated(ba, bPos) ((bPos) < (ba)->nbBlock)
 
 #define yBlockArrayGetBlock(ba, bPos)					\
   (yBlockArrayIsBlockAllocated(ba, bPos) ? (ba)->blocks[(bPos)] : 0LU)
@@ -131,9 +132,9 @@ void yBlockArrayCopyElemInternal(BlockArray *ba, size_t pos,
 
 static inline int8_t *yBlockArrayGetInternal(BlockArray *ba, size_t pos)
 {
-  static uint8_t nullPtr[YBA_MAX_ELEM_SIZE];
-
   if (unlikely(!yBlockArrayIsBlockAllocated(ba, yBlockArrayBlockPos(pos)))) {
+    static uint8_t nullPtr[YBA_MAX_ELEM_SIZE];
+
     return (int8_t *)nullPtr;
   }
   return ba->elems + (pos * ba->elemSize);
