@@ -11,7 +11,7 @@ The idea behind yirl is to give to the user some basic tools and widgets that ev
 We can see yirl as a CMS for video game:
 Everyone should be able to add module to yirl, and everyone should be able to wrape modules into more powerfull modules.
 
-As an example the snake module is a map whith more function and a init, it's basically an inheritance of a map, this allow everyone to add a snake easily in his game.
+As an example the [snake module](https://github.com/cosmo-ray/yirl/tree/master/modules/snake) is a map whith more function and a init, it's basically an inheritance of a map, this allow everyone to add a snake easily in his game.
 Snake module is write in lua, but as YIRL have a generic script system, we could have write snake in any scripting language.
 Now only lua and C with tcc are supported for scripting, feel free to add your language :).
 
