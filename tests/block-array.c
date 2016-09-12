@@ -46,10 +46,10 @@ void testBlockArray(void)
   g_assert(yBlockArrayBlockPos(64) == 1);
   g_assert(yBlockArrayBlockPos(128) == 2);
 
-  g_assert(!yBlockArrayIsBlockAllocated(&test.array, 0));
-  g_assert(!yBlockArrayIsBlockAllocated(&test.array, 1));
+  g_assert(!yBlockArrayIsBlockAllocated(test.array, 0));
+  g_assert(!yBlockArrayIsBlockAllocated(test.array, 1));
   yBlockArrayAssureBlock(&test.array, 0);
-  g_assert(yBlockArrayIsBlockAllocated(&test.array, 0));
+  g_assert(yBlockArrayIsBlockAllocated(test.array, 0));
   g_assert(yBlockArrayGet(&test.array, 0, uint64_t) == 0);
 
   yBlockArrayCopyElem(&test.array, 0, tmp);
@@ -70,8 +70,8 @@ void testBlockArray(void)
     yBlockArrayCopyElem(&test.array, i, i);
     g_assert(yBlockArrayLastPos(&test.array) == (size_t)i);
     g_assert(yBlockArrayGet(&test.array, i, int) == i);
-    g_assert(yBlockArrayIsSet(&test.array, i));
-    g_assert(!yBlockArrayIsFree(&test.array, i));
+    g_assert(yBlockArrayIsSet(test.array, i));
+    g_assert(!yBlockArrayIsFree(test.array, i));
     yBlockArrayFree(&test.array);
   }
 
@@ -81,10 +81,10 @@ void testBlockArray(void)
   for (int i = 0; i < VAL_TEST + (64 - 7); ++i) {
     if (i == VAL_TEST) {
       g_assert(yBlockArrayGet(&test.array, i, uint64_t) == tmp);
-      g_assert(!yBlockArrayIsFree(&test.array, i));
+      g_assert(!yBlockArrayIsFree(test.array, i));
     } else {
       g_assert(!yBlockArrayGet(&test.array, i, uint64_t));
-      g_assert(yBlockArrayIsFree(&test.array, i));
+      g_assert(yBlockArrayIsFree(test.array, i));
     }
   }
 
@@ -107,18 +107,18 @@ void testBlockArray(void)
   yBlockArrayCopyElem(&test.array, 64 * 4 , tmp);
   yBlockArrayCopyElem(&test.array, 64 * 4 - 1 , tmp);
 
-  g_assert(!yBlockArrayGetBlock(&test.array, 0));
-  g_assert(!yBlockArrayGetBlock(&test.array, 1));
-  g_assert(!yBlockArrayGetBlock(&test.array, 2));
-  g_assert(yBlockArrayGetBlock(&test.array, 3));
-  g_assert(yBlockArrayGetBlock(&test.array, 4));
+  g_assert(!yBlockArrayGetBlock(test.array, 0));
+  g_assert(!yBlockArrayGetBlock(test.array, 1));
+  g_assert(!yBlockArrayGetBlock(test.array, 2));
+  g_assert(yBlockArrayGetBlock(test.array, 3));
+  g_assert(yBlockArrayGetBlock(test.array, 4));
 
-  g_assert(yBlockArrayIsBlockAllocated(&test.array, 0));
-  g_assert(yBlockArrayIsBlockAllocated(&test.array, 1));
-  g_assert(yBlockArrayIsBlockAllocated(&test.array, 2));
-  g_assert(yBlockArrayIsBlockAllocated(&test.array, 3));
-  g_assert(yBlockArrayIsBlockAllocated(&test.array, 4));
-  g_assert(!yBlockArrayIsBlockAllocated(&test.array, 5));
+  g_assert(yBlockArrayIsBlockAllocated(test.array, 0));
+  g_assert(yBlockArrayIsBlockAllocated(test.array, 1));
+  g_assert(yBlockArrayIsBlockAllocated(test.array, 2));
+  g_assert(yBlockArrayIsBlockAllocated(test.array, 3));
+  g_assert(yBlockArrayIsBlockAllocated(test.array, 4));
+  g_assert(!yBlockArrayIsBlockAllocated(test.array, 5));
 
   int nbIteration = 0;
   Y_BLOCK_ARRAY_FOREACH(&test.array, elem, it, uint64_t) {
@@ -155,17 +155,17 @@ void testBlockArray(void)
 
   yBlockArrayUnset(&test.array, 64 * 4);
 
-  g_assert(!yBlockArrayGetBlock(&test.array, 0));
-  g_assert(!yBlockArrayGetBlock(&test.array, 1));
-  g_assert(!yBlockArrayGetBlock(&test.array, 2));
-  g_assert(yBlockArrayGetBlock(&test.array, 3));
+  g_assert(!yBlockArrayGetBlock(test.array, 0));
+  g_assert(!yBlockArrayGetBlock(test.array, 1));
+  g_assert(!yBlockArrayGetBlock(test.array, 2));
+  g_assert(yBlockArrayGetBlock(test.array, 3));
 
-  g_assert(yBlockArrayIsBlockAllocated(&test.array, 0));
-  g_assert(yBlockArrayIsBlockAllocated(&test.array, 1));
-  g_assert(yBlockArrayIsBlockAllocated(&test.array, 2));
-  g_assert(yBlockArrayIsBlockAllocated(&test.array, 3));
-  g_assert(!yBlockArrayIsBlockAllocated(&test.array, 4));
-  g_assert(!yBlockArrayIsBlockAllocated(&test.array, 5));
+  g_assert(yBlockArrayIsBlockAllocated(test.array, 0));
+  g_assert(yBlockArrayIsBlockAllocated(test.array, 1));
+  g_assert(yBlockArrayIsBlockAllocated(test.array, 2));
+  g_assert(yBlockArrayIsBlockAllocated(test.array, 3));
+  g_assert(!yBlockArrayIsBlockAllocated(test.array, 4));
+  g_assert(!yBlockArrayIsBlockAllocated(test.array, 5));
 
   nbIteration = 0;
   Y_BLOCK_ARRAY_FOREACH(&test.array, elem2, it, uint64_t) {
@@ -177,11 +177,11 @@ void testBlockArray(void)
   
   yBlockArrayUnset(&test.array, 64 * 4 - 1);
 
-  g_assert(!yBlockArrayIsBlockAllocated(&test.array, 4));
-  g_assert(!yBlockArrayIsBlockAllocated(&test.array, 3));
-  g_assert(!yBlockArrayIsBlockAllocated(&test.array, 2));
-  g_assert(!yBlockArrayIsBlockAllocated(&test.array, 1));
-  g_assert(!yBlockArrayIsBlockAllocated(&test.array, 0));
+  g_assert(!yBlockArrayIsBlockAllocated(test.array, 4));
+  g_assert(!yBlockArrayIsBlockAllocated(test.array, 3));
+  g_assert(!yBlockArrayIsBlockAllocated(test.array, 2));
+  g_assert(!yBlockArrayIsBlockAllocated(test.array, 1));
+  g_assert(!yBlockArrayIsBlockAllocated(test.array, 0));
   Y_BLOCK_ARRAY_FOREACH(&test.array, useless4, useless2, uint64_t) {
     /* should not be here */
     g_assert(0);

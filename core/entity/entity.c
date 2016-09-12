@@ -136,7 +136,7 @@ size_t yeLen(Entity *entity)
   if (likely(yeType(entity) == YARRAY)) {
     size_t ret = yBlockArrayLastPos(&YE_TO_ARRAY(entity)->values);
     if (!ret)
-      return yBlockArrayIsSet(&YE_TO_ARRAY(entity)->values, 0);
+      return yBlockArrayIsSet(YE_TO_ARRAY(entity)->values, 0);
     return ret + 1;
   }
  

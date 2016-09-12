@@ -62,15 +62,6 @@ void yBlockArrayExpandBlocks(BlockArray *ba, int nb)
 
 #undef BLOCK_REAL_SIZE
 
-int8_t *yBlockArrayAssureBlock(BlockArray *ba, size_t pos)
-{
-  uint64_t blockPos = yBlockArrayBlockPos(pos);
-
-  if (unlikely(!yBlockArrayIsBlockAllocated(ba, blockPos))) {
-    yBlockArrayExpandBlocks(ba, blockPos - ba->nbBlock + 1);
-  }
-  return ba->elems + (pos * ba->elemSize);
-}
 
 inline void yBlockArrayCopyElemInternal(BlockArray *ba, size_t pos,
 					       const void *elem)
@@ -84,7 +75,7 @@ inline void yBlockArrayCopyElemInternal(BlockArray *ba, size_t pos,
 
 inline int8_t *yBlockArrayGetPtrInternal(BlockArray *ba, size_t pos)
 {
-  if (yBlockArrayIsFree(ba, pos)) {
+  if (yBlockArrayIsFree(*ba, pos)) {
     return NULL;
   }
   return ba->elems + (pos * ba->elemSize);
@@ -95,9 +86,9 @@ inline void yBlockArrayIteratorIncr(BlockArrayIterator *it)
   if (!it->mask) {
     uint64_t j = 1;
     for (uint64_t i = it->blockPos + 1; i < it->array->nbBlock &&
-	   !yBlockArrayGetBlock(it->array, i); ++i, ++j);
+	   !yBlockArrayGetBlock(*it->array, i); ++i, ++j);
     it->blockPos += j;
-    it->mask = yBlockArrayGetBlock(it->array, it->blockPos);
+    it->mask = yBlockArrayGetBlock(*it->array, it->blockPos);
     it->pos = 0;
   }
   it->pos = YUI_GET_FIRST_BIT(it->mask);
