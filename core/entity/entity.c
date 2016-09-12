@@ -178,7 +178,7 @@ static inline ArrayEntry *yeGetArrayEntryByIdx(Entity *entity, uint32_t i)
 static Entity *yeGetByIdxFastWithEnd(Entity *entity, const char *name, int end)
 {
 
-  Y_BLOCK_ARRAY_FOREACH_PTR(&YE_TO_ARRAY(entity)->values, tmp, it, ArrayEntry) {
+  Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(entity)->values, tmp, it, ArrayEntry) {
     if (!strncmp(tmp->name, name, end))
       return tmp->entity;
   }
@@ -190,7 +190,7 @@ Entity *yeGetByStrFast(Entity *entity, const char *name)
   if (unlikely(!entity || !name || yeType(entity) != YARRAY))
     return NULL;
 
-  Y_BLOCK_ARRAY_FOREACH_PTR(&YE_TO_ARRAY(entity)->values, tmp, it, ArrayEntry) {
+  Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(entity)->values, tmp, it, ArrayEntry) {
     if (!tmp || !tmp->name)
       continue;
     if (yuiStrEqual(tmp->name, name))
@@ -204,7 +204,7 @@ Entity *yeGetByStrExt(Entity *entity, const char *name, int64_t *idx)
   if (!entity || !name || yeType(entity) != YARRAY)
     return NULL;
 
-  Y_BLOCK_ARRAY_FOREACH_PTR(&YE_TO_ARRAY(entity)->values, tmp, it, ArrayEntry) {
+  Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(entity)->values, tmp, it, ArrayEntry) {
     if (!tmp || !tmp->name)
       continue;
     if (yuiStrEqual(tmp->name, name)) {
@@ -236,7 +236,7 @@ int yeArrayIdx(Entity *entity, const char *lookup)
   if (!entity || !lookup || yeType(entity) != YARRAY)
     return -1;
 
-  Y_BLOCK_ARRAY_FOREACH_PTR(&YE_TO_ARRAY(entity)->values, tmp, it, ArrayEntry) {
+  Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(entity)->values, tmp, it, ArrayEntry) {
     if (!tmp || !tmp->name)
       continue;
     if (yuiStrEqual(tmp->name, lookup))
@@ -413,9 +413,7 @@ void yeDestroyData(Entity *entity)
 
 void yeClearArray(Entity *entity)
 {
-  for (int i = 0, end = yeLen(entity); i < end; ++i) {
-    ArrayEntry *ae = yeGetArrayEntryByIdx(entity, i);
-
+  Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(entity)->values, ae, i, ArrayEntry) {
     yeRemoveFather(ae->entity, entity);
     arrayEntryDestroy(ae);
     yBlockArrayUnset(&YE_TO_ARRAY(entity)->values, i);
@@ -514,7 +512,7 @@ Entity *yeRemoveChild(Entity *array, Entity *toRemove)
     return NULL;
   }
 
-  Y_BLOCK_ARRAY_FOREACH_PTR(&YE_TO_ARRAY(array)->values, tmp, it, ArrayEntry) {
+  Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(array)->values, tmp, it, ArrayEntry) {
     Entity *ret;
 
     tmp = yeGetArrayEntryByIdx(array, it);
@@ -796,7 +794,7 @@ ArrayEntity	*yeCopyContener(ArrayEntity* src, ArrayEntity* dest)
 
     ArrayEntry *destElem;
 
-    Y_BLOCK_ARRAY_FOREACH_PTR(&src->values, elem, it, ArrayEntry) {
+    Y_BLOCK_ARRAY_FOREACH_PTR(src->values, elem, it, ArrayEntry) {
 
       yBlockArrayCopyElem(&dest->values, it, elem);
 
@@ -854,7 +852,7 @@ static void yeToCStrInternal(Entity *entity, int deep, GString *str, int flag)
     g_string_append_c(str, '[');
     if (yeLen(entity) > 20)
       flag |= YE_FORMAT_OPT_PRINT_ONLY_VAL_ARRAY;
-    Y_BLOCK_ARRAY_FOREACH_PTR(&YE_TO_ARRAY(entity)->values,
+    Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(entity)->values,
 			      tmp, it, ArrayEntry) {
       if (!(flag & YE_FORMAT_OPT_PRINT_ONLY_VAL_ARRAY)) {
 	if (it) {

@@ -675,7 +675,7 @@ static inline int yeReplace(Entity *array, Entity *toReplace, Entity *toPush)
   if (!array || !toReplace || !toPush)
     return -1;
 
-  Y_BLOCK_ARRAY_FOREACH_PTR(&YE_TO_ARRAY(array)->values, tmp,
+  Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(array)->values, tmp,
 			    it, ArrayEntry) {
     if (tmp && tmp->entity == toReplace) {
       YE_DESTROY(toReplace);

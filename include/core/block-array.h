@@ -166,15 +166,15 @@ static inline int8_t *yBlockArraySetGetPtrInternal(BlockArray *ba, size_t pos)
   elemType elem;							\
   size_t tmpBeg##elem = (beg);						\
   for (uint16_t yfi = yBlockArrayBlockPos(beg);				\
-       yfi < (ba)->nbBlock;						\
+       yfi < (ba).nbBlock;						\
        tmpBeg##elem = 0, ++yfi)						\
     for (uint64_t tmpmask =						\
-	   (yBlockArrayGetBlock(*(ba), yfi) ^				\
+	   (yBlockArrayGetBlock((ba), yfi) ^				\
 	    Y_BLOCK_ARRAY_MAKE_SET(tmpBeg##elem & 63)),			\
 	   tmp##it, it;							\
 	 ((tmp##it = YUI_GET_FIRST_BIT(tmpmask)) || 1) &&		\
 	   ((it = yfi * 64 + tmp##it) || 1) &&				\
-	   ((elem = getter(ba, it, type)) || 1) &&			\
+	   ((elem = getter(&ba, it, type)) || 1) &&			\
 	   tmpmask;							\
 	 tmpmask &= ~(1LLU << tmp##it))
 

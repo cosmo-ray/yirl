@@ -38,7 +38,7 @@ void testBlockArray(void)
   g_assert(yBlockArrayIteratorIsEnd(&iterator));
   yBlockArrayIteratorIncr(&iterator);
   g_assert(yBlockArrayIteratorIsEnd(&iterator));
-  Y_BLOCK_ARRAY_FOREACH(&test.array, useless1, useless2, uint64_t) {
+  Y_BLOCK_ARRAY_FOREACH(test.array, useless1, useless2, uint64_t) {
     /* should not be here */
     g_assert(0);
   }
@@ -96,7 +96,7 @@ void testBlockArray(void)
   g_assert(yBlockArrayIteratorIsEnd(&iterator));
 
   yBlockArrayFree(&test.array);
-    Y_BLOCK_ARRAY_FOREACH(&test.array, useless3, useless2, uint64_t) {
+    Y_BLOCK_ARRAY_FOREACH(test.array, useless3, useless2, uint64_t) {
     /* should not be here */
     g_assert(0);
   }
@@ -121,7 +121,7 @@ void testBlockArray(void)
   g_assert(!yBlockArrayIsBlockAllocated(test.array, 5));
 
   int nbIteration = 0;
-  Y_BLOCK_ARRAY_FOREACH(&test.array, elem, it, uint64_t) {
+  Y_BLOCK_ARRAY_FOREACH(test.array, elem, it, uint64_t) {
     g_assert(elem == tmp);
     g_assert((it == 64 * 4 - 1) || (it == 64 * 4));
     ++nbIteration;
@@ -146,7 +146,7 @@ void testBlockArray(void)
   g_assert(yBlockArrayIteratorIsEnd(&iterator));
 
   nbIteration = 0;
-  Y_BLOCK_ARRAY_FOREACH_SINCE(&test.array, 64 * 4, elem0, it, uint64_t) {
+  Y_BLOCK_ARRAY_FOREACH_SINCE(test.array, 64 * 4, elem0, it, uint64_t) {
     g_assert(elem0 == tmp);
     g_assert((it == 64 * 4));
     ++nbIteration;    
@@ -168,7 +168,7 @@ void testBlockArray(void)
   g_assert(!yBlockArrayIsBlockAllocated(test.array, 5));
 
   nbIteration = 0;
-  Y_BLOCK_ARRAY_FOREACH(&test.array, elem2, it, uint64_t) {
+  Y_BLOCK_ARRAY_FOREACH(test.array, elem2, it, uint64_t) {
     g_assert(elem2 == tmp);
     g_assert(it == 64 * 4 - 1);
     ++nbIteration;
@@ -182,7 +182,7 @@ void testBlockArray(void)
   g_assert(!yBlockArrayIsBlockAllocated(test.array, 2));
   g_assert(!yBlockArrayIsBlockAllocated(test.array, 1));
   g_assert(!yBlockArrayIsBlockAllocated(test.array, 0));
-  Y_BLOCK_ARRAY_FOREACH(&test.array, useless4, useless2, uint64_t) {
+  Y_BLOCK_ARRAY_FOREACH(test.array, useless4, useless2, uint64_t) {
     /* should not be here */
     g_assert(0);
   }
@@ -193,14 +193,14 @@ void testBlockArray(void)
   }
 
   nbIteration = 0;
-  Y_BLOCK_ARRAY_FOREACH(&test.array, elem10, it, uint64_t) {
+  Y_BLOCK_ARRAY_FOREACH(test.array, elem10, it, uint64_t) {
     g_assert(elem10 == tmp);
     g_assert(it < 134);
     ++nbIteration;
   }
   g_assert(nbIteration == 134);
   nbIteration = 0;
-  Y_BLOCK_ARRAY_FOREACH_SINCE(&test.array, 43, elem11, it, uint64_t) {
+  Y_BLOCK_ARRAY_FOREACH_SINCE(test.array, 43, elem11, it, uint64_t) {
     g_assert(elem11 == tmp);
     g_assert(it > 42 && it < 134);
     ++nbIteration;
