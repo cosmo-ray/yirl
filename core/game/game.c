@@ -188,6 +188,7 @@ void ygEnd()
 #endif
   YE_DESTROY(modList);
   ysNativeEnd();
+  yeEnd();
   init = 0;
 }
 
