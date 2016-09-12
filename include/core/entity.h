@@ -162,6 +162,8 @@ typedef	struct
 } FunctionEntity;
 
 
+void yeEnd(void);
+
 /**
  * @param str   the type name
  * @return the corresponding type, -1 if type not found

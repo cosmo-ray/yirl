@@ -79,6 +79,13 @@ static inline Entity *yeInitAt(Entity *entity, EntityType type,
 			       Entity *father, const char *name,
 			       int at);
 
+void yeEnd(void)
+{
+  stack_destroy(freedElems);
+  entitysArrayisInit = 0;
+  yBlockArrayFree(&entitysArray);
+}
+
 /**
  * Contain all functions used to destruct entity
  * Must be in the same order than the EntityType Enum
