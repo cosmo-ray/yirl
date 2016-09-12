@@ -59,7 +59,7 @@ static int entitysArrayisInit;
 		 - yBlockArrayGetPtr(&entitysArray, 0, union FatEntity));\
       free(entity->fathers);						\
       yBlockArrayUnset(&entitysArray, unset);				\
-      STACK_PUSH(freedElems, unset);					\
+      stack_push(freedElems, unset);					\
     }									\
   } while (0);
 /* free(((type *)entity));			\ */
