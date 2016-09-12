@@ -73,14 +73,6 @@ inline void yBlockArrayCopyElemInternal(BlockArray *ba, size_t pos,
 }
 
 
-inline int8_t *yBlockArrayGetPtrInternal(BlockArray *ba, size_t pos)
-{
-  if (yBlockArrayIsFree(*ba, pos)) {
-    return NULL;
-  }
-  return ba->elems + (pos * ba->elemSize);
-}
-
 inline void yBlockArrayIteratorIncr(BlockArrayIterator *it)
 {
   if (!it->mask) {

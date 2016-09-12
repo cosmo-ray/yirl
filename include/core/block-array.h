@@ -144,8 +144,6 @@ static inline int8_t *yBlockArrayGetInternal(BlockArray *ba, size_t pos)
   return ba->elems + (pos * ba->elemSize);
 }
 
-int8_t *yBlockArrayGetPtrInternal(BlockArray *ba, size_t pos);
-
 static inline int8_t *yBlockArraySetGetPtrInternal(BlockArray *ba, size_t pos)
 {
   yBlockArraySet(ba, pos);
