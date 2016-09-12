@@ -281,15 +281,19 @@ int ywidAddSubType(Entity *subType)
 YWidgetState *ywidNewWidget(Entity *entity, const char *type)
 {
 
-  if (!entity)
+  if (!entity) {
+    DPRINT_ERR("entity is NULL");
     return NULL;
+  }
 
   if (!type) {
     type = yeGetString(yeGet(entity, "<type>"));
   }
 
-  if (!type)
+  if (!type) {
+    DPRINT_ERR("unable to get type");
     return NULL;
+  }
 
   YE_ARRAY_FOREACH(subTypes, tmpType) {
     if (yuiStrEqual0(type, yeGetString(yeGet(tmpType, "name")))) {
