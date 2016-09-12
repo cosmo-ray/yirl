@@ -312,12 +312,17 @@ void yeDestroyData(Entity *entity) ;
 
 void yeClearArray(Entity *entity);
 
+
+#define yeSetIntDirect(entity, value_) (((IntEntity *)entity)->value = (value_))
 /**
  * @parap entity
  * @param value
  * @return -1 if entity is not og type YINT, <value> otherwise
  */
 void	yeSetInt(Entity *entity, int value);
+
+#define yeSetFloatDirect(entity, value_)		\
+	(((FloatEntity *)entity)->value = (value_))
 
 /**
  * @parap entity

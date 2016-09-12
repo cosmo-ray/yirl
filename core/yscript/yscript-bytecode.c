@@ -59,28 +59,28 @@ Entity *yscript_exec(Entity *stack, int64_t *script)
   goto *((void *)*script);
 
 add:
-  yeSetInt(yeGetByIdxDirect(stack, script[3]),
+  yeSetIntDirect(yeGetByIdxDirect(stack, script[3]),
 	   yeGetIntDirect(yeGetByIdxDirect(stack, script[1])) +
 	   yeGetIntDirect(yeGetByIdxDirect(stack, script[2]))
 	  );
   script += 4;
   goto *((void *)*script);
 sub:
-  yeSetInt(yeGetByIdxDirect(stack, script[3]),
+  yeSetIntDirect(yeGetByIdxDirect(stack, script[3]),
 	   yeGetIntDirect(yeGetByIdxDirect(stack, script[1])) -
 	   yeGetIntDirect(yeGetByIdxDirect(stack, script[2]))
 	  );
   script += 4;
   goto *((void *)*script);
 div:
-  yeSetInt(yeGetByIdxDirect(stack, script[3]),
+  yeSetIntDirect(yeGetByIdxDirect(stack, script[3]),
 	   yeGetIntDirect(yeGetByIdxDirect(stack, script[1])) /
 	   yeGetIntDirect(yeGetByIdxDirect(stack, script[2]))
 	  );
   script += 4;
   goto *((void *)*script);
 mult:
-  yeSetInt(yeGetByIdxDirect(stack, script[3]),
+  yeSetIntDirect(yeGetByIdxDirect(stack, script[3]),
 	   yeGetIntDirect(yeGetByIdxDirect(stack, script[1])) *
 	   yeGetIntDirect(yeGetByIdxDirect(stack, script[2]))
 	  );
