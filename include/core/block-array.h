@@ -56,12 +56,11 @@ typedef struct {
 
 static inline int32_t yBlockArrayComputeLastBlock(BlockArray *ba)
 {
-  int lastBlock = ba->nbBlock - 1;
+  int lastBlock;
 
-  while (lastBlock > 0) {
-    if (ba->blocks[lastBlock])
+  for (lastBlock = ba->nbBlock - 1; lastBlock > 0; --lastBlock) {
+    if (likely(ba->blocks[lastBlock]))
       return lastBlock;
-    lastBlock -= 1;
   }
   return 0;
 }
