@@ -141,10 +141,7 @@ size_t yeLen(Entity *entity)
     return (0);
 
   if (likely(yeType(entity) == YARRAY)) {
-    size_t ret = yBlockArrayLastPos(&YE_TO_ARRAY(entity)->values);
-    if (!ret)
-      return yBlockArrayIsSet(YE_TO_ARRAY(entity)->values, 0);
-    return ret + 1;
+    return yBlockArrayLastPos(&YE_TO_ARRAY(entity)->values) + 1;
   }
  
   return YE_TO_STRING(entity)->len;

@@ -32,7 +32,7 @@ inline void yBlockArrayInitInternal(BlockArray *ba, size_t elemSize, int flag)
     ba->elems = NULL;
   ba->blocks = NULL;
   ba->flag = flag;
-  ba->lastPos = 0;
+  ba->lastPos = -1;
   ba->nbBlock = 0;
   ba->size = 0;
 }
@@ -66,9 +66,8 @@ void yBlockArrayExpandBlocks(BlockArray *ba, int nb)
 inline void yBlockArrayCopyElemInternal(BlockArray *ba, size_t pos,
 					       const void *elem)
 {  
-  yBlockArrayAssureBlock(ba, pos);
-  memcpy(ba->elems + (pos * ba->elemSize), elem, ba->elemSize);
   yBlockArraySet(ba, pos);
+  memcpy(ba->elems + (pos * ba->elemSize), elem, ba->elemSize);
   return;
 }
 
@@ -107,4 +106,5 @@ inline void yBlockArrayFree(BlockArray *ba)
   g_free(ba->blocks);
   ba->nbBlock = 0;
   ba->size = 0;
+  ba->lastPos = -1;
 }

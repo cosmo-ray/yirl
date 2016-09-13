@@ -36,7 +36,7 @@ typedef struct {
   int8_t *elems;
   size_t size;
   size_t elemSize;
-  uint32_t lastPos;
+  int32_t lastPos;
   uint16_t nbBlock;
   uint16_t flag;
 } BlockArray;
@@ -54,7 +54,7 @@ typedef struct {
   (yBlockArrayIsBlockAllocated((ba), bPos) ? (ba).blocks[(bPos)] : 0)
 
 
-static inline int yBlockArrayComputeLastBlock(BlockArray *ba)
+static inline int32_t yBlockArrayComputeLastBlock(BlockArray *ba)
 {
   int lastBlock = ba->nbBlock - 1;
 
@@ -63,14 +63,14 @@ static inline int yBlockArrayComputeLastBlock(BlockArray *ba)
       return lastBlock;
     lastBlock -= 1;
   }
-  return lastBlock;
+  return 0;
 }
 
-static inline uint32_t yBlockArrayComputeLastPos(BlockArray *ba)
+static inline int32_t yBlockArrayComputeLastPos(BlockArray *ba)
 {
-  uint32_t ret = yBlockArrayComputeLastBlock(ba);
+  int32_t ret = yBlockArrayComputeLastBlock(ba);
 
-  return (ret * 64 + YUI_GET_LAST_MASK_POS(ba->blocks[ret]));
+  return (ret * 64 + YUI_GET_LAST_MASK_POS(ba->blocks[ret], __UINT32_C(-1)));
 }
 
 #define yBlockArrayLastPos(ba) ((ba)->lastPos)
@@ -116,7 +116,7 @@ static inline void yBlockArrayUnset(BlockArray *ba, size_t pos)
   uint16_t bPos = yBlockArrayBlockPos(pos);
 
   ba->blocks[bPos] ^= (ONE64 << (pos & 63));
-  if (pos == ba->lastPos)
+  if (pos == (uint32_t)ba->lastPos)
     ba->lastPos = yBlockArrayComputeLastPos(ba);
   if (likely((bPos != yBlockArrayBlockPos(ba->size)) ||
 	     (ba->flag & YBLOCK_ARRAY_NOMIDFREE))) {
@@ -132,7 +132,7 @@ static inline void yBlockArrayUnset(BlockArray *ba, size_t pos)
     yBlockArrayExpandBlocks(ba, toFree);
 }
 
-static inline void yBlockArraySet(BlockArray *ba, size_t pos)
+static inline void yBlockArraySet(BlockArray *ba, int32_t pos)
 {
   yBlockArrayAssureBlock(ba, pos);
   if (ba->lastPos < pos)
