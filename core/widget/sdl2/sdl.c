@@ -367,12 +367,14 @@ static SDL_Texture *sdlLoasAndCachImg(Entity *elem)
     return texture;
   SDL_Surface *image;
 
-  if ((path = yeGetString(yeGet(elem, "map-tild"))) != NULL)
-    yeCreateInt(Y_SDL_TILD, elem, "$sdl-type");
-  else if ((path = yeGetString(yeGet(elem, "map-srite"))) != NULL)
-    yeCreateInt(Y_SDL_SPRITE, elem, "$sdl-type");
-  else
-    return NULL;
+  if (!yeGet(elem, "$sdl-type")) {
+    if ((path = yeGetString(yeGet(elem, "map-tild"))) != NULL)
+      yeCreateInt(Y_SDL_TILD, elem, "$sdl-type");
+    else if ((path = yeGetString(yeGet(elem, "map-srite"))) != NULL)
+      yeCreateInt(Y_SDL_SPRITE, elem, "$sdl-type");
+    else
+      return NULL;
+  }
 
   image = IMG_Load(path);
   if (!image) {
