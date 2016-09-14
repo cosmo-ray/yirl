@@ -22,10 +22,7 @@ function getLooseScreen(entity)
   return yeGet(yeGet(entity, "menus"), "LooseScreen")
 end
 
-function snakeMap(entity)
-   local map = entity
-   local i = 0
-
+function snakeMap(map)
    yeCreateInt(200000, map, "turn-length")
    yeCreateInt(20, map, "width")
    yeCreateInt(0, map, "nbPeanut")
@@ -33,10 +30,11 @@ function snakeMap(entity)
 
    local cases = yeCreateArray(map, "map")
 
+   local i = 0
    while i < 20 * 20 do
      local tmp = yeCreateArray(cases, NULL)
-      yeCreateInt(0, tmp, NULL)
-      i = i + 1
+     yeCreateInt(0, tmp, NULL)
+     i = i + 1
    end
 
    -- pos head :)
@@ -170,7 +168,7 @@ function moveHead(wid, map)
    else
       moveHeadInternal(wid, map, opos, npos)
    end
-   yeDestroy(opos);
+   yeDestroy(npos);
 end
 
 function changeDir(map, eve)
