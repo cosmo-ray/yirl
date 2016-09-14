@@ -59,17 +59,20 @@ static inline int32_t yBlockArrayComputeLastBlock(BlockArray *ba)
   int lastBlock;
 
   for (lastBlock = ba->nbBlock - 1; lastBlock > 0; --lastBlock) {
-    if (likely(ba->blocks[lastBlock]))
+    if (ba->blocks[lastBlock])
       return lastBlock;
   }
   return 0;
 }
 
+#define yBlockArrayFastComputeLastPos(ba, blockPos)	\
+  (blockPos * 64 + YUI_GET_LAST_MASK_POS((ba).blocks[blockPos], __UINT32_C(-1)))
+
 static inline int32_t yBlockArrayComputeLastPos(BlockArray *ba)
 {
   int32_t ret = yBlockArrayComputeLastBlock(ba);
 
-  return (ret * 64 + YUI_GET_LAST_MASK_POS(ba->blocks[ret], __UINT32_C(-1)));
+  return yBlockArrayFastComputeLastPos(*ba, ret);
 }
 
 #define yBlockArrayLastPos(ba) ((ba)->lastPos)
@@ -115,8 +118,12 @@ static inline void yBlockArrayUnset(BlockArray *ba, size_t pos)
   uint16_t bPos = yBlockArrayBlockPos(pos);
 
   ba->blocks[bPos] ^= (ONE64 << (pos & 63));
-  if (pos == (uint32_t)ba->lastPos)
-    ba->lastPos = yBlockArrayComputeLastPos(ba);
+  if (pos == (uint32_t)ba->lastPos) {
+    if (ba->blocks[bPos])
+      ba->lastPos = yBlockArrayFastComputeLastPos(*ba, bPos);
+    else
+      ba->lastPos = yBlockArrayComputeLastPos(ba);
+  }
   if (likely((bPos != yBlockArrayBlockPos(ba->size)) ||
 	     (ba->flag & YBLOCK_ARRAY_NOMIDFREE))) {
     return;
