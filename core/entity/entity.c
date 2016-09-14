@@ -586,6 +586,7 @@ static inline Entity *yeInit(Entity *entity, EntityType type,
 {
   if (unlikely(!entity))
     return NULL;
+  /* printf("%u - %s\n", yBlockArrayLastPos(&entitysArray), name); */
   entity->type = type;
   entity->nbFathers = 0;
   yeAttachChild(father, entity, name);
