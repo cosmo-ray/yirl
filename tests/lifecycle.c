@@ -130,7 +130,6 @@ void testLifeDeathRebirdAndAgain(void)
   Entity *map;
   Entity *tmp;
 
-  yeCreateInt(100, mainEnt, "width");
   map = yeCreateArray(mainEnt, "map");
   g_assert(map);
   for (int i = 0; i < 2000; ++i) {
