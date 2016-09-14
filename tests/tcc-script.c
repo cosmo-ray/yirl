@@ -18,6 +18,7 @@
 #include <glib.h>
 #include <stdio.h>
 #include "tests.h"
+#include "entity.h" 
 #include "tcc-script.h"
 
 static void *addPtr(int nbArg, void **args)
@@ -32,6 +33,7 @@ static void *addPtr(int nbArg, void **args)
 void testTccScritLifecycle(void)
 {
   void *sm = NULL;
+  yeInitMem();
 
   g_assert(!ysTccInit());
   g_assert(!ysTccGetType());
@@ -43,4 +45,5 @@ void testTccScritLifecycle(void)
 
   g_assert(!ysDestroyManager(sm));
   g_assert(!ysTccEnd());
+  yeEnd();
 }

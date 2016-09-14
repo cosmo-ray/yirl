@@ -36,6 +36,7 @@ static void *testMenuEnter(va_list ap)
 #ifdef WITH_CURSES
 void testYWMenuCurses(void)
 {
+  yeInitMem();
   int t = ydJsonInit();
   void *jsonManager;
   Entity *ret;
@@ -75,12 +76,14 @@ void testYWMenuCurses(void)
   ycursDestroy();
   /* end libs */
   YE_DESTROY(ret);
+  yeEnd();
 }
 #endif
 
 #ifdef WITH_SDL
 void testYWMenuSdl2(void)
 {
+  yeInitMem();
   int t = ydJsonInit();
   void *jsonManager;
   Entity *ret;
@@ -121,5 +124,6 @@ void testYWMenuSdl2(void)
   ysdl2Destroy();
   /* end libs */
   YE_DESTROY(ret);
+  yeEnd();
 }
 #endif

@@ -41,13 +41,16 @@ static void *testTXQuitOnQ(va_list ap)
 
 void testCursesLife(void)
 {
+  yeInitMem();
   g_assert(ycursInit() != -1);
   g_assert(ycursType() == 0);
   ycursDestroy();
+  yeEnd();
 }
 
 void testYWTextScreenCurses(void)
 {
+  yeInitMem();
   int t = ydJsonInit();
   void *jsonManager;
   Entity *ret;
@@ -86,6 +89,7 @@ void testYWTextScreenCurses(void)
   ycursDestroy();
   /* end libs */
   YE_DESTROY(ret);
+  yeEnd();
 }
 
 #endif
@@ -94,6 +98,7 @@ void testYWTextScreenCurses(void)
 
 void testYWTextScreenSdl2(void)
 {
+  yeInitMem();
   int t = ydJsonInit();
   void *jsonManager;
   Entity *ret;
@@ -132,19 +137,23 @@ void testYWTextScreenSdl2(void)
   ysdl2Destroy();
   /* end libs */
   YE_DESTROY(ret);
+  yeEnd();
 }
 
 void testSdlLife(void)
 {
+  yeInitMem();
   g_assert(ysdl2Init() != -1);
   g_assert(ysdl2Type() == 0);
   ysdl2Destroy();
+  yeEnd();
 }
 
 #ifdef WITH_CURSES
 
 void testYWTextScreenAll(void)
 {
+  yeInitMem();
   int t = ydJsonInit();
   void *jsonManager;
   Entity *ret;
@@ -189,16 +198,19 @@ void testYWTextScreenAll(void)
   ycursDestroy();
   ysdl2Destroy();
   YE_DESTROY(ret);
+  yeEnd();
 }
 
 void testAllLife(void)
 {
+  yeInitMem();
   g_assert(ysdl2Init() != -1);
   g_assert(ysdl2Type() == 0);
   g_assert(ycursInit() != -1);
   g_assert(ycursType() == 1);
   ycursDestroy();
   ysdl2Destroy();
+  yeEnd();
 }
 
 #endif

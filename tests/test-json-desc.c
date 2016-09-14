@@ -23,6 +23,7 @@
 
 void testJsonLoadFile(void)
 {
+  yeInitMem();
   int t = ydJsonInit();
   void *jsonManager;
   Entity *ret;
@@ -42,10 +43,12 @@ void testJsonLoadFile(void)
   g_assert(yeGetInt(yeGet(ret, "lvl")) == 1);
   g_assert(!ydJsonEnd());
   YE_DESTROY(ret);
+  yeEnd();
 }
 
 void testJsonMultipleObj(void)
 {
+  yeInitMem();
   int t = ydJsonInit();
   void *jsonManager;
   Entity *ret;
@@ -78,4 +81,5 @@ void testJsonMultipleObj(void)
   YE_DESTROY(ret);
   g_assert(!ydDestroyManager(jsonManager));
   g_assert(!ydJsonEnd());
+  yeEnd();
 }

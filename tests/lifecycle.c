@@ -21,6 +21,8 @@
 
 void testLifecycleSimple(void)
 {
+  yeInitMem();
+
   Entity *test1 = yeCreateArray(NULL, NULL);
   Entity *test2 = yeCreateInt(1, NULL, NULL);
   Entity *test3 = yeCreateFloat(1, NULL, NULL);
@@ -44,12 +46,14 @@ void testLifecycleSimple(void)
   g_assert(test3 == NULL);
   g_assert(test4 == NULL);
   g_assert(test5 == NULL);
-
+  yeEnd();
 }
 
 /* this tests is actually usefull only with valgrind */
 void testLifecycleFlow(void)
 {
+  yeInitMem();
+
   Entity *mainStruct = yeCreateArray(NULL, NULL);
   Entity *subStruct1 = yeCreateArray(mainStruct, NULL);
   Entity *subStruct2 = yeCreateArray(NULL, NULL);
@@ -75,10 +79,12 @@ void testLifecycleFlow(void)
   g_assert(subStruct2->refCount == 1);  
   YE_DESTROY(mainStruct);
   g_assert(mainStruct == NULL);
+  yeEnd();
 }
 
 void testLifecycleComplex(void)
 {
+  yeInitMem();
   Entity *mainStruct = yeCreateArray(NULL, NULL);
   Entity *subStruct1 = yeCreateArray(mainStruct, NULL);
   Entity *subStruct2 = yeCreateArray(mainStruct, NULL);
@@ -95,10 +101,12 @@ void testLifecycleComplex(void)
   g_assert(subStruct2->refCount == 2);
   YE_DESTROY(mainStruct);
   g_assert(mainStruct == NULL);
+  yeEnd();
 }
 
 void testLifecycleAkwarde(void)
 {
+  yeInitMem();
   Entity *mainStruct = yeCreateArray(NULL, NULL);
   Entity *subStruct1 = yeCreateArray(mainStruct, NULL);
   Entity *subStruct2 = yeCreateArray(subStruct1, NULL);
@@ -122,10 +130,12 @@ void testLifecycleAkwarde(void)
   g_assert(test3->refCount == 1);
   g_assert(mainStruct == NULL);
   YE_DESTROY(test3);
+  yeEnd();
 }
 
 void testLifeDeathRebirdAndAgain(void)
 {
+  yeInitMem();
   Entity *mainEnt = yeCreateArray(NULL, NULL);
   Entity *map;
   Entity *tmp;
@@ -163,4 +173,5 @@ void testLifeDeathRebirdAndAgain(void)
   g_assert(good);
 
   YE_DESTROY(mainEnt);
+  yeEnd();
 }

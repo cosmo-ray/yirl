@@ -36,7 +36,6 @@ union FatEntity {
 /* Globale array that store every entitys */
 static STACK_CREATE(freedElems, int64);
 static BlockArray entitysArray;
-static int entitysArrayisInit;
 
 #define YE_DECR_REF(entity) do {		\
     entity->refCount -= 1;		       	\
@@ -52,26 +51,13 @@ static int entitysArrayisInit;
       stack_push(freedElems, unset);					\
     }									\
   } while (0);
-/* free(((type *)entity));			\ */
 
 #define YE_ALLOC_ENTITY(ret, type) do {					\
-    if (unlikely(!entitysArrayisInit)) {				\
-      yBlockArrayInitExt(&entitysArray, union FatEntity,		\
-			 YBLOCK_ARRAY_NUMA | YBLOCK_ARRAY_NOINIT |	\
-			 YBLOCK_ARRAY_NOMIDFREE);			\
-      entitysArrayisInit = 1;						\
-      size_t tmp = stack_pop(freedElems, 0);				\
-      ret = &(yBlockArraySetGetPtr(&entitysArray,			\
-				   tmp,					\
-				   union FatEntity)->type);		\
-      ret->refCount = 1;						\
-    } else {								\
-      ret = &(yBlockArraySetGetPtr(&entitysArray,			\
-				   stack_pop(freedElems,		\
-					     yBlockArrayLastPos(&entitysArray) + 1), \
-				   union FatEntity)->type);		\
-      ret->refCount = 1;						\
-    }									\
+    ret = &(yBlockArraySetGetPtr(&entitysArray,				\
+				 stack_pop(freedElems,			\
+					   yBlockArrayLastPos(&entitysArray) + 1), \
+				 union FatEntity)->type);		\
+    ret->refCount = 1;							\
   } while (0);
 
 
@@ -79,10 +65,16 @@ static inline Entity *yeInitAt(Entity *entity, EntityType type,
 			       Entity *father, const char *name,
 			       int at);
 
+void yeInitMem(void)
+{
+  yBlockArrayInitExt(&entitysArray, union FatEntity,
+		     YBLOCK_ARRAY_NUMA | YBLOCK_ARRAY_NOINIT |
+		     YBLOCK_ARRAY_NOMIDFREE);
+}
+
 void yeEnd(void)
 {
   stack_destroy(freedElems);
-  entitysArrayisInit = 0;
   yBlockArrayFree(&entitysArray);
 }
 

@@ -40,6 +40,7 @@ void testLuaScritLifecycle(void)
 {
   void *sm = NULL;
 
+  yeInitMem();
   g_assert(!ysLuaInit());
   g_assert(!ysLuaGetType());
   sm = ysNewManager(NULL, 0);
@@ -60,6 +61,7 @@ void testLuaScritLifecycle(void)
 
   g_assert(!ysDestroyManager(sm));
   g_assert(!ysLuaEnd());
+  yeEnd();
 }
 
 void testLuaScritEntityBind(void)
@@ -68,6 +70,7 @@ void testLuaScritEntityBind(void)
   void *sm;
   Entity *func;
   
+  yeInitMem();
   g_assert(!ysLuaInit());
   sm = ysNewManager(NULL, 0);
   yesLuaRegister(sm);
@@ -101,4 +104,5 @@ void testLuaScritEntityBind(void)
   YE_DESTROY(func);
   g_assert(!ysDestroyManager(sm));
   g_assert(!ysLuaEnd());
+  yeEnd();
 }

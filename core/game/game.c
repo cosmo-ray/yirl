@@ -107,6 +107,7 @@ int ygInit(GameConfig *cfg)
   /* trick use in case of failure in thbis function to free all */
   init = 1;
   /* Init parseurs */
+  yeInitMem();
   CHECK_AND_RET(t = ydJsonInit(), -1, -1,
 		    "json init failed");
   CHECK_AND_GOTO(jsonManager = ydNewManager(t), NULL, error,

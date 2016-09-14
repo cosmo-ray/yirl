@@ -37,6 +37,18 @@ inline void yBlockArrayInitInternal(BlockArray *ba, size_t elemSize, int flag)
   ba->size = 0;
 }
 
+inline void yBlockArrayFree(BlockArray *ba)
+{
+  g_free(ba->blocks);
+  ba->nbBlock = 0;
+  ba->size = 0;
+  ba->lastPos = -1;
+  if (ba->flag & YBLOCK_ARRAY_NUMA)
+    numa_free(ba->elems, NUMA_SIZE);
+  else
+    g_free(ba->elems);
+}
+
 #define BLOCK_REAL_SIZE(ba)			\
   ((ba)->elemSize * 64)
 
@@ -95,16 +107,4 @@ inline BlockArrayIterator yBlockArrayIteratorCreate(BlockArray *array,
     return ret;
   yBlockArrayIteratorInit(ret, array, beg);
   return ret;
-}
-
-inline void yBlockArrayFree(BlockArray *ba)
-{
-  if (ba->flag & YBLOCK_ARRAY_NUMA)
-    numa_free(ba->elems, NUMA_SIZE);
-  else
-    g_free(ba->elems);
-  g_free(ba->blocks);
-  ba->nbBlock = 0;
-  ba->size = 0;
-  ba->lastPos = -1;
 }

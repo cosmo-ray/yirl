@@ -40,6 +40,7 @@ static void *testMapEnter(va_list ap)
 
 void testYWMapCurses(void)
 {
+  yeInitMem();
   int t = ydJsonInit();
   void *jsonManager;
   Entity *ret;
@@ -78,6 +79,7 @@ void testYWMapCurses(void)
   ycursDestroy();
   /* end libs */
   YE_DESTROY(ret);  
+  yeEnd();
 }
 
 #endif
@@ -85,6 +87,7 @@ void testYWMapCurses(void)
 
 void testYWMapSdl2(void)
 {
+  yeInitMem();
   int t = ydJsonInit();
   void *jsonManager;
   Entity *ret;
@@ -122,6 +125,7 @@ void testYWMapSdl2(void)
   ysdl2Destroy();
   /* end libs */
   YE_DESTROY(ret);
+  yeEnd();
 }
 
 static void genBigMap(Entity *map)
@@ -146,6 +150,7 @@ static void genBigMap(Entity *map)
 
 void testYBigWMapSdl2(void)
 {
+  yeInitMem();
   int t = ydJsonInit();
   void *jsonManager;
   Entity *ret;
@@ -184,6 +189,7 @@ void testYBigWMapSdl2(void)
   ysdl2Destroy();
   /* end libs */
   YE_DESTROY(ret);
+  yeEnd();
 }
 
 
@@ -191,6 +197,7 @@ void testYBigWMapSdl2(void)
 
 void testYWMapAll(void)
 {
+  yeInitMem();
   int t = ydJsonInit();
   void *jsonManager;
   Entity *ret;
@@ -232,6 +239,7 @@ void testYWMapAll(void)
   ycursDestroy();
   /* end libs */
   YE_DESTROY(ret);
+  yeEnd();
 }
 
 #endif

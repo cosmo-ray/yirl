@@ -161,6 +161,7 @@ typedef	struct
   void	*fastPath;
 } FunctionEntity;
 
+void yeInitMem(void);
 
 void yeEnd(void);
 

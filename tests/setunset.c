@@ -23,6 +23,7 @@
 
 void testSetSimple(void)
 {
+  yeInitMem();
   Entity *mainStruct = yeCreateArray(NULL, NULL);
   Entity *test1 = yeCreateInt(1, mainStruct, NULL);
   Entity *test2 = yeCreateFloat(1, mainStruct,NULL);
@@ -61,10 +62,12 @@ void testSetSimple(void)
 
   YE_DESTROY(mainStruct);
   g_assert(mainStruct == NULL);
+  yeEnd();
 }
 
 void testSetGeneric(void)
 {
+  yeInitMem();
   int val = 4;
   Entity *test = yeCreate(YINT, &val, NULL, NULL);
   Entity *testStr = yeCreate(YSTRING, "myJoeIsBigerThanYours", NULL, NULL);
@@ -75,11 +78,12 @@ void testSetGeneric(void)
   g_assert(test == NULL);
   YE_DESTROY(testStr);
   g_assert(testStr == NULL);
-
+  yeEnd();
 }
 
 void testSetComplex(void)
 {
+  yeInitMem();
   Entity *mainStruct = yeCreateArray(NULL, NULL);
 
   for (int i = 0; i < 10; ++i) {
@@ -104,5 +108,5 @@ void testSetComplex(void)
 
   YE_DESTROY(mainStruct);
   g_assert(mainStruct == NULL);
-
+  yeEnd();
 }

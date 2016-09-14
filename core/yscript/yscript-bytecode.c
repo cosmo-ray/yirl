@@ -123,6 +123,7 @@ end:
 int main(int ac, char **av)
 {
 	(void) av;
+	yeInitMem();
 	if (ac == 1) {
 		Entity *args = yeCreateArrayExt(NULL, NULL,
 						YBLOCK_ARRAY_NOINIT |
@@ -168,4 +169,5 @@ int main(int ac, char **av)
 		yeDestroy(tmp);
 		yeDestroy(args);
 	}
+	yeEnd();
 }
