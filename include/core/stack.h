@@ -125,6 +125,11 @@ static inline void *ptr_stack_pop(ptr_stack *stack, void *fail_ret)
 					    ptr_stack: ptr_stack_pop	\
 		)(&(stack), fail_val)
 
-#define stack_destroy(stack) (free(stack.values))
+#define stack_destroy(stack) do {		\
+		free(stack.values);		\
+		stack.values = NULL;		\
+		stack.len = 0;			\
+		stack.total_size = 0;		\
+} while (0)
 
 #endif
