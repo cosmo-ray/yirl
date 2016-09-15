@@ -41,7 +41,7 @@ static void create_tild_multi_layers(Entity *mod_description, int tild,
 	       yeGetByStrFast(desc, "start_id"), NULL);
   }
 
-  Y_BLOCK_ARRAY_FOREACH_PTR(&YE_TO_ARRAY(mod_description)->values, tmp,
+  Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(mod_description)->values, tmp,
 			    it, ArrayEntry) {
     const char *char_str;
 
@@ -65,7 +65,7 @@ static void create_tild(Entity *mod_description, int tild,
 			Entity *map)
 {
   if (mod_description) {
-    Y_BLOCK_ARRAY_FOREACH_PTR(&YE_TO_ARRAY(mod_description)->values, tmp,
+    Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(mod_description)->values, tmp,
 			      it, ArrayEntry) {
       const char *char_str;
 

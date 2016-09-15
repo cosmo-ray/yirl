@@ -536,12 +536,6 @@ static inline EntityType yeType(const Entity *entity)
 const char	*yeGetFunction(Entity *entity);
 
 /**
- * @param entity
- * @return if entity is not null return the type, -1 otherwise
- */
-int	yeType(const Entity *entity);
-
-/**
  * Check if Entity are the same type and if they are not NULL and copy the values from src to dest.
  * @param src		The source Entity from where the values will be copied from.
  * @param dest	The destination Entity to where the values will be pasted.

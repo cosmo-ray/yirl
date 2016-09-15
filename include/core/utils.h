@@ -59,8 +59,8 @@
 # define popcount64 yuiPopcount64
 
 # ifndef likely
-# define likely(x)
-# define unlikely(x)
+# define likely(x) (x)
+# define unlikely(x) (x)
 # endif
 
 #endif
