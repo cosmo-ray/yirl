@@ -128,6 +128,7 @@ static inline void yBlockArrayUnset(BlockArray *ba, size_t pos)
 	     (ba->flag & YBLOCK_ARRAY_NOMIDFREE))) {
     return;
   }
+
  again:
   if ((bPos + toFree) >= 0 && ba->blocks[bPos + toFree] == 0) {
     --toFree;
@@ -154,6 +155,11 @@ void yBlockArrayCopyElemInternal(BlockArray *ba, size_t pos,
 
 #define yBlockArrayFastGet(ba, pos) ((ba)->elems + ((pos) * (ba)->elemSize))
 
+#define yBlockArrayGetDirect(ba, pos, type)	\
+  (*((type *)yBlockArrayFastGet((ba), (pos))))
+
+#define yBlockArrayGetPtrDirect(ba, pos, type)		\
+  ((type *)yBlockArrayFastGet((ba), (pos)))
 
 static inline int8_t *yBlockArrayGetInternal(BlockArray *ba, size_t pos)
 {
@@ -181,7 +187,7 @@ static inline int8_t *yBlockArraySetGetPtrInternal(BlockArray *ba, size_t pos)
   (*((type *)yBlockArrayGetInternal((ba), (pos))))
 
 #define Y_BLOCK_ARRAY_MAKE_SET(i)		\
-  ((1LLU << (i)) - 1)
+  ((ONE64 << (i)) - 1)
 
 #define Y_BLOCK_ARRAY_FOREACH_INT(ba, beg, elem, it, type, elemType, getter) \
   elemType elem;							\
@@ -190,21 +196,23 @@ static inline int8_t *yBlockArraySetGetPtrInternal(BlockArray *ba, size_t pos)
        yfi < (ba).nbBlock;						\
        tmpBeg##elem = 0, ++yfi)						\
     for (uint64_t tmpmask =						\
-	   (yBlockArrayGetBlock((ba), yfi) ^				\
+	   ((ba).blocks[yfi] ^						\
 	    Y_BLOCK_ARRAY_MAKE_SET(tmpBeg##elem & 63)),			\
 	   tmp##it, it;							\
 	 ((tmp##it = YUI_GET_FIRST_BIT(tmpmask)) || 1) &&		\
 	   ((it = yfi * 64 + tmp##it) || 1) &&				\
 	   ((elem = getter(&ba, it, type)) || 1) &&			\
 	   tmpmask;							\
-	 tmpmask &= ~(1LLU << tmp##it))
+	 tmpmask ^= (1LLU << tmp##it))
 
 
 #define Y_BLOCK_ARRAY_FOREACH_SINCE(ba, beg, elem, it, type)		\
-  Y_BLOCK_ARRAY_FOREACH_INT(ba, beg, elem, it, type, type, yBlockArrayGet)
+  Y_BLOCK_ARRAY_FOREACH_INT(ba, beg, elem, it,				\
+			    type, type, yBlockArrayGetDirect)
 
 #define Y_BLOCK_ARRAY_FOREACH_PTR_SINCE(ba, beg, elem, it, type)	\
-  Y_BLOCK_ARRAY_FOREACH_INT(ba, beg, elem, it, type, type *, yBlockArrayGetPtr)
+  Y_BLOCK_ARRAY_FOREACH_INT(ba, beg, elem, it, type,			\
+			    type *, yBlockArrayGetPtrDirect)
 
 #define Y_BLOCK_ARRAY_FOREACH_PTR(ba, elem, it, type)		\
   Y_BLOCK_ARRAY_FOREACH_PTR_SINCE(ba, 0, elem, it, type)
