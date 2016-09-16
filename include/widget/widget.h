@@ -194,6 +194,8 @@ static inline int ywidType(void *opac)
   return ((YWidgetState *)opac)->type;
 }
 
+const char *ywidTypeName(YWidgetState *wid);
+
 static inline void *ywidGetRenderData(YWidgetState *state, int t)
 {
  return state->renderStates[t].opac;

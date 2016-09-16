@@ -66,6 +66,11 @@ inline YWidgetState *ywidGetMainWid(void)
   return mainWid;
 }
 
+const char *ywidTypeName(YWidgetState *wid)
+{
+  return widgetOptTab[ywidType(wid)].name;
+}
+
 void ywidSetMainWid(YWidgetState *wid)
 {
   YWidDestroy(oldWid);
