@@ -67,6 +67,7 @@ SDL_Surface *wSurface(void)
 static int	sdlDraw(void)
 {
   printf("draw %p\n", sg.renderer);
+  
   SDL_RenderPresent(sg.renderer);
   return 0;
 }
@@ -97,7 +98,8 @@ int    sdlFillImgBg(SDLWid *swid, const char *cimg)
     if (!img)
       return -1;
     SDL_Texture *texture = SDL_CreateTextureFromSurface(sg.renderer, img);
-    SDL_RenderCopy(sg.renderer, texture, NULL, &swid->rect);
+    printf("rd copy %d\n",
+	   SDL_RenderCopy(sg.renderer, texture, NULL, &swid->rect));
     SDL_DestroyTexture(texture);
     return 0;
   }
@@ -230,7 +232,8 @@ int    ysdl2Init(void)
   }
   
   // Render for the main windows
-  sg.renderer = SDL_CreateRenderer(sg.pWindow, -1, SDL_RENDERER_TARGETTEXTURE);
+  sg.renderer = SDL_CreateRenderer(sg.pWindow, -1,
+				   SDL_RENDERER_TARGETTEXTURE);
   if (!sg.renderer) {
     DPRINT_ERR("Get render from window: %s\n", SDL_GetError());
     goto fail;
@@ -298,7 +301,9 @@ static int sdlPrintLine(SDLWid *wid,
 
       SDL_FreeSurface(textSurface);
       SDL_Rect renderQuad = { x, y, text_width, text_height };
-      SDL_RenderCopy(renderer, text, NULL, &renderQuad);
+      printf("line rd copy %d on x%d y%d w%d h%d\n",
+	     SDL_RenderCopy(renderer, text, NULL, &renderQuad),
+	     renderQuad.x, renderQuad.y, renderQuad.w, renderQuad.h);
       SDL_DestroyTexture(text);
       y += text_height;
     }

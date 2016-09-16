@@ -177,7 +177,6 @@ static int cntRend(YWidgetState *opac)
 
   if (!opac->hasChange)
     return 0;
-  opac->shouldDraw = 0;
 
   if (bg_wid) {
     yeReplaceBack(bg_wid->entity, yeGet(opac->entity, "wid-pos"), "wid-pos");
@@ -194,11 +193,11 @@ static int cntRend(YWidgetState *opac)
     else if (ywCntType(opac) == CNT_STACK && wid->hasChange)
       needChange = 1;
 
+    printf("rend %s - %d\n", ywidTypeName(wid), wid->hasChange);
     ywidRend(wid);
     wid->hasChange = 0;
     wid->shouldDraw = 1;
   }
-  opac->shouldDraw = 1;
   ywidDrawScreen();
   return 0;
 }

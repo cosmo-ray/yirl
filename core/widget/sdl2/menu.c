@@ -31,13 +31,15 @@ static int sdlRender(YWidgetState *state, int t)
   Entity *entries = yeGet(state->entity, "entries");
   const char *img = yeGetString(yeGet(state->entity, "img"));
   unsigned int   len = yeLen(entries);
+  YBgConf cfg;
 
   if (!ywMenuHasChange(state))
     return 0;
-  if (!img || sdlFillImgBg(wid, img) < 0)
-    sdlFillColorBg(wid, 255, 255, 255, 255);
 
-  SDL_RenderDrawRect(sgRenderer(), &wid->rect);
+  if (ywidBgConfFill(yeGet(state->entity, "background"), &cfg) >= 0)
+    sdlFillBg(wid, &cfg);
+  else
+    sdlFillColorBg(wid, 255, 255, 255, 255);
 
   if (!sgDefaultFont()) {
     DPRINT_WARN("NO Font Set !");
@@ -55,7 +57,7 @@ static int sdlRender(YWidgetState *state, int t)
 
       color.a = 150;
       sdlDrawRect(rect, color);
-      /* color.a = 255; */
+      color.a = 255;
     }
   }
   return 0;

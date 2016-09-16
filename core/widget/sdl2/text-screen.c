@@ -35,7 +35,6 @@ static int sdlRender(YWidgetState *state, int t)
   const char *toPrint = yeGetString(yeGet(state->entity, "text"));
   YBgConf cfg;
   SDL_Color color;
-  SDL_Renderer *renderer = sgRenderer();
 
   color.r = 0;
   color.g = 0;
@@ -44,9 +43,8 @@ static int sdlRender(YWidgetState *state, int t)
 
   if (ywidBgConfFill(yeGet(state->entity, "background"), &cfg) >= 0)
     sdlFillBg(wid, &cfg);
-
-  SDL_Rect      rect = wid->rect;
-  SDL_RenderDrawRect(renderer, &rect);
+  else
+    sdlFillColorBg(wid, 255, 255, 255, 255);
 
   if (!sgDefaultFont()) {
     DPRINT_WARN("NO Font Set !");
