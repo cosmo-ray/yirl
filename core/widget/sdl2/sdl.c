@@ -66,6 +66,7 @@ SDL_Surface *wSurface(void)
 
 static int	sdlDraw(void)
 {
+  printf("draw %p\n", sg.renderer);
   SDL_RenderPresent(sg.renderer);
   return 0;
 }

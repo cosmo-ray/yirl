@@ -186,6 +186,7 @@ static int cntRend(YWidgetState *opac)
   YE_ARRAY_FOREACH(entries, tmp) {
     YWidgetState *wid = yeGetData(yeGet(tmp, "$wid"));
 
+    wid->shouldDraw = 0;
     if (!wid)
       continue;
     if (needChange)
@@ -195,6 +196,7 @@ static int cntRend(YWidgetState *opac)
 
     ywidRend(wid);
     wid->hasChange = 0;
+    wid->shouldDraw = 1;
   }
   opac->shouldDraw = 1;
   ywidDrawScreen();
