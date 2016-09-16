@@ -29,7 +29,6 @@ static int sdlRender(YWidgetState *state, int t)
 {
   SDLWid *wid = ywidGetRenderData(state, t);
   Entity *entries = yeGet(state->entity, "entries");
-  const char *img = yeGetString(yeGet(state->entity, "img"));
   unsigned int   len = yeLen(entries);
   YBgConf cfg;
 

@@ -66,8 +66,6 @@ SDL_Surface *wSurface(void)
 
 static int	sdlDraw(void)
 {
-  printf("draw %p\n", sg.renderer);
-  
   SDL_RenderPresent(sg.renderer);
   return 0;
 }
@@ -76,7 +74,6 @@ void	sdlDrawRect(SDL_Rect rect, SDL_Color color)
 {
   unsigned char r, g, b, a;
 
-  /* printf("drawing rect x:%d y:%d h:%d w:%d\n", rect.x, rect.y, rect.h, rect.w); */
   SDL_GetRenderDrawColor(sg.renderer, &r, &g, &b, &a);
   SDL_SetRenderDrawColor(sg.renderer, color.r, color.g, color.b, color.a);
   SDL_RenderFillRect(sg.renderer, &rect);
@@ -98,8 +95,7 @@ int    sdlFillImgBg(SDLWid *swid, const char *cimg)
     if (!img)
       return -1;
     SDL_Texture *texture = SDL_CreateTextureFromSurface(sg.renderer, img);
-    printf("rd copy %d\n",
-	   SDL_RenderCopy(sg.renderer, texture, NULL, &swid->rect));
+    SDL_RenderCopy(sg.renderer, texture, NULL, &swid->rect);
     SDL_DestroyTexture(texture);
     return 0;
   }
@@ -301,9 +297,7 @@ static int sdlPrintLine(SDLWid *wid,
 
       SDL_FreeSurface(textSurface);
       SDL_Rect renderQuad = { x, y, text_width, text_height };
-      printf("line rd copy %d on x%d y%d w%d h%d\n",
-	     SDL_RenderCopy(renderer, text, NULL, &renderQuad),
-	     renderQuad.x, renderQuad.y, renderQuad.w, renderQuad.h);
+      SDL_RenderCopy(renderer, text, NULL, &renderQuad);
       SDL_DestroyTexture(text);
       y += text_height;
     }

@@ -73,7 +73,7 @@ static void cntResize(YWidgetState *opac)
     ptr = wid->entity;
     size = yeGetInt(yeGet(tmp, "size"));
     tmpPos = yeReplaceBack(ptr, pos, "wid-pos");
-    if (size < 0) { /* We equally size the sub-widgets */
+    if (size <= 0) { /* We equally size the sub-widgets */
       caseLen = usable * (i + 1) / len;
     } else {
       caseLen = usable * size / 100;
@@ -193,7 +193,6 @@ static int cntRend(YWidgetState *opac)
     else if (ywCntType(opac) == CNT_STACK && wid->hasChange)
       needChange = 1;
 
-    printf("rend %s - %d\n", ywidTypeName(wid), wid->hasChange);
     ywidRend(wid);
     wid->hasChange = 0;
     wid->shouldDraw = 1;
