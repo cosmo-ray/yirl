@@ -33,7 +33,6 @@ void	testCopy(void)
   g_assert(yeGetInt(yeGet(array, 0)) == 1);
   array2 = yeCopy(array, array2);
   g_assert(tmp == array2);
-  printf("%lu\n", yeLen(array2));
   g_assert(yeLen(array2) == 1);
   g_assert(yeGetInt(yeGet(array2, 0)) == 1);
 

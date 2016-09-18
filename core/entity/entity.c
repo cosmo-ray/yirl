@@ -768,10 +768,8 @@ static ArrayEntity	*yeCopyContener(ArrayEntity* src, ArrayEntity* dest, Entity *
   Y_BLOCK_ARRAY_FOREACH_PTR(src->values, elem, it, ArrayEntry) {
     ArrayEntry *destElem;
 
-    yBlockArraySet(&dest->values, it);
-    destElem  = yBlockArrayGetPtr(&dest->values, it, ArrayEntry);
+    destElem  = yBlockArraySetGetPtr(&dest->values, it, ArrayEntry);
 
-    printf("choululu: %s - %lu\n", elem->name, it);
     if (!elem || !elem->entity)
       continue;
 
@@ -782,7 +780,6 @@ static ArrayEntity	*yeCopyContener(ArrayEntity* src, ArrayEntity* dest, Entity *
       destElem->name = g_strdup(elem->name);
       continue;
     }
-    /* printf("it a: %lu - %lu\n", it, yeLen((Entity *)dest)); */
 
     if (yeDoestInclude(used, elem->entity)) {
       DPRINT_ERR("inifnit loop referance, at elem %s",
@@ -790,10 +787,8 @@ static ArrayEntity	*yeCopyContener(ArrayEntity* src, ArrayEntity* dest, Entity *
       return NULL;
     }
 
-    /* printf("it b: %lu - %lu\n", it, yeLen((Entity *)dest)); */
     destElem->entity = yeCreate(elem->entity->type, 0,
 				NULL, NULL);
-    /* printf("it c: %lu - %lu\n", it, yeLen((Entity *)dest)); */
 
     if (!yeCopyInternal(elem->entity, destElem->entity, used)) {
       DPRINT_ERR("fail to copy elem %s",
@@ -801,8 +796,6 @@ static ArrayEntity	*yeCopyContener(ArrayEntity* src, ArrayEntity* dest, Entity *
       return NULL;
     }
     destElem->name = g_strdup(elem->name);
-    /* printf("it d: %lu - %lu\n", it, yeLen((Entity *)dest)); */
-
   }
 
   return dest;
