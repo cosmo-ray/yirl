@@ -36,6 +36,11 @@ void	testCopy(void)
   g_assert(yeLen(array2) == 1);
   g_assert(yeGetInt(yeGet(array2, 0)) == 1);
 
+  yeSetInt(yeGet(array2, 0), 7);
+  g_assert(yeGetInt(yeGet(array2, 0)) == 7);
+  yeCopy(array2, array);
+  g_assert(yeGetInt(yeGet(array, 0)) == 7);  
+  
   yeDestroy(array);
   yeDestroy(array2);
   yeEnd();
