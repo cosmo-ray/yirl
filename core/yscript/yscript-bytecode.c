@@ -157,7 +157,7 @@ int main(int ac, char **av)
 				   'i', 50000000, // 6
 				   'j', 13, // jmp to loop - 8
 				   '+', 0, 1, 0, // 12
-				   // if stack 0 is iferior to stack 2, goto 7
+				   // if stack 0 is iferior to stack 2, goto 9
 				   '<', 0, 2, 9,
 				   'i', 2, // stack 2 in 3
 				   '*', 0, 3, 0, // mult 0 by 2
