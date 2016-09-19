@@ -25,7 +25,8 @@
 void *yesVCall(Entity *func, va_list ap);
 void *yesCallInt(Entity *func, ...);
 
-#define yesCall0(func) yesCallInt(func, Y_END_VA_LIST)
-#define yesCall(func, args...) yesCallInt(func, args, Y_END_VA_LIST)
+#define yesCall(func, args...) yesCallInt(func,				\
+					  YUI_VA_ARGS_HANDELER(Y_END_VA_LIST, \
+							       args))
 
 #endif

@@ -200,7 +200,7 @@ static int shooterActionInt(YWidgetState *wid, YEvent *eve)
     /* exit */
   case 'q':
     sound_stop("42");
-    ygCall0(NULL, "FinishGame");
+    ygCall(NULL, "FinishGame");
     goto end_switch;
   end_switch:
     ret = ACTION;

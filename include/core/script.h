@@ -23,6 +23,7 @@
 
 #define Y_END_VA_LIST ((void *)0xDEAD0000)
 
+
 typedef struct {
   int (*init)(void *opac, void *args);
   int (*loadFile)(void *opac, const char *fileName);
@@ -38,8 +39,9 @@ YManagerAllocator *ysScriptsTab(void);
 
 void *ysCallInt(void *sm, const char *name, ...);
 
-#define ysCall0(sm, name) ysCallInt(sm, name, Y_END_VA_LIST)
-#define ysCall(sm, name, args...) ysCallInt(sm, name, args, Y_END_VA_LIST)
+#define ysCall(sm, name, args...) ysCallInt(sm, name,			\
+					    YUI_VA_ARGS_HANDELER(Y_END_VA_LIST,	\
+								 args))
 
 static inline int ysAddDefine(void *sm, const char *name)
 {

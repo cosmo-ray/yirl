@@ -86,7 +86,7 @@ void testLuaScritEntityBind(void)
 
   ret = ysCall(sm, "fail incoming", "tests");
   g_assert(ret == NULL);
-  ret = ysCall0(sm, "yeCreateArray");
+  ret = ysCall(sm, "yeCreateArray");
   g_assert(ret);
   g_assert(yeType(ret) == YARRAY);
   YE_DESTROY(ret);

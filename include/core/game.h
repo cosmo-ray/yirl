@@ -54,11 +54,10 @@ int ygInitGameConfig(GameConfig *cfg, const char *path, RenderType t);
 
 void *ygCallInt(const char *mod, const char *callName, ...);
 
-#define ygCall(mod, callName, args...)		\
-  ygCallInt(mod, callName, args, Y_END_VA_LIST)
-
-#define ygCall0(mod, callName)			\
-  ygCallInt(mod, callName, Y_END_VA_LIST)
+#define ygCall(mod, callName, args...)					\
+	ygCallInt(mod, callName,					\
+		  YUI_VA_ARGS_HANDELER(Y_END_VA_LIST,			\
+				       args))
 
 void ygCleanGameConfig(GameConfig *cfg);
 

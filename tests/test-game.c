@@ -35,7 +35,7 @@ static void *shooterAction(va_list ap)
   if (!eve)
     return NOTHANDLE;
   if (eve->key == '\t' || eve->key == 'q') {
-    ygCall0(NULL, "FinishGame");
+    ygCall(NULL, "FinishGame");
     ret = ACTION;
   }
 
