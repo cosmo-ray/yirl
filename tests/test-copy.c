@@ -1,5 +1,5 @@
 /*
-**Copyright (C) 2015 Matthias Gatto
+**Copyright (C) 2016 Matthias Gatto
 **
 **This program is free software: you can redistribute it and/or modify
 **it under the terms of the GNU Lesser General Public License as published by
@@ -38,9 +38,21 @@ void	testCopy(void)
 
   yeSetInt(yeGet(array2, 0), 7);
   g_assert(yeGetInt(yeGet(array2, 0)) == 7);
-  yeCopy(array2, array);
-  g_assert(yeGetInt(yeGet(array, 0)) == 7);  
-  
+
+  /* We like when things are solide, are you solide ? */
+  for (int i = 0; i < 50000; ++i) {
+    yeCopy(array2, array);
+    g_assert(yeGetInt(yeGet(array, 0)) == 7);
+    g_assert(yeLen(array) == 1);
+  }
+
+  yePushBack(array, yeGet(array, 0), "other");
+  yeCopy(array, array2);
+  g_assert(yeGet(array2, 0) != yeGet(array, 0));
+  g_assert(yeGet(array, 0) == yeGet(array, "other"));
+  g_assert(yeGet(array2, 0) == yeGet(array2, "other"));
+  g_assert(yeGet(array2, 0)->refCount == 2);
+
   yeDestroy(array);
   yeDestroy(array2);
   yeEnd();

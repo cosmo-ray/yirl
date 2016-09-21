@@ -756,12 +756,24 @@ Entity **yeFathers(Entity *entity)
   return entity->fathers;
 }
 
-static Entity*		yeCopyInternal(Entity* src, Entity* dest, Entity *used);
+static Entity *	yeCopyInternal(Entity* src, Entity* dest,
+				       Entity *used, Entity *refs);
 
-static ArrayEntity	*yeCopyContener(ArrayEntity* src, ArrayEntity* dest, Entity *used)
+static Entity *yeCopyFindRef(const char *name, Entity *entity, void *arg)
 {
+  (void) name;
+  if (yeGet(entity, 0) == arg)
+    return yeGet(entity, 1);
+  return NULL;
+}
+
+static ArrayEntity *yeCopyContener(ArrayEntity* src, ArrayEntity* dest,
+					Entity *used, Entity *refs)
+{
+  (void)refs;
   if (src == NULL || dest == NULL)
     return NULL;
+  Entity *tmp;
 
   yeClearArray(YE_TO_ENTITY(dest));
   yBlockArrayAssureBlock(&dest->values, yeLen(YE_TO_ENTITY(src)));
@@ -774,10 +786,11 @@ static ArrayEntity	*yeCopyContener(ArrayEntity* src, ArrayEntity* dest, Entity *
       continue;
 
     destElem->flags = elem->flags;
+    destElem->name = g_strdup(elem->name);
+
     if (elem->flags & YE_FLAG_NO_COPY) {
       yeIncrRef(elem->entity);
       destElem->entity = elem->entity;
-      destElem->name = g_strdup(elem->name);
       continue;
     }
 
@@ -787,21 +800,30 @@ static ArrayEntity	*yeCopyContener(ArrayEntity* src, ArrayEntity* dest, Entity *
       return NULL;
     }
 
+    tmp = yeFind(refs, yeCopyFindRef, elem->entity);
+    if (tmp) {
+      destElem->entity = tmp;
+      yeIncrRef(destElem->entity);
+      continue;
+    }
     destElem->entity = yeCreate(elem->entity->type, 0,
 				NULL, NULL);
+    Entity *tmp = yeCreateArray(refs, NULL);
+    yePushBack(tmp, elem->entity, NULL);
+    yePushBack(tmp, destElem->entity, NULL);
 
-    if (!yeCopyInternal(elem->entity, destElem->entity, used)) {
+    if (!yeCopyInternal(elem->entity, destElem->entity, used, refs)) {
       DPRINT_ERR("fail to copy elem %s",
 		 elem->name ? elem->name : "(null)");
+      g_free(destElem->name);
       return NULL;
     }
-    destElem->name = g_strdup(elem->name);
   }
 
   return dest;
 }
 
-static Entity*		yeCopyInternal(Entity* src, Entity* dest, Entity *used)
+static Entity*		yeCopyInternal(Entity* src, Entity* dest, Entity *used, Entity *refs)
 {
   const char* strVal = NULL;
 
@@ -822,7 +844,7 @@ static Entity*		yeCopyInternal(Entity* src, Entity* dest, Entity *used)
       yeSetString(dest, strVal);
       break;
     case YARRAY:
-      yeCopyContener((ArrayEntity*)src, (ArrayEntity*)dest, used);
+      yeCopyContener((ArrayEntity*)src, (ArrayEntity*)dest, used, refs);
       break;
     case YFUNCTION:
       strVal = yeGetFunction(src);
@@ -842,9 +864,11 @@ static Entity*		yeCopyInternal(Entity* src, Entity* dest, Entity *used)
 
 Entity*		yeCopy(Entity* src, Entity* dest)
 {
+  Entity *refs = yeCreateArray(NULL, NULL);
   Entity *used = yeCreateArray(NULL, NULL);
-  Entity *ret = yeCopyInternal(src, dest, used);
+  Entity *ret = yeCopyInternal(src, dest, used, refs);
   yeDestroy(used);
+  yeDestroy(refs);
   return ret;
 }
 

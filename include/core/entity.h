@@ -614,6 +614,20 @@ static inline int yeAddEnt(Entity *e, Entity *e2)
   return -1;
 }
 
+static inline Entity *yeFind(Entity *entity,
+			     Entity *(*finder)(const char *name,
+					       Entity *, void *arg),
+			     void *arg)
+{
+  Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(entity)->values, tmp, it, ArrayEntry) {
+    Entity *ret;
+
+    if ((ret = finder(tmp->name, tmp->entity, arg)) != NULL)
+      return ret;
+  }
+  return NULL;
+}
+
 Entity *yeFindLink(Entity *father, const char *targetPath, int flag);
  
 /**

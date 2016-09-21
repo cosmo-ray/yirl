@@ -104,9 +104,6 @@ function moveHeadInternal(wid, map, opos, npos)
    local headElem = yeGet(head, "elem")
    local dir = yeGet(head, "dir")
 
-   print("args", wid, map, opos, npos)
-   print("vars", mapElems, body, head, headElem, dir)
-   print("body len:", bodyLen)
    print("----")
    if yeLen(destCase) > 1 then
       if (yeGetInt(yeGet(destCase, 1)) ~= 2) then
@@ -159,7 +156,11 @@ function moveHead(wid, map)
 
    local opos = yeGet(head, "pos")
    local npos = ywPosCreate(opos)
-   
+
+   local headPos = 20 * 10 + 10
+   local tmp = yeGet(yeGet(entity, "map"), headPos)
+   print("mv head: ", yeToLuaString(tmp))
+
    ywPosAdd(npos, dir)
    -- check out of border
    if ywPosIsSameX(npos, -1) then
@@ -220,7 +221,6 @@ end
 
 function createSnake(entity)
    -- TODO: this functions: C/lua
-   print("create snake")
    snakeMap(entity)
    yuiRandInit()
    yeCreateInt(ywidAddSignal(entity, "hitWall"),
@@ -243,7 +243,6 @@ function createSnake(entity)
    yeCreateInt(1, entity, "recreate-logic")
    ywidBind(map, "action", "snake:snakeAction")
 
-   print("bak: ", yeToLuaString(bak))
    return map
 end
 
@@ -278,11 +277,16 @@ function reset(entity)
    yeIncrRef(bak)
    print("------------- reset ---------------")
    yeCopy(bak, entity)
-   print("entity: ", yeToLuaString(bak))
    yePushBack(entity, bak, "initial-state")
    local map = ywidNewWidget(entity, "map")
    yeCreateInt(1, entity, "recreate-logic")
    ywidBind(map, "action", "snake:snakeAction")
+
+   local headPos = 20 * 10 + 10
+   local tmp = yeGet(yeGet(entity, "map"), headPos)
+   print(tmp, yeGet(yeGet(entity, "head"), "elem"))
+   print("head: ", yeToLuaString(tmp))
+
    yeDestroy(bak)
    return map
 end
