@@ -799,7 +799,6 @@ static Entity *yeCopyFindRef(const char *name, Entity *entity, void *arg)
 static ArrayEntity *yeCopyContener(ArrayEntity* src, ArrayEntity* dest,
 					Entity *used, Entity *refs)
 {
-  (void)refs;
   if (src == NULL || dest == NULL)
     return NULL;
   Entity *tmp;
@@ -818,8 +817,14 @@ static ArrayEntity *yeCopyContener(ArrayEntity* src, ArrayEntity* dest,
     destElem->name = g_strdup(elem->name);
 
     if (elem->flags & YE_FLAG_NO_COPY) {
-      yeIncrRef(elem->entity);
-      destElem->entity = elem->entity;
+      tmp = elem->entity;
+    } else {
+      tmp = yeFind(refs, yeCopyFindRef, elem->entity);
+    }
+
+    if (tmp) {
+      destElem->entity = tmp;
+      yeIncrRef(destElem->entity);
       continue;
     }
 
@@ -829,12 +834,6 @@ static ArrayEntity *yeCopyContener(ArrayEntity* src, ArrayEntity* dest,
       return NULL;
     }
 
-    tmp = yeFind(refs, yeCopyFindRef, elem->entity);
-    if (tmp) {
-      destElem->entity = tmp;
-      yeIncrRef(destElem->entity);
-      continue;
-    }
     destElem->entity = yeCreate(elem->entity->type, 0,
 				NULL, NULL);
     Entity *tmp = yeCreateArray(refs, NULL);
