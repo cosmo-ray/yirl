@@ -242,6 +242,7 @@ static YWidgetState *ywidNewWidgetInternal(int t,
   if (!ret->signals)
     ret->signals = yeCreateArray(entity, "signals");
 
+  yeSetFlag(entity, "signals", YE_FLAG_NO_COPY);
   ret->actionIdx = ywidAddSignal(ret, "action");
 
   

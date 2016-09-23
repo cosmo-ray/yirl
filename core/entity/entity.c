@@ -158,11 +158,40 @@ static inline int	findIdxPoint(const char *name)
     : res - name;
 }
 
+static inline ArrayEntry *yeGetArrayEntryByStr(Entity *entity, const char *str)
+{
+  Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(entity)->values, elem, it, ArrayEntry) {
+    if (elem && yuiStrEqual(str, elem->name))
+      return elem;
+  }
+  return NULL;
+}
 
 static inline ArrayEntry *yeGetArrayEntryByIdx(Entity *entity, uint32_t i)
 {
   return yBlockArrayGetPtr(&YE_TO_ARRAY(entity)->values, i, ArrayEntry);
 }
+
+int yeSetFlagByIdx(Entity *array, int idx, int flag)
+{
+  ArrayEntry *ae = yeGetArrayEntryByIdx(array, idx);
+
+  if (unlikely(!ae))
+    return -1;
+  ae->flags |= flag;
+  return 0;
+}
+
+int yeSetFlagByStr(Entity *array, const char *name, int flag)
+{
+  ArrayEntry *ae = yeGetArrayEntryByStr(array, name);
+
+  if (unlikely(!ae))
+    return -1;
+  ae->flags |= flag;
+  return 0;
+}
+
 
 /**
  * Look for an entity in @entity

@@ -707,4 +707,15 @@ static inline int yeDoestInclude(Entity *array, Entity *toFind)
 
 void yeIncrChildsRef(Entity *array);
 
+int yeSetFlagByStr(Entity *array, const char *name, int flag);
+int yeSetFlagByIdx(Entity *array, int idx, int flag);
+
+#define yeSetFlag(array, idx, flag) _Generic((idx),			\
+					     int : yeSetFlagByIdx,	\
+					     Y_GEN_CLANG_ARRAY(char,	\
+							       yeSetFlagByStr), \
+					     char *: yeSetFlagByStr,	\
+					     const char *: yeSetFlagByStr \
+					     )(array, idx, flag)
+
 #endif
