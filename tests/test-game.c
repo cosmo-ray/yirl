@@ -33,7 +33,7 @@ static void *shooterAction(va_list ap)
   InputStatue ret = NOTHANDLE;
 
   if (!eve)
-    return NOTHANDLE;
+    return  (void *)NOTHANDLE;
   if (eve->key == '\t' || eve->key == 'q') {
     ygCall(NULL, "FinishGame");
     ret = ACTION;
@@ -55,7 +55,7 @@ static void *shooterInit(va_list ap)
   }
   ysRegistreNativeFunc("shooterAction", shooterAction);
   ygBind(wid, "action", "shooterAction");
-  return NOTHANDLE;
+  return (void *)NOTHANDLE;
 }
 
 void testYGameSdlLibBasic(void)

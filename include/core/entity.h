@@ -592,6 +592,7 @@ static inline int yeStringIndexChar(Entity *entityStr, const char *chars)
       return -1;
     }
   }
+  return -1;
 }
 
 static inline int yeOpsIntAddInt(IntEntity *e, int i)
