@@ -75,6 +75,8 @@ static int tryLinkForeachFathers(LinkInfo *data,
 				 Entity *current)
 {
   YE_FOREACH_FATHER(current, father) {
+    if (!father)
+      continue;
     if (jsonLink(father, data->refFather, data->refName, data->targetName) ||
 	(YE_TO_ARRAY(father)->nbFathers && tryLinkForeachFathers(data, father))) {
       return 1;
