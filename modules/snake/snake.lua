@@ -156,7 +156,6 @@ function moveHead(wid, map)
    local npos = ywPosCreate(opos)
 
    local headPos = 20 * 10 + 10
-   local tmp = yeGet(yeGet(entity, "map"), headPos)
 
    ywPosAdd(npos, dir)
    -- check out of border

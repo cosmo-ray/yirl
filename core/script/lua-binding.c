@@ -15,6 +15,7 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include	<lauxlib.h>
 #include	"lua-binding.h"
 #include	"debug.h"
 #include	"entity.h"
@@ -42,7 +43,7 @@ int	luaGet(lua_State *L)
     return 1;
   }
  error:
-  DPRINT_ERR("function arguments for yeGet are incorect\n");
+  luaL_error(L, "function arguments for yeGet are incorect");
   return -1;
 }
 
@@ -51,8 +52,7 @@ int	luaLen(lua_State *L)
   DPRINT_INFO("luaGetArrayMenber\n");
   if (lua_gettop(L) != 1 || !lua_islightuserdata(L, 1))
     {
-      DPRINT_ERR("yeGet argument is incorrect\n"
-	     "real prototyre is: getLen(lightuserdata entity)\n");
+      luaL_error(L, "argument are incorrect\n");
       return -1;
     }
   lua_pushnumber(L, yeLen((Entity *)lua_topointer(L, 1)));
@@ -65,7 +65,7 @@ int	luaCopy(lua_State *L)
   if (lua_gettop(L) != 2 || !lua_islightuserdata(L, 1) ||
       !lua_islightuserdata(L, 2))
     {
-      DPRINT_ERR("function arguments are incorect\n"
+      luaL_error(L, "function arguments are incorect\n"
 		 "real prototyre is: yeCopy(lightuserdata src, lightuserdata dest)\n");
       return -1;
     }
@@ -119,7 +119,7 @@ int	luaCreateArray(lua_State *L)
 int	luaCreateString(lua_State *L)
 {
   if (!lua_isstring(L, 1)) {
-    DPRINT_ERR("missing string");
+    luaL_error(L, "missing string");
     return -1;
   }
   Entity *ret = yeCreateString(lua_tostring(L, 1),
@@ -132,7 +132,7 @@ int	luaCreateString(lua_State *L)
 int	luaCreateInt(lua_State *L)
 {
   if (!lua_isnumber(L, 1)) {
-    DPRINT_ERR("missing string");
+    luaL_error(L, "missing string");
     return -1;
   }
   lua_pushlightuserdata(L, yeCreateInt((int)lua_tonumber(L, 1),
@@ -144,7 +144,7 @@ int	luaCreateInt(lua_State *L)
 int	luaCreateFloat(lua_State *L)
 {
   if (!lua_isnumber(L, 1)) {
-    DPRINT_ERR("missing string");
+    luaL_error(L, "missing string");
     return -1;
   }
   lua_pushlightuserdata(L, yeCreateFloat(lua_tonumber(L, 1),
@@ -214,12 +214,11 @@ int	luaPopBack(lua_State *L)
   DPRINT_INFO("enter luaArrayPopBack\n");
   if (lua_gettop(L) != 1 || !lua_islightuserdata(L, 1))
     {
-      DPRINT_ERR("function arguments are incorect\n"
+      luaL_error(L, "function arguments are incorect\n"
 	     "real prototyre is: arrayPopBack(lightuserdata entity)\n");
       return -1;
     }
 
-  DPRINT_INFO("before popBack\n");
   lua_pushlightuserdata(L, yePopBack(((Entity *)lua_topointer(L, 1))));
   return 1;
 }
@@ -244,7 +243,7 @@ int	luaPushBack(lua_State *L)
 {
   if (lua_gettop(L) < 2)
     {
-      DPRINT_ERR("function arguments are incorect\n"
+      luaL_error(L, "function arguments are incorect\n"
 	     "real prototyre is: yePushBack(lightuserdata entity, lightuserdata toPush, string name)\n");
       return -1;
     }
@@ -262,7 +261,7 @@ int	luaWidBind(lua_State *L)
 {
   if (lua_gettop(L) != 3)
     {
-      DPRINT_ERR("function arguments are incorect\n"
+      luaL_error(L, "function arguments are incorect\n"
 		 "real prototyre is: ywidBind(lightuserdata map, string signal, string callback)\n");
       return -1;
     }
@@ -281,7 +280,7 @@ int	luaGetString(lua_State *L)
 {
   if (lua_gettop(L) != 1 || !lua_islightuserdata(L, 1))
     {
-      DPRINT_ERR("function arguments are incorect\n"
+      luaL_error(L, "function arguments are incorect\n"
 		 "real prototyre is: yeGetString(lightuserdata entity)\n");
       return -1;
     }
@@ -293,7 +292,7 @@ int	luaGetInt(lua_State *L)
 {
   if (lua_gettop(L) != 1 || !lua_islightuserdata(L, 1))
     {
-      DPRINT_ERR("function arguments are incorect\n"
+      luaL_error(L, "function arguments are incorect\n"
 	     "real prototyre is: yeGetInt(lightuserdata entity)\n");
       return -1;
     }
@@ -305,7 +304,7 @@ int	luaGetFloat(lua_State *L)
 {
   if (lua_gettop(L) != 1 || !lua_islightuserdata(L, 1))
     {
-      DPRINT_ERR("function arguments are incorect\n"
+      luaL_error(L, "function arguments are incorect\n"
 	     "real prototyre is: yeGetFloat(lightuserdata entity)\n");
       return -1;
     }
@@ -318,7 +317,7 @@ int	luaSetFunction(lua_State *L)
   DPRINT_INFO("enter luaSetFunction\n");
   if (lua_gettop(L) != 2)
     {
-      DPRINT_ERR("function arguments are incorect\n"
+      luaL_error(L, "function arguments are incorect\n"
 	     "real prototyre is: yeSetFunction(lightuserdata entity, string functionName)\n");
       return -1;
     }
@@ -331,7 +330,7 @@ int	luaSetInt(lua_State *L)
   DPRINT_INFO("luaSetInt\n");  
   if (lua_gettop(L) != 2 || !lua_islightuserdata (L, 1) || !lua_isnumber (L, 2))
     {
-     // DPRINT_ERR("function arguments are incorect\n""real prototyre is: setEntityIntue(...)\n");
+     // luaL_error(L, "function arguments are incorect\n""real prototyre is: setEntityIntue(...)\n");
 
       return -1;
     }
@@ -343,7 +342,7 @@ int	luaSetFloat(lua_State *L)
 {
   if (lua_gettop(L) != 2 || !lua_islightuserdata (L, 1) || !lua_isnumber (L, 2))
     {
-      DPRINT_ERR("function arguments are incorect\n"
+      luaL_error(L, "function arguments are incorect\n"
 	     "real prototyre is: setEntityIntue(...)\n");
       return (-1);
     }
@@ -361,7 +360,7 @@ int	luaRemoveChild(lua_State *L)
 {
   if (lua_gettop(L) != 2)
     {
-      DPRINT_ERR("function arguments are incorect\n"
+      luaL_error(L, "function arguments are incorect\n"
 	     "real prototyre is: arrayRemove(lightuserdata array, lightuserdata toRemove, int deepSearch)\n");
       return (-1);
     }
@@ -376,7 +375,7 @@ int	luaUnsetFunction(lua_State *L)
   DPRINT_INFO("enter luaUnsetFunction\n");
   if (lua_gettop(L) != 1)
     {
-      DPRINT_ERR("function arguments are incorect\n"
+      luaL_error(L, "function arguments are incorect\n"
 	     "real prototyre is: unsetFunction(lightuserdata entity)\n");
       return (-1);
     }
@@ -387,7 +386,7 @@ int	luaUnsetFunction(lua_State *L)
 int	luaType(lua_State *L)
 {
   if (lua_gettop(L) != 1 || !lua_islightuserdata (L, 1)) {
-    DPRINT_ERR("error in getType: missing entity\n");
+    luaL_error(L, "error in getType: missing entity\n");
     return -1;
   }
   lua_pushnumber(L, yeType(YE_TO_ENTITY(lua_topointer(L, 1))));

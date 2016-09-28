@@ -40,12 +40,12 @@ typedef enum
   {
     BAD_TYPE = -1,
     YINT= 0,
-    YFLOAT,
-    YSTRING,
-    YARRAY,
-    YFUNCTION,
-    YDATA,
-    NBR_ENTITYTYPE
+    YFLOAT = 1,
+    YSTRING = 2,
+    YARRAY = 3,
+    YFUNCTION = 4,
+    YDATA = 5,
+    NBR_ENTITYTYPE = 6
   } EntityType;
 
 #define YE_FORMAT_OPT_BREAK_ARRAY_END 1
