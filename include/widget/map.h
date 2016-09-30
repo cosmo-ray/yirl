@@ -73,26 +73,28 @@ static inline Entity *ywMapGetResources(YWidgetState *state)
   return ((YMapState *)state)->resources;
 }
 
-static inline void ywMapRemoveByEntity(Entity *state, Entity *pos,
+static inline int ywMapRemoveByEntity(Entity *state, Entity *pos,
 				       Entity *elem)
 {
   Entity *cur = ywMapGetCase(state, pos);
 
   if (unlikely(!cur)) {
-    return;
+    return -1;
   }
   yeRemoveChild(cur, elem);
+  return 0;
 }
 
-static inline void ywMapRemoveByStr(Entity *state, Entity *pos,
+static inline int ywMapRemoveByStr(Entity *state, Entity *pos,
 				    const char *str)
 {
   Entity *cur = ywMapGetCase(state, pos);
 
   if (unlikely(!cur)) {
-    return;
+    return - 1;
   }
   yeRemoveChild(cur, yeGetByStrFast(cur, str));
+  return 0;
 }
 
 #define ywMapRemove(sate, pos, elem)					\

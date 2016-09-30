@@ -565,6 +565,7 @@ Entity *yeRemoveChild(Entity *array, Entity *toRemove)
     if (ret == toRemove) {
       arrayEntryDestroy(tmp);
 
+      yeRemoveFather(ret, array);
       yBlockArrayUnset(&YE_TO_ARRAY(array)->values, it);
       return ret;
     }
