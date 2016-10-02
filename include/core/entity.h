@@ -96,9 +96,7 @@ typedef enum {
  * @father is the entity contening this one (a struct or an array)
  */
 #define	ENTITY_HEADER				\
-  struct Entity_ *fathers[16];			\
   unsigned int refCount;			\
-  unsigned int nbFathers;			\
   EntityType type;				\
 
 typedef struct Entity_
@@ -118,6 +116,8 @@ typedef	struct
   ENTITY_HEADER
 
   BlockArray values;
+  struct Entity_ *fathers[16];
+  unsigned int nbFathers;
 } ArrayEntity;
 
 typedef	struct
@@ -508,13 +508,16 @@ void *yeGetData(Entity *entity);
 
 #define YE_FOREACH_FATHER_SET_FATHER(child, father, idx)	\
   ((father = yeFathers(child)[(idx)]) || 1)
-  
+
 #define YE_FOREACH_FATHER(child, father)				\
   Entity *father = NULL;						\
-  for (uint32_t father##idx = 0; child && father##idx < child->nbFathers && \
+  g_assert(child->type == YARRAY);					\
+  for (uint32_t father##idx = 0;					\
+       child && father##idx < YE_TO_ARRAY((child))->nbFathers &&	\
 	 YE_FOREACH_FATHER_SET_FATHER(child, father, father##idx);	\
        ++father##idx)
-  
+
+
 /**
  * @param entity
  * @return the entity's fathers

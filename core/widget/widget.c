@@ -245,7 +245,6 @@ static YWidgetState *ywidNewWidgetInternal(int t,
   yeSetFlag(entity, "signals", YE_FLAG_NO_COPY);
   ret->actionIdx = ywidAddSignal(ret, "action");
 
-  
   /* Init widget */
   if (ret->init(ret, entity, NULL)) {
     DPRINT_ERR("fail durring init\n");

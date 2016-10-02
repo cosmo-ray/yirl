@@ -19,7 +19,7 @@
 
 void *yesVCall(Entity *func, va_list ap)
 {
-  if (unlikely(!func) || unlikely(!yeGetFunction(func)))
+  if (unlikely(!func || !yeGetFunction(func)))
     return NULL;
   return ysVCall(YE_TO_FUNC(func)->manager, yeGetFunction(func), ap);
 }

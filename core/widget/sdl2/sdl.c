@@ -359,7 +359,7 @@ static void sdlFreeTexture(void *txt)
 
 static SDL_Texture *sdlLoasAndCachImg(Entity *elem)
 {
-  const char *path;
+  const char *path = NULL;
   SDL_Texture *texture = yeGetData(yeGet(elem, "$sdl-img"));
   Entity *data;
 
