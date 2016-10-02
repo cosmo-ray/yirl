@@ -376,8 +376,7 @@ static SDL_Texture *sdlLoasAndCachImg(Entity *elem)
       return NULL;
   }
 
-  image = IMG_Load(path);
-  if (!image) {
+  if (unlikely(!path || !(image =  IMG_Load(path)))) {
     return NULL;
   }
 
