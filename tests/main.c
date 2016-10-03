@@ -68,8 +68,8 @@ int main(int argc, char **argv)
   TEST_TRY_ADD("/entity/setunset/complex", testSetComplex, only);
   /* TEST_TRY_ADD("/entity/setunset/generic", testSetGeneric, only); */
 
-  TEST_TRY_ADD("/script/yscript/add", ysciptAdd, only);
-  TEST_TRY_ADD("/script/yscript/loop", yscriptLoop, only);
+  TEST_TRY_ADD("/script/ybytecode/add", ysciptAdd, only);
+  TEST_TRY_ADD("/script/ybytecode/loop", yscriptLoop, only);
     
   TEST_TRY_ADD("/script/tcc/lifecycle", testTccScritLifecycle, only);
   TEST_TRY_ADD("/script/lua/lifecycle", testLuaScritLifecycle, only);

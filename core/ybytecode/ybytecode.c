@@ -15,7 +15,7 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "yscript.h"
+#include "ybytecode.h"
 
 #define inst_compille(ascii_code, label_name, nb_args)	\
 	case ascii_code:				\
@@ -23,7 +23,7 @@
 	i += (nb_args + 1);				\
 	break
 
-Entity *yscript_exec(Entity *stack, int64_t *script)
+Entity *ybytecode_exec(Entity *stack, int64_t *script)
 {
   Entity *ret = NULL;
   int64_t *origin = script;

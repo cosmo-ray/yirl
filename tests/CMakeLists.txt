@@ -2,7 +2,7 @@ add_definitions( -DTESTS_PATH="${CMAKE_SOURCE_DIR}/tests" )
 
 set (SOURCE main.c lifecycle.c test-copy.c setunset.c lua-script.c tcc-script.c
     test-json-desc.c test-widgets.c menu.c map.c
-    test-game.c block-array.c contener.c test-sound.c yscript.c)
+    test-game.c block-array.c contener.c test-sound.c ybytecode.c)
 
 add_executable(tests-entity EXCLUDE_FROM_ALL
 			    main-entity.c  lifecycle.c setunset.c)
@@ -32,7 +32,7 @@ message("-- Render use: ${RENDER_LIBS}")
 
 target_link_libraries(
   tests
-  yscript
+  ybytecode
   game
 )
 

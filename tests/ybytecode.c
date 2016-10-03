@@ -1,7 +1,7 @@
 #include <glib.h>
 
 #include "tests.h"
-#include "yscript.h"
+#include "ybytecode.h"
 
 void ysciptAdd(void)
 {
@@ -22,7 +22,7 @@ void ysciptAdd(void)
 	};
 
 	for (int i = 0; i < 5000000; ++i) {
-		yeDestroy(yscript_exec(args, test0));
+		yeDestroy(ybytecode_exec(args, test0));
 	}
 	yeDestroy(args);
 	yeEnd();
@@ -50,7 +50,7 @@ void yscriptLoop(void)
 			   'E', 0 // return 2nd elem
 	};
 
-	tmp = yscript_exec(args, test1);
+	tmp = ybytecode_exec(args, test1);
 	g_assert(yeGetIntDirect(tmp) == (50000000 * 2));
 	yeDestroy(tmp);
 	yeDestroy(args);

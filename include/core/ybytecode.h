@@ -15,6 +15,11 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef _YIRL_BYTECODE_H_
+#define _YIRL_BYTECODE_H_
+
 #include "entity.h"
 
-Entity *yscript_exec(Entity *args, int64_t *script);
+Entity *ybytecode_exec(Entity *stack, int64_t *script);
+
+#endif
