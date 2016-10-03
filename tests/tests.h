@@ -34,6 +34,9 @@ void testSetSimple(void);
 void testSetComplex(void);
 void testSetGeneric(void);
 
+void ysciptAdd(void);
+void yscriptLoop(void);
+
 void testLuaScritLifecycle(void);
 void testLuaScritEntityBind(void);
 

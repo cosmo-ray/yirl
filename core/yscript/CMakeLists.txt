@@ -1,6 +1,6 @@
 set (SOURCE yscript-bytecode.c)
 
-add_executable(yscript ${SOURCE})
+add_library (yscript ${SOURCE})
 
 target_link_libraries(
   yscript
