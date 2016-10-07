@@ -349,9 +349,12 @@ int ywidRegistreTypeRender(const char *type, int renderType,
 			   int (*init)(YWidgetState *opac, int t),
 			   void (*destroy)(YWidgetState *opac, int t))
 {
+  if (renderType < 0) {
+    return -1;
+  }
   for (int i = 0; i < 64; ++i) {
     if (widgetOptTab[i].name && g_str_equal(type, widgetOptTab[i].name)) {
-      widgetOptTab[i].rendersMask |= 1LLU << renderType;
+      widgetOptTab[i].rendersMask |= ONE64 << renderType;
       widgetOptTab[i].render[renderType] = render;
       widgetOptTab[i].init[renderType] = init;
       widgetOptTab[i].destroy[renderType] = destroy;
