@@ -65,9 +65,3 @@ InputStatue ywidCallSignal(YWidgetState *wid,
 {
   return (InputStatue)yesCall(yeGet(wid->signals, idx), wid, eve, arg);
 }
-
-void ywidFinishSignal(YWidgetState *wid)
-{
-  yeRemoveChild(wid->entity, wid->signals);
-  wid->signals = NULL;
-}

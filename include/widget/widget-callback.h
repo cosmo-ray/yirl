@@ -28,8 +28,6 @@
 int ywidAddSignalByWid(YWidgetState *wid, const char *name);
 int ywidAddSignalByEntity(Entity *wid, const char *name);
 
-void ywidFinishSignal(YWidgetState *wid);
-
 int ywidBind(YWidgetState *wid, const char *signal, Entity *callback);
 int ywidBindBySinIdx(YWidgetState *wid, int, Entity *callback);
 

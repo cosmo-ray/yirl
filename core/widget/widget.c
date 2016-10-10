@@ -427,7 +427,6 @@ void YWidDestroy(YWidgetState *wid)
 {
   if (!wid)
     return;
-  ywidFinishSignal(wid);
   ywidGenericCall(wid, wid->type, destroy);
   if (wid->destroy)
     wid->destroy(wid);
