@@ -433,16 +433,26 @@ int yeAttach(Entity *on, Entity *entity, unsigned int idx,
 	   )(ENTITY, INDEX, VALUE)
 
 //char *: YE_SET_AT_STRIDX_INTERNAL(VALUE))(ENTITY, INDEX, VALUE)
-    
-  
-#define YE_IMPL_RECREATE(type, value, father, name)	\
-  Entity *ret = yeGetByStr(father, name);		\
-							\
-  if (ret) {						\
-    yeSet##type(ret, value);				\
-    return ret;						\
-  }							\
-  return yeCreate##type(value, father, name);		\
+
+#define RECREATE_IS_Float YFLOAT
+#define RECREATE_IS_Int YINT
+#define RECREATE_IS_Function YFUNCTION
+#define RECREATE_IS_String YSTRING
+
+#define YE_GET_REAL_TYPE(type) RECREATE_IS_##type
+
+#define YE_IMPL_RECREATE(_type, value, father, name)		\
+  Entity *ret = yeGetByStr(father, name);			\
+								\
+  if (ret) {							\
+    if (unlikely(ret->type != YE_GET_REAL_TYPE(_type))) {	\
+      yeRemoveChild(father, ret);				\
+    } else {							\
+      yeSet##_type(ret, value);					\
+      return ret;						\
+    }								\
+  }								\
+  return yeCreate##_type(value, father, name);			\
 
 static inline Entity *yeReCreateArray(Entity *father,
 				      const char *name, Entity *newArray)
@@ -459,21 +469,21 @@ static inline Entity *yeReCreateArray(Entity *father,
 static inline Entity *yeReCreateInt(double value, Entity *father,
 				    const char *name)
 {
-  YE_IMPL_RECREATE(Int, value, father, name)
-    }
+  YE_IMPL_RECREATE(Int, value, father, name);
+}
 
 
 static inline Entity *yeReCreateFloat(double value, Entity *father,
 				      const char *name)
 {
-  YE_IMPL_RECREATE(Float, value, father, name)
-    }
+  YE_IMPL_RECREATE(Float, value, father, name);
+}
 
 static inline Entity *yeReCreateString(const char *string,
 				       Entity *father, const char *name)
 {
-  YE_IMPL_RECREATE(String, string, father, name)
-    }
+  YE_IMPL_RECREATE(String, string, father, name);
+}
 
 
 /**
