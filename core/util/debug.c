@@ -27,6 +27,8 @@ fopen et fprintf because dprintf don't existe on mingw
 and fprintf need FILE handler.
 */
 
+static int isInit;
+
 typedef struct s_log_mode {
   const char * const str;
   FILE*		file;
@@ -66,6 +68,8 @@ void	yuiDebugPrint(int mode, char const* format, ...)
 
 void	yuiDebugInit()
 {
+  if (isInit)
+    return;
   log_confs[INFO].file = get_file(0);
   debug_print_info(log_confs[INFO].file, log_confs[INFO].str);
   fprintf(log_confs[INFO].file, "Initiate log file with %p\n",
@@ -87,6 +91,7 @@ void	yuiDebugExit()
   debug_print_info(log_confs[INFO].file, INFO_STR);
   fprintf(log_confs[INFO].file, "Closing logging file with %p\n", log_confs[INFO].file);
   fclose(log_confs[INFO].file);
+  isInit = 0;
 }
 
 void	debug_print_info(FILE* fd, const char* mode)

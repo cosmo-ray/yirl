@@ -122,8 +122,11 @@ int ygInit(GameConfig *cfg)
 {
   static int t;
 
-  /* trick use in case of failure in thbis function to free all */
+  /* trick use in case of failure in this function to free all */
   init = 1;
+
+  yuiDebugInit();
+
   /* Init parseurs */
   yeInitMem();
   CHECK_AND_RET(t = ydJsonInit(), -1, -1,
