@@ -44,18 +44,16 @@ int ywidAddSignalByWid(YWidgetState *wid, const char *name)
 
 int ywidBindBySinIdx(YWidgetState *wid, int idx, Entity *callback)
 { 
-  if (callback)
-    return yeReplace(wid->signals, yeGet(wid->signals, idx), callback);
-  return -1;
+  if (unlikely(!callback || !wid))
+    return -1;
+  return yeReplace(wid->signals, yeGet(wid->signals, idx), callback);
 }
 
 int ywidBind(YWidgetState *wid, const char *signal, Entity *callback)
 {
-  if (callback) {
-    int ret = yeReplace(wid->signals, yeGet(wid->signals, signal), callback);
-    return ret;
-  }
-  return -1;
+  if (unlikely(!callback || !wid))
+    return -1;
+  return yeReplace(wid->signals, yeGet(wid->signals, signal), callback);
 }
 
 InputStatue ywidCallSignal(YWidgetState *wid,
