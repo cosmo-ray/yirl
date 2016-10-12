@@ -425,8 +425,7 @@ void yeDestroyFloat(Entity *entity)
 
 void yeDestroyFunction(Entity *entity)
 {
-  if (YE_TO_FUNC(entity)->value != NULL &&
-      entity->refCount == 1) {
+  if (entity->refCount == 1) {
     free(YE_TO_FUNC(entity)->value);
   }
   YE_DESTROY_ENTITY(entity, FunctionEntity);
@@ -434,8 +433,7 @@ void yeDestroyFunction(Entity *entity)
 
 void yeDestroyString(Entity *entity)
 {
-  if (YE_TO_STRING(entity)->value != NULL &&
-      entity->refCount == 1) {
+  if (entity->refCount == 1) {
     free(YE_TO_STRING(entity)->value);
   }
   YE_DESTROY_ENTITY(entity, StringEntity);
