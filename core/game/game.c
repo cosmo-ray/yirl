@@ -158,6 +158,7 @@ int ygInit(GameConfig *cfg)
   /* Init sound */
   sound_init(LIB_VLC);
 
+  int nbRender = 0;
   for (GList *tmp = cfg->rConf; tmp; tmp = tmp->next) {
     //TODO check which render to use :)
     if (yuiStrEqual(TO_RC(tmp->data)->name, "curses")) {
@@ -167,6 +168,7 @@ int ygInit(GameConfig *cfg)
       CHECK_AND_GOTO(ycursRegistreTextScreen(), -1, error,
 			"Text Screen init failed");
       CHECK_AND_GOTO(ycursRegistreMap(), -1, error, "Map init failed");
+      ++nbRender;
 #else
       DPRINT_ERR("yirl is not compille with curses support");
 #endif
@@ -177,10 +179,15 @@ int ygInit(GameConfig *cfg)
 			"Text Screen init failed");
       CHECK_AND_GOTO(ysdl2RegistreMenu(), -1, error, "Menu init failed");
       CHECK_AND_GOTO(ysdl2RegistreMap(), -1, error, "Map init failed");
+      ++nbRender;
 #else
       DPRINT_ERR("yirl is not compille with SDL2 support");
 #endif
     }
+  }
+  if (!nbRender) {
+    DPRINT_ERR("no render selected");
+    goto error;
   }
   return 0;
 error:
