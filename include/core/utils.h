@@ -15,8 +15,8 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _UTILS_H_
-#define _UTILS_H_
+#ifndef _YIRL_UTILS_H_
+#define _YIRL_UTILS_H_
 
 #include <stdlib.h>
 #include <sys/time.h>
@@ -32,6 +32,8 @@
 #define ONE64      1LLU
 #elif __SIZEOF_POINTER__ == 8
 #define ONE64      1LU
+#else
+#define ONE64      1LLU
 #endif
 
 // if compiller gcc
