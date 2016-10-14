@@ -50,7 +50,16 @@ typedef struct {
 
 #undef GList
 
-int ygInitGameConfig(GameConfig *cfg, const char *path, RenderType t);
+#define ygInitGameConfig(cfg, path, render)				\
+  _Generic((render),							\
+	   const char *: ygInitGameConfigByStr,				\
+	   char *: ygInitGameConfigByStr,				\
+	   Y_GEN_CLANG_ARRAY(char, ygInitGameConfigByStr),		\
+	   RenderType : ygInitGameConfigByRenderType,			\
+	   int : ygInitGameConfigByRenderType) (cfg, path, render)
+
+int ygInitGameConfigByRenderType(GameConfig *cfg, const char *path, RenderType t);
+int ygInitGameConfigByStr(GameConfig *cfg, const char *path, const char *render);
 
 void *ygCallInt(const char *mod, const char *callName, ...);
 

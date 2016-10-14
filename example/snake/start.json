@@ -34,12 +34,12 @@
     "SnakeResources" : [
 	{
 	    "name" : "floar",
-	    "map-srite" : "bg.png",
+	    "map-tild" : "bg.png",
 	    "map-char" : "."
 	},
 	{
 	    "name" : "head", // for text screen ?
-	    "map-srite" : "hero.png", // sdl map
+	    "map-tild" : "hero.png", // sdl map
 	    "map-char" : "X" // curses map
 	},
 	{

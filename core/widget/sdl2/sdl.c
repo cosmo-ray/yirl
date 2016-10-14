@@ -239,9 +239,10 @@ int    ysdl2Init(void)
     goto fail;
   }
 
-  if (sgSetDefaultFont("./sample.ttf") < 0)
-    DPRINT_WARN("Cannot load \"./sample.ttf\"\n");
-
+  if (sgSetDefaultFont("./sample.ttf") < 0) {
+    DPRINT_ERR("Cannot load \"./sample.ttf\"\n");
+    goto fail;
+  }
   
   // fill the window with a black rectangle
   // SDL_Rect   rect = sg.getRect();

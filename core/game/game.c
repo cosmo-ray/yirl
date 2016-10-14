@@ -484,6 +484,9 @@ static int ygParseStartAndGame(GameConfig *config)
 
   do {
     wid = ywidGetMainWid();
+    if (unlikely(!wid)) {
+      return -1;
+    }
     g_assert(ywidRend(wid) != -1);
     sched_yield();
     ywidDoTurn(wid);
@@ -515,7 +518,8 @@ int ygStartLoop(GameConfig *config)
   return ret;
 }
 
-int ygInitGameConfig(GameConfig *cfg, const char *path, RenderType t)
+int ygInitGameConfigByRenderType(GameConfig *cfg, const char *path,
+				 RenderType t)
 {
   if (!t) {
     return -1;
@@ -540,6 +544,21 @@ int ygInitGameConfig(GameConfig *cfg, const char *path, RenderType t)
     cfg->rConf = g_list_append(cfg->rConf,
 			       rConf);
   }
+  return 0;
+}
+
+int ygInitGameConfigByStr(GameConfig *cfg, const char *path, const char *render)
+{
+  RenderConf *rConf = g_new(RenderConf, 1);
+
+  cfg->rConf = NULL;
+  cfg->startingMod = g_new(ModuleConf, 1);
+  cfg->startingMod->path = path;
+
+
+  rConf->name = render;
+  cfg->rConf = g_list_append(cfg->rConf,
+			     rConf);
   return 0;
 }
 
