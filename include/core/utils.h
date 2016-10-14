@@ -127,12 +127,18 @@ static inline uint yuiPopcount64(uint64_t v)
    * See http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel
    */
   return
-    (((v) & 0xfff) * __UINT64_C(0x1001001001001) & __UINT64_C(0x84210842108421)) % 0x1f +
-    (((v >> 12) & 0xfff) * __UINT64_C(0x1001001001001) & __UINT64_C(0x84210842108421)) % 0x1f +
-    (((v >> 24) & 0xfff) * __UINT64_C(0x1001001001001) & __UINT64_C(0x84210842108421)) % 0x1f +
-    (((v >> 36) & 0xfff) * __UINT64_C(0x1001001001001) & __UINT64_C(0x84210842108421)) % 0x1f +
-    (((v >> 48) & 0xfff) * __UINT64_C(0x1001001001001) & __UINT64_C(0x84210842108421)) % 0x1f +
-    (((v >> 60) & 0xfff) * __UINT64_C(0x1001001001001) & __UINT64_C(0x84210842108421)) % 0x1f;
+    (((v) & 0xfff) * __UINT64_C(0x1001001001001) &
+     __UINT64_C(0x84210842108421)) % 0x1f +
+    (((v >> 12) & 0xfff) * __UINT64_C(0x1001001001001) &
+     __UINT64_C(0x84210842108421)) % 0x1f +
+    (((v >> 24) & 0xfff) * __UINT64_C(0x1001001001001) &
+     __UINT64_C(0x84210842108421)) % 0x1f +
+    (((v >> 36) & 0xfff) * __UINT64_C(0x1001001001001) &
+     __UINT64_C(0x84210842108421)) % 0x1f +
+    (((v >> 48) & 0xfff) * __UINT64_C(0x1001001001001) &
+     __UINT64_C(0x84210842108421)) % 0x1f +
+    (((v >> 60) & 0xfff) * __UINT64_C(0x1001001001001) &
+     __UINT64_C(0x84210842108421)) % 0x1f;
 }
 
 static inline unsigned int yuiClz64(uint64_t v)
