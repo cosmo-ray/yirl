@@ -427,16 +427,20 @@ void yeDestroyFunction(Entity *entity)
 {
   if (entity->refCount == 1) {
     free(YE_TO_FUNC(entity)->value);
+    YE_DESTROY_ENTITY(entity, FunctionEntity);
+  } else {
+    YE_DECR_REF(entity);
   }
-  YE_DESTROY_ENTITY(entity, FunctionEntity);
 }
 
 void yeDestroyString(Entity *entity)
 {
   if (entity->refCount == 1) {
     free(YE_TO_STRING(entity)->value);
+    YE_DESTROY_ENTITY(entity, StringEntity);
+  } else {
+    YE_DECR_REF(entity);
   }
-  YE_DESTROY_ENTITY(entity, StringEntity);
 }
 
 void yeDestroyData(Entity *entity)
@@ -463,8 +467,10 @@ void yeDestroyArray(Entity *entity)
     yBlockArrayFree(&YE_TO_ARRAY(entity)->values);
     if (unlikely(YE_TO_ARRAY(entity)->nbFathers > 16))
       g_free(YE_TO_ARRAY(entity)->fathers[0]);
+    YE_DESTROY_ENTITY(entity, ArrayEntity);
+  } else {
+    YE_DECR_REF(entity);
   }
-  YE_DESTROY_ENTITY(entity, ArrayEntity);
 }
 
 void yeDestroy(Entity *entity)
