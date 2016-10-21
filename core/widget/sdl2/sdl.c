@@ -388,6 +388,17 @@ static SDL_Texture *sdlLoasAndCachImg(Entity *elem)
   return texture;
 }
 
+static GError *sdlError;
+
+void sdlConsumeError(void)
+{
+  if (!sdlError)
+    return;
+  fprintf(stderr, "%s\n", sdlError->message);
+  g_error_free (sdlError);
+  sdlError = NULL;
+}
+
 int sdlDisplaySprites(SDLWid *wid, int x, int y, Entity *elem,
 		      int w, int h, int thresholdX)
 {
@@ -412,8 +423,16 @@ int sdlDisplaySprites(SDLWid *wid, int x, int y, Entity *elem,
       SDL_RenderCopy(sg.renderer, texture, NULL, &DestR);
     }
   } else {
-    return sdlPrintText(wid, yeGetString(yeGet(elem, "map-char")),
-			2, color, x * w, y * h);
+    const char *str = yeGetString(yeGet(elem, "map-char"));
+
+    if (unlikely(!str)) {
+      sdlError =
+	g_error_new(1, 1,
+		    "failt to sprite information of elem \"%p\" at %d %d",
+		    elem, x, y);
+      return -1;
+    }
+    return sdlPrintText(wid, str, 2, color, x * w, y * h);
   }
   return 0;
 }

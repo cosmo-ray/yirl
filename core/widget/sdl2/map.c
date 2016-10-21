@@ -143,11 +143,15 @@ static int sdl2FullRender(YWidgetState *state, SDLWid *wid, Entity *entity)
 	continue;
       id = ywMapGetIdByElem(mapElem);
       curRes = yeGet(ywMapGetResources(state), id);
-      sdlDisplaySprites(wid, curx, cury, curRes,
-			sizeSpriteW, sizeSpriteH, 0);
+      if (unlikely(sdlDisplaySprites(wid, curx, cury, curRes,
+				     sizeSpriteW, sizeSpriteH, 0) < 0)) {
+	sdlConsumeError();
+	goto exit;
+      }
     }
   }
 
+ exit:
   return 0;
 }
 

@@ -72,4 +72,6 @@ int sdlPrintText(SDLWid *wid,
 int sdlDisplaySprites(SDLWid *wid, int x, int y, Entity *elem,
 		      int w, int h, int thresholdX);
 
+void sdlConsumeError(void);
+
 #endif
