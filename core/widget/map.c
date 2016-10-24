@@ -22,11 +22,34 @@
 
 static int t = -1;
 
+static int mapInitCheckResources(Entity *resources)
+{
+  Entity *firstELem = yeGet(resources, 0);
+
+  if (unlikely(!resources || (yeType(resources) != YARRAY) ||
+	       !yeLen(resources))) {
+    DPRINT_ERR("can retrive ressources");
+    return -1;
+  } else if (unlikely(!firstELem || !yeLen(firstELem) || !yeLen(resources) ||
+		      !(yeGet(firstELem, "map-char") ||
+			yeGet(firstELem, "map-tild") ||
+			yeGet(firstELem, "map-sprite")))) {
+    DPRINT_ERR("resource bad format");
+    return -1;
+  }
+  return 0;
+}
+
 static int mapInit(YWidgetState *opac, Entity *entity, void *args)
 {
+  Entity *resources;
+
   ywidGenericCall(opac, t, init);
 
   ((YMapState *)opac)->resources = yeGet(entity, "resources");
+  resources = ((YMapState *)opac)->resources;
+  if (mapInitCheckResources(resources) < 0)
+    return -1;
 
   if (yuiStrEqual0(yeGetString(yeGet(entity, "cam-type")), "center")) {
     ((YMapState *)opac)->renderType = YMAP_PARTIAL;
