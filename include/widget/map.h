@@ -33,9 +33,18 @@ typedef struct {
 } YMapState;
 
 /**
- * @return A new entity of type YARRAY, need to be free.
+ * @return A new entity of type YARRAY, need to be free if father is NULL.
  */
-Entity *ywMapCreateDefaultEntity(void);
+Entity *ywMapCreateDefaultEntity(Entity *father, const char *name,
+				 Entity *resources,
+				 int baseId, uint32_t w, uint32_t h);
+
+/**
+ * create a map of @w * @y elemens
+ * @return @entity
+ */
+Entity *ywMapInitEntity(Entity *entity, Entity *resources,
+			int baseId, uint32_t w, uint32_t h);
 
 int ywMapInit(void);
 int ywMapEnd(void);

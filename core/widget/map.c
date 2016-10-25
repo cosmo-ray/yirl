@@ -63,6 +63,33 @@ static int mapInit(YWidgetState *opac, Entity *entity, void *args)
   return 0;
 }
 
+Entity *ywMapInitEntity(Entity *entity,
+			Entity *resources,
+			int baseId, uint32_t w, uint32_t h)
+{
+  uint32_t len = w * h;
+  Entity *map = yeReCreateArray(entity, "map", NULL);
+
+  if (resources)
+    yeReplaceBack(entity, resources, "resources");
+  yeReCreateInt(w, entity, "width");
+  yeReCreateInt(len, entity, "len");
+  if (baseId > -1) {
+    for (uint32_t i = 0; i < len; ++i) {
+      yeCreateInt(baseId, yeCreateArray(map, NULL), NULL);
+    }
+  }
+  return entity;
+}
+
+Entity *ywMapCreateDefaultEntity(Entity *father, const char *name,
+				 Entity *resources,
+				 int baseId, uint32_t w, uint32_t h)
+{
+  Entity *ret = yeCreateArray(father, name);
+  return ywMapInitEntity(ret, resources, baseId, w, h);
+}
+
 Entity *ywMapPosFromInt(Entity *wid, int pos,
 			Entity *father, const char *name)
 {
