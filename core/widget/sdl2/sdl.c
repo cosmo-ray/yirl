@@ -426,10 +426,21 @@ int sdlDisplaySprites(SDLWid *wid, int x, int y, Entity *elem,
     const char *str = yeGetString(yeGet(elem, "map-char"));
 
     if (unlikely(!str)) {
-      sdlError =
-	g_error_new(1, 1,
-		    "failt to sprite information of elem \"%p\" at %d %d",
-		    elem, x, y);
+      Entity *char_sprite = yeGet(elem, "map-char");
+      char *entityStr;
+
+      if (char_sprite)
+	return 0;
+      entityStr = yeToCStr(elem, -1, 0);
+
+      if (yeType(char_sprite) != YSTRING) {
+	sdlError = g_error_new(1, 1,
+			       "map-char of elem :\n\%s\n"
+			       "At pos %d %d should be string but is %s instead\n",
+			       entityStr, x, y,
+			       yeTypeToString(yeType(char_sprite)));
+      }
+      g_free(entityStr);
       return -1;
     }
     return sdlPrintText(wid, str, 2, color, x * w, y * h);
