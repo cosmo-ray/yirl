@@ -13,11 +13,6 @@
 	    "as" : "resources"
 	},
 	{
-	    "file" : "./battle.json",
-	    "type" : "json",
-	    "as" : "battle"
-	},
-	{
 	    "file" : "init.c",
 	    "type" : "tcc"
 	},
