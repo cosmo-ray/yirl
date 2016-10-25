@@ -406,7 +406,6 @@ int sdlDisplaySprites(SDLWid *wid, int x, int y, Entity *elem,
   SDL_Rect DestR;
   SDL_Texture *texture = sdlLoasAndCachImg(elem);
 
-
   if (texture) {
     int type = yeGetInt(yeGet(elem, "$sdl-type"));
     
