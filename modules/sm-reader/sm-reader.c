@@ -61,8 +61,7 @@ static void create_tild_multi_layers(Entity *mod_description, int tild,
   yeCreateInt(tild, yeCreateArrayAt(map[0], NULL, pos), NULL);
 }
 
-static void create_tild(Entity *mod_description, int tild,
-			Entity *map)
+static void create_tild(Entity *mod_description, int tild, Entity *map)
 {
   if (mod_description) {
     Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(mod_description)->values, tmp,
