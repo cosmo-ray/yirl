@@ -31,6 +31,12 @@ int ywidAddSignalByEntity(Entity *wid, const char *name);
 int ywidBind(YWidgetState *wid, const char *signal, Entity *callback);
 int ywidBindBySinIdx(YWidgetState *wid, int, Entity *callback);
 
+/**
+ * create function and bind it
+ */
+Entity *ywidCreateFunction(const char *name, void *manager,
+			   Entity *wid, const char *sinName);
+
 InputStatue ywidCallSignal(YWidgetState *wid, YEvent *eve,
 			   Entity *arg, int idx);
 

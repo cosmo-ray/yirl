@@ -43,7 +43,7 @@ int ywidAddSignalByWid(YWidgetState *wid, const char *name)
 }
 
 int ywidBindBySinIdx(YWidgetState *wid, int idx, Entity *callback)
-{ 
+{
   if (unlikely(!callback || !wid))
     return -1;
   return yeReplace(wid->signals, yeGet(wid->signals, idx), callback);
@@ -54,6 +54,23 @@ int ywidBind(YWidgetState *wid, const char *signal, Entity *callback)
   if (unlikely(!callback || !wid))
     return -1;
   return yeReplace(wid->signals, yeGet(wid->signals, signal), callback);
+}
+
+Entity *ywidCreateFunction(const char *name, void *manager,
+			   Entity *wid, const char *sinName)
+{
+  Entity *sins = yeGet(wid, "signals");
+  Entity *tmp = yeCreateFunction(name, manager, NULL, NULL);
+
+  if (!sins) {
+    sins = yeCreateArray(wid, "signals");
+    yePushBack(sins, tmp, sinName);
+    goto exit;
+  }
+  yeReplace(sins, yeGet(sins, ywidAddSignalByEntity(wid, sinName)), tmp);
+ exit:
+  yeDestroy(tmp);
+  return tmp;
 }
 
 InputStatue ywidCallSignal(YWidgetState *wid,
