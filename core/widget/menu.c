@@ -126,10 +126,7 @@ static InputStatue mnEvent(YWidgetState *opac, YEvent *event)
 
   if (event->type != YKEY_DOWN)
     goto exit;
-  if (event->key == Y_ESC_KEY) {
-    ret = ACTION;
-
-  } else if (event->key == '\n') {
+  if (event->key == '\n') {
     ret = ywidCallSignal(opac, event, NULL,
 			 ((YMenuState *)opac)->current +
 			 ((YMenuState *)opac)->actionSin0);
