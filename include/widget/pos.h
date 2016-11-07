@@ -20,10 +20,20 @@
 
 #include "entity.h"
 
+static inline int ywPosX(Entity *pos)
+{
+  return yeGetInt(yeGetByIdx(pos, 0));
+}
+
+static inline int ywPosY(Entity *pos)
+{
+  return yeGetInt(yeGetByIdx(pos, 1));
+}
+
 static inline void ywPosPrint(Entity *pos)
 {
   printf("x: %d - y: %d\n",
-	 yeGetInt(yeGet(pos, 0)), yeGetInt(yeGet(pos, 1)));
+	 ywPosX(pos), ywPosY(pos));
 }
 
 static inline char * ywPosToString(Entity *pos)
@@ -90,6 +100,18 @@ static inline Entity *ywPosSetEnt(Entity *pos, Entity *other,
 	   int : ywPosSetInts) (pos, x, y)
 
 
+static inline Entity *ywPosSetX(Entity *pos, int posX)
+{
+  yeSetInt(yeGetByIdx(pos, 0), posX);
+  return pos;
+}
+
+static inline Entity *ywPosSetY(Entity *pos, int posY)
+{
+  yeSetInt(yeGetByIdx(pos, 1), posY);
+  return pos;
+}
+
 static inline int ywPosIsSameEnt(Entity *pos1, Entity *pos2,
 				 int useless)
 {
@@ -155,6 +177,13 @@ static inline Entity *ywPosAdd(Entity *pos1, Entity *pos2)
   yeAddEnt(yeGet(pos1, 0), yeGet(pos2, 0));
   yeAddEnt(yeGet(pos1, 1), yeGet(pos2, 1));
   return pos1;
+}
+
+static inline Entity *ywPosAddXY(Entity *pos, int x, int y)
+{
+  yeAddInt(yeGetByIdx(pos, 0), x);
+  yeAddInt(yeGetByIdx(pos, 1), y);
+  return pos;
 }
 
 #endif
