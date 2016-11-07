@@ -153,8 +153,7 @@ static InputStatue cntEvent(YWidgetState *opac, YEvent *event)
   if (!event)
     return NOTHANDLE;
 
-  ywidCallSignal(opac, event, NULL,
-		 opac->actionIdx);
+  ywidCallSignal(opac, event, NULL, opac->actionIdx);
   ret = event->stat;
 
   if (ret != NOTHANDLE)
@@ -185,9 +184,16 @@ static int cntRend(YWidgetState *opac)
   YE_ARRAY_FOREACH(entries, tmp) {
     YWidgetState *wid = yeGetData(yeGet(tmp, "$wid"));
 
+    if (!wid) {
+      Entity *widData;
+
+      wid = ywidNewWidget(tmp, NULL);
+      if (!wid)
+	continue;
+      widData = yeCreateData(wid, tmp, "$wid");
+      yeSetDestroy(widData, widDestroyWrapper);
+    }
     wid->shouldDraw = 0;
-    if (!wid)
-      continue;
     if (needChange)
       wid->hasChange = 1;
     else if (ywCntType(opac) == CNT_STACK && wid->hasChange)
