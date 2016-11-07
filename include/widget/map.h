@@ -53,14 +53,20 @@ int ysdl2RegistreMap(void);
 
 int ywMapHasChange(YWidgetState *state);
 
+static inline int ywMapLen(Entity *state)
+{
+  Entity *tmpLen = yeGet(state, "len");
+  return  tmpLen ? (uint32_t)yeGetInt(tmpLen) : yeLen(yeGet(state, "map"));
+}
+
 static inline int ywMapW(Entity *state)
 {
-  return yeGetInt(yeGet(state, "width"));
+  return yeGetInt(yeGetByStrFast(state, "width"));
 }
 
 static inline int ywMapH(Entity *state)
 {
-  return yeLen(yeGet(state, "map")) / ywMapW(state);
+  return yeLen(yeGetByStrFast(state, "map")) / ywMapW(state);
 }
 
 int ywMapGetIdByElem(Entity *mapElem);
@@ -146,5 +152,32 @@ static inline int ywMapMoveByEntity(Entity *state, Entity *from,
  * @size a pos use to specify width/height
  */
 int ywMapDrawRect(Entity *map, Entity *posStart, Entity *size, int id);
+
+/**
+ * @brief add @x and @y to @pos then move @elem at @pos
+ * @pos @elem initial position, modified durring operation
+ */
+static inline int ywMapAdvenceWithPos(Entity *map, Entity *pos,
+				      int x, int y, Entity *elem)
+{
+  if (unlikely(!elem || !map || ! pos))
+    return -1;
+  YE_INCR_REF(elem);
+  ywMapRemoveByEntity(map, pos, elem);
+  ywPosAddXY(pos, x, y);
+
+  if (ywPosX(pos) < 0)
+    ywPosSetX(pos, ywMapW(map) + ywPosX(pos));
+  else if (ywPosX(pos) >= ywMapW(map))
+    ywPosSetX(pos, ywPosX(pos) - ywMapW(map));
+
+  if (ywPosY(pos) < 0)
+    ywPosSetY(pos, ywMapH(map) + ywPosY(pos));
+  else if (ywPosY(pos) >= ywMapH(map))
+    ywPosSetY(pos, ywPosY(pos) - ywMapH(map));
+  ywMapPushElem(map, elem, pos, NULL);
+  YE_DESTROY(elem);
+  return 0;
+}
 
 #endif
