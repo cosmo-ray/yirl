@@ -23,23 +23,23 @@
 int ywidAddSignalByEntity(Entity *wid, const char *name)
 {
   int64_t idx;
-  Entity *sin = yeGet(wid, "signals");
+  Entity *sins = yeGet(wid, "signals");
+  Entity *sin;
 
-  if (!sin) {
-    sin = yeCreateArray(wid, "signals");
+  if (!sins) {
+    return -1;
   }
-  yeReCreateInt(-1, sin, name);
-  yeGetByStrExt(sin, name, &idx);
+  sin = yeGetByStrExt(sins, name, &idx);
+  if (sin)
+    return idx;
+  yeReCreateInt(-1, sins, name);
+  yeGetByStrExt(sins, name, &idx);
   return idx;
 }
 
 int ywidAddSignalByWid(YWidgetState *wid, const char *name)
 {
-  int64_t idx;
-
-  yeReCreateInt(-1, wid->signals, name);
-  yeGetByStrExt(wid->signals, name, &idx);
-  return idx;
+  return ywidAddSignalByEntity(wid->entity, name);
 }
 
 int ywidBindBySinIdx(YWidgetState *wid, int idx, Entity *callback)
