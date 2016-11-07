@@ -88,9 +88,12 @@ int main(int argc, char **argv)
   TEST_TRY_ADD("/widget/menu/sdl", testYWMenuSdl2, only);
   TEST_TRY_ADD("/widget/map/resized/sdl", testYWMapSdl2, only);
   TEST_TRY_ADD("/widget/map/big/sdl", testYBigWMapSdl2, only);
-  TEST_TRY_ADD("/widget/contener/horizontal/sdl", testHorizontalContenerSdl, only);
-  TEST_TRY_ADD("/widget/contener/vertical/sdl", testVerticalContenerSdl, only);
-  TEST_TRY_ADD("/widget/contener/stack/sdl", testStackContenerSdl, only);
+  TEST_TRY_ADD("/widget/contener/static/horizontal/sdl",
+	       testHorizontalContenerSdl, only);
+  TEST_TRY_ADD("/widget/contener/static/vertical/sdl",
+	       testVerticalContenerSdl, only);
+  TEST_TRY_ADD("/widget/contener/static/stack/sdl",
+	       testStackContenerSdl, only);
   TEST_TRY_ADD("/game/sdl/simple", testYGameSdlLibBasic, only);
 #endif
 #ifdef WITH_CURSES
@@ -98,6 +101,8 @@ int main(int argc, char **argv)
   TEST_TRY_ADD("/widget/textScreen/curses", testYWTextScreenCurses, only);
   TEST_TRY_ADD("/widget/menu/curses", testYWMenuCurses, only);
   TEST_TRY_ADD("/widget/map/curses", testYWMapCurses, only);
+  TEST_TRY_ADD("/widget/contener/dynamic/stack/curses",
+	       testDynamicStackContenerCurses, only);
 #ifdef WITH_SDL
   TEST_TRY_ADD("/widget/lifecycle/all", testAllLife, only);
   TEST_TRY_ADD("/widget/textScreen/all", testYWTextScreenAll, only);

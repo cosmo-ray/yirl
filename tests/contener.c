@@ -27,8 +27,14 @@
 
 static void *testMenuEnter(va_list ap)
 {
-  (void)ap;
-  return (void *)ACTION;
+  va_arg(ap, YWidgetState *);
+  YEvent *eve = va_arg(ap, YEvent *);
+
+  if (eve && (eve->type == YKEY_DOWN && eve->key == '\n')) {
+    eve->stat = ACTION;
+    return (void *)ACTION;
+  }
+  return (void *)NOTHANDLE;
 }
 
 void testHorizontalContenerSdl(void)
@@ -118,5 +124,58 @@ void testStackContenerSdl(void)
   } while(ywidDoTurn(wid) != ACTION);
 
   YE_DESTROY(ret);
+  ygEnd();
+}
+
+void testDynamicStackContenerCurses(void)
+{
+  GameConfig cfg;
+  Entity *cnt, *resources, *entries, *curMap, *gc;
+  YWidgetState *wid;
+
+  /* Init libs */
+  g_assert(!ygInitGameConfig(&cfg, NULL, SDL2));
+  g_assert(!ygInit(&cfg));
+
+  gc = yeCreateArray(NULL, NULL);
+  cnt = yeCreateArray(gc, NULL);
+  resources = yeCreateArray(cnt, "resources");
+  yeCreateString(".", yeCreateArray(resources, NULL), "map-char");
+  yeCreateString("1", yeCreateArray(resources, NULL), "map-char");
+  yeCreateString("2", yeCreateArray(resources, NULL), "map-char");
+  yeCreateString("3", yeCreateArray(resources, NULL), "map-char");
+
+  yeReCreateString("contener", cnt, "<type>");
+  yeCreateString("stacking", cnt, "cnt-type");
+  yeCreateString("rgba: 255 255 255 255", cnt, "background");
+  g_assert(ysRegistreCreateNativeEntity(testMenuEnter, "menuTest", cnt, "action"));
+  entries = yeCreateArray(cnt, "entries");
+
+  curMap = ywMapCreateDefaultEntity(entries, NULL, resources, 0, 20, 20);
+  yeCreateString("map", curMap, "<type>");
+
+  wid = ywidNewWidget(cnt, NULL);
+
+  do {
+    g_assert(ywidRend(wid) != -1);
+  } while(ywidDoTurn(wid) != ACTION);
+
+  curMap = ywMapCreateDefaultEntity(entries, NULL, resources, -1, 20, 20);
+  yeCreateString("map", curMap, "<type>");
+  ywMapDrawRect(curMap, ywPosCreateInts(5, 5, gc, NULL),
+		ywPosCreateInts(5, 5, gc, NULL), 1);
+  // add layer 2
+
+  do {
+    g_assert(ywidRend(wid) != -1);
+  } while(ywidDoTurn(wid) != ACTION);
+
+  // add layer 3
+
+  do {
+    g_assert(ywidRend(wid) != -1);
+  } while(ywidDoTurn(wid) != ACTION);
+
+  YE_DESTROY(gc);
   ygEnd();
 }
