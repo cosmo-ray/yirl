@@ -114,8 +114,7 @@ static int sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
 static int sdl2FullRender(YWidgetState *state, SDLWid *wid, Entity *entity)
 {
   Entity *map = yeGet(entity, "map");
-  Entity *tmpLen = yeGet(entity, "len");
-  unsigned int lenMap =  tmpLen ? (uint32_t)yeGetInt(tmpLen) : yeLen(map);
+  unsigned int lenMap = ywMapLen(entity);
   unsigned int wMap = yeGetInt(yeGet(entity, "width"));
   YBgConf cfg;
   unsigned int hMap = lenMap / wMap;
