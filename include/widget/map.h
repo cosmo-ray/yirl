@@ -140,4 +140,11 @@ static inline int ywMapMoveByEntity(Entity *state, Entity *from,
   return 0;
 }
 
+/**
+ * @map	The map to draw on
+ * @posStart x, y pos where to start drawing
+ * @size a pos use to specify width/height
+ */
+int ywMapDrawRect(Entity *map, Entity *posStart, Entity *size, int id);
+
 #endif

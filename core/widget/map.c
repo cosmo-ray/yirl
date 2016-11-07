@@ -82,6 +82,42 @@ Entity *ywMapInitEntity(Entity *entity,
   return entity;
 }
 
+int ywMapDrawRect(Entity *map, Entity *posStart, Entity *size, int id)
+{
+  Entity *mapElems = yeGet(map, "map");
+  int x = ywPosX(posStart);
+  int y = ywPosY(posStart);
+  int w = ywPosX(size);
+  int h = ywPosY(size);
+  int mapW = ywMapW(map);
+  int start = x + (y * mapW);
+  int mapLen = ywMapLen(map);
+  int lenX = (w + x) > mapW ? mapW : (w + x);
+  int realEnd = start + w + ((h - 1) * mapW);
+
+  if (start > mapLen || x > mapW)
+    return -1;
+  for (int i = start, curX = x, end = realEnd > mapLen ? mapLen : realEnd;
+       i < end;) {
+    Entity *tmp = yeGet(mapElems, i);
+
+    if (!tmp)
+      tmp = yeCreateArrayAt(mapElems, NULL, i);
+
+    yeCreateInt(id, tmp, NULL);
+
+    if (curX + 1 >= lenX) {
+      curX = x;
+      i += (mapW - x) + 1;
+    } else {
+      ++curX;
+      ++i;
+    }
+  }
+  return 0;
+}
+
+
 Entity *ywMapCreateDefaultEntity(Entity *father, const char *name,
 				 Entity *resources,
 				 int baseId, uint32_t w, uint32_t h)
