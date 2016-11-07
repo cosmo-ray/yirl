@@ -88,6 +88,9 @@ typedef struct yevent {
   SLIST_ENTRY(yevent) lst;
 } YEvent;
 
+#define ywidEveType(eve) (eve)->type
+#define ywidEveKey(eve) (eve)->key
+
 typedef struct {
   void *opac;
 } YRenderState;

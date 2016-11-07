@@ -196,13 +196,13 @@ int	luaWidEveIsEnd(lua_State *L)
 
 int	luaEveType(lua_State *L)
 {
-  lua_pushnumber(L, ((YEvent *)lua_touserdata(L, 1))->type);
+  lua_pushnumber(L, ywidEveType((YEvent *)lua_touserdata(L, 1)));
   return 1;
 }
 
 int	luaEveKey(lua_State *L)
 {
-  lua_pushnumber(L, ((YEvent *)lua_touserdata(L, 1))->key);
+  lua_pushnumber(L, ywidEveKey((YEvent *)lua_touserdata(L, 1)));
   return 1;
 }
 
