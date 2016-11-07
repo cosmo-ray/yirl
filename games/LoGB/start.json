@@ -6,6 +6,27 @@
     "init-scripts" : [
 	["tcc", "init"]
     ],
+    "battle_cruse" : {
+	"heal" : 50,
+	"attack" : 50,
+	"attack repartition" : [75,20,10],
+	"shield" : [0.5, 1, 1.5],
+	"action points" : 3,
+	"booster" : [0.5, 1.5, 2],
+	"yksvonim effect" : 0.2,
+	"yksvonim range" : 3,
+	"sprite" : 1
+    },
+    "player1 fleets" : [
+	[ "logb:battle_cruse", 15 ],
+	[ "logb:battle_cruse", 10 ],
+	[ "logb:battle_cruse", 10 ]
+    ],
+    "player2 fleets" : [
+	[ "logb:battle_cruse", 15 ],
+	[ "logb:battle_cruse", 10 ],
+	[ "logb:battle_cruse", 10 ]
+    ],
     "pre-load" : [
 	{
 	    "file" : "./resources.json",
