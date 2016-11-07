@@ -148,12 +148,10 @@ static int sdl2FullRender(YWidgetState *state, SDLWid *wid, Entity *entity)
       if (unlikely(sdlDisplaySprites(wid, curx, cury, curRes,
 				     sizeSpriteW, sizeSpriteH, 0) < 0)) {
 	sdlConsumeError();
-	goto exit;
       }
     }
   }
 
- exit:
   return 0;
 }
 
