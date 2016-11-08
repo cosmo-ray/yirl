@@ -18,6 +18,7 @@ static inline int die(int ret, GameConfig *cfg)
 
 int main(void)
 {
+  yeInitMem();
   GameConfig cfg;
   char buff[1024];
   Entity *modDesc = yeCreateArray(NULL, NULL);
@@ -26,7 +27,7 @@ int main(void)
   Entity *path;
 
   yuiDebugInit(); //Can not be init twice :)
-  TRY_OR_DIE(ygInitGameConfig(&cfg, gamePath, SDL2), -1);
+  TRY_OR_DIE(ygInitGameConfig(&cfg, gamePath, CURSES), -1);
   TRY_OR_DIE(ygInit(&cfg), die(-1, &cfg));
   /* put current path inside buff */
   getcwd(buff, 1024);

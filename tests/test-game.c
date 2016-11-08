@@ -45,7 +45,6 @@ static void *shooterAction(va_list ap)
 static void *shooterInit(va_list ap)
 {
   YWidgetState *wid = va_arg(ap, YWidgetState *);
-  va_arg(ap, YEvent *);
   Entity *arg = va_arg(ap, Entity *);
 
   yeCreateInt(MAP_SIZE_W, arg, "width");

@@ -232,7 +232,6 @@ void *shooterInit(va_list ap)
   Entity *tmp;
   Entity *pos;
 
-  va_arg(ap, YEvent *);
   arg = va_arg(ap, Entity *);
   sound_play_loop("42", "BlablablaMrFreeman.mp3");
 
