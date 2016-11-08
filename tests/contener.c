@@ -156,21 +156,29 @@ void testDynamicStackContenerCurses(void)
 
   wid = ywidNewWidget(cnt, NULL);
 
+  curMap = ywMapCreateDefaultEntity(entries, NULL, resources, -1, 20, 20);
+  yeCreateString("map", curMap, "<type>");
+  ywMapDrawRect(curMap, ywPosCreateInts(5, 5, gc, NULL),
+		ywPosCreateInts(5, 5, gc, NULL), 1);
+
   do {
     g_assert(ywidRend(wid) != -1);
   } while(ywidDoTurn(wid) != ACTION);
 
   curMap = ywMapCreateDefaultEntity(entries, NULL, resources, -1, 20, 20);
   yeCreateString("map", curMap, "<type>");
-  ywMapDrawRect(curMap, ywPosCreateInts(5, 5, gc, NULL),
-		ywPosCreateInts(5, 5, gc, NULL), 1);
-  // add layer 2
+  ywMapDrawRect(curMap, ywPosCreateInts(17, 17, gc, NULL),
+		ywPosCreateInts(17, 17, gc, NULL), 2);
 
   do {
     g_assert(ywidRend(wid) != -1);
   } while(ywidDoTurn(wid) != ACTION);
 
-  // add layer 3
+
+  curMap = ywMapCreateDefaultEntity(entries, NULL, resources, -1, 20, 20);
+  yeCreateString("map", curMap, "<type>");
+  ywMapDrawRect(curMap, ywPosCreateInts(7, 7, gc, NULL),
+		ywPosCreateInts(4, 170, gc, NULL), 3);
 
   do {
     g_assert(ywidRend(wid) != -1);

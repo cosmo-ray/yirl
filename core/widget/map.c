@@ -92,11 +92,17 @@ int ywMapDrawRect(Entity *map, Entity *posStart, Entity *size, int id)
   int mapW = ywMapW(map);
   int start = x + (y * mapW);
   int mapLen = ywMapLen(map);
-  int lenX = (w + x) > mapW ? mapW : (w + x);
+  int lenX = w + x;
   int realEnd = start + w + ((h - 1) * mapW);
 
   if (start > mapLen || x > mapW)
     return -1;
+
+  if (lenX > mapW) {
+    w = mapW - w;
+    lenX = mapW;
+  }
+
   for (int i = start, curX = x, end = realEnd > mapLen ? mapLen : realEnd;
        i < end;) {
     Entity *tmp = yeGet(mapElems, i);
@@ -108,7 +114,7 @@ int ywMapDrawRect(Entity *map, Entity *posStart, Entity *size, int id)
 
     if (curX + 1 >= lenX) {
       curX = x;
-      i += (mapW - x) + 1;
+      i += (mapW - w) + 1;
     } else {
       ++curX;
       ++i;
