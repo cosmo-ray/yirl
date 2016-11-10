@@ -27,7 +27,9 @@ int ywidAddSignalByEntity(Entity *wid, const char *name)
   Entity *sin;
 
   if (!sins) {
-    return -1;
+    sins = yeCreateArray(wid, "signals");
+    if (!sins)
+      return -1;
   }
   sin = yeGetByStrExt(sins, name, &idx);
   if (sin)
