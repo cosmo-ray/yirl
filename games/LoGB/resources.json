@@ -1,0 +1,18 @@
+{
+    "battle-map" : [
+	{
+	    "map-char" : ".",
+	    "name" : "space"
+	},
+	{
+	    "map-chars" : "V<>^",
+	    "name" : "ship"
+	},
+	{
+	    "map-char" : "@"
+	},
+	{
+	    "map-color" : "rgba: 255 127 127 127"
+	}
+    ]
+}

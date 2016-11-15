@@ -1,0 +1,16 @@
+{
+    "main" : {
+	"<type>" : "menu",
+	"entries" : [
+	    {
+		"text" : "Play",
+		"next" : "logb:battle",
+		"action" : "menuNext",
+	    },
+	    {
+		"text" : "Quit",
+		"action" : "FinishGame"
+	    }
+	]
+    }
+}
