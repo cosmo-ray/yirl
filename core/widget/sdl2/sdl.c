@@ -357,8 +357,9 @@ static void sdlFreeTexture(void *txt)
 
 #define Y_SDL_TILD 1
 #define Y_SDL_SPRITE 2
+#define Y_SDL_COLOR 3
 
-static SDL_Texture *sdlLoasAndCachImg(Entity *elem)
+static SDL_Texture *sdlLoasAndCachTexture(Entity *elem)
 {
   const char *path = NULL;
   SDL_Texture *texture = yeGetData(yeGet(elem, "$sdl-img"));
@@ -369,12 +370,22 @@ static SDL_Texture *sdlLoasAndCachImg(Entity *elem)
   SDL_Surface *image;
 
   if (!yeGet(elem, "$sdl-type")) {
-    if ((path = yeGetString(yeGet(elem, "map-tild"))) != NULL)
+    if ((path = yeGetString(yeGet(elem, "map-tild"))) != NULL) {
       yeCreateInt(Y_SDL_TILD, elem, "$sdl-type");
-    else if ((path = yeGetString(yeGet(elem, "map-srite"))) != NULL)
+    } else if ((path = yeGetString(yeGet(elem, "map-srite"))) != NULL) {
       yeCreateInt(Y_SDL_SPRITE, elem, "$sdl-type");
-    else
+    } else if ((path = yeGetString(yeGet(elem, "map-color"))) != NULL) {
+      SDL_Color *col = g_new(SDL_Color, 1);
+
+      ywidColorFromString((char *)path, &col->r, &col->g, &col->b, &col->a);
+      yeCreateInt(Y_SDL_COLOR, elem, "$sdl-type");
+      data = yeCreateData(col, elem, "$sdl-img");
+      yeSetDestroy(data, g_free);
+      return (SDL_Texture *)col;
+    } else {
       return NULL;
+    }
+
   }
 
   if (unlikely(!path || !(image =  IMG_Load(path)))) {
@@ -404,17 +415,20 @@ int sdlDisplaySprites(SDLWid *wid, int x, int y, Entity *elem,
 {
   SDL_Color color = {0,0,0,255};
   SDL_Rect DestR;
-  SDL_Texture *texture = sdlLoasAndCachImg(elem);
+  SDL_Texture *texture = sdlLoasAndCachTexture(elem);
 
   if (texture) {
     int type = yeGetInt(yeGet(elem, "$sdl-type"));
-    
-    if (type == Y_SDL_TILD) {
+
+    if (type == Y_SDL_TILD || type == Y_SDL_COLOR) {
       DestR.x = x * w + wid->rect.x + thresholdX;
       DestR.y = y * h + wid->rect.y;
       DestR.w = w;
       DestR.h = h;
-      SDL_RenderCopy(sg.renderer, texture, NULL, &DestR);
+      if (type == Y_SDL_COLOR)
+	sdlDrawRect(DestR, *((SDL_Color *)texture));
+      else
+	SDL_RenderCopy(sg.renderer, texture, NULL, &DestR);
     } else {
       SDL_QueryTexture(texture, NULL, NULL, &DestR.w, &DestR.h);
       DestR.x = x * w + wid->rect.x + thresholdX;

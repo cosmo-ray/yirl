@@ -109,16 +109,12 @@ int ywidNext(Entity *next)
   return 0;
 }
 
-int ywidBgConfFill(Entity *entity, YBgConf *cfg)
+int ywidColorFromString(char *str, uint8_t *r, uint8_t *g,
+			uint8_t *b, uint8_t *a)
 {
-  char *str = (char *)yeGetString(entity);
   size_t len;
   int limiterPos = 0;
   int ret = -1;
-
-  cfg->type = BG_BUG;
-  if (!str)
-    return -1;
 
   for (int i = 0; str[i]; ++i) {
     if (str[i] == ':') {
@@ -148,11 +144,10 @@ int ywidBgConfFill(Entity *entity, YBgConf *cfg)
 
       if (i >= 4) {
 	/* rgba[0] contain "rgba:" */
-	cfg->r = atoi(rgba[1]);
-	cfg->g = atoi(rgba[2]);
-	cfg->b = atoi(rgba[3]);
-	cfg->a = atoi(rgba[4]);
-	cfg->type = BG_COLOR;
+	*r = atoi(rgba[1]);
+	*g = atoi(rgba[2]);
+	*b = atoi(rgba[3]);
+	*a = atoi(rgba[4]);
 	ret = 0;
       } else {
 	DPRINT_ERR("invalide rgba color string: %s", str);
@@ -164,15 +159,26 @@ int ywidBgConfFill(Entity *entity, YBgConf *cfg)
   exit:
     str -= (limiterPos + 1);
     str[limiterPos] = tmp;
-
-  } else { // path
-    if ((cfg->path = g_strdup(str)) != NULL) {
-      cfg->type = BG_IMG;
-      ret = 0;
-    }
   }
-
   return ret;
+}
+
+int ywidBgConfFill(Entity *entity, YBgConf *cfg)
+{
+  char *str = (char *)yeGetString(entity);
+
+  cfg->type = BG_BUG;
+  if (!str)
+    return -1;
+
+  if (!ywidColorFromString(str, &cfg->r, &cfg->g, &cfg->b, &cfg->a))
+    cfg->type = BG_COLOR;
+  else if ((cfg->path = g_strdup(str)) != NULL)
+    cfg->type = BG_IMG;
+  else
+    return -1;
+
+  return 0;
 }
 
 void ywidRemoveRender(int renderType)

@@ -220,8 +220,8 @@ function createSnake(entity)
    -- TODO: this functions: C/lua
    snakeMap(entity)
    yuiRandInit()
-   yeCreateInt(ywidAddSignal(entity, "hitWall"),
-	       entity, "hitWallIdx")
+   local sinNb = ywidAddSignal(entity, "hitWall")
+   yeCreateInt(sinNb, entity, "hitWallIdx")
    yeCreateInt(ywidAddSignal(entity, "eat"),
 	       entity, "eatIdx")
    yeCreateInt(ywidAddSignal(entity, "endTurn"),

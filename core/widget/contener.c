@@ -115,6 +115,8 @@ static int cntInit(YWidgetState *opac, Entity *entity, void *args)
     yeCreateString("", bg_tx, "text");
     yePushBack(bg_tx, bg, "background");
     wid = ywidNewWidget(bg_tx, NULL);
+    if (!wid)
+      return -1;
     widData = yeCreateData(wid, entity, "$bg-wid");
     yeSetDestroy(widData, widDestroyWrapper);
   }
@@ -125,6 +127,8 @@ static int cntInit(YWidgetState *opac, Entity *entity, void *args)
  
     yeReplaceBack(ptr, entity, "$father-contener");
     wid = ywidNewWidget(ptr, NULL);
+    if (!wid)
+      return -1;
     widData = yeCreateData(wid, tmp, "$wid");
     yeSetDestroy(widData, widDestroyWrapper);
   }
@@ -153,8 +157,7 @@ static InputStatue cntEvent(YWidgetState *opac, YEvent *event)
   if (!event)
     return NOTHANDLE;
 
-  ywidCallSignal(opac, event, NULL, opac->actionIdx);
-  ret = event->stat;
+  ret = ywidCallSignal(opac, event, NULL, opac->actionIdx);
 
   if (ret != NOTHANDLE)
     return ret;

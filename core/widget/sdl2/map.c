@@ -80,8 +80,9 @@ static int sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
   int32_t begX = posCam;
   Entity *mapCase;
 
-  if (ywidBgConfFill(yeGet(entity, "background"), &cfg) >= 0)
+  if (ywidBgConfFill(yeGet(entity, "background"), &cfg) >= 0) {
     sdlFillBg(wid, &cfg);
+  }
 
   setSpritesSize(&sizeSpriteW, &sizeSpriteH, wCam,
 		hCam, wid->rect.w, wid->rect.h);

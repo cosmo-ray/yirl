@@ -160,8 +160,15 @@ int ywMapDrawRect(Entity *map, Entity *posStart, Entity *size, int id);
 static inline int ywMapAdvenceWithPos(Entity *map, Entity *pos,
 				      int x, int y, Entity *elem)
 {
-  if (unlikely(!elem || !map || ! pos))
+  if (unlikely(!elem || !map || ! pos)) {
+    if (!map)
+      DPRINT_WARN("map is NULL");
+    else if (!elem)
+      DPRINT_WARN("elem is NULL");
+    else
+      DPRINT_WARN("pos is NULL");
     return -1;
+  }
   YE_INCR_REF(elem);
   ywMapRemoveByEntity(map, pos, elem);
   ywPosAddXY(pos, x, y);
