@@ -43,11 +43,25 @@ Entity *getLayer(Entity *contener, int idx)
   return yeGetByIdx(yeGetByStrFast(contener, "entries"), idx);
 }
 
+Entity *getCursorPos(Entity *wid)
+{
+  yeGetByStr(wid, "_cursos pos");
+}
+
+void addShip(Entity *wid)
+{
+  Entity *gc = yeCreateArray(NULL, NULL);
+  Entity *l1 = getLayer(wid, 1);
+
+  ywMapPushNbr(l1, 1, getCursorPos(wid), NULL);
+  yeDestroy(gc);
+}
+
 void *battleAction(int nbArgs, void **args)
 {
   YWidgetState *tmpwid = args[0];
   Entity *wid = tmpwid->entity;
-  Entity *l1 = getLayer(wid, 0);
+  Entity *l1 = getLayer(wid, 1);
   void *ret = (void *)NOTHANDLE;
   YEvent *events = args[1];
   YEvent *eve = events;
@@ -60,6 +74,9 @@ void *battleAction(int nbArgs, void **args)
     case 'q':
       ygCall(NULL, "FinishGame");
       ret = (void *)ACTION;
+      break;
+    case '\n':
+      addShip(wid);
       break;
     case Y_UP_KEY:
       ywMapAdvenceWithPos(l1, yeGetByStr(wid, "_cursos pos"),
@@ -122,7 +139,7 @@ void *battleInit(int nbArgs, void **args)
   yeCreateInt(0, entity, "_state");
 
   Entity *pos = ywPosCreateInts(0, 0, entity, "_cursos pos");
-  ywMapPushElem(getLayer(entity, 0), yeGetByStr(entity, "cursor id"), pos, NULL);
+  ywMapPushElem(getLayer(entity, 1), yeGetByStr(entity, "cursor id"), pos, NULL);
 
   printf("%d - %p - %p\n",
 	 yeGetInt(yeGetByStr(entity, "cursor id")),

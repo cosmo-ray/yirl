@@ -55,8 +55,9 @@ int ywMapHasChange(YWidgetState *state);
 
 static inline int ywMapLen(Entity *state)
 {
-  Entity *tmpLen = yeGet(state, "len");
-  return  tmpLen ? (uint32_t)yeGetInt(tmpLen) : yeLen(yeGet(state, "map"));
+  Entity *tmpLen = yeGetByStrFast(state, "len");
+  return  tmpLen ? (uint32_t)yeGetInt(tmpLen) :
+    yeLen(yeGetByStrFast(state, "map"));
 }
 
 static inline int ywMapW(Entity *state)
@@ -66,7 +67,7 @@ static inline int ywMapW(Entity *state)
 
 static inline int ywMapH(Entity *state)
 {
-  return yeLen(yeGetByStrFast(state, "map")) / ywMapW(state);
+  return ywMapLen(state) / ywMapW(state);
 }
 
 int ywMapGetIdByElem(Entity *mapElem);

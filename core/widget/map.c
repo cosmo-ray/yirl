@@ -169,8 +169,10 @@ Entity *ywMapGetCase(Entity *state, Entity *pos)
   int w = yeGetInt(yeGet(state, "width"));
   Entity *ret;
 
-  ret = yeGet(map, yeGetInt(yeGet(pos, "x")) + (w * yeGetInt(yeGet(pos, "y"))));
+  ret = yeGet(map, ywPosX(pos) + (w * ywPosY(pos)));
   if (unlikely(!ret)) {
+    int iPos = ywPosX(pos) + (w * ywPosY(pos));
+
     if (!state)
       DPRINT_ERR("entity is NULL");
     else if (!map)
@@ -183,6 +185,8 @@ Entity *ywMapGetCase(Entity *state, Entity *pos)
       DPRINT_ERR("unable to get 'x' in pos");
     else if (!yeGet(pos, "y"))
       DPRINT_ERR("unable to get 'w' in pos");
+    else if (iPos < ywMapLen(state)) /* case fault ocure */
+      ret = yeCreateArrayAt(map, NULL, iPos);
   }
   return ret;
 }

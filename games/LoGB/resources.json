@@ -5,7 +5,7 @@
 	    "name" : "space"
 	},
 	{
-	    "map-chars" : "V<>^",
+	    "map-char" : "V<>^",
 	    "name" : "ship"
 	},
 	{
