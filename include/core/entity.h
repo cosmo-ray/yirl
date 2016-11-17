@@ -629,8 +629,8 @@ static inline int yeAddEnt(Entity *e, Entity *e2)
 }
 
 static inline Entity *yeFind(Entity *entity,
-			     Entity *(*finder)(const char *name,
-					       Entity *, void *arg),
+			     Entity *(*finder)(const char *,
+					       Entity *, void *),
 			     void *arg)
 {
   Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(entity)->values, tmp, it, ArrayEntry) {

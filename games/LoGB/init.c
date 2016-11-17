@@ -52,8 +52,10 @@ void addShip(Entity *wid)
 {
   Entity *gc = yeCreateArray(NULL, NULL);
   Entity *l1 = getLayer(wid, 1);
+  Entity *cursorPos = getCursorPos(wid);
 
-  ywMapPushNbr(l1, 1, getCursorPos(wid), NULL);
+  if (ywMapGetNbrEntityAt(l1, cursorPos, 3))
+    ywMapPushNbr(l1, 1, cursorPos, NULL);
   yeDestroy(gc);
 }
 

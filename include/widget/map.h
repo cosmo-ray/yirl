@@ -74,6 +74,17 @@ int ywMapGetIdByElem(Entity *mapElem);
 
 Entity *ywMapGetCase(Entity *state, Entity *pos);
 
+static inline Entity *ywMapGetNbrEntityAt(Entity *state, Entity *pos, int nbr)
+{
+  Entity *tmp = ywMapGetCase(state, pos);
+
+  YE_ARRAY_FOREACH(tmp, caseTmp) {
+    if (ywMapGetIdByElem(caseTmp) == nbr)
+      return caseTmp;
+  }
+  return NULL;
+}
+
 Entity *ywMapPosFromInt(Entity *wid, int newPos,
 			Entity *father, const char *name);
 int ywMapIntFromPos(Entity *wid, Entity *pos);
@@ -90,7 +101,7 @@ static inline Entity *ywMapGetResources(YWidgetState *state)
 }
 
 static inline int ywMapRemoveByEntity(Entity *state, Entity *pos,
-				       Entity *elem)
+				      Entity *elem)
 {
   Entity *cur = ywMapGetCase(state, pos);
 
