@@ -23,6 +23,7 @@
 #include "sdl-internal.h"
 #include "utils.h"
 #include "widget.h"
+#include "map.h"
 
 static int type = -1;
 
@@ -427,14 +428,24 @@ void sdlConsumeError(void)
   sdlError = NULL;
 }
 
-int sdlDisplaySprites(SDLWid *wid, int x, int y, Entity *elem,
+int sdlDisplaySprites(YWidgetState *state, SDLWid *wid,
+		      int x, int y, Entity *mapElem,
 		      int w, int h, int thresholdX)
 {
   SDL_Color color = {0,0,0,255};
   SDL_Rect DestR = {x * w + wid->rect.x + thresholdX,
 		    y * h + wid->rect.y,
 		    w, h};
-  SDL_Texture *texture = sdlLoasAndCachTexture(elem);
+  SDL_Texture *texture;
+  int id;
+  Entity *elem;
+
+  if (unlikely(!mapElem))
+    return 0;;
+  id = ywMapGetIdByElem(mapElem);
+  elem = yeGet(ywMapGetResources(state), id);
+
+  texture = sdlLoasAndCachTexture(elem);
 
   if (texture) {
     int type = yeGetInt(yeGet(elem, "$sdl-type"));

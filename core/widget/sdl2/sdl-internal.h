@@ -76,7 +76,8 @@ int sdlPrintText(SDLWid *wid,
 		 SDL_Rect pos,
 		 int alignementType);
 
-int sdlDisplaySprites(SDLWid *wid, int x, int y, Entity *elem,
+int sdlDisplaySprites(YWidgetState *state, SDLWid *wid,
+		      int x, int y, Entity *elem,
 		      int w, int h, int thresholdX);
 
 void sdlConsumeError(void);

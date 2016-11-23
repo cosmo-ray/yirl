@@ -91,14 +91,7 @@ static int sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
 	(mapCase = yeGet(map, begX + curx + (cury * wMap))); ++i) {
 
     YMAP_FOREACH_ELEMS_IN_CASE(mapCase, mapElem) {
-      int id;
-      Entity *curRes;
-
-      if (unlikely(!mapElem))
-	continue;
-      id = ywMapGetIdByElem(mapElem);
-      curRes = yeGet(ywMapGetResources(state), id);
-      sdlDisplaySprites(wid, curx, cury, curRes,
+      sdlDisplaySprites(state, wid, curx, cury, mapElem,
 			sizeSpriteW, sizeSpriteH, 0);
     }
     ++curx;
@@ -139,14 +132,7 @@ static int sdl2FullRender(YWidgetState *state, SDLWid *wid, Entity *entity)
     unsigned int cury = yBlockArrayIteratorIdx(it) / wMap;
 
     YMAP_FOREACH_ELEMS_IN_CASE(mapCase, mapElem) {
-      int id;
-      Entity *curRes;
-
-      if (unlikely(!mapElem))
-	continue;
-      id = ywMapGetIdByElem(mapElem);
-      curRes = yeGet(ywMapGetResources(state), id);
-      if (unlikely(sdlDisplaySprites(wid, curx, cury, curRes,
+      if (unlikely(sdlDisplaySprites(state, wid, curx, cury, mapElem,
 				     sizeSpriteW, sizeSpriteH, 0) < 0)) {
 	sdlConsumeError();
       }
