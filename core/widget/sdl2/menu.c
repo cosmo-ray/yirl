@@ -48,8 +48,9 @@ static int sdlRender(YWidgetState *state, int t)
     SDL_Color color = {0,0,0,255};
     const char *toPrint = yeGetString(yeGet(entry, "text"));
     unsigned int cur = ywMenuGetCurrent(state);
+    SDL_Rect txtR = {0, i * sgGetFontSize() + 1, wid->rect.w, wid->rect.h};
 
-    sdlPrintText(wid, toPrint, CARACT_PER_LINE, color, 0, i * sgGetFontSize() + 1);
+    sdlPrintText(wid, toPrint, color, txtR, YSDL_ALIGN_LEFT);
     if (cur == i) {
       SDL_Rect rect = {0,  i * sgGetFontSize() + 1, // x - y
       		       wid->rect.w, sgGetFontSize() + 1}; // w - h

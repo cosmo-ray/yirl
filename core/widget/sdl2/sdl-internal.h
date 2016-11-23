@@ -30,10 +30,17 @@ typedef struct
   SDL_Window	*pWindow;
   TTF_Font	*font;
   unsigned int  fontSize;
+  unsigned int  txtHeight;
+  unsigned int  txtWidth;
   SDL_Renderer	*renderer;
   /* uin16_t w = WIN_W_SIZE; */
   /* uin16_t h = WIN_H_SIZE; */
 } SDL_Global;
+
+typedef enum  {
+  YSDL_ALIGN_CENTER,
+  YSDL_ALIGN_LEFT
+} YDsdlAlignementText;
 
 typedef struct
 {
@@ -65,9 +72,9 @@ int sgSetDefaultFont(const char *path);
 
 int sdlPrintText(SDLWid *wid,
 		 const char *str,
-		 unsigned int caract_per_line,
 		 SDL_Color color,
-		 int x, int y);
+		 SDL_Rect pos,
+		 int alignementType);
 
 int sdlDisplaySprites(SDLWid *wid, int x, int y, Entity *elem,
 		      int w, int h, int thresholdX);

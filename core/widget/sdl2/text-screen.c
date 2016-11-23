@@ -15,10 +15,6 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
-/* That's ugly and we should detect it in the init function of SDL */
-#define CARACT_PER_LINE 70
-
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <string.h>
@@ -26,8 +22,6 @@
 #include "sdl-internal.h"
 #include "widget.h"
 #include "entity.h"
-
-
 
 static int sdlRender(YWidgetState *state, int t)
 {
@@ -50,7 +44,8 @@ static int sdlRender(YWidgetState *state, int t)
     DPRINT_WARN("NO Font Set !");
     return 0;
   }
-  sdlPrintText(wid, toPrint, CARACT_PER_LINE, color, 0, 0);
+  SDL_Rect txtR = {0, 0, wid->rect.w, wid->rect.h};
+  sdlPrintText(wid, toPrint, color, txtR, YSDL_ALIGN_LEFT);
   return 0;
 }
 

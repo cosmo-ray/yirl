@@ -46,7 +46,13 @@ TTF_Font *sgDefaultFont(void)
 int sgSetDefaultFont(const char *path)
 {
   TTF_Font *font = TTF_OpenFont(path, 16);
+  int w, h;
   sg.fontSize = 16;
+  TTF_SizeText(font, "A", &w, &h);
+
+  sg.txtHeight = h;
+  sg.txtWidth = w;
+
   sg.font = font;
   if (!font)
     return -1;
@@ -262,68 +268,79 @@ int    ysdl2Init(void)
   return -1;
 }
 
-static int sdlPrintLine(SDLWid *wid,
-			const char *str,
-			unsigned int caract_per_line,
-			SDL_Color color,
-			int x, int y, int line)
+static inline int sdlPrintLine(SDLWid *wid,
+			       char *str,
+			       SDL_Color color,
+			       SDL_Rect pos,
+			       int line,
+			       int alignementType)
 {
-  unsigned int   len = strlen(str);
-  int text_width , text_height;
+  int len = strlen(str);
+  int text_width;
   SDL_Renderer *renderer = sg.renderer;
+  int caract_per_line = len;
+  int ret = 0;
+  int32_t fontSize = sgGetFontSize();
 
-  y += wid->rect.y;
-  x += wid->rect.x;
-  for (unsigned int i = 0; i < len; i += caract_per_line)
+  if ((fontSize * len) > pos.w) {
+    caract_per_line = pos.w / sg.txtWidth;
+  }
+
+  pos.y += wid->rect.y + sgGetFontSize() * line;
+  pos.x += wid->rect.x;
+  for (int i = 0; i < len; i += caract_per_line)
     {
-      static char  buff[125];  
       SDL_Surface *textSurface;
       SDL_Texture* text;
+      char tmp = 0;
 
       if ((len - i) > caract_per_line) {
-	strncpy(buff, str + i, caract_per_line);
-	buff[caract_per_line] = 0;
-      } else {
-	strncpy(buff, str + i, len - i);
-	buff[len - i] = 0;
+	tmp = str[i + caract_per_line];
+	str[i + caract_per_line] = 0;
+	ret += 1;
       }
 
-      textSurface = TTF_RenderUTF8_Solid(sgDefaultFont(),
-					 buff, color);
+      textSurface = TTF_RenderUTF8_Solid(sgDefaultFont(), str + i, color);
       text = SDL_CreateTextureFromSurface(renderer, textSurface);
       text_width = textSurface->w;
-      text_height = textSurface->h;
-      if (i == 0)
-	y += textSurface->h * line;	
 
       SDL_FreeSurface(textSurface);
-      SDL_Rect renderQuad = { x, y, text_width, text_height };
+      SDL_Rect renderQuad = { pos.x, pos.y, text_width, fontSize};
+      if (alignementType == YSDL_ALIGN_CENTER)
+	renderQuad.x = pos.x + ((pos.w / 2) - (text_width / 2));
       SDL_RenderCopy(renderer, text, NULL, &renderQuad);
       SDL_DestroyTexture(text);
-      y += text_height;
+      pos.y += fontSize;
+      if (tmp)
+	str[i + caract_per_line] = tmp;
     }
-  return 0;
+  return ret;
 }
 
 int sdlPrintText(SDLWid *wid,
 		 const char *str,
-		 unsigned int caract_per_line,
 		 SDL_Color color,
-		 int x, int y)
+		 SDL_Rect pos,
+		 int alignementType)
 {
   if (!str)
     return 0;
   char **tmp = g_strsplit(str, "\n", 0);
   int ret = 0;
+  int aditioner = 0;
+  int end;
 
-  for (int i = 0; tmp[i]; ++i) {
-    ret = sdlPrintLine(wid, tmp[i], caract_per_line, color, x, y, i);
+  for (end = 0; tmp[end]; ++end);
+
+  for (int i = 0; i < end; ++i) {
+    ret = sdlPrintLine(wid, tmp[i], color, pos, i + aditioner, alignementType);
     if (ret < 0)
       goto exit;
+    aditioner += ret;
   }
  exit:
   g_strfreev(tmp);
-  return ret;
+  return 0;
 }
 
 void sdlResize(YWidgetState *wid, int renderType)
@@ -414,29 +431,29 @@ int sdlDisplaySprites(SDLWid *wid, int x, int y, Entity *elem,
 		      int w, int h, int thresholdX)
 {
   SDL_Color color = {0,0,0,255};
-  SDL_Rect DestR;
+  SDL_Rect DestR = {x * w + wid->rect.x + thresholdX,
+		    y * h + wid->rect.y,
+		    w, h};
   SDL_Texture *texture = sdlLoasAndCachTexture(elem);
 
   if (texture) {
     int type = yeGetInt(yeGet(elem, "$sdl-type"));
 
     if (type == Y_SDL_TILD || type == Y_SDL_COLOR) {
-      DestR.x = x * w + wid->rect.x + thresholdX;
-      DestR.y = y * h + wid->rect.y;
-      DestR.w = w;
-      DestR.h = h;
       if (type == Y_SDL_COLOR)
 	sdlDrawRect(DestR, *((SDL_Color *)texture));
       else
 	SDL_RenderCopy(sg.renderer, texture, NULL, &DestR);
     } else {
       SDL_QueryTexture(texture, NULL, NULL, &DestR.w, &DestR.h);
-      DestR.x = x * w + wid->rect.x + thresholdX;
       DestR.y = y * h - (DestR.h - h) + wid->rect.y;
       SDL_RenderCopy(sg.renderer, texture, NULL, &DestR);
     }
   } else {
-    const char *str = yeGetString(yeGet(elem, "map-char"));
+    Entity *entStr = yeGet(elem, "map-char");
+    char *str = (char *)yeGetString(entStr);
+    int ret;
+      char tmp;
 
     if (unlikely(!str)) {
       Entity *char_sprite = yeGet(elem, "map-char");
@@ -456,7 +473,13 @@ int sdlDisplaySprites(SDLWid *wid, int x, int y, Entity *elem,
       g_free(entityStr);
       return -1;
     }
-    return sdlPrintText(wid, str, 2, color, x * w, y * h);
+    DestR.x = x * w;
+    DestR.y = y * h;
+    tmp = str[1];
+    str[1] = 0;
+    ret = sdlPrintText(wid, str, color, DestR, YSDL_ALIGN_CENTER);
+    str[1] = tmp;
+    return ret;
   }
   return 0;
 }
