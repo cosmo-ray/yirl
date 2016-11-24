@@ -43,6 +43,7 @@ static int sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
   int posCam = yeGetInt(yeGet(entity, "cam-pos"));
   int32_t begX = posCam;
   Entity *mapCase;
+  int thresholdX;
 
   if (ywidBgConfFill(yeGet(entity, "background"), &cfg) >= 0) {
     sdlFillBg(wid, &cfg);
@@ -50,13 +51,14 @@ static int sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
 
   ywMapGetSpriteSize(&sizeSpriteW, &sizeSpriteH, wCam,
 		     hCam, wid->rect.w, wid->rect.h);
+  thresholdX = (wid->rect.w % sizeSpriteW) / 2;
 
   for(unsigned int i = 0; i < wCam * hCam &&
 	(mapCase = yeGet(map, begX + curx + (cury * wMap))); ++i) {
 
     YMAP_FOREACH_ELEMS_IN_CASE(mapCase, mapElem) {
       sdlDisplaySprites(state, wid, curx, cury, mapElem,
-			sizeSpriteW, sizeSpriteH, 0);
+			sizeSpriteW, sizeSpriteH, thresholdX);
     }
     ++curx;
     if (curx >= wCam) {
@@ -78,6 +80,7 @@ static int sdl2FullRender(YWidgetState *state, SDLWid *wid, Entity *entity)
   unsigned int hMap = lenMap / wMap;
   unsigned int sizeSpriteW;
   unsigned int sizeSpriteH;
+  int thresholdX;
 
   if (unlikely(!hMap || !wMap || !yeLen(map))) {
     DPRINT_ERR("can't rend empty map\n");
@@ -89,7 +92,8 @@ static int sdl2FullRender(YWidgetState *state, SDLWid *wid, Entity *entity)
   }
 
   ywMapGetSpriteSize(&sizeSpriteW, &sizeSpriteH, wMap,
-		     hMap, wid->rect.w, wid->rect.h); 
+		     hMap, wid->rect.w, wid->rect.h);
+  thresholdX = (wid->rect.w % sizeSpriteW) / 2;
 
   YE_ARRAY_FOREACH_EXT(map, mapCase, it) {
     unsigned int curx = yBlockArrayIteratorIdx(it) % wMap;
@@ -97,7 +101,7 @@ static int sdl2FullRender(YWidgetState *state, SDLWid *wid, Entity *entity)
 
     YMAP_FOREACH_ELEMS_IN_CASE(mapCase, mapElem) {
       if (unlikely(sdlDisplaySprites(state, wid, curx, cury, mapElem,
-				     sizeSpriteW, sizeSpriteH, 0) < 0)) {
+				     sizeSpriteW, sizeSpriteH, thresholdX) < 0)) {
 	sdlConsumeError();
       }
     }

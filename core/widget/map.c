@@ -236,6 +236,7 @@ int ywMapHasChange(YWidgetState *state)
   return state->hasChange;
 }
 
+
 static void *alloc(void)
 {
   YMapState *ret = g_new0(YMapState, 1);

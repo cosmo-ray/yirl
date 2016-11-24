@@ -484,7 +484,7 @@ int sdlDisplaySprites(YWidgetState *state, SDLWid *wid,
       g_free(entityStr);
       return -1;
     }
-    DestR.x = x * w;
+    DestR.x = x * w + thresholdX;
     DestR.y = y * h;
     tmp = str[1];
     str[1] = 0;
