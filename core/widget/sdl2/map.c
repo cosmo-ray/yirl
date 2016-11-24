@@ -23,12 +23,12 @@
 #include "map.h"
 #include "entity.h"
 
-#define	SIZE_SPRITE_W  50
-#define	SIZE_SPRITE_H  50
+#define	SIZE_SPRITE_W  64
+#define	SIZE_SPRITE_H  64
 
-static inline unsigned int nbSprite(int sizePix, int sizeCase)
+static inline unsigned int nbPixInSprites(int spriteSize, int nbOfSprites)
 {
-  return sizePix * sizeCase;
+  return spriteSize * nbOfSprites;
 }
 
 static inline  void setSpritesSize(unsigned int *sizeSpriteW,
@@ -40,16 +40,16 @@ static inline  void setSpritesSize(unsigned int *sizeSpriteW,
 {
   /* Check if the number of sprites this window can
    * contain is superior to the actual width of the window */
-  if (nbSprite(SIZE_SPRITE_W, winWidth) <  winPixWidth) {
+  if (nbPixInSprites(SIZE_SPRITE_W, winWidth) <  winPixWidth) {
     *sizeSpriteW = SIZE_SPRITE_W;
     *sizeSpriteH = SIZE_SPRITE_H;
 
   } else {
-    *sizeSpriteW = SIZE_SPRITE_W * winPixWidth / nbSprite(SIZE_SPRITE_W,
-							  winWidth);
+    *sizeSpriteW = SIZE_SPRITE_W * winPixWidth / nbPixInSprites(SIZE_SPRITE_W,
+								winWidth);
 
-    *sizeSpriteH = SIZE_SPRITE_H * winPixHight / nbSprite(SIZE_SPRITE_H,
-							  winHeight);
+    *sizeSpriteH = SIZE_SPRITE_H * winPixHight / nbPixInSprites(SIZE_SPRITE_H,
+								winHeight);
   }
 }
 
@@ -59,18 +59,12 @@ static inline  void setSpritesSize(unsigned int *sizeSpriteW,
 	 ((elem = yeGet(mapCase, j)) || 1); ++j)
 
 
-/* #define YMAP_FOREACH_CASES(map, mapCase)		\ */
-/*   Entity *mapCase;					\ */
-/*   for(uint32_t i = 0; i < lenMap &&			\ */
-/* 	(mapCase = yeGet(map, i)); ++i) */
-
-
 /* crop the map and print the middle of it */
 static int sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
 {
   unsigned int curx = 0, cury = 0;
   Entity *map = yeGet(entity, "map");
-  unsigned int wMap = yeGetInt(yeGet(entity, "width"));
+  unsigned int wMap = ywMapW(entity);
   unsigned int wCam = yeGetInt(yeGet(entity, "cam-w"));
   unsigned int hCam = yeGetInt(yeGet(entity, "cam-h"));
   YBgConf cfg;
@@ -109,7 +103,7 @@ static int sdl2FullRender(YWidgetState *state, SDLWid *wid, Entity *entity)
 {
   Entity *map = yeGet(entity, "map");
   unsigned int lenMap = ywMapLen(entity);
-  unsigned int wMap = yeGetInt(yeGet(entity, "width"));
+  unsigned int wMap = ywMapW(entity);
   YBgConf cfg;
   unsigned int hMap = lenMap / wMap;
   unsigned int sizeSpriteW;

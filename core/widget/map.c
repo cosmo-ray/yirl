@@ -22,6 +22,7 @@
 
 static int t = -1;
 
+
 static int mapInitCheckResources(Entity *resources)
 {
   Entity *firstELem = yeGet(resources, 0);
