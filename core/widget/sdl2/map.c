@@ -23,12 +23,6 @@
 #include "map.h"
 #include "entity.h"
 
-#define YMAP_FOREACH_ELEMS_IN_CASE(mapCase, elem)		\
-  Entity *elem;							\
-  for (uint32_t j = 0; j < yeLen(mapCase) &&			\
-	 ((elem = yeGet(mapCase, j)) || 1); ++j)
-
-
 /* crop the map and print the middle of it */
 static int sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
 {
@@ -56,7 +50,7 @@ static int sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
   for(unsigned int i = 0; i < wCam * hCam &&
 	(mapCase = yeGet(map, begX + curx + (cury * wMap))); ++i) {
 
-    YMAP_FOREACH_ELEMS_IN_CASE(mapCase, mapElem) {
+    YE_ARRAY_FOREACH(mapCase, mapElem) {
       sdlDisplaySprites(state, wid, curx, cury, mapElem,
 			sizeSpriteW, sizeSpriteH, thresholdX);
     }
@@ -99,7 +93,7 @@ static int sdl2FullRender(YWidgetState *state, SDLWid *wid, Entity *entity)
     unsigned int curx = yBlockArrayIteratorIdx(it) % wMap;
     unsigned int cury = yBlockArrayIteratorIdx(it) / wMap;
 
-    YMAP_FOREACH_ELEMS_IN_CASE(mapCase, mapElem) {
+    YE_ARRAY_FOREACH(mapCase, mapElem) {
       if (unlikely(sdlDisplaySprites(state, wid, curx, cury, mapElem,
 				     sizeSpriteW, sizeSpriteH, thresholdX) < 0)) {
 	sdlConsumeError();
@@ -120,11 +114,6 @@ static int sdl2Render(YWidgetState *state, int t)
     return sdl2PartialRender(state, wid, ent);
   return sdl2FullRender(state, wid, ent);
 }
-
-
-#undef YMAP_FOREACH_ELEMS
-#undef YMAP_FOREACH_CASES
-#undef YMAP_FOREACH_ELEMS_IN_CASES
 
 static int sdl2Init(YWidgetState *wid, int t)
 {
