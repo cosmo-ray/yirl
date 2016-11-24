@@ -26,6 +26,9 @@ typedef enum {
   YMAP_FULL
 } YMapRenderType;
 
+#define	YMAP_SIZE_SPRITE_W  64
+#define	YMAP_SIZE_SPRITE_H  64
+
 typedef struct {
   YWidgetState sate;
   Entity *resources;
@@ -199,4 +202,10 @@ static inline int ywMapAdvenceWithPos(Entity *map, Entity *pos,
   return 0;
 }
 
+void ywMapGetSpriteSize(unsigned int *sizeSpriteW,
+			unsigned int *sizeSpriteH,
+			unsigned int winWidth,
+			unsigned int winHeight,
+			unsigned int winPixWidth,
+			unsigned int winPixHight);
 #endif

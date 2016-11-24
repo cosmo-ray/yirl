@@ -23,36 +23,6 @@
 #include "map.h"
 #include "entity.h"
 
-#define	SIZE_SPRITE_W  64
-#define	SIZE_SPRITE_H  64
-
-static inline unsigned int nbPixInSprites(int spriteSize, int nbOfSprites)
-{
-  return spriteSize * nbOfSprites;
-}
-
-static inline  void setSpritesSize(unsigned int *sizeSpriteW,
-				   unsigned int *sizeSpriteH,
-				   unsigned int winWidth,
-				   unsigned int winHeight,
-				   unsigned int winPixWidth,
-				   unsigned int winPixHight)
-{
-  /* Check if the number of sprites this window can
-   * contain is superior to the actual width of the window */
-  if (nbPixInSprites(SIZE_SPRITE_W, winWidth) <  winPixWidth) {
-    *sizeSpriteW = SIZE_SPRITE_W;
-    *sizeSpriteH = SIZE_SPRITE_H;
-
-  } else {
-    *sizeSpriteW = SIZE_SPRITE_W * winPixWidth / nbPixInSprites(SIZE_SPRITE_W,
-								winWidth);
-
-    *sizeSpriteH = SIZE_SPRITE_H * winPixHight / nbPixInSprites(SIZE_SPRITE_H,
-								winHeight);
-  }
-}
-
 #define YMAP_FOREACH_ELEMS_IN_CASE(mapCase, elem)		\
   Entity *elem;							\
   for (uint32_t j = 0; j < yeLen(mapCase) &&			\
@@ -78,8 +48,8 @@ static int sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
     sdlFillBg(wid, &cfg);
   }
 
-  setSpritesSize(&sizeSpriteW, &sizeSpriteH, wCam,
-		hCam, wid->rect.w, wid->rect.h);
+  ywMapGetSpriteSize(&sizeSpriteW, &sizeSpriteH, wCam,
+		     hCam, wid->rect.w, wid->rect.h);
 
   for(unsigned int i = 0; i < wCam * hCam &&
 	(mapCase = yeGet(map, begX + curx + (cury * wMap))); ++i) {
@@ -118,8 +88,8 @@ static int sdl2FullRender(YWidgetState *state, SDLWid *wid, Entity *entity)
     sdlFillBg(wid, &cfg);
   }
 
-  setSpritesSize(&sizeSpriteW, &sizeSpriteH, wMap,
-		 hMap, wid->rect.w, wid->rect.h); 
+  ywMapGetSpriteSize(&sizeSpriteW, &sizeSpriteH, wMap,
+		     hMap, wid->rect.w, wid->rect.h); 
 
   YE_ARRAY_FOREACH_EXT(map, mapCase, it) {
     unsigned int curx = yBlockArrayIteratorIdx(it) % wMap;

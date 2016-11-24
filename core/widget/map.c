@@ -22,6 +22,33 @@
 
 static int t = -1;
 
+static inline unsigned int nbPixInSprites(int spriteSize, int nbOfSprites)
+{
+  return spriteSize * nbOfSprites;
+}
+
+void ywMapGetSpriteSize(unsigned int *sizeSpriteW,
+			unsigned int *sizeSpriteH,
+			unsigned int winWidth,
+			unsigned int winHeight,
+			unsigned int winPixWidth,
+			unsigned int winPixHight)
+{
+  /* Check if the number of sprites this window can
+   * contain is superior to the actual width of the window */
+  if (nbPixInSprites(YMAP_SIZE_SPRITE_W, winWidth) <  winPixWidth) {
+    *sizeSpriteW = YMAP_SIZE_SPRITE_W;
+    *sizeSpriteH = YMAP_SIZE_SPRITE_H;
+
+  } else {
+    *sizeSpriteW = YMAP_SIZE_SPRITE_W * winPixWidth /
+      nbPixInSprites(YMAP_SIZE_SPRITE_W, winWidth);
+
+    *sizeSpriteH = YMAP_SIZE_SPRITE_H * winPixHight /
+      nbPixInSprites(YMAP_SIZE_SPRITE_H, winHeight);
+  }
+}
+
 
 static int mapInitCheckResources(Entity *resources)
 {
