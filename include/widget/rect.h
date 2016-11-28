@@ -15,18 +15,14 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _YIRL_RECT_H_
-#define _YIRL_RECT_H_
+#include "entity.h"
 
-#include "pos.h"
-
-Entity *ywPosCreateInts(int posX, int posY, Entity *father, const char *str)
-{
-  Entity *ret = yeCreateArray(father, str);
-
-  yeCreateInt(posX, ret, "x");
-  yeCreateInt(posY, ret, "y");
-  return ret;
-}
-
-#endif  /* _YIRL_RECT_H_ */
+/**
+ * @father the father of the returned entity in which we store the return,
+ * can be NULL.
+ * @name string index at which we store the returned entity,
+ * if NULL but not @father, the return is push back
+ * @return an Entity that store a "Map Position", Must be free if @father is NULL
+ */
+Entity *ywRectCreateInts(int x, int y, int w, int h, Entity *father,
+			 const char *name);

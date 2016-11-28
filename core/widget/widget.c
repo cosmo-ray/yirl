@@ -22,6 +22,7 @@
 #include "game.h"
 #include "timer.h"
 #include "widget.h"
+#include "rect.h"
 #include "entity-script.h"
 #include "widget-callback.h"
 
@@ -228,13 +229,8 @@ static YWidgetState *ywidNewWidgetInternal(int t,
   if (widgetTab.len <= t || widgetTab.allocator[t] == NULL)
     return NULL;
 
-  if (pos == NULL) {
-    pos = yeCreateArray(entity, "wid-pos");
-    yeCreateInt(0, pos, "x");
-    yeCreateInt(0, pos, "y");
-    yeCreateInt(1000, pos, "w");
-    yeCreateInt(1000, pos, "h");
-  }
+  if (pos == NULL)
+    pos = ywRectCreateInts(0, 0, 1000, 1000, entity, "wid-pos");
 
   ret = widgetTab.allocator[t]();
 

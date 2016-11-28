@@ -15,18 +15,15 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _YIRL_RECT_H_
-#define _YIRL_RECT_H_
+#include "rect.h"
 
-#include "pos.h"
-
-Entity *ywPosCreateInts(int posX, int posY, Entity *father, const char *str)
+Entity *ywRectCreateInts(int x, int y, int w, int h, Entity *father,
+			 const char *name)
 {
-  Entity *ret = yeCreateArray(father, str);
-
-  yeCreateInt(posX, ret, "x");
-  yeCreateInt(posY, ret, "y");
+  Entity *ret = yeCreateArray(father, name);
+  yeCreateInt(x, ret, "x");
+  yeCreateInt(y, ret, "y");
+  yeCreateInt(w, ret, "w");
+  yeCreateInt(h, ret, "h");
   return ret;
 }
-
-#endif  /* _YIRL_RECT_H_ */
