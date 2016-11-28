@@ -69,7 +69,10 @@ void *battleAction(int nbArgs, void **args)
   YEvent *eve = events;
 
   YEVE_FOREACH(eve, events) {
-    if (ywidEveType(eve) != YKEY_DOWN) {
+    if (ywidEveType(eve) == YKEY_MOUSEDOWN) {
+      printf("mouse: key %d at (%d - %d)\n", eve->key,
+	     eve->xMouse, eve->yMouse);
+    } else if (ywidEveType(eve) != YKEY_DOWN) {
       continue;
     }
     switch (ywidEveKey(eve)) {
