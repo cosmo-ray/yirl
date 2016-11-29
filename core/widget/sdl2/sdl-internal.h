@@ -21,9 +21,6 @@
 #include "sdl-driver.h"
 #include "widget.h"
 
-#define WIN_W_SIZE 640
-#define WIN_H_SIZE 480
-
 typedef struct
 {
   int           fullscreen;
@@ -33,8 +30,6 @@ typedef struct
   unsigned int  txtHeight;
   unsigned int  txtWidth;
   SDL_Renderer	*renderer;
-  /* uin16_t w = WIN_W_SIZE; */
-  /* uin16_t h = WIN_H_SIZE; */
 } SDL_Global;
 
 typedef enum  {

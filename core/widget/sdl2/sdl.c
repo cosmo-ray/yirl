@@ -23,6 +23,7 @@
 #include "sdl-internal.h"
 #include "utils.h"
 #include "widget.h"
+#include "rect.h"
 #include "map.h"
 
 static int type = -1;
@@ -232,8 +233,8 @@ int    ysdl2Init(void)
   /* Make a window */
   sg.pWindow = SDL_CreateWindow("YIRL isn't a rogue like", SDL_WINDOWPOS_UNDEFINED,
 				SDL_WINDOWPOS_UNDEFINED,
-				WIN_W_SIZE,
-				WIN_H_SIZE,
+				ywidWindowWidth,
+				ywidWindowHight,
 				SDL_WINDOW_SHOWN);
   if(!sg.pWindow) {
       DPRINT_ERR("Error to creeate window:: %s\n",SDL_GetError());
@@ -355,10 +356,10 @@ void sdlResize(YWidgetState *wid, int renderType)
   SDLWid *swid = wid->renderStates[renderType].opac;
   Entity *pos = yeGet(wid->entity, "wid-pos");
 
-  swid->rect.h = yeGetInt(yeGet(pos, "h")) * WIN_H_SIZE / 1000;
-  swid->rect.w = yeGetInt(yeGet(pos, "w")) * WIN_W_SIZE / 1000;
-  swid->rect.x = yeGetInt(yeGet(pos, "x")) * WIN_W_SIZE / 1000;
-  swid->rect.y = yeGetInt(yeGet(pos, "y")) * WIN_H_SIZE / 1000;
+  swid->rect.h = ywidRectH(pos) * ywidWindowHight / 1000;
+  swid->rect.w = ywidRectW(pos) * ywidWindowWidth / 1000;
+  swid->rect.x = ywidRectX(pos) * ywidWindowWidth / 1000;
+  swid->rect.y = ywidRectY(pos) * ywidWindowHight / 1000;
 }
 
 void sdlWidInit(YWidgetState *wid, int t)

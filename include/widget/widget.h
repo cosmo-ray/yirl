@@ -140,6 +140,10 @@ int ywidBgConfFill(Entity *entity, YBgConf *cfg);
 YEvent *ywidGenericWaitEvent(void);
 YEvent *ywidGenericPollEvent(void);
 
+
+extern int ywidWindowWidth;
+extern int ywidWindowHight;
+
 /**
  * Registre a new type of widget
  * @return the type of the new type

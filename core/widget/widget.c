@@ -52,6 +52,9 @@ struct renderOpt renderOpTab[MAX_NB_MANAGER];
 static YWidgetState *mainWid = NULL;
 static YWidgetState *oldWid = NULL;
 
+int ywidWindowWidth = 640;
+int ywidWindowHight = 480;
+
 void ywidFreeWidgets(void)
 {
   YWidDestroy(mainWid);
