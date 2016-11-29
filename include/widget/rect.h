@@ -46,3 +46,29 @@ static inline int ywidRectH(Entity *e)
 {
   return yeGetInt(yeGetByIdx(e, 3));
 }
+
+void ywRectSet(Entity *rect, int x, int y, int w, int h);
+
+static inline Entity *ywRectSetX(Entity *pos, int posX)
+{
+  yeSetInt(yeGetByIdx(pos, 0), posX);
+  return pos;
+}
+
+static inline Entity *ywRectSetY(Entity *pos, int posY)
+{
+  yeSetInt(yeGetByIdx(pos, 1), posY);
+  return pos;
+}
+
+static inline Entity *ywRectSetW(Entity *pos, int posW)
+{
+  yeSetInt(yeGetByIdx(pos, 2), posW);
+  return pos;
+}
+
+static inline Entity *ywRectSetH(Entity *pos, int posH)
+{
+  yeSetInt(yeGetByIdx(pos, 3), posH);
+  return pos;
+}

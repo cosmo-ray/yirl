@@ -234,6 +234,11 @@ static YWidgetState *ywidNewWidgetInternal(int t,
 
   if (pos == NULL)
     pos = ywRectCreateInts(0, 0, 1000, 1000, entity, "wid-pos");
+  ywRectCreateInts(ywidRectX(pos) * ywidWindowWidth / 1000,
+		   ywidRectY(pos) * ywidWindowHight / 1000,
+		   ywidRectW(pos) * ywidWindowWidth / 1000,
+		   ywidRectH(pos) * ywidWindowHight / 1000,
+		   entity, "wid-pix");
 
   ret = widgetTab.allocator[t]();
 
@@ -336,6 +341,13 @@ YWidgetState *ywidNewWidget(Entity *entity, const char *type)
 
 void ywidResize(YWidgetState *wid)
 {
+  Entity *pos = yeGet(wid->entity, "wid-pos");
+
+  ywRectSet(yeGet(wid->entity, "wid-pix"),
+	    ywidRectX(pos) * ywidWindowWidth / 1000,
+	    ywidRectY(pos) * ywidWindowHight / 1000,
+	    ywidRectW(pos) * ywidWindowWidth / 1000,
+	    ywidRectH(pos) * ywidWindowHight / 1000);
   if (wid->resize)
     wid->resize(wid);
   YUI_FOREACH_BITMASK(rendersMask, i, tmask) {

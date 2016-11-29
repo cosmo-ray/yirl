@@ -27,3 +27,11 @@ Entity *ywRectCreateInts(int x, int y, int w, int h, Entity *father,
   yeCreateInt(h, ret, "h");
   return ret;
 }
+
+void ywRectSet(Entity *rect, int x, int y, int w, int h)
+{
+  ywRectSetX(rect, x);
+  ywRectSetY(rect, y);
+  ywRectSetW(rect, w);
+  ywRectSetH(rect, h);
+}
