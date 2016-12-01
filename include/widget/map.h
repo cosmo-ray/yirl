@@ -202,10 +202,12 @@ static inline int ywMapAdvenceWithPos(Entity *map, Entity *pos,
   return 0;
 }
 
-void ywMapGetSpriteSize(unsigned int *sizeSpriteW,
-			unsigned int *sizeSpriteH,
-			unsigned int winWidth,
-			unsigned int winHeight,
-			unsigned int winPixWidth,
-			unsigned int winPixHight);
+void ywMapGetSpriteSize(YWidgetState *map,
+			unsigned int *sizeSpriteW,
+			unsigned int *sizeSpriteH);
+
+/* Entity *ywMapPosFromPixs(Entity *wid, uint32_t x, uint32_t y, */
+/* 			 Entity *father, const char *name); */
+
+
 #endif

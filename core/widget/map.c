@@ -17,6 +17,7 @@
 
 #include <unistd.h>
 #include <glib.h>
+#include "rect.h"
 #include "map.h"
 #include "widget-callback.h"
 
@@ -27,13 +28,24 @@ static inline unsigned int nbPixInSprites(int spriteSize, int nbOfSprites)
   return spriteSize * nbOfSprites;
 }
 
-void ywMapGetSpriteSize(unsigned int *sizeSpriteW,
-			unsigned int *sizeSpriteH,
-			unsigned int winWidth,
-			unsigned int winHeight,
-			unsigned int winPixWidth,
-			unsigned int winPixHight)
+void ywMapGetSpriteSize(YWidgetState *map,
+			unsigned int *sizeSpriteW,
+			unsigned int *sizeSpriteH)
 {
+  Entity *entity = map->entity;
+  Entity *widPix = yeGet(entity, "wid-pix");
+
+  uint32_t winPixWidth = ywidRectW(widPix);
+  uint32_t winPixHight = ywidRectH(widPix);
+  uint32_t winWidth, winHeight;
+
+  if (((YMapState *)map)->renderType == YMAP_PARTIAL) {
+    winWidth = yeGetInt(yeGet(entity, "cam-w"));;
+    winHeight = yeGetInt(yeGet(entity, "cam-h"));;
+  } else {
+    winWidth = ywMapW(map->entity);
+    winHeight = ywMapH(map->entity);
+  }
   /* Check if the number of sprites this window can
    * contain is superior to the actual width of the window */
   if (nbPixInSprites(YMAP_SIZE_SPRITE_W, winWidth) <  winPixWidth) {
@@ -49,6 +61,12 @@ void ywMapGetSpriteSize(unsigned int *sizeSpriteW,
   }
 }
 
+
+/* Entity *ywMapPosFromPixs(Entity *wid, uint32_t x, uint32_t y, */
+/* 			 Entity *father, const char *name) */
+/* { */
+  
+/* } */
 
 static int mapInitCheckResources(Entity *resources)
 {

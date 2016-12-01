@@ -43,8 +43,7 @@ static int sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
     sdlFillBg(wid, &cfg);
   }
 
-  ywMapGetSpriteSize(&sizeSpriteW, &sizeSpriteH, wCam,
-		     hCam, wid->rect.w, wid->rect.h);
+  ywMapGetSpriteSize(state, &sizeSpriteW, &sizeSpriteH);
   thresholdX = (wid->rect.w % sizeSpriteW) / 2;
 
   for(unsigned int i = 0; i < wCam * hCam &&
@@ -85,8 +84,7 @@ static int sdl2FullRender(YWidgetState *state, SDLWid *wid, Entity *entity)
     sdlFillBg(wid, &cfg);
   }
 
-  ywMapGetSpriteSize(&sizeSpriteW, &sizeSpriteH, wMap,
-		     hMap, wid->rect.w, wid->rect.h);
+  ywMapGetSpriteSize(state, &sizeSpriteW, &sizeSpriteH);
   thresholdX = (wid->rect.w % sizeSpriteW) / 2;
 
   YE_ARRAY_FOREACH_EXT(map, mapCase, it) {
