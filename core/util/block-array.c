@@ -20,7 +20,7 @@
 #include "block-array.h"
 #include <numa.h>
 
-#define NUMA_SIZE 0xfffffff
+#define NUMA_SIZE 0x2fffffff
 
 inline void yBlockArrayInitInternal(BlockArray *ba, size_t elemSize, int flag)
 {
