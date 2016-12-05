@@ -48,7 +48,7 @@ static inline Entity *yeInit(Entity *entity, EntityType type,
     if (entity->refCount < 1) {						\
       int64_t unset =							\
 	(size_t)(((union FatEntity *)entity)				\
-		 - yBlockArrayGetPtr(&entitysArray, 0, union FatEntity));\
+		 - yBlockArrayGetPtrDirect(&entitysArray, 0, union FatEntity));	\
       yBlockArrayUnset(&entitysArray, unset);				\
       stack_push(freedElems, unset);					\
     }									\
