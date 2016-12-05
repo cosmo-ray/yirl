@@ -265,9 +265,9 @@ int yeArrayIdx(Entity *entity, const char *lookup)
     return -1;
 
   Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(entity)->values, tmp, it, ArrayEntry) {
-    if (!tmp || !tmp->name)
+    if (unlikely(!tmp))
       continue;
-    if (yuiStrEqual(tmp->name, lookup))
+    if (yuiStrEqual0(tmp->name, lookup))
       return it;
   }
   return -1; 
@@ -276,7 +276,7 @@ int yeArrayIdx(Entity *entity, const char *lookup)
 
 Entity *yeCreateInt(int value, Entity *father, const char *name)
 {
-  IntEntity *ret;
+  IntEntity * restrict ret;
 
   YE_ALLOC_ENTITY(ret, IntEntity);
   yeInit((Entity *)ret, YINT, father, name);
@@ -286,7 +286,7 @@ Entity *yeCreateInt(int value, Entity *father, const char *name)
 
 Entity *yeCreateData(void *value, Entity *father, const char *name)
 {
-  DataEntity *ret;
+  DataEntity * restrict ret;
 
   YE_ALLOC_ENTITY(ret, DataEntity);
   yeInit((Entity *)ret, YDATA, father, name);
@@ -296,7 +296,7 @@ Entity *yeCreateData(void *value, Entity *father, const char *name)
 
 Entity *yeCreateArray(Entity *father, const char *name)
 {
-  ArrayEntity *ret;
+  ArrayEntity * restrict ret;
 
   YE_ALLOC_ENTITY(ret, ArrayEntity);
   YE_TO_ARRAY(ret)->nbFathers = 0;
@@ -308,7 +308,7 @@ Entity *yeCreateArray(Entity *father, const char *name)
 
 Entity *yeCreateArrayExt(Entity *father, const char *name, uint32_t flags)
 {
-  ArrayEntity *ret;
+  ArrayEntity * restrict ret;
 
   YE_ALLOC_ENTITY(ret, ArrayEntity);
   yeInit((Entity *)ret, YARRAY, father, name);
@@ -632,8 +632,10 @@ static inline void yeAttachFather(Entity *entity, Entity *father,
 }
 
 
-static inline Entity *yeInitAt(Entity *entity, EntityType type,
-			       Entity *father, const char *name,
+static inline Entity *yeInitAt(Entity * restrict const entity,
+			       EntityType type,
+			       Entity * restrict const father,
+			       const char * const restrict name,
 			       int at)
 {
   if (unlikely(!entity))
