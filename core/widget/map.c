@@ -28,23 +28,27 @@ static inline unsigned int nbPixInSprites(int spriteSize, int nbOfSprites)
   return spriteSize * nbOfSprites;
 }
 
-void ywMapGetSpriteSize(YWidgetState *map,
-			unsigned int *sizeSpriteW,
+int ywMapType(Entity *map)
+{
+  return yeGetInt(yeGet(map, "map-type"));
+}
+
+void ywMapGetSpriteSize(Entity *map, unsigned int *sizeSpriteW,
 			unsigned int *sizeSpriteH)
 {
-  Entity *entity = map->entity;
-  Entity *widPix = yeGet(entity, "wid-pix");
+  Entity *widPix = yeGet(map, "wid-pix");
+  int type = ywMapType(map);
 
   uint32_t winPixWidth = ywidRectW(widPix);
   uint32_t winPixHight = ywidRectH(widPix);
   uint32_t winWidth, winHeight;
 
-  if (((YMapState *)map)->renderType == YMAP_PARTIAL) {
-    winWidth = yeGetInt(yeGet(entity, "cam-w"));;
-    winHeight = yeGetInt(yeGet(entity, "cam-h"));;
+  if (type == YMAP_PARTIAL) {
+    winWidth = yeGetInt(yeGet(map, "cam-w"));
+    winHeight = yeGetInt(yeGet(map, "cam-h"));
   } else {
-    winWidth = ywMapW(map->entity);
-    winHeight = ywMapH(map->entity);
+    winWidth = ywMapW(map);
+    winHeight = ywMapH(map);
   }
   /* Check if the number of sprites this window can
    * contain is superior to the actual width of the window */
@@ -62,11 +66,24 @@ void ywMapGetSpriteSize(YWidgetState *map,
 }
 
 
-/* Entity *ywMapPosFromPixs(Entity *wid, uint32_t x, uint32_t y, */
-/* 			 Entity *father, const char *name) */
-/* { */
-  
-/* } */
+void yeMapPixielsToPos(Entity *wid, uint32_t pixX, uint32_t pixY,
+		       uint32_t *x, uint32_t *y)
+{
+  uint32_t spriteW, spriteH;
+
+  ywMapGetSpriteSize(wid, &spriteW, &spriteH);
+  *x = pixX / spriteW;
+  *y = pixY / spriteH;
+}
+
+Entity *ywMapPosFromPixs(Entity *wid, uint32_t x, uint32_t y,
+			 Entity *father, const char *name)
+{
+  uint32_t posX, posY;
+
+  yeMapPixielsToPos(wid, x, y, &posX, &posY);
+  return ywPosCreateInts(posX, posY, father, name);  
+}
 
 static int mapInitCheckResources(Entity *resources)
 {
@@ -98,11 +115,11 @@ static int mapInit(YWidgetState *opac, Entity *entity, void *args)
     return -1;
 
   if (yuiStrEqual0(yeGetString(yeGet(entity, "cam-type")), "center")) {
-    ((YMapState *)opac)->renderType = YMAP_PARTIAL;
+    yeReCreateInt(YMAP_PARTIAL, entity, "map-type");
     if (!yeGet(entity, "cam-pos"))
       yeCreateInt(0, entity, "cam-pos");
   } else {
-    ((YMapState *)opac)->renderType = YMAP_FULL;
+    yeReCreateInt(YMAP_FULL, entity, "map-type");
   }
 
   (void)args;

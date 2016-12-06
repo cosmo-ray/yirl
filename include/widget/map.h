@@ -22,8 +22,8 @@
 #include "pos.h"
 
 typedef enum {
-  YMAP_PARTIAL,
-  YMAP_FULL
+  YMAP_FULL = 0,
+  YMAP_PARTIAL
 } YMapRenderType;
 
 #define	YMAP_SIZE_SPRITE_W  64
@@ -32,7 +32,6 @@ typedef enum {
 typedef struct {
   YWidgetState sate;
   Entity *resources;
-  YMapRenderType renderType;
 } YMapState;
 
 /**
@@ -53,6 +52,8 @@ int ywMapInit(void);
 int ywMapEnd(void);
 int ycursRegistreMap(void);
 int ysdl2RegistreMap(void);
+
+int ywMapType(Entity *map);
 
 int ywMapHasChange(YWidgetState *state);
 
@@ -202,12 +203,14 @@ static inline int ywMapAdvenceWithPos(Entity *map, Entity *pos,
   return 0;
 }
 
-void ywMapGetSpriteSize(YWidgetState *map,
+void ywMapGetSpriteSize(Entity *map,
 			unsigned int *sizeSpriteW,
 			unsigned int *sizeSpriteH);
 
-/* Entity *ywMapPosFromPixs(Entity *wid, uint32_t x, uint32_t y, */
-/* 			 Entity *father, const char *name); */
+void yeMapPixielsToPos(Entity *wid, uint32_t pixX, uint32_t pixY,
+		       uint32_t *w, uint32_t *h);
 
+Entity *ywMapPosFromPixs(Entity *wid, uint32_t x, uint32_t y,
+			 Entity *father, const char *name);
 
 #endif

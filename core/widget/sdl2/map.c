@@ -43,7 +43,7 @@ static int sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
     sdlFillBg(wid, &cfg);
   }
 
-  ywMapGetSpriteSize(state, &sizeSpriteW, &sizeSpriteH);
+  ywMapGetSpriteSize(entity, &sizeSpriteW, &sizeSpriteH);
   thresholdX = (wid->rect.w % sizeSpriteW) / 2;
 
   for(unsigned int i = 0; i < wCam * hCam &&
@@ -74,7 +74,6 @@ static int sdl2FullRender(YWidgetState *state, SDLWid *wid, Entity *entity)
   unsigned int sizeSpriteW;
   unsigned int sizeSpriteH;
   int thresholdX;
-
   if (unlikely(!hMap || !wMap || !yeLen(map))) {
     DPRINT_ERR("can't rend empty map\n");
     return -1;
@@ -84,7 +83,7 @@ static int sdl2FullRender(YWidgetState *state, SDLWid *wid, Entity *entity)
     sdlFillBg(wid, &cfg);
   }
 
-  ywMapGetSpriteSize(state, &sizeSpriteW, &sizeSpriteH);
+  ywMapGetSpriteSize(entity, &sizeSpriteW, &sizeSpriteH);
   thresholdX = (wid->rect.w % sizeSpriteW) / 2;
 
   YE_ARRAY_FOREACH_EXT(map, mapCase, it) {
@@ -108,7 +107,7 @@ static int sdl2Render(YWidgetState *state, int t)
   SDLWid *wid = ywidGetRenderData(state, t);
   Entity *ent = state->entity;
 
-  if (((YMapState *)state)->renderType == YMAP_PARTIAL)
+  if (ywMapType(ent) == YMAP_PARTIAL)
     return sdl2PartialRender(state, wid, ent);
   return sdl2FullRender(state, wid, ent);
 }

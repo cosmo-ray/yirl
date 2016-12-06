@@ -16,6 +16,7 @@
 */
 
 #include <stdio.h>
+#include <map.h>
 #include <game.h>
 #include <contener.h>
 
@@ -69,9 +70,14 @@ void *battleAction(int nbArgs, void **args)
   YEvent *eve = events;
 
   YEVE_FOREACH(eve, events) {
+    Entity *mousePos;
+
     if (ywidEveType(eve) == YKEY_MOUSEDOWN) {
       printf("mouse: key %d at (%d - %d)\n", eve->key,
 	     eve->xMouse, eve->yMouse);
+      mousePos = ywMapPosFromPixs(l1, eve->xMouse, eve->yMouse, NULL, NULL);
+      ywPosPrint(mousePos);
+      YE_DESTROY(mousePos);
     } else if (ywidEveType(eve) != YKEY_DOWN) {
       continue;
     }
