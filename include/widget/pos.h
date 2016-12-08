@@ -87,8 +87,8 @@ static inline Entity *ywPosSetEnt(Entity *pos, Entity *other,
 				  int useless)
 {
   (void)useless;
-  yeSetInt(yeGet(pos, 0), yeGetInt(yeGet(other, 0)));
-  yeSetInt(yeGet(pos, 1), yeGetInt(yeGet(other, 1)));
+  yeSetInt(yeGetByIdx(pos, 0), yeGetInt(yeGetByIdx(other, 0)));
+  yeSetInt(yeGetByIdx(pos, 1), yeGetInt(yeGetByIdx(other, 1)));
   return pos;
 }
 

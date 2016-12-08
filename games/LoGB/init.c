@@ -41,6 +41,7 @@ void *init(int nbArgs, void **args)
 
 Entity *getLayer(Entity *contener, int idx)
 {
+  contener = yeGetByIdx(yeGetByStrFast(contener, "entries"), 0);
   return yeGetByIdx(yeGetByStrFast(contener, "entries"), idx);
 }
 
@@ -55,8 +56,9 @@ void addShip(Entity *wid)
   Entity *l1 = getLayer(wid, 1);
   Entity *cursorPos = getCursorPos(wid);
 
-  if (ywMapGetNbrEntityAt(l1, cursorPos, 3))
+  if (ywMapGetNbrEntityAt(l1, cursorPos, 3)) {
     ywMapPushNbr(l1, 1, cursorPos, NULL);
+  }
   yeDestroy(gc);
 }
 
@@ -69,15 +71,21 @@ void *battleAction(int nbArgs, void **args)
   YEvent *events = args[1];
   YEvent *eve = events;
 
+  ywContenerUpdate(yeGetByIdx(yeGetByStrFast(wid, "entries"), 0));
   YEVE_FOREACH(eve, events) {
     Entity *mousePos;
+    Entity *cursorPos = yeGetByStr(wid, "_cursos pos");
 
     if (ywidEveType(eve) == YKEY_MOUSEDOWN) {
-      printf("mouse: key %d at (%d - %d)\n", eve->key,
-	     eve->xMouse, eve->yMouse);
       mousePos = ywMapPosFromPixs(l1, eve->xMouse, eve->yMouse, NULL, NULL);
       ywPosPrint(mousePos);
+      ywPosPrint(cursorPos);
+      ywMapMoveByEntity(l1, cursorPos, mousePos,
+			yeGetByStrFast(wid, "cursor id"));
+      ywPosSetEnt(cursorPos, mousePos, 0);
       YE_DESTROY(mousePos);
+      ywContenerUpdate(l1);
+      ret = (void *)ACTION;
     } else if (ywidEveType(eve) != YKEY_DOWN) {
       continue;
     }
@@ -123,15 +131,19 @@ void *battleAction(int nbArgs, void **args)
 void *battleInit(int nbArgs, void **args)
 {
   Entity *gc = yeCreateArray(NULL, NULL);
-  Entity *entity = args[0];
-  Entity *layers = yeCreateArray(entity, "entries");
+  Entity *main = args[0];
+  Entity *layers = yeCreateArray(main, "entries");
   Entity *cur_layer;
-  Entity *resources = yeGetByStrFast(entity, "resources");
+  Entity *resources = yeGetByStrFast(main, "resources");
+  Entity *entity;
 
-  /* create map */
-  Entity *tmp = ywidCreateFunction("battleAction",
-				   ygGetManager("tcc"), entity, "action");
+  ywidCreateFunction("battleAction", ygGetManager("tcc"), main, "action");
+  Entity *pos = ywPosCreateInts(0, 0, main, "_cursos pos");
 
+  /* create maps */
+  entity = yeCreateArray(layers, NULL);
+  layers = yeCreateArray(entity, "entries");
+  yeCreateString("contener", entity, "<type>");
   yeCreateString("stacking", entity, "cnt-type");
 
   cur_layer = ywMapCreateDefaultEntity(layers, NULL,
@@ -149,15 +161,14 @@ void *battleInit(int nbArgs, void **args)
   /* battle specific fields */
   yeCreateInt(0, entity, "_state");
 
-  Entity *pos = ywPosCreateInts(0, 0, entity, "_cursos pos");
-  ywMapPushElem(getLayer(entity, 1), yeGetByStr(entity, "cursor id"), pos, NULL);
+  ywMapPushElem(getLayer(main, 1), yeGetByStr(main, "cursor id"), pos, NULL);
 
   printf("%d - %p - %p\n",
-	 yeGetInt(yeGetByStr(entity, "cursor id")),
-	 yeGetByStr(entity, "player 1"),
-	 yeGetByStr(entity, "player 2"));
+	 yeGetInt(yeGetByStr(main, "cursor id")),
+	 yeGetByStr(main, "player 1"),
+	 yeGetByStr(main, "player 2"));
 
-  void *ret = ywidNewWidget(entity, "contener");
+  void *ret = ywidNewWidget(main, "contener");
   yeDestroy(gc);
   return ret;
 }

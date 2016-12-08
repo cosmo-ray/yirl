@@ -136,31 +136,11 @@ static inline int ywMapRemoveByStr(Entity *state, Entity *pos,
 	  char *: ywMapRemoveByStr) (sate, pos, elem)
 
 
-static inline int ywMapMoveByStr(Entity *state, Entity *from,
-				 Entity *to, const char *elem)
-{
-  Entity *cur = ywMapGetCase(state, from);
-  Entity *tmp;
+int ywMapMoveByStr(Entity *state, Entity *from,
+		   Entity *to, const char *elem);
 
-  if ((tmp = yeGetByStrFast(cur, elem)) == NULL)
-    return -1;
-
-  YE_INCR_REF(tmp);
-  yeRemoveChild(cur, tmp);
-  ywMapPushElem(state, tmp, to, elem);
-  YE_DESTROY(tmp);
-  return 0;
-}
-
-static inline int ywMapMoveByEntity(Entity *state, Entity *from,
-				    Entity *to, Entity *elem)
-{
-  YE_INCR_REF(elem);
-  ywMapRemove(state, from, elem);
-  ywMapPushElem(state, elem, to, NULL);
-  YE_DESTROY(elem);
-  return 0;
-}
+int ywMapMoveByEntity(Entity *state, Entity *from,
+		      Entity *to, Entity *elem);
 
 /**
  * @map	The map to draw on

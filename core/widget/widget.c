@@ -348,6 +348,7 @@ void ywidResize(YWidgetState *wid)
 	    ywidRectY(pos) * ywidWindowHight / 1000,
 	    ywidRectW(pos) * ywidWindowWidth / 1000,
 	    ywidRectH(pos) * ywidWindowHight / 1000);
+  wid->hasChange = 1;
   if (wid->resize)
     wid->resize(wid);
   YUI_FOREACH_BITMASK(rendersMask, i, tmask) {

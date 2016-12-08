@@ -85,6 +85,32 @@ Entity *ywMapPosFromPixs(Entity *wid, uint32_t x, uint32_t y,
   return ywPosCreateInts(posX, posY, father, name);  
 }
 
+int ywMapMoveByStr(Entity *state, Entity *from,
+		   Entity *to, const char *elem)
+{
+  Entity *cur = ywMapGetCase(state, from);
+  Entity *tmp;
+
+  if ((tmp = yeGet(cur, elem)) == NULL)
+    return -1;
+
+  YE_INCR_REF(tmp);
+  yeRemoveChild(cur, tmp);
+  ywMapPushElem(state, tmp, to, elem);
+  YE_DESTROY(tmp);
+  return 0;
+}
+
+int ywMapMoveByEntity(Entity *state, Entity *from,
+		      Entity *to, Entity *elem)
+{
+  YE_INCR_REF(elem);
+  ywMapRemove(state, from, elem);
+  ywMapPushElem(state, elem, to, NULL);
+  YE_DESTROY(elem);
+  return 0;
+}
+
 static int mapInitCheckResources(Entity *resources)
 {
   Entity *firstELem = yeGet(resources, 0);
