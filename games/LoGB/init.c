@@ -136,12 +136,17 @@ void *battleInit(int nbArgs, void **args)
   Entity *cur_layer;
   Entity *resources = yeGetByStrFast(main, "resources");
   Entity *entity;
+  Entity *textScreen;
 
   ywidCreateFunction("battleAction", ygGetManager("tcc"), main, "action");
   Entity *pos = ywPosCreateInts(0, 0, main, "_cursos pos");
 
   /* create maps */
   entity = yeCreateArray(layers, NULL);
+  textScreen = yeCreateArray(layers, NULL);
+  yeCreateString("text-screen", textScreen, "<type>");
+
+  yeCreateInt(80, entity, "size");
   layers = yeCreateArray(entity, "entries");
   yeCreateString("contener", entity, "<type>");
   yeCreateString("stacking", entity, "cnt-type");
