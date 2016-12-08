@@ -145,6 +145,7 @@ void *battleInit(int nbArgs, void **args)
   entity = yeCreateArray(layers, NULL);
   textScreen = yeCreateArray(layers, NULL);
   yeCreateString("text-screen", textScreen, "<type>");
+  yeCreateString("hello", textScreen, "text");
 
   yeCreateInt(80, entity, "size");
   layers = yeCreateArray(entity, "entries");
