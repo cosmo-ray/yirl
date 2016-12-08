@@ -71,7 +71,7 @@ void *battleAction(int nbArgs, void **args)
   YEvent *events = args[1];
   YEvent *eve = events;
 
-  ywContenerUpdate(yeGetByIdx(yeGetByStrFast(wid, "entries"), 0));
+  /* ywContenerUpdate(wid, yeGetByIdx(yeGetByStrFast(wid, "entries"), 0)); */
   YEVE_FOREACH(eve, events) {
     Entity *mousePos;
     Entity *cursorPos = yeGetByStr(wid, "_cursos pos");
@@ -84,7 +84,7 @@ void *battleAction(int nbArgs, void **args)
 			yeGetByStrFast(wid, "cursor id"));
       ywPosSetEnt(cursorPos, mousePos, 0);
       YE_DESTROY(mousePos);
-      ywContenerUpdate(l1);
+      ywContenerUpdate(wid, l1);
       ret = (void *)ACTION;
     } else if (ywidEveType(eve) != YKEY_DOWN) {
       continue;
@@ -100,25 +100,25 @@ void *battleAction(int nbArgs, void **args)
     case Y_UP_KEY:
       ywMapAdvenceWithPos(l1, yeGetByStr(wid, "_cursos pos"),
 			  0, -1, yeGetByStr(wid, "cursor id"));
-      ywContenerUpdate(l1);
+      ywContenerUpdate(wid, l1);
       ret = (void *)ACTION;
       break;
     case Y_DOWN_KEY:
       ywMapAdvenceWithPos(l1, yeGetByStr(wid, "_cursos pos"),
 			  0, 1, yeGetByStr(wid, "cursor id"));
-      ywContenerUpdate(l1);
+      ywContenerUpdate(wid, l1);
       ret = (void *)ACTION;
       break;
     case Y_LEFT_KEY:
       ywMapAdvenceWithPos(l1, yeGetByStr(wid, "_cursos pos"),
 			  -1, 0, yeGetByStr(wid, "cursor id"));
-      ywContenerUpdate(l1);
+      ywContenerUpdate(wid, l1);
       ret = (void *)ACTION;
       break;
     case Y_RIGHT_KEY:
       ywMapAdvenceWithPos(l1, yeGetByStr(wid, "_cursos pos"),
 			  1, 0, yeGetByStr(wid, "cursor id"));
-      ywContenerUpdate(l1);
+      ywContenerUpdate(wid, l1);
       ret = (void *)ACTION;
       break;
     default:

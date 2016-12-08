@@ -26,6 +26,26 @@ static void widDestroyWrapper(void *wid)
   YWidDestroy(wid);
 }
 
+int ywContenerUpdate(Entity *contener, Entity *widEnt)
+{
+  Entity *entries = yeGet(contener, "entries");
+
+  YE_ARRAY_FOREACH(entries, tmp) {
+    YWidgetState *wid;
+
+    wid = yeGetData(yeGetByStr(tmp, "$wid"));
+    if (tmp == widEnt) {
+      wid->hasChange = 1;
+      return 1;
+    }
+    if (wid->type == t && ywContenerUpdate(tmp, widEnt)) {
+      wid->hasChange = 1;
+      return 1;
+    }
+  }
+  return 0;
+}
+
 static inline CntType cntGetTypeFromEntity(Entity *entity) {
   const char *cntType = yeGetString(yeGet(entity, "cnt-type"));
 

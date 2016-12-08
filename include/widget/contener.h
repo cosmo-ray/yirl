@@ -37,11 +37,7 @@ typedef struct {
 int ywContenerInit(void);
 int ywContenerEnd(void);
 
-static inline void ywContenerUpdate(Entity *widEnt) {
-  YWidgetState *wid = yeGetData(yeGetByStr(widEnt, "$wid"));
-
-  wid->hasChange = 1;
-}
+int ywContenerUpdate(Entity *contener, Entity *widEnt);
 
 #define ywCntType(opac) (((YContenerState *)opac)->type)
 
