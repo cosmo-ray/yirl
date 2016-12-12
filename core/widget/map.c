@@ -82,7 +82,11 @@ Entity *ywMapPosFromPixs(Entity *wid, uint32_t x, uint32_t y,
   uint32_t posX, posY;
 
   yeMapPixielsToPos(wid, x, y, &posX, &posY);
-  return ywPosCreateInts(posX, posY, father, name);  
+  if (posX >=  (uint32_t)ywMapW(wid))
+    posX = ywMapW(wid) - 1;
+  if (posY >= (uint32_t)ywMapH(wid))
+    posY = ywMapW(wid) - 1;
+  return ywPosCreateInts(posX, posY, father, name);
 }
 
 int ywMapMoveByStr(Entity *state, Entity *from,
