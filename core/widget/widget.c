@@ -509,3 +509,11 @@ InputStatue ywidEventCallActionSin(YWidgetState *opac, YEvent *event)
 {
   return ywidCallSignal(opac, event, NULL, opac->actionIdx);
 }
+
+int ywIsPixsOnWid(Entity *widget, int posX, int posY)
+{
+  Entity *pixR = yeGet(widget, "wid-pix");
+  
+  return posX > ywidRectX(pixR) && posX < (ywidRectX(pixR) + ywidRectW(pixR)) &&
+    posY > ywidRectY(pixR) && posY < (ywidRectY(pixR) + ywidRectH(pixR));
+}

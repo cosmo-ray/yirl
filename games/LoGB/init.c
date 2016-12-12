@@ -41,8 +41,7 @@ void *init(int nbArgs, void **args)
 
 Entity *getLayer(Entity *contener, int idx)
 {
-  contener = yeGetByIdx(yeGetByStrFast(contener, "entries"), 0);
-  return yeGetByIdx(yeGetByStrFast(contener, "entries"), idx);
+  return ywCntGetEntry(ywCntGetEntry(contener, 0), idx);
 }
 
 Entity *getCursorPos(Entity *wid)
@@ -77,9 +76,11 @@ void *battleAction(int nbArgs, void **args)
     Entity *cursorPos = yeGetByStr(wid, "_cursos pos");
 
     if (ywidEveType(eve) == YKEY_MOUSEDOWN) {
+      if (ywContenerGetWidgetAt(wid, eve->xMouse, eve->yMouse) !=
+	  ywCntGetEntry(wid, 0)) {
+	return ret;
+      }
       mousePos = ywMapPosFromPixs(l1, eve->xMouse, eve->yMouse, NULL, NULL);
-      ywPosPrint(mousePos);
-      ywPosPrint(cursorPos);
       ywMapMoveByEntity(l1, cursorPos, mousePos,
 			yeGetByStrFast(wid, "cursor id"));
       ywPosSetEnt(cursorPos, mousePos, 0);

@@ -46,6 +46,22 @@ int ywContenerUpdate(Entity *contener, Entity *widEnt)
   return 0;
 }
 
+Entity *ywContenerGetWidgetAt(Entity *contener, int posX, int posY)
+{
+  Entity *entries = yeGet(contener, "entries");
+
+  YE_ARRAY_FOREACH(entries, tmp) {
+    if (ywIsPixsOnWid(tmp, posX, posY))
+      return tmp;
+  }
+  return NULL;
+}
+
+Entity *ywCntGetEntry(Entity *contener, int idx)
+{
+  return yeGetByIdx(yeGetByStrFast(contener, "entries"), idx);
+}
+
 static inline CntType cntGetTypeFromEntity(Entity *entity) {
   const char *cntType = yeGetString(yeGet(entity, "cnt-type"));
 

@@ -234,4 +234,6 @@ void ywidFreeWidgets(void);
 
 InputStatue ywidEventCallActionSin(YWidgetState *opac, YEvent *event);
 
+int ywIsPixsOnWid(Entity *widget, int posX, int posY);
+
 #endif

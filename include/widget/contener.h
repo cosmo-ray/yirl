@@ -39,6 +39,10 @@ int ywContenerEnd(void);
 
 int ywContenerUpdate(Entity *contener, Entity *widEnt);
 
+Entity *ywContenerGetWidgetAt(Entity *contener, int posX, int posY);
+
+Entity *ywCntGetEntry(Entity *contener, int idx);
+
 #define ywCntType(opac) (((YContenerState *)opac)->type)
 
 #endif
