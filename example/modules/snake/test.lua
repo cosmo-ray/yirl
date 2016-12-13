@@ -17,10 +17,13 @@
 
 function scoreInit(wid, eve, args)
    -- Get the score from the snake module
-   local score = yeGet(ygGetMod("snake"), "score")
+   local score = yeGetInt(yeGet(ygGetMod("snake"), "score"))
 
    -- Set it
-   local scoreStr = "you have a score of " .. yeGetInt(score) .. " points"
+   local scoreStr = "you have a score of " .. score .. " points"
+   if (score < 30) then
+      scoreStr = scoreStr .. " noob !"
+   end
    yeSetString(yeGet(ywidEntity(wid), "text"), scoreStr);
 end
 
@@ -35,4 +38,5 @@ function eat(wid, eve, args)
    yeSetInt(tl, tlInt)
 end
 
+yeCreateFunction("scoreInit", ygGetMod("testSnake"))
 yeCreateFunction("eat", ygGetMod("testSnake"))

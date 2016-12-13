@@ -628,6 +628,14 @@ static inline int yeAddEnt(Entity *e, Entity *e2)
   return -1;
 }
 
+static inline int yeStrCmp(Entity *ent1, const char *str)
+{
+  const char *eStr = yeGetString(ent1);
+  if (!eStr)
+    return -1;
+  return strcmp(eStr, str);
+}
+
 static inline Entity *yeFind(Entity *entity,
 			     Entity *(*finder)(const char *,
 					       Entity *, void *),

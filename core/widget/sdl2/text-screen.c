@@ -29,12 +29,15 @@ static int sdlRender(YWidgetState *state, int t)
   const char *toPrint = yeGetString(yeGet(state->entity, "text"));
   YBgConf cfg;
   SDL_Color color;
+  int alignementType = YSDL_ALIGN_LEFT;
 
   color.r = 0;
   color.g = 0;
   color.b = 0;
   color.a = 250;
 
+  if (!yeStrCmp(yeGet(state->entity, "text-align"), "center"))
+    alignementType = YSDL_ALIGN_CENTER;
   if (ywidBgConfFill(yeGet(state->entity, "background"), &cfg) >= 0)
     sdlFillBg(wid, &cfg);
   else
@@ -45,7 +48,7 @@ static int sdlRender(YWidgetState *state, int t)
     return 0;
   }
   SDL_Rect txtR = {0, 0, wid->rect.w, wid->rect.h};
-  sdlPrintText(wid, toPrint, color, txtR, YSDL_ALIGN_LEFT);
+  sdlPrintText(wid, toPrint, color, txtR, alignementType);
   return 0;
 }
 
