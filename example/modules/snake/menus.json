@@ -25,7 +25,7 @@
 	"<type>" : "snake",
 	"next" : "testSnake:scenes.LooseScreen",
 	"&resources" : "SnakeResources",
-	"bind" : [["hitWall", "snake:snakeWarp"]],
+	"bind" : [["hitWall", "snake:snakeWarp"], ["eat", "testSnake:eat"]],
     },
     "SnakeResources" : [
 	{
