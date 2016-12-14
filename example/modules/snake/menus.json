@@ -4,7 +4,7 @@
 	"text" : "",
 	"text-align" : "center",
 	"init" : "testSnake:scoreInit",
-	"background": "rgba: 180 210 20 50", // Not yet implemented :)
+	"background": "rgba: 255 255 255 100",
 	"bind" : [["action", "callNext"]],
 	"next" : "testSnake:scenes.AskReplay"
     },
