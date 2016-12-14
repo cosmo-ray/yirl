@@ -5,7 +5,7 @@
 	"text-align" : "center",
 	"init" : "testSnake:scoreInit",
 	"background": "rgba: 255 255 255 100",
-	"bind" : [["action", "callNext"]],
+	"bind" : [["action", "nextOnKeyDown"]],
 	"next" : "testSnake:scenes.AskReplay"
     },
     "AskReplay" : {
@@ -20,7 +20,8 @@
 		"text" : "Quit",
 		"action" : "FinishGame"
 	    }
-	]
+	],
+	"text-align" : "center"
     },
     "Snake" : {
 	"<type>" : "snake",

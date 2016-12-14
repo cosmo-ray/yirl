@@ -31,9 +31,13 @@ static int sdlRender(YWidgetState *state, int t)
   Entity *entries = yeGet(state->entity, "entries");
   unsigned int   len = yeLen(entries);
   YBgConf cfg;
+  int alignementType = YSDL_ALIGN_LEFT;
 
   if (!ywMenuHasChange(state))
     return 0;
+
+  if (!yeStrCmp(yeGet(state->entity, "text-align"), "center"))
+    alignementType = YSDL_ALIGN_CENTER;
 
   if (ywidBgConfFill(yeGet(state->entity, "background"), &cfg) >= 0)
     sdlFillBg(wid, &cfg);
@@ -50,7 +54,7 @@ static int sdlRender(YWidgetState *state, int t)
     unsigned int cur = ywMenuGetCurrent(state);
     SDL_Rect txtR = {0, i * sgGetFontSize() + 1, wid->rect.w, wid->rect.h};
 
-    sdlPrintText(wid, toPrint, color, txtR, YSDL_ALIGN_LEFT);
+    sdlPrintText(wid, toPrint, color, txtR, alignementType);
     if (cur == i) {
       SDL_Rect rect = {0,  i * sgGetFontSize() + 1, // x - y
       		       wid->rect.w, sgGetFontSize() + 1}; // w - h
