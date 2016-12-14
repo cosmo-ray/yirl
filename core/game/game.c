@@ -97,7 +97,6 @@ static void *nextWid(va_list ap)
   YWidgetState *wid = va_arg(ap, YWidgetState *);
   Entity *next = yeGet(wid->entity, "next");
 
-  printf("next wid\n");
   if (!next) {
     DPRINT_ERR("unable to get next widget");
     return (void *)BUG;
@@ -108,12 +107,31 @@ static void *nextWid(va_list ap)
   return (void *)ACTION;  
 }
 
+static void *nextOnKeyDown(va_list ap)
+{
+  va_list tmp_ap;
+  va_copy(tmp_ap, ap);
+  va_arg(tmp_ap, YWidgetState *);
+  YEvent *events = va_arg(tmp_ap, YEvent *);
+  YEvent *eve = events;
+  void *ret = (void *)NOTHANDLE;
+
+  YEVE_FOREACH(eve, events) {
+    if (ywidEveType(eve) == YKEY_DOWN)
+      ret = nextWid(ap);
+  }
+  va_end(tmp_ap);
+  return ret;
+}
+
 #define TO_RC(X) ((RenderConf *)(X))
 
 static void addNativeFuncToBaseMod(void)
 {
   ysRegistreCreateNativeEntity(ygTerminateCallback, "FinishGame", baseMod, NULL);
   ysRegistreCreateNativeEntity(nextWid, "callNext", baseMod, NULL);  
+  ysRegistreCreateNativeEntity(nextOnKeyDown, "nextOnKeyDown",
+			       baseMod, NULL);
   yeCreateFunctionSimple("menuMove", ysNativeManager(), baseMod);
   yeCreateFunctionSimple("menuNext", ysNativeManager(), baseMod);
 }
