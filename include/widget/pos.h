@@ -82,7 +82,6 @@ static inline Entity *ywPosSetInts(Entity *pos, int posX, int posY)
   return pos;
 }
 
-
 static inline Entity *ywPosSetEnt(Entity *pos, Entity *other,
 				  int useless)
 {

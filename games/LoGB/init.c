@@ -142,6 +142,10 @@ void *battleInit(int nbArgs, void **args)
   ywidCreateFunction("battleAction", ygGetManager("tcc"), main, "action");
   Entity *pos = ywPosCreateInts(0, 0, main, "_cursos pos");
 
+  if (!yeGetByStr(main, "player 1") || !yeGetByStr(main, "player 2")) {
+    DPRINT_ERR("unable to get players fleets");
+    return NULL;
+  }
   /* create maps */
   entity = yeCreateArray(layers, NULL);
   textScreen = yeCreateArray(layers, NULL);
