@@ -549,6 +549,16 @@ void *yeGetData(Entity *entity);
 	 YE_FOREACH_FATHER_SET_FATHER(child, father, father##idx);	\
        ++father##idx)
 
+/**
+ * @brief Add @str to the string entity @Ent
+ */
+int yeStringAdd(Entity *ent, const char *str);
+
+/**
+ * @brief same as yeStringAdd, but add a new line
+ */
+int yeStringAddNl(Entity *ent, const char *str);
+
 
 /**
  * @param entity
@@ -625,12 +635,25 @@ static inline int yeOpsIntAddInt(IntEntity *e, int i)
   return 0;
 }
 
+int yeStringAddInt(Entity *ent, int i);
 
 static inline int yeAddInt(Entity *e, int i)
 {
   switch (yeType(e)) {
   case YINT:
     return yeOpsIntAddInt(YE_TO_INT(e), i);
+  case YSTRING:
+    return yeStringAddInt(e, i);
+  default :
+    return -1;
+  }
+}
+
+static inline int yeAddStr(Entity *e, const char *str)
+{
+  switch (yeType(e)) {
+  case YSTRING:
+    return yeStringAdd(e, str);
   default :
     return -1;
   }

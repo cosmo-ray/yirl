@@ -776,6 +776,49 @@ void	yeSetString(Entity *entity, const char *val)
   }
 }
 
+int yeStringAdd(Entity *ent, const char *str)
+{
+  int origLen;
+  int totalLength;
+  int strLen = strlen(str);
+
+  if (unlikely(!ent || !str))
+    return -1;
+  origLen = yeLen(ent);
+  totalLength = origLen + strLen;
+  YE_TO_STRING(ent)->value = realloc(YE_TO_STRING(ent)->value,
+				     totalLength + 1);  
+  char *beg = YE_TO_STRING(ent)->value + origLen;
+  strncpy(beg, str, strLen + 1);
+  YE_TO_STRING(ent)->len = totalLength;
+  return 0;
+}
+
+int yeStringAddNl(Entity *ent, const char *str)
+{
+  char *tmp;
+
+  if (unlikely(!ent || !str))
+    return -1;
+  tmp = YE_TO_STRING(ent)->value;
+  YE_TO_STRING(ent)->value = g_strdup_printf("%s%s\n", tmp, str);
+  YE_TO_STRING(ent)->len = strlen(YE_TO_STRING(ent)->value);
+  g_free(tmp);
+  return 0;
+}
+
+int yeStringAddInt(Entity *ent, int i)
+{
+  char *tmp = YE_TO_STRING(ent)->value;
+
+  if (unlikely(!tmp))
+    return -1;
+  YE_TO_STRING(ent)->value = g_strdup_printf("%s%d", tmp, i);
+  YE_TO_STRING(ent)->len = strlen(YE_TO_STRING(ent)->value);
+  g_free(tmp);
+  return 0;
+}
+
 void yeSetDestroy(Entity *entity, void (*destroyFunc)(void *))
 {
   YE_TO_DATA(entity)->destroy = destroyFunc;

@@ -1,3 +1,4 @@
+
 /*
 **Copyright (C) 2016 Matthias Gatto
 **
@@ -25,12 +26,14 @@ void *init(int nbArgs, void **args)
   Entity *mod = args[0];
   Entity *init;
   Entity *map = yeCreateArray(mod, "battle");
+  Entity *cp;
 
   yeCreateString("battle", map, "<type>");
   yePushBack(map, yeGetByStr(mod, "resources.battle-map"), "resources");
-  
-  yePushBack(map, yeGetByStr(mod, "player1 fleets"), "player 1");
-  yePushBack(map, yeGetByStr(mod, "player2 fleets"), "player 2");
+  cp = yeCreateArray(map, "player 1");
+  yePushBack(cp, yeGetByStr(mod, "player1 fleets"), "fleet");
+  cp = yeCreateArray(map, "player 2");
+  yePushBack(map, yeGetByStr(mod, "player2 fleets"), "fleet");
   yeCreateInt(2, map, "cursor id");
   init = yeCreateArray(NULL, NULL);
   yeCreateString("battle", init, "name");
@@ -44,18 +47,50 @@ Entity *getLayer(Entity *contener, int idx)
   return ywCntGetEntry(ywCntGetEntry(contener, 0), idx);
 }
 
+Entity *getTextScreen(Entity *contener)
+{
+  return ywCntGetEntry(contener, 1);
+}
+
+Entity *getTextScreenSurface(Entity *contener)
+{
+  return (yeGetByStr(getTextScreen(contener), "text"));
+}
+
 Entity *getCursorPos(Entity *wid)
 {
   yeGetByStr(wid, "_cursos pos");
 }
+
 
 void addShip(Entity *wid)
 {
   Entity *gc = yeCreateArray(NULL, NULL);
   Entity *l1 = getLayer(wid, 1);
   Entity *cursorPos = getCursorPos(wid);
+  Entity *cp = yeGetByStr(wid, "current_player");
 
   if (ywMapGetNbrEntityAt(l1, cursorPos, 3)) {
+    Entity *_fleet = yeGetByStr(cp, "_fleet");
+    Entity *fleet = yeGetByStr(cp, "fleet");
+    Entity *txtSurface = getTextScreenSurface(wid);
+
+    if (!yeLen(fleet)) {
+      printf("this is the end\n");
+      printf("my only friend,  the end\n");
+    }
+    if (!_fleet)
+      yeCreateArray(cp, "_fleet");
+    yeSetString(txtSurface, "fleet left:\n");
+
+    YE_ARRAY_FOREACH_EXT(fleet, elem, it) {
+      yeAddInt(txtSurface, it.pos);
+      yeStringAdd(txtSurface, ": ");
+      yeStringAdd(txtSurface, yeGetString(yeGetByIdx(elem, 0)));
+      yeStringAdd(txtSurface, " - ");
+      yeAddEnt(txtSurface, yeGetByIdx(elem, 1));
+      yeStringAddNl(txtSurface, "");
+    }
     ywMapPushNbr(l1, 1, cursorPos, NULL);
   }
   yeDestroy(gc);
@@ -171,10 +206,11 @@ void *battleInit(int nbArgs, void **args)
 
   /* battle specific fields */
   yeCreateInt(0, entity, "_state");
+  yePushBack(main, yeGetByStr(main, "player 1"), "current_player");
 
   ywMapPushElem(getLayer(main, 1), yeGetByStr(main, "cursor id"), pos, NULL);
 
-  printf("%d - %p - %p\n",
+   printf("%d - %p - %p\n",
 	 yeGetInt(yeGetByStr(main, "cursor id")),
 	 yeGetByStr(main, "player 1"),
 	 yeGetByStr(main, "player 2"));
