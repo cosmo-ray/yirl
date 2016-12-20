@@ -23,16 +23,6 @@
 #include	"utils.h"
 #include	"stack.h"
 
-union FatEntity {
-	Entity Entity;
-	ArrayEntity ArrayEntity;
-	IntEntity IntEntity;
-	FloatEntity FloatEntity;
-	StringEntity StringEntity;
-	DataEntity DataEntity;
-	FunctionEntity FunctionEntity;
-};
-
 /* Globale array that store every entitys */
 static STACK_CREATE(freedElems, int64);
 static BlockArray entitysArray;

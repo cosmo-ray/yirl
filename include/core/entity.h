@@ -166,6 +166,20 @@ typedef	struct
   void	*fastPath;
 } FunctionEntity;
 
+union FatEntity {
+	Entity Entity;
+	ArrayEntity ArrayEntity;
+	IntEntity IntEntity;
+	FloatEntity FloatEntity;
+	StringEntity StringEntity;
+	DataEntity DataEntity;
+	FunctionEntity FunctionEntity;
+	uint8_t totalSize[256];
+};
+
+#define yeMetadataSize(EntityType)			\
+	(sizeof(union FatEntity) - sizeof(EntityType))
+
 void yeInitMem(void);
 
 void yeEnd(void);

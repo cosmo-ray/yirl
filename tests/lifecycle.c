@@ -40,7 +40,6 @@ void testLifecycleSimple(void)
   YE_DESTROY(test3);
   YE_DESTROY(test4);
   YE_DESTROY(test5);
-
   g_assert(test1 == NULL);
   g_assert(test2 == NULL);
   g_assert(test3 == NULL);
