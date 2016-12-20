@@ -22,9 +22,15 @@
 #include "debug.h"
 #include "tests.h"
 
-#define TEST_TRY_ADD(name, func, only) do	{			\
-    if (!only || !strcmp(only, name))					\
-      g_test_add_func(name, func);					\
+static const char *testList[256];
+static int testListIdx;
+static int list;
+
+#define TEST_TRY_ADD(name, func, only) do	{	\
+    if (list)						\
+      testList[testListIdx++] = name;			\
+    else if (!only || !strcmp(only, name))		\
+      g_test_add_func(name, func);			\
   } while (0)
 
 int main(int argc, char **argv)
@@ -32,12 +38,15 @@ int main(int argc, char **argv)
   int no_wid = 0;
   char *only = NULL;
   GOptionContext *ctx;
-  const GOptionEntry entries[3] = {{"no-widget", 0, 0,  G_OPTION_ARG_NONE,
-				    &no_wid,
-				    "don't test gui(usefull for perf)", NULL},
-				   {"just", 0, 0,  G_OPTION_ARG_STRING, &only,
-				    "jut do the given test", NULL},
-				   {NULL, 0, 0, 0, NULL, NULL, NULL}};
+  const GOptionEntry entries[4] = {
+    {"no-widget", 0, 0,  G_OPTION_ARG_NONE,
+     &no_wid,
+     "don't test gui(usefull for perf)", NULL},
+    {"list", 'l', 0, G_OPTION_ARG_NONE, &list,
+     "list all the tests and quit", NULL},
+    {"just", 0, 0,  G_OPTION_ARG_STRING, &only,
+     "jut do the given test", NULL},
+    {NULL, 0, 0, 0, NULL, NULL, NULL}};
   GError *error = NULL;
 
   ctx = g_option_context_new(NULL);
@@ -112,7 +121,13 @@ int main(int argc, char **argv)
 #endif
 
  run_test:
-  g_test_run();
+  if (list) {
+    for (int i = 0; i < testListIdx; ++i) {
+      printf("%s\n", testList[i]);
+    }
+  } else {
+    g_test_run();
+  }
   yuiDebugExit();
 }
 
