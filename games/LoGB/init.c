@@ -21,6 +21,8 @@
 #include <game.h>
 #include <contener.h>
 
+static Entity *globMousePos;
+
 void *init(int nbArgs, void **args)
 {
   Entity *mod = args[0];
@@ -144,6 +146,15 @@ void *battleAction(int nbArgs, void **args)
       YE_DESTROY(mousePos);
       ywContenerUpdate(wid, l1);
       ret = (void *)ACTION;
+    } else if (ywidEveType(eve) == YKEY_MOUSEMOTION) {
+      ywPosSetInts(globMousePos, eve->xMouse, eve->yMouse);
+    } else if (ywidEveType(eve) == YKEY_MOUSEWHEEL) {
+      if (ywContenerGetWidgetAt(wid, ywPosX(globMousePos), ywPosY(globMousePos)) ==
+	  ywCntGetEntry(wid, 1)) {
+	printf("good job guy!\n");
+      } else {
+	printf("your so wrong!\n");
+      }
     } else if (ywidEveType(eve) != YKEY_DOWN) {
       continue;
     }
@@ -205,6 +216,7 @@ void *battleInit(int nbArgs, void **args)
   Entity *entity;
   Entity *textScreen;
 
+  globMousePos = ywPosCreateInts(0, 0, NULL, NULL);
   ywidCreateFunction("battleAction", ygGetManager("tcc"), main, "action");
   Entity *pos = ywPosCreateInts(0, 0, main, "_cursos pos");
 

@@ -47,6 +47,8 @@ typedef enum
     YKEY_DOWN,
     YKEY_UP,
     YKEY_MOUSEDOWN,
+    YKEY_MOUSEWHEEL,
+    YKEY_MOUSEMOTION,
     YKEY_NONE
   } EventType;
 

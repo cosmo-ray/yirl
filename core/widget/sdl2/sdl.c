@@ -181,6 +181,15 @@ static inline YEvent *SDLConvertEvent(SDL_Event* event)
       eve->xMouse = event->button.x;
       eve->yMouse = event->button.y;
       return eve;
+    case SDL_MOUSEWHEEL:
+      eve->type = YKEY_MOUSEWHEEL;
+      eve->key = event->wheel.y;
+      return eve;
+    case SDL_MOUSEMOTION:
+      eve->type = YKEY_MOUSEMOTION;
+      eve->xMouse = event->motion.x;
+      eve->yMouse = event->motion.y;
+      return eve;
     default:
       eve->type = YKEY_NONE;
       break;
