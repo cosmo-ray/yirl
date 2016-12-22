@@ -661,6 +661,13 @@ int	yePushBack(Entity *entity, Entity *toPush, const char *name)
   return yePushBackExt(entity, toPush, name, 0);
 }
 
+Entity	*yeMoveByEntity(Entity* src, Entity* dest, Entity *what)
+{
+  yePushBack(dest, what, NULL);
+  yeRemoveChild(src, what);
+  return what;
+}
+
 Entity *yeRemoveChild(Entity *array, Entity *toRemove)
 {
   if (!checkType(array, YARRAY)) {
@@ -995,7 +1002,7 @@ Entity **yeFathers(Entity *entity)
 }
 
 static Entity *	yeCopyInternal(Entity* src, Entity* dest,
-				       Entity *used, Entity *refs);
+			       Entity *used, Entity *refs);
 
 static Entity *yeCopyFindRef(const char *name, Entity *entity, void *arg)
 {

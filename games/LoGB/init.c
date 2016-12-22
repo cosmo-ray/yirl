@@ -42,57 +42,79 @@ void *init(int nbArgs, void **args)
   return NULL;
 }
 
-Entity *getLayer(Entity *contener, int idx)
+static Entity *getLayer(Entity *contener, int idx)
 {
   return ywCntGetEntry(ywCntGetEntry(contener, 0), idx);
 }
 
-Entity *getTextScreen(Entity *contener)
+static Entity *getTextScreen(Entity *contener)
 {
   return ywCntGetEntry(contener, 1);
 }
 
-Entity *getTextScreenSurface(Entity *contener)
+static Entity *getTextScreenSurface(Entity *contener)
 {
   return (yeGetByStr(getTextScreen(contener), "text"));
 }
 
-Entity *getCursorPos(Entity *wid)
+static Entity *getCursorPos(Entity *wid)
 {
   yeGetByStr(wid, "_cursos pos");
 }
 
+static Entity *printFLeet(Entity *text, Entity *fleet)
+{
+  Entity *first = NULL;
 
-void addShip(Entity *wid)
+  yeSetString(text, "fleet left:\n");
+  YE_ARRAY_FOREACH_EXT(fleet, elem, it) {
+    if (!first)
+      first = elem;
+    yeAddInt(text, it.pos);
+    yeStringAdd(text, ": ");
+    yeStringAdd(text, yeGetString(yeGetByIdx(elem, 0)));
+    yeStringAdd(text, " - ");
+    yeAddEnt(text, yeGetByIdx(elem, 1));
+    yeStringAddNl(text, "");
+  }
+  if (!first)
+    yeStringAddNl(text, "NONE");
+  return first;
+}
+
+static Entity *getCurrentPlayer(Entity *wid)
+{
+  return yeGetByStr(wid, "current_player");
+}
+
+static void addShip(Entity *wid)
 {
   Entity *gc = yeCreateArray(NULL, NULL);
   Entity *l1 = getLayer(wid, 1);
   Entity *cursorPos = getCursorPos(wid);
-  Entity *cp = yeGetByStr(wid, "current_player");
+  Entity *cp = getCurrentPlayer(wid);
+  Entity *_fleet = yeGetByStr(cp, "_fleet");
+  Entity *fleet = yeGetByStr(cp, "fleet");
+  Entity *txtSurface = getTextScreenSurface(wid);
+  Entity *first;
 
-  if (ywMapGetNbrEntityAt(l1, cursorPos, 3)) {
-    Entity *_fleet = yeGetByStr(cp, "_fleet");
-    Entity *fleet = yeGetByStr(cp, "fleet");
-    Entity *txtSurface = getTextScreenSurface(wid);
-
-    if (!yeLen(fleet)) {
-      printf("this is the end\n");
-      printf("my only friend,  the end\n");
-    }
-    if (!_fleet)
-      yeCreateArray(cp, "_fleet");
-    yeSetString(txtSurface, "fleet left:\n");
-
-    YE_ARRAY_FOREACH_EXT(fleet, elem, it) {
-      yeAddInt(txtSurface, it.pos);
-      yeStringAdd(txtSurface, ": ");
-      yeStringAdd(txtSurface, yeGetString(yeGetByIdx(elem, 0)));
-      yeStringAdd(txtSurface, " - ");
-      yeAddEnt(txtSurface, yeGetByIdx(elem, 1));
-      yeStringAddNl(txtSurface, "");
-    }
-    ywMapPushNbr(l1, 1, cursorPos, NULL);
+  if (!ywMapGetNbrEntityAt(l1, cursorPos, 3)) {
+    yeSetString(txtSurface, "na, I don't thins so, go f**k yourself\n");
+    return;
   }
+
+  first = printFLeet(txtSurface, fleet);
+  if (!yeLen(fleet)) {
+    yeAddStr(txtSurface, "This is the end, ");
+    yeAddStr(txtSurface, "my only friend, the end\n");
+    return;
+  }
+  if (!_fleet)
+    yeCreateArray(cp, "_fleet");
+
+  ywMapPushNbr(l1, 1, cursorPos, NULL);
+  yeMoveByEntity(fleet, _fleet, first);
+  printFLeet(txtSurface, fleet);
   yeDestroy(gc);
 }
 
@@ -129,6 +151,15 @@ void *battleAction(int nbArgs, void **args)
     case 'q':
       ygCall(NULL, "FinishGame");
       ret = (void *)ACTION;
+      break;
+    case 'n':
+      if (yeLen(yeGetByStr(wid, "current_player.fleet"))) {
+	    yeAddStr(getTextScreenSurface(wid),
+		     "can't next because there is still fleet left to pos\n");
+      } else {
+	yeAddStr(getTextScreenSurface(wid),
+		 "fine, it's not implemented, that was useless\n");
+      }
       break;
     case '\n':
       addShip(wid);
@@ -184,8 +215,6 @@ void *battleInit(int nbArgs, void **args)
   /* create maps */
   entity = yeCreateArray(layers, NULL);
   textScreen = yeCreateArray(layers, NULL);
-  yeCreateString("text-screen", textScreen, "<type>");
-  yeCreateString("hello", textScreen, "text");
 
   yeCreateInt(80, entity, "size");
   layers = yeCreateArray(entity, "entries");
@@ -210,7 +239,10 @@ void *battleInit(int nbArgs, void **args)
 
   ywMapPushElem(getLayer(main, 1), yeGetByStr(main, "cursor id"), pos, NULL);
 
-   printf("%d - %p - %p\n",
+  yeCreateString("text-screen", textScreen, "<type>");
+  printFLeet(yeCreateString("", textScreen, "text"),
+	     yeGetByStr(yeGetByStr(main, "current_player"), "fleet"));
+  printf("%d - %p - %p\n",
 	 yeGetInt(yeGetByStr(main, "cursor id")),
 	 yeGetByStr(main, "player 1"),
 	 yeGetByStr(main, "player 2"));

@@ -589,6 +589,10 @@ static inline EntityType yeType(const Entity *entity)
  */
 Entity *yeCopy(Entity* src, Entity* dest);
 
+/**
+ * @brief move @what from @src to @dest
+ */
+Entity	*yeMoveByEntity(Entity* src, Entity* dest, Entity *what);
 
 static inline int yeArrayContainEntity(Entity *array, const char *str)
 {

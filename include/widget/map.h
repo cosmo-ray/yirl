@@ -151,7 +151,7 @@ int ywMapDrawRect(Entity *map, Entity *posStart, Entity *size, int id);
 
 /**
  * @brief add @x and @y to @pos then move @elem at @pos
- * @pos @elem initial position, modified durring operation
+ * @pos initial position, modified durring operation
  */
 static inline int ywMapAdvenceWithPos(Entity *map, Entity *pos,
 				      int x, int y, Entity *elem)
