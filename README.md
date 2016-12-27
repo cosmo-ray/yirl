@@ -7,12 +7,13 @@ Don't expect to get something functional for now.
 YIRL is a game engine aiming to be fully configurable, fully scriptable and mod friendly.
 
 # Concept:
-The idea behind yirl is to give to the user some basic tools and widgets that everyone can reuse or warp into more complex widgets.
+The idea behind yirl is to give to the user some basic tools and widgets that everyone can reuse or wrap into more complex widgets.
 We can see yirl as a CMS for video game:
-Everyone should be able to add module to yirl, and everyone should be able to wrape modules into more powerfull modules.
+Everyone should be able to add module to yirl, and everyone should be able to wrap modules into more powerful modules.
 
 As an example the [snake module](https://github.com/cosmo-ray/yirl/tree/master/modules/snake) is a map whith more function and a init, it's basically an inheritance of a map, this allow everyone to add a snake easily in his game.
-Snake module is write in lua, but as YIRL have a generic script system, we could have write snake in any scripting language.
+Snake module is written in lua, but as YIRL have a generic script system, we could have written snake in any scripting language.
+Here is an example how sanke module can be use: https://github.com/cosmo-ray/yirl/tree/master/example/modules/snake
 Now only lua and C with tcc are supported for scripting, feel free to add your language :).
 
 
@@ -28,7 +29,8 @@ YIRL is licensed under the LGPL licence, the idea behind that, is that you can a
     * menu.h
     * text-screen.h: a simple text widget.
     * contener.h: widget that contain others widgets
-    * pos.h: function to help to manipulate everything with a pos
+    * pos.h: helpers to manipulate everything with a position
+    * rect.h: helpers for rectangles
     * sdl-driver.h
     * curses-driver.h
     * widget-callback.h
