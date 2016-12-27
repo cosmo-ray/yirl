@@ -13,7 +13,8 @@ Everyone should be able to add module to yirl, and everyone should be able to wr
 
 As an example the [snake module](https://github.com/cosmo-ray/yirl/tree/master/modules/snake) is a map whith more function and a init, it's basically an inheritance of a map, this allow everyone to add a snake easily in his game.
 Snake module is written in lua, but as YIRL have a generic script system, we could have written snake in any scripting language.
-Here is an example how sanke module can be use: https://github.com/cosmo-ray/yirl/tree/master/example/modules/snake
+Here is an example how sanke module can be use: https://github.com/cosmo-ray/yirl/tree/master/example/modules/snake.
+
 Now only lua and C with tcc are supported for scripting, feel free to add your language :).
 
 
