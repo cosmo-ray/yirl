@@ -23,8 +23,6 @@ static int t = -1;
 
 typedef struct {
   YWidgetState sate;
-  unsigned int hasChange;
-
 } YTextScreenState;
 
 static int tsInit(YWidgetState *opac, Entity *entity, void *args)
@@ -32,6 +30,7 @@ static int tsInit(YWidgetState *opac, Entity *entity, void *args)
   (void)entity;
   (void)args;
 
+  yeCreateInt(0, entity, "text-threshold");
   ywidGenericCall(opac, t, init);
   return 0;
 }

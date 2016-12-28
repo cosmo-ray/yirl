@@ -151,9 +151,8 @@ void *battleAction(int nbArgs, void **args)
     } else if (ywidEveType(eve) == YKEY_MOUSEWHEEL) {
       if (ywContenerGetWidgetAt(wid, ywPosX(globMousePos), ywPosY(globMousePos)) ==
 	  ywCntGetEntry(wid, 1)) {
-	printf("good job guy!\n");
-      } else {
-	printf("your so wrong!\n");
+	yeAddInt(yeGetByStr(getTextScreen(wid), "text-threshold"), eve->key);
+	ywContenerUpdate(wid, getTextScreen(wid));
       }
     } else if (ywidEveType(eve) != YKEY_DOWN) {
       continue;

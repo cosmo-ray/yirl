@@ -464,7 +464,7 @@ int yeAttach(Entity *on, Entity *entity, unsigned int idx,
 #define YE_GET_REAL_TYPE(type) RECREATE_IS_##type
 
 #define YE_IMPL_RECREATE(_type, value, father, name)		\
-  Entity *ret = yeGetByStr(father, name);			\
+  Entity *ret = yeGetByStrFast(father, name);			\
 								\
   if (ret) {							\
     if (unlikely(ret->type != YE_GET_REAL_TYPE(_type))) {	\
@@ -475,6 +475,9 @@ int yeAttach(Entity *on, Entity *entity, unsigned int idx,
     }								\
   }								\
   return yeCreate##_type(value, father, name);			\
+
+
+Entity *yeReCreateData(void *value, Entity *father, const char *name);
 
 static inline Entity *yeReCreateArray(Entity *father,
 				      const char *name, Entity *newArray)

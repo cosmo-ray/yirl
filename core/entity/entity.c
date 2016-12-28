@@ -468,6 +468,16 @@ Entity *yeCreateString(const char *string, Entity *father, const char *name)
   return (YE_TO_ENTITY(ret));
 }
 
+Entity *yeReCreateData(void *value, Entity *father, const char *name)
+{
+  Entity *ret = yeGet(father, name);
+
+  if (ret) {
+    yeRemoveChild(father, ret);
+  }
+  return yeCreateData(value, father, name);
+}
+
 static inline void arrayEntryInit(ArrayEntry *ae)
 {
   ae->entity = NULL;

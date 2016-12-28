@@ -188,7 +188,10 @@ static inline int ywidHandleEvent(YWidgetState *opac, YEvent *event)
   if (opac->handleEvent)
     ret = opac->handleEvent(opac, event);
 
-  opac->hasChange = ret == NOTHANDLE ? 0 : 1;
+  if (!opac->hasChange)
+    opac->hasChange = (ret == NOTHANDLE ? 0 : 1);
+  else
+    ret = (ret == NOTHANDLE ? NOACTION : ret);
  return ret;
 }
 

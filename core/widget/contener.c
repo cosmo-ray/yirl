@@ -21,11 +21,6 @@
 
 static int t = -1;
 
-static void widDestroyWrapper(void *wid)
-{
-  YWidDestroy(wid);
-}
-
 int ywContenerUpdate(Entity *contener, Entity *widEnt)
 {
   Entity *entries = yeGet(contener, "entries");
@@ -34,11 +29,10 @@ int ywContenerUpdate(Entity *contener, Entity *widEnt)
     YWidgetState *wid;
 
     wid = yeGetData(yeGetByStr(tmp, "$wid"));
-    if (tmp == widEnt) {
+    if ((tmp == widEnt) ||
+	(wid->type == t && ywContenerUpdate(tmp, widEnt))) {
       wid->hasChange = 1;
-      return 1;
-    }
-    if (wid->type == t && ywContenerUpdate(tmp, widEnt)) {
+      wid = yeGetData(yeGet(contener, "$wid"));
       wid->hasChange = 1;
       return 1;
     }
@@ -139,7 +133,6 @@ static int cntInit(YWidgetState *opac, Entity *entity, void *args)
   Entity *bg = yeGet(entity, "background");
   YWidgetState *wid;
   Entity *bg_tx;
-  Entity *widData;
 
   (void)args;
   if (!entries)
@@ -150,11 +143,8 @@ static int cntInit(YWidgetState *opac, Entity *entity, void *args)
     yeCreateString("text-screen", bg_tx, "<type>");
     yeCreateString("", bg_tx, "text");
     yePushBack(bg_tx, bg, "background");
-    wid = ywidNewWidget(bg_tx, NULL);
-    if (!wid)
+    if (!ywidNewWidget(bg_tx, NULL))
       return -1;
-    widData = yeCreateData(wid, entity, "$bg-wid");
-    yeSetDestroy(widData, widDestroyWrapper);
   }
 
   yeCreateInt(0, entity, "current");
@@ -165,8 +155,6 @@ static int cntInit(YWidgetState *opac, Entity *entity, void *args)
     wid = ywidNewWidget(ptr, NULL);
     if (!wid)
       return -1;
-    widData = yeCreateData(wid, tmp, "$wid");
-    yeSetDestroy(widData, widDestroyWrapper);
   }
   cntResize(opac);
   return 0;
@@ -223,14 +211,11 @@ static int cntRend(YWidgetState *opac)
   YE_ARRAY_FOREACH(entries, tmp) {
     YWidgetState *wid = yeGetData(yeGet(tmp, "$wid"));
 
+    /* try to create the widget */
     if (!wid) {
-      Entity *widData;
-
       wid = ywidNewWidget(tmp, NULL);
       if (!wid)
 	continue;
-      widData = yeCreateData(wid, tmp, "$wid");
-      yeSetDestroy(widData, widDestroyWrapper);
     }
     wid->shouldDraw = 0;
     if (needChange)

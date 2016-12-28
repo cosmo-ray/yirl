@@ -47,7 +47,8 @@ static int sdlRender(YWidgetState *state, int t)
     DPRINT_WARN("NO Font Set !");
     return 0;
   }
-  SDL_Rect txtR = {0, 0, wid->rect.w, wid->rect.h};
+  SDL_Rect txtR = {0, yeGetInt(yeGetByStr(state->entity, "text-threshold")),
+		   wid->rect.w, wid->rect.h};
   sdlPrintText(wid, toPrint, color, txtR, alignementType);
   return 0;
 }

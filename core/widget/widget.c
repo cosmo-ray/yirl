@@ -220,6 +220,10 @@ int ywidUnregiste(int t)
   return yuiUnregiste(&widgetTab, t);
 }
 
+static void widDestroyWrapper(void *wid)
+{
+  YWidDestroy(wid);
+}
 
 static YWidgetState *ywidNewWidgetInternal(int t,
 					   Entity *entity,
@@ -228,6 +232,7 @@ static YWidgetState *ywidNewWidgetInternal(int t,
   YWidgetState *ret;
   Entity *pos = yeGet(entity, "wid-pos");
   Entity *initer = ygGetFuncExt(yeGetString(yeGet(entity, "init")));
+  Entity *widData;
 
   if (widgetTab.len <= t || widgetTab.allocator[t] == NULL)
     return NULL;
@@ -251,6 +256,9 @@ static YWidgetState *ywidNewWidgetInternal(int t,
   ret->signals = yeGet(entity, "signals");
   if (!ret->signals)
     ret->signals = yeCreateArray(entity, "signals");
+
+  widData = yeReCreateData(ret, entity, "$wid");
+  yeSetDestroy(widData, widDestroyWrapper);
 
   yeSetFlag(entity, "signals", YE_FLAG_NO_COPY);
   ret->actionIdx = ywidAddSignal(ret, "action");
