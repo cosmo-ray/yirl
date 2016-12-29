@@ -28,6 +28,33 @@ void ysciptAdd(void)
 	yeEnd();
 }
 
+void ysciptAddFunction(void)
+{
+	yeInitMem();
+	Entity *args = yeCreateArrayExt(NULL, NULL,
+					YBLOCK_ARRAY_NOINIT |
+					YBLOCK_ARRAY_NOMIDFREE);
+	Entity *tmp;
+
+	// this is a simple for(int i = 0; i < 500 000; ++i)
+	int64_t test1[] = {0,
+			   's', (uint64_t)"testFunc", //stack "testFunc"
+			   'F', 0, // function with name at stack 0
+			   '+', 0, 0, 1,
+			   'E', 0, // end function
+			   'i', 15,
+			   'i', 52,
+			   'c', 2, 2, 3,
+			   'E', 4 // return 2nd elem
+	};
+
+	tmp = ybytecode_exec(args, test1);
+	g_assert(yeGetIntDirect(tmp) == (50000000 * 2));
+	yeDestroy(tmp);
+	yeDestroy(args);
+	yeEnd();	
+}
+
 void yscriptLoop(void)
 {
 	yeInitMem();
