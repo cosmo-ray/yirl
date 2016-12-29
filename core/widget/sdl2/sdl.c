@@ -305,8 +305,7 @@ static inline int sdlPrintLine(SDLWid *wid,
 
   pos.y += wid->rect.y + sgGetFontSize() * line;
   pos.x += wid->rect.x;
-  for (int i = 0; i < len; i += caract_per_line)
-    {
+  for (int i = 0; i < len; i += caract_per_line) {
       SDL_Surface *textSurface;
       SDL_Texture* text;
       char tmp = 0;
@@ -317,16 +316,19 @@ static inline int sdlPrintLine(SDLWid *wid,
 	ret += 1;
       }
 
-      textSurface = TTF_RenderUTF8_Solid(sgDefaultFont(), str + i, color);
-      text = SDL_CreateTextureFromSurface(renderer, textSurface);
-      text_width = textSurface->w;
+      if (pos.y >= wid->rect.y && pos.y + fontSize <= wid->rect.y + wid->rect.h) {
+	textSurface = TTF_RenderUTF8_Solid(sgDefaultFont(), str + i, color);
+	text = SDL_CreateTextureFromSurface(renderer, textSurface);
+	text_width = textSurface->w;
+	SDL_FreeSurface(textSurface);
 
-      SDL_FreeSurface(textSurface);
-      SDL_Rect renderQuad = { pos.x, pos.y, text_width, fontSize};
-      if (alignementType == YSDL_ALIGN_CENTER)
-	renderQuad.x = pos.x + ((pos.w / 2) - (text_width / 2));
-      SDL_RenderCopy(renderer, text, NULL, &renderQuad);
-      SDL_DestroyTexture(text);
+	SDL_Rect renderQuad = { pos.x, pos.y, text_width, fontSize};
+
+	if (alignementType == YSDL_ALIGN_CENTER)
+	  renderQuad.x = pos.x + ((pos.w / 2) - (text_width / 2));
+	SDL_RenderCopy(renderer, text, NULL, &renderQuad);
+	SDL_DestroyTexture(text);
+      }
       pos.y += fontSize;
       if (tmp)
 	str[i + caract_per_line] = tmp;
