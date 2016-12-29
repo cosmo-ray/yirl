@@ -65,23 +65,23 @@ static int tccRegistreFunc(void *sm, const char *name, void *arg)
   return 0;
 }
 
-static void *tccCall(void *sm, const char *name, va_list ap)
+static void *tccGetFastCall(void *scriptManager, const char *name)
 {
-  /* should be declared as thread local */
-  static void *args[16];
-  TCCState *tcc_s = GET_TCC_S(sm);
-  int nbArg = 0;
-  void *sym;
+  TCCState *tcc_s = GET_TCC_S(scriptManager);
 
   if (!name) {
     DPRINT_ERR("can not call anonymous function...");
     return NULL;
   }
 
-  if ((sym = tcc_get_symbol(tcc_s, name)) == NULL) {
-    DPRINT_ERR("unable to find '%s' symbol", name);
-    return NULL;
-  }
+  return tcc_get_symbol(tcc_s, name);
+}
+
+static void *tccFCall(void *sym, va_list ap)
+{
+  /* should be declared as thread local */
+  static void *args[16];
+  int nbArg = 0;
 
   for (void *tmp = va_arg(ap, void *); tmp != Y_END_VA_LIST;
        tmp = va_arg(ap, void *)) {
@@ -89,6 +89,17 @@ static void *tccCall(void *sm, const char *name, va_list ap)
     ++nbArg;
   }
   return ((void *(*)(int, void **args))sym)(nbArg, args);
+}
+
+static void *tccCall(void *sm, const char *name, va_list ap)
+{
+  void *sym = tccGetFastCall(sm, name);
+
+  if (sym == NULL) {
+    DPRINT_ERR("unable to find '%s' symbol", name);
+    return NULL;
+  }
+  return tccFCall(sym, ap);
 }
 
 static int tccDestroy(void *sm)
@@ -110,7 +121,8 @@ static void *tccAllocator(void)
   ret->ops.destroy = tccDestroy;
   ret->ops.loadFile = tccLoadFile;
   ret->ops.call = tccCall;
-  ret->ops.getError = NULL;
+  ret->ops.fastCall = tccFCall;
+  ret->ops.getFastPath = tccGetFastCall;
   ret->ops.registreFunc = tccRegistreFunc;
   return (void *)ret;
 }

@@ -22,6 +22,7 @@
 #include	"entity.h"
 #include	"utils.h"
 #include	"stack.h"
+#include	"script.h"
 
 /* Globale array that store every entitys */
 static STACK_CREATE(freedElems, int64);
@@ -335,7 +336,8 @@ Entity *yeCreateFunction(const char *funcName, void *manager,
   yeInit((Entity *)ret, YFUNCTION, father, name);
   ret->value = NULL;
   ret->manager = manager;
-  ret->fastPath = NULL;
+  if (likely(manager))
+    ret->fastPath = ysGetFastPath(manager, name);
   yeSetString(YE_TO_ENTITY(ret), funcName);
   return (YE_TO_ENTITY(ret));
 }
@@ -763,6 +765,7 @@ void	yeSetFunction(Entity *entity, const char *value)
 {
   if (unlikely(!entity))
     return;
+  YE_TO_FUNC(entity)->fastPath = NULL;
   return yeSetString(entity, value);
 }
 
@@ -804,6 +807,10 @@ void	*yeGetData(Entity *entity)
   return YE_TO_DATA(entity)->value;
 }
 
+void	*yeGetFunctionFastPath(Entity *entity)
+{
+  return YE_TO_FUNC(entity)->fastPath;
+}
 
 const char	*yeGetFunction(Entity *entity)
 {

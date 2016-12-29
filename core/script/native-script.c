@@ -43,6 +43,17 @@ static int nativeRegistreFunc(void *opac, const char *name, void *arg)
   return 0;
 }
 
+static void *nativeGetFastPath(void *sm, const char *name)
+{
+  (void)sm;
+  return g_hash_table_lookup(weed, name);
+}
+
+static void *nativeFastCall(void *opacFunc, va_list ap)
+{
+  return ((void *(*)(va_list))opacFunc)(ap);
+}
+
 static void *nativeCall(void *opac, const char *name, va_list ap)
 {
   (void)opac;
@@ -62,6 +73,8 @@ static void *nativeAllocator(void)
   ret->init = nativeInit;
   ret->destroy = nativeDestroy;
   ret->call = nativeCall;
+  ret->getFastPath = nativeGetFastPath;
+  ret->fastCall = nativeFastCall;
   ret->registreFunc = nativeRegistreFunc;
   return (void *)ret;
 }

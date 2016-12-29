@@ -19,8 +19,12 @@
 
 void *yesVCall(Entity *func, va_list ap)
 {
+  void *fp;
+
   if (unlikely(!func || !yeGetFunction(func)))
     return NULL;
+  if ((fp = yeGetFunctionFastPath(func)) != NULL)
+    return ysFastCall(YE_TO_FUNC(func)->manager, fp, ap);
   return ysVCall(YE_TO_FUNC(func)->manager, yeGetFunction(func), ap);
 }
 

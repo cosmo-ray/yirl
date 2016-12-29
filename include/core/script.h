@@ -29,6 +29,8 @@ typedef struct {
   int (*loadFile)(void *opac, const char *fileName);
   int (* registreFunc)(void *opac, const char *name, void *arg);
   void *(*call)(void *opac, const char *name, va_list ap);
+  void *(*fastCall)(void *opacFunction, va_list ap);
+  void *(*getFastPath)(void *scriptManager, const char *name);
   int (*addDefine)(void *opac, const char *name);
   const char *(*getError)(void *opac);
   int (*destroy)(void *opac);
@@ -48,6 +50,18 @@ static inline int ysAddDefine(void *sm, const char *name)
   if (!((YScriptOps *)sm)->addDefine)
     return -1;
   return ((YScriptOps *)sm)->addDefine(sm, name);
+}
+
+static inline void *ysGetFastPath(void *sm, const char *name)
+{
+  if (!((YScriptOps *)sm)->getFastPath)
+    return NULL;
+  return ((YScriptOps *)sm)->getFastPath(sm, name);
+}
+
+static inline void *ysFastCall(void *sm, void *opacFunc, va_list ap)
+{
+  return ((YScriptOps *)sm)->fastCall(opacFunc, ap);
 }
 
 static inline void *ysVCall(void *sm, const char *name, va_list ap)

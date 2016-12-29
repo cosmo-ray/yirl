@@ -56,6 +56,7 @@ static const char *luaGetError(void *sm)
   return (lua_tostring(GET_L(sm), -1));
 }
 
+
 static void *luaCall(void *sm, const char *name, va_list ap)
 {
   lua_State *l = GET_L(sm);
@@ -65,6 +66,7 @@ static void *luaCall(void *sm, const char *name, va_list ap)
   if (lua_isnil(l, -1)) {
     return NULL;
   }
+
   for (void *tmp = va_arg(ap, void *); tmp != Y_END_VA_LIST;
        tmp = va_arg(ap, void *)) {
     DPRINT_INFO("pushing %p\n", tmp);

@@ -554,6 +554,8 @@ Entity **yeFathers(Entity *entity);
  */
 const char	*yeGetFunction(Entity *entity);
 
+void	*yeGetFunctionFastPath(Entity *entity);
+
 static inline EntityType yeType(const Entity *entity)
 {
 	if (likely(entity != NULL))
