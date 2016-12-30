@@ -232,6 +232,12 @@ int yuiUnregiste(YManagerAllocator *ma, int t);
 	 tmpmask;							\
        tmpmask &= ~(ONE64 << it))
 
+/**
+ * @brief return "" is str is NULL
+ */
+#define yuiMaybeEmpty(str)			\
+  (str ? str : "")
+
 static inline int yuiStrEqual(const char *str1, const char *str2)
 {
   int i;

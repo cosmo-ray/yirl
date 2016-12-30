@@ -71,6 +71,8 @@ int main(int argc, char **argv)
   TEST_TRY_ADD("/entity/lifecycle/akward", testLifecycleAkwarde, only);
   TEST_TRY_ADD("/entity/lifecycle/again", testLifeDeathRebirdAndAgain, only);
 
+  TEST_TRY_ADD("/entity/strings", stringsTests, only);
+
   TEST_TRY_ADD("/entity/copy", testCopy, only);
 
   TEST_TRY_ADD("/entity/setunset/simple", testSetSimple, only);

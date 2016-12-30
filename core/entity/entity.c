@@ -815,10 +815,11 @@ int yeStringAddNl(Entity *ent, const char *str)
 {
   char *tmp;
 
-  if (unlikely(!ent || !str))
+  if (unlikely(!ent))
     return -1;
   tmp = YE_TO_STRING(ent)->value;
-  YE_TO_STRING(ent)->value = g_strdup_printf("%s%s\n", tmp, str);
+  YE_TO_STRING(ent)->value = g_strdup_printf("%s%s\n", yuiMaybeEmpty(tmp),
+					     yuiMaybeEmpty(str));
   YE_TO_STRING(ent)->len = strlen(YE_TO_STRING(ent)->value);
   g_free(tmp);
   return 0;
@@ -834,6 +835,24 @@ int yeStringAddInt(Entity *ent, int i)
   YE_TO_STRING(ent)->len = strlen(YE_TO_STRING(ent)->value);
   g_free(tmp);
   return 0;
+}
+
+int yeCountCharacters(Entity *str, char carac, int lineLimit)
+{
+  const char *cStr = yeGetString(str);
+  int ret = 0;
+
+  for (int i = 0; *cStr; ++i, ++cStr) {
+    /*
+     * if lineLimit is -1, the comparaison between i and lineLimit
+     * will never be true
+     */
+    if (unlikely(*cStr == carac || i == lineLimit)) {
+      i = 0;
+      ++ret;
+    }
+  }
+  return ret;
 }
 
 void yeSetDestroy(Entity *entity, void (*destroyFunc)(void *))

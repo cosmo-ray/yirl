@@ -28,13 +28,8 @@ static int sdlRender(YWidgetState *state, int t)
   SDLWid *wid = ywidGetRenderData(state, t);
   const char *toPrint = yeGetString(yeGet(state->entity, "text"));
   YBgConf cfg;
-  SDL_Color color;
+  SDL_Color color = {0, 0, 0, 255};
   int alignementType = YSDL_ALIGN_LEFT;
-
-  color.r = 0;
-  color.g = 0;
-  color.b = 0;
-  color.a = 250;
 
   if (!yeStrCmp(yeGet(state->entity, "text-align"), "center"))
     alignementType = YSDL_ALIGN_CENTER;

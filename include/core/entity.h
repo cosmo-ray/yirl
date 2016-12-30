@@ -564,6 +564,17 @@ int yeStringAddNl(Entity *ent, const char *str);
 
 
 /**
+ * @brief Count the number of @carac in @ent
+ *
+ * @ent a string entity
+ * @lineLimit hard to explain, use -1, or go read the code...
+ * @return the number a @carac in @ent
+ * @examples yeCountCharacters(str, '\n', -1), will return the number of
+ *	     lines in str
+ */
+int yeCountCharacters(Entity *ent, char carac, int lineLimit);
+
+/**
  * @param entity
  * @return the entity's fathers
  */
