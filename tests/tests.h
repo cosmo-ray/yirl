@@ -37,6 +37,7 @@ void testSetGeneric(void);
 void ysciptAdd(void);
 void yscriptLoop(void);
 void ysciptAddFunction(void);
+void ybytecodeScript(void);
 
 void testLuaScritLifecycle(void);
 void testLuaScritEntityBind(void);

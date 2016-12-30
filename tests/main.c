@@ -79,7 +79,8 @@ int main(int argc, char **argv)
 
   TEST_TRY_ADD("/script/ybytecode/add", ysciptAdd, only);
   TEST_TRY_ADD("/script/ybytecode/loop", yscriptLoop, only);
-    
+  TEST_TRY_ADD("/script/ybytecode/script", ybytecodeScript, only);
+ 
   TEST_TRY_ADD("/script/tcc/lifecycle", testTccScritLifecycle, only);
   TEST_TRY_ADD("/script/lua/lifecycle", testLuaScritLifecycle, only);
   TEST_TRY_ADD("/script/lua/entity", testLuaScritEntityBind, only);

@@ -47,7 +47,7 @@ void *ysNewManager(void *args, int t)
   ret = scriptsTab.allocator[t]();
   if (ret == NULL)
     return NULL;
-  if (ret->init(ret, args)) {
+  if (ret->init && ret->init(ret, args)) {
     ret->destroy(ret);
     return NULL;
   }

@@ -552,9 +552,9 @@ Entity **yeFathers(Entity *entity);
  * @param entity
  * @return the entity's value if entity is of type YFUNCTION, NULL otherwise
  */
-const char	*yeGetFunction(Entity *entity);
+const char *yeGetFunction(Entity *entity);
 
-void	*yeGetFunctionFastPath(Entity *entity);
+void *yeGetFunctionFastPath(Entity *entity);
 
 static inline EntityType yeType(const Entity *entity)
 {
@@ -565,11 +565,11 @@ static inline EntityType yeType(const Entity *entity)
 
 /**
  * Check if Entity are the same type and if they are not NULL and copy the values from src to dest.
- * @param src		The source Entity from where the values will be copied from.
- * @param dest	The destination Entity to where the values will be pasted.
- * @return NULL if entities do not have the same type or are NULL, dest Entity otherwise.
+ * @src	The source Entity from where the values will be copied from.
+ * @dest The destination Entity to where the values will be pasted.
+ * @return NULL if entities do not have the same type or are NULL, @dest otherwise.
  */
-Entity*		yeCopy(Entity* src, Entity* dest);
+Entity *yeCopy(Entity* src, Entity* dest);
 
 
 static inline int yeArrayContainEntity(Entity *array, const char *str)

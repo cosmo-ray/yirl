@@ -2,6 +2,7 @@
 
 #include "tests.h"
 #include "ybytecode.h"
+#include "ybytecode-script.h"
 
 void ysciptAdd(void)
 {
@@ -82,4 +83,29 @@ void yscriptLoop(void)
 	yeDestroy(tmp);
 	yeDestroy(args);
 	yeEnd();
+}
+
+void ybytecodeScript(void)
+{
+  void *sm = NULL;
+  int64_t test1[] = {0,
+		     'i', 0, //stack 1 - 2
+		     'i', 1, //stack 0 - 4
+		     'i', 50000000, // 6
+		     '+', 1, 2, 0,
+		     'E', 0
+  };
+  yeInitMem();
+
+  sm = ysYBytecodeManager();
+  g_assert(sm);
+
+  g_assert(!ysRegistreFunc(sm, "add", test1));
+  g_assert((uint64_t)ysCall(sm, "add") == 50000001);
+  g_assert((uint64_t)ysCall(sm, "add") == 50000001);
+  g_assert((uint64_t)ysCall(sm, "add") == 50000001);
+  g_assert((uint64_t)ysCall(sm, "add") == 50000001);
+
+  g_assert(!ysYBytecodeEnd());
+  yeEnd();
 }

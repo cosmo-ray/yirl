@@ -11,6 +11,7 @@ set (TCC_SOURCE
 	entity-script.c
         tcc-script.c
 	native-script.c
+	ybytecode-script.c
 	script.c)
 
 add_library (luaScript STATIC ${LUA_SOURCE})
