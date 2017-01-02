@@ -29,10 +29,13 @@
 #endif
 
 #if   __SIZEOF_POINTER__ == 4
+typedef int32_t int_ptr_t;
 #define ONE64      1LLU
 #elif __SIZEOF_POINTER__ == 8
+typedef int64_t int_ptr_t;
 #define ONE64      1LU
 #else
+typedef int64_t int_ptr_t;
 #define ONE64      1LLU
 #endif
 

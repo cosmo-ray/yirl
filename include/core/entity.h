@@ -124,7 +124,7 @@ typedef	struct
 {
   ENTITY_HEADER
 
-  int		value;
+  int_ptr_t	value;
 } IntEntity;
 
 typedef	struct
