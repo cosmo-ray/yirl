@@ -75,7 +75,7 @@ static inline int32_t yBlockArrayComputeLastPos(BlockArray *ba)
   return yBlockArrayFastComputeLastPos(*ba, ret);
 }
 
-#define yBlockArrayLastPos(ba) ((ba)->lastPos)
+#define yBlockArrayLastPos(ba) ((ba).lastPos)
 
 void yBlockArrayInitInternal(BlockArray *ba, size_t elemSize, int flag);
 
@@ -158,7 +158,7 @@ void yBlockArrayCopyElemInternal(BlockArray *ba, size_t pos,
 #define yBlockArrayCopyElem(ba, pos, elem)	\
   (yBlockArrayCopyElemInternal((ba), (pos), (const void *)&(elem)))
 
-#define yBlockArrayFastGet(ba, pos) ((ba)->elems + ((pos) * (ba)->elemSize))
+#define yBlockArrayFastGet(ba, pos) ((ba).elems + ((pos) * (ba).elemSize))
 
 #define yBlockArrayGetDirect(ba, pos, type)	\
   (*((type *)yBlockArrayFastGet((ba), (pos))))
@@ -179,7 +179,7 @@ static inline int8_t *yBlockArrayGetInternal(BlockArray *ba, size_t pos)
 static inline int8_t *yBlockArraySetGetPtrInternal(BlockArray *ba, size_t pos)
 {
   yBlockArraySet(ba, pos);
-  return yBlockArrayFastGet(ba, pos);
+  return yBlockArrayFastGet(*ba, pos);
 }
 
 #define yBlockArraySetGetPtr(ba, pos, type)		\
@@ -206,7 +206,7 @@ static inline int8_t *yBlockArraySetGetPtrInternal(BlockArray *ba, size_t pos)
 	   tmp##it, it;							\
 	 ((tmp##it = YUI_GET_FIRST_BIT(tmpmask)) || 1) &&		\
 	   ((it = yfi * 64 + tmp##it) || 1) &&				\
-	   ((elem = getter(&ba, it, type)) || 1) &&			\
+	   ((elem = getter(ba, it, type)) || 1) &&			\
 	   tmpmask;							\
 	 tmpmask ^= (1LLU << tmp##it))
 

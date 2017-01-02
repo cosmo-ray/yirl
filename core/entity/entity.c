@@ -39,7 +39,7 @@ static inline Entity *yeInit(Entity *entity, EntityType type,
     if (entity->refCount < 1) {						\
       int64_t unset =							\
 	(size_t)(((union FatEntity *)entity)				\
-		 - yBlockArrayGetPtrDirect(&entitysArray, 0, union FatEntity));	\
+		 - yBlockArrayGetPtrDirect(entitysArray, 0, union FatEntity));	\
       yBlockArrayUnset(&entitysArray, unset);				\
       stack_push(freedElems, unset);					\
     }									\
@@ -48,7 +48,7 @@ static inline Entity *yeInit(Entity *entity, EntityType type,
 #define YE_ALLOC_ENTITY(ret, type) do {					\
     ret = &(yBlockArraySetGetPtr(&entitysArray,				\
 				 stack_pop(freedElems,			\
-					   yBlockArrayLastPos(&entitysArray) + 1), \
+					   yBlockArrayLastPos(entitysArray) + 1), \
 				 union FatEntity)->type);		\
     ret->refCount = 1;							\
   } while (0);
@@ -67,11 +67,11 @@ void yeInitMem(void)
 
 int yeIsPtrAnEntity(void *ptr)
 {
-  return ((union FatEntity *)ptr) >= yBlockArrayGetPtrDirect(&entitysArray, 0,
+  return ((union FatEntity *)ptr) >= yBlockArrayGetPtrDirect(entitysArray, 0,
 							     union FatEntity) &&
-    ((union FatEntity *)ptr) < (yBlockArrayGetPtrDirect(&entitysArray,
+    ((union FatEntity *)ptr) < (yBlockArrayGetPtrDirect(entitysArray,
 							0, union FatEntity) +
-				yBlockArrayLastPos(&entitysArray));
+				yBlockArrayLastPos(entitysArray));
 }
 
 void yeEnd(void)
@@ -240,7 +240,7 @@ size_t yeLen(Entity *entity)
     return (0);
 
   if (likely(yeType(entity) == YARRAY)) {
-    return yBlockArrayLastPos(&YE_TO_ARRAY(entity)->values) + 1;
+    return yBlockArrayLastPos(YE_TO_ARRAY(entity)->values) + 1;
   }
  
   return YE_TO_STRING(entity)->len;

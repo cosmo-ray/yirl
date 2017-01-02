@@ -66,14 +66,14 @@ void testBlockArray(void)
 
   for (int i = 0; i < 1000; ++i) {
     yBlockArrayInit(&test.array, int);
-    g_assert(yBlockArrayLastPos(&test.array) == -1);
+    g_assert(yBlockArrayLastPos(test.array) == -1);
     yBlockArrayCopyElem(&test.array, i, i);
-    g_assert(yBlockArrayLastPos(&test.array) == i);
+    g_assert(yBlockArrayLastPos(test.array) == i);
     g_assert(yBlockArrayGet(&test.array, i, int) == i);
     g_assert(yBlockArrayIsSet(test.array, i));
     g_assert(!yBlockArrayIsFree(test.array, i));
     yBlockArrayFree(&test.array);
-    g_assert(yBlockArrayLastPos(&test.array) == -1);
+    g_assert(yBlockArrayLastPos(test.array) == -1);
   }
 
 #define VAL_TEST (64 * 7 + 5)
