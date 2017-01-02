@@ -20,6 +20,12 @@
 
 #include "entity.h"
 
+enum ybutecode_ops {
+	YB_VOID_RETURN = 'e',
+	YB_RETURN = 'E',
+	YB_BRUTAL_CAST = 127
+};
+
 Entity *ybytecode_exec(Entity *stack, int64_t *script);
 
 #endif

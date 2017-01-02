@@ -95,16 +95,23 @@ void ybytecodeScript(void)
 		     '+', 1, 2, 0,
 		     'E', 0
   };
+  int64_t testWithArgs[] = {0,
+			    YB_BRUTAL_CAST, 0, YINT,
+			    YB_BRUTAL_CAST, 1, YINT,
+			    '+', 0, 1, 0,
+			    'E', 0
+  };
   yeInitMem();
 
   sm = ysYBytecodeManager();
   g_assert(sm);
 
   g_assert(!ysRegistreFunc(sm, "add", test1));
+  g_assert(!ysRegistreFunc(sm, "argsadd", testWithArgs));
   g_assert((uint64_t)ysCall(sm, "add") == 50000001);
+  g_assert((uint64_t)ysCall(sm, "argsadd", 50000000, 1) == 50000001);
   g_assert((uint64_t)ysCall(sm, "add") == 50000001);
-  g_assert((uint64_t)ysCall(sm, "add") == 50000001);
-  g_assert((uint64_t)ysCall(sm, "add") == 50000001);
+  g_assert((uint64_t)ysCall(sm, "argsadd", 1, 2) == 3);
 
   g_assert(!ysYBytecodeEnd());
   yeEnd();

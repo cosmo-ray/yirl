@@ -42,6 +42,7 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
 			  inst_compille('j', jmp, 1);
 			  inst_compille('i', create_int, 1);
 			  inst_compille('u', unstack, 0);
+			  inst_compille(YB_BRUTAL_CAST, brutal_cast, 2);
 		  default:
 			  abort();
 		  }
@@ -58,6 +59,12 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
   ++script;
   goto *((void *)*script);
 
+brutal_cast:
+  
+  yeBrutalCast(yeGetByIdxDirect(stack, script[1]),
+	       (size_t)script[2]);
+  script += 3;
+  goto *((void *)*script);
 add:
   yeSetIntDirect(yeGetByIdxDirect(stack, script[3]),
 	   yeGetIntDirect(yeGetByIdxDirect(stack, script[1])) +
