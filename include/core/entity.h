@@ -198,6 +198,12 @@ EntityType yeStringToType(const char *str);
  */
 const char *yeTypeToString(int type);
 
+/**
+ * @brief cast @entity to @type
+ * @return NULL if fail, @entity otherwise
+ */
+Entity *yeBrutalCast(Entity *entity, int type);
+
 #define YE_ARRAY_FOREACH_INIT(array)				\
   (array == NULL ? yBlockArrayIteratorCreate(NULL, 0) :		\
    yBlockArrayIteratorCreate(&YE_TO_ARRAY(array)->values, 0))
