@@ -53,7 +53,10 @@ static void *ybytecodeFastCall(void *opacFunc, va_list ap)
 
   for (void *tmp = va_arg(ap, void *);
        tmp != Y_END_VA_LIST; tmp = va_arg(ap, void *)) {
-    yeCreateData(tmp, stack, NULL);
+    if (yeIsPtrAnEntity(tmp))
+      yePushBack(stack, tmp, NULL);
+    else
+      yeCreateData(tmp, stack, NULL);
   }
   ret = ybytecode_exec(stack, opacFunc);
   yeDestroy(stack);

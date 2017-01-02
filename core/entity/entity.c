@@ -65,6 +65,15 @@ void yeInitMem(void)
 		     YBLOCK_ARRAY_NOMIDFREE);
 }
 
+int yeIsPtrAnEntity(void *ptr)
+{
+  return ((union FatEntity *)ptr) >= yBlockArrayGetPtrDirect(&entitysArray, 0,
+							     union FatEntity) &&
+    ((union FatEntity *)ptr) < (yBlockArrayGetPtrDirect(&entitysArray,
+							0, union FatEntity) +
+				yBlockArrayLastPos(&entitysArray));
+}
+
 void yeEnd(void)
 {
   stack_destroy(freedElems);

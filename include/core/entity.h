@@ -184,6 +184,8 @@ void yeInitMem(void);
 
 void yeEnd(void);
 
+int yeIsPtrAnEntity(void *ptr);
+
 /**
  * @param str   the type name
  * @return the corresponding type, -1 if type not found
