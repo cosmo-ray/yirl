@@ -61,7 +61,6 @@ int sgSetDefaultFont(const char *path)
   return -0;
 }
 
-
 int sgGetFontSize(void)
 {
   return sg.fontSize;
@@ -303,7 +302,7 @@ static inline int sdlPrintLine(SDLWid *wid,
     caract_per_line = pos.w / sg.txtWidth;
   }
 
-  pos.y += wid->rect.y + sgGetFontSize() * line;
+  pos.y += wid->rect.y + fontSize * line;
   pos.x += wid->rect.x;
   for (int i = 0; i < len; i += caract_per_line) {
       SDL_Surface *textSurface;

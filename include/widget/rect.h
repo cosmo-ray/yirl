@@ -15,6 +15,9 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef _YIRL_RECT_H_
+#define _YIRL_RECT_H_
+
 #include "entity.h"
 
 /**
@@ -72,3 +75,5 @@ static inline Entity *ywRectSetH(Entity *pos, int posH)
   yeSetInt(yeGetByIdx(pos, 3), posH);
   return pos;
 }
+
+#endif

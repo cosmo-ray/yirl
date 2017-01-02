@@ -22,5 +22,6 @@
 
 int ywTextScreenInit(void);
 int ywTextScreenEnd(void);
+int ywTextScreenPosAtEndOfText(Entity *wid);
 
 #endif

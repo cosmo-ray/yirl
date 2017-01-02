@@ -67,7 +67,7 @@ static Entity *printFLeet(Entity *text, Entity *fleet)
 {
   Entity *first = NULL;
 
-  yeSetString(text, "fleet left:\n");
+  yeStringAdd(text, "fleet left:\n");
   YE_ARRAY_FOREACH_EXT(fleet, elem, it) {
     if (!first)
       first = elem;
@@ -100,7 +100,7 @@ static void addShip(Entity *wid)
   Entity *first;
 
   if (!ywMapGetNbrEntityAt(l1, cursorPos, 3)) {
-    yeSetString(txtSurface, "na, I don't thins so, go f**k yourself\n");
+    yeStringAdd(txtSurface, "na, I don't thins so, go f**k yourself\n");
     return;
   }
 
@@ -116,6 +116,7 @@ static void addShip(Entity *wid)
   ywMapPushNbr(l1, 1, cursorPos, NULL);
   yeMoveByEntity(fleet, _fleet, first);
   printFLeet(txtSurface, fleet);
+  ywTextScreenPosAtEndOfText(getTextScreen(wid));
   yeDestroy(gc);
 }
 
@@ -169,6 +170,7 @@ void *battleAction(int nbArgs, void **args)
 	yeAddStr(getTextScreenSurface(wid),
 		 "fine, it's not implemented, that was useless\n");
       }
+      ywTextScreenPosAtEndOfText(getTextScreen(wid));
       break;
     case '\n':
       addShip(wid);

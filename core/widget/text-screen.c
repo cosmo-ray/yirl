@@ -16,6 +16,7 @@
 */
 
 #include <glib.h>
+#include "rect.h"
 #include "text-screen.h"
 #include "widget-callback.h"
 
@@ -31,6 +32,7 @@ static int tsInit(YWidgetState *opac, Entity *entity, void *args)
   (void)args;
 
   yeCreateInt(0, entity, "text-threshold");
+  yeCreateInt(16, entity, "font-size");
   ywidGenericCall(opac, t, init);
   return 0;
 }
@@ -58,6 +60,23 @@ static void *alloc(void)
   wstate->handleEvent = ywidEventCallActionSin;
   wstate->type = t;
   return  ret;
+}
+
+int ywTextScreenPosAtEndOfText(Entity *wid)
+{
+  Entity *toPrint = yeGet(wid, "text");
+  int nbLines;
+  /* Entity *txtThreshold = yeGet(wid, "text-threshold"); */
+  int h = ywidRectH(yeGet(wid, "wid-pix"));
+
+  if (!toPrint)
+    return 0;
+  nbLines = yeCountCharacters(toPrint, '\n', -1);
+  nbLines *= yeGetInt(yeGet(wid, "font-size"));
+  if (nbLines > h) {
+    yeSetAt(wid, "text-threshold", h - nbLines);
+  }
+  return 0;
 }
 
 int ywTextScreenInit(void)
