@@ -813,16 +813,9 @@ int yeStringAdd(Entity *ent, const char *str)
 
 int yeStringAddNl(Entity *ent, const char *str)
 {
-  char *tmp;
-
-  if (unlikely(!ent))
+  if (yeStringAdd(ent, str) < 0)
     return -1;
-  tmp = YE_TO_STRING(ent)->value;
-  YE_TO_STRING(ent)->value = g_strdup_printf("%s%s\n", yuiMaybeEmpty(tmp),
-					     yuiMaybeEmpty(str));
-  YE_TO_STRING(ent)->len = strlen(YE_TO_STRING(ent)->value);
-  g_free(tmp);
-  return 0;
+  return yeStringAdd(ent, "\n");
 }
 
 int yeStringAddInt(Entity *ent, int i)
