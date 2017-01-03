@@ -162,6 +162,14 @@ static int cntInit(YWidgetState *opac, Entity *entity, void *args)
 
 static int cntDestroy(YWidgetState *opac)
 {
+  Entity *entries = yeGet(opac->entity, "entries");
+
+  YE_ARRAY_FOREACH(entries, tmp) {
+    YWidgetState *cur =
+      yeGetData(yeGet(tmp, "$wid"));
+
+    YWidDestroy(cur);
+  }
   g_free(opac);
   return 0;
 }
