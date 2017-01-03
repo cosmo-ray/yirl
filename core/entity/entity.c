@@ -901,9 +901,11 @@ int yeAttach(Entity *on, Entity *entity,
   entry = yBlockArraySetGetPtr(&YE_TO_ARRAY(on)->values,
 			       idx, ArrayEntry);
 
-  YE_DESTROY(entry->entity);
+  if (likely(!(YE_TO_ARRAY(on)->values.flag & YBLOCK_ARRAY_NOINIT))) {
+    YE_DESTROY(entry->entity);
+    g_free(entry->name);
+  }
   entry->entity = entity;
-  g_free(entry->name);
   entry->name = g_strdup(name);  
   entry->flags = flag;
   if (unlikely(entity->type == YARRAY))

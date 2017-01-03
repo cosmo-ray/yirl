@@ -101,18 +101,31 @@ void ybytecodeScript(void)
 			    '+', 0, 1, 0,
 			    'E', 0
   };
+  int64_t testWithEntArgs[] = {0,
+			       'i', 0,
+			       '+', 0, 1, 2,
+			       'E', 2
+  };
+  Entity *gc, *i0, *i1;
   yeInitMem();
+  gc = yeCreateArray(NULL, NULL);
+  i0 = yeCreateInt(7, gc, NULL);
+  i1 = yeCreateInt(8, gc, NULL);
 
   sm = ysYBytecodeManager();
   g_assert(sm);
 
   g_assert(!ysRegistreFunc(sm, "add", test1));
   g_assert(!ysRegistreFunc(sm, "argsadd", testWithArgs));
+  g_assert(!ysRegistreFunc(sm, "entargsadd", testWithEntArgs));
   g_assert((uint64_t)ysCall(sm, "add") == 50000001);
   g_assert((uint64_t)ysCall(sm, "argsadd", 50000000, 1) == 50000001);
   g_assert((uint64_t)ysCall(sm, "add") == 50000001);
   g_assert((uint64_t)ysCall(sm, "argsadd", 1, 2) == 3);
+  g_assert((uint64_t)ysCall(sm, "entargsadd", i0, i1) == (8 + 7));
+  g_assert((uint64_t)ysCall(sm, "entargsadd", i0, i1) == (8 + 7));
 
   g_assert(!ysYBytecodeEnd());
+  yeDestroy(gc);
   yeEnd();
 }
