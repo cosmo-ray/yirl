@@ -1118,6 +1118,8 @@ static Entity*		yeCopyInternal(Entity* src, Entity* dest, Entity *used, Entity *
       yeSetFunction(dest, strVal);
       YE_TO_FUNC(dest)->manager = YE_TO_FUNC(src)->manager;
       break;
+    case YDATA:
+      break;
     default:
       DPRINT_ERR("entity of type %s not handle",
 		 yeTypeToString(yeType(src)));
