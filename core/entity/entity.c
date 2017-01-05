@@ -397,7 +397,8 @@ Entity *yeCreateData(void *value, Entity *father, const char *name)
   YE_ALLOC_ENTITY(ret, DataEntity);
   yeInit((Entity *)ret, YDATA, father, name);
   ret->value = value;
-  return ((Entity *)ret);
+  ret->destroy = NULL;
+    return ((Entity *)ret);
 }
 
 Entity *yeCreateArray(Entity *father, const char *name)
@@ -1046,6 +1047,8 @@ static ArrayEntity *yeCopyContener(ArrayEntity* src, ArrayEntity* dest,
   Y_BLOCK_ARRAY_FOREACH_PTR(src->values, elem, it, ArrayEntry) {
     ArrayEntry *destElem;
 
+    if (elem->entity->type == YDATA)
+      continue;
     destElem  = yBlockArraySetGetPtr(&dest->values, it, ArrayEntry);
 
     if (!elem || !elem->entity)
@@ -1119,7 +1122,7 @@ static Entity*		yeCopyInternal(Entity* src, Entity* dest, Entity *used, Entity *
       YE_TO_FUNC(dest)->manager = YE_TO_FUNC(src)->manager;
       break;
     case YDATA:
-      break;
+      return NULL;
     default:
       DPRINT_ERR("entity of type %s not handle",
 		 yeTypeToString(yeType(src)));
