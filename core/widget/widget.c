@@ -103,7 +103,7 @@ int ywidNext(Entity *next)
     DPRINT_ERR("fail to retrive %s", str);
     return -1;
   }
-  
+
   if ((newWid = ywidNewWidget(next, NULL)) == NULL) {
     DPRINT_ERR("fail when creating new widget");
     return -1;

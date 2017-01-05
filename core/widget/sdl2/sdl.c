@@ -325,7 +325,8 @@ static inline int sdlPrintLine(SDLWid *wid,
 
 	if (alignementType == YSDL_ALIGN_CENTER)
 	  renderQuad.x = pos.x + ((pos.w / 2) - (text_width / 2));
-	SDL_RenderCopy(renderer, text, NULL, &renderQuad);
+	if (SDL_RenderCopy(renderer, text, NULL, &renderQuad) < 0)
+	  DPRINT_ERR("sdl fail to rend text\n");
 	SDL_DestroyTexture(text);
       }
       pos.y += fontSize;

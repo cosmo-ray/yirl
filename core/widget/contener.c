@@ -139,7 +139,7 @@ static int cntInit(YWidgetState *opac, Entity *entity, void *args)
     return -1;
 
   if (bg) {
-    bg_tx = yeCreateArray(NULL, NULL);
+    bg_tx = yeCreateArray(entity, "$bg");
     yeCreateString("text-screen", bg_tx, "<type>");
     yeCreateString("", bg_tx, "text");
     yePushBack(bg_tx, bg, "background");
@@ -155,6 +155,8 @@ static int cntInit(YWidgetState *opac, Entity *entity, void *args)
     wid = ywidNewWidget(ptr, NULL);
     if (!wid)
       return -1;
+    if (ptr != tmp)
+      yeReCreateData(wid, tmp, "$wid");
   }
   cntResize(opac);
   return 0;
@@ -207,7 +209,7 @@ static int cntRend(YWidgetState *opac)
 {
   Entity *entries = yeGet(opac->entity, "entries");
   int needChange = 0;
-  YWidgetState *bg_wid = yeGetData(yeGet(opac->entity, "$bg-wid"));
+  YWidgetState *bg_wid = yeGetData(yeGetByStr(opac->entity, "$bg.$wid"));
 
   if (!opac->hasChange)
     return 0;
@@ -221,9 +223,13 @@ static int cntRend(YWidgetState *opac)
 
     /* try to create the widget */
     if (!wid) {
-      wid = ywidNewWidget(tmp, NULL);
+      Entity *tmp2 = getEntry(opac->entity, tmp);
+
+      wid = ywidNewWidget(tmp2, NULL);
       if (!wid)
 	continue;
+      if (tmp2 != tmp)
+	yeReCreateData(wid, tmp, "$wid");
     }
     wid->shouldDraw = 0;
     if (needChange)
