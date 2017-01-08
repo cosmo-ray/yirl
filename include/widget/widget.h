@@ -42,6 +42,13 @@ typedef enum
     ACTION = 2,
   } InputStatue;
 
+static inline const char *ywidInputStatueToString(InputStatue i)
+{
+  const char *ret[] = {"BUG", "NOTHANDLE", "NOACTION", "ACTION"};
+
+  return ret[1 + i];
+}
+
 typedef enum
   {
     YKEY_DOWN,
@@ -171,9 +178,12 @@ void ywidResize(YWidgetState *wid);
 
 static inline int ywidRend(YWidgetState *opac)
 {
-  if (opac->render)
-    return opac->render(opac);
-  return -1;
+  int ret = -1;
+  if (opac->render) {
+    ret = opac->render(opac);
+    opac->hasChange = 0;
+  }
+  return ret;
 }
 
 /**

@@ -117,6 +117,7 @@ static void addShip(Entity *wid)
   yeMoveByEntity(fleet, _fleet, first);
   printFLeet(txtSurface, fleet);
   ywTextScreenPosAtEndOfText(getTextScreen(wid));
+  ywContenerUpdate(wid, getTextScreen(wid));
   yeDestroy(gc);
 }
 
@@ -170,6 +171,7 @@ void *battleAction(int nbArgs, void **args)
 	yeAddStr(getTextScreenSurface(wid),
 		 "fine, it's not implemented, that was useless\n");
       }
+      ywContenerUpdate(wid, getTextScreen(wid));
       ywTextScreenPosAtEndOfText(getTextScreen(wid));
       break;
     case '\n':

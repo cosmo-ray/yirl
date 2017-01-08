@@ -201,7 +201,7 @@ static InputStatue cntEvent(YWidgetState *opac, YEvent *event)
 						      "current"))),
 			"$wid"));
   if (cur)
-    return ywidHandleEvent(cur, event);
+    ret = ywidHandleEvent(cur, event);
   return ret;
 }
 

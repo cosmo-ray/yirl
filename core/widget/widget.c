@@ -502,7 +502,7 @@ int ywidDoTurn(YWidgetState *opac)
   }
 
   ret = ywidHandleEvent(opac, SLIST_FIRST(&head));
-  ywidFreeEvents(SLIST_FIRST(&head));
+  ywidFreeEvents(SLIST_FIRST(&head)); 
   return ret;
 }
 
