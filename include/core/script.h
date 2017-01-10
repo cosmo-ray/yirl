@@ -69,7 +69,7 @@ static inline void *ysVCall(void *sm, const char *name, va_list ap)
   return ((YScriptOps *)sm)->call(sm, name, ap);
 }
 
-static inline int ysRegistreFunc(void *sm, char *name, void *arg)
+static inline int ysRegistreFunc(void *sm, const char *name, void *arg)
 {
   return ((YScriptOps *)sm)->registreFunc(sm, name, arg);
 }

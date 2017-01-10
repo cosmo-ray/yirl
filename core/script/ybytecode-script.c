@@ -28,6 +28,8 @@ struct YBytecodeScript {
   Entity *map;
 };
 
+int YBytecodeScriptDirectReturn;
+
 #define GET_MAP(sm) (((struct YBytecodeScript *)sm)->map)
 
 static int ybytecodeRegistreFunc(void *sm, const char *name, void *arg)
@@ -60,6 +62,16 @@ static void *ybytecodeFastCall(void *opacFunc, va_list ap)
   }
   ret = ybytecode_exec(stack, opacFunc);
   yeDestroy(stack);
+  if (!ret) {
+    if (ybytecode_error) {
+      DPRINT_ERR("%s", ybytecode_error);
+      g_free(ybytecode_error);
+    }
+    return NULL;
+  }
+  if (YBytecodeScriptDirectReturn)
+    return ret;
+
   switch (yeType(ret)) {
   case YINT:
     iret = yeGetInt(ret);
@@ -89,6 +101,7 @@ static int ybytecodeDestroy(void *sm)
   if (!sm)
     return -1;
   yeDestroy(GET_MAP(sm));
+  g_free(sm);
   return 0;
 }
 

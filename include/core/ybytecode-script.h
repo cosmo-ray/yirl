@@ -20,6 +20,8 @@
 
 #include "script.h"
 
+extern int YBytecodeScriptDirectReturn;;
+
 void * ysYBytecodeManager(void);
 int ysYBytecodeEnd(void);
 

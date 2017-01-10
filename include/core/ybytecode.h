@@ -26,6 +26,8 @@ enum ybutecode_ops {
 	YB_BRUTAL_CAST = 127
 };
 
+extern char *ybytecode_error;
+
 Entity *ybytecode_exec(Entity *stack, int64_t *script);
 
 #endif

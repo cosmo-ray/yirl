@@ -40,6 +40,8 @@ void ysciptAdd(void);
 void yscriptLoop(void);
 void ysciptAddFunction(void);
 void ybytecodeScript(void);
+void ybytecodeAddFunction(void);
+void ybytecodeLoopCallFunction(void);
 
 void testLuaScritLifecycle(void);
 void testLuaScritEntityBind(void);

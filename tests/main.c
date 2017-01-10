@@ -53,7 +53,7 @@ int main(int argc, char **argv)
   g_option_context_set_help_enabled(ctx, 1);
   g_option_context_add_main_entries(ctx, entries, NULL);
   if (!g_option_context_parse(ctx, &argc, &argv, &error)) {
-    printf("option parsing failed: %s\n", error->message);
+    DPRINT_ERR("option parsing failed: %s\n", error->message);
     g_option_context_free(ctx);
     return 1;
   }
@@ -82,7 +82,10 @@ int main(int argc, char **argv)
   TEST_TRY_ADD("/script/ybytecode/add", ysciptAdd, only);
   TEST_TRY_ADD("/script/ybytecode/loop", yscriptLoop, only);
   TEST_TRY_ADD("/script/ybytecode/script", ybytecodeScript, only);
- 
+  TEST_TRY_ADD("/script/ybytecode/add-function", ybytecodeAddFunction, only);
+  TEST_TRY_ADD("/script/ybytecode/loop-function",
+	       ybytecodeLoopCallFunction, only);
+
   TEST_TRY_ADD("/script/tcc/lifecycle", testTccScritLifecycle, only);
   TEST_TRY_ADD("/script/lua/lifecycle", testLuaScritLifecycle, only);
   TEST_TRY_ADD("/script/lua/entity", testLuaScritEntityBind, only);
