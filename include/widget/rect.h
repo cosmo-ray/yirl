@@ -79,4 +79,13 @@ static inline Entity *ywRectSetH(Entity *pos, int posH)
   return pos;
 }
 
+/**
+ * @return true if the poit at @posx, @posy is inside @rect
+ */
+static inline int ywRectIntersect(Entity *rect, int posx, int posy)
+{
+  return posx > ywRectX(rect) && posx < (ywRectX(rect) + ywRectH(rect)) &&
+    posx > ywRectY(rect) && posy < (ywRectY(rect) + ywRectW(rect));
+}
+
 #endif

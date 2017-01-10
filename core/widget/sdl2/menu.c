@@ -21,9 +21,8 @@
 #include <glib.h>
 #include "sdl-internal.h"
 #include "menu.h"
+#include "rect.h"
 #include "entity.h"
-
-#define CARACT_PER_LINE 70
 
 static int sdlRender(YWidgetState *state, int t)
 {
@@ -52,15 +51,15 @@ static int sdlRender(YWidgetState *state, int t)
     SDL_Color color = {0,0,0,255};
     const char *toPrint = yeGetString(yeGet(entry, "text"));
     unsigned int cur = ywMenuGetCurrent(state);
-    SDL_Rect txtR = {0, i * sgGetFontSize() + 1, wid->rect.w, wid->rect.h};
+    Entity *destRect = ywRectReCreateInts(0, i * sgGetFontSize() + 1,
+					  wid->rect.w, sgGetFontSize() + 1,
+					  entry, "$rect");
+    SDL_Rect txtR = sdlRectFromRectEntity(destRect);
 
     sdlPrintText(wid, toPrint, color, txtR, alignementType);
     if (cur == i) {
-      SDL_Rect rect = {0,  i * sgGetFontSize() + 1, // x - y
-      		       wid->rect.w, sgGetFontSize() + 1}; // w - h
-
       color.a = 150;
-      sdlDrawRect(rect, color);
+      sdlDrawRect(txtR, color);
       color.a = 255;
     }
   }

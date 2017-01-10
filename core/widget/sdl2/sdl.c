@@ -77,6 +77,14 @@ static int	sdlDraw(void)
   return 0;
 }
 
+SDL_Rect sdlRectFromRectEntity(Entity *rect)
+{
+  SDL_Rect ret = {ywRectX(rect), ywRectY(rect),
+		  ywRectW(rect), ywRectH(rect)};
+
+  return ret;
+}
+
 void	sdlDrawRect(SDL_Rect rect, SDL_Color color)
 {
   unsigned char r, g, b, a;

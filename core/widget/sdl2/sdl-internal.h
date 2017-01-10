@@ -75,6 +75,8 @@ int sdlDisplaySprites(YWidgetState *state, SDLWid *wid,
 		      int x, int y, Entity *elem,
 		      int w, int h, int thresholdX);
 
+SDL_Rect sdlRectFromRectEntity(Entity *rect);
+
 void sdlConsumeError(void);
 
 #endif

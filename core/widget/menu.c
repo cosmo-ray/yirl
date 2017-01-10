@@ -156,6 +156,17 @@ int ywMenuHasChange(YWidgetState *opac)
   return opac->hasChange;
 }
 
+int ywMenuPosFromPix(Entity *wid, uint32_t x, uint32_t y)
+{
+  Entity *entries = yeGet(wid, "entries");
+
+  YE_ARRAY_FOREACH_EXT(entries, entry, it) {
+    if (ywRectIntersect(yeGet(entry, "$rect"), x, y))
+      return it.pos;
+  }
+  return -1;
+}
+
 int ywMenuGetCurrent(YWidgetState *opac)
 {
   return ((YMenuState *)opac)->current;
