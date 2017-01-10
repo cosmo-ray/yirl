@@ -74,10 +74,6 @@ static void *nmMenuNext(va_list ap)
   return ywidNext(next) ? (void *)BUG : (void *)ACTION ;
 }
 
-#define yeForeach(entity, idx, entry)					\
-  Entity *entry = yeGet(entity, 0);					\
-  for (int idx = 0; (entry = yeGet(entries, idx)); ++idx)
-
 static int mnInit(YWidgetState *opac, Entity *entity, void *args)
 {
   (void)args;
@@ -88,13 +84,13 @@ static int mnInit(YWidgetState *opac, Entity *entity, void *args)
   state->moveSinIdx = ywidAddSignal(opac, "move");
   ygBind(opac, "move", "menuMove");
   state->actionSin0 = state->moveSinIdx + 1;
-  yeForeach(entries, i, entry) {
-    char *tmp = g_strdup_printf("action-%d", i);
+  YE_ARRAY_FOREACH_EXT(entries, entry, i) {
+    char *tmp = g_strdup_printf("action-%d", i.pos);
     int ret = ywidAddSignal(opac, tmp);
     Entity *action;
 
     g_free(tmp);
-    if (ret != state->actionSin0 + i)
+    if (ret != state->actionSin0 + i.pos)
       return -1;
     action = yeGet(entry, "action");
     if (action)
