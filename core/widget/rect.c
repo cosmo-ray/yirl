@@ -17,6 +17,17 @@
 
 #include "rect.h"
 
+Entity *ywRectReCreateInts(int x, int y, int w, int h,
+			   Entity *father, const char *name)
+{
+  Entity *ret = yeReCreateArray(father, name, NULL);
+  yeCreateInt(x, ret, "x");
+  yeCreateInt(y, ret, "y");
+  yeCreateInt(w, ret, "w");
+  yeCreateInt(h, ret, "h");
+  return ret;
+}
+
 Entity *ywRectCreateInts(int x, int y, int w, int h, Entity *father,
 			 const char *name)
 {

@@ -18,6 +18,7 @@
 #include <glib.h>
 #include "widget-callback.h"
 #include "menu.h"
+#include "rect.h"
 #include "native-script.h"
 #include "game.h"
 

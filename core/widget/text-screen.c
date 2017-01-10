@@ -67,7 +67,7 @@ int ywTextScreenPosAtEndOfText(Entity *wid)
   Entity *toPrint = yeGet(wid, "text");
   int nbLines;
   /* Entity *txtThreshold = yeGet(wid, "text-threshold"); */
-  int h = ywidRectH(yeGet(wid, "wid-pix"));
+  int h = ywRectH(yeGet(wid, "wid-pix"));
 
   if (!toPrint)
     return 0;

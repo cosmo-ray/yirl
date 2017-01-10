@@ -367,10 +367,10 @@ void sdlResize(YWidgetState *wid, int renderType)
   SDLWid *swid = wid->renderStates[renderType].opac;
   Entity *pos = yeGet(wid->entity, "wid-pix");
 
-  swid->rect.h = ywidRectH(pos);
-  swid->rect.w = ywidRectW(pos);
-  swid->rect.x = ywidRectX(pos);
-  swid->rect.y = ywidRectY(pos);
+  swid->rect.h = ywRectH(pos);
+  swid->rect.w = ywRectW(pos);
+  swid->rect.x = ywRectX(pos);
+  swid->rect.y = ywRectY(pos);
 }
 
 void sdlWidInit(YWidgetState *wid, int t)

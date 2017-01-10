@@ -30,22 +30,25 @@
 Entity *ywRectCreateInts(int x, int y, int w, int h, Entity *father,
 			 const char *name);
 
-static inline int ywidRectX(Entity *e)
+Entity *ywRectReCreateInts(int x, int y, int w, int h,
+			   Entity *father, const char *name);
+
+static inline int ywRectX(Entity *e)
 {
   return yeGetInt(yeGetByIdx(e, 0));
 }
 
-static inline int ywidRectY(Entity *e)
+static inline int ywRectY(Entity *e)
 {
   return yeGetInt(yeGetByIdx(e, 1));
 }
 
-static inline int ywidRectW(Entity *e)
+static inline int ywRectW(Entity *e)
 {
   return yeGetInt(yeGetByIdx(e, 2));
 }
 
-static inline int ywidRectH(Entity *e)
+static inline int ywRectH(Entity *e)
 {
   return yeGetInt(yeGetByIdx(e, 3));
 }
