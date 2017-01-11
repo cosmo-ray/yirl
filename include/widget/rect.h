@@ -84,8 +84,8 @@ static inline Entity *ywRectSetH(Entity *pos, int posH)
  */
 static inline int ywRectIntersect(Entity *rect, int posx, int posy)
 {
-  return posx > ywRectX(rect) && posx < (ywRectX(rect) + ywRectH(rect)) &&
-    posx > ywRectY(rect) && posy < (ywRectY(rect) + ywRectW(rect));
+  return posx > ywRectX(rect) && posx < (ywRectX(rect) + ywRectW(rect)) &&
+    posy > ywRectY(rect) && posy < (ywRectY(rect) + ywRectH(rect));
 }
 
 #endif
