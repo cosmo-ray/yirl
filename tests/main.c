@@ -35,16 +35,18 @@ static int list;
 
 int main(int argc, char **argv)
 {
+  int only_wid = 0;
   int no_wid = 0;
   char *only = NULL;
   GOptionContext *ctx;
-  const GOptionEntry entries[4] = {
-    {"no-widget", 0, 0,  G_OPTION_ARG_NONE,
-     &no_wid,
-     "don't test gui(usefull for perf)", NULL},
+  const GOptionEntry entries[5] = {
+    {"no-widgets", 'w', 0,  G_OPTION_ARG_NONE,
+     &no_wid, "don't test gui", NULL},
+    {"only-widgets", 'W', 0,  G_OPTION_ARG_NONE,
+     &only_wid, "test only gui", NULL},
     {"list", 'l', 0, G_OPTION_ARG_NONE, &list,
      "list all the tests and quit", NULL},
-    {"just", 0, 0,  G_OPTION_ARG_STRING, &only,
+    {"just", 'j', 0,  G_OPTION_ARG_STRING, &only,
      "jut do the given test", NULL},
     {NULL, 0, 0, 0, NULL, NULL, NULL}};
   GError *error = NULL;
@@ -63,6 +65,10 @@ int main(int argc, char **argv)
   g_test_init(&argc, &argv, NULL);
 
   yuiDebugInit();
+
+  if (only_wid)
+    goto tests_widgets;
+
   TEST_TRY_ADD("/utils/block-array/lifecycle", testBlockArray, only);
 
   TEST_TRY_ADD("/entity/lifecycle/simple", testLifecycleSimple, only);
@@ -97,6 +103,7 @@ int main(int argc, char **argv)
 
   /* TEST_TRY_ADD("/sound/soundManager/all", testYSoundLib, only); */
 
+ tests_widgets:
   if (no_wid)
     goto run_test;
 
