@@ -63,6 +63,19 @@ static void *nmMenuMove(va_list ap)
   return (void *)NOTHANDLE;
 }
 
+static void *nmPanelMove(va_list ap)
+{
+  YWidgetState *wid = va_arg(ap, YWidgetState *);
+  YEvent *eve = va_arg(ap, YEvent *);
+
+  if (eve->key == Y_RIGHT_KEY) {
+    return nmMenuDown(wid);
+  } else if (eve->key == Y_LEFT_KEY) {
+    return nmMenuUp(wid);
+  }
+  return (void *)NOTHANDLE;
+}
+
 static void *nmMenuNext(va_list ap)
 {
   YWidgetState *wid = va_arg(ap, YWidgetState *);
@@ -82,7 +95,11 @@ static int mnInit(YWidgetState *opac, Entity *entity, void *args)
 
   ywidGenericCall(opac, t, init);
   state->moveSinIdx = ywidAddSignal(opac, "move");
-  ygBind(opac, "move", "menuMove");
+  if (!yeStrCmp(yeGet(entity, "mn-type"), "panel")) {
+    ygBind(opac, "move", "panelMove");
+  } else {
+    ygBind(opac, "move", "menuMove");
+  }
   state->actionSin0 = state->moveSinIdx + 1;
   YE_ARRAY_FOREACH_EXT(entries, entry, i) {
     char *tmp = g_strdup_printf("action-%d", i.pos);
@@ -188,6 +205,7 @@ int ywMenuInit(void)
     return t;
   t = ywidRegister(alloc, "menu");
   ysRegistreNativeFunc("menuMove", nmMenuMove);
+  ysRegistreNativeFunc("panelMove", nmPanelMove);
   ysRegistreNativeFunc("menuNext", nmMenuNext);
   return t;
 }

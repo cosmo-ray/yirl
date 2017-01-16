@@ -24,16 +24,18 @@
 #include "rect.h"
 #include "entity.h"
 
-static int sdlRender(YWidgetState *state, int t)
+static int sdlRend(YWidgetState *state, int t)
 {
   SDLWid *wid = ywidGetRenderData(state, t);
   Entity *entries = yeGet(state->entity, "entries");
-  unsigned int   len = yeLen(entries);
+  unsigned int len = yeLen(entries);
   YBgConf cfg;
   int alignementType = YSDL_ALIGN_LEFT;
+  Entity *type = yeGet(state->entity, "mn-type");
+  int isPane = 0;
 
-  if (!ywMenuHasChange(state))
-    return 0;
+  if (!yeStrCmp(type, "panel"))
+    isPane = 1;
 
   if (!yeStrCmp(yeGet(state->entity, "text-align"), "center"))
     alignementType = YSDL_ALIGN_CENTER;
@@ -46,24 +48,39 @@ static int sdlRender(YWidgetState *state, int t)
   if (!sgDefaultFont()) {
     DPRINT_WARN("NO Font Set !");
   }
-  for (unsigned int i = 0; i < len; ++i) {
-    Entity *entry = yeGet(entries, i);
+
+  YE_ARRAY_FOREACH_EXT(entries, entry, it) {
     SDL_Color color = {0,0,0,255};
     const char *toPrint = yeGetString(yeGet(entry, "text"));
     unsigned int cur = ywMenuGetCurrent(state);
-    Entity *destRect = ywRectReCreateInts(0, i * sgGetFontSize() + 1,
-					  wid->rect.w, sgGetFontSize() + 1,
-					  entry, "$rect");
-    SDL_Rect txtR = sdlRectFromRectEntity(destRect);
+    Entity *destRect;
+    SDL_Rect txtR;
 
+    if (isPane) {
+      destRect = ywRectReCreateInts(wid->rect.w / len * it.pos, 0,
+				    wid->rect.w / len,
+				    sgGetFontSize() + 1,
+				    entry, "$rect");
+    } else {
+      destRect = ywRectReCreateInts(0, it.pos * sgGetFontSize() + 1,
+				    wid->rect.w, sgGetFontSize() + 1,
+				    entry, "$rect");
+    }
+    txtR = sdlRectFromRectEntity(destRect);
     sdlPrintText(wid, toPrint, color, txtR, alignementType);
-    if (cur == i) {
+    if (cur == it.pos) {
       color.a = 150;
       sdlDrawRect(txtR, color);
       color.a = 255;
     }
   }
+
   return 0;
+}
+
+static int sdlRender(YWidgetState *state, int t)
+{
+  return sdlRend(state, t);
 }
 
 static int sdlInit(YWidgetState *wid, int t)

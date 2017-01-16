@@ -81,6 +81,53 @@ void testYWMenuCurses(void)
 #endif
 
 #ifdef WITH_SDL
+
+void testPanelMenuSdl2(void)
+{
+  yeInitMem();
+  int t = ydJsonInit();
+  void *jsonManager;
+  Entity *ret;
+  YWidgetState *wid;
+
+  ysRegistreFunc(ysNativeManager(), "menuTest", testMenuEnter);
+
+  /* load files */
+  g_assert(t != -1);
+  g_assert(ydJsonGetType() == t);
+  jsonManager = ydNewManager(t);
+  g_assert(jsonManager != NULL);
+  ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
+  ret = yeGet(ret, "MenuTest");
+  g_assert(ret);
+  g_assert(!ydJsonEnd());
+  g_assert(!ydDestroyManager(jsonManager));
+
+  t = ywMenuInit();
+  g_assert(t == 0);
+
+  g_assert(ysdl2Init() != -1);
+  g_assert(ysdl2Type() == 0);
+
+  yeCreateString("panel", ret, "mn-type");
+  g_assert(ysdl2RegistreMenu() == 0);
+
+  wid = ywidNewWidget(ret, NULL);
+  g_assert(wid);
+
+  
+  do {
+    g_assert(ywidRend(wid) != -1);
+  } while(ywidDoTurn(wid) != ACTION);
+
+  g_assert(!ywMenuEnd());
+  YWidDestroy(wid);
+  ysdl2Destroy();
+  /* end libs */
+  YE_DESTROY(ret);
+  yeEnd();
+}
+
 void testYWMenuSdl2(void)
 {
   yeInitMem();

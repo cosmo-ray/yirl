@@ -110,7 +110,8 @@ int main(int argc, char **argv)
 #ifdef WITH_SDL
   TEST_TRY_ADD("/widget/lifecycle/sdl", testSdlLife, only);
   TEST_TRY_ADD("/widget/textScreen/sdl", testYWTextScreenSdl2, only);
-  TEST_TRY_ADD("/widget/menu/sdl", testYWMenuSdl2, only);
+  TEST_TRY_ADD("/widget/menu/normal/sdl", testYWMenuSdl2, only);
+  TEST_TRY_ADD("/widget/menu/panel/sdl", testPanelMenuSdl2, only);
   TEST_TRY_ADD("/widget/map/resized/sdl", testYWMapSdl2, only);
   TEST_TRY_ADD("/widget/map/big/sdl", testYBigWMapSdl2, only);
   TEST_TRY_ADD("/widget/contener/static/horizontal/sdl",

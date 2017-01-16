@@ -63,6 +63,7 @@ void testYWTextScreenAll(void);
 
 void testYWMenuCurses(void);
 void testYWMenuSdl2(void);
+void testPanelMenuSdl2(void);
 
 void testYWMapCurses(void);
 void testYWMapSdl2(void);
