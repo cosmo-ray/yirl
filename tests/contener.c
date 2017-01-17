@@ -127,7 +127,7 @@ void testStackContenerSdl(void)
   ygEnd();
 }
 
-void testDynamicStackContenerCurses(void)
+void testDynamicStackContenerSdl(void)
 {
   GameConfig cfg;
   Entity *cnt, *resources, *entries, *curMap, *gc;

@@ -120,6 +120,8 @@ int main(int argc, char **argv)
 	       testVerticalContenerSdl, only);
   TEST_TRY_ADD("/widget/contener/static/stack/sdl",
 	       testStackContenerSdl, only);
+  TEST_TRY_ADD("/widget/contener/dynamic/stack/sdl",
+	       testDynamicStackContenerCurses, only);
   TEST_TRY_ADD("/game/sdl/simple", testYGameSdlLibBasic, only);
 #endif
 #ifdef WITH_CURSES
@@ -127,8 +129,6 @@ int main(int argc, char **argv)
   TEST_TRY_ADD("/widget/textScreen/curses", testYWTextScreenCurses, only);
   TEST_TRY_ADD("/widget/menu/curses", testYWMenuCurses, only);
   TEST_TRY_ADD("/widget/map/curses", testYWMapCurses, only);
-  TEST_TRY_ADD("/widget/contener/dynamic/stack/curses",
-	       testDynamicStackContenerCurses, only);
 #ifdef WITH_SDL
   TEST_TRY_ADD("/widget/lifecycle/all", testAllLife, only);
   TEST_TRY_ADD("/widget/textScreen/all", testYWTextScreenAll, only);
