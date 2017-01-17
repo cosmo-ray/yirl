@@ -51,7 +51,7 @@ static Entity *getLayer(Entity *contener, int idx)
 
 static Entity *getTextScreen(Entity *contener)
 {
-  return ywCntGetEntry(contener, 1);
+  return ywCntGetEntry(contener, 2);
 }
 
 static Entity *getTextScreenSurface(Entity *contener)
@@ -152,7 +152,7 @@ void *battleAction(int nbArgs, void **args)
       ywPosSetInts(globMousePos, eve->xMouse, eve->yMouse);
     } else if (ywidEveType(eve) == YKEY_MOUSEWHEEL) {
       if (ywContenerGetWidgetAt(wid, ywPosX(globMousePos), ywPosY(globMousePos)) ==
-	  ywCntGetEntry(wid, 1)) {
+	  getTextScreen(wid)) {
 	yeAddInt(yeGetByStr(getTextScreen(wid), "text-threshold"), eve->key);
 	ywContenerUpdate(wid, getTextScreen(wid));
       }
@@ -218,6 +218,7 @@ void *battleInit(int nbArgs, void **args)
   Entity *resources = yeGetByStrFast(main, "resources");
   Entity *entity;
   Entity *textScreen;
+  Entity *panel;
 
   globMousePos = ywPosCreateInts(0, 0, NULL, NULL);
   ywidCreateFunction("battleAction", ygGetManager("tcc"), main, "action");
@@ -229,9 +230,11 @@ void *battleInit(int nbArgs, void **args)
   }
   /* create maps */
   entity = yeCreateArray(layers, NULL);
+  panel = yeCreateArray(layers, NULL);
   textScreen = yeCreateArray(layers, NULL);
 
   yeCreateInt(80, entity, "size");
+  yeCreateInt(5, panel, "size");
   layers = yeCreateArray(entity, "entries");
   yeCreateString("contener", entity, "<type>");
   yeCreateString("stacking", entity, "cnt-type");
@@ -257,12 +260,19 @@ void *battleInit(int nbArgs, void **args)
   yeCreateString("text-screen", textScreen, "<type>");
   printFLeet(yeCreateString("", textScreen, "text"),
 	     yeGetByStr(yeGetByStr(main, "current_player"), "fleet"));
-  printf("%d - %p - %p\n",
-	 yeGetInt(yeGetByStr(main, "cursor id")),
-	 yeGetByStr(main, "player 1"),
-	 yeGetByStr(main, "player 2"));
-
+  yeCreateString("menu", panel, "<type>");
+  yeCreateString("panel", panel, "mn-type");
+  layers = yeCreateArray(panel, "entries");
+  cur_layer = yeCreateArray(layers, NULL);
+  yeCreateString("add ship", cur_layer, "text");
+  cur_layer = yeCreateArray(layers, NULL);
+  yeCreateString("remove ship", cur_layer, "text");
+  cur_layer = yeCreateArray(layers, NULL);
+  yeCreateString("next ship", cur_layer, "text");
+  cur_layer = yeCreateArray(layers, NULL);
+  yeCreateString("end positioning", cur_layer, "text");
   void *ret = ywidNewWidget(main, "contener");
+  printf("io\n");
   yeDestroy(gc);
   return ret;
 }

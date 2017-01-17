@@ -20,7 +20,7 @@
 	"<type>" : "text-screen",
 	"text" : "All's death, something was living here, But today...\nbut far in the dark i see light",
 	"bind" : [["action", "txQuitOnQ"]],
-	"background": "rgba: 250 250 250 255", // Not yet implemented :)
+	"background": "rgba: 250 250 250 255",
     },
     "MenuTest" : {
 	"<type>" : "menu",
@@ -39,7 +39,7 @@
 		"action" : "menuTest"
 	    }
 	],
-	"background": "rgba: 180 210 200 255", // Not yet implemented :)
+	"background": "rgba: 180 210 200 255",
 	"button_background": "hello.pnj" // Not yet implemented  :)
     },
     "ContenerTest" : {
