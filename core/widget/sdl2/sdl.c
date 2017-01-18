@@ -85,10 +85,14 @@ SDL_Rect sdlRectFromRectEntity(Entity *rect)
   return ret;
 }
 
-void	sdlDrawRect(SDL_Rect rect, SDL_Color color)
+void	sdlDrawRect(SDLWid *swid, SDL_Rect rect, SDL_Color color)
 {
   unsigned char r, g, b, a;
 
+  if (swid) {
+    rect.y += swid->rect.y;
+    rect.x += swid->rect.x;
+  }
   SDL_GetRenderDrawColor(sg.renderer, &r, &g, &b, &a);
   SDL_SetRenderDrawColor(sg.renderer, color.r, color.g, color.b, color.a);
   SDL_RenderFillRect(sg.renderer, &rect);
@@ -99,7 +103,7 @@ int   sdlFillColorBg(SDLWid *swid, short r, short g, short b, short a)
 {
   SDL_Color color = {r, g, b, a};
 
-  sdlDrawRect(swid->rect, color);
+  sdlDrawRect(NULL, swid->rect, color);
   return 0;
 }
 
@@ -478,7 +482,7 @@ int sdlDisplaySprites(YWidgetState *state, SDLWid *wid,
 
     if (type == Y_SDL_TILD || type == Y_SDL_COLOR) {
       if (type == Y_SDL_COLOR)
-	sdlDrawRect(DestR, *((SDL_Color *)texture));
+	sdlDrawRect(NULL, DestR, *((SDL_Color *)texture));
       else
 	SDL_RenderCopy(sg.renderer, texture, NULL, &DestR);
     } else {

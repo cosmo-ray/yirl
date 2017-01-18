@@ -70,7 +70,7 @@ static int sdlRend(YWidgetState *state, int t)
     sdlPrintText(wid, toPrint, color, txtR, alignementType);
     if (cur == it.pos) {
       color.a = 150;
-      sdlDrawRect(txtR, color);
+      sdlDrawRect(wid, txtR, color);
       color.a = 255;
     }
   }
