@@ -127,6 +127,46 @@ void testStackContenerSdl(void)
   ygEnd();
 }
 
+void testMixContenerSdl(void)
+{
+  GameConfig cfg;
+  Entity *ret;
+  Entity *cnt;
+  YWidgetState *wid;
+  int t = ydJsonInit();
+  void *jsonManager;
+
+  /* Init libs */
+  g_assert(!ygInitGameConfig(&cfg, NULL, SDL2));
+  g_assert(!ygInit(&cfg));
+
+  /* Parsing json */
+  jsonManager = ydNewManager(t);
+  ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
+  cnt = yeGet(ret, "VContenerTest");
+  g_assert(cnt);
+
+  yeSetString(yeGet(yeGetByIdx(yeGet(cnt, "entries"), 1), "name"),
+	      "ContenerTest");
+  ret = yeGet(ret, "ContenerTest");
+  g_assert(ret);
+  yeSetString(yeGet(yeGetByIdx(yeGet(ret, "entries"), 1), "name"),
+	      "MenuTest");
+  yeCreateString("MenuTest", yeCreateArray(yeGet(ret, "entries"), NULL), "name");
+
+  ysRegistreNativeFunc("menuTest", testMenuEnter);
+
+  wid = ywidNewWidget(cnt, NULL);
+  g_assert(wid);
+
+  do {
+    g_assert(ywidRend(wid) != -1);
+  } while(ywidDoTurn(wid) != ACTION);
+
+  YE_DESTROY(ret);
+  ygEnd();
+}
+
 void testDynamicStackContenerSdl(void)
 {
   GameConfig cfg;

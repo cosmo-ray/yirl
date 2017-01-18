@@ -116,12 +116,12 @@ int main(int argc, char **argv)
   TEST_TRY_ADD("/widget/map/big/sdl", testYBigWMapSdl2, only);
   TEST_TRY_ADD("/widget/contener/static/horizontal/sdl",
 	       testHorizontalContenerSdl, only);
-  TEST_TRY_ADD("/widget/contener/static/vertical/sdl",
-	       testVerticalContenerSdl, only);
-  TEST_TRY_ADD("/widget/contener/static/stack/sdl",
-	       testStackContenerSdl, only);
+  TEST_TRY_ADD("/widget/contener/static/vertical/sdl", testVerticalContenerSdl,
+	       only);
+  TEST_TRY_ADD("/widget/contener/static/stack/sdl", testStackContenerSdl, only);
+  TEST_TRY_ADD("/widget/contener/static/mix/sdl", testMixContenerSdl, only);
   TEST_TRY_ADD("/widget/contener/dynamic/stack/sdl",
-	       testDynamicStackContenerCurses, only);
+	       testDynamicStackContenerSdl, only);
   TEST_TRY_ADD("/game/sdl/simple", testYGameSdlLibBasic, only);
 #endif
 #ifdef WITH_CURSES
