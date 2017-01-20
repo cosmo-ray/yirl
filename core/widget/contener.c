@@ -106,7 +106,7 @@ static void cntResize(YWidgetState *opac)
     if (size <= 0) { /* We equally size the sub-widgets */
       caseLen = usable * (i + 1) / len;
     } else {
-      caseLen = usable * size / 100;
+      caseLen = widSize * size / 100;
     }
 
     if (ywCntType(opac) == CNT_HORIZONTAL) {
