@@ -301,6 +301,7 @@ Entity *ygLoadMod(const char *path)
       if (ysLoadFile(luaManager, fileStr) < 0) {
 	DPRINT_ERR("Error when loading '%s': %s\n",
 		   yeGetString(tmpFile), ysGetError(luaManager));
+	goto failure;
       }
       g_free(fileStr);
 
@@ -312,6 +313,7 @@ Entity *ygLoadMod(const char *path)
       if (ysLoadFile(tccManager, fileStr) < 0) {
 	DPRINT_ERR("Error when loading '%s': %s\n",
 		   yeGetString(tmpFile), ysGetError(tccManager));
+	goto failure;
       }
       g_free(fileStr);
 
