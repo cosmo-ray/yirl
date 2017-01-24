@@ -1,7 +1,8 @@
 cmake_minimum_required ( VERSION 2.8 )
 
 if( NOT TCC_LIB_PATH)
-  set (TCC_LIB_PATH /usr/lib/)
+  set (TCC_LIB_PATH ${PROJECT_SOURCE_DIR}/tinycc/)
+  set (TCC_INTERNAL_LIB_PATH ${PROJECT_SOURCE_DIR}/tinycc/)
 endif()
 if ( TCC_INTERNAL_LIB_PATH )
   add_definitions( -DTCC_LIB_PATH="${TCC_INTERNAL_LIB_PATH}" )
@@ -12,6 +13,9 @@ endif()
 if( NOT LUA_LIB_PATH)
   set (LUA_LIB_PATH lua)
 endif()
+
+message("TCC_LIB_PATH: " ${TCC_LIB_PATH})
+message("TCC_INTERNAL_LIB_PATH: " ${TCC_INTERNAL_LIB_PATH})
 
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake")
@@ -30,6 +34,7 @@ include_directories(
 	${SDL2_INCLUDE_DIR}
 	${GLIB2_INCLUDE_DIRS}
 	${GLIB2_INTERNAL_INCLUDE_DIRS}
+	${TCC_LIB_PATH}
 	${PROJECT_SOURCE_DIR}/include/core
 	${PROJECT_SOURCE_DIR}/include/widget
 )

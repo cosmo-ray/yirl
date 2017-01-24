@@ -43,6 +43,10 @@ void testTccScritLifecycle(void)
   g_assert(!ysRegistreFunc(sm, "addPtr", addPtr));
   g_assert((long)ysCall(sm, "addPtr", 2, 1, 2) == 3);
 
+  g_assert(!ysLoadString(sm, "void *test(){return (void *)5;}"));
+  g_assert((long)ysCall(sm, "test") == 5);
+  g_assert(!ysLoadString(sm, "void *test2(){return (void *)2;}"));
+  g_assert((long)ysCall(sm, "test2") == 2);
   g_assert(!ysDestroyManager(sm));
   g_assert(!ysTccEnd());
   yeEnd();

@@ -1,0 +1,3 @@
+[submodule "tests/tinycc"]
+	path = tinycc
+	url = https://github.com/cosmo-ray/tcc.git

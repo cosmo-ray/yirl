@@ -17,7 +17,6 @@
 
 #include <stdlib.h>
 #include <glib.h>
-#include <libtcc.h>
 
 #include "tcc-script.h"
 #include "debug.h"
@@ -32,6 +31,9 @@ static int t = -1;
 
 #define GET_OPS(sm) (((YTccScript *)(sm))->ops)
 #define GET_TCC_S(sm) (((YTccScript *)(sm))->l)
+#define SET_REALLOC_NEEDED(sm) (((YTccScript *)(sm))->needRealloc = 1)
+#define UNSET_REALLOC_NEEDED(sm) (((YTccScript *)(sm))->needRealloc = 0)
+#define NEED_REALLOC(sm) (((YTccScript *)(sm))->needRealloc)
 
 static int tccInit(void *sm, void *args)
 {
@@ -47,6 +49,9 @@ static int tccInit(void *sm, void *args)
   tcc_add_sysinclude_path(l, YIRL_INCLUDE_PATH "/widget");
   tcc_add_sysinclude_path(l, YIRL_INCLUDE_PATH "/core");
   tcc_set_lib_path(l, TCC_LIB_PATH);
+  #ifdef TCC_OUTPUT_MEMORY
+  tcc_set_output_type(GET_TCC_S(sm), TCC_OUTPUT_MEMORY);
+  #endif
   return 0;
 }
 
@@ -54,10 +59,21 @@ static int tccLoadFile(void *sm, const char *filename)
 {
   int ret = tcc_add_c_file(GET_TCC_S(sm), filename);
 
-  if (ret < 0)
-    return ret;
-  return tcc_relocate(GET_TCC_S(sm), TCC_RELOCATE_AUTO);
+  SET_REALLOC_NEEDED(sm);
+  return ret;
 }
+
+static int tccLoadString(void *sm, const char *str)
+{
+  if (tcc_compile_string(GET_TCC_S(sm), str) < 0) {
+    DPRINT_ERR("failt to compille");
+    return -1;
+  }
+
+  SET_REALLOC_NEEDED(sm);
+  return 0;
+}
+
 
 static int tccRegistreFunc(void *sm, const char *name, void *arg)
 {
@@ -74,6 +90,13 @@ static void *tccGetFastCall(void *scriptManager, const char *name)
     return NULL;
   }
 
+  if (NEED_REALLOC(scriptManager)) {
+    if (tcc_relocate(GET_TCC_S(scriptManager), TCC_RELOCATE_AUTO) < 0) {
+      DPRINT_ERR("reallocation fail");
+      return NULL;
+    }
+    UNSET_REALLOC_NEEDED(scriptManager);
+  }
   return tcc_get_symbol(tcc_s, name);
 }
 
@@ -120,6 +143,7 @@ static void *tccAllocator(void)
   ret->ops.init = tccInit;
   ret->ops.destroy = tccDestroy;
   ret->ops.loadFile = tccLoadFile;
+  ret->ops.loadString = tccLoadString;
   ret->ops.call = tccCall;
   ret->ops.fastCall = tccFCall;
   ret->ops.getFastPath = tccGetFastCall;

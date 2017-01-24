@@ -27,6 +27,7 @@
 typedef struct {
   int (*init)(void *opac, void *args);
   int (*loadFile)(void *opac, const char *fileName);
+  int (*loadString)(void *opac, const char *str);
   int (* registreFunc)(void *opac, const char *name, void *arg);
   void *(*call)(void *opac, const char *name, va_list ap);
   void *(*fastCall)(void *opacFunction, va_list ap);
@@ -77,6 +78,11 @@ static inline int ysRegistreFunc(void *sm, const char *name, void *arg)
 static inline int ysLoadFile(void *sm, const char *name)
 {
   return ((YScriptOps *)sm)->loadFile(sm, name);
+}
+
+static inline int ysLoadString(void *sm, const char *name)
+{
+  return ((YScriptOps *)sm)->loadString(sm, name);
 }
 
 static inline const char *ysGetError(void *sm)

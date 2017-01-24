@@ -19,6 +19,7 @@
 #include <map.h>
 #include <game.h>
 #include <contener.h>
+#include <text-screen.h>
 
 static Entity *globMousePos;
 
@@ -160,7 +161,7 @@ void *battleAction(int nbArgs, void **args)
     }
     switch (ywidEveKey(eve)) {
     case 'q':
-      ygCall(NULL, "FinishGame");
+	    ygCall(NULL, "FinishGame", NULL);
       ret = (void *)ACTION;
       break;
     case 'n':
