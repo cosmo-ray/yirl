@@ -699,6 +699,8 @@ static inline int yeOpsIntAddInt(IntEntity *e, int i)
   return 0;
 }
 
+int yeAddStrFromFd(Entity *e, int fd, int len);
+
 int yeStringAddInt(Entity *ent, int i);
 int yeStringAddLong(Entity *ent, long i);
 

@@ -19,6 +19,7 @@
 #include	<string.h>
 #include	<glib.h>
 #include	<inttypes.h>
+#include	<unistd.h>
 #include	"entity.h"
 #include	"utils.h"
 #include	"stack.h"
@@ -810,6 +811,22 @@ int yeStringAddLong(Entity *ent, long i)
   YE_TO_STRING(ent)->len = strlen(YE_TO_STRING(ent)->value);
   g_free(tmp);
   return 0;
+}
+
+int yeAddStrFromFd(Entity *e, int fd, int len)
+{
+  int ret = -1;
+  char *tmp = g_new(char, len + 1);
+
+  if (!tmp || read(fd, tmp, len) < 0)
+    goto exit;
+  tmp[len] = 0;
+  if (yeStringAdd(e, tmp) < 0)
+    goto exit;
+  ret = 0;
+ exit:
+  g_free(tmp);
+  return ret;
 }
 
 int yeCountCharacters(Entity *str, char carac, int lineLimit)
