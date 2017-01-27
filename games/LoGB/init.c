@@ -161,7 +161,7 @@ void *battleAction(int nbArgs, void **args)
     }
     switch (ywidEveKey(eve)) {
     case 'q':
-	    ygCall(NULL, "FinishGame", NULL);
+      ygVCall(NULL, "FinishGame");
       ret = (void *)ACTION;
       break;
     case 'n':

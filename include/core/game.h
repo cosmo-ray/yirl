@@ -64,6 +64,9 @@ int ygInitGameConfigByStr(GameConfig *cfg, const char *path, const char *render)
 
 void *ygCallInt(const char *mod, const char *callName, ...);
 
+/* because tcc bug with 0 args */
+#define ygVCall(mod, callName) ygCallInt(mod, callName, Y_END_VA_LIST)
+
 #define ygCall(mod, callName, args...)					\
 	ygCallInt(mod, callName,					\
 		  YUI_VA_ARGS_HANDELER(Y_END_VA_LIST,			\
