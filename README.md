@@ -1,8 +1,6 @@
 # YIRL isn't a Rogue-like
 
 YIRL is a WIP,
-This README is a WIP.
-Don't expect to get something functional for now.
 
 YIRL is a game engine aiming to be fully configurable, fully scriptable and mod friendly.
 
@@ -54,6 +52,47 @@ YIRL is licensed under the LGPL licence, the idea behind that, is that you can a
     * timer.h
 * core: engine sources
 * test: unit tests
-* modules: set of yirl modules
-* example: set of examples
+* modules: set of basic yirl modules
+* example:
+  * shooter: old oudated example usefull for testing purpose
+  * snake: example that show how to modifie a map in order to implement a snake, module/snake is a modified version of this file
+  * modules: examples of yirl modules usage
+    * snake: how to use the snake module
+    * sm-reader: how to use sm-reader
+   
 * cmake: cmake dependencies
+
+# Contribution
+
+Obviouselly contributions are more than welcome, to contribute you can simply make a Pull Request on github, if something is wrong, I'll tell you :)
+As I didn't have time to write a coding style, in case of contribution, you should just try to imitate code alerady in place.
+
+I'd like to use linux conding style, but this would require to change every functions and structures names.
+A good contribution would be to make yirl compatible with linux coding style.
+
+# how to start using yirl
+For now the easier way to use yirl is to come on irc(#yirl on freenode) and ask for help
+But you can still understand how yirl work by:
+* using examples
+* reading examples json file
+* copy past an example and change it to create your own game
+* patch evey things that dont work
+
+# Ideas of Contributions/TODO
+
+* use linux coding style
+* reenable sound test
+* refactore sound code
+* create a module that allow to use web radio
+* add isometric view in map
+* add canvas widget, with an api base on html5 canvas
+* add an hex map
+* add any other cool widget
+* use vulkan/gl
+* fix all broken stuff in curses
+* port to mac os/bsd/haiku, even windows
+* add lisp or any other languge scripting support
+* add a lib over lua api to manipulate entity's as object and handle lifecycle
+* add a tetris module or any other cool game template module
+* add tiled support
+* add full screen/windows switching support
