@@ -15,17 +15,16 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "yirl/entity.h"
+#include "yirl/widget.h"
+#include "yirl/widget-callback.h"
+#include "yirl/utils.h"
+#include "yirl/map.h"
+#include "yirl/sound.h"
+#include "yirl/native-script.h"
 
 #ifndef _YIRL_GAME_H_
 #define _YIRL_GAME_H_
-
-#include "entity.h"
-#include "widget.h"
-#include "widget-callback.h"
-#include "utils.h"
-#include "map.h"
-#include "sound.h"
-#include "native-script.h"
 
 typedef enum {
   NONE   = 0,

@@ -18,8 +18,8 @@
 #ifndef	_YIRL_MAP_H_
 #define	_YIRL_MAP_H_
 
-#include "widget.h"
-#include "pos.h"
+#include "yirl/widget.h"
+#include "yirl/pos.h"
 
 typedef enum {
   YMAP_FULL = 0,

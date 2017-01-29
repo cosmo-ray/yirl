@@ -18,7 +18,7 @@
 #ifndef	_YIRL_CONTENER_H_
 #define	_YIRL_CONTENER_H_
 
-#include "widget.h"
+#include "yirl/widget.h"
 
 typedef enum {
   CNT_VERTICAL,

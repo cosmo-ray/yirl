@@ -16,15 +16,31 @@
 */
 
 #ifndef	_YIRL_MENU_H_
-#define	_YIRL_MENU_H_
+#define	_YIRL_MENU_H_ 10
 
-#include "widget.h"
+#include "yirl/widget.h"
 
 int ywMenuInit(void);
 int ywMenuEnd(void);
 int ywMenuGetCurrent(YWidgetState *opac);
 int ywMenuHasChange(YWidgetState *opac);
 int ywMenuPosFromPix(Entity *wid, uint32_t x, uint32_t y);
-InputStatue ywMenuCallActionOn(YWidgetState *opac, YEvent *event, int idx);
+
+InputStatue ywMenuCallActionOnByEntity(Entity *opac, YEvent *event, int idx);
+InputStatue ywMenuCallActionOnByState(YWidgetState *opac, YEvent *event, int idx);
+
+#ifndef Y_INSIDE_TCC
+
+#define ywMenuCallActionOn(wid, eve, idx)		\
+  _Generic((wid),					\
+	   Entity * : ywMenuCallActionOnByEntity,	\
+	   YWidgetState * : ywMenuCallActionOnByState	\
+	   )(wid, eve, idx)
+
+#else
+
+#define ywMenuCallActionOn ywMenuCallActionOnByEntity
+
+#endif
 
 #endif

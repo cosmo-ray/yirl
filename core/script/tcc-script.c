@@ -46,12 +46,12 @@ static int tccInit(void *sm, void *args)
   GET_TCC_S(sm) = l;
   tcc_add_sysinclude_path(l, "/usr/include/");
   tcc_add_sysinclude_path(l, "/usr/lib/tcc/include/");
-  tcc_add_sysinclude_path(l, YIRL_INCLUDE_PATH "/widget");
-  tcc_add_sysinclude_path(l, YIRL_INCLUDE_PATH "/core");
+  tcc_add_sysinclude_path(l, YIRL_INCLUDE_PATH );
   tcc_set_lib_path(l, TCC_LIB_PATH);
-  #ifdef TCC_OUTPUT_MEMORY
-  tcc_set_output_type(GET_TCC_S(sm), TCC_OUTPUT_MEMORY);
-  #endif
+  tcc_define_symbol(l, "Y_INSIDE_TCC", NULL);
+#ifdef TCC_OUTPUT_MEMORY
+  tcc_set_output_type(l, TCC_OUTPUT_MEMORY);
+#endif
   return 0;
 }
 

@@ -129,7 +129,14 @@ static int mnRend(YWidgetState *opac)
   return 0;
 }
 
-InputStatue ywMenuCallActionOn(YWidgetState *opac, YEvent *event, int idx)
+InputStatue ywMenuCallActionOnByEntity(Entity *opac, YEvent *event, int idx)
+{
+  YWidgetState *cur = yeGetData(yeGet(opac, "$wid"));
+
+  return ywMenuCallActionOnByState(cur, event, idx);
+}
+
+InputStatue ywMenuCallActionOnByState(YWidgetState *opac, YEvent *event, int idx)
 {
   if (idx < 0)
     return NOTHANDLE;
@@ -186,9 +193,11 @@ int ywMenuHasChange(YWidgetState *opac)
 int ywMenuPosFromPix(Entity *wid, uint32_t x, uint32_t y)
 {
   Entity *entries = yeGet(wid, "entries");
+  Entity *pos = yeGet(wid, "wid-pix");
 
   YE_ARRAY_FOREACH_EXT(entries, entry, it) {
-    if (ywRectIntersect(yeGet(entry, "$rect"), x, y))
+    Entity *rect = yeGet(entry, "$rect");
+    if (ywRectIntersect(rect, x - ywRectX(pos), y - ywRectY(pos)))
       return it.pos;
   }
   return -1;

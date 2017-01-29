@@ -34,9 +34,8 @@ include_directories(
 	${SDL2_INCLUDE_DIR}
 	${GLIB2_INCLUDE_DIRS}
 	${GLIB2_INTERNAL_INCLUDE_DIRS}
-	${TCC_LIB_PATH}
-	${PROJECT_SOURCE_DIR}/include/core
-	${PROJECT_SOURCE_DIR}/include/widget
+	${PROJECT_SOURCE_DIR}/include/yirl
+	${PROJECT_SOURCE_DIR}/include
 )
 
 add_subdirectory( ${PROJECT_SOURCE_DIR}/core/entity )

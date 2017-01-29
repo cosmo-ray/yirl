@@ -18,7 +18,7 @@
 #ifndef	_YIRL_TEXT_SCREEN_H_
 #define	_YIRL_TEXT_SCREEN_H_
 
-#include "widget.h"
+#include "yirl/widget.h"
 
 int ywTextScreenInit(void);
 int ywTextScreenEnd(void);

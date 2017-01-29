@@ -16,10 +16,11 @@
 */
 
 #include <stdio.h>
-#include <map.h>
-#include <game.h>
-#include <contener.h>
-#include <text-screen.h>
+#include <yirl/game.h>
+#include <yirl/menu.h>
+#include <yirl/map.h>
+#include <yirl/contener.h>
+#include <yirl/text-screen.h>
 
 static Entity *globMousePos;
 
@@ -137,7 +138,14 @@ void *battleAction(int nbArgs, void **args)
     Entity *cursorPos = yeGetByStr(wid, "_cursos pos");
 
     if (ywidEveType(eve) == YKEY_MOUSEDOWN) {
-      if (ywContenerGetWidgetAt(wid, eve->xMouse, eve->yMouse) !=
+      Entity *cur_wid;
+      if ((cur_wid = ywContenerGetWidgetAt(wid, eve->xMouse, eve->yMouse)) ==
+	  ywCntGetEntry(wid, 1)) {
+	return (void *)ywMenuCallActionOnByEntity(cur_wid, eve,
+						  ywMenuPosFromPix(cur_wid,
+								   eve->xMouse,
+								   eve->yMouse));
+      } else if (ywContenerGetWidgetAt(wid, eve->xMouse, eve->yMouse) !=
 	  ywCntGetEntry(wid, 0)) {
 	return ret;
       }
