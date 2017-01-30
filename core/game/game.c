@@ -176,7 +176,6 @@ int ygInit(GameConfig *cfg)
   /* Init sound */
   sound_init(LIB_VLC);
 
-  int nbRender = 0;
   for (GList *tmp = cfg->rConf; tmp; tmp = tmp->next) {
     //TODO check which render to use :)
     if (yuiStrEqual(TO_RC(tmp->data)->name, "curses")) {
@@ -186,10 +185,10 @@ int ygInit(GameConfig *cfg)
       CHECK_AND_GOTO(ycursRegistreTextScreen(), -1, error,
 			"Text Screen init failed");
       CHECK_AND_GOTO(ycursRegistreMap(), -1, error, "Map init failed");
-      ++nbRender;
 #else
       DPRINT_ERR("yirl is not compille with curses support");
 #endif
+
     } else if (yuiStrEqual(TO_RC(tmp->data)->name, "sdl2")) {
 #ifdef WITH_SDL
       ysdl2Init();
@@ -197,15 +196,11 @@ int ygInit(GameConfig *cfg)
 			"Text Screen init failed");
       CHECK_AND_GOTO(ysdl2RegistreMenu(), -1, error, "Menu init failed");
       CHECK_AND_GOTO(ysdl2RegistreMap(), -1, error, "Map init failed");
-      ++nbRender;
 #else
       DPRINT_ERR("yirl is not compille with SDL2 support");
 #endif
+
     }
-  }
-  if (!nbRender && cfg->rConf) {
-    DPRINT_ERR("no render selected");
-    goto error;
   }
   return 0;
 error:
@@ -294,7 +289,7 @@ Entity *ygLoadMod(const char *path)
     Entity *tmpFile = yeGet(var, "file");
 
     if (yuiStrEqual0(yeGetString(tmpType), "lua")) {
-      char *fileStr = NULL;
+      char *fileStr;
 
       fileStr = g_strconcat(path, "/",
 			    yeGetString(tmpFile), NULL);
@@ -306,7 +301,7 @@ Entity *ygLoadMod(const char *path)
       g_free(fileStr);
 
     } else if (yuiStrEqual0(yeGetString(tmpType), "tcc")) {
-      char *fileStr = NULL;
+      char *fileStr;
 
       fileStr = g_strconcat(path, "/",
 			    yeGetString(tmpFile), NULL);
@@ -318,7 +313,7 @@ Entity *ygLoadMod(const char *path)
       g_free(fileStr);
 
     } else if (yuiStrEqual0(yeGetString(tmpType), "json")) {
-      char *fileStr = NULL;
+      char *fileStr;
       Entity *as = yeGet(var, "as");
 
       fileStr = g_strconcat(path, "/",
@@ -328,7 +323,7 @@ Entity *ygLoadMod(const char *path)
 
       yeRenamePtrStr(mod, tmpFile, yeGetString(as));
     } else if (yuiStrEqual0(yeGetString(tmpType), "module")) {
-      char *fileStr = NULL;
+      char *fileStr;
 
       fileStr = g_strconcat(path, "/",
 			    yeGetString(tmpFile), NULL);
@@ -351,7 +346,7 @@ Entity *ygLoadMod(const char *path)
 
   if (type) {
     if (yuiStrEqual(yeGetString(type), "json")) {
-      char *fileStr = NULL;
+      char *fileStr;
       const char *mod_name = "$main file";
 
       fileStr = g_strconcat(path, "/",
@@ -448,7 +443,6 @@ Entity *ygGetFuncExt(const char *func)
 Entity *ygGet(const char *toFind)
 {
   char modName[254];
-
   const char *funcName;
   char *tmp;
   intptr_t ret;
