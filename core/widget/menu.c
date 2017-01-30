@@ -138,11 +138,16 @@ InputStatue ywMenuCallActionOnByEntity(Entity *opac, YEvent *event, int idx)
 
 InputStatue ywMenuCallActionOnByState(YWidgetState *opac, YEvent *event, int idx)
 {
+  InputStatue ret;
+
   if (idx < 0)
     return NOTHANDLE;
   ((YMenuState *)opac)->current = idx;
-  return ywidCallSignal(opac, event, NULL,
-			idx + ((YMenuState *)opac)->actionSin0);
+  ret = ywidCallSignal(opac, event, NULL,
+		       idx + ((YMenuState *)opac)->actionSin0);
+  if (ret == NOTHANDLE)
+    return NOACTION;
+  return ret;
 }
 
 static InputStatue mnEvent(YWidgetState *opac, YEvent *event)
