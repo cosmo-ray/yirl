@@ -78,8 +78,16 @@ static int tccLoadString(void *sm, const char *str)
 static int tccRegistreFunc(void *sm, const char *name, void *arg)
 {
   tcc_add_symbol(GET_TCC_S(sm), name, arg);
+  SET_REALLOC_NEEDED(sm);
   return 0;
 }
+
+static int addDefine(void *sm, const char *name, const char *val)
+{
+  tcc_define_symbol(GET_TCC_S(sm), name, val);
+  return 0;
+}
+
 
 static void *tccGetFastCall(void *scriptManager, const char *name)
 {
@@ -147,6 +155,7 @@ static void *tccAllocator(void)
   ret->ops.call = tccCall;
   ret->ops.fastCall = tccFCall;
   ret->ops.getFastPath = tccGetFastCall;
+  ret->ops.addDefine = addDefine;
   ret->ops.registreFunc = tccRegistreFunc;
   return (void *)ret;
 }

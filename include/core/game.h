@@ -94,6 +94,6 @@ int ygBind(YWidgetState *wid, const char *signal, const char *callback);
 
 Entity *ygGet(const char *toFind);
 
-int ygAddDefine(void *opac, const char *name);
+int ygAddDefine(const char *name, char *val);
 
 #endif

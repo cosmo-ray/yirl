@@ -32,7 +32,7 @@ typedef struct {
   void *(*call)(void *opac, const char *name, va_list ap);
   void *(*fastCall)(void *opacFunction, va_list ap);
   void *(*getFastPath)(void *scriptManager, const char *name);
-  int (*addDefine)(void *opac, const char *name);
+  int (*addDefine)(void *opac, const char *name, const char *val);
   const char *(*getError)(void *opac);
   int (*destroy)(void *opac);
 } YScriptOps;
@@ -46,11 +46,11 @@ void *ysCallInt(void *sm, const char *name, ...);
 					    YUI_VA_ARGS_HANDELER(Y_END_VA_LIST,	\
 								 args))
 
-static inline int ysAddDefine(void *sm, const char *name)
+static inline int ysAddDefine(void *sm, const char *name, const char *val)
 {
-  if (!((YScriptOps *)sm)->addDefine)
+  if (unlikely(!((YScriptOps *)sm)->addDefine))
     return -1;
-  return ((YScriptOps *)sm)->addDefine(sm, name);
+  return ((YScriptOps *)sm)->addDefine(sm, name, val);
 }
 
 static inline void *ysGetFastPath(void *sm, const char *name)

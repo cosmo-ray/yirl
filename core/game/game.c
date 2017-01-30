@@ -601,5 +601,10 @@ void *ygCallInt(const char *mod, const char *callName, ...)
 
 }
 
+int ygAddDefine(const char *name, char *val)
+{
+  return ysAddDefine(tccManager, name, val);
+}
+
 #undef CHECK_AND_GOTO
 #undef CHECK_AND_RET

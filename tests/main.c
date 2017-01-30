@@ -87,6 +87,8 @@ int main(int argc, char **argv)
 	       ybytecodeLoopCallFunction, only);
 
   TEST_TRY_ADD("/script/tcc/lifecycle", testTccScritLifecycle, only);
+  TEST_TRY_ADD("/script/tcc/add-define", testTccAddDefine, only);
+
   TEST_TRY_ADD("/script/lua/lifecycle", testLuaScritLifecycle, only);
   TEST_TRY_ADD("/script/lua/entity", testLuaScritEntityBind, only);
   TEST_TRY_ADD("/parser/json/simple-file", testJsonLoadFile, only);

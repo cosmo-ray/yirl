@@ -20,6 +20,7 @@
 #include "tests.h"
 #include "entity.h" 
 #include "tcc-script.h"
+#include "game.h"
 
 static void *addPtr(int nbArg, void **args)
 {
@@ -50,4 +51,22 @@ void testTccScritLifecycle(void)
   g_assert(!ysDestroyManager(sm));
   g_assert(!ysTccEnd());
   yeEnd();
+}
+
+void testTccAddDefine(void)
+{
+  GameConfig cfg;
+
+  g_assert(!ygInitGameConfig(&cfg, NULL, CURSES));
+  g_assert(!ygInit(&cfg));
+
+  g_assert(!ysLoadString(ygGetTccManager(),
+			 "#include <game.h>"
+			 "void *test(){"
+			 "return (void *)ygAddDefine(\"TEST\", \"28\");"
+			 "}"));
+  g_assert((long)ysCall(ygGetTccManager(), "test") == 0);
+  g_assert(!ysLoadString(ygGetTccManager(), "void *test2(){return (void *)TEST;}"));
+  g_assert((long)ysCall(ygGetTccManager(), "test2") == 28);
+  ygEnd();
 }
