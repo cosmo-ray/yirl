@@ -47,6 +47,7 @@ void testLuaScritLifecycle(void);
 void testLuaScritEntityBind(void);
 
 void testTccScritLifecycle(void);
+void testTccTestsMacros(void);
 void testTccAddDefine(void);
 
 void testJsonLoadFile(void);

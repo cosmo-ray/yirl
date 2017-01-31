@@ -53,11 +53,27 @@ void testTccScritLifecycle(void)
   yeEnd();
 }
 
+void testTccTestsMacros(void)
+{
+  void *sm = NULL;
+  yeInitMem();
+
+  g_assert(!ysTccInit());
+  g_assert(!ysTccGetType());
+  sm = ysNewManager(NULL, 0);
+  g_assert(sm);
+  g_assert(!ysLoadString(sm, "void *test(){return (void *)5;}"));
+  g_assert((long)ysCall(sm, "test") == 5);
+  g_assert(!ysDestroyManager(sm));
+  g_assert(!ysTccEnd());
+  yeEnd();
+}
+
 void testTccAddDefine(void)
 {
   GameConfig cfg;
 
-  g_assert(!ygInitGameConfig(&cfg, NULL, CURSES));
+  g_assert(!ygInitGameConfig(&cfg, NULL, NONE));
   g_assert(!ygInit(&cfg));
 
   g_assert(!ysLoadString(ygGetTccManager(),

@@ -28,6 +28,7 @@
 #include "native-script.h"
 
 typedef enum {
+  NONE   = 0,
   SDL2   = 1,
   CURSES = 2,
   ALL    = CURSES | SDL2

@@ -203,7 +203,7 @@ int ygInit(GameConfig *cfg)
 #endif
     }
   }
-  if (!nbRender) {
+  if (!nbRender && cfg->rConf) {
     DPRINT_ERR("no render selected");
     goto error;
   }
@@ -234,6 +234,10 @@ void ygEnd()
 #endif
   YE_DESTROY(modList);
   ysNativeEnd();
+  ysDestroyManager(tccManager);
+  ysTccEnd();
+  ysDestroyManager(luaManager);
+  ysLuaEnd();
   yeEnd();
   init = 0;
 }
@@ -538,13 +542,14 @@ int ygStartLoop(GameConfig *config)
 int ygInitGameConfigByRenderType(GameConfig *cfg, const char *path,
 				 RenderType t)
 {
-  if (!t) {
-    return -1;
-  }
 
   cfg->rConf = NULL;
   cfg->startingMod = g_new(ModuleConf, 1);
   cfg->startingMod->path = path;
+
+  if (!t) {
+    return 0;
+  }
 
   YUI_FOREACH_BITMASK(t, i, tmp) {
     RenderConf *rConf = g_new(RenderConf, 1);
