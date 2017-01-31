@@ -74,7 +74,6 @@ static int tccLoadString(void *sm, const char *str)
   return 0;
 }
 
-
 static int tccRegistreFunc(void *sm, const char *name, void *arg)
 {
   tcc_add_symbol(GET_TCC_S(sm), name, arg);
@@ -87,7 +86,6 @@ static int addDefine(void *sm, const char *name, const char *val)
   tcc_define_symbol(GET_TCC_S(sm), name, val);
   return 0;
 }
-
 
 static void *tccGetFastCall(void *scriptManager, const char *name)
 {
