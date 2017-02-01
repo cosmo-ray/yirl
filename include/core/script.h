@@ -23,7 +23,6 @@
 
 #define Y_END_VA_LIST ((void *)0xDEAD0000)
 
-
 typedef struct {
   int (*init)(void *opac, void *args);
   int (*loadFile)(void *opac, const char *fileName);
@@ -38,7 +37,6 @@ typedef struct {
 } YScriptOps;
 
 YManagerAllocator *ysScriptsTab(void);
-
 
 void *ysCallInt(void *sm, const char *name, ...);
 
