@@ -93,6 +93,11 @@ static void addShip(Entity *wid)
   yeDestroy(gc);
 }
 
+void *helloWorld(int nbArgs, void **args)
+{
+  printf("hello world\n");
+}
+
 void *battleAction(int nbArgs, void **args)
 {
   YWidgetState *tmpwid = args[0];

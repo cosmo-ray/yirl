@@ -59,7 +59,7 @@ void *battleInit(int nbArgs, void **args)
   Entity *panel;
 
   globMousePos = ywPosCreateInts(0, 0, NULL, NULL);
-  ywidCreateFunction("battleAction", ygGetManager("tcc"), main, "action");
+  ywidCreateFunction("battleAction", ygGetTccManager(), main, "action");
   Entity *pos = ywPosCreateInts(0, 0, main, "_cursos pos");
 
   if (!yeGetByStr(main, "player 1") || !yeGetByStr(main, "player 2")) {
@@ -96,21 +96,32 @@ void *battleInit(int nbArgs, void **args)
   ywMapPushElem(getLayer(main, 1), yeGetByStr(main, "cursor id"), pos, NULL);
 
   yeCreateString("text-screen", textScreen, "<type>");
+
   printFLeet(yeCreateString("", textScreen, "text"),
 	     yeGetByStr(yeGetByStr(main, "current_player"), "fleet"));
+
   yeCreateString("menu", panel, "<type>");
   yeCreateString("panel", panel, "mn-type");
   layers = yeCreateArray(panel, "entries");
+
   cur_layer = yeCreateArray(layers, NULL);
   yeCreateString("add ship", cur_layer, "text");  
+  Entity *tmp = yeCreateFunction("helloWorld", ygGetTccManager(),
+				 cur_layer, "action");
+
   cur_layer = yeCreateArray(layers, NULL);
   yeCreateString("remove ship", cur_layer, "text");
+  yeCreateFunction("helloWorld", ygGetTccManager(), cur_layer, "action");
+
   cur_layer = yeCreateArray(layers, NULL);
   yeCreateString("next ship", cur_layer, "text");
+  yeCreateFunction("helloWorld", ygGetTccManager(), cur_layer, "action");
+
   cur_layer = yeCreateArray(layers, NULL);
   yeCreateString("end positioning", cur_layer, "text");
+  yeCreateFunction("helloWorld", ygGetTccManager(), cur_layer, "action");
+
   void *ret = ywidNewWidget(main, "contener");
-  printf("io\n");
   yeDestroy(gc);
   return ret;
 }

@@ -311,7 +311,6 @@ YWidgetState *ywidNewWidget(Entity *entity, const char *type)
     return NULL;
   }
 
-  ;
   if ((recreateLogic = yeGet(entity, "recreate-logic")) != NULL) {
     switch (yeGetInt(recreateLogic)) {
     case YRECALL_INIT:

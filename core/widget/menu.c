@@ -110,8 +110,12 @@ static int mnInit(YWidgetState *opac, Entity *entity, void *args)
     if (ret != state->actionSin0 + i.pos)
       return -1;
     action = yeGet(entry, "action");
-    if (action)
-      ygBindBySinIdx(opac, ret, yeGetString(yeGet(entry, "action")));
+    if (action) {
+      if (yeType(action) == YFUNCTION)
+	ywidBindBySinIdx(opac, ret, action);
+      else
+	ygBindBySinIdx(opac, ret, yeGetString(yeGet(entry, "action")));
+    }
   }
   return 0;
 }
@@ -143,6 +147,7 @@ InputStatue ywMenuCallActionOnByState(YWidgetState *opac, YEvent *event, int idx
   if (idx < 0)
     return NOTHANDLE;
   ((YMenuState *)opac)->current = idx;
+
   ret = ywidCallSignal(opac, event, NULL,
 		       idx + ((YMenuState *)opac)->actionSin0);
   if (ret == NOTHANDLE)
