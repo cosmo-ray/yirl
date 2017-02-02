@@ -26,16 +26,18 @@ int ywMenuGetCurrent(YWidgetState *opac);
 int ywMenuHasChange(YWidgetState *opac);
 int ywMenuPosFromPix(Entity *wid, uint32_t x, uint32_t y);
 
-InputStatue ywMenuCallActionOnByEntity(Entity *opac, YEvent *event, int idx);
-InputStatue ywMenuCallActionOnByState(YWidgetState *opac, YEvent *event, int idx);
+InputStatue ywMenuCallActionOnByEntity(Entity *opac, YEvent *event, int idx,
+				       void *arg);
+InputStatue ywMenuCallActionOnByState(YWidgetState *opac, YEvent *event, int idx,
+				      void *arg);
 
 #ifndef Y_INSIDE_TCC
 
-#define ywMenuCallActionOn(wid, eve, idx)		\
+#define ywMenuCallActionOn(wid, eve, idx, arg)		\
   _Generic((wid),					\
 	   Entity * : ywMenuCallActionOnByEntity,	\
 	   YWidgetState * : ywMenuCallActionOnByState	\
-	   )(wid, eve, idx)
+	   )(wid, eve, idx, arg)
 
 #else
 

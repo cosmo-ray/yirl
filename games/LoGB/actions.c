@@ -93,6 +93,15 @@ static void addShip(Entity *wid)
   yeDestroy(gc);
 }
 
+void *addShipCallback(void **args)
+{
+ YWidgetState *tmpwid = args[3];
+ Entity *wid = tmpwid->entity;
+
+ addShip(wid);
+ return (void *)ACTION;
+}
+
 void *helloWorld(int nbArgs, void **args)
 {
   printf("hello world\n");
@@ -107,7 +116,6 @@ void *battleAction(int nbArgs, void **args)
   YEvent *events = args[1];
   YEvent *eve = events;
 
-  /* ywContenerUpdate(wid, yeGetByIdx(yeGetByStrFast(wid, "entries"), 0)); */
   YEVE_FOREACH(eve, events) {
     Entity *mousePos;
     Entity *cursorPos = yeGetByStr(wid, "_cursos pos");
