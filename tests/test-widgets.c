@@ -120,7 +120,7 @@ void testYWTextScreenSdl2(void)
 
   g_assert(ysdl2Init() != -1);
   g_assert(ysdl2Type() == 0);
-  
+
   g_assert(!ysdl2RegistreTextScreen());
   ysRegistreNativeFunc("txQuitOnQ", testTXQuitOnQ);
 
