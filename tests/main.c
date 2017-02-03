@@ -93,7 +93,7 @@ int main(int argc, char **argv)
   	       ybytecodeLoopCallFunction, only);
 
   TEST_TRY_ADD("/script/tcc/lifecycle", testTccScritLifecycle, only);
-  /* TEST_TRY_ADD("/script/tcc/add-define", testTccAddDefine, only); */
+  TEST_TRY_ADD("/script/tcc/add-define", testTccAddDefine, only);
   TEST_TRY_ADD("/script/tcc/macros", testTccTestsMacros, only);
 
   TEST_TRY_ADD("/script/lua/lifecycle", testLuaScritLifecycle, only);

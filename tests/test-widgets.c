@@ -121,7 +121,8 @@ void testYWTextScreenSdl2(void)
   g_assert(ysdl2Init() != -1);
   g_assert(ysdl2Type() == 0);
 
-  g_assert(!ysdl2RegistreTextScreen());
+  t = ysdl2RegistreTextScreen();
+  g_assert(!t);
   ysRegistreNativeFunc("txQuitOnQ", testTXQuitOnQ);
 
   wid = ywidNewWidget(ret, NULL);
