@@ -118,7 +118,7 @@ void *battleInit(int nbArgs, void **args)
 
   cur_layer = yeCreateArray(layers, NULL);
   yeCreateString("end positioning", cur_layer, "text");
-  yeCreateFunction("helloWorld", ygGetTccManager(), cur_layer, "action");
+  yeCreateFunction("nextStateCallback", ygGetTccManager(), cur_layer, "action");
 
   void *ret = ywidNewWidget(main, "contener");
   yeDestroy(gc);

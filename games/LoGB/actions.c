@@ -93,18 +93,17 @@ static void addShip(Entity *wid)
   yeDestroy(gc);
 }
 
-void *addShipCallback(void **args)
+void *nextState(Entity *wid)
 {
- YWidgetState *tmpwid = args[3];
- Entity *wid = tmpwid->entity;
-
- addShip(wid);
- return (void *)ACTION;
-}
-
-void *helloWorld(int nbArgs, void **args)
-{
-  printf("hello world\n");
+  if (yeLen(yeGetByStr(wid, "current_player.fleet"))) {
+    yeAddStr(getTextScreenSurface(wid),
+	     "can't next because there is still fleet left to pos\n");
+  } else {
+    yeAddStr(getTextScreenSurface(wid),
+	     "fine, it's not implemented, that was useless\n");
+  }
+  ywContenerUpdate(wid, getTextScreen(wid));
+  ywTextScreenPosAtEndOfText(getTextScreen(wid));
 }
 
 void *battleAction(int nbArgs, void **args)
@@ -127,7 +126,8 @@ void *battleAction(int nbArgs, void **args)
 	return (void *)ywMenuCallActionOnByEntity(cur_wid, eve,
 						  ywMenuPosFromPix(cur_wid,
 								   eve->xMouse,
-								   eve->yMouse));
+								   eve->yMouse),
+						  wid);
       } else if (ywContenerGetWidgetAt(wid, eve->xMouse, eve->yMouse) !=
 	  ywCntGetEntry(wid, 0)) {
 	return ret;
@@ -156,15 +156,7 @@ void *battleAction(int nbArgs, void **args)
       ret = (void *)ACTION;
       break;
     case 'n':
-      if (yeLen(yeGetByStr(wid, "current_player.fleet"))) {
-	    yeAddStr(getTextScreenSurface(wid),
-		     "can't next because there is still fleet left to pos\n");
-      } else {
-	yeAddStr(getTextScreenSurface(wid),
-		 "fine, it's not implemented, that was useless\n");
-      }
-      ywContenerUpdate(wid, getTextScreen(wid));
-      ywTextScreenPosAtEndOfText(getTextScreen(wid));
+      nextState(wid);
       break;
     case '\n':
       addShip(wid);
@@ -199,3 +191,16 @@ void *battleAction(int nbArgs, void **args)
   }
   return ret;
 }
+
+#define ADD_ACTIONS_CALLBACK(callbackName)		\
+  void *callbackName##Callback(int nbArgs, void **args)	\
+  {							\
+    Entity *wid = args[2];				\
+    callbackName(wid);					\
+    return (void *)ACTION;				\
+  }
+
+ADD_ACTIONS_CALLBACK(addShip)
+ADD_ACTIONS_CALLBACK(nextState)
+
+#undef ADD_ACTIONS_CALLBACK
