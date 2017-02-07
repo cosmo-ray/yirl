@@ -72,15 +72,15 @@ static void addShip(Entity *wid)
   Entity *first;
 
   if (!ywMapGetNbrEntityAt(l1, cursorPos, 3)) {
-    yeStringAdd(txtSurface, "na, I don't thins so, go f**k yourself\n");
-    return;
+    yeAddStr(txtSurface, "na, I don't thins so, go f**k yourself\n");
+    goto exit;
   }
 
   first = printFLeet(txtSurface, fleet);
   if (!yeLen(fleet)) {
     yeAddStr(txtSurface, "This is the end, ");
     yeAddStr(txtSurface, "my only friend, the end\n");
-    return;
+    goto exit;
   }
   if (!_fleet)
     yeCreateArray(cp, "_fleet");
@@ -88,6 +88,7 @@ static void addShip(Entity *wid)
   ywMapPushNbr(l1, 1, cursorPos, NULL);
   yeMoveByEntity(fleet, _fleet, first);
   printFLeet(txtSurface, fleet);
+ exit:
   ywTextScreenPosAtEndOfText(getTextScreen(wid));
   ywContenerUpdate(wid, getTextScreen(wid));
   yeDestroy(gc);
