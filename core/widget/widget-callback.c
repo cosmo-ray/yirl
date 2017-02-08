@@ -75,6 +75,12 @@ Entity *ywidCreateFunction(const char *name, void *manager,
   return tmp;
 }
 
+InputStatue ywidCallSignalFromEntity(Entity *wid, YEvent *eve, Entity *arg,
+				     int idx)
+{
+  return (InputStatue)yesCall(ywidGetSignal(wid, idx), eve, arg);
+}
+
 InputStatue ywidCallSignal(YWidgetState *wid, YEvent *eve, Entity *arg, int idx)
 {
   return (InputStatue)yesCall(yeGet(wid->signals, idx), wid, eve, arg);

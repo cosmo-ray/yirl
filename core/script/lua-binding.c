@@ -226,10 +226,10 @@ int	luaPopBack(lua_State *L)
 
 int	luaCallSignal(lua_State *L)
 {
-  lua_pushnumber(L, ywidCallSignal(lua_touserdata(L, 1),
-				   lua_touserdata(L, 2),
-				   lua_touserdata(L, 3),
-				   lua_tonumber(L, 4)));
+  lua_pushnumber(L, ywidCallSignalFromEntity(lua_touserdata(L, 1),
+					     lua_touserdata(L, 2),
+					     lua_touserdata(L, 3),
+					     lua_tonumber(L, 4)));
   return 1;
 }
 
