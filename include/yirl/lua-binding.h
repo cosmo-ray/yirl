@@ -68,6 +68,7 @@ int     luaCreateFunction(lua_State *L);
 int	luaSetFunction(lua_State *L);
 int	luaUnsetFunction(lua_State *L);
 int	luaFunctionNumberArgs(lua_State *L);
+int	luaYesCall(lua_State *L);
 
 /* widgets */
 int	luaSetMainWid(lua_State *L);
@@ -190,6 +191,7 @@ static inline int	yesLuaRegister(void *sm)
 
   /* functions */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeCreateFunction", luaCreateFunction));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yesCall", luaYesCall));
 
   /* widgets */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidNewWidget", luaNewWidget));

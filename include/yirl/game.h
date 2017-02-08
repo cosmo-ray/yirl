@@ -58,8 +58,10 @@ typedef struct {
 	   RenderType : ygInitGameConfigByRenderType,			\
 	   int : ygInitGameConfigByRenderType) (cfg, path, render)
 
-int ygInitGameConfigByRenderType(GameConfig *cfg, const char *path, RenderType t);
-int ygInitGameConfigByStr(GameConfig *cfg, const char *path, const char *render);
+int ygInitGameConfigByRenderType(GameConfig *cfg,
+				 const char *path, RenderType t);
+int ygInitGameConfigByStr(GameConfig *cfg, const char *path,
+			  const char *render);
 
 void *ygCallInt(const char *mod, const char *callName, ...);
 
@@ -70,6 +72,20 @@ void *ygCallInt(const char *mod, const char *callName, ...);
 	ygCallInt(mod, callName,					\
 		  YUI_VA_ARGS_HANDELER(Y_END_VA_LIST,			\
 				       args))
+
+int ygRegistreFuncInternal(void *manager, int nbArgs, const char *name);
+
+#ifndef Y_INSIDE_TCC
+static inline int ygRegistreFunc(void *manager, int nbArgs, const char *name)
+{
+  return ygRegistreFuncInternal(manager, nbArgs, name);
+}
+#else
+static inline int ygRegistreFunc(int nbArgs, const char *name)
+{
+  return ygRegistreFuncInternal(ygGetTccManager(), nbArgs, name);
+}
+#endif
 
 void ygCleanGameConfig(GameConfig *cfg);
 

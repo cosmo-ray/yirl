@@ -19,6 +19,7 @@
 #include	"lua-binding.h"
 #include	"debug.h"
 #include	"entity.h"
+#include	"entity-script.h"
 #include	"widget-callback.h"
 #include	"map.h"
 #include	"game.h"
@@ -587,6 +588,7 @@ int	luaGCall(lua_State *L)
   switch (lua_gettop(L)) {
   case 2:
     lua_pushlightuserdata(L, ygCall(lua_tostring(L, 1), lua_tostring(L, 2)));
+    return 1;
   case 3:
     LUA_YG_CALL(lua_touserdata(L, 3));
     return 1;
@@ -607,6 +609,38 @@ int	luaGCall(lua_State *L)
 
   return -1;
 }
+
+#define LUA_YES_CALL(args...)					\
+  lua_pushlightuserdata(L, yesCall(lua_touserdata(L, 1), args))
+
+int	luaYesCall(lua_State *L)
+{
+
+  switch (lua_gettop(L)) {
+  case 1:
+    lua_pushlightuserdata(L, yesCall(lua_touserdata(L, 1)));
+    return 1;
+  case 2:
+    LUA_YES_CALL(lua_touserdata(L, 2));
+    return 1;
+  case 3:
+    LUA_YES_CALL(lua_touserdata(L, 2), lua_touserdata(L, 3));
+    return 1;
+  case 4:
+    LUA_YES_CALL(lua_touserdata(L, 2),
+		 lua_touserdata(L, 3), lua_touserdata(L, 4));
+    return 1;
+  case 5:
+    LUA_YES_CALL(lua_touserdata(L, 2), lua_touserdata(L, 3),
+		 lua_touserdata(L, 4), lua_touserdata(L, 5));
+    return 1;
+  default:
+    return -1;
+  }
+
+  return -1;
+}
+
 #undef LUA_YG_CALL
 
 int	luaSetAt(lua_State *L)

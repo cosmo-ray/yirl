@@ -50,6 +50,8 @@ void testTccScritLifecycle(void);
 void testTccTestsMacros(void);
 void testTccAddDefine(void);
 
+void testScriptAddFunction(void);
+
 void testJsonLoadFile(void);
 void testJsonMultipleObj(void);
 

@@ -53,6 +53,7 @@ static Entity *globFunctions;
 static Entity *mainMod;
 static Entity *modList;
 static Entity *baseMod;
+static Entity *globalsFunctions;
 static YDescriptionOps *parsers[MAX_NB_MANAGER];
 
 static int alive = 1;
@@ -147,6 +148,7 @@ int ygInit(GameConfig *cfg)
 
   /* Init parseurs */
   yeInitMem();
+  globalsFunctions = yeCreateArray(NULL, NULL);
   CHECK_AND_RET(t = ydJsonInit(), -1, -1,
 		    "json init failed");
   CHECK_AND_GOTO(jsonManager = ydNewManager(t), NULL, error,
@@ -234,8 +236,19 @@ void ygEnd()
   ysTccEnd();
   ysDestroyManager(luaManager);
   ysLuaEnd();
+  yeDestroy(globalsFunctions);
   yeEnd();
   init = 0;
+}
+
+int ygRegistreFuncInternal(void *manager, int nbArgs, const char *name)
+{
+  Entity *func = yeCreateFunctionSimple(name, manager, globalsFunctions);
+  if (manager != tccManager)
+    ysAddFuncSymbole(tccManager, nbArgs, func);
+  if (manager != luaManager)
+    ysAddFuncSymbole(luaManager, nbArgs, func);
+  return 0;
 }
 
 void *ygGetManager(const char *name)
@@ -246,7 +259,6 @@ void *ygGetManager(const char *name)
     return luaManager;
   return NULL;
 }
-
 
 Entity *ygLoadMod(const char *path)
 {

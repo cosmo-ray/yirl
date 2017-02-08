@@ -19,6 +19,7 @@
 #define _YIRL_SCRIPT_H_
 
 #include <stdarg.h>
+#include "entity.h"
 #include "utils.h"
 
 #define Y_END_VA_LIST ((void *)0xDEAD0000)
@@ -28,6 +29,7 @@ typedef struct {
   int (*loadFile)(void *opac, const char *fileName);
   int (*loadString)(void *opac, const char *str);
   int (* registreFunc)(void *opac, const char *name, void *arg);
+  void (*addFuncSymbole)(void *sm, int nbArgs, Entity *func);
   void *(*call)(void *opac, const char *name, va_list ap);
   void *(*fastCall)(void *opacFunction, va_list ap);
   void *(*getFastPath)(void *scriptManager, const char *name);
@@ -66,6 +68,11 @@ static inline void *ysFastCall(void *sm, void *opacFunc, va_list ap)
 static inline void *ysVCall(void *sm, const char *name, va_list ap)
 {
   return ((YScriptOps *)sm)->call(sm, name, ap);
+}
+
+static inline void ysAddFuncSymbole(void *sm, int nbArgs, Entity *func)
+{
+  return ((YScriptOps *)sm)->addFuncSymbole(sm, nbArgs, func);
 }
 
 static inline int ysRegistreFunc(void *sm, const char *name, void *arg)

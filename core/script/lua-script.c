@@ -22,6 +22,8 @@
 
 #include "lua-script.h"
 #include "debug.h"
+#include "entity.h"
+
 static int t = -1;
 
 #define GET_OPS(sm) (((YScriptLua *)sm)->ops)
@@ -38,6 +40,11 @@ static int luaInit(void *sm, void *args)
   luaL_openlibs(l);
   GET_L(sm) = l;
   return 0;
+}
+
+static int luaLoadString(void *sm, const char *str)
+{
+  return luaL_dostring(GET_L(sm), str) * -1;  
 }
 
 static int luaLoadFile(void *sm, const char *filename)
@@ -84,6 +91,39 @@ static int luaDestroy(void *sm)
   return 0;
 }
 
+static void addFuncSymbole(void *sm, int nbArgs, Entity *func)
+{
+  const char *name = yeGetString(func);
+  Entity *str = yeCreateString("function ", NULL, NULL);
+  char *tmp_name = g_strdup_printf("%sGlobal", name);
+
+  lua_pushlightuserdata(((YScriptLua *)sm)->l, func);
+  lua_setglobal(((YScriptLua *)sm)->l, tmp_name);
+
+  yeAddStr(str, name);
+  yeAddStr(str, "(");
+  for (int i = 0; i < nbArgs; ++i) {
+    if (i)
+      yeAddStr(str, ", ");
+    yeAddStr(str, "var");
+    yeAddInt(str, i);
+  }
+
+  yeStringAdd(str, ") return yesCall(");
+  yeStringAdd(str, tmp_name);
+
+  for (int i = 0; i < nbArgs; ++i) {
+    yeAddStr(str, ", ");
+    yeAddStr(str, "var");
+    yeAddInt(str, i);
+  }
+  yeStringAdd(str, ") end");
+  printf("%s\n", yeGetString(str));
+  luaLoadString(sm, yeGetString(str));
+  g_free(tmp_name);
+  yeDestroy(str);
+}
+
 static void *luaAllocator(void)
 {
   YScriptLua *ret;
@@ -95,9 +135,11 @@ static void *luaAllocator(void)
   ret->ops.init = luaInit;
   ret->ops.destroy = luaDestroy;
   ret->ops.loadFile = luaLoadFile;
+  ret->ops.loadString = luaLoadString;
   ret->ops.call = luaCall;
   ret->ops.getError = luaGetError;
   ret->ops.registreFunc = luaRegistreFunc;
+  ret->ops.addFuncSymbole = addFuncSymbole;
   return (void *)ret;
 }
 
