@@ -28,11 +28,11 @@ int ywContenerUpdate(Entity *contener, Entity *widEnt)
   YE_ARRAY_FOREACH(entries, tmp) {
     YWidgetState *wid;
 
-    wid = yeGetData(yeGetByStr(tmp, "$wid"));
+    wid = ywidGetState(tmp);
     if ((tmp == widEnt) ||
 	(wid->type == t && ywContenerUpdate(tmp, widEnt))) {
       wid->hasChange = 1;
-      wid = yeGetData(yeGet(contener, "$wid"));
+      wid = ywidGetState(contener);
       wid->hasChange = 1;
       return 1;
     }
@@ -92,7 +92,7 @@ static void cntResize(YWidgetState *opac)
   usable = widSize;
 
   YE_ARRAY_FOREACH(entries, tmp) {
-    YWidgetState *wid = yeGetData(yeGet(tmp, "$wid"));
+    YWidgetState *wid = ywidGetState(tmp);
     Entity *ptr;
     Entity *tmpPos;
     int size;
@@ -167,8 +167,7 @@ static int cntDestroy(YWidgetState *opac)
   Entity *entries = yeGet(opac->entity, "entries");
 
   YE_ARRAY_FOREACH(entries, tmp) {
-    YWidgetState *cur =
-      yeGetData(yeGet(tmp, "$wid"));
+    YWidgetState *cur = ywidGetState(tmp);
 
     YWidDestroy(cur);
   }
@@ -196,10 +195,7 @@ static InputStatue cntEvent(YWidgetState *opac, YEvent *event)
   if (ret != NOTHANDLE)
     return ret;
 
-  cur = yeGetData(yeGet(
-			yeGet(entries, yeGetInt(yeGet(opac->entity,
-						      "current"))),
-			"$wid"));
+  cur = ywidGetState(yeGet(entries, yeGetInt(yeGet(opac->entity, "current"))));
   if (cur)
     ret = ywidHandleEvent(cur, event);
   return ret;
@@ -209,7 +205,7 @@ static int cntRend(YWidgetState *opac)
 {
   Entity *entries = yeGet(opac->entity, "entries");
   int needChange = 0;
-  YWidgetState *bg_wid = yeGetData(yeGetByStr(opac->entity, "$bg.$wid"));
+  YWidgetState *bg_wid = ywidGetState(yeGet(opac->entity, "$bg"));
 
   if (!opac->hasChange)
     return 0;
@@ -219,7 +215,7 @@ static int cntRend(YWidgetState *opac)
     ywidRend(bg_wid);
   }
   YE_ARRAY_FOREACH(entries, tmp) {
-    YWidgetState *wid = yeGetData(yeGet(tmp, "$wid"));
+    YWidgetState *wid = ywidGetState(tmp);
 
     /* try to create the widget */
     if (!wid) {

@@ -146,9 +146,13 @@ int ywidColorFromString(char *str, uint8_t *r, uint8_t *g,
 
 int ywidBgConfFill(Entity *entity, YBgConf *cfg);
 
+static inline YWidgetState *ywidGetState(Entity *wid)
+{
+  return yeGetData(yeGetByStrFast(wid, "$wid"));
+}
+
 YEvent *ywidGenericWaitEvent(void);
 YEvent *ywidGenericPollEvent(void);
-
 
 extern int ywidWindowWidth;
 extern int ywidWindowHight;

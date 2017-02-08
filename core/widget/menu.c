@@ -136,7 +136,7 @@ static int mnRend(YWidgetState *opac)
 InputStatue ywMenuCallActionOnByEntity(Entity *opac, YEvent *event,
 				       int idx, void *arg)
 {
-  YWidgetState *cur = yeGetData(yeGet(opac, "$wid"));
+  YWidgetState *cur = ywidGetState(opac);
 
   return ywMenuCallActionOnByState(cur, event, idx, arg);
 }
