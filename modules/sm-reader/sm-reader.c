@@ -19,11 +19,11 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-
 #include <stdio.h>
-#include <entity.h>
-#include <widget.h>
-#include <game.h>
+
+#include <yirl/entity.h>
+#include <yirl/widget.h>
+#include <yirl/game.h>
 
 #define SM_BUFF_LEN 1024
 
