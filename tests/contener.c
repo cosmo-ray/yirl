@@ -156,6 +156,9 @@ void testMixContenerSdl(void)
 
   ysRegistreNativeFunc("menuTest", testMenuEnter);
 
+  YE_ARRAY_FOREACH(yeGet(ret, "entries"), entry) {
+    yeCreateString(NULL, entry, "copy");
+  }
   wid = ywidNewWidget(cnt, NULL);
   g_assert(wid);
 

@@ -151,6 +151,13 @@ static int cntInit(YWidgetState *opac, Entity *entity, void *args)
   YE_ARRAY_FOREACH(entries, tmp) {
     Entity *ptr = getEntry(entity, tmp);
  
+    if (yeGet(tmp, "copy")) {
+      Entity *copyTmp;
+
+      copyTmp = yeCreateArray(tmp, "$copy");
+      yeCopy(ptr, copyTmp);
+      ptr = copyTmp;
+    }
     yeReplaceBack(ptr, entity, "$father-contener");
     wid = ywidNewWidget(ptr, NULL);
     if (!wid)
