@@ -831,6 +831,18 @@ int yeStringAddInt(Entity *ent, int i)
   return 0;
 }
 
+int yeStringAddLong(Entity *ent, long i)
+{
+  char *tmp = YE_TO_STRING(ent)->value;
+
+  if (unlikely(!tmp))
+    return -1;
+  YE_TO_STRING(ent)->value = g_strdup_printf("%s%ld", tmp, i);
+  YE_TO_STRING(ent)->len = strlen(YE_TO_STRING(ent)->value);
+  g_free(tmp);
+  return 0;
+}
+
 int yeCountCharacters(Entity *str, char carac, int lineLimit)
 {
   const char *cStr = yeGetString(str);

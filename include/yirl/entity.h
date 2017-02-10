@@ -654,6 +654,17 @@ static inline int yeOpsIntAddInt(IntEntity *e, int i)
 }
 
 int yeStringAddInt(Entity *ent, int i);
+int yeStringAddLong(Entity *ent, long i);
+
+static inline int yeAddLong(Entity *e, long i)
+{
+  switch (yeType(e)) {
+  case YSTRING:
+    return yeStringAddLong(e, i);
+  default :
+    return -1;
+  }
+}
 
 static inline int yeAddInt(Entity *e, int i)
 {

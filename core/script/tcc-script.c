@@ -81,6 +81,41 @@ static int tccRegistreFunc(void *sm, const char *name, void *arg)
   return 0;
 }
 
+static void addFuncSymbole(void *sm, int nbArgs, Entity *func)
+{
+  const char *name = yeGetString(func);
+  Entity *str = yeCreateString("#include <yirl/entity-script.h>\n"
+			       , NULL, NULL);
+  char *tmp_name = g_strdup_printf("%sGlobal", name);
+
+  yeAddStr(str, "void *");
+  yeAddStr(str, name);
+  yeAddStr(str, "(");
+
+  for (int i = 0; i < nbArgs; ++i) {
+    if (i)
+      yeAddStr(str, ", ");
+    yeAddStr(str, "void *var");
+    yeAddInt(str, i);
+  }
+
+  if (nbArgs)
+    yeAddStr(str, "){ return yesCall(");
+  else
+    yeAddStr(str, "){ return yesCall0(");
+  yeAddStr(str, "(Entity *)");
+  yeAddLong(str, (long)func);
+
+  for (int i = 0; i < nbArgs; ++i) {
+    yeAddStr(str, ", var");
+    yeAddInt(str, i);
+  }
+  yeStringAdd(str, ");}");
+  tccLoadString(sm, yeGetString(str));
+  g_free(tmp_name);
+  yeDestroy(str);
+}
+
 static int addDefine(void *sm, const char *name, const char *val)
 {
   tcc_define_symbol(GET_TCC_S(sm), name, val);
@@ -155,6 +190,7 @@ static void *tccAllocator(void)
   ret->ops.getFastPath = tccGetFastCall;
   ret->ops.addDefine = addDefine;
   ret->ops.registreFunc = tccRegistreFunc;
+  ret->ops.addFuncSymbole = addFuncSymbole;
   return (void *)ret;
 }
 

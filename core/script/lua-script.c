@@ -113,12 +113,10 @@ static void addFuncSymbole(void *sm, int nbArgs, Entity *func)
   yeStringAdd(str, tmp_name);
 
   for (int i = 0; i < nbArgs; ++i) {
-    yeAddStr(str, ", ");
-    yeAddStr(str, "var");
+    yeAddStr(str, ", var");
     yeAddInt(str, i);
   }
   yeStringAdd(str, ") end");
-  printf("%s\n", yeGetString(str));
   luaLoadString(sm, yeGetString(str));
   g_free(tmp_name);
   yeDestroy(str);

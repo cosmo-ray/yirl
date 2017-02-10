@@ -110,6 +110,7 @@ int	luaYwMapH(lua_State *L);
 /* Game and Module */
 int	luaGetMod(lua_State *L);
 int	luaGCall(lua_State *L);
+int	luaYgRegistreFunc(lua_State *L);
 
 #define YES_RET_IF_FAIL(OPERATION)		\
   if (OPERATION < 0) return -1;
@@ -237,6 +238,7 @@ static inline int	yesLuaRegister(void *sm)
 /* Game and Modules */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygGetMod", luaGetMod));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygCall", luaGCall));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygRegistreFunc", luaYgRegistreFunc));
   return 0;
 }
 
