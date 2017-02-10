@@ -251,6 +251,9 @@ static YWidgetState *ywidNewWidgetInternal(int t,
   if (!ret->signals)
     ret->signals = yeCreateArray(entity, "signals");
 
+  if (yeGet(entity, "$wid")) {
+    DPRINT_WARN("$wid alerady existe, this may lead to odd and very unexpected behavior !!!!");
+  }
   yeReCreateData(ret, entity, "$wid");
 
   yeSetFlag(entity, "signals", YE_FLAG_NO_COPY);
@@ -264,7 +267,7 @@ static YWidgetState *ywidNewWidgetInternal(int t,
 
   /* Init sub widget */
   if (shouldInit && initer) {
-    yesCall(initer, ret, entity);
+    yesCall(initer, ret->entity, entity);
   }
 
   ret->hasChange = 1;

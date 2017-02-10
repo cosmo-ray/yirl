@@ -20,15 +20,16 @@ function scoreInit(wid, eve, args)
    local score = yeGetInt(yeGet(ygGetMod("snake"), "score"))
 
    -- Set it
+   print("hi", score)
    local scoreStr = "you have a score of " .. score .. " points"
    if (score < 30) then
       scoreStr = scoreStr .. " noob !"
    end
-   yeSetString(yeGet(ywidEntity(wid), "text"), scoreStr);
+   print("hi", wid, yeGet(wid, "text"))
+   yeSetString(yeGet(wid, "text"), scoreStr);
 end
 
-function eat(wid, eve, args)
-   local map = ywidEntity(wid)
+function eat(map, eve, args)
    local tl = yeGet(map, "turn-length");
    local tlInt = yeGetInt(tl) - 2000
 

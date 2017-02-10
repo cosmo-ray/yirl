@@ -27,7 +27,7 @@ int main(void)
   Entity *path;
 
   yuiDebugInit(); //Can not be init twice :)
-  TRY_OR_DIE(ygInitGameConfig(&cfg, gamePath, CURSES), -1);
+  TRY_OR_DIE(ygInitGameConfig(&cfg, gamePath, NONE), -1);
   TRY_OR_DIE(ygInit(&cfg), die(-1, &cfg));
   /* put current path inside buff */
   getcwd(buff, 1024);

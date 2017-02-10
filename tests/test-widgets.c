@@ -29,7 +29,7 @@
 
 static void *testTXQuitOnQ(va_list ap)
 {
-  va_arg(ap, YWidgetState *);
+  va_arg(ap, Entity *);
   YEvent *eve = va_arg(ap, YEvent *);
 
   if (eve && (eve->type == YKEY_DOWN && (eve->key == '\n' || eve->key == 'q' )))

@@ -26,7 +26,7 @@
 #define OUT_TOP 20
 #define OUT_BOTOM 21
 
-static inline int isOut(YWidgetState *wid, Entity *pos)
+static inline int isOut(Entity *wid, Entity *pos)
 {
   Entity *entX = yeGet(pos, "x");
   Entity *entY = yeGet(pos, "y");
@@ -36,37 +36,37 @@ static inline int isOut(YWidgetState *wid, Entity *pos)
   if (posX < 0) {
     yeSetInt(entX, 0);
     return OUT_LEFT;
-  } else if (posX > ywMapW(wid->entity) - 1) {
-    yeSetInt(entX, ywMapW(wid->entity) - 1);
+  } else if (posX > ywMapW(wid) - 1) {
+    yeSetInt(entX, ywMapW(wid) - 1);
     return OUT_RIGHT;
   }
 
   if (posY < 0) {
     yeSetInt(entY, 0);
     return OUT_TOP;
-  } else if (posY > ywMapH(wid->entity) - 1) {
-    yeSetInt(entY, ywMapH(wid->entity) - 1);
+  } else if (posY > ywMapH(wid) - 1) {
+    yeSetInt(entY, ywMapH(wid) - 1);
     return OUT_BOTOM;
   }
   return 0;
 }
 
-static int removeBullet(YWidgetState *wid, Entity *obj)
+static int removeBullet(Entity *wid, Entity *obj)
 {
-  Entity *bulletManager = yeGet(wid->entity, "$bullet-manager");
+  Entity *bulletManager = yeGet(wid, "$bullet-manager");
   Entity *id = yeGet(obj, "id");
   Entity *pos = yeGet(obj, "pos");
 
-  ywMapRemove(wid->entity, pos, id);
+  ywMapRemove(wid, pos, id);
   yeRemoveChild(bulletManager, obj);
   return 0;
 }
 
-static int move(YWidgetState *wid, Entity *obj, Entity *dir)
+static int move(Entity *wid, Entity *obj, Entity *dir)
 {
   Entity *id = yeGet(obj, "id");
   Entity *pos = yeGet(obj, "pos");
-  Entity *cur = ywMapGetCase(wid->entity, pos);
+  Entity *cur = ywMapGetCase(wid, pos);
   Entity *posX = yeGet(pos, "x");
   Entity *posY = yeGet(pos, "y");
   int ret = isOut(wid, pos);
@@ -77,13 +77,13 @@ static int move(YWidgetState *wid, Entity *obj, Entity *dir)
   yeRemoveChild(cur, id);
   yeAddEnt(posX, yeGet(dir, "x"));
   yeAddEnt(posY, yeGet(dir, "y"));
-  ywMapPushElem(wid->entity, id, pos, "bl");
+  ywMapPushElem(wid, id, pos, "bl");
   return 0;
 }
 
-static int shooterHandleBullets(YWidgetState *wid)
+static int shooterHandleBullets(Entity *wid)
 {
-  Entity *bulletManager = yeGet(wid->entity, "$bullet-manager");
+  Entity *bulletManager = yeGet(wid, "$bullet-manager");
 
   if (!bulletManager)
     return 0;
@@ -98,10 +98,10 @@ static int shooterHandleBullets(YWidgetState *wid)
   return ACTION;
 }
 
-static void moveMainCaracter(YWidgetState *wid, int x, int y)
+static void moveMainCaracter(Entity *wid, int x, int y)
 {
-  Entity *pos = yeGet(wid->entity, "pos");
-  Entity *cur = ywMapGetCase(wid->entity, pos);
+  Entity *pos = yeGet(wid, "pos");
+  Entity *cur = ywMapGetCase(wid, pos);
   Entity *posX = yeGet(pos, "x");
   Entity *posY = yeGet(pos, "y");
 
@@ -115,29 +115,29 @@ static void moveMainCaracter(YWidgetState *wid, int x, int y)
 
       if (yeGetInt(posX) < 0)
 	yeSetInt(posX, 0);
-      else if (yeGetInt(posX) >= ywMapW(wid->entity) - 1)
-	yeSetInt(posX, ywMapW(wid->entity) - 1);
+      else if (yeGetInt(posX) >= ywMapW(wid) - 1)
+	yeSetInt(posX, ywMapW(wid) - 1);
       if (yeGetInt(posY) < 0)
 	yeSetInt(posY, 0);
-      else if (yeGetInt(posY) >= ywMapH(wid->entity) - 1)
-	yeSetInt(posY, ywMapH(wid->entity) - 1);
+      else if (yeGetInt(posY) >= ywMapH(wid) - 1)
+	yeSetInt(posY, ywMapH(wid) - 1);
 
-      ywMapPushElem(wid->entity, curHero, pos, "hr");
+      ywMapPushElem(wid, curHero, pos, "hr");
       yeRemoveChild(cur, curHero);
       break;
     }
   }
 }
 
-static void shooterSpamBullet(YWidgetState *wid, int x, int y)
+static void shooterSpamBullet(Entity *wid, int x, int y)
 {
-  Entity *pos = yeGet(wid->entity, "pos");
+  Entity *pos = yeGet(wid, "pos");
   int posX = yeGetInt(yeGet(pos, "x"));
   int posY = yeGetInt(yeGet(pos, "y"));
   Entity *bullet = NULL;
 
-  Entity *bulletSprite = yeGet(wid->entity, "$bullet-sprite");
-  Entity *bulletManager = yeGet(wid->entity, "$bullet-manager");
+  Entity *bulletSprite = yeGet(wid, "$bullet-sprite");
+  Entity *bulletManager = yeGet(wid, "$bullet-manager");
   static YTimer *bulletTimeout = NULL;
 
   if (!bulletTimeout)
@@ -146,21 +146,21 @@ static void shooterSpamBullet(YWidgetState *wid, int x, int y)
   if (YTimerGet(bulletTimeout) < 100000)
     return;
   YTimerReset(bulletTimeout);
-  if (!yeGet(wid->entity, "$bullet-manager")) {
+  if (!yeGet(wid, "$bullet-manager")) {
     /* We add this inside wid->entity, because we want to destroy
      * bulletSprite and bulletManager at the same time than wid->entity */
-    bulletSprite = yeCreateInt(2, wid->entity, "$bullet-sprite");
-    bulletManager = yeCreateArray(wid->entity, "$bullet-manager");
+    bulletSprite = yeCreateInt(2, wid, "$bullet-sprite");
+    bulletManager = yeCreateArray(wid, "$bullet-manager");
   }
   bullet = yeCreateArray(bulletManager, NULL);
   ywPosCreate(posX, posY, bullet, "pos");
   ywPosCreate(x, y, bullet, "speedAndDir");
   yePushBack(bullet, bulletSprite, "id");
 
-  ywMapPushElem(wid->entity, bulletSprite, pos, "bl");
+  ywMapPushElem(wid, bulletSprite, pos, "bl");
 }
 
-static int shooterActionInt(YWidgetState *wid, YEvent *eve)
+static int shooterActionInt(Entity *wid, YEvent *eve)
 {
   InputStatue ret = NOTHANDLE;
 
@@ -213,7 +213,7 @@ static int shooterActionInt(YWidgetState *wid, YEvent *eve)
 void *shooterAction(va_list ap)
 {
   //YWidgetState *wid, YEvent *eve, Entity *arg
-  YWidgetState *wid = va_arg(ap, YWidgetState *);
+  Entity *wid = va_arg(ap, Entity *);
   YEvent *eve = va_arg(ap, YEvent *);
 
   shooterHandleBullets(wid);
@@ -227,7 +227,7 @@ void *shooterAction(va_list ap)
 
 void *shooterInit(va_list ap)
 {
-  YWidgetState *wid = va_arg(ap, YWidgetState *);
+  Entity *wid = va_arg(ap, Entity *);
   Entity *arg;
   Entity *tmp;
   Entity *pos;
@@ -247,11 +247,11 @@ void *shooterInit(va_list ap)
   yeSetInt(yeGet(pos, "x"), MAP_SIZE_W / 2);
   yeSetInt(yeGet(pos, "y"), MAP_SIZE_H / 2);
 
-  tmp = ywMapGetCase(wid->entity, pos);
+  tmp = ywMapGetCase(wid, pos);
   yeCreateInt(1, tmp, "hr");
 
   ysRegistreFunc(ysNativeManager(), "shooterAction", shooterAction);
-  ygBind(wid, "action", "shooterAction");
+  ygBind(ywidGetState(wid), "action", "shooterAction");
 
   return (void *)NOTHANDLE;
 }

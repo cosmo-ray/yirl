@@ -83,5 +83,5 @@ InputStatue ywidCallSignalFromEntity(Entity *wid, YEvent *eve, Entity *arg,
 
 InputStatue ywidCallSignal(YWidgetState *wid, YEvent *eve, Entity *arg, int idx)
 {
-  return (InputStatue)yesCall(yeGet(wid->signals, idx), wid, eve, arg);
+  return (InputStatue)yesCall(yeGet(wid->signals, idx), wid->entity, eve, arg);
 }

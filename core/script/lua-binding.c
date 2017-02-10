@@ -551,14 +551,6 @@ int	luaYwMapPushNbr(lua_State *L)
   return 1;
 }
 
-int	luaWidEntity(lua_State *L)
-{
-  if (!lua_touserdata(L, 1))
-    return -1;
-  lua_pushlightuserdata(L, ((YWidgetState *)lua_touserdata(L, 1))->entity);
-  return 1;
-}
-
 int	luaRand(lua_State *L)
 {
   lua_pushnumber(L, yuiRand());

@@ -109,8 +109,7 @@ void *nextState(Entity *wid)
 
 void *battleAction(int nbArgs, void **args)
 {
-  YWidgetState *tmpwid = args[0];
-  Entity *wid = tmpwid->entity;
+  Entity *wid = args[0];
   Entity *l1 = getLayer(wid, 1);
   void *ret = (void *)NOTHANDLE;
   YEvent *events = args[1];

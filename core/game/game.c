@@ -95,8 +95,8 @@ void *ygTerminateCallback(va_list va)
 
 static void *nextWid(va_list ap)
 {
-  YWidgetState *wid = va_arg(ap, YWidgetState *);
-  Entity *next = yeGet(wid->entity, "next");
+  Entity *wid = va_arg(ap, Entity *);
+  Entity *next = yeGet(wid, "next");
 
   if (!next) {
     DPRINT_ERR("unable to get next widget");
@@ -112,7 +112,7 @@ static void *nextOnKeyDown(va_list ap)
 {
   va_list tmp_ap;
   va_copy(tmp_ap, ap);
-  va_arg(tmp_ap, YWidgetState *);
+  va_arg(tmp_ap, Entity *);
   YEvent *events = va_arg(tmp_ap, YEvent *);
   YEvent *eve = events;
   void *ret = (void *)NOTHANDLE;

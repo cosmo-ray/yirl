@@ -51,7 +51,7 @@ function snakeMap(map)
    return map
 end
 
-function addBody(wid, map, pos)
+function addBody(map, pos)
    local body = yeGet(map, "body")
 
    local tmp = ywPosCreate(pos, body)
@@ -83,18 +83,18 @@ function rmPeanut(map, case)
    yeSetInt(nbPeanut, yeGetInt(nbPeanut) - 1)
 end
 
-function hitWall(wid, map, opos, npos, dir)
+function hitWall(map, opos, npos, dir)
    local arg = yeCreateArray()
 
    yePushBack(arg, opos, "oldPos")
    yePushBack(arg, npos, "newPos")
    yeCreateInt(dir, arg, "dir")
-   ywidCallSignal(wid, nil, arg, yeGetInt(yeGet(map, "hitWallIdx")))
-   ywidCallSignal(wid, nil, arg, yeGetInt(yeGet(map, "endTurnIdx")))
+   ywidCallSignal(map, nil, arg, yeGetInt(yeGet(map, "hitWallIdx")))
+   ywidCallSignal(map, nil, arg, yeGetInt(yeGet(map, "endTurnIdx")))
    yeDestroy(arg)
 end
 
-function moveHeadInternal(wid, map, opos, npos)
+function moveHeadInternal(map, opos, npos)
    local mapElems = yeGet(map, "map")
    local destCase = ywMapGetCase(map, npos)
    local body = yeGet(map, "body")
@@ -111,16 +111,16 @@ function moveHeadInternal(wid, map, opos, npos)
       rmPeanut(map, destCase)
       --use yeOps instead :)
       yeSetInt(score, yeGetInt(score) + 1)
-      addBody(wid, map, opos)
+      addBody(map, opos)
       bodyLen = 0
-      ywidCallSignal(wid, score, nil, yeGetInt(yeGet(map, "eatIdx")))
+      ywidCallSignal(map, score, nil, yeGetInt(yeGet(map, "eatIdx")))
    end
 
    ywMapMove(map, opos, npos, headElem)
 
    if bodyLen == 0 then
       yeReplaceBack(head, npos, "pos")
-      ywidCallSignal(wid, nil, nil, yeGetInt(yeGet(map, "endTurnIdx")))
+      ywidCallSignal(map, nil, nil, yeGetInt(yeGet(map, "endTurnIdx")))
       return
    end
 
@@ -140,11 +140,11 @@ function moveHeadInternal(wid, map, opos, npos)
    local headBody = yeGet(body, bodyLen - 1)
    ywMapPushNbr(map, 4, headBody, "bd")
    yeReplaceBack(head, npos, "pos")
-   ywidCallSignal(wid, nil, nil, yeGetInt(yeGet(map, "endTurnIdx")))
+   ywidCallSignal(map, nil, nil, yeGetInt(yeGet(map, "endTurnIdx")))
    -- push first body
 end
 
-function moveHead(wid, map)
+function moveHead(map)
    local mapElems = yeGet(map, "map")
    local lenMap = yeLen(mapElems)
    local width = yeGetInt(yeGet(map, "width"))
@@ -160,15 +160,15 @@ function moveHead(wid, map)
    ywPosAdd(npos, dir)
    -- check out of border
    if ywPosIsSameX(npos, -1) then
-      hitWall(wid, map, opos, npos, 0)
+      hitWall(map, opos, npos, 0)
    elseif ywPosIsSameX(npos, ywMapW(map)) then
-      hitWall(wid, map, opos, npos, 1)
+      hitWall(map, opos, npos, 1)
    elseif (ywPosIsSameY(npos, -1)) then
-      hitWall(wid, map, opos, npos, 2)
+      hitWall(map, opos, npos, 2)
    elseif (ywPosIsSameY(npos, ywMapH(map))) then
-      hitWall(wid, map, opos, npos, 3)
+      hitWall(map, opos, npos, 3)
    else
-      moveHeadInternal(wid, map, opos, npos)
+      moveHeadInternal(map, opos, npos)
    end
    yeDestroy(npos);
 end
@@ -192,11 +192,9 @@ function changeDir(map, eve)
 end
 
 
-function snakeAction(wid, eve, arg)
-   local map = ywidEntity(wid)
-
+function snakeAction(map, eve, arg)
    addPeanut(map)
-   moveHead(wid, map)
+   moveHead(map)
 
    while ywidEveIsEnd(eve) == false do
       if ywidEveType(eve) == YKEY_DOWN then
@@ -244,12 +242,11 @@ function createSnake(entity)
 end
 
 function snakeDie(wid, useless1, useless2)
-   ywidNext(yeGet(ywidEntity(wid), "next"))
+   ywidNext(yeGet(wid, "next"))
 end
 
-function snakeWarp(wid, useless1, arg)
+function snakeWarp(ent, useless1, arg)
    local dir = yeGetInt(yeGet(arg, "dir"))
-   local ent = ywidEntity(wid)
    local mapLen = yeLen(yeGet(ent, "map"))
    local mapW = yeGetInt(yeGet(ent, "width"))
    local npos = yeGet(arg, "newPos")
@@ -266,7 +263,7 @@ function snakeWarp(wid, useless1, arg)
       yeSetAt(npos, "x", ywMapW(ent) - 1)
       yeSetAt(npos, "y", yeGetInt(yeGet(opos, "y")))
    end
-   moveHeadInternal(wid, ent, opos, npos)
+   moveHeadInternal(ent, opos, npos)
 end
 
 function reset(entity)

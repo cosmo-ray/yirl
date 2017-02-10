@@ -28,7 +28,7 @@ static const char *testPath = "./testMod";
 
 static void *shooterAction(va_list ap)
 {
-  va_arg(ap, YWidgetState *);
+  va_arg(ap, Entity *);
   YEvent *eve = va_arg(ap, YEvent *);
   InputStatue ret = NOTHANDLE;
 
@@ -44,7 +44,7 @@ static void *shooterAction(va_list ap)
 
 static void *shooterInit(va_list ap)
 {
-  YWidgetState *wid = va_arg(ap, YWidgetState *);
+  Entity *wid = va_arg(ap, Entity *);
   Entity *arg = va_arg(ap, Entity *);
 
   yeCreateInt(MAP_SIZE_W, arg, "width");
@@ -53,7 +53,7 @@ static void *shooterInit(va_list ap)
     yeCreateInt(0, yeCreateArray(arg, NULL), NULL);
   }
   ysRegistreNativeFunc("shooterAction", shooterAction);
-  ygBind(wid, "action", "shooterAction");
+  ygBind(ywidGetState(wid), "action", "shooterAction");
   return (void *)NOTHANDLE;
 }
 

@@ -191,9 +191,7 @@ function changeDir(map, eve)
 end
 
 
-function snakeAction(wid, eve, arg)
-   local map = ywidEntity(wid)
-
+function snakeAction(map, eve, arg)
    addPeanut(map)
    moveHead(map)
    while ywidEveIsEnd(eve) == false do
@@ -215,7 +213,7 @@ end
 
 function scoreInit(wid, eve, args)
    local scoreStr = "you have a score of " .. 17 .. "points"
-   yeSetString(yeGet(ywidEntity(wid), "text"), scoreStr);
+   yeSetString(yeGet(wid, "text"), scoreStr);
 end
 
 function initSnake(entity)

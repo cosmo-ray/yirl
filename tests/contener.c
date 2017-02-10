@@ -27,7 +27,7 @@
 
 static void *testMenuEnter(va_list ap)
 {
-  va_arg(ap, YWidgetState *);
+  va_arg(ap, Entity *);
   YEvent *eve = va_arg(ap, YEvent *);
 
   if (eve && (eve->type == YKEY_DOWN && eve->key == '\n')) {
@@ -146,11 +146,11 @@ void testMixContenerSdl(void)
   cnt = yeGet(ret, "VContenerTest");
   g_assert(cnt);
 
-  yeSetString(yeGet(yeGetByIdx(yeGet(cnt, "entries"), 1), "name"),
+  yeSetString(yeGet(yeGet(yeGet(cnt, "entries"), 1), "name"),
 	      "ContenerTest");
   ret = yeGet(ret, "ContenerTest");
   g_assert(ret);
-  yeSetString(yeGet(yeGetByIdx(yeGet(ret, "entries"), 1), "name"),
+  yeSetString(yeGet(yeGet(yeGet(ret, "entries"), 1), "name"),
 	      "MenuTest");
   yeCreateString("MenuTest", yeCreateArray(yeGet(ret, "entries"), NULL), "name");
 

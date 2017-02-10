@@ -52,20 +52,20 @@ static void *nmMenuUp(YWidgetState *wid)
 
 static void *nmMenuMove(va_list ap)
 {
-  YWidgetState *wid = va_arg(ap, YWidgetState *);
+  Entity *wid = va_arg(ap, Entity *);
   YEvent *eve = va_arg(ap, YEvent *);
 
   if (eve->key == Y_DOWN_KEY) {
-    return nmMenuDown(wid);
+    return nmMenuDown(ywidGetState(wid));
   } else if (eve->key == Y_UP_KEY) {
-    return nmMenuUp(wid);
+    return nmMenuUp(ywidGetState(wid));
   }
   return (void *)NOTHANDLE;
 }
 
 static void *nmPanelMove(va_list ap)
 {
-  YWidgetState *wid = va_arg(ap, YWidgetState *);
+  YWidgetState *wid = ywidGetState(va_arg(ap, Entity *));
   YEvent *eve = va_arg(ap, YEvent *);
 
   if (eve->key == Y_RIGHT_KEY) {
@@ -78,7 +78,7 @@ static void *nmPanelMove(va_list ap)
 
 static void *nmMenuNext(va_list ap)
 {
-  YWidgetState *wid = va_arg(ap, YWidgetState *);
+  YWidgetState *wid = ywidGetState(va_arg(ap, Entity *));
   Entity *next = yeGet(wid->entity, "entries");
 
   next = yeGet(next, ((YMenuState *)wid)->current);
