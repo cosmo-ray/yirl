@@ -16,7 +16,7 @@
 */
 
 #include <glib.h>
-#include "game.h"
+#include "yirl/game.h"
 #include "tests.h"
 
 void testScriptAddFunction(void)
@@ -56,5 +56,23 @@ void testScriptAddFunction(void)
   g_assert((long)ysCall(ygGetLuaManager(), "titi") == 0xfa57f00D);
   g_assert((long)ysCall(ygGetTccManager(), "titi") == 0xfa57f00D);
 
+  g_assert(!ysLoadString(ygGetTccManager(),
+			 "#include <yirl/game.h>"
+			 "void *testadd(int nbArgs, void **args) {\n"
+			 "return (void *)((long)args[0] + (long)args[1]);"
+			 "}\n"
+			 "void *initadd(void){"
+			 "return (void *)ygRegistreFunc(2, \"testadd\", NULL);"
+			 "}"));
+
+  g_assert(!ysCall(ygGetTccManager(), "initadd"));
+
+  g_assert(!ysLoadString(ygGetLuaManager(),
+			 "function addator()"
+			 "return testadd(yloveNbrToPtr(21), yloveNbrToPtr(5))"
+			 "end"));
+
+  g_assert((long)ysCall(ygGetTccManager(), "testadd", 3, 5) == 8);
+  g_assert((long)ysCall(ygGetLuaManager(), "addator") == 26);
   ygEnd();
 }
