@@ -82,7 +82,9 @@ void testTccAddDefine(void)
 			 "return (void *)ygAddDefine(\"TEST\", \"28\");"
 			 "}"));
   g_assert((long)ysCall(ygGetTccManager(), "test") == 0);
-  g_assert(!ysLoadString(ygGetTccManager(), "void *test2(){return (void *)TEST;}"));
+  g_assert(!ysLoadString(ygGetTccManager(),
+			 "void *test2(){return (void *)TEST;}"));
   g_assert((long)ysCall(ygGetTccManager(), "test2") == 28);
+  g_assert((long)ysCall(ygGetTccManager(), "test") == 0);
   ygEnd();
 }

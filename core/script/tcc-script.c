@@ -35,15 +35,15 @@ static int t = -1;
 #define UNSET_REALLOC_NEEDED(sm) (((YTccScript *)(sm))->needRealloc = 0)
 #define NEED_REALLOC(sm) (((YTccScript *)(sm))->needRealloc)
 
-static int tccInit(void *sm, void *args)
+static TCCState *createTCCState(YTccScript *state)
 {
   TCCState *l;
 
-  (void)args;
+  if (state->nbStates > TCC_MAX_SATES)
+    return NULL;
   l = tcc_new();
   if (l == NULL)
-    return -1;
-  GET_TCC_S(sm) = l;
+    return NULL;
   tcc_add_sysinclude_path(l, "/usr/include/");
   tcc_add_sysinclude_path(l, "/usr/lib/tcc/include/");
   tcc_add_sysinclude_path(l, YIRL_INCLUDE_PATH );
@@ -52,6 +52,20 @@ static int tccInit(void *sm, void *args)
 #ifdef TCC_OUTPUT_MEMORY
   tcc_set_output_type(l, TCC_OUTPUT_MEMORY);
 #endif
+  return l;
+}
+
+static int tccInit(void *sm, void *args)
+{
+  YTccScript *state = sm;
+
+  (void)args;
+  state->l = createTCCState(state);
+  if (!state->l)
+    return -1;
+  state->states[0] = state->l;
+  state->nbStates = 1;
+
   return 0;
 }
 
@@ -81,13 +95,12 @@ static int tccRegistreFunc(void *sm, const char *name, void *arg)
   return 0;
 }
 
-static void addFuncSymbole(void *sm, int nbArgs, Entity *func)
+static void addFuncSymbole(void *sm, const char *name, int nbArgs, Entity *func)
 {
-  const char *name = yeGetString(func);
   Entity *str = yeCreateString("#include <yirl/entity-script.h>\n"
 			       , NULL, NULL);
-  char *tmp_name = g_strdup_printf("%sGlobal", name);
-
+  if (!name)
+    name = yeGetString(func);
   yeAddStr(str, "void *");
   yeAddStr(str, name);
   yeAddStr(str, "(");
@@ -112,7 +125,6 @@ static void addFuncSymbole(void *sm, int nbArgs, Entity *func)
   }
   yeStringAdd(str, ");}");
   tccLoadString(sm, yeGetString(str));
-  g_free(tmp_name);
   yeDestroy(str);
 }
 
@@ -124,7 +136,8 @@ static int addDefine(void *sm, const char *name, const char *val)
 
 static void *tccGetFastCall(void *scriptManager, const char *name)
 {
-  TCCState *tcc_s = GET_TCC_S(scriptManager);
+  YTccScript *state = scriptManager;
+  void *ret;
 
   if (!name) {
     DPRINT_ERR("can not call anonymous function...");
@@ -132,13 +145,32 @@ static void *tccGetFastCall(void *scriptManager, const char *name)
   }
 
   if (NEED_REALLOC(scriptManager)) {
-    if (tcc_relocate(GET_TCC_S(scriptManager), TCC_RELOCATE_AUTO) < 0) {
+    if (tcc_relocate(state->l, TCC_RELOCATE_AUTO) < 0) {
       DPRINT_ERR("reallocation fail");
       return NULL;
     }
-    UNSET_REALLOC_NEEDED(scriptManager);
+    ret = tcc_get_symbol(state->l, name);
+    state->l = createTCCState(state);
+    state->states[state->nbStates] = state->l;
+    state->needRealloc = 0;
+    state->nbStates+= 1;
+    if (ret)
+      return ret;
+
+    for (int i = 0; i < state->nbStates - 1; ++i) {
+      ret = tcc_get_symbol(state->states[i], name);
+      if (ret)
+	return ret;
+    }
+  } else {
+    for (int i = 0; i < state->nbStates; ++i) {
+      ret = tcc_get_symbol(state->states[i], name);
+      if (ret)
+	return ret;
+    }
   }
-  return tcc_get_symbol(tcc_s, name);
+  
+  return NULL;
 }
 
 static void *tccFCall(void *sym, va_list ap)
@@ -168,7 +200,11 @@ static void *tccCall(void *sm, const char *name, va_list ap)
 
 static int tccDestroy(void *sm)
 {
-  tcc_delete(GET_TCC_S(sm));
+  YTccScript *state = sm;
+
+  for (int i = 0; i < state->nbStates; ++i) {
+    tcc_delete(state->states[i]);
+  }
   g_free(sm);
   return 0;
 }
@@ -181,6 +217,7 @@ static void *tccAllocator(void)
   if (ret == NULL)
     return NULL;
   ret->l = NULL;
+  ret->nbStates = 0;
   ret->ops.init = tccInit;
   ret->ops.destroy = tccDestroy;
   ret->ops.loadFile = tccLoadFile;

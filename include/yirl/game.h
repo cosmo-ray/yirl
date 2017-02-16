@@ -73,17 +73,21 @@ void *ygCallInt(const char *mod, const char *callName, ...);
 		  YUI_VA_ARGS_HANDELER(Y_END_VA_LIST,			\
 				       args))
 
-int ygRegistreFuncInternal(void *manager, int nbArgs, const char *name);
+int ygRegistreFuncInternal(void *manager, int nbArgs, const char *name,
+			   const char *toRegistre);
 
 #ifndef Y_INSIDE_TCC
-static inline int ygRegistreFunc(void *manager, int nbArgs, const char *name)
+static inline int ygRegistreFunc(void *manager, int nbArgs, const char *name,
+				 const char *toRegistre)
 {
-  return ygRegistreFuncInternal(manager, nbArgs, name);
+	return ygRegistreFuncInternal(manager, nbArgs, name, toRegistre);
 }
 #else
-static inline int ygRegistreFunc(int nbArgs, const char *name)
+static inline int ygRegistreFunc(int nbArgs, const char *name,
+				 const char *toRegistre)
 {
-  return ygRegistreFuncInternal(ygGetTccManager(), nbArgs, name);
+	return ygRegistreFuncInternal(ygGetTccManager(), nbArgs,
+				      name, toRegistre);
 }
 #endif
 

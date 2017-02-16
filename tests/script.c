@@ -28,16 +28,19 @@ void testScriptAddFunction(void)
 
   g_assert(!ysLoadString(ygGetTccManager(),
 			 "#include <yirl/game.h>\n"
-			 "void *test(void){"
+			 "void *toto(void){"
 			 "return (void *)0xfa57f00D;"
 			 "}"
 			 "void *init(void){"
-			 "return (void *)ygRegistreFunc(0, \"test\");"
+			 "return (void *)ygRegistreFunc(0, \"toto\", NULL);"
+			 "}"
+			 "void *titinit(void){"
+			 "return (void *)ygRegistreFunc(0, \"toto\", \"titi\");"
 			 "}"));
 
   g_assert(!ysLoadString(ygGetLuaManager(),
 			 "function callTest()\n"
-			 "return test()\nend"));
+			 "return toto()\nend"));
 
   g_assert(!ysLoadString(ygGetLuaManager(),
 			 "function init()\n"
@@ -45,10 +48,13 @@ void testScriptAddFunction(void)
 
   g_assert(ysCall(ygGetLuaManager(), "init") == NULL);
   g_assert(ysCall(ygGetTccManager(), "init") == NULL);
-  g_assert((long)ysCall(ygGetLuaManager(), "test") == 0xfa57f00D);
-  g_assert((long)ysCall(ygGetTccManager(), "test") == 0xfa57f00D);
-  g_assert((long)ysCall(ygGetLuaManager(), "callTest") == 0xfa57f00D);
+  g_assert(ysCall(ygGetTccManager(), "titinit") == NULL);
+  g_assert((long)ysCall(ygGetTccManager(), "toto") == 0xfa57f00D);
+  g_assert((long)ysCall(ygGetLuaManager(), "toto") == 0xfa57f00D);
   g_assert((long)ysCall(ygGetTccManager(), "callTest") == 0xfa57f00D);
+  g_assert((long)ysCall(ygGetLuaManager(), "callTest") == 0xfa57f00D);
+  g_assert((long)ysCall(ygGetLuaManager(), "titi") == 0xfa57f00D);
+  g_assert((long)ysCall(ygGetTccManager(), "titi") == 0xfa57f00D);
 
   ygEnd();
 }

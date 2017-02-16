@@ -29,7 +29,7 @@ typedef struct {
   int (*loadFile)(void *opac, const char *fileName);
   int (*loadString)(void *opac, const char *str);
   int (* registreFunc)(void *opac, const char *name, void *arg);
-  void (*addFuncSymbole)(void *sm, int nbArgs, Entity *func);
+  void (*addFuncSymbole)(void *sm, const char *name, int nbArgs, Entity *func);
   void *(*call)(void *opac, const char *name, va_list ap);
   void *(*fastCall)(void *opacFunction, va_list ap);
   void *(*getFastPath)(void *scriptManager, const char *name);
@@ -70,9 +70,10 @@ static inline void *ysVCall(void *sm, const char *name, va_list ap)
   return ((YScriptOps *)sm)->call(sm, name, ap);
 }
 
-static inline void ysAddFuncSymbole(void *sm, int nbArgs, Entity *func)
+static inline void ysAddFuncSymbole(void *sm, const char *name,
+				    int nbArgs, Entity *func)
 {
-  return ((YScriptOps *)sm)->addFuncSymbole(sm, nbArgs, func);
+	return ((YScriptOps *)sm)->addFuncSymbole(sm, name, nbArgs, func);
 }
 
 static inline int ysRegistreFunc(void *sm, const char *name, void *arg)

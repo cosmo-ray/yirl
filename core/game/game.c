@@ -241,13 +241,23 @@ void ygEnd()
   init = 0;
 }
 
-int ygRegistreFuncInternal(void *manager, int nbArgs, const char *name)
+int ygRegistreFuncInternal(void *manager, int nbArgs, const char *name,
+			   const char *toRegistre)
 {
-  Entity *func = yeCreateFunctionSimple(name, manager, globalsFunctions);
-  if (manager != tccManager)
-    ysAddFuncSymbole(tccManager, nbArgs, func);
-  if (manager != luaManager)
-    ysAddFuncSymbole(luaManager, nbArgs, func);
+  Entity *func = yeGet(globalsFunctions, name);
+
+  if (!func)
+    func = yeCreateFunctionSimple(name, manager, globalsFunctions);
+
+  if (!toRegistre || yuiStrEqual0(name, toRegistre)) {
+    if (manager != tccManager)
+      ysAddFuncSymbole(tccManager, NULL, nbArgs, func);
+    if (manager != luaManager)
+      ysAddFuncSymbole(luaManager, NULL, nbArgs, func);
+  } else {
+    ysAddFuncSymbole(tccManager, toRegistre, nbArgs, func);
+    ysAddFuncSymbole(luaManager, toRegistre, nbArgs, func);
+  }
   return 0;
 }
 

@@ -647,7 +647,7 @@ int	luaYesCall(lua_State *L)
 int	luaYgRegistreFunc(lua_State *L)
 {
   return ygRegistreFuncInternal(ygGetLuaManager(), lua_tonumber(L, 1),
-				lua_tostring(L, 2));
+				lua_tostring(L, 2), lua_tostring(L, 3));
 }
 
 int	luaSetAt(lua_State *L)

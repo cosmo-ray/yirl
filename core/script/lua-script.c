@@ -91,11 +91,14 @@ static int luaDestroy(void *sm)
   return 0;
 }
 
-static void addFuncSymbole(void *sm, int nbArgs, Entity *func)
+static void addFuncSymbole(void *sm, const char *name, int nbArgs, Entity *func)
 {
-  const char *name = yeGetString(func);
   Entity *str = yeCreateString("function ", NULL, NULL);
-  char *tmp_name = g_strdup_printf("%sGlobal", name);
+  char *tmp_name;
+
+  if (!name)
+	  name = yeGetString(func);
+  tmp_name = g_strdup_printf("%sGlobal", name);
 
   lua_pushlightuserdata(((YScriptLua *)sm)->l, func);
   lua_setglobal(((YScriptLua *)sm)->l, tmp_name);

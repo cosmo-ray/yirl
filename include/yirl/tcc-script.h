@@ -21,9 +21,13 @@
 #include "libtcc.h"
 #include "script.h"
 
+#define TCC_MAX_SATES 256
+
 typedef struct {
   YScriptOps ops;
   TCCState *l;
+  TCCState *states[TCC_MAX_SATES];
+  int nbStates;
   int needRealloc;
 } YTccScript;
 

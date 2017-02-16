@@ -205,7 +205,9 @@ void *init_sm_reader(int nbArg, void **args)
 {
   Entity *t = YE_TO_ENTITY(args[0]);
   yeCreateFunction("load_map", ygGetManager("tcc"), t, "load-map");
+  ygRegistreFunc("load_map", "sukeban_load_map", 4);
   yeCreateFunction("load_entity", ygGetManager("tcc"), t, "load-entity");
+  ygRegistreFunc("load_entity", "sukeban_load_entity", 3);
 
   return NULL;
 }
