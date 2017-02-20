@@ -20,12 +20,12 @@
     "player1 fleets" : [
 	[ "logb:battle_cruse", 15 ],
 	[ "logb:battle_cruse", 10 ],
-	[ "logb:battle_cruse", 10 ]
+	[ "logb:battle_cruse", 5 ]
     ],
     "player2 fleets" : [
-	[ "logb:battle_cruse", 15 ],
-	[ "logb:battle_cruse", 10 ],
-	[ "logb:battle_cruse", 10 ]
+	[ "logb:battle_cruse", 20 ],
+	[ "logb:battle_cruse", 5 ],
+	[ "logb:battle_cruse", 5 ]
     ],
     "pre-load" : [
 	{

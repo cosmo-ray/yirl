@@ -479,16 +479,27 @@ int yeAttach(Entity *on, Entity *entity, unsigned int idx,
 
 Entity *yeReCreateData(void *value, Entity *father, const char *name);
 
-static inline Entity *yeReCreateArray(Entity *father,
-				      const char *name, Entity *newArray)
+static inline Entity *yeReCreateArray(Entity *array, const char *name,
+				      Entity *child)
 {
-  Entity *ret = yeGetByStr(father, name);
-
-  yeRemoveChild(father, ret);
-  if (newArray) {
-    return yePushBack(father, newArray, name) < 0 ? NULL : newArray;
+  Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(array)->values, tmp,
+			    it, ArrayEntry) {
+    if (tmp && yuiStrEqual0(tmp->name, name)) {
+      if (child) {
+	YE_INCR_REF(child);
+	YE_DESTROY(tmp->entity);
+	tmp->entity = child;
+      } else {
+	child = yeCreateArray(NULL, NULL);
+	tmp->entity = child;
+      }
+      return child;
+    }
   }
-  return yeCreateArray(father, name);
+  if (child) {
+    return yePushBack(array, child, name) < 0 ? NULL : child;
+  }
+  return yeCreateArray(array, name);
 }
 
 static inline Entity *yeReCreateInt(double value, Entity *father,
@@ -769,6 +780,23 @@ static inline Entity * yeReplaceBack(Entity *array, Entity *toPush,
   return ret;
 }
 
+static inline Entity *yeReplaceAtIdx(Entity *array, Entity *toPush, int idx)
+{
+  if (!array || !toPush)
+    return NULL;
+
+  ArrayEntry *entry = yBlockArrayGetPtr(&YE_TO_ARRAY(array)->values, idx,
+					ArrayEntry);
+  if (!entry)
+    return NULL;
+
+  YE_INCR_REF(toPush);
+  YE_DESTROY(entry->entity);
+  entry->entity = toPush;
+  return toPush;
+}
+
+
 static inline int yeReplace(Entity *array, Entity *toReplace, Entity *toPush)
 {
   if (!array || !toReplace || !toPush)
@@ -777,9 +805,9 @@ static inline int yeReplace(Entity *array, Entity *toReplace, Entity *toPush)
   Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(array)->values, tmp,
 			    it, ArrayEntry) {
     if (tmp && tmp->entity == toReplace) {
+      YE_INCR_REF(toPush);
       YE_DESTROY(toReplace);
       tmp->entity = toPush;
-      YE_INCR_REF(toPush);
       return 0;
     }
   }
@@ -790,6 +818,7 @@ static inline int yeReplace(Entity *array, Entity *toReplace, Entity *toPush)
 /**
  * Check if @array contain @toFind
  * @return 1 if the @toFind is found, 0 otherwise.
+ * @FIXME: woooooo remove that t, "doesttttttt" does not mean something
  */
 static inline int yeDoestInclude(Entity *array, Entity *toFind)
 {

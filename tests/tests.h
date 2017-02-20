@@ -84,4 +84,6 @@ void testYGameAllLibBasic(void);
 
 void testYSoundLib(void);
 
+void testListMod(void);
+
 #endif

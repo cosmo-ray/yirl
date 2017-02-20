@@ -1,0 +1,13 @@
+{
+    "name" : "List",
+    "init-scripts" : [
+	"init"
+    ],
+    "pre-load" : [
+	{
+	    "file" : "init.c",
+	    "type" : "tcc"
+	}
+    ]
+}
+
