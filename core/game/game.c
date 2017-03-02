@@ -352,6 +352,7 @@ Entity *ygLoadMod(const char *path)
   }
 
   yePushBack(modList, mod, yeGetString(name));
+  yeCreateString(path, mod, "$path");
   type = yeGet(mod, "type");
   file = yeGet(mod, "file");
   starting_widget = yeGet(mod, "starting widget");
@@ -410,13 +411,17 @@ Entity *ygLoadMod(const char *path)
 
   YE_ARRAY_FOREACH(initScripts, var2) {
     if (yeType(var2) == YSTRING) {
-      ysCall(luaManager, yeGetString(var2), mod);
+      void *fastPath = ysGetFastPath(tccManager, yeGetString(var2));
+
+      if (fastPath)
+	ysFCall(tccManager, fastPath, mod);
+      else
+	ysCall(luaManager, yeGetString(var2), mod);
     } else if (yeType(var2) == YARRAY) {
       ysCall(ygGetManager(yeGetString(yeGet(var2, 0))),
 	     yeGetString(yeGet(var2, 1)), mod);
     }
   }
-
 
   if (type) {
     if (yuiStrEqual(yeGetString(type), "json")) {
@@ -457,6 +462,17 @@ Entity *ygGetMod(const char *path)
   if (!path)
     return NULL;
   return yeGet(modList, path);
+}
+
+int ygLoadFile(Entity *mod, void *manager, const char *path)
+{
+  int ret;
+  char *tmp = g_strconcat(yeGetString(yeGet(mod, "$path")), path, NULL);
+
+  printf("path %s\n", tmp);
+  ret = ysLoadFile(manager, tmp);
+  g_free(tmp);
+  return ret;
 }
 
 static Entity *ygGetFunc(Entity *mod, const char *funcName)

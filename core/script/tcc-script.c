@@ -21,9 +21,12 @@
 #include "tcc-script.h"
 #include "debug.h"
 
+
 static int t = -1;
 
 const char *ysTccPath;
+static Entity *includeStrs;
+static int tccLoadString(void *sm, const char *str);
 
 #ifdef TCC_FILETYPE_C
 #define tcc_add_c_file(s, filename) tcc_add_file(s, filename, TCC_FILETYPE_C)
@@ -104,8 +107,13 @@ static int tccRegistreFunc(void *sm, const char *name, void *arg)
 
 static void addFuncSymbole(void *sm, const char *name, int nbArgs, Entity *func)
 {
-  Entity *str = yeCreateString("#include <yirl/entity-script.h>\n"
-			       , NULL, NULL);
+  Entity *str;
+
+  (void)sm;
+  if (!includeStrs) {
+    includeStrs = yeCreateString("#include <yirl/entity-script.h>\n" , NULL, NULL);
+  }
+  str = includeStrs;
   if (!name)
     name = yeGetString(func);
   yeAddStr(str, "void *");
@@ -119,20 +127,20 @@ static void addFuncSymbole(void *sm, const char *name, int nbArgs, Entity *func)
     yeAddInt(str, i);
   }
 
-  if (nbArgs)
-    yeAddStr(str, "){ return yesCall(");
-  else
-    yeAddStr(str, "){ return yesCall0(");
+  if (nbArgs) {
+    yeAddStr(str, "){return yesCall(");
+  } else {
+    yeAddStr(str, "){return yesCall0(");
+  }
   yeAddStr(str, "(Entity *)");
   yeAddLong(str, (long)func);
 
   for (int i = 0; i < nbArgs; ++i) {
-    yeAddStr(str, ", var");
+    yeAddStr(str, ",var");
     yeAddInt(str, i);
   }
   yeStringAdd(str, ");}");
-  tccLoadString(sm, yeGetString(str));
-  yeDestroy(str);
+  SET_REALLOC_NEEDED(sm);
 }
 
 static int addDefine(void *sm, const char *name, const char *val)
@@ -152,6 +160,10 @@ static void *tccGetFastCall(void *scriptManager, const char *name)
   }
 
   if (NEED_REALLOC(scriptManager)) {
+    if (includeStrs) {
+      /* printf("add: \n%s\n", yeGetString(includeStrs)); */
+      tccLoadString(state, yeGetString(includeStrs));
+    }
     if (tcc_relocate(state->l, TCC_RELOCATE_AUTO) < 0) {
       DPRINT_ERR("reallocation fail");
       return NULL;
@@ -250,6 +262,7 @@ int ysTccInit(void)
 
 int ysTccEnd(void)
 {
+  yeDestroy(includeStrs);
   return ysUnregiste(t);
 }
 

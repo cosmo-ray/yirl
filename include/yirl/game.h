@@ -108,6 +108,8 @@ Entity *ygLoadMod(const char *path);
 Entity *ygGetMod(const char *path);
 Entity *ygGetFuncExt(const char *func);
 
+int ygLoadFile(Entity *mod, void *manager, const char *path);
+
 void *ygGetManager(const char *name);
 
 void ygEnd(void);

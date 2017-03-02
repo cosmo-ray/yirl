@@ -1,7 +1,7 @@
 {
     "name" : "List",
     "init-scripts" : [
-	"init"
+	    "init"
     ],
     "pre-load" : [
 	{
