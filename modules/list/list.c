@@ -23,14 +23,18 @@ static int NEXT_POS = 1;
 static int PREV_POS = 2;
 static int HEAD_GETTER_POS = 3;
 
-void *ylist_init(void *list);
+void *ylist_init(void *elem, void *father, void *name);
+void *ylist_init_from_array(void *elems, void *father, void *name);
 void *ylist_next(void *list);
 void *ylist_prev(void *list);
 void *ylist_last(void *list);
 void *ylist_head(void *list);
 void *ylist_insert(void *list, void *elem);
+void *ylist_insert_before(void *list, void *elem);
 void *ylist_pop(void *list);
 void *ylist_elem(void *list);
+void *ylist_roll(void *list);
+void *ylist_roll_back(void *list);
 
 
 static inline void *setNewHead(Entity *old, Entity *newHead)
@@ -54,6 +58,26 @@ void *list_init(int nbArg, void **args)
   headGetter = yeCreateArray(ret, "head_getter");
   yePushBack(headGetter, ret, "head");
   return ret;
+}
+
+void *list_init_from_array(int nbArg, void **args)
+{
+  Entity *elem = nbArg > 0 ? args[0] : NULL;
+  Entity *father = nbArg > 1 ? args[1] : NULL;
+  const char *fatherName = nbArg > 2 ? args[2] : NULL;
+  int first = 1;
+  Entity *ret = NULL;
+
+  YE_ARRAY_FOREACH(elem, var) {
+    if (first) {
+      ret = ylist_init(var, father, (void *)fatherName);
+      first = 0;
+      continue;
+    }
+    ylist_insert(ret, var);
+    ret = ylist_next(ret);
+  }
+  return ylist_head(ret);
 }
 
 void *list_insert(int nbArg, void **args)

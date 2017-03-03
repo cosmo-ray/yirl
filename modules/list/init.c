@@ -23,6 +23,7 @@ void *init(int nbArg, void **args)
   Entity *t = YE_TO_ENTITY(args[0]);
 
   yeCreateFunctionSimple("list_init", ygGetTccManager(), t);
+  yeCreateFunctionSimple("list_init_from_array", ygGetTccManager(), t);
   yeCreateFunctionSimple("list_next", ygGetTccManager(), t);
   yeCreateFunctionSimple("list_prev", ygGetTccManager(), t);
 
@@ -41,7 +42,8 @@ void *init(int nbArg, void **args)
 
   yeCreateFunctionSimple("list_destroy", ygGetTccManager(), t);
 
-  ygRegistreFunc(1, "list_init", "ylist_init");
+  ygRegistreFunc(3, "list_init", "ylist_init");
+  ygRegistreFunc(3, "list_init_from_array", "ylist_init_from_array");
   ygRegistreFunc(1, "list_next", "ylist_next");
   ygRegistreFunc(1, "list_prev", "ylist_prev");
 
@@ -51,8 +53,8 @@ void *init(int nbArg, void **args)
   ygRegistreFunc(1, "list_roll", "ylist_roll");
   ygRegistreFunc(1, "list_back_roll", "ylist_back_roll");
 
-  ygRegistreFunc(1, "list_insert", "ylist_insert");
-  ygRegistreFunc(1, "list_insert_before", "ylist_insert_before");
+  ygRegistreFunc(2, "list_insert", "ylist_insert");
+  ygRegistreFunc(2, "list_insert_before", "ylist_insert_before");
 
   ygRegistreFunc(1, "list_pop", "ylist_pop");
   ygRegistreFunc(1, "list_destroy", "ylist_destroy");
