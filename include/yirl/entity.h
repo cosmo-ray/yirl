@@ -91,6 +91,12 @@ typedef enum {
   YE_FLAG_NO_COPY = 1
 } ArrayEntryFlags;
 
+typedef enum {
+  YE_FUNC_NONE = 0,
+  YE_FUNC_NO_FASTPATH_INIT = 1
+} FunctionFlags;
+
+
 /**
  * @father is the entity contening this one (a struct or an array)
  */
@@ -314,6 +320,10 @@ Entity *yeCreateString(const char *string, Entity *fathers, const char *name);
 
 Entity *yeCreateFunction(const char *funcName, void *manager,
 			 Entity *father, const char *name);
+
+Entity *yeCreateFunctionExt(const char *funcName, void *manager,
+			    Entity *father, const char *name, uint64_t flags);
+
 Entity *yeCreateArray(Entity *fathers, const char *name);
 Entity *yeCreateArrayAt(Entity *fathers, const char *name, int idx);
 

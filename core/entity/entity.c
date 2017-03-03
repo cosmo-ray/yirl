@@ -452,8 +452,8 @@ Entity *yeCreateFloat(double value, Entity *father, const char *name)
   return ((Entity *)ret);
 }
 
-Entity *yeCreateFunction(const char *funcName, void *manager,
-			 Entity *father, const char *name)
+Entity *yeCreateFunctionExt(const char *funcName, void *manager,
+			    Entity *father, const char *name, uint64_t flags)
 {
   FunctionEntity *ret;
 
@@ -461,10 +461,16 @@ Entity *yeCreateFunction(const char *funcName, void *manager,
   yeInit((Entity *)ret, YFUNCTION, father, name);
   ret->value = NULL;
   ret->manager = manager;
-  if (likely(manager))
+  if (likely(manager) && !(flags & YE_FUNC_NO_FASTPATH_INIT))
     ret->fastPath = ysGetFastPath(manager, name);
   yeSetString(YE_TO_ENTITY(ret), funcName);
   return (YE_TO_ENTITY(ret));
+}
+
+Entity *yeCreateFunction(const char *funcName, void *manager,
+			 Entity *father, const char *name)
+{
+  return yeCreateFunctionExt(funcName, manager, father, name, 0);
 }
 
 Entity *yeCreateString(const char *string, Entity *father, const char *name)

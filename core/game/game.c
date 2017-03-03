@@ -297,8 +297,10 @@ int ygRegistreFuncInternal(void *manager, int nbArgs, const char *name,
 {
   Entity *func = yeGet(globalsFunctions, name);
 
-  if (!func)
-    func = yeCreateFunctionSimple(name, manager, globalsFunctions);
+  if (!func) {
+    func = yeCreateFunctionExt(name, manager, globalsFunctions, name,
+			       YE_FUNC_NO_FASTPATH_INIT);
+  }
 
   if (!toRegistre || yuiStrEqual0(name, toRegistre)) {
     if (manager != tccManager)
