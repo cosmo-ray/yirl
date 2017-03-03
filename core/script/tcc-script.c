@@ -107,39 +107,36 @@ static int tccRegistreFunc(void *sm, const char *name, void *arg)
 
 static void addFuncSymbole(void *sm, const char *name, int nbArgs, Entity *func)
 {
-  Entity *str;
-
   (void)sm;
   if (!includeStrs) {
     includeStrs = yeCreateString("#include <yirl/entity-script.h>\n" , NULL, NULL);
   }
-  str = includeStrs;
   if (!name)
     name = yeGetString(func);
-  yeAddStr(str, "void *");
-  yeAddStr(str, name);
-  yeAddStr(str, "(");
+  yeAddStr(includeStrs, "void *");
+  yeAddStr(includeStrs, name);
+  yeAddStr(includeStrs, "(");
 
   for (int i = 0; i < nbArgs; ++i) {
     if (i)
-      yeAddStr(str, ", ");
-    yeAddStr(str, "void *var");
-    yeAddInt(str, i);
+      yeAddStr(includeStrs, ", ");
+    yeAddStr(includeStrs, "void *var");
+    yeAddInt(includeStrs, i);
   }
 
   if (nbArgs) {
-    yeAddStr(str, "){return yesCall(");
+    yeAddStr(includeStrs, "){return yesCall(");
   } else {
-    yeAddStr(str, "){return yesCall0(");
+    yeAddStr(includeStrs, "){return yesCall0(");
   }
-  yeAddStr(str, "(Entity *)");
-  yeAddLong(str, (long)func);
+  yeAddStr(includeStrs, "(Entity *)");
+  yeAddLong(includeStrs, (long)func);
 
   for (int i = 0; i < nbArgs; ++i) {
-    yeAddStr(str, ",var");
-    yeAddInt(str, i);
+    yeAddStr(includeStrs, ",var");
+    yeAddInt(includeStrs, i);
   }
-  yeStringAdd(str, ");}");
+  yeStringAdd(includeStrs, ");}");
   SET_REALLOC_NEEDED(sm);
 }
 
