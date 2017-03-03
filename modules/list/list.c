@@ -80,6 +80,21 @@ void *list_init_from_array(int nbArg, void **args)
   return ylist_head(ret);
 }
 
+void *list_to_array(int nbArg, void **args)
+{
+  Entity *list = nbArg > 0 ? args[0] : NULL;
+  Entity *father = nbArg > 1 ? args[1] : NULL;
+  const char *fatherName = nbArg > 2 ? args[2] : NULL;
+  Entity *head = list;
+  Entity *ret = yeReCreateArray(father, fatherName, NULL);
+
+  do {
+    yePushBack(ret, ylist_elem(list), NULL);
+    list = ylist_next(list);
+  } while (list != head);
+  return ret;
+}
+
 void *list_insert(int nbArg, void **args)
 {
   Entity *list = nbArg > 0 ? args[0] : NULL;

@@ -44,11 +44,15 @@ void *init(int nbArg, void **args)
 
   ygRegistreFunc(3, "list_init", "ylist_init");
   ygRegistreFunc(3, "list_init_from_array", "ylist_init_from_array");
+  ygRegistreFunc(3, "list_to_array", "ylist_to_array");
+
   ygRegistreFunc(1, "list_next", "ylist_next");
   ygRegistreFunc(1, "list_prev", "ylist_prev");
 
   ygRegistreFunc(1, "list_head", "ylist_head");
   ygRegistreFunc(1, "list_last", "ylist_last");
+
+  ygRegistreFunc(1, "list_elem", "ylist_elem");
 
   ygRegistreFunc(1, "list_roll", "ylist_roll");
   ygRegistreFunc(1, "list_back_roll", "ylist_back_roll");

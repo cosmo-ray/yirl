@@ -491,6 +491,8 @@ Entity *yeReCreateData(void *value, Entity *father, const char *name);
 static inline Entity *yeReCreateArray(Entity *array, const char *name,
 				      Entity *child)
 {
+  if (!array)
+    return yeCreateArray(NULL, NULL);
   Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(array)->values, tmp,
 			    it, ArrayEntry) {
     if (tmp && yuiStrEqual0(tmp->name, name)) {
