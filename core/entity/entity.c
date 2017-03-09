@@ -503,7 +503,7 @@ static inline void arrayEntryDestroy(ArrayEntry *ae)
   if (unlikely(!ae))
     return;
   g_free(ae->name);
-  YE_DESTROY(ae->entity);
+  yeDestroy(ae->entity);
   arrayEntryInit(ae);
 }
 

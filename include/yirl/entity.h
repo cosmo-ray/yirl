@@ -780,8 +780,8 @@ static inline Entity *yeReplaceAtIdx(Entity *array, Entity *toPush, int idx)
   if (!entry)
     return NULL;
 
-  YE_INCR_REF(toPush);
-  YE_DESTROY(entry->entity);
+  yeIncrRef(toPush);
+  yeDestroy(entry->entity);
   entry->entity = toPush;
   return toPush;
 }
@@ -795,8 +795,8 @@ static inline int yeReplace(Entity *array, Entity *toReplace, Entity *toPush)
   Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(array)->values, tmp,
 			    it, ArrayEntry) {
     if (tmp && tmp->entity == toReplace) {
-      YE_INCR_REF(toPush);
-      YE_DESTROY(toReplace);
+      yeIncrRef(toPush);
+      yeDestroy(toReplace);
       tmp->entity = toPush;
       return 0;
     }
