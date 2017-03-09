@@ -93,7 +93,7 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
   goto *((void *)*script);
 
  brutal_cast:
-  
+
   yeBrutalCast(yeGetByIdxDirect(stack, script[1]),
 	       (size_t)script[2]);
   script += 3;
@@ -136,7 +136,7 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
   }
   script += 4;
   goto *((void *)*script);
-		 
+
  jmp:
   script = origin + script[1];
   goto *((void *)*script);
@@ -200,7 +200,7 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
   ++script;
   *tmp = script - tmp + 2;
   goto *((void *)*script);
-  
+
  create_int:
   ++script;
   yeCreateInt(*script, stack, NULL);

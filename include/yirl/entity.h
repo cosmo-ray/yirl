@@ -229,7 +229,7 @@ Entity *yeBrutalCast(Entity *entity, int type);
   YE_ARRAY_FOREACH_EXT(array, val, it##val)
 
 int	yeArrayIdx(Entity *array, const char *lookup);
-  
+
 /**
  * @return the entity at the position of @index or NULL
  */
@@ -269,7 +269,6 @@ Entity *yeGetByStrExt(Entity *entity, const char *name, int64_t *idx);
  */
 Entity *yeGetByStrFast(Entity *entity, const char *name);
 
-  
 /**
  * change the capacity than the array can store
  */
@@ -289,7 +288,7 @@ int yePushBackExt(Entity *entity, Entity *toPush,
  * Push @toPush at @idx if the element is not empty, return -1 othervise
  */
 int yPushAt(Entity *array, Entity *toPush, int idx);
-  
+
 /**
  * @array:	the array
  * @return the entity that is erased from the entity @array
@@ -302,13 +301,13 @@ static inline Entity *yeRemoveChildByStr(Entity *array, const char *toRemove)
 {
   return yeRemoveChild(array, yeGetByStr(array, toRemove));
 }
-  
+
 /**
  * function who which an entity and set it to  0, "" or NULL
  */
 Entity *yeCreate(EntityType type, void *val, Entity *fathers, const char *name);
 
-/* 
+/*
  * Destructor and constructors.
  */
 Entity *yeCreateInt(int value, Entity *fathers, const char *name);

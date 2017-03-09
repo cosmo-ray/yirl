@@ -226,7 +226,7 @@ int yeStrCmp(Entity *ent1, const char *str)
 EntityType yeStringToType(const char *str)
 {
   int i;
-  
+
   for (i = 0; i < NBR_ENTITYTYPE; ++i)
   {
     if (yuiStrEqual(str, EntityTypeStrings[i]))
@@ -237,7 +237,6 @@ EntityType yeStringToType(const char *str)
 
 const char *yeTypeToString(int type)
 {
-  
   return (type < 0 || type >= NBR_ENTITYTYPE)
     ? ("unknow")
     : (EntityTypeStrings[type]);
@@ -251,7 +250,7 @@ size_t yeLen(Entity *entity)
   if (likely(yeType(entity) == YARRAY)) {
     return yBlockArrayLastPos(YE_TO_ARRAY(entity)->values) + 1;
   }
- 
+
   return YE_TO_STRING(entity)->len;
 }
 
@@ -339,7 +338,7 @@ Entity *yeGetByStrFast(Entity *entity, const char *name)
     if (yuiStrEqual(tmp->name, name))
       return tmp->entity;
   }
-  return NULL; 
+  return NULL;
 }
 
 Entity *yeGetByStrExt(Entity *entity, const char *name, int64_t *idx)
@@ -385,8 +384,7 @@ int yeArrayIdx(Entity *entity, const char *lookup)
     if (yuiStrEqual0(tmp->name, lookup))
       return it;
   }
-  return -1; 
-  
+  return -1;
 }
 
 Entity *yeCreateInt(int value, Entity *father, const char *name)
@@ -514,8 +512,6 @@ static void yeRemoveFather(Entity *entity, Entity *father)
   if (unlikely(!entity || !father))
     return;
 
-  // if the father is in last position, so we don't care about it because
-  // we decr_ref at the end.
   for (int i = 0, end = YE_TO_ARRAY(entity)->nbFathers; i < end ; ++i)
     {
       Entity **fathers = yeFathers(entity);
@@ -709,7 +705,6 @@ Entity *yeRemoveChild(Entity *array, Entity *toRemove)
     ret = tmp->entity;
     if (ret == toRemove) {
       arrayEntryDestroy(tmp);
-
       yeRemoveFather(ret, array);
       yBlockArrayUnset(&YE_TO_ARRAY(array)->values, it);
       return ret;
@@ -921,7 +916,7 @@ int yeAttach(Entity *on, Entity *entity,
 	     unsigned int idx, const char *name, uint32_t flag)
 {
   ArrayEntry *entry;
-  
+
   if (unlikely(!on || !entity || on->type != YARRAY))
     return -1;
 
@@ -1176,7 +1171,7 @@ Entity*		yeCopy(Entity* src, Entity* dest)
 Entity *yeFindLink(Entity *array, const char *targetPath, int flag)
 {
   Entity *ret = NULL;
-  
+
   if (yeType(array) != YARRAY)
     return NULL;
   if (!(flag & YE_FIND_LINK_NO_GET) && (ret = yeGet(array, targetPath)) != NULL)
