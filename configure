@@ -1,0 +1,28 @@
+#!/bin/bash
+
+source configure-helper.sh
+
+parse_args $@
+
+var_add SCRIPT_DIR "core/script"
+var_add SOUND_DIR "core/sound"
+var_add UTIL_DIR "core/util"
+var_add WID_DIR "core/widget"
+var_add ENTITY_DIR "core/entity"
+var_add GAME_DIR "core/game"
+var_add SDL_WID_DIR "$WID_DIR/sdl2"
+var_add CURSES_DIR "$WID_DIR/curses"
+var_add TESTS_DIR "tests/"
+var_add DESCRIPTION_DIR "core/description"
+var_add BYTECODE_DIR "core/ybytecode"
+var_add GEN_LOADER_DIR "core/generic-loader"
+
+var_add CURSES_LIB "-lcurses"
+
+define_add WITH_SDL 1
+define_add WITH_CURSES 1
+
+var_add YIRL_INCLUDE_PATH2 $PWD/include/
+var_add YIRL_INCLUDE_PATH $YIRL_INCLUDE_PATH2/yirl/
+
+var_add TCC_LIB_PATH $PWD/tinycc/
