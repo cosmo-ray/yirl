@@ -17,29 +17,31 @@
 
 #include <yirl/game.h>
 #include <yirl/script.h>
+#include "list.h"
 
 static int ELEM_POS = 0;
 static int NEXT_POS = 1;
 static int PREV_POS = 2;
 static int HEAD_GETTER_POS = 3;
 
-void *ylist_init(void *elem, void *father, void *name);
-void *ylist_init_from_array(void *elems, void *father, void *name);
-void *ylist_next(void *list);
-void *ylist_prev(void *list);
-void *ylist_last(void *list);
-void *ylist_head(void *list);
-void *ylist_insert(void *list, void *elem);
-void *ylist_insert_before(void *list, void *elem);
-void *ylist_pop(void *list);
-void *ylist_elem(void *list);
-void *ylist_roll(void *list);
-void *ylist_roll_back(void *list);
-
+static inline Entity *headFather(Entity *elem)
+{
+  return yeGetByIdx(yeGetByIdx(elem, HEAD_GETTER_POS), 1);
+}
 
 static inline void *setNewHead(Entity *old, Entity *newHead)
 {
-  return yeReplaceAtIdx(yeGetByIdx(old, HEAD_GETTER_POS), newHead, 0);
+  Entity *father = headFather(old);
+  Entity *ret;
+
+  if (!father) {
+    yeIncrRef(newHead);
+    yeDestroy(old);
+  } else {
+    yeReplace(father, old, newHead);
+  }
+  ret = yeReplaceAtIdx(yeGetByIdx(old, HEAD_GETTER_POS), newHead, 0);
+  return ret;
 }
 
 void *list_init(int nbArg, void **args)
@@ -57,6 +59,8 @@ void *list_init(int nbArg, void **args)
   yePushBack(ret, ret, "prev");
   headGetter = yeCreateArray(ret, "head_getter");
   yePushBack(headGetter, ret, "head");
+  if (father)
+    yePushBack(headGetter, father, "father");
   return ret;
 }
 
@@ -106,8 +110,7 @@ void *list_insert(int nbArg, void **args)
   if (!list || !elem)
     return NULL;
 
-  nextRet = ylist_next(list);
-  next = nextRet;
+  next = ylist_next(list);
   newElem = yeReCreateArray(list, "next", NULL);
   yePushBack(newElem, elem, "elem");
   yePushBack(newElem, next, "next");
@@ -132,6 +135,8 @@ void *list_pop(int nbArg, void **args)
   prev = ylist_prev(elem);
   /* it's the last elem */
   if (prev == elem) {
+    yeClearArray(yeGetByIdx(elem, HEAD_GETTER_POS));
+    yeClearArray(elem);
     yeDestroy(elem);
     return NULL;
   }
@@ -139,11 +144,9 @@ void *list_pop(int nbArg, void **args)
   yeReplace(prev, elem, next);
   yeReplace(next, elem, prev);
   if (ylist_head(elem) == elem) {
-    setNewHead(next, next);
-    yeDestroy(elem);
+    setNewHead(elem, next);
     return next;
   }
-  yeDestroy(elem);
   return ylist_head(next);
 }
 
@@ -184,7 +187,7 @@ void *list_roll(int nbArg, void **args)
   Entity *list = args[0];
   if (nbArg < 1)
     return NULL;
-  return setNewHead(list, ylist_next(ylist_head(list)));
+  return setNewHead(ylist_head(list), ylist_next(ylist_head(list)));
 }
 
 void *list_back_roll(int nbArg, void **args)
@@ -193,7 +196,7 @@ void *list_back_roll(int nbArg, void **args)
 
   if (nbArg < 1)
     return NULL;
-  return setNewHead(list, ylist_prev(ylist_head(list)));
+  return setNewHead(ylist_head(list), ylist_prev(ylist_head(list)));
 }
 
 void *list_last(int nbArg, void **args)
