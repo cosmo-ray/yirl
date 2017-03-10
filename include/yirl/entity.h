@@ -497,12 +497,11 @@ static inline Entity *yeReCreateArray(Entity *array, const char *name,
     if (tmp && yuiStrEqual0(tmp->name, name)) {
       if (child) {
 	YE_INCR_REF(child);
-	YE_DESTROY(tmp->entity);
-	tmp->entity = child;
       } else {
 	child = yeCreateArray(NULL, NULL);
-	tmp->entity = child;
       }
+      YE_DESTROY(tmp->entity);
+      tmp->entity = child;
       return child;
     }
   }
@@ -754,6 +753,8 @@ static inline Entity * yeReplaceBack(Entity *array, Entity *toPush,
   Entity *tmp;
   Entity *ret = NULL;
 
+  if (unlikely(!toPush))
+    return NULL;
   yeIncrRef(toPush);
 
  again:
