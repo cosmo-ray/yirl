@@ -509,7 +509,7 @@ static inline void arrayEntryDestroy(ArrayEntry *ae)
 
 static void yeRemoveFather(Entity *entity, Entity *father)
 {
-  if (unlikely(!entity || !father))
+  if (unlikely(!entity || !father || entity->type != YARRAY))
     return;
 
   for (int i = 0, end = YE_TO_ARRAY(entity)->nbFathers; i < end ; ++i)
