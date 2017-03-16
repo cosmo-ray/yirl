@@ -141,6 +141,7 @@ int main(int argc, char **argv)
   TEST_TRY_ADD("/game/all/simple", testYGameAllLibBasic, only);
 #endif
 #endif
+  TEST_TRY_ADD("/game/lifecycle", testYGameLifecycle, only);
 
  run_test:
   if (list) {

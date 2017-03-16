@@ -79,6 +79,7 @@ void testStackContenerSdl(void);
 void testMixContenerSdl(void);
 void testDynamicStackContenerSdl(void);
 
+void testYGameLifecycle(void);
 void testYGameSdlLibBasic(void);
 void testYGameAllLibBasic(void);
 

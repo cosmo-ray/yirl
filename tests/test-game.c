@@ -70,6 +70,16 @@ void testYGameSdlLibBasic(void)
   ygEnd();
 }
 
+void testYGameLifecycle(void)
+{
+  GameConfig cfg;
+
+  g_assert(!ygInitGameConfig(&cfg, testPath, NONE));
+  g_assert(!ygInit(&cfg));
+  ygEnd();
+  ygCleanGameConfig(&cfg);
+}
+
 void testYGameAllLibBasic(void)
 {
   GameConfig cfg;
