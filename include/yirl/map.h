@@ -29,6 +29,12 @@ typedef enum {
 #define	YMAP_SIZE_SPRITE_W  64
 #define	YMAP_SIZE_SPRITE_H  64
 
+typedef enum {
+  YMAP_OUT_WARP,
+  YMAP_OUT_NOTHING,
+  YMAP_OUT_BLOCK
+} YMapOutBehavior;
+
 typedef struct {
   YWidgetState sate;
   Entity *resources;
@@ -74,6 +80,15 @@ static inline int ywMapH(Entity *state)
   return ywMapLen(state) / ywMapW(state);
 }
 
+/**
+ * @return true if @pos is inside the map
+ */
+static inline int ywMapIsInside(Entity *map, Entity *pos)
+{
+  return !(ywPosY(pos) < 0 || ywPosX(pos) < 0 ||
+	   ywPosY(pos) >= ywMapH(map) || ywPosX(pos) >= ywMapW(map));
+}
+
 int ywMapGetIdByElem(Entity *mapElem);
 
 Entity *ywMapGetCase(Entity *state, Entity *pos);
@@ -98,6 +113,16 @@ Entity *ywMapPushElem(Entity *state, Entity *toPush,
 
 Entity *ywMapPushNbr(Entity *state, int toPush,
 		     Entity *pos, const char *name);
+
+static inline void ywMapSetOutBehavior(Entity *map, YMapOutBehavior ob)
+{
+  Entity *ol = yeGetByStr(map, "$out_logic");
+
+  if (!ol)
+    yeCreateInt(ob, map, "$out_logic");
+  else
+    yeSetInt(ol, ob);
+}
 
 static inline Entity *ywMapGetResources(YWidgetState *state)
 {
@@ -153,35 +178,15 @@ int ywMapDrawRect(Entity *map, Entity *posStart, Entity *size, int id);
  * @brief add @x and @y to @pos then move @elem at @pos
  * @pos initial position, modified durring operation
  */
-static inline int ywMapAdvenceWithPos(Entity *map, Entity *pos,
-				      int x, int y, Entity *elem)
+int ywMapAdvenceWithPos(Entity *map, Entity *pos,
+			int x, int y, Entity *elem);
+
+static inline int ywMapAdvenceWithEPos(Entity *map, Entity *pos,
+				       Entity *other, Entity *elem)
 {
-  if (unlikely(!elem || !map || ! pos)) {
-    if (!map)
-      DPRINT_WARN("map is NULL");
-    else if (!elem)
-      DPRINT_WARN("elem is NULL");
-    else
-      DPRINT_WARN("pos is NULL");
-    return -1;
-  }
-  YE_INCR_REF(elem);
-  ywMapRemoveByEntity(map, pos, elem);
-  ywPosAddXY(pos, x, y);
-
-  if (ywPosX(pos) < 0)
-    ywPosSetX(pos, ywMapW(map) + ywPosX(pos));
-  else if (ywPosX(pos) >= ywMapW(map))
-    ywPosSetX(pos, ywPosX(pos) - ywMapW(map));
-
-  if (ywPosY(pos) < 0)
-    ywPosSetY(pos, ywMapH(map) + ywPosY(pos));
-  else if (ywPosY(pos) >= ywMapH(map))
-    ywPosSetY(pos, ywPosY(pos) - ywMapH(map));
-  ywMapPushElem(map, elem, pos, NULL);
-  YE_DESTROY(elem);
-  return 0;
+  return ywMapAdvenceWithPos(map, pos, ywPosX(other), ywPosY(other), elem);
 }
+
 
 void ywMapGetSpriteSize(Entity *map,
 			unsigned int *sizeSpriteW,

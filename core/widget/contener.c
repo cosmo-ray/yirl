@@ -143,14 +143,16 @@ static int cntInit(YWidgetState *opac, Entity *entity, void *args)
     yeCreateString("text-screen", bg_tx, "<type>");
     yeCreateString("", bg_tx, "text");
     yePushBack(bg_tx, bg, "background");
-    if (!ywidNewWidget(bg_tx, NULL))
+    if (!ywidNewWidget(bg_tx, NULL)) {
+      DPRINT_ERR("background init fail");
       return -1;
+    }
   }
 
   yeCreateInt(0, entity, "current");
   YE_ARRAY_FOREACH(entries, tmp) {
     Entity *ptr = getEntry(entity, tmp);
- 
+
     if (yeGet(tmp, "copy")) {
       Entity *copyTmp;
 
@@ -160,8 +162,10 @@ static int cntInit(YWidgetState *opac, Entity *entity, void *args)
     }
     yeReplaceBack(ptr, entity, "$father-contener");
     wid = ywidNewWidget(ptr, NULL);
-    if (!wid)
+    if (!wid) {
+      DPRINT_ERR("fail to create a sub widget");
       return -1;
+    }
     if (ptr != tmp)
       yeReCreateData(wid, tmp, "$wid");
   }

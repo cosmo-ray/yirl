@@ -1,0 +1,22 @@
+{
+    "main" : {
+	"<type>" : "menu",
+	"entries" : [
+	    {
+		"text" : "Play",
+		"next" : "vapz:game",
+		"action" : "menuNext",
+	    },
+	    {
+		"text" : "Quit",
+		"action" : "FinishGame"
+	    }
+	]
+    },
+    "lose" : {
+	"<type>" : "text-screen",
+	"text" : "you lose !",
+	"background" : "rgba: 255 255 255 255",
+	"action" : "QuitOnKeyDown"
+    }
+}

@@ -105,7 +105,7 @@ void *battleInit(int nbArgs, void **args)
   layers = yeCreateArray(panel, "entries");
 
   cur_layer = yeCreateArray(layers, NULL);
-  yeCreateString("add ship", cur_layer, "text");  
+  yeCreateString("add ship", cur_layer, "text");
   yeCreateFunction("addShipCallback", ygGetTccManager(), cur_layer, "action");
 
   cur_layer = yeCreateArray(layers, NULL);

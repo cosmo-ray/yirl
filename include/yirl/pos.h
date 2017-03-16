@@ -55,7 +55,7 @@ static inline char * ywPosToString(Entity *pos)
  * can be NULL.
  * @name string index at which we store the returned entity,
  * if NULL but not @father, the return is push back
- * @return an Entity that store a "Map Position", Must be free if @father is NULL
+ * @return an Entity that store a "Position", Must be free if @father is NULL
  */
 Entity *ywPosCreateInts(int posX, int posY, Entity *father,
 			const char *name);
@@ -64,8 +64,7 @@ static inline Entity *ywPosCreateEnt(Entity *other, int useless,
 				     Entity *father, const char *name)
 {
   (void)useless;
-  return ywPosCreateInts(yeGetInt(yeGet(other, 0)), yeGetInt(yeGet(other, 1)),
-			 father, name);
+  return ywPosCreateInts(ywPosX(other), ywPosY(other), father, name);
 }
 
 #define ywPosCreate(x, y, father, name)			\
@@ -115,8 +114,8 @@ static inline int ywPosIsSameEnt(Entity *pos1, Entity *pos2,
 				 int useless)
 {
   (void)useless;
-  return ((yeGetInt(yeGet(pos1, 0)) == yeGetInt(yeGet(pos2, 0))) &&
-	  (yeGetInt(yeGet(pos1, 1)) == yeGetInt(yeGet(pos2, 1))));
+  return ((yeGetInt(yeGetByIdx(pos1, 0)) == yeGetInt(yeGetByIdx(pos2, 0))) &&
+	  (yeGetInt(yeGetByIdx(pos1, 1)) == yeGetInt(yeGetByIdx(pos2, 1))));
 }
 
 static inline int ywPosIsSameInts(Entity *pos1, int x, int y)

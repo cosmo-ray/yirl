@@ -1,0 +1,22 @@
+{
+    "name" : "vapz",
+    "file" : "main.json",
+    "type" : "json",
+    "starting widget" : "main",
+    "as" : "scenes",
+    "init-scripts" : [
+	["tcc", "init"]
+    ],
+    "pre-load" : [
+	{
+	    "file" : "./resources.json",
+	    "type" : "json",
+	    "as" : "resources"
+	},
+	{
+	    "file" : "init.c",
+	    "type" : "tcc"
+	},
+
+    ]
+}

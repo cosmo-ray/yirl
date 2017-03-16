@@ -1,0 +1,20 @@
+{
+    "map" : [
+	{
+	    "map-char" : ".",
+	    "name" : "floor"
+	},
+	{
+	    "map-char" : "@",
+	    "name" : "viking"
+	},
+	{
+	    "map-char" : "A",
+	    "name" : "pinapple"
+
+	},
+	{
+	    "map-color" : "rgba: 255 127 13 127"
+	}
+    ]
+}

@@ -344,3 +344,49 @@ int ywMapEnd(void)
   t = -1;
   return 0;
 }
+
+int ywMapAdvenceWithPos(Entity *map, Entity *pos,
+			int x, int y, Entity *elem)
+{
+  Entity *out_logic_entity;
+  int out_logic;
+
+  if (unlikely(!elem || !map || ! pos)) {
+    if (!map)
+      DPRINT_WARN("map is NULL");
+    else if (!elem)
+      DPRINT_WARN("elem is NULL");
+    else
+      DPRINT_WARN("pos is NULL");
+    return -1;
+  }
+  if (!x && !y) {
+    return 0;
+  }
+
+  out_logic_entity = yeGet(map, "$out_logic");
+  out_logic = out_logic_entity ? yeGetInt(out_logic_entity) : YMAP_OUT_WARP;
+  YE_INCR_REF(elem);
+  ywMapRemoveByEntity(map, pos, elem);
+  ywPosAddXY(pos, x, y);
+
+  if (out_logic == YMAP_OUT_WARP) {
+    if (ywPosX(pos) < 0)
+      ywPosSetX(pos, ywMapW(map) + ywPosX(pos));
+    else if (ywPosX(pos) >= ywMapW(map))
+      ywPosSetX(pos, ywPosX(pos) - ywMapW(map));
+
+    if (ywPosY(pos) < 0)
+      ywPosSetY(pos, ywMapH(map) + ywPosY(pos));
+    else if (ywPosY(pos) >= ywMapH(map))
+      ywPosSetY(pos, ywPosY(pos) - ywMapH(map));
+  } else if (out_logic == YMAP_OUT_BLOCK && !ywMapIsInside(map, pos)) {
+    ywPosAddXY(pos, -x, -y);
+  } else if (!ywMapIsInside(map, pos)) {
+    YE_DESTROY(elem);
+    return 0;
+  }
+  ywMapPushElem(map, elem, pos, NULL);
+  YE_DESTROY(elem);
+  return 0;
+}

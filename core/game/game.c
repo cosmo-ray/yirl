@@ -93,6 +93,25 @@ void *ygTerminateCallback(va_list va)
   return (void *)ACTION;
 }
 
+static void *quitOnKeyDown(va_list ap)
+{
+  va_list tmp_ap;
+  va_copy(tmp_ap, ap);
+  va_arg(tmp_ap, Entity *);
+  YEvent *events = va_arg(tmp_ap, YEvent *);
+  YEvent *eve = events;
+  void *ret = (void *)NOTHANDLE;
+
+  YEVE_FOREACH(eve, events) {
+    if (ywidEveType(eve) == YKEY_DOWN) {
+      alive = 0;
+      return (void *)ACTION;
+    }
+  }
+  va_end(tmp_ap);
+  return ret;
+}
+
 static void *nextWid(va_list ap)
 {
   Entity *wid = va_arg(ap, Entity *);
@@ -105,7 +124,7 @@ static void *nextWid(va_list ap)
 
   if (ywidNext(next) < 0)
     return (void *)BUG;
-  return (void *)ACTION;  
+  return (void *)ACTION;
 }
 
 static void *nextOnKeyDown(va_list ap)
@@ -130,7 +149,8 @@ static void *nextOnKeyDown(va_list ap)
 static void addNativeFuncToBaseMod(void)
 {
   ysRegistreCreateNativeEntity(ygTerminateCallback, "FinishGame", baseMod, NULL);
-  ysRegistreCreateNativeEntity(nextWid, "callNext", baseMod, NULL);  
+  ysRegistreCreateNativeEntity(quitOnKeyDown, "QuitOnKeyDown", baseMod, NULL);
+  ysRegistreCreateNativeEntity(nextWid, "callNext", baseMod, NULL);
   ysRegistreCreateNativeEntity(nextOnKeyDown, "nextOnKeyDown",
 			       baseMod, NULL);
   yeCreateFunctionSimple("menuMove", ysNativeManager(), baseMod);

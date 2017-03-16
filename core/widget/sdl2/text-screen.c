@@ -35,8 +35,6 @@ static int sdlRender(YWidgetState *state, int t)
     alignementType = YSDL_ALIGN_CENTER;
   if (ywidBgConfFill(yeGet(state->entity, "background"), &cfg) >= 0)
     sdlFillBg(wid, &cfg);
-  else
-    sdlFillColorBg(wid, 255, 255, 255, 255);
 
   if (!sgDefaultFont()) {
     DPRINT_WARN("NO Font Set !");

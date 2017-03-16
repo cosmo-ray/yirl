@@ -11,7 +11,7 @@
 	},
 	{
 	    "file" : "test.lua",
-	    "type" : "lua"	    
+	    "type" : "lua"
 	}
     ]
 }
