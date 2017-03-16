@@ -2,7 +2,7 @@ add_definitions( -DTESTS_PATH="${CMAKE_SOURCE_DIR}/tests" )
 
 set (SOURCE main.c lifecycle.c stringOperations.c test-copy.c setunset.c
 	lua-script.c tcc-script.c
-	test-json-desc.c test-widgets.c menu.c map.c list-mod.c
+	test-json-desc.c test-widgets.c menu.c map.c
 	test-game.c block-array.c contener.c test-sound.c ybytecode.c script.c)
 
 add_executable(tests-entity EXCLUDE_FROM_ALL
