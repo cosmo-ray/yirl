@@ -26,7 +26,8 @@
 #include "entity-script.h"
 #include "widget-callback.h"
 
-Entity *subTypes = NULL;
+static Entity *subTypes = NULL;
+static Entity *configs = NULL;
 
 static YManagerAllocator widgetTab = {
   {NULL},
@@ -55,11 +56,28 @@ static YWidgetState *oldWid = NULL;
 int ywidWindowWidth = 640;
 int ywidWindowHight = 480;
 
+void ywidSetWindowName(const char *str)
+{
+  if (!configs)
+    configs = yeCreateArray(NULL, NULL);
+  yeCreateString(str, configs, "win-name");
+}
+
+const char *ywidWindowName(void)
+{
+  const char *ret = yeGetString(yeGet(configs, "win-name"));
+  if (ret)
+    return  ret;
+  return "YIRL isn't a rogue like";
+}
+
 void ywidFreeWidgets(void)
 {
   YWidDestroy(mainWid);
   YWidDestroy(oldWid);
-  YE_DESTROY(subTypes);
+  yeDestroy(subTypes);
+  yeDestroy(configs);
+  configs = NULL;
   subTypes = NULL;
   mainWid = NULL;
   oldWid = NULL;

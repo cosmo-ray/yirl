@@ -251,7 +251,7 @@ int    ysdl2Init(void)
   }
 
   /* Make a window */
-  sg.pWindow = SDL_CreateWindow("YIRL isn't a rogue like", SDL_WINDOWPOS_UNDEFINED,
+  sg.pWindow = SDL_CreateWindow(ywidWindowName(), SDL_WINDOWPOS_UNDEFINED,
 				SDL_WINDOWPOS_UNDEFINED,
 				ywidWindowWidth,
 				ywidWindowHight,
