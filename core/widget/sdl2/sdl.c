@@ -103,7 +103,7 @@ void	sdlDrawRect(SDLWid *swid, SDL_Rect rect, SDL_Color color)
   SDL_GetRenderDrawColor(sg.renderer, &r, &g, &b, &a);
   SDL_SetRenderDrawColor(sg.renderer, color.r, color.g, color.b, color.a);
   SDL_RenderFillRect(sg.renderer, &rect);
-  SDL_SetRenderDrawColor(sg.renderer, r, g, b, a);  
+  SDL_SetRenderDrawColor(sg.renderer, r, g, b, a);
 }
 
 int   sdlFillColorBg(SDLWid *swid, short r, short g, short b, short a)
@@ -182,7 +182,7 @@ static int  convertToYKEY(SDL_Keycode key)
 static inline YEvent *SDLConvertEvent(SDL_Event* event)
 {
   YEvent *eve = g_new0(YEvent, 1);
-  
+
   if (!event || !eve)
     return NULL;
   switch(event->type)
@@ -267,7 +267,7 @@ int    ysdl2Init(void)
       DPRINT_ERR("Error to creeate window:: %s\n",SDL_GetError());
       goto win_fail;
   }
-  
+
   // Render for the main windows
   sg.renderer = SDL_CreateRenderer(sg.pWindow, -1,
 				   SDL_RENDERER_TARGETTEXTURE);
@@ -285,7 +285,7 @@ int    ysdl2Init(void)
     DPRINT_ERR("Cannot load \"./sample.ttf\"\n");
     goto fail;
   }
-  
+
   // fill the window with a black rectangle
   // SDL_Rect   rect = sg.getRect();
 
