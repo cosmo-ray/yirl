@@ -25,12 +25,14 @@ int main(int argc, char **argv)
   GOptionContext *ctx;
   const char *render = NULL;
   const char *start = NULL;
+  const char *name = NULL;
   const char *start_dir = NULL;
-  const GOptionEntry entries[4] = {
+  const GOptionEntry entries[5] = {
     {"render", 'r', 0,  G_OPTION_ARG_STRING, &render,
      "choose render('sdl2' or curses), default: sdl", NULL},
     {"start", 's', 0,  G_OPTION_ARG_STRING, &start,
      "starting module", NULL},
+    {"name", 'n', 0,  G_OPTION_ARG_STRING, &name, "window name", NULL},
     {"start-dir", 'd', 0,  G_OPTION_ARG_STRING, &start_dir,
      "allow to cp on the given directorry,"
      " use as starting module if --start not set", NULL},
@@ -63,6 +65,7 @@ int main(int argc, char **argv)
   }
 
   ygInitGameConfig(&cfg, start, render);
+  cfg.win_name = name;
   if (ygInit(&cfg) < 0)
     goto end;
   if (ygStartLoop(&cfg) < 0)

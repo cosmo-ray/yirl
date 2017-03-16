@@ -46,6 +46,7 @@ typedef struct RenderConf_ {
 typedef struct {
   ModuleConf *startingMod;
   GList *rConf;
+  const char *win_name;
 } GameConfig;
 
 #undef GList

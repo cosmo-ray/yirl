@@ -170,6 +170,8 @@ int ygInit(GameConfig *cfg)
   baseMod = yeCreateArray(NULL, NULL);
   addNativeFuncToBaseMod();
 
+  if (cfg->win_name)
+	  ywidSetWindowName(cfg->win_name);
   CHECK_AND_GOTO(ywMenuInit(), -1, error, "Menu init failed");
   CHECK_AND_GOTO(ywMapInit(), -1, error, "Map init failed");
   CHECK_AND_GOTO(ywTextScreenInit(), -1, error, "Text Screen init failed");
@@ -563,6 +565,7 @@ int ygInitGameConfigByRenderType(GameConfig *cfg, const char *path,
 {
 
   cfg->rConf = NULL;
+  cfg->win_name = NULL;
   cfg->startingMod = g_new(ModuleConf, 1);
   cfg->startingMod->path = path;
 
@@ -595,6 +598,8 @@ int ygInitGameConfigByStr(GameConfig *cfg, const char *path, const char *render)
   cfg->rConf = NULL;
   cfg->startingMod = g_new(ModuleConf, 1);
   cfg->startingMod->path = path;
+
+  cfg->win_name = NULL;
 
 
   rConf->name = render;
