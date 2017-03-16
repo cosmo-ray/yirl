@@ -47,8 +47,15 @@ TTF_Font *sgDefaultFont(void)
 
 int sgSetDefaultFont(const char *path)
 {
-  TTF_Font *font = TTF_OpenFont(path, 16);
+  TTF_Font *font;
   int w, h;
+
+  if (access(path, F_OK ) < 0) {
+    return -1;
+  }
+  font = TTF_OpenFont(path, 16);
+  if (!font)
+    return -1;
   sg.fontSize = 16;
   TTF_SizeText(font, "A", &w, &h);
 
@@ -273,7 +280,8 @@ int    ysdl2Init(void)
     goto fail;
   }
 
-  if (sgSetDefaultFont("./sample.ttf") < 0) {
+  if (sgSetDefaultFont("./sample.ttf") < 0 &&
+      sgSetDefaultFont("/usr/share/fonts/TTF/Vera.ttf") < 0) {
     DPRINT_ERR("Cannot load \"./sample.ttf\"\n");
     goto fail;
   }
