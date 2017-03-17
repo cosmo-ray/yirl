@@ -233,7 +233,7 @@ int yuiUnregiste(YManagerAllocator *ma, int t);
        tmpmask &= ~(ONE64 << it))
 
 /**
- * @brief return "" is str is NULL
+ * @brief return "" if str is NULL
  */
 #define yuiMaybeEmpty(str)			\
   (str ? str : "")
