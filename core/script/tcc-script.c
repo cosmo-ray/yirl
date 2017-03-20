@@ -23,6 +23,8 @@
 
 static int t = -1;
 
+const char *ysTccPath;
+
 #ifdef TCC_FILETYPE_C
 #define tcc_add_c_file(s, filename) tcc_add_file(s, filename, TCC_FILETYPE_C)
 #else
@@ -46,8 +48,13 @@ static TCCState *createTCCState(YTccScript *state)
     return NULL;
   tcc_add_sysinclude_path(l, "/usr/include/");
   tcc_add_sysinclude_path(l, "/usr/lib/tcc/include/");
-  tcc_add_sysinclude_path(l, YIRL_INCLUDE_PATH );
-  tcc_set_lib_path(l, TCC_LIB_PATH);
+  if (!ysTccPath) {
+    tcc_add_sysinclude_path(l, YIRL_INCLUDE_PATH );
+    tcc_set_lib_path(l, TCC_LIB_PATH);
+  } else {
+    tcc_add_sysinclude_path(l, ysTccPath);
+    tcc_set_lib_path(l, ysTccPath);
+  }
   tcc_define_symbol(l, "Y_INSIDE_TCC", NULL);
 #ifdef TCC_OUTPUT_MEMORY
   tcc_set_output_type(l, TCC_OUTPUT_MEMORY);
@@ -169,7 +176,6 @@ static void *tccGetFastCall(void *scriptManager, const char *name)
 	return ret;
     }
   }
-  
   return NULL;
 }
 
@@ -212,7 +218,7 @@ static int tccDestroy(void *sm)
 static void *tccAllocator(void)
 {
   YTccScript *ret;
-  
+
   ret = g_new0(YTccScript, 1);
   if (ret == NULL)
     return NULL;

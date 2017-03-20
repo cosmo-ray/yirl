@@ -16,6 +16,8 @@
 */
 
 #include <glib.h>
+
+#include "tcc-script.h"
 #include "game.h"
 
 int main(int argc, char **argv)
@@ -23,16 +25,19 @@ int main(int argc, char **argv)
   GameConfig cfg;
   int ret = 1;
   GOptionContext *ctx;
+  int default_tcc_path = 0;
   const char *render = NULL;
   const char *start = NULL;
   const char *name = NULL;
   const char *start_dir = NULL;
-  const GOptionEntry entries[5] = {
+  const GOptionEntry entries[6] = {
     {"render", 'r', 0,  G_OPTION_ARG_STRING, &render,
      "choose render('sdl2' or curses), default: sdl", NULL},
     {"start", 's', 0,  G_OPTION_ARG_STRING, &start,
      "starting module", NULL},
     {"name", 'n', 0,  G_OPTION_ARG_STRING, &name, "window name", NULL},
+    {"default-tcc-path", 0, 0,  G_OPTION_ARG_NONE, &default_tcc_path,
+     "set this if tcc files are not in start directory", NULL},
     {"start-dir", 'd', 0,  G_OPTION_ARG_STRING, &start_dir,
      "allow to cp on the given directorry,"
      " use as starting module if --start not set", NULL},
@@ -54,6 +59,9 @@ int main(int argc, char **argv)
     render = "sdl2";
 
   if (start_dir) {
+    if (!default_tcc_path) {
+      ysTccPath = start_dir;
+    }
     chdir(start_dir);
     if (!start)
       start = "./";

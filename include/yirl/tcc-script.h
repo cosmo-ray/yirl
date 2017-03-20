@@ -23,6 +23,8 @@
 
 #define TCC_MAX_SATES 256
 
+extern const char *ysTccPath;
+
 typedef struct {
   YScriptOps ops;
   TCCState *l;
