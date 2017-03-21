@@ -15,6 +15,7 @@
     },
     "lose" : {
 	"<type>" : "text-screen",
+	"init" : "vapz:scoreInit",
 	"text" : "you lose !",
 	"background" : "rgba: 255 255 255 255",
 	"action" : "QuitOnKeyDown"

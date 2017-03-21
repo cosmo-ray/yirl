@@ -104,8 +104,12 @@ static void *quitOnKeyDown(va_list ap)
 
   YEVE_FOREACH(eve, events) {
     if (ywidEveType(eve) == YKEY_DOWN) {
-      alive = 0;
-      return (void *)ACTION;
+      if (ywidEveKey(eve) == 'q' ||
+	  ywidEveKey(eve) == '\n' ||
+	  ywidEveKey(eve) == Y_ESC_KEY) {
+	alive = 0;
+	return (void *)ACTION;
+      }
     }
   }
   va_end(tmp_ap);

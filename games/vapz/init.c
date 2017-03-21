@@ -30,6 +30,7 @@ void *init(int nbArgs, void **args)
   yeCreateString("vapz", map, "<type>");
   yePushBack(map, yeGetByStr(mod, "resources.map"), "resources");
 
+  yeCreateFunction("scoreInit", ygGetManager("tcc"), mod, "scoreInit");
   init = yeCreateArray(NULL, NULL);
   yeCreateString("vapz", init, "name");
   yeCreateFunction("vapzInit", ygGetManager("tcc"), init, "callback");
@@ -118,9 +119,12 @@ static void pizzaMaker(Entity *map, Entity *pizzas)
   ywMapPushElem(map, pizza, pos, "pizza");
 }
 
-static int lose()
+static int lose(int score)
 {
   Entity *str = yeCreateString("vapz:scenes.lose", NULL, NULL);
+  Entity *txt = ygGet("vapz:scenes.lose.text");
+  yeSetString(txt, "you lose, score: ");
+  yeAddInt(txt, score);
   ywidNext(str);
   yeDestroy(str);
   return 1;
@@ -144,7 +148,7 @@ static int pizzaTurn(Entity *map, Entity *vkPos, Entity *textScreen)
     }
     ywMapAdvenceWithEPos(map, pos, yeGetByStrFast(pizza, "dir"), pizza);
     if (ywPosIsSameEnt(pos, vkPos, 0)) {
-      return lose();
+      return lose(yeGetInt(yeGetByStrFast(map, "score")));
     }
     bulletHit = ywMapGetNbrEntityAt(map, pos, 3);
     if (bulletHit) {
@@ -232,7 +236,7 @@ void *vapzAction(int nbArgs, void **args)
   ywMapSetOutBehavior(map, YMAP_OUT_BLOCK);
   Entity *isTouch = ywMapGetNbrEntityAt(map, vkPos, 2);
   if (isTouch) {
-    lose();
+    lose(yeGetInt(yeGetByStrFast(map, "score")));
   }
   ywMapAdvenceWithEPos(map, vkPos, nextPos,
 		       ywMapGetNbrEntityAt(map, vkPos, 1));
@@ -281,4 +285,9 @@ void *vapzInit(int nbArgs, void **args)
   yeCreateInt(1, main, "recreate-logic");
   yeDestroy(gc);
   return ret;
+}
+
+void *scoreInit(int nbArgs, void **args)
+{
+  printf("score !!!\n");
 }
