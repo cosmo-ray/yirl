@@ -39,7 +39,7 @@ void *init(int nbArgs, void **args)
 
 static void pushBullet(Entity *map, Entity *bulletPos, Entity *bulletDir)
 {
-  Entity *bullets = yeGetByStr(map, "bullets");
+  Entity *bullets = yeGetByStrFast(map, "bullets");
   Entity *bullet;
 
   if (!bullets)
@@ -55,10 +55,10 @@ static void pushBullet(Entity *map, Entity *bulletPos, Entity *bulletDir)
 static void removePizza(Entity *map, Entity *textScreen, Entity *pos,
 			Entity *bullet, Entity *toRemove)
 {
-  Entity *txt = yeGetByStr(textScreen, "text");
-  Entity *score = yeGetByStr(map, "score");
-  Entity *bullets = yeGetByStr(map, "bullets");
-  Entity *pizzas = yeGetByStr(map, "pizzas");
+  Entity *txt = yeGetByStrFast(textScreen, "text");
+  Entity *score = yeGetByStrFast(map, "score");
+  Entity *bullets = yeGetByStrFast(map, "bullets");
+  Entity *pizzas = yeGetByStrFast(map, "pizzas");
 
   ywMapRemoveByEntity(map, pos, toRemove);
   ywMapRemoveByEntity(map, pos, bullet);
