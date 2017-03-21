@@ -2,14 +2,17 @@
     "map" : [
 	{
 	    "map-char" : ".",
+	    "map-tild" : "New Piskel.png",
 	    "name" : "floor"
 	},
 	{
 	    "map-char" : "@",
+	    "map-tild" : "viking.png",
 	    "name" : "viking"
 	},
 	{
 	    "map-char" : "A",
+	    "map-tild" : "pizza.png",
 	    "name" : "pinapple"
 
 	},
