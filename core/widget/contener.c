@@ -193,12 +193,6 @@ static InputStatue cntEvent(YWidgetState *opac, YEvent *event)
   InputStatue ret = NOTHANDLE;
   Entity *entries = yeGet(opac->entity, "entries");
   YWidgetState *cur;
-  
-  if (!event)
-    event = ywidGenericWaitEvent();
-
-  if (!event)
-    return NOTHANDLE;
 
   ret = ywidCallSignal(opac, event, NULL, opac->actionIdx);
   if (ret != NOTHANDLE)

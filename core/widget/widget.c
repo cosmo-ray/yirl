@@ -208,7 +208,7 @@ void ywidRemoveRender(int renderType)
   rendersMask ^= (1LLU << renderType);
   renderOpTab[renderType].resizePtr = NULL;
   for(int i = 0; i < MAX_NB_MANAGER; ++i) {
-    widgetOptTab[i].rendersMask ^= (1LLU << renderType);    
+    widgetOptTab[i].rendersMask ^= (1LLU << renderType);
     widgetOptTab[i].init[renderType] = NULL;
     widgetOptTab[i].render[renderType] = NULL;
   }
@@ -512,7 +512,6 @@ int ywidDoTurn(YWidgetState *opac)
       SLIST_INSERT_HEAD(&head, event, lst);
       ++i;
     }
-
   } else {
     event = ywidGenericWaitEvent();
     if (!event)

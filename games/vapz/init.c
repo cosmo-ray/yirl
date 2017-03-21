@@ -15,7 +15,6 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <stdio.h>
 #include <yirl/game.h>
 #include <yirl/menu.h>
 #include <yirl/map.h>
@@ -82,11 +81,6 @@ static void bulletsTurn(Entity *map, Entity *textScreen)
     Entity *toRemove;
 
     ywMapAdvenceWithEPos(map, pos, yeGetByStr(bullet, "dir"), bullet);
-    toRemove = ywMapGetNbrEntityAt(map, pos, 2);
-    if (toRemove) {
-      removePizza(map, textScreen, pos, bullet, toRemove);
-      continue;
-    }
     if (!ywMapIsInside(map, pos)) {
       yeRemoveChild(bullets, bullet);
     }
@@ -141,9 +135,14 @@ static int pizzaTurn(Entity *map, Entity *vkPos, Entity *textScreen)
   pizzaMaker(map, pizzas);
   ywMapSetOutBehavior(map, YMAP_OUT_WARP);
   YE_ARRAY_FOREACH(pizzas, pizza) {
-    Entity *pos = yeGetByStr(pizza, "pos");
+    Entity *pos = yeGetByStrFast(pizza, "pos");
     Entity *bulletHit;
 
+    bulletHit = ywMapGetNbrEntityAt(map, pos, 3);
+    if (bulletHit) {
+      removePizza(map, textScreen, pos, bulletHit, pizza);
+    }
+    ywMapAdvenceWithEPos(map, pos, yeGetByStrFast(pizza, "dir"), pizza);
     if (ywPosIsSameEnt(pos, vkPos, 0)) {
       return lose();
     }
@@ -151,7 +150,6 @@ static int pizzaTurn(Entity *map, Entity *vkPos, Entity *textScreen)
     if (bulletHit) {
       removePizza(map, textScreen, pos, bulletHit, pizza);
     }
-    ywMapAdvenceWithEPos(map, pos, yeGetByStr(pizza, "dir"), pizza);
   }
   return 0;
 }
@@ -160,19 +158,21 @@ void *vapzAction(int nbArgs, void **args)
 {
   Entity *gc =yeCreateArray(NULL, NULL);
   Entity *wid = args[0];
-  void *ret = (void *)NOTHANDLE;
   YEvent *events = args[1];
   YEvent *eve = events;
-  Entity *vk = yeGetByStr(wid, "viking");
-  Entity *vkPos = yeGetByStr(vk, "pos");
+  Entity *vk = yeGetByStrFast(wid, "viking");
+  Entity *vkPos = yeGetByStrFast(vk, "pos");
   Entity *nextPos = ywPosCreateInts(0, 0, gc, NULL);
   Entity *bulletDir = NULL;
   Entity *bulletPos = ywPosCreateEnt(vkPos, 0, gc, NULL);
   Entity *map = ywCntGetEntry(wid, 0);
   Entity *textScreen = ywCntGetEntry(wid, 1);
+  Entity *tl = yeGetByStrFast(wid, "turn-length");
+  void *ret = tl ? (void *)ACTION : (void *)NOTHANDLE;
   int fire = 0;
 
   YEVE_FOREACH(eve, events) {
+
     if (ywidEveType(eve) != YKEY_DOWN)
       continue;
     switch (ywidEveKey(eve)) {
@@ -237,8 +237,8 @@ void *vapzAction(int nbArgs, void **args)
   ywMapAdvenceWithEPos(map, vkPos, nextPos,
 		       ywMapGetNbrEntityAt(map, vkPos, 1));
   if (ret == (void *)ACTION) {
-    pizzaTurn(map, vkPos, textScreen);
     bulletsTurn(map, textScreen);
+    pizzaTurn(map, vkPos, textScreen);
     ywContenerUpdate(wid, map);
     ywContenerUpdate(wid, textScreen);
   }
@@ -277,6 +277,7 @@ void *vapzInit(int nbArgs, void **args)
   yeCreateString("score:", textScreen, "text");
 
   yeCreateInt(0, cur_layer, "score");
+  yeCreateInt(150000, main, "turn-length");
   yeCreateInt(1, main, "recreate-logic");
   yeDestroy(gc);
   return ret;
