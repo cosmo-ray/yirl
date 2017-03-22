@@ -16,7 +16,7 @@
 */
 
 #include <glib.h>
-
+#include <unistd.h>
 #include "tcc-script.h"
 #include "game.h"
 

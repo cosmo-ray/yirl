@@ -15,6 +15,8 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <stdint.h>
+#include <string.h>
 #include <glib.h>
 #include "utils.h"
 #include "block-array.h"
@@ -77,7 +79,7 @@ void yBlockArrayExpandBlocks(BlockArray *ba, int nb)
 
 inline void yBlockArrayCopyElemInternal(BlockArray *ba, size_t pos,
 					       const void *elem)
-{  
+{
   yBlockArraySet(ba, pos);
   memcpy(ba->elems + (pos * ba->elemSize), elem, ba->elemSize);
   return;

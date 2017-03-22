@@ -18,9 +18,6 @@
 #ifndef	DEBUG_H_
 #define	DEBUG_H_
 
-#include <stdio.h>
-#include <stdarg.h>
-
 # ifdef __cplusplus
 extern "C"
 {
@@ -29,12 +26,12 @@ extern "C"
    * @brief Initiate the logger
    */
   void yuiDebugInit(void);
-  
+
   /**
    * @brief Add log to the file or print it to the specified file descriptor.
    */
   void	yuiDebugPrint(int mode, char const* format, ...);
-  
+
   /**
    * @brief Exit the logger
    */
@@ -78,6 +75,6 @@ extern "C"
 #define	y_vprintf(fd, format, vl)	vdprintf(fd, format, vl)
 #else
 #include "Windows.h"
-#define	y_vprintf(fd, format, vl)	
+#define	y_vprintf(fd, format, vl)
 #endif
 #endif	// DEBUG_H_

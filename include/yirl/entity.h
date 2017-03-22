@@ -23,7 +23,6 @@
 #ifndef	_YIRL_ENTITY_H
 #define	_YIRL_ENTITY_H
 
-#include <stdio.h>
 #include "block-array.h"
 
 #define NONNULL(arg) __attribute__ ((nonnull (arg)))
@@ -50,7 +49,7 @@ typedef enum
 
 #define YE_FORMAT_OPT_BREAK_ARRAY_END 1
 #define YE_FORMAT_OPT_PRINT_ONLY_VAL_ARRAY 2
-  
+
 #define	YE_TO_ENTITY(X) ((Entity *)X)
 #define	YE_TO_C_ENTITY(X) ((const Entity *)X)
 #define	YE_TO_INT(X) ((IntEntity *)X)
@@ -624,21 +623,7 @@ static inline int yeArrayContainEntity(Entity *array, const char *str)
   return !!yeGet(array, str);
 }
 
-static inline int yeArrayContainEntitiesInternal(Entity *entity, ...)
-{
-  va_list ap;
-  const char *tmp;
-
-  va_start(ap, entity);
-  while((tmp = va_arg(ap, const char *)) != NULL) {
-    if (!yeArrayContainEntity(entity, tmp)) {
-      va_end(ap);
-      return 0;
-    }
-  }
-  va_end(ap);
-  return 1;
-}
+int yeArrayContainEntitiesInternal(Entity *entity, ...);
 
 #define yeArrayContainEntities(array, ARGS...)		\
   yeArrayContainEntitiesInternal(array, ARRAY, NULL)
@@ -715,13 +700,7 @@ static inline int yeAddEnt(Entity *e, Entity *e2)
   return -1;
 }
 
-static inline int yeStrCmp(Entity *ent1, const char *str)
-{
-  const char *eStr = yeGetString(ent1);
-  if (!eStr)
-    return -1;
-  return strcmp(eStr, str);
-}
+int yeStrCmp(Entity *ent1, const char *str);
 
 static inline Entity *yeFind(Entity *entity,
 			     Entity *(*finder)(const char *,

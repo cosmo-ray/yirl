@@ -24,6 +24,7 @@
 #include "utils.h"
 #include "widget-callback.h"
 #include "json-desc.h"
+#include "yirl/native-script.h"
 
 static void *testMenuEnter(va_list ap)
 {

@@ -214,6 +214,15 @@ Entity *yeBrutalCast(Entity *entity, int type)
   return NULL;
 }
 
+int yeStrCmp(Entity *ent1, const char *str)
+{
+  const char *eStr = yeGetString(ent1);
+  if (!eStr)
+    return -1;
+  return strcmp(eStr, str);
+}
+
+
 EntityType yeStringToType(const char *str)
 {
   int i;
@@ -1260,8 +1269,24 @@ void yeIncrChildsRef(Entity *array)
   }
 }
 
+int yeArrayContainEntitiesInternal(Entity *entity, ...)
+{
+  va_list ap;
+  const char *tmp;
+
+  va_start(ap, entity);
+  while((tmp = va_arg(ap, const char *)) != NULL) {
+    if (!yeArrayContainEntity(entity, tmp)) {
+      va_end(ap);
+      return 0;
+    }
+  }
+  va_end(ap);
+  return 1;
+}
+
 #undef YE_DECR_REF
 
 #undef YE_DESTROY_ENTITY
-  
+
 #undef YE_ALLOC_ENTITY

@@ -18,11 +18,7 @@
 #ifndef _YIRL_UTILS_H_
 #define _YIRL_UTILS_H_
 
-#include <stdlib.h>
-#include <sys/time.h>
 #include <stdint.h>
-#include <unistd.h>
-#include <time.h>
 
 #ifndef MAX_NB_MANAGER
 #define MAX_NB_MANAGER 64
@@ -38,6 +34,17 @@ typedef int64_t int_ptr_t;
 typedef int64_t int_ptr_t;
 #define ONE64      1LLU
 #endif
+
+#ifndef Y_INSIDE_TCC
+#include <stddef.h>
+#else
+#define NULL 0
+typedef int_ptr_t size_t;
+#endif
+
+int printf(const char *format, ...);
+int sprintf(char *str, const char *format, ...);
+int snprintf(char *str, size_t size, const char *format, ...);
 
 // if compiller gcc
 #if defined(__GNUC__) && (__GNUC__ >= 4)
@@ -124,7 +131,7 @@ typedef int64_t int_ptr_t;
  * http://www.qt.io
  */
 
-static inline uint yuiPopcount64(uint64_t v)
+static inline unsigned int yuiPopcount64(uint64_t v)
 {
   /*
    * See http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel
@@ -238,6 +245,11 @@ int yuiUnregiste(YManagerAllocator *ma, int t);
 #define yuiMaybeEmpty(str)			\
   (str ? str : "")
 
+/* string.h sandboxing for tcc */
+char *yuistrcpy(char *dest, const char *src);
+char *yuistrncpy(char *dest, const char *src, size_t n);
+size_t yuistrlen(const char *s);
+
 static inline int yuiStrEqual(const char *str1, const char *str2)
 {
   int i;
@@ -259,7 +271,7 @@ static inline int yuiStrEqual0(const char *str1, const char *str2)
 }
 
 
-#define yuiRand()	rand()
-#define yuiRandInit()	srand(time(NULL) + getpid() + getuid())
+int  yuiRand(void);
+void yuiRandInit(void);
 
 #endif

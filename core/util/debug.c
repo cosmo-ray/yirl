@@ -17,6 +17,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/fcntl.h>
+#include <stdarg.h>
 #include <time.h>
 #include <unistd.h>
 #include <stdio.h>

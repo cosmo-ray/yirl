@@ -2,7 +2,7 @@
 #include "entity-script.h"
 #include "game.h"
 
-static const char *gamePath = "./"; 
+static const char *gamePath = "./";
 
 static inline int die(int ret, GameConfig *cfg)
 {
@@ -31,7 +31,7 @@ int main(void)
   TRY_OR_DIE(ygInit(&cfg), die(-1, &cfg));
   /* put current path inside buff */
   getcwd(buff, 1024);
-  strcpy(buff + strlen(buff), "/test.sm");
+  yuistrcpy(buff + yuistrlen(buff), "/test.sm");
   path = yeCreateString(buff, NULL, NULL);
 
   tmp = yeCreateArray(modDesc, NULL);

@@ -21,7 +21,13 @@
 #include "yirl/utils.h"
 #include "yirl/map.h"
 #include "yirl/sound.h"
+
+#ifndef Y_INSIDE_TCC
 #include "yirl/native-script.h"
+#include "yirl/script.h"
+#endif
+
+
 
 #ifndef _YIRL_GAME_H_
 #define _YIRL_GAME_H_
@@ -105,8 +111,6 @@ Entity *ygGetFuncExt(const char *func);
 void *ygGetManager(const char *name);
 
 void ygEnd(void);
-
-void *ygTerminateCallback(va_list a);
 
 /* scrits managers */
 void *ygGetLuaManager(void);

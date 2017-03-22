@@ -16,6 +16,7 @@
 */
 
 #include	<lauxlib.h>
+#include	<stdlib.h>
 #include	"lua-binding.h"
 #include	"debug.h"
 #include	"entity.h"

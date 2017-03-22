@@ -17,6 +17,7 @@
 
 #include <unistd.h>
 #include <sched.h>
+#include <string.h>
 #include <glib.h>
 
 #include "game.h"
@@ -42,6 +43,7 @@
 #include "map.h"
 #include "text-screen.h"
 #include "contener.h"
+#include "yirl/native-script.h"
 
 static int init;
 static void *jsonManager;
@@ -86,7 +88,7 @@ void *ygGetTccManager(void)
   } while (0)
 
 
-void *ygTerminateCallback(va_list va)
+static void *ygTerminateCallback(va_list va)
 {
   (void)va;
   alive = 0;

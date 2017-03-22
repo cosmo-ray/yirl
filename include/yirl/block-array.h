@@ -18,8 +18,6 @@
 #ifndef	_BLOCK_ARRAY_H_
 #define	_BLOCK_ARRAY_H_
 
-#include <stdint.h>
-#include <string.h>
 #include "utils.h"
 
 /* TODO: uniformize that ... */

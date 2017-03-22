@@ -17,8 +17,9 @@
 
 #include "game.h"
 #include "shooter.h"
+#include "native-script.h"
 
-static const char *gamePath = "./"; 
+static const char *gamePath = "./";
 
 static inline int die(int ret, GameConfig *cfg)
 {
@@ -36,7 +37,7 @@ int main(void)
 {
   GameConfig cfg;
 
-  yuiDebugInit(); //Can not be init twice :)  
+  yuiDebugInit(); //Can not be init twice :)
   TRY_OR_DIE(ygInitGameConfig(&cfg, gamePath, SDL2), -1);
   TRY_OR_DIE(ygInit(&cfg), die(-1, &cfg));
   ysRegistreFunc(ysNativeManager(), "shooterInit", shooterInit);

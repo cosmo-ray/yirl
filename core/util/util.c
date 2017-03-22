@@ -15,6 +15,11 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <stdlib.h>
+#include <sys/time.h>
+#include <unistd.h>
+#include <time.h>
+#include <string.h>
 #include "utils.h"
 
 int yuiRegister(YManagerAllocator *ma, void *(*allocator)(void))
@@ -37,4 +42,29 @@ int yuiUnregiste(YManagerAllocator *ma, int t)
     ma->len -= 1;
   }
   return 0;
+}
+
+size_t yuistrlen(const char *s)
+{
+  return strlen(s);
+}
+
+char *yuistrcpy(char *dest, const char *src)
+{
+  return strcpy(dest, src);
+}
+
+char *yuistrncpy(char *dest, const char *src, size_t n)
+{
+  return strncpy(dest, src, n);
+}
+
+void yuiRandInit(void)
+{
+  srand(time(NULL) + getpid() + getuid());
+}
+
+int  yuiRand(void)
+{
+  return rand();
 }

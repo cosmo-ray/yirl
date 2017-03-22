@@ -17,6 +17,7 @@
 
 #include "timer.h"
 #include "shooter.h"
+#include "native-script.h"
 
 #define MAP_SIZE_W 40
 #define MAP_SIZE_H 40
