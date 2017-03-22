@@ -46,8 +46,6 @@ static TCCState *createTCCState(YTccScript *state)
   l = tcc_new();
   if (l == NULL)
     return NULL;
-  tcc_add_sysinclude_path(l, "/usr/include/");
-  tcc_add_sysinclude_path(l, "/usr/lib/tcc/include/");
   if (!ysTccPath) {
     tcc_add_sysinclude_path(l, YIRL_INCLUDE_PATH );
     tcc_set_lib_path(l, TCC_LIB_PATH);
