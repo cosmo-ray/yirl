@@ -159,8 +159,13 @@ static void *nextOnKeyDown(va_list ap)
   void *ret = (void *)NOTHANDLE;
 
   YEVE_FOREACH(eve, events) {
-    if (ywidEveType(eve) == YKEY_DOWN)
-      ret = nextWid(ap);
+    if (ywidEveType(eve) == YKEY_DOWN) {
+      if (ywidEveKey(eve) == ' ' ||
+	  ywidEveKey(eve) == '\n' ||
+	  ywidEveKey(eve) == Y_ESC_KEY) {
+	ret = nextWid(ap);
+      }
+    }
   }
   va_end(tmp_ap);
   return ret;
