@@ -90,6 +90,7 @@ void *ygGetTccManager(void)
 
 static void *ygTerminateCallback(va_list va)
 {
+  ysdl2WindowMode();
   (void)va;
   alive = 0;
   return (void *)ACTION;
@@ -116,6 +117,21 @@ static void *quitOnKeyDown(va_list ap)
   }
   va_end(tmp_ap);
   return ret;
+}
+
+static void *fullScreenOnOff(va_list ap)
+{
+  static int fs;
+  (void)ap;
+
+  if (fs) {
+    ysdl2WindowMode();
+    fs = 0;
+  } else {
+    ysdl2FullScreen();
+    fs = 1;
+  }
+  return (void *)NOTHANDLE;
 }
 
 static void *nextWid(va_list ap)
@@ -154,6 +170,8 @@ static void *nextOnKeyDown(va_list ap)
 
 static void addNativeFuncToBaseMod(void)
 {
+  ysRegistreCreateNativeEntity(fullScreenOnOff, "FullScreenOnOff",
+			       baseMod, NULL);
   ysRegistreCreateNativeEntity(ygTerminateCallback, "FinishGame", baseMod, NULL);
   ysRegistreCreateNativeEntity(quitOnKeyDown, "QuitOnKeyDown", baseMod, NULL);
   ysRegistreCreateNativeEntity(nextWid, "callNext", baseMod, NULL);

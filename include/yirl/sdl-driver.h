@@ -21,6 +21,8 @@
 void ysdl2Destroy(void);
 int ysdl2Type(void);
 int ysdl2Init(void);
+int ysdl2FullScreen(void);
+int ysdl2WindowMode(void);
 int ysdl2RegistreTextScreen(void);
 int ysdl2RegistreMenu(void);
 

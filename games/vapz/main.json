@@ -8,6 +8,10 @@
 		"action" : "menuNext",
 	    },
 	    {
+		"text" : "Full Screen",
+		"action" : "FullScreenOnOff"
+	    },
+	    {
 		"text" : "Quit",
 		"action" : "FinishGame"
 	    }

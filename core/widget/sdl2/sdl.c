@@ -45,6 +45,16 @@ TTF_Font *sgDefaultFont(void)
   return sg.font;
 }
 
+int ysdl2WindowMode(void)
+{
+  return SDL_SetWindowFullscreen(sg.pWindow, 0);
+}
+
+int ysdl2FullScreen(void)
+{
+  return SDL_SetWindowFullscreen(sg.pWindow, SDL_WINDOW_FULLSCREEN | SDL_WINDOW_BORDERLESS);
+}
+
 int sgSetDefaultFont(const char *path)
 {
   TTF_Font *font;
