@@ -74,6 +74,7 @@ static int sdl2FullRender(YWidgetState *state, SDLWid *wid, Entity *entity)
   unsigned int sizeSpriteW;
   unsigned int sizeSpriteH;
   int thresholdX;
+
   if (unlikely(!hMap || !wMap || !yeLen(map))) {
     DPRINT_ERR("can't rend empty map\n");
     return -1;

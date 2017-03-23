@@ -532,7 +532,7 @@ static int ygParseStartAndGame(GameConfig *config)
   alive = 1;
 
   starting_widget = yeGet(mainMod, "$starting widget");
-  
+
   if (starting_widget) {
     wid = ywidNewWidget(starting_widget, NULL);
     if (!wid) {

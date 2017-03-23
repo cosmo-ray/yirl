@@ -16,9 +16,10 @@
     },
     "lose" : {
 	"<type>" : "text-screen",
-	"init" : "vapz:scoreInit",
-	"text" : "you lose !",
 	"background" : "main screen.png",
-	"action" : "QuitOnKeyDown"
+	"text" : "",
+	"next": "vapz:scenes.main",
+	"background" : "rgba: 255 255 255 255",
+	"action" : "nextOnKeyDown"
     }
 }

@@ -67,10 +67,9 @@ Entity *ywidCreateFunction(const char *name, void *manager,
   if (!sins) {
     sins = yeCreateArray(wid, "signals");
     yePushBack(sins, tmp, sinName);
-    goto exit;
+  } else {
+    yeReplace(sins, yeGet(sins, ywidAddSignalByEntity(wid, sinName)), tmp);
   }
-  yeReplace(sins, yeGet(sins, ywidAddSignalByEntity(wid, sinName)), tmp);
- exit:
   yeDestroy(tmp);
   return tmp;
 }

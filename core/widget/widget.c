@@ -95,7 +95,6 @@ const char *ywidTypeName(YWidgetState *wid)
 
 void ywidSetMainWid(YWidgetState *wid)
 {
-  YWidDestroy(oldWid);
   oldWid = mainWid;
   mainWid = wid;
 }
@@ -246,8 +245,9 @@ static YWidgetState *ywidNewWidgetInternal(int t,
   Entity *pos = yeGet(entity, "wid-pos");
   Entity *initer = ygGetFuncExt(yeGetString(yeGet(entity, "init")));
 
-  if (widgetTab.len <= t || widgetTab.allocator[t] == NULL)
+  if (widgetTab.len <= t || widgetTab.allocator[t] == NULL) {
     return NULL;
+  }
 
   if (pos == NULL)
     pos = ywRectCreateInts(0, 0, 1000, 1000, entity, "wid-pos");

@@ -27,7 +27,7 @@ add_definitions( -DYIRL_INCLUDE_PATH="${CMAKE_SOURCE_DIR}/include/" )
 option(WITH_SDL "use SDL driver" ON)
 option(WITH_CURSES "use curses driver" ON)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -W -g3 -Wall -Wextra -Wstrict-prototypes -Wmissing-prototypes -Werror -std=gnu11 -D_GNU_SOURCE -O3")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -W -g3 -Wall -Wextra -Wstrict-prototypes -Wmissing-prototypes -Werror -std=gnu11 -D_GNU_SOURCE -O0")
 
 include_directories(
 	${LUA_INCLUDE_DIR}

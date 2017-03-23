@@ -119,6 +119,11 @@ static void pizzaMaker(Entity *map, Entity *pizzas)
   ywMapPushElem(map, pizza, pos, "pizza");
 }
 
+static void clean(Entity *wid)
+{
+  yeRemoveChildByStr(wid, "entries");
+}
+
 static int lose(int score)
 {
   Entity *str = yeCreateString("vapz:scenes.lose", NULL, NULL);
@@ -148,7 +153,7 @@ static int pizzaTurn(Entity *map, Entity *vkPos, Entity *textScreen)
     }
     ywMapAdvenceWithEPos(map, pos, yeGetByStrFast(pizza, "dir"), pizza);
     if (ywPosIsSameEnt(pos, vkPos, 0)) {
-      return lose(yeGetInt(yeGetByStrFast(map, "score")));
+      return 1;
     }
     bulletHit = ywMapGetNbrEntityAt(map, pos, 3);
     if (bulletHit) {
@@ -160,7 +165,7 @@ static int pizzaTurn(Entity *map, Entity *vkPos, Entity *textScreen)
 
 void *vapzAction(int nbArgs, void **args)
 {
-  Entity *gc =yeCreateArray(NULL, NULL);
+  Entity *gc = yeCreateArray(NULL, NULL);
   Entity *wid = args[0];
   YEvent *events = args[1];
   YEvent *eve = events;
@@ -182,6 +187,7 @@ void *vapzAction(int nbArgs, void **args)
     switch (ywidEveKey(eve)) {
     case Y_ESC_KEY:
       ywidNext(yeCreateString("vapz:scenes.main", gc, NULL));
+      clean(wid);
       yeDestroy(gc);
       return (void *)ACTION;
       break;
@@ -237,16 +243,23 @@ void *vapzAction(int nbArgs, void **args)
   Entity *isTouch = ywMapGetNbrEntityAt(map, vkPos, 2);
   if (isTouch) {
     lose(yeGetInt(yeGetByStrFast(map, "score")));
+    clean(wid);
+    goto exit;
   }
   ywMapAdvenceWithEPos(map, vkPos, nextPos,
 		       ywMapGetNbrEntityAt(map, vkPos, 1));
   if (ret == (void *)ACTION) {
     bulletsTurn(map, textScreen);
-    pizzaTurn(map, vkPos, textScreen);
+    if (pizzaTurn(map, vkPos, textScreen)) {
+      lose(yeGetInt(yeGetByStrFast(map, "score")));
+      clean(wid);
+      goto exit;
+    }
     ywContenerUpdate(wid, map);
     ywContenerUpdate(wid, textScreen);
   }
-  /* ywPosSetInts(nextPos, 0, 0); */
+
+ exit:
   yeDestroy(gc);
   return ret;
 }
@@ -254,27 +267,23 @@ void *vapzAction(int nbArgs, void **args)
 
 void *vapzInit(int nbArgs, void **args)
 {
-  Entity *gc = yeCreateArray(NULL, NULL);
   Entity *main = args[0];
   Entity *cur_layer;
   Entity *resources = yeGetByStrFast(main, "resources");
-
-  Entity *layers = yeReCreateArray(main, "entries", NULL);
+  Entity *layers = yeCreateArray(main, "entries");
   Entity *viking = yeReCreateArray(main, "viking", NULL);
-  Entity *vkPos = ywPosCreateInts(12, 12, viking, "pos");
+  Entity *vkPos = yeGetByStr(viking, "pos") ? :
+    ywPosCreateInts(12, 12, viking, "pos");
   Entity *textScreen;
 
   yuiRandInit();
-  cur_layer = ywMapCreateDefaultEntity(layers, NULL,
-				       resources,
+  cur_layer = ywMapCreateDefaultEntity(layers, NULL, resources,
 				       0, 25, 25);
   ywMapPushNbr(cur_layer, 1, vkPos, NULL);
+  yeCreateString("map", cur_layer, "<type>");
+  yeCreateString("rgba: 255 255 255 255", cur_layer, "background");
 
-  yeReCreateString("map", cur_layer, "<type>");
-  yeReCreateString("rgba: 255 255 255 255", cur_layer, "background");
-  void *ret = ywidNewWidget(main, "contener");
   yeCreateString("stacking", main, "cnt-type");
-  ywidCreateFunction("vapzAction", ygGetTccManager(), main, "action");
 
   textScreen = yeCreateArray(layers, NULL);
   yeCreateString("text-screen", textScreen, "<type>");
@@ -282,12 +291,8 @@ void *vapzInit(int nbArgs, void **args)
 
   yeCreateInt(0, cur_layer, "score");
   yeCreateInt(150000, main, "turn-length");
-  yeCreateInt(1, main, "recreate-logic");
-  yeDestroy(gc);
+  yeCreateInt(YRECALL_INIT, main, "recreate-logic");
+  ywidCreateFunction("vapzAction", ygGetTccManager(), main, "action");
+  void *ret = ywidNewWidget(main, "contener");
   return ret;
-}
-
-void *scoreInit(int nbArgs, void **args)
-{
-  printf("score !!!\n");
 }

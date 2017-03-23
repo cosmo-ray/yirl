@@ -118,7 +118,7 @@ static void cntResize(YWidgetState *opac)
       yeSetAt(tmpPos, "x", casePos);
       yeSetAt(tmpPos, "w", caseLen);
     }
-  
+
     /* else nothing */
     ywidResize(wid);
     usable -= caseLen;
