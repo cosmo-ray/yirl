@@ -21,7 +21,6 @@
 #ifndef	_YIRL_WIDGET_H_
 #define	_YIRL_WIDGET_H_
 
-#include <stdint.h>
 #include <sys/queue.h>
 #include "entity.h"
 #include "utils.h"
