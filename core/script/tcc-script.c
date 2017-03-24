@@ -40,10 +40,12 @@ const char *ysTccPath;
 static TCCState *createTCCState(YTccScript *state)
 {
   TCCState *l;
+  static char *args[1] = {"-nostdlib"};
 
   if (state->nbStates > TCC_MAX_SATES)
     return NULL;
   l = tcc_new();
+  tcc_parse_args(l, 1, args);
   if (l == NULL)
     return NULL;
   if (!ysTccPath) {
