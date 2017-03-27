@@ -16,10 +16,10 @@
 */
 
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <stdio.h>
+/* #include <sys/types.h> */
+/* #include <sys/stat.h> */
+/* #include <fcntl.h> */
+/* #include <stdio.h> */
 
 #include <yirl/entity.h>
 #include <yirl/widget.h>
@@ -114,7 +114,7 @@ static int read_map(int fd, Entity *map, Entity *resources,
       if (desc) {
 	create_tild_multi_layers(resources, buff[i], layers, desc, pos, *width);
       } else {
-	create_tild(resources, buff[i], map);	
+	create_tild(resources, buff[i], map);
       }
       ++pos;
     }
@@ -205,9 +205,7 @@ void *init_sm_reader(int nbArg, void **args)
 {
   Entity *t = YE_TO_ENTITY(args[0]);
   yeCreateFunction("load_map", ygGetManager("tcc"), t, "load-map");
-  ygRegistreFunc("load_map", "sukeban_load_map", 4);
   yeCreateFunction("load_entity", ygGetManager("tcc"), t, "load-entity");
-  ygRegistreFunc("load_entity", "sukeban_load_entity", 3);
 
   return NULL;
 }

@@ -56,7 +56,6 @@ static Entity *mainMod;
 static Entity *modList;
 static Entity *baseMod;
 static Entity *globalsFunctions;
-static YDescriptionOps *parsers[MAX_NB_MANAGER];
 
 static int alive = 1;
 
@@ -202,7 +201,6 @@ int ygInit(GameConfig *cfg)
 		    "json init failed");
   CHECK_AND_GOTO(jsonManager = ydNewManager(t), NULL, error,
 		    "json init failed");
-  parsers[t] = jsonManager;
 
   /* Init scripting */
   /* TODO init internal lua function */
@@ -281,13 +279,17 @@ void ygEnd()
 #ifdef WITH_SDL
   ysdl2Destroy();
 #endif
-  YE_DESTROY(modList);
+  yeDestroy(modList);
+  modList = NULL;
   ysNativeEnd();
   ysDestroyManager(tccManager);
   ysTccEnd();
   ysDestroyManager(luaManager);
   ysLuaEnd();
   yeDestroy(globalsFunctions);
+  globalsFunctions = NULL;
+  yeDestroy(baseMod);
+  baseMod = NULL;
   yeEnd();
   init = 0;
 }

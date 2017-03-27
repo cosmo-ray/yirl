@@ -26,6 +26,7 @@
 
 /* Globale array that store every entitys */
 static STACK_CREATE(freedElems, int64);
+static int isInit;
 static BlockArray entitysArray;
 static inline Entity *yeInit(Entity *entity, EntityType type,
 			     Entity *father, const char *name);
@@ -60,9 +61,12 @@ static inline Entity *yeInitAt(Entity *entity, EntityType type,
 
 void yeInitMem(void)
 {
-  yBlockArrayInitExt(&entitysArray, union FatEntity,
-		     YBLOCK_ARRAY_NUMA | YBLOCK_ARRAY_NOINIT |
-		     YBLOCK_ARRAY_NOMIDFREE);
+  if (!isInit) {
+    yBlockArrayInitExt(&entitysArray, union FatEntity,
+		       YBLOCK_ARRAY_NUMA | YBLOCK_ARRAY_NOINIT |
+		       YBLOCK_ARRAY_NOMIDFREE);
+  isInit = 1;
+  }
 }
 
 int yeIsPtrAnEntity(void *ptr)
@@ -76,6 +80,7 @@ int yeIsPtrAnEntity(void *ptr)
 
 void yeEnd(void)
 {
+  isInit = 0;
   stack_destroy(freedElems);
   yBlockArrayFree(&entitysArray);
 }

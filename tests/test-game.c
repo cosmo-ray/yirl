@@ -77,6 +77,11 @@ void testYGameLifecycle(void)
   g_assert(!ygInitGameConfig(&cfg, testPath, NONE));
   g_assert(!ygInit(&cfg));
   ygEnd();
+  for (int i = 0; i < 1000; ++i) {
+    g_assert(!ygInit(&cfg));
+    ygEnd();
+  }
+
   ygCleanGameConfig(&cfg);
 }
 

@@ -17,7 +17,7 @@
 
 #include <glib.h>
 #include "entity.h"
-#include "tests.h"  
+#include "tests.h"
 
 void testLifecycleSimple(void)
 {

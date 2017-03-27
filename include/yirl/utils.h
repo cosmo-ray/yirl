@@ -50,8 +50,7 @@ typedef int64_t int_ptr_t;
 #ifndef Y_INSIDE_TCC
 #include <stddef.h>
 #else
-#define NULL 0
-typedef int_ptr_t size_t;
+#include "basic.h"
 #endif
 
 int printf(const char *format, ...);
