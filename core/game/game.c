@@ -356,6 +356,7 @@ Entity *ygLoadMod(const char *path)
   }
 
   yePushBack(modList, mod, yeGetString(name));
+  yeDestroy(mod);
   yeCreateString(path, mod, "$path");
   type = yeGet(mod, "type");
   file = yeGet(mod, "file");

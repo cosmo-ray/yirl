@@ -135,7 +135,7 @@ static void addLinkInfo(Entity *refFather, const char *refName,
 			const char *targetName)
 {
   LinkInfo *linkInfo = g_new(LinkInfo, 1);
-  
+
   linkInfo->refName = g_strdup(refName);
   linkInfo->targetName = g_strdup(targetName);
   linkInfo->refFather = refFather;
@@ -146,7 +146,7 @@ static Entity *parseObject(struct json_object *obj,
 			   const char *name, Entity *father)
 {
   Entity *ret = yeCreateArray(father, name);
-  
+
   if (ret == NULL) {
     YE_DESTROY(father); // change this to free the head entty on the tree
     return NULL;
@@ -177,7 +177,7 @@ static Entity *parseArray(struct json_object *obj,
 {
   Entity *ret = yeCreateArray(father, name);
   int len = json_object_array_length(obj);
-  
+
   if (ret == NULL) {
     YE_DESTROY(father); // change this to free the head entty on the tree
     return NULL;
@@ -236,7 +236,7 @@ static Entity *jsonFromFile(void *opac, const char *fileName, Entity *father)
 {
   struct json_object *file = json_object_from_file(fileName);
   Entity *ret;
-  
+
   (void)opac;
   if (!file) {
     if (!g_file_test(fileName, G_FILE_TEST_EXISTS))

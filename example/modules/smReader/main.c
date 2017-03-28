@@ -52,7 +52,6 @@ int main(void)
   printf("m-d: %s\n", tmpStr);
   g_free(tmpStr);
 
-  printf("%d - %d - %d\n", path->refCount, map->refCount, modDesc->refCount);
   YE_DESTROY(path);
   YE_DESTROY(map);
   YE_DESTROY(modDesc);
