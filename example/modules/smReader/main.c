@@ -1,4 +1,5 @@
 #include <unistd.h>
+#include <glib.h>
 #include "entity-script.h"
 #include "game.h"
 
@@ -44,9 +45,14 @@ int main(void)
   ygLoadMod("../../../modules/sm-reader/");
   map = yesCall(yeGet(ygGetMod("sm-reader"), "load-map"),
 		path, modDesc);
-  printf("map: %s\n", yeToCStr(map, 4, 0));
-  printf("m-d: %s\n", yeToCStr(modDesc, 3, 0));
+  char *tmpStr = yeToCStr(map, 4, 0);
+  printf("map: %s\n", tmpStr);
+  g_free(tmpStr);
+  tmpStr = yeToCStr(modDesc, 3, 0);
+  printf("m-d: %s\n", tmpStr);
+  g_free(tmpStr);
 
+  printf("%d - %d - %d\n", path->refCount, map->refCount, modDesc->refCount);
   YE_DESTROY(path);
   YE_DESTROY(map);
   YE_DESTROY(modDesc);
