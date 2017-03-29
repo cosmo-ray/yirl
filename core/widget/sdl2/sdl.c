@@ -251,7 +251,7 @@ int    ysdl2Init(void)
 
   /* Initialisation simple */
   if (SDL_Init(SDL_INIT_EVERYTHING) != 0 ) {
-    DPRINT_ERR("SDL initialisation failed: (%s)\n",SDL_GetError());
+    DPRINT_ERR("SDL initialisation failed: (%s)\n", SDL_GetError());
     return -1;
   }
 
