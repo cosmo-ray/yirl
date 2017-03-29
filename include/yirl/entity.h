@@ -163,7 +163,7 @@ typedef	struct
   char	*value;
   /* A pointer to the coresponding script manager */
   void	*manager;
-  /* 
+  /*
    * A ptr use by the scripts to call a function faster
    * than if we was using the name of the function.
    * This is initialyse to NULL
