@@ -43,7 +43,7 @@ static inline char * ywPosToString(Entity *pos)
 
   ++i;
   i &= 3;
-  snprintf(tmp[i], 256, "x: %d - y: %d\n",
+  snprintf(tmp[i], 256, "x: %d - y: %d",
 	   yeGetInt(yeGet(pos, 0)), yeGetInt(yeGet(pos, 1)));
   return tmp[i];
 }
@@ -177,11 +177,28 @@ static inline Entity *ywPosAdd(Entity *pos1, Entity *pos2)
   return pos1;
 }
 
+static inline Entity *ywPosSub(Entity *pos1, Entity *pos2)
+{
+  yeSubEnt(yeGet(pos1, 0), yeGet(pos2, 0));
+  yeSubEnt(yeGet(pos1, 1), yeGet(pos2, 1));
+  return pos1;
+}
+
 static inline Entity *ywPosAddXY(Entity *pos, int x, int y)
 {
   yeAddInt(yeGetByIdx(pos, 0), x);
   yeAddInt(yeGetByIdx(pos, 1), y);
   return pos;
+}
+
+static inline Entity *ywSegmentFromPos(Entity *posA, Entity *posB,
+				       Entity *father, const char *name)
+{
+  Entity *ret = yeCreateArray(father, name);
+
+  yeCopy(posB, ret);
+  ywPosSub(ret, posA);
+  return ret;
 }
 
 #endif

@@ -386,7 +386,6 @@ void	yeSetString(Entity *entity, const char *value);
  */
 void	yeUnsetFunction(Entity *entity);
 
-  
 /**
  * Free the entity's value and set the new value to the entity
  * @param entity
@@ -404,7 +403,6 @@ void  yeSetDestroy(Entity *entity, void (*func)(void *));
 				      Y_GEN_CLANG_ARRAY(char, yeSetString), \
 				      char *: yeSetString)(ENTITY, VALUE)
 
-  
 /**
  * @brief set the information about the arguments of a function
  * @param nArgs	 number of arguments
@@ -541,21 +539,17 @@ size_t yeLen(Entity *entity);;
 #define yeGetIntDirect(entity) (YE_TO_INT(entity)->value)
 
 /**
- * @parap entity
- * @param value
- * @return -1 if entity is not og type YINT, <value> otherwise
+ * @return 0 if @entity is NULL
  */
 int	yeGetInt(Entity *entity);
 
 /**
- * @param entity
- * @return the entity's value if entity is of type YFLOAT, -1 otherwise
+ * @return 0 if @entity is NULL
  */
 double yeGetFloat(Entity *entity);
 
 /**
- * @param entity
- * @return the string value 
+ * @return the string value
  */
 const char *yeGetString(Entity *entity);
 
@@ -710,6 +704,33 @@ static inline int yeAddEnt(Entity *e, Entity *e2)
   return -1;
 }
 
+static inline int yeSubInt(Entity *e, int i)
+{
+  switch (yeType(e)) {
+  case YINT:
+    YE_TO_INT(e)->value -= i;
+    return 0;
+  default :
+    return -1;
+  }
+}
+
+static inline int yeSubEntInt(Entity *e, IntEntity *ie)
+{
+  return yeSubInt(e, yeGetInt(YE_TO_ENTITY(ie)));
+}
+
+static inline int yeSubEnt(Entity *e, Entity *e2)
+{
+  switch (yeType(e2)) {
+  case YINT:
+    return yeSubEntInt(e, YE_TO_INT(e2));
+  default :
+    return -1;
+  }
+  return -1;
+}
+
 int yeStrCmp(Entity *ent1, const char *str);
 
 static inline Entity *yeFind(Entity *entity,
@@ -786,7 +807,6 @@ static inline Entity *yeReplaceAtIdx(Entity *array, Entity *toPush, int idx)
   entry->entity = toPush;
   return toPush;
 }
-
 
 static inline int yeReplace(Entity *array, Entity *toReplace, Entity *toPush)
 {
