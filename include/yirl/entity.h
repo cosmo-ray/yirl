@@ -704,6 +704,17 @@ static inline int yeAddEnt(Entity *e, Entity *e2)
   return -1;
 }
 
+static inline int yeMultInt(Entity *e, int i)
+{
+  switch (yeType(e)) {
+  case YINT:
+    YE_TO_INT(e)->value *= i;
+    return 0;
+  default :
+    return -1;
+  }
+}
+
 static inline int yeSubInt(Entity *e, int i)
 {
   switch (yeType(e)) {
