@@ -402,6 +402,14 @@ int	luaYwMapGetCase(lua_State *L)
   return 1;
 }
 
+int	luaYwMapGetNbrEntityAt(lua_State *L)
+{
+  lua_pushlightuserdata(L, ywMapGetNbrEntityAt(lua_touserdata(L, 1),
+					       lua_touserdata(L, 2),
+					       lua_tonumber(L, 3)));
+  return 1;
+}
+
 int	luaYwPosCreate(lua_State *L)
 {
   if (lua_isnumber(L, 1)) {
@@ -496,6 +504,15 @@ int	luaYwMapMove(lua_State *L)
   return 1;
 }
 
+int	luaYwMapSmootMove(lua_State *L)
+{
+  lua_pushnumber(L, ywMapSmootMove(lua_touserdata(L, 1),
+				   lua_touserdata(L, 2),
+				   lua_touserdata(L, 3),
+				   lua_touserdata(L, 4)));
+  return 1;
+}
+
 int	luaYwMapIntFromPos(lua_State *L)
 {
   lua_pushnumber(L, ywMapIntFromPos(lua_touserdata(L, 1),
@@ -531,6 +548,21 @@ int	luaYwMapW(lua_State *L)
 int	luaYwMapH(lua_State *L)
 {
   lua_pushnumber(L, ywMapH(lua_touserdata(L, 1)));
+  return 1;
+}
+
+int	luaYwMapSetSmootMovement(lua_State *L)
+{
+  ywMapSetSmootMovement(lua_touserdata(L, 1), lua_tonumber(L, 2));
+  return 0;
+}
+
+int	luaMvTablePush(lua_State *L)
+{
+  lua_pushlightuserdata(L, ywMapMvTablePush(lua_touserdata(L, 1),
+					    lua_touserdata(L, 2),
+					    lua_touserdata(L, 3),
+					    lua_touserdata(L, 4)));
   return 1;
 }
 

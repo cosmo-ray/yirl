@@ -478,11 +478,12 @@ void sdlConsumeError(void)
 
 int sdlDisplaySprites(YWidgetState *state, SDLWid *wid,
 		      int x, int y, Entity *mapElem,
-		      int w, int h, int thresholdX)
+		      int w, int h, int thresholdX,
+		      int thresholdY)
 {
   SDL_Color color = {0,0,0,255};
   SDL_Rect DestR = {x * w + wid->rect.x + thresholdX,
-		    y * h + wid->rect.y,
+		    y * h + wid->rect.y + thresholdY,
 		    w, h};
   SDL_Texture *texture;
   int id;
@@ -512,7 +513,7 @@ int sdlDisplaySprites(YWidgetState *state, SDLWid *wid,
     Entity *entStr = yeGet(elem, "map-char");
     char *str = (char *)yeGetString(entStr);
     int ret;
-      char tmp;
+    char tmp;
 
     if (unlikely(!str)) {
       Entity *char_sprite = yeGet(elem, "map-char");
@@ -533,7 +534,7 @@ int sdlDisplaySprites(YWidgetState *state, SDLWid *wid,
       return -1;
     }
     DestR.x = x * w + thresholdX;
-    DestR.y = y * h;
+    DestR.y = y * h + thresholdY;
     tmp = str[1];
     str[1] = 0;
     ret = sdlPrintText(wid, str, color, DestR, YSDL_ALIGN_CENTER);

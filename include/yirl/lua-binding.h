@@ -99,12 +99,16 @@ int	luaYwPosToString(lua_State *L);
 int	luaYwMapPosFromInt(lua_State *L);
 int	luaYwMapIntFromPos(lua_State *L);
 int	luaYwMapMove(lua_State *L);
+int	luaYwMapSmootMove(lua_State *L);
 int	luaYwMapRemove(lua_State *L);
 int	luaYwMapPushElem(lua_State *L);
 int	luaYwMapPushNbr(lua_State *L);
 int	luaYwMapGetCase(lua_State *L);
 int	luaYwMapW(lua_State *L);
 int	luaYwMapH(lua_State *L);
+int	luaYwMapSetSmootMovement(lua_State *L);
+int	luaMvTablePush(lua_State *L);
+int	luaYwMapGetNbrEntityAt(lua_State *L);
 
 /* Game and Module */
 int	luaGetMod(lua_State *L);
@@ -142,7 +146,7 @@ static inline int	yesLuaRegister(void *sm)
   lua_setglobal(((YScriptLua *)sm)->l, "Y_LEFT_KEY");
   lua_pushnumber(((YScriptLua *)sm)->l, Y_RIGHT_KEY);
   lua_setglobal(((YScriptLua *)sm)->l, "Y_RIGHT_KEY");
-    
+
   /* I love lua */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yAnd", luaYAnd));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yuiRand", luaRand));
@@ -153,7 +157,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ylovePtrToString", luaPtrToString));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yLovePtrToNumber", luaPtrToNumber));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yloveStringToPtr", luaStringToPtr));
-  
+
   /*array*/
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeGet", luaGet));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeLen", luaLen));
@@ -217,11 +221,17 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapIntFromPos", luaYwMapIntFromPos));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapGetCase", luaYwMapGetCase));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapMove", luaYwMapMove));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapSmootMove", luaYwMapSmootMove));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapRemove", luaYwMapRemove));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapPushElem", luaYwMapPushElem));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapPushNbr", luaYwMapPushNbr));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapW", luaYwMapW));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapH", luaYwMapH));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapSetSmootMovement",
+				 luaYwMapSetSmootMovement));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMvTablePush", luaMvTablePush));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapGetNbrEntityAt",
+				 luaYwMapGetNbrEntityAt));
 
   /* pos */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywPosCreate", luaYwPosCreate));

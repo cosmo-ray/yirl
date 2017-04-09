@@ -587,6 +587,8 @@ void yeDestroyData(Entity *entity)
 
 void yeClearArray(Entity *entity)
 {
+  if (unlikely(!entity))
+    return;
   Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(entity)->values, ae, i, ArrayEntry) {
     yeRemoveFather(ae->entity, entity);
     arrayEntryDestroy(ae);
@@ -1122,7 +1124,8 @@ static ArrayEntity *yeCopyContener(ArrayEntity* src, ArrayEntity* dest,
   return dest;
 }
 
-static Entity*		yeCopyInternal(Entity* src, Entity* dest, Entity *used, Entity *refs)
+static Entity*		yeCopyInternal(Entity* src, Entity* dest,
+				       Entity *used, Entity *refs)
 {
   const char* strVal = NULL;
 

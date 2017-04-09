@@ -115,6 +115,14 @@ int ywMapMoveByEntity(Entity *state, Entity *from,
   return 0;
 }
 
+int ywMapSmootMove(Entity *state, Entity *from,
+		      Entity *to, Entity *elem)
+{
+  ywMapMoveByEntity(state, from, to, elem);
+  ywMapMvTablePush(state, from, to, elem);
+  return 0;
+}
+
 static int mapInitCheckResources(Entity *resources)
 {
   Entity *firstELem = yeGet(resources, 0);
@@ -152,6 +160,7 @@ static int mapInit(YWidgetState *opac, Entity *entity, void *args)
     yeReCreateInt(YMAP_FULL, entity, "map-type");
   }
 
+  yeCreateArray(entity, "$mv_tbl");
   (void)args;
   return 0;
 }
@@ -296,6 +305,17 @@ static int mapRend(YWidgetState *opac)
   return 0;
 }
 
+static void mapMidRend(YWidgetState *wid, int turnPercent)
+{
+  YUI_FOREACH_BITMASK(widgetOptTab[t].rendersMask, it, useless_tmask) {
+    if (widgetOptTab[t].midRend[it])
+      widgetOptTab[t].midRend[it](wid, it, turnPercent);
+  }
+  if (wid->shouldDraw) {
+    ywidDrawScreen();
+  }
+}
+
 int ywMapHasChange(YWidgetState *state)
 {
   return state->hasChange;
@@ -311,6 +331,7 @@ static void *alloc(void)
     return NULL;
 
   wstate->render = mapRend;
+  wstate->midRend = mapMidRend;
   wstate->init = mapInit;
   wstate->destroy = mapDestroy;
   wstate->handleEvent = ywidEventCallActionSin;
@@ -345,11 +366,34 @@ int ywMapEnd(void)
   return 0;
 }
 
+int ywMapIsSmoot(Entity *map);
+int ywMapIsSmoot(Entity *map)
+{
+  return yeGetInt(yeGet(map, "$smoot"));
+}
+
+Entity *ywMapMvTablePush(Entity *map, Entity *from,
+			 Entity *to, Entity *elem)
+{
+  Entity *mv_tbl;
+  Entity *ret;
+
+  if (!ywMapIsSmoot(map))
+    return NULL;
+  mv_tbl = yeGet(map, "$mv_tbl");
+  ret = yeCreateArray(mv_tbl, NULL);
+  ywPosCreate(from, 0, ret, NULL);
+  ywPosCreate(to, 0, ret, NULL);
+  yePushBack(ret, elem, NULL);
+  return ret;
+}
+
 int ywMapAdvenceWithPos(Entity *map, Entity *pos,
 			int x, int y, Entity *elem)
 {
   Entity *out_logic_entity;
   int out_logic;
+  Entity *oldPos;
 
   if (unlikely(!elem || !map || ! pos)) {
     if (!map)
@@ -368,6 +412,8 @@ int ywMapAdvenceWithPos(Entity *map, Entity *pos,
   out_logic = out_logic_entity ? yeGetInt(out_logic_entity) : YMAP_OUT_WARP;
   YE_INCR_REF(elem);
   ywMapRemoveByEntity(map, pos, elem);
+  oldPos = yeCreateArray(NULL, NULL);
+  yeCopy(pos, oldPos);
   ywPosAddXY(pos, x, y);
 
   if (out_logic == YMAP_OUT_WARP) {
@@ -380,13 +426,18 @@ int ywMapAdvenceWithPos(Entity *map, Entity *pos,
       ywPosSetY(pos, ywMapH(map) + ywPosY(pos));
     else if (ywPosY(pos) >= ywMapH(map))
       ywPosSetY(pos, ywPosY(pos) - ywMapH(map));
+
   } else if (out_logic == YMAP_OUT_BLOCK && !ywMapIsInside(map, pos)) {
     ywPosAddXY(pos, -x, -y);
+    goto push;
   } else if (!ywMapIsInside(map, pos)) {
-    YE_DESTROY(elem);
-    return 0;
+    goto clean;
   }
+  ywMapMvTablePush(map, oldPos, pos, elem);
+ push:
   ywMapPushElem(map, elem, pos, NULL);
+ clean:
+  YE_DESTROY(oldPos);
   YE_DESTROY(elem);
   return 0;
 }

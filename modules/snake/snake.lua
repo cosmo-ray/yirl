@@ -24,10 +24,10 @@ function getLooseScreen(entity)
 end
 
 function snakeMap(map)
+   ywMapSetSmootMovement(map, 1);
    yeCreateInt(200000, map, "turn-length")
    yeCreateInt(20, map, "width")
    yeCreateInt(0, map, "nbPeanut")
-   --yeCreateString( "rgba: 180 210 20 50", map, "background")
    local cases = yeCreateArray(map, "map")
 
    local i = 0
@@ -116,7 +116,7 @@ function moveHeadInternal(map, opos, npos)
       ywidCallSignal(map, score, nil, yeGetInt(yeGet(map, "eatIdx")))
    end
 
-   ywMapMove(map, opos, npos, headElem)
+   ywMapSmootMove(map, opos, npos, headElem);
 
    if bodyLen == 0 then
       yeReplaceBack(head, npos, "pos")
@@ -124,24 +124,25 @@ function moveHeadInternal(map, opos, npos)
       return
    end
 
-   ywMapRemove(map, yeGet(body, 0), "bd");
-   -- pop back tail body
-
    local i = 0
    while i < bodyLen do
-      local curBody = yeGet(body, bodyLen - 1 - i)
-      local tmpPos = ywPosCreate(curBody);
-      ywPosSet(curBody, opos)
+      local curBodyPos = yeGet(body, bodyLen - 1 - i)
+      local elem = ywMapGetNbrEntityAt(map, curBodyPos, 4);
+      local tmpPos = ywPosCreate(curBodyPos);
+
+      if yLovePtrToNumber(elem) == 0 then
+	 elem = ywMapGetNbrEntityAt(map, curBodyPos, 3)
+	 yeSetInt(elem, 4)
+      end
+      ywMapSmootMove(map, curBodyPos, opos, elem);
+      ywPosSet(curBodyPos, opos)
       ywPosSet(opos, tmpPos)
       yeDestroy(tmpPos)
       i = i + 1
    end
 
-   local headBody = yeGet(body, bodyLen - 1)
-   ywMapPushNbr(map, 4, headBody, "bd")
    yeReplaceBack(head, npos, "pos")
    ywidCallSignal(map, nil, nil, yeGetInt(yeGet(map, "endTurnIdx")))
-   -- push first body
 end
 
 function moveHead(map)

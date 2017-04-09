@@ -72,8 +72,9 @@ int sdlPrintText(SDLWid *wid,
 		 int alignementType);
 
 int sdlDisplaySprites(YWidgetState *state, SDLWid *wid,
-		      int x, int y, Entity *elem,
-		      int w, int h, int thresholdX);
+		      int x, int y, Entity *mapElem,
+		      int spritWidth, int spriteHeight,
+		      int thresholdX, int thresholdY);
 
 SDL_Rect sdlRectFromRectEntity(Entity *rect);
 

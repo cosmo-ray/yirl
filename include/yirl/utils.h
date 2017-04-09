@@ -285,4 +285,12 @@ static inline int yuiStrEqual0(const char *str1, const char *str2)
 int  yuiRand(void);
 void yuiRandInit(void);
 
+/**
+ * @return percent of @value
+ */
+static inline int yuiPercentOf(int value, int percent)
+{
+  return value * percent / 100;
+}
+
 #endif

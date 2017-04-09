@@ -108,8 +108,8 @@ typedef struct WidgetState_ {
   Entity *entity;
   YRenderState renderStates[64];
   int (*render)(struct WidgetState_ *opac);
+  void (*midRend)(struct WidgetState_ *opac, int turnPercent);
   InputStatue (*handleEvent)(struct WidgetState_ *opac, YEvent *event);
-  InputStatue (*handleAnim)(struct WidgetState_ *opac);
   void (*resize)(struct WidgetState_ *opac);
   int (*init)(struct WidgetState_ *opac, Entity *entity, void *args);
   int (*destroy)(struct WidgetState_ *opac);
@@ -127,6 +127,8 @@ struct widgetOpt {
   char *name;
   uint64_t rendersMask;
   int (*render[MAX_NB_MANAGER])(YWidgetState *wid, int renderType);
+  void (*midRend[MAX_NB_MANAGER])(struct WidgetState_ *opac, int t,
+				  int turnPercent);
   int (*init[MAX_NB_MANAGER])(YWidgetState *opac, int t);
   void (*destroy[MAX_NB_MANAGER])(YWidgetState *opac, int t);
 };
@@ -168,6 +170,9 @@ int ywidRegistreRender(void (*resizePtr)(YWidgetState *wid, int renderType),
 		       YEvent *(*pollEvent)(void),
 		       YEvent *(*waitEvent)(void),
 		       int (*draw)(void));
+void ywidRegistreMidRend(void (*midRender)(YWidgetState *, int, int),
+			 int widgetType, int renderType);
+
 void ywidRemoveRender(int renderType);
 
 int ywidRegistreTypeRender(const char *type, int t,
@@ -178,6 +183,13 @@ int ywidRegistreTypeRender(const char *type, int t,
 
 /* rename to push size */
 void ywidResize(YWidgetState *wid);
+
+static inline void ywidMidRend(YWidgetState *opac, int turnPercent)
+{
+  if (opac->midRend) {
+    opac->midRend(opac, turnPercent);
+  }
+}
 
 static inline int ywidRend(YWidgetState *opac)
 {
@@ -208,10 +220,7 @@ static inline int ywidHandleEvent(YWidgetState *opac, YEvent *event)
  return ret;
 }
 
-int ywidHandleAnim(YWidgetState *opac);
-
 int ywidDoTurn(YWidgetState *opac);
-
 
 #define ywidGenericCall(wid_, widType, func)				\
   YUI_FOREACH_BITMASK(widgetOptTab[widType].rendersMask,		\

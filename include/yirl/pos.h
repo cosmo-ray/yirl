@@ -191,6 +191,16 @@ static inline Entity *ywPosMultXY(Entity *pos1, int x, int y)
   return pos1;
 }
 
+static inline Entity *ywPosDoPercent(Entity *pos1, int arg)
+{
+  Entity *x = yeGet(pos1, 0);
+  Entity *y = yeGet(pos1, 1);
+
+  yeSetInt(x, yuiPercentOf(yeGetInt(x), arg));
+  yeSetInt(y, yuiPercentOf(yeGetInt(y), arg));
+  return pos1;
+}
+
 static inline Entity *ywPosAddXY(Entity *pos, int x, int y)
 {
   yeAddInt(yeGetByIdx(pos, 0), x);

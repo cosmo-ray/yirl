@@ -397,10 +397,17 @@ int ywidRegistreTypeRender(const char *type, int renderType,
       widgetOptTab[i].render[renderType] = render;
       widgetOptTab[i].init[renderType] = init;
       widgetOptTab[i].destroy[renderType] = destroy;
+      widgetOptTab[i].midRend[renderType] = NULL;
       return i;
     }
   }
   return -1;
+}
+
+void ywidRegistreMidRend(void (*midRender)(YWidgetState *, int, int),
+			 int widgetType, int renderType)
+{
+  widgetOptTab[widgetType].midRend[renderType] = midRender;
 }
 
 int ywidRegistreRender(void (*resizePtr)(YWidgetState *wid, int renderType),
@@ -500,17 +507,25 @@ int ywidDoTurn(YWidgetState *opac)
 
   if (turnLength > 0) {
     int64_t i = 0;
+    uint16_t percent;
 
     i = turnLength - YTimerGet(cnt);
-    if (i > 0)
+    percent = 100 - (i * 100 / turnLength);
+    while (i > 0 && percent < 95) {
+      ywidMidRend(mainWid, percent);
+      usleep(1);
+      i = turnLength - YTimerGet(cnt);
+      percent = 100 - (i * 100 / turnLength);
+    }
+    if (i > 0) {
       usleep(i);
+    }
     YTimerReset(cnt);
 
     for (event = ywidGenericPollEvent(); event;
 	 event = ywidGenericPollEvent()) {
       event->head = &head;
       SLIST_INSERT_HEAD(&head, event, lst);
-      ++i;
     }
   } else {
     event = ywidGenericWaitEvent();
@@ -520,6 +535,8 @@ int ywidDoTurn(YWidgetState *opac)
     SLIST_INSERT_HEAD(&head, event, lst);
   }
 
+  // TODO: clear midRend
+  yeClearArray(yeGet(opac->entity, "$mv_tbl"));
   ret = ywidHandleEvent(opac, SLIST_FIRST(&head));
   ywidFreeEvents(SLIST_FIRST(&head));
   return ret;
@@ -533,7 +550,7 @@ InputStatue ywidEventCallActionSin(YWidgetState *opac, YEvent *event)
 int ywIsPixsOnWid(Entity *widget, int posX, int posY)
 {
   Entity *pixR = yeGet(widget, "wid-pix");
-  
+
   return posX > ywRectX(pixR) && posX < (ywRectX(pixR) + ywRectW(pixR)) &&
     posY > ywRectY(pixR) && posY < (ywRectY(pixR) + ywRectH(pixR));
 }

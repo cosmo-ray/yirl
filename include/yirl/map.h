@@ -91,7 +91,10 @@ static inline int ywMapIsInside(Entity *map, Entity *pos)
 
 int ywMapGetIdByElem(Entity *mapElem);
 
-Entity *ywMapGetCase(Entity *state, Entity *pos);
+/**
+ * @return the elements array of @map at @pos
+ */
+Entity *ywMapGetCase(Entity *map, Entity *pos);
 
 static inline Entity *ywMapGetNbrEntityAt(Entity *state, Entity *pos, int nbr)
 {
@@ -113,6 +116,18 @@ Entity *ywMapPushElem(Entity *state, Entity *toPush,
 
 Entity *ywMapPushNbr(Entity *state, int toPush,
 		     Entity *pos, const char *name);
+
+
+/**
+ * @smoot	true to activate smoort movement
+ */
+static inline void ywMapSetSmootMovement(Entity *map, int smoot)
+{
+  yeReCreateInt(smoot, map, "$smoot");
+}
+
+Entity *ywMapMvTablePush(Entity *map, Entity *from,
+			 Entity *to, Entity *elem);
 
 static inline void ywMapSetOutBehavior(Entity *map, YMapOutBehavior ob)
 {
@@ -160,6 +175,9 @@ static inline int ywMapRemoveByStr(Entity *state, Entity *pos,
 	  const char *: ywMapRemoveByStr,				\
 	  char *: ywMapRemoveByStr) (sate, pos, elem)
 
+
+int ywMapSmootMove(Entity *state, Entity *from,
+		   Entity *to, Entity *elem);
 
 int ywMapMoveByStr(Entity *state, Entity *from,
 		   Entity *to, const char *elem);
