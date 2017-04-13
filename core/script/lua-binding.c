@@ -410,6 +410,24 @@ int	luaYwMapGetNbrEntityAt(lua_State *L)
   return 1;
 }
 
+int	luaYuiAbs(lua_State *L)
+{
+  lua_pushnumber(L, yuiAbs(lua_tonumber(L, 1)));
+  return 1;
+}
+
+int	luaYwPosX(lua_State *L)
+{
+  lua_pushnumber(L, ywPosX(lua_touserdata(L, 1)));
+  return 1;
+}
+
+int	luaYwPosY(lua_State *L)
+{
+  lua_pushnumber(L, ywPosY(lua_touserdata(L, 1)));
+  return 1;
+}
+
 int	luaYwPosCreate(lua_State *L)
 {
   if (lua_isnumber(L, 1)) {

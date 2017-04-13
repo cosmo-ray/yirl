@@ -26,9 +26,12 @@
 
 /* love lua */
 int	luaYAnd(lua_State *L);
+int     luaStringToPtr(lua_State *l);
+
+/* util */
 int	luaRand(lua_State *L);
 int	luaRandInit(lua_State *L);
-int     luaStringToPtr(lua_State *l);
+int	luaYuiAbs(lua_State *L);
 
 /* Array */
 int	luaGet(lua_State *L);
@@ -94,6 +97,8 @@ int	luYwPosIsSame(lua_State *L);
 int	luYwPosAdd(lua_State *L);
 int	luaYwPosPrint(lua_State *L);
 int	luaYwPosToString(lua_State *L);
+int	luaYwPosX(lua_State *L);
+int	luaYwPosY(lua_State *L);
 
 /* map */
 int	luaYwMapPosFromInt(lua_State *L);
@@ -149,8 +154,11 @@ static inline int	yesLuaRegister(void *sm)
 
   /* I love lua */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yAnd", luaYAnd));
+
+  /* utils */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yuiRand", luaRand));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yuiRandInit", luaRandInit));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yuiAbs", luaYuiAbs));
 
   /* Lua conceptor should love me */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yloveNbrToPtr", luaNbrToPtr));
@@ -234,6 +242,8 @@ static inline int	yesLuaRegister(void *sm)
 				 luaYwMapGetNbrEntityAt));
 
   /* pos */
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywPosX", luaYwPosX));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywPosY", luaYwPosY));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywPosCreate", luaYwPosCreate));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywPosSet", luaYwPosSet));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywPosIsSame", luYwPosIsSame));

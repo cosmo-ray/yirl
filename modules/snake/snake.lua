@@ -116,7 +116,13 @@ function moveHeadInternal(map, opos, npos)
       ywidCallSignal(map, score, nil, yeGetInt(yeGet(map, "eatIdx")))
    end
 
-   ywMapSmootMove(map, opos, npos, headElem);
+   if (yuiAbs(ywPosX(npos) - ywPosX(opos)) > 1) then
+      ywMapMove(map, opos, npos, headElem);
+   elseif (yuiAbs(ywPosY(npos) - ywPosY(opos)) > 1) then
+      ywMapMove(map, opos, npos, headElem);
+   else
+      ywMapSmootMove(map, opos, npos, headElem);
+   end
 
    if bodyLen == 0 then
       yeReplaceBack(head, npos, "pos")
@@ -134,7 +140,13 @@ function moveHeadInternal(map, opos, npos)
 	 elem = ywMapGetNbrEntityAt(map, curBodyPos, 3)
 	 yeSetInt(elem, 4)
       end
-      ywMapSmootMove(map, curBodyPos, opos, elem);
+      if (yuiAbs(ywPosX(curBodyPos) - ywPosX(opos)) > 1) then
+	 ywMapMove(map, curBodyPos, opos, elem);
+      elseif (yuiAbs(ywPosY(curBodyPos) - ywPosY(opos)) > 1) then
+	 ywMapMove(map, curBodyPos, opos, elem);
+      else
+	 ywMapSmootMove(map, curBodyPos, opos, elem);
+      end
       ywPosSet(curBodyPos, opos)
       ywPosSet(opos, tmpPos)
       yeDestroy(tmpPos)
