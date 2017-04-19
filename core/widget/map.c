@@ -20,6 +20,11 @@
 #include "rect.h"
 #include "map.h"
 #include "widget-callback.h"
+#include "entity-script.h"
+#include "native-script.h"
+
+static Entity *moveTblCallback;
+static Entity *pushTblCallback;
 
 static int t = -1;
 
@@ -115,11 +120,30 @@ int ywMapMoveByEntity(Entity *state, Entity *from,
   return 0;
 }
 
+static void *moveTbl(va_list ap)
+{
+  Entity *ent = va_arg(ap, Entity *);
+  Entity *tbl = va_arg(ap, Entity *);
+
+  ywMapMoveByEntity(ent, yeGet(tbl, 0), yeGet(tbl, 1), yeGet(tbl, 2));
+  return NULL;
+}
+
+
+static void *pushTbl(va_list ap)
+{
+  Entity *ent = va_arg(ap, Entity *);
+  Entity *tbl = va_arg(ap, Entity *);
+
+  ywMapPushElem(ent, yeGet(tbl, 2), yeGet(tbl, 0), NULL);
+  return NULL;
+}
+
 int ywMapSmootMove(Entity *state, Entity *from,
 		      Entity *to, Entity *elem)
 {
-  ywMapMoveByEntity(state, from, to, elem);
-  ywMapMvTablePush(state, from, to, elem);
+  if (!ywMapMvTablePush(state, from, to, elem, moveTblCallback))
+    ywMapMoveByEntity(state, from, to, elem);
   return 0;
 }
 
@@ -316,11 +340,21 @@ static void mapMidRend(YWidgetState *wid, int turnPercent)
   }
 }
 
+static void mapMidRendEnd(YWidgetState *wid)
+{
+  Entity *ent = wid->entity;
+  Entity *mv_tbl = yeGet(ent, "$mv_tbl");
+
+  YE_ARRAY_FOREACH(mv_tbl, tbl) {
+    yesCall(yeGet(tbl, 3), ent, tbl);
+  }
+  yeClearArray(mv_tbl);
+}
+
 int ywMapHasChange(YWidgetState *state)
 {
   return state->hasChange;
 }
-
 
 static void *alloc(void)
 {
@@ -332,6 +366,7 @@ static void *alloc(void)
 
   wstate->render = mapRend;
   wstate->midRend = mapMidRend;
+  wstate->midRendEnd = mapMidRendEnd;
   wstate->init = mapInit;
   wstate->destroy = mapDestroy;
   wstate->handleEvent = ywidEventCallActionSin;
@@ -355,6 +390,10 @@ int ywMapInit(void)
     return t;
 
   t = ywidRegister(alloc, "map");
+  moveTblCallback = ysRegistreCreateNativeEntity(moveTbl, "moveTbl",
+						 NULL, NULL);
+  pushTblCallback = ysRegistreCreateNativeEntity(pushTbl, "pushTbl",
+						 NULL, NULL);
   return t;
 }
 
@@ -362,6 +401,8 @@ int ywMapEnd(void)
 {
   if (ywidUnregiste(t) < 0)
     return -1;
+  yeDestroy(moveTblCallback);
+  yeDestroy(pushTblCallback);
   t = -1;
   return 0;
 }
@@ -373,7 +414,7 @@ int ywMapIsSmoot(Entity *map)
 }
 
 Entity *ywMapMvTablePush(Entity *map, Entity *from,
-			 Entity *to, Entity *elem)
+			 Entity *to, Entity *elem, Entity *callback)
 {
   Entity *mv_tbl;
   Entity *ret;
@@ -385,6 +426,7 @@ Entity *ywMapMvTablePush(Entity *map, Entity *from,
   ywPosCreate(from, 0, ret, NULL);
   ywPosCreate(to, 0, ret, NULL);
   yePushBack(ret, elem, NULL);
+  yePushBack(ret, callback, NULL);
   return ret;
 }
 
@@ -433,7 +475,8 @@ int ywMapAdvenceWithPos(Entity *map, Entity *pos,
   } else if (!ywMapIsInside(map, pos)) {
     goto clean;
   }
-  ywMapMvTablePush(map, oldPos, pos, elem);
+  if (ywMapMvTablePush(map, oldPos, pos, elem, pushTblCallback))
+    goto clean;
  push:
   ywMapPushElem(map, elem, pos, NULL);
  clean:

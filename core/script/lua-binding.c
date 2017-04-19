@@ -580,7 +580,8 @@ int	luaMvTablePush(lua_State *L)
   lua_pushlightuserdata(L, ywMapMvTablePush(lua_touserdata(L, 1),
 					    lua_touserdata(L, 2),
 					    lua_touserdata(L, 3),
-					    lua_touserdata(L, 4)));
+					    lua_touserdata(L, 4),
+					    lua_touserdata(L, 5)));
   return 1;
 }
 

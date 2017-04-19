@@ -127,7 +127,7 @@ static inline void ywMapSetSmootMovement(Entity *map, int smoot)
 }
 
 Entity *ywMapMvTablePush(Entity *map, Entity *from,
-			 Entity *to, Entity *elem);
+			 Entity *to, Entity *elem, Entity *callback);
 
 static inline void ywMapSetOutBehavior(Entity *map, YMapOutBehavior ob)
 {

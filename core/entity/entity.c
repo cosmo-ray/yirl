@@ -935,7 +935,7 @@ int yeAttach(Entity *on, Entity *entity,
     g_free(entry->name);
   }
   entry->entity = entity;
-  entry->name = g_strdup(name);  
+  entry->name = g_strdup(name);
   entry->flags = flag;
   if (unlikely(entity->type == YARRAY))
     yeAttachFather(entity, on, name, idx);

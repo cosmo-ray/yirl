@@ -122,6 +122,14 @@ static int sdl2Init(YWidgetState *wid, int t)
   return 0;
 }
 
+static Entity *findEnt(const char *useless, Entity *ent, void *ent2)
+{
+  (void)useless;
+  if (yeGet(ent, 2) == ent2)
+    return ent2;
+  return NULL;
+}
+
 static void sdl2MidFullRender(YWidgetState *state, SDLWid *wid, Entity *ent,
 			      int percent)
 {
@@ -141,12 +149,11 @@ static void sdl2MidFullRender(YWidgetState *state, SDLWid *wid, Entity *ent,
   YE_ARRAY_FOREACH(mv_tbl, tbl) {
     Entity *from = yeGet(tbl, 0);
     Entity *to = yeGet(tbl, 1);
-    Entity *movingElem = yeGet(tbl, 2);
 
 #define PRINT_BG_AT(pos_at)						\
     Entity *pos_at##mc = ywMapGetCase(ent, pos_at);			\
     YE_ARRAY_FOREACH(pos_at##mc, mapElem##pos_at) {			\
-      if (mapElem##pos_at == movingElem) {				\
+      if (yeFind(mv_tbl, findEnt, mapElem##pos_at)) {			\
 	continue;							\
       }									\
       if (unlikely(sdlDisplaySprites(state, wid, ywPosX(pos_at), ywPosY(pos_at), \

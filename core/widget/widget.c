@@ -536,7 +536,7 @@ int ywidDoTurn(YWidgetState *opac)
   }
 
   // TODO: clear midRend
-  yeClearArray(yeGet(opac->entity, "$mv_tbl"));
+  ywidMidRendEnd(mainWid);
   ret = ywidHandleEvent(opac, SLIST_FIRST(&head));
   ywidFreeEvents(SLIST_FIRST(&head));
   return ret;

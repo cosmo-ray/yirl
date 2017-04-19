@@ -109,6 +109,7 @@ typedef struct WidgetState_ {
   YRenderState renderStates[64];
   int (*render)(struct WidgetState_ *opac);
   void (*midRend)(struct WidgetState_ *opac, int turnPercent);
+  void (*midRendEnd)(struct WidgetState_ *opac);
   InputStatue (*handleEvent)(struct WidgetState_ *opac, YEvent *event);
   void (*resize)(struct WidgetState_ *opac);
   int (*init)(struct WidgetState_ *opac, Entity *entity, void *args);
@@ -191,6 +192,13 @@ static inline void ywidMidRend(YWidgetState *opac, int turnPercent)
   }
 }
 
+static inline void ywidMidRendEnd(YWidgetState *opac)
+{
+  if (opac->midRend) {
+    opac->midRendEnd(opac);
+  }
+}
+
 static inline int ywidRend(YWidgetState *opac)
 {
   int ret = -1;
@@ -225,8 +233,7 @@ int ywidDoTurn(YWidgetState *opac);
 #define ywidGenericCall(wid_, widType, func)				\
   YUI_FOREACH_BITMASK(widgetOptTab[widType].rendersMask,		\
 		      ywidGenericCallIt, useless_tmask) {		\
-    widgetOptTab[widType].func[ywidGenericCallIt](wid_,			\
-						  ywidGenericCallIt);	\
+    widgetOptTab[widType].func[ywidGenericCallIt](wid_, ywidGenericCallIt); \
   }
 
 #define ywidGenericRend(wid_, widType, func) do {	\
