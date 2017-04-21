@@ -1,2 +1,2 @@
 #!/bin/sh
-wc */*.c */*/*.c core/widget/*/*.c include/*/*.h
+wc  core/*/*.c core/widget/*/*.c include/*/*.h

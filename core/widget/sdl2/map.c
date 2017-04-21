@@ -23,6 +23,9 @@
 #include "map.h"
 #include "entity.h"
 
+static void sdl2MidFullRender(YWidgetState *state, SDLWid *wid, Entity *ent,
+			      int percent);
+
 int ywMapIsSmoot(Entity *map);
 
 /* crop the map and print the middle of it */
@@ -102,6 +105,7 @@ static int sdl2FullRender(YWidgetState *state, SDLWid *wid, Entity *entity)
     }
   }
 
+  sdl2MidFullRender(state, wid, state->entity, 0);
   return 0;
 }
 

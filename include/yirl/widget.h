@@ -194,7 +194,7 @@ static inline void ywidMidRend(YWidgetState *opac, int turnPercent)
 
 static inline void ywidMidRendEnd(YWidgetState *opac)
 {
-  if (opac->midRend) {
+  if (opac->midRendEnd) {
     opac->midRendEnd(opac);
   }
 }

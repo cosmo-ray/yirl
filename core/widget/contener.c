@@ -217,6 +217,7 @@ static int cntRend(YWidgetState *opac)
     yeReplaceBack(bg_wid->entity, yeGet(opac->entity, "wid-pos"), "wid-pos");
     ywidRend(bg_wid);
   }
+
   YE_ARRAY_FOREACH(entries, tmp) {
     YWidgetState *wid = ywidGetState(tmp);
 
@@ -244,6 +245,32 @@ static int cntRend(YWidgetState *opac)
   return 0;
 }
 
+static void cntMidRend(YWidgetState *opac, int percent)
+{
+  Entity *entries = yeGet(opac->entity, "entries");
+
+  YE_ARRAY_FOREACH(entries, tmp) {
+    YWidgetState *wid = ywidGetState(tmp);
+
+    if (!wid)
+      continue;
+    ywidMidRend(wid, percent);
+  }
+  ywidDrawScreen();
+}
+
+static void midRendEnd(YWidgetState *opac)
+{
+  Entity *entries = yeGet(opac->entity, "entries");
+
+  YE_ARRAY_FOREACH(entries, tmp) {
+    YWidgetState *wid = ywidGetState(tmp);
+      if (!wid)
+	continue;
+      ywidMidRendEnd(wid);
+  }
+}
+
 static void *alloc(void)
 {
   YContenerState *ret = g_new0(YContenerState, 1);
@@ -252,6 +279,8 @@ static void *alloc(void)
   wstate->render = cntRend;
   wstate->init = cntInit;
   wstate->destroy = cntDestroy;
+  wstate->midRendEnd = midRendEnd;
+  wstate->midRend = cntMidRend;
   wstate->handleEvent = cntEvent;
   wstate->resize = cntResize;
   wstate->type = t;

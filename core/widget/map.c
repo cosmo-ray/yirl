@@ -135,7 +135,7 @@ static void *pushTbl(va_list ap)
   Entity *ent = va_arg(ap, Entity *);
   Entity *tbl = va_arg(ap, Entity *);
 
-  ywMapPushElem(ent, yeGet(tbl, 2), yeGet(tbl, 0), NULL);
+  ywMapPushElem(ent, yeGet(tbl, 2), yeGet(tbl, 1), NULL);
   return NULL;
 }
 
@@ -413,6 +413,23 @@ int ywMapIsSmoot(Entity *map)
   return yeGetInt(yeGet(map, "$smoot"));
 }
 
+void ywMapMvTableRemove(Entity *map, Entity *to_rm)
+{
+  Entity *mv_tbl;
+
+  mv_tbl = yeGet(map, "$mv_tbl");
+  if (!mv_tbl)
+    return;
+  YE_ARRAY_FOREACH(mv_tbl, tbl) {
+    Entity *movingElem = yeGet(tbl, 2);
+
+    if (movingElem == to_rm) {
+      yeRemoveChild(mv_tbl, tbl);
+      return;
+    }
+  }
+}
+
 Entity *ywMapMvTablePush(Entity *map, Entity *from,
 			 Entity *to, Entity *elem, Entity *callback)
 {
@@ -430,8 +447,7 @@ Entity *ywMapMvTablePush(Entity *map, Entity *from,
   return ret;
 }
 
-int ywMapAdvenceWithPos(Entity *map, Entity *pos,
-			int x, int y, Entity *elem)
+int ywMapAdvenceWithPos(Entity *map, Entity *pos, int x, int y, Entity *elem)
 {
   Entity *out_logic_entity;
   int out_logic;
@@ -463,22 +479,23 @@ int ywMapAdvenceWithPos(Entity *map, Entity *pos,
       ywPosSetX(pos, ywMapW(map) + ywPosX(pos));
     else if (ywPosX(pos) >= ywMapW(map))
       ywPosSetX(pos, ywPosX(pos) - ywMapW(map));
-
-    if (ywPosY(pos) < 0)
+    else if (ywPosY(pos) < 0)
       ywPosSetY(pos, ywMapH(map) + ywPosY(pos));
     else if (ywPosY(pos) >= ywMapH(map))
       ywPosSetY(pos, ywPosY(pos) - ywMapH(map));
-
+    else
+      goto push;
+    ywMapPushElem(map, elem, pos, NULL);
+    goto clean;
   } else if (out_logic == YMAP_OUT_BLOCK && !ywMapIsInside(map, pos)) {
     ywPosAddXY(pos, -x, -y);
     goto push;
   } else if (!ywMapIsInside(map, pos)) {
     goto clean;
   }
-  if (ywMapMvTablePush(map, oldPos, pos, elem, pushTblCallback))
-    goto clean;
  push:
-  ywMapPushElem(map, elem, pos, NULL);
+  if (!ywMapMvTablePush(map, oldPos, pos, elem, pushTblCallback))
+    ywMapPushElem(map, elem, pos, NULL);
  clean:
   YE_DESTROY(oldPos);
   YE_DESTROY(elem);

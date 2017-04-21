@@ -129,6 +129,8 @@ static inline void ywMapSetSmootMovement(Entity *map, int smoot)
 Entity *ywMapMvTablePush(Entity *map, Entity *from,
 			 Entity *to, Entity *elem, Entity *callback);
 
+void ywMapMvTableRemove(Entity *map, Entity *to_rm);
+
 static inline void ywMapSetOutBehavior(Entity *map, YMapOutBehavior ob)
 {
   Entity *ol = yeGetByStr(map, "$out_logic");

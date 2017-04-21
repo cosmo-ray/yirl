@@ -38,21 +38,6 @@ void *init(int nbArgs, void **args)
   return NULL;
 }
 
-static void pushBullet(Entity *map, Entity *bulletPos, Entity *bulletDir)
-{
-  Entity *bullets = yeGetByStrFast(map, "bullets");
-  Entity *bullet;
-
-  if (!bullets)
-    bullets = yeCreateArray(map, "bullets");
-
-  bullet = yeCreateArray(bullets, NULL);
-  yePushBack(bullet, bulletPos, "pos");
-  yePushBack(bullet, bulletDir, "dir");
-  yeCreateInt(3, bullet, "id");
-  ywMapPushElem(map, bullet, bulletPos, "bullet");
-}
-
 static void removePizza(Entity *map, Entity *textScreen, Entity *pos,
 			Entity *bullet, Entity *toRemove)
 {
@@ -70,6 +55,40 @@ static void removePizza(Entity *map, Entity *textScreen, Entity *pos,
   yeAddEnt(txt, score);
 }
 
+static int colCheck(Entity *map, Entity *textScreen, Entity *vkPos)
+{
+  Entity *pizzas = yeGetByStr(map, "pizzas");
+
+  if (!pizzas)
+    return 0;
+  YE_ARRAY_FOREACH(pizzas, pizza) {
+    Entity *pos = yeGetByStrFast(pizza, "pos");
+    Entity *bulletHit = ywMapGetNbrEntityAt(map, pos, 3);
+
+    if (bulletHit)
+      removePizza(map, textScreen, pos, bulletHit, pizza);
+    if (ywPosIsSameEnt(pos, vkPos, 0)) {
+      return 1;
+    }
+  }
+  return 0;
+}
+
+static void pushBullet(Entity *map, Entity *bulletPos, Entity *bulletDir)
+{
+  Entity *bullets = yeGetByStrFast(map, "bullets");
+  Entity *bullet;
+
+  if (!bullets)
+    bullets = yeCreateArray(map, "bullets");
+
+  bullet = yeCreateArray(bullets, NULL);
+  yePushBack(bullet, bulletPos, "pos");
+  yePushBack(bullet, bulletDir, "dir");
+  yeCreateInt(3, bullet, "id");
+  ywMapPushElem(map, bullet, bulletPos, "bullet");
+}
+
 static void bulletsTurn(Entity *map, Entity *textScreen)
 {
   Entity *bullets = yeGetByStr(map, "bullets");
@@ -80,11 +99,16 @@ static void bulletsTurn(Entity *map, Entity *textScreen)
     Entity *pos = yeGetByStr(bullet, "pos");
     Entity *arrayAtPos = ywMapGetCase(map, pos);
     Entity *toRemove;
+    Entity *pizzaHit;
 
     ywMapAdvenceWithEPos(map, pos, yeGetByStr(bullet, "dir"), bullet);
-    if (!ywMapIsInside(map, pos)) {
-      yeRemoveChild(bullets, bullet);
+    pizzaHit = ywMapGetNbrEntityAt(map, pos, 2);
+    if (pizzaHit) {
+      removePizza(map, textScreen, pos, bullet, pizzaHit);
+      ywMapMvTableRemove(map, bullet);
     }
+    if (!ywMapIsInside(map, pos))
+      yeRemoveChild(bullets, bullet);
   }
 }
 
@@ -135,7 +159,7 @@ static int lose(int score)
   return 1;
 }
 
-static int pizzaTurn(Entity *map, Entity *vkPos, Entity *textScreen)
+static int pizzaTurn(Entity *map)
 {
   Entity *pizzas = yeGetByStr(map, "pizzas");
 
@@ -144,21 +168,8 @@ static int pizzaTurn(Entity *map, Entity *vkPos, Entity *textScreen)
   pizzaMaker(map, pizzas);
   ywMapSetOutBehavior(map, YMAP_OUT_WARP);
   YE_ARRAY_FOREACH(pizzas, pizza) {
-    Entity *pos = yeGetByStrFast(pizza, "pos");
-    Entity *bulletHit;
-
-    bulletHit = ywMapGetNbrEntityAt(map, pos, 3);
-    if (bulletHit) {
-      removePizza(map, textScreen, pos, bulletHit, pizza);
-    }
-    ywMapAdvenceWithEPos(map, pos, yeGetByStrFast(pizza, "dir"), pizza);
-    if (ywPosIsSameEnt(pos, vkPos, 0)) {
-      return 1;
-    }
-    bulletHit = ywMapGetNbrEntityAt(map, pos, 3);
-    if (bulletHit) {
-      removePizza(map, textScreen, pos, bulletHit, pizza);
-    }
+    ywMapAdvenceWithEPos(map, yeGetByStrFast(pizza, "pos"),
+			 yeGetByStrFast(pizza, "dir"), pizza);
   }
   return 0;
 }
@@ -181,7 +192,6 @@ void *vapzAction(int nbArgs, void **args)
   int fire = 0;
 
   YEVE_FOREACH(eve, events) {
-
     if (ywidEveType(eve) != YKEY_DOWN)
       continue;
     switch (ywidEveKey(eve)) {
@@ -246,18 +256,19 @@ void *vapzAction(int nbArgs, void **args)
     clean(wid);
     goto exit;
   }
-  ywMapAdvenceWithEPos(map, vkPos, nextPos,
-		       ywMapGetNbrEntityAt(map, vkPos, 1));
   if (ret == (void *)ACTION) {
-    bulletsTurn(map, textScreen);
-    if (pizzaTurn(map, vkPos, textScreen)) {
+    if (colCheck(map, textScreen, vkPos)) {
       lose(yeGetInt(yeGetByStrFast(map, "score")));
       clean(wid);
       goto exit;
     }
+    bulletsTurn(map, textScreen);
+    pizzaTurn(map);
     ywContenerUpdate(wid, map);
     ywContenerUpdate(wid, textScreen);
   }
+  ywMapAdvenceWithEPos(map, vkPos, nextPos,
+		       ywMapGetNbrEntityAt(map, vkPos, 1));
 
  exit:
   yeDestroy(gc);
@@ -282,6 +293,7 @@ void *vapzInit(int nbArgs, void **args)
   ywMapPushNbr(cur_layer, 1, vkPos, NULL);
   yeCreateString("map", cur_layer, "<type>");
   yeCreateString("rgba: 255 255 255 255", cur_layer, "background");
+  ywMapSetSmootMovement(cur_layer, 1);
 
   yeCreateString("stacking", main, "cnt-type");
 
