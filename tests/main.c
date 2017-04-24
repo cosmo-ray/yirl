@@ -103,7 +103,7 @@ int main(int argc, char **argv)
 
   TEST_TRY_ADD("/parser/json/simple-file", testJsonLoadFile, only);
   TEST_TRY_ADD("/parser/json/complex-file", testJsonMultipleObj, only);
-
+  TEST_TRY_ADD("/parser/json/to-file", testJsonToFile, only);
   /* TEST_TRY_ADD("/sound/soundManager/all", testYSoundLib, only); */
 
   /* TEST_TRY_ADD("/modules/list", testListMod, only);   */

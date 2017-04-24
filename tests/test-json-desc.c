@@ -84,3 +84,40 @@ void testJsonMultipleObj(void)
   yeEnd();
 }
 
+void testJsonToFile(void)
+{
+  yeInitMem();
+  int t = ydJsonInit();
+  void *jsonManager;
+  Entity *entity = yeCreateArray(NULL, NULL);
+  Entity *i = yeCreateInt(17, entity, NULL);
+  Entity *ret;
+
+  g_assert(t != -1);
+  g_assert(ydJsonGetType() == t);
+  jsonManager = ydNewManager(t);
+  g_assert(jsonManager != NULL);
+  g_assert(ydToFile(jsonManager, TESTS_PATH"/out.json", i) >= 0);
+
+  ret = ydFromFile(jsonManager, TESTS_PATH"/out.json", NULL);
+  g_assert(ret);
+  g_assert(yeGetInt(ret) == 17);
+  yeDestroy(ret);
+
+  g_assert(ydToFile(jsonManager, TESTS_PATH"/out.json", entity) >= 0);
+
+  ret = ydFromFile(jsonManager, TESTS_PATH"/out.json", NULL);
+  g_assert(yeGetInt(yeGet(ret, 0)) == 17);
+
+  yeCreateFloat(0.472, ret, "double time");
+  g_assert(ydToFile(jsonManager, TESTS_PATH"/out.json", ret) >= 0);
+  yeDestroy(ret);
+  ret = ydFromFile(jsonManager, TESTS_PATH"/out.json", NULL);
+  g_assert(yeGetInt(yeGet(ret, 0)) == 17);
+  g_assert(yeGetFloat(yeGet(ret, 1)) > 0.471 &&
+	   yeGetFloat(yeGet(ret, 1)) < 0.473);
+
+  yeDestroy(ret);
+  g_assert(!ydDestroyManager(jsonManager));
+  yeDestroy(entity);
+}

@@ -251,12 +251,91 @@ static Entity *jsonFromFile(void *opac, const char *fileName, Entity *father)
   return ret;
 }
 
+static json_object *jsonObjectFromEntity(Entity *entity);
+
+static json_object *jsonObjectFromIntEntity(Entity *entity)
+{
+  return json_object_new_int(yeGetInt(entity));
+}
+
+static json_object *jsonObjectFromDoubleEntity(Entity *entity)
+{
+  return json_object_new_double(yeGetFloat(entity));
+}
+
+static json_object *jsonObjectFromStringEntity(Entity *entity)
+{
+  return json_object_new_string(yeGetString(entity));
+}
+
+static int isArray(Entity *entity)
+{
+  YE_ARRAY_FOREACH_EXT(entity, child, it) {
+    if (yBlockArrayIteratorGetPtr(it, ArrayEntry)->name)
+      return 0;
+  }
+  return 1;
+}
+
+static json_object *arrayJsonObjectFromArrayEntity(Entity *entity)
+{
+  struct json_object *json_obj = json_object_new_array();
+
+  YE_ARRAY_FOREACH_EXT(entity, child, it) {
+    json_object_array_add(json_obj, jsonObjectFromEntity(child));
+  }
+  return json_obj;
+}
+
+static json_object *jsonObjectFromArrayEntity(Entity *entity)
+{
+  struct json_object *json_obj;
+
+  if (isArray(entity))
+    return arrayJsonObjectFromArrayEntity(entity);
+
+  json_obj = json_object_new_object();
+
+  YE_ARRAY_FOREACH_EXT(entity, child, it) {
+    char buf[10];
+    const char *key = yBlockArrayIteratorGetPtr(it, ArrayEntry)->name;
+
+    if (!key) {
+      snprintf(buf, ypow9(10), "%d", it.pos);
+      key = buf;
+    }
+    json_object_object_add(json_obj, key,
+			   jsonObjectFromEntity(child));
+  }
+  return json_obj;
+}
+
+static json_object *jsonObjectFromEntity(Entity *entity)
+{
+  switch (yeType(entity)) {
+  case YINT:
+    return jsonObjectFromIntEntity(entity);
+  case YFLOAT:
+    return jsonObjectFromDoubleEntity(entity);
+  case YSTRING:
+  case YFUNCTION:
+    return jsonObjectFromStringEntity(entity);
+  case YARRAY:
+    return jsonObjectFromArrayEntity(entity);
+  case YDATA:
+  default:
+    return NULL;
+  }
+}
+
 static int jsonToFile(void *opac, const char *fileName, Entity *entity)
 {
-  (void)fileName;
+  struct json_object *json_obj = jsonObjectFromEntity(entity);
+
   (void)opac;
-  (void)entity;
-  return -1;
+  json_object_to_file(fileName, json_obj);
+  json_object_put(json_obj);
+  return 0;
 }
 
 static int jsonDestroy(void *opac)

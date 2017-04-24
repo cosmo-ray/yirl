@@ -295,4 +295,15 @@ static inline int yuiPercentOf(int value, int percent)
   return value * percent / 100;
 }
 
+#define ypow1(X) X
+#define ypow2(X) X * ypow1(X)
+#define ypow3(X) X * ypow2(X)
+#define ypow4(X) X * ypow3(X)
+#define ypow5(X) X * ypow4(X)
+#define ypow6(X) X * ypow5(X)
+#define ypow7(X) X * ypow6(X)
+#define ypow8(X) X * ypow7(X)
+#define ypow9(X) X * ypow8(X)
+#define ypow10(X) X * ypow9(X)
+
 #endif

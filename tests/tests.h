@@ -54,6 +54,7 @@ void testScriptAddFunction(void);
 
 void testJsonLoadFile(void);
 void testJsonMultipleObj(void);
+void testJsonToFile(void);
 
 void testSdlLife(void);
 void testCursesLife(void);
