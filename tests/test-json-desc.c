@@ -27,7 +27,7 @@ void testJsonLoadFile(void)
   int t = ydJsonInit();
   void *jsonManager;
   Entity *ret;
-  
+
   g_assert(t != -1);
   g_assert(ydJsonGetType() == t);
   jsonManager = ydNewManager(t);
@@ -53,7 +53,7 @@ void testJsonMultipleObj(void)
   void *jsonManager;
   Entity *ret;
   Entity *sub;
-  
+
   g_assert(t != -1);
   jsonManager = ydNewManager(t);
   g_assert(jsonManager != NULL);
@@ -72,7 +72,7 @@ void testJsonMultipleObj(void)
     g_assert(yeGetInt(yeGet(sub2, 0)) == (i + 1));
     g_assert(yeGetInt(yeGet(sub2, 1)) == ((i + 1) * 2));
   }
-  
+
   sub = yeGet(ret, "size");
   g_assert(yeLen(sub) == 2);
   g_assert(yeGetInt(yeGet(sub, "x")) == 10);
@@ -83,3 +83,4 @@ void testJsonMultipleObj(void)
   g_assert(!ydJsonEnd());
   yeEnd();
 }
+

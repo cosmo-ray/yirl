@@ -45,7 +45,7 @@ static inline void destroyLinkInfo(LinkInfo *li)
 {
   g_free(li->refName);
   g_free(li->targetName);
-  g_free(li);  
+  g_free(li);
 }
 
 /**
@@ -160,7 +160,6 @@ static Entity *parseObject(struct json_object *obj,
     if (g_str_equal(key, "_name") &&
     	(json_object_get_type(val) == json_type_string)) {
       continue;
-    /*   yeSetName(ret, json_object_get_string(val)); */
     } else {
       if (parseGen(val, key, ret) == NULL) {
 	DPRINT_ERR("fail to parse json obj %s", name);
@@ -269,7 +268,7 @@ static int jsonDestroy(void *opac)
 static void *jsonAllocator(void)
 {
   YDescriptionOps *ret;
-  
+
   ret = g_new(YDescriptionOps, 1);
   if (ret == NULL)
     return NULL;
