@@ -39,6 +39,11 @@ typedef enum {
   ALL    = CURSES | SDL2
 } RenderType;
 
+typedef enum {
+  YJSON = 0,
+  END_YFILETYPE
+} YFileType;
+
 typedef struct {
   const char *path;
 } ModuleConf;
@@ -97,6 +102,9 @@ static inline int ygRegistreFunc(int nbArgs, const char *name,
 				      name, toRegistre);
 }
 #endif
+
+Entity *ygFileToEnt(YFileType t, const char *path, Entity *father);
+int ygEntToFile(YFileType t, const char *path, Entity *ent);
 
 void ygCleanGameConfig(GameConfig *cfg);
 

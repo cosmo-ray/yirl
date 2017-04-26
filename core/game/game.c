@@ -325,6 +325,20 @@ void *ygGetManager(const char *name)
   return NULL;
 }
 
+Entity *ygFileToEnt(YFileType t, const char *path, Entity *father)
+{
+  if (t == YJSON)
+    return ydFromFile(jsonManager, path, father);
+  return NULL;
+}
+
+int ygEntToFile(YFileType t, const char *path, Entity *ent)
+{
+  if (t == YJSON)
+    return ydToFile(jsonManager, path, ent);
+  return -1;
+}
+
 Entity *ygLoadMod(const char *path)
 {
   char *tmp;
@@ -497,7 +511,7 @@ static Entity *ygGetFunc(Entity *mod, const char *funcName)
 static int isNestedEntity(const char *str, char *modName, const char **entName)
 {
   uint32_t cpLen;
-  
+
   *entName = g_strrstr(str, ":");
   if (!(*entName)) {
     *entName = str; 
