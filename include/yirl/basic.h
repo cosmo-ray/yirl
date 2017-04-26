@@ -34,4 +34,7 @@
 typedef int_ptr_t size_t;
 int open(const char *path, int oflag, ...);
 size_t read(int fd, void *buf, size_t count);
+int printf(const char *format, ...);
+int sprintf(char *str, const char *format, ...);
+int snprintf(char *str, size_t size, const char *format, ...);
 char *strncpy(char *dest, const char *src, size_t n);

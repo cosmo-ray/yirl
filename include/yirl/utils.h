@@ -49,13 +49,10 @@ typedef int64_t int_ptr_t;
 
 #ifndef Y_INSIDE_TCC
 #include <stddef.h>
+#include <stdio.h>
 #else
 #include "basic.h"
 #endif
-
-int printf(const char *format, ...);
-int sprintf(char *str, const char *format, ...);
-int snprintf(char *str, size_t size, const char *format, ...);
 
 // if compiller gcc
 #if defined(__GNUC__) && (__GNUC__ >= 4)

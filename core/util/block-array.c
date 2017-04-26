@@ -20,7 +20,19 @@
 #include <glib.h>
 #include "utils.h"
 #include "block-array.h"
+#ifdef	__unix__
 #include <numa.h>
+#else
+PVOID MmAllocateContiguousMemory(
+  _In_ SIZE_T           NumberOfBytes,
+  _In_ uint64_t HighestAcceptableAddress
+);
+VOID MmFreeContiguousMemory(
+  _In_ PVOID BaseAddress
+);
+#define numa_alloc(X) MmAllocateContiguousMemory(X, 0x0000FFFFFFFFFFFF)
+#define numa_free(X, Y) MmFreeContiguousMemory(X)
+#endif
 
 #define NUMA_SIZE 0x2fffffff
 

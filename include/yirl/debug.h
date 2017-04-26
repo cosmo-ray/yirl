@@ -74,7 +74,7 @@ extern "C"
 #ifdef	__unix__
 #define	y_vprintf(fd, format, vl)	vdprintf(fd, format, vl)
 #else
-#include "Windows.h"
+#include "windows.h"
 #define	y_vprintf(fd, format, vl)
 #endif
 #endif	// DEBUG_H_

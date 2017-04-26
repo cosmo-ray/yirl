@@ -2,10 +2,26 @@
 
 source configure-helper.sh
 
+add_toolchain mingw-i686
+function mingw-i686 {
+    export CC=x86_64-w64-mingw32-cc
+    export PKG_CONFIG=x86_64-w64-mingw32-pkg-config
+    export WITH_SOUND=0
+    export TCC_LIB_NAME="libtcc.dll"
+    export CURSES_LIB="-lpdcurses"
+    export NUMA_LIB=""
+    export LDFLAGS_EXT="-lntoskrnl"
+    export LIBEXTENSION=dll
+    export AR="x86_64-w64-mingw32-ar"
+    var_add BIN_EXT .exe
+}
+
 parse_args $@
 
+
+var_add AR ar
+var_add PKG_CONFIG pkg-config
 var_add SCRIPT_DIR "core/script"
-var_add SOUND_DIR "core/sound"
 var_add UTIL_DIR "core/util"
 var_add WID_DIR "core/widget"
 var_add ENTITY_DIR "core/entity"
@@ -16,9 +32,24 @@ var_add TESTS_DIR "tests/"
 var_add DESCRIPTION_DIR "core/description"
 var_add BYTECODE_DIR "core/ybytecode"
 var_add GEN_LOADER_DIR "core/generic-loader"
+var_add LIBEXTENSION so
+var_add LDFLAGS_EXT ""
+var_add WITH_SOUND 1
+if [ $WITH_SOUND -ne 0 ]; then
+    SOUND_DIR="core/sound"
+    var_add SOUND_SRC "\"$SOUND_DIR/sound-libvlc.c $SOUND_DIR/sound.c\""
+    var_add VLC_LIB "\"`pkg-config --libs libvlc`\""
+else
+    var_add SOUND_SRC ""
+    var_add VLC_LIB ""
+fi
+
+var_add TCC_LIB_NAME libtcc.a
+
+var_add LUA_LIB "\"`pkg-config --libs lua`\""
 
 var_add CURSES_LIB "-lcurses"
-
+var_add NUMA_LIB "-lnuma"
 define_add WITH_SDL 1
 define_add WITH_CURSES 1
 

@@ -27,8 +27,6 @@ SRC = 	$(SCRIPT_DIR)/lua-script.c \
 	$(BYTECODE_DIR)/ybytecode.c \
 	$(DESCRIPTION_DIR)/description.c \
 	$(DESCRIPTION_DIR)/json-desc.c	 \
-	$(SOUND_DIR)/sound-libvlc.c \
-	$(SOUND_DIR)/sound.c \
 	$(ENTITY_DIR)/entity.c \
 	$(GAME_DIR)/game.c \
 	$(UTIL_DIR)/util.c \
@@ -51,40 +49,45 @@ SRC = 	$(SCRIPT_DIR)/lua-script.c \
 	$(CURSES_DIR)/menu.c \
 	$(CURSES_DIR)/map.c
 
+SRC += $(SOUND_SRC)
+
 OBJ =   $(SRC:.c=.o)
 
 GEN_LOADER_SRC = $(GEN_LOADER_DIR)/main.c
 GEN_LOADER_OBJ = $(GEN_LOADER_SRC:.c=.o)
 
 LDFLAGS += -L./
-LDFLAGS += `pkg-config --libs glib-2.0`
-LDFLAGS += `pkg-config --libs lua`
-LDFLAGS += `pkg-config --libs libvlc`
-LDFLAGS += `pkg-config --libs json-c`
+LDFLAGS += $(shell $(PKG_CONFIG) --libs glib-2.0)
+LDFLAGS += $(LUA_LIB)
+LDFLAGS += $(VLC_LIB)
+LDFLAGS += $(shell $(PKG_CONFIG) --libs json-c)
 LDFLAGS += $(CURSES_LIB)
-LDFLAGS += -lnuma
-LDFLAGS += `pkg-config --libs SDL2_image` `pkg-config --libs SDL2_ttf`
-LDFLAGS += $(TCC_LIB_PATH)libtcc.a
+LDFLAGS += $(NUMA_LIB)
+LDFLAGS += $(shell $(PKG_CONFIG) --libs SDL2_image)
+LDFLAGS += $(shell $(PKG_CONFIG) --libs SDL2_ttf)
+LDFLAGS += $(TCC_LIB_PATH)$(TCC_LIB_NAME)
+LDFLAGS += $(LDFLAGS_EXT)
 
-CFLAGS += `pkg-config --cflags glib-2.0`
+CFLAGS += $(shell $(PKG_CONFIG) --cflags glib-2.0)
 CFLAGS += -I$(YIRL_INCLUDE_PATH)
 CFLAGS += -I$(YIRL_INCLUDE_PATH2)
+CFLAGS += -I$(TCC_LIB_PATH)
 CFLAGS += -fpic
 
 CFLAGS += -DYIRL_INCLUDE_PATH=\"$(YIRL_INCLUDE_PATH2)\"
 CFLAGS += -DTCC_LIB_PATH=\"$(TCC_LIB_PATH)\"
 
 build-static-lib: $(OBJ)
-	ar  rcs $(LIBNAME).a $(OBJ)
+	$(AR)  -r -c -s $(LIBNAME).a $(OBJ)
 
 build-dynamic-lib: $(OBJ)
-	$(CC) -shared -o  $(LIBNAME).so $(OBJ) $(LDFLAGS)
+	$(CC) -shared -o  $(LIBNAME).$(LIBEXTENSION) $(OBJ) $(LDFLAGS)
 
-build-generic-loader: build-dynamic-lib $(GEN_LOADER_OBJ)
-	$(CC) -o yirl-loader $(GEN_LOADER_OBJ) $(LDFLAGS) -l$(NAME)
+build-generic-loader: build-static-lib $(GEN_LOADER_OBJ)
+	$(CC) -o yirl-loader$(BIN_EXT) $(GEN_LOADER_OBJ) -l$(NAME) $(LDFLAGS)
 
 clean:	clean-tests
 	rm -rvf $(OBJ)
 
 fclean: clean
-	rm -rvf $(LIBNAME).a $(LIBNAME).so
+	rm -rvf $(LIBNAME).a $(LIBNAME).so $(LIBNAME).dll

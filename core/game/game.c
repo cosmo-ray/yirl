@@ -257,7 +257,9 @@ int ygInit(GameConfig *cfg)
   CHECK_AND_GOTO(ywContenerInit(), -1, error, "Contener init failed");
 
   /* Init sound */
+#ifdef	__unix__
   sound_init(LIB_VLC);
+#endif
 
   for (GList *tmp = cfg->rConf; tmp; tmp = tmp->next) {
     //TODO check which render to use :)
