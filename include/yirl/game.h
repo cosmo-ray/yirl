@@ -15,6 +15,9 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef _YIRL_GAME_H_
+#define _YIRL_GAME_H_
+
 #include "yirl/entity.h"
 #include "yirl/widget.h"
 #include "yirl/widget-callback.h"
@@ -28,11 +31,6 @@
 #else
 #define Y_END_VA_LIST ((void *)0xDEAD0000)
 #endif
-
-
-
-#ifndef _YIRL_GAME_H_
-#define _YIRL_GAME_H_
 
 typedef enum {
   NONE   = 0,

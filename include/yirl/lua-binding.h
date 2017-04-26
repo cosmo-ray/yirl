@@ -132,7 +132,6 @@ static inline int	yesLuaRegister(void *sm)
   lua_pushlightuserdata(((YScriptLua *)sm)->l, (void *)ACTION);
   lua_setglobal(((YScriptLua *)sm)->l, "YEVE_ACTION");
 
-
   /* set gobales */
   lua_pushnumber(((YScriptLua *)sm)->l, YKEY_DOWN);
   lua_setglobal(((YScriptLua *)sm)->l, "YKEY_DOWN");
