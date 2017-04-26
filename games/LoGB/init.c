@@ -15,7 +15,6 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <stdio.h>
 #include <yirl/game.h>
 #include <yirl/menu.h>
 #include <yirl/map.h>
@@ -96,11 +95,13 @@ void *battleInit(int nbArgs, void **args)
   ywMapPushElem(getLayer(main, 1), yeGetByStr(main, "cursor id"), pos, NULL);
 
   yeCreateString("text-screen", textScreen, "<type>");
+  yeReCreateString("rgba: 200 200 200 255", textScreen, "background");
 
   printFLeet(yeCreateString("", textScreen, "text"),
 	     yeGetByStr(yeGetByStr(main, "current_player"), "fleet"));
 
   yeCreateString("menu", panel, "<type>");
+  yeReCreateString("rgba: 100 100 100 255", panel, "background");
   yeCreateString("panel", panel, "mn-type");
   layers = yeCreateArray(panel, "entries");
 

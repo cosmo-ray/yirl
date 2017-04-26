@@ -25,6 +25,8 @@
 #ifndef Y_INSIDE_TCC
 #include "yirl/native-script.h"
 #include "yirl/script.h"
+#else
+#define Y_END_VA_LIST ((void *)0xDEAD0000)
 #endif
 
 
