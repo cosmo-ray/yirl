@@ -17,20 +17,27 @@
 
 function scoreInit(wid, eve, args)
    -- Get the score from the snake module
-   local score = yeGetInt(yeGet(ygGetMod("snake"), "score"))
-
-   -- Set it
-   print("hi", score)
+   local scoreEnt = yeGet(ygGetMod("snake"), "score")
+   local score = yeGetInt(scoreEnt)
+   local hs = ygFileToEnt(YJSON, "snake-hightscore.json")
    local scoreStr = "you have a score of " .. score .. " points"
+
    if (score < 30) then
       scoreStr = scoreStr .. " noob !"
    end
-   print("hi", wid, yeGet(wid, "text"))
-   yeSetString(yeGet(wid, "text"), scoreStr);
+   if (yeGetInt(hs) > score) then
+      scoreStr = scoreStr .. "\nhightscore:" .. yeGetInt(hs)
+   else
+      scoreStr = scoreStr .. "\nnew Hightscore !"
+      ygEntToFile(YJSON, "snake-hightscore.json", scoreEnt)
+   end
+   yeSetString(yeGet(wid, "text"), scoreStr)
+   yeSetInt(scoreEnt, 0);
+   yeDestroy(hs)
 end
 
 function eat(map, eve, args)
-   local tl = yeGet(map, "turn-length");
+   local tl = yeGet(map, "turn-length")
    local tlInt = yeGetInt(tl) - 2000
 
    if (tlInt < 50000) then

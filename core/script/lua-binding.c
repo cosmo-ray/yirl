@@ -694,6 +694,22 @@ int	luaYgRegistreFunc(lua_State *L)
 				lua_tostring(L, 2), lua_tostring(L, 3));
 }
 
+int	luaYgFileToEnt(lua_State *L)
+{
+  lua_pushlightuserdata(L, ygFileToEnt(lua_tonumber(L, 1),
+				       lua_tostring(L, 2),
+				       lua_touserdata(L, 3)));
+  return 1;
+}
+
+int	luaYgEntToFile(lua_State *L)
+{
+  lua_pushnumber(L, ygEntToFile(lua_tonumber(L, 1),
+				lua_tostring(L, 2),
+				lua_touserdata(L, 3)));
+  return 1;
+}
+
 int	luaSetAt(lua_State *L)
 {
   Entity *ent = NULL;

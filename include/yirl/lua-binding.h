@@ -22,6 +22,7 @@
 #include "lua-convert.h"
 #include "widget.h"
 #include "keydef.h"
+#include "game.h"
 #include <lualib.h>
 
 /* love lua */
@@ -119,6 +120,8 @@ int	luaYwMapGetNbrEntityAt(lua_State *L);
 int	luaGetMod(lua_State *L);
 int	luaGCall(lua_State *L);
 int	luaYgRegistreFunc(lua_State *L);
+int	luaYgFileToEnt(lua_State *L);
+int	luaYgEntToFile(lua_State *L);
 
 #define YES_RET_IF_FAIL(OPERATION)		\
   if (OPERATION < 0) return -1;
@@ -131,6 +134,8 @@ static inline int	yesLuaRegister(void *sm)
   lua_setglobal(((YScriptLua *)sm)->l, "YEVE_NOACTION");
   lua_pushlightuserdata(((YScriptLua *)sm)->l, (void *)ACTION);
   lua_setglobal(((YScriptLua *)sm)->l, "YEVE_ACTION");
+  lua_pushlightuserdata(((YScriptLua *)sm)->l, (void *)YJSON);
+  lua_setglobal(((YScriptLua *)sm)->l, "YJSON");
 
   /* set gobales */
   lua_pushnumber(((YScriptLua *)sm)->l, YKEY_DOWN);
@@ -256,6 +261,8 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygGetMod", luaGetMod));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygCall", luaGCall));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygRegistreFunc", luaYgRegistreFunc));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygFileToEnt", luaYgFileToEnt));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygEntToFile", luaYgEntToFile));
   return 0;
 }
 
