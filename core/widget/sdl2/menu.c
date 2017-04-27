@@ -32,6 +32,7 @@ static int sdlRend(YWidgetState *state, int t)
   YBgConf cfg;
   int alignementType = YSDL_ALIGN_LEFT;
   Entity *type = yeGet(state->entity, "mn-type");
+  SDL_Color base_color = {0,0,0,255};
   int isPane = 0;
 
   if (!yeStrCmp(type, "panel"))
@@ -45,17 +46,23 @@ static int sdlRend(YWidgetState *state, int t)
   else
     sdlFillColorBg(wid, 255, 255, 255, 255);
 
+  ywidColorFromString((char *)yeGetString(yeGet(state->entity, "text-color")),
+		      &base_color.r, &base_color.g, &base_color.b,
+		      &base_color.a);
+
   if (!sgDefaultFont()) {
     DPRINT_WARN("NO Font Set !");
   }
 
   YE_ARRAY_FOREACH_EXT(entries, entry, it) {
-    SDL_Color color = {0,0,0,255};
+    SDL_Color color = base_color;
     const char *toPrint = yeGetString(yeGet(entry, "text"));
     unsigned int cur = ywMenuGetCurrent(state);
     Entity *destRect;
     SDL_Rect txtR;
 
+    ywidColorFromString((char *)yeGetString(yeGet(entry, "text-color")),
+			&color.r, &color.g, &color.b, &color.a);
     if (isPane) {
       destRect = ywRectReCreateInts(wid->rect.w / len * it.pos, 0,
 				    wid->rect.w / len,
