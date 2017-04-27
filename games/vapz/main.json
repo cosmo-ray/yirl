@@ -26,6 +26,7 @@
 	"next": "vapz:scenes.main",
 	"background" : "main screen.png",
 	"action" : "nextOnKeyDown",
-	"text-align" : "center"
+	"text-align" : "center",
+	"text-color" : "rgba: 100 100 100 255"
     }
 }

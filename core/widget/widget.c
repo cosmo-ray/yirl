@@ -137,6 +137,8 @@ int ywidColorFromString(char *str, uint8_t *r, uint8_t *g,
   int limiterPos = 0;
   int ret = -1;
 
+  if (!str)
+    return -1;
   for (int i = 0; str[i]; ++i) {
     if (str[i] == ':') {
       limiterPos = i;
