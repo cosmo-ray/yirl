@@ -16,6 +16,7 @@
 		"action" : "FinishGame"
 	    }
 	],
+	"text-align" : "center",
 	"background" : "main screen.png"
     },
     "lose" : {
@@ -23,7 +24,8 @@
 	"background" : "main screen.png",
 	"text" : "",
 	"next": "vapz:scenes.main",
-	"background" : "rgba: 255 255 255 255",
-	"action" : "nextOnKeyDown"
+	"background" : "main screen.png",
+	"action" : "nextOnKeyDown",
+	"text-align" : "center"
     }
 }
