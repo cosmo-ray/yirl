@@ -67,7 +67,6 @@
     },
     "MapTest" : {
 	"<type>" : "map",
-	
 	"&resources" : "MapTestResources", // Not yet implemented :)
 	"map" : [
 	    [0], [0], [0], [0], [0],
@@ -76,14 +75,12 @@
 	    [0], [0], [0], [0], [0],
 	    [0], [0], [0], [0], [0]
 	],
-	
 	"width" : 5,
 	"bind" : [["action", "mapTest"]],
 	"background": "rgba: 180 210 20 50", // Not yet implemented :)
     },
     "MapTest++" : {
 	"<type>" : "map",
-	
 	"&resources" : "MapTestResources", // Not yet implemented :)
 	"map" : [
 	    [0], [0], [0], [0], [0],
@@ -92,7 +89,6 @@
 	    [0], [0], [0], [0], [0],
 	    [0], [0], [0], [0], [0]
 	],
-	
 	"width" : 5,
 	"action" : "mapTest",
 	"background": "rgba: 180 210 20 50", // Not yet implemented :)
