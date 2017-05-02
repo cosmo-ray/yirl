@@ -260,6 +260,7 @@ int ysTccInit(void)
 int ysTccEnd(void)
 {
   yeDestroy(includeStrs);
+  includeStrs = NULL;
   return ysUnregiste(t);
 }
 

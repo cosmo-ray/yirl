@@ -1,5 +1,5 @@
 /*
-* Copyright 2015 Kara adrien
+* Copyright 2015 Adrien Kara
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.

@@ -537,7 +537,6 @@ int ywidDoTurn(YWidgetState *opac)
     SLIST_INSERT_HEAD(&head, event, lst);
   }
 
-  // TODO: clear midRend
   ywidMidRendEnd(mainWid);
   ret = ywidHandleEvent(opac, SLIST_FIRST(&head));
   ywidFreeEvents(SLIST_FIRST(&head));
