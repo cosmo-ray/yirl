@@ -1,0 +1,19 @@
+{
+    "<type>" : "dialogue",
+    "entries" : [
+	{
+	    "text" : "hello",
+	    "answers" : [ {
+		"text" : "bug off",
+		"action" : "FinishGame"
+	    } , {
+		"text" : "hej, what's your name ?",
+		"action" : "change-text",
+		"new-text" : "my name is francoise-robet, and you ?"
+	    }
+			]
+	}
+    ],
+    "speaker_background": "rgba: 250 250 250 255",
+    "aswer_background": "rgba: 250 250 250 255"
+}
