@@ -348,7 +348,11 @@ YWidgetState *ywidNewWidget(Entity *entity, const char *type)
   if (shouldInit) {
     YE_ARRAY_FOREACH(subTypes, tmpType) {
       if (yuiStrEqual0(type, yeGetString(yeGet(tmpType, "name")))) {
-	return yesCall(yeGet(tmpType, "callback"), entity);
+	YWidgetState *ret = yesCall(yeGet(tmpType, "callback"), entity);
+
+	if (!ret)
+	  DPRINT_ERR("init for type '%s' fail", type);
+	return ret;
       }
     }
   }
@@ -359,6 +363,7 @@ YWidgetState *ywidNewWidget(Entity *entity, const char *type)
       return ywidNewWidgetInternal(i, entity, shouldInit);
     }
   }
+  DPRINT_ERR("unable to find type: '%s'", type);
   return NULL;
 }
 
