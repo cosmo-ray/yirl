@@ -111,6 +111,7 @@ void ygCleanGameConfig(GameConfig *cfg);
 int ygInit(GameConfig *config);
 
 int ygStartLoop(GameConfig *config);
+int ygDoLoop(void);
 
 Entity *ygLoadMod(const char *path);
 Entity *ygGetMod(const char *path);

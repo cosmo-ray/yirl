@@ -608,6 +608,13 @@ static int ygParseStartAndGame(GameConfig *config)
       return -1;
   }
 
+  return ygDoLoop();
+}
+
+int ygDoLoop(void)
+{
+  YWidgetState *wid;
+
   do {
     wid = ywidGetMainWid();
     if (unlikely(!wid)) {
