@@ -25,6 +25,7 @@ int ywMenuEnd(void);
 int ywMenuGetCurrent(YWidgetState *opac);
 int ywMenuHasChange(YWidgetState *opac);
 int ywMenuPosFromPix(Entity *wid, uint32_t x, uint32_t y);
+int ywMenuReBind(Entity *entity);
 
 InputStatue ywMenuCallActionOnByEntity(Entity *opac, YEvent *event, int idx,
 				       void *arg);

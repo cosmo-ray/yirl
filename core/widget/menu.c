@@ -87,13 +87,13 @@ static void *nmMenuNext(va_list ap)
   return ywidNext(next) ? (void *)BUG : (void *)ACTION ;
 }
 
-static int mnInit(YWidgetState *opac, Entity *entity, void *args)
+int ywMenuReBind(Entity *entity)
 {
-  (void)args;
-  YMenuState *state = ((YMenuState *)opac);
+  YWidgetState *opac = ywidGetState(entity);
+  YMenuState *state = (YMenuState *)opac;
   Entity *entries = yeGet(entity, "entries");
 
-  ywidGenericCall(opac, t, init);
+  yeRemoveChildByStr(entries, "signals");
   state->moveSinIdx = ywidAddSignal(opac, "move");
   if (!yeStrCmp(yeGet(entity, "mn-type"), "panel")) {
     ygBind(opac, "move", "panelMove");
@@ -118,6 +118,13 @@ static int mnInit(YWidgetState *opac, Entity *entity, void *args)
     }
   }
   return 0;
+}
+
+static int mnInit(YWidgetState *opac, Entity *entity, void *args)
+{
+  (void)args;
+  ywidGenericCall(opac, t, init);
+  return ywMenuReBind(entity);
 }
 
 static int mnDestroy(YWidgetState *opac)
