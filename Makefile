@@ -56,6 +56,7 @@ OBJ =   $(SRC:.c=.o)
 GEN_LOADER_SRC = $(GEN_LOADER_DIR)/main.c
 GEN_LOADER_OBJ = $(GEN_LOADER_SRC:.c=.o)
 
+LDFLAGS += $(TCC_LIB_PATH)$(TCC_LIB_NAME)
 LDFLAGS += -L./
 LDFLAGS += $(shell $(PKG_CONFIG) --libs glib-2.0)
 LDFLAGS += $(LUA_LIB)
@@ -65,7 +66,6 @@ LDFLAGS += $(CURSES_LIB)
 LDFLAGS += $(NUMA_LIB)
 LDFLAGS += $(shell $(PKG_CONFIG) --libs SDL2_image)
 LDFLAGS += $(shell $(PKG_CONFIG) --libs SDL2_ttf)
-LDFLAGS += $(TCC_LIB_PATH)$(TCC_LIB_NAME)
 LDFLAGS += $(LDFLAGS_EXT)
 
 CFLAGS += $(shell $(PKG_CONFIG) --cflags glib-2.0)
@@ -83,7 +83,7 @@ build-static-lib: $(OBJ)
 build-dynamic-lib: $(OBJ)
 	$(CC) -shared -o  $(LIBNAME).$(LIBEXTENSION) $(OBJ) $(LDFLAGS)
 
-build-generic-loader: build-static-lib $(GEN_LOADER_OBJ)
+build-generic-loader: $(YIRL_LINKING) $(GEN_LOADER_OBJ)
 	$(CC) -o yirl-loader$(BIN_EXT) $(GEN_LOADER_OBJ) -l$(NAME) $(LDFLAGS)
 
 clean:	clean-tests

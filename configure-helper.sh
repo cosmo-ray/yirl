@@ -75,6 +75,11 @@ function var_add {
     eval "echo $TOADD" >> config.mk
 }
 
+function var_append {
+    eval "export $1=\"\$$1 $2\""
+    eval "echo change $1 to: \$$1"
+}
+
 function define_add {
     echo -n "add define: "
     var_add $1 $2

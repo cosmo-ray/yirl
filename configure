@@ -13,6 +13,8 @@ function mingw-i686 {
     export LDFLAGS_EXT="-lntoskrnl"
     export LIBEXTENSION=dll
     export AR="x86_64-w64-mingw32-ar"
+    export IS_UNIX=0
+    export YIRL_LINKING=build-static-lib
     var_add BIN_EXT .exe
 }
 
@@ -34,7 +36,9 @@ var_add BYTECODE_DIR "core/ybytecode"
 var_add GEN_LOADER_DIR "core/generic-loader"
 var_add LIBEXTENSION so
 var_add LDFLAGS_EXT ""
-var_add WITH_SOUND 1
+var_add YIRL_LINKING build-dynamic-lib
+
+define_add WITH_SOUND 1
 if [ $WITH_SOUND -ne 0 ]; then
     SOUND_DIR="core/sound"
     var_add SOUND_SRC "\"$SOUND_DIR/sound-libvlc.c $SOUND_DIR/sound.c\""
@@ -44,7 +48,10 @@ else
     var_add VLC_LIB ""
 fi
 
-var_add TCC_LIB_NAME libtcc.a
+var_add IS_UNIX 1
+if [ $IS_UNIX -eq 1 ]; then
+    var_append LDFLAGS_EXT "-ldl"
+fi
 
 var_add LUA_LIB "\"`pkg-config --libs lua`\""
 
@@ -57,3 +64,4 @@ var_add YIRL_INCLUDE_PATH2 $PWD/include/
 var_add YIRL_INCLUDE_PATH $YIRL_INCLUDE_PATH2/yirl/
 
 var_add TCC_LIB_PATH $PWD/tinycc/
+var_add TCC_LIB_NAME libtcc.a
