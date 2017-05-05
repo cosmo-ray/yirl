@@ -528,6 +528,15 @@ static inline Entity *yeReCreateString(const char *string,
   YE_IMPL_RECREATE(String, string, father, name);
 }
 
+static inline Entity *yeTryCreateInt(int value, Entity *father,
+				     const char *name)
+{
+  Entity *ret = yeGetByStrFast(father, name);
+  if (!ret) {
+    yeCreateInt(value, father, name);
+  }
+  return ret;
+}
 
 /**
  * Get the len attribute of an Entity

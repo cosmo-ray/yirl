@@ -149,7 +149,7 @@ static int cntInit(YWidgetState *opac, Entity *entity, void *args)
     }
   }
 
-  yeCreateInt(0, entity, "current");
+  yeTryCreateInt(0, entity, "current");
   YE_ARRAY_FOREACH(entries, tmp) {
     Entity *ptr = getEntry(entity, tmp);
 
