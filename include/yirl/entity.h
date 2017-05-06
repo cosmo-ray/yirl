@@ -768,7 +768,7 @@ static inline Entity *yeFind(Entity *entity,
 }
 
 Entity *yeFindLink(Entity *father, const char *targetPath, int flag);
- 
+
 /**
  * Convert an Entity to a C String (char *)
  * @entity	The entity
@@ -788,8 +788,8 @@ int yeRenamePtrStr(Entity *array, Entity *ptr, const char *str);
  * @brief remove all entity name @name inside @array and push @toPush
  * @return the entity that have been push
  */
-static inline Entity * yeReplaceBack(Entity *array, Entity *toPush,
-				     const char *name)
+static inline Entity *yeReplaceBack(Entity *array, Entity *toPush,
+				    const char *name)
 {
   Entity *tmp;
   Entity *ret = NULL;

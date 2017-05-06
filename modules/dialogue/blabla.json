@@ -1,19 +1,21 @@
 {
     "<type>" : "dialogue",
-    "entries" : [
+    "dialogue" : [
 	{
 	    "text" : "hello",
-	    "answers" : [ {
-		"text" : "bug off",
-		"action" : "FinishGame"
-	    } , {
-		"text" : "hej, what's your name ?",
-		"action" : "change-text",
-		"new-text" : "my name is francoise-robet, and you ?"
-	    }
-			]
+	    "answers" : [
+		{
+		    "text" : "bug off",
+		    "action" : "FinishGame"
+		},
+		{
+		    "text" : "hej, what's your name ?",
+		    "action" : [ "Dialogue:change-text",
+				 "my name is francoise-robert, and you ?"]
+		}
+	    ]
 	}
     ],
-    "speaker_background": "rgba: 250 250 250 255",
-    "aswer_background": "rgba: 250 250 250 255"
+    "speaker_background": "rgba: 255 255 255 255",
+    "answer_background": "rgba: 250 250 250 255"
 }

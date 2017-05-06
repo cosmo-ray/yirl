@@ -93,7 +93,7 @@ int ywMenuReBind(Entity *entity)
   YMenuState *state = (YMenuState *)opac;
   Entity *entries = yeGet(entity, "entries");
 
-  yeRemoveChildByStr(entries, "signals");
+  yeRemoveChildByStr(entity, "signals");
   state->moveSinIdx = ywidAddSignal(opac, "move");
   if (!yeStrCmp(yeGet(entity, "mn-type"), "panel")) {
     ygBind(opac, "move", "panelMove");
