@@ -20,6 +20,7 @@
 #include "menu.h"
 #include "rect.h"
 #include "native-script.h"
+#include "entity-script.h"
 #include "game.h"
 
 static int t = -1;
@@ -84,7 +85,7 @@ static void *nmMenuNext(va_list ap)
   next = yeGet(next, ((YMenuState *)wid)->current);
   next = yeGet(next, "next");
 
-  return ywidNext(next) ? (void *)BUG : (void *)ACTION ;
+  return ywidNext(next) ? (void *)BUG : (void *)ACTION;
 }
 
 int ywMenuReBind(Entity *entity)
@@ -111,10 +112,14 @@ int ywMenuReBind(Entity *entity)
       return -1;
     action = yeGet(entry, "action");
     if (action) {
-      if (yeType(action) == YFUNCTION)
+      if (yeType(action) == YFUNCTION) {
 	ywidBindBySinIdx(opac, ret, action);
-      else
+      } else if (yeType(action) == YARRAY) {
+	ygBindBySinIdx(opac, ret,
+		       yeGetString(yeGet(yeGet(entry, "action"), 0)));
+      } else {
 	ygBindBySinIdx(opac, ret, yeGetString(yeGet(entry, "action")));
+      }
     }
   }
   return 0;
@@ -148,17 +153,23 @@ InputStatue ywMenuCallActionOnByEntity(Entity *opac, YEvent *event,
   return ywMenuCallActionOnByState(cur, event, idx, arg);
 }
 
-InputStatue ywMenuCallActionOnByState(YWidgetState *opac, YEvent *event, int idx,
-				      void *arg)
+InputStatue ywMenuCallActionOnByState(YWidgetState *opac, YEvent *event,
+				      int idx, void *arg)
 {
   InputStatue ret;
+  Entity *entries = yeGet(opac->entity, "entries");
+  Entity *action = yeGet(yeGet(entries, idx), "action");
+  Entity *arg1 = Y_END_VA_LIST;
 
   if (idx < 0)
     return NOTHANDLE;
   ((YMenuState *)opac)->current = idx;
 
-  ret = ywidCallSignal(opac, event, arg,
-		       idx + ((YMenuState *)opac)->actionSin0);
+  if (unlikely(yeType(action) == YARRAY))
+    arg1 = yeGet(action, 1);
+  ret = (size_t)yesCall(yeGet(opac->signals,
+			      idx + ((YMenuState *)opac)->actionSin0),
+			opac->entity, event, arg, arg1);
   if (ret == NOTHANDLE)
     return NOACTION;
   return ret;

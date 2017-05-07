@@ -78,10 +78,8 @@ static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
 
 void *dialogueChangeText(int nbArgs, void **args)
 {
-  Entity *cur = args[0];
-
-  printf("dialogueChangeText: %d %p\n", nbArgs, args[0]);
-  printf("main: %p\n", yeGetByStrFast(cur, "_main"));
+  yeReplaceBack(yeGetByIdx(yeGetByStr(args[0], "_main.entries"), 0),
+		args[3], "text");
 }
 
 void *dialogueInit(int nbArgs, void **args)
