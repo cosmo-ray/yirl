@@ -10,8 +10,13 @@
 		},
 		{
 		    "text" : "hej, what's your name ?",
-		    "action" : [ "Dialogue:change-text",
-				 "my name is francoise-robert, and you ?"]
+		    "actions" : [[ "Dialogue:change-text",
+				   "my name is francoise-robert, and you ?"]]
+		},
+		{
+		    "text" : "my name is trantord",
+		    "action" : [ "Dialogue:change-text", "hummm whatever"],
+		    "condition" : [">", "Dialogue:hasSayName", -1]
 		}
 	    ]
 	}

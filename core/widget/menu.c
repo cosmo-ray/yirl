@@ -88,6 +88,35 @@ static void *nmMenuNext(va_list ap)
   return ywidNext(next) ? (void *)BUG : (void *)ACTION;
 }
 
+static void *mnActions(va_list ap)
+{
+  Entity *wid = va_arg(ap, Entity *);
+  YEvent *eve = va_arg(ap, YEvent *);
+  void *arg = va_arg(ap, void *);
+  Entity *actions = yeGet(ywMenuGetCurrentEntry(wid), "actions");
+  InputStatue ret = NOTHANDLE;
+
+  YE_ARRAY_FOREACH(actions, action) {
+    int cur_ret;
+    if (yeType(action) == YSTRING) {
+      cur_ret = (size_t)yesCall(ygGet(yeGetString(action)), wid, eve, arg);
+    } else if (yeType(action) == YFUNCTION) {
+      cur_ret = (size_t)yesCall(action, wid, eve, arg);
+    } else {
+      Entity *arg1 = yeLen(action) > 1 ? yeGet(action, 1) : Y_END_VA_LIST;
+      Entity *arg2 = yeLen(action) > 2 ? yeGet(action, 2) : Y_END_VA_LIST;
+      Entity *arg3 = yeLen(action) > 3 ? yeGet(action, 3) : Y_END_VA_LIST;
+
+      cur_ret = (size_t)yesCall(ygGet(yeGetString(yeGet(action, 0))),
+				wid, eve, arg,
+				arg1, arg2, arg3);
+    }
+    if (cur_ret > ret)
+      ret = cur_ret;
+  }
+  return (void *)ret;
+}
+
 int ywMenuReBind(Entity *entity)
 {
   YWidgetState *opac = ywidGetState(entity);
@@ -120,6 +149,8 @@ int ywMenuReBind(Entity *entity)
       } else {
 	ygBindBySinIdx(opac, ret, yeGetString(yeGet(entry, "action")));
       }
+    } else if ((action = yeGet(entry, "actions")) != NULL) {
+      ygBindBySinIdx(opac, ret, "menuActions");
     }
   }
   return 0;
@@ -239,6 +270,12 @@ int ywMenuGetCurrent(YWidgetState *opac)
   return ((YMenuState *)opac)->current;
 }
 
+Entity *ywMenuGetCurrentEntry(Entity *entity)
+{
+  return yeGet(yeGet(entity, "entries"),
+	       ywMenuGetCurrent(ywidGetState(entity)));
+}
+
 int ywMenuInit(void)
 {
   if (t != -1)
@@ -247,6 +284,7 @@ int ywMenuInit(void)
   ysRegistreNativeFunc("menuMove", nmMenuMove);
   ysRegistreNativeFunc("panelMove", nmPanelMove);
   ysRegistreNativeFunc("menuNext", nmMenuNext);
+  ysRegistreNativeFunc("menuActions", mnActions);
   return t;
 }
 

@@ -59,6 +59,38 @@ void *dialogueAction(int nbArgs, void **args)
   return ret;
 }
 
+static int getComVal(Entity *val)
+{
+  if (yeType(val) == YINT)
+    return yeGetInt(val);
+  else if (yeType(val) == YSTRING)
+    yeGetInt(ygGet(yeGetString(val)));
+  return 0;
+}
+
+static int checkCondition(Entity *condition)
+{
+  Entity *actionEnt = yeGetByIdx(condition, 0);
+  const char *action = yeGetString(actionEnt);
+  int len = yeLen(actionEnt);
+
+  if (!action)
+    return 0;
+  switch(len) {
+  case 1:
+    if (action[0] == '>') {
+      return getComVal(yeGetByIdx(condition, 1)) >
+	getComVal(yeGetByIdx(condition, 2));
+    } else if (action[0] == '<') {
+      return getComVal(yeGetByIdx(condition, 1)) <
+	getComVal(yeGetByIdx(condition, 2));
+    }
+  default:
+    break;
+  }
+  return 0;
+}
+
 static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
 				Entity *menu, Entity *curent)
 {
@@ -71,6 +103,10 @@ static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
   entries = yeReCreateArray(menu, "entries", NULL);
   yeReplaceBack(menu, wid, "_main");
   YE_ARRAY_FOREACH(answers, answer) {
+    Entity *condition = yeGetByStrFast(answer, "condition");
+
+    if (condition && !checkCondition(condition))
+      continue;
     yePushBack(entries, answer, NULL);
   }
   ywMenuReBind(menu);
