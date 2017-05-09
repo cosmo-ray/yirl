@@ -363,6 +363,33 @@ Entity *yeGetByStrExt(Entity *entity, const char *name, int64_t *idx)
   return NULL;
 }
 
+Entity *yeNGetByStr(Entity *entity, const char *name, int len)
+{
+  int cur = 0;
+  Entity *ret = NULL;
+
+  if (unlikely(!entity || !name)) {
+    DPRINT_INFO("can not find entity for %s\n", name);
+    return NULL;
+  }
+
+  while (cur < len) {
+    int i;
+
+    i = findIdxPoint(name);
+    if (i == -1)
+      return yeGetByIdxFastWithEnd(entity, name, len - cur);
+
+    ret = yeGetByIdxFastWithEnd(entity, name, i);
+    name += i + 1;
+    cur += i;
+  }
+
+  if (cur > len)
+    return NULL;
+  return ret;
+}
+
 Entity *yeGetByStr(Entity *entity, const char *name)
 {
   int	i;

@@ -108,8 +108,7 @@ static void *mnActions(va_list ap)
       Entity *arg3 = yeLen(action) > 3 ? yeGet(action, 3) : Y_END_VA_LIST;
 
       cur_ret = (size_t)yesCall(ygGet(yeGetString(yeGet(action, 0))),
-				wid, eve, arg,
-				arg1, arg2, arg3);
+				wid, eve, arg, arg1, arg2, arg3);
     }
     if (cur_ret > ret)
       ret = cur_ret;

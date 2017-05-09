@@ -32,6 +32,8 @@ void stringsTests(void);
 
 void testCopy(void);
 
+void testGet(void);
+
 void testSetSimple(void);
 void testSetComplex(void);
 void testSetGeneric(void);

@@ -516,7 +516,7 @@ static int isNestedEntity(const char *str, char *modName, const char **entName)
 
   *entName = g_strrstr(str, ":");
   if (!(*entName)) {
-    *entName = str; 
+    *entName = str;
     return 0;
   }
   *entName = *entName + 1;

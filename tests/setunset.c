@@ -21,6 +21,20 @@
 #include "tests.h"
 #include "entity.h"
 
+void testGet(void)
+{
+  yeInitMem();
+  Entity *a = yeCreateArray(NULL, NULL);
+  Entity *b = yeCreateArray(a, "b");
+  Entity *c = yeCreateArray(b, "c");
+
+  g_assert(b == yeGet(a, "b"));
+  g_assert(c == yeGetByStr(a, "b.c"));
+  g_assert(b == yeNGetByStr(a, "b.c", 1));
+  yeDestroy(a);
+  yeEnd();
+}
+
 void testSetSimple(void)
 {
   yeInitMem();
@@ -34,7 +48,7 @@ void testSetSimple(void)
   double testDouble;
   const char *testStr;
   const char *testFunc;
-  
+
   testInt = yeGetInt(test1);
   testDouble = yeGetFloat(test2);
   testStr = yeGetString(test3);
@@ -88,7 +102,7 @@ void testSetComplex(void)
 
   for (int i = 0; i < 10; ++i) {
     char *tmp = g_strdup_printf("Dude%d", i);
-    
+
     yeCreateInt(i, mainStruct, tmp);
     g_free(tmp);
   }

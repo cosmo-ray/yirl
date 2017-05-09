@@ -246,6 +246,7 @@ static inline Entity *yeGetByIdxDirect(Entity *entity, size_t index)
  * @return The found Entity named @name in @entity
  */
 Entity *yeGetByStr(Entity *entity, const char *name);
+Entity *yeNGetByStr(Entity *entity, const char *name, int len);
 
 /**
  * Same as yeGetByStrFast, but store the index in @idx
