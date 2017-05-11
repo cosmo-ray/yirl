@@ -17,54 +17,15 @@
 
 #include <yirl/game.h>
 #include <yirl/menu.h>
+#include <yirl/contener.h>
 
-void *init(int nbArg, void **args)
-{
-  Entity *mod = args[0];
-  Entity *init;
-  Entity *map = yeCreateArray(mod, "game");
-
-  yeCreateString("vapz", map, "<type>");
-  yePushBack(map, yeGetByStr(mod, "resources.map"), "resources");
-
-  init = yeCreateArray(NULL, NULL);
-  yeCreateString("dialogue", init, "name");
-  yeCreateFunction("dialogueInit", ygGetManager("tcc"), init, "callback");
-  ywidAddSubType(init);
-    /* registre functions */
-  yeCreateFunction("dialogueChangeText", ygGetTccManager(), mod, "change-text");
-  return NULL;
-}
-
-void *dialogueAction(int nbArgs, void **args)
-{
-  Entity *wid = args[0];
-  void *ret = (void *)NOTHANDLE;
-  YEvent *events = args[1];
-  YEvent *eve = events;
-
-  YEVE_FOREACH(eve, events) {
-    if (ywidEveType(eve) == YKEY_DOWN) {
-      switch (ywidEveKey(eve)) {
-      case 'q':
-	yFinishGame();
-	ret = (void *)ACTION;
-	break;
-      default:
-	break;
-
-      }
-    }
-  }
-  return ret;
-}
 
 static int getComVal(Entity *val)
 {
   if (yeType(val) == YINT)
     return yeGetInt(val);
   else if (yeType(val) == YSTRING)
-    yeGetInt(ygGet(yeGetString(val)));
+    return yeGetInt(ygGet(yeGetString(val)));
   return 0;
 }
 
@@ -90,6 +51,19 @@ static int checkCondition(Entity *condition)
   }
   return 0;
 }
+static void refreshTextAndAnswer(Entity *wid, Entity *textScreen,
+				Entity *menu, Entity *curent)
+{
+  Entity *answers = yeGetByStrFast(menu, "entries");
+
+  YE_ARRAY_FOREACH(answers, answer) {
+    Entity *condition = yeGetByStrFast(answer, "condition");
+
+    if (condition) {
+      yeReCreateInt(!checkCondition(condition), answer, "hiden");
+    }
+  }
+}
 
 static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
 				Entity *menu, Entity *curent)
@@ -105,17 +79,70 @@ static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
   YE_ARRAY_FOREACH(answers, answer) {
     Entity *condition = yeGetByStrFast(answer, "condition");
 
-    if (condition && !checkCondition(condition))
-      continue;
+    if (condition)
+      yeReCreateInt(!checkCondition(condition), answer, "hiden");
     yePushBack(entries, answer, NULL);
   }
   ywMenuReBind(menu);
 }
 
+void *init(int nbArg, void **args)
+{
+  Entity *mod = args[0];
+  Entity *init;
+  Entity *map = yeCreateArray(mod, "game");
+
+  yeCreateString("vapz", map, "<type>");
+  yePushBack(map, yeGetByStr(mod, "resources.map"), "resources");
+
+  init = yeCreateArray(NULL, NULL);
+  yeCreateString("dialogue", init, "name");
+  yeCreateFunction("dialogueInit", ygGetManager("tcc"), init, "callback");
+  ywidAddSubType(init);
+  /* registre functions */
+  yeCreateFunction("dialogueChangeText", ygGetTccManager(), mod, "change-text");
+  return NULL;
+}
+
+void *dialoguePostAction(int nbArgs, void **args)
+{
+  uint64_t ret_type = (long)args[0];
+  Entity *e = args[1];
+
+  if (ret_type == NOTHANDLE)
+    return;
+  refreshTextAndAnswer(e, ywCntGetEntry(e, 0), ywCntGetEntry(e, 1),
+		       yeGetByStrFast(e, "active_dialogue"));
+}
+
+void *dialogueAction(int nbArgs, void **args)
+{
+  Entity *wid = args[0];
+  void *ret = (void *)NOTHANDLE;
+  YEvent *events = args[1];
+  YEvent *eve = events;
+
+  YEVE_FOREACH(eve, events) {
+    if (ywidEveType(eve) == YKEY_DOWN) {
+      switch (ywidEveKey(eve)) {
+      case 'q':
+	yFinishGame();
+	ret = (void *)ACTION;
+	break;
+      default:
+	break;
+
+      }
+    }
+  }
+  return ret;
+}
+
 void *dialogueChangeText(int nbArgs, void **args)
 {
-  yeReplaceBack(yeGetByIdx(yeGetByStr(args[0], "_main.entries"), 0),
+  yeReplaceBack(ywCntGetEntry(yeGetByStr(args[0], "_main"), 0),
 		args[3], "text");
+  return (void *)NOACTION;
 }
 
 void *dialogueInit(int nbArgs, void **args)
@@ -130,6 +157,8 @@ void *dialogueInit(int nbArgs, void **args)
 
   yeRemoveChildByStr(main, "action");
   ywidCreateFunction("dialogueAction", ygGetTccManager(), main, "action");
+  yeCreateFunction("dialoguePostAction", ygGetTccManager(),
+		     main, "post-action");
   yeCreateString("text-screen", textScreen, "<type>");
   yeTryCreateInt(70, textScreen, "size");
   yePushBack(textScreen, yeGetByStrFast(main, "speaker_background"),

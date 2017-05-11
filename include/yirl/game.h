@@ -132,6 +132,7 @@ int ygBindBySinIdx(YWidgetState *wid, int idx, const char *callback);
 int ygBind(YWidgetState *wid, const char *signal, const char *callback);
 
 Entity *ygGet(const char *toFind);
+void ygSetInt(const char *toSet, int val);
 
 int ygAddDefine(const char *name, char *val);
 

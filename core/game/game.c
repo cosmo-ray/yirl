@@ -148,6 +148,22 @@ static void *nextWid(va_list ap)
   return (void *)ACTION;
 }
 
+static void *setInt(va_list ap)
+{
+  Entity *wid = va_arg(ap, Entity *);
+  void *useless = va_arg(ap, YEvent *);
+  Entity *toSet;
+  Entity *value;
+
+  useless = va_arg(ap, void *);
+  toSet = va_arg(ap, Entity *);
+  value = va_arg(ap, Entity *);
+  (void)useless;
+  (void)wid;
+  ygSetInt(yeGetString(toSet), yeGetInt(value));
+  return (void *)NOACTION;
+}
+
 static void *nextOnKeyDown(va_list ap)
 {
   va_list tmp_ap;
@@ -181,6 +197,7 @@ static void addNativeFuncToBaseMod(void)
   ysRegistreCreateNativeEntity(nextWid, "callNext", baseMod, NULL);
   ysRegistreCreateNativeEntity(nextOnKeyDown, "nextOnKeyDown",
 			       baseMod, NULL);
+  ysRegistreCreateNativeEntity(setInt, "setInt", baseMod, NULL);
   yeCreateFunctionSimple("menuMove", ysNativeManager(), baseMod);
   yeCreateFunctionSimple("menuNext", ysNativeManager(), baseMod);
   yeCreateFunctionSimple("menuActions", ysNativeManager(), baseMod);
@@ -490,7 +507,6 @@ int ygLoadFile(Entity *mod, void *manager, const char *path)
   int ret;
   char *tmp = g_strconcat(yeGetString(yeGet(mod, "$path")), path, NULL);
 
-  printf("path %s\n", tmp);
   ret = ysLoadFile(manager, tmp);
   g_free(tmp);
   return ret;
@@ -556,8 +572,7 @@ Entity *ygGet(const char *toFind)
   char modName[254];
   const char *funcName;
   char *tmp;
-  intptr_t ret;
-  Entity *tmpMod;
+  int ret;
 
   if (!toFind)
     return NULL;
@@ -565,8 +580,35 @@ Entity *ygGet(const char *toFind)
   tmp = modName;
 
   // if no module give in toFind, use modList as base
-  tmpMod = ret ? ygGetMod(tmp) : modList;
-  return yeGetByStr(tmpMod, funcName);
+  if (!ret) {
+    Entity *retVal = yeGet(modList, funcName);
+
+    if (!retVal)
+      return ygGetFunc(NULL, funcName);
+    return retVal;
+  }
+  return yeGetByStr(ygGetMod(tmp), funcName);
+}
+
+void ygSetInt(const char *toSet, int val)
+{
+  int len = strlen(toSet);
+  Entity *father;
+  Entity *e;
+  const char *end;
+
+  for (end = toSet + len - 1; end != toSet && *end != '.' &&  *end != ':';
+       --end, --len);
+  if (end == toSet) {
+    DPRINT_ERR("can't set '%s' because variable is in the global scope");
+    return;
+  }
+  father = yeNGetByStr(modList, toSet, len - 1);
+  toSet += len;
+  if ((e = yeGet(father, toSet)) == NULL)
+    yeCreateInt(val, father, toSet);
+  else
+    yeSetInt(e, val);
 }
 
 int ygBindBySinIdx(YWidgetState *wid, int idx, const char *callback)

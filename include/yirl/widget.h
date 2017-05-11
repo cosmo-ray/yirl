@@ -214,19 +214,7 @@ static inline int ywidRend(YWidgetState *opac)
  */
 int ywidDrawScreen(void);
 
-static inline int ywidHandleEvent(YWidgetState *opac, YEvent *event)
-{
-  int ret = 0;
-
-  if (opac->handleEvent)
-    ret = opac->handleEvent(opac, event);
-
-  if (!opac->hasChange)
-    opac->hasChange = (ret == NOTHANDLE ? 0 : 1);
-  else
-    ret = (ret == NOTHANDLE ? NOACTION : ret);
- return ret;
-}
+int ywidHandleEvent(YWidgetState *opac, YEvent *event);
 
 int ywidDoTurn(YWidgetState *opac);
 

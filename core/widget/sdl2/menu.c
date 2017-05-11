@@ -56,11 +56,14 @@ static int sdlRend(YWidgetState *state, int t)
 
   YE_ARRAY_FOREACH_EXT(entries, entry, it) {
     SDL_Color color = base_color;
+    int hiden = yeGetInt(yeGet(entry, "hiden"));
     const char *toPrint = yeGetString(yeGet(entry, "text"));
     unsigned int cur = ywMenuGetCurrent(state);
     Entity *destRect;
     SDL_Rect txtR;
 
+    if (hiden)
+      continue;
     ywidColorFromString((char *)yeGetString(yeGet(entry, "text-color")),
 			&color.r, &color.g, &color.b, &color.a);
     if (isPane) {

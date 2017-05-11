@@ -39,6 +39,8 @@ static void *nmMenuDown(YWidgetState *wid)
 
   if (((YMenuState *)wid)->current > yeLen(yeGet(wid->entity, "entries")) - 1)
     ((YMenuState *)wid)->current = 0;
+  if (yeGetInt(yeGet(ywMenuGetCurrentEntry(wid->entity), "hiden")))
+    return nmMenuDown(wid);
   return (void *)NOACTION;
 }
 
@@ -48,6 +50,8 @@ static void *nmMenuUp(YWidgetState *wid)
 
   if (((YMenuState *)wid)->current > yeLen(yeGet(wid->entity, "entries")))
     ((YMenuState *)wid)->current = yeLen(yeGet(wid->entity, "entries")) - 1;
+  if (yeGetInt(yeGet(ywMenuGetCurrentEntry(wid->entity), "hiden")))
+    return nmMenuUp(wid);
   return (void *)NOACTION;
 }
 
@@ -97,7 +101,8 @@ static void *mnActions(va_list ap)
   InputStatue ret = NOTHANDLE;
 
   YE_ARRAY_FOREACH(actions, action) {
-    int cur_ret;
+    int cur_ret = 0;
+
     if (yeType(action) == YSTRING) {
       cur_ret = (size_t)yesCall(ygGet(yeGetString(action)), wid, eve, arg);
     } else if (yeType(action) == YFUNCTION) {

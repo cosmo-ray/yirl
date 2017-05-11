@@ -553,6 +553,23 @@ InputStatue ywidEventCallActionSin(YWidgetState *opac, YEvent *event)
   return ywidCallSignal(opac, event, NULL, opac->actionIdx);
 }
 
+int ywidHandleEvent(YWidgetState *opac, YEvent *event)
+{
+  int ret = 0;
+  Entity *postAction;
+
+  if (opac->handleEvent)
+    ret = opac->handleEvent(opac, event);
+
+  if (!opac->hasChange)
+    opac->hasChange = (ret == NOTHANDLE ? 0 : 1);
+  else
+    ret = (ret == NOTHANDLE ? NOACTION : ret);
+  if ((postAction = yeGet(opac->entity, "post-action")) != NULL)
+    yesCall(postAction, ret, opac->entity, event);
+  return ret;
+}
+
 int ywIsPixsOnWid(Entity *widget, int posX, int posY)
 {
   Entity *pixR = yeGet(widget, "wid-pix");
