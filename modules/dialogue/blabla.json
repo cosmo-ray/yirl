@@ -17,8 +17,21 @@
 		},
 		{
 		    "text" : "my name is trantord",
-		    "action" : [ "Dialogue:change-text", "hummm whatever"],
+		    "actions" : [[ "Dialogue:change-text", "hummm whatever"],
+				 ["Dialogue:goto", 1]],
 		    "condition" : [">", "Dialogue:hasSayName", 0]
+		}
+	    ]
+	} , {
+	    "text" : "humm, trantor, sound like a name from the empire right ?",
+	    "answers" : [
+		{
+		    "text" : "know what, that's not your concern, fuck you",
+		    "action" : "FinishGame"
+		},
+		{
+		    "text" : "sorry, can you repeat ?",
+		    "action" : ["Dialogue:goto", 0]
 		}
 	    ]
 	}

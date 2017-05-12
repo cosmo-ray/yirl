@@ -102,6 +102,7 @@ void *init(int nbArg, void **args)
   /* registre functions */
   yeCreateFunction("dialogueChangeText", ygGetTccManager(), mod, "change-text");
   yeCreateFunction("dialogueHide", ygGetTccManager(), mod, "hide");
+  yeCreateFunction("dialogueGoto", ygGetTccManager(), mod, "goto");
   return NULL;
 }
 
@@ -147,6 +148,15 @@ void *dialogueHide(int nbArgs, void **args)
 
   yeReCreateInt(1, answer, "hiden");
   ywMenuDown(args[0]);
+  return (void *)NOACTION;
+}
+
+void *dialogueGoto(int nbArgs, void **args)
+{
+  Entity *main = yeGetByStr(args[0], "_main");
+
+  yeReplaceBack(main, args[3], "active_dialogue");
+  printfTextAndAnswer(main, ywCntGetEntry(main, 0), args[0], args[3]);
   return (void *)NOACTION;
 }
 
