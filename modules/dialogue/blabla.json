@@ -12,7 +12,8 @@
 		    "text" : "hej, what's your name ?",
 		    "actions" : [[ "Dialogue:change-text",
 				   "my name is francoise-robert, and you ?"],
-				 ["setInt", "Dialogue:hasSayName", 1]]
+				 ["setInt", "Dialogue:hasSayName", 1],
+				 ["Dialogue:hide"]]
 		},
 		{
 		    "text" : "my name is trantord",

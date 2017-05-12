@@ -34,6 +34,7 @@ static int sdlRend(YWidgetState *state, int t)
   Entity *type = yeGet(state->entity, "mn-type");
   SDL_Color base_color = {0,0,0,255};
   int isPane = 0;
+  int pos = 0;
 
   if (!yeStrCmp(type, "panel"))
     isPane = 1;
@@ -67,12 +68,12 @@ static int sdlRend(YWidgetState *state, int t)
     ywidColorFromString((char *)yeGetString(yeGet(entry, "text-color")),
 			&color.r, &color.g, &color.b, &color.a);
     if (isPane) {
-      destRect = ywRectReCreateInts(wid->rect.w / len * it.pos, 0,
+      destRect = ywRectReCreateInts(wid->rect.w / len * pos, 0,
 				    wid->rect.w / len,
 				    sgGetFontSize() + 1,
 				    entry, "$rect");
     } else {
-      destRect = ywRectReCreateInts(0, it.pos * sgGetFontSize() + 1,
+      destRect = ywRectReCreateInts(0, pos * sgGetFontSize() + 1,
 				    wid->rect.w, sgGetFontSize() + 1,
 				    entry, "$rect");
     }
@@ -83,8 +84,8 @@ static int sdlRend(YWidgetState *state, int t)
       sdlDrawRect(wid, txtR, color);
       color.a = 255;
     }
+    ++pos;
   }
-
   return 0;
 }
 

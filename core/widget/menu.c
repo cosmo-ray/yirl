@@ -121,6 +121,16 @@ static void *mnActions(va_list ap)
   return (void *)ret;
 }
 
+void ywMenuUp(Entity *wid)
+{
+  nmMenuUp(ywidGetState(wid));
+}
+
+void ywMenuDown(Entity *wid)
+{
+  nmMenuDown(ywidGetState(wid));
+}
+
 int ywMenuReBind(Entity *entity)
 {
   YWidgetState *opac = ywidGetState(entity);

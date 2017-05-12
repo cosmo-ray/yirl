@@ -101,6 +101,7 @@ void *init(int nbArg, void **args)
   ywidAddSubType(init);
   /* registre functions */
   yeCreateFunction("dialogueChangeText", ygGetTccManager(), mod, "change-text");
+  yeCreateFunction("dialogueHide", ygGetTccManager(), mod, "hide");
   return NULL;
 }
 
@@ -136,6 +137,17 @@ void *dialogueAction(int nbArgs, void **args)
     }
   }
   return ret;
+}
+
+void *dialogueHide(int nbArgs, void **args)
+{
+  Entity *answers = yeGetByStrFast(args[0], "entries");
+  Entity *answer = yeGetByIdx(answers,
+			      yeGetInt(yeGetByStr(args[0], "_main.current")));
+
+  yeReCreateInt(1, answer, "hiden");
+  ywMenuDown(args[0]);
+  return (void *)NOACTION;
 }
 
 void *dialogueChangeText(int nbArgs, void **args)
