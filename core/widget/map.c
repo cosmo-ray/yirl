@@ -39,7 +39,7 @@ int ywMapType(Entity *map)
 }
 
 void ywMapGetSpriteSize(Entity *map, unsigned int *sizeSpriteW,
-			unsigned int *sizeSpriteH)
+			unsigned int *sizeSpriteH, unsigned int *thresholdX)
 {
   Entity *widPix = yeGet(map, "wid-pix");
   int type = ywMapType(map);
@@ -55,6 +55,12 @@ void ywMapGetSpriteSize(Entity *map, unsigned int *sizeSpriteW,
     winWidth = ywMapW(map);
     winHeight = ywMapH(map);
   }
+  // TODO: use real SPRITE SIZE
+  // get proportion calcule:
+  // x - y = diff
+  // bigger = x < y ? x : y;
+  // proportion = diff / bigger + 1.0
+
   /* Check if the number of sprites this window can
    * contain is superior to the actual width of the window */
   if (nbPixInSprites(YMAP_SIZE_SPRITE_W, winWidth) <  winPixWidth) {
@@ -67,17 +73,29 @@ void ywMapGetSpriteSize(Entity *map, unsigned int *sizeSpriteW,
 
     *sizeSpriteH = YMAP_SIZE_SPRITE_H * winPixHight /
       nbPixInSprites(YMAP_SIZE_SPRITE_H, winHeight);
+    if (*sizeSpriteW > *sizeSpriteH) {
+      *thresholdX = (winPixWidth - winPixHight) / 2 ;
+      *sizeSpriteW = *sizeSpriteH;
+    } else {
+      *thresholdX = 0;
+      *sizeSpriteH = *sizeSpriteW;
+    }
   }
+  if (thresholdX)
+    *thresholdX += (winPixWidth % *sizeSpriteW) / 2;
 }
 
 
 void yeMapPixielsToPos(Entity *wid, uint32_t pixX, uint32_t pixY,
 		       uint32_t *x, uint32_t *y)
 {
-  uint32_t spriteW, spriteH;
+  uint32_t spriteW, spriteH, thresholdX;
 
-  ywMapGetSpriteSize(wid, &spriteW, &spriteH);
-  *x = pixX / spriteW;
+  ywMapGetSpriteSize(wid, &spriteW, &spriteH, &thresholdX);
+  if (pixX < thresholdX)
+    *x = 0;
+  else
+    *x = (pixX - thresholdX) / spriteW;
   *y = pixY / spriteH;
 }
 

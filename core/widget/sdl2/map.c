@@ -42,14 +42,13 @@ static int sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
   int posCam = yeGetInt(yeGet(entity, "cam-pos"));
   int32_t begX = posCam;
   Entity *mapCase;
-  int thresholdX;
+  uint32_t thresholdX;
 
   if (ywidBgConfFill(yeGet(entity, "background"), &cfg) >= 0) {
     sdlFillBg(wid, &cfg);
   }
 
-  ywMapGetSpriteSize(entity, &sizeSpriteW, &sizeSpriteH);
-  thresholdX = (wid->rect.w % sizeSpriteW) / 2;
+  ywMapGetSpriteSize(entity, &sizeSpriteW, &sizeSpriteH, &thresholdX);
 
   for(unsigned int i = 0; i < wCam * hCam &&
 	(mapCase = yeGet(map, begX + curx + (cury * wMap))); ++i) {
@@ -78,7 +77,7 @@ static int sdl2FullRender(YWidgetState *state, SDLWid *wid, Entity *entity)
   unsigned int hMap = lenMap / wMap;
   unsigned int sizeSpriteW;
   unsigned int sizeSpriteH;
-  int thresholdX;
+  uint32_t thresholdX;
 
   if (unlikely(!hMap || !wMap || !yeLen(map))) {
     DPRINT_ERR("can't rend empty map\n");
@@ -89,8 +88,7 @@ static int sdl2FullRender(YWidgetState *state, SDLWid *wid, Entity *entity)
     sdlFillBg(wid, &cfg);
   }
 
-  ywMapGetSpriteSize(entity, &sizeSpriteW, &sizeSpriteH);
-  thresholdX = (wid->rect.w % sizeSpriteW) / 2;
+  ywMapGetSpriteSize(entity, &sizeSpriteW, &sizeSpriteH, &thresholdX);
 
   YE_ARRAY_FOREACH_EXT(map, mapCase, it) {
     unsigned int curx = yBlockArrayIteratorIdx(it) % wMap;
@@ -141,14 +139,12 @@ static void sdl2MidFullRender(YWidgetState *state, SDLWid *wid, Entity *ent,
   Entity *mv_tbl;
   unsigned int sizeSpriteW;
   unsigned int sizeSpriteH;
-  int thresholdX;
-  int thresholdY = 0;
+  uint32_t thresholdX;
 
   if (!ywMapIsSmoot(ent))
     return;
 
-  ywMapGetSpriteSize(ent, &sizeSpriteW, &sizeSpriteH);
-  thresholdX = (wid->rect.w % sizeSpriteW) / 2;
+  ywMapGetSpriteSize(ent, &sizeSpriteW, &sizeSpriteH, &thresholdX);
   mv_tbl = yeGet(ent, "$mv_tbl");
   YE_ARRAY_FOREACH(mv_tbl, tbl) {
     Entity *from = yeGet(tbl, 0);
@@ -185,7 +181,7 @@ static void sdl2MidFullRender(YWidgetState *state, SDLWid *wid, Entity *ent,
     if (unlikely(sdlDisplaySprites(state, wid, ywPosX(from), ywPosY(from),
 				   movingElem, sizeSpriteW, sizeSpriteH,
 				   thresholdX + ywPosX(seg),
-				   thresholdY + ywPosY(seg)) < 0)) {
+				   0 + ywPosY(seg)) < 0)) {
       sdlConsumeError();
     }
 

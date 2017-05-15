@@ -208,9 +208,8 @@ static inline int ywMapAdvenceWithEPos(Entity *map, Entity *pos,
 }
 
 
-void ywMapGetSpriteSize(Entity *map,
-			unsigned int *sizeSpriteW,
-			unsigned int *sizeSpriteH);
+void ywMapGetSpriteSize(Entity *map, uint32_t *sizeSpriteW,
+			uint32_t *sizeSpriteH, uint32_t *thresholdX);
 
 void yeMapPixielsToPos(Entity *wid, uint32_t pixX, uint32_t pixY,
 		       uint32_t *w, uint32_t *h);
