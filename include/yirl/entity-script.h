@@ -18,11 +18,17 @@
 #ifndef _YIRL_ENTITY_SCRIPT_H_
 #define _YIRL_ENTITY_SCRIPT_H_
 
+#include "yirl/script.h"
+#include "yirl/entity.h"
+
+#ifndef Y_INSIDE_TCC
+
 #include <stdarg.h>
-#include "entity.h"
-#include "script.h"
 
 void *yesVCall(Entity *func, va_list ap);
+
+#endif
+
 void *yesCallInt(Entity *func, ...);
 
 #define yesCall0(func) yesCallInt(func, Y_END_VA_LIST)
