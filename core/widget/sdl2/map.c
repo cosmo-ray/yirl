@@ -31,17 +31,17 @@ int ywMapIsSmoot(Entity *map);
 /* crop the map and print the middle of it */
 static int sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
 {
-  unsigned int curx = 0, cury = 0;
   Entity *map = yeGet(entity, "map");
-  unsigned int wMap = ywMapW(entity);
-  unsigned int wCam = yeGetInt(yeGet(entity, "cam-w"));
-  unsigned int hCam = yeGetInt(yeGet(entity, "cam-h"));
+  int wMap = ywMapW(entity);
+  int hMap = ywMapH(entity);
+  int wCam = yeGetInt(yeGet(entity, "cam-w"));
+  int hCam = yeGetInt(yeGet(entity, "cam-h"));
   YBgConf cfg;
   unsigned int sizeSpriteW;
   unsigned int sizeSpriteH;
-  int posCam = yeGetInt(yeGet(entity, "cam-pos"));
-  int32_t begX = posCam;
-  Entity *mapCase;
+  Entity *posCam = yeGet(entity, "cam-pos");
+  int32_t begX = ywPosX(posCam) - wCam / 2;
+  int32_t begY = ywPosY(posCam) - hCam / 2;
   uint32_t thresholdX;
 
   if (ywidBgConfFill(yeGet(entity, "background"), &cfg) >= 0) {
@@ -50,8 +50,18 @@ static int sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
 
   ywMapGetSpriteSize(entity, &sizeSpriteW, &sizeSpriteH, &thresholdX);
 
-  for(unsigned int i = 0; i < wCam * hCam &&
-	(mapCase = yeGet(map, begX + curx + (cury * wMap))); ++i) {
+  if (begX < 0)
+    begX = 0;
+  else if (begX > (wMap - wCam))
+    begX = wMap - wCam;
+
+  if (begY < 0)
+    begY = 0;
+  else if (begY > hMap - hCam)
+    begY = hMap - hCam;
+
+  for(int i = 0, curx = 0, cury = 0; i < wCam * hCam; ++i) {
+    Entity *mapCase = yeGet(map, begX + curx + ((cury + begY) * wMap));
 
     YE_ARRAY_FOREACH(mapCase, mapElem) {
       sdlDisplaySprites(state, wid, curx, cury, mapElem,
@@ -141,6 +151,7 @@ static void sdl2MidFullRender(YWidgetState *state, SDLWid *wid, Entity *ent,
   unsigned int sizeSpriteH;
   uint32_t thresholdX;
 
+  printf("mid full render\n");
   if (!ywMapIsSmoot(ent))
     return;
 

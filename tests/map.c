@@ -62,14 +62,14 @@ void testYWMapCurses(void)
 
   g_assert(ycursInit() != -1);
   g_assert(ycursType() == 0);
-  
+
   g_assert(!ycursRegistreMap());
   ysRegistreFunc(ysNativeManager(), "mapTest", testMapEnter);
 
   wid = ywidNewWidget(ret, NULL);
   g_assert(wid);
 
-  
+
   do {
     g_assert(ywidRend(wid) != -1);
   } while(ywidDoTurn(wid) != ACTION);
@@ -78,7 +78,7 @@ void testYWMapCurses(void)
   YWidDestroy(wid);
   ycursDestroy();
   /* end libs */
-  YE_DESTROY(ret);  
+  YE_DESTROY(ret);
   yeEnd();
 }
 
@@ -109,7 +109,7 @@ void testYWMapSdl2(void)
 
   g_assert(ysdl2Init() != -1);
   g_assert(ysdl2Type() == 0);
-  
+
   g_assert(!ysdl2RegistreMap());
 
   ysRegistreFunc(ysNativeManager(), "mapTest", testMapEnter);
@@ -145,7 +145,6 @@ static void genBigMap(Entity *map)
   yeCreateInt(1, yeGet(cases, 6002), NULL);
   yeCreateInt(1, yeGet(cases, 9024), NULL);
   yeCreateInt(1, yeGet(cases, 9000), NULL);
-  yeCreateString("center", map, "aff-type");
 }
 
 void testYBigWMapSdl2(void)
@@ -221,7 +220,7 @@ void testYWMapAll(void)
   g_assert(ysdl2Type() == 0);
   g_assert(ycursInit() != -1);
   g_assert(ycursType() == 1);
-  
+
   g_assert(!ysdl2RegistreMap());
   g_assert(!ycursRegistreMap());
 

@@ -249,7 +249,6 @@ void *vapzAction(int nbArgs, void **args)
   }
   if (bulletDir)
     pushBullet(map, bulletPos, bulletDir);
-  ywMapSetOutBehavior(map, YMAP_OUT_BLOCK);
   Entity *isTouch = ywMapGetNbrEntityAt(map, vkPos, 2);
   if (isTouch) {
     lose(yeGetInt(yeGetByStrFast(map, "score")));
@@ -267,8 +266,8 @@ void *vapzAction(int nbArgs, void **args)
     ywContenerUpdate(wid, map);
     ywContenerUpdate(wid, textScreen);
   }
-  ywMapAdvenceWithEPos(map, vkPos, nextPos,
-		       ywMapGetNbrEntityAt(map, vkPos, 1));
+  ywMapSetOutBehavior(map, YMAP_OUT_BLOCK);
+  ywMapAdvenceWithEPos(map, vkPos, nextPos, ywMapGetNbrEntityAt(map, vkPos, 1));
 
  exit:
   yeDestroy(gc);
@@ -291,7 +290,10 @@ void *vapzInit(int nbArgs, void **args)
   cur_layer = ywMapCreateDefaultEntity(layers, NULL, resources,
 				       0, 25, 25);
   ywMapPushNbr(cur_layer, 1, vkPos, NULL);
-  yeCreateString("map", cur_layer, "<type>");
+  yeReCreateString("map", cur_layer, "<type>");
+  yeReCreateString("center", cur_layer, "cam-type");
+  yePushBack(cur_layer, vkPos, "cam-pos");
+
   yeCreateString("rgba: 255 255 255 255", cur_layer, "background");
   ywMapSetSmootMovement(cur_layer, 1);
 

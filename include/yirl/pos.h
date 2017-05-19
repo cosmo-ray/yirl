@@ -44,7 +44,7 @@ static inline char * ywPosToString(Entity *pos)
   ++i;
   i &= 3;
   snprintf(tmp[i], 256, "x: %d - y: %d",
-	   yeGetInt(yeGet(pos, 0)), yeGetInt(yeGet(pos, 1)));
+	   yeGetInt(yeGetByIdx(pos, 0)), yeGetInt(yeGetByIdx(pos, 1)));
   return tmp[i];
 }
 

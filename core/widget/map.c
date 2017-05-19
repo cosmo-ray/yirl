@@ -194,10 +194,12 @@ static int mapInit(YWidgetState *opac, Entity *entity, void *args)
   if (mapInitCheckResources(resources) < 0)
     return -1;
 
-  if (yuiStrEqual0(yeGetString(yeGet(entity, "cam-type")), "center")) {
+  if (!yeStrCmp(yeGet(entity, "cam-type"), "center")) {
     yeReCreateInt(YMAP_PARTIAL, entity, "map-type");
+    yeTryCreateInt(20, entity, "cam-w");
+    yeTryCreateInt(20, entity, "cam-h");
     if (!yeGet(entity, "cam-pos"))
-      yeCreateInt(0, entity, "cam-pos");
+      ywPosCreateInts(0, 0, entity, "cam-pos");
   } else {
     yeReCreateInt(YMAP_FULL, entity, "map-type");
   }
@@ -428,6 +430,8 @@ int ywMapEnd(void)
 int ywMapIsSmoot(Entity *map);
 int ywMapIsSmoot(Entity *map)
 {
+  if (ywMapType(map) == YMAP_PARTIAL)
+    return 0;
   return yeGetInt(yeGet(map, "$smoot"));
 }
 
