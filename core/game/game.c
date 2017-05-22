@@ -581,7 +581,7 @@ Entity *ygGet(const char *toFind)
 
   // if no module give in toFind, use modList as base
   if (!ret) {
-    Entity *retVal = yeGet(modList, funcName);
+    Entity *retVal = yeGetByStr(modList, funcName);
 
     if (!retVal)
       return ygGetFunc(NULL, funcName);
