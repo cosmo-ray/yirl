@@ -20,11 +20,38 @@
 #include <string.h>
 #include <glib.h>
 #include "sdl-internal.h"
-#include "map.h"
-#include "entity.h"
+#include "yirl/map.h"
+#include "yirl/rect.h"
+#include "yirl/entity.h"
+
+#define PRINT_BG_AT(pos_at)						\
+  Entity *pos_at##mc = ywMapGetCase(ent, pos_at);			\
+  YE_ARRAY_FOREACH(pos_at##mc, mapElem##pos_at) {			\
+    if (yeFind(mv_tbl, findEnt, mapElem##pos_at)) {			\
+      continue;								\
+    }									\
+    if (unlikely(sdlDisplaySprites(state, wid, ywPosX(pos_at) - begX,	\
+				   ywPosY(pos_at) - begY,		\
+				   mapElem##pos_at, sizeSpriteW,	\
+				   sizeSpriteH,				\
+				   thresholdX, 0, NULL) < 0)) {		\
+      sdlConsumeError();						\
+    }									\
+  }
 
 static void sdl2MidFullRender(YWidgetState *state, SDLWid *wid, Entity *ent,
 			      int percent);
+static void sdl2MidPartialRender(YWidgetState *state, SDLWid *wid, Entity *ent,
+				 int percent);
+
+
+static Entity *findEnt(const char *useless, Entity *ent, void *ent2)
+{
+  (void)useless;
+  if (yeGet(ent, 2) == ent2)
+    return ent2;
+  return NULL;
+}
 
 int ywMapIsSmoot(Entity *map);
 
@@ -65,7 +92,7 @@ static int sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
 
     YE_ARRAY_FOREACH(mapCase, mapElem) {
       sdlDisplaySprites(state, wid, curx, cury, mapElem,
-			sizeSpriteW, sizeSpriteH, thresholdX, 0);
+			sizeSpriteW, sizeSpriteH, thresholdX, 0, NULL);
     }
     ++curx;
     if (curx >= wCam) {
@@ -74,7 +101,115 @@ static int sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
     }
   }
 
+  sdl2MidPartialRender(state, wid, entity, 0);
   return 0;
+}
+
+static void sdl2MidPartialRender(YWidgetState *state, SDLWid *wid, Entity *ent,
+				 int percent)
+{
+  Entity *gc = yeCreateArray(NULL, NULL);
+  Entity *mv_tbl;
+  unsigned int sizeSpriteW;
+  unsigned int sizeSpriteH;
+  uint32_t thresholdX;
+  int wMap = ywMapW(ent);
+  int hMap = ywMapH(ent);
+  int wCam = yeGetInt(yeGet(ent, "cam-w"));
+  int hCam = yeGetInt(yeGet(ent, "cam-h"));
+  Entity *posCam = yeGet(ent, "cam-pos");
+  Entity *rect;
+  int32_t begX = ywPosX(posCam) - wCam / 2;
+  int32_t begY = ywPosY(posCam) - hCam / 2;
+  int32_t endX = begX + wCam - 1;
+  int32_t endY = begY + hCam - 1;
+
+  if (!ywMapIsSmoot(ent))
+    return;
+
+  if (begX < 0) {
+    begX = 0;
+    endX = begX + wCam;
+  } else if (endX > wMap) {
+    begX = wMap - wCam;
+    endX = wMap;
+  }
+
+  if (begY < 0) {
+    begY = 0;
+    endY = begY + hCam;
+  } else if (endY > hMap) {
+    begY = hMap - hCam;
+    endY = hMap;
+  }
+  rect = ywRectCreateInts(begX -1, begY -1, wCam + 1,
+			  hCam + 1, NULL, NULL);
+
+  ywMapGetSpriteSize(ent, &sizeSpriteW, &sizeSpriteH, &thresholdX);
+  mv_tbl = yeGet(ent, "$mv_tbl");
+  YE_ARRAY_FOREACH(mv_tbl, tbl) {
+    Entity *from = yeGet(tbl, 0);
+    Entity *to = yeGet(tbl, 1);
+
+    if (ywRectIntersectPos(rect, from)) {
+      PRINT_BG_AT(from);
+    }
+    if (ywRectIntersectPos(rect, to)) {
+      PRINT_BG_AT(to);
+    }
+
+  }
+
+  YE_ARRAY_FOREACH(mv_tbl, tbl2) {
+    Entity *from = yeGet(tbl2, 0);
+    Entity *to = yeGet(tbl2, 1);
+    Entity *seg = ywPosDoPercent(ywPosMultXY(ywSegmentFromPos(from, to,
+							      gc, NULL),
+					     sizeSpriteW, sizeSpriteH),
+				 percent);
+    Entity *movingElem = yeGet(tbl2, 2);
+    Entity *modifier = NULL;
+
+    if (!ywRectIntersectPos(rect, from)) {
+      if (!ywRectIntersectPos(rect, to))
+	continue;
+      modifier = yeCreateArray(gc, NULL);
+      // type of modifier, 0 because for now is the only modifier
+      yeCreateInt(0, modifier, NULL);
+      if (begX == ywPosX(to) && ywPosX(to) > ywPosX(from)) {
+      	yeCreateInts(modifier, yuiPercentOf(sizeSpriteW, 100 - percent),
+      		     yuiPercentOf(sizeSpriteW, 100 - percent), 100 - percent,
+		     100 - percent);
+      }
+      else if (endX == ywPosX(to) && ywPosX(to) < ywPosX(from)) {
+      	yeCreateInts(modifier, 0, yuiPercentOf(sizeSpriteW, 100 - percent), 0,
+		     100 - percent);
+      }
+    } else if (!ywRectIntersectPos(rect, to)) {
+      modifier = yeCreateArray(gc, NULL);
+      // type of modifier, 0 because for now is the only modifier
+      yeCreateInt(0, modifier, NULL);
+      if (begX == ywPosX(from) && ywPosX(to) < ywPosX(from)) {
+      	yeCreateInts(modifier, yuiPercentOf(sizeSpriteW, percent),
+      		     yuiPercentOf(sizeSpriteW, percent), percent,
+		     percent);
+      } else if (endX == ywPosX(from) && ywPosX(to) > ywPosX(from)) {
+      	yeCreateInts(modifier, 0, yuiPercentOf(sizeSpriteW, percent), 0,
+		     percent);
+      }
+    }
+
+    if (unlikely(sdlDisplaySprites(state, wid, ywPosX(from) - begX,
+				   ywPosY(from) - begY,
+				   movingElem, sizeSpriteW, sizeSpriteH,
+				   thresholdX + ywPosX(seg),
+				   ywPosY(seg), modifier) < 0)) {
+      sdlConsumeError();
+    }
+
+    yeClearArray(gc);
+  }
+  yeDestroy(gc);
 }
 
 /* rend all the map, regardeless if the map is bigger than the screen */
@@ -107,7 +242,7 @@ static int sdl2FullRender(YWidgetState *state, SDLWid *wid, Entity *entity)
     YE_ARRAY_FOREACH(mapCase, mapElem) {
       if (unlikely(sdlDisplaySprites(state, wid, curx, cury, mapElem,
 				     sizeSpriteW, sizeSpriteH, thresholdX,
-				     0) < 0)) {
+				     0, NULL) < 0)) {
 	sdlConsumeError();
       }
     }
@@ -134,14 +269,6 @@ static int sdl2Init(YWidgetState *wid, int t)
   return 0;
 }
 
-static Entity *findEnt(const char *useless, Entity *ent, void *ent2)
-{
-  (void)useless;
-  if (yeGet(ent, 2) == ent2)
-    return ent2;
-  return NULL;
-}
-
 static void sdl2MidFullRender(YWidgetState *state, SDLWid *wid, Entity *ent,
 			      int percent)
 {
@@ -150,8 +277,9 @@ static void sdl2MidFullRender(YWidgetState *state, SDLWid *wid, Entity *ent,
   unsigned int sizeSpriteW;
   unsigned int sizeSpriteH;
   uint32_t thresholdX;
+  int32_t begX = 0;
+  int32_t begY = 0;
 
-  printf("mid full render\n");
   if (!ywMapIsSmoot(ent))
     return;
 
@@ -161,23 +289,8 @@ static void sdl2MidFullRender(YWidgetState *state, SDLWid *wid, Entity *ent,
     Entity *from = yeGet(tbl, 0);
     Entity *to = yeGet(tbl, 1);
 
-#define PRINT_BG_AT(pos_at)						\
-    Entity *pos_at##mc = ywMapGetCase(ent, pos_at);			\
-    YE_ARRAY_FOREACH(pos_at##mc, mapElem##pos_at) {			\
-      if (yeFind(mv_tbl, findEnt, mapElem##pos_at)) {			\
-	continue;							\
-      }									\
-      if (unlikely(sdlDisplaySprites(state, wid, ywPosX(pos_at), ywPosY(pos_at), \
-				     mapElem##pos_at, sizeSpriteW, sizeSpriteH, \
-				     thresholdX, 0) < 0)) {		\
-	sdlConsumeError();						\
-      }									\
-    }
-
     PRINT_BG_AT(from);
     PRINT_BG_AT(to);
-
-#undef PRINT_BG_AT
   }
 
   YE_ARRAY_FOREACH(mv_tbl, tbl2) {
@@ -192,7 +305,7 @@ static void sdl2MidFullRender(YWidgetState *state, SDLWid *wid, Entity *ent,
     if (unlikely(sdlDisplaySprites(state, wid, ywPosX(from), ywPosY(from),
 				   movingElem, sizeSpriteW, sizeSpriteH,
 				   thresholdX + ywPosX(seg),
-				   0 + ywPosY(seg)) < 0)) {
+				   0 + ywPosY(seg), NULL) < 0)) {
       sdlConsumeError();
     }
 
@@ -207,7 +320,7 @@ static void midRender(YWidgetState *state, int t, int percent)
   Entity *ent = state->entity;
 
   if (ywMapType(ent) == YMAP_PARTIAL)
-    return;
+    return sdl2MidPartialRender(state, wid, ent, percent);
   return sdl2MidFullRender(state, wid, ent, percent);
 }
 
@@ -218,3 +331,5 @@ int ysdl2RegistreMap(void)
   ywidRegistreMidRend(midRender, ret, ysdl2Type());
   return ret;
 }
+
+#undef PRINT_BG_AT

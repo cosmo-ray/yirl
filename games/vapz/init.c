@@ -116,11 +116,12 @@ static void pizzaMaker(Entity *map, Entity *pizzas)
 {
   Entity *pos;
   Entity *pizza;
+  int posPop = yuiRand() & 3;
 
   pizza = yeCreateArray(pizzas, NULL);
   yeCreateInt(2, pizza, "id");
 
-  switch (yuiRand() & 3) {
+  switch (posPop) {
   case 0:
     pos = ywPosCreateInts(0, yuiRand() % (ywMapH(map) - 1), pizza, "pos");
     ywPosCreateInts(-1, 0, pizza, "dir");

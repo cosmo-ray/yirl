@@ -18,7 +18,7 @@
 #ifndef _YIRL_RECT_H_
 #define _YIRL_RECT_H_
 
-#include "entity.h"
+#include "yirl/pos.h"
 
 /**
  * @father the father of the returned entity in which we store the return,
@@ -80,12 +80,17 @@ static inline Entity *ywRectSetH(Entity *pos, int posH)
 }
 
 /**
- * @return true if the poit at @posx, @posy is inside @rect
+ * @return true if the point at @posx, @posy is inside @rect
  */
 static inline int ywRectIntersect(Entity *rect, int posx, int posy)
 {
   return posx > ywRectX(rect) && posx < (ywRectX(rect) + ywRectW(rect)) &&
     posy > ywRectY(rect) && posy < (ywRectY(rect) + ywRectH(rect));
+}
+
+static inline int ywRectIntersectPos(Entity *rect, Entity *pos)
+{
+  return ywRectIntersect(rect, ywPosX(pos), ywPosY(pos));
 }
 
 #endif

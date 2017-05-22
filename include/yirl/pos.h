@@ -18,7 +18,7 @@
 #ifndef _YIRL_POS_H_
 #define _YIRL_POS_H_
 
-#include "entity.h"
+#include "yirl/entity.h"
 
 static inline int ywPosX(Entity *pos)
 {

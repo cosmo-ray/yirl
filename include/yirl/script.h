@@ -46,7 +46,7 @@ void *ysCallInt(void *sm, const char *name, ...);
 					    YUI_VA_ARGS_HANDELER(Y_END_VA_LIST,	\
 								 args))
 
-void *ysFCallInt(void *sm, void *name, ...);
+void *ysFCallInt(void *sm, void *name,  ...);
 
 #define ysFCall(sm, name, args...) ysFCallInt(sm, name,			\
 					      YUI_VA_ARGS_HANDELER(Y_END_VA_LIST, \
@@ -111,7 +111,7 @@ int ysRegister(void *(*allocator)(void));
 int ysUnregiste(int t);
 
 /**
- * @args the arguments 
+ * @args the arguments
  * @type the type of script
  */
 void *ysNewManager(void *args, int type);

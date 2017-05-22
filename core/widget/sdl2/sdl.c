@@ -479,7 +479,7 @@ void sdlConsumeError(void)
 int sdlDisplaySprites(YWidgetState *state, SDLWid *wid,
 		      int x, int y, Entity *mapElem,
 		      int w, int h, int thresholdX,
-		      int thresholdY)
+		      int thresholdY, Entity *mod)
 {
   SDL_Color color = {0,0,0,255};
   SDL_Rect DestR = {x * w + wid->rect.x + thresholdX,
@@ -490,7 +490,7 @@ int sdlDisplaySprites(YWidgetState *state, SDLWid *wid,
   Entity *elem;
 
   if (unlikely(!mapElem))
-    return 0;;
+    return 0;
   id = ywMapGetIdByElem(mapElem);
   elem = yeGet(ywMapGetResources(state), id);
 
@@ -500,10 +500,22 @@ int sdlDisplaySprites(YWidgetState *state, SDLWid *wid,
     int type = yeGetInt(yeGet(elem, "$sdl-type"));
 
     if (type == Y_SDL_TILD || type == Y_SDL_COLOR) {
+      SDL_Rect srcR = {0, 0, 0, 0};
+      SDL_Rect *srcRP = NULL;
+
+      if (unlikely(mod) && !yeGetIntAt(mod, 0)) {
+	SDL_QueryTexture(texture, NULL, NULL, &srcR.w, &srcR.h);
+	DestR.x += yeGetIntAt(mod, 1);
+	DestR.w -= yeGetIntAt(mod, 2);
+	srcR.x += yuiPercentOf(srcR.w, yeGetIntAt(mod, 3));
+	srcR.w -= yuiPercentOf(srcR.w, yeGetIntAt(mod, 4));
+	srcRP = &srcR;
+      }
+
       if (type == Y_SDL_COLOR)
 	sdlDrawRect(NULL, DestR, *((SDL_Color *)texture));
       else
-	SDL_RenderCopy(sg.renderer, texture, NULL, &DestR);
+	SDL_RenderCopy(sg.renderer, texture, srcRP, &DestR);
     } else {
       SDL_QueryTexture(texture, NULL, NULL, &DestR.w, &DestR.h);
       DestR.y = y * h - (DestR.h - h) + wid->rect.y;

@@ -78,6 +78,20 @@ int yeIsPtrAnEntity(void *ptr)
 				yBlockArrayLastPos(entitysArray));
 }
 
+int yeCreateInts_(Entity *fathers, int nbVars, ...)
+{
+  va_list ap;
+
+  if (!fathers)
+    return -1;
+  va_start(ap, nbVars);
+  for (int i = 0; i < nbVars; ++i) {
+    yeCreateInt(va_arg(ap, int), fathers, NULL);
+  }
+  va_end(ap);
+  return 0;
+}
+
 void yeEnd(void)
 {
   isInit = 0;

@@ -430,8 +430,6 @@ int ywMapEnd(void)
 int ywMapIsSmoot(Entity *map);
 int ywMapIsSmoot(Entity *map)
 {
-  if (ywMapType(map) == YMAP_PARTIAL)
-    return 0;
   return yeGetInt(yeGet(map, "$smoot"));
 }
 

@@ -315,6 +315,12 @@ Entity *yeCreateInt(int value, Entity *fathers, const char *name);
 Entity *yeCreateFloat(double value, Entity *fathers, const char *name);
 Entity *yeCreateString(const char *string, Entity *fathers, const char *name);
 
+int yeCreateInts_(Entity *fathers, int nbVars, ...);
+
+#define yeCreateInts(father, args...)				\
+  (yeCreateInts_((father), YUI_GET_ARG_COUNT(args), args))
+
+
 #define yeCreateFunctionSimple(name, manager, father)	\
   yeCreateFunction(name, manager, father, name)
 
@@ -552,6 +558,15 @@ size_t yeLen(Entity *entity);;
  * @return 0 if @entity is NULL
  */
 int	yeGetInt(Entity *entity);
+
+/**
+ * @TODO	do the generic version for strings
+ * @return	value of entity at @pos in @array, 0 if entity doesn't existe
+ */
+static inline int yeGetIntAt(Entity *array, int pos)
+{
+  return yeGetInt(yeGetByIdx(array, pos));
+}
 
 /**
  * @return 0 if @entity is NULL
