@@ -37,18 +37,24 @@ static int cursesRender(YWidgetState *state, int t)
   (void) w; // for debug print
   DPRINT_INFO("pos: h: %d w: %d x: %d y: %d\n", h, w, x, y);
 
-  for (unsigned int i = 0; i < len; ++i)
+  werase(wid->win);
+  wborder(wid->win, '|', '|', '-','-','+','+','+','+');
+  for (unsigned int i = 0, j = 0; i < len; ++i)
     {
       Entity *entry = yeGet(entries, i);
       const char *toPrint = yeGetString(yeGet(entry, "text"));
+      int hiden = yeGetInt(yeGet(entry, "hiden"));
       unsigned int cur = ywMenuGetCurrent(state);
+      if (hiden)
+	continue;
       if (toPrint) {
 	if (cur == i)
 	  wattron(wid->win, COLOR_PAIR(1));
-	mvwaddstr(wid->win, i + 1, 1, toPrint);
+	mvwaddstr(wid->win, j + 1, 1, toPrint);
 	if (cur == i)
 	  wattroff(wid->win, COLOR_PAIR(1));
       }
+      ++j;
     }
   wrefresh(wid->win);
   return 0;

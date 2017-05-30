@@ -25,7 +25,7 @@ void testDialogueMod(void)
   Entity *dialogue_example;
   YWidgetState *wid;
 
-  g_assert(!ygInitGameConfig(&cfg, NULL, SDL2));
+  g_assert(!ygInitGameConfig(&cfg, NULL, CURSES));
   g_assert(!ygInit(&cfg));
   g_assert(ygLoadMod("../modules/dialogue/"));
   dialogue_example = ygFileToEnt(YJSON, "../modules/dialogue/blabla.json",

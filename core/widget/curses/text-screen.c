@@ -30,6 +30,8 @@ static int cursesRender(YWidgetState *state, int t)
   const char *toPrint = yeGetString(yeGet(state->entity, "text"));
   int   len = strlen(toPrint);
 
+  werase(wid->win);
+  wborder(wid->win, '|', '|', '-','-','+','+','+','+');
   wmove(wid->win,0,0);
   getyx(wid->win, y, x);
   getmaxyx(wid->win, h, w);
