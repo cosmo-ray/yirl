@@ -24,18 +24,10 @@
 static int cursesRender(YWidgetState *state, int t)
 {
   CWidget *wid = ywidGetRenderData(state, t);
-  int x,y,h,w;
   Entity *entries = yeGet(state->entity, "entries");
   unsigned int   len = yeLen(entries);
 
   wmove(wid->win,0,0);
-  getyx(wid->win, y, x);
-  getmaxyx(wid->win, h, w);
-  w -= x;
-  h -= y;
-  (void) h; // for debug print
-  (void) w; // for debug print
-  DPRINT_INFO("pos: h: %d w: %d x: %d y: %d\n", h, w, x, y);
 
   werase(wid->win);
   wborder(wid->win, '|', '|', '-','-','+','+','+','+');
