@@ -28,6 +28,7 @@
 	"next" : "testSnake:scenes.LooseScreen",
 	"&resources" : "SnakeResources",
 	"bind" : [["hitWall", "snake:snakeWarp"], ["eat", "testSnake:eat"]],
+	"background": "rgba: 255 25 127 255"
     },
     "SnakeResources" : [
 	{
