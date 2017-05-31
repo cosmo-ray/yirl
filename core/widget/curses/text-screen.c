@@ -28,8 +28,11 @@ static int cursesRender(YWidgetState *state, int t)
   CWidget *wid = ywidGetRenderData(state, t);
   int x,y,h,w;
   const char *toPrint = yeGetString(yeGet(state->entity, "text"));
-  int   len = strlen(toPrint);
+  int len;
 
+  if (unlikely(!toPrint))
+	  return 0;
+  len = strlen(toPrint);
   werase(wid->win);
   wborder(wid->win, '|', '|', '-','-','+','+','+','+');
   wmove(wid->win,0,0);
