@@ -2,7 +2,15 @@
     "<type>" : "dialogue",
     "dialogue" : [
 	{
-	    "text" : "hello",
+	    "texts" : [
+		{
+		    "text": "so, what d'you want ?",
+		    "condition": [">", "Dialogue:hasSayName", 0]
+		},
+		{
+		    "text": "hello"
+		}
+	    ],
 	    "answers" : [
 		{
 		    "text" : "bug off",
@@ -17,12 +25,11 @@
 		},
 		{
 		    "text" : "my name is trantord",
-		    "actions" : [[ "Dialogue:change-text", "hummm whatever"],
-				 ["Dialogue:goto", 1]],
+		    "actions" : [["Dialogue:goto", 1]],
 		    "condition" : [">", "Dialogue:hasSayName", 0]
 		}
 	    ]
-	} , {
+	}, {
 	    "text" : "humm, trantor, sound like a name from the empire right ?",
 	    "answers" : [
 		{

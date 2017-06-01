@@ -51,8 +51,8 @@ static int checkCondition(Entity *condition)
   }
   return 0;
 }
-static void refreshTextAndAnswer(Entity *wid, Entity *textScreen,
-				Entity *menu, Entity *curent)
+static void refreshAnswer(Entity *wid, Entity *textScreen,
+			  Entity *menu, Entity *curent)
 {
   Entity *answers = yeGetByStrFast(menu, "entries");
 
@@ -70,14 +70,27 @@ static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
 {
   Entity *dialogue = yeGetByIdx(yeGetByStr(wid, "dialogue"), yeGetInt(curent));
   Entity *answers = yeGetByStr(dialogue, "answers");
+  Entity *txt = yeGetString(yeGetByStr(dialogue, "text"));
   Entity *entries;
+  Entity *condition;
 
-  yeReCreateString(yeGetString(yeGetByStr(dialogue, "text")),
-		   textScreen, "text");
+  if (!txt) {
+    Entity *txts = yeGetByStr(dialogue, "texts");
+
+    YE_ARRAY_FOREACH(txts, cur_txt) {
+      condition = yeGetByStrFast(cur_txt, "condition");
+
+      if (condition && !checkCondition(condition))
+	continue;
+      txt = yeGetString(yeGetByStr(cur_txt, "text"));
+      break;
+    }
+  }
+  yeReCreateString(txt, textScreen, "text");
   entries = yeReCreateArray(menu, "entries", NULL);
   yeReplaceBack(menu, wid, "_main");
   YE_ARRAY_FOREACH(answers, answer) {
-    Entity *condition = yeGetByStrFast(answer, "condition");
+    condition = yeGetByStrFast(answer, "condition");
 
     if (condition)
       yeReCreateInt(!checkCondition(condition), answer, "hiden");
@@ -113,8 +126,8 @@ void *dialoguePostAction(int nbArgs, void **args)
 
   if (ret_type == NOTHANDLE)
     return;
-  refreshTextAndAnswer(e, ywCntGetEntry(e, 0), ywCntGetEntry(e, 1),
-		       yeGetByStrFast(e, "active_dialogue"));
+  refreshAnswer(e, ywCntGetEntry(e, 0), ywCntGetEntry(e, 1),
+		yeGetByStrFast(e, "active_dialogue"));
 }
 
 void *dialogueAction(int nbArgs, void **args)
