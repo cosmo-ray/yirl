@@ -52,12 +52,13 @@ static TCCState *createTCCState(YTccScript *state)
   if (l == NULL)
     return NULL;
   if (!ysTccPath) {
-    tcc_add_sysinclude_path(l, YIRL_INCLUDE_PATH );
+    tcc_add_sysinclude_path(l, YIRL_INCLUDE_PATH);
     tcc_set_lib_path(l, TCC_LIB_PATH);
   } else {
     tcc_add_sysinclude_path(l, ysTccPath);
     tcc_set_lib_path(l, ysTccPath);
   }
+  tcc_add_sysinclude_path(l, YIRL_MODULES_PATH);
   tcc_define_symbol(l, "Y_INSIDE_TCC", NULL);
 #ifdef TCC_OUTPUT_MEMORY
   tcc_set_output_type(l, TCC_OUTPUT_MEMORY);
@@ -158,7 +159,6 @@ static void *tccGetFastCall(void *scriptManager, const char *name)
 
   if (NEED_REALLOC(scriptManager)) {
     if (includeStrs) {
-      /* printf("add: \n%s\n", yeGetString(includeStrs)); */
       tccLoadString(state, yeGetString(includeStrs));
     }
     if (tcc_relocate(state->l, TCC_RELOCATE_AUTO) < 0) {

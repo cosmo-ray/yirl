@@ -29,6 +29,10 @@
     ],
     "pre-load" : [
 	{
+	    "file" : "../../modules/list/",
+	    "type" : "module"
+	},
+	{
 	    "file" : "./resources.json",
 	    "type" : "json",
 	    "as" : "resources"
@@ -36,7 +40,6 @@
 	{
 	    "file" : "init.c",
 	    "type" : "tcc"
-	},
-
+	}
     ]
 }

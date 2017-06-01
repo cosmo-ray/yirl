@@ -82,8 +82,9 @@ static void addShip(Entity *wid)
     yeAddStr(txtSurface, "my only friend, the end\n");
     goto exit;
   }
-  if (!_fleet)
-    yeCreateArray(cp, "_fleet");
+  if (!_fleet) {
+    _fleet = ylist_init(cp, cp, "_fleet");
+  }
 
   ywMapPushNbr(l1, 1, cursorPos, NULL);
   yeMoveByEntity(fleet, _fleet, first);

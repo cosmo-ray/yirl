@@ -20,6 +20,7 @@
 #include <yirl/map.h>
 #include <yirl/contener.h>
 #include <yirl/text-screen.h>
+#include <list/list.h>
 
 static Entity *globMousePos;
 
