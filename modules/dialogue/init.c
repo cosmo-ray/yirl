@@ -65,32 +65,38 @@ static void refreshAnswer(Entity *wid, Entity *textScreen,
   }
 }
 
-static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
-				Entity *menu, Entity *curent)
+static const Entity *getText(Entity *e)
 {
-  Entity *dialogue = yeGetByIdx(yeGetByStr(wid, "dialogue"), yeGetInt(curent));
-  Entity *answers = yeGetByStr(dialogue, "answers");
-  Entity *txt = yeGetString(yeGetByStr(dialogue, "text"));
-  Entity *entries;
-  Entity *condition;
+  Entity *txt = yeGetByStrFast(e, "text");
 
   if (!txt) {
-    Entity *txts = yeGetByStr(dialogue, "texts");
+    Entity *condition;
+    Entity *txts = yeGetByStr(e, "texts");
 
     YE_ARRAY_FOREACH(txts, cur_txt) {
       condition = yeGetByStrFast(cur_txt, "condition");
 
       if (condition && !checkCondition(condition))
 	continue;
-      txt = yeGetString(yeGetByStr(cur_txt, "text"));
-      break;
+      return yeGetByStrFast(cur_txt, "text");
     }
   }
-  yeReCreateString(txt, textScreen, "text");
+}
+
+static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
+				Entity *menu, Entity *curent)
+{
+  Entity *dialogue = yeGetByIdx(yeGetByStr(wid, "dialogue"), yeGetInt(curent));
+  Entity *answers = yeGetByStr(dialogue, "answers");
+  Entity *txt = getText(dialogue);
+  Entity *entries;
+
+
+  yeReCreateString(yeGetString(txt), textScreen, "text");
   entries = yeReCreateArray(menu, "entries", NULL);
   yeReplaceBack(menu, wid, "_main");
   YE_ARRAY_FOREACH(answers, answer) {
-    condition = yeGetByStrFast(answer, "condition");
+    Entity *condition = yeGetByStrFast(answer, "condition");
 
     if (condition)
       yeReCreateInt(!checkCondition(condition), answer, "hiden");
@@ -175,8 +181,13 @@ void *dialogueGoto(int nbArgs, void **args)
 
 void *dialogueChangeText(int nbArgs, void **args)
 {
-  yeReplaceBack(ywCntGetEntry(yeGetByStr(args[0], "_main"), 0),
-		args[3], "text");
+  if (yeType(args[3]) == YSTRING) {
+    yeReplaceBack(ywCntGetEntry(yeGetByStr(args[0], "_main"), 0),
+		  args[3], "text");
+  } else {
+    yeReplaceBack(ywCntGetEntry(yeGetByStr(args[0], "_main"), 0),
+		  getText(args[3]), "text");
+  }
   return (void *)NOACTION;
 }
 

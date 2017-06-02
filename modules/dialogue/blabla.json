@@ -27,9 +27,25 @@
 		    "text" : "my name is trantord",
 		    "actions" : [["Dialogue:goto", 1]],
 		    "condition" : [">", "Dialogue:hasSayName", 0]
+		},
+		{
+		"text" : "and d'you like bug fish",
+		"action" : [ "Dialogue:change-text",
+			     {
+				 "texts" : [
+				     {
+					 "text": "it was alerady a dumb question when you ask it last time",
+					 "condition": [">", "Dialogue:hasSayName", 0]
+				     },
+				     {
+					 "text" : "wtf ?"
+				     }
+				 ]
+			     }
+			   ]
 		}
 	    ]
-	}, {
+	    }, {
 	    "text" : "humm, trantor, sound like a name from the empire right ?",
 	    "answers" : [
 		{
