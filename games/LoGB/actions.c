@@ -38,7 +38,6 @@ static Entity *getCursorPos(Entity *wid)
 static Entity *printFLeet(Entity *text, Entity *fleet)
 {
   Entity *first = ylist_elem(fleet);
-  Entity *cur = fleet;
   int i = 0;
 
   yeStringAdd(text, "fleet left:\n");
@@ -47,7 +46,7 @@ static Entity *printFLeet(Entity *text, Entity *fleet)
     return NULL;
   }
 
-  do {
+  YLIST_FOREACH(fleet, cur) {
     Entity *elem = ylist_elem(cur);
 
     yeAddInt(text, i);
@@ -56,9 +55,8 @@ static Entity *printFLeet(Entity *text, Entity *fleet)
     yeStringAdd(text, " - ");
     yeAddEnt(text, yeGetByIdx(elem, 1));
     yeStringAddNl(text, "");
-    cur = ylist_next(cur);
     ++i;
-  } while (cur != fleet);
+  }
   return first;
 }
 
