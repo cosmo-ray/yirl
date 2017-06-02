@@ -37,21 +37,28 @@ static Entity *getCursorPos(Entity *wid)
 
 static Entity *printFLeet(Entity *text, Entity *fleet)
 {
-  Entity *first = NULL;
+  Entity *first = ylist_elem(fleet);
+  Entity *cur = fleet;
+  int i = 0;
 
   yeStringAdd(text, "fleet left:\n");
-  YE_ARRAY_FOREACH_EXT(fleet, elem, it) {
-    if (!first)
-      first = elem;
-    yeAddInt(text, it.pos);
+  if (!first) {
+    yeStringAddNl(text, "NONE");
+    return NULL;
+  }
+
+  do {
+    Entity *elem = ylist_elem(cur);
+
+    yeAddInt(text, i);
     yeStringAdd(text, ": ");
     yeStringAdd(text, yeGetString(yeGetByIdx(elem, 0)));
     yeStringAdd(text, " - ");
     yeAddEnt(text, yeGetByIdx(elem, 1));
     yeStringAddNl(text, "");
-  }
-  if (!first)
-    yeStringAddNl(text, "NONE");
+    cur = ylist_next(cur);
+    ++i;
+  } while (cur != fleet);
   return first;
 }
 
@@ -82,13 +89,14 @@ static void addShip(Entity *wid)
     yeAddStr(txtSurface, "my only friend, the end\n");
     goto exit;
   }
-  if (!_fleet) {
-    _fleet = ylist_init(cp, cp, "_fleet");
-  }
 
   ywMapPushNbr(l1, 1, cursorPos, NULL);
-  yeMoveByEntity(fleet, _fleet, first);
-  printFLeet(txtSurface, fleet);
+  if (!_fleet) {
+    _fleet = ylist_init(ylist_elem(first), cp, "_fleet");
+  } else {
+    ylist_insert(ylist_last(_fleet), first);
+  }
+  printFLeet(txtSurface, ylist_pop(fleet));
  exit:
   ywTextScreenPosAtEndOfText(getTextScreen(wid));
   ywContenerUpdate(wid, getTextScreen(wid));

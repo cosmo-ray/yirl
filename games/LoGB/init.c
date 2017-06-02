@@ -34,9 +34,9 @@ void *init(int nbArgs, void **args)
   yeCreateString("battle", map, "<type>");
   yePushBack(map, yeGetByStr(mod, "resources.battle-map"), "resources");
   cp = yeCreateArray(map, "player 1");
-  yePushBack(cp, yeGetByStr(mod, "player1 fleets"), "fleet");
+  ylist_init_from_array(yeGetByStr(mod, "player1 fleets"), cp, "fleet");
   cp = yeCreateArray(map, "player 2");
-  yePushBack(map, yeGetByStr(mod, "player2 fleets"), "fleet");
+  ylist_init_from_array(yeGetByStr(mod, "player2 fleets"), cp, "fleet");
   yeCreateInt(2, map, "cursor id");
   init = yeCreateArray(NULL, NULL);
   yeCreateString("battle", init, "name");
