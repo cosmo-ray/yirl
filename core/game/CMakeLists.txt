@@ -20,6 +20,7 @@ target_link_libraries(
 	entity
 	util
 	widgets
+	ybytecode
 	luaScript
 	tccScript
 	jsonDescrption

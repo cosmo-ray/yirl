@@ -18,39 +18,8 @@
 #include <yirl/game.h>
 #include <yirl/menu.h>
 #include <yirl/contener.h>
+#include <yirl/condition.h>
 
-
-static int getComVal(Entity *val)
-{
-  if (yeType(val) == YINT)
-    return yeGetInt(val);
-  else if (yeType(val) == YSTRING)
-    return yeGetInt(ygGet(yeGetString(val)));
-  return 0;
-}
-
-static int checkCondition(Entity *condition)
-{
-  Entity *actionEnt = yeGetByIdx(condition, 0);
-  const char *action = yeGetString(actionEnt);
-  int len = yeLen(actionEnt);
-
-  if (!action)
-    return 0;
-  switch(len) {
-  case 1:
-    if (action[0] == '>') {
-      return getComVal(yeGetByIdx(condition, 1)) >
-	getComVal(yeGetByIdx(condition, 2));
-    } else if (action[0] == '<') {
-      return getComVal(yeGetByIdx(condition, 1)) <
-	getComVal(yeGetByIdx(condition, 2));
-    }
-  default:
-    break;
-  }
-  return 0;
-}
 static void refreshAnswer(Entity *wid, Entity *textScreen,
 			  Entity *menu, Entity *curent)
 {
@@ -60,12 +29,12 @@ static void refreshAnswer(Entity *wid, Entity *textScreen,
     Entity *condition = yeGetByStrFast(answer, "condition");
 
     if (condition) {
-      yeReCreateInt(!checkCondition(condition), answer, "hiden");
+      yeReCreateInt(!yeCheckCondition(condition), answer, "hiden");
     }
   }
 }
 
-static const Entity *getText(Entity *e)
+static Entity *getText(Entity *e)
 {
   Entity *txt = yeGetByStrFast(e, "text");
 
@@ -76,7 +45,7 @@ static const Entity *getText(Entity *e)
     YE_ARRAY_FOREACH(txts, cur_txt) {
       condition = yeGetByStrFast(cur_txt, "condition");
 
-      if (condition && !checkCondition(condition))
+      if (condition && !yeCheckCondition(condition))
 	continue;
       return yeGetByStrFast(cur_txt, "text");
     }
@@ -99,7 +68,7 @@ static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
     Entity *condition = yeGetByStrFast(answer, "condition");
 
     if (condition)
-      yeReCreateInt(!checkCondition(condition), answer, "hiden");
+      yeReCreateInt(!yeCheckCondition(condition), answer, "hiden");
     yePushBack(entries, answer, NULL);
   }
   ywMenuReBind(menu);

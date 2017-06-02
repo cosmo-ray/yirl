@@ -33,7 +33,6 @@ message("-- Render use: ${RENDER_LIBS}")
 
 target_link_libraries(
   tests
-  ybytecode
   game
 )
 

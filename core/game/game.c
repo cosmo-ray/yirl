@@ -43,7 +43,8 @@
 #include "map.h"
 #include "text-screen.h"
 #include "contener.h"
-#include "yirl/native-script.h"
+#include "native-script.h"
+#include "condition.h"
 
 static int init;
 static void *jsonManager;
@@ -215,6 +216,14 @@ int ygInit(GameConfig *cfg)
 
   /* Init parseurs */
   yeInitMem();
+
+  /*
+   * mega useless, but as cmake try to be samrt,
+   * it doesn't link this to game if not call
+   * TODO: remove cmake
+   */
+  yeCheckCondition(NULL);
+
   globalsFunctions = yeCreateArray(NULL, NULL);
   CHECK_AND_RET(t = ydJsonInit(), -1, -1,
 		    "json init failed");
