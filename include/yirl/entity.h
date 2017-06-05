@@ -187,6 +187,9 @@ union FatEntity {
 	uint8_t totalSize[256];
 };
 
+#define yeMetadata(Entity, EntityType)			\
+	(((uint8_t *)Entity) + sizeof(EntityType))
+
 #define yeMetadataSize(EntityType)			\
 	(sizeof(union FatEntity) - sizeof(EntityType))
 

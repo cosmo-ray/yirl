@@ -16,14 +16,30 @@
 */
 
 #include <yirl/condition.h>
+#include <yirl/ybytecode.h>
+#include <yirl/ybytecode-script.h>
+#include <yirl/entity-script.h>
 #include <yirl/game.h>
 
-static inline int getComVal(Entity *val)
+static inline int pushComVal(Entity *val, uint64_t *instructions, int *idx)
 {
-  if (yeType(val) == YINT)
-    return yeGetInt(val);
-  else if (yeType(val) == YSTRING)
-    return yeGetInt(ygGet(yeGetString(val)));
+  int i = *idx;
+
+  if (yeType(val) == YINT) {
+    *idx = i + 2;
+    instructions[i] = 'i';
+    instructions[i + 1] = yeGetInt(val);
+    /* return yeGetInt(val); */
+  } else if (yeType(val) == YSTRING) {
+    *idx = i + 6;
+    instructions[i] = YB_YG_GET_PUSH;
+    instructions[i + 1] = (size_t)yeGetString(val);
+    instructions[i + 2] = JMP_IF_0;
+    instructions[i + 3] = *idx;
+    instructions[i + 4] = 'i';
+    instructions[i + 5] = 0;
+    /* return yeGetInt(ygGet(yeGetString(val))); */
+  }
   return 0;
 }
 
@@ -31,21 +47,56 @@ int yeCheckCondition(Entity *condition)
 {
   Entity *actionEnt = yeGetByIdx(condition, 0);
   const char *action = yeGetString(actionEnt);
-  int len = yeLen(actionEnt);
+  int i = 0;
 
-  if (!action)
+  if (unlikely(!actionEnt))
     return 0;
-  switch(len) {
-  case 1:
-    if (action[0] == '>') {
-      return getComVal(yeGetByIdx(condition, 1)) >
-	getComVal(yeGetByIdx(condition, 2));
-    } else if (action[0] == '<') {
-      return getComVal(yeGetByIdx(condition, 1)) <
-	getComVal(yeGetByIdx(condition, 2));
+  /* compille stuff \0/ */
+  if (yeType(actionEnt) == YSTRING) {
+    int len = yeLen(actionEnt);
+    Entity *data = yeCreateDataExt(NULL, NULL, NULL,
+				   YE_DATA_USE_OWN_METADATA);
+    uint64_t *instructions = yeGetData(data);
+    /* int16_t instMaxLen = */
+    /*   yeMetadataSize(DataEntity) / sizeof(uint64_t); */
+
+    instructions[0] = 0; // not compilled yet
+    actionEnt = yeConvert(actionEnt, YARRAY);
+
+    if (!action)
+      return 0;
+
+    instructions[1] = 'i';
+    instructions[2] = 1;
+    i = 3;
+    pushComVal(yeGet(condition, 1), instructions, &i);
+    pushComVal(yeGet(condition, 2), instructions, &i);
+    instructions[i] = 'j';
+    instructions[i + 1] = i + 2;
+    switch(len) {
+    case 1:
+      if (action[0] == '>') {
+	instructions[i + 2] = '>';
+      } else if (action[0] == '<') {
+	instructions[i + 2] = '<';
+      } else {
+	return 0;
+      }
+      instructions[i + 3] = 1;
+      instructions[i + 4] = 2;
+      instructions[i + 5] = i + 9;
+      instructions[i + 6] = 'I';
+      instructions[i + 7] = 0;
+      instructions[i + 8] = 0;
+      instructions[i + 9] = 'E';
+      instructions[i + 10] = 0;
+      break;
+    default:
+      return 0;
     }
-  default:
-    break;
+    ysYbytecodeCreateFunc(data, actionEnt, NULL);
+    yeDestroy(data);
   }
-  return 0;
+  /* add args */
+  return (long)yesCall(yeGet(actionEnt, 1));
 }

@@ -38,6 +38,17 @@ static int ybytecodeRegistreFunc(void *sm, const char *name, void *arg)
   return 0;
 }
 
+Entity *ysYbytecodeCreateFunc(Entity *data, Entity *father, const char *name)
+{
+  Entity *ret;
+
+  yePushBack(GET_MAP(ysYBytecodeManager()), data, name);
+  ret = yeCreateFunctionExt(name, manager, father, name,
+			    YE_FUNC_NO_FASTPATH_INIT);
+  YE_TO_FUNC(ret)->fastPath = yeGetData(data);
+  return ret;
+}
+
 static void *ybytecodeGetFastPath(void *sm, const char *name)
 {
   return yeGetData(yeGet(GET_MAP(sm), name));

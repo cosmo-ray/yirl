@@ -169,7 +169,6 @@ void *dialogueInit(int nbArgs, void **args)
   Entity *active_dialogue = yeTryCreateInt(0, main, "active_dialogue");
   void *ret;
 
-
   yeRemoveChildByStr(main, "action");
   ywidCreateFunction("dialogueAction", ygGetTccManager(), main, "action");
   yeCreateFunction("dialoguePostAction", ygGetTccManager(),

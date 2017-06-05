@@ -1,4 +1,4 @@
-set (SOURCE ybytecode.c condition.c)
+set (SOURCE ybytecode.c condition.c ../script/ybytecode-script.c)
 
 add_library (ybytecode ${SOURCE})
 

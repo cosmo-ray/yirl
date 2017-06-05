@@ -20,6 +20,7 @@
 #include "entity-script.h"
 #include "ybytecode-script.h"
 #include "ybytecode.h"
+#include "game.h"
 
 #define inst_compille(ascii_code, label_name, nb_args)	\
   case ascii_code:					\
@@ -34,6 +35,7 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
   Entity *ret = NULL;
   int64_t *origin = script;
   int64_t *tmp;
+  int iret = 0;
 
   if (unlikely((!*script))) { // compille time :p
     script[0] = 1;
@@ -45,10 +47,14 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
 	inst_compille('/', div, 3);
 	inst_compille('*', mult, 3);
 	inst_compille('<', inf_comp, 3);
+	inst_compille('>', sup_comp, 3);
 	inst_compille('j', jmp, 1);
+	inst_compille(JMP_IF_0, jmp_if_0, 1);
 	inst_compille('s', create_string, 1);
 	inst_compille('i', create_int, 1);
+	inst_compille('I', set_int, 2);
 	inst_compille(YB_BRUTAL_CAST, brutal_cast, 2);
+	inst_compille(YB_YG_GET_PUSH, yg_get_push, 1);
       case 'c':
 	script[i] = (uint64_t) &&call_entity;
 	i += (script[i + 1] + 3);
@@ -74,14 +80,18 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
 	break;
 
       default:
-	if (ybytecode_error)
+	if (ybytecode_error) {
 	  g_free(ybytecode_error);
+	  ybytecode_error = NULL;
+	}
 	if (isprint(script[i])) {
-	  ybytecode_error = g_strdup_printf("instruction '%c' is not valide",
-					    (char)script[i]);
+	  ybytecode_error =
+	    g_strdup_printf("instruction '%c' at %d is not valide",
+			    (char)script[i], i);
 	} else {
-	  ybytecode_error = g_strdup_printf("instruction '%ld' is not valide",
-					    script[i]);
+	  ybytecode_error =
+	    g_strdup_printf("instruction '%ld' at %d is not valide",
+			    script[i], i);
 	}
 	return NULL;
       }
@@ -98,6 +108,12 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
 	       (size_t)script[2]);
   script += 3;
   goto *((void *)*script);
+
+ set_int:
+  yeSetIntDirect(yeGetByIdxDirect(stack, script[1]), script[2]);
+  script += 3;
+  goto *((void *)*script);
+
  add:
   yeSetIntDirect(yeGetByIdxDirect(stack, script[3]),
 		 yeGetIntDirect(yeGetByIdxDirect(stack, script[1])) +
@@ -105,6 +121,7 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
 		 );
   script += 4;
   goto *((void *)*script);
+
  sub:
   yeSetIntDirect(yeGetByIdxDirect(stack, script[3]),
 		 yeGetIntDirect(yeGetByIdxDirect(stack, script[1])) -
@@ -112,6 +129,7 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
 		 );
   script += 4;
   goto *((void *)*script);
+
  div:
   yeSetIntDirect(yeGetByIdxDirect(stack, script[3]),
 		 yeGetIntDirect(yeGetByIdxDirect(stack, script[1])) /
@@ -119,6 +137,7 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
 		 );
   script += 4;
   goto *((void *)*script);
+
  mult:
   yeSetIntDirect(yeGetByIdxDirect(stack, script[3]),
 		 yeGetIntDirect(yeGetByIdxDirect(stack, script[1])) *
@@ -137,6 +156,21 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
   script += 4;
   goto *((void *)*script);
 
+ sup_comp:
+  if (yeGetIntDirect(yeGetByIdxDirect(stack, script[1])) >
+      yeGetIntDirect(yeGetByIdxDirect(stack, script[2]))) {
+    script = origin + script[3];
+    goto *((void *)*script);
+  }
+  script += 4;
+  goto *((void *)*script);
+
+ jmp_if_0:
+  if (iret) {
+    iret = 0;
+    script += 2;
+    goto *((void *)*script);
+  }
  jmp:
   script = origin + script[1];
   goto *((void *)*script);
@@ -213,7 +247,13 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
   ++script;
   goto *((void *)*script);
 
- end_ret:
+ yg_get_push:
+  ++script;
+  iret = yePushBack(stack, ygGet((const char *)*script), NULL);
+  ++script;
+  goto *((void *)*script);
+
+end_ret:
   ++script;
   ret = yeGet(stack, *script);
   yeIncrRef(ret);

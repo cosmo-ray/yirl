@@ -3,6 +3,7 @@
 #include "tests.h"
 #include "ybytecode.h"
 #include "ybytecode-script.h"
+#include "condition.h"
 
 void ysciptAdd(void)
 {
@@ -131,7 +132,7 @@ void ybytecodeLoopCallFunction(void)
   g_assert((uint64_t)ysCall(sm, "test") == 5000000);
 
   g_assert(!ysYBytecodeEnd());
-  yeEnd();	
+  yeEnd();
 }
 
 void ybytecodeAddFunction(void)
@@ -159,5 +160,24 @@ void ybytecodeAddFunction(void)
     g_assert((uint64_t)ysCall(sm, "test") == (52 + 15));
 
   g_assert(!ysYBytecodeEnd());
-  yeEnd();	
+  yeEnd();
 }
+
+void ybytecodeConditions(void)
+{
+  void *sm;
+  Entity *condition;
+
+  yeInitMem();
+  sm = ysYBytecodeManager();
+  g_assert(sm);
+  condition = yeCreateArray(NULL, NULL);
+  yeCreateString(">", condition, NULL);
+  yeCreateInt(1, condition, NULL);
+  yeCreateInt(0, condition, NULL);
+  g_assert(yeCheckCondition(condition));
+  g_assert(!ysYBytecodeEnd());
+  yeDestroy(condition);
+  yeEnd();
+}
+

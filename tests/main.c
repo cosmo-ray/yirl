@@ -93,6 +93,7 @@ int main(int argc, char **argv)
   TEST_TRY_ADD("/script/ybytecode/add-function", ybytecodeAddFunction, only);
   TEST_TRY_ADD("/script/ybytecode/loop-function",
   	       ybytecodeLoopCallFunction, only);
+  TEST_TRY_ADD("/script/ybytecode/conditions", ybytecodeConditions, only);
 
   TEST_TRY_ADD("/script/tcc/lifecycle", testTccScritLifecycle, only);
   TEST_TRY_ADD("/script/tcc/add-define", testTccAddDefine, only);
@@ -109,7 +110,6 @@ int main(int argc, char **argv)
   /* TEST_TRY_ADD("/sound/soundManager/all", testYSoundLib, only); */
 
   TEST_TRY_ADD("/modules/list", testListMod, only);
-  TEST_TRY_ADD("/modules/dialogue", testDialogueMod, only);
 
  tests_widgets:
   if (no_wid)
@@ -145,6 +145,7 @@ int main(int argc, char **argv)
 #endif
 #endif
   TEST_TRY_ADD("/game/lifecycle", testYGameLifecycle, only);
+  TEST_TRY_ADD("/modules/dialogue", testDialogueMod, only);
 
  run_test:
   if (list) {

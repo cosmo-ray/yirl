@@ -29,6 +29,7 @@ message("tcc path: " ${TCC_LIB_PATH})
 target_link_libraries(
 	tccScript
 	dl
+	ybytecode
 	${TCC_LIB_PATH}/libtcc.a
 	entity
 )

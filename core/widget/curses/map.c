@@ -61,7 +61,6 @@ static int cursesRender(YWidgetState *state, int t)
 	       getPrintableChar(mapCase, res));
       ++curx;
     }
-  
   wrefresh(wid->win);
   return 0;
 }

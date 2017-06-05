@@ -23,7 +23,9 @@
 enum ybutecode_ops {
 	YB_VOID_RETURN = 'e',
 	YB_RETURN = 'E',
-	YB_BRUTAL_CAST = 127
+	YB_BRUTAL_CAST = 127,
+	JMP_IF_0 = 128,
+	YB_YG_GET_PUSH = 256
 };
 
 extern char *ybytecode_error;
