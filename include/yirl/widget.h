@@ -201,8 +201,8 @@ static inline void ywidMidRendEnd(YWidgetState *opac)
 
 static inline int ywidRend(YWidgetState *opac)
 {
-  int ret = -1;
-  if (opac->render) {
+  int ret = 0;
+  if (opac->render && opac->hasChange) {
     ret = opac->render(opac);
     opac->hasChange = 0;
   }

@@ -5,7 +5,6 @@
 	    {"name" : "mapiMapo"},
 	    {"name" : "text, tatata =D"}
 	],
-	"background": "rgba: 255 255 255 255"
     },
     "mapiMapo" : {
 	"<type>" : "sukeban-map",
@@ -13,9 +12,10 @@
 	"&resources" : "houseResources",
 	"map" : "house.sm",
 	"bind" : [["action", "mapTest"]],
-	"start_pos" : [7, 26],
+	"start_pos" : [2, 2],
 	"start_id" : {"id" : 1},
-	"ground_char" : "."
+	"ground_char" : ".",
+	"background": "rgba: 255 255 255 255"
     },
     "text, tatata =D" : {
 	"<type>" : "text-screen",

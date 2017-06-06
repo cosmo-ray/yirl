@@ -36,6 +36,8 @@ static void refreshAnswer(Entity *wid, Entity *textScreen,
 
 static Entity *getText(Entity *e)
 {
+  if (yeType(e) == YSTRING)
+    return e;
   Entity *txt = yeGetByStrFast(e, "text");
 
   if (!txt) {
@@ -60,7 +62,7 @@ static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
   Entity *txt = getText(dialogue);
   Entity *entries;
 
-
+  ywContenerUpdate(wid, textScreen);
   yeReCreateString(yeGetString(txt), textScreen, "text");
   entries = yeReCreateArray(menu, "entries", NULL);
   yeReplaceBack(menu, wid, "_main");
@@ -150,13 +152,9 @@ void *dialogueGoto(int nbArgs, void **args)
 
 void *dialogueChangeText(int nbArgs, void **args)
 {
-  if (yeType(args[3]) == YSTRING) {
-    yeReplaceBack(ywCntGetEntry(yeGetByStr(args[0], "_main"), 0),
-		  args[3], "text");
-  } else {
-    yeReplaceBack(ywCntGetEntry(yeGetByStr(args[0], "_main"), 0),
-		  getText(args[3]), "text");
-  }
+  Entity *main = yeGetByStr(args[0], "_main");
+  ywContenerUpdate(main, ywCntGetEntry(main, 0));
+  yeReplaceBack(ywCntGetEntry(main, 0), getText(args[3]), "text");
   return (void *)NOACTION;
 }
 

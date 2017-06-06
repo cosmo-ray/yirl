@@ -21,8 +21,11 @@ local Q_KEY = 113
 function sksAction(wid, eve, arg)
    while ywidEveIsEnd(eve) == false do
       if ywidEveType(eve) == YKEY_DOWN then
+	 print("key: ", ywidEveKey(eve))
 	 if ywidEveKey(eve) == Q_KEY then
 	    ygCall(nil, "FinishGame")
+	    return  YEVE_ACTION
+	 elseif ywidEveKey(eve) == 112 then
 	    return  YEVE_ACTION
 	 end
       end
@@ -58,7 +61,7 @@ end
 function sukeNewMap(entity)
    ygCall("sm-reader", "load-entity", entity)
    local cnt = ywidNewWidget(entity, nil)
-   ywidBind(cnt, "action", "sukeban-screen:action")
+   ywidBind(cnt, "action", "sukeban-screen:map-action")
    return cnt
 end
 
@@ -66,6 +69,7 @@ function sukeScreenNewWid(entity)
    yeCreateInt(75, yeGet(yeGet(entity, "entries"), 0), "size")
 
    local cnt = ywidNewWidget(entity, "contener")
+   ywidBind(cnt, "action", "sukeban-screen:action")
    return cnt
 end
 

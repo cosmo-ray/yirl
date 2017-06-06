@@ -232,10 +232,10 @@ static int cntRend(YWidgetState *opac)
 	yeReCreateData(wid, tmp, "$wid");
     }
     wid->shouldDraw = 0;
+    if (ywCntType(opac) == CNT_STACK)
+      needChange = 1;
     if (needChange)
       wid->hasChange = 1;
-    else if (ywCntType(opac) == CNT_STACK && wid->hasChange)
-      needChange = 1;
 
     ywidRend(wid);
     wid->hasChange = 0;
