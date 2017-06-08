@@ -548,7 +548,11 @@ int sdlDisplaySprites(YWidgetState *state, SDLWid *wid,
     DestR.y = y * h + thresholdY;
     tmp = str[1];
     str[1] = 0;
-    ret = sdlPrintText(wid, str, color, DestR, YSDL_ALIGN_CENTER);
+    SDL_Surface *textSurface = TTF_RenderUTF8_Solid(sgDefaultFont(), str, color);
+    texture = SDL_CreateTextureFromSurface(sg.renderer, textSurface);
+    ret = SDL_RenderCopy(sg.renderer, texture, NULL, &DestR);
+    SDL_FreeSurface(textSurface);
+    SDL_DestroyTexture(texture);
     str[1] = tmp;
     return ret;
   }
