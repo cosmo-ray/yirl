@@ -115,6 +115,10 @@ int	luaYwMapH(lua_State *L);
 int	luaYwMapSetSmootMovement(lua_State *L);
 int	luaMvTablePush(lua_State *L);
 int	luaYwMapGetNbrEntityAt(lua_State *L);
+int	luaYMapAdvence(lua_State *L);
+
+/* container */
+int	luaYwCntGetEntry(lua_State *L);
 
 /* Game and Module */
 int	luaGetMod(lua_State *L);
@@ -217,7 +221,6 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidAddSubType", luaAddSubType));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidAddSignal", luaAddSignal));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidCallSignal", luaCallSignal));
-  // TODO: Add get entity
 
   /* evenements */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidNextEve", luaWidNextEve));
@@ -244,6 +247,10 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMvTablePush", luaMvTablePush));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapGetNbrEntityAt",
 				 luaYwMapGetNbrEntityAt));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapAdvence", luaYMapAdvence));
+
+  /* container */
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCntGetEntry", luaYwCntGetEntry));
 
   /* pos */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywPosX", luaYwPosX));

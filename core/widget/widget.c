@@ -369,6 +369,10 @@ YWidgetState *ywidNewWidget(Entity *entity, const char *type)
 
 void ywidResize(YWidgetState *wid)
 {
+  if (!wid) {
+    DPRINT_ERR("wid is NULL");
+    return;
+  }
   Entity *pos = yeGet(wid->entity, "wid-pos");
 
   ywRectSet(yeGet(wid->entity, "wid-pix"),

@@ -85,12 +85,16 @@ static void cntResize(YWidgetState *opac)
   int usable;
   int casePos = 0;
   int caseLen = 0;
+  Entity *bg = yeGet(entity, "$bg");
   cnt->type = cntGetTypeFromEntity(entity);
 
   widSize =  ywCntType(opac) == CNT_HORIZONTAL ?
     yeGetInt(yeGet(pos, "h")) : yeGetInt(yeGet(pos, "w"));
   usable = widSize;
-
+  if (bg) {
+    yeReplaceBack(bg, pos, "wid-pos");
+    ywidResize(ywidGetState(bg));
+  }
   YE_ARRAY_FOREACH(entries, tmp) {
     YWidgetState *wid = ywidGetState(tmp);
     Entity *ptr;
@@ -215,6 +219,7 @@ static int cntRend(YWidgetState *opac)
 
   if (bg_wid) {
     yeReplaceBack(bg_wid->entity, yeGet(opac->entity, "wid-pos"), "wid-pos");
+    bg_wid->hasChange = 1;
     ywidRend(bg_wid);
   }
 

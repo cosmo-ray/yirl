@@ -15,11 +15,10 @@
 	"start_pos" : [2, 2],
 	"start_id" : {"id" : 1},
 	"ground_char" : ".",
-	"background": "rgba: 255 255 255 255"
     },
     "text, tatata =D" : {
 	"<type>" : "text-screen",
 	"text" : "he who fight the yoyo. must look at himself to not be kill by a yoyo\nwhen you gaze into the high school boy, she will gaze after you\n-seriousely",
-	"background": "rgba: 0 0 0 70",
+	"background": "rgba: 255 255 255 70",
     }
 }

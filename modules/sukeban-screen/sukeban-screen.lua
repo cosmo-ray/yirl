@@ -35,32 +35,47 @@ function sksAction(wid, eve, arg)
 end
 
 
+function sukeMapCaracLayer(map)
+   return ywCntGetEntry(map, 1);
+end
+
 function sukeMapAction(wid, eve, arg)
+   local x = 0
+   local y = 0
+   local ret = YEVE_NOTHANDLE
+
    while ywidEveIsEnd(eve) == false do
       if ywidEveType(eve) == YKEY_DOWN then
 	 print("to the ")
 	 if ywidEveKey(eve) == Y_UP_KEY then
 	    print("up")
-	    return  YEVE_ACTION
+	    y = -1
+	    ret = YEVE_ACTION
 	 elseif ywidEveKey(eve) == Y_DOWN_KEY then
+	    y = 1
 	    print("down of victory")
-	    return  YEVE_ACTION
+	    ret = YEVE_ACTION
 	 elseif ywidEveKey(eve) == Y_LEFT_KEY then
+	    x  = -1
 	    print("left")
-	    return  YEVE_ACTION
+	    ret = YEVE_ACTION
 	 elseif ywidEveKey(eve) == Y_RIGHT_KEY then
+	    x = 1
 	    print("right")
-	    return  YEVE_ACTION
+	    ret = YEVE_ACTION
 	 end
       end
+      ywMapAdvence(sukeMapCaracLayer(wid), yeGet(wid, "start_pos"),
+		   x, y, yeGet(wid, "start_id"))
       eve = ywidNextEve(eve)
    end
-   return YEVE_NOTHANDLE
+   return ret
 end
 
 function sukeNewMap(entity)
    ygCall("sm-reader", "load-entity", entity)
-   local cnt = ywidNewWidget(entity, nil)
+   yeCreateString("rgba: 255 255 255 255", entity, "background")
+   local cnt = ywidNewWidget(entity)
    ywidBind(cnt, "action", "sukeban-screen:map-action")
    return cnt
 end
@@ -74,7 +89,7 @@ function sukeScreenNewWid(entity)
 end
 
 function initSukeScreen(entity)
-   local init = yeCreateArray(nil, nil)
+   local init = yeCreateArray()
    yeCreateString("sukeban-screen", init, "name")
    yeCreateFunction("sukeScreenNewWid", init, "callback")
    ywidAddSubType(init)
@@ -82,7 +97,7 @@ function initSukeScreen(entity)
    yeCreateFunction("sksAction", entity, "action")
    yeCreateFunction("sukeMapAction", entity, "map-action")
 
-   init = yeCreateArray(nil, nil) -- this has been destroy by ywidAddSubType
+   init = yeCreateArray() -- this has been destroy by ywidAddSubType
    yeCreateString("sukeban-map", init, "name")
    yeCreateFunction("sukeNewMap", init, "callback")
    ywidAddSubType(init)

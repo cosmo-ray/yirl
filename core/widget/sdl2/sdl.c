@@ -528,19 +528,18 @@ int sdlDisplaySprites(YWidgetState *state, SDLWid *wid,
     char tmp;
 
     if (unlikely(!str)) {
-      Entity *char_sprite = yeGet(elem, "map-char");
       char *entityStr;
 
-      if (char_sprite)
+      if (!entStr)
 	return 0;
       entityStr = yeToCStr(elem, -1, 0);
 
-      if (yeType(char_sprite) != YSTRING) {
+      if (yeType(entStr) != YSTRING) {
 	sdlError = g_error_new(1, 1,
 			       "map-char of elem :\n\%s\n"
 			       "At pos %d %d should be string but is %s instead\n",
 			       entityStr, x, y,
-			       yeTypeToString(yeType(char_sprite)));
+			       yeTypeToString(yeType(entStr)));
       }
       g_free(entityStr);
       return -1;

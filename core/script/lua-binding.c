@@ -23,6 +23,7 @@
 #include	"entity-script.h"
 #include	"widget-callback.h"
 #include	"map.h"
+#include	"contener.h"
 #include	"game.h"
 
 int	luaYAnd(lua_State *L)
@@ -407,6 +408,30 @@ int	luaYwMapGetNbrEntityAt(lua_State *L)
   lua_pushlightuserdata(L, ywMapGetNbrEntityAt(lua_touserdata(L, 1),
 					       lua_touserdata(L, 2),
 					       lua_tonumber(L, 3)));
+  return 1;
+}
+
+int	luaYMapAdvence(lua_State *L)
+{
+  if (lua_isnumber(L, 3)) {
+    lua_pushnumber(L, ywMapAdvenceWithPos(lua_touserdata(L, 1),
+					  lua_touserdata(L, 2),
+					  lua_tonumber(L, 3),
+					  lua_tonumber(L, 4),
+					  lua_touserdata(L, 5)));
+  } else {
+    lua_pushnumber(L, ywMapAdvenceWithEPos(lua_touserdata(L, 1),
+					   lua_touserdata(L, 2),
+					   lua_touserdata(L, 3),
+					   lua_touserdata(L, 4)));
+  }
+  return 1;
+}
+
+int	luaYwCntGetEntry(lua_State *L)
+{
+  lua_pushlightuserdata(L, ywCntGetEntry(lua_touserdata(L, 1),
+					 lua_tonumber(L, 2)));
   return 1;
 }
 
