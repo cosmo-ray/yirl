@@ -96,6 +96,11 @@ typedef enum {
   YE_FUNC_NO_FASTPATH_INIT = 1
 } FunctionFlags;
 
+typedef enum {
+  YE_DATA_NONE = 0,
+  YE_DATA_USE_OWN_METADATA = 1,
+} YDataFlag;
+
 
 /**
  * @father is the entity contening this one (a struct or an array)
@@ -336,6 +341,8 @@ Entity *yeCreateArrayAt(Entity *fathers, const char *name, int idx);
 Entity *yeCreateArrayExt(Entity *fathers, const char *name, uint32_t flags);
 
 Entity *yeCreateData(void *value, Entity *father, const char *name);
+Entity *yeCreateDataExt(void *value, Entity *father, const char *name,
+			YDataFlag flag);
 
 /**
  * Create an Array which is a pair of 2 elements contening: value1 and value2

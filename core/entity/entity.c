@@ -454,6 +454,21 @@ Entity *yeCreateData(void *value, Entity *father, const char *name)
     return ((Entity *)ret);
 }
 
+Entity *yeCreateDataExt(void *value, Entity *father, const char *name,
+			YDataFlag flag)
+{
+  DataEntity * restrict ret;
+
+  YE_ALLOC_ENTITY(ret, DataEntity);
+  yeInit((Entity *)ret, YDATA, father, name);
+  if (flag == YE_DATA_USE_OWN_METADATA)
+	  ret->value = yeMetadata(ret, DataEntity);
+  else
+	  ret->value = value;
+  ret->destroy = NULL;
+  return ((Entity *)ret);
+}
+
 Entity *yeCreateArray(Entity *father, const char *name)
 {
   ArrayEntity * restrict ret;
