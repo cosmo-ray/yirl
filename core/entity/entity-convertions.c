@@ -105,3 +105,77 @@ Entity *yeBrutalCast(Entity *entity, int type)
   }
   return NULL;
 }
+
+Entity *yeConvert(Entity *entity, int type)
+{
+  char *c_tmp;
+
+  switch (yeType(entity)) {
+    /*-- int --*/
+  case YINT:
+    switch (type) {
+    case YINT:
+	    return entity;
+    case YFLOAT:
+    case YDATA:
+    case YSTRING:
+    case YFUNCTION:
+    case BAD_TYPE:
+    case YARRAY:
+    case NBR_ENTITYTYPE:
+      return NULL;
+    }
+    break;
+
+    /*-- float --*/
+  case YFLOAT:
+    switch (type) {
+    case YFLOAT:
+	    return entity;
+    case YINT:
+    case YDATA:
+    case YSTRING:
+    case YFUNCTION:
+    case YARRAY:
+    case BAD_TYPE:
+    case NBR_ENTITYTYPE:
+      return NULL;
+    }
+    break;
+
+    /*-- string --*/
+  case YSTRING:
+    switch (type) {
+    case YSTRING:
+      return entity;
+    case YARRAY:
+      c_tmp = YE_TO_STRING(entity)->value;
+      entity->type = YARRAY;
+      yBlockArrayInit(&YE_TO_ARRAY(entity)->values, ArrayEntry);
+      yeCreateString(c_tmp, entity, NULL);
+      /* Ok, let's be honest fathers are broken */
+      YE_TO_ARRAY(entity)->nbFathers = 0;
+      return entity;
+    case YINT:
+    case YFLOAT:
+    case YDATA:
+    case YFUNCTION:
+    case BAD_TYPE:
+    case NBR_ENTITYTYPE:
+      return NULL;
+    }
+    break;
+
+    /*-- data --*/
+  case YDATA:
+      return NULL;
+    break;
+
+  case YARRAY:
+  case BAD_TYPE:
+  case NBR_ENTITYTYPE:
+  case YFUNCTION:
+    return NULL;
+  }
+  return NULL;
+}

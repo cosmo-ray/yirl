@@ -208,8 +208,19 @@ EntityType yeStringToType(const char *str);
  */
 const char *yeTypeToString(int type);
 
+
+/**
+ * @brief convert @entity to @type
+ * Will try to be smarter than brutal cast to have javascripts like convertion
+ * @return NULL if fail, @entity otherwise
+ */
+Entity *yeConvert(Entity *entity, int type);
+
 /**
  * @brief cast @entity to @type
+ * in comparaison to yeConvert, there is no logic here, as example
+ * a convertion from a string to an int, will set the string adresse
+ * as the int value
  * @return NULL if fail, @entity otherwise
  */
 Entity *yeBrutalCast(Entity *entity, int type);
