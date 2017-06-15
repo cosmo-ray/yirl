@@ -391,7 +391,7 @@ Entity *yeCreateArrayAt(Entity *father, const char *name, int idx)
 
   YE_ALLOC_ENTITY(ret, ArrayEntity);
   yeInitAt((Entity *)ret, YARRAY, father, name, idx);
-  yBlockArrayInit(&ret->values, BlockArray);
+  yBlockArrayInit(&ret->values, ArrayEntry);
   return (YE_TO_ENTITY(ret));
 }
 
