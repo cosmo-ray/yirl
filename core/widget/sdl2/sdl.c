@@ -509,8 +509,21 @@ int sdlDisplaySprites(YWidgetState *state, SDLWid *wid,
       SDL_Rect srcR = {0, 0, 0, 0};
       SDL_Rect *srcRP = NULL;
 
+      SDL_QueryTexture(texture, NULL, NULL, &srcR.w, &srcR.h);
+      int diff = srcR.w - srcR.h;
+      if (diff > 0) {
+      	int bigger = srcR.w;
+      	DestR.h = DestR.h * bigger / DestR.w;
+	diff = DestR.w - DestR.h;
+	DestR.y += (diff / 2);
+      } else if (diff < 0) {
+      	int bigger = srcR.h;
+	DestR.w = DestR.w * bigger / DestR.h;
+	diff = DestR.h - DestR.w;
+	DestR.x += (diff / 2);
+      }
+
       if (unlikely(mod) && !yeGetIntAt(mod, 0)) {
-	SDL_QueryTexture(texture, NULL, NULL, &srcR.w, &srcR.h);
 	DestR.x += yeGetIntAt(mod, 1);
 	DestR.w -= yeGetIntAt(mod, 2);
 	srcR.x += yuiPercentOf(srcR.w, yeGetIntAt(mod, 3));

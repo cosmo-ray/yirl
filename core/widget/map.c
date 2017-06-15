@@ -56,7 +56,7 @@ void ywMapGetSpriteSize(Entity *map, unsigned int *sizeSpriteW,
     winHeight = ywMapH(map);
   }
   // TODO: use real SPRITE SIZE
-  // get proportion calcule:
+  // compute proportion:
   // x - y = diff
   // bigger = x < y ? x : y;
   // proportion = diff / bigger + 1.0
