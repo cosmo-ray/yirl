@@ -327,10 +327,6 @@ Entity *ywMapGetCase(Entity *state, Entity *pos)
       DPRINT_ERR("unable to get 'width'");
     else if (!pos)
       DPRINT_ERR("pos is NULL");
-    else if (!ywPosX(pos))
-      DPRINT_ERR("unable to get 'x' in pos");
-    else if (!ywPosY(pos))
-      DPRINT_ERR("unable to get 'w' in pos");
     else if (iPos < ywMapLen(state)) /* case fault ocure */
       ret = yeCreateArrayAt(map, NULL, iPos);
   }
