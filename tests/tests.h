@@ -59,6 +59,8 @@ void testJsonLoadFile(void);
 void testJsonMultipleObj(void);
 void testJsonToFile(void);
 
+void testRawFileLoad(void);
+
 void testSdlLife(void);
 void testCursesLife(void);
 void testAllLife(void);
