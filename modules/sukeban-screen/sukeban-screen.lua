@@ -17,11 +17,10 @@
 
 local Q_KEY = 113
 
-
 function sksAction(wid, eve, arg)
    while ywidEveIsEnd(eve) == false do
       if ywidEveType(eve) == YKEY_DOWN then
-	 print("key: ", ywidEveKey(eve))
+	 --print("key: ", ywidEveKey(eve))
 	 if ywidEveKey(eve) == Q_KEY then
 	    ygCall(nil, "FinishGame")
 	    return  YEVE_ACTION
@@ -46,27 +45,24 @@ function sukeMapAction(wid, eve, arg)
 
    while ywidEveIsEnd(eve) == false do
       if ywidEveType(eve) == YKEY_DOWN then
-	 print("to the ")
 	 if ywidEveKey(eve) == Y_UP_KEY then
-	    print("up")
 	    y = -1
 	    ret = YEVE_ACTION
 	 elseif ywidEveKey(eve) == Y_DOWN_KEY then
 	    y = 1
-	    print("down of victory")
 	    ret = YEVE_ACTION
 	 elseif ywidEveKey(eve) == Y_LEFT_KEY then
 	    x  = -1
-	    print("left")
 	    ret = YEVE_ACTION
 	 elseif ywidEveKey(eve) == Y_RIGHT_KEY then
 	    x = 1
-	    print("right")
 	    ret = YEVE_ACTION
 	 end
       end
-      ywMapAdvence(sukeMapCaracLayer(wid), yeGet(wid, "start_pos"),
-		   x, y, yeGet(wid, "start_id"))
+      if (ret == YEVE_ACTION) then
+	 ywMapAdvence(sukeMapCaracLayer(wid), yeGet(wid, "start_pos"),
+		      x, y, yeGet(wid, "start_id"))
+      end
       eve = ywidNextEve(eve)
    end
    return ret
