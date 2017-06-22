@@ -299,6 +299,10 @@ int ywMapIntFromPos(Entity *wid, Entity *pos)
 Entity *ywMapPushElem(Entity *state, Entity *toPush,
 		      Entity *pos, const char *name)
 {
+  if (unlikely(!pos)) {
+    pos = yeGet(toPush, "pos");
+  }
+
   int ret = yePushBack(ywMapGetCase(state, pos), toPush, name);
   return ret ? toPush : NULL;
 }
