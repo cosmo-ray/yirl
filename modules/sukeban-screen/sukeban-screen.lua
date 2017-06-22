@@ -38,6 +38,10 @@ function sukeMapCaracLayer(map)
    return ywCntGetEntry(map, 1);
 end
 
+function sukeMapObjsLayer(map)
+   return ywCntGetEntry(map, 2);
+end
+
 function sukeMapAction(wid, eve, arg)
    local x = 0
    local y = 0
@@ -60,8 +64,16 @@ function sukeMapAction(wid, eve, arg)
 	 end
       end
       if (ret == YEVE_ACTION) then
-	 ywMapAdvence(sukeMapCaracLayer(wid), yeGet(wid, "start_pos"),
-		      x, y, yeGet(wid, "start_id"))
+	 local id = yeGet(wid, "start_id");
+	 local oldPos = yeGet(id, "pos");
+	 local newPos = ywPosCreate(oldPos);
+	 ywPosAdd(newPos, x, y);
+
+	 if (yeLen(ywMapGetCase(sukeMapObjsLayer(wid), newPos)) == 0 and
+	     yeLen(ywMapGetCase(sukeMapCaracLayer(wid), newPos)) == 0) then
+	    ywMapAdvence(sukeMapCaracLayer(wid), oldPos, x, y, id)
+	 end
+	 yeDestroy(newPos)
       end
       eve = ywidNextEve(eve)
    end
@@ -69,8 +81,16 @@ function sukeMapAction(wid, eve, arg)
 end
 
 function sukeNewMap(entity)
+   local npj = yeGet(entity, "npj");
+   local i = 0
+
    ygCall("sm-reader", "load-entity", entity)
    yeCreateString("rgba: 255 255 255 255", entity, "background")
+   ywPosCreate(yeGet(entity, "start_pos"), yeGet(entity, "start_id"), "pos")
+   while i < yeLen(npj) do
+      ywMapPushElem(sukeMapCaracLayer(entity), yeGet(npj, i))
+      i = i + 1
+   end
    local cnt = ywidNewWidget(entity)
    ywidBind(cnt, "action", "sukeban-screen:map-action")
    return cnt
