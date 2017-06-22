@@ -527,8 +527,14 @@ int	luYwPosIsSameY(lua_State *L)
 
 int	luYwPosAdd(lua_State *L)
 {
-  lua_pushlightuserdata(L, ywPosAdd(lua_touserdata(L, 1),
-				    lua_touserdata(L, 2)));
+  if (lua_isnumber(L, 2)) {
+    lua_pushlightuserdata(L, ywPosAddXY(lua_touserdata(L, 1),
+					lua_tonumber(L, 2),
+					lua_tonumber(L, 3)));
+  } else {
+    lua_pushlightuserdata(L, ywPosAdd(lua_touserdata(L, 1),
+				      lua_touserdata(L, 2)));
+  }
   return 1;
 }
 
