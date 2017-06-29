@@ -112,6 +112,7 @@ function initSukeScreen(entity)
 
    yeCreateFunction("sksAction", entity, "action")
    yeCreateFunction("sukeMapAction", entity, "map-action")
+   yeCreateFunction("startDialogue", entity, "start-dialogue")
 
    init = yeCreateArray() -- this has been destroy by ywidAddSubType
    yeCreateString("sukeban-map", init, "name")

@@ -435,6 +435,14 @@ int	luaYwCntGetEntry(lua_State *L)
   return 1;
 }
 
+int	luaYwPushNewWidget(lua_State *L)
+{
+  lua_pushnumber(L, ywPushNewWidget(lua_touserdata(L, 1),
+				    lua_touserdata(L, 2),
+				    lua_tonumber(L, 3)));
+  return 1;
+}
+
 int	luaYuiAbs(lua_State *L)
 {
   lua_pushnumber(L, yuiAbs(lua_tonumber(L, 1)));
@@ -709,7 +717,13 @@ int	luaYesCall(lua_State *L)
     LUA_YES_CALL(lua_touserdata(L, 2), lua_touserdata(L, 3),
 		 lua_touserdata(L, 4), lua_touserdata(L, 5));
     return 1;
+  case 6:
+    LUA_YES_CALL(lua_touserdata(L, 2), lua_touserdata(L, 3),
+		 lua_touserdata(L, 4), lua_touserdata(L, 5),
+		 lua_touserdata(L, 6));
+    return 1;
   default:
+    DPRINT_ERR("internal error: too much argument");
     return -1;
   }
 
@@ -718,6 +732,15 @@ int	luaYesCall(lua_State *L)
 
 #undef LUA_YES_CALL
 #undef LUA_YG_CALL
+
+int	luaYGet(lua_State *L)
+{
+  if (lua_isstring(L, 1))
+    lua_pushlightuserdata(L, ygGet(lua_tostring(L, 1)));
+  else if (lua_islightuserdata(L, 1))
+    lua_pushlightuserdata(L, ygGet(yeGetString(lua_touserdata(L, 1))));
+  return 1;
+}
 
 int	luaYgRegistreFunc(lua_State *L)
 {

@@ -119,6 +119,7 @@ int	luaYMapAdvence(lua_State *L);
 
 /* container */
 int	luaYwCntGetEntry(lua_State *L);
+int	luaYwPushNewWidget(lua_State *L);
 
 /* Game and Module */
 int	luaGetMod(lua_State *L);
@@ -126,9 +127,15 @@ int	luaGCall(lua_State *L);
 int	luaYgRegistreFunc(lua_State *L);
 int	luaYgFileToEnt(lua_State *L);
 int	luaYgEntToFile(lua_State *L);
+int	luaYGet(lua_State *L);
 
 #define YES_RET_IF_FAIL(OPERATION)		\
   if (OPERATION < 0) return -1;
+
+#define LUA_SET_INT_GLOBAL(manager, value) do {				\
+    lua_pushnumber(((YScriptLua *)manager)->l, value);			\
+    lua_setglobal(((YScriptLua *)manager)->l, #value);			\
+  } while (0)
 
 static inline int	yesLuaRegister(void *sm)
 {
@@ -159,6 +166,14 @@ static inline int	yesLuaRegister(void *sm)
   lua_setglobal(((YScriptLua *)sm)->l, "Y_LEFT_KEY");
   lua_pushnumber(((YScriptLua *)sm)->l, Y_RIGHT_KEY);
   lua_setglobal(((YScriptLua *)sm)->l, "Y_RIGHT_KEY");
+
+  /* set entities type global */
+  LUA_SET_INT_GLOBAL(sm, YINT);
+  LUA_SET_INT_GLOBAL(sm, YSTRING);
+  LUA_SET_INT_GLOBAL(sm, YFLOAT);
+  LUA_SET_INT_GLOBAL(sm, YARRAY);
+  LUA_SET_INT_GLOBAL(sm, YFUNCTION);
+  LUA_SET_INT_GLOBAL(sm, YDATA);
 
   /* I love lua */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yAnd", luaYAnd));
@@ -251,6 +266,7 @@ static inline int	yesLuaRegister(void *sm)
 
   /* container */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCntGetEntry", luaYwCntGetEntry));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywPushNewWidget", luaYwPushNewWidget));
 
   /* pos */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywPosX", luaYwPosX));
@@ -270,9 +286,11 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygRegistreFunc", luaYgRegistreFunc));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygFileToEnt", luaYgFileToEnt));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygEntToFile", luaYgEntToFile));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygGet", luaYGet));
   return 0;
 }
 
+#undef LUA_SET_INT_GLOBAL
 #undef YES_RET_IF_FAIL
 
 #endif

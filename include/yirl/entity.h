@@ -295,10 +295,11 @@ Entity *yeGetByStrFast(Entity *entity, const char *name);
 Entity *yeExpandArray(Entity *entity, unsigned int size);
 
 /**
- * Add a new entity to @array>
+ * Add @toPush to @array>
  * @array:	the entity where we will add a new entity
  * @toPush:	the entity to add
  * @name:	the name
+ * @return 0 or -1
  */
 int yePushBack(Entity *array, Entity *toPush, const char *name);
 int yePushBackExt(Entity *entity, Entity *toPush,

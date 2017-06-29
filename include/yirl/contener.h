@@ -37,6 +37,12 @@ typedef struct {
 int ywContenerInit(void);
 int ywContenerEnd(void);
 
+/**
+ * Create a new widget from @wid and push it
+ * @retun the id of the new layer or -1
+ */
+int ywPushNewWidget(Entity *container, Entity *wid, int dec_ref);
+
 int ywContenerUpdate(Entity *contener, Entity *widEnt);
 
 Entity *ywContenerGetWidgetAt(Entity *contener, int posX, int posY);

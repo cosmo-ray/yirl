@@ -73,6 +73,19 @@ static inline Entity *getEntry(Entity *father, Entity *tmp)
   return tmp;
 }
 
+int ywPushNewWidget(Entity *container, Entity *wid, int dec_ref)
+{
+  Entity *entries = yeGet(container, "entries");
+  int ret = yeLen(entries);
+
+  if (yePushBack(entries, wid, NULL) < 0)
+    return -1;
+  if (dec_ref)
+    yeDestroy(wid);
+  yeSetAt(container, "current", ret);
+  return ret;
+}
+
 static void cntResize(YWidgetState *opac)
 {
   Entity *entity = opac->entity;
