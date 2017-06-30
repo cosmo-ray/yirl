@@ -48,7 +48,7 @@ static TCCState *createTCCState(YTccScript *state)
   if (state->nbStates > TCC_MAX_SATES)
     return NULL;
   l = tcc_new();
-  tcc_parse_args(l, 1, args);
+  tcc_args(l, 1, args);
   if (l == NULL)
     return NULL;
   if (!ysTccPath) {

@@ -26,8 +26,9 @@ static int HEAD_GETTER_POS = 3;
 
 static inline Entity *headFather(Entity *elem)
 {
-  return yeGetByIdx(yeGetByIdx(elem, HEAD_GETTER_POS), 1);
+  return yeGet(yeGet(elem, HEAD_GETTER_POS), 1);
 }
+
 
 static inline void *setNewHead(Entity *old, Entity *newHead)
 {
@@ -40,7 +41,7 @@ static inline void *setNewHead(Entity *old, Entity *newHead)
   } else {
     yeReplace(father, old, newHead);
   }
-  ret = yeReplaceAtIdx(yeGetByIdx(old, HEAD_GETTER_POS), newHead, 0);
+  ret = yeReplaceAtIdx(yeGet(old, HEAD_GETTER_POS), newHead, 0);
   return ret;
 }
 
@@ -115,7 +116,7 @@ void *list_insert(int nbArg, void **args)
   yePushBack(newElem, elem, "elem");
   yePushBack(newElem, next, "next");
   yePushBack(newElem, list, "prev");
-  yePushBack(newElem, yeGetByIdx(list, HEAD_GETTER_POS), "head_getter");
+  yePushBack(newElem, yeGet(list, HEAD_GETTER_POS), "head_getter");
   yeReplaceAtIdx(next, newElem, PREV_POS);
   return ylist_head(list);
 }
@@ -135,7 +136,7 @@ void *list_pop(int nbArg, void **args)
   prev = ylist_prev(elem);
   /* it's the last elem */
   if (prev == elem) {
-    yeClearArray(yeGetByIdx(elem, HEAD_GETTER_POS));
+    yeClearArray(yeGet(elem, HEAD_GETTER_POS));
     yeClearArray(elem);
     yeDestroy(elem);
     return NULL;
@@ -175,7 +176,7 @@ void *list_insert_before(int nbArg, void **args)
   yePushBack(newElem, elem, "elem");
   yePushBack(newElem, list, "next");
   yePushBack(newElem, prev, "prev");
-  yePushBack(newElem, yeGetByIdx(list, HEAD_GETTER_POS), "head_getter");
+  yePushBack(newElem, yeGet(list, HEAD_GETTER_POS), "head_getter");
   yeReplaceAtIdx(prev, newElem, NEXT_POS);
   if (ylist_head(list) != list)
     return ylist_head(list);
@@ -213,7 +214,7 @@ void *list_head(int nbArg, void **args)
 
   if (nbArg < 1)
     return NULL;
-  return yeGetByIdx(yeGetByIdx(lst, HEAD_GETTER_POS), 0);
+  return yeGet(yeGet(lst, HEAD_GETTER_POS), 0);
 }
 
 void *list_next(int nbArg, void **args)
@@ -221,7 +222,7 @@ void *list_next(int nbArg, void **args)
   void *ret;
   if (nbArg < 1)
     return NULL;
-  ret = yeGetByIdx(args[0], NEXT_POS);
+  ret = yeGet(args[0], NEXT_POS);
   return ret;
 }
 
@@ -229,12 +230,12 @@ void *list_prev(int nbArg, void **args)
 {
   if (nbArg < 1)
     return NULL;
-  return (yeGetByIdx(args[0], PREV_POS));
+  return (yeGet(args[0], PREV_POS));
 }
 
 void *list_elem(int nbArg, void **args)
 {
   if (nbArg < 1)
     return NULL;
-  return (yeGetByIdx(args[0], ELEM_POS));
+  return (yeGet(args[0], ELEM_POS));
 }

@@ -18,7 +18,7 @@
 #include <glib.h>
 #include <stdio.h>
 #include "tests.h"
-#include "entity.h" 
+#include "entity.h"
 #include "tcc-script.h"
 #include "game.h"
 
