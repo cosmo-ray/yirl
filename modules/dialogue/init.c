@@ -76,14 +76,28 @@ static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
   ywMenuReBind(menu);
 }
 
+void *newDialogueEntity(int nbArgs, void **args)
+{
+  Entity *dialogue = args[0];
+  Entity *father = args[1];
+  const char *name = args[2];
+  const char *speaker_background = args[3];
+  const char *answer_background = args[4];
+  Entity *ret = yeCreateArray(father, name);
+
+  yePushBack(ret, dialogue, "dialogue");
+  yeCreateString("dialogue", ret, "<type>");
+
+  yePushBack(ret, speaker_background, "speaker_background");
+  yePushBack(ret, answer_background, "answer_background");
+  return ret;
+}
+
 void *init(int nbArg, void **args)
 {
   Entity *mod = args[0];
   Entity *init;
   Entity *map = yeCreateArray(mod, "game");
-
-  yeCreateString("vapz", map, "<type>");
-  yePushBack(map, yeGetByStr(mod, "resources.map"), "resources");
 
   init = yeCreateArray(NULL, NULL);
   yeCreateString("dialogue", init, "name");
@@ -93,6 +107,10 @@ void *init(int nbArg, void **args)
   yeCreateFunction("dialogueChangeText", ygGetTccManager(), mod, "change-text");
   yeCreateFunction("dialogueHide", ygGetTccManager(), mod, "hide");
   yeCreateFunction("dialogueGoto", ygGetTccManager(), mod, "goto");
+
+  yeCreateFunctionSimple("newDialogue", ygGetTccManager(), mod);
+
+  ygRegistreFunc(5, "newDialogueEntity", "yNewDialogueEntity");
   return NULL;
 }
 

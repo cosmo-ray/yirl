@@ -15,7 +15,8 @@
 	"start_pos" : [2, 2],
 	"start_id" : {"id" : 1},
 	"npj" : [
-	    { "id" : 1,  "pos" : [6, 6] }
+	    { "id" : 1, "pos" : [4, 2],
+	      "action" : ["sukeban-screen:start-dialogue", 0] }
 	],
 	"ground_char" : ".",
     },

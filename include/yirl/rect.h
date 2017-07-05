@@ -20,19 +20,6 @@
 
 #include "yirl/pos.h"
 
-/**
- * @father the father of the returned entity in which we store the return,
- * can be NULL.
- * @name string index at which we store the returned entity,
- * if NULL but not @father, the return is push back
- * @return an Entity that store a "Map Position", Must be free if @father is NULL
- */
-Entity *ywRectCreateInts(int x, int y, int w, int h, Entity *father,
-			 const char *name);
-
-Entity *ywRectReCreateInts(int x, int y, int w, int h,
-			   Entity *father, const char *name);
-
 static inline int ywRectX(Entity *e)
 {
   return yeGetInt(yeGetByIdx(e, 0));
@@ -53,7 +40,32 @@ static inline int ywRectH(Entity *e)
   return yeGetInt(yeGetByIdx(e, 3));
 }
 
+/**
+ * @father the father of the returned entity in which we store the return,
+ * can be NULL.
+ * @name string index at which we store the returned entity,
+ * if NULL but not @father, the return is push back
+ * @return an Entity that store a "Map Position", Must be free if @father is NULL
+ */
+Entity *ywRectCreateInts(int x, int y, int w, int h, Entity *father,
+			 const char *name);
+
+Entity *ywRectReCreateInts(int x, int y, int w, int h,
+			   Entity *father, const char *name);
+
+static inline Entity *ywRectReCreateEnt(Entity *other, Entity *father,
+					const char *name)
+{
+  return ywRectReCreateInts(ywRectX(other), ywRectY(other), ywRectW(other),
+			    ywRectH(other), father, name);
+}
+
 void ywRectSet(Entity *rect, int x, int y, int w, int h);
+
+static inline void ywRectSetFromRect(Entity *rect, Entity *o)
+{
+  ywRectSet(rect, ywRectX(o), ywRectY(o), ywRectW(o), ywRectH(o));
+}
 
 static inline Entity *ywRectSetX(Entity *pos, int posX)
 {
@@ -91,6 +103,25 @@ static inline int ywRectIntersect(Entity *rect, int posx, int posy)
 static inline int ywRectIntersectPos(Entity *rect, Entity *pos)
 {
   return ywRectIntersect(rect, ywPosX(pos), ywPosY(pos));
+}
+
+static inline char * ywRectToString(Entity *r)
+{
+  static char tmp[4][256];
+  static int i;
+
+  ++i;
+  i &= 3;
+  snprintf(tmp[i], 256, "x: %d - y: %d w: %d h: %d",
+	   yeGetInt(yeGetByIdx(r, 0)), yeGetInt(yeGetByIdx(r, 1)),
+	   ywRectW(r), ywRectH(r));
+  return tmp[i];
+}
+
+static inline void ywRectPrint(Entity *r)
+{
+  printf("x: %d - y: %d w: %d h: %d\n",
+	 ywRectX(r), ywRectY(r), ywRectW(r), ywRectH(r));
 }
 
 #endif

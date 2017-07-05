@@ -18,6 +18,8 @@
 #include <glib.h>
 #include "contener.h"
 #include "widget-callback.h"
+#include "yirl/pos.h"
+#include "yirl/rect.h"
 
 static int t = -1;
 
@@ -118,8 +120,8 @@ static void cntResize(YWidgetState *opac)
       continue;
 
     ptr = wid->entity;
+    tmpPos = ywRectReCreateEnt(pos, ptr, "wid-pos");
     size = yeGetInt(yeGet(tmp, "size"));
-    tmpPos = yeReplaceBack(ptr, pos, "wid-pos");
     if (size <= 0) { /* We equally size the sub-widgets */
       caseLen = usable * (i + 1) / len;
     } else {
@@ -230,6 +232,9 @@ static int cntRend(YWidgetState *opac)
   if (!opac->hasChange)
     return 0;
 
+  if (opac->hasChange == 2 || ywCntType(opac) == CNT_STACK)
+    needChange = 1;
+
   if (bg_wid) {
     yeReplaceBack(bg_wid->entity, yeGet(opac->entity, "wid-pos"), "wid-pos");
     bg_wid->hasChange = 1;
@@ -240,7 +245,7 @@ static int cntRend(YWidgetState *opac)
     YWidgetState *wid = ywidGetState(tmp);
 
     /* try to create the widget */
-    if (!wid) {
+    if (unlikely(!wid)) {
       Entity *tmp2 = getEntry(opac->entity, tmp);
 
       wid = ywidNewWidget(tmp2, NULL);
@@ -248,12 +253,11 @@ static int cntRend(YWidgetState *opac)
 	continue;
       if (tmp2 != tmp)
 	yeReCreateData(wid, tmp, "$wid");
+      cntResize(opac);
     }
     wid->shouldDraw = 0;
-    if (ywCntType(opac) == CNT_STACK)
-      needChange = 1;
     if (needChange)
-      wid->hasChange = 1;
+      wid->hasChange = 2;
 
     ywidRend(wid);
     wid->hasChange = 0;

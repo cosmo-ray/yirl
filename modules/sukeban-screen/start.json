@@ -9,6 +9,10 @@
 	    "type" : "module"
 	},
 	{
+	    "file" : "../dialogue/",
+	    "type" : "module"
+	},
+	{
 	    "file" : "sukeban-screen.lua",
 	    "type" : "lua"
 	}

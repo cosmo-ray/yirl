@@ -42,11 +42,36 @@ function sukeMapObjsLayer(map)
    return ywCntGetEntry(map, 2);
 end
 
+function startDialogue(wid, carac, id)
+   local gc = yeCreateArray()
+   local speaker_background = yeCreateString("rgba: 255 255 255 255", gc)
+   local dialogues = ygGet("sukeban.dialogues")
+   local ent = yNewDialogueEntity(yeGet(dialogues, yeGetInt(id)),
+				  nil, nil, speaker_background)
+   ywPushNewWidget(wid, ent, 1)
+   yeSetAt(wid, "-inside-dialogue", 1)
+   yeDestroy(gc)
+   return YEVE_ACTION
+end
+
+function actionCall(action, wid, carac)
+   if yeType(action) == YSTRING then
+      yesCall(ygGet(yeGetString(action)), wid, carac)
+   elseif yeType(action) == YARRAY then
+      yesCall(ygGet(yeGet(action, 0)),
+	      wid, carac, yeGet(action, 1),
+	      yeGet(action, 2), yeGet(action, 3))
+   end
+end
+
 function sukeMapAction(wid, eve, arg)
    local x = 0
    local y = 0
    local ret = YEVE_NOTHANDLE
 
+   if (yeGetInt(yeGet(wid, "-inside-dialogue")) == 1) then
+      return YEVE_NOTHANDLE
+   end
    while ywidEveIsEnd(eve) == false do
       if ywidEveType(eve) == YKEY_DOWN then
 	 if ywidEveKey(eve) == Y_UP_KEY then
@@ -67,11 +92,20 @@ function sukeMapAction(wid, eve, arg)
 	 local id = yeGet(wid, "start_id");
 	 local oldPos = yeGet(id, "pos");
 	 local newPos = ywPosCreate(oldPos);
-	 ywPosAdd(newPos, x, y);
 
-	 if (yeLen(ywMapGetCase(sukeMapObjsLayer(wid), newPos)) == 0 and
-	     yeLen(ywMapGetCase(sukeMapCaracLayer(wid), newPos)) == 0) then
+	 ywPosAdd(newPos, x, y);
+	 local nObjsCase = ywMapGetCase(sukeMapObjsLayer(wid), newPos)
+	 local nCaracsCase = ywMapGetCase(sukeMapCaracLayer(wid), newPos)
+
+	 if yeLen(nObjsCase) == 0 and yeLen(nCaracsCase) == 0 then
 	    ywMapAdvence(sukeMapCaracLayer(wid), oldPos, x, y, id)
+	 else
+	    local i = 0
+	    while i < yeLen(nCaracsCase) do
+	       local elem = yeGet(nCaracsCase, i)
+	       actionCall((yeGet(elem, "action")), wid, id)
+	       i = i + 1
+	    end
 	 end
 	 yeDestroy(newPos)
       end
@@ -93,6 +127,7 @@ function sukeNewMap(entity)
    end
    local cnt = ywidNewWidget(entity)
    ywidBind(cnt, "action", "sukeban-screen:map-action")
+   yeCreateInt(0, entity, "-inside-dialogue");
    return cnt
 end
 

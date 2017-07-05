@@ -10,6 +10,11 @@
 	    "as" : "resources-global"
 	},
 	{
+	    "file" : "./dialogues.json",
+	    "type" : "json",
+	    "as" : "dialogues"
+	},
+	{
 	    "file" : "../../modules/sukeban-screen/",
 	    "type" : "module"
 	}

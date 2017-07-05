@@ -119,8 +119,8 @@ typedef struct WidgetState_ {
   Entity *signals;
   int type;
   int actionIdx;
-  unsigned int hasChange : 1;
-  unsigned int shouldDraw : 1;
+  unsigned int hasChange;
+  unsigned int shouldDraw;
 } YWidgetState;
 
 /* struct which define what are common to every rendableWidget of the same type */
