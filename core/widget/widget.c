@@ -363,7 +363,7 @@ YWidgetState *ywidNewWidget(Entity *entity, const char *type)
       return ywidNewWidgetInternal(i, entity, shouldInit);
     }
   }
-  DPRINT_ERR("unable to find type: '%s'", type);
+  DPRINT_ERR("unable to find widget type: '%s'", type);
   return NULL;
 }
 
