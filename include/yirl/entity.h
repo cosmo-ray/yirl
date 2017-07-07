@@ -289,6 +289,34 @@ Entity *yeGetByStrExt(Entity *entity, const char *name, int64_t *idx);
  */
 Entity *yeGetByStrFast(Entity *entity, const char *name);
 
+#define yeGetIntDirect(entity) (YE_TO_INT(entity)->value)
+
+/**
+ * @return 0 if @entity is NULL
+ */
+int	yeGetInt(Entity *entity);
+
+/**
+ * @TODO	do the generic version for strings
+ * @return	value of entity at @pos in @array, 0 if entity doesn't existe
+ */
+static inline int yeGetIntAt(Entity *array, int pos)
+{
+  return yeGetInt(yeGetByIdx(array, pos));
+}
+
+/**
+ * @return 0 if @entity is NULL
+ */
+double yeGetFloat(Entity *entity);
+
+/**
+ * @return the string value
+ */
+const char *yeGetString(Entity *entity);
+
+void *yeGetData(Entity *entity);
+
 /**
  * change the capacity than the array can store
  */
@@ -350,7 +378,22 @@ Entity *yeCreateFunction(const char *funcName, void *manager,
 Entity *yeCreateFunctionExt(const char *funcName, void *manager,
 			    Entity *father, const char *name, uint64_t flags);
 
-Entity *yeCreateArray(Entity *fathers, const char *name);
+Entity *yeCreateArrayByCStr(Entity *fathers, const char *name);
+static inline Entity *yeCreateArrayByEntity(Entity *fathers, Entity *name)
+{
+  return yeCreateArrayByCStr(fathers, yeGetString(name));
+}
+
+#define yeCreateArray(fathers, name)					\
+  _Generic((name),							\
+	   Entity *: yeCreateArrayByEntity,				\
+	   void *: yeCreateArrayByEntity,				\
+	   int: yeCreateArrayByCStr,					\
+	   Y_GEN_CLANG_ARRAY(char, yeCreateArrayByCStr),		\
+	   const char *: yeCreateArrayByCStr,				\
+	   char *: yeCreateArrayByCStr)((fathers), (name))
+
+
 Entity *yeCreateArrayAt(Entity *fathers, const char *name, int idx);
 
 Entity *yeCreateArrayExt(Entity *fathers, const char *name, uint32_t flags);
@@ -573,34 +616,6 @@ static inline Entity *yeTryCreateInt(int value, Entity *father,
  * @return the attribute len of the entity
  */
 size_t yeLen(Entity *entity);;
-
-#define yeGetIntDirect(entity) (YE_TO_INT(entity)->value)
-
-/**
- * @return 0 if @entity is NULL
- */
-int	yeGetInt(Entity *entity);
-
-/**
- * @TODO	do the generic version for strings
- * @return	value of entity at @pos in @array, 0 if entity doesn't existe
- */
-static inline int yeGetIntAt(Entity *array, int pos)
-{
-  return yeGetInt(yeGetByIdx(array, pos));
-}
-
-/**
- * @return 0 if @entity is NULL
- */
-double yeGetFloat(Entity *entity);
-
-/**
- * @return the string value
- */
-const char *yeGetString(Entity *entity);
-
-void *yeGetData(Entity *entity);
 
 #define YE_FOREACH_FATHER_SET_FATHER(child, father, idx)	\
   ((father = yeFathers(child)[(idx)]) || 1)

@@ -80,9 +80,9 @@ void *newDialogueEntity(int nbArgs, void **args)
 {
   Entity *dialogue = args[0];
   Entity *father = args[1];
-  const char *name = args[2];
-  const char *speaker_background = args[3];
-  const char *answer_background = args[4];
+  Entity *name = args[2];
+  Entity *speaker_background = args[3];
+  Entity *answer_background = args[4];
   Entity *ret = yeCreateArray(father, name);
 
   yePushBack(ret, dialogue, "dialogue");

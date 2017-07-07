@@ -364,7 +364,7 @@ Entity *yeCreateDataExt(void *value, Entity *father, const char *name,
   return ((Entity *)ret);
 }
 
-Entity *yeCreateArray(Entity *father, const char *name)
+Entity *yeCreateArrayByCStr(Entity *father, const char *name)
 {
   ArrayEntity * restrict ret;
 
@@ -374,7 +374,6 @@ Entity *yeCreateArray(Entity *father, const char *name)
   yBlockArrayInit(&ret->values, ArrayEntry);
   return (YE_TO_ENTITY(ret));
 }
-
 
 Entity *yeCreateArrayExt(Entity *father, const char *name, uint32_t flags)
 {
