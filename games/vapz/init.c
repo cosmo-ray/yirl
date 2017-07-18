@@ -100,8 +100,9 @@ static void bulletsTurn(Entity *map, Entity *textScreen)
     Entity *arrayAtPos = ywMapGetCase(map, pos);
     Entity *toRemove;
     Entity *pizzaHit;
+    Entity *bulletDir = yeGetByStr(bullet, "dir");
 
-    ywMapAdvenceWithEPos(map, pos, yeGetByStr(bullet, "dir"), bullet);
+    ywMapAdvenceWithEPos(map, pos, bulletDir, bullet);
     pizzaHit = ywMapGetNbrEntityAt(map, pos, 2);
     if (pizzaHit) {
       removePizza(map, textScreen, pos, bullet, pizzaHit);
@@ -169,8 +170,13 @@ static int pizzaTurn(Entity *map)
   pizzaMaker(map, pizzas);
   ywMapSetOutBehavior(map, YMAP_OUT_WARP);
   YE_ARRAY_FOREACH(pizzas, pizza) {
+    Entity *pizDir = yeGetByStrFast(pizza, "dir");
+
     ywMapAdvenceWithEPos(map, yeGetByStrFast(pizza, "pos"),
-			 yeGetByStrFast(pizza, "dir"), pizza);
+			 pizDir, pizza);
+    if (!(yuiRand() & 3)) {
+      ywPosSet(pizDir, (yuiRand() % 3 - 1), (yuiRand() % 3 - 1));
+    }
   }
   return 0;
 }
@@ -280,10 +286,10 @@ void *vapzInit(int nbArgs, void **args)
 {
   Entity *main = args[0];
   Entity *cur_layer;
-  Entity *resources = yeGetByStrFast(main, "resources");
+  Entity *resources = yeGet(main, "resources");
   Entity *layers = yeCreateArray(main, "entries");
   Entity *viking = yeReCreateArray(main, "viking", NULL);
-  Entity *vkPos = yeGetByStr(viking, "pos") ? :
+  Entity *vkPos = yeGet(viking, "pos") ? :
     ywPosCreateInts(12, 12, viking, "pos");
   Entity *textScreen;
 
