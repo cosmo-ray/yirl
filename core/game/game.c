@@ -511,7 +511,7 @@ Entity *ygGetMod(const char *path)
   return yeGet(modList, path);
 }
 
-int ygLoadFile(Entity *mod, void *manager, const char *path)
+int ygLoadScript(Entity *mod, void *manager, const char *path)
 {
   int ret;
   char *tmp = g_strconcat(yeGetString(yeGet(mod, "$path")), path, NULL);

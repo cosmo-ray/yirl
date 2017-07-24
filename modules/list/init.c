@@ -63,7 +63,7 @@ void *init(int nbArg, void **args)
   ygRegistreFunc(1, "list_pop", "ylist_pop");
   ygRegistreFunc(1, "list_destroy", "ylist_destroy");
 
-  ygLoadFile(t, ygGetTccManager(), "./list.c");
+  ygLoadScript(t, ygGetTccManager(), "./list.c");
 
   return NULL;
 }
