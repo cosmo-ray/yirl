@@ -49,6 +49,10 @@ Entity *ywContenerGetWidgetAt(Entity *contener, int posX, int posY);
 
 Entity *ywCntGetEntry(Entity *contener, int idx);
 
+Entity *ywCntPopLastEntry(Entity *contener);
+
+Entity *ywCntGetLastEntry(Entity *container);
+
 #define ywCntType(opac) (((YContenerState *)opac)->type)
 
 #endif

@@ -246,6 +246,8 @@ Entity *yeBrutalCast(Entity *entity, int type);
 
 int	yeArrayIdx(Entity *array, const char *lookup);
 
+Entity *yeGetLast(Entity *array);
+
 /**
  * @return the entity at the position of @index or NULL
  */
@@ -623,7 +625,7 @@ static inline Entity *yeTryCreateInt(int value, Entity *father,
  * @param entity  The Entity we want to get the len
  * @return the attribute len of the entity
  */
-size_t yeLen(Entity *entity);;
+size_t yeLen(Entity *entity);
 
 #define YE_FOREACH_FATHER_SET_FATHER(child, father, idx)	\
   ((father = yeFathers(child)[(idx)]) || 1)

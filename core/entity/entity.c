@@ -171,6 +171,11 @@ Entity *yeGetByIdx(Entity *entity, size_t index)
   return yeGetByIdxDirect(entity, index);
 }
 
+Entity *yeGetLast(Entity *array)
+{
+  return yeGet(array, yeLen(array) - 1);
+}
+
 /**
  * @param name  the name we will search the character '.' into
  * @return the index of the charactere '.' in name

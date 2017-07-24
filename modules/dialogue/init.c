@@ -93,6 +93,11 @@ void *newDialogueEntity(int nbArgs, void **args)
   return ret;
 }
 
+void *dialogueGetMain(int nbArg, void **args)
+{
+  return yeGet(args[0], "_main");
+}
+
 void *init(int nbArg, void **args)
 {
   Entity *mod = args[0];
@@ -111,6 +116,7 @@ void *init(int nbArg, void **args)
   yeCreateFunctionSimple("newDialogue", ygGetTccManager(), mod);
 
   ygRegistreFunc(5, "newDialogueEntity", "yNewDialogueEntity");
+  ygRegistreFunc(1, "dialogueGetMain", "yDialogueGetMain");
   return NULL;
 }
 

@@ -53,9 +53,20 @@ Entity *ywContenerGetWidgetAt(Entity *contener, int posX, int posY)
   return NULL;
 }
 
-Entity *ywCntGetEntry(Entity *contener, int idx)
+Entity *ywCntGetLastEntry(Entity *container)
 {
-  return yeGetByIdx(yeGetByStrFast(contener, "entries"), idx);
+  return yeGetLast(yeGet(container, "entries"));
+}
+
+Entity *ywCntPopLastEntry(Entity *container)
+{
+  yePopBack(yeGet(container, "entries"));
+  return ywCntGetLastEntry(container);
+}
+
+Entity *ywCntGetEntry(Entity *container, int idx)
+{
+  return yeGet(yeGet(container, "entries"), idx);
 }
 
 static inline CntType cntGetTypeFromEntity(Entity *entity) {

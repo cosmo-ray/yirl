@@ -435,6 +435,13 @@ int	luaYwCntGetEntry(lua_State *L)
   return 1;
 }
 
+
+int	luaYwCntPopLastEntry(lua_State *L)
+{
+  lua_pushlightuserdata(L, ywCntPopLastEntry(lua_touserdata(L, 1)));
+  return 1;
+}
+
 int	luaYwPushNewWidget(lua_State *L)
 {
   lua_pushnumber(L, ywPushNewWidget(lua_touserdata(L, 1),

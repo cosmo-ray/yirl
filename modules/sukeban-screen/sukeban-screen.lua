@@ -48,10 +48,17 @@ function startDialogue(wid, carac, id)
    local dialogues = ygGet("sukeban.dialogues")
    local ent = yNewDialogueEntity(yeGet(dialogues, yeGetInt(id)),
 				  nil, nil, speaker_background)
+   yePushBack(ent, wid, "-sukeban-map");
    ywPushNewWidget(wid, ent, 1)
    yeSetAt(wid, "-inside-dialogue", 1)
    yeDestroy(gc)
    return YEVE_ACTION
+end
+
+function backToMap(wid, eve, arg)
+   local sWid = yeGet(yDialogueGetMain(wid), "-sukeban-map")
+   ywCntPopLastEntry(sWid)
+   yeSetAt(sWid, "-inside-dialogue", 0)
 end
 
 function actionCall(action, wid, carac)
@@ -148,6 +155,7 @@ function initSukeScreen(entity)
    yeCreateFunction("sksAction", entity, "action")
    yeCreateFunction("sukeMapAction", entity, "map-action")
    yeCreateFunction("startDialogue", entity, "start-dialogue")
+   yeCreateFunction("backToMap", entity, "back-to-map")
 
    init = yeCreateArray() -- this has been destroy by ywidAddSubType
    yeCreateString("sukeban-map", init, "name")

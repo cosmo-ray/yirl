@@ -120,6 +120,8 @@ int	luaYMapAdvence(lua_State *L);
 /* container */
 int	luaYwCntGetEntry(lua_State *L);
 int	luaYwPushNewWidget(lua_State *L);
+int	luaYwCntPopLastEntry(lua_State *L);
+
 
 /* Game and Module */
 int	luaGetMod(lua_State *L);
@@ -267,6 +269,7 @@ static inline int	yesLuaRegister(void *sm)
   /* container */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCntGetEntry", luaYwCntGetEntry));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywPushNewWidget", luaYwPushNewWidget));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCntPopLastEntry", luaYwCntPopLastEntry));
 
   /* pos */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywPosX", luaYwPosX));
