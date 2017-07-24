@@ -18,11 +18,12 @@
 #ifndef YIRL_RAWFILE_DESC_H_
 #define YIRL_RAWFILE_DESC_H_
 
+#include "yirl/entity.h"
+
 int ydRawFileGetType(void);
 
 int ydRawFileInit(void);
 
 int ydRawFileEnd(void);
-
 
 #endif

@@ -87,13 +87,15 @@ int main(int argc, char **argv)
   TEST_TRY_ADD("/entity/setunset/complex", testSetComplex, only);
   TEST_TRY_ADD("/entity/setunset/generic", testSetGeneric, only);
 
-  TEST_TRY_ADD("/script/ybytecode/add", ysciptAdd, only);
+  TEST_TRY_ADD("/script/ybytecode/bench/add", yscriptLoop, only);
+  TEST_TRY_ADD("/script/ybytecode/bench/loop", yscriptBenchLoop, only);
   TEST_TRY_ADD("/script/ybytecode/loop", yscriptLoop, only);
   TEST_TRY_ADD("/script/ybytecode/script", ybytecodeScript, only);
   TEST_TRY_ADD("/script/ybytecode/add-function", ybytecodeAddFunction, only);
   TEST_TRY_ADD("/script/ybytecode/loop-function",
   	       ybytecodeLoopCallFunction, only);
   TEST_TRY_ADD("/script/ybytecode/conditions", ybytecodeConditions, only);
+  TEST_TRY_ADD("/script/ybytecode/read-file", ybytecodeReadFile, only);
 
   TEST_TRY_ADD("/script/tcc/lifecycle", testTccScritLifecycle, only);
   TEST_TRY_ADD("/script/tcc/add-define", testTccAddDefine, only);

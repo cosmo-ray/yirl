@@ -43,10 +43,12 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
     for (int i = 1, neested = 0 ;;) {
       switch (script[i]) {
 	inst_compille('+', add, 3);
+	inst_compille(YB_INCR, yb_incr, 1);
 	inst_compille('-', sub, 3);
 	inst_compille('/', div, 3);
 	inst_compille('*', mult, 3);
 	inst_compille('<', inf_comp, 3);
+	inst_compille(YB_INF_COMP_NBR, yb_inf_comp_nbr, 3);
 	inst_compille('>', sup_comp, 3);
 	inst_compille('j', jmp, 1);
 	inst_compille(JMP_IF_0, jmp_if_0, 1);
@@ -114,6 +116,10 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
   script += 3;
   goto *((void *)*script);
 
+ yb_incr:
+  yeIncrementIntDirect(yeGetByIdxDirect(stack, script[1]));
+  script +=2;
+  goto *((void *)*script);
  add:
   yeSetIntDirect(yeGetByIdxDirect(stack, script[3]),
 		 yeGetIntDirect(yeGetByIdxDirect(stack, script[1])) +
@@ -147,6 +153,14 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
   goto *((void *)*script);
 
   /* stack manipulations */
+ yb_inf_comp_nbr:
+  if (yeGetIntDirect(yeGetByIdxDirect(stack, script[1])) < script[2]) {
+    script = origin + script[3];
+    goto *((void *)*script);
+  }
+  script += 4;
+  goto *((void *)*script);
+
  inf_comp:
   if (yeGetIntDirect(yeGetByIdxDirect(stack, script[1])) <
       yeGetIntDirect(yeGetByIdxDirect(stack, script[2]))) {

@@ -1,0 +1,16 @@
+
+// add arg 0 to arg 1
+add {
+    + 0 1 0
+    e
+}
+
+add1 {
+    YB_INCR 0
+    e
+}
+
+sub {
+    - 0 1 0
+    e
+}

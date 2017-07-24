@@ -40,11 +40,13 @@ void testSetGeneric(void);
 
 void ysciptAdd(void);
 void yscriptLoop(void);
+void yscriptBenchLoop(void);
 void ysciptAddFunction(void);
 void ybytecodeScript(void);
 void ybytecodeAddFunction(void);
 void ybytecodeLoopCallFunction(void);
 void ybytecodeConditions(void);
+void ybytecodeReadFile(void);
 
 void testLuaScritLifecycle(void);
 void testLuaScritEntityBind(void);

@@ -58,12 +58,14 @@ const char *yeStringNextWord(Entity *str, int *len, int shrinkBlank);
 
 typedef enum {
   YTOK_TYPE_STR,
-  YTOK_TYPE_REAPETED_STR
+  YTOK_TYPE_REAPETED_STR,
+  YTOK_TYPE_SEPARATE_STR,
+  YTOK_TYPE_SEP_REAP_STR
 } YTokType;
 
 /**
  * Add a token that is not a word (like '{'), but some repeted caracter
- * examples, a list of spaces, so a repeted tok with the string " " in param
+ * examples, a list of spaces, so a repeated tok with the string " " in param
  * would match ' ', but '       ' too, as the same token
  */
 static inline Entity *yeTokInfoAddRepeated(const char *str, Entity *father)
@@ -73,6 +75,38 @@ static inline Entity *yeTokInfoAddRepeated(const char *str, Entity *father)
   yeCreateInt(YTOK_TYPE_REAPETED_STR, ret, NULL);
   yeCreateString(str, ret, NULL);
   yeCreateInt(-1, ret, NULL);
+  yeCreateString(NULL, ret, NULL);
+  return ret;
+}
+
+/**
+ * Add a token string that must be separate from last token.
+ * so if you have a token "if" and a repeated token " "
+ * "joeif" will match joeif as a single YTOK_WORD, but "joe if"
+ * will match joe as a YTOK_WORD, " " as a a tok, and if as another tok
+ */
+static inline Entity *yeTokInfoAddSepStr(const char *str, Entity *father)
+{
+  Entity *ret = yeCreateArray(father, NULL);
+
+  yeCreateInt(YTOK_TYPE_SEPARATE_STR, ret, NULL);
+  yeCreateString(str, ret, NULL);
+  yeCreateInt(-1, ret, NULL);
+  yeCreateString(NULL, ret, NULL);
+  return ret;
+}
+
+/**
+ * a repeated string that must be separate from other token,
+ */
+static inline Entity *yeTokInfoAddSepRepStr(const char *str, Entity *father)
+{
+  Entity *ret = yeCreateArray(father, NULL);
+
+  yeCreateInt(YTOK_TYPE_SEP_REAP_STR, ret, NULL);
+  yeCreateString(str, ret, NULL);
+  yeCreateInt(-1, ret, NULL);
+  yeCreateString(NULL, ret, NULL);
   return ret;
 }
 
@@ -85,6 +119,7 @@ static inline Entity *yeTokInfoCreate(Entity *father, const char *name)
   return ret;
 }
 
+const char *yeTokString(Entity *tokInfo, int tokIdx);
 int yeTokLen(Entity *tokInfo, int tokIdx);
 
 int yeStringNextTok(Entity *str, Entity *tokInfo);

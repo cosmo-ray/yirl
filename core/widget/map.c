@@ -48,6 +48,7 @@ void ywMapGetSpriteSize(Entity *map, unsigned int *sizeSpriteW,
   uint32_t winPixHight = ywRectH(widPix);
   uint32_t winWidth, winHeight;
 
+  *thresholdX = 0;
   if (type == YMAP_PARTIAL) {
     winWidth = yeGetInt(yeGet(map, "cam-w"));
     winHeight = yeGetInt(yeGet(map, "cam-h"));
@@ -77,7 +78,6 @@ void ywMapGetSpriteSize(Entity *map, unsigned int *sizeSpriteW,
       *thresholdX = (winPixWidth - winPixHight) / 2 ;
       *sizeSpriteW = *sizeSpriteH;
     } else {
-      *thresholdX = 0;
       *sizeSpriteH = *sizeSpriteW;
     }
   }

@@ -41,6 +41,7 @@ typedef enum {
 
 typedef enum {
   YJSON = 0,
+  YRAW_FILE,
   END_YFILETYPE
 } YFileType;
 
