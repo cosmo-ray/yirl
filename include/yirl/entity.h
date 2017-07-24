@@ -628,27 +628,7 @@ size_t yeLen(Entity *entity);;
 	 YE_FOREACH_FATHER_SET_FATHER(child, father, father##idx);	\
        ++father##idx)
 
-/**
- * @brief Add @str to the string entity @Ent
- */
-int yeStringAdd(Entity *ent, const char *str);
-
-/**
- * @brief same as yeStringAdd, but add a new line
- */
-int yeStringAddNl(Entity *ent, const char *str);
-
-
-/**
- * @brief Count the number of @carac in @ent
- *
- * @ent a string entity
- * @lineLimit hard to explain, use -1, or go read the code...
- * @return the number a @carac in @ent
- * @examples yeCountCharacters(str, '\n', -1), will return the number of
- *	     lines in str
- */
-int yeCountCharacters(Entity *ent, char carac, int lineLimit);
+#include "entity-string.h"
 
 /**
  * @param entity
@@ -714,11 +694,6 @@ static inline int yeOpsIntAddInt(IntEntity *e, int i)
   e->value += i;
   return 0;
 }
-
-int yeAddStrFromFd(Entity *e, int fd, int len);
-
-int yeStringAddInt(Entity *ent, int i);
-int yeStringAddLong(Entity *ent, long i);
 
 static inline int yeAddLong(Entity *e, long i)
 {

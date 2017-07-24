@@ -1,4 +1,4 @@
-set (SOURCE entity.c entity-convertions.c)
+set (SOURCE entity.c entity-string.c entity-convertions.c)
 
 add_library (entity STATIC ${SOURCE})
 
