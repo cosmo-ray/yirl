@@ -46,9 +46,22 @@ int yeStringAddLong(Entity *ent, long i);
 
 
 /**
+ * @brief store next word in a temporary 
+ * @param len if not NULL store len of next word
+ * @param shrinkBlank if 1 call yeStringShrinkBlank
+ * @return return next word or NULL
+ */
+const char *yeStringNextWord(Entity *str, int *len, int shrinkBlank);
+
+/**
  * @brief remove @len caracters at the begin of @str
  *
  * @param str the string to shrink
  * @param len the number of carac to remove
  */
 int yeStringShrink(Entity *str, uint32_t len);
+
+/**
+ * @brief remove all blank and tab up front
+ */
+void yeStringShrinkBlank(Entity *str);

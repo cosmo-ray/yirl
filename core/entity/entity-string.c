@@ -127,3 +127,53 @@ int yeStringShrink(Entity *str, uint32_t len)
   YE_TO_STRING(str)->len -= len;
   return 0;
 }
+
+void yeStringShrinkBlank(Entity *s)
+{
+  const char *str = yeGetString(s);
+
+  if (unlikely(!str))
+    return;
+  for (; (*str == ' ' || *str == '\t'); ++str);
+  if (str == yeGetString(s))
+    return;
+  if (!YE_TO_STRING(s)->origin)
+    YE_TO_STRING(s)->origin = YE_TO_STRING(s)->value;
+  YE_TO_STRING(s)->len += str - YE_TO_STRING(s)->value;
+  YE_TO_STRING(s)->value = (char *)str;
+}
+
+const char *yeStringNextWord(Entity *str, int *len, int shrinkBlank)
+{
+  int l = 0;
+  static char ret[256];
+  const char *cStr;
+
+  if (shrinkBlank)
+    yeStringShrinkBlank(str);
+  cStr = yeGetString(str);
+
+  if (unlikely(!cStr)) {
+    goto error;
+  }
+
+  for (;*cStr != ' ' && *cStr != '\t' && l < 256; ++l, ++cStr) {
+    ret[l] = *cStr;
+  }
+
+  if (l == 256)
+    goto error;
+
+  if (len)
+    *len = l;
+
+  if (!l) {
+    return NULL;
+  }
+  ret[l] = 0;
+  return ret;
+ error:
+  if (len)
+    *len = -1;
+  return NULL;
+}

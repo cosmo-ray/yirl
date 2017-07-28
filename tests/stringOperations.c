@@ -23,6 +23,7 @@ void stringsTests(void)
   yeInitMem();
 
   Entity *str = yeCreateString(NULL, NULL, NULL);
+  int l;
 
   g_assert(str);
   g_assert(yeLen(str) == 0);
@@ -42,6 +43,16 @@ void stringsTests(void)
   g_assert(!yeStrCmp(str, "lite !\nma lite !\n"));
   g_assert(!yeStringAddNl(str, "2 le retour"));
   g_assert(!yeStrCmp(str, "lite !\nma lite !\n2 le retour\n"));
+  g_assert(yuiStrEqual(yeStringNextWord(str, &l, 0), "lite"));
+  g_assert(l == 4);
+  g_assert(!yeStrCmp(str, "lite !\nma lite !\n2 le retour\n"));
+  g_assert(!yeStringShrink(str, l));
+  g_assert(yeStringNextWord(str, &l, 0) == NULL);
+  g_assert(l == 0);
+  g_assert(!yeStrCmp(str, " !\nma lite !\n2 le retour\n"));
+  g_assert(yuiStrEqual(yeStringNextWord(str, &l, 1), "!\nma"));
+  g_assert(l == 4);
+  g_assert(!yeStrCmp(str, "!\nma lite !\n2 le retour\n"));
   yeDestroy(str);
   yeEnd();
 }
