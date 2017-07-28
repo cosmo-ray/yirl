@@ -32,9 +32,9 @@ int yeStringAddNl(Entity *ent, const char *str);
 /**
  * @brief Count the number of @carac in @ent
  *
- * @ent a string entity
- * @lineLimit hard to explain, use -1, or go read the code...
- * @return the number a @carac in @ent
+ * @param ent a string entity
+ * @param lineLimit hard to explain, use -1, or go read the code...
+ * @returnreturn the number a @carac in @ent
  * @examples yeCountCharacters(str, '\n', -1), will return the number of
  *	     lines in str
  */
@@ -44,3 +44,11 @@ int yeAddStrFromFd(Entity *e, int fd, int len);
 int yeStringAddInt(Entity *ent, int i);
 int yeStringAddLong(Entity *ent, long i);
 
+
+/**
+ * @brief remove @len caracters at the begin of @str
+ *
+ * @param str the string to shrink
+ * @param len the number of carac to remove
+ */
+int yeStringShrink(Entity *str, uint32_t len);

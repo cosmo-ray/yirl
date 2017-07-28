@@ -29,13 +29,19 @@ void stringsTests(void)
   g_assert(!yeStringAddNl(str, NULL));
   g_assert(!yeStrCmp(str, "\n"));
   g_assert(yeCountCharacters(str, '\n', -1) == 1);
-  g_assert(!yeStringAdd(str, "ma bite !\n"));
-  g_assert(!yeStrCmp(str, "\nma bite !\n"));
-  g_assert(!yeStringAddNl(str, "ma bite !"));
-  g_assert(!yeStrCmp(str, "\nma bite !\nma bite !\n"));
+  g_assert(!yeStringAdd(str, "ma lite !\n"));
+  g_assert(!yeStrCmp(str, "\nma lite !\n"));
+  g_assert(!yeStringAddNl(str, "ma lite !"));
+  g_assert(!yeStrCmp(str, "\nma lite !\nma lite !\n"));
   g_assert(yeCountCharacters(str, '\n', -1) == 3);
   g_assert(yeCountCharacters(str, '\n', 9) == 5);
   g_assert(yeCountCharacters(str, '\n', 10) == 3);
+  g_assert(!yeStringShrink(str, 1));
+  g_assert(!yeStrCmp(str, "ma lite !\nma lite !\n"));
+  g_assert(!yeStringShrink(str, 3));
+  g_assert(!yeStrCmp(str, "lite !\nma lite !\n"));
+  g_assert(!yeStringAddNl(str, "2 le retour"));
+  g_assert(!yeStrCmp(str, "lite !\nma lite !\n2 le retour\n"));
   yeDestroy(str);
   yeEnd();
 }

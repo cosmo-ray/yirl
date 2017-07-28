@@ -36,10 +36,17 @@ int yeStringAdd(Entity *ent, const char *str)
   strLen = strlen(str);
   origLen = yeLen(ent);
   totalLength = origLen + strLen;
-  YE_TO_STRING(ent)->value = realloc(YE_TO_STRING(ent)->value,
-				     totalLength + 1);
-  char *beg = YE_TO_STRING(ent)->value + origLen;
-  strncpy(beg, str, strLen + 1);
+  if (!YE_TO_STRING(ent)->origin) {
+    YE_TO_STRING(ent)->value = realloc(YE_TO_STRING(ent)->value,
+				       totalLength + 1);
+    char *beg = YE_TO_STRING(ent)->value + origLen;
+    strncpy(beg, str, strLen + 1);
+  } else {
+    YE_TO_STRING(ent)->value = g_strdup_printf("%s%s", YE_TO_STRING(ent)->value,
+					       str);
+    g_free(YE_TO_STRING(ent)->origin);
+    YE_TO_STRING(ent)->origin = NULL;
+  }
   YE_TO_STRING(ent)->len = totalLength;
   return 0;
 }
@@ -58,6 +65,7 @@ int yeStringAddInt(Entity *ent, int i)
     return -1;
   YE_TO_STRING(ent)->value = g_strdup_printf("%s%d", tmp, i);
   YE_TO_STRING(ent)->len = strlen(YE_TO_STRING(ent)->value);
+  YE_TO_STRING(ent)->origin = NULL;
   g_free(tmp);
   return 0;
 }
@@ -70,6 +78,7 @@ int yeStringAddLong(Entity *ent, long i)
     return -1;
   YE_TO_STRING(ent)->value = g_strdup_printf("%s%ld", tmp, i);
   YE_TO_STRING(ent)->len = strlen(YE_TO_STRING(ent)->value);
+  YE_TO_STRING(ent)->origin = NULL;
   g_free(tmp);
   return 0;
 }
@@ -106,4 +115,15 @@ int yeCountCharacters(Entity *str, char carac, int lineLimit)
     }
   }
   return ret;
+}
+
+int yeStringShrink(Entity *str, uint32_t len)
+{
+  if (len >= yeLen(str))
+    return -1;
+  if (!YE_TO_STRING(str)->origin)
+    YE_TO_STRING(str)->origin = YE_TO_STRING(str)->value;
+  YE_TO_STRING(str)->value += len;
+  YE_TO_STRING(str)->len -= len;
+  return 0;
 }

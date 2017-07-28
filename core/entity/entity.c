@@ -522,7 +522,10 @@ void yeDestroyFunction(Entity *entity)
 void yeDestroyString(Entity *entity)
 {
   if (entity->refCount == 1) {
-    free(YE_TO_STRING(entity)->value);
+    if (YE_TO_STRING(entity)->origin)
+      free(YE_TO_STRING(entity)->origin);
+    else
+      free(YE_TO_STRING(entity)->value);
     YE_DESTROY_ENTITY(entity, StringEntity);
   } else {
     YE_DECR_REF(entity);
@@ -750,8 +753,12 @@ void	yeSetString(Entity *entity, const char *val)
 {
   if (unlikely(!entity))
     return;
-  if (YE_TO_STRING(entity)->value != NULL)
-    free(YE_TO_STRING(entity)->value);
+  if (YE_TO_STRING(entity)->value != NULL) {
+    if (YE_TO_STRING(entity)->origin != NULL)
+      free(YE_TO_STRING(entity)->origin);
+    else
+      free(YE_TO_STRING(entity)->value);
+  }
   if (val != NULL) {
     YE_TO_STRING(entity)->value = strdup(val);
     if (entity->type == YSTRING)
@@ -761,6 +768,7 @@ void	yeSetString(Entity *entity, const char *val)
     if (entity->type == YSTRING)
       YE_TO_STRING(entity)->len = 0;
   }
+  YE_TO_STRING(entity)->origin = NULL;
 }
 
 void yeSetDestroy(Entity *entity, void (*destroyFunc)(void *))

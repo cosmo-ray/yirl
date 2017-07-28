@@ -150,6 +150,7 @@ typedef	struct
 
   char	*value;
   unsigned int len;
+  char *origin;
 } StringEntity;
 
 typedef	struct
