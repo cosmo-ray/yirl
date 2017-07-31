@@ -389,10 +389,30 @@ int	luaUnsetFunction(lua_State *L)
 int	luaType(lua_State *L)
 {
   if (lua_gettop(L) != 1 || !lua_islightuserdata (L, 1)) {
-    luaL_error(L, "error in getType: missing entity\n");
+    luaL_error(L, "error in yeType: missing entity\n");
     return -1;
   }
   lua_pushnumber(L, yeType(YE_TO_ENTITY(lua_topointer(L, 1))));
+  return 1;
+}
+
+int	luaYwMapGetIdByElem(lua_State *L)
+{
+  lua_pushnumber(L, ywMapGetIdByElem(lua_touserdata(L, 1)));
+  return 1;
+}
+
+int	luaYwMapGetResourceId(lua_State *L)
+{
+  lua_pushnumber(L, ywMapGetResourceId(lua_touserdata(L, 1),
+				       lua_touserdata(L, 2)));
+  return 1;
+}
+
+int	luaYwMapGetResource(lua_State *L)
+{
+  lua_pushlightuserdata(L, ywMapGetResource(lua_touserdata(L, 1),
+					    lua_touserdata(L, 2)));
   return 1;
 }
 
@@ -803,10 +823,17 @@ int	luaYeReplace(lua_State *L)
   return 1;
 }
 
+
+int	luaYeReplaceAtIdx(lua_State *L)
+{
+  lua_pushlightuserdata(L, yeReplaceAtIdx(lua_touserdata(L, 1),
+					  lua_touserdata(L, 2),
+					  lua_tonumber(L, 3)));
+  return 1;
+}
+
 int	luaYeReplaceBack(lua_State *L)
 {
-  if (lua_gettop(L) != 3)
-    return -1;
   lua_pushlightuserdata(L, yeReplaceBack(lua_touserdata(L, 1),
 					 lua_touserdata(L, 2),
 					 lua_tostring(L, 3)));

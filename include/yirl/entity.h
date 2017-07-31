@@ -811,9 +811,9 @@ Entity *yeFindLink(Entity *father, const char *targetPath, int flag);
 
 /**
  * Convert an Entity to a C String (char *)
- * @entity	The entity
- * @deep	If @entity is an array, how deep we should print it
- * @flag	Aditional falg
+ * @param	entity The entity
+ * @param	deep If @entity is an array, how deep we should print it
+ * @param	flag Aditional falgs
  * @return	the newly allocated string, need to be free
  */
 char *yeToCStr(Entity *entity, int deep, int flag);

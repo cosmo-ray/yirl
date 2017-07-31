@@ -45,6 +45,7 @@ int	luaDestroy(lua_State *L);
 int	luaSetAt(lua_State *L);
 int	luaYeReplace(lua_State *L);
 int	luaYeReplaceBack(lua_State *L);
+int	luaYeReplaceAtIdx(lua_State *L);
 
 /* Entity */
 int	luaCopy(lua_State *L);
@@ -116,6 +117,9 @@ int	luaYwMapSetSmootMovement(lua_State *L);
 int	luaMvTablePush(lua_State *L);
 int	luaYwMapGetNbrEntityAt(lua_State *L);
 int	luaYMapAdvence(lua_State *L);
+int	luaYwMapGetResource(lua_State *L);
+int	luaYwMapGetResourceId(lua_State *L);
+int	luaYwMapGetIdByElem(lua_State *L);
 
 /* container */
 int	luaYwCntGetEntry(lua_State *L);
@@ -200,6 +204,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeRemoveChild", luaRemoveChild));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeDestroy", luaDestroy));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeReplace", luaYeReplace));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeReplaceAtIdx", luaYeReplaceAtIdx));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeReplaceBack", luaYeReplaceBack));
 
   /* Entity */
@@ -265,6 +270,10 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapGetNbrEntityAt",
 				 luaYwMapGetNbrEntityAt));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapAdvence", luaYMapAdvence));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapGetResource", luaYwMapGetResource));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapGetResourceId",
+				 luaYwMapGetResourceId));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapGetIdByElem", luaYwMapGetIdByElem));
 
   /* container */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCntGetEntry", luaYwCntGetEntry));

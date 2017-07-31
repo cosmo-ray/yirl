@@ -143,7 +143,9 @@ static inline void ywMapSetOutBehavior(Entity *map, YMapOutBehavior ob)
 
 static inline Entity *ywMapGetResources(YWidgetState *state)
 {
-  return ((YMapState *)state)->resources;
+  if (state)
+    return ((YMapState *)state)->resources;
+  return NULL;
 }
 
 static inline int ywMapRemoveByEntity(Entity *state, Entity *pos,
@@ -216,5 +218,16 @@ void yeMapPixielsToPos(Entity *wid, uint32_t pixX, uint32_t pixY,
 
 Entity *ywMapPosFromPixs(Entity *wid, uint32_t x, uint32_t y,
 			 Entity *father, const char *name);
+
+int ywMapGetResourceId(Entity *map, Entity *elem);
+
+static inline Entity *ywMapGetResource(Entity *map, Entity *elem)
+{
+  Entity *resources = ywMapGetResources(ywidGetState(map));
+
+  if (!resources)
+    resources = yeGet(map, "resources");
+  return yeGet(resources, ywMapGetResourceId(map, elem));
+}
 
 #endif

@@ -404,6 +404,24 @@ int ywMapGetIdByElem(Entity *mapElem)
   return -1;
 }
 
+int ywMapGetResourceId(Entity *map, Entity *elem)
+{
+  Entity *resources = ywMapGetResources(ywidGetState(map));
+  const char *map_char = yeGetString(yeGet(elem, "map-char"));
+
+  if (!resources)
+    resources = yeGet(map, "resources");
+  if (!map_char || !yeLen(resources))
+    return -1;
+  YE_ARRAY_FOREACH_EXT(resources, e, it) {
+    const char *tmp_map_char = yeGetString(yeGet(e, "map-char"));
+    if (yuiStrEqual0(map_char, tmp_map_char)) {
+      return it.pos;
+    }
+  }
+  return -1;
+}
+
 int ywMapInit(void)
 {
   if (t != -1)
