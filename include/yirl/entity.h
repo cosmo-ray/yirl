@@ -296,13 +296,29 @@ Entity *yeGetByStrFast(Entity *entity, const char *name);
 int	yeGetInt(Entity *entity);
 
 /**
- * @TODO	do the generic version for strings
  * @return	value of entity at @pos in @array, 0 if entity doesn't existe
  */
-static inline int yeGetIntAt(Entity *array, int pos)
+static inline int yeGetIntAtByIdx(Entity *array, int pos)
 {
   return yeGetInt(yeGetByIdx(array, pos));
 }
+
+static inline int yeGetIntAtByStr(Entity *array, const char *pos)
+{
+  return yeGetInt(yeGetByStrFast(array, pos));
+}
+
+#define yeGetIntAt(array, pos)						\
+  (_Generic(pos,							\
+	    unsigned int: yeGetIntAtByIdx,				\
+	    int: yeGetIntAtByIdx,					\
+	    long : yeGetIntAtByIdx,					\
+	    long long : yeGetIntAtByIdx,				\
+	    unsigned long long : yeGetIntAtByIdx,			\
+	    unsigned long: yeGetIntAtByIdx,				\
+	    Y_GEN_CLANG_ARRAY(char, yeGetIntAtByStr),			\
+	    const char *: yeGetIntAtByStr,				\
+	    char *: yeGetIntAtByStr)(array, pos))			\
 
 /**
  * @return 0 if @entity is NULL

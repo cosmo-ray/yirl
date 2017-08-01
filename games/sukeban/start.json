@@ -2,6 +2,7 @@
     "name" : "sukeban",
     "file" : "menus.json",
     "type" : "json",
+    "as" : "scenes",
     "starting widget" : "main",
     "pre-load" : [
 	{

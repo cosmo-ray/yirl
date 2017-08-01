@@ -2,20 +2,32 @@
     "main" : {
 	"<type>" : "sukeban-screen",
 	"entries" : [
-	    {"name" : "mapiMapo"},
+	    {"name" : "house"},
 	    {"name" : "text, tatata =D"}
 	],
     },
-    "mapiMapo" : {
+    "house" : {
 	"<type>" : "sukeban-map",
-
 	"&resources" : "houseResources",
 	"map" : "house.sm",
-	"bind" : [["action", "mapTest"]],
 	"start_pos" : [2, 2],
 	"start_id" : {"id" : 1},
 	"npj" : [
 	    { "id" : 1, "pos" : [4, 2],
+	      "action" : ["sukeban-screen:start-dialogue", 0] }
+	],
+	"actionables" : [ { "map-char" : "H", "pos" : [1, 1],
+			    "action": ["sukeban-screen:goto", "cave"] } ],
+	"ground_char" : ".",
+    },
+    "cave" : {
+	"<type>" : "sukeban-map",
+	"&resources" : "houseResources",
+	"map" : "cave.sm",
+	"start_pos" : [2, 2],
+	"start_id" : {"id" : 1},
+	"npj" : [
+	    { "id" : 1, "pos" : [4, 4],
 	      "action" : ["sukeban-screen:start-dialogue", 0] }
 	],
 	"ground_char" : ".",

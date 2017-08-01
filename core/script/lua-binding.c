@@ -448,6 +448,15 @@ int	luaYMapAdvence(lua_State *L)
   return 1;
 }
 
+int	luaYwReplaceEntry(lua_State *L)
+{
+  lua_pushnumber(L, ywReplaceEntry(lua_touserdata(L, 1),
+				   lua_tonumber(L, 2),
+				   lua_touserdata(L, 3))
+		 );
+  return 1;
+}
+
 int	luaYwCntGetEntry(lua_State *L)
 {
   lua_pushlightuserdata(L, ywCntGetEntry(lua_touserdata(L, 1),

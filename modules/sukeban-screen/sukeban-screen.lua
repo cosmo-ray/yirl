@@ -61,10 +61,22 @@ function backToMap(wid, eve, arg)
    yeSetAt(sWid, "-inside-dialogue", 0)
 end
 
+function gotoMap(wid, carac, arg1)
+   local str = "sukeban.scenes." .. yeGetString(arg1)
+   local nextMap = ygGet(str)
+   local screen = yeGet(wid, "screen")
+   --local entries = yeGet(screen, "entries")
+
+   print(yeGetString(yeGet(yeGet(yeGet(screen, "entries"), 0), "name")))
+   --yeReplace(entries, yeGet(entries, 0), nextMap)
+   ywReplaceEntry(screen, 0, nextMap);
+end
+
 function actionCall(action, wid, carac)
    if yeType(action) == YSTRING then
       yesCall(ygGet(yeGetString(action)), wid, carac)
    elseif yeType(action) == YARRAY then
+      print(yeGetString(yeGet(action, 0)))
       yesCall(ygGet(yeGet(action, 0)),
 	      wid, carac, yeGet(action, 1),
 	      yeGet(action, 2), yeGet(action, 3))
@@ -113,6 +125,12 @@ function sukeMapAction(wid, eve, arg)
 	       actionCall((yeGet(elem, "action")), wid, id)
 	       i = i + 1
 	    end
+	    while i < yeLen(nObjsCase) do
+	       local elem = yeGet(nObjsCase, i)
+
+	       actionCall((yeGet(elem, "action")), wid, id)
+	       i = i + 1
+	    end
 	 end
 	 yeDestroy(newPos)
       end
@@ -123,6 +141,7 @@ end
 
 function sukeNewMap(entity)
    local npj = yeGet(entity, "npj");
+   local actionables = yeGet(entity, "actionables");
    local i = 0
 
    ygCall("sm-reader", "load-entity", entity)
@@ -132,17 +151,47 @@ function sukeNewMap(entity)
       ywMapPushElem(sukeMapCaracLayer(entity), yeGet(npj, i))
       i = i + 1
    end
+   i = 0
+   while i < yeLen(actionables) do
+      local action = yeGet(actionables, i)
+      local action_case = ywMapGetCase(sukeMapObjsLayer(entity),
+				       yeGet(action, "pos"))
+      local j = 0
+
+      while j < yeLen(action_case) do
+	 local elem = yeGet(action_case, j)
+
+	 if ywMapGetResourceId(entity, action) == ywMapGetIdByElem(elem) then
+	    if yeType(elem) == YINT then
+	       local tmp = yeCreateArray();
+
+	       yePushBack(tmp, elem, "id");
+	       elem = yeReplaceAtIdx(action_case, tmp, j);
+	       yeDestroy(tmp);
+	    end
+	    yeReplaceBack(elem, yeGet(action, "action"), "action")
+	 end
+	 j = j + 1
+      end
+      i = i + 1
+   end
    local cnt = ywidNewWidget(entity)
    ywidBind(cnt, "action", "sukeban-screen:map-action")
    yeCreateInt(0, entity, "-inside-dialogue");
    return cnt
 end
 
+function sukeScreenGetMap(screen)
+   return ywCntGetEntry(screen, 0);
+end
+
+
 function sukeScreenNewWid(entity)
-   yeCreateInt(75, yeGet(yeGet(entity, "entries"), 0), "size")
+   yeCreateInt(80, yeGet(yeGet(entity, "entries"), 0), "size")
 
    local cnt = ywidNewWidget(entity, "contener")
    ywidBind(cnt, "action", "sukeban-screen:action")
+   yePushBack(sukeScreenGetMap(entity), entity, "screen")
    return cnt
 end
 
@@ -155,6 +204,7 @@ function initSukeScreen(entity)
    yeCreateFunction("sksAction", entity, "action")
    yeCreateFunction("sukeMapAction", entity, "map-action")
    yeCreateFunction("startDialogue", entity, "start-dialogue")
+   yeCreateFunction("gotoMap", entity, "goto")
    yeCreateFunction("backToMap", entity, "back-to-map")
 
    init = yeCreateArray() -- this has been destroy by ywidAddSubType

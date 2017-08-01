@@ -66,6 +66,7 @@ int ywMapHasChange(YWidgetState *state);
 static inline int ywMapLen(Entity *state)
 {
   Entity *tmpLen = yeGetByStrFast(state, "len");
+
   return  tmpLen ? (uint32_t)yeGetInt(tmpLen) :
     yeLen(yeGetByStrFast(state, "map"));
 }

@@ -49,6 +49,8 @@ Entity *ywContenerGetWidgetAt(Entity *contener, int posX, int posY);
 
 Entity *ywCntGetEntry(Entity *contener, int idx);
 
+int ywReplaceEntry(Entity *contener, int idx, Entity *entry);
+
 Entity *ywCntPopLastEntry(Entity *contener);
 
 Entity *ywCntGetLastEntry(Entity *container);

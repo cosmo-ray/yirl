@@ -23,6 +23,13 @@
 
 static int t = -1;
 
+static inline Entity *getEntry(Entity *father, Entity *tmp)
+{
+  if (!yeGet(tmp, "<type>"))
+    return yeFindLink(father, yeGetString(yeGet(tmp, "name")), 0);
+  return tmp;
+}
+
 int ywContenerUpdate(Entity *contener, Entity *widEnt)
 {
   Entity *entries = yeGet(contener, "entries");
@@ -69,6 +76,18 @@ Entity *ywCntGetEntry(Entity *container, int idx)
   return yeGet(yeGet(container, "entries"), idx);
 }
 
+int ywReplaceEntry(Entity *container, int idx, Entity *entry)
+{
+  Entity *entries = yeGet(container, "entries");
+  Entity *old = ywCntGetEntry(container, idx);
+  Entity *new = getEntry(container, entry);
+  int size = yeGetIntAt(old, "size");
+
+  yeReCreateInt(size, new, "size");
+  yeReplace(entries, old, new);
+  return 0;
+}
+
 static inline CntType cntGetTypeFromEntity(Entity *entity) {
   const char *cntType = yeGetString(yeGet(entity, "cnt-type"));
 
@@ -77,13 +96,6 @@ static inline CntType cntGetTypeFromEntity(Entity *entity) {
   } else if (yuiStrEqual0(cntType, "stacking"))
     return CNT_STACK;
   return CNT_HORIZONTAL;
-}
-
-static inline Entity *getEntry(Entity *father, Entity *tmp)
-{
-  if (!yeGet(tmp, "<type>"))
-    return yeFindLink(father, yeGetString(yeGet(tmp, "name")), 0);
-  return tmp;
 }
 
 int ywPushNewWidget(Entity *container, Entity *wid, int dec_ref)
@@ -182,22 +194,31 @@ static int cntInit(YWidgetState *opac, Entity *entity, void *args)
   yeTryCreateInt(0, entity, "current");
   YE_ARRAY_FOREACH(entries, tmp) {
     Entity *ptr = getEntry(entity, tmp);
+    Entity *copyTmp = NULL;
 
     if (yeGet(tmp, "copy")) {
-      Entity *copyTmp;
-
-      copyTmp = yeCreateArray(tmp, "$copy");
+      copyTmp = yeCreateArray(NULL, NULL);
       yeCopy(ptr, copyTmp);
       ptr = copyTmp;
     }
-    yeReplaceBack(ptr, entity, "$father-contener");
+    yeReplaceBack(ptr, entity, "$father-container");
+    if (ptr != tmp) {
+      YE_ARRAY_FOREACH_EXT(tmp, entry, it) {
+	const char *n = yBlockArrayIteratorGetPtr(it, ArrayEntry)->name;
+	if (yuiStrEqual0(n, "name"))
+	  continue;
+	yePushBack(ptr, entry, n);
+      }
+      yeReplace(entries, tmp, ptr);
+    }
+    yeDestroy(copyTmp);
     wid = ywidNewWidget(ptr, NULL);
     if (!wid) {
       DPRINT_ERR("fail to create a sub widget");
       return -1;
     }
     if (ptr != tmp)
-      yeReCreateData(wid, tmp, "$wid");
+      yeReCreateData(wid, ptr, "$wid");
   }
   cntResize(opac);
   return 0;
@@ -259,11 +280,13 @@ static int cntRend(YWidgetState *opac)
     if (unlikely(!wid)) {
       Entity *tmp2 = getEntry(opac->entity, tmp);
 
-      wid = ywidNewWidget(tmp2, NULL);
+      if (tmp2 != tmp) {
+	yeReplace(entries, tmp, tmp2);
+	tmp = tmp2;
+      }
+      wid = ywidNewWidget(tmp, NULL);
       if (!wid)
 	continue;
-      if (tmp2 != tmp)
-	yeReCreateData(wid, tmp, "$wid");
       cntResize(opac);
     }
     wid->shouldDraw = 0;
