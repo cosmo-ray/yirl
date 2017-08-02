@@ -24,6 +24,16 @@ void stringsTests(void)
 
   Entity *str = yeCreateString(NULL, NULL, NULL);
   int l;
+  Entity *tokInfo = yeTokInfoCreate(NULL, NULL);
+  enum toks {
+    YTOK_STR_BASE,
+    EXCLAMATION_MARK,
+    RETURN,
+    SPACES,
+  };
+  yeCreateString("!", tokInfo, NULL);
+  yeCreateString("\n", tokInfo, NULL);
+  yeTokInfoAddRepeated(" \t", tokInfo);
 
   g_assert(str);
   g_assert(yeLen(str) == 0);
@@ -41,18 +51,38 @@ void stringsTests(void)
   g_assert(!yeStrCmp(str, "ma lite !\nma lite !\n"));
   g_assert(!yeStringShrink(str, 3));
   g_assert(!yeStrCmp(str, "lite !\nma lite !\n"));
-  g_assert(!yeStringAddNl(str, "2 le retour"));
-  g_assert(!yeStrCmp(str, "lite !\nma lite !\n2 le retour\n"));
+  g_assert(!yeStringAddNl(str, "    2 le retour"));
+  g_assert(!yeStrCmp(str, "lite !\nma lite !\n    2 le retour\n"));
   g_assert(yuiStrEqual(yeStringNextWord(str, &l, 0), "lite"));
   g_assert(l == 4);
-  g_assert(!yeStrCmp(str, "lite !\nma lite !\n2 le retour\n"));
+  g_assert(!yeStrCmp(str, "lite !\nma lite !\n    2 le retour\n"));
   g_assert(!yeStringShrink(str, l));
   g_assert(yeStringNextWord(str, &l, 0) == NULL);
   g_assert(l == 0);
-  g_assert(!yeStrCmp(str, " !\nma lite !\n2 le retour\n"));
+  g_assert(!yeStrCmp(str, " !\nma lite !\n    2 le retour\n"));
   g_assert(yuiStrEqual(yeStringNextWord(str, &l, 1), "!\nma"));
   g_assert(l == 4);
-  g_assert(!yeStrCmp(str, "!\nma lite !\n2 le retour\n"));
+  g_assert(!yeStrCmp(str, "!\nma lite !\n    2 le retour\n"));
+  int tok = yeStringNextTok(str, tokInfo);
+  g_assert(tok == EXCLAMATION_MARK);
+  tok = yeStringNextTok(str, tokInfo);
+  g_assert(tok == RETURN);
+  tok = yeStringNextTok(str, tokInfo);
+  g_assert(tok == YTOK_WORD);
+  tok = yeStringNextTok(str, tokInfo);
+  g_assert(tok == SPACES);
+  tok = yeStringNextTok(str, tokInfo);
+  g_assert(tok == YTOK_WORD);
+  g_assert(yeTokLen(tokInfo, tok) == 4);
+  tok = yeStringNextTok(str, tokInfo);
+  g_assert(tok == SPACES);
+  g_assert(yeTokLen(tokInfo, tok) == 1);
+  g_assert(yeStringNextTok(str, tokInfo) == EXCLAMATION_MARK);
+  g_assert(yeStringNextTok(str, tokInfo) == RETURN);
+  tok = yeStringNextTok(str, tokInfo);
+  g_assert(tok == SPACES);
+  g_assert(yeTokLen(tokInfo, tok) == 4);
+  yeDestroy(tokInfo);
   yeDestroy(str);
   yeEnd();
 }

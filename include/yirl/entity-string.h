@@ -46,12 +46,48 @@ int yeStringAddLong(Entity *ent, long i);
 
 
 /**
- * @brief store next word in a temporary 
+ * @brief store next word in a temporary
  * @param len if not NULL store len of next word
  * @param shrinkBlank if 1 call yeStringShrinkBlank
  * @return return next word or NULL
  */
 const char *yeStringNextWord(Entity *str, int *len, int shrinkBlank);
+
+#define YTOK_STR_BASE					\
+  YTOK_ERR = -1, YTOK_END = 0, YTOK_WORD = 1
+
+typedef enum {
+  YTOK_TYPE_STR,
+  YTOK_TYPE_REAPETED_STR
+} YTokType;
+
+/**
+ * Add a token that is not a word (like '{'), but some repeted caracter
+ * examples, a list of spaces, so a repeted tok with the string " " in param
+ * would match ' ', but '       ' too, as the same token
+ */
+static inline Entity *yeTokInfoAddRepeated(const char *str, Entity *father)
+{
+  Entity *ret = yeCreateArray(father, NULL);
+
+  yeCreateInt(YTOK_TYPE_REAPETED_STR, ret, NULL);
+  yeCreateString(str, ret, NULL);
+  yeCreateInt(-1, ret, NULL);
+  return ret;
+}
+
+static inline Entity *yeTokInfoCreate(Entity *father, const char *name)
+{
+  Entity *ret = yeCreateArray(father, name);
+
+  yeCreateInt(0, ret, NULL);
+  yeCreateString(NULL, ret, NULL);
+  return ret;
+}
+
+int yeTokLen(Entity *tokInfo, int tokIdx);
+
+int yeStringNextTok(Entity *str, Entity *tokInfo);
 
 /**
  * @brief remove @len caracters at the begin of @str

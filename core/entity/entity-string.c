@@ -154,15 +154,19 @@ const char *yeStringNextWord(Entity *str, int *len, int shrinkBlank)
   cStr = yeGetString(str);
 
   if (unlikely(!cStr)) {
+    DPRINT_ERR("bad str");
     goto error;
   }
 
-  for (;*cStr != ' ' && *cStr != '\t' && l < 256; ++l, ++cStr) {
+  for (; *cStr != '\0' &&  *cStr != ' ' &&
+	 *cStr != '\t' && l < 256; ++l, ++cStr) {
     ret[l] = *cStr;
   }
 
-  if (l == 256)
+  if (l == 256) {
+    DPRINT_ERR("word too long");
     goto error;
+  }
 
   if (len)
     *len = l;
@@ -176,4 +180,112 @@ const char *yeStringNextWord(Entity *str, int *len, int shrinkBlank)
   if (len)
     *len = -1;
   return NULL;
+}
+
+enum basic_tok {
+  YTOK_STR_BASE
+};
+
+static int tryMatchStr(const char *str, Entity *tok, int len)
+{
+  const char *cstr = yeGetString(tok);
+  int tokL = yeLen(tok);
+  int i = 0;
+
+  if (len < tokL)
+    return 0;
+  for (; i < tokL && str[i] == cstr[i]; ++i);
+  return i == tokL;
+}
+
+static int isOneOf(char a, const char *str)
+{
+  for (; *str; ++str) {
+    if (a == *str)
+      return 1;
+  }
+  return 0;
+}
+
+static int tryMatchReapeater(const char *str, Entity *tok, int len)
+{
+  const char *cstr = yeGetStringAt(tok, 1);
+  int i = 0;
+
+  for (; i < len && isOneOf(str[i], cstr); ++i);
+  if (i == 0)
+    return 0;
+  yeSetAt(tok, 2, i);
+  return 1;
+}
+
+static int tryMatchToks(const char *str, Entity *tokInfo, int len)
+{
+  if (!str[0]) {
+    return YTOK_END;
+  }
+
+  for (uint32_t i = 2; i < yeLen(tokInfo); ++i) {
+    Entity *curTok = yeGet(tokInfo, i);
+    if (yeType(curTok) == YSTRING) { // asume it's a word
+      if (tryMatchStr(str, curTok, len))
+	return i;
+    } else if (yeType(curTok) == YARRAY) { // assume it's a reapeater
+      if (tryMatchReapeater(str, curTok, len))
+	return i;
+    } else { // assume devloper is a d***head
+      return YTOK_ERR;
+    }
+  }
+  return YTOK_WORD;
+}
+
+static int tokLen(Entity *tok)
+{
+    if (yeType(tok) == YSTRING) { // asume it's a word
+      return yeLen(tok);
+    } else if (yeType(tok) == YARRAY) { // assume it's a reapeater
+      return yeGetIntAt(tok, 2);
+    }
+    return -1;
+}
+
+int yeTokLen(Entity *tokInfo, int tokIdx)
+{
+  return tokLen(yeGet(tokInfo, tokIdx));
+}
+
+int yeStringNextTok(Entity *str, Entity *tokInfo)
+{
+  int ret = YTOK_ERR;
+  char *cStr;
+  const char *begStr;
+  int len;
+  Entity *word;
+  char tmp;
+
+  if (yeGetIntAt(tokInfo, 0) < 0)
+    return YTOK_END;
+  if (yeType(str) != YSTRING || !tokInfo)
+    return ret;
+  len = yeLen(str) - yeGetIntAt(tokInfo, 0);
+  begStr = yeGetString(str) + yeGetIntAt(tokInfo, 0);
+  if ((ret = tryMatchToks(begStr, tokInfo, len)) != YTOK_WORD) {
+    if (ret == YTOK_END)
+      yeSetIntAt(tokInfo, 0, -1);
+    else
+      yeAddInt(yeGet(tokInfo, 0), tokLen(yeGet(tokInfo, ret)));
+    return ret;
+  }
+  for (cStr = (char *)begStr + 1, --len;
+       tryMatchToks(cStr, tokInfo, len) == YTOK_WORD;
+       --len, ++cStr);
+
+  yeSetIntAt(tokInfo, 0, yeLen(str) - len);
+  word = yeGet(tokInfo, YTOK_WORD);
+  tmp = *cStr;
+  *cStr = 0;
+  yeSetString(word, begStr);
+  *cStr = tmp;
+  return YTOK_WORD;
 }

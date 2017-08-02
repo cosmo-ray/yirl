@@ -24,6 +24,7 @@
 
 /* description */
 #include "json-desc.h"
+#include "rawfile-desc.h"
 #include "description.h"
 
 /* scripting */
@@ -48,6 +49,8 @@
 
 static int init;
 static void *jsonManager;
+static void *rawfileManager;
+
 static void *luaManager;
 static void *tccManager;
 
@@ -229,6 +232,8 @@ int ygInit(GameConfig *cfg)
 		    "json init failed");
   CHECK_AND_GOTO(jsonManager = ydNewManager(t), NULL, error,
 		    "json init failed");
+  CHECK_AND_GOTO(rawfileManager = ydNewManager(ydRawFileInit()), NULL, error,
+		    "raw-file init failed");
 
   /* Init scripting */
   /* TODO init internal lua function */
@@ -297,6 +302,8 @@ void ygEnd()
   ywidFreeWidgets();
   ydDestroyManager(jsonManager);
   ydJsonEnd();
+  ydDestroyManager(rawfileManager);
+  ydRawFileEnd();
   ywTextScreenEnd();
   ywMapEnd();
   ywMenuEnd();
@@ -357,6 +364,8 @@ Entity *ygFileToEnt(YFileType t, const char *path, Entity *father)
 {
   if (t == YJSON)
     return ydFromFile(jsonManager, path, father);
+  else if (t == YRAW_FILE)
+    return ydFromFile(rawfileManager, path, father);
   return NULL;
 }
 
