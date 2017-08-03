@@ -61,22 +61,40 @@ function backToMap(wid, eve, arg)
    yeSetAt(sWid, "-inside-dialogue", 0)
 end
 
-function gotoMap(wid, carac, arg1)
+function gotoMap(wid, carac, arg1, arg2)
    local str = "sukeban.scenes." .. yeGetString(arg1)
    local nextMap = ygGet(str)
    local screen = yeGet(wid, "screen")
    --local entries = yeGet(screen, "entries")
+   local newPos
+   local cLayer = sukeMapCaracLayer(wid)
+   local oldPos = yeGet(yeGet(nextMap, "start_id"), "pos")
 
-   print(yeGetString(yeGet(yeGet(yeGet(screen, "entries"), 0), "name")))
+   print(screen, nextMap, arg2, cLayer)
+   yeReplaceBack(nextMap, screen, "screen");
+   yeReplaceBack(nextMap, carac, "start_id");
+   ywMapRemove(cLayer, yeGet(carac, "pos"), carac)
+   if yLovePtrToNumber(arg2) ~= 0 then
+      newPos = arg2
+   else
+      newPos = yeGet(nextMap, "start_pos")
+   end
+
+   if yLovePtrToNumber(oldPos) == 0 then
+      ywPosSet(yeGet(nextMap, "start_pos"), newPos)
+   else
+      cLayer = sukeMapCaracLayer(nextMap)
+      ywPosSet(yeGet(carac, "pos"), newPos)
+      ywMapPushElem(cLayer, carac, newPos)
+   end
    --yeReplace(entries, yeGet(entries, 0), nextMap)
-   ywReplaceEntry(screen, 0, nextMap);
+   ywReplaceEntry(screen, 0, nextMap)
 end
 
 function actionCall(action, wid, carac)
    if yeType(action) == YSTRING then
       yesCall(ygGet(yeGetString(action)), wid, carac)
    elseif yeType(action) == YARRAY then
-      print(yeGetString(yeGet(action, 0)))
       yesCall(ygGet(yeGet(action, 0)),
 	      wid, carac, yeGet(action, 1),
 	      yeGet(action, 2), yeGet(action, 3))
@@ -145,8 +163,14 @@ function sukeNewMap(entity)
    local i = 0
 
    ygCall("sm-reader", "load-entity", entity)
-   yeCreateString("rgba: 255 255 255 255", entity, "background")
-   ywPosCreate(yeGet(entity, "start_pos"), yeGet(entity, "start_id"), "pos")
+   if yLovePtrToNumber(yeGet(entity, "background")) == 0 then
+      yeCreateString("rgba: 255 255 255 255", entity, "background")
+   end
+   if yLovePtrToNumber(yeGet(yeGet(entity, "start_id"), "pos")) == 0 then
+      ywPosCreate(yeGet(entity, "start_pos"), yeGet(entity, "start_id"), "pos")
+   else
+      ywPosSet(yeGet(yeGet(entity, "start_id"), "pos"), yeGet(entity, "start_pos"))
+   end
    while i < yeLen(npj) do
       ywMapPushElem(sukeMapCaracLayer(entity), yeGet(npj, i))
       i = i + 1

@@ -17,7 +17,7 @@
 	      "action" : ["sukeban-screen:start-dialogue", 0] }
 	],
 	"actionables" : [ { "map-char" : "H", "pos" : [1, 1],
-			    "action": ["sukeban-screen:goto", "cave"] } ],
+			    "action": ["sukeban-screen:goto", "cave", [0, 0]] } ],
 	"ground_char" : ".",
     },
     "cave" : {
@@ -27,9 +27,11 @@
 	"start_pos" : [2, 2],
 	"start_id" : {"id" : 1},
 	"npj" : [
-	    { "id" : 1, "pos" : [4, 4],
+	    { "id" : 1, "pos" : [7, 10],
 	      "action" : ["sukeban-screen:start-dialogue", 0] }
 	],
+	"actionables" : [ { "map-char" : "H", "pos" : [1, 1],
+			    "action": ["sukeban-screen:goto", "house"] } ],
 	"ground_char" : ".",
     },
     "text, tatata =D" : {
