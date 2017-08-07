@@ -12,7 +12,7 @@
 	"map" : "house.sm",
 	"start_pos" : [2, 2],
 	"start_id" : {"id" : 1},
-	"npj" : [
+	"npc" : [
 	    { "id" : 1, "pos" : [4, 2],
 	      "action" : ["sukeban-screen:start-dialogue", 0] }
 	],
@@ -26,9 +26,10 @@
 	"map" : "cave.sm",
 	"start_pos" : [2, 2],
 	"start_id" : {"id" : 1},
-	"npj" : [
-	    { "id" : 1, "pos" : [7, 10],
-	      "action" : ["sukeban-screen:start-dialogue", 0] }
+	"npc" : [
+	    { "id" : 1, "pos" : [14, 10],
+	      "auto-action": "sukeban-screen:do-bad-guy-stuff",
+	    }
 	],
 	"actionables" : [ { "map-char" : "H", "pos" : [1, 1],
 			    "action": ["sukeban-screen:goto", "house"] } ],

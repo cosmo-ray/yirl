@@ -758,6 +758,11 @@ int	luaYesCall(lua_State *L)
 		 lua_touserdata(L, 4), lua_touserdata(L, 5),
 		 lua_touserdata(L, 6));
     return 1;
+  case 7:
+    LUA_YES_CALL(lua_touserdata(L, 2), lua_touserdata(L, 3),
+		 lua_touserdata(L, 4), lua_touserdata(L, 5),
+		 lua_touserdata(L, 6), lua_touserdata(L, 7));
+    return 1;
   default:
     DPRINT_ERR("internal error: too much argument");
     return -1;

@@ -17,6 +17,18 @@
 
 local Q_KEY = 113
 
+function elemPos(elem)
+   return yeGet(elem, "pos")
+end
+
+function doBadGuyStuff(wid, carac, badGuy)
+   badGuyPos = elemPos(badGuy)
+   ywPosPrint(elemPos(carac))
+   ywPosPrint(elemPos(badGuy))
+   ywMapAdvence(sukeMapCaracLayer(wid), badGuyPos, 1, 0, badGuy)
+   print("doing bad stuff")
+end
+
 function sksAction(wid, eve, arg)
    while ywidEveIsEnd(eve) == false do
       if ywidEveType(eve) == YKEY_DOWN then
@@ -42,7 +54,7 @@ function sukeMapObjsLayer(map)
    return ywCntGetEntry(map, 2);
 end
 
-function startDialogue(wid, carac, id)
+function startDialogue(wid, carac, elem, id)
    local gc = yeCreateArray()
    local speaker_background = yeCreateString("rgba: 255 255 255 255", gc)
    local dialogues = ygGet("sukeban.dialogues")
@@ -61,19 +73,18 @@ function backToMap(wid, eve, arg)
    yeSetAt(sWid, "-inside-dialogue", 0)
 end
 
-function gotoMap(wid, carac, arg1, arg2)
+function gotoMap(wid, carac, elem, arg1, arg2)
    local str = "sukeban.scenes." .. yeGetString(arg1)
    local nextMap = ygGet(str)
    local screen = yeGet(wid, "screen")
    --local entries = yeGet(screen, "entries")
    local newPos
    local cLayer = sukeMapCaracLayer(wid)
-   local oldPos = yeGet(yeGet(nextMap, "start_id"), "pos")
+   local oldPos = elemPos(yeGet(nextMap, "start_id"))
 
-   print(screen, nextMap, arg2, cLayer)
    yeReplaceBack(nextMap, screen, "screen");
    yeReplaceBack(nextMap, carac, "start_id");
-   ywMapRemove(cLayer, yeGet(carac, "pos"), carac)
+   ywMapRemove(cLayer, elemPos(carac), carac)
    if yLovePtrToNumber(arg2) ~= 0 then
       newPos = arg2
    else
@@ -84,19 +95,19 @@ function gotoMap(wid, carac, arg1, arg2)
       ywPosSet(yeGet(nextMap, "start_pos"), newPos)
    else
       cLayer = sukeMapCaracLayer(nextMap)
-      ywPosSet(yeGet(carac, "pos"), newPos)
+      ywPosSet(elemPos(carac), newPos)
       ywMapPushElem(cLayer, carac, newPos)
    end
    --yeReplace(entries, yeGet(entries, 0), nextMap)
    ywReplaceEntry(screen, 0, nextMap)
 end
 
-function actionCall(action, wid, carac)
+function actionCall(action, wid, carac, elem)
    if yeType(action) == YSTRING then
-      yesCall(ygGet(yeGetString(action)), wid, carac)
+      yesCall(ygGet(yeGetString(action)), wid, carac, elem)
    elseif yeType(action) == YARRAY then
       yesCall(ygGet(yeGet(action, 0)),
-	      wid, carac, yeGet(action, 1),
+	      wid, carac, elem, yeGet(action, 1),
 	      yeGet(action, 2), yeGet(action, 3))
    end
 end
@@ -127,8 +138,9 @@ function sukeMapAction(wid, eve, arg)
       end
       if (ret == YEVE_ACTION) then
 	 local id = yeGet(wid, "start_id");
-	 local oldPos = yeGet(id, "pos");
+	 local oldPos = elemPos(id);
 	 local newPos = ywPosCreate(oldPos);
+	 local npcs = yeGet(wid, "npc")
 
 	 ywPosAdd(newPos, x, y);
 	 local nObjsCase = ywMapGetCase(sukeMapObjsLayer(wid), newPos)
@@ -140,17 +152,24 @@ function sukeMapAction(wid, eve, arg)
 	    local i = 0
 	    while i < yeLen(nCaracsCase) do
 	       local elem = yeGet(nCaracsCase, i)
-	       actionCall((yeGet(elem, "action")), wid, id)
+	       actionCall((yeGet(elem, "action")), wid, id, elem)
 	       i = i + 1
 	    end
 	    while i < yeLen(nObjsCase) do
 	       local elem = yeGet(nObjsCase, i)
 
-	       actionCall((yeGet(elem, "action")), wid, id)
+	       actionCall((yeGet(elem, "action")), wid, id, elem)
 	       i = i + 1
 	    end
 	 end
 	 yeDestroy(newPos)
+	 local i = 0
+	 while i < yeLen(npcs) do
+	    local npc = yeGet(npcs, i)
+	    local auto_action = yeGet(npc, "auto-action")
+	    actionCall(auto_action, wid, id, npc)
+	    i = i + 1
+	 end
       end
       eve = ywidNextEve(eve)
    end
@@ -158,7 +177,7 @@ function sukeMapAction(wid, eve, arg)
 end
 
 function sukeNewMap(entity)
-   local npj = yeGet(entity, "npj");
+   local npc = yeGet(entity, "npc");
    local actionables = yeGet(entity, "actionables");
    local i = 0
 
@@ -166,20 +185,20 @@ function sukeNewMap(entity)
    if yLovePtrToNumber(yeGet(entity, "background")) == 0 then
       yeCreateString("rgba: 255 255 255 255", entity, "background")
    end
-   if yLovePtrToNumber(yeGet(yeGet(entity, "start_id"), "pos")) == 0 then
+   if yLovePtrToNumber(elemPos(yeGet(entity, "start_id"))) == 0 then
       ywPosCreate(yeGet(entity, "start_pos"), yeGet(entity, "start_id"), "pos")
    else
-      ywPosSet(yeGet(yeGet(entity, "start_id"), "pos"), yeGet(entity, "start_pos"))
+      ywPosSet(elemPos(yeGet(entity, "start_id")), yeGet(entity, "start_pos"))
    end
-   while i < yeLen(npj) do
-      ywMapPushElem(sukeMapCaracLayer(entity), yeGet(npj, i))
+   while i < yeLen(npc) do
+      ywMapPushElem(sukeMapCaracLayer(entity), yeGet(npc, i))
       i = i + 1
    end
    i = 0
    while i < yeLen(actionables) do
       local action = yeGet(actionables, i)
       local action_case = ywMapGetCase(sukeMapObjsLayer(entity),
-				       yeGet(action, "pos"))
+				       elemPos(action))
       local j = 0
 
       while j < yeLen(action_case) do
@@ -230,6 +249,7 @@ function initSukeScreen(entity)
    yeCreateFunction("startDialogue", entity, "start-dialogue")
    yeCreateFunction("gotoMap", entity, "goto")
    yeCreateFunction("backToMap", entity, "back-to-map")
+   yeCreateFunction("doBadGuyStuff", entity, "do-bad-guy-stuff")
 
    init = yeCreateArray() -- this has been destroy by ywidAddSubType
    yeCreateString("sukeban-map", init, "name")
