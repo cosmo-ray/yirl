@@ -240,6 +240,10 @@ void ybytecodeReadFile(void)
   yesCall(func, num, num);
   g_assert(yeGetInt(num) == 0);
 
+  func = yeCreateFunction("add2", ysYBytecodeManager(), gc, NULL);
+  yesCall(func, num);
+  g_assert(yeGetInt(num) == 2);
+
   g_assert(!ysYBytecodeEnd());
   yeDestroy(gc);
   ygEnd();

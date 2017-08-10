@@ -185,6 +185,10 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
     script += 2;
     goto *((void *)*script);
   }
+
+  /* No goto on purpose here */
+
+  /* fall-though */
  jmp:
   script = origin + script[1];
   goto *((void *)*script);
@@ -211,6 +215,8 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
 		  yeGetByIdxDirect(stack, script[5]));
     break;
   }
+  if (yeType(ret) == YINT)
+    iret = yeGetIntDirect(ret);
   script += script[1] + 3;
   if (ret) {
     yePushBack(stack, ret, NULL);

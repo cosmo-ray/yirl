@@ -54,8 +54,6 @@ static void *rawfileManager;
 static void *luaManager;
 static void *tccManager;
 
-static Entity *globFunctions;
-
 static Entity *mainMod;
 static Entity *modList;
 static Entity *baseMod;
@@ -537,9 +535,9 @@ static Entity *ygGetFunc(Entity *mod, const char *funcName)
   if (mod)
     return yeGet(mod, funcName);
 
-  ret = yeGet(globFunctions, funcName);
+  ret = yeGet(globalsFunctions, funcName);
   if (!ret) {
-    ret = yeCreateFunctionSimple(funcName, ysNativeManager(), globFunctions);
+    ret = yeCreateFunctionSimple(funcName, ysNativeManager(), globalsFunctions);
   }
   return ret;
 }
@@ -787,6 +785,14 @@ int ygAddDefine(const char *name, char *val)
 {
   return ysAddDefine(tccManager, name, val);
 }
+
+int yePushToGlobalScope(Entity *entity, const char *name)
+{
+  if (yeGet(globalsFunctions, name))
+    return -1;
+  return yePushBack(globalsFunctions, entity, name);
+}
+
 
 #undef CHECK_AND_GOTO
 #undef CHECK_AND_RET

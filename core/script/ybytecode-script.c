@@ -28,8 +28,7 @@
 
 static int t = -1;
 static void *manager;
-
-Entity *functions;
+static int global;
 
 struct YBytecodeScript {
   YScriptOps ops;
@@ -121,7 +120,10 @@ static void *ybytecodeFastCall(void *opacFunc, va_list ap)
 
 static void *ybytecodeCall(void *sm, const char *name, va_list ap)
 {
-  return ybytecodeFastCall(ybytecodeGetFastPath(sm, name), ap);
+  void *data = ybytecodeGetFastPath(sm, name);
+  if (unlikely(!data))
+    return NULL;
+  return ybytecodeFastCall(data, ap);
 }
 
 static int ybytecodeDestroy(void *sm)
@@ -153,7 +155,10 @@ static int64_t tokToInstruction(int tok, Entity *tokInfo)
     return YB_INCR;
   case END_RET:
     return 'E';
-    /* fall through */
+  case YB_YG_GET_PUSH_TOK:
+    return YB_YG_GET_PUSH;
+  case CALL_ENTITY:
+    return 'c';
   case END:
     return 'e';
   default:
@@ -183,25 +188,73 @@ static int tryStoreNumber(int64_t *dest, Entity *str, Entity *tokInfo)
   return 0;
 }
 
+static Entity *tryStoreString(Entity *funcData, Entity *str, Entity *tokInfo)
+{
+  int tok = nextNonSeparatorTok(str, tokInfo);
+  Entity *ret;
+
+  if (tok != DOUBLE_QUOTE)
+    DPRINT_ERR("literal string expected(should begin with '\"')");
+  ret = yeCreateString(NULL, funcData, NULL);
+  while ((tok = yeStringNextTok(str, tokInfo)) != DOUBLE_QUOTE) {
+    if (tok == YTOK_END) {
+      yeDestroy(ret);
+      return NULL;
+    }
+    yeStringAdd(ret, yeTokString(tokInfo, tok));
+  }
+  return ret;
+}
+
 static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
 {
   int tok = YTOK_WORD;
   Entity *funcName = yeCreateString(yeTokString(tokInfo, tok), NULL, NULL);
+  Entity *funcData = yeCreateArray(NULL, NULL);
   int64_t script[1024];
   uint32_t script_len = 1;
+  int nb_args = 0;
+  int64_t nb_func_args = 0;
   int ret = -1;
 
   script[0] = 0;
+
+  tryStoreNumber(&nb_func_args, str, tokInfo);
   tok = nextNonSeparatorTok(str, tokInfo);
 
   if (tok != OPEN_BRACE) {
-    DPRINT_ERR("unexpected '%s', expect '{' in function",
+    DPRINT_ERR("unexpected '%s', expect '{' in function '%s'",
 	       yeTokString(tokInfo, tok), yeGetString(funcName));
     goto exit;
   }
  still_in_func:
   tok = yeStringNextTok(str, tokInfo);
+ still_in_func_no_next:
   switch (tok) {
+  case YB_YG_GET_PUSH_TOK: /* literal string argument */
+    {
+      script[script_len] = tokToInstruction(tok, tokInfo);
+
+      Entity *tmpStr = tryStoreString(funcData, str, tokInfo);
+
+      if (!tmpStr)
+	goto exit;
+      script[script_len + 1] = (uintptr_t)yeGetString(tmpStr);
+      script_len += 2;
+    }
+    goto still_in_func;
+  case CALL_ENTITY: /* variadic arguments */
+    script[script_len] = tokToInstruction(tok, tokInfo);
+    if (tryStoreNumber(&script[script_len + 2], str, tokInfo) < 0)
+      goto exit;
+    while ((tok = nextNonSeparatorTok(str, tokInfo)) == NUMBER) {
+      ++nb_args;
+      script[script_len + nb_args + 2] = atoi(yeTokString(tokInfo, tok));
+    }
+    script[script_len + 1] = nb_args;
+    script_len += nb_args + 3;
+    nb_args = 0;
+    goto still_in_func_no_next;
   case ADD:
   case SUB:
   case DIV:
@@ -233,23 +286,32 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
     ret = 0;
     break;
   default:
-    DPRINT_ERR("unexpected '%s' in function",
+    DPRINT_ERR("unexpected '%s' in function '%s'",
 	       yeTokString(tokInfo, tok), yeGetString(funcName));
     goto exit;
   }
   Entity *data;
+
   if (script_len < (yeMetadataSize(DataEntity) / sizeof(uint64_t))) {
     data = yeCreateDataExt(NULL, NULL, NULL, YE_DATA_USE_OWN_METADATA);
   } else {
     void *realData = malloc(sizeof(uint64_t) * script_len);
+
     data = yeCreateData(realData, NULL, NULL);
     yeSetDestroy(data, free);
   }
   memcpy(yeGetData(data), script, sizeof(uint64_t) * script_len);
-  ysYbytecodeCreateFunc(data, map, yeGetString(funcName));
+  yePushBack(map, data, yeGetString(funcName));
+  if (global) {
+    ygRegistreFunc(ysYBytecodeManager(), nb_func_args,
+		   yeGetString(funcName), yeGetString(funcName));
+  }
+  yeStringAdd(funcName, ".data");
+  yePushBack(map, funcData, yeGetString(funcName));
   yeDestroy(data);
  exit:
   yeDestroy(funcName);
+  yeDestroy(funcData);
   return ret;
 }
 
@@ -258,6 +320,7 @@ static int loadFile(void *opac, const char *fileName)
   Entity *map = GET_MAP(opac);
   Entity *str = ygFileToEnt(YRAW_FILE, fileName, NULL);
   int tok;
+  int ret = -1;
   Entity *tokInfo = yeTokInfoCreate(NULL, NULL);
 
   /* populate tokInfo, withstuff declare inside "ybytecode-asm-tok.h" */
@@ -280,8 +343,18 @@ static int loadFile(void *opac, const char *fileName)
     case SPACES:
     case RETURN:
       break;
+    case GLOBAL:
+      global = 1;
+      tok = nextNonSeparatorTok(str, tokInfo);
+      if (tok != YTOK_WORD) {
+	DPRINT_ERR("global keyword expect a function");
+	goto exit;
+      }
+      /* fall through */
     case YTOK_WORD:
-      parseFunction(map, str, tokInfo);
+      if (parseFunction(map, str, tokInfo) < 0)
+	goto exit;
+      global = 0;
       break;
     case CPP_COMMENT:
     still_in_comment:
@@ -291,10 +364,12 @@ static int loadFile(void *opac, const char *fileName)
       break;
     default:
       DPRINT_ERR("error unexpected token: '%s'\n", yeTokString(tokInfo, tok));
-      break;
+      goto exit;
     }
   }
-  return -1;
+  ret = 0;
+ exit:
+  return ret;
 }
 
 static void *ybytecodeAllocator(void)

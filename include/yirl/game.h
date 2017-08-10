@@ -137,4 +137,11 @@ void ygSetInt(const char *toSet, int val);
 
 int ygAddDefine(const char *name, char *val);
 
+/**
+ * @brief   push @ent to yirl global scope
+ * @param   ent entity to push
+ * @param   name mandatory name
+ */
+int yePushToGlobalScope(Entity *ent, const char *name);
+
 #endif
