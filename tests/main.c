@@ -115,6 +115,7 @@ int main(int argc, char **argv)
 /* TEST_TRY_ADD("/sound/soundManager/all", testYSoundLib, only); */
 
   TEST_TRY_ADD("/modules/list", testListMod, only);
+  TEST_TRY_ADD("/modules/maze_generator", testMazeGenMod, only);
 
  tests_widgets:
   if (no_wid)

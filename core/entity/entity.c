@@ -602,6 +602,22 @@ void yeDestroy(Entity *entity)
   destroyTab[entity->type](entity);
 }
 
+void yeMultDestroy_(Entity *toRm, ...)
+{
+  va_list ap;
+
+  yeDestroy(toRm);
+  va_start(ap, toRm);
+ again:
+  toRm = va_arg(ap, Entity *);
+  if (toRm) {
+    yeDestroy(toRm);
+    goto again;
+  }
+  va_end(ap);
+}
+
+
 Entity *yeCreate(EntityType type, void *val, Entity *father, const char *name)
 {
   switch (type)

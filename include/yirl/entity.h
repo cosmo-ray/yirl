@@ -449,6 +449,11 @@ void yeDestroyRef(Entity *entity);
 void yeDestroyArray(Entity *entity);
 void yeDestroyData(Entity *entity) ;
 
+void yeMultDestroy_(Entity *toRm, ...);
+
+#define yeMultDestroy(args...) (yeMultDestroy_(args, NULL))
+
+
 void yeClearArray(Entity *entity);
 
 #define yeIncrementIntDirect(entity) (((IntEntity *)entity)->value += 1)

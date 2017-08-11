@@ -97,4 +97,5 @@ void testListMod(void);
 void testDialogueMod(void);
 void testTextInputMod(void);
 
+void testMazeGenMod(void);
 #endif

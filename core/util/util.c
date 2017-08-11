@@ -59,9 +59,14 @@ char *yuistrncpy(char *dest, const char *src, size_t n)
   return strncpy(dest, src, n);
 }
 
+void yuiRandInitSeed(int s)
+{
+  srand(s);
+}
+
 void yuiRandInit(void)
 {
-  srand(time(NULL) + getpid() + getuid());
+  yuiRandInitSeed(time(NULL) + getpid() + getuid());
 }
 
 int  yuiRand(void)
