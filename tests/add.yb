@@ -2,22 +2,22 @@
 // add arg 0 to arg 1 and store result in 0
 add 2 {
     + 0 1 0
-    e
+    leave
 }
 
 global add1 1 {
     YB_INCR 0
-    e
+    leave
 }
 
 sub 2 {
     - 0 1 0
-    e
+    leave
 }
 
 add2 1 {
    YB_YG_GET_PUSH "add1"
    CALL_ENTITY 1 0
    CALL_ENTITY 1 0
-   e
+   leave
 }
