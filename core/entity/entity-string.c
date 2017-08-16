@@ -186,10 +186,45 @@ enum basic_tok {
   YTOK_STR_BASE
 };
 
+
+static int tokLen(Entity *tok)
+{
+    if (yeType(tok) == YSTRING) { // asume it's a word
+      return yeLen(tok);
+    } else if (yeType(tok) == YARRAY) { // assume it's a reapeater
+      switch (yeGetIntAt(tok, 0)) {
+      case YTOK_TYPE_REAPETED_STR:
+      case YTOK_TYPE_SEP_REAP_STR:
+	return yeGetIntAt(tok, 2);
+      case YTOK_TYPE_SEPARATE_STR:
+      case YTOK_TYPE_STR:
+	return yeLen(yeGet(tok, 1));
+      }
+    }
+    return -1;
+}
+
+static const char *tokStr(Entity *tok)
+{
+    if (yeType(tok) == YSTRING) { // asume it's a word
+      return yeGetString(tok);
+    } else if (yeType(tok) == YARRAY) { // assume it's a reapeater
+      switch (yeGetIntAt(tok, 0)) {
+      case YTOK_TYPE_REAPETED_STR:
+      case YTOK_TYPE_SEP_REAP_STR:
+	return yeGetStringAt(tok, 3);
+      case YTOK_TYPE_SEPARATE_STR:
+      case YTOK_TYPE_STR:
+	return yeGetStringAt(tok, 1);
+      }
+    }
+    return NULL;
+}
+
 static int tryMatchStr(const char *str, Entity *tok, int len)
 {
-  const char *cstr = yeGetString(tok);
-  int tokL = yeLen(tok);
+  const char *cstr = tokStr(tok);
+  int tokL = tokLen(tok);
   int i = 0;
 
   if (len < tokL)
@@ -274,40 +309,6 @@ static int tryMatchToks(const char *str, Entity *tokInfo, int len, int beg)
     }
   }
   return YTOK_WORD;
-}
-
-static int tokLen(Entity *tok)
-{
-    if (yeType(tok) == YSTRING) { // asume it's a word
-      return yeLen(tok);
-    } else if (yeType(tok) == YARRAY) { // assume it's a reapeater
-      switch (yeGetIntAt(tok, 0)) {
-      case YTOK_TYPE_REAPETED_STR:
-      case YTOK_TYPE_SEP_REAP_STR:
-	return yeGetIntAt(tok, 2);
-      case YTOK_TYPE_SEPARATE_STR:
-      case YTOK_TYPE_STR:
-	return yeLen(yeGet(tok, 1));
-      }
-    }
-    return -1;
-}
-
-static const char *tokStr(Entity *tok)
-{
-    if (yeType(tok) == YSTRING) { // asume it's a word
-      return yeGetString(tok);
-    } else if (yeType(tok) == YARRAY) { // assume it's a reapeater
-      switch (yeGetIntAt(tok, 0)) {
-      case YTOK_TYPE_REAPETED_STR:
-      case YTOK_TYPE_SEP_REAP_STR:
-	return yeGetStringAt(tok, 3);
-      case YTOK_TYPE_SEPARATE_STR:
-      case YTOK_TYPE_STR:
-	return yeGetStringAt(tok, 1);
-      }
-    }
-    return NULL;
 }
 
 const char *yeTokString(Entity *tokInfo, int tokIdx)
