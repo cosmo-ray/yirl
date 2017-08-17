@@ -6,7 +6,7 @@ add 2 {
 }
 
 global add1 1 {
-    YB_INCR 0
+    yb_incr 0
     leave
 }
 
@@ -16,8 +16,8 @@ sub 2 {
 }
 
 add2 1 {
-   YB_YG_GET_PUSH "add1"
-   CALL_ENTITY 1 0
-   CALL_ENTITY 1 0
+   yb_yg_get_push "add1"
+   call_entity 1 0
+   call_entity 1 0
    leave
 }

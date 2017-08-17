@@ -143,6 +143,10 @@ static int isTokSeparato(int tok)
 static int64_t tokToInstruction(int tok, Entity *tokInfo)
 {
   switch (tok) {
+  case CREATE_INT:
+    return 'i';
+  case SET_INT:
+    return 'I';
   case ADD:
     return '+';
   case SUB:
@@ -268,8 +272,16 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
       goto exit;
     script_len += 4;
     goto still_in_func;
+  case SET_INT:
+    if (tryStoreNumber(&script[script_len + 2], str, tokInfo) < 0)
+      goto exit;
+    if (tryStoreNumber(&script[script_len + 3], str, tokInfo) < 0)
+      goto exit;
+    script_len += 3;
+    goto still_in_func;
   case YB_INCR_TOK:
   case END_RET:
+  case CREATE_INT:
     script[script_len] = tokToInstruction(tok, tokInfo);
     if (tryStoreNumber(&script[script_len + 1], str, tokInfo) < 0)
       goto exit;
