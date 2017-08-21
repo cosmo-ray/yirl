@@ -143,6 +143,8 @@ static int isTokSeparato(int tok)
 static int64_t tokToInstruction(int tok, Entity *tokInfo)
 {
   switch (tok) {
+  case CREATE_STRING:
+    return 's';
   case CREATE_INT:
     return 'i';
   case SET_INT:
@@ -165,6 +167,16 @@ static int64_t tokToInstruction(int tok, Entity *tokInfo)
     return 'c';
   case END:
     return 'e';
+  case PRINT_ENTITY:
+    return YB_PRINT_ENTITY;
+  case CREATE_ARRAY:
+    return 'a';
+  case PUSH_BACK_TOK:
+    return YB_PUSH_BACK;
+  case REGISTRE_WIDGET_SUBTYPE:
+    return YB_WID_ADD_SUBTYPE;
+  case NEW_WIDGET_TOK:
+    return YB_NEW_WID;
   default:
     DPRINT_ERR("'%s' is not an instruction\n", yeTokString(tokInfo, tok));
     break;
@@ -183,22 +195,28 @@ static int nextNonSeparatorTok(Entity *str, Entity *tokInfo)
 static int tryStoreNumber(int64_t *dest, Entity *str, Entity *tokInfo)
 {
   int tok = nextNonSeparatorTok(str, tokInfo);
+  int neg_modifier = 1;
 
+  if (tok == SUB) {
+    neg_modifier = -1;
+    tok = yeStringNextTok(str, tokInfo);
+  }
   if (tok != NUMBER) {
     DPRINT_ERR("expected number, got '%s'\n", yeTokString(tokInfo, tok));
     return -1;
   }
-  *dest = atoi(yeTokString(tokInfo, tok));
+  *dest = (atoi(yeTokString(tokInfo, tok)) * neg_modifier);
   return 0;
 }
 
-static Entity *tryStoreString(Entity *funcData, Entity *str, Entity *tokInfo)
+static Entity *tryStoreStringCurTok(Entity *funcData, Entity *str,
+				    Entity *tokInfo, int tok)
 {
-  int tok = nextNonSeparatorTok(str, tokInfo);
   Entity *ret;
 
   if (tok != DOUBLE_QUOTE)
-    DPRINT_ERR("literal string expected(should begin with '\"')");
+    DPRINT_ERR("literal string expected(should begin with '\"', not '%s')",
+	       yeTokString(tokInfo, tok));
   ret = yeCreateString(NULL, funcData, NULL);
   while ((tok = yeStringNextTok(str, tokInfo)) != DOUBLE_QUOTE) {
     if (tok == YTOK_END) {
@@ -208,6 +226,14 @@ static Entity *tryStoreString(Entity *funcData, Entity *str, Entity *tokInfo)
     yeStringAdd(ret, yeTokString(tokInfo, tok));
   }
   return ret;
+}
+
+
+static Entity *tryStoreString(Entity *funcData, Entity *str, Entity *tokInfo)
+{
+  int tok = nextNonSeparatorTok(str, tokInfo);
+
+  return tryStoreStringCurTok(funcData, str, tokInfo, tok);
 }
 
 static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
@@ -235,7 +261,44 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
   tok = yeStringNextTok(str, tokInfo);
  still_in_func_no_next:
   switch (tok) {
+  case NEW_WIDGET_TOK:
+    {
+      script[script_len] = tokToInstruction(tok, tokInfo);
+      if (tryStoreNumber(&script[script_len + 1], str, tokInfo) < 0)
+	goto exit;
+      tok = nextNonSeparatorTok(str, tokInfo);
+      if (tok == NIL_TOK) {
+	script[script_len + 2] = 0;
+      } else {
+	Entity *tmpStr = tryStoreStringCurTok(funcData, str, tokInfo, tok);
+	if (!tmpStr)
+	  goto exit;
+	script[script_len + 2] = (uintptr_t)yeGetString(tmpStr);
+      }
+      script_len += 3;
+    }
+    goto still_in_func;
+  case PUSH_BACK_TOK:
+    {
+      script[script_len] = tokToInstruction(tok, tokInfo);
+      if (tryStoreNumber(&script[script_len + 1], str, tokInfo) < 0)
+	goto exit;
+      if (tryStoreNumber(&script[script_len + 2], str, tokInfo) < 0)
+	goto exit;
+      tok = nextNonSeparatorTok(str, tokInfo);
+      if (tok == NIL_TOK) {
+	script[script_len + 3] = 0;
+      } else {
+	Entity *tmpStr = tryStoreStringCurTok(funcData, str, tokInfo, tok);
+	if (!tmpStr)
+	  goto exit;
+	script[script_len + 3] = (uintptr_t)yeGetString(tmpStr);
+      }
+      script_len += 4;
+    }
+    goto still_in_func;
   case YB_YG_GET_PUSH_TOK: /* literal string argument */
+  case CREATE_STRING:
     {
       script[script_len] = tokToInstruction(tok, tokInfo);
 
@@ -282,12 +345,15 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
   case YB_INCR_TOK:
   case END_RET:
   case CREATE_INT:
+  case PRINT_ENTITY:
+  case REGISTRE_WIDGET_SUBTYPE:
     script[script_len] = tokToInstruction(tok, tokInfo);
     if (tryStoreNumber(&script[script_len + 1], str, tokInfo) < 0)
       goto exit;
     script_len += 2;
     goto still_in_func;
   case END:
+  case CREATE_ARRAY:
     script[script_len] = tokToInstruction(tok, tokInfo);
     script_len += 1;
     goto still_in_func;

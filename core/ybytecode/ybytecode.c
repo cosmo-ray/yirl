@@ -54,8 +54,13 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
 	inst_compille(JMP_IF_0, jmp_if_0, 1);
 	inst_compille('s', create_string, 1);
 	inst_compille('i', create_int, 1);
+	inst_compille('a', create_array, 0);
 	inst_compille('I', set_int, 2);
+	inst_compille(YB_NEW_WID, new_widget, 2);
+	inst_compille(YB_WID_ADD_SUBTYPE, wid_add_subtype, 1);
+	inst_compille(YB_PUSH_BACK, push_back, 3);
 	inst_compille(YB_BRUTAL_CAST, brutal_cast, 2);
+	inst_compille(YB_PRINT_ENTITY, print_entity, 1);
 	inst_compille(YB_YG_GET_PUSH, yg_get_push, 1);
       case 'c':
 	script[i] = (uint64_t) &&call_entity;
@@ -215,13 +220,16 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
 		  yeGetByIdxDirect(stack, script[5]));
     break;
   }
-  if (yeType(ret) == YINT)
-    iret = yeGetIntDirect(ret);
-  script += script[1] + 3;
-  if (ret) {
+  if (yeIsPtrAnEntity(ret)) {
+    if (yeType(ret) == YINT) {
+      iret = yeGetIntDirect(ret);
+    }
     yePushBack(stack, ret, NULL);
     yeDestroy(ret);
+  } else {
+    iret = (intptr_t)ret;
   }
+  script += script[1] + 3;
   YBytecodeScriptDirectReturn = 0;
   goto *((void *)*script);
 
@@ -255,6 +263,11 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
   *tmp = script - tmp + 2;
   goto *((void *)*script);
 
+ create_array:
+  yeCreateArray(stack, NULL);
+  ++script;
+  goto *((void *)*script);
+
  create_int:
   ++script;
   yeCreateInt(*script, stack, NULL);
@@ -273,7 +286,36 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
   ++script;
   goto *((void *)*script);
 
-end_ret:
+ new_widget:
+  yeCreateData(ywidNewWidget(yeGetByIdxDirect(stack, script[1]),
+			     (const char *)script[2]),
+	       stack, NULL);
+  script += 3;
+
+ wid_add_subtype:
+  ywidAddSubType(yeGetByIdxDirect(stack, script[1]));
+  yeIncrRef(yeGetByIdxDirect(stack, script[1]));
+  script += 2;
+  goto *((void *)*script);
+
+ print_entity:
+  {
+    char *ctmp = yeToCStr(yeGetByIdxDirect(stack, script[1]), 1, 0);
+
+    printf("%s\n", ctmp);
+    g_free(ctmp);
+    script += 2;
+  }
+  goto *((void *)*script);
+
+ push_back:
+  yePushBack(yeGetByIdxDirect(stack, script[1]),
+	     yeGetByIdxDirect(stack, script[2]),
+	     (char *)script[3]);
+  script += 4;
+  goto *((void *)*script);
+
+ end_ret:
   ++script;
   ret = yeGet(stack, *script);
   yeIncrRef(ret);

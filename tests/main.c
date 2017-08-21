@@ -136,12 +136,14 @@ int main(int argc, char **argv)
   TEST_TRY_ADD("/widget/contener/dynamic/stack/sdl",
 	       testDynamicStackContenerSdl, only);
   TEST_TRY_ADD("/game/sdl/simple", testYGameSdlLibBasic, only);
+  TEST_TRY_ADD("/modules/dialogue", testDialogueMod, only);
 #endif
 #ifdef WITH_CURSES
   TEST_TRY_ADD("/widget/lifecycle/curses", testCursesLife, only);
   TEST_TRY_ADD("/widget/textScreen/curses", testYWTextScreenCurses, only);
   TEST_TRY_ADD("/widget/menu/curses", testYWMenuCurses, only);
   TEST_TRY_ADD("/widget/map/curses", testYWMapCurses, only);
+  TEST_TRY_ADD("/modules/textinput", testTextInputMod, only);
 #ifdef WITH_SDL
   TEST_TRY_ADD("/widget/lifecycle/all", testAllLife, only);
   TEST_TRY_ADD("/widget/textScreen/all", testYWTextScreenAll, only);
@@ -150,7 +152,6 @@ int main(int argc, char **argv)
 #endif
 #endif
   TEST_TRY_ADD("/game/lifecycle", testYGameLifecycle, only);
-  TEST_TRY_ADD("/modules/dialogue", testDialogueMod, only);
 
  run_test:
   if (list) {

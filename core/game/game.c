@@ -33,6 +33,7 @@
 #include "lua-binding.h"
 #include "tcc-script.h"
 #include "native-script.h"
+#include "ybytecode-script.h"
 
 /* widgets */
 #include "widget-callback.h"
@@ -355,6 +356,8 @@ void *ygGetManager(const char *name)
     return tccManager;
   else if (yuiStrEqual0(name, "lua"))
     return luaManager;
+  else if (yuiStrEqual0(name, "yb"))
+    return ysYBytecodeManager();
   return NULL;
 }
 
@@ -416,51 +419,44 @@ Entity *ygLoadMod(const char *path)
   YE_ARRAY_FOREACH(preLoad, var) {
     Entity *tmpType = yeGet(var, "type");
     Entity *tmpFile = yeGet(var, "file");
+    char *fileStr = g_strconcat(path, "/",
+				yeGetString(tmpFile), NULL);
 
     if (yuiStrEqual0(yeGetString(tmpType), "lua")) {
-      char *fileStr;
-
-      fileStr = g_strconcat(path, "/",
-			    yeGetString(tmpFile), NULL);
       if (ysLoadFile(luaManager, fileStr) < 0) {
 	DPRINT_ERR("Error when loading '%s': %s\n",
 		   yeGetString(tmpFile), ysGetError(luaManager));
-	goto failure;
+	goto fail_preload;
       }
-      g_free(fileStr);
 
     } else if (yuiStrEqual0(yeGetString(tmpType), "tcc")) {
-      char *fileStr;
-
-      fileStr = g_strconcat(path, "/",
-			    yeGetString(tmpFile), NULL);
       if (ysLoadFile(tccManager, fileStr) < 0) {
 	DPRINT_ERR("Error when loading '%s': %s\n",
 		   yeGetString(tmpFile), ysGetError(tccManager));
-	goto failure;
+	goto fail_preload;
       }
-      g_free(fileStr);
+
+    } else if (yuiStrEqual0(yeGetString(tmpType), "yb")) {
+      if (ysLoadFile(ysYBytecodeManager(), fileStr) < 0) {
+	DPRINT_ERR("Error when loading '%s': %s\n",
+		   yeGetString(tmpFile), ysGetError(tccManager));
+	goto fail_preload;
+      }
 
     } else if (yuiStrEqual0(yeGetString(tmpType), "json")) {
-      char *fileStr;
       Entity *as = yeGet(var, "as");
-
-      fileStr = g_strconcat(path, "/",
-			    yeGetString(tmpFile), NULL);
       tmpFile = ydFromFile(jsonManager, fileStr, mod);
-      g_free(fileStr);
 
       yeRenamePtrStr(mod, tmpFile, yeGetString(as));
     } else if (yuiStrEqual0(yeGetString(tmpType), "module")) {
-      char *fileStr;
-
-      fileStr = g_strconcat(path, "/",
-			    yeGetString(tmpFile), NULL);
       if (!ygLoadMod(fileStr)) {
 	DPRINT_ERR("fail to load module: %s");
+      fail_preload:
+	g_free(fileStr);
+	goto failure;
       }
-      g_free(fileStr);
     }
+    g_free(fileStr);
   }
 
   YE_ARRAY_FOREACH(initScripts, var2) {

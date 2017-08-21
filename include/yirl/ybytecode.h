@@ -21,13 +21,17 @@
 #include "entity.h"
 
 enum ybutecode_ops {
-	YB_VOID_RETURN = 'e',
+	YB_LEAVE = 'e',
 	YB_RETURN = 'E',
 	YB_BRUTAL_CAST = 127,
 	JMP_IF_0 = 128,
 	YB_INF_COMP_NBR = 129,
 	YB_YG_GET_PUSH = 256,
+	YB_PUSH_BACK = 257,
 	YB_INCR = 300,
+	YB_PRINT_ENTITY = 400,
+	YB_WID_ADD_SUBTYPE = 410,
+	YB_NEW_WID = 411
 };
 
 extern char *ybytecode_error;

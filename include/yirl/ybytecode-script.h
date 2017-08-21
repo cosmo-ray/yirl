@@ -22,7 +22,7 @@
 
 extern int YBytecodeScriptDirectReturn;;
 
-void * ysYBytecodeManager(void);
+void *ysYBytecodeManager(void);
 int ysYBytecodeEnd(void);
 Entity *ysYbytecodeCreateFunc(Entity *data, Entity *father, const char *name);
 
