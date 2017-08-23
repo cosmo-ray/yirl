@@ -40,6 +40,11 @@ typedef struct {
   Entity *resources;
 } YMapState;
 
+typedef enum {
+  YMAP_DRAW_NO_DOUBLE = 1 << 0,
+  YMAP_DRAW_COPY_ELEM = 1 << 1
+} YMapDrawFlag;
+
 /**
  * @return A new entity of type YARRAY, need to be free if father is NULL.
  */
@@ -197,7 +202,8 @@ int ywMapMoveByEntity(Entity *state, Entity *from,
  */
 int ywMapDrawRect(Entity *map, Entity *posStart, Entity *size, int id);
 
-int ywMapDrawSegment(Entity *map, Entity *start, Entity *end, Entity *elem);
+int ywMapDrawSegment(Entity *map, Entity *start, Entity *end, Entity *elem,
+		     uint32_t flag);
 
 /**
  * @brief add @x and @y to @pos then move @elem at @pos

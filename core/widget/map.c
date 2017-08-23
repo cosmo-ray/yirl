@@ -228,9 +228,12 @@ Entity *ywMapInitEntity(Entity *entity,
   return entity;
 }
 
-int ywMapDrawSegment(Entity *map, Entity *start, Entity *end, Entity *elem)
+int ywMapDrawSegment(Entity *map, Entity *start, Entity *end, Entity *elem,
+		     uint32_t flag)
 {
   while (!ywPosIsSame(start, end, 0)) {
+    if (!(flag & YMAP_DRAW_NO_DOUBLE) ||
+	!ywMapGetNbrEntityAt(map, start, ywMapGetIdByElem(elem)))
     ywMapPushElem(map, elem, start, NULL);
     ywPosMoveToward(start, end);
   }
