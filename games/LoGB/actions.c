@@ -119,27 +119,26 @@ void *battleAction(int nbArgs, void **args)
   Entity *wid = args[0];
   Entity *l1 = getLayer(wid, 1);
   void *ret = (void *)NOTHANDLE;
-  YEvent *events = args[1];
-  YEvent *eve = events;
+  Entity *events = args[1];
+  Entity *eve = events;
 
   YEVE_FOREACH(eve, events) {
     Entity *mousePos;
     Entity *cursorPos = yeGetByStr(wid, "_cursos pos");
+    int xm = ywidXMouse(eve);
+    int ym = ywidYMouse(eve);
 
     if (ywidEveType(eve) == YKEY_MOUSEDOWN) {
-      Entity *cur_wid;
-      if ((cur_wid = ywContenerGetWidgetAt(wid, eve->xMouse, eve->yMouse)) ==
-	  ywCntGetEntry(wid, 1)) {
+      Entity *cur_wid = ywContenerGetWidgetAt(wid, xm, ym);
+      if (cur_wid == ywCntGetEntry(wid, 1)) {
 	return (void *)ywMenuCallActionOnByEntity(cur_wid, eve,
 						  ywMenuPosFromPix(cur_wid,
-								   eve->xMouse,
-								   eve->yMouse),
+								   xm, ym),
 						  wid);
-      } else if (ywContenerGetWidgetAt(wid, eve->xMouse, eve->yMouse) !=
-	  ywCntGetEntry(wid, 0)) {
+      } else if (cur_wid != ywCntGetEntry(wid, 0)) {
 	return ret;
       }
-      mousePos = ywMapPosFromPixs(l1, eve->xMouse, eve->yMouse, NULL, NULL);
+      mousePos = ywMapPosFromPixs(l1, xm, ym, NULL, NULL);
       ywMapMoveByEntity(l1, cursorPos, mousePos,
 			yeGetByStrFast(wid, "cursor id"));
       ywPosSetEnt(cursorPos, mousePos, 0);
@@ -147,11 +146,12 @@ void *battleAction(int nbArgs, void **args)
       ywContenerUpdate(wid, l1);
       ret = (void *)ACTION;
     } else if (ywidEveType(eve) == YKEY_MOUSEMOTION) {
-      ywPosSetInts(globMousePos, eve->xMouse, eve->yMouse);
+      ywPosSetInts(globMousePos, xm, ym);
     } else if (ywidEveType(eve) == YKEY_MOUSEWHEEL) {
       if (ywContenerGetWidgetAt(wid, ywPosX(globMousePos), ywPosY(globMousePos)) ==
 	  getTextScreen(wid)) {
-	yeAddInt(yeGetByStr(getTextScreen(wid), "text-threshold"), eve->key);
+	yeAddInt(yeGetByStr(getTextScreen(wid), "text-threshold"),
+		 ywidEveKey(eve));
 	ywContenerUpdate(wid, getTextScreen(wid));
       }
     } else if (ywidEveType(eve) != YKEY_DOWN) {

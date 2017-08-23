@@ -30,9 +30,10 @@
 static void *testTXQuitOnQ(va_list ap)
 {
   va_arg(ap, Entity *);
-  YEvent *eve = va_arg(ap, YEvent *);
+  Entity *eve = va_arg(ap, Entity *);
 
-  if (eve && (eve->type == YKEY_DOWN && (eve->key == '\n' || eve->key == 'q' )))
+  if (eve && (ywidEveType(eve) == YKEY_DOWN &&
+	      (ywidEveKey(eve) == '\n' || ywidEveKey(eve) == 'q' )))
     return (void *)ACTION;
   return (void *)NOTHANDLE;
 }
@@ -72,14 +73,13 @@ void testYWTextScreenCurses(void)
 
   g_assert(ycursInit() != -1);
   g_assert(ycursType() == 0);
-  
+
   g_assert(!ycursRegistreTextScreen());
 
   ysRegistreNativeFunc("txQuitOnQ", testTXQuitOnQ);
   wid = ywidNewWidget(ret, NULL);
   g_assert(wid);
 
-  
   do {
     g_assert(ywidRend(wid) != -1);
   } while(ywidDoTurn(wid) != ACTION);

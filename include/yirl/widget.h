@@ -22,9 +22,10 @@
 #define	_YIRL_WIDGET_H_
 
 #include <sys/queue.h>
-#include "entity.h"
-#include "utils.h"
-#include "keydef.h"
+#include "yirl/entity.h"
+#include "yirl/utils.h"
+#include "yirl/keydef.h"
+#include "yirl/pos.h"
 
 typedef enum
   {
@@ -85,20 +86,59 @@ typedef struct {
 } YBgConf;
 
 struct WidgetState_;
-struct yevent;
 
-typedef struct yevent {
-  EventType type;
-  int key;
-  unsigned int xMouse;
-  unsigned int yMouse;
-  InputStatue stat;
-  SLIST_HEAD(EveListHead, yevent) *head;
-  SLIST_ENTRY(yevent) lst;
-} YEvent;
+/* typedef struct yevent { */
+/*   EventType type; */
+/*   int key; */
+/*   unsigned int xMouse; */
+/*   unsigned int yMouse; */
+/*   InputStatue stat; */
+/*   SLIST_HEAD(EveListHead, yevent) *head; */
+/*   SLIST_ENTRY(yevent) lst; */
+/* } YEvent; */
 
-#define ywidEveType(eve) (eve)->type
-#define ywidEveKey(eve) (eve)->key
+enum {
+    YEVE_TYPE = 0,
+    YEVE_KEY = 1,
+    YEVE_MOUSE = 2,
+    YEVE_STATUS = 15,
+    YEVE_NEXT = 16
+};
+
+static inline EventType ywidEveType(Entity *eve)
+{
+    return yeGetInt(yeGet(eve, YEVE_TYPE));
+}
+
+static inline int ywidEveKey(Entity *eve)
+{
+    return yeGetInt(yeGet(eve, YEVE_KEY));
+}
+
+static inline Entity *ywidEveMousePos(Entity *eve)
+{
+    return yeGet(eve, YEVE_MOUSE);
+}
+
+static inline int ywidXMouse(Entity *eve)
+{
+  return ywPosX(ywidEveMousePos(eve));
+}
+
+static inline int ywidYMouse(Entity *eve)
+{
+  return ywPosY(ywidEveMousePos(eve));
+}
+
+static inline Entity *ywidEveStatus(Entity *eve)
+{
+    return yeGet(eve, YEVE_STATUS);
+}
+
+static inline void ywidEveSetStatus(Entity *eve, InputStatue is)
+{
+  yeSetIntAt(eve, YEVE_STATUS, is);
+}
 
 typedef struct {
   void *opac;
@@ -110,7 +150,7 @@ typedef struct WidgetState_ {
   int (*render)(struct WidgetState_ *opac);
   void (*midRend)(struct WidgetState_ *opac, int turnPercent);
   void (*midRendEnd)(struct WidgetState_ *opac);
-  InputStatue (*handleEvent)(struct WidgetState_ *opac, YEvent *event);
+  InputStatue (*handleEvent)(struct WidgetState_ *opac, Entity *event);
   void (*resize)(struct WidgetState_ *opac);
   int (*init)(struct WidgetState_ *opac, Entity *entity, void *args);
   int (*destroy)(struct WidgetState_ *opac);
@@ -137,11 +177,10 @@ struct widgetOpt {
 extern struct widgetOpt widgetOptTab[MAX_NB_MANAGER];
 
 #define YEVE_FOREACH(curEve, eve)		\
-  if (eve)					\
-    SLIST_FOREACH(curEve, eve->head, lst)
+  for(curEve = eve; curEve; curEve = ywidNextEve(curEve))
 
 #define ywidNextEve(eve)			\
-  (SLIST_NEXT(eve, lst))
+	(yeGet(eve, YEVE_NEXT))
 
 int ywidColorFromString(char *str, uint8_t *r, uint8_t *g,
 			uint8_t *b, uint8_t *a);
@@ -153,8 +192,8 @@ static inline YWidgetState *ywidGetState(Entity *wid)
   return yeGetData(yeGetByStrFast(wid, "$wid"));
 }
 
-YEvent *ywidGenericWaitEvent(void);
-YEvent *ywidGenericPollEvent(void);
+Entity *ywidGenericWaitEvent(void);
+Entity *ywidGenericPollEvent(void);
 
 extern int ywidWindowWidth;
 extern int ywidWindowHight;
@@ -168,8 +207,8 @@ int ywidRegister(void *(*allocator)(void), const char *name);
 int ywidUnregiste(int t);
 
 int ywidRegistreRender(void (*resizePtr)(YWidgetState *wid, int renderType),
-		       YEvent *(*pollEvent)(void),
-		       YEvent *(*waitEvent)(void),
+		       Entity *(*pollEvent)(void),
+		       Entity *(*waitEvent)(void),
 		       int (*draw)(void));
 void ywidRegistreMidRend(void (*midRender)(YWidgetState *, int, int),
 			 int widgetType, int renderType);
@@ -214,7 +253,7 @@ static inline int ywidRend(YWidgetState *opac)
  */
 int ywidDrawScreen(void);
 
-int ywidHandleEvent(YWidgetState *opac, YEvent *event);
+int ywidHandleEvent(YWidgetState *opac, Entity *event);
 
 int ywidDoTurn(YWidgetState *opac);
 
@@ -254,7 +293,7 @@ void ywidSetMainWid(YWidgetState *wid);
 YWidgetState *ywidGetMainWid(void);
 void ywidFreeWidgets(void);
 
-InputStatue ywidEventCallActionSin(YWidgetState *opac, YEvent *event);
+InputStatue ywidEventCallActionSin(YWidgetState *opac, Entity *event);
 
 int ywIsPixsOnWid(Entity *widget, int posX, int posY);
 

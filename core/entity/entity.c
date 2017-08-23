@@ -56,10 +56,6 @@ static inline Entity *yeInit(Entity *entity, EntityType type,
   } while (0);
 
 
-static inline Entity *yeInitAt(Entity *entity, EntityType type,
-			       Entity *father, const char *name,
-			       int at);
-
 void yeInitMem(void)
 {
   if (!isInit) {
@@ -314,6 +310,26 @@ Entity *yeGetByStr(Entity *entity, const char *name)
  return yeGetByStr(yeGetByIdxFastWithEnd(entity, name, i), name + i + 1);
 }
 
+static inline Entity *yeInitAt(Entity * restrict const entity,
+			       EntityType type,
+			       Entity * restrict const father,
+			       const char * const restrict name,
+			       int at)
+{
+  if (unlikely(!entity))
+    return NULL;
+  entity->type = type;
+  /* this can be simplifie */
+  if (at < 0) {
+    if (!yePushBack(father, entity, name))
+      YE_DECR_REF(entity);
+  } else {
+    if (!yeAttach(father, entity, at, name, 0))
+      YE_DECR_REF(entity);
+  }
+  return entity;
+}
+
 int yeArrayIdx(Entity *entity, const char *lookup)
 {
   if (!entity || !lookup || yeType(entity) != YARRAY)
@@ -334,6 +350,16 @@ Entity *yeCreateInt(int value, Entity *father, const char *name)
 
   YE_ALLOC_ENTITY(ret, IntEntity);
   yeInit((Entity *)ret, YINT, father, name);
+  ret->value = value;
+  return ((Entity *)ret);
+}
+
+Entity *yeCreateIntAt(int value, Entity *father, const char *name, int idx)
+{
+  IntEntity * restrict ret;
+
+  YE_ALLOC_ENTITY(ret, IntEntity);
+  yeInitAt((Entity *)ret, YINT, father, name, idx);
   ret->value = value;
   return ((Entity *)ret);
 }
@@ -729,26 +755,6 @@ static inline void yeAttachFather(Entity *entity, Entity *father,
 }
 
 
-static inline Entity *yeInitAt(Entity * restrict const entity,
-			       EntityType type,
-			       Entity * restrict const father,
-			       const char * const restrict name,
-			       int at)
-{
-  if (unlikely(!entity))
-    return NULL;
-  entity->type = type;
-  /* this can be simplifie */
-  if (at < 0) {
-    if (!yePushBack(father, entity, name))
-      YE_DECR_REF(entity);
-  } else {
-    if (!yeAttach(father, entity, at, name, 0))
-      YE_DECR_REF(entity);
-  }
-  return entity;
-}
-
 void	yeSetString(Entity *entity, const char *val)
 {
   if (unlikely(!entity))
@@ -834,6 +840,11 @@ int yeAttach(Entity *on, Entity *entity,
     yeAttachFather(entity, on, name, idx);
   yeIncrRef(entity);
   return 0;
+}
+
+int yePushAt(Entity *array, Entity *toPush, int idx)
+{
+  return yeAttach(array, toPush, idx, NULL, 0);
 }
 
 void	yeSetStringAt(Entity *entity, unsigned int index, const char *value)

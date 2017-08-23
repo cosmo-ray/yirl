@@ -57,29 +57,29 @@ void ycursDestroy(void)
 }
 
 
-static inline YEvent *CGetEvent(void)
+static inline Entity *CGetEvent(void)
 {
-  YEvent *eve = g_new0(YEvent, 1);
+  Entity *eve = yeCreateArray(NULL, NULL);
 
-  eve->key = getch();
-  eve->type = YKEY_DOWN;
-  eve->stat = NOTHANDLE;
-  if (eve->key == ERR) {
-    free(eve);
+  yeCreateIntAt(getch(), eve, NULL, YEVE_KEY);
+  yeCreateIntAt(YKEY_DOWN, eve, NULL, YEVE_TYPE);
+  yeCreateIntAt(NOTHANDLE, eve, NULL, YEVE_STATUS);
+  if (ywidEveKey(eve) == ERR) {
+    yeDestroy(eve);
     return NULL;
   }
   return eve;
 }
 
 
-YEvent *CWaitEvent(void)
+Entity *CWaitEvent(void)
 {
     timeout(-1);
 
     return CGetEvent();
 }
 
-YEvent *CPollEvent(void)
+Entity *CPollEvent(void)
 {
     timeout(0);
 

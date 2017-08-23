@@ -102,8 +102,8 @@ static void *quitOnKeyDown(va_list ap)
   va_list tmp_ap;
   va_copy(tmp_ap, ap);
   va_arg(tmp_ap, Entity *);
-  YEvent *events = va_arg(tmp_ap, YEvent *);
-  YEvent *eve = events;
+  Entity *events = va_arg(tmp_ap, Entity *);
+  Entity *eve = events;
   void *ret = (void *)NOTHANDLE;
 
   YEVE_FOREACH(eve, events) {
@@ -153,7 +153,7 @@ static void *nextWid(va_list ap)
 static void *setInt(va_list ap)
 {
   Entity *wid = va_arg(ap, Entity *);
-  void *useless = va_arg(ap, YEvent *);
+  void *useless = va_arg(ap, Entity *);
   Entity *toSet;
   Entity *value;
 
@@ -171,8 +171,8 @@ static void *nextOnKeyDown(va_list ap)
   va_list tmp_ap;
   va_copy(tmp_ap, ap);
   va_arg(tmp_ap, Entity *);
-  YEvent *events = va_arg(tmp_ap, YEvent *);
-  YEvent *eve = events;
+  Entity *events = va_arg(tmp_ap, Entity *);
+  Entity *eve = events;
   void *ret = (void *)NOTHANDLE;
 
   YEVE_FOREACH(eve, events) {

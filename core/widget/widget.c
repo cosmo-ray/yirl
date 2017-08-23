@@ -39,8 +39,8 @@ static uint64_t rendersMask = 0;
 
 /* struct which define what are common to every render of the same type */
 struct renderOpt {
-  YEvent *(*waitEvent)(void);
-  YEvent *(*pollEvent)(void);
+  Entity *(*waitEvent)(void);
+  Entity *(*pollEvent)(void);
   int (*draw)(void);
   void (*resizePtr) (YWidgetState *wid, int renderType);
 };
@@ -422,8 +422,8 @@ void ywidRegistreMidRend(void (*midRender)(YWidgetState *, int, int),
 }
 
 int ywidRegistreRender(void (*resizePtr)(YWidgetState *wid, int renderType),
-		       YEvent *(*pollEvent)(void),
-		       YEvent *(*waitEvent)(void),
+		       Entity *(*pollEvent)(void),
+		       Entity *(*waitEvent)(void),
 		       int (*draw)(void))
 {
   YUI_FOREACH_BITMASK(~rendersMask, i, tmask) {
@@ -438,10 +438,10 @@ int ywidRegistreRender(void (*resizePtr)(YWidgetState *wid, int renderType),
 }
 
 
-YEvent *ywidGenericPollEvent(void)
+Entity *ywidGenericPollEvent(void)
 {
   YUI_FOREACH_BITMASK(rendersMask, i, tmask) {
-    YEvent *ret = renderOpTab[i].pollEvent();
+    Entity *ret = renderOpTab[i].pollEvent();
     if (ret)
       return ret;
   }
@@ -461,14 +461,14 @@ int ywidDrawScreen(void)
 }
 
 
-YEvent *ywidGenericWaitEvent(void)
+Entity *ywidGenericWaitEvent(void)
 {
   if (!rendersMask)
     return NULL;
   if (YUI_COUNT_1_BIT(rendersMask) == 1) {
     return renderOpTab[YUI_GET_FIRST_BIT(rendersMask)].waitEvent();
   } else {
-    YEvent *ret;
+    Entity *ret;
     while (1) {
       YUI_FOREACH_BITMASK(rendersMask, i, tmask) {
 	if (renderOpTab[i].pollEvent && (ret = renderOpTab[i].pollEvent()))
@@ -491,27 +491,19 @@ void YWidDestroy(YWidgetState *wid)
     g_free(wid);
 }
 
-static void ywidFreeEvents(YEvent *event)
+static void ywidFreeEvents(Entity *event)
 {
-  struct EveListHead *head;
-
-  if (!event)
-    return;
-  head = event->head;
-  while (!SLIST_EMPTY(head)) {
-    event = SLIST_FIRST(head);
-    SLIST_REMOVE_HEAD(head, lst);
-    free(event);
-  }
+  yeDestroy(event);
 }
 
 int ywidDoTurn(YWidgetState *opac)
 {
-  YEvent *event;
   int turnLength = yeGetInt(yeGet(opac->entity, "turn-length"));
   int ret;
-  struct EveListHead head = SLIST_HEAD_INITIALIZER(head);
   static YTimer *cnt = NULL;
+  Entity *old = NULL;
+  Entity *head;
+  Entity *event;
 
   if (!cnt)
     cnt = YTimerCreate();
@@ -533,31 +525,30 @@ int ywidDoTurn(YWidgetState *opac)
     }
     YTimerReset(cnt);
 
-    for (event = ywidGenericPollEvent(); event;
+    for (event = ywidGenericPollEvent(), head = event; event;
 	 event = ywidGenericPollEvent()) {
-      event->head = &head;
-      SLIST_INSERT_HEAD(&head, event, lst);
+      if (old)
+	yePushAt(old, event, YEVE_NEXT);
+      old = event;
     }
   } else {
-    event = ywidGenericWaitEvent();
-    if (!event)
+    head = ywidGenericWaitEvent();
+    if (!head)
       return NOTHANDLE;
-    event->head = &head;
-    SLIST_INSERT_HEAD(&head, event, lst);
   }
 
   ywidMidRendEnd(mainWid);
-  ret = ywidHandleEvent(opac, SLIST_FIRST(&head));
-  ywidFreeEvents(SLIST_FIRST(&head));
+  ret = ywidHandleEvent(opac, head);
+  ywidFreeEvents(head);
   return ret;
 }
 
-InputStatue ywidEventCallActionSin(YWidgetState *opac, YEvent *event)
+InputStatue ywidEventCallActionSin(YWidgetState *opac, Entity *event)
 {
   return ywidCallSignal(opac, event, NULL, opac->actionIdx);
 }
 
-int ywidHandleEvent(YWidgetState *opac, YEvent *event)
+int ywidHandleEvent(YWidgetState *opac, Entity *event)
 {
   int ret = 0;
   Entity *postAction;

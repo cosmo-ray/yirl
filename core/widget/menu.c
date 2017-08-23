@@ -58,11 +58,11 @@ static void *nmMenuUp(YWidgetState *wid)
 static void *nmMenuMove(va_list ap)
 {
   Entity *wid = va_arg(ap, Entity *);
-  YEvent *eve = va_arg(ap, YEvent *);
+  Entity *eve = va_arg(ap, Entity *);
 
-  if (eve->key == Y_DOWN_KEY) {
+  if (ywidEveKey(eve) == Y_DOWN_KEY) {
     return nmMenuDown(ywidGetState(wid));
-  } else if (eve->key == Y_UP_KEY) {
+  } else if (ywidEveKey(eve) == Y_UP_KEY) {
     return nmMenuUp(ywidGetState(wid));
   }
   return (void *)NOTHANDLE;
@@ -71,11 +71,11 @@ static void *nmMenuMove(va_list ap)
 static void *nmPanelMove(va_list ap)
 {
   YWidgetState *wid = ywidGetState(va_arg(ap, Entity *));
-  YEvent *eve = va_arg(ap, YEvent *);
+  Entity *eve = va_arg(ap, Entity *);
 
-  if (eve->key == Y_RIGHT_KEY) {
+  if (ywidEveKey(eve) == Y_RIGHT_KEY) {
     return nmMenuDown(wid);
-  } else if (eve->key == Y_LEFT_KEY) {
+  } else if (ywidEveKey(eve) == Y_LEFT_KEY) {
     return nmMenuUp(wid);
   }
   return (void *)NOTHANDLE;
@@ -95,7 +95,7 @@ static void *nmMenuNext(va_list ap)
 static void *mnActions(va_list ap)
 {
   Entity *wid = va_arg(ap, Entity *);
-  YEvent *eve = va_arg(ap, YEvent *);
+  Entity *eve = va_arg(ap, Entity *);
   void *arg = va_arg(ap, void *);
   Entity *actions = yeGet(ywMenuGetCurrentEntry(wid), "actions");
   InputStatue ret = NOTHANDLE;
@@ -190,7 +190,7 @@ static int mnRend(YWidgetState *opac)
   return 0;
 }
 
-InputStatue ywMenuCallActionOnByEntity(Entity *opac, YEvent *event,
+InputStatue ywMenuCallActionOnByEntity(Entity *opac, Entity *event,
 				       int idx, void *arg)
 {
   YWidgetState *cur = ywidGetState(opac);
@@ -198,7 +198,7 @@ InputStatue ywMenuCallActionOnByEntity(Entity *opac, YEvent *event,
   return ywMenuCallActionOnByState(cur, event, idx, arg);
 }
 
-InputStatue ywMenuCallActionOnByState(YWidgetState *opac, YEvent *event,
+InputStatue ywMenuCallActionOnByState(YWidgetState *opac, Entity *event,
 				      int idx, void *arg)
 {
   InputStatue ret;
@@ -220,7 +220,7 @@ InputStatue ywMenuCallActionOnByState(YWidgetState *opac, YEvent *event,
   return ret;
 }
 
-static InputStatue mnEvent(YWidgetState *opac, YEvent *event)
+static InputStatue mnEvent(YWidgetState *opac, Entity *event)
 {
   InputStatue ret = NOTHANDLE;
 
@@ -230,15 +230,16 @@ static InputStatue mnEvent(YWidgetState *opac, YEvent *event)
     return NOTHANDLE;
 
   if (ywidEveType(event) == YKEY_DOWN) {
-    if (event->key == '\n') {
+    if (ywidEveKey(event) == '\n') {
       ret = ywMenuCallActionOn(opac, event, ((YMenuState *)opac)->current, NULL);
     } else {
       ret = ywidCallSignal(opac, event, NULL,  ((YMenuState *)opac)->moveSinIdx);
     }
   } else if (ywidEveType(event) == YKEY_MOUSEDOWN) {
-    ret = ywMenuCallActionOn(opac, event, ywMenuPosFromPix(opac->entity,
-							   event->xMouse,
-							   event->yMouse),
+    ret = ywMenuCallActionOn(opac, event,
+			     ywMenuPosFromPix(opac->entity,
+					      ywPosX(ywidEveMousePos(event)),
+					      ywPosY(ywidEveMousePos(event))),
 			     NULL);
   }
 

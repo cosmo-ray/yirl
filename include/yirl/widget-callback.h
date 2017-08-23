@@ -42,10 +42,10 @@ static inline Entity *ywidGetSignal(Entity *wid, int idx)
 Entity *ywidCreateFunction(const char *name, void *manager,
 			   Entity *wid, const char *sinName);
 
-InputStatue ywidCallSignal(YWidgetState *wid, YEvent *eve,
+InputStatue ywidCallSignal(YWidgetState *wid, Entity *eve,
 			   Entity *arg, int idx);
 
-InputStatue ywidCallSignalFromEntity(Entity *wid, YEvent *eve,
+InputStatue ywidCallSignalFromEntity(Entity *wid, Entity *eve,
 				     Entity *arg, int idx);
 
 #endif

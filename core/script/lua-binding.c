@@ -181,7 +181,7 @@ int     luaCreateFunction(lua_State *L)
 
 int	luaWidNextEve(lua_State *L)
 {
-  lua_pushlightuserdata(L, ywidNextEve((YEvent *)lua_touserdata(L, 1)));
+  lua_pushlightuserdata(L, ywidNextEve(lua_touserdata(L, 1)));
   return 1;
 }
 
@@ -199,13 +199,13 @@ int	luaWidEveIsEnd(lua_State *L)
 
 int	luaEveType(lua_State *L)
 {
-  lua_pushnumber(L, ywidEveType((YEvent *)lua_touserdata(L, 1)));
+  lua_pushnumber(L, ywidEveType(lua_touserdata(L, 1)));
   return 1;
 }
 
 int	luaEveKey(lua_State *L)
 {
-  lua_pushnumber(L, ywidEveKey((YEvent *)lua_touserdata(L, 1)));
+  lua_pushnumber(L, ywidEveKey(lua_touserdata(L, 1)));
   return 1;
 }
 

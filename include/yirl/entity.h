@@ -342,7 +342,7 @@ int yePushBackExt(Entity *entity, Entity *toPush,
 /**
  * Push @toPush at @idx if the element is not empty, return -1 othervise
  */
-int yPushAt(Entity *array, Entity *toPush, int idx);
+int yePushAt(Entity *array, Entity *toPush, int idx);
 
 /**
  * @param	array the array
@@ -366,6 +366,7 @@ Entity *yeCreate(EntityType type, void *val, Entity *fathers, const char *name);
  * Destructor and constructors.
  */
 Entity *yeCreateInt(int value, Entity *fathers, const char *name);
+Entity *yeCreateIntAt(int value, Entity *father, const char *name, int idx);
 Entity *yeCreateFloat(double value, Entity *fathers, const char *name);
 Entity *yeCreateString(const char *string, Entity *fathers, const char *name);
 

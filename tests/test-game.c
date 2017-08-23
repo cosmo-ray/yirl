@@ -21,7 +21,7 @@
 #include "widget-callback.h"
 #include "native-script.h"
 
-static const char *testPath = "./testMod"; 
+static const char *testPath = "./testMod";
 
 #define MAP_SIZE_W 5
 #define MAP_SIZE_H 5
@@ -29,12 +29,12 @@ static const char *testPath = "./testMod";
 static void *shooterAction(va_list ap)
 {
   va_arg(ap, Entity *);
-  YEvent *eve = va_arg(ap, YEvent *);
+  Entity *eve = va_arg(ap, Entity *);
   InputStatue ret = NOTHANDLE;
 
   if (!eve)
     return  (void *)NOTHANDLE;
-  if (eve->key == '\t' || eve->key == 'q') {
+  if (ywidEveKey(eve) == '\t' || ywidEveKey(eve) == 'q') {
     ygCall(NULL, "FinishGame");
     ret = ACTION;
   }

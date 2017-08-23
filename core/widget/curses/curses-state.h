@@ -37,7 +37,7 @@ typedef struct
 void resize(YWidgetState *wid, int renderType);
 void CWidgetDestroy(YWidgetState *wid, int renderType);
 void CWidgetInit(YWidgetState *wid, int renderType);
-YEvent *CWaitEvent(void);
-YEvent *CPollEvent(void);
+Entity *CWaitEvent(void);
+Entity *CPollEvent(void);
 
 #endif

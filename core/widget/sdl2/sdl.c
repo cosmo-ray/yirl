@@ -189,44 +189,53 @@ static int  convertToYKEY(SDL_Keycode key)
     }
 }
 
-static inline YEvent *SDLConvertEvent(SDL_Event* event)
+static inline Entity *SDLConvertEvent(SDL_Event* event)
 {
-  YEvent *eve = g_new0(YEvent, 1);
+  Entity *eve = yeCreateArray(NULL, NULL);
 
   if (!event || !eve)
     return NULL;
+  yeCreateIntAt(NOTHANDLE, eve, NULL, YEVE_STATUS);
   switch(event->type)
     {
     case SDL_KEYUP:
-      eve->type = YKEY_UP;
+      yeCreateIntAt(YKEY_UP, eve, NULL, YEVE_TYPE);
       break;
     case SDL_KEYDOWN:
-      eve->type = YKEY_DOWN;
+      yeCreateIntAt(YKEY_DOWN, eve, NULL, YEVE_TYPE);
       break;
     case SDL_MOUSEBUTTONDOWN:
-      eve->type = YKEY_MOUSEDOWN;
-      eve->key = event->button.button;
-      eve->xMouse = event->button.x;
-      eve->yMouse = event->button.y;
+      {
+	Entity *mouse = ywPosCreateInts(event->button.x, event->button.y,
+					NULL, NULL);
+	yeCreateIntAt(YKEY_MOUSEDOWN, eve, NULL, YEVE_TYPE);
+	yeCreateIntAt(event->button.button, eve, NULL, YEVE_KEY);
+	yePushAt(eve, mouse, YEVE_MOUSE);
+	yeDestroy(mouse);
+      }
       return eve;
     case SDL_MOUSEWHEEL:
-      eve->type = YKEY_MOUSEWHEEL;
-      eve->key = event->wheel.y;
+      yeCreateIntAt(YKEY_MOUSEWHEEL, eve, NULL, YEVE_TYPE);
+      yeCreateIntAt(event->wheel.y, eve, NULL, YEVE_KEY);
       return eve;
     case SDL_MOUSEMOTION:
-      eve->type = YKEY_MOUSEMOTION;
-      eve->xMouse = event->motion.x;
-      eve->yMouse = event->motion.y;
+      {
+	Entity *mouse = ywPosCreateInts(event->button.x, event->button.y,
+					NULL, NULL);
+	yeCreateIntAt(YKEY_MOUSEMOTION, eve, NULL, YEVE_TYPE);
+	yePushAt(eve, mouse, YEVE_MOUSE);
+	yeDestroy(mouse);
+      }
       return eve;
     default:
-      eve->type = YKEY_NONE;
+      yeCreateIntAt(YKEY_NONE, eve, NULL, YEVE_TYPE);
       break;
     }
-  eve->key = convertToYKEY(event->key.keysym.sym);
+  yeCreateIntAt(convertToYKEY(event->key.keysym.sym), eve, NULL, YEVE_KEY);
   return eve;
 }
 
-static YEvent *SDLWaitEvent(void)
+static Entity *SDLWaitEvent(void)
 {
   static SDL_Event event;
 
@@ -235,7 +244,7 @@ static YEvent *SDLWaitEvent(void)
   return SDLConvertEvent(&event);
 }
 
-static YEvent *SDLPollEvent(void)
+static Entity *SDLPollEvent(void)
 {
   static SDL_Event event;
 

@@ -207,7 +207,7 @@ static int cntDestroy(YWidgetState *opac)
 
 #define yCntIsOverloading(eve) 0
 
-static InputStatue cntEvent(YWidgetState *opac, YEvent *event)
+static InputStatue cntEvent(YWidgetState *opac, Entity *event)
 {
   InputStatue ret = NOTHANDLE;
   Entity *entries = yeGet(opac->entity, "entries");

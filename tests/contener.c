@@ -29,10 +29,10 @@
 static void *testMenuEnter(va_list ap)
 {
   va_arg(ap, Entity *);
-  YEvent *eve = va_arg(ap, YEvent *);
+  Entity *eve = va_arg(ap, Entity *);
 
-  if (eve && (eve->type == YKEY_DOWN && eve->key == '\n')) {
-    eve->stat = ACTION;
+  if (eve && (ywidEveType(eve) == YKEY_DOWN && ywidEveKey(eve) == '\n')) {
+    ywidEveSetStatus(eve, ACTION);
     return (void *)ACTION;
   }
   return (void *)NOTHANDLE;

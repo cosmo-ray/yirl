@@ -129,8 +129,8 @@ void *dialogueAction(int nbArgs, void **args)
 {
   Entity *wid = args[0];
   void *ret = (void *)NOTHANDLE;
-  YEvent *events = args[1];
-  YEvent *eve = events;
+  Entity *events = args[1];
+  Entity *eve = events;
 
   YEVE_FOREACH(eve, events) {
     if (ywidEveType(eve) == YKEY_DOWN) {

@@ -179,8 +179,8 @@ void *vapzAction(int nbArgs, void **args)
 {
   Entity *gc = yeCreateArray(NULL, NULL);
   Entity *wid = args[0];
-  YEvent *events = args[1];
-  YEvent *eve = events;
+  Entity *events = args[1];
+  Entity *eve = events;
   Entity *vk = yeGetByStrFast(wid, "viking");
   Entity *vkPos = yeGetByStrFast(vk, "pos");
   Entity *nextPos = ywPosCreateInts(0, 0, gc, NULL);

@@ -161,15 +161,15 @@ static void shooterSpamBullet(Entity *wid, int x, int y)
   ywMapPushElem(wid, bulletSprite, pos, "bl");
 }
 
-static int shooterActionInt(Entity *wid, YEvent *eve)
+static int shooterActionInt(Entity *wid, Entity *eve)
 {
   InputStatue ret = NOTHANDLE;
 
-  if (eve->type != YKEY_DOWN) {
+  if (ywidEveType(eve) != YKEY_DOWN) {
     return ret;
   }
 
-  switch (eve->key) {
+  switch (ywidEveKey(eve)) {
     /* move cases */
   case Y_DOWN_KEY:
     moveMainCaracter(wid, 0, 1);
@@ -213,12 +213,11 @@ static int shooterActionInt(Entity *wid, YEvent *eve)
 
 void *shooterAction(va_list ap)
 {
-  //YWidgetState *wid, YEvent *eve, Entity *arg
   Entity *wid = va_arg(ap, Entity *);
-  YEvent *eve = va_arg(ap, YEvent *);
+  Entity *eve = va_arg(ap, Entity *);
 
   shooterHandleBullets(wid);
-  YEvent *curEve;
+  Entity *curEve;
 
   YEVE_FOREACH(curEve, eve) {
     shooterActionInt(wid, curEve);

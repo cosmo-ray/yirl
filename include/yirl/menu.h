@@ -32,10 +32,10 @@ int ywMenuReBind(Entity *entity);
 void ywMenuDown(Entity *wid);
 void ywMenuUp(Entity *wid);
 
-InputStatue ywMenuCallActionOnByEntity(Entity *opac, YEvent *event, int idx,
+InputStatue ywMenuCallActionOnByEntity(Entity *opac, Entity *event, int idx,
 				       void *arg);
-InputStatue ywMenuCallActionOnByState(YWidgetState *opac, YEvent *event, int idx,
-				      void *arg);
+InputStatue ywMenuCallActionOnByState(YWidgetState *opac, Entity *event,
+				      int idx, void *arg);
 
 #ifndef Y_INSIDE_TCC
 
