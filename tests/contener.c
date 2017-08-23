@@ -22,6 +22,7 @@
 #include "tests.h"
 #include "game.h"
 #include "utils.h"
+#include "rect.h"
 #include "widget-callback.h"
 #include "json-desc.h"
 #include "yirl/native-script.h"
@@ -202,8 +203,7 @@ void testDynamicStackContenerSdl(void)
 
   curMap = ywMapCreateDefaultEntity(entries, NULL, resources, -1, 20, 20);
   yeCreateString("map", curMap, "<type>");
-  ywMapDrawRect(curMap, ywPosCreateInts(5, 5, gc, NULL),
-		ywPosCreateInts(5, 5, gc, NULL), 1);
+  ywMapDrawRect(curMap, ywRectCreateInts(5, 5, 5, 5, gc, NULL), 1);
 
   do {
     g_assert(ywidRend(wid) != -1);
@@ -211,8 +211,7 @@ void testDynamicStackContenerSdl(void)
 
   curMap = ywMapCreateDefaultEntity(entries, NULL, resources, -1, 20, 20);
   yeCreateString("map", curMap, "<type>");
-  ywMapDrawRect(curMap, ywPosCreateInts(17, 17, gc, NULL),
-		ywPosCreateInts(17, 17, gc, NULL), 2);
+  ywMapDrawRect(curMap, ywRectCreateInts(17, 17, 17, 17, gc, NULL), 2);
 
   do {
     g_assert(ywidRend(wid) != -1);
@@ -221,8 +220,7 @@ void testDynamicStackContenerSdl(void)
 
   curMap = ywMapCreateDefaultEntity(entries, NULL, resources, -1, 20, 20);
   yeCreateString("map", curMap, "<type>");
-  ywMapDrawRect(curMap, ywPosCreateInts(7, 7, gc, NULL),
-		ywPosCreateInts(4, 170, gc, NULL), 3);
+  ywMapDrawRect(curMap, ywRectCreateInts(7, 7, 4, 170, gc, NULL), 3);
 
   do {
     g_assert(ywidRend(wid) != -1);

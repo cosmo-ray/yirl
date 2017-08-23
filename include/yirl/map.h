@@ -200,7 +200,7 @@ int ywMapMoveByEntity(Entity *state, Entity *from,
  * @posStart x, y pos where to start drawing
  * @size a pos use to specify width/height
  */
-int ywMapDrawRect(Entity *map, Entity *posStart, Entity *size, int id);
+int ywMapDrawRect(Entity *map, Entity *rect, int id);
 
 int ywMapDrawSegment(Entity *map, Entity *start, Entity *end, Entity *elem,
 		     uint32_t flag);

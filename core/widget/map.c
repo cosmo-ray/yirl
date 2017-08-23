@@ -242,13 +242,13 @@ int ywMapDrawSegment(Entity *map, Entity *start, Entity *end, Entity *elem,
 }
 
 
-int ywMapDrawRect(Entity *map, Entity *posStart, Entity *size, int id)
+int ywMapDrawRect(Entity *map, Entity *rect, int id)
 {
   Entity *mapElems = yeGet(map, "map");
-  int x = ywPosX(posStart);
-  int y = ywPosY(posStart);
-  int w = ywPosX(size);
-  int h = ywPosY(size);
+  int x = ywRectX(rect);
+  int y = ywRectY(rect);
+  int w = ywRectW(rect);
+  int h = ywRectH(rect);
   int mapW = ywMapW(map);
   int start = x + (y * mapW);
   int mapLen = ywMapLen(map);

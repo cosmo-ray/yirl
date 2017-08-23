@@ -20,6 +20,7 @@
 #include <yirl/map.h>
 #include <yirl/contener.h>
 #include <yirl/text-screen.h>
+#include <yirl/rect.h>
 #include <list/list.h>
 
 static Entity *globMousePos;
@@ -86,8 +87,7 @@ void *battleInit(int nbArgs, void **args)
 
   cur_layer = ywMapCreateDefaultEntity(layers, NULL, resources, -1, 25, 25);
   yeCreateString("map", cur_layer, "<type>");
-  ywMapDrawRect(cur_layer, ywPosCreateInts(0, 0, gc, NULL),
-		ywPosCreateInts(25, 5, gc, NULL), 3);
+  ywMapDrawRect(cur_layer, ywRectCreateInts(0, 0, 25, 5, gc, NULL), 3);
 
   /* battle specific fields */
   yeCreateInt(0, entity, "_state");
