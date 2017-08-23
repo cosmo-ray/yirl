@@ -63,7 +63,7 @@ static int colCheck(Entity *map, Entity *textScreen, Entity *vkPos)
     return 0;
   YE_ARRAY_FOREACH(pizzas, pizza) {
     Entity *pos = yeGetByStrFast(pizza, "pos");
-    Entity *bulletHit = ywMapGetNbrEntityAt(map, pos, 3);
+    Entity *bulletHit = ywMapGetEntityById(map, pos, 3);
 
     if (bulletHit)
       removePizza(map, textScreen, pos, bulletHit, pizza);
@@ -103,7 +103,7 @@ static void bulletsTurn(Entity *map, Entity *textScreen)
     Entity *bulletDir = yeGetByStr(bullet, "dir");
 
     ywMapAdvenceWithEPos(map, pos, bulletDir, bullet);
-    pizzaHit = ywMapGetNbrEntityAt(map, pos, 2);
+    pizzaHit = ywMapGetEntityById(map, pos, 2);
     if (pizzaHit) {
       removePizza(map, textScreen, pos, bullet, pizzaHit);
       ywMapMvTableRemove(map, bullet);
@@ -256,7 +256,7 @@ void *vapzAction(int nbArgs, void **args)
   }
   if (bulletDir)
     pushBullet(map, bulletPos, bulletDir);
-  Entity *isTouch = ywMapGetNbrEntityAt(map, vkPos, 2);
+  Entity *isTouch = ywMapGetEntityById(map, vkPos, 2);
   if (isTouch) {
     lose(yeGetInt(yeGetByStrFast(map, "score")));
     clean(wid);
@@ -274,7 +274,7 @@ void *vapzAction(int nbArgs, void **args)
     ywContenerUpdate(wid, textScreen);
   }
   ywMapSetOutBehavior(map, YMAP_OUT_BLOCK);
-  ywMapAdvenceWithEPos(map, vkPos, nextPos, ywMapGetNbrEntityAt(map, vkPos, 1));
+  ywMapAdvenceWithEPos(map, vkPos, nextPos, ywMapGetEntityById(map, vkPos, 1));
 
  exit:
   yeDestroy(gc);

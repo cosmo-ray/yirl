@@ -115,7 +115,7 @@ int	luaYwMapW(lua_State *L);
 int	luaYwMapH(lua_State *L);
 int	luaYwMapSetSmootMovement(lua_State *L);
 int	luaMvTablePush(lua_State *L);
-int	luaYwMapGetNbrEntityAt(lua_State *L);
+int	luaYwMapGetEntityById(lua_State *L);
 int	luaYMapAdvence(lua_State *L);
 int	luaYwMapGetResource(lua_State *L);
 int	luaYwMapGetResourceId(lua_State *L);
@@ -267,8 +267,8 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapSetSmootMovement",
 				 luaYwMapSetSmootMovement));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMvTablePush", luaMvTablePush));
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapGetNbrEntityAt",
-				 luaYwMapGetNbrEntityAt));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapGetEntityById",
+				 luaYwMapGetEntityById));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapAdvence", luaYMapAdvence));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapGetResource", luaYwMapGetResource));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapGetResourceId",

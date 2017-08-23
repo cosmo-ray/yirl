@@ -423,11 +423,11 @@ int	luaYwMapGetCase(lua_State *L)
   return 1;
 }
 
-int	luaYwMapGetNbrEntityAt(lua_State *L)
+int	luaYwMapGetEntityById(lua_State *L)
 {
-  lua_pushlightuserdata(L, ywMapGetNbrEntityAt(lua_touserdata(L, 1),
-					       lua_touserdata(L, 2),
-					       lua_tonumber(L, 3)));
+  lua_pushlightuserdata(L, ywMapGetEntityById(lua_touserdata(L, 1),
+					      lua_touserdata(L, 2),
+					      lua_tonumber(L, 3)));
   return 1;
 }
 

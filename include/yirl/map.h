@@ -102,12 +102,12 @@ int ywMapGetIdByElem(Entity *mapElem);
  */
 Entity *ywMapGetCase(Entity *map, Entity *pos);
 
-static inline Entity *ywMapGetNbrEntityAt(Entity *state, Entity *pos, int nbr)
+static inline Entity *ywMapGetEntityById(Entity *state, Entity *pos, int id)
 {
   Entity *tmp = ywMapGetCase(state, pos);
 
   YE_ARRAY_FOREACH(tmp, caseTmp) {
-    if (ywMapGetIdByElem(caseTmp) == nbr)
+    if (ywMapGetIdByElem(caseTmp) == id)
       return caseTmp;
   }
   return NULL;

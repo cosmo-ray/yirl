@@ -76,7 +76,7 @@ static void addShip(Entity *wid)
   Entity *txtSurface = getTextScreenSurface(wid);
   Entity *first;
 
-  if (!ywMapGetNbrEntityAt(l1, cursorPos, 3)) {
+  if (!ywMapGetEntityById(l1, cursorPos, 3)) {
     yeAddStr(txtSurface, "na, I don't thins so, go f**k yourself\n");
     goto exit;
   }
