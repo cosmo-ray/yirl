@@ -144,7 +144,7 @@ int main(int argc, char **argv)
   TEST_TRY_ADD("/widget/textScreen/curses", testYWTextScreenCurses, only);
   TEST_TRY_ADD("/widget/menu/curses", testYWMenuCurses, only);
   TEST_TRY_ADD("/widget/map/curses", testYWMapCurses, only);
-  TEST_TRY_ADD("/modules/textinput", testTextInputMod, only);
+  /* TEST_TRY_ADD("/modules/textinput", testTextInputMod, only); */
 #ifdef WITH_SDL
   TEST_TRY_ADD("/widget/lifecycle/all", testAllLife, only);
   TEST_TRY_ADD("/widget/textScreen/all", testYWTextScreenAll, only);
