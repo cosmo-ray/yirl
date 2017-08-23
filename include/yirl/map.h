@@ -197,6 +197,8 @@ int ywMapMoveByEntity(Entity *state, Entity *from,
  */
 int ywMapDrawRect(Entity *map, Entity *posStart, Entity *size, int id);
 
+int ywMapDrawSegment(Entity *map, Entity *start, Entity *end, Entity *elem);
+
 /**
  * @brief add @x and @y to @pos then move @elem at @pos
  * @pos initial position, modified durring operation

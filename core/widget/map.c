@@ -228,6 +228,17 @@ Entity *ywMapInitEntity(Entity *entity,
   return entity;
 }
 
+int ywMapDrawSegment(Entity *map, Entity *start, Entity *end, Entity *elem)
+{
+  while (!ywPosIsSame(start, end, 0)) {
+    ywMapPushElem(map, elem, start, NULL);
+    ywPosMoveToward(start, end);
+  }
+  ywMapPushElem(map, elem, start, NULL);
+  return 0;
+}
+
+
 int ywMapDrawRect(Entity *map, Entity *posStart, Entity *size, int id)
 {
   Entity *mapElems = yeGet(map, "map");

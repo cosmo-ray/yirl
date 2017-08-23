@@ -37,15 +37,15 @@ void testMazeGenMod(void)
   pos = ywPosCreateInts(0, 0, NULL, NULL);
   maze_info = yeCreateArray(NULL, NULL);
   yeCreateInt(0, maze_info, "type");
-  yeCreateInt(20, maze_info, "width");
-  yeCreateInt(25, maze_info, "height");
+  yeCreateInt(25, maze_info, "width");
+  yeCreateInt(20, maze_info, "height");
   yeCreateInt(4, maze_info, "nb_wall");
   yeCreateInt(1, maze_info, "wall_elem");
   maze = ymaze_create(maze_info, NULL, NULL);
   g_assert(maze);
 
-  for (int i = 0; i < 25; ++i) {
-    for (int j = 0; j < 20; ++j) {
+  for (int i = 0; i < 20; ++i) {
+    for (int j = 0; j < 25; ++j) {
       ywPosSet(pos, j, i);
       if (yeLen(ywMapGetCase(maze, pos)))
 	printf("#");

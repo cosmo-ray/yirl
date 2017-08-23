@@ -4,7 +4,7 @@ add_library (wid-sdl2 STATIC ${SOURCE})
 
 target_link_libraries(
 	wid-sdl2
-	widgets	
+	widgets
 	SDL2
 	SDL2_ttf
 	SDL2_image

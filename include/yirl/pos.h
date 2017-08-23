@@ -218,4 +218,30 @@ static inline Entity *ywSegmentFromPos(Entity *posA, Entity *posB,
   return ret;
 }
 
+/**
+ * move of 1 @from in the direction of @to
+ * example: from is 0,0 and to is 0,3, this function will
+ * increment X in @from, so @from will be 0,1 so if you call
+ * this function with the same argument 3 times @from will be equal to
+ * 0,3 (@to value)
+ * @return 1 if @from has been modifie
+ */
+static inline int ywPosMoveToward(Entity *from, Entity *to)
+{
+  int x = 0, y = 0;
+
+  if (ywPosX(from) > ywPosX(to))
+    x = -1;
+  else if (ywPosX(from) < ywPosX(to))
+    x = 1;
+
+  if (ywPosY(from) > ywPosY(to))
+    y = -1;
+  else if (ywPosY(from) < ywPosY(to))
+    y = 1;
+
+  ywPosAddXY(from, x, y);
+  return x || y;
+}
+
 #endif

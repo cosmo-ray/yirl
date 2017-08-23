@@ -34,3 +34,4 @@
 typedef int_ptr_t size_t;
 int open(const char *path, int oflag, ...);
 size_t read(int fd, void *buf, size_t count);
+char *strncpy(char *dest, const char *src, size_t n);
