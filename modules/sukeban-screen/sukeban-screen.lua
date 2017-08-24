@@ -21,12 +21,35 @@ function elemPos(elem)
    return yeGet(elem, "pos")
 end
 
+function sukeAdvence(wid, from, x, y, guy)
+   local newPos = ywPosCreate(from);
+   ywPosAdd(newPos, x, y);
+   local nObjsCase = ywMapGetCase(sukeMapObjsLayer(wid), newPos)
+   local nCaracsCase = ywMapGetCase(sukeMapCaracLayer(wid), newPos)
+
+   if yeLen(nObjsCase) == 0 and yeLen(nCaracsCase) == 0 then
+      ywMapAdvence(sukeMapCaracLayer(wid), from, x, y, guy)
+   else
+      local i = 0
+      while i < yeLen(nCaracsCase) do
+	 local elem = yeGet(nCaracsCase, i)
+	 actionCall((yeGet(elem, "action")), wid, id, elem)
+	 i = i + 1
+      end
+      while i < yeLen(nObjsCase) do
+	 local elem = yeGet(nObjsCase, i)
+
+	 actionCall((yeGet(elem, "action")), wid, id, elem)
+	 i = i + 1
+      end
+   end
+end
+
 function doBadGuyStuff(wid, carac, badGuy)
    badGuyPos = elemPos(badGuy)
    ywPosPrint(elemPos(carac))
    ywPosPrint(elemPos(badGuy))
-   ywMapAdvence(sukeMapCaracLayer(wid), badGuyPos, 1, 0, badGuy)
-   print("doing bad stuff")
+   sukeAdvence(wid, badGuyPos, 1, 0, badGuy)
 end
 
 function sksAction(wid, eve, arg)
@@ -139,29 +162,9 @@ function sukeMapAction(wid, eve, arg)
       if (ret == YEVE_ACTION) then
 	 local id = yeGet(wid, "start_id");
 	 local oldPos = elemPos(id);
-	 local newPos = ywPosCreate(oldPos);
 	 local npcs = yeGet(wid, "npc")
 
-	 ywPosAdd(newPos, x, y);
-	 local nObjsCase = ywMapGetCase(sukeMapObjsLayer(wid), newPos)
-	 local nCaracsCase = ywMapGetCase(sukeMapCaracLayer(wid), newPos)
-
-	 if yeLen(nObjsCase) == 0 and yeLen(nCaracsCase) == 0 then
-	    ywMapAdvence(sukeMapCaracLayer(wid), oldPos, x, y, id)
-	 else
-	    local i = 0
-	    while i < yeLen(nCaracsCase) do
-	       local elem = yeGet(nCaracsCase, i)
-	       actionCall((yeGet(elem, "action")), wid, id, elem)
-	       i = i + 1
-	    end
-	    while i < yeLen(nObjsCase) do
-	       local elem = yeGet(nObjsCase, i)
-
-	       actionCall((yeGet(elem, "action")), wid, id, elem)
-	       i = i + 1
-	    end
-	 end
+	 sukeAdvence(wid, oldPos, x, y, id)
 	 yeDestroy(newPos)
 	 local i = 0
 	 while i < yeLen(npcs) do
