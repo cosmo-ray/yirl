@@ -47,8 +47,6 @@ end
 
 function doBadGuyStuff(wid, carac, badGuy)
    badGuyPos = elemPos(badGuy)
-   ywPosPrint(elemPos(carac))
-   ywPosPrint(elemPos(badGuy))
    sukeAdvence(wid, badGuyPos, 1, 0, badGuy)
 end
 
