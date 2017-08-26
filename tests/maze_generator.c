@@ -41,18 +41,19 @@ void testMazeGenMod(void)
   yeCreateInt(20, maze_info, "height");
   yeCreateInt(4, maze_info, "nb_wall");
   yeCreateInt(1, maze_info, "wall_elem");
-  maze = ymaze_create(maze_info, NULL, NULL);
-  g_assert(maze);
+  /* maze = ymaze_create(maze_info, NULL, NULL); */
+  /* g_assert(maze); */
 
-  for (int i = 0; i < 20; ++i) {
-    for (int j = 0; j < 25; ++j) {
-      ywPosSet(pos, j, i);
-      if (yeLen(ywMapGetCase(maze, pos)))
-	printf("#");
-      else
-	printf(".");
-    }
-    printf("\n");
-  }
-  yeMultDestroy(maze, maze_info, pos);
+  /* for (int i = 0; i < 20; ++i) { */
+  /*   for (int j = 0; j < 25; ++j) { */
+  /*     ywPosSet(pos, j, i); */
+  /*     if (yeLen(ywMapGetCase(maze, pos))) */
+  /* 	printf("#"); */
+  /*     else */
+  /* 	printf("."); */
+  /*   } */
+  /*   printf("\n"); */
+  /* } */
+  yeMultDestroy(maze_info, pos);
+  ygEnd();
 }
