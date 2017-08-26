@@ -21,7 +21,7 @@
 #include "widget-callback.h"
 #include "native-script.h"
 
-static const char *testPath = "./testMod";
+static const char *testPath = TESTS_PATH"./testMod";
 
 #define MAP_SIZE_W 5
 #define MAP_SIZE_H 5

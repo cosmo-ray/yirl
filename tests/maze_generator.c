@@ -31,7 +31,7 @@ void testMazeGenMod(void)
 
   g_assert(!ygInitGameConfig(&cfg, NULL, NONE));
   g_assert(!ygInit(&cfg));
-  g_assert(ygLoadMod("../modules/maze/"));
+  g_assert(ygLoadMod(TESTS_PATH"../modules/maze/"));
   yuiRandInit();
 
   pos = ywPosCreateInts(0, 0, NULL, NULL);

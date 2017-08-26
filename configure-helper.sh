@@ -86,3 +86,11 @@ function define_add {
     echo -n "CFLAGS+=-D$1=" >> config.mk
     eval "echo \$$1" >>  config.mk
 }
+
+
+function str_define_add {
+    echo -n "add string define: "
+    var_add $1 $2
+    echo -n "CFLAGS+=-D$1=" >> config.mk
+    eval "echo \\\\\\\"\$$1\\\\\\\"" >>  config.mk
+}

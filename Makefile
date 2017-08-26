@@ -25,9 +25,13 @@ SRC = 	$(SCRIPT_DIR)/lua-script.c \
 	$(SCRIPT_DIR)/ybytecode-script.c \
 	$(SCRIPT_DIR)/script.c \
 	$(BYTECODE_DIR)/ybytecode.c \
+	$(BYTECODE_DIR)/condition.c \
 	$(DESCRIPTION_DIR)/description.c \
 	$(DESCRIPTION_DIR)/json-desc.c	 \
+	$(DESCRIPTION_DIR)/rawfile-decs.c \
 	$(ENTITY_DIR)/entity.c \
+	$(ENTITY_DIR)/entity-string.c \
+	$(ENTITY_DIR)/entity-convertions.c \
 	$(GAME_DIR)/game.c \
 	$(UTIL_DIR)/util.c \
 	$(UTIL_DIR)/block-array.c \

@@ -127,7 +127,7 @@ void testYWTextScreenSdl2(void)
 
   wid = ywidNewWidget(ret, NULL);
   g_assert(wid);
-  
+
   do {
     g_assert(ywidRend(wid) != -1);
     usleep(100000);

@@ -33,7 +33,7 @@ void testListMod(void)
 
   g_assert(!ygInitGameConfig(&cfg, NULL, NONE));
   g_assert(!ygInit(&cfg));
-  ygLoadMod("../modules/list/");
+  ygLoadMod(TESTS_PATH"../modules/list/");
 
 #define list_init_from_array(elem, father, name) ysCall(ygGetTccManager(), \
 							"list_init_from_array",	\

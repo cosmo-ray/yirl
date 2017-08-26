@@ -27,8 +27,9 @@ void testDialogueMod(void)
 
   g_assert(!ygInitGameConfig(&cfg, NULL, SDL2));
   g_assert(!ygInit(&cfg));
-  g_assert(ygLoadMod("../modules/dialogue/"));
-  dialogue_example = ygFileToEnt(YJSON, "../modules/dialogue/blabla.json",
+  g_assert(ygLoadMod(TESTS_PATH"../modules/dialogue/"));
+  dialogue_example = ygFileToEnt(YJSON,
+				 TESTS_PATH"../modules/dialogue/blabla.json",
 				 NULL);
   g_assert(dialogue_example);
   wid = ywidNewWidget(dialogue_example, NULL);

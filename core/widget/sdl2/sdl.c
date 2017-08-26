@@ -300,7 +300,8 @@ int    ysdl2Init(void)
   }
 
   if (sgSetDefaultFont("./sample.ttf") < 0 &&
-      sgSetDefaultFont("/usr/share/fonts/TTF/Vera.ttf") < 0) {
+      sgSetDefaultFont("/usr/share/fonts/TTF/Vera.ttf") < 0 &&
+      sgSetDefaultFont("/usr/share/fonts/TTF/DejaVuSans.ttf") < 0) {
     DPRINT_ERR("Cannot load \"./sample.ttf\"\n");
     goto fail;
   }
