@@ -1,0 +1,63 @@
+{
+    "ashia" : {
+	"sex" : "women",
+	"alignement"  : "chaotic neutral",
+	"age" : "19",
+	"description" :
+	"badass caracter, lead most criminal activity at school,"
+	"have realtion with yakusa and is in debt with them"
+	"she try to protect something/one(don't know what yet)"
+	" and will do everything in her way for that"
+	"she will give quest to PC at first, but her relation"
+	"with yakusa will force her to be an enemy of the PC"
+	"(certainlly the last boss)"
+	"PC can start relation with her, which will end bad anyway"
+	"at the end she either die, either PC have to sacrifice someone to save her",
+	"weapon skill" : { "yoyo" : "very good",
+			   "dart": "very good",
+			   "unarmed": "good" }
+    },
+    "cobay" : {
+	"sex" : "men",
+	"alignement" : "good",
+	"age" : "16",
+	"description" : "men genetically modifie by a mad scientist"
+	"but save by his adoptive parents, his pretty shy, super agile and"
+	"perceptive because of his modification, remember anything",
+	"weapon skill" : { "unarmed" : "very good" }
+    },
+    "mad guard" : {
+	"sex" : "women",
+	"age" : "19",
+	"alignement" : "caotic evil",
+	"description" : "pretty strong girl(with muscle not fat)"
+	"she's the mad guard of ashia, when ashia when to make someone suffer"
+	"she send her, she's violante and like pretty mush no one but ashia"
+	"she can help the PC when doing ashia quest"
+    },
+    "lumiko" : {
+	"sex" : "women",
+	"age" : "36",
+	"alignement" : "loyal evil",
+	"description" : "the femme fatal"
+	"she randomly the leader of the yakusa"
+	"she is the link betwwen yakusa and ashia"
+	"she try to never expose herself to danger"
+	"let other do the bad job, is always calm"
+    },
+    "wonderfull tween: sister" : {
+	"sex" : "women",
+	"age" : "18",
+	"alignement" : "evil",
+	"desription" : "quuen of the sonority club the of the school"
+	"just, don't be in her way, and don't make her angry"
+    },
+    "wonderfull tween: brother" : {
+	"sex" : "men",
+	"age" : "18",
+	"alignement" : "evil",
+	"desription" : "very smart guy, want to prove himself that"
+	"his better han anyone, his completelly insensitive, like her sister"
+    }
+
+}
