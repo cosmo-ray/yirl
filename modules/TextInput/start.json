@@ -1,0 +1,12 @@
+{
+    "name" : "InputText",
+    "init-scripts" : [
+	["yb", "init"]
+    ],
+    "pre-load" : [
+	{
+	    "file" : "init.yb",
+	    "type" : "yb"
+	}
+    ]
+}

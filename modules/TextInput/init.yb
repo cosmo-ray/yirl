@@ -1,0 +1,30 @@
+init 1 {
+       	string "text-input"
+	yg_get_push "text_input_init"
+	array
+	push_back 3 1 "name"
+	push_back 3 2 "callback"
+	registre_widget_subtype 3
+	return 0
+}
+
+global txt_input_action 3 {
+	yg_get_push "FinishGame"
+	int 0
+	print_entity 0
+	print_entity 1
+	print_entity 2
+	print_entity 3
+	call_entity 3 0 1
+	return 4
+}
+
+global text_input_init 1 {
+        string "test"
+	push_back 0 1 "text"
+	yg_get_push "txt_input_action"
+	push_back 0 2 "action"
+	new_widget 0 "text-screen"
+	print_entity 3
+	return 3
+}
