@@ -14,8 +14,6 @@ include $(SM_MOD_EX_DIR)/Makefile
 SNAKE_DIR=example/snake
 include $(SNAKE_DIR)/Makefile
 
-CFLAGS += -std=gnu11
-
 SRC = 	$(SCRIPT_DIR)/lua-script.c \
 	$(SCRIPT_DIR)/entity-script.c \
 	$(SCRIPT_DIR)/lua-binding.c \
@@ -79,16 +77,18 @@ LDFLAGS += $(shell $(PKG_CONFIG) --libs SDL2_image)
 LDFLAGS += $(shell $(PKG_CONFIG) --libs SDL2_ttf)
 LDFLAGS += $(LDFLAGS_EXT)
 
-CFLAGS += $(shell $(PKG_CONFIG) --cflags glib-2.0)
-CFLAGS += -I$(YIRL_INCLUDE_PATH)
-CFLAGS += -I$(YIRL_INCLUDE_PATH2)
-CFLAGS += -I$(TCC_LIB_PATH)
-CFLAGS += -fpic
+COMMON_CFLAGS += $(shell $(PKG_CONFIG) --cflags glib-2.0)
+COMMON_CFLAGS += -I$(YIRL_INCLUDE_PATH)
+COMMON_CFLAGS += -I$(YIRL_INCLUDE_PATH2)
+COMMON_CFLAGS += -I$(TCC_LIB_PATH)
+COMMON_CFLAGS += -fpic
 
-CFLAGS += -DYIRL_INCLUDE_PATH=\"$(YIRL_INCLUDE_PATH2)\"
-CFLAGS += -DTCC_LIB_PATH=\"$(TCC_LIB_PATH)\"
+COMMON_CFLAGS += -DYIRL_INCLUDE_PATH=\"$(YIRL_INCLUDE_PATH2)\"
+COMMON_CFLAGS += -DTCC_LIB_PATH=\"$(TCC_LIB_PATH)\"
 
-CXXFLAGS = $(CFLAGS) -x c++
+CXXFLAGS = $(COMMON_CFLAGS) -x c++
+
+CFLAGS += $(COMMON_CFLAGS) -std=gnu11
 
 build-static-lib: $(OBJ) $(OBJXX)
 	$(AR)  -r -c -s $(LIBNAME).a $(OBJ) $(OBJXX)

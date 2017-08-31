@@ -76,7 +76,7 @@ function var_append {
 function define_add {
     echo -n "add define: "
     var_add $1 $2
-    echo -n "CFLAGS+=-D$1=" >> config.mk
+    echo -n "COMMON_CFLAGS+=-D$1=" >> config.mk
     eval "echo \$$1" >>  config.mk
 }
 
@@ -84,6 +84,6 @@ function define_add {
 function str_define_add {
     echo -n "add string define: "
     var_add $1 $2
-    echo -n "CFLAGS+=-D$1=" >> config.mk
+    echo -n "COMMON_CFLAGS+=-D$1=" >> config.mk
     eval "echo \\\\\\\"\$$1\\\\\\\"" >>  config.mk
 }
