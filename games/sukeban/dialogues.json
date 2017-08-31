@@ -1,0 +1,61 @@
+[
+    [
+	{
+	    "texts" : [
+		{
+		    "text": "so, what d'you want ?",
+		    "condition": [">", "Dialogue:hasSayName", 0]
+		},
+		{
+		    "text": "hello"
+		}
+	    ],
+	    "answers" : [
+		{
+		    "text" : "bug off",
+		    "action" : "FinishGame"
+		},
+		{
+		    "text" : "hej, what's your name ?",
+		    "actions" : [[ "Dialogue:change-text",
+				   "my name is francoise-robert, and you ?"],
+				 ["setInt", "Dialogue:hasSayName", 1],
+				 ["Dialogue:hide"]]
+		},
+		{
+		    "text" : "my name is trantord",
+		    "actions" : [["Dialogue:goto", 1]],
+		    "condition" : [">", "Dialogue:hasSayName", 0]
+		},
+		{
+		    "text" : "and d'you like bug fish",
+		    "action" : [ "Dialogue:change-text",
+				 {
+				     "texts" : [
+					 {
+					     "text": "it was alerady a dumb question when you ask it last time",
+					     "condition": [">", "Dialogue:hasSayName", 0]
+					 },
+					 {
+					     "text" : "wtf ?"
+					 }
+				     ]
+				 }
+			       ]
+		}
+	    ]
+	}, {
+	    "text" : "humm, trantor, sound like a name from the empire right ?",
+	    "answers" : [
+		{
+		    "text" : "know what, that's not your concern, fuck you",
+		    "action" : "FinishGame"
+		},
+		{
+		    "text" : "sorry, can you repeat ?",
+		    "action" : ["Dialogue:goto", 0]
+		}
+	    ]
+	}
+    ]
+]
