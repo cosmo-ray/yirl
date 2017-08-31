@@ -44,6 +44,7 @@
 #include "menu.h"
 #include "map.h"
 #include "text-screen.h"
+#include "canvas.h"
 #include "contener.h"
 #include "native-script.h"
 #include "condition.h"
@@ -255,6 +256,7 @@ int ygInit(GameConfig *cfg)
   CHECK_AND_GOTO(ywMapInit(), -1, error, "Map init failed");
   CHECK_AND_GOTO(ywTextScreenInit(), -1, error, "Text Screen init failed");
   CHECK_AND_GOTO(ywContenerInit(), -1, error, "Contener init failed");
+  CHECK_AND_GOTO(ywCanvasInit(), -1, error, "Canvas init failed");
 
   /* Init sound */
 #ifdef	__unix__
@@ -281,6 +283,7 @@ int ygInit(GameConfig *cfg)
 			"Text Screen init failed");
       CHECK_AND_GOTO(ysdl2RegistreMenu(), -1, error, "Menu init failed");
       CHECK_AND_GOTO(ysdl2RegistreMap(), -1, error, "Map init failed");
+      CHECK_AND_GOTO(ysdl2RegistreCanvas(), -1, error, "Canvas SDL2 init failed");
 #else
       DPRINT_ERR("yirl is not compille with SDL2 support");
 #endif

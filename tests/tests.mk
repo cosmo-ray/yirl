@@ -5,7 +5,8 @@ TESTS_SRC =  main.c lifecycle.c stringOperations.c test-copy.c setunset.c	\
 		test-json-desc.c test-widgets.c menu.c map.c			\
 		test-game.c block-array.c contener.c test-sound.c		\
 		ybytecode.c script.c raw-file.c list-mod.c dialogue-mod.c	\
-		maze_generator.c textinput_mod.c
+		maze_generator.c textinput_mod.c canvas.c
+>>>>>>> canvas: first broken commit
 
 TESTS_CFLAGS += -DTESTS_PATH=\"$(TESTS_DIR)\"
 

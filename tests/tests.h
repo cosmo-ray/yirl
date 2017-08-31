@@ -71,6 +71,8 @@ void testYWTextScreenCurses(void);
 void testYWTextScreenSdl2(void);
 void testYWTextScreenAll(void);
 
+void testCanvasSdl2(void);
+
 void testYWMenuCurses(void);
 void testYWMenuSdl2(void);
 void testPanelMenuSdl2(void);

@@ -55,7 +55,14 @@ SRC = 	$(SCRIPT_DIR)/lua-script.c \
 
 SRC += $(SOUND_SRC)
 
+SRCXX += 	$(ENTITY_DIR)/entity-cplusplus.cpp \
+		$(WID_DIR)/canvas.cpp \
+		$(SDL_WID_DIR)/canvas.cpp
+
+CXX = $(CC)
+
 OBJ =   $(SRC:.c=.o)
+OBJXX = $(SRCXX:.cpp=.o)
 
 GEN_LOADER_SRC = $(GEN_LOADER_DIR)/main.c
 GEN_LOADER_OBJ = $(GEN_LOADER_SRC:.c=.o)
@@ -81,17 +88,19 @@ CFLAGS += -fpic
 CFLAGS += -DYIRL_INCLUDE_PATH=\"$(YIRL_INCLUDE_PATH2)\"
 CFLAGS += -DTCC_LIB_PATH=\"$(TCC_LIB_PATH)\"
 
-build-static-lib: $(OBJ)
-	$(AR)  -r -c -s $(LIBNAME).a $(OBJ)
+CXXFLAGS = $(CFLAGS) -x c++
 
-build-dynamic-lib: $(OBJ)
-	$(CC) -shared -o  $(LIBNAME).$(LIBEXTENSION) $(OBJ) $(LDFLAGS)
+build-static-lib: $(OBJ) $(OBJXX)
+	$(AR)  -r -c -s $(LIBNAME).a $(OBJ) $(OBJXX)
+
+build-dynamic-lib: $(OBJ) $(OBJXX)
+	$(CC) -shared -o  $(LIBNAME).$(LIBEXTENSION) $(OBJ) $(OBJXX) $(LDFLAGS)
 
 build-generic-loader: $(YIRL_LINKING) $(GEN_LOADER_OBJ)
 	$(CC) -o yirl-loader$(BIN_EXT) $(GEN_LOADER_OBJ) -l$(NAME) $(LDFLAGS)
 
 clean:	clean-tests
-	rm -rvf $(OBJ)
+	rm -rvf $(OBJ) $(OBJXX)
 
 fclean: clean
 	rm -rvf $(LIBNAME).a $(LIBNAME).so $(LIBNAME).dll

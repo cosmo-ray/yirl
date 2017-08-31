@@ -26,7 +26,6 @@
 
 #define NONNULL(arg) __attribute__ ((nonnull (arg)))
 
-
 typedef enum {
   YE_FIND_MONE = 0,
   YE_FIND_LINK_NO_GET = 1,
@@ -184,6 +183,10 @@ union FatEntity {
 	uint8_t totalSize[256];
 };
 
+#ifdef __cplusplus
+#include "entity-cplusplus.h"
+#endif
+
 #define yeMetadata(Entity, EntityType)			\
 	(((uint8_t *)Entity) + sizeof(EntityType))
 
@@ -271,6 +274,7 @@ Entity *yeNGetByStr(Entity *entity, const char *name, int len);
  */
 Entity *yeGetByStrExt(Entity *entity, const char *name, int64_t *idx);
 
+#ifndef __cplusplus
 #define yeGet(ENTITY, INDEX) _Generic((INDEX),				\
 				      unsigned int: yeGetByIdx,		\
 				      int: yeGetByIdx,			\
@@ -282,6 +286,7 @@ Entity *yeGetByStrExt(Entity *entity, const char *name, int64_t *idx);
 				      const char *: yeGetByStrFast,	\
 				      char *: yeGetByStrFast) (ENTITY, INDEX)
 
+#endif
 
 /**
  * Like yeGetByStr but dosn't work with sytaxe like this (entity1.entity11)
@@ -409,6 +414,7 @@ static inline Entity *yeCreateArrayByEntity(Entity *fathers, Entity *name)
   return yeCreateArrayByCStr(fathers, yeGetString(name));
 }
 
+#ifndef __cplusplus
 #define yeCreateArray(fathers, name)					\
   _Generic((name),							\
 	   Entity *: yeCreateArrayByEntity,				\
@@ -417,7 +423,7 @@ static inline Entity *yeCreateArrayByEntity(Entity *fathers, Entity *name)
 	   Y_GEN_CLANG_ARRAY(char, yeCreateArrayByCStr),		\
 	   const char *: yeCreateArrayByCStr,				\
 	   char *: yeCreateArrayByCStr)((fathers), (name))
-
+#endif
 
 Entity *yeCreateArrayAt(Entity *fathers, const char *name, int idx);
 
@@ -530,6 +536,7 @@ void	yeSetStringAtStrIdx(Entity *entity, const char *index, const char *value);
 int yeAttach(Entity *on, Entity *entity, unsigned int idx,
 	     const char *name, uint32_t flag);
 
+#ifndef __cplusplus
 /* TODO: should create an element if doesn't exist */
 #define yeSetAtIntIxd(ENTITY, INDEX, VALUE)		\
   _Generic((VALUE),					\
@@ -562,6 +569,8 @@ int yeAttach(Entity *on, Entity *entity, unsigned int idx,
 	   Y_GEN_CLANG_ARRAY(char, YE_SET_AT_STRIDX_INTERNAL(VALUE)),	\
 	   const char *: YE_SET_AT_STRIDX_INTERNAL(VALUE)		\
 	   )(ENTITY, INDEX, VALUE)
+
+#endif
 
 //char *: YE_SET_AT_STRIDX_INTERNAL(VALUE))(ENTITY, INDEX, VALUE)
 
@@ -679,7 +688,7 @@ static inline EntityType yeType(const Entity *entity)
 {
 	if (likely(entity != NULL))
 		return (entity->type);
-	return (-1);
+	return (EntityType)-1;
 }
 
 /**

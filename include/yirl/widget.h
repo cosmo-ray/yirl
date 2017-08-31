@@ -107,7 +107,7 @@ enum {
 
 static inline EventType ywidEveType(Entity *eve)
 {
-    return yeGetInt(yeGet(eve, YEVE_TYPE));
+  return (EventType)yeGetInt(yeGet(eve, YEVE_TYPE));
 }
 
 static inline int ywidEveKey(Entity *eve)
@@ -189,7 +189,7 @@ int ywidBgConfFill(Entity *entity, YBgConf *cfg);
 
 static inline YWidgetState *ywidGetState(Entity *wid)
 {
-  return yeGetData(yeGetByStrFast(wid, "$wid"));
+  return (YWidgetState *)yeGetData(yeGetByStrFast(wid, "$wid"));
 }
 
 Entity *ywidGenericWaitEvent(void);
