@@ -41,6 +41,8 @@ static inline char * ywPosToString(Entity *pos)
   static char tmp[4][256];
   static int i;
 
+  if (unlikely(!pos))
+    return (char *)"(nil)";
   ++i;
   i &= 3;
   snprintf(tmp[i], 256, "x: %d - y: %d",
