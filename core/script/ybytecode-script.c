@@ -161,12 +161,20 @@ static int64_t tokToInstruction(int tok, Entity *tokInfo)
     return YB_INCR;
   case END_RET:
     return 'E';
+  case NOT_EQUAL_NBR_TOK:
+    return YB_NOT_EQUAL_COMP_NBR;
+  case EQUAL_NBR_TOK:
+    return YB_EQUAL_COMP_NBR;
+  case EQUAL_TOK:
+    return YB_EQUAL;
   case YB_YG_GET_PUSH_TOK:
     return YB_YG_GET_PUSH;
   case CALL_ENTITY:
     return 'c';
   case END:
     return 'e';
+  case PRINT_POS_TOK:
+    return YB_PRINT_POS;
   case PRINT_ENTITY:
     return YB_PRINT_ENTITY;
   case CREATE_ARRAY:
@@ -175,8 +183,14 @@ static int64_t tokToInstruction(int tok, Entity *tokInfo)
     return YB_PUSH_BACK;
   case REGISTRE_WIDGET_SUBTYPE:
     return YB_WID_ADD_SUBTYPE;
+  case JMP_TOK:
+    return 'j';
   case NEW_WIDGET_TOK:
     return YB_NEW_WID;
+  case GET_AT_IDX_TOK:
+    return YB_GET_AT_IDX;
+  case GET_AT_STR_TOK:
+    return YB_GET_AT_STR;
   default:
     DPRINT_ERR("'%s' is not an instruction\n", yeTokString(tokInfo, tok));
     break;
@@ -261,6 +275,18 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
   tok = yeStringNextTok(str, tokInfo);
  still_in_func_no_next:
   switch (tok) {
+  case GET_AT_STR_TOK:
+    {
+      script[script_len] = tokToInstruction(tok, tokInfo);
+      if (tryStoreNumber(&script[script_len + 1], str, tokInfo) < 0)
+	goto exit;
+      Entity *tmpStr = tryStoreString(funcData, str, tokInfo);
+      if (!tmpStr)
+	goto exit;
+      script[script_len + 2] = (uintptr_t)yeGetString(tmpStr);
+      script_len += 3;
+    }
+    goto still_in_func;
   case NEW_WIDGET_TOK:
     {
       script[script_len] = tokToInstruction(tok, tokInfo);
@@ -326,6 +352,9 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
   case SUB:
   case DIV:
   case MULT:
+  case EQUAL_TOK:
+  case NOT_EQUAL_NBR_TOK:
+  case EQUAL_NBR_TOK:
     script[script_len] = tokToInstruction(tok, tokInfo);
     if (tryStoreNumber(&script[script_len + 1], str, tokInfo) < 0)
       goto exit;
@@ -336,14 +365,17 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
     script_len += 4;
     goto still_in_func;
   case SET_INT:
-    if (tryStoreNumber(&script[script_len + 2], str, tokInfo) < 0)
+  case GET_AT_IDX_TOK:
+    script[script_len] = tokToInstruction(tok, tokInfo);
+    if (tryStoreNumber(&script[script_len + 1], str, tokInfo) < 0)
       goto exit;
-    if (tryStoreNumber(&script[script_len + 3], str, tokInfo) < 0)
+    if (tryStoreNumber(&script[script_len + 2], str, tokInfo) < 0)
       goto exit;
     script_len += 3;
     goto still_in_func;
   case YB_INCR_TOK:
   case END_RET:
+  case JMP_TOK:
   case CREATE_INT:
   case PRINT_ENTITY:
   case REGISTRE_WIDGET_SUBTYPE:
@@ -354,6 +386,7 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
     goto still_in_func;
   case END:
   case CREATE_ARRAY:
+  case PRINT_POS_TOK:
     script[script_len] = tokToInstruction(tok, tokInfo);
     script_len += 1;
     goto still_in_func;

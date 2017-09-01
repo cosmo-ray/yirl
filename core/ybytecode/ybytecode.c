@@ -48,6 +48,9 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
 	inst_compille('/', div, 3);
 	inst_compille('*', mult, 3);
 	inst_compille('<', inf_comp, 3);
+	inst_compille(YB_NOT_EQUAL_COMP_NBR, yb_not_equal_comp_nbr, 3);
+	inst_compille(YB_EQUAL_COMP_NBR, yb_equal_comp_nbr, 3);
+	inst_compille(YB_EQUAL, qeual_comp, 3);
 	inst_compille(YB_INF_COMP_NBR, yb_inf_comp_nbr, 3);
 	inst_compille('>', sup_comp, 3);
 	inst_compille('j', jmp, 1);
@@ -60,8 +63,11 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
 	inst_compille(YB_WID_ADD_SUBTYPE, wid_add_subtype, 1);
 	inst_compille(YB_PUSH_BACK, push_back, 3);
 	inst_compille(YB_BRUTAL_CAST, brutal_cast, 2);
+	inst_compille(YB_PRINT_POS, print_pos, 0);
 	inst_compille(YB_PRINT_ENTITY, print_entity, 1);
 	inst_compille(YB_YG_GET_PUSH, yg_get_push, 1);
+	inst_compille(YB_GET_AT_IDX, get_at_idx, 2);
+	inst_compille(YB_GET_AT_STR, get_at_str, 2);
       case 'c':
 	script[i] = (uint64_t) &&call_entity;
 	i += (script[i + 1] + 3);
@@ -157,7 +163,31 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
   script += 4;
   goto *((void *)*script);
 
-  /* stack manipulations */
+ yb_not_equal_comp_nbr:
+  if (yeGetIntDirect(yeGetByIdxDirect(stack, script[1])) != script[2]) {
+    script = origin + script[3];
+    goto *((void *)*script);
+  }
+  script += 4;
+  goto *((void *)*script);
+
+ yb_equal_comp_nbr:
+  if (yeGetIntDirect(yeGetByIdxDirect(stack, script[1])) == script[2]) {
+    script = origin + script[3];
+    goto *((void *)*script);
+  }
+  script += 4;
+  goto *((void *)*script);
+
+ qeual_comp:
+  if (yeGetIntDirect(yeGetByIdxDirect(stack, script[1])) ==
+      yeGetIntDirect(yeGetByIdxDirect(stack, script[2]))) {
+    script = origin + script[3];
+    goto *((void *)*script);
+  }
+  script += 4;
+  goto *((void *)*script);
+
  yb_inf_comp_nbr:
   if (yeGetIntDirect(yeGetByIdxDirect(stack, script[1])) < script[2]) {
     script = origin + script[3];
@@ -190,9 +220,7 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
     script += 2;
     goto *((void *)*script);
   }
-
   /* No goto on purpose here */
-
   /* fall-though */
  jmp:
   script = origin + script[1];
@@ -280,6 +308,17 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
   ++script;
   goto *((void *)*script);
 
+ get_at_idx:
+  yePushBack(stack, yeGet(yeGetByIdxDirect(stack, script[1]), script[2]), NULL);
+  script += 3;
+  goto *((void *)*script);
+
+ get_at_str:
+  yePushBack(stack, yeGet(yeGetByIdxDirect(stack, script[1]),
+			  (const char *)script[2]), NULL);
+  script += 3;
+  goto *((void *)*script);
+
  yg_get_push:
   ++script;
   iret = yePushBack(stack, ygGet((const char *)*script), NULL);
@@ -298,6 +337,10 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
   script += 2;
   goto *((void *)*script);
 
+ print_pos:
+  printf("script instruction pos: %d\n", script - origin);
+  ++script;
+  goto *((void *)*script);
  print_entity:
   {
     char *ctmp = yeToCStr(yeGetByIdxDirect(stack, script[1]), 1, 0);

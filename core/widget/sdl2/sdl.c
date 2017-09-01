@@ -223,6 +223,7 @@ static inline Entity *SDLConvertEvent(SDL_Event* event)
 	Entity *mouse = ywPosCreateInts(event->button.x, event->button.y,
 					NULL, NULL);
 	yeCreateIntAt(YKEY_MOUSEMOTION, eve, NULL, YEVE_TYPE);
+	yeCreateIntAt(-1, eve, NULL, YEVE_KEY);
 	yePushAt(eve, mouse, YEVE_MOUSE);
 	yeDestroy(mouse);
       }
