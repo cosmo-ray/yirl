@@ -1,1 +1,1 @@
-LD_LIBRARY_PATH=/home/uso/yirl ./yirl-tests $@
+LD_LIBRARY_PATH=$PWD ./yirl-tests $@
