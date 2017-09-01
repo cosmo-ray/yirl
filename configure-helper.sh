@@ -26,6 +26,14 @@ function parse_args {
 	    -h|--help)
 		usage
 		exit 0;;
+	    *"+="*)
+		echo $1
+		echo $1 >> config.mk
+		shift 1 ;;
+	    *"="*)
+		echo $1
+		echo $1 >> config.mk
+		shift 1 ;;
 	    *"="*)
 		export $1
 		shift 1 ;;
@@ -33,21 +41,6 @@ function parse_args {
 		break ;;
 	esac
     done
-
-    if [ ! -z ${CC+x} ]; then
-	echo comiller: $CC
-	echo "CC=$CC" >> config.mk
-    fi
-
-    if [ ! -z ${CFLAGS+x} ]; then
-	echo CFLAGS: $CFLAGS
-	echo CFLAGS=$CFLAGS >> config.mk
-    fi
-
-    if [ ! -z ${LDFLAGS+x} ]; then
-	echo LDFLAGS: $LDFLAGS
-	echo LDFLAGS=$LDFLAGS >> config.mk
-    fi
 }
 
 function add_toolchain {
