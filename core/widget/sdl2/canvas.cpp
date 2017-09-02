@@ -29,9 +29,22 @@ extern "C" {
 static int sdl2Render(YWidgetState *state, int t)
 {
   SDLWid *wid = reinterpret_cast<SDLWid *>(ywidGetRenderData(state, t));
+  Entity *entity = state->entity;
+  Entity *objs = yeGet(entity, "objs");
+  YBgConf cfg;
 
-  printf("rendering canvas %p\n", wid);
-  return -1;
+  if (ywidBgConfFill(yeGet(entity, "background"), &cfg) >= 0)
+    sdlFillBg(wid, &cfg);
+  printf("rendering canvas %p %p\n", wid, objs);
+  YE_ARRAY_FOREACH(objs, obj) {
+    Entity *size = yeGet(obj, "$size");
+    if (!size) {
+      sdlCanvasCacheImg(state, obj);
+      size = yeGet(obj, "$size");
+    }
+    sdlCanvasRendImg(state, wid, obj);
+  }
+  return 0;
 }
 
 static int sdl2Init(YWidgetState *wid, int t)

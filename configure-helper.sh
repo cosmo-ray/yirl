@@ -17,6 +17,16 @@ function parse_args {
     echo "" > config.mk
     echo 'c_to_o_dir = $(join $(addsuffix  $(1)/, $(dir $(2))), $(notdir $(2:.c=.o)))' >> config.mk
 
+    if [ ! -z ${CFLAGS+x} ]; then
+	echo CFLAGS: $CFLAGS
+	echo CFLAGS=$CFLAGS >> config.mk
+    fi
+
+    if [ ! -z ${COMMON_CFLAGS+x} ]; then
+	echo COMMON_CFLAGS: $COMMON_CFLAGS
+	echo COMMON_CFLAGS=$COMMON_CFLAGS >> config.mk
+    fi
+
     while true ; do
 	case "$1" in
 	    -t|--toolchain)

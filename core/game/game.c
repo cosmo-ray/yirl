@@ -311,6 +311,7 @@ void ygEnd()
   ywTextScreenEnd();
   ywMapEnd();
   ywMenuEnd();
+  ywCanvasEnd();
   ywContenerEnd();
 #ifdef WITH_CURSES
   ycursDestroy();

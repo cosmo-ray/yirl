@@ -20,6 +20,9 @@
 
 #include "yirl/entity.h"
 
+#define ywSizeW(size) (ywPosX(size))
+#define ywSizeH(size) (ywPosY(size))
+
 static inline int ywPosX(Entity *pos)
 {
   return yeGetInt(yeGetByIdx(pos, 0));
@@ -49,6 +52,8 @@ static inline char * ywPosToString(Entity *pos)
 	   yeGetInt(yeGetByIdx(pos, 0)), yeGetInt(yeGetByIdx(pos, 1)));
   return tmp[i];
 }
+
+#define ywSizeCreate(w, h, father, name) (ywPosCreate(w, h, father, name))
 
 /**
  * @posX The position in X

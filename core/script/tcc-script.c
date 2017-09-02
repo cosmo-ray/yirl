@@ -58,7 +58,6 @@ static TCCState *createTCCState(YTccScript *state)
     tcc_add_sysinclude_path(l, ysTccPath);
     tcc_set_lib_path(l, ysTccPath);
   }
-  printf("add %s include path\n", YIRL_MODULES_PATH);
   tcc_add_sysinclude_path(l, YIRL_MODULES_PATH);
   tcc_define_symbol(l, "Y_INSIDE_TCC", NULL);
 #ifdef TCC_OUTPUT_MEMORY

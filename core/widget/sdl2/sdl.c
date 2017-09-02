@@ -131,6 +131,7 @@ int    sdlFillImgBg(SDLWid *swid, const char *cimg)
     if (!img)
       return -1;
     SDL_Texture *texture = SDL_CreateTextureFromSurface(sg.renderer, img);
+    SDL_FreeSurface(img);
     SDL_RenderCopy(sg.renderer, texture, NULL, &swid->rect);
     SDL_DestroyTexture(texture);
     return 0;
@@ -490,8 +491,47 @@ void sdlConsumeError(void)
   if (!sdlError)
     return;
   fprintf(stderr, "%s\n", sdlError->message);
-  g_error_free (sdlError);
+  g_error_free(sdlError);
   sdlError = NULL;
+}
+
+int sdlCanvasCacheImg(YWidgetState *state, Entity *elem)
+{
+  Entity *resource = yeGet(yeGet(state->entity, "resources"),
+			   ywMapGetIdByElem(elem));
+  const char *impPath = yeGetString(yeGet(resource, "img"));
+  SDL_Surface *surface;
+  SDL_Texture *texture;
+  Entity *data;
+  int w, h, ret = -1;
+
+  surface = IMG_Load(impPath);
+  if (unlikely(!surface))
+    return -1;
+  texture = SDL_CreateTextureFromSurface(sg.renderer, surface);
+  if (unlikely(!texture))
+    goto exit;
+  SDL_QueryTexture(texture, NULL, NULL, &w, &h);
+  data = yeCreateData(texture, elem, "$img");
+  ywSizeCreate(w, h, elem, "$size");
+  yeSetDestroy(data, g_free);
+  ret = 0;
+ exit:
+  SDL_FreeSurface(surface);
+  return ret;
+}
+
+int sdlCanvasRendImg(YWidgetState *state, SDLWid *wid, Entity *img)
+{
+  SDL_Texture *t = yeGetData(yeGet(img, "$img"));
+  Entity *s = yeGet(img, "$size");
+  Entity *p = yeGet(img, "pos");
+  SDL_Rect rd = { ywPosX(p), ywPosY(p), ywSizeW(s), ywSizeH(s) };
+
+  if (unlikely(!t))
+    return -1;
+  SDL_RenderCopy(sg.renderer, t, NULL, &rd);
+  return 0;
 }
 
 int sdlDisplaySprites(YWidgetState *state, SDLWid *wid,

@@ -49,7 +49,7 @@ int ydUnregiste(int t);
 
 
 /**
- * @args the arguments 
+ * @args the arguments
  * @type the type of script
  * @return the new dm
  */

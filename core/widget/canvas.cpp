@@ -59,6 +59,8 @@ static void *alloc(void)
   ret->init = tsInit;
   ret->destroy = tsDestroy;
   ret->handleEvent = ywidEventCallActionSin;
+  ret->midRend = NULL;
+  ret->midRendEnd = NULL;
   ret->type = t;
   return  ret;
 }
