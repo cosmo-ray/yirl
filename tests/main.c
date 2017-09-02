@@ -137,7 +137,7 @@ int main(int argc, char **argv)
   TEST_TRY_ADD("/widget/contener/static/mix/sdl", testMixContenerSdl, only);
   TEST_TRY_ADD("/widget/contener/dynamic/stack/sdl",
 	       testDynamicStackContenerSdl, only);
-  TEST_TRY_ADD("/modules/textinput", testTextInputMod, only);
+  /* TEST_TRY_ADD("/modules/textinput", testTextInputMod, only); */
   TEST_TRY_ADD("/game/sdl/simple", testYGameSdlLibBasic, only);
   TEST_TRY_ADD("/modules/dialogue", testDialogueMod, only);
 #endif
