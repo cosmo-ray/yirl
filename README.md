@@ -95,4 +95,4 @@ But you can still understand how yirl work by:
 * add a lib over lua api to manipulate entity's as object and handle lifecycle
 * add a tetris module or any other cool game template module
 * add tiled support
-* add full screen/windows switching support
+
