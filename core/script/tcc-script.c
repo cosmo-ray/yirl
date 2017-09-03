@@ -60,9 +60,7 @@ static TCCState *createTCCState(YTccScript *state)
   }
   tcc_add_sysinclude_path(l, YIRL_MODULES_PATH);
   tcc_define_symbol(l, "Y_INSIDE_TCC", NULL);
-#ifdef TCC_OUTPUT_MEMORY
   tcc_set_output_type(l, TCC_OUTPUT_MEMORY);
-#endif
   return l;
 }
 
