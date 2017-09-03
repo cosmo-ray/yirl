@@ -37,7 +37,6 @@
     },
     "MapTest" : {
 	"<type>" : "map",
-	
 	"&resources" : "MapTestResources", // Not yet implemented :)
 	"init" : "shooterInit",
 	"background": "rgba: 180 210 20 50", // Not yet implemented :)
@@ -45,12 +44,12 @@
     "MapTestResources" : [
 	{
 	    "name" : "floar",
-	    "map-tild" : "bg.png",
+	    "map-tild" : "tests/bg.png",
 	    "map-char" : "."
 	},
 	{
 	    "name" : "pj", // for text screen ?
-	    "map-tild" : "head.png", // sdl map
+	    "map-tild" : "tests/head.png", // sdl map
 	    "map-char" : "@" // curses map
 	}
     ]
