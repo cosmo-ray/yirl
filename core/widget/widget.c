@@ -277,7 +277,7 @@ static YWidgetState *ywidNewWidgetInternal(int t,
   yeReCreateData(ret, entity, "$wid");
 
   yeSetFlag(entity, "signals", YE_FLAG_NO_COPY);
-  ret->actionIdx = ywidAddSignal(ret, "action");
+  ret->actionIdx = ywidAddSignal(entity, "action");
 
   /* Init widget */
   if (ret->init(ret, entity, NULL)) {

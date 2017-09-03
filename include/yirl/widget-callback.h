@@ -20,13 +20,7 @@
 
 #include "widget.h"
 
-#define ywidAddSignal(WID, VALUE)					\
-  _Generic((WID),							\
-	   YWidgetState *: ywidAddSignalByWid,				\
-	   Entity *: ywidAddSignalByEntity)(WID, VALUE)
-
-int ywidAddSignalByWid(YWidgetState *wid, const char *name);
-int ywidAddSignalByEntity(Entity *wid, const char *name);
+int ywidAddSignal(Entity *wid, const char *name);
 
 int ywidBind(YWidgetState *wid, const char *signal, Entity *callback);
 int ywidBindBySinIdx(YWidgetState *wid, int, Entity *callback);

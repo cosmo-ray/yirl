@@ -138,7 +138,7 @@ int ywMenuReBind(Entity *entity)
   Entity *entries = yeGet(entity, "entries");
 
   yeRemoveChildByStr(entity, "signals");
-  state->moveSinIdx = ywidAddSignal(opac, "move");
+  state->moveSinIdx = ywidAddSignal(entity, "move");
   if (!yeStrCmp(yeGet(entity, "mn-type"), "panel")) {
     ygBind(opac, "move", "panelMove");
   } else {
@@ -147,7 +147,7 @@ int ywMenuReBind(Entity *entity)
   state->actionSin0 = state->moveSinIdx + 1;
   YE_ARRAY_FOREACH_EXT(entries, entry, i) {
     char *tmp = g_strdup_printf("action-%d", i.pos);
-    int ret = ywidAddSignal(opac, tmp);
+    int ret = ywidAddSignal(entity, tmp);
     Entity *action;
 
     g_free(tmp);
@@ -193,9 +193,7 @@ static int mnRend(YWidgetState *opac)
 InputStatue ywMenuCallActionOnByEntity(Entity *opac, Entity *event,
 				       int idx, void *arg)
 {
-  YWidgetState *cur = ywidGetState(opac);
-
-  return ywMenuCallActionOnByState(cur, event, idx, arg);
+  return ywMenuCallActionOnByState(ywidGetState(opac), event, idx, arg);
 }
 
 InputStatue ywMenuCallActionOnByState(YWidgetState *opac, Entity *event,

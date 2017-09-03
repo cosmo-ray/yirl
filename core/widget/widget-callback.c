@@ -20,7 +20,7 @@
 #include "entity-script.h"
 #include <glib.h>
 
-int ywidAddSignalByEntity(Entity *wid, const char *name)
+int ywidAddSignal(Entity *wid, const char *name)
 {
   int64_t idx;
   Entity *sins = yeGet(wid, "signals");
@@ -37,11 +37,6 @@ int ywidAddSignalByEntity(Entity *wid, const char *name)
   yeReCreateInt(-1, sins, name);
   yeGetByStrExt(sins, name, &idx);
   return idx;
-}
-
-int ywidAddSignalByWid(YWidgetState *wid, const char *name)
-{
-  return ywidAddSignalByEntity(wid->entity, name);
 }
 
 int ywidBindBySinIdx(YWidgetState *wid, int idx, Entity *callback)
@@ -68,7 +63,7 @@ Entity *ywidCreateFunction(const char *name, void *manager,
     sins = yeCreateArray(wid, "signals");
     yePushBack(sins, tmp, sinName);
   } else {
-    yeReplace(sins, yeGet(sins, ywidAddSignalByEntity(wid, sinName)), tmp);
+    yeReplace(sins, yeGet(sins, ywidAddSignal(wid, sinName)), tmp);
   }
   yeDestroy(tmp);
   return tmp;
