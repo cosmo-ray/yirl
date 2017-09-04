@@ -15,33 +15,21 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
 #include <glib.h>
 #include "utils.h"
 #include "block-array.h"
-#ifdef	__unix__
-#include <numa.h>
-#else
-PVOID MmAllocateContiguousMemory(
-  _In_ SIZE_T           NumberOfBytes,
-  _In_ uint64_t HighestAcceptableAddress
-);
-VOID MmFreeContiguousMemory(
-  _In_ PVOID BaseAddress
-);
-#define numa_alloc(X) MmAllocateContiguousMemory(X, 0x0000FFFFFFFFFFFF)
-#define numa_free(X, Y) MmFreeContiguousMemory(X)
-#endif
 
-#define NUMA_SIZE 0x2fffffff
+#define ALLOC_SIZE 0x2fffffff
 
 inline void yBlockArrayInitInternal(BlockArray *ba, size_t elemSize, int flag)
 {
   g_assert(elemSize < YBA_MAX_ELEM_SIZE);
   ba->elemSize = elemSize;
   if (flag & YBLOCK_ARRAY_NUMA)
-    ba->elems = numa_alloc(NUMA_SIZE);
+    ba->elems = malloc(ALLOC_SIZE);
   else
     ba->elems = NULL;
   ba->blocks = NULL;
@@ -53,14 +41,11 @@ inline void yBlockArrayInitInternal(BlockArray *ba, size_t elemSize, int flag)
 
 inline void yBlockArrayFree(BlockArray *ba)
 {
-  g_free(ba->blocks);
+  free(ba->blocks);
   ba->nbBlock = 0;
   ba->size = 0;
   ba->lastPos = -1;
-  if (ba->flag & YBLOCK_ARRAY_NUMA)
-    numa_free(ba->elems, NUMA_SIZE);
-  else
-    g_free(ba->elems);
+  free(ba->elems);
 }
 
 #define BLOCK_REAL_SIZE(ba)			\
