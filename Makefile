@@ -35,7 +35,6 @@ SRC = 	$(SCRIPT_DIR)/lua-script.c \
 	$(UTIL_DIR)/block-array.c \
 	$(UTIL_DIR)/debug.c \
 	$(WID_DIR)/widget.c \
-	$(WID_DIR)/widget-callback.c \
 	$(WID_DIR)/text-screen.c \
 	$(WID_DIR)/menu.c \
 	$(WID_DIR)/map.c \

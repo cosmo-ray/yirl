@@ -24,7 +24,6 @@
 #include "curses-driver.h"
 #include "sdl-driver.h"
 #include "menu.h"
-#include "widget-callback.h"
 #include "native-script.h"
 
 static void *testMenuEnter(va_list ap)
@@ -60,13 +59,12 @@ void testYWMenuCurses(void)
 
   g_assert(ycursInit() != -1);
   g_assert(ycursType() == 0);
-  
+
   g_assert(ycursRegistreMenu() == 0);
 
   wid = ywidNewWidget(ret, NULL);
   g_assert(wid);
 
-  
   do {
     g_assert(ywidRend(wid) != -1);
   } while(ywidDoTurn(wid) != ACTION);
@@ -115,7 +113,6 @@ void testPanelMenuSdl2(void)
   wid = ywidNewWidget(ret, NULL);
   g_assert(wid);
 
-  
   do {
     g_assert(ywidRend(wid) != -1);
   } while(ywidDoTurn(wid) != ACTION);
@@ -154,14 +151,13 @@ void testYWMenuSdl2(void)
 
   g_assert(ysdl2Init() != -1);
   g_assert(ysdl2Type() == 0);
-  
+
   /* if sdl have type 0, ywidRegistreTypeRender must register this func at 0*/ 
   g_assert(ysdl2RegistreMenu() == 0);
 
   wid = ywidNewWidget(ret, NULL);
   g_assert(wid);
 
-  
   do {
     g_assert(ywidRend(wid) != -1);
   } while(ywidDoTurn(wid) != ACTION);

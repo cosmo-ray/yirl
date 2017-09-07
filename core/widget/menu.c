@@ -16,7 +16,6 @@
 */
 
 #include <glib.h>
-#include "widget-callback.h"
 #include "menu.h"
 #include "rect.h"
 #include "native-script.h"
@@ -92,33 +91,38 @@ static void *nmMenuNext(va_list ap)
   return ywidNext(next) ? (void *)BUG : (void *)ACTION;
 }
 
+static void *mnActionsInt(Entity *wid, Entity *eve, void *arg)
+{
+  Entity *actions = yeGet(ywMenuGetCurrentEntry(wid), "action");
+  if (actions)
+    return (void *)ywidAction(actions, wid, eve, arg);
+  actions = yeGet(ywMenuGetCurrentEntry(wid), "actions");
+  InputStatue ret = NOTHANDLE;
+
+  switch (yeType(actions)) {
+  case YSTRING:
+  case YFUNCTION:
+    return (void *)ywidAction(actions, wid, eve, arg);
+  case YARRAY:
+    {
+      YE_ARRAY_FOREACH(actions, action) {
+	int cur_ret = ywidAction(action, wid, eve, arg);
+
+	if (cur_ret > ret)
+	  ret = cur_ret;
+      }
+    }
+  }
+  return (void *)ret;
+}
+
 static void *mnActions(va_list ap)
 {
   Entity *wid = va_arg(ap, Entity *);
   Entity *eve = va_arg(ap, Entity *);
   void *arg = va_arg(ap, void *);
-  Entity *actions = yeGet(ywMenuGetCurrentEntry(wid), "actions");
-  InputStatue ret = NOTHANDLE;
 
-  YE_ARRAY_FOREACH(actions, action) {
-    int cur_ret = 0;
-
-    if (yeType(action) == YSTRING) {
-      cur_ret = (size_t)yesCall(ygGet(yeGetString(action)), wid, eve, arg);
-    } else if (yeType(action) == YFUNCTION) {
-      cur_ret = (size_t)yesCall(action, wid, eve, arg);
-    } else {
-      Entity *arg1 = yeLen(action) > 1 ? yeGet(action, 1) : Y_END_VA_LIST;
-      Entity *arg2 = yeLen(action) > 2 ? yeGet(action, 2) : Y_END_VA_LIST;
-      Entity *arg3 = yeLen(action) > 3 ? yeGet(action, 3) : Y_END_VA_LIST;
-
-      cur_ret = (size_t)yesCall(ygGet(yeGetString(yeGet(action, 0))),
-				wid, eve, arg, arg1, arg2, arg3);
-    }
-    if (cur_ret > ret)
-      ret = cur_ret;
-  }
-  return (void *)ret;
+  return mnActionsInt(wid, eve, arg);
 }
 
 void ywMenuUp(Entity *wid)
@@ -131,50 +135,18 @@ void ywMenuDown(Entity *wid)
   nmMenuDown(ywidGetState(wid));
 }
 
-int ywMenuReBind(Entity *entity)
-{
-  YWidgetState *opac = ywidGetState(entity);
-  YMenuState *state = (YMenuState *)opac;
-  Entity *entries = yeGet(entity, "entries");
-
-  yeRemoveChildByStr(entity, "signals");
-  state->moveSinIdx = ywidAddSignal(entity, "move");
-  if (!yeStrCmp(yeGet(entity, "mn-type"), "panel")) {
-    ygBind(opac, "move", "panelMove");
-  } else {
-    ygBind(opac, "move", "menuMove");
-  }
-  state->actionSin0 = state->moveSinIdx + 1;
-  YE_ARRAY_FOREACH_EXT(entries, entry, i) {
-    char *tmp = g_strdup_printf("action-%d", i.pos);
-    int ret = ywidAddSignal(entity, tmp);
-    Entity *action;
-
-    g_free(tmp);
-    if (ret != state->actionSin0 + i.pos)
-      return -1;
-    action = yeGet(entry, "action");
-    if (action) {
-      if (yeType(action) == YFUNCTION) {
-	ywidBindBySinIdx(opac, ret, action);
-      } else if (yeType(action) == YARRAY) {
-	ygBindBySinIdx(opac, ret,
-		       yeGetString(yeGet(yeGet(entry, "action"), 0)));
-      } else {
-	ygBindBySinIdx(opac, ret, yeGetString(yeGet(entry, "action")));
-      }
-    } else if ((action = yeGet(entry, "actions")) != NULL) {
-      ygBindBySinIdx(opac, ret, "menuActions");
-    }
-  }
-  return 0;
-}
-
 static int mnInit(YWidgetState *opac, Entity *entity, void *args)
 {
   (void)args;
   ywidGenericCall(opac, t, init);
-  return ywMenuReBind(entity);
+
+  yeRemoveChildByStr(entity, "move");
+  if (!yeStrCmp(yeGet(entity, "mn-type"), "panel")) {
+    yeCreateFunction("panelMove", ysNativeManager(), entity, "move");
+  } else {
+    yeCreateFunction("menuMove", ysNativeManager(), entity, "move");
+  }
+  return 0;
 }
 
 static int mnDestroy(YWidgetState *opac)
@@ -201,18 +173,14 @@ InputStatue ywMenuCallActionOnByState(YWidgetState *opac, Entity *event,
 {
   InputStatue ret;
   Entity *entries = yeGet(opac->entity, "entries");
-  Entity *action = yeGet(yeGet(entries, idx), "action");
-  Entity *arg1 = Y_END_VA_LIST;
+  Entity *entry = yeGet(entries, idx);
+  Entity *action = yeGet(entry, "action");
 
   if (idx < 0)
     return NOTHANDLE;
   ((YMenuState *)opac)->current = idx;
 
-  if (unlikely(yeType(action) == YARRAY))
-    arg1 = yeGet(action, 1);
-  ret = (size_t)yesCall(yeGet(opac->signals,
-			      idx + ((YMenuState *)opac)->actionSin0),
-			opac->entity, event, arg, arg1);
+  ret = (InputStatue)mnActionsInt(opac->entity, event, arg);
   if (ret == NOTHANDLE)
     return NOACTION;
   return ret;
@@ -231,7 +199,7 @@ static InputStatue mnEvent(YWidgetState *opac, Entity *event)
     if (ywidEveKey(event) == '\n') {
       ret = ywMenuCallActionOn(opac, event, ((YMenuState *)opac)->current, NULL);
     } else {
-      ret = ywidCallSignal(opac, event, NULL,  ((YMenuState *)opac)->moveSinIdx);
+      ret = (InputStatue)yesCall(yeGet(opac->entity, "move"), opac->entity, event);
     }
   } else if (ywidEveType(event) == YKEY_MOUSEDOWN) {
     ret = ywMenuCallActionOn(opac, event,

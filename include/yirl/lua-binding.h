@@ -78,11 +78,8 @@ int	luaYesCall(lua_State *L);
 /* widgets */
 int	luaSetMainWid(lua_State *L);
 int	luaNewWidget(lua_State *L);
-int	luaWidBind(lua_State *L);
 int	luaWidNext(lua_State *L);
 int	luaAddSubType(lua_State *L);
-int	luaAddSignal(lua_State *L);
-int	luaCallSignal(lua_State *L);
 
 /* event */
 int	luaWidNextEve(lua_State *L);
@@ -238,11 +235,8 @@ static inline int	yesLuaRegister(void *sm)
   /* widgets */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidNewWidget", luaNewWidget));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidSetMainWid", luaSetMainWid));
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidBind", luaWidBind));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidNext", luaWidNext));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidAddSubType", luaAddSubType));
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidAddSignal", luaAddSignal));
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidCallSignal", luaCallSignal));
 
   /* evenements */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidNextEve", luaWidNextEve));

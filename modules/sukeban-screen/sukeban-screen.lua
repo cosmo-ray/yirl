@@ -220,7 +220,7 @@ function sukeNewMap(entity)
       i = i + 1
    end
    local cnt = ywidNewWidget(entity)
-   ywidBind(cnt, "action", "sukeban-screen:map-action")
+   yeCreateString("sukeban-screen:map-action", entity, "action")
    yeCreateInt(0, entity, "-inside-dialogue");
    return cnt
 end
@@ -234,7 +234,7 @@ function sukeScreenNewWid(entity)
    yeCreateInt(80, yeGet(yeGet(entity, "entries"), 0), "size")
 
    local cnt = ywidNewWidget(entity, "contener")
-   ywidBind(cnt, "action", "sukeban-screen:action")
+   yeCreateString("sukeban-screen:action", entity, "action")
    yePushBack(sukeScreenGetMap(entity), entity, "screen")
    return cnt
 end

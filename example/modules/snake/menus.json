@@ -27,7 +27,9 @@
 	"<type>" : "snake",
 	"next" : "testSnake:scenes.LooseScreen",
 	"&resources" : "SnakeResources",
-	"bind" : [["hitWall", "snake:snakeWarp"], ["eat", "testSnake:eat"]],
+	"hitWall": "snake:snakeWarp",
+	"eat": "testSnake:eat",
+	"endTurn" : "snake:endTurn",
 	"background": "rgba: 255 25 127 255"
     },
     "SnakeResources" : [

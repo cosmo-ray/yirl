@@ -21,7 +21,6 @@
 #include	"debug.h"
 #include	"entity.h"
 #include	"entity-script.h"
-#include	"widget-callback.h"
 #include	"map.h"
 #include	"contener.h"
 #include	"game.h"
@@ -226,22 +225,6 @@ int	luaPopBack(lua_State *L)
   return 1;
 }
 
-int	luaCallSignal(lua_State *L)
-{
-  lua_pushnumber(L, ywidCallSignalFromEntity(lua_touserdata(L, 1),
-					     lua_touserdata(L, 2),
-					     lua_touserdata(L, 3),
-					     lua_tonumber(L, 4)));
-  return 1;
-}
-
-int	luaAddSignal(lua_State *L)
-{
-  lua_pushnumber(L, ywidAddSignal((Entity *)lua_touserdata(L, 1),
-				  lua_tostring(L, 2)));
-  return 1;
-}
-
 int	luaPushBack(lua_State *L)
 {
   if (lua_gettop(L) < 2)
@@ -258,19 +241,6 @@ int	luaPushBack(lua_State *L)
 	       NULL);
   }
   return 0;
-}
-
-int	luaWidBind(lua_State *L)
-{
-  if (lua_gettop(L) != 3)
-    {
-      luaL_error(L, "function arguments are incorect\n"
-		 "real prototyre is: ywidBind(lightuserdata map, string signal, string callback)\n");
-      return -1;
-    }
-  lua_pushnumber(L, ygBind(lua_touserdata(L, 1),
-			   lua_tostring(L, 2), lua_tostring(L, 3)));
-  return 1;
 }
 
 int	luaSetString(lua_State *L)

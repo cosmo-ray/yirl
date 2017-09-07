@@ -73,7 +73,6 @@ static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
       yeReCreateInt(!yeCheckCondition(condition), answer, "hiden");
     yePushBack(entries, answer, NULL);
   }
-  ywMenuReBind(menu);
 }
 
 void *newDialogueEntity(int nbArgs, void **args)
@@ -192,7 +191,7 @@ void *dialogueInit(int nbArgs, void **args)
   void *ret;
 
   yeRemoveChildByStr(main, "action");
-  ywidCreateFunction("dialogueAction", ygGetTccManager(), main, "action");
+  yeCreateFunction("dialogueAction", ygGetTccManager(), main, "action");
   yeCreateFunction("dialoguePostAction", ygGetTccManager(),
 		     main, "post-action");
   yeCreateString("text-screen", textScreen, "<type>");

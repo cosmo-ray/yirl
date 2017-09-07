@@ -18,7 +18,6 @@
 #include "tests.h"
 #include "game.h"
 #include "utils.h"
-#include "widget-callback.h"
 #include "native-script.h"
 
 static const char *testPath = TESTS_PATH"./testMod";
@@ -53,7 +52,7 @@ static void *shooterInit(va_list ap)
     yeCreateInt(0, yeCreateArray(arg, NULL), NULL);
   }
   ysRegistreNativeFunc("shooterAction", shooterAction);
-  ygBind(ywidGetState(wid), "action", "shooterAction");
+  yeCreateString("shooterAction", wid, "action");
   return (void *)NOTHANDLE;
 }
 

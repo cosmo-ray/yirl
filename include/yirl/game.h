@@ -20,7 +20,6 @@
 
 #include "yirl/entity.h"
 #include "yirl/widget.h"
-#include "yirl/widget-callback.h"
 #include "yirl/utils.h"
 #include "yirl/map.h"
 #include "yirl/sound.h"
@@ -128,9 +127,7 @@ void ygEnd(void);
 void *ygGetLuaManager(void);
 void *ygGetTccManager(void);
 
-int ygBindBySinIdx(YWidgetState *wid, int idx, const char *callback);
-
-int ygBind(YWidgetState *wid, const char *signal, const char *callback);
+int ygBind(YWidgetState *wid, const char *callback);
 
 Entity *ygGet(const char *toFind);
 void ygSetInt(const char *toSet, int val);

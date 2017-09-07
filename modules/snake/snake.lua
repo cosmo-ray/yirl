@@ -89,8 +89,8 @@ function hitWall(map, opos, npos, dir)
    yePushBack(arg, opos, "oldPos")
    yePushBack(arg, npos, "newPos")
    yeCreateInt(dir, arg, "dir")
-   ywidCallSignal(map, nil, arg, yeGetInt(yeGet(map, "hitWallIdx")))
-   ywidCallSignal(map, nil, arg, yeGetInt(yeGet(map, "endTurnIdx")))
+   yesCall(ygGet(yeGetString(yeGet(map, "hitWall"))), map, arg)
+   yesCall(ygGet(yeGetString(yeGet(map, "endTurn"))), map, arg)
    yeDestroy(arg)
 end
 
@@ -113,7 +113,7 @@ function moveHeadInternal(map, opos, npos)
       yeSetInt(score, yeGetInt(score) + 1)
       addBody(map, opos)
       bodyLen = 0
-      ywidCallSignal(map, score, nil, yeGetInt(yeGet(map, "eatIdx")))
+      yesCall(yeGet(map, "eat"), score, nil)
    end
 
    if (yuiAbs(ywPosX(npos) - ywPosX(opos)) > 1) then
@@ -126,18 +126,18 @@ function moveHeadInternal(map, opos, npos)
 
    if bodyLen == 0 then
       yeReplaceBack(head, npos, "pos")
-      ywidCallSignal(map, nil, nil, yeGetInt(yeGet(map, "endTurnIdx")))
+      yesCall(yeGet(map, "endTurn"))
       return
    end
 
    local i = 0
    while i < bodyLen do
       local curBodyPos = yeGet(body, bodyLen - 1 - i)
-      local elem = ywMapGetNbrEntityAt(map, curBodyPos, 4);
+      local elem = ywMapGetEntityById(map, curBodyPos, 4);
       local tmpPos = ywPosCreate(curBodyPos);
 
       if yLovePtrToNumber(elem) == 0 then
-	 elem = ywMapGetNbrEntityAt(map, curBodyPos, 3)
+	 elem = ywMapGetEntityById(map, curBodyPos, 3)
 	 yeSetInt(elem, 4)
       end
       if (yuiAbs(ywPosX(curBodyPos) - ywPosX(opos)) > 1) then
@@ -154,7 +154,7 @@ function moveHeadInternal(map, opos, npos)
    end
 
    yeReplaceBack(head, npos, "pos")
-   ywidCallSignal(map, nil, nil, yeGetInt(yeGet(map, "endTurnIdx")))
+   yesCall(yeGet(map, "endTurn"), nil, nil)
 end
 
 function moveHead(map)
@@ -231,13 +231,6 @@ function createSnake(entity)
    -- TODO: this functions: C/lua
    snakeMap(entity)
    yuiRandInit()
-   local sinNb = ywidAddSignal(entity, "hitWall")
-   yeCreateInt(sinNb, entity, "hitWallIdx")
-   yeCreateInt(ywidAddSignal(entity, "eat"),
-	       entity, "eatIdx")
-   yeCreateInt(ywidAddSignal(entity, "endTurn"),
-	       entity, "endTurnIdx")
-
    yeSetAt(ygGetMod("snake"), "score", 0)
    yeCreateFunction("reset", entity)
 
@@ -249,8 +242,7 @@ function createSnake(entity)
    yePushBack(entity, bak, "initial-state");
    yeDestroy(bak);
    yeCreateInt(1, entity, "recreate-logic")
-   ywidBind(map, "action", "snake:snakeAction")
-
+   yeCreateString("snake:snakeAction", entity, "action")
    return map
 end
 
@@ -258,7 +250,7 @@ function snakeDie(wid, useless1, useless2)
    ywidNext(yeGet(wid, "next"))
 end
 
-function snakeWarp(ent, useless1, arg)
+function snakeWarp(ent, arg)
    local dir = yeGetInt(yeGet(arg, "dir"))
    local mapLen = yeLen(yeGet(ent, "map"))
    local mapW = yeGetInt(yeGet(ent, "width"))
@@ -286,7 +278,6 @@ function reset(entity)
    yePushBack(entity, bak, "initial-state")
    local map = ywidNewWidget(entity, "map")
    yeCreateInt(1, entity, "recreate-logic")
-   ywidBind(map, "action", "snake:snakeAction")
 
    local headPos = 20 * 10 + 10
    local tmp = yeGet(yeGet(entity, "map"), headPos)

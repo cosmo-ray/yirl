@@ -24,7 +24,6 @@
 #include "widget.h"
 #include "rect.h"
 #include "entity-script.h"
-#include "widget-callback.h"
 
 static Entity *subTypes = NULL;
 static Entity *configs = NULL;
@@ -267,17 +266,11 @@ static YWidgetState *ywidNewWidgetInternal(int t,
   }
 
   ret->entity = entity;
-  ret->signals = yeGet(entity, "signals");
-  if (!ret->signals)
-    ret->signals = yeCreateArray(entity, "signals");
 
   if (yeGet(entity, "$wid")) {
     DPRINT_WARN("$wid alerady existe, this may lead to odd and very unexpected behavior !!!!");
   }
   yeReCreateData(ret, entity, "$wid");
-
-  yeSetFlag(entity, "signals", YE_FLAG_NO_COPY);
-  ret->actionIdx = ywidAddSignal(entity, "action");
 
   /* Init widget */
   if (ret->init(ret, entity, NULL)) {
@@ -293,12 +286,6 @@ static YWidgetState *ywidNewWidgetInternal(int t,
   ret->hasChange = 1;
   ret->shouldDraw = 1;
 
-  ygBindBySinIdx(ret, ret->actionIdx, yeGetString(yeGet(entity, "action")));
-
-  YE_ARRAY_FOREACH(yeGet(ret->entity, "bind"), bindInfo) {
-    ygBind(ret, yeGetString(yeGet(bindInfo, 0)),
-	     yeGetString(yeGet(bindInfo, 1)));
-  }
   return ret;
 
  error:
@@ -543,9 +530,30 @@ int ywidDoTurn(YWidgetState *opac)
   return ret;
 }
 
-InputStatue ywidEventCallActionSin(YWidgetState *opac, Entity *event)
+InputStatue ywidAction(Entity *action, Entity *wid, Entity *eve, Entity *arg)
 {
-  return ywidCallSignal(opac, event, NULL, opac->actionIdx);
+     if (yeType(action) == YSTRING) {
+       return (InputStatue)yesCall(ygGet(yeGetString(action)), wid, eve, arg);
+    } else if (yeType(action) == YFUNCTION) {
+      return (InputStatue)yesCall(action, wid, eve, arg);
+    } else {
+      Entity *f = yeGet(action, 0);
+      Entity *arg1 = yeLen(action) > 1 ? yeGet(action, 1) : Y_END_VA_LIST;
+      Entity *arg2 = yeLen(action) > 2 ? yeGet(action, 2) : Y_END_VA_LIST;
+      Entity *arg3 = yeLen(action) > 3 ? yeGet(action, 3) : Y_END_VA_LIST;
+
+      if (yeType(f) == YSTRING)
+	f = ygGet(yeGetString(f));
+      return (InputStatue)yesCall(f, wid, eve, arg, arg1, arg2, arg3);
+    }
+}
+
+InputStatue ywidEventCallActionSin(YWidgetState *opac,
+				   Entity *event)
+{
+  Entity *action = yeGet(opac->entity, "action");
+
+  return ywidAction(action, opac->entity, event, NULL);
 }
 
 int ywidHandleEvent(YWidgetState *opac, Entity *event)

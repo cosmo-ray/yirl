@@ -17,7 +17,6 @@
 
 #include <glib.h>
 #include "curses-driver.h"
-#include "widget-callback.h"
 #include "sdl-driver.h"
 #include "json-desc.h"
 #include "entity.h"

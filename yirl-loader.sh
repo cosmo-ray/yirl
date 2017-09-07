@@ -1,1 +1,1 @@
-LD_LIBRARY_PATH=/home/uso/yirl ./yirl-loader $@
+LD_LIBRARY_PATH=$PWD ./yirl-loader $@

@@ -36,7 +36,6 @@
 #include "ybytecode-script.h"
 
 /* widgets */
-#include "widget-callback.h"
 #include "utils.h"
 #include "entity.h"
 #include "curses-driver.h"
@@ -629,18 +628,15 @@ void ygSetInt(const char *toSet, int val)
     yeSetInt(e, val);
 }
 
-int ygBindBySinIdx(YWidgetState *wid, int idx, const char *callback)
-{
-  return ywidBindBySinIdx(wid, idx, ygGetFuncExt(callback));
-}
-
-int ygBind(YWidgetState *wid, const char *signal, const char *callback)
+int ygBind(YWidgetState *wid, const char *callback)
 {
   Entity *callbackEnt = ygGetFuncExt(callback);
   if (!callbackEnt) {
     DPRINT_WARN("unable to find '%s'\n", callback);
   }
-  return ywidBind(wid, signal, callbackEnt);
+  if (!yeReplaceBack(wid->entity, callbackEnt, "action"))
+    return -1;
+  return 0;
 }
 
 static int ygParseStartAndGame(GameConfig *config)

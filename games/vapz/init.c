@@ -313,7 +313,7 @@ void *vapzInit(int nbArgs, void **args)
   yeCreateInt(0, cur_layer, "score");
   yeCreateInt(150000, main, "turn-length");
   yeCreateInt(YRECALL_INIT, main, "recreate-logic");
-  ywidCreateFunction("vapzAction", ygGetTccManager(), main, "action");
+  yeCreateFunction("vapzAction", ygGetTccManager(), main, "action");
   void *ret = ywidNewWidget(main, "contener");
   return ret;
 }

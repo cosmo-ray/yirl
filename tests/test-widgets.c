@@ -24,7 +24,6 @@
 #include "curses-driver.h"
 #include "sdl-driver.h"
 #include "text-screen.h"
-#include "widget-callback.h"
 #include "native-script.h"
 
 static void *testTXQuitOnQ(va_list ap)

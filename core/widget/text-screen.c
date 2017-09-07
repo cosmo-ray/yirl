@@ -18,7 +18,6 @@
 #include <glib.h>
 #include "rect.h"
 #include "text-screen.h"
-#include "widget-callback.h"
 
 static int t = -1;
 

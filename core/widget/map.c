@@ -19,7 +19,6 @@
 #include <glib.h>
 #include "rect.h"
 #include "map.h"
-#include "widget-callback.h"
 #include "entity-script.h"
 #include "native-script.h"
 

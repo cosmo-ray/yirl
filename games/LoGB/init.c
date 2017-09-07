@@ -60,7 +60,7 @@ void *battleInit(int nbArgs, void **args)
   Entity *panel;
 
   globMousePos = ywPosCreateInts(0, 0, NULL, NULL);
-  ywidCreateFunction("battleAction", ygGetTccManager(), main, "action");
+  yeCreateFunction("battleAction", ygGetTccManager(), main, "action");
   Entity *pos = ywPosCreateInts(0, 0, main, "_cursos pos");
 
   if (!yeGetByStr(main, "player 1") || !yeGetByStr(main, "player 2")) {

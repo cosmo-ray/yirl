@@ -293,6 +293,7 @@ void ywidSetMainWid(YWidgetState *wid);
 YWidgetState *ywidGetMainWid(void);
 void ywidFreeWidgets(void);
 
+InputStatue ywidAction(Entity *func, Entity *wid, Entity *event, Entity *arg);
 InputStatue ywidEventCallActionSin(YWidgetState *opac, Entity *event);
 
 int ywIsPixsOnWid(Entity *widget, int posX, int posY);

@@ -17,7 +17,6 @@
 
 #include <glib.h>
 #include "contener.h"
-#include "widget-callback.h"
 #include "yirl/pos.h"
 #include "yirl/rect.h"
 
@@ -245,7 +244,7 @@ static InputStatue cntEvent(YWidgetState *opac, Entity *event)
   Entity *entries = yeGet(opac->entity, "entries");
   YWidgetState *cur;
 
-  ret = ywidCallSignal(opac, event, NULL, opac->actionIdx);
+  ret = ywidEventCallActionSin(opac, event);
   if (ret != NOTHANDLE)
     return ret;
 

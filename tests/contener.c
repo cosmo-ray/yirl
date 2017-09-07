@@ -23,7 +23,6 @@
 #include "game.h"
 #include "utils.h"
 #include "rect.h"
-#include "widget-callback.h"
 #include "json-desc.h"
 #include "yirl/native-script.h"
 

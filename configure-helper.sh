@@ -42,10 +42,8 @@ function parse_args {
 		shift 1 ;;
 	    *"="*)
 		echo $1
-		echo $1 >> config.mk
-		shift 1 ;;
-	    *"="*)
 		export $1
+		echo $1 >> config.mk
 		shift 1 ;;
 	    *)
 		break ;;
