@@ -35,7 +35,6 @@ static int sdl2Render(YWidgetState *state, int t)
 
   if (ywidBgConfFill(yeGet(entity, "background"), &cfg) >= 0)
     sdlFillBg(wid, &cfg);
-  printf("rendering canvas %p %p\n", wid, objs);
   YE_ARRAY_FOREACH(objs, obj) {
     Entity *size = yeGet(obj, "$size");
     if (!size) {

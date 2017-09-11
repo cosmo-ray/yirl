@@ -23,5 +23,9 @@
 int ywCanvasInit(void);
 int ywCanvasEnd(void);
 int ysdl2RegistreCanvas(void);
+/**
+ * add @pos to object position at @objIdx
+ */
+int ywCanvasMoveObjByIdx(Entity *wid, int objIdx, Entity *pos);
 
 #endif

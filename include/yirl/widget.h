@@ -293,6 +293,7 @@ void ywidSetMainWid(YWidgetState *wid);
 YWidgetState *ywidGetMainWid(void);
 void ywidFreeWidgets(void);
 
+InputStatue ywidActions(Entity *wid, Entity *actionWid, Entity *eve, void *arg);
 InputStatue ywidAction(Entity *func, Entity *wid, Entity *event, Entity *arg);
 InputStatue ywidEventCallActionSin(YWidgetState *opac, Entity *event);
 

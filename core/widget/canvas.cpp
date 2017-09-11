@@ -80,5 +80,14 @@ extern "C" {
     t = -1;
     return 0;
   }
+
+  int ywCanvasMoveObjByIdx(Entity *wid, int objIdx, Entity *pos)
+  {
+    Entity *obj = yeGet(yeGet(wid, "objs"), objIdx);
+
+    ywPosAdd(yeGet(obj, "pos"), pos);
+    return 0;
+  }
+
 }
 

@@ -532,28 +532,51 @@ int ywidDoTurn(YWidgetState *opac)
 
 InputStatue ywidAction(Entity *action, Entity *wid, Entity *eve, Entity *arg)
 {
-     if (yeType(action) == YSTRING) {
-       return (InputStatue)yesCall(ygGet(yeGetString(action)), wid, eve, arg);
-    } else if (yeType(action) == YFUNCTION) {
-      return (InputStatue)yesCall(action, wid, eve, arg);
-    } else {
-      Entity *f = yeGet(action, 0);
-      Entity *arg1 = yeLen(action) > 1 ? yeGet(action, 1) : Y_END_VA_LIST;
-      Entity *arg2 = yeLen(action) > 2 ? yeGet(action, 2) : Y_END_VA_LIST;
-      Entity *arg3 = yeLen(action) > 3 ? yeGet(action, 3) : Y_END_VA_LIST;
+  if (yeType(action) == YSTRING) {
+    return (InputStatue)yesCall(ygGet(yeGetString(action)), wid, eve, arg);
+  } else if (yeType(action) == YFUNCTION) {
+    return (InputStatue)yesCall(action, wid, eve, arg);
+  } else {
+    Entity *f = yeGet(action, 0);
+    Entity *arg1 = yeLen(action) > 1 ? yeGet(action, 1) : Y_END_VA_LIST;
+    Entity *arg2 = yeLen(action) > 2 ? yeGet(action, 2) : Y_END_VA_LIST;
+    Entity *arg3 = yeLen(action) > 3 ? yeGet(action, 3) : Y_END_VA_LIST;
 
-      if (yeType(f) == YSTRING)
-	f = ygGet(yeGetString(f));
-      return (InputStatue)yesCall(f, wid, eve, arg, arg1, arg2, arg3);
+    if (yeType(f) == YSTRING)
+      f = ygGet(yeGetString(f));
+    return (InputStatue)yesCall(f, wid, eve, arg, arg1, arg2, arg3);
+  }
+}
+
+InputStatue ywidActions(Entity *wid, Entity *actionWid, Entity *eve, void *arg)
+{
+  Entity *actions = yeGet(actionWid, "action");
+  if (actions)
+    return ywidAction(actions, wid, eve, arg);
+  actions = yeGet(actionWid, "actions");
+  InputStatue ret = NOTHANDLE;
+
+  switch (yeType(actions)) {
+  case YSTRING:
+  case YFUNCTION:
+    return ywidAction(actions, wid, eve, arg);
+  case YARRAY:
+    {
+      YE_ARRAY_FOREACH(actions, action) {
+	int cur_ret = ywidAction(action, wid, eve, arg);
+
+	if (cur_ret > ret)
+	  ret = cur_ret;
+      }
     }
+  }
+  return ret;
 }
 
 InputStatue ywidEventCallActionSin(YWidgetState *opac,
 				   Entity *event)
 {
-  Entity *action = yeGet(opac->entity, "action");
-
-  return ywidAction(action, opac->entity, event, NULL);
+  return ywidActions(opac->entity, opac->entity, event, NULL);
 }
 
 int ywidHandleEvent(YWidgetState *opac, Entity *event)

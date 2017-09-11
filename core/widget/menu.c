@@ -24,7 +24,6 @@
 
 static int t = -1;
 
-
 typedef struct {
   YWidgetState sate;
   unsigned int current;
@@ -91,30 +90,6 @@ static void *nmMenuNext(va_list ap)
   return ywidNext(next) ? (void *)BUG : (void *)ACTION;
 }
 
-static void *mnActionsInt(Entity *wid, Entity *eve, void *arg)
-{
-  Entity *actions = yeGet(ywMenuGetCurrentEntry(wid), "action");
-  if (actions)
-    return (void *)ywidAction(actions, wid, eve, arg);
-  actions = yeGet(ywMenuGetCurrentEntry(wid), "actions");
-  InputStatue ret = NOTHANDLE;
-
-  switch (yeType(actions)) {
-  case YSTRING:
-  case YFUNCTION:
-    return (void *)ywidAction(actions, wid, eve, arg);
-  case YARRAY:
-    {
-      YE_ARRAY_FOREACH(actions, action) {
-	int cur_ret = ywidAction(action, wid, eve, arg);
-
-	if (cur_ret > ret)
-	  ret = cur_ret;
-      }
-    }
-  }
-  return (void *)ret;
-}
 
 static void *mnActions(va_list ap)
 {
@@ -122,7 +97,7 @@ static void *mnActions(va_list ap)
   Entity *eve = va_arg(ap, Entity *);
   void *arg = va_arg(ap, void *);
 
-  return mnActionsInt(wid, eve, arg);
+  return (void *)ywidActions(wid, ywMenuGetCurrentEntry(wid),  eve, arg);
 }
 
 void ywMenuUp(Entity *wid)
@@ -180,7 +155,8 @@ InputStatue ywMenuCallActionOnByState(YWidgetState *opac, Entity *event,
     return NOTHANDLE;
   ((YMenuState *)opac)->current = idx;
 
-  ret = (InputStatue)mnActionsInt(opac->entity, event, arg);
+  ret = ywidActions(opac->entity, ywMenuGetCurrentEntry(opac->entity),
+		    event, arg);
   if (ret == NOTHANDLE)
     return NOACTION;
   return ret;
@@ -208,7 +184,6 @@ static InputStatue mnEvent(YWidgetState *opac, Entity *event)
 					      ywPosY(ywidEveMousePos(event))),
 			     NULL);
   }
-
   return ret;
 }
 
