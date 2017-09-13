@@ -176,8 +176,10 @@ static int cntInit(YWidgetState *opac, Entity *entity, void *args)
   Entity *bg_tx;
 
   (void)args;
-  if (!entries)
+  if (!entries) {
+    DPRINT_ERR("no entries");
     return -1;
+  }
 
   if (bg) {
     bg_tx = yeCreateArray(entity, "$bg");
