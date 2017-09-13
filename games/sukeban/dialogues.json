@@ -13,7 +13,7 @@
 	    "answers" : [
 		{
 		    "text" : "bug off",
-		    "action" : "FinishGame"
+		    "action" : "sukeban-screen:back-to-map"
 		},
 		{
 		    "text" : "hej, what's your name ?",
@@ -49,7 +49,7 @@
 	    "answers" : [
 		{
 		    "text" : "know what, that's not your concern, fuck you",
-		    "action" : "FinishGame"
+		    "action" : "sukeban-screen:back-to-map"
 		},
 		{
 		    "text" : "sorry, can you repeat ?",
