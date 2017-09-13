@@ -1,0 +1,12 @@
+{
+    "name" : "sukeban-fight",
+    "init-scripts" : [
+	    "init_sukeban_fight"
+    ],
+    "pre-load" : [
+	{
+	    "file" : "init.c",
+	    "type" : "tcc"
+	}
+    ]
+}

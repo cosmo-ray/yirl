@@ -98,6 +98,7 @@ void testYSoundLib(void);
 void testListMod(void);
 void testDialogueMod(void);
 void testTextInputMod(void);
+void testSukeFightMod(void);
 
 void testMazeGenMod(void);
 #endif
