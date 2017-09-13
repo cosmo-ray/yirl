@@ -62,7 +62,7 @@ static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
   Entity *txt = getText(dialogue);
   Entity *entries;
 
-  ywContenerUpdate(wid, textScreen);
+  ywContainerUpdate(wid, textScreen);
   yeReCreateString(yeGetString(txt), textScreen, "text");
   entries = yeReCreateArray(menu, "entries", NULL);
   yeReplaceBack(menu, wid, "_main");
@@ -176,7 +176,7 @@ void *dialogueGoto(int nbArgs, void **args)
 void *dialogueChangeText(int nbArgs, void **args)
 {
   Entity *main = yeGetByStr(args[0], "_main");
-  ywContenerUpdate(main, ywCntGetEntry(main, 0));
+  ywContainerUpdate(main, ywCntGetEntry(main, 0));
   yeReplaceBack(ywCntGetEntry(main, 0), getText(args[3]), "text");
   return (void *)NOACTION;
 }

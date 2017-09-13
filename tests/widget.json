@@ -42,14 +42,14 @@
 	"background": "rgba: 180 210 200 255",
 	"button_background": "hello.pnj" // Not yet implemented  :)
     },
-    "ContenerTest" : {
+    "ContainerTest" : {
 	"<type>" : "container",
 	"entries" : [
 	    {"name" : "MenuTest"},
 	    {"name" : "TextScreenTest"}
 	]
     },
-    "VContenerTest" : {
+    "VContainerTest" : {
 	"<type>" : "container",
 	"cnt-type" : "vertical",
 	"entries" : [
@@ -57,7 +57,7 @@
 	    {"name" : "TextScreenTest"}
 	]
     },
-    "SContenerTest" : {
+    "SContainerTest" : {
 	"<type>" : "container",
 	"cnt-type" : "stacking",
 	"entries" : [

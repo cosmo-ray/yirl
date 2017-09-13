@@ -97,7 +97,7 @@ static void addShip(Entity *wid)
   printFLeet(txtSurface, ylist_pop(fleet));
  exit:
   ywTextScreenPosAtEndOfText(getTextScreen(wid));
-  ywContenerUpdate(wid, getTextScreen(wid));
+  ywContainerUpdate(wid, getTextScreen(wid));
   yeDestroy(gc);
 }
 
@@ -110,7 +110,7 @@ void *nextState(Entity *wid)
     yeAddStr(getTextScreenSurface(wid),
 	     "fine, it's not implemented, that was useless\n");
   }
-  ywContenerUpdate(wid, getTextScreen(wid));
+  ywContainerUpdate(wid, getTextScreen(wid));
   ywTextScreenPosAtEndOfText(getTextScreen(wid));
 }
 
@@ -129,7 +129,7 @@ void *battleAction(int nbArgs, void **args)
     int ym = ywidYMouse(eve);
 
     if (ywidEveType(eve) == YKEY_MOUSEDOWN) {
-      Entity *cur_wid = ywContenerGetWidgetAt(wid, xm, ym);
+      Entity *cur_wid = ywContainerGetWidgetAt(wid, xm, ym);
       if (cur_wid == ywCntGetEntry(wid, 1)) {
 	return (void *)ywMenuCallActionOnByEntity(cur_wid, eve,
 						  ywMenuPosFromPix(cur_wid,
@@ -143,16 +143,16 @@ void *battleAction(int nbArgs, void **args)
 			yeGetByStrFast(wid, "cursor id"));
       ywPosSetEnt(cursorPos, mousePos, 0);
       YE_DESTROY(mousePos);
-      ywContenerUpdate(wid, l1);
+      ywContainerUpdate(wid, l1);
       ret = (void *)ACTION;
     } else if (ywidEveType(eve) == YKEY_MOUSEMOTION) {
       ywPosSetInts(globMousePos, xm, ym);
     } else if (ywidEveType(eve) == YKEY_MOUSEWHEEL) {
-      if (ywContenerGetWidgetAt(wid, ywPosX(globMousePos), ywPosY(globMousePos)) ==
+      if (ywContainerGetWidgetAt(wid, ywPosX(globMousePos), ywPosY(globMousePos)) ==
 	  getTextScreen(wid)) {
 	yeAddInt(yeGetByStr(getTextScreen(wid), "text-threshold"),
 		 ywidEveKey(eve));
-	ywContenerUpdate(wid, getTextScreen(wid));
+	ywContainerUpdate(wid, getTextScreen(wid));
       }
     } else if (ywidEveType(eve) != YKEY_DOWN) {
       continue;
@@ -171,25 +171,25 @@ void *battleAction(int nbArgs, void **args)
     case Y_UP_KEY:
       ywMapAdvenceWithPos(l1, yeGetByStr(wid, "_cursos pos"),
 			  0, -1, yeGetByStr(wid, "cursor id"));
-      ywContenerUpdate(wid, l1);
+      ywContainerUpdate(wid, l1);
       ret = (void *)ACTION;
       break;
     case Y_DOWN_KEY:
       ywMapAdvenceWithPos(l1, yeGetByStr(wid, "_cursos pos"),
 			  0, 1, yeGetByStr(wid, "cursor id"));
-      ywContenerUpdate(wid, l1);
+      ywContainerUpdate(wid, l1);
       ret = (void *)ACTION;
       break;
     case Y_LEFT_KEY:
       ywMapAdvenceWithPos(l1, yeGetByStr(wid, "_cursos pos"),
 			  -1, 0, yeGetByStr(wid, "cursor id"));
-      ywContenerUpdate(wid, l1);
+      ywContainerUpdate(wid, l1);
       ret = (void *)ACTION;
       break;
     case Y_RIGHT_KEY:
       ywMapAdvenceWithPos(l1, yeGetByStr(wid, "_cursos pos"),
 			  1, 0, yeGetByStr(wid, "cursor id"));
-      ywContenerUpdate(wid, l1);
+      ywContainerUpdate(wid, l1);
       ret = (void *)ACTION;
       break;
     default:

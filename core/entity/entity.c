@@ -991,7 +991,7 @@ static Entity *yeCopyFindRef(const char *name, Entity *entity, void *arg)
   return NULL;
 }
 
-static ArrayEntity *yeCopyContener(ArrayEntity* src, ArrayEntity* dest,
+static ArrayEntity *yeCopyContainer(ArrayEntity* src, ArrayEntity* dest,
 				   Entity *used, Entity *refs)
 {
   if (src == NULL || dest == NULL)
@@ -1071,7 +1071,7 @@ static Entity*		yeCopyInternal(Entity* src, Entity* dest,
       yeSetString(dest, strVal);
       break;
     case YARRAY:
-      yeCopyContener((ArrayEntity*)src, (ArrayEntity*)dest, used, refs);
+      yeCopyContainer((ArrayEntity*)src, (ArrayEntity*)dest, used, refs);
       break;
     case YFUNCTION:
       strVal = yeGetFunction(src);

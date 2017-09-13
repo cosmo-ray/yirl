@@ -130,13 +130,13 @@ int main(int argc, char **argv)
   TEST_TRY_ADD("/widget/map/resized/sdl", testYWMapSdl2, only);
   TEST_TRY_ADD("/widget/map/big/sdl", testYBigWMapSdl2, only);
   TEST_TRY_ADD("/widget/container/static/horizontal/sdl",
-	       testHorizontalContenerSdl, only);
-  TEST_TRY_ADD("/widget/container/static/vertical/sdl", testVerticalContenerSdl,
+	       testHorizontalContainerSdl, only);
+  TEST_TRY_ADD("/widget/container/static/vertical/sdl", testVerticalContainerSdl,
 	       only);
-  TEST_TRY_ADD("/widget/container/static/stack/sdl", testStackContenerSdl, only);
-  TEST_TRY_ADD("/widget/container/static/mix/sdl", testMixContenerSdl, only);
+  TEST_TRY_ADD("/widget/container/static/stack/sdl", testStackContainerSdl, only);
+  TEST_TRY_ADD("/widget/container/static/mix/sdl", testMixContainerSdl, only);
   TEST_TRY_ADD("/widget/container/dynamic/stack/sdl",
-	       testDynamicStackContenerSdl, only);
+	       testDynamicStackContainerSdl, only);
   TEST_TRY_ADD("/modules/textinput", testTextInputMod, only);
   TEST_TRY_ADD("/game/sdl/simple", testYGameSdlLibBasic, only);
   TEST_TRY_ADD("/modules/dialogue", testDialogueMod, only);

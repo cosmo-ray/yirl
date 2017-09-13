@@ -32,7 +32,7 @@ typedef struct {
   int curent;
   /* Default type is vertical */
   int type;
-} YContenerState;
+} YContainerState;
 
 int ywContainerInit(void);
 int ywContainerEnd(void);
@@ -43,9 +43,9 @@ int ywContainerEnd(void);
  */
 int ywPushNewWidget(Entity *container, Entity *wid, int dec_ref);
 
-int ywContenerUpdate(Entity *container, Entity *widEnt);
+int ywContainerUpdate(Entity *container, Entity *widEnt);
 
-Entity *ywContenerGetWidgetAt(Entity *container, int posX, int posY);
+Entity *ywContainerGetWidgetAt(Entity *container, int posX, int posY);
 
 Entity *ywCntGetEntry(Entity *container, int idx);
 
@@ -55,6 +55,6 @@ Entity *ywCntPopLastEntry(Entity *container);
 
 Entity *ywCntGetLastEntry(Entity *container);
 
-#define ywCntType(opac) (((YContenerState *)opac)->type)
+#define ywCntType(opac) (((YContainerState *)opac)->type)
 
 #endif

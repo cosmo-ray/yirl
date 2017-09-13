@@ -270,8 +270,8 @@ void *vapzAction(int nbArgs, void **args)
     }
     bulletsTurn(map, textScreen);
     pizzaTurn(map);
-    ywContenerUpdate(wid, map);
-    ywContenerUpdate(wid, textScreen);
+    ywContainerUpdate(wid, map);
+    ywContainerUpdate(wid, textScreen);
   }
   ywMapSetOutBehavior(map, YMAP_OUT_BLOCK);
   ywMapAdvenceWithEPos(map, vkPos, nextPos, ywMapGetEntityById(map, vkPos, 1));

@@ -29,7 +29,7 @@ static inline Entity *getEntry(Entity *father, Entity *tmp)
   return tmp;
 }
 
-int ywContenerUpdate(Entity *container, Entity *widEnt)
+int ywContainerUpdate(Entity *container, Entity *widEnt)
 {
   Entity *entries = yeGet(container, "entries");
 
@@ -38,7 +38,7 @@ int ywContenerUpdate(Entity *container, Entity *widEnt)
 
     wid = ywidGetState(tmp);
     if ((tmp == widEnt) ||
-	(wid->type == t && ywContenerUpdate(tmp, widEnt))) {
+	(wid->type == t && ywContainerUpdate(tmp, widEnt))) {
       wid->hasChange = 1;
       wid = ywidGetState(container);
       wid->hasChange = 1;
@@ -48,7 +48,7 @@ int ywContenerUpdate(Entity *container, Entity *widEnt)
   return 0;
 }
 
-Entity *ywContenerGetWidgetAt(Entity *container, int posX, int posY)
+Entity *ywContainerGetWidgetAt(Entity *container, int posX, int posY)
 {
   Entity *entries = yeGet(container, "entries");
 
@@ -114,7 +114,7 @@ static void cntResize(YWidgetState *opac)
 {
   Entity *entity = opac->entity;
   Entity *entries = yeGet(entity, "entries");
-  YContenerState *cnt = ((YContenerState *)opac);
+  YContainerState *cnt = ((YContainerState *)opac);
   Entity *pos = yeGet(entity, "wid-pos");
   int i = 0;
   size_t len = yeLen(entries);
@@ -330,7 +330,7 @@ static void midRendEnd(YWidgetState *opac)
 
 static void *alloc(void)
 {
-  YContenerState *ret = g_new0(YContenerState, 1);
+  YContainerState *ret = g_new0(YContainerState, 1);
   YWidgetState *wstate = (YWidgetState *)ret;
 
   wstate->render = cntRend;

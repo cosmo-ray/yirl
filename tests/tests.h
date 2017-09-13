@@ -83,11 +83,11 @@ void testYWMapAll(void);
 
 void testYBigWMapSdl2(void);
 
-void testHorizontalContenerSdl(void);
-void testVerticalContenerSdl(void);
-void testStackContenerSdl(void);
-void testMixContenerSdl(void);
-void testDynamicStackContenerSdl(void);
+void testHorizontalContainerSdl(void);
+void testVerticalContainerSdl(void);
+void testStackContainerSdl(void);
+void testMixContainerSdl(void);
+void testDynamicStackContainerSdl(void);
 
 void testYGameLifecycle(void);
 void testYGameSdlLibBasic(void);

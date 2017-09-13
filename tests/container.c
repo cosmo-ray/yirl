@@ -38,7 +38,7 @@ static void *testMenuEnter(va_list ap)
   return (void *)NOTHANDLE;
 }
 
-void testHorizontalContenerSdl(void)
+void testHorizontalContainerSdl(void)
 {
   GameConfig cfg;
   Entity *ret;
@@ -53,7 +53,7 @@ void testHorizontalContenerSdl(void)
   /* Parsing json */
   jsonManager = ydNewManager(t);
   ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
-  ret = yeGet(ret, "ContenerTest");
+  ret = yeGet(ret, "ContainerTest");
   g_assert(ret);
   ysRegistreNativeFunc("menuTest", testMenuEnter);
 
@@ -68,7 +68,7 @@ void testHorizontalContenerSdl(void)
   ygEnd();
 }
 
-void testVerticalContenerSdl(void)
+void testVerticalContainerSdl(void)
 {
   GameConfig cfg;
   Entity *ret;
@@ -83,7 +83,7 @@ void testVerticalContenerSdl(void)
   /* Parsing json */
   jsonManager = ydNewManager(t);
   ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
-  ret = yeGet(ret, "VContenerTest");
+  ret = yeGet(ret, "VContainerTest");
   g_assert(ret);
   ysRegistreNativeFunc("menuTest", testMenuEnter);
 
@@ -98,7 +98,7 @@ void testVerticalContenerSdl(void)
   ygEnd();
 }
 
-void testStackContenerSdl(void)
+void testStackContainerSdl(void)
 {
   GameConfig cfg;
   Entity *ret;
@@ -113,7 +113,7 @@ void testStackContenerSdl(void)
   /* Parsing json */
   jsonManager = ydNewManager(t);
   ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
-  ret = yeGet(ret, "SContenerTest");
+  ret = yeGet(ret, "SContainerTest");
   g_assert(ret);
   ysRegistreNativeFunc("menuTest", testMenuEnter);
 
@@ -128,7 +128,7 @@ void testStackContenerSdl(void)
   ygEnd();
 }
 
-void testMixContenerSdl(void)
+void testMixContainerSdl(void)
 {
   GameConfig cfg;
   Entity *ret;
@@ -144,12 +144,12 @@ void testMixContenerSdl(void)
   /* Parsing json */
   jsonManager = ydNewManager(t);
   ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
-  cnt = yeGet(ret, "VContenerTest");
+  cnt = yeGet(ret, "VContainerTest");
   g_assert(cnt);
 
   yeSetString(yeGet(yeGet(yeGet(cnt, "entries"), 1), "name"),
-	      "ContenerTest");
-  ret = yeGet(ret, "ContenerTest");
+	      "ContainerTest");
+  ret = yeGet(ret, "ContainerTest");
   g_assert(ret);
   yeSetString(yeGet(yeGet(yeGet(ret, "entries"), 1), "name"),
 	      "MenuTest");
@@ -171,7 +171,7 @@ void testMixContenerSdl(void)
   ygEnd();
 }
 
-void testDynamicStackContenerSdl(void)
+void testDynamicStackContainerSdl(void)
 {
   GameConfig cfg;
   Entity *cnt, *resources, *entries, *curMap, *gc;
