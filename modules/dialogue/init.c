@@ -17,7 +17,7 @@
 
 #include <yirl/game.h>
 #include <yirl/menu.h>
-#include <yirl/contener.h>
+#include <yirl/container.h>
 #include <yirl/condition.h>
 
 static void refreshAnswer(Entity *wid, Entity *textScreen,

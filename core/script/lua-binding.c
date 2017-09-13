@@ -22,7 +22,7 @@
 #include	"entity.h"
 #include	"entity-script.h"
 #include	"map.h"
-#include	"contener.h"
+#include	"container.h"
 #include	"game.h"
 
 int	luaYAnd(lua_State *L)

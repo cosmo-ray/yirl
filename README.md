@@ -27,7 +27,7 @@ YIRL is licensed under the LGPL licence, the idea behind that, is that you can a
     * map.h: a square map
     * menu.h
     * text-screen.h: a simple text widget.
-    * contener.h: widget that contain others widgets
+    * container.h: widget that contain others widgets
     * pos.h: helpers to manipulate everything with a position
     * rect.h: helpers for rectangles
     * sdl-driver.h
