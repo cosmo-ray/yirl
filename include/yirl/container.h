@@ -34,8 +34,8 @@ typedef struct {
   int type;
 } YContenerState;
 
-int ywContenerInit(void);
-int ywContenerEnd(void);
+int ywContainerInit(void);
+int ywContainerEnd(void);
 
 /**
  * Create a new widget from @wid and push it

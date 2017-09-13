@@ -254,7 +254,7 @@ int ygInit(GameConfig *cfg)
   CHECK_AND_GOTO(ywMenuInit(), -1, error, "Menu init failed");
   CHECK_AND_GOTO(ywMapInit(), -1, error, "Map init failed");
   CHECK_AND_GOTO(ywTextScreenInit(), -1, error, "Text Screen init failed");
-  CHECK_AND_GOTO(ywContenerInit(), -1, error, "Contener init failed");
+  CHECK_AND_GOTO(ywContainerInit(), -1, error, "Container init failed");
   CHECK_AND_GOTO(ywCanvasInit(), -1, error, "Canvas init failed");
 
   /* Init sound */
@@ -311,7 +311,7 @@ void ygEnd()
   ywMapEnd();
   ywMenuEnd();
   ywCanvasEnd();
-  ywContenerEnd();
+  ywContainerEnd();
 #ifdef WITH_CURSES
   ycursDestroy();
 #endif

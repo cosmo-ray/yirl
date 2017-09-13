@@ -345,7 +345,7 @@ static void *alloc(void)
   return  ret;
 }
 
-int ywContenerInit(void)
+int ywContainerInit(void)
 {
   if (t != -1)
     return t;
@@ -353,7 +353,7 @@ int ywContenerInit(void)
   return t;
 }
 
-int ywContenerEnd(void)
+int ywContainerEnd(void)
 {
   if (ywidUnregiste(t) < 0)
     return -1;
