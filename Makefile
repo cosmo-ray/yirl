@@ -40,7 +40,7 @@ SRC = 	$(SCRIPT_DIR)/lua-script.c \
 	$(WID_DIR)/map.c \
 	$(WID_DIR)/pos.c \
 	$(WID_DIR)/rect.c \
-	$(WID_DIR)/contener.c \
+	$(WID_DIR)/container.c \
 	$(SDL_WID_DIR)/sdl.c \
 	$(SDL_WID_DIR)/map.c \
 	$(SDL_WID_DIR)/menu.c \
