@@ -15,19 +15,19 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-static Entity *getLayer(Entity *contener, int idx)
+static Entity *getLayer(Entity *container, int idx)
 {
-  return ywCntGetEntry(ywCntGetEntry(contener, 0), idx);
+  return ywCntGetEntry(ywCntGetEntry(container, 0), idx);
 }
 
-static Entity *getTextScreen(Entity *contener)
+static Entity *getTextScreen(Entity *container)
 {
-  return ywCntGetEntry(contener, 2);
+  return ywCntGetEntry(container, 2);
 }
 
-static Entity *getTextScreenSurface(Entity *contener)
+static Entity *getTextScreenSurface(Entity *container)
 {
-  return (yeGetByStr(getTextScreen(contener), "text"));
+  return (yeGetByStr(getTextScreen(container), "text"));
 }
 
 static Entity *getCursorPos(Entity *wid)

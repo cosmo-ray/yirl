@@ -314,6 +314,6 @@ void *vapzInit(int nbArgs, void **args)
   yeCreateInt(150000, main, "turn-length");
   yeCreateInt(YRECALL_INIT, main, "recreate-logic");
   yeCreateFunction("vapzAction", ygGetTccManager(), main, "action");
-  void *ret = ywidNewWidget(main, "contener");
+  void *ret = ywidNewWidget(main, "container");
   return ret;
 }

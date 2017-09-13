@@ -233,7 +233,7 @@ end
 function sukeScreenNewWid(entity)
    yeCreateInt(80, yeGet(yeGet(entity, "entries"), 0), "size")
 
-   local cnt = ywidNewWidget(entity, "contener")
+   local cnt = ywidNewWidget(entity, "container")
    yeCreateString("sukeban-screen:action", entity, "action")
    yePushBack(sukeScreenGetMap(entity), entity, "screen")
    return cnt

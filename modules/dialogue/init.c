@@ -203,7 +203,7 @@ void *dialogueInit(int nbArgs, void **args)
 	     "background");
 
   yeTryCreateInt(1, main, "current");
-  ret = ywidNewWidget(main, "contener");
+  ret = ywidNewWidget(main, "container");
   printfTextAndAnswer(main, textScreen, answers, active_dialogue);
   return ret;
 }

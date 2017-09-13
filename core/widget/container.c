@@ -29,9 +29,9 @@ static inline Entity *getEntry(Entity *father, Entity *tmp)
   return tmp;
 }
 
-int ywContenerUpdate(Entity *contener, Entity *widEnt)
+int ywContenerUpdate(Entity *container, Entity *widEnt)
 {
-  Entity *entries = yeGet(contener, "entries");
+  Entity *entries = yeGet(container, "entries");
 
   YE_ARRAY_FOREACH(entries, tmp) {
     YWidgetState *wid;
@@ -40,7 +40,7 @@ int ywContenerUpdate(Entity *contener, Entity *widEnt)
     if ((tmp == widEnt) ||
 	(wid->type == t && ywContenerUpdate(tmp, widEnt))) {
       wid->hasChange = 1;
-      wid = ywidGetState(contener);
+      wid = ywidGetState(container);
       wid->hasChange = 1;
       return 1;
     }
@@ -48,9 +48,9 @@ int ywContenerUpdate(Entity *contener, Entity *widEnt)
   return 0;
 }
 
-Entity *ywContenerGetWidgetAt(Entity *contener, int posX, int posY)
+Entity *ywContenerGetWidgetAt(Entity *container, int posX, int posY)
 {
-  Entity *entries = yeGet(contener, "entries");
+  Entity *entries = yeGet(container, "entries");
 
   YE_ARRAY_FOREACH(entries, tmp) {
     if (ywIsPixsOnWid(tmp, posX, posY))
@@ -349,7 +349,7 @@ int ywContainerInit(void)
 {
   if (t != -1)
     return t;
-  t = ywidRegister(alloc, "contener");
+  t = ywidRegister(alloc, "container");
   return t;
 }
 

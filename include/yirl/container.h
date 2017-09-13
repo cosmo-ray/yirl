@@ -43,15 +43,15 @@ int ywContainerEnd(void);
  */
 int ywPushNewWidget(Entity *container, Entity *wid, int dec_ref);
 
-int ywContenerUpdate(Entity *contener, Entity *widEnt);
+int ywContenerUpdate(Entity *container, Entity *widEnt);
 
-Entity *ywContenerGetWidgetAt(Entity *contener, int posX, int posY);
+Entity *ywContenerGetWidgetAt(Entity *container, int posX, int posY);
 
-Entity *ywCntGetEntry(Entity *contener, int idx);
+Entity *ywCntGetEntry(Entity *container, int idx);
 
-int ywReplaceEntry(Entity *contener, int idx, Entity *entry);
+int ywReplaceEntry(Entity *container, int idx, Entity *entry);
 
-Entity *ywCntPopLastEntry(Entity *contener);
+Entity *ywCntPopLastEntry(Entity *container);
 
 Entity *ywCntGetLastEntry(Entity *container);
 

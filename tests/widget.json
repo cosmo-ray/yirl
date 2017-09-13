@@ -43,14 +43,14 @@
 	"button_background": "hello.pnj" // Not yet implemented  :)
     },
     "ContenerTest" : {
-	"<type>" : "contener",
+	"<type>" : "container",
 	"entries" : [
 	    {"name" : "MenuTest"},
 	    {"name" : "TextScreenTest"}
 	]
     },
     "VContenerTest" : {
-	"<type>" : "contener",
+	"<type>" : "container",
 	"cnt-type" : "vertical",
 	"entries" : [
 	    {"name" : "MenuTest", "size" : 20},
@@ -58,7 +58,7 @@
 	]
     },
     "SContenerTest" : {
-	"<type>" : "contener",
+	"<type>" : "container",
 	"cnt-type" : "stacking",
 	"entries" : [
 	    {"name" : "MenuTest"},

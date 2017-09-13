@@ -36,7 +36,7 @@ void *sukeFightInit(int nbArg, void **args)
   menu_entries = yeCreateArray(menu, "entries");
   menu_entry = yeCreateArray(menu_entries, NULL);
   yeCreateString("attack", menu_entry, "text");
-  ret = ywidNewWidget(ent, "contener");
+  ret = ywidNewWidget(ent, "container");
   return ret;
 }
 

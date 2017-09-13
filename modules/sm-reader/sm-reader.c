@@ -170,7 +170,7 @@ void *load_entity(int nb, void **args)
     goto error;
   }
 
-  yeReCreateString("contener", desc, "<type>");
+  yeReCreateString("container", desc, "<type>");
   yeCreateString("stacking", desc, "cnt-type");
   entries = yeCreateArray(desc, "entries");
 

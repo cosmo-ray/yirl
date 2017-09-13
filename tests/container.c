@@ -189,7 +189,7 @@ void testDynamicStackContenerSdl(void)
   yeCreateString("2", yeCreateArray(resources, NULL), "map-char");
   yeCreateString("3", yeCreateArray(resources, NULL), "map-char");
 
-  yeReCreateString("contener", cnt, "<type>");
+  yeReCreateString("container", cnt, "<type>");
   yeCreateString("stacking", cnt, "cnt-type");
   yeCreateString("rgba: 255 255 255 255", cnt, "background");
   g_assert(ysRegistreCreateNativeEntity(testMenuEnter, "menuTest", cnt, "action"));

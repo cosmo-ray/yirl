@@ -75,7 +75,7 @@ void *battleInit(int nbArgs, void **args)
   yeCreateInt(80, entity, "size");
   yeCreateInt(5, panel, "size");
   layers = yeCreateArray(entity, "entries");
-  yeCreateString("contener", entity, "<type>");
+  yeCreateString("container", entity, "<type>");
   yeCreateString("stacking", entity, "cnt-type");
 
   cur_layer = ywMapCreateDefaultEntity(layers, NULL,
@@ -122,7 +122,7 @@ void *battleInit(int nbArgs, void **args)
   yeCreateString("end positioning", cur_layer, "text");
   yeCreateFunction("nextStateCallback", ygGetTccManager(), cur_layer, "action");
 
-  void *ret = ywidNewWidget(main, "contener");
+  void *ret = ywidNewWidget(main, "container");
   yeDestroy(gc);
   return ret;
 }
