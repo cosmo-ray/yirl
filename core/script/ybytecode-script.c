@@ -241,13 +241,73 @@ static Entity *tryStoreStringCurTok(Entity *funcData, Entity *str,
   }
   return ret;
 }
-
-
 static Entity *tryStoreString(Entity *funcData, Entity *str, Entity *tokInfo)
 {
   int tok = nextNonSeparatorTok(str, tokInfo);
 
   return tryStoreStringCurTok(funcData, str, tokInfo, tok);
+}
+
+struct labels {
+  Entity *str;
+  int pos;
+  LIST_ENTRY(labels) entries;
+};
+
+LIST_HEAD(labelHead, labels);
+
+static int tryStoreLabels(int script_pos, Entity *str,
+			  Entity *tokInfo, struct labelHead *labels_head,
+			  int tok)
+{
+  Entity *strTmp = yeCreateString(NULL, NULL, NULL);
+  for (tok = tok > 0 ? tok : nextNonSeparatorTok(str, tokInfo);
+       tok != COLON;
+       tok = yeStringNextTok(str, tokInfo)) {
+    const char *cstr = yeTokString(tokInfo, tok);
+    for (int i = 0; cstr[i]; ++i) {
+      if (!(yuiIsCharAlphaNum(cstr[i]) || cstr[i] == '_')) {
+	goto error;
+      }
+    }
+    yeStringAdd(strTmp, cstr);
+  }
+  if (!yeGetString(strTmp)) {
+    goto error;
+  }
+  struct labels *label = malloc(sizeof(struct labels));
+  printf("new label %s\n", yeGetString(strTmp));
+  label->str = strTmp;
+  label->pos = script_pos;
+  LIST_INSERT_HEAD(labels_head, label, entries);
+  return 0;
+ error:
+  DPRINT_ERR("label must containe only alphanumeric or '_' caracters");
+  yeDestroy(strTmp);
+  return -1;
+}
+
+static int linkLabels(struct labelHead *labels,
+		      struct labelHead *labels_needed,
+		      int64_t *script, uint32_t script_len)
+{
+  struct labels *lab;
+  struct labels *lab2;
+
+  if (!labels_needed)
+    return 0;
+  LIST_FOREACH(lab, labels_needed, entries) {
+    LIST_FOREACH(lab2, labels, entries) {
+      if (!yeStrCmp(lab->str, yeGetString(lab2->str))) {
+	script[lab->pos] = lab2->pos;
+	goto next;
+      }
+    }
+    return -1;
+  next:
+    continue;
+  }
+  return 0;
 }
 
 static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
@@ -260,6 +320,8 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
   int nb_args = 0;
   int64_t nb_func_args = 0;
   int ret = -1;
+  struct labelHead labels = LIST_HEAD_INITIALIZER(labels);
+  struct labelHead labels_needed = LIST_HEAD_INITIALIZER(labels_needed);
 
   script[0] = 0;
 
@@ -352,9 +414,6 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
   case SUB:
   case DIV:
   case MULT:
-  case EQUAL_TOK:
-  case NOT_EQUAL_NBR_TOK:
-  case EQUAL_NBR_TOK:
     script[script_len] = tokToInstruction(tok, tokInfo);
     if (tryStoreNumber(&script[script_len + 1], str, tokInfo) < 0)
       goto exit;
@@ -375,7 +434,6 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
     goto still_in_func;
   case YB_INCR_TOK:
   case END_RET:
-  case JMP_TOK:
   case CREATE_INT:
   case PRINT_ENTITY:
   case REGISTRE_WIDGET_SUBTYPE:
@@ -396,13 +454,38 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
   case CLOSE_BRACE:
     ret = 0;
     break;
+  case EQUAL_TOK:
+  case NOT_EQUAL_NBR_TOK:
+  case EQUAL_NBR_TOK:
+    script[script_len] = tokToInstruction(tok, tokInfo);
+    if (tryStoreNumber(&script[script_len + 1], str, tokInfo) < 0)
+      goto exit;
+    if (tryStoreNumber(&script[script_len + 2], str, tokInfo) < 0)
+      goto exit;
+    if (tryStoreLabels(script_len + 3, str,
+		       tokInfo, &labels_needed, -1) < 0)
+      goto exit;
+    script_len += 4;
+    goto still_in_func;
+  case JMP_TOK:
+    script[script_len] = tokToInstruction(tok, tokInfo);
+    if (tryStoreLabels(script_len + 1, str,
+		       tokInfo, &labels_needed, -1) < 0)
+      goto exit;
+    script_len += 2;
+    goto still_in_func;
   default:
+    if (!tryStoreLabels(script_len, str,
+			tokInfo, &labels, tok))
+      goto still_in_func;
     DPRINT_ERR("unexpected '%s' in function '%s'",
 	       yeTokString(tokInfo, tok), yeGetString(funcName));
     goto exit;
   }
   Entity *data;
 
+  if (linkLabels(&labels, &labels_needed, script, script_len) < 0)
+    goto exit;
   if (script_len < (yeMetadataSize(DataEntity) / sizeof(uint64_t))) {
     data = yeCreateDataExt(NULL, NULL, NULL, YE_DATA_USE_OWN_METADATA);
   } else {

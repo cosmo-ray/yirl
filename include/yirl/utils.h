@@ -279,6 +279,12 @@ static inline int yuiStrEqual0(const char *str1, const char *str2)
 }
 
 
+static int yuiIsCharAlphaNum(char c)
+{
+	return (c >= 'a' &&  c <= 'z') || (c >= 'A' && c <= 'Z') ||
+		(c >= '0' && c <= '9');
+}
+
 int  yuiRand(void);
 void yuiRandInit(void);
 void yuiRandInitSeed(int s);

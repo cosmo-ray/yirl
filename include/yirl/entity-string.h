@@ -19,6 +19,8 @@
  * DO NOT INCLUDE THIS FILE, include entity.h instead
  */
 
+int yeStrCmp(Entity *ent1, const char *str);
+
 /**
  * @brief Add @str to the string entity @Ent
  */

@@ -821,8 +821,6 @@ static inline int yeSubEnt(Entity *e, Entity *e2)
   return -1;
 }
 
-int yeStrCmp(Entity *ent1, const char *str);
-
 static inline Entity *yeFind(Entity *entity,
 			     Entity *(*finder)(const char *,
 					       Entity *, void *),
