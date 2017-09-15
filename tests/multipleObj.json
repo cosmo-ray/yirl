@@ -1,5 +1,4 @@
 {
-    "_name" : "Yakuza Garden",
     "enemy position" : [[1, 2], [2, 4], [3, 6]],
     "size" : {"x" : 10 , "y" : 12}
     }

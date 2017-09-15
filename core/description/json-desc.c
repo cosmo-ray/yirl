@@ -157,14 +157,9 @@ static Entity *parseObject(struct json_object *obj,
       addLinkInfo(ret, key + 1, json_object_get_string(val));
       continue;
     }
-    if (g_str_equal(key, "_name") &&
-    	(json_object_get_type(val) == json_type_string)) {
-      continue;
-    } else {
-      if (parseGen(val, key, ret) == NULL) {
-	DPRINT_ERR("fail to parse json obj %s", name);
-	return NULL;
-      }
+    if (parseGen(val, key, ret) == NULL) {
+      DPRINT_ERR("fail to parse json obj %s", name);
+      return NULL;
     }
   }
 
