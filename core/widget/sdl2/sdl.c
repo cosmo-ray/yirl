@@ -21,6 +21,7 @@
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_image.h>
 #include "sdl-internal.h"
+#include "canvas-sdl.h"
 #include "utils.h"
 #include "widget.h"
 #include "rect.h"
@@ -495,9 +496,9 @@ void sdlConsumeError(void)
   sdlError = NULL;
 }
 
-int sdlCanvasCacheImg(YWidgetState *state, Entity *elem)
+int sdlCanvasCacheImg(Entity *state, Entity *elem)
 {
-  Entity *resource = yeGet(yeGet(state->entity, "resources"),
+  Entity *resource = yeGet(yeGet(state, "resources"),
 			   ywMapGetIdByElem(elem));
   const char *impPath = yeGetString(yeGet(resource, "img"));
   SDL_Surface *surface;

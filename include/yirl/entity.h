@@ -363,7 +363,7 @@ int yePushBackExt(Entity *entity, Entity *toPush,
 		  const char *name, int flag);
 
 /**
- * Push @toPush at @idx if the element is not empty, return -1 othervise
+ * Push @toPush at @idx
  */
 int yePushAt(Entity *array, Entity *toPush, int idx);
 
@@ -377,7 +377,7 @@ Entity *yeRemoveChild(Entity *array, Entity *toRemove);
 
 static inline Entity *yeRemoveChildByStr(Entity *array, const char *toRemove)
 {
-  return yeRemoveChild(array, yeGetByStr(array, toRemove));
+  return yeRemoveChild(array, yeGetByStrFast(array, toRemove));
 }
 
 /**

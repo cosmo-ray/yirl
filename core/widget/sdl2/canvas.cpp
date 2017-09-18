@@ -36,11 +36,7 @@ static int sdl2Render(YWidgetState *state, int t)
   if (ywidBgConfFill(yeGet(entity, "background"), &cfg) >= 0)
     sdlFillBg(wid, &cfg);
   YE_ARRAY_FOREACH(objs, obj) {
-    Entity *size = yeGet(obj, "$size");
-    if (!size) {
-      sdlCanvasCacheImg(state, obj);
-      size = yeGet(obj, "$size");
-    }
+    Entity *size = ywCanvasObjSize(state->entity, obj);
     sdlCanvasRendImg(state, wid, obj);
   }
   return 0;

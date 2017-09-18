@@ -15,24 +15,9 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef	_YIRL_CANVAS_H_
-#define	_YIRL_CANVAS_H_
+#ifndef _SDL2_CANVAS_SDL_H_
+#define _SDL2_CANVAS_SDL_H_
 
-#include "yirl/widget.h"
-
-int ywCanvasInit(void);
-int ywCanvasEnd(void);
-int ysdl2RegistreCanvas(void);
-/**
- * add @pos to object position at @objIdx
- */
-int ywCanvasMoveObjByIdx(Entity *wid, int objIdx, Entity *pos);
-
-/**
- * @wid an entity that contain an elem "resources"
- *	generally a canvas widget but can be any entity as long as this entity
- *	have a "resources" field
- */
-Entity *ywCanvasObjSize(Entity *wid, Entity *obj);
+int sdlCanvasCacheImg(Entity *state, Entity *elem);
 
 #endif

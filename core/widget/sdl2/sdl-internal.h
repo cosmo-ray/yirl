@@ -71,7 +71,7 @@ int sdlPrintText(SDLWid *wid,
 		 SDL_Rect pos,
 		 int alignementType);
 
-int sdlCanvasCacheImg(YWidgetState *state, Entity *elem);
+int sdlCanvasCacheImg(Entity *state, Entity *elem);
 int sdlCanvasRendImg(YWidgetState *state, SDLWid *wid, Entity *img);
 
 int sdlDisplaySprites(YWidgetState *state, SDLWid *wid,

@@ -16,20 +16,85 @@
 */
 
 #include <yirl/game.h>
+#include <yirl/container.h>
+#include <yirl/canvas.h>
+#include <yirl/rect.h>
+
+void rendMap(Entity *ent)
+{
+  Entity *map = yeGet(ent, "_map");
+  Entity *canvas = ywCntGetEntry(ent, 0);
+  Entity *objs = yeGet(canvas, "objs");
+  Entity *size = yeGet(canvas, "wid-pix");
+  int widthQuarter = ywRectW(size) / 4;
+  int hightThier = ywRectH(size) / 3;
+
+  printf("%d %d\n", widthQuarter, hightThier);
+  for (int x = 0; x < 4; ++x) {
+    for (int y = 0; y < 3; ++y) {
+      Entity *obj = yeGet(yeGet(map, x), y);
+      Entity *objSize;
+
+      if (!obj)
+	continue;
+      objSize = ywCanvasObjSize(ent, obj);
+      yeRemoveChildByStr(obj, "pos");
+      ywPosCreate(widthQuarter * x + widthQuarter / 2 - ywPosX(objSize) / 2,
+		  hightThier * y  + hightThier / 2 - ywPosY(objSize) / 2,
+		  obj, "pos");
+      yePushBack(objs, obj, NULL);
+      printf("%p - %s\n", obj, ywPosToString(objSize));
+    }
+  }
+}
 
 void *sukeFightInit(int nbArg, void **args)
 {
   Entity *ent = args[0];
   Entity *entries = yeCreateArray(ent, "entries");
+  Entity *bad_guys = yeGet(ent, "bad-guys");
+  Entity *good_guys = yeGet(ent, "good-guys");
   Entity *canvas;
   Entity *menu;
   Entity *menu_entries;
   Entity *menu_entry;
-  void *ret;
+  Entity *map = yeReCreateArray(ent, "_map", NULL);
+  Entity *rows[4];
+   void *ret;
 
-  printf("new sf wid\n");
+  for (int i = 0; i < 4; ++i)
+    rows[i] = yeCreateArray(map, NULL);
   canvas = yeCreateArray(entries, NULL);
   yeCreateString("canvas", canvas, "<type>");
+  yeCreateArray(canvas, "objs");
+  yeReplaceBack(canvas, yeGet(ent, "resources"), "resources");
+  Entity *good_front_row = yeGet(good_guys, 0);
+  Entity *good_back_row = yeGet(good_guys, 1);
+  Entity *bad_front_row = yeGet(bad_guys, 0);
+  Entity *bad_back_row = yeGet(bad_guys, 1);
+
+  for (int i = 0; i < 3; ++i) {
+    Entity *guy = yeGet(good_front_row, i);
+    if (guy) {
+      yePushAt(rows[2], guy, i);
+    }
+    guy = yeGet(good_back_row, i);
+    if (guy) {
+      yePushAt(rows[3], guy, i);
+    }
+    guy = yeGet(bad_front_row, i);
+    if (guy) {
+      yePushAt(rows[1], guy, i);
+    }
+    guy = yeGet(bad_back_row, i);
+    if (guy) {
+      yePushAt(rows[0], guy, i);
+    }
+  }
+  printf("%d %d | %d %d\n", yeLen(yeGet(map, 0)),
+	 yeLen(yeGet(map, 1)),
+	 yeLen(yeGet(map, 2)),
+	 yeLen(yeGet(map, 3)));
   yeCreateInt(70, canvas, "size");
   menu = yeCreateArray(entries, NULL);
   yeCreateString("menu", menu, "<type>");
@@ -37,6 +102,7 @@ void *sukeFightInit(int nbArg, void **args)
   menu_entry = yeCreateArray(menu_entries, NULL);
   yeCreateString("attack", menu_entry, "text");
   ret = ywidNewWidget(ent, "container");
+  rendMap(ent);
   return ret;
 }
 

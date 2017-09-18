@@ -249,8 +249,21 @@ int ygInit(GameConfig *cfg)
   baseMod = yeCreateArray(NULL, NULL);
   addNativeFuncToBaseMod();
 
+  for (GList *tmp = cfg->rConf; tmp; tmp = tmp->next) {
+    //TODO check which render to use :)
+    if (yuiStrEqual(TO_RC(tmp->data)->name, "curses")) {
+#ifdef WITH_CURSES
+      ycursInit();
+#endif
+    } else if (yuiStrEqual(TO_RC(tmp->data)->name, "sdl2")) {
+#ifdef WITH_SDL
+      ysdl2Init();
+#endif
+    }
+  }
+
   if (cfg->win_name)
-	  ywidSetWindowName(cfg->win_name);
+    ywidSetWindowName(cfg->win_name);
   CHECK_AND_GOTO(ywMenuInit(), -1, error, "Menu init failed");
   CHECK_AND_GOTO(ywMapInit(), -1, error, "Map init failed");
   CHECK_AND_GOTO(ywTextScreenInit(), -1, error, "Text Screen init failed");
@@ -266,7 +279,6 @@ int ygInit(GameConfig *cfg)
     //TODO check which render to use :)
     if (yuiStrEqual(TO_RC(tmp->data)->name, "curses")) {
 #ifdef WITH_CURSES
-      ycursInit();
       CHECK_AND_GOTO(ycursRegistreMenu(), -1, error, "Menu init failed");
       CHECK_AND_GOTO(ycursRegistreTextScreen(), -1, error,
 			"Text Screen init failed");
@@ -277,7 +289,6 @@ int ygInit(GameConfig *cfg)
 
     } else if (yuiStrEqual(TO_RC(tmp->data)->name, "sdl2")) {
 #ifdef WITH_SDL
-      ysdl2Init();
       CHECK_AND_GOTO(ysdl2RegistreTextScreen(), -1, error,
 			"Text Screen init failed");
       CHECK_AND_GOTO(ysdl2RegistreMenu(), -1, error, "Menu init failed");

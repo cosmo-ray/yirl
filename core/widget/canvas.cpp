@@ -19,6 +19,8 @@ extern "C" {
 #include <glib.h>
 #include "rect.h"
 #include "text-screen.h"
+#include "sdl-driver.h"
+#include "sdl2/canvas-sdl.h"
 }
 
 static int t = -1;
@@ -68,6 +70,9 @@ static void *alloc(void)
 extern "C" {
   int ywCanvasInit(void)
   {
+    if (ysdl2Type() < 0) {
+      DPRINT_ERR("sdl is needed for canvas");
+    }
     if (t != -1)
       return t;
     t = ywidRegister(alloc, "canvas");
@@ -90,5 +95,13 @@ extern "C" {
     return 0;
   }
 
+  Entity *ywCanvasObjSize(Entity *wid, Entity *obj)
+  {
+    Entity *size = yeGet(obj, "$size");
+    if (!size) {
+      sdlCanvasCacheImg(wid, obj);
+      size = yeGet(obj, "$size");
+    }
+  }
 }
 

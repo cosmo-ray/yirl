@@ -251,7 +251,7 @@ void *shooterInit(va_list ap)
   yeCreateInt(1, tmp, "hr");
 
   ysRegistreFunc(ysNativeManager(), "shooterAction", shooterAction);
-  ygBind(ywidGetState(wid), "action", "shooterAction");
+  yeCreateFunction("shooterAction", ysNativeManager(), wid, "action");
 
   return (void *)NOTHANDLE;
 }
