@@ -91,10 +91,6 @@ void *sukeFightInit(int nbArg, void **args)
       yePushAt(rows[0], guy, i);
     }
   }
-  printf("%d %d | %d %d\n", yeLen(yeGet(map, 0)),
-	 yeLen(yeGet(map, 1)),
-	 yeLen(yeGet(map, 2)),
-	 yeLen(yeGet(map, 3)));
   yeCreateInt(70, canvas, "size");
   menu = yeCreateArray(entries, NULL);
   yeCreateString("menu", menu, "<type>");
