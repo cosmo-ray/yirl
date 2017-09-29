@@ -59,17 +59,16 @@ int ywMapIsSmoot(Entity *map);
 static int sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
 {
   Entity *map = yeGet(entity, "map");
-  Entity *camSize = yeGet(entity, "cam-size");
+  Entity *cam = yeGet(entity, "cam");
   int wMap = ywMapW(entity);
   int hMap = ywMapH(entity);
-  int wCam = ywSizeW(camSize);
-  int hCam = ywSizeH(camSize);
+  int wCam = ywRectW(cam);
+  int hCam = ywRectH(cam);
   YBgConf cfg;
   unsigned int sizeSpriteW;
   unsigned int sizeSpriteH;
-  Entity *posCam = yeGet(entity, "cam-pos");
-  int32_t begX = ywPosX(posCam) - wCam / 2;
-  int32_t begY = ywPosY(posCam) - hCam / 2;
+  int32_t begX = ywRectX(cam) - wCam / 2;
+  int32_t begY = ywRectY(cam) - hCam / 2;
   uint32_t thresholdX;
 
   if (ywidBgConfFill(yeGet(entity, "background"), &cfg) >= 0) {
@@ -116,13 +115,12 @@ static void sdl2MidPartialRender(YWidgetState *state, SDLWid *wid, Entity *ent,
   uint32_t thresholdX;
   int wMap = ywMapW(ent);
   int hMap = ywMapH(ent);
-  Entity *camSize = yeGet(ent, "cam-size");
-  int wCam = ywSizeW(camSize);
-  int hCam = ywSizeH(camSize);
-  Entity *posCam = yeGet(ent, "cam-pos");
+  Entity *cam = yeGet(ent, "cam");
+  int wCam = ywRectW(cam);
+  int hCam = ywRectH(cam);
   Entity *rect;
-  int32_t begX = ywPosX(posCam) - wCam / 2;
-  int32_t begY = ywPosY(posCam) - hCam / 2;
+  int32_t begX = ywRectX(cam) - wCam / 2;
+  int32_t begY = ywRectY(cam) - hCam / 2;
   int32_t endX = begX + wCam - 1;
   int32_t endY = begY + hCam - 1;
 

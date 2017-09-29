@@ -60,6 +60,21 @@ static inline Entity *ywRectReCreateEnt(Entity *other, Entity *father,
 			    ywRectH(other), father, name);
 }
 
+static inline Entity *ywRectCreatePosSize(Entity *pos, Entity *size,
+					  Entity *father, const char *name)
+{
+  int x = 0, y = 0;
+
+  if (pos) {
+    x = ywPosX(pos);
+    y = ywPosY(pos);
+  }
+
+  return ywRectReCreateInts(x, y, ywSizeW(size),
+			    ywSizeH(size), father, name);
+}
+
+
 void ywRectSet(Entity *rect, int x, int y, int w, int h);
 
 static inline void ywRectSetFromRect(Entity *rect, Entity *o)
@@ -77,6 +92,13 @@ static inline Entity *ywRectSetY(Entity *pos, int posY)
 {
   yeSetInt(yeGetByIdx(pos, 1), posY);
   return pos;
+}
+
+static inline Entity *ywRectSetPos(Entity *rect, Entity *pos)
+{
+  ywRectSetX(rect, ywPosX(pos));
+  ywRectSetY(rect, ywPosY(pos));
+  return rect;
 }
 
 static inline Entity *ywRectSetW(Entity *pos, int posW)

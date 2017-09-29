@@ -49,10 +49,10 @@ void ywMapGetSpriteSize(Entity *map, unsigned int *sizeSpriteW,
 
   *thresholdX = 0;
   if (type == YMAP_PARTIAL) {
-    Entity *camSize = yeGet(map, "cam-size");
+    Entity *cam = yeGet(map, "cam");
 
-    winWidth = ywSizeW(camSize);
-    winHeight = ywSizeH(camSize);
+    winWidth = ywRectW(cam);
+    winHeight = ywRectH(cam);
   } else {
     winWidth = ywMapW(map);
     winHeight = ywMapH(map);
@@ -197,10 +197,8 @@ static int mapInit(YWidgetState *opac, Entity *entity, void *args)
 
   if (!yeStrCmp(yeGet(entity, "cam-type"), "center")) {
     yeReCreateInt(YMAP_PARTIAL, entity, "map-type");
-    if (!yeGet(entity, "cam-size"))
-      ywSizeCreate(20, 20, entity, "cam-size");
-    if (!yeGet(entity, "cam-pos"))
-      ywPosCreateInts(0, 0, entity, "cam-pos");
+    if (!yeGet(entity, "cam"))
+      ywRectCreateInts(0, 0, 20, 20, entity, "cam");
   } else {
     yeReCreateInt(YMAP_FULL, entity, "map-type");
   }

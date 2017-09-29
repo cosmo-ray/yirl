@@ -19,6 +19,7 @@
 #include <yirl/menu.h>
 #include <yirl/map.h>
 #include <yirl/container.h>
+#include <yirl/rect.h>
 #include <yirl/text-screen.h>
 
 void *init(int nbArgs, void **args)
@@ -275,6 +276,7 @@ void *vapzAction(int nbArgs, void **args)
   }
   ywMapSetOutBehavior(map, YMAP_OUT_BLOCK);
   ywMapAdvenceWithEPos(map, vkPos, nextPos, ywMapGetEntityById(map, vkPos, 1));
+  ywRectSetPos(yeGet(map, "cam"), vkPos);
 
  exit:
   yeDestroy(gc);
@@ -284,6 +286,7 @@ void *vapzAction(int nbArgs, void **args)
 
 void *vapzInit(int nbArgs, void **args)
 {
+  Entity *gc = yeCreateArray(NULL, NULL);
   Entity *main = args[0];
   Entity *cur_layer;
   Entity *resources = yeGet(main, "resources");
@@ -299,7 +302,7 @@ void *vapzInit(int nbArgs, void **args)
   ywMapPushNbr(cur_layer, 1, vkPos, NULL);
   yeReCreateString("map", cur_layer, "<type>");
   yeReCreateString("center", cur_layer, "cam-type");
-  yePushBack(cur_layer, vkPos, "cam-pos");
+  ywRectCreatePosSize(vkPos, ywSizeCreate(20, 20, gc, NULL), cur_layer, "cam");
 
   yeCreateString("rgba: 255 255 255 255", cur_layer, "background");
   ywMapSetSmootMovement(cur_layer, 1);
@@ -315,5 +318,6 @@ void *vapzInit(int nbArgs, void **args)
   yeCreateInt(YRECALL_INIT, main, "recreate-logic");
   yeCreateFunction("vapzAction", ygGetTccManager(), main, "action");
   void *ret = ywidNewWidget(main, "container");
+  yeDestroy(gc);
   return ret;
 }

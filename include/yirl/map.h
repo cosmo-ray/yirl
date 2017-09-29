@@ -195,6 +195,8 @@ int ywMapMoveByStr(Entity *state, Entity *from,
 int ywMapMoveByEntity(Entity *state, Entity *from,
 		      Entity *to, Entity *elem);
 
+Entity *ywMapRenderRect(Entity *state);
+
 /**
  * @map	The map to draw on
  * @posStart x, y pos where to start drawing
