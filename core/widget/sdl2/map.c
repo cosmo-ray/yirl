@@ -59,10 +59,11 @@ int ywMapIsSmoot(Entity *map);
 static int sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
 {
   Entity *map = yeGet(entity, "map");
+  Entity *camSize = yeGet(entity, "cam-size");
   int wMap = ywMapW(entity);
   int hMap = ywMapH(entity);
-  int wCam = yeGetInt(yeGet(entity, "cam-w"));
-  int hCam = yeGetInt(yeGet(entity, "cam-h"));
+  int wCam = ywSizeW(camSize);
+  int hCam = ywSizeH(camSize);
   YBgConf cfg;
   unsigned int sizeSpriteW;
   unsigned int sizeSpriteH;
@@ -115,8 +116,9 @@ static void sdl2MidPartialRender(YWidgetState *state, SDLWid *wid, Entity *ent,
   uint32_t thresholdX;
   int wMap = ywMapW(ent);
   int hMap = ywMapH(ent);
-  int wCam = yeGetInt(yeGet(ent, "cam-w"));
-  int hCam = yeGetInt(yeGet(ent, "cam-h"));
+  Entity *camSize = yeGet(ent, "cam-size");
+  int wCam = ywSizeW(camSize);
+  int hCam = ywSizeH(camSize);
   Entity *posCam = yeGet(ent, "cam-pos");
   Entity *rect;
   int32_t begX = ywPosX(posCam) - wCam / 2;

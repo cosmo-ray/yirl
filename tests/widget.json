@@ -98,8 +98,7 @@
 	"&resources" : "MapTestResources", // Not yet implemented :)
 
 	"width" : 1000,
-	"cam-h" : 15,
-	"cam-w" : 25,
+	"cam-size" : [15, 25],
 	"cam-type" : "center",
 	"action" : "mapTest",
 	"background": "rgba: 180 210 20 50", // Not yet implemented :)
