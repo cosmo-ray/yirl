@@ -184,6 +184,13 @@ static inline Entity *ywPosAdd(Entity *pos1, Entity *pos2)
   return pos1;
 }
 
+static inline Entity *ywPosSubXY(Entity *pos1, int x, int y)
+{
+  yeSubInt(yeGet(pos1, 0), x);
+  yeSubInt(yeGet(pos1, 1), y);
+  return pos1;
+}
+
 static inline Entity *ywPosSub(Entity *pos1, Entity *pos2)
 {
   yeSubEnt(yeGet(pos1, 0), yeGet(pos2, 0));

@@ -215,7 +215,7 @@ int ywMenuPosFromPix(Entity *wid, uint32_t x, uint32_t y)
 
   YE_ARRAY_FOREACH_EXT(entries, entry, it) {
     Entity *rect = yeGet(entry, "$rect");
-    if (ywRectIntersect(rect, x - ywRectX(pos), y - ywRectY(pos)))
+    if (ywRectContain(rect, x - ywRectX(pos), y - ywRectY(pos), 1))
       return it.pos;
   }
   return -1;

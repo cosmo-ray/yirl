@@ -25,25 +25,24 @@
 #include "yirl/entity.h"
 
 #define PRINT_BG_AT(pos_at)						\
-  Entity *pos_at##mc = ywMapGetCase(ent, pos_at);			\
-  YE_ARRAY_FOREACH(pos_at##mc, mapElem##pos_at) {			\
-    if (yeFind(mv_tbl, findEnt, mapElem##pos_at)) {			\
-      continue;								\
+  if (likely(ywRectContainPos(cam, pos_at, 0))) {			\
+    Entity *pos_at##mc = ywMapGetCase(ent, pos_at);			\
+    YE_ARRAY_FOREACH(pos_at##mc, mapElem##pos_at) {			\
+      if (yeFind(mv_tbl, findEnt, mapElem##pos_at)) {			\
+	continue;							\
+      }									\
+      if (unlikely(sdlDisplaySprites(state, wid, ywPosX(pos_at) - begX,	\
+				     ywPosY(pos_at) - begY,		\
+				     mapElem##pos_at, sizeSpriteW,	\
+				     sizeSpriteH,			\
+				     thresholdX, 0, NULL) < 0)) {	\
+	sdlConsumeError();						\
+      }									\
     }									\
-    if (unlikely(sdlDisplaySprites(state, wid, ywPosX(pos_at) - begX,	\
-				   ywPosY(pos_at) - begY,		\
-				   mapElem##pos_at, sizeSpriteW,	\
-				   sizeSpriteH,				\
-				   thresholdX, 0, NULL) < 0)) {		\
-      sdlConsumeError();						\
-    }									\
-  }
+  }									\
 
-static void sdl2MidFullRender(YWidgetState *state, SDLWid *wid, Entity *ent,
-			      int percent);
-static void sdl2MidPartialRender(YWidgetState *state, SDLWid *wid, Entity *ent,
-				 int percent);
-
+static void sdl2MidRender(YWidgetState *state, SDLWid *wid, Entity *ent,
+			  int percent);
 
 static Entity *findEnt(const char *useless, Entity *ent, void *ent2)
 {
@@ -67,8 +66,8 @@ static int sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
   YBgConf cfg;
   unsigned int sizeSpriteW;
   unsigned int sizeSpriteH;
-  int32_t begX = ywRectX(cam) - wCam / 2;
-  int32_t begY = ywRectY(cam) - hCam / 2;
+  int32_t begX = ywRectX(cam);
+  int32_t begY = ywRectY(cam);
   uint32_t thresholdX;
 
   if (ywidBgConfFill(yeGet(entity, "background"), &cfg) >= 0) {
@@ -101,12 +100,12 @@ static int sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
     }
   }
 
-  sdl2MidPartialRender(state, wid, entity, 0);
+  sdl2MidRender(state, wid, entity, 0);
   return 0;
 }
 
-static void sdl2MidPartialRender(YWidgetState *state, SDLWid *wid, Entity *ent,
-				 int percent)
+static void sdl2MidRender(YWidgetState *state, SDLWid *wid, Entity *ent,
+			  int percent)
 {
   Entity *gc = yeCreateArray(NULL, NULL);
   Entity *mv_tbl;
@@ -118,11 +117,10 @@ static void sdl2MidPartialRender(YWidgetState *state, SDLWid *wid, Entity *ent,
   Entity *cam = yeGet(ent, "cam");
   int wCam = ywRectW(cam);
   int hCam = ywRectH(cam);
-  Entity *rect;
-  int32_t begX = ywRectX(cam) - wCam / 2;
-  int32_t begY = ywRectY(cam) - hCam / 2;
-  int32_t endX = begX + wCam - 1;
-  int32_t endY = begY + hCam - 1;
+  int32_t begX = ywRectX(cam);
+  int32_t begY = ywRectY(cam);
+  int32_t endX = begX + wCam;
+  int32_t endY = begY + hCam;
 
   if (!ywMapIsSmoot(ent))
     return;
@@ -142,22 +140,35 @@ static void sdl2MidPartialRender(YWidgetState *state, SDLWid *wid, Entity *ent,
     begY = hMap - hCam;
     endY = hMap;
   }
-  rect = ywRectCreateInts(begX -1, begY -1, wCam + 1,
-			  hCam + 1, NULL, NULL);
 
   ywMapGetSpriteSize(ent, &sizeSpriteW, &sizeSpriteH, &thresholdX);
   mv_tbl = yeGet(ent, "$mv_tbl");
   YE_ARRAY_FOREACH(mv_tbl, tbl) {
     Entity *from = yeGet(tbl, 0);
     Entity *to = yeGet(tbl, 1);
-
-    if (ywRectIntersectPos(rect, from)) {
-      PRINT_BG_AT(from);
-    }
-    if (ywRectIntersectPos(rect, to)) {
-      PRINT_BG_AT(to);
-    }
-
+    Entity *seg = ywPosDoPercent(ywSegmentFromPos(from, to,
+						  gc, NULL),
+				 percent);
+    ywPosAdd(from, seg);
+    {PRINT_BG_AT(from)};
+    ywPosAddXY(from, 0, 1); // 0/1
+    {PRINT_BG_AT(from)};
+    ywPosAddXY(from, 1, 0); // 1/1
+    {PRINT_BG_AT(from)};
+    ywPosAddXY(from, -2, 0); // -1/1
+    {PRINT_BG_AT(from)};
+    ywPosAddXY(from, 0, -1); // -1/0
+    {PRINT_BG_AT(from)};
+    ywPosAddXY(from, 2, 0); // 1/0
+    {PRINT_BG_AT(from)};
+    ywPosAddXY(from, 0, -1); // 1/-1
+    {PRINT_BG_AT(from)};
+    ywPosAddXY(from, -1, 0); // 0/-1
+    {PRINT_BG_AT(from)};
+    ywPosAddXY(from, -1, 0); // -1/-1
+    {PRINT_BG_AT(from)};
+    ywPosAddXY(from, 1, 1); // 0/0
+    yeClearArray(gc);
   }
 
   YE_ARRAY_FOREACH(mv_tbl, tbl2) {
@@ -170,8 +181,8 @@ static void sdl2MidPartialRender(YWidgetState *state, SDLWid *wid, Entity *ent,
     Entity *movingElem = yeGet(tbl2, 2);
     Entity *modifier = NULL;
 
-    if (!ywRectIntersectPos(rect, from)) {
-      if (!ywRectIntersectPos(rect, to))
+    if (!ywRectContainPos(cam, from, 0)) {
+      if (!ywRectContainPos(cam, to, 0))
 	continue;
       modifier = yeCreateArray(gc, NULL);
       // type of modifier, 0 because for now is the only modifier
@@ -185,7 +196,7 @@ static void sdl2MidPartialRender(YWidgetState *state, SDLWid *wid, Entity *ent,
       	yeCreateInts(modifier, 0, yuiPercentOf(sizeSpriteW, 100 - percent), 0,
 		     100 - percent);
       }
-    } else if (!ywRectIntersectPos(rect, to)) {
+    } else if (!ywRectContainPos(cam, to, 0)) {
       modifier = yeCreateArray(gc, NULL);
       // type of modifier, 0 because for now is the only modifier
       yeCreateInt(0, modifier, NULL);
@@ -248,7 +259,7 @@ static int sdl2FullRender(YWidgetState *state, SDLWid *wid, Entity *entity)
     }
   }
 
-  sdl2MidFullRender(state, wid, state->entity, 0);
+  sdl2MidRender(state, wid, state->entity, 0);
   return 0;
 }
 
@@ -269,59 +280,13 @@ static int sdl2Init(YWidgetState *wid, int t)
   return 0;
 }
 
-static void sdl2MidFullRender(YWidgetState *state, SDLWid *wid, Entity *ent,
-			      int percent)
-{
-  Entity *gc = yeCreateArray(NULL, NULL);
-  Entity *mv_tbl;
-  unsigned int sizeSpriteW;
-  unsigned int sizeSpriteH;
-  uint32_t thresholdX;
-  int32_t begX = 0;
-  int32_t begY = 0;
-
-  if (!ywMapIsSmoot(ent))
-    return;
-
-  ywMapGetSpriteSize(ent, &sizeSpriteW, &sizeSpriteH, &thresholdX);
-  mv_tbl = yeGet(ent, "$mv_tbl");
-  YE_ARRAY_FOREACH(mv_tbl, tbl) {
-    Entity *from = yeGet(tbl, 0);
-    Entity *to = yeGet(tbl, 1);
-
-    PRINT_BG_AT(from);
-    PRINT_BG_AT(to);
-  }
-
-  YE_ARRAY_FOREACH(mv_tbl, tbl2) {
-    Entity *from = yeGet(tbl2, 0);
-    Entity *to = yeGet(tbl2, 1);
-    Entity *seg = ywPosDoPercent(ywPosMultXY(ywSegmentFromPos(from, to,
-							      gc, NULL),
-					     sizeSpriteW, sizeSpriteH),
-				 percent);
-    Entity *movingElem = yeGet(tbl2, 2);
-
-    if (unlikely(sdlDisplaySprites(state, wid, ywPosX(from), ywPosY(from),
-				   movingElem, sizeSpriteW, sizeSpriteH,
-				   thresholdX + ywPosX(seg),
-				   0 + ywPosY(seg), NULL) < 0)) {
-      sdlConsumeError();
-    }
-
-    yeClearArray(gc);
-  }
-  yeDestroy(gc);
-}
 
 static void midRender(YWidgetState *state, int t, int percent)
 {
   SDLWid *wid = ywidGetRenderData(state, t);
   Entity *ent = state->entity;
 
-  if (ywMapType(ent) == YMAP_PARTIAL)
-    return sdl2MidPartialRender(state, wid, ent, percent);
-  return sdl2MidFullRender(state, wid, ent, percent);
+  return sdl2MidRender(state, wid, ent, percent);
 }
 
 int ysdl2RegistreMap(void)

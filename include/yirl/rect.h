@@ -114,17 +114,20 @@ static inline Entity *ywRectSetH(Entity *pos, int posH)
 }
 
 /**
- * @return true if the point at @posx, @posy is inside @rect
+ * @return true if the point at @posx, @posy is inside @rect if @proper is true
+ * doen't return true when on the edge
  */
-static inline int ywRectIntersect(Entity *rect, int posx, int posy)
+static inline int ywRectContain(Entity *rect, int posx, int posy, int proper)
 {
-  return posx > ywRectX(rect) && posx < (ywRectX(rect) + ywRectW(rect)) &&
-    posy > ywRectY(rect) && posy < (ywRectY(rect) + ywRectH(rect));
+  return posx > ywRectX(rect) - !(proper) &&
+    posx < (ywRectX(rect) + ywRectW(rect)) &&
+    posy > ywRectY(rect) - !(proper) &&
+    posy < (ywRectY(rect) + ywRectH(rect));
 }
 
-static inline int ywRectIntersectPos(Entity *rect, Entity *pos)
+static inline int ywRectContainPos(Entity *rect, Entity *pos, int proper)
 {
-  return ywRectIntersect(rect, ywPosX(pos), ywPosY(pos));
+  return ywRectContain(rect, ywPosX(pos), ywPosY(pos), proper);
 }
 
 static inline char * ywRectToString(Entity *r)

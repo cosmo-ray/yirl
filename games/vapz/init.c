@@ -276,7 +276,12 @@ void *vapzAction(int nbArgs, void **args)
   }
   ywMapSetOutBehavior(map, YMAP_OUT_BLOCK);
   ywMapAdvenceWithEPos(map, vkPos, nextPos, ywMapGetEntityById(map, vkPos, 1));
-  ywRectSetPos(yeGet(map, "cam"), vkPos);
+  Entity *newCamPos = ywPosCreate(vkPos, 0, gc, NULL);
+  Entity *cam = yeGet(map, "cam");
+  ywPosSubXY(newCamPos, ywRectW(cam) / 2, ywRectH(cam) / 2);
+  printf("%s %s %s\n", ywPosToString(newCamPos), ywPosToString(cam),
+	 ywPosToString(vkPos));
+  ywRectSetPos(cam, newCamPos);
 
  exit:
   yeDestroy(gc);
@@ -302,7 +307,9 @@ void *vapzInit(int nbArgs, void **args)
   ywMapPushNbr(cur_layer, 1, vkPos, NULL);
   yeReCreateString("map", cur_layer, "<type>");
   yeReCreateString("center", cur_layer, "cam-type");
-  ywRectCreatePosSize(vkPos, ywSizeCreate(20, 20, gc, NULL), cur_layer, "cam");
+  Entity *cam = ywRectCreatePosSize(vkPos, ywSizeCreate(20, 20, gc, NULL),
+				    cur_layer, "cam");
+  ywPosSubXY(cam, 10, 10);
 
   yeCreateString("rgba: 255 255 255 255", cur_layer, "background");
   ywMapSetSmootMovement(cur_layer, 1);

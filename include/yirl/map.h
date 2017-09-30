@@ -195,7 +195,10 @@ int ywMapMoveByStr(Entity *state, Entity *from,
 int ywMapMoveByEntity(Entity *state, Entity *from,
 		      Entity *to, Entity *elem);
 
-Entity *ywMapRenderRect(Entity *state);
+static inline Entity *ywMapCam(Entity *state)
+{
+  return yeGet(state, "cam");
+}
 
 /**
  * @map	The map to draw on
