@@ -205,8 +205,12 @@ static int cntInit(YWidgetState *opac, Entity *entity, void *args)
     yeReplaceBack(ptr, entity, "$father-container");
     if (ptr != tmp) {
       YE_ARRAY_FOREACH_EXT(tmp, entry, it) {
-	yeReplace(entries, tmp, ptr);
+	const char *n = yBlockArrayIteratorGetPtr(it, ArrayEntry)->name;
+	if (yuiStrEqual0(n, "name"))
+	  continue;
+	yePushBack(ptr, entry, n);
       }
+      yeReplace(entries, tmp, ptr);
     }
     yeDestroy(copyTmp);
     wid = ywidNewWidget(ptr, NULL);

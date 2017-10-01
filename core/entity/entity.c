@@ -692,9 +692,10 @@ int	yePushBack(Entity *entity, Entity *toPush, const char *name)
   return yePushBackExt(entity, toPush, name, 0);
 }
 
-Entity	*yeMoveByEntity(Entity* src, Entity* dest, Entity *what)
+Entity	*yeMoveByEntity(Entity* src, Entity* dest, Entity *what,
+			const char *dstName)
 {
-  yePushBack(dest, what, NULL);
+  yePushBack(dest, what, dstName);
   yeRemoveChild(src, what);
   return what;
 }

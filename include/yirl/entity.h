@@ -702,7 +702,13 @@ Entity *yeCopy(Entity* src, Entity* dest);
 /**
  * @brief move @what from @src to @dest
  */
-Entity	*yeMoveByEntity(Entity* src, Entity* dest, Entity *what);
+Entity	*yeMoveByEntity(Entity* src, Entity* dest, Entity *what,
+			const char *dstName);
+
+static inline Entity *yeMoveByStr(Entity* src, Entity* dest, const char *what)
+{
+  yeMoveByEntity(src, dest, yeGet(src, what), what);
+}
 
 static inline int yeArrayContainEntity(Entity *array, const char *str)
 {
