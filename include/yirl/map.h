@@ -20,6 +20,7 @@
 
 #include "yirl/widget.h"
 #include "yirl/pos.h"
+#include "yirl/rect.h"
 
 typedef enum {
   YMAP_FULL = 0,
@@ -84,6 +85,13 @@ static inline int ywMapW(Entity *state)
 static inline int ywMapH(Entity *state)
 {
   return ywMapLen(state) / ywMapW(state);
+}
+
+static inline void ywMapSetW(Entity *state, int w)
+{
+  yeCreateInt(w, state, "width");
+  if (yeGetInt(yeGet(state, "map-type")) == YMAP_FULL)
+    ywRectReCreateInts(0, 0, w, ywMapH(state), state, "cam");
 }
 
 /**

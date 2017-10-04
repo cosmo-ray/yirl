@@ -46,7 +46,7 @@ static void *shooterInit(va_list ap)
   Entity *wid = va_arg(ap, Entity *);
   Entity *arg = va_arg(ap, Entity *);
 
-  yeCreateInt(MAP_SIZE_W, arg, "width");
+  ywMapSetW(arg, MAP_SIZE_W);
   arg = yeCreateArray(arg, "map");
   for (int i = 0; i < MAP_SIZE_W * MAP_SIZE_H; ++i) {
     yeCreateInt(0, yeCreateArray(arg, NULL), NULL);

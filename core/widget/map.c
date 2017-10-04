@@ -201,7 +201,8 @@ static int mapInit(YWidgetState *opac, Entity *entity, void *args)
       ywRectCreateInts(0, 0, 20, 20, entity, "cam");
   } else {
     yeReCreateInt(YMAP_FULL, entity, "map-type");
-    ywRectCreateInts(0, 0, ywMapW(entity), ywMapH(entity), entity, "cam");
+    if (yeGet(entity, "width"))
+      ywRectCreateInts(0, 0, ywMapW(entity), ywMapH(entity), entity, "cam");
   }
 
   yeCreateArray(entity, "$mv_tbl");
