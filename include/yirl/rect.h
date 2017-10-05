@@ -120,9 +120,9 @@ static inline Entity *ywRectSetH(Entity *pos, int posH)
 static inline int ywRectContain(Entity *rect, int posx, int posy, int proper)
 {
   return posx > ywRectX(rect) - !(proper) &&
-    posx < (ywRectX(rect) + ywRectW(rect)) &&
+    posx < ywRectX(rect) + ywRectW(rect) - !!(proper) &&
     posy > ywRectY(rect) - !(proper) &&
-    posy < (ywRectY(rect) + ywRectH(rect));
+    posy < ywRectY(rect) + ywRectH(rect) - !!(proper);
 }
 
 static inline int ywRectContainPos(Entity *rect, Entity *pos, int proper)

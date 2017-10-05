@@ -129,6 +129,7 @@ static void sdl2MidRender(YWidgetState *state, SDLWid *wid, Entity *ent,
     begX = 0;
     endX = begX + wCam;
   } else if (endX > wMap) {
+    ywRectPrint(cam);
     begX = wMap - wCam;
     endX = wMap;
   }
@@ -137,6 +138,7 @@ static void sdl2MidRender(YWidgetState *state, SDLWid *wid, Entity *ent,
     begY = 0;
     endY = begY + hCam;
   } else if (endY > hMap) {
+    ywRectPrint(cam);
     begY = hMap - hCam;
     endY = hMap;
   }
@@ -192,7 +194,7 @@ static void sdl2MidRender(YWidgetState *state, SDLWid *wid, Entity *ent,
       		     yuiPercentOf(sizeSpriteW, 100 - percent), 100 - percent,
 		     100 - percent);
       }
-      else if (endX == ywPosX(to) && ywPosX(to) < ywPosX(from)) {
+      else if (endX == ywPosX(from) && ywPosX(to) < ywPosX(from)) {
       	yeCreateInts(modifier, 0, yuiPercentOf(sizeSpriteW, 100 - percent), 0,
 		     100 - percent);
       }
@@ -204,7 +206,7 @@ static void sdl2MidRender(YWidgetState *state, SDLWid *wid, Entity *ent,
       	yeCreateInts(modifier, yuiPercentOf(sizeSpriteW, percent),
       		     yuiPercentOf(sizeSpriteW, percent), percent,
 		     percent);
-      } else if (endX == ywPosX(from) && ywPosX(to) > ywPosX(from)) {
+      } else if (endX == ywPosX(to) && ywPosX(to) > ywPosX(from)) {
       	yeCreateInts(modifier, 0, yuiPercentOf(sizeSpriteW, percent), 0,
 		     percent);
       }

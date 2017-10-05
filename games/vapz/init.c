@@ -279,8 +279,6 @@ void *vapzAction(int nbArgs, void **args)
   Entity *newCamPos = ywPosCreate(vkPos, 0, gc, NULL);
   Entity *cam = yeGet(map, "cam");
   ywPosSubXY(newCamPos, ywRectW(cam) / 2, ywRectH(cam) / 2);
-  printf("%s %s %s\n", ywPosToString(newCamPos), ywPosToString(cam),
-	 ywPosToString(vkPos));
   ywRectSetPos(cam, newCamPos);
 
  exit:
