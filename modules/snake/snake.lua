@@ -233,7 +233,7 @@ function createSnake(entity)
    yuiRandInit()
    yeSetAt(ygGetMod("snake"), "score", 0)
    yeCreateFunction("reset", entity)
-
+   yeCreateString("snake:snakeAction", entity, "action")
 
    local map = ywidNewWidget(entity, "map")
 
@@ -242,7 +242,6 @@ function createSnake(entity)
    yePushBack(entity, bak, "initial-state");
    yeDestroy(bak);
    yeCreateInt(1, entity, "recreate-logic")
-   yeCreateString("snake:snakeAction", entity, "action")
    return map
 end
 

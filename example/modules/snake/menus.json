@@ -5,7 +5,7 @@
 	"text-align" : "center",
 	"init" : "testSnake:scoreInit",
 	"background": "rgba: 255 255 255 100",
-	"bind" : [["action", "nextOnKeyDown"]],
+	"action" : "nextOnKeyDown",
 	"next" : "testSnake:scenes.AskReplay"
     },
     "AskReplay" : {

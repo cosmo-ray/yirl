@@ -129,7 +129,6 @@ static void sdl2MidRender(YWidgetState *state, SDLWid *wid, Entity *ent,
     begX = 0;
     endX = begX + wCam;
   } else if (endX > wMap) {
-    ywRectPrint(cam);
     begX = wMap - wCam;
     endX = wMap;
   }
@@ -138,7 +137,6 @@ static void sdl2MidRender(YWidgetState *state, SDLWid *wid, Entity *ent,
     begY = 0;
     endY = begY + hCam;
   } else if (endY > hMap) {
-    ywRectPrint(cam);
     begY = hMap - hCam;
     endY = hMap;
   }
