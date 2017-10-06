@@ -656,7 +656,6 @@ static int ygParseStartAndGame(GameConfig *config)
   Entity *starting_widget;
 
   mainMod = ygLoadMod(config->startingMod->path);
-  alive = 1;
 
   starting_widget = yeGet(mainMod, "$starting widget");
 
@@ -683,6 +682,7 @@ static int ygParseStartAndGame(GameConfig *config)
 int ygDoLoop(void)
 {
   YWidgetState *wid;
+  alive = 1;
 
   do {
     wid = ywidGetMainWid();

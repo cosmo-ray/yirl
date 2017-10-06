@@ -130,9 +130,9 @@ int main(int argc, char **argv)
   TEST_TRY_ADD("/widget/map/resized/sdl", testYWMapSdl2, only);
   TEST_TRY_ADD("/widget/map/big/sdl", testYBigWMapSdl2, only);
   TEST_TRY_ADD("/widget/container/static/horizontal/sdl",
-	       testHorizontalContainerSdl, only);
+  	       testHorizontalContainerSdl, only);
   TEST_TRY_ADD("/widget/container/static/vertical/sdl", testVerticalContainerSdl,
-	       only);
+  	       only);
   TEST_TRY_ADD("/widget/container/static/stack/sdl", testStackContainerSdl, only);
   TEST_TRY_ADD("/widget/container/static/mix/sdl", testMixContainerSdl, only);
   TEST_TRY_ADD("/widget/container/dynamic/stack/sdl",

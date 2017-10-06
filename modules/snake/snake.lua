@@ -204,7 +204,6 @@ function changeDir(map, eve)
    end
 end
 
-
 function snakeAction(map, eve, arg)
    addPeanut(map)
    moveHead(map)

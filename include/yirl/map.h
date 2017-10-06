@@ -203,6 +203,11 @@ int ywMapMoveByStr(Entity *state, Entity *from,
 int ywMapMoveByEntity(Entity *state, Entity *from,
 		      Entity *to, Entity *elem);
 
+static inline Entity *ywMapCam(Entity *state)
+{
+  return yeGet(state, "cam");
+}
+
 static inline void ywMapSetCamPos(Entity *state, Entity *pos)
 {
   Entity *cam = ywMapCam(state);
@@ -220,11 +225,6 @@ static inline void ywMapSetCamPos(Entity *state, Entity *pos)
   } else if (unlikely(ywRectY(cam) < 0)) {
     ywPosSetY(cam, 0);
   }
-}
-
-static inline Entity *ywMapCam(Entity *state)
-{
-  return yeGet(state, "cam");
 }
 
 /**
