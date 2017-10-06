@@ -277,9 +277,9 @@ void *vapzAction(int nbArgs, void **args)
   ywMapSetOutBehavior(map, YMAP_OUT_BLOCK);
   ywMapAdvenceWithEPos(map, vkPos, nextPos, ywMapGetEntityById(map, vkPos, 1));
   Entity *newCamPos = ywPosCreate(vkPos, 0, gc, NULL);
-  Entity *cam = yeGet(map, "cam");
+  Entity *cam = ywMapCam(map);
   ywPosSubXY(newCamPos, ywRectW(cam) / 2, ywRectH(cam) / 2);
-  ywRectSetPos(cam, newCamPos);
+  ywMapSetCamPos(map, newCamPos);
 
  exit:
   yeDestroy(gc);
