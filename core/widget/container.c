@@ -272,6 +272,7 @@ static int cntRend(YWidgetState *opac)
     yeReplaceBack(bg_wid->entity, yeGet(opac->entity, "wid-pos"), "wid-pos");
     bg_wid->hasChange = 1;
     ywidRend(bg_wid);
+    needChange = 1;
   }
 
   YE_ARRAY_FOREACH(entries, tmp) {

@@ -60,8 +60,9 @@ void *sukeFightInit(int nbArg, void **args)
   Entity *menu_entry;
   Entity *map = yeReCreateArray(ent, "_map", NULL);
   Entity *rows[4];
-   void *ret;
+  void *ret;
 
+  yeReCreateInt(1, ent, "current");
   for (int i = 0; i < 4; ++i)
     rows[i] = yeCreateArray(map, NULL);
   canvas = yeCreateArray(entries, NULL);
@@ -97,6 +98,10 @@ void *sukeFightInit(int nbArg, void **args)
   menu_entries = yeCreateArray(menu, "entries");
   menu_entry = yeCreateArray(menu_entries, NULL);
   yeCreateString("attack", menu_entry, "text");
+  yeCreateString("FinishGame", menu_entry, "action");
+  menu_entry = yeCreateArray(menu_entries, NULL);
+  yeCreateString("run away", menu_entry, "text");
+  yeCreateString("FinishGame", menu_entry, "action");
   ret = ywidNewWidget(ent, "container");
   rendMap(ent);
   return ret;
