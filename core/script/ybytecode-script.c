@@ -93,6 +93,7 @@ static void *ybytecodeFastCall(void *opacFunc, va_list ap)
     if (ybytecode_error) {
       DPRINT_ERR("%s", ybytecode_error);
       g_free(ybytecode_error);
+      ybytecode_error = NULL;
     }
     return NULL;
   }

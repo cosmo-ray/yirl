@@ -27,8 +27,6 @@ static int t = -1;
 typedef struct {
   YWidgetState sate;
   unsigned int current;
-  int moveSinIdx;
-  int actionSin0;
 } YMenuState;
 
 static void *nmMenuDown(YWidgetState *wid)
