@@ -49,6 +49,8 @@ int yeCheckCondition(Entity *condition)
   const char *action = yeGetString(actionEnt);
   int i = 0;
 
+  if (unlikely(!condition))
+    return 0;
   if (unlikely(!actionEnt))
     return 0;
   /* compille stuff \0/ */

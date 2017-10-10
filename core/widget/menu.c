@@ -95,7 +95,8 @@ static void *mnActions(va_list ap)
   Entity *eve = va_arg(ap, Entity *);
   void *arg = va_arg(ap, void *);
 
-  return (void *)ywidActions(wid, ywMenuGetCurrentEntry(wid),  eve, arg);
+  void *ret = (void *)ywidActions(wid, ywMenuGetCurrentEntry(wid),  eve, arg);
+  return ret;
 }
 
 void ywMenuUp(Entity *wid)

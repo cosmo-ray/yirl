@@ -219,13 +219,6 @@ int ygInit(GameConfig *cfg)
   /* Init parseurs */
   yeInitMem();
 
-  /*
-   * mega useless, but as cmake try to be samrt,
-   * it doesn't link this to game if not call
-   * TODO: remove cmake
-   */
-  yeCheckCondition(NULL);
-
   globalsFunctions = yeCreateArray(NULL, NULL);
   CHECK_AND_RET(t = ydJsonInit(), -1, -1,
 		    "json init failed");
@@ -332,6 +325,7 @@ void ygEnd()
   yeDestroy(modList);
   modList = NULL;
   ysNativeEnd();
+  ysYBytecodeEnd();
   ysDestroyManager(tccManager);
   ysTccEnd();
   ysDestroyManager(luaManager);
@@ -690,7 +684,6 @@ int ygDoLoop(void)
       return -1;
     }
     g_assert(ywidRend(wid) != -1);
-    sched_yield();
     ywidDoTurn(wid);
   } while(alive);
 
