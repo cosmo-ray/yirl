@@ -1,0 +1,28 @@
+/*
+ * yirl bytecode instruction tokens
+ */
+
+DEF(ADD, "+", string)
+DEF(SUB, "-", string)
+DEF(DIV, "/", string)
+DEF(MULT, "*", string)
+DEF(EQUAL_TOK, "==", string)
+DEF(YB_YG_GET_PUSH_TOK, "yg_get_push", separated_string)
+DEF(GET_AT_IDX_TOK, "get_at_idx", separated_string)
+DEF(GET_AT_STR_TOK, "get_at_str", separated_string)
+DEF(CALL_ENTITY, "call_entity", separated_string)
+DEF(YB_INCR_TOK, "incr", separated_string)
+DEF(END, "leave", separated_string)
+DEF(CREATE_INT, "int", separated_string)
+DEF(CREATE_ARRAY, "array", separated_string)
+DEF(PUSH_BACK_TOK, "push_back", separated_string)
+DEF(CREATE_STRING, "string", separated_string)
+DEF(SET_INT, "set_int", separated_string)
+DEF(PRINT_ENTITY, "print_entity", separated_string)
+DEF(PRINT_POS_TOK, "print_pos", separated_string)
+DEF(EQUAL_NBR_TOK, "equal_nbr", separated_string)
+DEF(NOT_EQUAL_NBR_TOK, "not_equal_nbr", separated_string)
+DEF(JMP_TOK, "jmp", separated_string)
+DEF(REGISTRE_WIDGET_SUBTYPE, "registre_widget_subtype", separated_string)
+DEF(NEW_WIDGET_TOK, "new_widget", separated_string)
+DEF(END_RET, "return", separated_string)
