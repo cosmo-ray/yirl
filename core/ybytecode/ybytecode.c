@@ -42,23 +42,24 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
 
     for (int i = 1, neested = 0 ;;) {
       switch (script[i]) {
-	inst_compille('+', add, 3);
+	inst_compille(YB_ADD, add, 3);
 	inst_compille(YB_INCR, yb_incr, 1);
-	inst_compille('-', sub, 3);
-	inst_compille('/', div, 3);
-	inst_compille('*', mult, 3);
-	inst_compille('<', inf_comp, 3);
+	inst_compille(YB_SUB, sub, 3);
+	inst_compille(YB_DIV, div, 3);
+	inst_compille(YB_MULT, mult, 3);
+	inst_compille(YB_INF, inf_comp, 3);
 	inst_compille(YB_NOT_EQUAL_COMP_NBR, yb_not_equal_comp_nbr, 3);
 	inst_compille(YB_EQUAL_COMP_NBR, yb_equal_comp_nbr, 3);
 	inst_compille(YB_EQUAL, qeual_comp, 3);
 	inst_compille(YB_INF_COMP_NBR, yb_inf_comp_nbr, 3);
-	inst_compille('>', sup_comp, 3);
-	inst_compille('j', jmp, 1);
+	inst_compille(YB_SUP_COMP_NBR, yb_sup_comp_nbr, 3);
+	inst_compille(YB_SUP, sup_comp, 3);
+	inst_compille(YB_JMP, jmp, 1);
 	inst_compille(JMP_IF_0, jmp_if_0, 1);
-	inst_compille('s', create_string, 1);
-	inst_compille('i', create_int, 1);
-	inst_compille('a', create_array, 0);
-	inst_compille('I', set_int, 2);
+	inst_compille(YB_CREATE_STRING, create_string, 1);
+	inst_compille(YB_CREATE_INT, create_int, 1);
+	inst_compille(YB_CREATE_ARRAY, create_array, 0);
+	inst_compille(YB_SET_INT, set_int, 2);
 	inst_compille(YB_NEW_WID, new_widget, 2);
 	inst_compille(YB_WID_ADD_SUBTYPE, wid_add_subtype, 1);
 	inst_compille(YB_PUSH_BACK, push_back, 3);
@@ -68,23 +69,23 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
 	inst_compille(YB_YG_GET_PUSH, yg_get_push, 1);
 	inst_compille(YB_GET_AT_IDX, get_at_idx, 2);
 	inst_compille(YB_GET_AT_STR, get_at_str, 2);
-      case 'c':
+      case YB_CALL:
 	script[i] = (uint64_t) &&call_entity;
 	i += (script[i + 1] + 3);
 	break;
-      case 'F':
+      case YB_COMPILLE_FUNC:
 	script[i] = (uint64_t) &&compille_func;
 	++neested;
 	i += 3;
 	break;
-      case 'e':
+      case YB_LEAVE:
 	script[i] = (uint64_t)&&end;
 	if (!neested)
 	  goto out_loop;
 	--neested;
 	++i;
 	break;
-      case 'E':
+      case YB_RETURN:
 	script[i] = (uint64_t)&&end_ret;
 	if (!neested)
 	  goto out_loop;
@@ -182,6 +183,14 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
  qeual_comp:
   if (yeGetIntDirect(yeGetByIdxDirect(stack, script[1])) ==
       yeGetIntDirect(yeGetByIdxDirect(stack, script[2]))) {
+    script = origin + script[3];
+    goto *((void *)*script);
+  }
+  script += 4;
+  goto *((void *)*script);
+
+ yb_sup_comp_nbr:
+  if (yeGetIntDirect(yeGetByIdxDirect(stack, script[1])) > script[2]) {
     script = origin + script[3];
     goto *((void *)*script);
   }
