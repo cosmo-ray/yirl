@@ -27,7 +27,7 @@ static inline int pushComVal(Entity *val, uint64_t *instructions, int *idx)
 
   if (yeType(val) == YINT) {
     *idx = i + 2;
-    instructions[i] = 'i';
+    instructions[i] = YB_CREATE_INT;
     instructions[i + 1] = yeGetInt(val);
     /* return yeGetInt(val); */
   } else if (yeType(val) == YSTRING) {
@@ -36,7 +36,7 @@ static inline int pushComVal(Entity *val, uint64_t *instructions, int *idx)
     instructions[i + 1] = (size_t)yeGetString(val);
     instructions[i + 2] = YB_JMP_IF_0;
     instructions[i + 3] = *idx;
-    instructions[i + 4] = 'i';
+    instructions[i + 4] = YB_CREATE_INT;
     instructions[i + 5] = 0;
     /* return yeGetInt(ygGet(yeGetString(val))); */
   }
@@ -68,29 +68,29 @@ int yeCheckCondition(Entity *condition)
     if (!action)
       return 0;
 
-    instructions[1] = 'i';
+    instructions[1] = YB_CREATE_INT;
     instructions[2] = 1;
     i = 3;
     pushComVal(yeGet(condition, 1), instructions, &i);
     pushComVal(yeGet(condition, 2), instructions, &i);
-    instructions[i] = 'j';
+    instructions[i] = YB_JMP;
     instructions[i + 1] = i + 2;
     switch(len) {
     case 1:
       if (action[0] == '>') {
-	instructions[i + 2] = '>';
+	instructions[i + 2] = YB_SUP;
       } else if (action[0] == '<') {
-	instructions[i + 2] = '<';
+	instructions[i + 2] = YB_INF;
       } else {
 	return 0;
       }
       instructions[i + 3] = 1;
       instructions[i + 4] = 2;
       instructions[i + 5] = i + 9;
-      instructions[i + 6] = 'I';
+      instructions[i + 6] = YB_SET_INT;
       instructions[i + 7] = 0;
       instructions[i + 8] = 0;
-      instructions[i + 9] = 'E';
+      instructions[i + 9] = YB_RETURN;
       instructions[i + 10] = 0;
       break;
     default:
