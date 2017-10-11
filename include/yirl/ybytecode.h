@@ -37,7 +37,7 @@ enum ybutecode_ops {
 	YB_COMPILLE_FUNC = 'F',
 	YB_CALL = 'c',
 	YB_BRUTAL_CAST = 127,
-	JMP_IF_0 = 128,
+	YB_JMP_IF_0 = 128,
 	YB_INF_COMP_NBR = 129,
 	YB_SUP_COMP_NBR = 130,
 	YB_EQUAL_COMP_NBR = 131,

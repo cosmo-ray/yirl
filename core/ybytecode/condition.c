@@ -34,7 +34,7 @@ static inline int pushComVal(Entity *val, uint64_t *instructions, int *idx)
     *idx = i + 6;
     instructions[i] = YB_YG_GET_PUSH;
     instructions[i + 1] = (size_t)yeGetString(val);
-    instructions[i + 2] = JMP_IF_0;
+    instructions[i + 2] = YB_JMP_IF_0;
     instructions[i + 3] = *idx;
     instructions[i + 4] = 'i';
     instructions[i + 5] = 0;

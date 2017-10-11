@@ -55,7 +55,7 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
 	inst_compille(YB_SUP_COMP_NBR, yb_sup_comp_nbr, 3);
 	inst_compille(YB_SUP, sup_comp, 3);
 	inst_compille(YB_JMP, jmp, 1);
-	inst_compille(JMP_IF_0, jmp_if_0, 1);
+	inst_compille(YB_JMP_IF_0, jmp_if_0, 1);
 	inst_compille(YB_CREATE_STRING, create_string, 1);
 	inst_compille(YB_CREATE_INT, create_int, 1);
 	inst_compille(YB_CREATE_ARRAY, create_array, 0);
