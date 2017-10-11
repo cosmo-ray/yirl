@@ -15,14 +15,14 @@ void ysciptAdd(void)
 				  YBLOCK_ARRAY_NOMIDFREE);
 
   int64_t test0[] = {0,
-		     'i', 4, //stack 4
-		     'i', 3, //stack 3
+		     YB_CREATE_INT, 4, //stack 4
+		     YB_CREATE_INT, 3, //stack 3
 		     //stack 0 will be use to store resulte
-		     'i', 0,
+		     YB_CREATE_INT, 0,
 		     // add stack 0 to stack 1
 		     // and store resulte in stack 2
-		     '+', 0, 1, 2,
-		     'E', 2 // return 2nd elem
+		     YB_ADD, 0, 1, 2,
+		     YB_RETURN, 2 // return 2nd elem
   };
 
   for (int i = 0; i < 5000000; ++i) {
@@ -42,14 +42,14 @@ void yscriptBenchLoop(void)
 
   // this is a simple for(int i = 0; i < 500 000; ++i)
   int64_t test1[] = {0,
-		     'i', 0, //stack[0] = 2 // 2
-		     'j', 7, // jmp to loop comparaison // 4
+		     YB_CREATE_INT, 0, //stack[0] = 2 // 2
+		     YB_JMP, 7, // jmp to loop comparaison // 4
 		     YB_INCR, 0, // 6
 		     // if stack 0 is iferior to stack[2], goto 5
 		     YB_INF_COMP_NBR, 0, 50000000, 5,
-		     'i', 2, // stack[1] = 2
-		     '*', 0, 1, 0, // mult stack[0] by 2
-		     'E', 0 // return 2nd elem
+		     YB_CREATE_INT, 2, // stack[1] = 2
+		     YB_MULT, 0, 1, 0, // mult stack[0] by 2
+		     YB_RETURN, 0 // return 2nd elem
   };
 
   tmp = ybytecode_exec(args, test1);
@@ -69,16 +69,16 @@ void yscriptLoop(void)
 
   // this is a simple for(int i = 0; i < 500 000; ++i)
   int64_t test1[] = {0,
-		     'i', 0, //stack 1 - 2
-		     'i', 1, //stack 0 - 4
-		     'i', 5000, // 6
-		     'j', 13, // jmp to loop - 8
-		     '+', 0, 1, 0,
+		     YB_CREATE_INT, 0, //stack 1 - 2
+		     YB_CREATE_INT, 1, //stack 0 - 4
+		     YB_CREATE_INT, 5000, // 6
+		     YB_JMP, 13, // jmp to loop - 8
+		     YB_ADD, 0, 1, 0,
 		     // if stack 0 is iferior to stack 2, goto 9
-		     '<', 0, 2, 9,
-		     'i', 2, // stack 2 in 3
-		     '*', 0, 3, 0, // mult 0 by 2
-		     'E', 0 // return 2nd elem
+		     YB_INF, 0, 2, 9,
+		     YB_CREATE_INT, 2, // stack 2 in 3
+		     YB_MULT, 0, 3, 0, // mult 0 by 2
+		     YB_RETURN, 0 // return 2nd elem
   };
 
   tmp = ybytecode_exec(args, test1);
@@ -92,22 +92,22 @@ void ybytecodeScript(void)
 {
   void *sm = NULL;
   int64_t test1[] = {0,
-		     'i', 0, //stack 1 - 2
-		     'i', 1, //stack 0 - 4
-		     'i', 50000000, // 6
-		     '+', 1, 2, 0,
-		     'E', 0
+		     YB_CREATE_INT, 0, //stack 1 - 2
+		     YB_CREATE_INT, 1, //stack 0 - 4
+		     YB_CREATE_INT, 50000000, // 6
+		     YB_ADD, 1, 2, 0,
+		     YB_RETURN, 0
   };
   int64_t testWithArgs[] = {0,
 			    YB_BRUTAL_CAST, 0, YINT,
 			    YB_BRUTAL_CAST, 1, YINT,
-			    '+', 0, 1, 0,
-			    'E', 0
+			    YB_ADD, 0, 1, 0,
+			    YB_RETURN, 0
   };
   int64_t testWithEntArgs[] = {0,
-			       'i', 0,
-			       '+', 0, 1, 2,
-			       'E', 2
+			       YB_CREATE_INT, 0,
+			       YB_ADD, 0, 1, 2,
+			       YB_RETURN, 2
   };
   Entity *gc, *i0, *i1;
   yeInitMem();
@@ -137,19 +137,19 @@ void ybytecodeScript(void)
 void ybytecodeLoopCallFunction(void)
 {
   int64_t test1[] = {0,
-		     's', (uint64_t)"testFunc", //stack "testFunc"
-		     'F', 0, 1, // function with name at stack 0
-		     '+', 0, 1, 0, // add stack 0 to stack 0
+		     YB_CREATE_STRING, (uint64_t)"testFunc", //stack "testFunc"
+		     YB_COMPILLE_FUNC, 0, 1, // function with name at stack 0
+		     YB_ADD, 0, 1, 0, // add stack 0 to stack 0
 		     // store result in stack 0
-		     'e', // end function
-		     'i', 0,
-		     'i', 1,
-		     'i', 5000000,
-		     'j', 24,
-		     'c', 2, 1, 2, 3, // 2 arguments, call stack 1,
+		     YB_LEAVE, // end function
+		     YB_CREATE_INT, 0,
+		     YB_CREATE_INT, 1,
+		     YB_CREATE_INT, 5000000,
+		     YB_JMP, 24,
+		     YB_CALL, 2, 1, 2, 3, // 2 arguments, call stack 1,
 				      //with arguments at stack 2 and 3
-		     '<', 2, 4, 19,
-		     'E', 2 // return 2nd elem, so 15 , 52
+		     YB_INF, 2, 4, 19,
+		     YB_RETURN, 2 // return 2nd elem, so 15 , 52
   };
   void *sm = NULL;
 
@@ -167,16 +167,16 @@ void ybytecodeLoopCallFunction(void)
 void ybytecodeAddFunction(void)
 {
   int64_t test1[] = {0,
-		     's', (uint64_t)"testFunc", //stack "testFunc"
-		     'F', 0, 1, // function with name at stack 0
-		     '+', 0, 1, 0, // add stack 0 to stack 0
+		     YB_CREATE_STRING, (uint64_t)"testFunc", //stack "testFunc"
+		     YB_COMPILLE_FUNC, 0, 1, // function with name at stack 0
+		     YB_ADD, 0, 1, 0, // add stack 0 to stack 0
 		     // store result in stack 0
-		     'e', // end function
-		     'i', 15,
-		     'i', 52,
-		     'c', 2, 1, 2, 3, // 2 arguments, call stack 1,
+		     YB_LEAVE, // end function
+		     YB_CREATE_INT, 15,
+		     YB_CREATE_INT, 52,
+		     YB_CALL, 2, 1, 2, 3, // 2 arguments, call stack 1,
 				      //with arguments at stack 2 and 3
-		     'E', 2 // return 2nd elem, so 15 , 52
+		     YB_RETURN, 2 // return 2nd elem, so 15 , 52
   };
   void *sm = NULL;
 
