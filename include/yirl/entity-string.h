@@ -58,6 +58,8 @@ const char *yeStringNextWord(Entity *str, int *len, int shrinkBlank);
 #define YTOK_STR_BASE					\
   YTOK_ERR = -1, YTOK_END = 0, YTOK_WORD = 1
 
+#define YTOK_STR_BASE_LAST 1
+
 typedef enum {
   YTOK_TYPE_STR,
   YTOK_TYPE_REAPETED_STR,

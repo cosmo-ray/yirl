@@ -37,11 +37,11 @@ struct YBytecodeScript {
 
 int YBytecodeScriptDirectReturn;
 
-#define DEF(a, b, c) a,
+#define DEF(a, b, c) YUI_CAT(a, _TOK),
 
 enum asm_toks {
-	YTOK_STR_BASE,
-	#include "ybytecode-asm-tok.h"
+  YTOK_STR_BASE,
+#include "ybytecode-asm-tok.h"
 };
 
 #undef DEF
@@ -138,66 +138,9 @@ static int ybytecodeDestroy(void *sm)
 
 static int isTokSeparato(int tok)
 {
-  return tok == SPACES || tok == RETURN;
+  return tok == SPACES_TOK || tok == RETURN_TOK;
 }
 
-static int64_t tokToInstruction(int tok, Entity *tokInfo)
-{
-  switch (tok) {
-  case CREATE_STRING:
-    return 's';
-  case CREATE_INT:
-    return 'i';
-  case SET_INT:
-    return 'I';
-  case ADD:
-    return '+';
-  case SUB:
-    return '-';
-  case DIV:
-    return '/';
-  case MULT:
-    return '*';
-  case YB_INCR_TOK:
-    return YB_INCR;
-  case END_RET:
-    return 'E';
-  case NOT_EQUAL_NBR_TOK:
-    return YB_NOT_EQUAL_COMP_NBR;
-  case EQUAL_NBR_TOK:
-    return YB_EQUAL_COMP_NBR;
-  case EQUAL_TOK:
-    return YB_EQUAL;
-  case YB_YG_GET_PUSH_TOK:
-    return YB_YG_GET_PUSH;
-  case CALL_ENTITY:
-    return 'c';
-  case END:
-    return 'e';
-  case PRINT_POS_TOK:
-    return YB_PRINT_POS;
-  case PRINT_ENTITY:
-    return YB_PRINT_ENTITY;
-  case CREATE_ARRAY:
-    return 'a';
-  case PUSH_BACK_TOK:
-    return YB_PUSH_BACK;
-  case REGISTRE_WIDGET_SUBTYPE:
-    return YB_WID_ADD_SUBTYPE;
-  case JMP_TOK:
-    return 'j';
-  case NEW_WIDGET_TOK:
-    return YB_NEW_WID;
-  case GET_AT_IDX_TOK:
-    return YB_GET_AT_IDX;
-  case GET_AT_STR_TOK:
-    return YB_GET_AT_STR;
-  default:
-    DPRINT_ERR("'%s' is not an instruction\n", yeTokString(tokInfo, tok));
-    break;
-  }
-  return -1;
-}
 
 static int nextNonSeparatorTok(Entity *str, Entity *tokInfo)
 {
@@ -212,11 +155,11 @@ static int tryStoreNumber(int64_t *dest, Entity *str, Entity *tokInfo)
   int tok = nextNonSeparatorTok(str, tokInfo);
   int neg_modifier = 1;
 
-  if (tok == SUB) {
+  if (tok == YB_SUB_TOK) {
     neg_modifier = -1;
     tok = yeStringNextTok(str, tokInfo);
   }
-  if (tok != NUMBER) {
+  if (tok != NUMBER_TOK) {
     DPRINT_ERR("expected number, got '%s'\n", yeTokString(tokInfo, tok));
     return -1;
   }
@@ -229,11 +172,11 @@ static Entity *tryStoreStringCurTok(Entity *funcData, Entity *str,
 {
   Entity *ret;
 
-  if (tok != DOUBLE_QUOTE)
+  if (tok != DOUBLE_QUOTE_TOK)
     DPRINT_ERR("literal string expected(should begin with '\"', not '%s')",
 	       yeTokString(tokInfo, tok));
   ret = yeCreateString(NULL, funcData, NULL);
-  while ((tok = yeStringNextTok(str, tokInfo)) != DOUBLE_QUOTE) {
+  while ((tok = yeStringNextTok(str, tokInfo)) != DOUBLE_QUOTE_TOK) {
     if (tok == YTOK_END) {
       yeDestroy(ret);
       return NULL;
@@ -263,7 +206,7 @@ static int tryStoreLabels(int script_pos, Entity *str,
 {
   Entity *strTmp = yeCreateString(NULL, NULL, NULL);
   for (tok = tok > 0 ? tok : nextNonSeparatorTok(str, tokInfo);
-       tok != COLON;
+       tok != COLON_TOK;
        tok = yeStringNextTok(str, tokInfo)) {
     const char *cstr = yeTokString(tokInfo, tok);
     for (int i = 0; cstr[i]; ++i) {
@@ -329,7 +272,7 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
   tryStoreNumber(&nb_func_args, str, tokInfo);
   tok = nextNonSeparatorTok(str, tokInfo);
 
-  if (tok != OPEN_BRACE) {
+  if (tok != OPEN_BRACE_TOK) {
     DPRINT_ERR("unexpected '%s', expect '{' in function '%s'",
 	       yeTokString(tokInfo, tok), yeGetString(funcName));
     goto exit;
@@ -338,9 +281,9 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
   tok = yeStringNextTok(str, tokInfo);
  still_in_func_no_next:
   switch (tok) {
-  case GET_AT_STR_TOK:
+  case YB_GET_AT_STR_TOK:
     {
-      script[script_len] = tokToInstruction(tok, tokInfo);
+      script[script_len] = tok;
       if (tryStoreNumber(&script[script_len + 1], str, tokInfo) < 0)
 	goto exit;
       Entity *tmpStr = tryStoreString(funcData, str, tokInfo);
@@ -350,9 +293,9 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
       script_len += 3;
     }
     goto still_in_func;
-  case NEW_WIDGET_TOK:
+  case YB_NEW_WIDGET_TOK:
     {
-      script[script_len] = tokToInstruction(tok, tokInfo);
+      script[script_len] = tok;
       if (tryStoreNumber(&script[script_len + 1], str, tokInfo) < 0)
 	goto exit;
       tok = nextNonSeparatorTok(str, tokInfo);
@@ -367,9 +310,9 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
       script_len += 3;
     }
     goto still_in_func;
-  case PUSH_BACK_TOK:
+  case YB_PUSH_BACK_TOK:
     {
-      script[script_len] = tokToInstruction(tok, tokInfo);
+      script[script_len] = tok;
       if (tryStoreNumber(&script[script_len + 1], str, tokInfo) < 0)
 	goto exit;
       if (tryStoreNumber(&script[script_len + 2], str, tokInfo) < 0)
@@ -387,9 +330,9 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
     }
     goto still_in_func;
   case YB_YG_GET_PUSH_TOK: /* literal string argument */
-  case CREATE_STRING:
+  case YB_CREATE_STRING_TOK:
     {
-      script[script_len] = tokToInstruction(tok, tokInfo);
+      script[script_len] = tok;
 
       Entity *tmpStr = tryStoreString(funcData, str, tokInfo);
 
@@ -399,11 +342,11 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
       script_len += 2;
     }
     goto still_in_func;
-  case CALL_ENTITY: /* variadic arguments */
-    script[script_len] = tokToInstruction(tok, tokInfo);
+  case YB_CALL_TOK: /* variadic arguments */
+    script[script_len] = tok;
     if (tryStoreNumber(&script[script_len + 2], str, tokInfo) < 0)
       goto exit;
-    while ((tok = nextNonSeparatorTok(str, tokInfo)) == NUMBER) {
+    while ((tok = nextNonSeparatorTok(str, tokInfo)) == NUMBER_TOK) {
       ++nb_args;
       script[script_len + nb_args + 2] = atoi(yeTokString(tokInfo, tok));
     }
@@ -411,11 +354,11 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
     script_len += nb_args + 3;
     nb_args = 0;
     goto still_in_func_no_next;
-  case ADD:
-  case SUB:
-  case DIV:
-  case MULT:
-    script[script_len] = tokToInstruction(tok, tokInfo);
+  case YB_ADD_TOK:
+  case YB_SUB_TOK:
+  case YB_DIV_TOK:
+  case YB_MULT_TOK:
+    script[script_len] = tok;
     if (tryStoreNumber(&script[script_len + 1], str, tokInfo) < 0)
       goto exit;
     if (tryStoreNumber(&script[script_len + 2], str, tokInfo) < 0)
@@ -424,9 +367,9 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
       goto exit;
     script_len += 4;
     goto still_in_func;
-  case SET_INT:
-  case GET_AT_IDX_TOK:
-    script[script_len] = tokToInstruction(tok, tokInfo);
+  case YB_SET_INT_TOK:
+  case YB_GET_AT_IDX_TOK:
+    script[script_len] = tok;
     if (tryStoreNumber(&script[script_len + 1], str, tokInfo) < 0)
       goto exit;
     if (tryStoreNumber(&script[script_len + 2], str, tokInfo) < 0)
@@ -434,31 +377,31 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
     script_len += 3;
     goto still_in_func;
   case YB_INCR_TOK:
-  case END_RET:
-  case CREATE_INT:
-  case PRINT_ENTITY:
-  case REGISTRE_WIDGET_SUBTYPE:
-    script[script_len] = tokToInstruction(tok, tokInfo);
+  case YB_RETURN_TOK:
+  case YB_CREATE_INT_TOK:
+  case YB_PRINT_ENTITY_TOK:
+  case YB_REGISTRE_WIDGET_SUBTYPE_TOK:
+    script[script_len] = tok;
     if (tryStoreNumber(&script[script_len + 1], str, tokInfo) < 0)
       goto exit;
     script_len += 2;
     goto still_in_func;
-  case END:
-  case CREATE_ARRAY:
-  case PRINT_POS_TOK:
-    script[script_len] = tokToInstruction(tok, tokInfo);
+  case YB_LEAVE_TOK:
+  case YB_CREATE_ARRAY_TOK:
+  case YB_PRINT_POS_TOK:
+    script[script_len] = tok;
     script_len += 1;
     goto still_in_func;
-  case SPACES:
-  case RETURN:
+  case SPACES_TOK:
+  case RETURN_TOK:
     goto still_in_func;
-  case CLOSE_BRACE:
+  case CLOSE_BRACE_TOK:
     ret = 0;
     break;
-  case EQUAL_TOK:
-  case NOT_EQUAL_NBR_TOK:
-  case EQUAL_NBR_TOK:
-    script[script_len] = tokToInstruction(tok, tokInfo);
+  case YB_EQUAL_TOK:
+  case YB_NOT_EQUAL_NBR_TOK:
+  case YB_EQUAL_NBR_TOK:
+    script[script_len] = tok;
     if (tryStoreNumber(&script[script_len + 1], str, tokInfo) < 0)
       goto exit;
     if (tryStoreNumber(&script[script_len + 2], str, tokInfo) < 0)
@@ -468,8 +411,8 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
       goto exit;
     script_len += 4;
     goto still_in_func;
-  case JMP_TOK:
-    script[script_len] = tokToInstruction(tok, tokInfo);
+  case YB_JMP_TOK:
+    script[script_len] = tok;
     if (tryStoreLabels(script_len + 1, str,
 		       tokInfo, &labels_needed, -1) < 0)
       goto exit;
@@ -497,7 +440,7 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
   }
   memcpy(yeGetData(data), script, sizeof(uint64_t) * script_len);
   yePushBack(map, data, yeGetString(funcName));
-  if (global) {
+  if (GLOBAL_TOK) {
     ygRegistreFunc(ysYBytecodeManager(), nb_func_args,
 		   yeGetString(funcName), yeGetString(funcName));
   }
@@ -535,10 +478,10 @@ static int loadFile(void *opac, const char *fileName)
 
   while ((tok = yeStringNextTok(str, tokInfo)) != YTOK_END) {
     switch (tok) {
-    case SPACES:
-    case RETURN:
+    case SPACES_TOK:
+    case RETURN_TOK:
       break;
-    case GLOBAL:
+    case GLOBAL_TOK:
       global = 1;
       tok = nextNonSeparatorTok(str, tokInfo);
       if (tok != YTOK_WORD) {
@@ -551,10 +494,10 @@ static int loadFile(void *opac, const char *fileName)
 	goto exit;
       global = 0;
       break;
-    case CPP_COMMENT:
+    case CPP_COMMENT_TOK:
     still_in_comment:
       tok = yeStringNextTok(str, tokInfo);
-      if (tok != YTOK_END && tok != RETURN)
+      if (tok != YTOK_END && tok != RETURN_TOK)
 	goto still_in_comment;
       break;
     default:

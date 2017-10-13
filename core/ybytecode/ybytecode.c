@@ -48,8 +48,8 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
 	inst_compille(YB_DIV, div, 3);
 	inst_compille(YB_MULT, mult, 3);
 	inst_compille(YB_INF, inf_comp, 3);
-	inst_compille(YB_NOT_EQUAL_COMP_NBR, yb_not_equal_comp_nbr, 3);
-	inst_compille(YB_EQUAL_COMP_NBR, yb_equal_comp_nbr, 3);
+	inst_compille(YB_NOT_EQUAL_NBR, yb_not_equal_comp_nbr, 3);
+	inst_compille(YB_EQUAL_NBR, yb_equal_comp_nbr, 3);
 	inst_compille(YB_EQUAL, qeual_comp, 3);
 	inst_compille(YB_INF_COMP_NBR, yb_inf_comp_nbr, 3);
 	inst_compille(YB_SUP_COMP_NBR, yb_sup_comp_nbr, 3);
@@ -60,8 +60,8 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
 	inst_compille(YB_CREATE_INT, create_int, 1);
 	inst_compille(YB_CREATE_ARRAY, create_array, 0);
 	inst_compille(YB_SET_INT, set_int, 2);
-	inst_compille(YB_NEW_WID, new_widget, 2);
-	inst_compille(YB_WID_ADD_SUBTYPE, wid_add_subtype, 1);
+	inst_compille(YB_NEW_WIDGET, new_widget, 2);
+	inst_compille(YB_REGISTRE_WIDGET_SUBTYPE, wid_add_subtype, 1);
 	inst_compille(YB_PUSH_BACK, push_back, 3);
 	inst_compille(YB_BRUTAL_CAST, brutal_cast, 2);
 	inst_compille(YB_PRINT_POS, print_pos, 0);

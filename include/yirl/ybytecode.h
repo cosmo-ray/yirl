@@ -19,39 +19,18 @@
 #define _YIRL_BYTECODE_H_
 
 #include "entity.h"
-
 enum ybutecode_ops {
-	YB_LEAVE = 'e',
-	YB_RETURN = 'E',
-	YB_ADD = '+',
-	YB_SUB = '-',
-	YB_DIV = '/',
-	YB_MULT = '*',
-	YB_INF = '<',
-	YB_SUP = '>',
-	YB_JMP = 'j',
-	YB_CREATE_STRING = 's',
-	YB_CREATE_INT = 'i',
-	YB_CREATE_ARRAY = 'a',
-	YB_SET_INT = 'I',
-	YB_COMPILLE_FUNC = 'F',
-	YB_CALL = 'c',
-	YB_BRUTAL_CAST = 127,
-	YB_JMP_IF_0 = 128,
-	YB_INF_COMP_NBR = 129,
-	YB_SUP_COMP_NBR = 130,
-	YB_EQUAL_COMP_NBR = 131,
-	YB_EQUAL = 132,
-	YB_NOT_EQUAL_COMP_NBR = 133,
-	YB_YG_GET_PUSH = 256,
-	YB_PUSH_BACK = 257,
-	YB_GET_AT_IDX = 258,
-	YB_GET_AT_STR = 259,
-	YB_INCR = 300,
-	YB_PRINT_ENTITY = 400,
-	YB_PRINT_POS = 401,
-	YB_WID_ADD_SUBTYPE = 410,
-	YB_NEW_WID = 411
+  YB_FIRST_INST = YTOK_STR_BASE_LAST + 1,
+#define DEF(a, b, c) a,
+#include "ybytecode-tok.h"
+#undef DEF
+  YB_INF = 124,
+  YB_SUP = 125,
+  YB_COMPILLE_FUNC = 126,
+  YB_BRUTAL_CAST = 127,
+  YB_JMP_IF_0 = 128,
+  YB_INF_COMP_NBR = 129,
+  YB_SUP_COMP_NBR = 130,
 };
 
 extern char *ybytecode_error;
