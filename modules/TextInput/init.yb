@@ -8,14 +8,28 @@ init 1 {
 	return 0
 }
 
-global txt_input_action 3 {
+global text_input_is_printable 1 {
+        print_entity 0
+        is_nbr_inf 0 40 not_printable:
+        is_nbr_sup 0 127 not_printable:
+        int 1
+	jmp end:
+not_printable:
+        int 0
+end:
+        return 1
+}
+
+global text_input_action 3 {
 	yg_get_push "FinishGame"
 	get_at_idx 1 15
 	get_at_idx 1 0
 	get_at_idx 1 1
+	yg_get_push "text_input_is_printable"
 	not_equal_nbr 6 10 not_enter:
 	call_entity 3 0 1
 not_enter:
+	call_entity 7 6
 	print_entity 0
 	print_entity 1
 	int 0
@@ -25,7 +39,7 @@ not_enter:
 global text_input_init 1 {
         string "test"
 	push_back 0 1 "text"
-	yg_get_push "txt_input_action"
+	yg_get_push "text_input_action"
 	push_back 0 2 "action"
 	new_widget 0 "text-screen"
 	print_entity 3

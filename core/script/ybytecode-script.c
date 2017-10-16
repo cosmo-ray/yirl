@@ -401,6 +401,8 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
   case YB_EQUAL_TOK:
   case YB_NOT_EQUAL_NBR_TOK:
   case YB_EQUAL_NBR_TOK:
+  case YB_INF_COMP_NBR_TOK:
+  case YB_SUP_COMP_NBR_TOK:
     script[script_len] = tok;
     if (tryStoreNumber(&script[script_len + 1], str, tokInfo) < 0)
       goto exit;

@@ -28,9 +28,7 @@ enum ybutecode_ops {
   YB_SUP = 125,
   YB_COMPILLE_FUNC = 126,
   YB_BRUTAL_CAST = 127,
-  YB_JMP_IF_0 = 128,
-  YB_INF_COMP_NBR = 129,
-  YB_SUP_COMP_NBR = 130,
+  YB_JMP_IF_0 = 128
 };
 
 extern char *ybytecode_error;
