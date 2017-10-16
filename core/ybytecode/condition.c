@@ -31,14 +31,9 @@ static inline int pushComVal(Entity *val, uint64_t *instructions, int *idx)
     instructions[i + 1] = yeGetInt(val);
     /* return yeGetInt(val); */
   } else if (yeType(val) == YSTRING) {
-    *idx = i + 6;
-    instructions[i] = YB_YG_GET_PUSH;
+    *idx = i + 2;
+    instructions[i] = YB_YG_GET_PUSH_INT;
     instructions[i + 1] = (size_t)yeGetString(val);
-    instructions[i + 2] = YB_JMP_IF_0;
-    instructions[i + 3] = *idx;
-    instructions[i + 4] = YB_CREATE_INT;
-    instructions[i + 5] = 0;
-    /* return yeGetInt(ygGet(yeGetString(val))); */
   }
   return 0;
 }
@@ -92,6 +87,7 @@ int yeCheckCondition(Entity *condition)
       instructions[i + 8] = 0;
       instructions[i + 9] = YB_RETURN;
       instructions[i + 10] = 0;
+      instructions[i + 11] = YB_END_FUNC;
       break;
     default:
       return 0;

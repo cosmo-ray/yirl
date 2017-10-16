@@ -5,7 +5,6 @@
 DEF(CPP_COMMENT, "//", string)
 #include "ybytecode-tok.h"
 DEF(OPEN_BRACE, "{", string)
-DEF(CLOSE_BRACE, "}", string)
 DEF(SPACES, " \t", repeater)
 DEF(RETURN, "\n", string)
 DEF(DOUBLE_QUOTE, "\"", string)

@@ -22,7 +22,8 @@ void ysciptAdd(void)
 		     // add stack 0 to stack 1
 		     // and store resulte in stack 2
 		     YB_ADD, 0, 1, 2,
-		     YB_RETURN, 2 // return 2nd elem
+		     YB_RETURN, 2, // return 2nd elem
+		     YB_END_FUNC
   };
 
   for (int i = 0; i < 5000000; ++i) {
@@ -49,7 +50,8 @@ void yscriptBenchLoop(void)
 		     YB_INF_COMP_NBR, 0, 50000000, 5,
 		     YB_CREATE_INT, 2, // stack[1] = 2
 		     YB_MULT, 0, 1, 0, // mult stack[0] by 2
-		     YB_RETURN, 0 // return 2nd elem
+		     YB_RETURN, 0, // return 2nd elem
+		     YB_END_FUNC
   };
 
   tmp = ybytecode_exec(args, test1);
@@ -78,7 +80,8 @@ void yscriptLoop(void)
 		     YB_INF, 0, 2, 9,
 		     YB_CREATE_INT, 2, // stack 2 in 3
 		     YB_MULT, 0, 3, 0, // mult 0 by 2
-		     YB_RETURN, 0 // return 2nd elem
+		     YB_RETURN, 0, // return 2nd elem
+		     YB_END_FUNC
   };
 
   tmp = ybytecode_exec(args, test1);
@@ -96,18 +99,21 @@ void ybytecodeScript(void)
 		     YB_CREATE_INT, 1, //stack 0 - 4
 		     YB_CREATE_INT, 50000000, // 6
 		     YB_ADD, 1, 2, 0,
-		     YB_RETURN, 0
+		     YB_RETURN, 0,
+		     YB_END_FUNC
   };
   int64_t testWithArgs[] = {0,
 			    YB_BRUTAL_CAST, 0, YINT,
 			    YB_BRUTAL_CAST, 1, YINT,
 			    YB_ADD, 0, 1, 0,
-			    YB_RETURN, 0
+			    YB_RETURN, 0,
+			    YB_END_FUNC
   };
   int64_t testWithEntArgs[] = {0,
 			       YB_CREATE_INT, 0,
 			       YB_ADD, 0, 1, 2,
-			       YB_RETURN, 2
+			       YB_RETURN, 2,
+			       YB_END_FUNC
   };
   Entity *gc, *i0, *i1;
   yeInitMem();
@@ -141,7 +147,7 @@ void ybytecodeLoopCallFunction(void)
 		     YB_COMPILLE_FUNC, 0, 1, // function with name at stack 0
 		     YB_ADD, 0, 1, 0, // add stack 0 to stack 0
 		     // store result in stack 0
-		     YB_LEAVE, // end function
+		     YB_END_FUNC,
 		     YB_CREATE_INT, 0,
 		     YB_CREATE_INT, 1,
 		     YB_CREATE_INT, 5000000,
@@ -149,7 +155,8 @@ void ybytecodeLoopCallFunction(void)
 		     YB_CALL, 2, 1, 2, 3, // 2 arguments, call stack 1,
 				      //with arguments at stack 2 and 3
 		     YB_INF, 2, 4, 19,
-		     YB_RETURN, 2 // return 2nd elem, so 15 , 52
+		     YB_RETURN, 2, // return 2nd elem, so 15 , 52
+		     YB_END_FUNC
   };
   void *sm = NULL;
 
@@ -171,12 +178,13 @@ void ybytecodeAddFunction(void)
 		     YB_COMPILLE_FUNC, 0, 1, // function with name at stack 0
 		     YB_ADD, 0, 1, 0, // add stack 0 to stack 0
 		     // store result in stack 0
-		     YB_LEAVE, // end function
+		     YB_END_FUNC, // end function
 		     YB_CREATE_INT, 15,
 		     YB_CREATE_INT, 52,
 		     YB_CALL, 2, 1, 2, 3, // 2 arguments, call stack 1,
 				      //with arguments at stack 2 and 3
-		     YB_RETURN, 2 // return 2nd elem, so 15 , 52
+		     YB_RETURN, 2, // return 2nd elem, so 15 , 52
+		     YB_END_FUNC
   };
   void *sm = NULL;
 

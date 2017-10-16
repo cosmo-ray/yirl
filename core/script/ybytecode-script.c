@@ -395,7 +395,9 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
   case SPACES_TOK:
   case RETURN_TOK:
     goto still_in_func;
-  case CLOSE_BRACE_TOK:
+  case YB_END_FUNC_TOK:
+    script[script_len] = tok;
+    script_len += 1;
     ret = 0;
     break;
   case YB_EQUAL_TOK:

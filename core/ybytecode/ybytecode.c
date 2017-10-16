@@ -67,6 +67,7 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
 	inst_compille(YB_PRINT_POS, print_pos, 0);
 	inst_compille(YB_PRINT_ENTITY, print_entity, 1);
 	inst_compille(YB_YG_GET_PUSH, yg_get_push, 1);
+	inst_compille(YB_YG_GET_PUSH_INT, yg_get_push_int, 1);
 	inst_compille(YB_GET_AT_IDX, get_at_idx, 2);
 	inst_compille(YB_GET_AT_STR, get_at_str, 2);
       case YB_CALL:
@@ -80,17 +81,18 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
 	break;
       case YB_LEAVE:
 	script[i] = (uint64_t)&&end;
-	if (!neested)
-	  goto out_loop;
-	--neested;
 	++i;
 	break;
       case YB_RETURN:
 	script[i] = (uint64_t)&&end_ret;
+	i += 2;
+	break;
+      case YB_END_FUNC:
+	script[i] = (uint64_t)&&end;
 	if (!neested)
 	  goto out_loop;
 	--neested;
-	i += 2;
+	++i;
 	break;
 
       default:
@@ -328,6 +330,18 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
   script += 3;
   goto *((void *)*script);
 
+ yg_get_push_int:
+  {
+    ++script;
+    Entity *tmp = ygGet((const char *)*script);
+    ++script;
+    if (yeType(tmp) != YINT) {
+      yeCreateInt(0, stack, NULL);
+      iret = -1;
+    }
+    iret = yePushBack(stack, tmp, NULL);
+    goto *((void *)*script);
+  }
  yg_get_push:
   ++script;
   iret = yePushBack(stack, ygGet((const char *)*script), NULL);

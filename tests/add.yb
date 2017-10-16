@@ -2,7 +2,6 @@
 // add arg 0 to arg 1 and store result in 0
 add 2 {
     + 0 1 0
-    leave
 }
 
 global add1 1 {
