@@ -238,7 +238,7 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
   goto *((void *)*script);
 
  call_entity:
-  YBytecodeScriptDirectReturn = 1;
+  ++YBytecodeScriptDirectReturn;
   switch (script[1]) {
   case 0:
     ret = yesCall(yeGetByIdxDirect(stack, script[2]));
@@ -269,7 +269,7 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
     iret = (intptr_t)ret;
   }
   script += script[1] + 3;
-  YBytecodeScriptDirectReturn = 0;
+  --YBytecodeScriptDirectReturn;
   goto *((void *)*script);
 
  create_func:

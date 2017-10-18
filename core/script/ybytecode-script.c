@@ -185,6 +185,7 @@ static Entity *tryStoreStringCurTok(Entity *funcData, Entity *str,
   }
   return ret;
 }
+
 static Entity *tryStoreString(Entity *funcData, Entity *str, Entity *tokInfo)
 {
   int tok = nextNonSeparatorTok(str, tokInfo);
@@ -220,7 +221,6 @@ static int tryStoreLabels(int script_pos, Entity *str,
     goto error;
   }
   struct labels *label = malloc(sizeof(struct labels));
-  printf("new label %s\n", yeGetString(strTmp));
   label->str = strTmp;
   label->pos = script_pos;
   LIST_INSERT_HEAD(labels_head, label, entries);

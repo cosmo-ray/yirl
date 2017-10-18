@@ -70,9 +70,9 @@ int yeIsPtrAnEntity(void *ptr)
 {
   return ((union FatEntity *)ptr) >= yBlockArrayGetPtrDirect(entitysArray, 0,
 							     union FatEntity) &&
-    ((union FatEntity *)ptr) < (yBlockArrayGetPtrDirect(entitysArray,
-							0, union FatEntity) +
-				yBlockArrayLastPos(entitysArray));
+    ((union FatEntity *)ptr) <= (yBlockArrayGetPtrDirect(entitysArray,
+							 0, union FatEntity) +
+				 yBlockArrayLastPos(entitysArray));
 }
 
 int yeCreateInts_(Entity *fathers, int nbVars, ...)

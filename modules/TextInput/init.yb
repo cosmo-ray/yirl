@@ -9,14 +9,13 @@ init 1 {
 }
 
 global text_input_is_printable 1 {
-        print_entity 0
+	print_entity 0
         is_nbr_inf 0 40 not_printable:
-        is_nbr_sup 0 127 not_printable:
+        is_nbr_sup 0 126 not_printable:
         int 1
-	jmp end:
+        return 1
 not_printable:
         int 0
-end:
         return 1
 }
 
@@ -30,8 +29,7 @@ global text_input_action 3 {
 	call_entity 3 0 1
 not_enter:
 	call_entity 7 6
-	print_entity 0
-	print_entity 1
+	print_entity 8
 	int 0
 	return 7
 }
