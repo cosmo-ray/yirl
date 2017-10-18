@@ -43,12 +43,11 @@ static int tccLoadString(void *sm, const char *str);
 static TCCState *createTCCState(YTccScript *state)
 {
   TCCState *l;
-  static char *args[1] = {"-nostdlib"};
 
   if (state->nbStates > TCC_MAX_SATES)
     return NULL;
   l = tcc_new();
-  tcc_args(l, 1, args);
+  tcc_set_options(l, "-nostdlib");
   if (l == NULL)
     return NULL;
   if (!ysTccPath) {
