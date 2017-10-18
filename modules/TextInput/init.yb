@@ -30,6 +30,7 @@ global text_input_action 3 {
 not_enter:
 	call_entity 7 6
 	print_entity 8
+	print_iret
 	int 0
 	return 7
 }

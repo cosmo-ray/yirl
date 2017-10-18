@@ -65,7 +65,10 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
 	inst_compille(YB_PUSH_BACK, push_back, 3);
 	inst_compille(YB_BRUTAL_CAST, brutal_cast, 2);
 	inst_compille(YB_PRINT_POS, print_pos, 0);
+	inst_compille(YB_PRINT_IRET, print_iret, 0);
 	inst_compille(YB_PRINT_ENTITY, print_entity, 1);
+	inst_compille(YB_LEAVE, end, 0);
+	inst_compille(YB_RETURN, end_ret, 1);
 	inst_compille(YB_YG_GET_PUSH, yg_get_push, 1);
 	inst_compille(YB_YG_GET_PUSH_INT, yg_get_push_int, 1);
 	inst_compille(YB_GET_AT_IDX, get_at_idx, 2);
@@ -78,14 +81,6 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
 	script[i] = (uint64_t) &&compille_func;
 	++neested;
 	i += 3;
-	break;
-      case YB_LEAVE:
-	script[i] = (uint64_t)&&end;
-	++i;
-	break;
-      case YB_RETURN:
-	script[i] = (uint64_t)&&end_ret;
-	i += 2;
 	break;
       case YB_END_FUNC:
 	script[i] = (uint64_t)&&end;
@@ -358,6 +353,11 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
   ywidAddSubType(yeGetByIdxDirect(stack, script[1]));
   yeIncrRef(yeGetByIdxDirect(stack, script[1]));
   script += 2;
+  goto *((void *)*script);
+
+ print_iret:
+  printf("iret: %d\n", iret);
+  ++script;
   goto *((void *)*script);
 
  print_pos:
