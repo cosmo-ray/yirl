@@ -44,8 +44,6 @@ static int sdlRend(YWidgetState *state, int t)
 
   if (ywidBgConfFill(yeGet(state->entity, "background"), &cfg) >= 0)
     sdlFillBg(wid, &cfg);
-  else
-    sdlFillColorBg(wid, 255, 255, 255, 255);
 
   ywidColorFromString((char *)yeGetString(yeGet(state->entity, "text-color")),
 		      &base_color.r, &base_color.g, &base_color.b,
@@ -59,7 +57,7 @@ static int sdlRend(YWidgetState *state, int t)
     SDL_Color color = base_color;
     int hiden = yeGetInt(yeGet(entry, "hiden"));
     const char *toPrint = yeGetString(yeGet(entry, "text"));
-    unsigned int cur = ywMenuGetCurrent(state);
+    int cur = ywMenuGetCurrent(state);
     Entity *destRect;
     SDL_Rect txtR;
 

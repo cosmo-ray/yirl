@@ -55,6 +55,9 @@ void *sukeFightInit(int nbArg, void **args)
   Entity *bad_guys = yeGet(ent, "bad-guys");
   Entity *good_guys = yeGet(ent, "good-guys");
   Entity *canvas;
+  Entity *menu_cnt;
+  Entity *menu_cnt_entries;
+  Entity *menu_caracters_list;
   Entity *menu;
   Entity *menu_entries;
   Entity *menu_entry;
@@ -93,7 +96,22 @@ void *sukeFightInit(int nbArg, void **args)
     }
   }
   yeCreateInt(70, canvas, "size");
-  menu = yeCreateArray(entries, NULL);
+  menu_cnt = yeCreateArray(entries, NULL);
+  yeCreateString("container", menu_cnt, "<type>");
+  menu_cnt_entries = yeCreateArray(menu_cnt, "entries");
+  yeCreateString("vertical", menu_cnt, "cnt-type");
+  yeReCreateInt(1, menu_cnt, "current");
+  yeCreateString("rgba: 123 123 255 255", menu_cnt, "background");
+
+  menu_caracters_list = yeCreateArray(menu_cnt_entries, NULL);
+  yeCreateString("menu", menu_caracters_list, "<type>");
+  yeReCreateInt(-1, menu_caracters_list, "current");
+  yeCreateInt(20, menu_caracters_list, "size");
+  menu_entries = yeCreateArray(menu_caracters_list, "entries");
+  menu_entry = yeCreateArray(menu_entries, NULL);
+  yeCreateString("name", menu_entry, "text");
+
+  menu = yeCreateArray(menu_cnt_entries, NULL);
   yeCreateString("menu", menu, "<type>");
   menu_entries = yeCreateArray(menu, "entries");
   menu_entry = yeCreateArray(menu_entries, NULL);

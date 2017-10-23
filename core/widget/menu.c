@@ -120,6 +120,7 @@ static int mnInit(YWidgetState *opac, Entity *entity, void *args)
   } else {
     yeCreateFunction("menuMove", ysNativeManager(), entity, "move");
   }
+  ((YMenuState *)opac)->current = yeGetInt(yeGet(entity, "current"));
   return 0;
 }
 
