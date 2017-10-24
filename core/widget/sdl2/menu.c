@@ -59,12 +59,18 @@ static int sdlRend(YWidgetState *state, int t)
     const char *toPrint = yeGetString(yeGet(entry, "text"));
     int cur = ywMenuGetCurrent(state);
     Entity *destRect;
+    Entity *type;
     SDL_Rect txtR;
+    int has_loading_bar;
 
     if (hiden)
       continue;
     ywidColorFromString((char *)yeGetString(yeGet(entry, "text-color")),
 			&color.r, &color.g, &color.b, &color.a);
+
+    type = yeGet(entry, "type");
+    has_loading_bar = (type && !yeStrCmp(type, "loading-bar"));
+
     if (isPane) {
       destRect = ywRectReCreateInts(wid->rect.w / len * pos, 0,
 				    wid->rect.w / len,
@@ -76,7 +82,29 @@ static int sdlRend(YWidgetState *state, int t)
 				    entry, "$rect");
     }
     txtR = sdlRectFromRectEntity(destRect);
+    if (has_loading_bar) {
+      char lb[17];
+      int barPercent = yeGetInt(yeGet(entry, "loading-bar-%"));
+      int barLen;
+
+      lb[0] = '[';
+      lb[15] = ']';
+      lb[16] = '\0';
+      if (unlikely(barPercent > 100))
+	barPercent = 100;
+      else if (unlikely(barPercent < 0))
+	barPercent = 0;
+      barLen = yuiPercentOf(barPercent, 14);
+      memset(lb + 1, '#', barLen);
+      memset(lb + 1 + barLen, '.', 14 - barLen);
+      toPrint = (char *)g_strdup_printf("%s%s%s", toPrint,
+					yeGetString(yeGet(entry,
+							  "loading-bar-sep")),
+					lb);
+    }
     sdlPrintText(wid, toPrint, color, txtR, alignementType);
+    if (has_loading_bar)
+      g_free((char *)toPrint);
     if (cur == it.pos) {
       color.a = 150;
       sdlDrawRect(wid, txtR, color);

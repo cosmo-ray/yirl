@@ -48,6 +48,12 @@ void rendMap(Entity *ent)
   }
 }
 
+void *sukeFightAction(int nbArg, void **args)
+{
+  printf("action now\n");
+  return (void *)NOTHANDLE;
+}
+
 void *sukeFightInit(int nbArg, void **args)
 {
   Entity *ent = args[0];
@@ -102,6 +108,7 @@ void *sukeFightInit(int nbArg, void **args)
   yeCreateString("vertical", menu_cnt, "cnt-type");
   yeReCreateInt(1, menu_cnt, "current");
   yeCreateString("rgba: 123 123 255 255", menu_cnt, "background");
+  yeCreateFunction("sukeFightAction", ygGetManager("tcc"), menu_cnt, "action");
 
   menu_caracters_list = yeCreateArray(menu_cnt_entries, NULL);
   yeCreateString("menu", menu_caracters_list, "<type>");
