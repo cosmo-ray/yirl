@@ -115,8 +115,20 @@ void *sukeFightInit(int nbArg, void **args)
   yeReCreateInt(-1, menu_caracters_list, "current");
   yeCreateInt(20, menu_caracters_list, "size");
   menu_entries = yeCreateArray(menu_caracters_list, "entries");
-  menu_entry = yeCreateArray(menu_entries, NULL);
-  yeCreateString("name", menu_entry, "text");
+
+  for (int i = 0; i < 3; ++i) {
+    Entity *name = yeGet(yeGet(good_front_row, i), "name");
+
+    if (name) {
+      menu_entry = yeCreateArray(menu_entries, NULL);
+      yeCreateString(yeGetString(name), menu_entry, "text");
+    }
+    name = yeGet(yeGet(good_back_row, i), "name");
+    if (name) {
+      menu_entry = yeCreateArray(menu_entries, NULL);
+      yeCreateString(yeGetString(name), menu_entry, "text");
+    }
+  }
 
   menu = yeCreateArray(menu_cnt_entries, NULL);
   yeCreateString("menu", menu, "<type>");
