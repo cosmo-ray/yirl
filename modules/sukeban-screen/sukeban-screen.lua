@@ -80,7 +80,8 @@ function startDialogue(wid, carac, elem, id)
    local speaker_background = yeCreateString("rgba: 255 255 255 255", gc)
    local dialogues = ygGet("sukeban.dialogues")
    local ent = yNewDialogueEntity(yeGet(dialogues, yeGetInt(id)),
-				  nil, nil, speaker_background)
+				  nil, nil, speaker_background,
+				  speaker_background)
    yePushBack(ent, wid, "-sukeban-map");
    ywPushNewWidget(wid, ent, 1)
    yeSetAt(wid, "-inside-dialogue", 1)

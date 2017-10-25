@@ -21,6 +21,7 @@
 		"action" : "FinishGame"
 	    }
 	],
+	"background": "rgba: 255 255 255 255",
 	"text-align" : "center"
     },
     "Snake" : {
