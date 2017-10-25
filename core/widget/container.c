@@ -261,7 +261,9 @@ static int cntRend(YWidgetState *opac)
   Entity *entries = yeGet(opac->entity, "entries");
   int needChange = 0;
   YWidgetState *bg_wid = ywidGetState(yeGet(opac->entity, "$bg"));
+  static int neested = -1;
 
+  ++neested;
   if (!opac->hasChange)
     return 0;
 
@@ -270,6 +272,7 @@ static int cntRend(YWidgetState *opac)
 
   if (bg_wid) {
     yeReplaceBack(bg_wid->entity, yeGet(opac->entity, "wid-pos"), "wid-pos");
+    bg_wid->shouldDraw = 0;
     bg_wid->hasChange = 1;
     ywidRend(bg_wid);
     needChange = 1;
@@ -299,7 +302,11 @@ static int cntRend(YWidgetState *opac)
     wid->hasChange = 0;
     wid->shouldDraw = 1;
   }
-  ywidDrawScreen();
+  if (!neested)
+    opac->shouldDraw = 1;
+  else
+    opac->shouldDraw = 0;
+  --neested;
   return 0;
 }
 

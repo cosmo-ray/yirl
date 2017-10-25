@@ -238,20 +238,23 @@ static inline void ywidMidRendEnd(YWidgetState *opac)
   }
 }
 
+/**
+ * @brief interal function use to draw screen when the texture has been update
+ */
+int ywidDrawScreen(void);
+
 static inline int ywidRend(YWidgetState *opac)
 {
   int ret = 0;
   if (opac->render && opac->hasChange) {
     ret = opac->render(opac);
     opac->hasChange = 0;
+    if (opac->shouldDraw) {
+      ywidDrawScreen();
+    }
   }
   return ret;
 }
-
-/**
- * @brief interal function use to draw screen when the texture has been update
- */
-int ywidDrawScreen(void);
 
 int ywidHandleEvent(YWidgetState *opac, Entity *event);
 
@@ -265,7 +268,6 @@ int ywidDoTurn(YWidgetState *opac);
 
 #define ywidGenericRend(wid_, widType, func) do {	\
     ywidGenericCall(wid_, widType, func);		\
-    if (wid_->shouldDraw) {ywidDrawScreen();}		\
   } while (0);
 
 static inline int ywidType(void *opac)
