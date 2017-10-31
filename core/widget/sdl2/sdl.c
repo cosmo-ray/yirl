@@ -304,10 +304,11 @@ int    ysdl2Init(void)
 
   if (sgSetDefaultFont("./sample.ttf") < 0 &&
       sgSetDefaultFont("/usr/share/fonts/TTF/Vera.ttf") < 0 &&
-      sgSetDefaultFont("/usr/share/fonts/TTF/DejaVuSans.ttf") < 0) {
+      sgSetDefaultFont("/usr/share/fonts/TTF/DejaVuSansMono.ttf") < 0) {
     DPRINT_ERR("Cannot load \"./sample.ttf\"\n");
     goto fail;
   }
+  printf("fixed: %d\n", TTF_FontFaceIsFixedWidth(sgDefaultFont()));
 
   // fill the window with a black rectangle
   // SDL_Rect   rect = sg.getRect();

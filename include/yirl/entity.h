@@ -346,6 +346,35 @@ static inline const char *yeGetStringAt(Entity *array, int pos)
 
 void *yeGetData(Entity *entity);
 
+#define yeGetDataAt(array, pos)						\
+  _Generic((pos),							\
+	   unsigned int: yeGetDataAtByIdx,				\
+	   int: yeGetDataAtByIdx,					\
+	   long : yeGetDataAtByIdx,					\
+	   long long : yeGetDataAtByIdx,				\
+	   unsigned long long : yeGetDataAtByIdx,			\
+	   unsigned long: yeGetDataAtByIdx,				\
+	   Y_GEN_CLANG_ARRAY(char, yeGetDataAtByStr),			\
+	   const char *: yeGetDataAtByStr,				\
+	   char *: yeGetDataAtByStr)(array, (pos))			\
+
+/**
+ * @return	value of entity at @pos in @array, 0 if entity doesn't existe
+ */
+static inline void *yeGetDataAtByIdx(Entity *array, int pos)
+{
+  return yeGetData(yeGetByIdx(array, pos));
+}
+
+/**
+ * @return	value of entity at @pos in @array, 0 if entity doesn't existe
+ */
+static inline void *yeGetDataAtByStr(Entity *array, const char *pos)
+{
+  return yeGetData(yeGetByStr(array, pos));
+}
+
+
 /**
  * change the capacity than the array can store
  */
@@ -621,7 +650,7 @@ static inline Entity *yeReCreateArray(Entity *array, const char *name,
   return yeCreateArray(array, name);
 }
 
-static inline Entity *yeReCreateInt(double value, Entity *father,
+static inline Entity *yeReCreateInt(int value, Entity *father,
 				    const char *name)
 {
   YE_IMPL_RECREATE(Int, value, father, name);

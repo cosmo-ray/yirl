@@ -18,14 +18,16 @@
 #ifndef _YIRL_COUNTER_H_
 #define _YIRL_COUNTER_H_
 
-#include <stdint.h>
-#include <glib.h>
-
 typedef struct {
   uint64_t beg;
-  uint64_t begStop;  
+  uint64_t begStop;
 } YTimer;
 
+#ifdef Y_INSIDE_TCC
+uint64_t g_get_monotonic_time(void);
+#else
+#include <glib.h>
+#endif
 
 /**
  * Create a counter and start it

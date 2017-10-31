@@ -85,6 +85,7 @@ static int sdlRend(YWidgetState *state, int t)
     if (has_loading_bar) {
       char lb[17];
       int barPercent = yeGetInt(yeGet(entry, "loading-bar-%"));
+      const char *separator = yeGetString(yeGet(entry, "loading-bar-sep"));
       int barLen;
 
       lb[0] = '[';
@@ -97,10 +98,11 @@ static int sdlRend(YWidgetState *state, int t)
       barLen = yuiPercentOf(barPercent, 14);
       memset(lb + 1, '#', barLen);
       memset(lb + 1 + barLen, '.', 14 - barLen);
-      toPrint = (char *)g_strdup_printf("%s%s%s", toPrint,
-					yeGetString(yeGet(entry,
-							  "loading-bar-sep")),
-					lb);
+      if (!separator)
+	separator = "";
+      if (!toPrint)
+	toPrint = "";
+      toPrint = (char *)g_strdup_printf("%s%s%s", toPrint, separator, lb);
     }
     sdlPrintText(wid, toPrint, color, txtR, alignementType);
     if (has_loading_bar)
