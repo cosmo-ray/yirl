@@ -502,10 +502,15 @@ int ywidDoTurn(YWidgetState *opac)
     i = turnLength - YTimerGet(cnt);
     percent = 100 - (i * 100 / turnLength);
     while (i > 0 && percent < 95) {
+      int newPercent;
+
       ywidMidRend(mainWid, percent);
-      usleep(1);
-      i = turnLength - YTimerGet(cnt);
-      percent = 100 - (i * 100 / turnLength);
+      do {
+	usleep(1);
+	i = turnLength - YTimerGet(cnt);
+	newPercent = 100 - (i * 100 / turnLength);
+      } while (newPercent == percent);
+      percent = newPercent;
     }
     if (i > 0) {
       usleep(i);
