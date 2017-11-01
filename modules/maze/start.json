@@ -1,0 +1,12 @@
+{
+    "name" : "Dialogue",
+    "init-scripts" : [
+	    "init"
+    ],
+    "pre-load" : [
+	{
+	    "file" : "init.c",
+	    "type" : "tcc"
+	}
+    ]
+}
