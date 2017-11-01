@@ -28,9 +28,6 @@
 	    {
 		"text" : "choose 1",
 	    	"action" : "menuTest",
-		"type": "loading-bar",
-		"loading-bar-%" : 100,
-		"loading-bar-sep" : ":      "
 	    },
 	    {
 		"text" : "choose 2",
