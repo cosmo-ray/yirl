@@ -211,8 +211,6 @@ static inline Entity *ywMapCam(Entity *state)
 static inline void ywMapSetCamPos(Entity *state, Entity *pos)
 {
   Entity *cam = ywMapCam(state);
-  int cx = ywRectX(cam);
-  int cy = ywRectY(cam);
 
   ywRectSetPos(cam, pos);
   if (unlikely(ywRectX(cam) + ywRectW(cam) > ywMapW(state))) {

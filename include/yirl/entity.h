@@ -736,7 +736,7 @@ Entity	*yeMoveByEntity(Entity* src, Entity* dest, Entity *what,
 
 static inline Entity *yeMoveByStr(Entity* src, Entity* dest, const char *what)
 {
-  yeMoveByEntity(src, dest, yeGet(src, what), what);
+  return yeMoveByEntity(src, dest, yeGet(src, what), what);
 }
 
 static inline int yeArrayContainEntity(Entity *array, const char *str)

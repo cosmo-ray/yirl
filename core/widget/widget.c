@@ -568,6 +568,8 @@ InputStatue ywidActions(Entity *wid, Entity *actionWid, Entity *eve, void *arg)
   actions = yeGet(actionWid, "actions");
   InputStatue ret = NOTHANDLE;
 
+  if (!actions)
+    return NOTHANDLE;
   switch (yeType(actions)) {
   case YSTRING:
   case YFUNCTION:
@@ -581,6 +583,11 @@ InputStatue ywidActions(Entity *wid, Entity *actionWid, Entity *eve, void *arg)
 	  ret = cur_ret;
       }
     }
+    break;
+  default:
+    DPRINT_ERR("Bad entity type: (%d) %s", yeType(actions),
+	       yeTypeToString(yeType(actions)));
+    return NOTHANDLE;
   }
   return ret;
 }

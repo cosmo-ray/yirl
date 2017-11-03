@@ -17,6 +17,7 @@
 
 #include <glib.h>
 #include "menu.h"
+#include "container.h"
 #include "rect.h"
 #include "native-script.h"
 #include "entity-script.h"
@@ -147,9 +148,6 @@ InputStatue ywMenuCallActionOnByState(YWidgetState *opac, Entity *event,
 				      int idx, void *arg)
 {
   InputStatue ret;
-  Entity *entries = yeGet(opac->entity, "entries");
-  Entity *entry = yeGet(entries, idx);
-  Entity *action = yeGet(entry, "action");
 
   if (idx < 0)
     return NOTHANDLE;
@@ -250,4 +248,9 @@ int ywMenuEnd(void)
     return -1;
   t = -1;
   return 0;
+}
+
+Entity *ywMenuGetEntry(Entity *container, int idx)
+{
+  return ywCntGetEntry(container, idx);
 }

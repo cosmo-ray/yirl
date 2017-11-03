@@ -17,6 +17,7 @@
 
 #include <yirl/game.h>
 #include <yirl/container.h>
+#include <yirl/menu.h>
 #include <yirl/canvas.h>
 #include <yirl/rect.h>
 #include <yirl/timer.h>
@@ -58,36 +59,55 @@ static Entity *getLoader(Entity *widget)
   return yeGet(menu_cnt, "loader");
 }
 
+static Entity *getLoaderAt(Entity *main, int pos)
+{
+  ywCntGetEntry(getLoader(main), pos);
+}
+
+void *sukeFightAttack(int nbArg, void **args)
+{
+  Entity *menu = args[0];
+  Entity *main = yeGet(menu, "main");
+  Entity *pcDoingActionIdx = yeGet(main, "pcDoingAction");
+
+  if (yeGetInt(pcDoingActionIdx) < 0) {
+    return (void *)NOTHANDLE;
+  }
+  printf("attack attack attack ! ore wa senshi ! %p\n",
+	 yeGet(getLoaderAt(main, yeGetInt(pcDoingActionIdx)), "guy"));
+  return (void *)NOTHANDLE;
+}
+
 void *sukeFightAction(int nbArg, void **args)
 {
   Entity *ent = args[0];
+  Entity *pcDoingAction = yeGet(ent, "pcDoingAction");
+
+  if (yeGetInt(pcDoingAction) >= 0) {
+    return (void *)NOTHANDLE;
+  }
+
   void *timer = yeGetDataAt(ent, "timer");
   uint64_t t = YTimerGet(timer) / 100000;
-  Entity *good_guys = yeGet(ent, "good-guys");
-  Entity *good_front_row = yeGet(good_guys, 0);
-  Entity *good_back_row = yeGet(good_guys, 1);
   Entity *loader = getLoader(ent);
   ywContainerUpdate(ent, loader);
 
-  for (int i = 0, j = 0; i < 3; ++i) {
-    Entity *row = good_front_row;
-    Entity *guy;
-  again:
-    guy = yeGet(row, i);
+  for (int j = 0; j < 6; ++j) {
+    Entity *curLoadingBar = ywMenuGetEntry(loader, j);
+    Entity *guy = yeGet(curLoadingBar, "guy");
 
-    if (guy) {
-      Entity *curTime = yeGet(guy, "current-reload-time");
+    if (!guy)
+      break;
+    Entity *curTime = yeGet(guy, "current-reload-time");
 
-      yeSetInt(curTime, t);
-      Entity *cur_bar = ywCntGetEntry(loader, j);
-      yeSetInt(yeGet(cur_bar, "loading-bar-%"),
-	       yeGetInt(curTime) * 100 / yeGetInt(yeGet(guy, "reload-time")));
-      ++j;
-    }
-
-    if (row != good_back_row) {
-      row = good_back_row;
-      goto again;
+    yeSetInt(curTime, t);
+    Entity *cur_bar = ywCntGetEntry(loader, j);
+    Entity *percent = yeGet(cur_bar, "loading-bar-%");
+    yeSetInt(percent, yeGetInt(curTime) * 100 /
+	     yeGetInt(yeGet(guy, "reload-time")));
+    if (yeGetInt(percent) == 100) {
+      yeSetInt(pcDoingAction, j);
+      return (void *)NOTHANDLE;
     }
   }
 
@@ -110,6 +130,7 @@ static void tryPushGuyToMenu(Entity *menu_cnt, Entity *guy)
     yeCreateString(NULL, loader_entry, "text");
     yeCreateString("loading-bar", loader_entry, "type");
     yeCreateInt(0, loader_entry, "loading-bar-%");
+    yePushBack(loader_entry, guy, "guy");
   }
 }
 
@@ -133,6 +154,7 @@ void *sukeFightInit(int nbArg, void **args)
   Entity *loader_entries;
 
   yeReCreateInt(1, ent, "current");
+  yeReCreateInt(-1, ent, "pcDoingAction");
   yeCreateFunction("sukeFightAction", ygGetManager("tcc"), ent, "action");
   YTimerReset(yeGetData(yeCreateDataExt(NULL, ent, "timer",
 					YE_DATA_USE_OWN_METADATA)));
@@ -197,9 +219,11 @@ void *sukeFightInit(int nbArg, void **args)
 
   menu = yeCreateArray(menu_cnt_entries, NULL);
   yeCreateString("menu", menu, "<type>");
+  yePushBack(menu, ent, "main");
   menu_entries = yeCreateArray(menu, "entries");
   menu_entry = yeCreateArray(menu_entries, NULL);
   yeCreateString("attack", menu_entry, "text");
+  yeCreateFunction("sukeFightAttack", ygGetTccManager(), menu_entry, "action");
   menu_entry = yeCreateArray(menu_entries, NULL);
   yeCreateString("run away", menu_entry, "text");
   yeCreateString("FinishGame", menu_entry, "action");

@@ -361,7 +361,7 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
   goto *((void *)*script);
 
  print_pos:
-  printf("script instruction pos: %d\n", script - origin);
+  printf("script instruction pos: %ld\n", script - origin);
   ++script;
   goto *((void *)*script);
  print_entity:

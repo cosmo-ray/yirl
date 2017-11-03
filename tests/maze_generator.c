@@ -21,7 +21,6 @@
 void testMazeGenMod(void)
 {
   Entity *maze_info;
-  Entity *maze;
   Entity *pos;
 
 #define ymaze_create(maze_info, father, name)				\

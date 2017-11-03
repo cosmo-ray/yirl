@@ -102,6 +102,7 @@ extern "C" {
       sdlCanvasCacheImg(wid, obj);
       size = yeGet(obj, "$size");
     }
+    return size;
   }
 }
 

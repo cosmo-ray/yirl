@@ -31,6 +31,13 @@ int ywMenuPosFromPix(Entity *wid, uint32_t x, uint32_t y);
 void ywMenuDown(Entity *wid);
 void ywMenuUp(Entity *wid);
 
+Entity *ywMenuGetEntry(Entity *container, int idx);
+
+static inline Entity *ywMenuLoaderPercent(Entity *loader)
+{
+  return yeGet(loader, "loading-bar-%");
+}
+
 InputStatue ywMenuCallActionOnByEntity(Entity *opac, Entity *event, int idx,
 				       void *arg);
 InputStatue ywMenuCallActionOnByState(YWidgetState *opac, Entity *event,
