@@ -61,7 +61,7 @@ static Entity *getLoader(Entity *widget)
 
 static Entity *getLoaderAt(Entity *main, int pos)
 {
-  ywCntGetEntry(getLoader(main), pos);
+  ywMenuGetEntry(getLoader(main), pos);
 }
 
 void *sukeFightAttack(int nbArg, void **args)
@@ -69,12 +69,16 @@ void *sukeFightAttack(int nbArg, void **args)
   Entity *menu = args[0];
   Entity *main = yeGet(menu, "main");
   Entity *pcDoingActionIdx = yeGet(main, "pcDoingAction");
+  Entity *loader;
 
   if (yeGetInt(pcDoingActionIdx) < 0) {
     return (void *)NOTHANDLE;
   }
+  loader = getLoaderAt(main, yeGetInt(pcDoingActionIdx));
   printf("attack attack attack ! ore wa senshi ! %p\n",
-	 yeGet(getLoaderAt(main, yeGetInt(pcDoingActionIdx)), "guy"));
+	 yeGet(loader, "guy"));
+  ywMenuSetLoaderPercent(loader, 0);
+  yeSetInt(pcDoingActionIdx, -1);
   return (void *)NOTHANDLE;
 }
 

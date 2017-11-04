@@ -38,6 +38,11 @@ static inline Entity *ywMenuLoaderPercent(Entity *loader)
   return yeGet(loader, "loading-bar-%");
 }
 
+static inline void ywMenuSetLoaderPercent(Entity *loader, int val)
+{
+  yeSetAt(loader, "loading-bar-%", val);
+}
+
 InputStatue ywMenuCallActionOnByEntity(Entity *opac, Entity *event, int idx,
 				       void *arg);
 InputStatue ywMenuCallActionOnByState(YWidgetState *opac, Entity *event,
