@@ -411,6 +411,7 @@ Entity *yeCreateArrayExt(Entity *father, const char *name, uint32_t flags)
   ArrayEntity * restrict ret;
 
   YE_ALLOC_ENTITY(ret, ArrayEntity);
+  YE_TO_ARRAY(ret)->nbFathers = 0;
   yeInit((Entity *)ret, YARRAY, father, name);
   yBlockArrayInitExt(&ret->values, ArrayEntry, flags);
   return (YE_TO_ENTITY(ret));
@@ -421,6 +422,7 @@ Entity *yeCreateArrayAt(Entity *father, const char *name, int idx)
   ArrayEntity *ret;
 
   YE_ALLOC_ENTITY(ret, ArrayEntity);
+  YE_TO_ARRAY(ret)->nbFathers = 0;
   yeInitAt((Entity *)ret, YARRAY, father, name, idx);
   yBlockArrayInit(&ret->values, ArrayEntry);
   return (YE_TO_ENTITY(ret));
