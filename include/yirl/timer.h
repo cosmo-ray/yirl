@@ -20,7 +20,6 @@
 
 typedef struct {
   uint64_t beg;
-  uint64_t begStop;
 } YTimer;
 
 #ifdef Y_INSIDE_TCC
@@ -37,27 +36,12 @@ static inline YTimer *YTimerCreate(void)
   YTimer *ret = g_new(YTimer, 1);
 
   ret->beg = g_get_monotonic_time();
-  ret->begStop = 0;
   return ret;
 }
 
 static inline void YTimerReset(YTimer *cnt)
 {
   cnt->beg = g_get_monotonic_time();
-  cnt->begStop = 0;
-}
-
-static inline void YTimerStop(YTimer *cnt)
-{
-  cnt->begStop = g_get_monotonic_time();
-}
-
-static inline void YTimerReStart(YTimer *cnt)
-{
-  if (!cnt->begStop)
-    return;
-  cnt->beg += (g_get_monotonic_time() - cnt->begStop);
-  cnt->begStop = 0;
 }
 
 static inline uint64_t YTimerGet(YTimer *cnt)

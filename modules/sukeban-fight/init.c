@@ -75,10 +75,11 @@ void *sukeFightAttack(int nbArg, void **args)
     return (void *)NOTHANDLE;
   }
   loader = getLoaderAt(main, yeGetInt(pcDoingActionIdx));
-  printf("attack attack attack ! ore wa senshi ! %p\n",
-	 yeGet(loader, "guy"));
   ywMenuSetLoaderPercent(loader, 0);
   yeSetInt(pcDoingActionIdx, -1);
+  YTimerReset(yeGetDataAt(main, "timer"));
+  uint64_t t = YTimerGet(yeGetDataAt(main, "timer")) / 100000;
+
   return (void *)NOTHANDLE;
 }
 
@@ -104,13 +105,26 @@ void *sukeFightAction(int nbArg, void **args)
       break;
     Entity *curTime = yeGet(guy, "current-reload-time");
 
-    yeSetInt(curTime, t);
+    yeSetInt(curTime, t + yeGetIntAt(guy, "start-reload-time"));
     Entity *cur_bar = ywCntGetEntry(loader, j);
     Entity *percent = yeGet(cur_bar, "loading-bar-%");
+
     yeSetInt(percent, yeGetInt(curTime) * 100 /
 	     yeGetInt(yeGet(guy, "reload-time")));
-    if (yeGetInt(percent) == 100) {
+    if (yeGetInt(percent) >= 100) {
+      YTimerReset(timer);
       yeSetInt(pcDoingAction, j);
+      yeReCreateInt(0, guy, "start-reload-time");
+
+      for (int i = 0; i < 6; ++i) {
+	if (i == j)
+	  continue;
+	Entity *curLoadingBar = ywMenuGetEntry(loader, i);
+	Entity *guy = yeGet(curLoadingBar, "guy");
+	Entity *curTime = yeGet(guy, "current-reload-time");
+
+	yeReCreateInt(yeGetInt(curTime), guy, "start-reload-time");
+      }
       return (void *)NOTHANDLE;
     }
   }
