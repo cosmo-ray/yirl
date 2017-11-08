@@ -33,7 +33,7 @@ int yuiRegister(YManagerAllocator *ma, void *(*allocator)(void))
 
 int yuiUnregiste(YManagerAllocator *ma, int t)
 {
-  if (unlikely(!ma || ma->len <= t))
+  if (unlikely(!ma || ma->len <= t || t < 0))
     return -1;
   ma->allocator[t] = NULL;
   if (t == ma->len - 1)
