@@ -39,7 +39,7 @@ int main(int argc, char **argv)
     {"default-tcc-path", 0, 0,  G_OPTION_ARG_NONE, &default_tcc_path,
      "set this if tcc files are not in start directory", NULL},
     {"start-dir", 'd', 0,  G_OPTION_ARG_STRING, &start_dir,
-     "allow to cp on the given directorry,"
+     "move on the given directorry,"
      " use as starting module if --start not set", NULL},
     {NULL, 0, 0, 0, NULL, NULL, NULL}
   };
