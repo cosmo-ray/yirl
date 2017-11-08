@@ -51,6 +51,7 @@ int main(int argc, char **argv)
     {NULL, 0, 0, 0, NULL, NULL, NULL}};
   GError *error = NULL;
 
+  yuiDebugInit();
   ctx = g_option_context_new(NULL);
   g_option_context_set_help_enabled(ctx, 1);
   g_option_context_add_main_entries(ctx, entries, NULL);
@@ -63,8 +64,6 @@ int main(int argc, char **argv)
 
   // TODO: add [MY-OPTIONS] -- [TEST-OPTIONS] like syntaxe
   g_test_init(&argc, &argv, NULL);
-
-  yuiDebugInit();
 
   if (only_wid)
     goto tests_widgets;
