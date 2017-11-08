@@ -75,8 +75,9 @@ void testTccAddDefine(void)
 
   g_assert(!ygInitGameConfig(&cfg, NULL, NONE));
   g_assert(!ygInit(&cfg));
+  ygCleanGameConfig(&cfg);
 
-  g_assert(!ysLoadString(ygGetTccManager(),
+ g_assert(!ysLoadString(ygGetTccManager(),
 			 "#include <yirl/game.h>"
 			 "void *test(){"
 			 "return (void *)ygAddDefine(\"TEST\", \"28\");"

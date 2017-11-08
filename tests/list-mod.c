@@ -152,6 +152,7 @@ void testListMod(void)
   g_assert(yeGet(ar2, 0) == e1);
   g_assert(yeGet(ar2, 1) == e2);
   g_assert(yeGet(ar2, 2) == e3);
+  ysCall(ygGetTccManager(), "list_destroy", l);
   ygCleanGameConfig(&cfg);
 
   yeDestroy(gc);

@@ -55,4 +55,5 @@ void testMazeGenMod(void)
   /* } */
   yeMultDestroy(maze_info, pos);
   ygEnd();
+  ygCleanGameConfig(&cfg);
 }
