@@ -62,7 +62,7 @@ void yeInitMem(void)
     yBlockArrayInitExt(&entitysArray, union FatEntity,
 		       YBLOCK_ARRAY_NUMA | YBLOCK_ARRAY_NOINIT |
 		       YBLOCK_ARRAY_NOMIDFREE);
-  isInit = 1;
+    isInit = 1;
   }
 }
 

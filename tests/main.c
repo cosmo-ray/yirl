@@ -52,6 +52,7 @@ int main(int argc, char **argv)
   GError *error = NULL;
 
   yuiDebugInit();
+
   ctx = g_option_context_new(NULL);
   g_option_context_set_help_enabled(ctx, 1);
   g_option_context_add_main_entries(ctx, entries, NULL);
@@ -164,6 +165,7 @@ int main(int argc, char **argv)
     g_test_run();
   }
   yuiDebugExit();
+  g_free(only);
 }
 
 #undef TEST_TRY_ADD
