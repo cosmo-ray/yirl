@@ -1,6 +1,7 @@
 #include "yirl/game.h"
 #include "yirl/pos.h"
 #include "yirl/canvas.h"
+#include "yirl/rect.h"
 #include "tests.h"
 
 static void *moveImg(va_list ap)
@@ -43,7 +44,7 @@ void testCanvasSdl2(void)
 {
   yeInitMem();
   GameConfig cfg;
-  Entity *dialogue_example = yeCreateArray(NULL, NULL);
+  Entity *canvas_example = yeCreateArray(NULL, NULL);
   Entity *actions;
   Entity *resources;
   Entity *resource;
@@ -55,22 +56,49 @@ void testCanvasSdl2(void)
   g_assert(!ygInit(&cfg));
 
   ysRegistreNativeFunc("moveImg", moveImg);
-  yeCreateString("canvas", dialogue_example, "<type>");
-  actions = yeCreateArray(dialogue_example, "actions");
+  yeCreateString("canvas", canvas_example, "<type>");
+
+  actions = yeCreateArray(canvas_example, "actions");
   yeCreateString("QuitOnKeyDown", actions, NULL);
   yeCreateString("moveImg", actions, NULL);
-  resources = yeCreateArray(dialogue_example, "resources");
-  yeCreateString("rgba: 180 40 200 255", dialogue_example, "background");
+
+  resources = yeCreateArray(canvas_example, "resources");
+
+  /* Background */
+  yeCreateString("rgba: 180 40 200 255", canvas_example, "background");
+
+  /* Load eye into resources */
   resource = yeCreateArray(resources, NULL);
   yeCreateString("tests/head.png", resource, "img");
-  objs = yeCreateArray(dialogue_example, "objs");
+
+  /* Load sara into resources */
+  resource = yeCreateArray(resources, NULL);
+  yeCreateString("tests/SaraFullSheet.png", resource, "img");
+  ywRectCreateInts(0, 0, 50, 70, resource, "img-src-rect");
+
+  resource = yeCreateArray(resources, NULL);
+  yeCreateString("tests/SaraFullSheet.png", resource, "img");
+  ywRectCreateInts(0, 70, 50, 70, resource, "img-src-rect");
+
+  /* Put eye into the canvas */
+  objs = yeCreateArray(canvas_example, "objs");
   obj = yeCreateArray(objs, NULL);
   ywPosCreateInts(25, 40, obj, "pos");
-  yeCreateInt(0, obj, "img");
-  wid = ywidNewWidget(dialogue_example, NULL);
+  yeCreateInt(0, obj, "id");
+
+  /* Put sara into the canvas */
+  obj = yeCreateArray(objs, NULL);
+  ywPosCreateInts(70, 100, obj, "pos");
+  yeCreateInt(1, obj, "id");
+
+  obj = yeCreateArray(objs, NULL);
+  ywPosCreateInts(70, 180, obj, "pos");
+  yeCreateInt(2, obj, "id");
+
+  wid = ywidNewWidget(canvas_example, NULL);
   g_assert(wid);
   ywidSetMainWid(wid);
   ygDoLoop();
-  yeDestroy(dialogue_example);
+  yeDestroy(canvas_example);
   ygEnd();
 }

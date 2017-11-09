@@ -506,10 +506,34 @@ int sdlCanvasCacheImg(Entity *state, Entity *elem)
   SDL_Texture *texture;
   Entity *data;
   int w, h, ret = -1;
+  Entity *rEnt = yeGet(resource, "img-src-rect");
 
   surface = IMG_Load(impPath);
   if (unlikely(!surface))
     return -1;
+
+  if (rEnt) {
+    SDL_Rect r;
+    SDL_Surface *tmpSurface = surface;
+
+    r.x = ywRectX(rEnt);
+    r.y = ywRectY(rEnt);
+    r.w = ywRectW(rEnt);
+    r.h = ywRectH(rEnt);
+    surface = SDL_CreateRGBSurface(0, r.w, r.h, 32,
+				   tmpSurface->format->Rmask,
+				   tmpSurface->format->Gmask,
+				   tmpSurface->format->Bmask,
+				   tmpSurface->format->Amask);
+    if (unlikely(!surface)) {
+      DPRINT_ERR("fail to create surface");
+      SDL_FreeSurface(tmpSurface);
+      return -1;
+    }
+
+    SDL_BlitSurface(tmpSurface, &r, surface, NULL);
+    SDL_FreeSurface(tmpSurface);
+  }
   texture = SDL_CreateTextureFromSurface(sg.renderer, surface);
   if (unlikely(!texture))
     goto exit;
