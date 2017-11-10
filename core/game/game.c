@@ -743,8 +743,7 @@ int ygInitGameConfigByRenderType(GameConfig *cfg, const char *path,
       ygCleanGameConfig(cfg);
       return -1;
     }
-    cfg->rConf = g_list_append(cfg->rConf,
-			       rConf);
+    cfg->rConf = g_list_append(cfg->rConf, rConf);
   }
   return 0;
 }
@@ -769,7 +768,7 @@ int ygInitGameConfigByStr(GameConfig *cfg, const char *path, const char *render)
 void ygCleanGameConfig(GameConfig *cfg)
 {
   g_free(cfg->startingMod);
-  g_list_free(cfg->rConf);
+  g_list_free_full(cfg->rConf, g_free);
 }
 
 void *ygCallInt(const char *mod, const char *callName, ...)
