@@ -545,7 +545,13 @@ int ywidDoTurn(YWidgetState *opac)
 InputStatue ywidAction(Entity *action, Entity *wid, Entity *eve, Entity *arg)
 {
   if (yeType(action) == YSTRING) {
-    return (InputStatue)yesCall(ygGet(yeGetString(action)), wid, eve, arg);
+    Entity *f = ygGet(yeGetString(action));
+    InputStatue r = (InputStatue)yesCall(f, wid, eve, arg);
+
+    if (unlikely(!ygIsInit())) {
+      yeDestroy(f);
+    }
+    return r;
   } else if (yeType(action) == YFUNCTION) {
     return (InputStatue)yesCall(action, wid, eve, arg);
   } else {
@@ -556,7 +562,11 @@ InputStatue ywidAction(Entity *action, Entity *wid, Entity *eve, Entity *arg)
 
     if (yeType(f) == YSTRING)
       f = ygGet(yeGetString(f));
-    return (InputStatue)yesCall(f, wid, eve, arg, arg1, arg2, arg3);
+    InputStatue r = (InputStatue)yesCall(f, wid, eve, arg, arg1, arg2, arg3);
+    if (unlikely(!ygIsInit() && yeType(f) == YSTRING)) {
+      yeDestroy(f);
+    }
+    return r;
   }
 }
 

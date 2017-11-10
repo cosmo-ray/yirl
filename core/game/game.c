@@ -207,6 +207,11 @@ static void addNativeFuncToBaseMod(void)
   ygRegistreFunc(ysNativeManager(), 0, "FinishGame", "yFinishGame");
 }
 
+int ygIsInit(void)
+{
+  return init;
+}
+
 int ygInit(GameConfig *cfg)
 {
   static int t;

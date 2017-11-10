@@ -308,8 +308,6 @@ int    ysdl2Init(void)
     DPRINT_ERR("Cannot load \"./sample.ttf\"\n");
     goto fail;
   }
-  printf("fixed: %d\n", TTF_FontFaceIsFixedWidth(sgDefaultFont()));
-
   // fill the window with a black rectangle
   // SDL_Rect   rect = sg.getRect();
 

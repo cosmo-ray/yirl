@@ -109,6 +109,7 @@ int ygEntToFile(YFileType t, const char *path, Entity *ent);
 void ygCleanGameConfig(GameConfig *cfg);
 
 int ygInit(GameConfig *config);
+int ygIsInit(void);
 
 int ygStartLoop(GameConfig *config);
 int ygDoLoop(void);

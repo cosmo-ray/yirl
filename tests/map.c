@@ -98,8 +98,7 @@ void testYWMapSdl2(void)
   jsonManager = ydNewManager(t);
   g_assert(jsonManager != NULL);
   ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
-  ret = yeGet(ret, "MapTest");
-  g_assert(ret);
+  g_assert(yeGet(ret, "MapTest"));
   g_assert(!ydJsonEnd());
   g_assert(!ydDestroyManager(jsonManager));
 
@@ -112,7 +111,7 @@ void testYWMapSdl2(void)
   g_assert(!ysdl2RegistreMap());
 
   ysRegistreFunc(ysNativeManager(), "mapTest", testMapEnter);
-  wid = ywidNewWidget(ret, NULL);
+  wid = ywidNewWidget(yeGet(ret, "MapTest"), NULL);
   g_assert(wid);
 
   do {
