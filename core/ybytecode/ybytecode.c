@@ -17,6 +17,7 @@
 
 #include <glib.h>
 #include <ctype.h>
+#include <inttypes.h>
 #include "entity-script.h"
 #include "ybytecode-script.h"
 #include "ybytecode.h"
@@ -101,7 +102,7 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
 			    (char)script[i], i);
 	} else {
 	  ybytecode_error =
-	    g_strdup_printf("instruction '%ld' at %d is not valide",
+	    g_strdup_printf("instruction '%" PRIi64 "' at %d is not valide",
 			    script[i], i);
 	}
 	return NULL;

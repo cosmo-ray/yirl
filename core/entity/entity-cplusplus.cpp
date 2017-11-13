@@ -20,9 +20,27 @@ extern "C" {
 #include <stdlib.h>
 }
 
+void* __cxa_call_unexpected = 0;
+void* __cxa_pure_virtual = 0;
+void* __gxx_personality_v0 = 0;
+
+namespace __cxxabiv1 {
+  class __class_type_info {
+    virtual void dummy();
+  };
+  void __class_type_info::dummy() { }  // causes the vtable to get created here
+  class __si_class_type_info {
+    virtual void dummy();
+  };
+  void __si_class_type_info::dummy() { }
+}
+
+void operator delete(void *ptr) {
+  free(ptr);
+}
+
 void *operator new(unsigned long l) {
   void *ret = malloc(l);
-
   return ret;
 }
 

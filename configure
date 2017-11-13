@@ -56,7 +56,6 @@ fi
 var_add LUA_LIB "\"`pkg-config --libs lua`\""
 
 var_add CURSES_LIB "-lcurses"
-var_add NUMA_LIB "-lnuma"
 define_add WITH_SDL 1
 define_add WITH_CURSES 1
 

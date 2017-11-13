@@ -18,6 +18,8 @@
 #ifndef _YIRL_COUNTER_H_
 #define _YIRL_COUNTER_H_
 
+#include "utils.h"
+
 typedef struct {
   uint64_t beg;
 } YTimer;

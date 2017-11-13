@@ -292,11 +292,11 @@ static json_object *jsonObjectFromArrayEntity(Entity *entity)
   json_obj = json_object_new_object();
 
   YE_ARRAY_FOREACH_EXT(entity, child, it) {
-    char buf[10];
+    char buf[32];
     const char *key = yBlockArrayIteratorGetPtr(it, ArrayEntry)->name;
 
     if (!key) {
-      snprintf(buf, ypow9(10), "%d", it.pos);
+      snprintf(buf, 32, "%d", it.pos);
       key = buf;
     }
     json_object_object_add(json_obj, key,

@@ -3,7 +3,7 @@ TESTS_NAME = yirl-tests
 TESTS_SRC =  main.c lifecycle.c stringOperations.c test-copy.c setunset.c	\
 		lua-script.c tcc-script.c					\
 		test-json-desc.c test-widgets.c menu.c map.c			\
-		test-game.c block-array.c container.c test-sound.c		\
+		test-game.c block-array.c container.c 				\
 		ybytecode.c script.c raw-file.c list-mod.c dialogue-mod.c	\
 		maze_generator.c canvas.c textinput_mod.c sukeban-fight.c
 

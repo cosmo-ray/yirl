@@ -36,15 +36,23 @@ typedef unsigned long long uint64_t;
 #include <stdint.h>
 #endif
 
+#ifndef __INT64_C
+#define __INT64_C(c) (c ## LL)
+     #define __UINT64_C(c) (c ## LLU)
+#endif
+
 #if   __SIZEOF_POINTER__ == 4
 typedef int32_t int_ptr_t;
 #define ONE64      1LLU
+
 #elif __SIZEOF_POINTER__ == 8
 typedef int64_t int_ptr_t;
 #define ONE64      1LU
+
 #else
 typedef int64_t int_ptr_t;
 #define ONE64      1LLU
+
 #endif
 
 #ifndef Y_INSIDE_TCC

@@ -21,9 +21,11 @@
 Entity *yeGetByIdx(Entity *entity, size_t index);
 Entity *yeGetByStrFast(Entity *entity, const char *name);
 
-void *operator new(unsigned long l);
 
 extern "C++" {
+
+  void *operator new(unsigned long l); 
+  void operator delete(void *ptr); 
 
   static inline Entity *yeGet(Entity *e, int idx)
   {
@@ -37,5 +39,6 @@ extern "C++" {
 
   Entity *yeCreateArray(Entity *fathers, const char *name);
 }
+
 
 #endif

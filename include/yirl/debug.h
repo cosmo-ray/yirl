@@ -71,7 +71,7 @@ extern "C"
 #define	WARNING	1
 #define	D_ERROR	2
 
-#ifdef	__unix__
+#if defined(__unix__) || defined(__APPLE__)
 #define	y_vprintf(fd, format, vl)	vdprintf(fd, format, vl)
 #else
 #include "windows.h"

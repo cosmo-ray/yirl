@@ -86,7 +86,7 @@ COMMON_CFLAGS += -Werror -Wall -Wextra -Wno-unused-function -Wno-unused-paramete
 COMMON_CFLAGS += -DYIRL_INCLUDE_PATH=\"$(YIRL_INCLUDE_PATH2)\"
 COMMON_CFLAGS += -DTCC_LIB_PATH=\"$(TCC_LIB_PATH)\"
 
-CXXFLAGS = $(COMMON_CFLAGS) -x c++
+CXXFLAGS = $(COMMON_CFLAGS) -x c++ -Wno-missing-exception-spec
 
 CFLAGS += $(COMMON_CFLAGS) -std=gnu11
 
