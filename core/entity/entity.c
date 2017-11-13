@@ -778,13 +778,12 @@ static inline void yeAttachFather(Entity *entity, Entity *father,
   yeFathers(entity)[YE_TO_ARRAY(entity)->nbFathers - 1] = father;
 }
 
-
 void	yeSetString(Entity *entity, const char *val)
 {
   if (unlikely(!entity))
     return;
   if (YE_TO_STRING(entity)->value != NULL) {
-    if (YE_TO_STRING(entity)->origin != NULL)
+    if (entity->type == YSTRING && YE_TO_STRING(entity)->origin != NULL)
       free(YE_TO_STRING(entity)->origin);
     else
       free(YE_TO_STRING(entity)->value);
@@ -836,7 +835,6 @@ static inline Entity *yeInit(Entity *entity, EntityType type,
 {
   if (unlikely(!entity))
     return NULL;
-  /* printf("%u - %s\n", yBlockArrayLastPos(&entitysArray), name); */
   entity->type = type;
   yeAttachChild(father, entity, name);
   return entity;
@@ -1099,8 +1097,8 @@ Entity*		yeCopy(Entity* src, Entity* dest)
   Entity *refs = yeCreateArray(NULL, NULL);
   Entity *used = yeCreateArray(NULL, NULL);
   Entity *ret = yeCopyInternal(src, dest, used, refs);
-  yeDestroy(used);
-  yeDestroy(refs);
+
+  yeMultDestroy(used, refs);
   return ret;
 }
 

@@ -41,20 +41,18 @@ static void *testMenuEnter(va_list ap)
 void testHorizontalContainerSdl(void)
 {
   GameConfig cfg;
+  Entity *ret0;
   Entity *ret;
   YWidgetState *wid;
-  int t = ydJsonInit();
-  void *jsonManager;
 
   /* Init libs */
   g_assert(!ygInitGameConfig(&cfg, NULL, SDL2));
   g_assert(!ygInit(&cfg));
 
   /* Parsing json */
-  jsonManager = ydNewManager(t);
-  ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
-  ret = yeGet(ret, "ContainerTest");
-  g_assert(ret);
+  ret0 = ygFileToEnt(YJSON, TESTS_PATH"/widget.json", NULL);
+  ret = yeGet(ret0, "ContainerTest");
+  g_assert(ret0 && ret);
   ysRegistreNativeFunc("menuTest", testMenuEnter);
 
   wid = ywidNewWidget(ret, NULL);
@@ -64,26 +62,26 @@ void testHorizontalContainerSdl(void)
     g_assert(ywidRend(wid) != -1);
   } while(ywidDoTurn(wid) != ACTION);
 
-  YE_DESTROY(ret);
+  ygCleanGameConfig(&cfg);
+  YWidDestroy(wid);
+  YE_DESTROY(ret0);
   ygEnd();
 }
 
 void testVerticalContainerSdl(void)
 {
   GameConfig cfg;
+  Entity *ret0;
   Entity *ret;
   YWidgetState *wid;
-  int t = ydJsonInit();
-  void *jsonManager;
 
   /* Init libs */
   g_assert(!ygInitGameConfig(&cfg, NULL, SDL2));
   g_assert(!ygInit(&cfg));
 
   /* Parsing json */
-  jsonManager = ydNewManager(t);
-  ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
-  ret = yeGet(ret, "VContainerTest");
+  ret0 = ygFileToEnt(YJSON, TESTS_PATH"/widget.json", NULL);
+  ret = yeGet(ret0, "VContainerTest");
   g_assert(ret);
   ysRegistreNativeFunc("menuTest", testMenuEnter);
 
@@ -94,7 +92,9 @@ void testVerticalContainerSdl(void)
     g_assert(ywidRend(wid) != -1);
   } while(ywidDoTurn(wid) != ACTION);
 
-  YE_DESTROY(ret);
+  ygCleanGameConfig(&cfg);
+  YWidDestroy(wid);
+  YE_DESTROY(ret0);
   ygEnd();
 }
 
@@ -103,17 +103,15 @@ void testStackContainerSdl(void)
   GameConfig cfg;
   Entity *ret;
   YWidgetState *wid;
-  int t = ydJsonInit();
-  void *jsonManager;
+  Entity *ret0;
 
   /* Init libs */
   g_assert(!ygInitGameConfig(&cfg, NULL, SDL2));
   g_assert(!ygInit(&cfg));
 
   /* Parsing json */
-  jsonManager = ydNewManager(t);
-  ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
-  ret = yeGet(ret, "SContainerTest");
+  ret0 = ygFileToEnt(YJSON, TESTS_PATH"/widget.json", NULL);
+  ret = yeGet(ret0, "SContainerTest");
   g_assert(ret);
   ysRegistreNativeFunc("menuTest", testMenuEnter);
 
@@ -124,32 +122,32 @@ void testStackContainerSdl(void)
     g_assert(ywidRend(wid) != -1);
   } while(ywidDoTurn(wid) != ACTION);
 
-  YE_DESTROY(ret);
+  ygCleanGameConfig(&cfg);
+  YWidDestroy(wid);
+  YE_DESTROY(ret0);
   ygEnd();
 }
 
 void testMixContainerSdl(void)
 {
   GameConfig cfg;
+  Entity *fileRet;
   Entity *ret;
   Entity *cnt;
   YWidgetState *wid;
-  int t = ydJsonInit();
-  void *jsonManager;
 
   /* Init libs */
   g_assert(!ygInitGameConfig(&cfg, NULL, SDL2));
   g_assert(!ygInit(&cfg));
 
   /* Parsing json */
-  jsonManager = ydNewManager(t);
-  ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
-  cnt = yeGet(ret, "VContainerTest");
+  fileRet = ygFileToEnt(YJSON, TESTS_PATH"/widget.json", NULL);
+  cnt = yeGet(fileRet, "VContainerTest");
   g_assert(cnt);
 
   yeSetString(yeGet(yeGet(yeGet(cnt, "entries"), 1), "name"),
 	      "ContainerTest");
-  ret = yeGet(ret, "ContainerTest");
+  ret = yeGet(fileRet, "ContainerTest");
   g_assert(ret);
   yeSetString(yeGet(yeGet(yeGet(ret, "entries"), 1), "name"),
 	      "MenuTest");
@@ -167,7 +165,9 @@ void testMixContainerSdl(void)
     g_assert(ywidRend(wid) != -1);
   } while(ywidDoTurn(wid) != ACTION);
 
-  YE_DESTROY(ret);
+  ygCleanGameConfig(&cfg);
+  YWidDestroy(wid);
+  YE_DESTROY(fileRet);
   ygEnd();
 }
 

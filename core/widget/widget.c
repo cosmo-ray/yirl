@@ -101,6 +101,8 @@ const char *ywidTypeName(YWidgetState *wid)
 
 void ywidSetMainWid(YWidgetState *wid)
 {
+  if (oldWid && oldWid != wid && oldWid != mainWid)
+    YWidDestroy(oldWid);
   oldWid = mainWid;
   mainWid = wid;
 }

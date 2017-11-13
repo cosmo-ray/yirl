@@ -202,7 +202,7 @@ static int cntInit(YWidgetState *opac, Entity *entity, void *args)
       yeCopy(ptr, copyTmp);
       ptr = copyTmp;
     }
-    yeReplaceBack(ptr, entity, "$father-container");
+    yeReplaceBackExt(ptr, entity, "$father-container", YE_FLAG_NO_COPY);
     if (ptr != tmp) {
       YE_ARRAY_FOREACH_EXT(tmp, entry, it) {
 	const char *n = yBlockArrayIteratorGetPtr(it, ArrayEntry)->name;
@@ -233,6 +233,10 @@ static int cntDestroy(YWidgetState *opac)
     YWidgetState *cur = ywidGetState(tmp);
 
     YWidDestroy(cur);
+    yeRemoveChildByStr(tmp, "$father-container");
+    if (yeGet(tmp, "copy")) {
+      yeDestroy(tmp);
+    }
   }
   g_free(opac);
   return 0;

@@ -624,6 +624,13 @@ int yeAttach(Entity *on, Entity *entity, unsigned int idx,
   return yeCreate##_type(value, father, name);			\
 
 
+static inline Entity *yeReCreateFunction(const char *funcName, void *manager,
+					 Entity *father, const char *name)
+{
+  yeRemoveChildByStr(father, name);
+  return yeCreateFunction(funcName, manager, father, name);
+}
+
 Entity *yeReCreateData(void *value, Entity *father, const char *name);
 
 static inline Entity *yeReCreateArray(Entity *array, const char *name,
@@ -891,8 +898,8 @@ int yeRenamePtrStr(Entity *array, Entity *ptr, const char *str);
  * @brief remove all entity name @name inside @array and push @toPush
  * @return the entity that have been push
  */
-static inline Entity *yeReplaceBack(Entity *array, Entity *toPush,
-				    const char *name)
+static inline Entity *yeReplaceBackExt(Entity *array, Entity *toPush,
+				       const char *name, int flag)
 {
   Entity *tmp;
   Entity *ret = NULL;
@@ -908,11 +915,16 @@ static inline Entity *yeReplaceBack(Entity *array, Entity *toPush,
     goto again;
   }
 
-  if (!yePushBack(array, toPush, name))
+  if (!yePushBackExt(array, toPush, name, flag))
     ret = toPush;
 
   yeDestroy(toPush);
   return ret;
+}
+static inline Entity *yeReplaceBack(Entity *array, Entity *toPush,
+				    const char *name)
+{
+  return yeReplaceBackExt(array, toPush, name, 0);
 }
 
 static inline Entity *yeReplaceAtIdx(Entity *array, Entity *toPush, int idx)
