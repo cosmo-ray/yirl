@@ -18,6 +18,12 @@ function mingw-i686 {
     var_add BIN_EXT .exe
 }
 
+add_toolchain ubuntu
+function ubuntu {
+    export LUA_LIB="`pkg-config --libs lua51`"
+    export LUA_CFLAGS="`pkg-config --cflags lua51`"
+}
+
 parse_args $@
 
 
@@ -54,6 +60,7 @@ if [ $IS_UNIX -eq 1 ]; then
 fi
 
 var_add LUA_LIB "\"`pkg-config --libs lua`\""
+var_add LUA_CFLAGS "\"`pkg-config --cflags lua`\""
 
 var_add CURSES_LIB "-lcurses"
 define_add WITH_SDL 1
