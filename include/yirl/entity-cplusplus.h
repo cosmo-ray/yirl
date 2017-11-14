@@ -24,8 +24,9 @@ Entity *yeGetByStrFast(Entity *entity, const char *name);
 
 extern "C++" {
 
-  void *operator new(unsigned long l); 
-  void operator delete(void *ptr); 
+  void *operator new(unsigned long l);
+  void operator delete(void *ptr);
+  void operator delete(void*, long unsigned int);
 
   static inline Entity *yeGet(Entity *e, int idx)
   {

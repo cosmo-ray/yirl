@@ -20,9 +20,13 @@ extern "C" {
 #include <stdlib.h>
 }
 
-void* __cxa_call_unexpected = 0;
-void* __cxa_pure_virtual = 0;
-void* __gxx_personality_v0 = 0;
+void *__cxa_call_unexpected()
+{
+  return NULL;
+}
+
+void *__cxa_pure_virtual = 0;
+void *__gxx_personality_v0 = 0;
 
 namespace __cxxabiv1 {
   class __class_type_info {
@@ -39,11 +43,15 @@ void operator delete(void *ptr) {
   free(ptr);
 }
 
+void operator delete(void *ptr, long unsigned int end)
+{
+  free(ptr);
+}
+
 void *operator new(unsigned long l) {
   void *ret = malloc(l);
   return ret;
 }
-
 
 Entity *yeCreateArray(Entity *fathers, const char *name)
 {
