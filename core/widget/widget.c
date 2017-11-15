@@ -528,8 +528,10 @@ int ywidDoTurn(YWidgetState *opac)
 
     for (event = ywidGenericPollEvent(), head = event; event;
 	 event = ywidGenericPollEvent()) {
-      if (old)
+      if (old) {
 	yePushAt(old, event, YEVE_NEXT);
+	yeDestroy(event); /* decrement event refcount */
+      }
       old = event;
     }
   } else {
