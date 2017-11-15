@@ -135,6 +135,8 @@ static inline Entity *ywidEveStatus(Entity *eve)
     return yeGet(eve, YEVE_STATUS);
 }
 
+void ywidChangeResolution(int w, int h);
+
 static inline void ywidEveSetStatus(Entity *eve, InputStatue is)
 {
   yeSetIntAt(eve, YEVE_STATUS, is);

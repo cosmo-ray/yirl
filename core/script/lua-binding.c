@@ -23,6 +23,7 @@
 #include	"entity-script.h"
 #include	"map.h"
 #include	"container.h"
+#include	"canvas.h"
 #include	"game.h"
 
 int	luaYAnd(lua_State *L)
@@ -74,6 +75,14 @@ int	luaCopy(lua_State *L)
   lua_pushlightuserdata(L, yeCopy((Entity *)lua_topointer(L, 1),
 				  (Entity *)lua_topointer(L, 2)));
   return 1;
+}
+
+int	luaYwCanvasMoveObjByIdx(lua_State *L)
+{
+  lua_pushnumber(L, ywCanvasMoveObjByIdx(lua_touserdata(L, 1),
+					 lua_tonumber(L, 2),
+					 lua_touserdata(L, 3)));
+  return 1;  
 }
 
 int	luaYeIncrRef(lua_State *L)
