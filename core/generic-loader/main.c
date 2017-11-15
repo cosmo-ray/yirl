@@ -18,6 +18,7 @@
 #include <glib.h>
 #include <unistd.h>
 #include "tcc-script.h"
+#include "widget.h"
 #include "game.h"
 
 int main(int argc, char **argv)
@@ -30,12 +31,15 @@ int main(int argc, char **argv)
   const char *start = NULL;
   const char *name = NULL;
   const char *start_dir = NULL;
-  const GOptionEntry entries[6] = {
+  int w = 640, h = 480;
+  const GOptionEntry entries[8] = {
     {"render", 'r', 0,  G_OPTION_ARG_STRING, &render,
      "choose render('sdl2' or curses), default: sdl", NULL},
     {"start", 's', 0,  G_OPTION_ARG_STRING, &start,
      "starting module", NULL},
     {"name", 'n', 0,  G_OPTION_ARG_STRING, &name, "window name", NULL},
+    {"width", 'w', 0,  G_OPTION_ARG_INT, &w, "w window size", NULL},
+    {"height", 'h', 0,  G_OPTION_ARG_INT, &h, "h window size", NULL},
     {"default-tcc-path", 0, 0,  G_OPTION_ARG_NONE, &default_tcc_path,
      "set this if tcc files are not in start directory", NULL},
     {"start-dir", 'd', 0,  G_OPTION_ARG_STRING, &start_dir,
@@ -71,6 +75,7 @@ int main(int argc, char **argv)
     printf("start is not set\n");
     return 1;
   }
+
 
   ygInitGameConfig(&cfg, start, render);
   cfg.win_name = name;
