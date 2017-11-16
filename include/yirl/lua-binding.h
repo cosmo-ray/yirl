@@ -127,6 +127,7 @@ int	luaYwReplaceEntry(lua_State *L);
 
 /* canvas */
 int	luaYwCanvasMoveObjByIdx(lua_State *L);
+int	luaYwCanvasNewObj(lua_State *L);
 
 /* Game and Module */
 int	luaGetMod(lua_State *L);
@@ -293,7 +294,10 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywPosToString", luaYwPosToString));
 
   /* canvas */
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasMoveObjByIdx", luaYwCanvasMoveObjByIdx));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasMoveObjByIdx",
+				 luaYwCanvasMoveObjByIdx));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasNewObj",
+  luaYwCanvasNewObj));
 
 /* Game and Modules */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygGetMod", luaGetMod));

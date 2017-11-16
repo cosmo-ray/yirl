@@ -82,7 +82,16 @@ int	luaYwCanvasMoveObjByIdx(lua_State *L)
   lua_pushnumber(L, ywCanvasMoveObjByIdx(lua_touserdata(L, 1),
 					 lua_tonumber(L, 2),
 					 lua_touserdata(L, 3)));
-  return 1;  
+  return 1;
+}
+
+int	luaYwCanvasNewObj(lua_State *L)
+{
+  lua_pushlightuserdata(L, ywCanvasNewObj(lua_touserdata(L, 1),
+					  lua_tonumber(L, 2),
+					  lua_tonumber(L, 3),
+					  lua_tonumber(L, 4)));
+  return 1;
 }
 
 int	luaYeIncrRef(lua_State *L)

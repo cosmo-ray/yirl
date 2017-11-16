@@ -1,6 +1,6 @@
 /*
 **Copyright (C) 2017 Matthias Gatto
-**
+5C**
 **This program is free software: you can redistribute it and/or modify
 **it under the terms of the GNU Lesser General Public License as published by
 **the Free Software Foundation, either version 3 of the License, or
@@ -104,5 +104,22 @@ extern "C" {
     }
     return size;
   }
+
+  Entity *ywCanvasNewObj(Entity *wid, int x, int y, int id)
+  {
+    Entity *objs = yeGet(wid, "objs");
+    Entity *obj;
+
+    if (unlikely(!objs)) {
+      yeCreateArray(wid, "objs");
+      if (unlikely(!objs))
+	return NULL;
+    }
+    obj = yeCreateArray(objs, NULL);
+    ywPosCreateInts(x, y, obj, "pos");
+    yeCreateInt(id, obj, "id");
+    return obj;
+  }
+
 }
 
