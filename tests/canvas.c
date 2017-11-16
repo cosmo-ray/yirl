@@ -77,8 +77,8 @@ void testCanvasSdl2(void)
   ywRectCreateInts(0, 0, 50, 70, resource, "img-src-rect");
 
   resource = yeCreateArray(resources, NULL);
-  yeCreateString("tests/SaraFullSheet.png", resource, "img");
-  ywRectCreateInts(0, 70, 50, 70, resource, "img-src-rect");
+  yeCreateString("tests/Street.png", resource, "img");
+  ywRectCreateInts(320, 512, 96, 96, resource, "img-src-rect");
 
   /* Put eye into the canvas */
   objs = yeCreateArray(canvas_example, "objs");
