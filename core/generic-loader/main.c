@@ -30,12 +30,18 @@ int main(int argc, char **argv)
   const char *start = NULL;
   const char *name = NULL;
   const char *start_dir = NULL;
-  const GOptionEntry entries[6] = {
+  int width = -1;
+  int height = -1;
+  int render_need_free = 1;
+  int start_need_free = 1;
+  const GOptionEntry entries[8] = {
     {"render", 'r', 0,  G_OPTION_ARG_STRING, &render,
      "choose render('sdl2' or curses), default: sdl", NULL},
     {"start", 's', 0,  G_OPTION_ARG_STRING, &start,
      "starting module", NULL},
     {"name", 'n', 0,  G_OPTION_ARG_STRING, &name, "window name", NULL},
+    {"width", 'W', 0,  G_OPTION_ARG_INT, &width, "window width", NULL},
+    {"height", 'H', 0,  G_OPTION_ARG_INT, &height, "window height", NULL},
     {"default-tcc-path", 0, 0,  G_OPTION_ARG_NONE, &default_tcc_path,
      "set this if tcc files are not in start directory", NULL},
     {"start-dir", 'd', 0,  G_OPTION_ARG_STRING, &start_dir,
@@ -55,25 +61,33 @@ int main(int argc, char **argv)
   }
   g_option_context_free(ctx);
 
-  if (!render)
+  if (!render) {
     render = "sdl2";
+    render_need_free = 0;
+  }
 
   if (start_dir) {
     if (!default_tcc_path) {
       ysTccPath = start_dir;
     }
     chdir(start_dir);
-    if (!start)
+    if (!start) {
       start = "./";
+      start_need_free = 0;
+    }
   }
 
   if (!start) {
     printf("start is not set\n");
-    return 1;
+    goto free;
   }
 
   ygInitGameConfig(&cfg, start, render);
   cfg.win_name = name;
+  if (width > 0)
+    cfg.w = width;
+  if (height > 0)
+    cfg.h = height;
   if (ygInit(&cfg) < 0)
     goto end;
   if (ygStartLoop(&cfg) < 0)
@@ -82,5 +96,13 @@ int main(int argc, char **argv)
  end:
   ygEnd();
   ygCleanGameConfig(&cfg);
+
+ free:
+  if (render_need_free)
+    g_free((char *)render);
+  if (start_need_free)
+    g_free((char *)start);
+  g_free((char *)start_dir);
+  g_free((char *)name);
   return ret;
 }

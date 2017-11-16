@@ -59,7 +59,6 @@ void ywidChangeResolution(int w, int h)
 {
   ywidWindowWidth = w;
   ywidWindowHight = h;
-  ywidResize(ywidGetMainWid());
 }
 
 void ywidSetWindowName(const char *str)

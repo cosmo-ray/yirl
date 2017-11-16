@@ -58,6 +58,8 @@ typedef struct {
   ModuleConf *startingMod;
   GList *rConf;
   const char *win_name;
+  int w;
+  int h;
 } GameConfig;
 
 #undef GList
