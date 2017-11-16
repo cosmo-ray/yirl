@@ -436,6 +436,15 @@ int	luaYwReplaceEntry(lua_State *L)
   return 1;
 }
 
+int	luaYeSwapElems(lua_State *L)
+{
+  lua_pushnumber(L, yeSwapElems(lua_touserdata(L, 1),
+				lua_touserdata(L, 2),
+				lua_touserdata(L, 3))
+		 );
+  return 1;
+}
+
 int	luaYwCntGetEntry(lua_State *L)
 {
   lua_pushlightuserdata(L, ywCntGetEntry(lua_touserdata(L, 1),

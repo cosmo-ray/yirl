@@ -46,6 +46,7 @@ int	luaSetAt(lua_State *L);
 int	luaYeReplace(lua_State *L);
 int	luaYeReplaceBack(lua_State *L);
 int	luaYeReplaceAtIdx(lua_State *L);
+int	luaYeSwapElems(lua_State *L);
 
 /* Entity */
 int	luaCopy(lua_State *L);
@@ -206,6 +207,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeReplace", luaYeReplace));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeReplaceAtIdx", luaYeReplaceAtIdx));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeReplaceBack", luaYeReplaceBack));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeSwapElems", luaYeSwapElems));
 
   /* Entity */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeCopy", luaCopy));
