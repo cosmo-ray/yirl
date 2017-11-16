@@ -995,7 +995,7 @@ int yeSetFlagByIdx(Entity *array, int idx, int flag);
  * @brief	swap @elem0 with @elem1
  * @return	0 on sucess, -1 on error
  */
-int yeSwapElems(Entity *array, Entity *elem0, Entity *elem1)
+static inline int yeSwapElems(Entity *array, Entity *elem0, Entity *elem1)
 {
   ArrayEntry *entry0 = NULL;
   ArrayEntry *entry1 = NULL;
@@ -1014,8 +1014,8 @@ int yeSwapElems(Entity *array, Entity *elem0, Entity *elem1)
   if (!entry0 || !entry1)
     return -1;
 
-  YUI_SWAP_PTR(entry0->entity, entry1->entity);
-  YUI_SWAP_PTR(entry0->name, entry1->name);
+  YUI_SWAP_PTR(entry0->entity, entry1->entity, Entity *);
+  YUI_SWAP_PTR(entry0->name, entry1->name, char *);
   return 0;
 }
 
