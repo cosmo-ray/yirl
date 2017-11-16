@@ -73,6 +73,9 @@ void testSetSimple(void)
   g_assert(testDouble == 2);
   g_assert(!strcmp("test2", testStr));
   g_assert(!strcmp("funcName2", testFunc));
+  yeSwapElems(mainStruct, test2, test3);
+  g_assert(yeGet(mainStruct, 1) == test3);
+  g_assert(yeGet(mainStruct, 2) == test2);
 
   YE_DESTROY(mainStruct);
   g_assert(mainStruct == NULL);

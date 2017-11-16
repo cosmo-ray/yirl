@@ -295,8 +295,6 @@ Entity *yeNGetByStr(Entity *entity, const char *name, int len)
     cur += i;
   }
 
-  if (cur > len)
-    return NULL;
   return ret;
 }
 

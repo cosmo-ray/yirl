@@ -991,4 +991,33 @@ int yeSetFlagByIdx(Entity *array, int idx, int flag);
 					     const char *: yeSetFlagByStr \
 					     )(array, idx, flag)
 
+/**
+ * @brief	swap @elem0 with @elem1
+ * @return	0 on sucess, -1 on error
+ */
+int yeSwapElems(Entity *array, Entity *elem0, Entity *elem1)
+{
+  ArrayEntry *entry0 = NULL;
+  ArrayEntry *entry1 = NULL;
+
+  if (!array || !elem0 || !elem1 || elem0 == elem1)
+    return -1;
+  Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(array)->values, tmp,
+			    it, ArrayEntry) {
+    if (!tmp)
+      continue;
+    if (tmp->entity == elem0)
+      entry0 = tmp;
+    if (tmp->entity == elem1)
+      entry1 = tmp;
+  }
+  if (!entry0 || !entry1)
+    return -1;
+
+  YUI_SWAP_PTR(entry0->entity, entry1->entity);
+  YUI_SWAP_PTR(entry0->name, entry1->name);
+  return 0;
+}
+
+
 #endif

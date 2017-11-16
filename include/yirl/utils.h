@@ -316,4 +316,12 @@ static inline int yuiPercentOf(int value, int percent)
 #define ypow9(X) X * ypow8(X)
 #define ypow10(X) X * ypow9(X)
 
+#define YUI_SWAP_VALUE(a, b) ((a) += (b), (b) = ((a) - (b)), (a) -= (b))
+
+#define YUI_SWAP_PTR(a, b) ({					\
+      int_ptr_t tmp_a = ((int_ptr_t)a), tmp_b = ((int_ptr_t)b);	\
+      YUI_SWAP_VALUE(tmp_a, tmp_b);				\
+      a = (void *)tmp_a; b = (void *)tmp_b;			\
+    })
+
 #endif
