@@ -20,11 +20,9 @@ extern "C" {
 #include <stdlib.h>
 }
 
-void *__cxa_call_unexpected()
-{
-  return NULL;
-}
-
+#if defined(__APPLE__)
+void *__cxa_call_unexpected = 0;
+#endif
 void *__cxa_pure_virtual = 0;
 void *__gxx_personality_v0 = 0;
 
