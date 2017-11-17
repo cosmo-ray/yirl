@@ -746,6 +746,19 @@ static inline Entity *yeMoveByStr(Entity* src, Entity* dest, const char *what)
   return yeMoveByEntity(src, dest, yeGet(src, what), what);
 }
 
+/**
+ * @brief get @name in @src and push it in @dst
+ */
+static inline Entity *yeGetPush(Entity *src, Entity *dst, const char *name)
+{
+  Entity *ret = yeGet(src, name);
+
+  if (!ret)
+    return NULL;
+  yePushBack(dst, ret, name);
+  return ret;
+}
+
 static inline int yeArrayContainEntity(Entity *array, const char *str)
 {
   return !!yeGet(array, str);

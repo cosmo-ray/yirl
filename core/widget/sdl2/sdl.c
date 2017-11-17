@@ -504,8 +504,13 @@ int sdlCanvasCacheImg(Entity *state, Entity *elem)
   SDL_Texture *texture;
   Entity *data;
   int w, h, ret = -1;
-  Entity *rEnt = yeGet(resource, "img-src-rect");
+  Entity *rEnt;
 
+  if (yeGetPush(resource, elem, "$img")) {
+    yeGetPush(resource, elem, "$size");
+    return 0;
+  }
+  rEnt = yeGet(resource, "img-src-rect");
   surface = IMG_Load(impPath);
   if (unlikely(!surface)) {
     DPRINT_ERR("fail to load %s", impPath);
@@ -538,9 +543,11 @@ int sdlCanvasCacheImg(Entity *state, Entity *elem)
   if (unlikely(!texture))
     goto exit;
   SDL_QueryTexture(texture, NULL, NULL, &w, &h);
-  data = yeCreateData(texture, elem, "$img");
-  ywSizeCreate(w, h, elem, "$size");
+  data = yeCreateData(texture, resource, "$img");
+  ywSizeCreate(w, h, resource, "$size");
   yeSetDestroy(data, g_free);
+  yeGetPush(resource, elem, "$img");
+  yeGetPush(resource, elem, "$size");
   ret = 0;
  exit:
   SDL_FreeSurface(surface);
