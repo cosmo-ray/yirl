@@ -80,20 +80,27 @@ void testCanvasSdl2(void)
   yeCreateString("tests/Street.png", resource, "img");
   ywRectCreateInts(320, 512, 96, 96, resource, "img-src-rect");
 
+  resource = yeCreateArray(resources, NULL);
+  yeCreateString("ohh you touch my tralala !", resource, "text");
+
+  /* yeCreateString("SPAM SPAM SPAM SPAM\n" */
+  /* 		 "WONDERFUL SPAM\n" */
+  /* 		 "LOVELY SPAM\n", resource, "text"); */
+
   /* Put eye into the canvas */
   objs = yeCreateArray(canvas_example, "objs");
-  obj = yeCreateArray(objs, NULL);
-  ywPosCreateInts(25, 40, obj, "pos");
-  yeCreateInt(0, obj, "id");
-
+  ywCanvasNewObj(canvas_example, 25, 40, 0);
   /* Put sara into the canvas */
-  obj = yeCreateArray(objs, NULL);
-  ywPosCreateInts(70, 100, obj, "pos");
-  yeCreateInt(1, obj, "id");
+  ywCanvasNewObj(canvas_example, 70, 100, 1);
+  ywCanvasNewObj(canvas_example, 70, 180, 2);
+  ywCanvasNewObj(canvas_example, 200, 250, 3);
 
   obj = yeCreateArray(objs, NULL);
-  ywPosCreateInts(70, 180, obj, "pos");
-  yeCreateInt(2, obj, "id");
+  yeCreateInt(YCanvasRect, obj, NULL);
+  ywPosCreateInts(400, 250, obj, NULL);
+  Entity *rect = yeCreateArray(obj, NULL);
+  ywSizeCreate(200, 10, rect, NULL);
+  yeCreateString("rgba: 180 0 0 160", rect, NULL);
 
   wid = ywidNewWidget(canvas_example, NULL);
   g_assert(wid);

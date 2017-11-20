@@ -37,7 +37,7 @@ static int sdl2Render(YWidgetState *state, int t)
     sdlFillBg(wid, &cfg);
   YE_ARRAY_FOREACH(objs, obj) {
     ywCanvasObjSize(state->entity, obj);
-    sdlCanvasRendImg(state, wid, obj);
+    sdlCanvasRendObj(state, wid, obj);
   }
   return 0;
 }

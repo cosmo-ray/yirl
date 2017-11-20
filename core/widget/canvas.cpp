@@ -21,6 +21,7 @@ extern "C" {
 #include "text-screen.h"
 #include "sdl-driver.h"
 #include "sdl2/canvas-sdl.h"
+#include "yirl/canvas.h"
 }
 
 static int t = -1;
@@ -91,15 +92,30 @@ extern "C" {
   {
     Entity *obj = yeGet(yeGet(wid, "objs"), objIdx);
 
-    ywPosAdd(yeGet(obj, "pos"), pos);
+    ywPosAdd(yeGet(obj, 1), pos);
     return 0;
+  }
+
+  YCanvasObjType ywCanvasObjType(Entity *obj)
+  {
+    return static_cast<YCanvasObjType>(yeGetInt(yeGet(obj, 0)));
+  }
+
+  Entity *ywCanvasObjPos(Entity *obj)
+  {
+    return yeGet(obj, 1);
   }
 
   Entity *ywCanvasObjSize(Entity *wid, Entity *obj)
   {
-    Entity *size = yeGet(obj, "$size");
+    Entity *size;
+
+    if (ywCanvasObjType(obj) == YCanvasRect) {
+      return yeGet(yeGet(obj, 2), 0);
+    }
+    size = yeGet(obj, "$size");
     if (!size) {
-      sdlCanvasCacheImg(wid, obj);
+      sdlCanvasCacheTexture(wid, obj);
       size = yeGet(obj, "$size");
     }
     return size;
@@ -116,8 +132,9 @@ extern "C" {
 	return NULL;
     }
     obj = yeCreateArray(objs, NULL);
-    ywPosCreateInts(x, y, obj, "pos");
-    yeCreateInt(id, obj, "id");
+    yeCreateInt(YCanvasResource, obj, NULL);
+    ywPosCreateInts(x, y, obj, NULL);
+    yeCreateInt(id, obj, NULL);
     return obj;
   }
 

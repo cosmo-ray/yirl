@@ -20,6 +20,11 @@
 
 #include "yirl/widget.h"
 
+typedef enum  {
+  YCanvasResource,
+  YCanvasRect
+} YCanvasObjType;
+
 int ywCanvasInit(void);
 int ywCanvasEnd(void);
 int ysdl2RegistreCanvas(void);
@@ -28,13 +33,12 @@ int ysdl2RegistreCanvas(void);
  */
 int ywCanvasMoveObjByIdx(Entity *wid, int objIdx, Entity *pos);
 
-/**
- * @wid an entity that contain an elem "resources"
- *	generally a canvas widget but can be any entity as long as this entity
- *	have a "resources" field
- */
 Entity *ywCanvasObjSize(Entity *wid, Entity *obj);
 
+Entity *ywCanvasObjPos(Entity *obj);
+
 Entity *ywCanvasNewObj(Entity *wid, int x, int y, int id);
+
+YCanvasObjType ywCanvasObjType(Entity *obj);
 
 #endif

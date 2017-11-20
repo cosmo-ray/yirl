@@ -26,6 +26,7 @@
 #include "widget.h"
 #include "rect.h"
 #include "map.h"
+#include "canvas.h"
 
 static int type = -1;
 
@@ -495,25 +496,43 @@ void sdlConsumeError(void)
   sdlError = NULL;
 }
 
-int sdlCanvasCacheImg(Entity *state, Entity *elem)
+static int sdlCanvasCacheText(Entity *state, Entity *elem, Entity *resource,
+			      const char *str)
 {
-  Entity *resource = yeGet(yeGet(state, "resources"),
-			   ywMapGetIdByElem(elem));
-  const char *impPath = yeGetString(yeGet(resource, "img"));
+  SDL_Color color = {0,0,0,255};
+  SDL_Surface *image;
+  SDL_Texture *texture;
+  Entity *data;
+  int w = 0, h = 0;
+
+  image = TTF_RenderUTF8_Solid(sgDefaultFont(), str, color);
+  texture = SDL_CreateTextureFromSurface(sg.renderer, image);
+  SDL_FreeSurface(image);
+  SDL_QueryTexture(texture, NULL, NULL, &w, &h);
+
+
+  data = yeCreateData(texture, resource, "$img");
+  ywSizeCreate(w, h, resource, "$size");
+  yeSetDestroy(data, sdlFreeTexture);
+
+  yeGetPush(resource, elem, "$img");
+  yeGetPush(resource, elem, "$size");
+  return 0;
+}
+
+static int sdlCanvasCacheImg(Entity *state, Entity *elem,
+			     Entity *resource, const char *imgPath)
+{
   SDL_Surface *surface;
   SDL_Texture *texture;
   Entity *data;
   int w, h, ret = -1;
   Entity *rEnt;
 
-  if (yeGetPush(resource, elem, "$img")) {
-    yeGetPush(resource, elem, "$size");
-    return 0;
-  }
   rEnt = yeGet(resource, "img-src-rect");
-  surface = IMG_Load(impPath);
+  surface = IMG_Load(imgPath);
   if (unlikely(!surface)) {
-    DPRINT_ERR("fail to load %s", impPath);
+    DPRINT_ERR("fail to load %s", imgPath);
     return -1;
   }
 
@@ -545,7 +564,7 @@ int sdlCanvasCacheImg(Entity *state, Entity *elem)
   SDL_QueryTexture(texture, NULL, NULL, &w, &h);
   data = yeCreateData(texture, resource, "$img");
   ywSizeCreate(w, h, resource, "$size");
-  yeSetDestroy(data, g_free);
+  yeSetDestroy(data, sdlFreeTexture);
   yeGetPush(resource, elem, "$img");
   yeGetPush(resource, elem, "$size");
   ret = 0;
@@ -554,17 +573,68 @@ int sdlCanvasCacheImg(Entity *state, Entity *elem)
   return ret;
 }
 
-int sdlCanvasRendImg(YWidgetState *state, SDLWid *wid, Entity *img)
+int sdlCanvasCacheTexture(Entity *state, Entity *elem)
+{
+  int type = yeGetIntAt(elem, 0);
+  Entity *resource;
+  const char *txt;
+
+  if (type == YCanvasRect)
+    return 0;
+  else if (unlikely(type != YCanvasResource))
+    return -1;
+
+  resource = yeGet(yeGet(state, "resources"),
+			   yeGetIntAt(elem, 2));
+  if (yeGetPush(resource, elem, "$img")) {
+    yeGetPush(resource, elem, "$size");
+    return 0;
+  }
+
+  txt = yeGetStringAt(resource, "img");
+  if (txt)
+    return sdlCanvasCacheImg(state, elem, resource, txt);
+  txt = yeGetStringAt(resource, "text");
+  if (txt)
+    return sdlCanvasCacheText(state, elem, resource, txt);
+  return -1;
+}
+
+static int sdlCanvasRendImg(YWidgetState *state, SDLWid *wid, Entity *img)
 {
   SDL_Texture *t = yeGetData(yeGet(img, "$img"));
   Entity *s = yeGet(img, "$size");
-  Entity *p = yeGet(img, "pos");
+  Entity *p = ywCanvasObjPos(img);
   SDL_Rect rd = { ywPosX(p), ywPosY(p), ywSizeW(s), ywSizeH(s) };
 
   if (unlikely(!t))
     return -1;
   SDL_RenderCopy(sg.renderer, t, NULL, &rd);
   return 0;
+}
+
+int sdlCanvasRendObj(YWidgetState *state, SDLWid *wid, Entity *obj)
+{
+  int type = yeGetIntAt(obj, 0);
+
+  if (type == YCanvasResource)
+    return sdlCanvasRendImg(state, wid, obj);
+  if (type == YCanvasRect) {
+    Entity *s = ywCanvasObjSize(state->entity, obj);
+    Entity *p = ywCanvasObjPos(obj);
+    SDL_Rect rect = { ywPosX(p), ywPosY(p), ywSizeW(s), ywSizeH(s) };
+    YBgConf cfg = {0};
+    SDL_Color c = {0, 0, 0, 0};
+
+    ywidBgConfFill(yeGet(yeGet(obj, 2), 1), &cfg);
+    c.r = cfg.r;
+    c.g = cfg.g;
+    c.b = cfg.b;
+    c.a = cfg.a;
+    // stuff to do here
+    sdlDrawRect(NULL, rect, c);
+  }
+  return -1;
 }
 
 int sdlDisplaySprites(YWidgetState *state, SDLWid *wid,

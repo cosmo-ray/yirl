@@ -18,6 +18,6 @@
 #ifndef _SDL2_CANVAS_SDL_H_
 #define _SDL2_CANVAS_SDL_H_
 
-int sdlCanvasCacheImg(Entity *state, Entity *elem);
+int sdlCanvasCacheTexture(Entity *state, Entity *elem);
 
 #endif
