@@ -22,28 +22,28 @@
 #include <yirl/rect.h>
 #include <yirl/timer.h>
 
-void rendMap(Entity *ent)
+static void createMapObjs(Entity *ent)
 {
   Entity *map = yeGet(ent, "_map");
   Entity *canvas = ywCntGetEntry(ent, 0);
-  Entity *objs = yeGet(canvas, "objs");
   Entity *size = yeGet(canvas, "wid-pix");
   int widthQuarter = ywRectW(size) / 4;
   int hightThier = ywRectH(size) / 3;
 
   for (int x = 0; x < 4; ++x) {
     for (int y = 0; y < 3; ++y) {
-      Entity *obj = yeGet(yeGet(map, x), y);
+      Entity *guy = yeGet(yeGet(map, x), y);
       Entity *objSize;
+      Entity *obj;
 
-      if (!obj)
+      if (!guy)
 	continue;
-      objSize = ywCanvasObjSize(ent, obj);
-      yeRemoveChildByStr(obj, "pos");
-      ywPosCreate(widthQuarter * x + widthQuarter / 2 - ywPosX(objSize) / 2,
-		  hightThier * y  + hightThier / 2 - ywPosY(objSize) / 2,
-		  obj, "pos");
-      yePushBack(objs, obj, NULL);
+      obj = ywCanvasNewObj(canvas, 0, 0,
+			   yeGetIntAt(guy, "id"));
+      objSize = ywCanvasObjSize(map, obj);
+      ywCanvasObjSetPos(obj,
+			widthQuarter * x + widthQuarter / 2 - ywPosX(objSize) / 2,
+			hightThier * y  + hightThier / 2 - ywPosY(objSize) / 2);
     }
   }
 }
@@ -180,7 +180,6 @@ void *sukeFightInit(int nbArg, void **args)
     rows[i] = yeCreateArray(map, NULL);
   canvas = yeCreateArray(entries, NULL);
   yeCreateString("canvas", canvas, "<type>");
-  yeCreateArray(canvas, "objs");
   yeReplaceBack(canvas, yeGet(ent, "resources"), "resources");
   Entity *good_front_row = yeGet(good_guys, 0);
   Entity *good_back_row = yeGet(good_guys, 1);
@@ -247,7 +246,7 @@ void *sukeFightInit(int nbArg, void **args)
   yeCreateString("FinishGame", menu_entry, "action");
 
   ret = ywidNewWidget(ent, "container");
-  rendMap(ent);
+  createMapObjs(ent);
   return ret;
 }
 

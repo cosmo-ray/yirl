@@ -106,6 +106,11 @@ extern "C" {
     return yeGet(obj, 1);
   }
 
+  void ywCanvasObjSetPos(Entity *obj, int x, int y)
+  {
+    ywPosSetInts(yeGet(obj, 1), x, y);
+  }
+
   Entity *ywCanvasObjSize(Entity *wid, Entity *obj)
   {
     Entity *size;
@@ -127,14 +132,14 @@ extern "C" {
     Entity *obj;
 
     if (unlikely(!objs)) {
-      yeCreateArray(wid, "objs");
+      objs = yeCreateArray(wid, "objs");
       if (unlikely(!objs))
 	return NULL;
     }
     obj = yeCreateArray(objs, NULL);
-    yeCreateInt(YCanvasResource, obj, NULL);
-    ywPosCreateInts(x, y, obj, NULL);
-    yeCreateInt(id, obj, NULL);
+    yeCreateInt(YCanvasResource, obj, "canvas-type");
+    ywPosCreateInts(x, y, obj, "pos");
+    yeCreateInt(id, obj, "id");
     return obj;
   }
 
