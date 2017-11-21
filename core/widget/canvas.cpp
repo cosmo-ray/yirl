@@ -88,12 +88,32 @@ extern "C" {
     return 0;
   }
 
+  int ywCanvasMoveObj(Entity *obj, Entity *pos)
+  {
+    ywPosAdd(yeGet(obj, 1), pos);
+    return 0;
+  }
+
   int ywCanvasMoveObjByIdx(Entity *wid, int objIdx, Entity *pos)
   {
     Entity *obj = yeGet(yeGet(wid, "objs"), objIdx);
 
-    ywPosAdd(yeGet(obj, 1), pos);
-    return 0;
+    return ywCanvasMoveObj(obj, pos);
+  }
+
+  Entity *ywCanvasObjFromIdx(Entity *wid, int idx)
+  {
+    return yeGet(yeGet(wid, "objs"), idx);
+  }
+
+  int ywCanvasIdxFromObj(Entity *wid, Entity *obj)
+  {
+    Entity *objs = yeGet(wid, "objs");
+    YE_ARRAY_FOREACH_EXT(objs, tmpObj, it) {
+      if (tmpObj == obj)
+	return it.pos;
+    }
+    return -1;
   }
 
   YCanvasObjType ywCanvasObjType(Entity *obj)
