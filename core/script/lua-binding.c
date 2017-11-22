@@ -128,6 +128,13 @@ int luaYwCanvasObjSetPos(lua_State *L)
   return 0;
 }
 
+int luaYwCanvasNewColisionsArray(lua_State *L)
+{
+  lua_pushlightuserdata(L, ywCanvasNewColisionsArray(lua_touserdata(L, 1),
+						     lua_touserdata(L, 2)));
+  return 1;
+}
+
 int	luaYeIncrRef(lua_State *L)
 {
   yeIncrRef(YE_TO_ENTITY(lua_touserdata(L, 1)));

@@ -130,6 +130,39 @@ static inline int ywRectContainPos(Entity *rect, Entity *pos, int proper)
   return ywRectContain(rect, ywPosX(pos), ywPosY(pos), proper);
 }
 
+static inline int ywRectColision(Entity *rect0, Entity *rect1)
+{
+  int ret = 0;
+  int bx0 = ywRectX(rect0), ex0 = ywRectX(rect0) + ywRectW(rect0);
+  int by0 = ywRectY(rect0), ey0 = ywRectY(rect0) + ywRectH(rect0);
+  int bx1 = ywRectX(rect1), ex1 = ywRectX(rect1) + ywRectW(rect1);
+  int by1 = ywRectY(rect1), ey1 = ywRectY(rect1) + ywRectH(rect1);
+  Entity *gc = yeCreateArray(NULL, NULL);
+  Entity *posa0 = ywPosCreateInts(bx0, by0, gc, NULL); 
+  Entity *posb0 = ywPosCreateInts(bx0, ey0, gc, NULL); 
+  Entity *posc0 = ywPosCreateInts(ex0, by0, gc, NULL); 
+  Entity *posd0 = ywPosCreateInts(ex0, ey0, gc, NULL); 
+  Entity *posa1 = ywPosCreateInts(bx1, by1, gc, NULL); 
+  Entity *posb1 = ywPosCreateInts(bx1, ey1, gc, NULL); 
+  Entity *posc1 = ywPosCreateInts(ex1, by1, gc, NULL);
+  Entity *posd1 = ywPosCreateInts(ex1, ey1, gc, NULL); 
+
+  if (ywRectContainPos(rect0, posa1, 0) ||
+      ywRectContainPos(rect0, posb1, 0) ||
+      ywRectContainPos(rect0, posc1, 0) ||
+      ywRectContainPos(rect0, posd1, 0) ||
+      ywRectContainPos(rect1, posa0, 0) ||
+      ywRectContainPos(rect1, posb0, 0) ||
+      ywRectContainPos(rect1, posc0, 0) ||
+      ywRectContainPos(rect1, posd0, 0)) {
+    ret = 1;
+    goto exit;
+  }
+ exit:
+  yeDestroy(gc);
+  return ret;
+}
+
 static inline char * ywRectToString(Entity *r)
 {
   static char tmp[4][256];

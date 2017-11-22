@@ -106,12 +106,40 @@ extern "C" {
     return yeGet(yeGet(wid, "objs"), idx);
   }
 
+  Entity *ywCanvasNewColisionsArray(Entity *wid, Entity *obj)
+  {
+    Entity *ret = yeCreateArray(NULL, NULL);
+    Entity *objs = yeGet(wid, "objs");
+    Entity *objRect = ywRectCreatePosSize(ywCanvasObjPos(obj),
+					  ywCanvasObjSize(wid, obj), NULL, NULL);
+
+    YE_ARRAY_FOREACH(objs, tmpObj) {
+      Entity *tmpRect = ywRectCreatePosSize(ywCanvasObjPos(tmpObj),
+					    ywCanvasObjSize(wid, tmpObj), NULL, NULL);
+      if (obj == tmpObj)
+	continue;
+      if (ywRectColision(objRect, tmpRect)) {
+	yePushBack(ret, tmpObj, NULL);
+      }
+      yeDestroy(tmpRect);
+    }
+    if (!yeLen(ret)) {
+      yeDestroy(ret);
+      ret = NULL;
+    }
+    yeDestroy(objRect);
+    return ret;
+  }
+
   int ywCanvasIdxFromObj(Entity *wid, Entity *obj)
   {
     Entity *objs = yeGet(wid, "objs");
-    YE_ARRAY_FOREACH_EXT(objs, tmpObj, it) {
-      if (tmpObj == obj)
-	return it.pos;
+    int i = 0;
+    YE_ARRAY_FOREACH(objs, tmpObj) {
+      if (tmpObj == obj) {
+	return i;
+      }
+      ++i;
     }
     return -1;
   }

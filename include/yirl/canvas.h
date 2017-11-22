@@ -46,4 +46,6 @@ Entity *ywCanvasNewObj(Entity *wid, int x, int y, int id);
 
 YCanvasObjType ywCanvasObjType(Entity *obj);
 
+Entity *ywCanvasNewColisionsArray(Entity *wid, Entity *obj);
+
 #endif
