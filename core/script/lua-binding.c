@@ -94,6 +94,40 @@ int	luaYwCanvasNewObj(lua_State *L)
   return 1;
 }
 
+int	luaYwCanvasObjSize(lua_State *L)
+{
+  lua_pushlightuserdata(L, ywCanvasObjSize(lua_touserdata(L, 1),
+					   lua_touserdata(L, 2)));
+  return 1;
+}
+
+int	luaYwCanvasObjPos(lua_State *L)
+{
+  lua_pushlightuserdata(L, ywCanvasObjPos(lua_touserdata(L, 1)));
+  return 1;
+}
+
+int luaYwCanvasObjFromIdx(lua_State *L)
+{
+  lua_pushlightuserdata(L, ywCanvasObjFromIdx(lua_touserdata(L, 1),
+					      lua_tonumber(L, 2)));
+  return 1;
+}
+
+int luaYwCanvasIdxFromObj(lua_State *L)
+{
+  lua_pushnumber(L, ywCanvasIdxFromObj(lua_touserdata(L, 1),
+				       lua_touserdata(L, 2)));
+  return 1;
+}
+
+int luaYwCanvasObjSetPos(lua_State *L)
+{
+  ywCanvasObjSetPos(lua_touserdata(L, 1), lua_tonumber(L, 2),
+		    lua_tonumber(L, 3));
+  return 0;
+}
+
 int	luaYeIncrRef(lua_State *L)
 {
   yeIncrRef(YE_TO_ENTITY(lua_touserdata(L, 1)));

@@ -128,6 +128,11 @@ int	luaYwReplaceEntry(lua_State *L);
 /* canvas */
 int	luaYwCanvasMoveObjByIdx(lua_State *L);
 int	luaYwCanvasNewObj(lua_State *L);
+int	luaYwCanvasObjPos(lua_State *L);
+int	luaYwCanvasObjSize(lua_State *L);
+int	luaYwCanvasObjFromIdx(lua_State *L);
+int	luaYwCanvasIdxFromObj(lua_State *L);
+int	luaYwCanvasObjSetPos(lua_State *L);
 
 /* Game and Module */
 int	luaGetMod(lua_State *L);
@@ -298,6 +303,11 @@ static inline int	yesLuaRegister(void *sm)
 				 luaYwCanvasMoveObjByIdx));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasNewObj",
   luaYwCanvasNewObj));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasObjPos", luaYwCanvasObjPos));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasObjSize", luaYwCanvasObjSize));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasObjFromIdx", luaYwCanvasObjFromIdx));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasIdxFromObj", luaYwCanvasIdxFromObj));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasObjSetPos", luaYwCanvasObjSetPos));
 
 /* Game and Modules */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygGetMod", luaGetMod));
