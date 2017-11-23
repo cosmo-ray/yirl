@@ -623,7 +623,7 @@ int sdlCanvasRendObj(YWidgetState *state, SDLWid *wid, Entity *obj)
     Entity *s = ywCanvasObjSize(state->entity, obj);
     Entity *p = ywCanvasObjPos(obj);
     SDL_Rect rect = { ywPosX(p), ywPosY(p), ywSizeW(s), ywSizeH(s) };
-    YBgConf cfg = {0};
+    YBgConf cfg;
     SDL_Color c = {0, 0, 0, 0};
 
     ywidBgConfFill(yeGet(yeGet(obj, 2), 1), &cfg);
