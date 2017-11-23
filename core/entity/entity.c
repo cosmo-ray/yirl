@@ -770,7 +770,6 @@ static inline void yeAttachFather(Entity *entity, Entity *father,
   g_assert(entity->type == YARRAY);
   YE_TO_ARRAY(entity)->nbFathers += 1;
   if (unlikely(YE_TO_ARRAY(entity)->nbFathers > 15)) {
-    DPRINT_WARN("Entity seems to have too much fathers %s at (%d)\n", name, idx);
     reallocFathers(YE_TO_ARRAY(entity));
   }
   yeFathers(entity)[YE_TO_ARRAY(entity)->nbFathers - 1] = father;

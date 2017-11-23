@@ -134,12 +134,10 @@ extern "C" {
   int ywCanvasIdxFromObj(Entity *wid, Entity *obj)
   {
     Entity *objs = yeGet(wid, "objs");
-    int i = 0;
-    YE_ARRAY_FOREACH(objs, tmpObj) {
+    YE_ARRAY_FOREACH_EXT(objs, tmpObj, it) {
       if (tmpObj == obj) {
-	return i;
+	return yBlockArrayIteratorIdx(it);
       }
-      ++i;
     }
     return -1;
   }
