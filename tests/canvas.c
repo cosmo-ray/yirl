@@ -8,10 +8,14 @@ static void *moveImg(va_list ap)
 {
   Entity *wid = va_arg(ap, Entity *);
   Entity *eve = va_arg(ap, Entity *);
+  static int i;
   Entity *pos;
 
   if (eve && (ywidEveType(eve) == YKEY_DOWN)) {
 
+    ywCanvasStringSet(yeGet(wid, "song"), yeGet(yeGet(wid, "strings"), i));
+    ++i;
+    i = i % 3;
     if (ywidEveKey(eve) == Y_UP_KEY) {
       pos = ywPosCreate(0, -10, NULL, NULL);
       ywCanvasMoveObjByIdx(wid, 0, pos);
@@ -83,9 +87,11 @@ void testCanvasSdl2(void)
   resource = yeCreateArray(resources, NULL);
   yeCreateString("ohh you touch my tralala !", resource, "text");
 
-  /* yeCreateString("SPAM SPAM SPAM SPAM\n" */
-  /* 		 "WONDERFUL SPAM\n" */
-  /* 		 "LOVELY SPAM\n", resource, "text"); */
+  Entity *strs = yeCreateArray(canvas_example, "strings");
+
+  yeCreateString("SPAM SPAM SPAM SPAM", strs, NULL);
+  yeCreateString("LOVELY SPAM !", strs, NULL);
+  yeCreateString("WONDERFUL SPAM !!!", strs, NULL);
 
   /* Put eye into the canvas */
   objs = yeCreateArray(canvas_example, "objs");
@@ -98,9 +104,14 @@ void testCanvasSdl2(void)
   obj = yeCreateArray(objs, NULL);
   yeCreateInt(YCanvasRect, obj, NULL);
   ywPosCreateInts(400, 250, obj, NULL);
-  Entity *rect = yeCreateArray(obj, NULL);
+  Entity *rect = yeCreateArray(obj, "rect");
+
   ywSizeCreate(200, 10, rect, NULL);
   yeCreateString("rgba: 180 0 0 160", rect, NULL);
+  ywCanvasNewRect(canvas_example, 100, 250, rect);
+  yePushBack(canvas_example,
+	     ywCanvasNewText(canvas_example, 100, 300, yeGet(strs, 0)),
+	     "song");
 
   wid = ywidNewWidget(canvas_example, NULL);
   g_assert(wid);

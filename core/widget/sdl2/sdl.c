@@ -579,10 +579,15 @@ int sdlCanvasCacheTexture(Entity *state, Entity *elem)
   Entity *resource;
   const char *txt;
 
-  if (type == YCanvasRect)
+  if (type == YCanvasRect) {
     return 0;
-  else if (unlikely(type != YCanvasResource))
+  } else if (ywCanvasObjType(elem) == YCanvasString) {
+    ywPosCreateInts(sgGetFontSize() * yeLen(yeGet(elem, 2)),
+		    sgGetFontSize(), elem, "$size");
+    return 0;
+  } else if (unlikely(type != YCanvasResource)) {
     return -1;
+  }
 
   resource = yeGet(yeGet(state, "resources"),
 			   yeGetIntAt(elem, 2));
@@ -619,12 +624,14 @@ int sdlCanvasRendObj(YWidgetState *state, SDLWid *wid, Entity *obj)
 
   if (type == YCanvasResource)
     return sdlCanvasRendImg(state, wid, obj);
+
+  Entity *p = ywCanvasObjPos(obj);
+  SDL_Color c = {0, 0, 0, 255};
+  Entity *s = ywCanvasObjSize(state->entity, obj);
+  SDL_Rect rect = { ywPosX(p), ywPosY(p), ywSizeW(s), ywSizeH(s) };
+
   if (type == YCanvasRect) {
-    Entity *s = ywCanvasObjSize(state->entity, obj);
-    Entity *p = ywCanvasObjPos(obj);
-    SDL_Rect rect = { ywPosX(p), ywPosY(p), ywSizeW(s), ywSizeH(s) };
     YBgConf cfg;
-    SDL_Color c = {0, 0, 0, 0};
 
     ywidBgConfFill(yeGet(yeGet(obj, 2), 1), &cfg);
     c.r = cfg.r;
@@ -633,6 +640,9 @@ int sdlCanvasRendObj(YWidgetState *state, SDLWid *wid, Entity *obj)
     c.a = cfg.a;
     // stuff to do here
     sdlDrawRect(NULL, rect, c);
+    return 0;
+  } else if (type == YCanvasString) {
+    sdlPrintText(wid, yeGetStringAt(obj, 2), c, rect, YSDL_ALIGN_LEFT);
   }
   return -1;
 }
