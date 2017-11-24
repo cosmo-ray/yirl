@@ -40,6 +40,17 @@ static void *moveImg(va_list ap)
       yeDestroy(pos);
       return (void *)ACTION;
     }
+    // if r is press ywCanvasRemoveObj() on rectangles
+    if (ywidEveKey(eve) == 'r') {
+      ywCanvasRemoveObj(wid, yeGet(wid, "r-rm"));
+      yeRemoveChildByStr(wid, "r-rm");
+      return (void *)ACTION;
+    }
+    if (ywidEveKey(eve) == 't') {
+      ywCanvasRemoveObj(wid, yeGet(wid, "R-rm"));
+      yeRemoveChildByStr(wid, "R-rm");
+      return (void *)ACTION;
+    }
   }
   return (void *)NOTHANDLE;
 }
@@ -108,7 +119,11 @@ void testCanvasSdl2(void)
 
   ywSizeCreate(200, 10, rect, NULL);
   yeCreateString("rgba: 180 0 0 160", rect, NULL);
-  ywCanvasNewRect(canvas_example, 100, 250, rect);
+  yePushBack(canvas_example, obj, "r-rm");
+
+  yePushBack(canvas_example,
+	     ywCanvasNewRect(canvas_example, 100, 250, rect),
+	     "R-rm");
   yePushBack(canvas_example,
 	     ywCanvasNewText(canvas_example, 100, 300, yeGet(strs, 0)),
 	     "song");

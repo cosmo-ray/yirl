@@ -220,6 +220,13 @@ extern "C" {
     yeRemoveChildByStr(obj, "$size");
   }
 
+  void ywCanvasRemoveObj(Entity *wid, Entity *obj)
+  {
+    Entity *objs = getOrCreateObjs(wid);
+
+    yeRemoveChild(objs, obj);
+  }
+
   Entity *ywCanvasNewText(Entity *wid, int x, int y, Entity *string)
   {
     Entity *objs = getOrCreateObjs(wid);

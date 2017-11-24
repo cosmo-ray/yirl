@@ -126,6 +126,7 @@ int	luaYwCntPopLastEntry(lua_State *L);
 int	luaYwReplaceEntry(lua_State *L);
 
 /* canvas */
+int	luaYwCanvasRemoveObj(lua_State *L);
 int	luaYwCanvasMoveObjByIdx(lua_State *L);
 int	luaYwCanvasNewObj(lua_State *L);
 int	luaYwCanvasObjPos(lua_State *L);
@@ -303,6 +304,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywPosToString", luaYwPosToString));
 
   /* canvas */
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasRemoveObj", luaYwCanvasRemoveObj));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasMoveObjByIdx",
 				 luaYwCanvasMoveObjByIdx));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasNewObj", luaYwCanvasNewObj));

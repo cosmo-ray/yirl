@@ -134,6 +134,12 @@ int luaYwCanvasObjSetPos(lua_State *L)
   return 0;
 }
 
+int	luaYwCanvasRemoveObj(lua_State *L)
+{
+  ywCanvasRemoveObj(lua_touserdata(L, 1), lua_touserdata(L, 2));
+  return 0;
+}
+
 int luaYwCanvasNewColisionsArray(lua_State *L)
 {
   lua_pushlightuserdata(L, ywCanvasNewColisionsArray(lua_touserdata(L, 1),
