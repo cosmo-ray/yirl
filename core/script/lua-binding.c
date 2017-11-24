@@ -135,6 +135,13 @@ int luaYwCanvasNewColisionsArray(lua_State *L)
   return 1;
 }
 
+int luaCanvasNewText(lua_State *L)
+{
+  lua_pushlightuserdata(L, ywCanvasNewText(lua_touserdata(L,0), lua_tonumber(L, 1),
+				      lua_tonumber(L, 2), lua_touserdata(L, 3)));
+  return 1;
+}
+
 int	luaYeIncrRef(lua_State *L)
 {
   yeIncrRef(YE_TO_ENTITY(lua_touserdata(L, 1)));
