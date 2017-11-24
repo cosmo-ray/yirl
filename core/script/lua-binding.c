@@ -85,6 +85,12 @@ int	luaYwCanvasMoveObjByIdx(lua_State *L)
   return 1;
 }
 
+int	luaYwCanvasObjSetResourceId(lua_State *L)
+{
+  ywCanvasObjSetResourceId(lua_touserdata(L, 1), lua_tonumber(L, 2));
+  return 0;
+}
+
 int	luaYwCanvasNewObj(lua_State *L)
 {
   lua_pushlightuserdata(L, ywCanvasNewObj(lua_touserdata(L, 1),
@@ -142,10 +148,10 @@ int luaYwCanvasNewColisionsArrayWithRectangle(lua_State *L)
   return 1;
 }
 
-int luaCanvasNewText(lua_State *L)
+int luaYwCanvasNewText(lua_State *L)
 {
-  lua_pushlightuserdata(L, ywCanvasNewText(lua_touserdata(L,0), lua_tonumber(L, 1),
-					   lua_tonumber(L, 2), lua_touserdata(L, 3)));
+  lua_pushlightuserdata(L, ywCanvasNewText(lua_touserdata(L, 1), lua_tonumber(L, 2),
+					   lua_tonumber(L, 3), lua_touserdata(L, 4)));
   return 1;
 }
 

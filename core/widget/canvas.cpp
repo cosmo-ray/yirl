@@ -172,6 +172,13 @@ extern "C" {
     return yeGet(obj, 1);
   }
 
+  void ywCanvasObjSetResourceId(Entity *obj, int id)
+  {
+    yeSetInt(yeGet(obj, 2), id);
+    yeRemoveChildByStr(obj, "$size");
+    yeRemoveChildByStr(obj, "$img");
+  }
+
   void ywCanvasObjSetPos(Entity *obj, int x, int y)
   {
     ywPosSetInts(yeGet(obj, 1), x, y);
