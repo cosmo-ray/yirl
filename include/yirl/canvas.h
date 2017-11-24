@@ -52,5 +52,6 @@ void ywCanvasStringSet(Entity *obj, Entity *newStr);
 YCanvasObjType ywCanvasObjType(Entity *obj);
 
 Entity *ywCanvasNewColisionsArray(Entity *wid, Entity *obj);
+Entity *ywCanvasNewColisionsArrayWithRectangle(Entity *wid, Entity *obj);
 
 #endif
