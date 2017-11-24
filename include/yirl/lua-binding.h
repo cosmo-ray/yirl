@@ -312,7 +312,8 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasObjSetPos", luaYwCanvasObjSetPos));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasNewColisionsArray",
 				 luaYwCanvasNewColisionsArray));
-
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasNewColisionsArrayWithRectangle",
+				 luaYwCanvasNewColisionsArrayWithRectangle));
 /* Game and Modules */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygGetMod", luaGetMod));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygCall", luaGCall));
