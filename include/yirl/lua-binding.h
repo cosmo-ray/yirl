@@ -134,6 +134,7 @@ int	luaYwCanvasObjFromIdx(lua_State *L);
 int	luaYwCanvasIdxFromObj(lua_State *L);
 int	luaYwCanvasObjSetPos(lua_State *L);
 int	luaYwCanvasNewColisionsArray(lua_State *L);
+int	luaYwCanvasNewColisionsArrayWithRectangle(lua_State *L);
 
 /* Game and Module */
 int	luaGetMod(lua_State *L);

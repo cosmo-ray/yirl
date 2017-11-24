@@ -131,6 +131,26 @@ extern "C" {
     return ret;
   }
 
+  Entity *ywCanvasNewColisionsArrayWithRectangle(Entity *wid, Entity *objRect)
+  {
+    Entity *ret = yeCreateArray(NULL, NULL);
+    Entity *objs = yeGet(wid, "objs");
+
+    YE_ARRAY_FOREACH(objs, tmpObj) {
+      Entity *tmpRect = ywRectCreatePosSize(ywCanvasObjPos(tmpObj),
+					    ywCanvasObjSize(wid, tmpObj), NULL, NULL);
+      if (ywRectColision(objRect, tmpRect)) {
+	yePushBack(ret, tmpObj, NULL);
+      }
+      yeDestroy(tmpRect);
+    }
+    if (!yeLen(ret)) {
+      yeDestroy(ret);
+      ret = NULL;
+    }
+    return ret;
+  }
+
   int ywCanvasIdxFromObj(Entity *wid, Entity *obj)
   {
     Entity *objs = yeGet(wid, "objs");
