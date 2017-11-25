@@ -93,16 +93,16 @@ int	luaYwRectCreate(lua_State *L);
 
 
 /* pos */
-int	luaYwPosCreate(lua_State *L);
-int	luaYwPosSet(lua_State *L);
-int	luYwPosIsSameX(lua_State *L);
-int	luYwPosIsSameY(lua_State *L);
-int	luYwPosIsSame(lua_State *L);
-int	luYwPosAdd(lua_State *L);
-int	luaYwPosPrint(lua_State *L);
-int	luaYwPosToString(lua_State *L);
-int	luaYwPosX(lua_State *L);
-int	luaYwPosY(lua_State *L);
+int	luaywPosCreate(lua_State *L);
+int	luaywPosSet(lua_State *L);
+int	luaywPosIsSameX(lua_State *L);
+int	luaywPosIsSameY(lua_State *L);
+int	luaywPosIsSame(lua_State *L);
+int	luaywPosAdd(lua_State *L);
+int	luaywPosPrint(lua_State *L);
+int	luaywPosToString(lua_State *L);
+int	luaywPosX(lua_State *L);
+int	luaywPosY(lua_State *L);
 
 /* map */
 int	luaYwMapPosFromInt(lua_State *L);
@@ -153,6 +153,10 @@ int	luaYGet(lua_State *L);
 
 #define YES_RET_IF_FAIL(OPERATION)		\
   if (OPERATION < 0) return -1;
+
+#define YES_LUA_REGISTRE_CALL(manager, name)	\
+  YES_RET_IF_FAIL(ysRegistreFunc(manager,#name, lua##name))
+
 
 #define LUA_SET_INT_GLOBAL(manager, value) do {				\
     lua_pushnumber(((YScriptLua *)manager)->l, value);			\
@@ -299,16 +303,16 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywRectCreate", luaYwRectCreate));
 
   /* pos */
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywPosX", luaYwPosX));
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywPosY", luaYwPosY));
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywPosCreate", luaYwPosCreate));
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywPosSet", luaYwPosSet));
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywPosIsSame", luYwPosIsSame));
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywPosIsSameX", luYwPosIsSameX));
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywPosIsSameY", luYwPosIsSameY));
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywPosAdd", luYwPosAdd));
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywPosPrint", luaYwPosPrint));
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywPosToString", luaYwPosToString));
+  YES_LUA_REGISTRE_CALL(sm, ywPosX);
+  YES_LUA_REGISTRE_CALL(sm, ywPosY);
+  YES_LUA_REGISTRE_CALL(sm, ywPosCreate);
+  YES_LUA_REGISTRE_CALL(sm, ywPosSet);
+  YES_LUA_REGISTRE_CALL(sm, ywPosIsSame);
+  YES_LUA_REGISTRE_CALL(sm, ywPosIsSameX);
+  YES_LUA_REGISTRE_CALL(sm, ywPosIsSameY);
+  YES_LUA_REGISTRE_CALL(sm, ywPosAdd);
+  YES_LUA_REGISTRE_CALL(sm, ywPosPrint);
+  YES_LUA_REGISTRE_CALL(sm, ywPosToString);
 
   /* canvas */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasRemoveObj", luaYwCanvasRemoveObj));
@@ -339,5 +343,5 @@ static inline int	yesLuaRegister(void *sm)
 
 #undef LUA_SET_INT_GLOBAL
 #undef YES_RET_IF_FAIL
-
+#undef YES_LUA_REGISTRE_CALL
 #endif

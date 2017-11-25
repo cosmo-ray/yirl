@@ -47,7 +47,7 @@ Entity *ywCanvasNewObj(Entity *wid, int x, int y, int id);
 Entity *ywCanvasNewRect(Entity *wid, int x, int y, Entity *rect);
 Entity *ywCanvasNewText(Entity *wid, int x, int y, Entity *string);
 
-Entity *ywCanvasRemoveObj(Entity *wid, Entity *obj);
+void ywCanvasRemoveObj(Entity *wid, Entity *obj);
 
 void ywCanvasStringSet(Entity *obj, Entity *newStr);
 void ywCanvasObjSetResourceId(Entity *obj, int id);

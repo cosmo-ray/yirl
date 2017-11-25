@@ -549,13 +549,13 @@ int	luaYuiAbs(lua_State *L)
   return 1;
 }
 
-int	luaYwPosX(lua_State *L)
+int	luaywPosX(lua_State *L)
 {
   lua_pushnumber(L, ywPosX(lua_touserdata(L, 1)));
   return 1;
 }
 
-int	luaYwPosY(lua_State *L)
+int	luaywPosY(lua_State *L)
 {
   lua_pushnumber(L, ywPosY(lua_touserdata(L, 1)));
   return 1;
@@ -583,7 +583,7 @@ int	luaYwRectCreate(lua_State *L)
   return 1;
 }
 
-int	luaYwPosCreate(lua_State *L)
+int	luaywPosCreate(lua_State *L)
 {
   if (lua_isnumber(L, 1)) {
     lua_pushlightuserdata(L, ywPosCreate(lua_tonumber(L, 1),
@@ -598,19 +598,19 @@ int	luaYwPosCreate(lua_State *L)
   return 1;
 }
 
-int	luaYwPosPrint(lua_State *L)
+int	luaywPosPrint(lua_State *L)
 {
   ywPosPrint(lua_touserdata(L, 1));
   return 0;
 }
 
-int	luaYwPosToString(lua_State *L)
+int	luaywPosToString(lua_State *L)
 {
   lua_pushstring(L, ywPosToString(lua_touserdata(L, 1)));
   return 1;
 }
 
-int	luaYwPosSet(lua_State *L)
+int	luaywPosSet(lua_State *L)
 {
   if (lua_isnumber(L, 2)) {
     lua_pushlightuserdata(L, ywPosSet(lua_touserdata(L, 1), lua_tonumber(L, 2),
@@ -622,7 +622,7 @@ int	luaYwPosSet(lua_State *L)
   return 1;
 }
 
-int	luYwPosIsSame(lua_State *L)
+int	luaywPosIsSame(lua_State *L)
 {
   if (lua_isnumber(L, 2))
     lua_pushboolean(L, ywPosIsSame(lua_touserdata(L, 1),
@@ -633,7 +633,7 @@ int	luYwPosIsSame(lua_State *L)
   return 1;
 }
 
-int	luYwPosIsSameX(lua_State *L)
+int	luaywPosIsSameX(lua_State *L)
 {
   if (lua_isnumber(L, 2))
     lua_pushboolean(L, ywPosIsSameX(lua_touserdata(L, 1),
@@ -644,7 +644,7 @@ int	luYwPosIsSameX(lua_State *L)
   return 1;
 }
 
-int	luYwPosIsSameY(lua_State *L)
+int	luaywPosIsSameY(lua_State *L)
 {
   if (lua_isnumber(L, 2))
     lua_pushboolean(L, ywPosIsSameY(lua_touserdata(L, 1),
@@ -655,7 +655,7 @@ int	luYwPosIsSameY(lua_State *L)
   return 1;
 }
 
-int	luYwPosAdd(lua_State *L)
+int	luaywPosAdd(lua_State *L)
 {
   if (lua_isnumber(L, 2)) {
     lua_pushlightuserdata(L, ywPosAddXY(lua_touserdata(L, 1),
