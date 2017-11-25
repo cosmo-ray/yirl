@@ -88,6 +88,10 @@ int	luaWidEveIsEnd(lua_State *L);
 int	luaEveType(lua_State *L);
 int	luaEveKey(lua_State *L);
 
+/* rect */
+int	luaYwRectCreate(lua_State *L);
+
+
 /* pos */
 int	luaYwPosCreate(lua_State *L);
 int	luaYwPosSet(lua_State *L);
@@ -290,6 +294,9 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCntGetEntry", luaYwCntGetEntry));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywPushNewWidget", luaYwPushNewWidget));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCntPopLastEntry", luaYwCntPopLastEntry));
+
+  /* rect */
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywRectCreate", luaYwRectCreate));
 
   /* pos */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywPosX", luaYwPosX));

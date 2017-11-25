@@ -385,7 +385,7 @@ int	luaSetFunction(lua_State *L)
 
 int	luaSetInt(lua_State *L)
 {
-  DPRINT_INFO("luaSetInt\n");  
+  DPRINT_INFO("luaSetInt\n");
   if (lua_gettop(L) != 2 || !lua_islightuserdata (L, 1) || !lua_isnumber (L, 2))
     {
      // luaL_error(L, "function arguments are incorect\n""real prototyre is: setEntityIntue(...)\n");
@@ -558,6 +558,28 @@ int	luaYwPosX(lua_State *L)
 int	luaYwPosY(lua_State *L)
 {
   lua_pushnumber(L, ywPosY(lua_touserdata(L, 1)));
+  return 1;
+}
+
+int	luaYwRectCreate(lua_State *L)
+{
+  if (lua_isnumber(L, 1)) {
+    lua_pushlightuserdata(L, ywRectCreateInts(lua_tonumber(L, 1),
+					      lua_tonumber(L, 2),
+					      lua_tonumber(L, 3),
+					      lua_tonumber(L, 4),
+					      lua_touserdata(L, 5),
+					      lua_tostring(L, 6)));
+  } else if (lua_gettop(L) == 3) {
+    lua_pushlightuserdata(L, ywRectCreateEnt(lua_touserdata(L, 1),
+					     lua_touserdata(L, 2),
+					     lua_tostring(L, 3)));
+  } else {
+    lua_pushlightuserdata(L, ywRectCreatePosSize(lua_touserdata(L, 1),
+						 lua_touserdata(L, 2),
+						 lua_touserdata(L, 3),
+						 lua_tostring(L, 4)));
+  }
   return 1;
 }
 

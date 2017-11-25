@@ -53,6 +53,13 @@ Entity *ywRectCreateInts(int x, int y, int w, int h, Entity *father,
 Entity *ywRectReCreateInts(int x, int y, int w, int h,
 			   Entity *father, const char *name);
 
+static inline Entity *ywRectCreateEnt(Entity *other, Entity *father,
+				      const char *name)
+{
+  return ywRectCreateInts(ywRectX(other), ywRectY(other), ywRectW(other),
+			  ywRectH(other), father, name);
+}
+
 static inline Entity *ywRectReCreateEnt(Entity *other, Entity *father,
 					const char *name)
 {
