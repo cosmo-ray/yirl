@@ -32,6 +32,8 @@
 /* Audio lib available */
 enum AudioLib { LIB_VLC, AUDIO_LIB_END };
 
+extern char *soundName[ARRAY_SIZE];
+
 /**
  * Select library you want
  *
@@ -39,17 +41,6 @@ enum AudioLib { LIB_VLC, AUDIO_LIB_END };
  */
 void sound_init(enum AudioLib libSelected);
 
-/**
- * Play, pause, stop, sound lvl, loop on media file
- *
- * \param name the media instance name
- * \param flags for action you want
- * \param soundLvl with SOUND_LEVEL flag define what sound level you want
- * \param path is the media path
- * \return 0 upon success, -1 on error
- * \use SOUND_STATUS flags, return 1 if media is played, else 0
- */
-int sound_manager(const char *name, uint32_t flags, int soundLvl, const char *path);
 
 /**
  * Play sound, shortcut of sound_manager(name, PLAY_SOUND, 0, path);
