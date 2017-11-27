@@ -264,6 +264,7 @@ int ygInit(GameConfig *cfg)
     } else if (yuiStrEqual(TO_RC(tmp->data)->name, "sdl2")) {
 #ifdef WITH_SDL
       ysdl2Init();
+      ysound_init();
 #endif
     }
   }
@@ -273,11 +274,6 @@ int ygInit(GameConfig *cfg)
   CHECK_AND_GOTO(ywTextScreenInit(), -1, error, "Text Screen init failed");
   CHECK_AND_GOTO(ywContainerInit(), -1, error, "Container init failed");
   CHECK_AND_GOTO(ywCanvasInit(), -1, error, "Canvas init failed");
-
-  /* Init sound */
-#ifdef	__unix__
-  sound_init(LIB_VLC);
-#endif
 
   for (GList *tmp = cfg->rConf; tmp; tmp = tmp->next) {
     //TODO check which render to use :)
@@ -331,6 +327,7 @@ void ygEnd()
   ycursDestroy();
 #endif
 #ifdef WITH_SDL
+  ysound_end();
   ysdl2Destroy();
 #endif
   yeDestroy(modList);

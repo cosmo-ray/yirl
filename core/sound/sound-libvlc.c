@@ -17,71 +17,80 @@
 #include <glib.h>
 #include <vlc/vlc.h>
 
+#include "utils.h"
 #include "sound.h"
 #include "sound-libvlc.h"
 
-libvlc_instance_t *soundInst[ARRAY_SIZE];
-libvlc_media_player_t *soundPlay[ARRAY_SIZE];
+#define ARRAY_SIZE 128
 
-/* ---- Libs ---- */
-int libvlc(int nameId, uint32_t flags, int soundLvl, const char *path)
+static libvlc_instance_t *soundInst[ARRAY_SIZE];
+static libvlc_media_player_t *soundPlay[ARRAY_SIZE];
+static libvlc_media_t *soundMedia[ARRAY_SIZE];
+static uint8_t is_used[ARRAY_SIZE];
+
+static int lastElem;
+
+SoundState vlcDriver = {
+  .load = libvlc_load,
+  .play = libvlc_play,
+  .play_loop = NULL,
+  .status = libvlc_status,
+  .sound_level = libvlc_soundLvl,
+  .pause = libvlc_pause,
+  .stop = libvlc_stop
+};
+
+int libvlc_load(const char *path)
 {
-  int result = 0;
-
-  if (flags & PLAY_SOUND) {
-    result = libvlc_play(nameId, path, 0);
-  }
-  if (flags & PLAY_LOOP_SOUND) {
-    result = libvlc_play(nameId, path, 1);
-  }
-  if (flags & STOP_SOUND) {
-    libvlc_stop(nameId);
-  }
-  if (flags & SOUND_LEVEL) {
-    result = libvlc_soundLvl(nameId, soundLvl);
-  }
-  if (flags & SOUND_PAUSE) {
-    libvlc_pause(nameId);
-  }
-  if (flags & SOUND_STATUS) {
-    result = libvlc_status(nameId);
-  }
-
-  return result;
-}
-
-int libvlc_play(int nameId, const char *path, int loop)
-{
-  libvlc_media_t *media;
-
-  if ((soundInst[nameId] = libvlc_new(0, NULL))  == NULL ||
-      (media = libvlc_media_new_path(soundInst[nameId], path)) == NULL ||
-      (soundPlay[nameId] = libvlc_media_player_new_from_media(media)) == NULL) {
-    libvlc_stop(nameId);
-    return -1;
-  }
-
-  if (loop != 0) {
-    libvlc_media_add_option(media, "input-repeat=-1");
-  }
-
-  libvlc_media_release(media);
+  int nameId = lastElem;
 
   if (g_file_test(path, G_FILE_TEST_EXISTS) == 0) {
-    libvlc_stop(nameId);
-    return -1;
-  } else {
-    return libvlc_media_player_play(soundPlay[nameId]);
+    DPRINT_ERR("%s doesn't exist", path);
+    goto error;
   }
+
+  soundInst[nameId] = libvlc_new(0, NULL);
+  soundMedia[nameId] = libvlc_media_new_path(soundInst[nameId], path);
+  soundPlay[nameId] = libvlc_media_player_new_from_media(soundMedia[nameId]);
+
+  if (soundInst[nameId]  == NULL || soundMedia[nameId] == NULL ||
+      soundPlay[nameId] == NULL) {
+    DPRINT_ERR("fail to load %s", path);
+    goto error;
+  }
+
+  /* if (loop != 0) { */
+  /*   libvlc_media_add_option(media, "input-repeat=-1"); */
+  /* } */
+
+  is_used[nameId] = 1;
+  ++lastElem;
+  return nameId;
+ error:
+  libvlc_stop(nameId);
+  return -1;
+}
+
+#define CHECK_NAMEID(nameId) do {				\
+    if (!is_used[nameId] || nameId >= ARRAY_SIZE)		\
+      return -1;						\
+  } while (0)
+
+int libvlc_play(int nameId)
+{
+  CHECK_NAMEID(nameId);
+  return libvlc_media_player_play(soundPlay[nameId]);
 }
 
 int libvlc_soundLvl(int nameId, int soundLvl)
 {
+  CHECK_NAMEID(nameId);
   return libvlc_audio_set_volume(soundPlay[nameId], soundLvl);
 }
 
 int libvlc_status(int nameId)
 {
+  CHECK_NAMEID(nameId);
   return libvlc_media_player_will_play(soundPlay[nameId]);
 }
 
@@ -89,6 +98,7 @@ int libvlc_pause(int nameId)
 {
   int result = 0;
 
+  CHECK_NAMEID(nameId);
   if (libvlc_media_player_is_playing(soundPlay[nameId]) == 0) {
     result = libvlc_media_player_play(soundPlay[nameId]);
   } else {
@@ -98,14 +108,15 @@ int libvlc_pause(int nameId)
   return result;
 }
 
-void libvlc_stop(int nameId)
+int libvlc_stop(int nameId)
 {
-  if (soundName[nameId] != NULL) {
-    g_free(soundName[nameId]);
-    soundName[nameId] = NULL;
-  }
-
+  CHECK_NAMEID(nameId);
+  is_used[nameId] = 0;
   libvlc_media_player_stop(soundPlay[nameId]);
   libvlc_media_player_release(soundPlay[nameId]);
+  libvlc_media_release(soundMedia[nameId]);
   libvlc_release(soundInst[nameId]);
+  return 0;
 }
+
+#undef ARRAY_SIZE

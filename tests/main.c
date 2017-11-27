@@ -112,7 +112,7 @@ int main(int argc, char **argv)
 
   TEST_TRY_ADD("/parser/raw-file", testRawFileLoad, only);
 
-/* TEST_TRY_ADD("/sound/soundManager/all", testYSoundLib, only); */
+  TEST_TRY_ADD("/sound/soundManager/all", testYSoundLib, only);
 
   TEST_TRY_ADD("/modules/list", testListMod, only);
   TEST_TRY_ADD("/modules/maze_generator", testMazeGenMod, only);

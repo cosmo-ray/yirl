@@ -47,11 +47,14 @@ var_add YIRL_LINKING build-dynamic-lib
 define_add WITH_SOUND 1
 if [ $WITH_SOUND -ne 0 ]; then
     SOUND_DIR="core/sound"
-    var_add SOUND_SRC "\"$SOUND_DIR/sound-libvlc.c $SOUND_DIR/sound.c\""
-    var_add VLC_LIB "\"`pkg-config --libs libvlc`\""
+    var_add SOUND_SRC "\"$SOUND_DIR/sdl.c $SOUND_DIR/sound.c\""
+    #var_add SOUND_SRC "\"$SOUND_DIR/sound-libvlc.c $SOUND_DIR/sound.c\""
+    #var_add VLC_LIB "\"`pkg-config --libs libvlc`\""
+    define_add defaultSoundDriver sdlDriver
 else
-    var_add SOUND_SRC ""
+    var_add SOUND_SRC "$SOUND_DIR/sound.c"
     var_add VLC_LIB ""
+    define_add defaultSoundDriver noSound
 fi
 
 var_add IS_UNIX 1

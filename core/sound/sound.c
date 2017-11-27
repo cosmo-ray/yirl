@@ -18,94 +18,65 @@
 #include <stdio.h>
 #include <stdint.h>
 
+#include "utils.h"
 #include "sound.h"
 #include "sound-libvlc.h"
-
-/* Media instace name */
-char *soundName[ARRAY_SIZE];
 
 /* Audio lib */
 int audioLibUsed = -1;
 
-/* ---- Sound Manager ---- */
-void sound_init(enum AudioLib libSelected)
+#define RET_OR_CALL(func, args...)		\
+  if (unlikely(!func))				\
+    return -1;					\
+  return func(args)
+
+SoundState noSound;
+
+extern SoundState defaultSoundDriver;
+
+int ysound_init(void)
 {
-  audioLibUsed = libSelected;
+  if (unlikely(!defaultSoundDriver.libInit))
+    return -1;
+  return defaultSoundDriver.libInit();
 }
 
-/**
- * Play, pause, stop, sound lvl, loop on media file
- *
- * \param name the media instance name
- * \param flags for action you want
- * \param soundLvl with SOUND_LEVEL flag define what sound level you want
- * \param path is the media path
- * \return 0 upon success, -1 on error
- * \use SOUND_STATUS flags, return 1 if media is played, else 0
- */
-static int sound_manager(const char *name, uint32_t flags, int soundLvl,
-			 const char *path)
+int ysound_end(void)
 {
-  int freeId, nameId;
-
-  static int (*SoundLib[AUDIO_LIB_END])(int, uint32_t, int, const char *) = {
-    libvlc
-  };
-
-  nameId = 0;
-  freeId = 0;
-
-  for (int i = 1, ii = 0; i < ARRAY_SIZE; ++i, ++ii) {
-
-    if (soundName[ii] != NULL && !(*SoundLib[audioLibUsed])(ii, SOUND_STATUS, 0, NULL)) {
-      (*SoundLib[audioLibUsed])(ii, STOP_SOUND, 0, NULL);
-    }
-
-    if (!g_strcmp0(name, soundName[ii])) {
-      nameId = i;
-      break;
-    } else if (soundName[ii] == NULL && freeId == 0) {
-      freeId = i;
-    }
-  }
-
-  if (nameId == 0) {
-    nameId = freeId;
-  }
-
-  --nameId;
-
-  if (soundName[nameId] == NULL && !(flags & PLAY_SOUND || flags & PLAY_LOOP_SOUND)) {
+  if (unlikely(!defaultSoundDriver.libEnd))
     return -1;
-  }
-
-  soundName[nameId] = g_strdup(name);
-
-  return (*SoundLib[audioLibUsed])(nameId, flags, soundLvl, path);
+  return defaultSoundDriver.libEnd();
 }
 
 /* ---- shortcut ---- */
-int sound_play(const char *name, const char *path)
+int sound_load(const char *path)
 {
-  return sound_manager(name, PLAY_SOUND, 0, path);
+  RET_OR_CALL(defaultSoundDriver.load, path);
 }
 
-int sound_play_loop(const char *name, const char *path)
+int sound_play(int id)
 {
-  return sound_manager(name, PLAY_LOOP_SOUND, 0, path);
+  RET_OR_CALL(defaultSoundDriver.play, id);
 }
 
-int sound_level(const char *name, int soundLvl)
+int sound_play_loop(int id)
 {
-  return sound_manager(name, SOUND_LEVEL, soundLvl, NULL);
+  RET_OR_CALL(defaultSoundDriver.play_loop, id);
 }
 
-int sound_status(const char *name)
+int sound_level(int id, int soundLvl)
 {
-  return sound_manager(name, SOUND_STATUS, 0, NULL);
+  RET_OR_CALL(defaultSoundDriver.sound_level, id, soundLvl);
 }
 
-void sound_stop(const char *name)
+int sound_status(int id)
 {
-  sound_manager(name, STOP_SOUND, 0, NULL);
+  RET_OR_CALL(defaultSoundDriver.status, id);
 }
+
+int sound_stop(int id)
+{
+  RET_OR_CALL(defaultSoundDriver.stop, id);
+}
+
+#undef RET_OR_CALL

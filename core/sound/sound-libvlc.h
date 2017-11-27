@@ -17,12 +17,8 @@
 #ifndef _SOUND_LIB_VLC_H
 #define _SOUND_LIB_VLC_H
 
-/**
- * libvlc manager
- *
- * \same of sound_manager
- */
-int libvlc(int nameId, uint32_t flags, int soundLvl, const char *path);
+
+int libvlc_load(const char *path);
 
 /**
  * Play media file
@@ -32,7 +28,7 @@ int libvlc(int nameId, uint32_t flags, int soundLvl, const char *path);
  * \param loop, play if zero, play loop if non-zero
  * \return 0 upon success, -1 on error
  */
-int libvlc_play(int nameId, const char *path, int loop);
+int libvlc_play(int nameId);
 
 /**
  * Set current media volume
@@ -64,6 +60,6 @@ int libvlc_pause(int nameId);
  *
  * \param nameId the ID of media instance name
  */
-void libvlc_stop(int nameId);
+int libvlc_stop(int nameId);
 
 #endif

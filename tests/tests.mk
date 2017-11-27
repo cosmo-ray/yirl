@@ -5,7 +5,8 @@ TESTS_SRC =  main.c lifecycle.c stringOperations.c test-copy.c setunset.c	\
 		test-json-desc.c test-widgets.c menu.c map.c			\
 		test-game.c block-array.c container.c 				\
 		ybytecode.c script.c raw-file.c list-mod.c dialogue-mod.c	\
-		maze_generator.c canvas.c textinput_mod.c sukeban-fight.c
+		maze_generator.c canvas.c textinput_mod.c sukeban-fight.c	\
+		test-sound.c
 
 TESTS_CFLAGS += -DTESTS_PATH=\"$(TESTS_DIR)\"
 

@@ -17,27 +17,32 @@
 
 #include <glib.h>
 #include <stdint.h>
+#include <unistd.h>
 #include "tests.h"
 #include "sound.h"
+#include "game.h"
 
 void testYSoundLib(void)
 {
-    sound_init(LIB_VLC);
 
-    /* g_assert check */
-    g_assert(TRUE);
+  GameConfig cfg;
 
-    /* Working check */
-    g_assert(sound_play("Test", "BlablablaMrFreeman.mp3") != -1);
-    g_assert(sound_play_loop("42", "BlablablaMrFreeman.mp3") != -1);
-    g_assert(sound_status("Test") != -1);
-    g_assert(sound_level("Test", 10) != -1);
+  g_assert(!ygInitGameConfig(&cfg, NULL, SDL2));
+  g_assert(!ygInit(&cfg));
 
-    /* Bad request check */
-    g_assert(sound_play("false.0", "404.wav.false") == -1);
-    g_assert(sound_status("false") == -1);
-    g_assert(sound_level("false", 10) == -1);
+  /* Working check */
+  g_assert(sound_load("./BlablablaMrFreeman.mp3") == 0);
+  g_assert(sound_play(0) != -1);
+  sleep(3);
+  /* g_assert(sound_play_loop("42", "BlablablaMrFreeman.mp3") != -1); */
+  /* g_assert(sound_status(0) != -1); */
+  /* g_assert(sound_level(0, 10) != -1); */
+  g_assert(sound_play_loop(0) != -1);
+  sleep(7);
 
-    sound_stop("Test");
-    sound_stop("42");
+  /* Bad request check */
+  g_assert(sound_load("404.wav.false") == -1);
+
+  sound_stop(0);
+  ygEnd();
 }

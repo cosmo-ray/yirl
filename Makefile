@@ -74,6 +74,7 @@ LDFLAGS += $(CURSES_LIB)
 LDFLAGS += $(NUMA_LIB)
 LDFLAGS += $(shell $(PKG_CONFIG) --libs SDL2_image)
 LDFLAGS += $(shell $(PKG_CONFIG) --libs SDL2_ttf)
+LDFLAGS += $(shell $(PKG_CONFIG) --libs SDL2_mixer)
 LDFLAGS += $(LDFLAGS_EXT)
 
 COMMON_CFLAGS += $(shell $(PKG_CONFIG) --cflags glib-2.0)

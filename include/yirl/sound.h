@@ -17,53 +17,44 @@
 #ifndef _SOUND_H
 #define _SOUND_H
 
-#define ARRAY_SIZE          64
+typedef struct {
+  int ( *libInit)(void);
+  int (* libEnd)(void);
+  int (* load)(const char *path);
+  int (* play)(int);
+  int (* play_loop)(int);
+  int (* status)(int);
+  int (* sound_level)(int, int);
+  int (* pause)(int);
+  int (* stop)(int);
+} SoundState;
 
-/* Flags on hexValue */
-#define PLAY_SOUND          0x00000001
-#define PLAY_LOOP_SOUND     0x00000002
+extern int audioLibUsed;
 
-#define STOP_SOUND          0x00000004
+int ysound_init(void);
+int ysound_end(void);
 
-#define SOUND_LEVEL         0x00000010
-#define SOUND_STATUS        0x00000020
-#define SOUND_PAUSE         0x00000040
-
-/* Audio lib available */
-enum AudioLib { LIB_VLC, AUDIO_LIB_END };
-
-extern char *soundName[ARRAY_SIZE];
-
-/**
- * Select library you want
- *
- * \param libSelected name of lib you want
- */
-void sound_init(enum AudioLib libSelected);
-
+int sound_load(const char *path);
 
 /**
  * Play sound, shortcut of sound_manager(name, PLAY_SOUND, 0, path);
  *
- * \param name the media instance name
- * \param path is the media path
  * \return 0 upon success, -1 on error
  */
-int sound_play(const char *name, const char *path);
+int sound_play(int id);
 
 /**
- * Same of sound_play() in loop
+ * Same as sound_play() in loop
  */
-int sound_play_loop(const char *name, const char *path);
+int sound_play_loop(int id);
 
 /**
  * Change sound level, shortcut of sound_manager(name, SOUND_LEVEL, 100, NULL);
  *
- * \param name the media instance name
  * \param soundLvl with SOUND_LEVEL flag define what sound level you want
  * \return 0 upon success, -1 on error
  */
-int sound_level(const char *name, int soundLvl);
+int sound_level(int id, int soundLvl);
 
 /**
  * Stop sound, shortcut of sound_manager(name, SOUND_STATUS, 0, NULL);
@@ -71,18 +62,22 @@ int sound_level(const char *name, int soundLvl);
  * \param name the media instance name
  * \return 1 if media is playable, else 0
  */
-int sound_status(const char *name);
+int sound_status(int id);
 
 /**
  * Stop sound, shortcut of sound_manager(name, STOP_SOUND, 0, NULL);
  *
  * \param name the media instance name
  */
-void sound_stop(const char *name);
+int sound_pause(int id);
 
 /**
- * Lib check width GLib (Unit testing)
+ * Stop sound, shortcut of sound_manager(name, STOP_SOUND, 0, NULL);
+ *
+ * \param name the media instance name
  */
-void yirl_sound_cpp(void);
+int sound_stop(int id);
+
+int sound_init(void);
 
 #endif
