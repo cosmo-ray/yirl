@@ -235,8 +235,8 @@ static int linkLabels(struct labelHead *labels,
 		      struct labelHead *labels_needed,
 		      int64_t *script, uint32_t script_len)
 {
-  struct labels *lab;
-  struct labels *lab2;
+  struct labels *lab = NULL;
+  struct labels *lab2 = NULL;
 
   if (!labels_needed)
     return 0;

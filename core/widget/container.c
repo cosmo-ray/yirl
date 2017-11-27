@@ -173,7 +173,6 @@ static int cntInit(YWidgetState *opac, Entity *entity, void *args)
   Entity *entries = yeGet(entity, "entries");
   Entity *bg = yeGet(entity, "background");
   YWidgetState *wid;
-  Entity *bg_tx;
 
   (void)args;
   if (!entries) {
@@ -182,7 +181,8 @@ static int cntInit(YWidgetState *opac, Entity *entity, void *args)
   }
 
   if (bg) {
-    bg_tx = yeCreateArray(entity, "$bg");
+    Entity *bg_tx = yeCreateArray(entity, "$bg");
+
     yeCreateString("text-screen", bg_tx, "<type>");
     yeCreateString("", bg_tx, "text");
     yePushBack(bg_tx, bg, "background");
@@ -246,7 +246,7 @@ static int cntDestroy(YWidgetState *opac)
 
 static InputStatue cntEvent(YWidgetState *opac, Entity *event)
 {
-  InputStatue ret = NOTHANDLE;
+  InputStatue ret;
   Entity *entries = yeGet(opac->entity, "entries");
   YWidgetState *cur;
 

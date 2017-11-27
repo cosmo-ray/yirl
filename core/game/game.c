@@ -113,10 +113,12 @@ static void *quitOnKeyDown(va_list ap)
 	  ywidEveKey(eve) == '\n' ||
 	  ywidEveKey(eve) == Y_ESC_KEY) {
 	alive = 0;
-	return (void *)ACTION;
+	ret = (void *)ACTION;
+	goto exit;
       }
     }
   }
+ exit:
   va_end(tmp_ap);
   return ret;
 }
@@ -158,6 +160,7 @@ static void *setInt(va_list ap)
   Entity *toSet;
   Entity *value;
 
+  (void)useless;
   useless = va_arg(ap, void *);
   toSet = va_arg(ap, Entity *);
   value = va_arg(ap, Entity *);
@@ -653,7 +656,6 @@ int ygBind(YWidgetState *wid, const char *callback)
 
 static int ygParseStartAndGame(GameConfig *config)
 {
-  YWidgetState *wid;
   Entity *starting_widget;
 
   mainMod = ygLoadMod(config->startingMod->path);
@@ -661,7 +663,8 @@ static int ygParseStartAndGame(GameConfig *config)
   starting_widget = yeGet(mainMod, "$starting widget");
 
   if (starting_widget) {
-    wid = ywidNewWidget(starting_widget, NULL);
+    YWidgetState *wid = ywidNewWidget(starting_widget, NULL);
+
     if (!wid) {
       DPRINT_ERR("Fail to create widget of type '%s'.",
 		 yeGetString(yeGet(starting_widget, "<type>")));
@@ -682,11 +685,11 @@ static int ygParseStartAndGame(GameConfig *config)
 
 int ygDoLoop(void)
 {
-  YWidgetState *wid;
   alive = 1;
 
   do {
-    wid = ywidGetMainWid();
+    YWidgetState *wid = ywidGetMainWid();
+
     if (unlikely(!wid)) {
       return -1;
     }
