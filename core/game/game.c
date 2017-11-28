@@ -208,6 +208,7 @@ static void addNativeFuncToBaseMod(void)
   yeCreateFunctionSimple("menuNext", ysNativeManager(), baseMod);
   yeCreateFunctionSimple("menuActions", ysNativeManager(), baseMod);
   ygRegistreFunc(ysNativeManager(), 0, "FinishGame", "yFinishGame");
+  ygRegistreFunc(ysNativeManager(), 1, "callNext", "yCallNextWidget");
 }
 
 int ygIsInit(void)

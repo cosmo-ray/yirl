@@ -117,7 +117,7 @@ int ywidNext(Entity *next)
   }
 
   if (yeType(next) != YSTRING) {
-    DPRINT_ERR("next is of type %s, should be a sting",
+    DPRINT_ERR("next is of type %s, should be a string",
 	       yeTypeToString(yeType(next)));
     return -1;
   }
