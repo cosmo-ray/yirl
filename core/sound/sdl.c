@@ -33,8 +33,7 @@ static int lastElem;
 static int init(void)
 {
   int ret = Mix_Init(MIX_INIT_FLAC | MIX_INIT_MOD | MIX_INIT_MP3 |
-		     MIX_INIT_OGG |
-		     MIX_INIT_MID);
+		     MIX_INIT_OGG);
 
   if (ret < 0) {
     DPRINT_ERR("Mix_Init fail");
