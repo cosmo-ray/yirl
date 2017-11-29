@@ -152,8 +152,9 @@ int	luaYgEntToFile(lua_State *L);
 int	luaYGet(lua_State *L);
 
 /* Audio */
-int	luaYSoundLoad(lua_State *L);
-int	luaYSoundPlay(lua_State *L);
+int	luaySoundLoad(lua_State *L);
+int	luaySoundPlay(lua_State *L);
+int	luaySoundStop(lua_State *L);
 
 #define YES_RET_IF_FAIL(OPERATION)		\
   if (OPERATION < 0) return -1;
@@ -344,8 +345,9 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygGet", luaYGet));
 
   /* Audio */
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ySoundLoad", luaYSoundLoad));
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ySoundPlay", luaYSoundPlay));
+  YES_LUA_REGISTRE_CALL(sm, ySoundLoad);
+  YES_LUA_REGISTRE_CALL(sm, ySoundPlay);
+  YES_LUA_REGISTRE_CALL(sm, ySoundStop);
   return 0;
 }
 
