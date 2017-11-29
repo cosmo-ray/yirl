@@ -151,6 +151,10 @@ int	luaYgFileToEnt(lua_State *L);
 int	luaYgEntToFile(lua_State *L);
 int	luaYGet(lua_State *L);
 
+/* Audio */
+int	luaYSoundLoad(lua_State *L);
+int	luaYSoundPlay(lua_State *L);
+
 #define YES_RET_IF_FAIL(OPERATION)		\
   if (OPERATION < 0) return -1;
 
@@ -331,13 +335,17 @@ static inline int	yesLuaRegister(void *sm)
 				 luaYwCanvasNewColisionsArrayWithRectangle));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasObjSetResourceId", luaYwCanvasObjSetResourceId));
 
-/* Game and Modules */
+  /* Game and Modules */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygGetMod", luaGetMod));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygCall", luaGCall));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygRegistreFunc", luaYgRegistreFunc));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygFileToEnt", luaYgFileToEnt));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygEntToFile", luaYgEntToFile));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygGet", luaYGet));
+
+  /* Audio */
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ySoundLoad", luaYSoundLoad));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ySoundPlay", luaYSoundPlay));
   return 0;
 }
 

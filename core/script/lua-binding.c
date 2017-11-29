@@ -240,6 +240,17 @@ int	luaCreateFloat(lua_State *L)
   return 1;
 }
 
+int	luaYSoundLoad(lua_State *L)
+{
+  lua_pushnumber(L, sound_load(lua_tostring(L, 1)));
+  return 1;
+}
+int	luaYSoundPlay(lua_State *L)
+{
+  lua_pushnumber(L, sound_play(lua_tonumber(L, 1)));
+  return 1;
+}
+
 /**
  * This is not a strict binding of the original yeCreateFunction,
  * because the original has to handle managers,
