@@ -94,7 +94,7 @@ static int libsdl_play(int nameId)
 static int libsdl_play_loop(int nameId)
 {
   CHECK_NAMEID(nameId);
-  return Mix_PlayMusic(musiques[nameId], 1);
+  return Mix_PlayMusic(musiques[nameId], -1);
 }
 
 /* int libsdl_soundLvl(int nameId, int soundLvl) */

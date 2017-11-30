@@ -246,6 +246,12 @@ int	luaySoundLoad(lua_State *L)
   return 1;
 }
 
+int	luaySoundPlayLoop(lua_State *L)
+{
+  lua_pushnumber(L, sound_play_loop(lua_tonumber(L, 1)));
+  return 1;
+}
+
 int	luaySoundPlay(lua_State *L)
 {
   lua_pushnumber(L, sound_play(lua_tonumber(L, 1)));
