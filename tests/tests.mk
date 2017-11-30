@@ -12,10 +12,10 @@ TESTS_CFLAGS += -DTESTS_PATH=\"$(TESTS_DIR)\"
 
 TESTS_OBJ=$(call c_to_o_dir,$(TESTS_DIR),$(TESTS_SRC))
 
-$(TESTS_OBJ): CFLAGS += $(TESTS_CFLAGS)
+$(TESTS_OBJ): CFLAGS += $(TESTS_CFLAGS) -Wno-pointer-to-int-cast
 
-build-tests: $(TESTS_OBJ) build-dynamic-lib
-	$(CC)  -o  $(TESTS_NAME) $(TESTS_OBJ) $(LDFLAGS) -l$(NAME)
+build-tests: $(TESTS_OBJ) $(YIRL_LINKING)
+	$(CC)  -o  $(TESTS_NAME) $(TESTS_OBJ) $(BINARY_LINKING) $(LDFLAGS) -l$(NAME)
 
 clean-tests:
 	rm -rvf $(TESTS_OBJ)

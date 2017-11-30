@@ -37,7 +37,7 @@ static void *testTXQuitOnQ(va_list ap)
   return (void *)NOTHANDLE;
 }
 
-#ifdef WITH_CURSES
+#if WITH_CURSES == 1
 
 void testCursesLife(void)
 {
@@ -93,7 +93,7 @@ void testYWTextScreenCurses(void)
 
 #endif
 
-#ifdef WITH_SDL
+#if WITH_SDL == 1
 
 void testYWTextScreenSdl2(void)
 {
@@ -149,7 +149,7 @@ void testSdlLife(void)
   yeEnd();
 }
 
-#ifdef WITH_CURSES
+#if WITH_CURSES == 1
 
 void testYWTextScreenAll(void)
 {

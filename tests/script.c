@@ -49,12 +49,12 @@ void testScriptAddFunction(void)
   g_assert(ysCall(ygGetLuaManager(), "init") == NULL);
   g_assert(ysCall(ygGetTccManager(), "init") == NULL);
   g_assert(ysCall(ygGetTccManager(), "titinit") == NULL);
-  g_assert((long)ysCall(ygGetTccManager(), "toto") == 0xfa57f00D);
-  g_assert((long)ysCall(ygGetLuaManager(), "toto") == 0xfa57f00D);
-  g_assert((long)ysCall(ygGetTccManager(), "callTest") == 0xfa57f00D);
-  g_assert((long)ysCall(ygGetLuaManager(), "callTest") == 0xfa57f00D);
-  g_assert((long)ysCall(ygGetLuaManager(), "titi") == 0xfa57f00D);
-  g_assert((long)ysCall(ygGetTccManager(), "titi") == 0xfa57f00D);
+  g_assert((intptr_t)ysCall(ygGetTccManager(), "toto") == (intptr_t)0xfa57f00D);
+  g_assert((intptr_t)ysCall(ygGetLuaManager(), "toto") == (intptr_t)0xfa57f00D);
+  g_assert((intptr_t)ysCall(ygGetTccManager(), "callTest") == (intptr_t)0xfa57f00D);
+  g_assert((intptr_t)ysCall(ygGetLuaManager(), "callTest") == (intptr_t)0xfa57f00D);
+  g_assert((intptr_t)ysCall(ygGetLuaManager(), "titi") == (intptr_t)0xfa57f00D);
+  g_assert((intptr_t)ysCall(ygGetTccManager(), "titi") == (intptr_t)0xfa57f00D);
 
   g_assert(!ysLoadString(ygGetTccManager(),
 			 "#include <yirl/game.h>"

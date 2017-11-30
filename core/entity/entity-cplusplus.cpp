@@ -48,7 +48,8 @@ void operator delete(void *ptr, long unsigned int end)
 
 #endif
 
-void *operator new(unsigned long l) {
+void *operator new(size_t l)
+{
   void *ret = malloc(l);
   return ret;
 }

@@ -38,7 +38,9 @@
 /* widgets */
 #include "utils.h"
 #include "entity.h"
+#if WITH_CURSES == 1
 #include "curses-driver.h"
+#endif
 #include "sdl-driver.h"
 #include "menu.h"
 #include "map.h"
@@ -258,11 +260,11 @@ int ygInit(GameConfig *cfg)
   for (GList *tmp = cfg->rConf; tmp; tmp = tmp->next) {
     //TODO check which render to use :)
     if (yuiStrEqual(TO_RC(tmp->data)->name, "curses")) {
-#ifdef WITH_CURSES
+#if WITH_CURSES == 1
       ycursInit();
 #endif
     } else if (yuiStrEqual(TO_RC(tmp->data)->name, "sdl2")) {
-#ifdef WITH_SDL
+#if WITH_SDL == 1
       ysdl2Init();
       ysound_init();
 #endif
@@ -278,7 +280,7 @@ int ygInit(GameConfig *cfg)
   for (GList *tmp = cfg->rConf; tmp; tmp = tmp->next) {
     //TODO check which render to use :)
     if (yuiStrEqual(TO_RC(tmp->data)->name, "curses")) {
-#ifdef WITH_CURSES
+#if WITH_CURSES == 1
       CHECK_AND_GOTO(ycursRegistreMenu(), -1, error, "Menu init failed");
       CHECK_AND_GOTO(ycursRegistreTextScreen(), -1, error,
 			"Text Screen init failed");
@@ -323,7 +325,7 @@ void ygEnd()
   ywMenuEnd();
   ywCanvasEnd();
   ywContainerEnd();
-#ifdef WITH_CURSES
+#if WITH_CURSES == 1
   ycursDestroy();
 #endif
 #ifdef WITH_SDL

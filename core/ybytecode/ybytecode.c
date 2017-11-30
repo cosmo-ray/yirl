@@ -25,7 +25,7 @@
 
 #define inst_compille(ascii_code, label_name, nb_args)	\
   case ascii_code:					\
-  script[i] = (uint64_t) &&label_name;			\
+  script[i] = (int_ptr_t) &&label_name;			\
   i += (nb_args + 1);					\
   break
 
@@ -75,16 +75,16 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
 	inst_compille(YB_GET_AT_IDX, get_at_idx, 2);
 	inst_compille(YB_GET_AT_STR, get_at_str, 2);
       case YB_CALL:
-	script[i] = (uint64_t) &&call_entity;
+	script[i] = (int_ptr_t) &&call_entity;
 	i += (script[i + 1] + 3);
 	break;
       case YB_COMPILLE_FUNC:
-	script[i] = (uint64_t) &&compille_func;
+	script[i] = (int_ptr_t) &&compille_func;
 	++neested;
 	i += 3;
 	break;
       case YB_END_FUNC:
-	script[i] = (uint64_t)&&end;
+	script[i] = (int_ptr_t)&&end;
 	if (!neested)
 	  goto out_loop;
 	--neested;
@@ -102,7 +102,7 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
 			    (char)script[i], i);
 	} else {
 	  ybytecode_error =
-	    g_strdup_printf("instruction '%" PRIi64 "' at %d is not valide",
+	    g_strdup_printf("instruction '" PRIint64 "' at %d is not valide",
 			    script[i], i);
 	}
 	return NULL;
@@ -280,7 +280,7 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
 		 &script[2]);
   yeCreateFunction(yeGetString(yeGetByIdxDirect(stack, script[1])),
 		   ysYBytecodeManager(), stack, NULL);
-  script[0] = (uint64_t)&&create_func;
+  script[0] = (int_ptr_t)&&create_func;
   script += 2;
   tmp = script;
   ++script;
@@ -362,7 +362,8 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
   goto *((void *)*script);
 
  print_pos:
-  printf("script instruction pos: %ld\n", script - origin);
+  printf("script instruction pos: "PRIiptr"\n",
+	 script - origin);
   ++script;
   goto *((void *)*script);
  print_entity:

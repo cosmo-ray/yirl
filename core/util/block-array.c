@@ -22,7 +22,7 @@
 #include "utils.h"
 #include "block-array.h"
 
-#define ALLOC_SIZE 0x2fffffff
+#define ALLOC_SIZE 0xfffffff
 
 inline void yBlockArrayInitInternal(BlockArray *ba, size_t elemSize, int flag)
 {

@@ -88,7 +88,7 @@ void yBlockArrayExpandBlocks(BlockArray *ba, int nb);
 
 #define yBlockArrayBlockPos(pos) (pos / 64)
 
-static inline size_t yBlockArrayPosMask(size_t pos)
+static inline int64_t yBlockArrayPosMask(size_t pos)
 {
   return ONE64 << (pos & 63);
 }

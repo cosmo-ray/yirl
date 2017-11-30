@@ -74,7 +74,6 @@ extern "C"
 #if defined(__unix__) || defined(__APPLE__)
 #define	y_vprintf(fd, format, vl)	vdprintf(fd, format, vl)
 #else
-#include "windows.h"
-#define	y_vprintf(fd, format, vl)
+#define	y_vprintf(fd, format, vl)	vprintf(format, vl)
 #endif
 #endif	// DEBUG_H_

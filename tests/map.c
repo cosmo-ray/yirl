@@ -35,7 +35,7 @@ static void *testMapEnter(va_list ap)
   return (void *)NOTHANDLE;
 }
 
-#ifdef WITH_CURSES
+#if WITH_CURSES == 1
 
 void testYWMapCurses(void)
 {
@@ -82,7 +82,7 @@ void testYWMapCurses(void)
 }
 
 #endif
-#ifdef WITH_SDL
+#if WITH_SDL == 1
 
 void testYWMapSdl2(void)
 {
@@ -190,7 +190,7 @@ void testYBigWMapSdl2(void)
 }
 
 
-#ifdef WITH_CURSES
+#if WITH_CURSES == 1
 
 void testYWMapAll(void)
 {

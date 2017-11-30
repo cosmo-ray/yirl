@@ -394,10 +394,14 @@ int ywidRegistreTypeRender(const char *type, int renderType,
 			   int (*init)(YWidgetState *opac, int t),
 			   void (*destroy)(YWidgetState *opac, int t))
 {
+  printf("oh\n");
   if (renderType < 0) {
+    printf("poum \n\n");
     return -1;
   }
+  printf("I'm ready !\n");
   for (int i = 0; i < 64; ++i) {
+    printf("%i\n", i);
     if (widgetOptTab[i].name && g_str_equal(type, widgetOptTab[i].name)) {
       widgetOptTab[i].rendersMask |= ONE64 << renderType;
       widgetOptTab[i].render[renderType] = render;

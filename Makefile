@@ -45,10 +45,8 @@ SRC = 	$(SCRIPT_DIR)/lua-script.c \
 	$(SDL_WID_DIR)/map.c \
 	$(SDL_WID_DIR)/menu.c \
 	$(SDL_WID_DIR)/text-screen.c \
-	$(CURSES_DIR)/curses.c \
-	$(CURSES_DIR)/text-screen.c \
-	$(CURSES_DIR)/menu.c \
-	$(CURSES_DIR)/map.c
+
+SRC += $(CURSES_SRC)
 
 SRC += $(SOUND_SRC)
 
@@ -83,7 +81,7 @@ COMMON_CFLAGS += -I$(YIRL_INCLUDE_PATH2)
 COMMON_CFLAGS += -I$(TCC_LIB_PATH)
 COMMON_CFLAGS += -fpic
 COMMON_CFLAGS += $(LUA_CFLAGS)
-COMMON_CFLAGS += -Werror -Wall -Wextra -Wno-unused-function -Wno-unused-parameter
+COMMON_CFLAGS += -Werror -Wall -Wextra -Wno-unused-function -Wno-unused-parameter -Wno-int-to-pointer-cast
 
 COMMON_CFLAGS += -DYIRL_INCLUDE_PATH=\"$(YIRL_INCLUDE_PATH2)\"
 COMMON_CFLAGS += -DTCC_LIB_PATH=\"$(TCC_LIB_PATH)\"
@@ -99,7 +97,7 @@ build-dynamic-lib: $(OBJ) $(OBJXX)
 	$(CC) -shared -o  $(LIBNAME).$(LIBEXTENSION) $(OBJ) $(OBJXX) $(LDFLAGS)
 
 build-generic-loader: $(YIRL_LINKING) $(GEN_LOADER_OBJ)
-	$(CC) -o yirl-loader$(BIN_EXT) $(GEN_LOADER_OBJ) -l$(NAME) $(LDFLAGS)
+	$(CC) -o yirl-loader$(BIN_EXT) $(GEN_LOADER_OBJ) $(BINARY_LINKING) $(LDFLAGS)
 
 clean:	clean-tests
 	rm -rvf $(OBJ) $(OBJXX)

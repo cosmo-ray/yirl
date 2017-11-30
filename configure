@@ -4,17 +4,16 @@ source configure-helper.sh
 
 add_toolchain mingw-i686
 function mingw-i686 {
-    export CC=x86_64-w64-mingw32-cc
-    export PKG_CONFIG=x86_64-w64-mingw32-pkg-config
-    export WITH_SOUND=0
-    export TCC_LIB_NAME="libtcc.dll"
-    export CURSES_LIB="-lpdcurses"
-    export NUMA_LIB=""
-    export LDFLAGS_EXT="-lntoskrnl"
+    #export CC=x86_64-w64-mingw32-cc
+    #export PKG_CONFIG=x86_64-w64-mingw32-pkg-config
+    export TCC_LIB_NAME="libtcc.a"
+    export WITH_CURSES=0
+    #export LDFLAGS_EXT="-lntoskrnl"
     export LIBEXTENSION=dll
-    export AR="x86_64-w64-mingw32-ar"
+    #export AR="x86_64-w64-mingw32-ar"
     export IS_UNIX=0
     export YIRL_LINKING=build-static-lib
+    export BINARY_LINKING="\$(LIBNAME).a"
     var_add BIN_EXT .exe
 }
 
@@ -65,9 +64,12 @@ fi
 var_add LUA_LIB "\"`pkg-config --libs lua`\""
 var_add LUA_CFLAGS "\"`pkg-config --cflags lua`\""
 
-var_add CURSES_LIB "-lcurses"
 define_add WITH_SDL 1
 define_add WITH_CURSES 1
+if [ $WITH_CURSES -ne 0 ]; then
+    var_add CURSES_LIB "-lcurses"
+    var_add CURSES_SRC "\"$CURSES_DIR/curses.c $CURSES_DIR/text-screen.c $CURSES_DIR/menu.c $CURSES_DIR/map.c\""
+fi
 
 str_define_add YIRL_MODULES_PATH "modules/"
 
@@ -76,3 +78,5 @@ var_add YIRL_INCLUDE_PATH $YIRL_INCLUDE_PATH2/yirl/
 
 var_add TCC_LIB_PATH $PWD/tinycc/
 var_add TCC_LIB_NAME libtcc.a
+
+var_add BINARY_LINKING "-lyirl"

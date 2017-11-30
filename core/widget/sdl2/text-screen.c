@@ -52,13 +52,16 @@ static int sdlRender(YWidgetState *state, int t)
 
 static int sdlInit(YWidgetState *wid, int t)
 {
+  printf("new new ?\n");
   wid->renderStates[t].opac = g_new(SDLWid, 1);
+  printf("new new xx\n");
   sdlWidInit(wid, t);
   return 0;
 }
 
 int ysdl2RegistreTextScreen(void)
 {
+  printf("hi\n");
   return ywidRegistreTypeRender("text-screen", ysdl2Type(),
 				sdlRender, sdlInit, sdlWidDestroy);
 }

@@ -1154,7 +1154,7 @@ static void yeToCStrInternal(Entity *entity, int deep, GString *str, int flag)
 	}
 	if (tmp->name)
 	  g_string_append_printf(str, "name: \"%s\", ", tmp->name);
-	g_string_append_printf(str, "idx: %"PRIu64", ", it);
+	g_string_append_printf(str, "idx: " PRIint64 ", ", it);
 	g_string_append_printf(str, "val: ");
       }
       yeToCStrInternal(tmp->entity, deep - 1, str, flag);

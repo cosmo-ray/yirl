@@ -70,6 +70,7 @@ void testBlockArray(void)
     yBlockArrayCopyElem(&test.array, i, i);
     g_assert(yBlockArrayLastPos(test.array) == i);
     g_assert(yBlockArrayGet(&test.array, i, int) == i);
+    fflush(stdout);
     g_assert(yBlockArrayIsSet(test.array, i));
     g_assert(!yBlockArrayIsFree(test.array, i));
     yBlockArrayFree(&test.array);

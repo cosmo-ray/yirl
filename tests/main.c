@@ -121,7 +121,7 @@ int main(int argc, char **argv)
   if (no_wid)
     goto run_test;
 
-#ifdef WITH_SDL
+#if WITH_SDL == 1
   TEST_TRY_ADD("/widget/lifecycle/sdl", testSdlLife, only);
   TEST_TRY_ADD("/widget/textScreen/sdl", testYWTextScreenSdl2, only);
   TEST_TRY_ADD("/widget/canvas/sdl", testCanvasSdl2, only);
@@ -142,12 +142,12 @@ int main(int argc, char **argv)
   TEST_TRY_ADD("/modules/dialogue", testDialogueMod, only);
   TEST_TRY_ADD("/modules/sukeban-fight", testSukeFightMod, only);
 #endif
-#ifdef WITH_CURSES
+#if WITH_CURSES == 1
   TEST_TRY_ADD("/widget/lifecycle/curses", testCursesLife, only);
   TEST_TRY_ADD("/widget/textScreen/curses", testYWTextScreenCurses, only);
   TEST_TRY_ADD("/widget/menu/curses", testYWMenuCurses, only);
   TEST_TRY_ADD("/widget/map/curses", testYWMapCurses, only);
-#ifdef WITH_SDL
+#if WITH_SDL == 1
   TEST_TRY_ADD("/widget/lifecycle/all", testAllLife, only);
   TEST_TRY_ADD("/widget/textScreen/all", testYWTextScreenAll, only);
   TEST_TRY_ADD("/widget/map/all", testYWMapAll, only);

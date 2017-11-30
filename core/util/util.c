@@ -66,7 +66,7 @@ void yuiRandInitSeed(int s)
 
 void yuiRandInit(void)
 {
-  yuiRandInitSeed(time(NULL) + getpid() + getuid());
+  yuiRandInitSeed(time(NULL) + getpid());
 }
 
 int  yuiRand(void)

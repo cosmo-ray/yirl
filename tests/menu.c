@@ -32,7 +32,7 @@ static void *testMenuEnter(va_list ap)
   return (void *)ACTION;
 }
 
-#ifdef WITH_CURSES
+#if WITH_CURSES == 1
 void testYWMenuCurses(void)
 {
   yeInitMem();
@@ -78,7 +78,7 @@ void testYWMenuCurses(void)
 }
 #endif
 
-#ifdef WITH_SDL
+#if WITH_SDL == 1
 
 void testPanelMenuSdl2(void)
 {

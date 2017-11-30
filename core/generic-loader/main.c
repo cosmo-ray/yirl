@@ -82,16 +82,21 @@ int main(int argc, char **argv)
     goto free;
   }
 
+  printf("not init yet\n");
   ygInitGameConfig(&cfg, start, render);
+  printf("cfg init\n");
   cfg.win_name = name;
   if (width > 0)
     cfg.w = width;
   if (height > 0)
     cfg.h = height;
+  printf("init\n");
   if (ygInit(&cfg) < 0)
     goto end;
+  printf("init done start loop\n");
   if (ygStartLoop(&cfg) < 0)
     goto end;
+  printf("running\n");
   ret = 0;
  end:
   ygEnd();

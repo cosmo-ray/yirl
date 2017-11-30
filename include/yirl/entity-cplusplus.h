@@ -24,7 +24,7 @@ Entity *yeGetByStrFast(Entity *entity, const char *name);
 
 extern "C++" {
 
-  void *operator new(unsigned long l);
+  void *operator new(size_t l);
 #if defined(__APPLE__)
   void operator delete(void *ptr);
   void operator delete(void*, long unsigned int);

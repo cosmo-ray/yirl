@@ -418,7 +418,9 @@ void sdlResize(YWidgetState *wid, int renderType)
 
 void sdlWidInit(YWidgetState *wid, int t)
 {
+  printf("will resize\n");
   sdlResize(wid, t);
+  printf("xx dead\n");
 }
 
 void sdlWidDestroy(YWidgetState *wid, int t)
