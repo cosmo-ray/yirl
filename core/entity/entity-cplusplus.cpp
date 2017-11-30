@@ -22,7 +22,6 @@ extern "C" {
 
 #if defined(__APPLE__)
 void *__cxa_call_unexpected = 0;
-#endif
 void *__cxa_pure_virtual = 0;
 void *__gxx_personality_v0 = 0;
 
@@ -37,6 +36,7 @@ namespace __cxxabiv1 {
   void __si_class_type_info::dummy() { }
 }
 
+
 void operator delete(void *ptr) {
   free(ptr);
 }
@@ -45,6 +45,8 @@ void operator delete(void *ptr, long unsigned int end)
 {
   free(ptr);
 }
+
+#endif
 
 void *operator new(unsigned long l) {
   void *ret = malloc(l);

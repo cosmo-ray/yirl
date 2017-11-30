@@ -328,7 +328,7 @@ static int jsonToFile(void *opac, const char *fileName, Entity *entity)
   struct json_object *json_obj = jsonObjectFromEntity(entity);
 
   (void)opac;
-  json_object_to_file(fileName, json_obj);
+  json_object_to_file((char *)fileName, json_obj);
   json_object_put(json_obj);
   return 0;
 }
