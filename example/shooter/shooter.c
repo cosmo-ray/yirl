@@ -200,7 +200,6 @@ static int shooterActionInt(Entity *wid, Entity *eve)
 
     /* exit */
   case 'q':
-    sound_stop("42");
     ygCall(NULL, "FinishGame");
     goto end_switch;
   end_switch:
@@ -233,7 +232,6 @@ void *shooterInit(va_list ap)
   Entity *pos;
 
   arg = va_arg(ap, Entity *);
-  sound_play_loop("42", "BlablablaMrFreeman.mp3");
 
   yeCreateInt(MAP_SIZE_W, arg, "width");
   if (!(pos = yeGet(arg, "pos")))
