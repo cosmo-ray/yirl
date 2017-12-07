@@ -37,9 +37,7 @@ int ysound_end(void);
 int ySoundLoad(const char *path);
 
 /**
- * Play sound, shortcut of sound_manager(name, PLAY_SOUND, 0, path);
- *
- * \return 0 upon success, -1 on error
+ * @return 0 upon success, -1 on error
  */
 int ySoundPlay(int id);
 
@@ -49,33 +47,17 @@ int ySoundPlay(int id);
 int ySoundPlayLoop(int id);
 
 /**
- * Change sound level, shortcut of sound_manager(name, SOUND_LEVEL, 100, NULL);
- *
- * \param soundLvl with SOUND_LEVEL flag define what sound level you want
- * \return 0 upon success, -1 on error
+ * @return 0 upon success, -1 on error
  */
 int ySoundLevel(int id, int soundLvl);
 
 /**
- * Stop sound, shortcut of sound_manager(name, SOUND_STATUS, 0, NULL);
- *
- * \param name the media instance name
- * \return 1 if media is playable, else 0
+ * @return 1 if media is playable, else 0
  */
 int ySoundStatus(int id);
 
-/**
- * Stop sound, shortcut of sound_manager(name, STOP_SOUND, 0, NULL);
- *
- * \param name the media instance name
- */
 int ySoundPause(int id);
 
-/**
- * Stop sound, shortcut of sound_manager(name, STOP_SOUND, 0, NULL);
- *
- * \param name the media instance name
- */
 int ySoundStop(int id);
 
 int sound_init(void);
