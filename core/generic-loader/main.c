@@ -38,7 +38,7 @@ int main(int argc, char **argv)
     {"render", 'r', 0,  G_OPTION_ARG_STRING, &render,
      "choose render('sdl2' or curses), default: sdl", NULL},
     {"start", 's', 0,  G_OPTION_ARG_STRING, &start,
-     "starting module", NULL},
+     "starting module, default: current dit", NULL},
     {"name", 'n', 0,  G_OPTION_ARG_STRING, &name, "window name", NULL},
     {"width", 'W', 0,  G_OPTION_ARG_INT, &width, "window width", NULL},
     {"height", 'H', 0,  G_OPTION_ARG_INT, &height, "window height", NULL},
@@ -71,15 +71,11 @@ int main(int argc, char **argv)
       ysTccPath = start_dir;
     }
     chdir(start_dir);
-    if (!start) {
-      start = "./";
-      start_need_free = 0;
-    }
   }
 
   if (!start) {
-    printf("start is not set\n");
-    goto free;
+    start = "./";
+    start_need_free = 0;
   }
 
   printf("not init yet\n");
@@ -102,11 +98,11 @@ int main(int argc, char **argv)
   ygEnd();
   ygCleanGameConfig(&cfg);
 
- free:
   if (render_need_free)
     g_free((char *)render);
   if (start_need_free)
     g_free((char *)start);
+
   g_free((char *)start_dir);
   g_free((char *)name);
   return ret;
