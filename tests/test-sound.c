@@ -31,18 +31,18 @@ void testYSoundLib(void)
   g_assert(!ygInit(&cfg));
 
   /* Working check */
-  g_assert(sound_load("./BlablablaMrFreeman.mp3") == 0);
-  g_assert(sound_play(0) != -1);
+  g_assert(ySoundLoad("./BlablablaMrFreeman.mp3") == 0);
+  g_assert(ySoundPlay(0) != -1);
   sleep(3);
-  /* g_assert(sound_play_loop("42", "BlablablaMrFreeman.mp3") != -1); */
-  /* g_assert(sound_status(0) != -1); */
-  /* g_assert(sound_level(0, 10) != -1); */
-  g_assert(sound_play_loop(0) != -1);
+  /* g_assert(ySoundPlayLoop("42", "BlablablaMrFreeman.mp3") != -1); */
+  /* g_assert(ySoundStatus(0) != -1); */
+  /* g_assert(ySoundLevel(0, 10) != -1); */
+  g_assert(ySoundPlayLoop(0) != -1);
   sleep(7);
 
   /* Bad request check */
-  g_assert(sound_load("404.wav.false") == -1);
+  g_assert(ySoundLoad("404.wav.false") == -1);
 
-  sound_stop(0);
+  ySoundStop(0);
   ygEnd();
 }

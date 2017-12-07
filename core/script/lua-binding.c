@@ -242,25 +242,25 @@ int	luaCreateFloat(lua_State *L)
 
 int	luaySoundLoad(lua_State *L)
 {
-  lua_pushnumber(L, sound_load(lua_tostring(L, 1)));
+  lua_pushnumber(L, ySoundLoad(lua_tostring(L, 1)));
   return 1;
 }
 
 int	luaySoundPlayLoop(lua_State *L)
 {
-  lua_pushnumber(L, sound_play_loop(lua_tonumber(L, 1)));
+  lua_pushnumber(L, ySoundPlayLoop(lua_tonumber(L, 1)));
   return 1;
 }
 
 int	luaySoundPlay(lua_State *L)
 {
-  lua_pushnumber(L, sound_play(lua_tonumber(L, 1)));
+  lua_pushnumber(L, ySoundPlay(lua_tonumber(L, 1)));
   return 1;
 }
 
 int	luaySoundStop(lua_State *L)
 {
-  lua_pushnumber(L, sound_stop(lua_tonumber(L, 1)));
+  lua_pushnumber(L, ySoundStop(lua_tonumber(L, 1)));
   return 1;
 }
 

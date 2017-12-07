@@ -52,7 +52,7 @@ static int init(void)
 static int end(void)
 {
   for (int i = 0; i < ARRAY_SIZE; ++i) {
-    sound_stop(i);
+    ySoundStop(i);
   }
   Mix_Quit();
   return 0;

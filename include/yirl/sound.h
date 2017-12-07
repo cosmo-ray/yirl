@@ -24,7 +24,7 @@ typedef struct {
   int (* play)(int);
   int (* play_loop)(int);
   int (* status)(int);
-  int (* sound_level)(int, int);
+  int (* ySoundLevel)(int, int);
   int (* pause)(int);
   int (* stop)(int);
 } SoundState;
@@ -34,19 +34,19 @@ extern int audioLibUsed;
 int ysound_init(void);
 int ysound_end(void);
 
-int sound_load(const char *path);
+int ySoundLoad(const char *path);
 
 /**
  * Play sound, shortcut of sound_manager(name, PLAY_SOUND, 0, path);
  *
  * \return 0 upon success, -1 on error
  */
-int sound_play(int id);
+int ySoundPlay(int id);
 
 /**
- * Same as sound_play() in loop
+ * Same as ySoundPlay() in loop
  */
-int sound_play_loop(int id);
+int ySoundPlayLoop(int id);
 
 /**
  * Change sound level, shortcut of sound_manager(name, SOUND_LEVEL, 100, NULL);
@@ -54,7 +54,7 @@ int sound_play_loop(int id);
  * \param soundLvl with SOUND_LEVEL flag define what sound level you want
  * \return 0 upon success, -1 on error
  */
-int sound_level(int id, int soundLvl);
+int ySoundLevel(int id, int soundLvl);
 
 /**
  * Stop sound, shortcut of sound_manager(name, SOUND_STATUS, 0, NULL);
@@ -62,21 +62,21 @@ int sound_level(int id, int soundLvl);
  * \param name the media instance name
  * \return 1 if media is playable, else 0
  */
-int sound_status(int id);
+int ySoundStatus(int id);
 
 /**
  * Stop sound, shortcut of sound_manager(name, STOP_SOUND, 0, NULL);
  *
  * \param name the media instance name
  */
-int sound_pause(int id);
+int ySoundPause(int id);
 
 /**
  * Stop sound, shortcut of sound_manager(name, STOP_SOUND, 0, NULL);
  *
  * \param name the media instance name
  */
-int sound_stop(int id);
+int ySoundStop(int id);
 
 int sound_init(void);
 

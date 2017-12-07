@@ -35,7 +35,7 @@ SoundState vlcDriver = {
   .play = libvlc_play,
   .play_loop = NULL,
   .status = libvlc_status,
-  .sound_level = libvlc_soundLvl,
+  .ySoundLevel = libvlc_soundLvl,
   .pause = libvlc_pause,
   .stop = libvlc_stop
 };

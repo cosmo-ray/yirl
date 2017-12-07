@@ -49,32 +49,32 @@ int ysound_end(void)
 }
 
 /* ---- shortcut ---- */
-int sound_load(const char *path)
+int ySoundLoad(const char *path)
 {
   RET_OR_CALL(defaultSoundDriver.load, path);
 }
 
-int sound_play(int id)
+int ySoundPlay(int id)
 {
   RET_OR_CALL(defaultSoundDriver.play, id);
 }
 
-int sound_play_loop(int id)
+int ySoundPlayLoop(int id)
 {
   RET_OR_CALL(defaultSoundDriver.play_loop, id);
 }
 
-int sound_level(int id, int soundLvl)
+int ySoundLevel(int id, int soundLvl)
 {
-  RET_OR_CALL(defaultSoundDriver.sound_level, id, soundLvl);
+  RET_OR_CALL(defaultSoundDriver.ySoundLevel, id, soundLvl);
 }
 
-int sound_status(int id)
+int ySoundStatus(int id)
 {
   RET_OR_CALL(defaultSoundDriver.status, id);
 }
 
-int sound_stop(int id)
+int ySoundStop(int id)
 {
   RET_OR_CALL(defaultSoundDriver.stop, id);
 }
