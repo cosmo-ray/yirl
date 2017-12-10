@@ -1,4 +1,5 @@
-#include	"entity.h"
+#include <stdlib.h>
+#include "entity.h"
 
 Entity *yeBrutalCast(Entity *entity, int type)
 {
@@ -149,13 +150,20 @@ Entity *yeConvert(Entity *entity, int type)
     case YSTRING:
       return entity;
     case YARRAY:
-      c_tmp = YE_TO_STRING(entity)->value;
-      entity->type = YARRAY;
-      yBlockArrayInit(&YE_TO_ARRAY(entity)->values, ArrayEntry);
-      yeCreateString(c_tmp, entity, NULL);
-      /* Ok, let's be honest fathers are broken */
-      YE_TO_ARRAY(entity)->nbFathers = 0;
-      return entity;
+      {
+	Entity *str;
+	int len = yeLen(entity);
+
+	c_tmp = YE_TO_STRING(entity)->value;
+	entity->type = YARRAY;
+	yBlockArrayInit(&YE_TO_ARRAY(entity)->values, ArrayEntry);
+	str = yeCreateString(NULL, entity, NULL);
+	YE_TO_STRING(str)->value = c_tmp;
+	YE_TO_STRING(str)->len = len;
+	/* Ok, let's be honest fathers are broken */
+	YE_TO_ARRAY(entity)->nbFathers = 0;
+	return entity;
+      }
     case YINT:
     case YFLOAT:
     case YDATA:

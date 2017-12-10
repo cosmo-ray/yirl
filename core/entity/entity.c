@@ -466,6 +466,7 @@ Entity *yeCreateString(const char *string, Entity *father, const char *name)
   YE_ALLOC_ENTITY(ret, StringEntity);
   yeInit((Entity *)ret, YSTRING, father, name);
   ret->value = NULL;
+  ret->origin = NULL;
   yeSetString(YE_TO_ENTITY(ret), string);
   return (YE_TO_ENTITY(ret));
 }

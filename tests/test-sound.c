@@ -45,4 +45,5 @@ void testYSoundLib(void)
 
   ySoundStop(0);
   ygEnd();
+  ygCleanGameConfig(&cfg);
 }
