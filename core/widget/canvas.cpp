@@ -43,7 +43,7 @@ static int tsInit(YWidgetState *opac, Entity *entity, void *args)
 
 static int tsDestroy(YWidgetState *opac)
 {
-  g_free(opac);
+  delete opac;
   return 0;
 }
 
