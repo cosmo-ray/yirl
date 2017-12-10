@@ -38,7 +38,7 @@ void testYWMenuCurses(void)
   yeInitMem();
   int t = ydJsonInit();
   void *jsonManager;
-  Entity *ret;
+  Entity *oret, *ret;
   YWidgetState *wid;
 
   /* load files */
@@ -48,8 +48,8 @@ void testYWMenuCurses(void)
   g_assert(ydJsonGetType() == t);
   jsonManager = ydNewManager(t);
   g_assert(jsonManager != NULL);
-  ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
-  ret = yeGet(ret, "MenuTest");
+  oret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
+  ret = yeGet(oret, "MenuTest");
   g_assert(ret);
   g_assert(!ydDestroyManager(jsonManager));
   g_assert(!ydJsonEnd());
@@ -73,7 +73,7 @@ void testYWMenuCurses(void)
   YWidDestroy(wid);
   ycursDestroy();
   /* end libs */
-  YE_DESTROY(ret);
+  YE_DESTROY(oret);
   yeEnd();
 }
 #endif
@@ -85,7 +85,7 @@ void testPanelMenuSdl2(void)
   yeInitMem();
   int t = ydJsonInit();
   void *jsonManager;
-  Entity *ret;
+  Entity *oret, *ret;
   YWidgetState *wid;
 
   ysRegistreFunc(ysNativeManager(), "menuTest", testMenuEnter);
@@ -95,8 +95,8 @@ void testPanelMenuSdl2(void)
   g_assert(ydJsonGetType() == t);
   jsonManager = ydNewManager(t);
   g_assert(jsonManager != NULL);
-  ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
-  ret = yeGet(ret, "MenuTest");
+  oret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
+  ret = yeGet(oret, "MenuTest");
   g_assert(ret);
   g_assert(!ydJsonEnd());
   g_assert(!ydDestroyManager(jsonManager));
@@ -121,7 +121,7 @@ void testPanelMenuSdl2(void)
   YWidDestroy(wid);
   ysdl2Destroy();
   /* end libs */
-  YE_DESTROY(ret);
+  YE_DESTROY(oret);
   yeEnd();
 }
 
@@ -130,7 +130,7 @@ void testYWMenuSdl2(void)
   yeInitMem();
   int t = ydJsonInit();
   void *jsonManager;
-  Entity *ret;
+  Entity *oret, *ret;
   YWidgetState *wid;
 
   ysRegistreFunc(ysNativeManager(), "menuTest", testMenuEnter);
@@ -140,8 +140,8 @@ void testYWMenuSdl2(void)
   g_assert(ydJsonGetType() == t);
   jsonManager = ydNewManager(t);
   g_assert(jsonManager != NULL);
-  ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
-  ret = yeGet(ret, "MenuTest");
+  oret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
+  ret = yeGet(oret, "MenuTest");
   g_assert(ret);
   g_assert(!ydJsonEnd());
   g_assert(!ydDestroyManager(jsonManager));
@@ -166,7 +166,7 @@ void testYWMenuSdl2(void)
   YWidDestroy(wid);
   ysdl2Destroy();
   /* end libs */
-  YE_DESTROY(ret);
+  YE_DESTROY(oret);
   yeEnd();
 }
 #endif

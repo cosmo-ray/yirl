@@ -134,4 +134,5 @@ void testCanvasSdl2(void)
   ygDoLoop();
   yeDestroy(canvas_example);
   ygEnd();
+  ygCleanGameConfig(&cfg);
 }
