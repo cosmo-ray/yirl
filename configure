@@ -61,6 +61,12 @@ if [ $IS_UNIX -eq 1 ]; then
     var_append LDFLAGS_EXT "-ldl"
 fi
 
+var_add SANITAZERS 0
+if [ $SANITAZERS -eq 1 ]; then
+    var_add LIBS_SAN "-lasan -lubsan"
+    var_add FLAGS_SAN "-fsanitize=leak -fsanitize=undefined"
+fi
+
 var_add LUA_LIB "\"`pkg-config --libs lua`\""
 var_add LUA_CFLAGS "\"`pkg-config --cflags lua`\""
 

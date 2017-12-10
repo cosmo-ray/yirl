@@ -74,6 +74,7 @@ LDFLAGS += $(shell $(PKG_CONFIG) --libs SDL2_image)
 LDFLAGS += $(shell $(PKG_CONFIG) --libs SDL2_ttf)
 LDFLAGS += $(shell $(PKG_CONFIG) --libs SDL2_mixer)
 LDFLAGS += $(LDFLAGS_EXT)
+LDFLAGS += $(LIBS_SAN)
 
 COMMON_CFLAGS += $(shell $(PKG_CONFIG) --cflags glib-2.0)
 COMMON_CFLAGS += -I$(YIRL_INCLUDE_PATH)
@@ -85,6 +86,7 @@ COMMON_CFLAGS += -Werror -Wall -Wextra -Wno-unused-function -Wno-unused-paramete
 
 COMMON_CFLAGS += -DYIRL_INCLUDE_PATH=\"$(YIRL_INCLUDE_PATH2)\"
 COMMON_CFLAGS += -DTCC_LIB_PATH=\"$(TCC_LIB_PATH)\"
+COMMON_CFLAGS += $(FLAGS_SAN)
 
 CXXFLAGS = $(COMMON_CFLAGS) -x c++ -Wno-missing-exception-spec
 
