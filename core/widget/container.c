@@ -107,6 +107,7 @@ int ywPushNewWidget(Entity *container, Entity *wid, int dec_ref)
   if (dec_ref)
     yeDestroy(wid);
   yeSetAt(container, "current", ret);
+  yeReplaceBackExt(container, wid, "$father-container", YE_FLAG_NO_COPY);
   return ret;
 }
 
@@ -228,7 +229,12 @@ static int cntInit(YWidgetState *opac, Entity *entity, void *args)
 static int cntDestroy(YWidgetState *opac)
 {
   Entity *entries = yeGet(opac->entity, "entries");
+  Entity *bg = yeGet(opac->entity, "$bg");
 
+  if (bg) {
+    YWidDestroy(yeGetData(yeGet(bg, "$wid")));
+    yeDestroy(bg);
+  }
   YE_ARRAY_FOREACH(entries, tmp) {
     YWidgetState *cur = ywidGetState(tmp);
 

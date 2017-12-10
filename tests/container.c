@@ -25,6 +25,7 @@
 #include "rect.h"
 #include "json-desc.h"
 #include "yirl/native-script.h"
+#include "container.h"
 
 static void *testMenuEnter(va_list ap)
 {
@@ -200,16 +201,18 @@ void testDynamicStackContainerSdl(void)
 
   wid = ywidNewWidget(cnt, NULL);
 
-  curMap = ywMapCreateDefaultEntity(entries, NULL, resources, -1, 20, 20);
+  curMap = ywMapCreateDefaultEntity(NULL, NULL, resources, -1, 20, 20);
   yeCreateString("map", curMap, "<type>");
+  ywPushNewWidget(cnt, curMap, 1);
   ywMapDrawRect(curMap, ywRectCreateInts(5, 5, 5, 5, gc, NULL), 1);
 
   do {
     g_assert(ywidRend(wid) != -1);
   } while(ywidDoTurn(wid) != ACTION);
 
-  curMap = ywMapCreateDefaultEntity(entries, NULL, resources, -1, 20, 20);
+  curMap = ywMapCreateDefaultEntity(NULL, NULL, resources, -1, 20, 20);
   yeCreateString("map", curMap, "<type>");
+  ywPushNewWidget(cnt, curMap, 1);
   ywMapDrawRect(curMap, ywRectCreateInts(17, 17, 17, 17, gc, NULL), 2);
 
   do {
@@ -217,14 +220,17 @@ void testDynamicStackContainerSdl(void)
   } while(ywidDoTurn(wid) != ACTION);
 
 
-  curMap = ywMapCreateDefaultEntity(entries, NULL, resources, -1, 20, 20);
+  curMap = ywMapCreateDefaultEntity(NULL, NULL, resources, -1, 20, 20);
   yeCreateString("map", curMap, "<type>");
+  ywPushNewWidget(cnt, curMap, 1);
   ywMapDrawRect(curMap, ywRectCreateInts(7, 7, 4, 170, gc, NULL), 3);
 
   do {
     g_assert(ywidRend(wid) != -1);
   } while(ywidDoTurn(wid) != ACTION);
 
+  YWidDestroy(wid);
   YE_DESTROY(gc);
+  ygCleanGameConfig(&cfg);
   ygEnd();
 }
