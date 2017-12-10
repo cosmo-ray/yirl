@@ -512,6 +512,7 @@ static int loadFile(void *opac, const char *fileName)
   }
   ret = 0;
  exit:
+  yeMultDestroy(tokInfo, str);
   return ret;
 }
 

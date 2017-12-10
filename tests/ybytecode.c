@@ -255,4 +255,5 @@ void ybytecodeReadFile(void)
   g_assert(!ysYBytecodeEnd());
   yeDestroy(gc);
   ygEnd();
+  ygCleanGameConfig(&cfg);
 }
