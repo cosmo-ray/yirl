@@ -302,6 +302,8 @@ int ygInit(GameConfig *cfg)
 
     }
   }
+  modList = yeCreateArray(NULL, NULL);
+
   return 0;
 error:
   ygEnd();
@@ -407,10 +409,6 @@ Entity *ygLoadMod(const char *path)
   Entity *preLoad;
   Entity *initScripts;
   Entity *name;
-
-  if (unlikely(!modList)) {
-    modList = yeCreateArray(NULL, NULL);
-  }
 
   tmp = g_strconcat(path, "/start.json", NULL);
   if (!tmp) {
@@ -802,9 +800,9 @@ int ygAddDefine(const char *name, char *val)
 
 int yePushToGlobalScope(Entity *entity, const char *name)
 {
-  if (yeGet(globalsFunctions, name))
+  if (yeGet(modList, name))
     return -1;
-  return yePushBack(globalsFunctions, entity, name);
+  return yePushBack(modList, entity, name);
 }
 
 

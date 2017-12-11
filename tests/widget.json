@@ -45,29 +45,29 @@
     "ContainerTest" : {
 	"<type>" : "container",
 	"entries" : [
-	    {"name" : "MenuTest"},
-	    {"name" : "TextScreenTest"}
+	    {"path" : "test.MenuTest"},
+	    {"path" : "test.TextScreenTest"}
 	]
     },
     "VContainerTest" : {
 	"<type>" : "container",
 	"cnt-type" : "vertical",
 	"entries" : [
-	    {"name" : "MenuTest", "size" : 20},
-	    {"name" : "TextScreenTest"}
+	    {"path" : "test.MenuTest", "size" : 20},
+	    {"path" : "test.TextScreenTest"}
 	]
     },
     "SContainerTest" : {
 	"<type>" : "container",
 	"cnt-type" : "stacking",
 	"entries" : [
-	    {"name" : "MenuTest"},
-	    {"name" : "TextScreenTest"}
+	    {"path" : "test.MenuTest"},
+	    {"path" : "test.TextScreenTest"}
 	]
     },
     "MapTest" : {
 	"<type>" : "map",
-	"&resources" : "MapTestResources", // Not yet implemented :)
+	"resources" : "MapTestResources", // Not yet implemented :)
 	"map" : [
 	    [0], [0], [0], [0], [0],
 	    [0], [0], [0], [0], [0],
@@ -81,7 +81,7 @@
     },
     "MapTest++" : {
 	"<type>" : "map",
-	"&resources" : "MapTestResources", // Not yet implemented :)
+	"resources" : "MapTestResources", // Not yet implemented :)
 	"map" : [
 	    [0], [0], [0], [0], [0],
 	    [0], [0], [0], [0], [0],
@@ -95,7 +95,7 @@
     },
     "BigMap" : {
 	"<type>" : "map",
-	"&resources" : "MapTestResources", // Not yet implemented :)
+	"resources" : "MapTestResources", // Not yet implemented :)
 
 	"width" : 1000,
 	"cam" : [0, 0, 20, 7],

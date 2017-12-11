@@ -398,7 +398,6 @@ Entity *yeCreateArrayByCStr(Entity *father, const char *name)
   ArrayEntity * restrict ret;
 
   YE_ALLOC_ENTITY(ret, ArrayEntity);
-  YE_TO_ARRAY(ret)->nbFathers = 0;
   yeInit((Entity *)ret, YARRAY, father, name);
   yBlockArrayInit(&ret->values, ArrayEntry);
   return (YE_TO_ENTITY(ret));
@@ -409,7 +408,6 @@ Entity *yeCreateArrayExt(Entity *father, const char *name, uint32_t flags)
   ArrayEntity * restrict ret;
 
   YE_ALLOC_ENTITY(ret, ArrayEntity);
-  YE_TO_ARRAY(ret)->nbFathers = 0;
   yeInit((Entity *)ret, YARRAY, father, name);
   yBlockArrayInitExt(&ret->values, ArrayEntry, flags);
   return (YE_TO_ENTITY(ret));
@@ -420,7 +418,6 @@ Entity *yeCreateArrayAt(Entity *father, const char *name, int idx)
   ArrayEntity *ret;
 
   YE_ALLOC_ENTITY(ret, ArrayEntity);
-  YE_TO_ARRAY(ret)->nbFathers = 0;
   yeInitAt((Entity *)ret, YARRAY, father, name, idx);
   yBlockArrayInit(&ret->values, ArrayEntry);
   return (YE_TO_ENTITY(ret));
@@ -496,37 +493,9 @@ static inline void arrayEntryDestroy(ArrayEntry *ae)
   arrayEntryInit(ae);
 }
 
-static void yeRemoveFather(Entity *entity, Entity *father)
-{
-  if (unlikely(!entity || !father || entity->type != YARRAY))
-    return;
-
-  for (int i = 0, end = YE_TO_ARRAY(entity)->nbFathers; i < end ; ++i)
-    {
-      Entity **fathers = yeFathers(entity);
-
-      if (fathers[i] == father) {
-	fathers[i] = YE_TO_ARRAY(entity)->fathers[end - 1];
-	fathers[end - 1] = NULL;
-	YE_TO_ARRAY(entity)->nbFathers -= 1;
-	if (YE_TO_ARRAY(entity)->nbFathers == 15) {
-	  Entity *tmp = fathers[0];
-
-	  for (int i = 1; i < 16; ++i) {
-	    YE_TO_ARRAY(entity)->fathers[i] = fathers[i];
-	  }
-	  g_free(YE_TO_ARRAY(entity)->fathers[0]);
-	  YE_TO_ARRAY(entity)->fathers[0] = tmp;
-	}
-	return;
-      }
-    }
-}
-
 static void destroyChildsNoFree(Entity *entity)
 {
   Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(entity)->values, ae, i, ArrayEntry) {
-    yeRemoveFather(ae->entity, entity);
     arrayEntryDestroy(ae);
   }
 }
@@ -577,7 +546,6 @@ void yeClearArray(Entity *entity)
   if (unlikely(!entity))
     return;
   Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(entity)->values, ae, i, ArrayEntry) {
-    yeRemoveFather(ae->entity, entity);
     arrayEntryDestroy(ae);
     yBlockArrayUnset(&YE_TO_ARRAY(entity)->values, i);
   }
@@ -588,8 +556,6 @@ void yeDestroyArray(Entity *entity)
   if(entity->refCount == 1) {
     destroyChildsNoFree(entity);
     yBlockArrayFree(&YE_TO_ARRAY(entity)->values);
-    if (unlikely(YE_TO_ARRAY(entity)->nbFathers > 16))
-      g_free(YE_TO_ARRAY(entity)->fathers[0]);
     YE_DESTROY_ENTITY(entity, ArrayEntity);
   } else {
     YE_DECR_REF(entity);
@@ -716,7 +682,6 @@ Entity *yeRemoveChild(Entity *array, Entity *toRemove)
     ret = tmp->entity;
     if (ret == toRemove) {
       arrayEntryDestroy(tmp);
-      yeRemoveFather(ret, array);
       yBlockArrayUnset(&YE_TO_ARRAY(array)->values, it);
       return ret;
     }
@@ -738,42 +703,6 @@ Entity *yePopBack(Entity *entity)
   ret = yeGet(entity, len - 1);
   yeExpandArray(entity, len - 1);
   return (ret);
-}
-
-static void reallocFathers(ArrayEntity *entity)
-{
-  int newLen = entity->nbFathers;
-
-  if (entity->nbFathers == 16) {
-    Entity *father = entity->fathers[0];
-    Entity **fathers;
-
-    entity->fathers[0] = malloc(sizeof(Entity *) * newLen);
-    fathers = (void *)entity->fathers[0];
-
-    fathers[0] = father;
-    for (int i = 1; i < 16; ++i) {
-      fathers[i] = entity->fathers[i];
-    }
-
-  } else {
-    entity->fathers[0] = realloc(entity->fathers[0],
-				 sizeof(Entity *) * newLen);
-  }
-}
-
-static inline void yeAttachFather(Entity *entity, Entity *father,
-				   const char *name, int idx)
-{
-  if (unlikely(!entity || !father))
-    return;
-
-  g_assert(entity->type == YARRAY);
-  YE_TO_ARRAY(entity)->nbFathers += 1;
-  if (unlikely(YE_TO_ARRAY(entity)->nbFathers > 15)) {
-    reallocFathers(YE_TO_ARRAY(entity));
-  }
-  yeFathers(entity)[YE_TO_ARRAY(entity)->nbFathers - 1] = father;
 }
 
 void	yeSetString(Entity *entity, const char *val)
@@ -815,8 +744,6 @@ static inline void yeAttachChild(Entity *on, Entity *entity,
   entry->entity = entity;
   entry->name = g_strdup(name);
   entry->flags = 0;
-  if (unlikely(entity->type == YARRAY))
-    yeAttachFather(entity, on, name, yeLen(on) - 1);
   return;
 }
 
@@ -856,8 +783,6 @@ int yeAttach(Entity *on, Entity *entity,
   entry->entity = entity;
   entry->name = g_strdup(name);
   entry->flags = flag;
-  if (unlikely(entity->type == YARRAY))
-    yeAttachFather(entity, on, name, idx);
   yeIncrRef(entity);
   return 0;
 }
@@ -972,13 +897,6 @@ double	yeGetFloat(Entity *entity)
 }
 
 
-Entity **yeFathers(Entity *entity)
-{
-  if (unlikely(YE_TO_ARRAY(entity)->nbFathers > 15))
-    return (Entity **)YE_TO_ARRAY(entity)->fathers[0];
-  return YE_TO_ARRAY(entity)->fathers;
-}
-
 static Entity *	yeCopyInternal(Entity* src, Entity* dest,
 			       Entity *used, Entity *refs);
 
@@ -1021,8 +939,6 @@ static ArrayEntity *yeCopyContainer(ArrayEntity* src, ArrayEntity* dest,
     if (tmp) {
       destElem->entity = tmp;
       yeIncrRef(tmp);
-      if (unlikely(tmp->type == YARRAY))
-	yeAttachFather(tmp, YE_TO_ENTITY(dest), destElem->name, it);
       continue;
     }
 
@@ -1100,31 +1016,6 @@ Entity*		yeCopy(Entity* src, Entity* dest)
   return ret;
 }
 
-Entity *yeFindLink(Entity *array, const char *targetPath, int flag)
-{
-  Entity *ret = NULL;
-
-  if (yeType(array) != YARRAY)
-    return NULL;
-  if (!(flag & YE_FIND_LINK_NO_GET) && (ret = yeGet(array, targetPath)) != NULL)
-    return ret;
-
-  if (flag & YE_FIND_LINK_NO_DEEP)
-    return NULL;
-
-  YE_FOREACH_FATHER(array, tmp) {
-    if ((ret = yeGet(tmp, targetPath)) != NULL)
-      return ret;
-  }
-
-  YE_FOREACH_FATHER(array, tmp2) {
-    ret = yeFindLink(tmp2, targetPath, YE_FIND_LINK_NO_GET | flag);
-    if (ret)
-      return ret;
-  }
-
-  return NULL;
-}
 
 static void yeToCStrInternal(Entity *entity, int deep, GString *str, int flag)
 {

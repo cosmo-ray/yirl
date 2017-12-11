@@ -155,6 +155,8 @@ static inline void ywMapSetOutBehavior(Entity *map, YMapOutBehavior ob)
     yeSetInt(ol, ob);
 }
 
+Entity *ywMapGetResourcesFromEntity(Entity *map);
+
 static inline Entity *ywMapGetResources(YWidgetState *state)
 {
   if (state)

@@ -37,7 +37,7 @@
     },
     "MapTest" : {
 	"<type>" : "map",
-	"&resources" : "MapTestResources", // Not yet implemented :)
+	"resources" : "start.scenes.MapTestResources", // Not yet implemented :)
 	"init" : "shooterInit",
 	"background": "rgba: 180 210 20 50", // Not yet implemented :)
     },

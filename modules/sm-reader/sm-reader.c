@@ -17,6 +17,7 @@
 
 #include <yirl/entity.h>
 #include <yirl/widget.h>
+#include <yirl/map.h>
 #include <yirl/game.h>
 
 #define SM_BUFF_LEN 1024
@@ -159,7 +160,7 @@ void *load_entity(int nb, void **args)
   const char *file_name = yeGetString(yeGetByStrFast(desc, "map"));
   int fd = open(file_name, O_RDONLY);
   int width = 0, len = 0;
-  Entity *resources = yeGetByStrFast(desc, "resources");
+  Entity *resources = ywMapGetResourcesFromEntity(desc);
   char *name = nb > 2 ? args[2] : NULL;
   Entity *father = nb > 1 ? args[1] : NULL;
   int ret = 0;

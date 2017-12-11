@@ -19,6 +19,7 @@
 #include <glib.h>
 #include "rect.h"
 #include "map.h"
+#include "game.h"
 #include "entity-script.h"
 #include "native-script.h"
 
@@ -190,8 +191,10 @@ static int mapInit(YWidgetState *opac, Entity *entity, void *args)
 
   ywidGenericCall(opac, t, init);
 
-  ((YMapState *)opac)->resources = yeGet(entity, "resources");
-  resources = ((YMapState *)opac)->resources;
+  resources = yeGet(entity, "resources");
+  if (yeType(resources) == YSTRING)
+    resources = ygGet(yeGetString(resources));
+  ((YMapState *)opac)->resources = resources;
   if (mapInitCheckResources(resources) < 0)
     return -1;
 
@@ -419,13 +422,24 @@ int ywMapGetIdByElem(Entity *mapElem)
   return -1;
 }
 
+Entity *ywMapGetResourcesFromEntity(Entity *map)
+{
+  Entity *resources = yeGet(map, "resources");
+  if (yeType(resources) == YSTRING)
+    resources = ygGet(yeGetString(resources));
+  return resources;
+}
+
 int ywMapGetResourceId(Entity *map, Entity *elem)
 {
   Entity *resources = ywMapGetResources(ywidGetState(map));
   const char *map_char = yeGetString(yeGet(elem, "map-char"));
 
-  if (!resources)
+  if (!resources) {
     resources = yeGet(map, "resources");
+    if (yeType(resources) == YSTRING)
+      resources = ygGet(yeGetString(resources));
+  }
   if (!map_char || !yeLen(resources))
     return -1;
   YE_ARRAY_FOREACH_EXT(resources, e, it) {

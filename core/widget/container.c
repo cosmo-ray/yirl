@@ -17,6 +17,7 @@
 
 #include <glib.h>
 #include "container.h"
+#include "game.h"
 #include "yirl/pos.h"
 #include "yirl/rect.h"
 
@@ -25,7 +26,7 @@ static int t = -1;
 static inline Entity *getEntry(Entity *father, Entity *tmp)
 {
   if (!yeGet(tmp, "<type>"))
-    return yeFindLink(father, yeGetString(yeGet(tmp, "name")), 0);
+    return ygGet(yeGetString(yeGet(tmp, "path")));
   return tmp;
 }
 

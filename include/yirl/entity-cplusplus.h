@@ -26,9 +26,11 @@ extern "C++" {
 
   void *operator new(size_t l);
 #if defined(__APPLE__)
+#endif
+
   void operator delete(void *ptr);
   void operator delete(void*, long unsigned int);
-#endif
+
   static inline Entity *yeGet(Entity *e, int idx)
   {
     return yeGetByIdx(e, idx);

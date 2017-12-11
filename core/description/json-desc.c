@@ -20,127 +20,12 @@
 
 #include "json-desc.h"
 
-typedef struct {
-  /* the name of our future entity */
-  char *refName;
-  /* the name of the entity we are looking for */
-  char *targetName;
-  /* the entity which should contan the ref */
-  Entity *refFather;
-} LinkInfo;
 
 static int t = -1;
 static const char *nameType = "json";
-static GList *linkList;
-static GList *done;
 
 static Entity *parseGen(struct json_object *obj, const char *name,
 			Entity *father);
-
-static inline void destroyLinkInfo(LinkInfo *li)
-  __attribute__((nonnull));
-
-
-static inline void destroyLinkInfo(LinkInfo *li)
-{
-  g_free(li->refName);
-  g_free(li->targetName);
-  g_free(li);
-}
-
-/**
- * @return 1 if the link was sucessful
- */
-static int jsonLink(Entity *father, Entity *target, const char *refName,
-		    const char *targetName)
-{
-  Entity *ret;
-
-  done = g_list_prepend(done, father);
-  if ((ret = yeGet(father, targetName)) != NULL) {
-    yePushBackExt(target, ret, refName, YE_FLAG_NO_COPY);
-    return 1;
-  }
-  YE_ARRAY_FOREACH(father, tmp) {
-    if (tmp && tmp->type == YARRAY && !g_list_find(done, tmp)) {
-      if (jsonLink(tmp, target, refName, targetName))
-	return 1;
-    }
-  }
-
-  return 0;
-}
-
-static int tryLinkForeachFathers(LinkInfo *data,
-				 Entity *current)
-{
-  YE_FOREACH_FATHER(current, father) {
-    if (!father)
-      continue;
-    if (jsonLink(father, data->refFather, data->refName, data->targetName) ||
-	(YE_TO_ARRAY(father)->nbFathers && tryLinkForeachFathers(data, father))) {
-      return 1;
-    }
-  }
-  return 0;
-}
-
-static void dont_free(void *useless)
-{
-  (void)useless;
-  return;
-}
-
-/**
- * @return the number of entity that have been linked, -1 on error
- */
-static int jsonLinker(void)
-{
-  int ret = 0;
-
-  for (GList *cur = linkList; cur != NULL;) {
-    LinkInfo *data = cur->data;
-    done = NULL;
-    GList *next = cur->next;
-
-    if (jsonLink(data->refFather, data->refFather,
-		 data->refName, data->targetName) ||
-	tryLinkForeachFathers(data, data->refFather)) {
-      destroyLinkInfo(data);
-      linkList = g_list_delete_link(linkList, cur);
-      ++ret;
-    } else {
-      DPRINT_WARN("unable to link '%s' to '%s'", data->refName,
-		  data->targetName);
-    }
-    g_list_free_full(done, dont_free);
-    cur = next;
-  }
-
-  return ret;
-}
-
-static void jsonClearLinker(void)
-{
-  for (GList *cur = linkList; cur != NULL; cur = cur->next) {
-    LinkInfo *tmp;
-    tmp = cur->data;
-    destroyLinkInfo(tmp);
-  }
-  g_list_free(linkList);
-  linkList = NULL;
-}
-
-static void addLinkInfo(Entity *refFather, const char *refName,
-			const char *targetName)
-{
-  LinkInfo *linkInfo = g_new(LinkInfo, 1);
-
-  linkInfo->refName = g_strdup(refName);
-  linkInfo->targetName = g_strdup(targetName);
-  linkInfo->refFather = refFather;
-  linkList = g_list_prepend(linkList, linkInfo);
-}
 
 static Entity *parseObject(struct json_object *obj,
 			   const char *name, Entity *father)
@@ -153,10 +38,6 @@ static Entity *parseObject(struct json_object *obj,
   }
 
   json_object_object_foreach(obj, key, val) {
-    if (key[0] == '&') {
-      addLinkInfo(ret, key + 1, json_object_get_string(val));
-      continue;
-    }
     if (parseGen(val, key, ret) == NULL) {
       DPRINT_ERR("fail to parse json obj %s", name);
       return NULL;
@@ -241,8 +122,6 @@ static Entity *jsonFromFile(void *opac, const char *fileName, Entity *father)
   }
   ret = parseGen(file, NULL, father);
   json_object_put(file);
-  jsonLinker(); // if jsonLinker is not empty free it, return an error ?
-  jsonClearLinker();
   return ret;
 }
 

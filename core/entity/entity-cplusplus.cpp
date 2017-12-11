@@ -36,6 +36,7 @@ namespace __cxxabiv1 {
   void __si_class_type_info::dummy() { }
 }
 
+#endif
 
 void operator delete(void *ptr) {
   free(ptr);
@@ -45,8 +46,6 @@ void operator delete(void *ptr, long unsigned int end)
 {
   free(ptr);
 }
-
-#endif
 
 void *operator new(size_t l)
 {

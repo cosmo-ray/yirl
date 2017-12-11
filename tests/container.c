@@ -54,6 +54,7 @@ void testHorizontalContainerSdl(void)
   ret0 = ygFileToEnt(YJSON, TESTS_PATH"/widget.json", NULL);
   ret = yeGet(ret0, "ContainerTest");
   g_assert(ret0 && ret);
+  yePushToGlobalScope(ret0, "test");
   ysRegistreNativeFunc("menuTest", testMenuEnter);
 
   wid = ywidNewWidget(ret, NULL);
@@ -84,6 +85,7 @@ void testVerticalContainerSdl(void)
   ret0 = ygFileToEnt(YJSON, TESTS_PATH"/widget.json", NULL);
   ret = yeGet(ret0, "VContainerTest");
   g_assert(ret);
+  yePushToGlobalScope(ret0, "test");
   ysRegistreNativeFunc("menuTest", testMenuEnter);
 
   wid = ywidNewWidget(ret, NULL);
@@ -114,6 +116,7 @@ void testStackContainerSdl(void)
   ret0 = ygFileToEnt(YJSON, TESTS_PATH"/widget.json", NULL);
   ret = yeGet(ret0, "SContainerTest");
   g_assert(ret);
+  yePushToGlobalScope(ret0, "test");
   ysRegistreNativeFunc("menuTest", testMenuEnter);
 
   wid = ywidNewWidget(ret, NULL);
@@ -159,6 +162,8 @@ void testMixContainerSdl(void)
   YE_ARRAY_FOREACH(yeGet(ret, "entries"), entry) {
     yeCreateString(NULL, entry, "copy");
   }
+  yePushToGlobalScope(fileRet, "test");
+
   wid = ywidNewWidget(cnt, NULL);
   g_assert(wid);
 

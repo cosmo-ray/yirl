@@ -2,13 +2,13 @@
     "main" : {
 	"<type>" : "sukeban-screen",
 	"entries" : [
-	    {"name" : "house"},
-	    {"name" : "text, tatata =D"}
+	    {"path" : "sukeban.scenes.house"},
+	    {"path" : "sukeban.scenes.text-tatata"}
 	],
     },
     "house" : {
 	"<type>" : "sukeban-map",
-	"&resources" : "houseResources",
+	"resources" : "sukeban.resources-global.houseResources",
 	"map" : "house.sm",
 	"start_pos" : [2, 2],
 	"start_id" : {"id" : 1},
@@ -22,7 +22,7 @@
     },
     "cave" : {
 	"<type>" : "sukeban-map",
-	"&resources" : "houseResources",
+	"resources" : "sukeban.resources-global.houseResources",
 	"map" : "cave.sm",
 	"start_pos" : [2, 2],
 	"start_id" : {"id" : 1},
@@ -35,7 +35,7 @@
 			    "action": ["sukeban-screen:goto", "house"] } ],
 	"ground_char" : ".",
     },
-    "text, tatata =D" : {
+    "text-tatata" : {
 	"<type>" : "text-screen",
 	"text" : "he who fight the yoyo. must look at himself to not be kill by a yoyo\nwhen you gaze into the high school boy, she will gaze after you\n-seriousely",
 	"background": "rgba: 255 255 255 70",

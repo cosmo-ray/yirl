@@ -121,8 +121,6 @@ typedef	struct
   ENTITY_HEADER
 
   BlockArray values;
-  struct Entity_ *fathers[16];
-  unsigned int nbFathers;
 } ArrayEntity;
 
 typedef	struct
@@ -710,24 +708,9 @@ static inline Entity *yeTryCreateInt(int value, Entity *father,
  */
 size_t yeLen(Entity *entity);
 
-#define YE_FOREACH_FATHER_SET_FATHER(child, father, idx)	\
-  ((father = yeFathers(child)[(idx)]) || 1)
-
-#define YE_FOREACH_FATHER(child, father)				\
-  Entity *father = NULL;						\
-  g_assert(child->type == YARRAY);					\
-  for (uint32_t father##idx = 0;					\
-       child && father##idx < YE_TO_ARRAY((child))->nbFathers &&	\
-	 YE_FOREACH_FATHER_SET_FATHER(child, father, father##idx);	\
-       ++father##idx)
 
 #include "entity-string.h"
 
-/**
- * @param entity
- * @return the entity's fathers
- */
-Entity **yeFathers(Entity *entity);
 
 /**
  * @param entity
@@ -906,8 +889,6 @@ static inline Entity *yeFind(Entity *entity,
   }
   return NULL;
 }
-
-Entity *yeFindLink(Entity *father, const char *targetPath, int flag);
 
 /**
  * Convert an Entity to a C String (char *)

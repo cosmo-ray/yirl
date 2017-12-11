@@ -160,8 +160,6 @@ Entity *yeConvert(Entity *entity, int type)
 	str = yeCreateString(NULL, entity, NULL);
 	YE_TO_STRING(str)->value = c_tmp;
 	YE_TO_STRING(str)->len = len;
-	/* Ok, let's be honest fathers are broken */
-	YE_TO_ARRAY(entity)->nbFathers = 0;
 	return entity;
       }
     case YINT:

@@ -44,6 +44,7 @@ void testYWMapCurses(void)
   void *jsonManager;
   Entity *ret;
   YWidgetState *wid;
+  Entity *map;
 
   /* load files */
   g_assert(t != -1);
@@ -51,8 +52,8 @@ void testYWMapCurses(void)
   jsonManager = ydNewManager(t);
   g_assert(jsonManager != NULL);
   ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
-  ret = yeGet(ret, "MapTest");
-  g_assert(ret);
+  map = yeGet(ret, "MapTest");
+  g_assert(map);
   g_assert(!ydJsonEnd());
   g_assert(!ydDestroyManager(jsonManager));
 
@@ -64,8 +65,9 @@ void testYWMapCurses(void)
 
   g_assert(!ycursRegistreMap());
   ysRegistreFunc(ysNativeManager(), "mapTest", testMapEnter);
+  yeReplaceBack(map, yeGet(ret, "MapTestResources"), "resources");
 
-  wid = ywidNewWidget(ret, NULL);
+  wid = ywidNewWidget(map, NULL);
   g_assert(wid);
 
 
@@ -91,6 +93,7 @@ void testYWMapSdl2(void)
   void *jsonManager;
   Entity *ret;
   YWidgetState *wid;
+  Entity *map;
 
   /* load files */
   g_assert(t != -1);
@@ -99,6 +102,8 @@ void testYWMapSdl2(void)
   g_assert(jsonManager != NULL);
   ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
   g_assert(yeGet(ret, "MapTest"));
+  map = yeGet(ret, "MapTest");
+  g_assert(map);
   g_assert(!ydJsonEnd());
   g_assert(!ydDestroyManager(jsonManager));
 
@@ -111,6 +116,7 @@ void testYWMapSdl2(void)
   g_assert(!ysdl2RegistreMap());
 
   ysRegistreFunc(ysNativeManager(), "mapTest", testMapEnter);
+  yeReplaceBack(map, yeGet(ret, "MapTestResources"), "resources");
   wid = ywidNewWidget(yeGet(ret, "MapTest"), NULL);
   g_assert(wid);
 
@@ -150,7 +156,7 @@ void testYBigWMapSdl2(void)
   yeInitMem();
   int t = ydJsonInit();
   void *jsonManager;
-  Entity *ret;
+  Entity *ret, *map;
   YWidgetState *wid;
 
   /* load files */
@@ -159,7 +165,7 @@ void testYBigWMapSdl2(void)
   jsonManager = ydNewManager(t);
   g_assert(jsonManager != NULL);
   ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
-  ret = yeGet(ret, "BigMap");
+  map = yeGet(ret, "BigMap");
   g_assert(ret);
   g_assert(!ydJsonEnd());
   g_assert(!ydDestroyManager(jsonManager));
@@ -172,9 +178,10 @@ void testYBigWMapSdl2(void)
 
   g_assert(!ysdl2RegistreMap());
 
-  genBigMap(ret);
+  genBigMap(map);
+  yeReplaceBack(map, yeGet(ret, "MapTestResources"), "resources");
   ysRegistreFunc(ysNativeManager(), "mapTest", testMapEnter);
-  wid = ywidNewWidget(ret, NULL);
+  wid = ywidNewWidget(map, NULL);
   g_assert(wid);
 
   do {
@@ -197,7 +204,7 @@ void testYWMapAll(void)
   yeInitMem();
   int t = ydJsonInit();
   void *jsonManager;
-  Entity *ret;
+  Entity *ret, *map;
   YWidgetState *wid;
 
   /* load files */
@@ -206,8 +213,8 @@ void testYWMapAll(void)
   jsonManager = ydNewManager(t);
   g_assert(jsonManager != NULL);
   ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
-  ret = yeGet(ret, "MapTest++");
-  g_assert(ret);
+  map = yeGet(ret, "MapTest++");
+  g_assert(map);
   g_assert(!ydJsonEnd());
   g_assert(!ydDestroyManager(jsonManager));
 
@@ -222,8 +229,9 @@ void testYWMapAll(void)
   g_assert(!ysdl2RegistreMap());
   g_assert(!ycursRegistreMap());
 
+  yeReplaceBack(map, yeGet(ret, "MapTestResources"), "resources");
   ysRegistreNativeFunc("mapTest", testMapEnter);
-  wid = ywidNewWidget(ret, NULL);
+  wid = ywidNewWidget(map, NULL);
   g_assert(wid);
 
   do {
