@@ -446,8 +446,13 @@ int	luaRemoveChild(lua_State *L)
 	     "real prototyre is: arrayRemove(lightuserdata array, lightuserdata toRemove, int deepSearch)\n");
       return (-1);
     }
-  lua_pushlightuserdata(L, yeRemoveChild(YE_TO_ENTITY(lua_topointer(L, 1)),
-					 YE_TO_ENTITY(lua_topointer(L, 2))));
+  if (lua_isstring(L, 2)) {
+    lua_pushlightuserdata(L, yeRemoveChildByStr(lua_touserdata(L, 1),
+						lua_tostring(L, 2)));
+  } else {
+    lua_pushlightuserdata(L, yeRemoveChild(lua_touserdata(L, 1),
+					   lua_touserdata(L, 2)));
+  }
   return (1);
 }
 
