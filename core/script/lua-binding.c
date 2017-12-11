@@ -156,8 +156,19 @@ int luaYwCanvasNewCollisionsArrayWithRectangle(lua_State *L)
 
 int luaYwCanvasNewText(lua_State *L)
 {
-  lua_pushlightuserdata(L, ywCanvasNewText(lua_touserdata(L, 1), lua_tonumber(L, 2),
-					   lua_tonumber(L, 3), lua_touserdata(L, 4)));
+  lua_pushlightuserdata(L, ywCanvasNewText(lua_touserdata(L, 1),
+					   lua_tonumber(L, 2),
+					   lua_tonumber(L, 3),
+					   lua_touserdata(L, 4)));
+  return 1;
+}
+
+int luaywCanvasNewRect(lua_State *L)
+{
+  lua_pushlightuserdata(L, ywCanvasNewRect(lua_touserdata(L, 1),
+					   lua_tonumber(L, 2),
+					   lua_tonumber(L, 3),
+					   lua_touserdata(L, 4)));
   return 1;
 }
 

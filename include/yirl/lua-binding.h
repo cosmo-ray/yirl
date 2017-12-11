@@ -142,6 +142,7 @@ int	luaYwCanvasNewCollisionsArray(lua_State *L);
 int	luaYwCanvasNewCollisionsArrayWithRectangle(lua_State *L);
 int	luaYwCanvasNewText(lua_State *L);
 int	luaYwCanvasObjSetResourceId(lua_State *L);
+int	luaywCanvasNewRect(lua_State *L);
 
 /* Game and Module */
 int	luaGetMod(lua_State *L);
@@ -326,6 +327,7 @@ static inline int	yesLuaRegister(void *sm)
 				 luaYwCanvasMoveObjByIdx));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasNewObj", luaYwCanvasNewObj));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasNewText", luaYwCanvasNewText));
+  YES_LUA_REGISTRE_CALL(sm, ywCanvasNewRect);
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasObjPos", luaYwCanvasObjPos));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasObjSize", luaYwCanvasObjSize));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasObjFromIdx", luaYwCanvasObjFromIdx));
