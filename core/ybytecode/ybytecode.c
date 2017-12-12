@@ -61,6 +61,8 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
 	inst_compille(YB_CREATE_INT, create_int, 1);
 	inst_compille(YB_CREATE_ARRAY, create_array, 0);
 	inst_compille(YB_SET_INT, set_int, 2);
+	inst_compille(YB_STRING_ADD_CH, string_add_ch, 2);
+	inst_compille(YB_STRING_ADD_CH_ENT, string_add_ch_ent, 2);
 	inst_compille(YB_NEW_WIDGET, new_widget, 2);
 	inst_compille(YB_REGISTRE_WIDGET_SUBTYPE, wid_add_subtype, 1);
 	inst_compille(YB_PUSH_BACK, push_back, 3);
@@ -68,6 +70,7 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
 	inst_compille(YB_PRINT_POS, print_pos, 0);
 	inst_compille(YB_PRINT_IRET, print_iret, 0);
 	inst_compille(YB_PRINT_ENTITY, print_entity, 1);
+	inst_compille(YB_STACK_POP, stack_pop, 0);
 	inst_compille(YB_LEAVE, end, 0);
 	inst_compille(YB_RETURN, end_ret, 1);
 	inst_compille(YB_YG_GET_PUSH, yg_get_push, 1);
@@ -123,6 +126,16 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
 
  set_int:
   yeSetIntDirect(yeGetByIdxDirect(stack, script[1]), script[2]);
+  script += 3;
+  goto *((void *)*script);
+
+ string_add_ch_ent:
+  iret = yeStringAddChByEntity(yeGetByIdxDirect(stack, script[1]), yeGetByIdxDirect(stack, script[2]));
+  script += 3;
+  goto *((void *)*script);
+
+ string_add_ch:
+  iret = yeStringAddCh(yeGetByIdxDirect(stack, script[1]), script[2]);
   script += 3;
   goto *((void *)*script);
 
@@ -296,6 +309,11 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
     ++script;
   ++script;
   *tmp = script - tmp + 2;
+  goto *((void *)*script);
+
+ stack_pop:
+  yePopBack(stack);
+  ++script;
   goto *((void *)*script);
 
  create_array:

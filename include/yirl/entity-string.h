@@ -26,6 +26,18 @@ int yeStrCmp(Entity *ent1, const char *str);
  */
 int yeStringAdd(Entity *ent, const char *str);
 
+
+/**
+ * @brief Add @c to the string entity @Ent
+ */
+int yeStringAddCh(Entity *ent, char c);
+
+/**
+ * @param ch an int entity representing an ascii character
+ * @brief Add @ch value to the string entity @Ent
+ */
+int yeStringAddChByEntity(Entity *ent, Entity *ch);
+
 /**
  * @brief same as yeStringAdd, but add a new line
  */

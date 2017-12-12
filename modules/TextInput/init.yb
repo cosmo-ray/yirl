@@ -9,7 +9,6 @@ init 1 {
 }
 
 global text_input_is_printable 1 {
-	print_entity 0
         is_nbr_inf 0 40 not_printable:
         is_nbr_sup 0 126 not_printable:
         int 1
@@ -25,18 +24,27 @@ global text_input_action 3 {
 	get_at_idx 1 0
 	get_at_idx 1 1
 	yg_get_push "text_input_is_printable"
+	not_equal_nbr 5 0 not_printable:
 	not_equal_nbr 6 10 not_enter:
-	call_entity 3 0 1
+	call_entity 3
 not_enter:
 	call_entity 7 6
-	print_entity 8
+	stack_pop
 	print_iret
+	is_iret_0 not_printable:
+	get_at_str 0 "text"
+	print_entity 8
+	string_add_ch_ent 8 6
+	int 1
+	return 9
+not_printable:
 	int 0
-	return 7
+	print_entity 8
+	return 8
 }
 
 global text_input_init 1 {
-        string "test"
+        string ""
 	push_back 0 1 "text"
 	yg_get_push "text_input_action"
 	push_back 0 2 "action"

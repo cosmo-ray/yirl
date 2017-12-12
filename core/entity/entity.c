@@ -701,6 +701,8 @@ Entity *yePopBack(Entity *entity)
   }
   len = yeLen(entity);
   ret = yeGet(entity, len - 1);
+  if (ret->refCount == 1)
+    ret = NULL;
   yeExpandArray(entity, len - 1);
   return (ret);
 }

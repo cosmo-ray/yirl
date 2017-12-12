@@ -25,6 +25,11 @@
 #include	"stack.h"
 #include	"script.h"
 
+int yeStringAddChByEntity(Entity *ent, Entity *ch)
+{
+  return yeStringAddCh(ent, yeGetInt(ch));
+}
+
 int yeStringAdd(Entity *ent, const char *str)
 {
   int origLen;
@@ -49,6 +54,13 @@ int yeStringAdd(Entity *ent, const char *str)
   }
   YE_TO_STRING(ent)->len = totalLength;
   return 0;
+}
+
+int yeStringAddCh(Entity *ent, char c)
+{
+  char buf[2] = {c, 0};
+
+  return yeStringAdd(ent, buf);
 }
 
 int yeStringAddNl(Entity *ent, const char *str)

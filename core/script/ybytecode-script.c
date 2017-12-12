@@ -369,6 +369,8 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
     goto still_in_func;
   case YB_SET_INT_TOK:
   case YB_GET_AT_IDX_TOK:
+  case YB_STRING_ADD_CH_TOK:
+  case YB_STRING_ADD_CH_ENT_TOK:
     script[script_len] = tok;
     if (tryStoreNumber(&script[script_len + 1], str, tokInfo) < 0)
       goto exit;
@@ -387,6 +389,7 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
     script_len += 2;
     goto still_in_func;
   case YB_LEAVE_TOK:
+  case YB_STACK_POP:
   case YB_CREATE_ARRAY_TOK:
   case YB_PRINT_IRET_TOK:
   case YB_PRINT_POS_TOK:
@@ -417,6 +420,7 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
     script_len += 4;
     goto still_in_func;
   case YB_JMP_TOK:
+  case YB_JMP_IF_0_TOK:
     script[script_len] = tok;
     if (tryStoreLabels(script_len + 1, str,
 		       tokInfo, &labels_needed, -1) < 0)

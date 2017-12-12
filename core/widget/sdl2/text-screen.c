@@ -31,12 +31,12 @@ static int sdlRender(YWidgetState *state, int t)
   SDL_Color color = {0, 0, 0, 255};
   int alignementType = YSDL_ALIGN_LEFT;
 
+  if (ywidBgConfFill(yeGet(state->entity, "background"), &cfg) >= 0)
+    sdlFillBg(wid, &cfg);
   if (unlikely(!toPrint))
 	  return 0;
   if (!yeStrCmp(yeGet(state->entity, "text-align"), "center"))
     alignementType = YSDL_ALIGN_CENTER;
-  if (ywidBgConfFill(yeGet(state->entity, "background"), &cfg) >= 0)
-    sdlFillBg(wid, &cfg);
   ywidColorFromString((char *)yeGetString(yeGet(state->entity, "text-color")),
 		      &color.r, &color.g, &color.b, &color.a);
 
