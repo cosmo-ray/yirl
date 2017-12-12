@@ -53,7 +53,7 @@ void testYWTextScreenCurses(void)
   yeInitMem();
   int t = ydJsonInit();
   void *jsonManager;
-  Entity *ret;
+  Entity *ret, *map;
   YWidgetState *wid;
 
   /* load files */
@@ -62,8 +62,8 @@ void testYWTextScreenCurses(void)
   jsonManager = ydNewManager(t);
   g_assert(jsonManager != NULL);
   ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
-  ret = yeGet(ret, "TextScreenTest");
-  g_assert(ret);
+  map = yeGet(ret, "TextScreenTest");
+  g_assert(map);
   g_assert(!ydJsonEnd());
   g_assert(!ydDestroyManager(jsonManager));
 
@@ -76,7 +76,7 @@ void testYWTextScreenCurses(void)
   g_assert(!ycursRegistreTextScreen());
 
   ysRegistreNativeFunc("txQuitOnQ", testTXQuitOnQ);
-  wid = ywidNewWidget(ret, NULL);
+  wid = ywidNewWidget(map, NULL);
   g_assert(wid);
 
   do {
@@ -100,7 +100,7 @@ void testYWTextScreenSdl2(void)
   yeInitMem();
   int t = ydJsonInit();
   void *jsonManager;
-  Entity *ret;
+  Entity *ret, *map;
   YWidgetState *wid;
 
   /* load files */
@@ -109,8 +109,8 @@ void testYWTextScreenSdl2(void)
   jsonManager = ydNewManager(t);
   g_assert(jsonManager != NULL);
   ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
-  ret = yeGet(ret, "TextScreenTest");
-  g_assert(ret);
+  map = yeGet(ret, "TextScreenTest");
+  g_assert(map);
   g_assert(!ydJsonEnd());
   g_assert(!ydDestroyManager(jsonManager));
 
@@ -124,7 +124,7 @@ void testYWTextScreenSdl2(void)
   g_assert(!t);
   ysRegistreNativeFunc("txQuitOnQ", testTXQuitOnQ);
 
-  wid = ywidNewWidget(ret, NULL);
+  wid = ywidNewWidget(map, NULL);
   g_assert(wid);
 
   do {
@@ -156,7 +156,7 @@ void testYWTextScreenAll(void)
   yeInitMem();
   int t = ydJsonInit();
   void *jsonManager;
-  Entity *ret;
+  Entity *ret, *map;
   YWidgetState *wid;
 
   /* load files */
@@ -165,8 +165,8 @@ void testYWTextScreenAll(void)
   jsonManager = ydNewManager(t);
   g_assert(jsonManager != NULL);
   ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
-  ret = yeGet(ret, "TextScreenTest");
-  g_assert(ret);
+  map = yeGet(ret, "TextScreenTest");
+  g_assert(map);
   g_assert(!ydJsonEnd());
   g_assert(!ydDestroyManager(jsonManager));
 
@@ -183,10 +183,10 @@ void testYWTextScreenAll(void)
 
   ysRegistreNativeFunc("txQuitOnQ", testTXQuitOnQ);
   /* create widgets */
-  wid = ywidNewWidget(ret, NULL);
+  wid = ywidNewWidget(map, NULL);
   g_assert(wid);
 
-  
+
   do {
     g_assert(ywidRend(wid) != -1);
     usleep(100000);
