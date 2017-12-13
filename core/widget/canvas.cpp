@@ -238,6 +238,17 @@ extern "C" {
     return obj;
   }
 
+  Entity *ywCanvasNewImgByPath(Entity *wid, int x, int y, const char *path)
+  {
+    Entity *objs = getOrCreateObjs(wid);
+    Entity *obj = yeCreateArray(objs, NULL);
+
+    yeCreateInt(YCanvasImg, obj, "canvas-type");
+    ywPosCreateInts(x, y, obj, "pos");
+    yeCreateString(path, obj, "img");
+    return obj;
+  }
+
   Entity *ywCanvasNewRect(Entity *wid, int x, int y, Entity *rect)
   {
     Entity *objs = getOrCreateObjs(wid);

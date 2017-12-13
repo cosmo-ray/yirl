@@ -112,6 +112,8 @@ void testCanvasSdl2(void)
   ywCanvasNewObj(canvas_example, 70, 180, 2);
   ywCanvasNewObj(canvas_example, 200, 250, 3);
 
+  ywCanvasNewImgByPath(canvas_example, 200, 250, "tests/hero.png");
+
   obj = yeCreateArray(objs, NULL);
   yeCreateInt(YCanvasRect, obj, NULL);
   ywPosCreateInts(400, 250, obj, NULL);

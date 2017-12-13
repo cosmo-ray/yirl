@@ -557,16 +557,17 @@ static int sdlCanvasCacheImg(Entity *state, Entity *elem,
     }
 
     SDL_BlitSurface(tmpSurface, &r, surface, NULL);
+
     SDL_FreeSurface(tmpSurface);
   }
   texture = SDL_CreateTextureFromSurface(sg.renderer, surface);
   if (unlikely(!texture))
     goto exit;
   SDL_QueryTexture(texture, NULL, NULL, &w, &h);
-  data = yeCreateData(texture, resource, "$img");
-  ywSizeCreate(w, h, resource, "$size");
+  data = yeCreateData(texture, elem, "$img");
+  ywSizeCreate(w, h, elem, "$size");
   yeSetDestroy(data, sdlFreeTexture);
-  yeGetPush(resource, elem, "$img");
+  yeGetPush(elem, resource, "$img");
   yeGetPush(resource, elem, "$size");
   ret = 0;
  exit:
@@ -586,6 +587,10 @@ int sdlCanvasCacheTexture(Entity *state, Entity *elem)
     ywPosCreateInts(sgGetFontSize() * yeLen(yeGet(elem, 2)),
 		    sgGetFontSize(), elem, "$size");
     return 0;
+  } else if (unlikely(type == YCanvasImg)) {
+    txt = yeGetStringAt(elem, "img");
+    if (txt)
+      return sdlCanvasCacheImg(state, elem, NULL, txt);
   } else if (unlikely(type != YCanvasResource)) {
     return -1;
   }
@@ -623,7 +628,7 @@ int sdlCanvasRendObj(YWidgetState *state, SDLWid *wid, Entity *obj)
 {
   int type = yeGetIntAt(obj, 0);
 
-  if (type == YCanvasResource)
+  if (type == YCanvasResource || type == YCanvasImg)
     return sdlCanvasRendImg(state, wid, obj);
 
   Entity *p = ywCanvasObjPos(obj);

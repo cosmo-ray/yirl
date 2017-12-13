@@ -23,7 +23,8 @@
 typedef enum  {
   YCanvasResource,
   YCanvasRect,
-  YCanvasString
+  YCanvasString,
+  YCanvasImg
 } YCanvasObjType;
 
 int ywCanvasInit(void);
@@ -46,6 +47,7 @@ void ywCanvasObjSetPos(Entity *obj, int x, int y);
 Entity *ywCanvasNewObj(Entity *wid, int x, int y, int id);
 Entity *ywCanvasNewRect(Entity *wid, int x, int y, Entity *rect);
 Entity *ywCanvasNewText(Entity *wid, int x, int y, Entity *string);
+Entity *ywCanvasNewImgByPath(Entity *wid, int x, int y, const char *path);
 
 void ywCanvasRemoveObj(Entity *wid, Entity *obj);
 
