@@ -457,6 +457,17 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
   yePushBack(map, funcData, yeGetString(funcName));
   yeDestroy(data);
  exit:
+  while (!LIST_EMPTY(&labels_needed)) {           /* List Deletion. */
+    struct labels *n1 = LIST_FIRST(&labels_needed);
+    LIST_REMOVE(n1, entries);
+    free(n1);
+  }
+
+  while (!LIST_EMPTY(&labels)) {            /* List Deletion. */
+    struct labels *n1 = LIST_FIRST(&labels);
+    LIST_REMOVE(n1, entries);
+    free(n1);
+  }
   yeDestroy(funcName);
   yeDestroy(funcData);
   return ret;

@@ -23,19 +23,22 @@ void testTextInputMod(void)
   yeInitMem();
   GameConfig cfg;
   Entity *ti_example;
+  Entity *mod;
   YWidgetState *wid;
 
   g_assert(!ygInitGameConfig(&cfg, NULL, SDL2));
   g_assert(!ygInit(&cfg));
-  g_assert(ygLoadMod(TESTS_PATH"../modules/TextInput/"));
+  mod = ygLoadMod(TESTS_PATH"../modules/TextInput/");
+  g_assert(mod);
   ti_example = ygFileToEnt(YJSON,
 			   TESTS_PATH"../modules/TextInput/input_test.json",
-				 NULL);
+			   NULL);
   g_assert(ti_example);
   wid = ywidNewWidget(ti_example, NULL);
   g_assert(wid);
   ywidSetMainWid(wid);
   ygDoLoop();
+  yeDestroy(mod);
   yeDestroy(ti_example);
   ygEnd();
 }

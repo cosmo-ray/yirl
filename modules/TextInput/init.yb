@@ -5,7 +5,6 @@ init 1 {
 	push_back 3 1 "name"
 	push_back 3 2 "callback"
 	registre_widget_subtype 3
-	return 0
 }
 
 global text_input_is_printable 1 {
