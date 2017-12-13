@@ -40,5 +40,6 @@ void testTextInputMod(void)
   ygDoLoop();
   yeDestroy(mod);
   yeDestroy(ti_example);
+  ygCleanGameConfig(&cfg);
   ygEnd();
 }
