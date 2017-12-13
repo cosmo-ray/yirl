@@ -8,7 +8,7 @@ init 1 {
 }
 
 global text_input_is_printable 1 {
-        is_nbr_inf 0 40 not_printable:
+        is_nbr_inf 0 32 not_printable:
         is_nbr_sup 0 126 not_printable:
         int 1
         return 1

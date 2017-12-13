@@ -169,7 +169,8 @@ int ysdl2Type(void)
 
 static int  convertToYKEY(SDL_Keycode key)
 {
-  if (key >= 'a' && key <= 'z')
+  if ((key >= 'a' && key <= 'z') ||
+      (key >= '0' && key <= '9') || key == ' ')
     return key;
   switch (key)
     {
