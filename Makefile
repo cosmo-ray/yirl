@@ -101,7 +101,7 @@ build-dynamic-lib: $(OBJ) $(OBJXX)
 build-generic-loader: $(YIRL_LINKING) $(GEN_LOADER_OBJ)
 	$(CC) -o yirl-loader$(BIN_EXT) $(GEN_LOADER_OBJ) $(BINARY_LINKING) $(LDFLAGS)
 
-clean:	clean-tests
+clean:	clean-tests clean-shooter
 	rm -rvf $(OBJ) $(OBJXX)
 
 fclean: clean
