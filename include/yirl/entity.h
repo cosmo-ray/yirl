@@ -417,7 +417,17 @@ int yePushAt(Entity *array, Entity *toPush, int idx);
  */
 Entity *yePopBack(Entity *array);
 
-Entity *yeRemoveChild(Entity *array, Entity *toRemove);
+#ifndef __cplusplus
+#define yeRemoveChild(array, toRemove)					\
+  (_Generic(array,							\
+	    Entity *: yeRemoveChildByEntity,				\
+	    void *: yeRemoveChildByEntity,				\
+	    Y_GEN_CLANG_ARRAY(char, yeRemoveChildByStr),		\
+	    const char *: yeRemoveChildByStr,				\
+	    char *: yeRemoveChildByStr)((array), (toRemove)))
+#endif
+
+Entity *yeRemoveChildByEntity(Entity *array, Entity *toRemove);
 
 static inline Entity *yeRemoveChildByStr(Entity *array, const char *toRemove)
 {

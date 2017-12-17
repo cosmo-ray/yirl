@@ -20,7 +20,8 @@
 
 Entity *yeGetByIdx(Entity *entity, size_t index);
 Entity *yeGetByStrFast(Entity *entity, const char *name);
-
+Entity *yeRemoveChildByEntity(Entity *array, Entity *toRemove);
+static Entity *yeRemoveChildByStr(Entity *array, const char *toRemove);
 
 extern "C++" {
 
@@ -39,6 +40,16 @@ extern "C++" {
   static inline Entity *yeGet(Entity *e, const char *idx)
   {
     return yeGetByStrFast(e, idx);
+  }
+
+  static inline Entity *yeRemoveChild(Entity *array, Entity *toRemove)
+  {
+    return yeRemoveChildByEntity(array, toRemove);
+  }
+
+  static inline Entity *yeRemoveChild(Entity *array, const char *toRemove)
+  {
+    return yeRemoveChildByStr(array, toRemove);
   }
 
   Entity *yeCreateArray(Entity *fathers, const char *name);

@@ -152,6 +152,14 @@ static void tryPushGuyToMenu(Entity *menu_cnt, Entity *guy)
   }
 }
 
+void *sukeFightClean(int nbArgs, void **args)
+{
+  Entity *ent = args[0];
+
+  yeRemoveChildByStr(yeGet(getMenuCnt(ent), "action_menu"), "main");
+  return NULL;
+}
+
 void *sukeFightInit(int nbArg, void **args)
 {
   Entity *ent = args[0];
@@ -173,6 +181,7 @@ void *sukeFightInit(int nbArg, void **args)
 
   yeReCreateInt(1, ent, "current");
   yeReCreateInt(-1, ent, "pcDoingAction");
+  yeCreateFunction("sukeFightClean", ygGetManager("tcc"), ent, "destroy");
   yeCreateFunction("sukeFightAction", ygGetManager("tcc"), ent, "action");
   YTimerReset(yeGetData(yeCreateDataExt(NULL, ent, "timer",
 					YE_DATA_USE_OWN_METADATA)));
@@ -236,6 +245,7 @@ void *sukeFightInit(int nbArg, void **args)
 
   menu = yeCreateArray(menu_cnt_entries, NULL);
   yeCreateString("menu", menu, "<type>");
+  yePushBack(menu_cnt, menu, "action_menu");
   yePushBack(menu, ent, "main");
   menu_entries = yeCreateArray(menu, "entries");
   menu_entry = yeCreateArray(menu_entries, NULL);

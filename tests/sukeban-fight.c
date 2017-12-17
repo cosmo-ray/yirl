@@ -38,5 +38,6 @@ void testSukeFightMod(void)
   ywidSetMainWid(wid);
   ygDoLoop();
   yeDestroy(fight_example);
+  ygCleanGameConfig(&cfg);
   ygEnd();
 }

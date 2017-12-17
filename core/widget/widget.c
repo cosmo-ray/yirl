@@ -479,6 +479,7 @@ void YWidDestroy(YWidgetState *wid)
 {
   if (!wid)
     return;
+  yesCall(yeGet(wid->entity, "destroy"), wid->entity);
   ywidGenericCall(wid, wid->type, destroy);
   if (wid->destroy)
     wid->destroy(wid);

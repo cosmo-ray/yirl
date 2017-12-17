@@ -495,9 +495,14 @@ static inline void arrayEntryDestroy(ArrayEntry *ae)
 
 static void destroyChildsNoFree(Entity *entity)
 {
-  Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(entity)->values, ae, i, ArrayEntry) {
+  BlockArray *ba = &YE_TO_ARRAY(entity)->values;
+  uint16_t flag = ba->flag;
+  ba->flag = YBLOCK_ARRAY_NOMIDFREE;
+  Y_BLOCK_ARRAY_FOREACH_PTR(*ba, ae, i, ArrayEntry) {
+    yBlockArrayUnset(ba, i);
     arrayEntryDestroy(ae);
   }
+  ba->flag = flag;
 }
 
 void yeDestroyInt(Entity *entity)
@@ -667,26 +672,36 @@ Entity	*yeMoveByEntity(Entity* src, Entity* dest, Entity *what,
   return what;
 }
 
-Entity *yeRemoveChild(Entity *array, Entity *toRemove)
+Entity *yeRemoveChildByEntity(Entity *array, Entity *toRemove)
 {
+  Entity *ret;
+
   if (!checkType(array, YARRAY)) {
     DPRINT_ERR("bad argument 1 of type '%s', should be array\n",
 	       yeTypeToString(yeType(array)));
     return NULL;
   }
 
-  Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(array)->values, tmp, it, ArrayEntry) {
-    Entity *ret;
+  BlockArray *ba = &YE_TO_ARRAY(array)->values;
+  uint16_t flag = ba->flag;
+
+  ba->flag = YBLOCK_ARRAY_NOMIDFREE;
+
+  Y_BLOCK_ARRAY_FOREACH_PTR(*ba, tmp, it, ArrayEntry) {
 
     tmp = yeGetArrayEntryByIdx(array, it);
     ret = tmp->entity;
     if (ret == toRemove) {
+      yBlockArrayUnset(ba, it);
       arrayEntryDestroy(tmp);
-      yBlockArrayUnset(&YE_TO_ARRAY(array)->values, it);
-      return ret;
+      goto exit;
     }
   }
-  return NULL;
+  ret = NULL;
+
+ exit:
+  ba->flag = flag;
+  return ret;
 }
 
 

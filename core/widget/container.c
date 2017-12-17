@@ -239,8 +239,8 @@ static int cntDestroy(YWidgetState *opac)
   YE_ARRAY_FOREACH(entries, tmp) {
     YWidgetState *cur = ywidGetState(tmp);
 
-    YWidDestroy(cur);
     yeRemoveChildByStr(tmp, "$father-container");
+    YWidDestroy(cur);
     if (yeGet(tmp, "copy")) {
       yeDestroy(tmp);
     }
