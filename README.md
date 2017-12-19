@@ -54,9 +54,9 @@ YIRL is licensed under the LGPL licence, the idea behind that, is that you can a
 * test: unit tests
 * modules: set of basic yirl modules
 * games: Might be playable someday
- * sukeban: aiming to create a J-RPG
- * LoGH: for Legend of the Galatic Battle will be a great HOMM-like game with space fleet
- * vapz: vikings again pinapple pizza: https://uso.itch.io/icelandic-viking-vs-pineapple-pizza
+  * sukeban: aiming to create a J-RPG
+  * LoGH: for Legend of the Galatic Battle will be a great HOMM-like game with space fleet
+  * vapz: vikings again pinapple pizza: https://uso.itch.io/icelandic-viking-vs-pineapple-pizza
 * example:
   * shooter: old oudated example usefull for testing purpose
   * snake: example that show how to modifie a map in order to implement a snake, module/snake is a modified version of this file
