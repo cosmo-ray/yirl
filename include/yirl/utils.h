@@ -45,14 +45,22 @@ typedef unsigned long long uint64_t;
 typedef int32_t int_ptr_t;
 #define PRIiptr	"%d"
 #define ONE64      1LLU
+#ifdef _WIN32
 #define PRIint64 "%lli"
+#else
+#define PRIint64 "%"PRIi64
+#endif
 
 #elif __SIZEOF_POINTER__ == 8
 #define PRIiptr	"%li"
 typedef int64_t int_ptr_t;
 #define ONE64      1LU
 /* don't know why PRIi64 doesn't seems to work on MinGw 32 */
-#define PRIint64 "%li"
+#ifdef _WIN32
+#define PRIint64 "%lli"
+#else
+#define PRIint64 "%"PRIi64
+#endif
 
 #else
 typedef int64_t int_ptr_t;
