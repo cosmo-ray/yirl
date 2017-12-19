@@ -53,14 +53,16 @@ YIRL is licensed under the LGPL licence, the idea behind that, is that you can a
 * core: engine sources
 * test: unit tests
 * modules: set of basic yirl modules
+* games: Might be playable someday
+ * sukeban: aiming to create a J-RPG
+ * LoGH: for Legend of the Galatic Battle will be a great HOMM-like game with space fleet
+ * vapz: vikings again pinapple pizza: https://uso.itch.io/icelandic-viking-vs-pineapple-pizza
 * example:
   * shooter: old oudated example usefull for testing purpose
   * snake: example that show how to modifie a map in order to implement a snake, module/snake is a modified version of this file
   * modules: examples of yirl modules usage
     * snake: how to use the snake module
     * sm-reader: how to use sm-reader
-   
-* cmake: cmake dependencies
 
 # Contribution
 
@@ -69,6 +71,39 @@ As I didn't have time to write a coding style, in case of contribution, you shou
 
 I'd like to use linux conding style, but this would require to change every functions and structures names.
 A good contribution would be to make yirl compatible with linux coding style.
+
+# Projects using YIRL
+* https://uso.itch.io/pre-hangover-simulator
+
+# Dependancies
+
+Devlopement package of these libs:
+
+* glib2
+* lua 51+
+* sdl, sdl_image, sdl_ttf, sdl_mixer
+
+Optinal:
+* ncurses
+
+# building
+Linux - Mac Os:
+```
+git submodule update --init
+./configure
+make
+```
+
+Due to the way Ubuntu package lua, you need to do `./configure -t ubuntu` instead of `./configure`
+If you don't have ncurses, use `./configure WITH_CURSES=0`
+
+Windows:
+you need to use msys2: http://www.msys2.org/
+```
+git submodule update --init
+./configure -t mingw-i686
+make
+```
 
 # how to start using yirl
 For now the easier way to use yirl is to come on irc(#yirl on freenode) and ask for help
