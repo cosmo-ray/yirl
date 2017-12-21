@@ -23,10 +23,10 @@
 static void refreshAnswer(Entity *wid, Entity *textScreen,
 			  Entity *menu, Entity *curent)
 {
-  Entity *answers = yeGetByStrFast(menu, "entries");
+  Entity *answers = yeGet(menu, "entries");
 
   YE_ARRAY_FOREACH(answers, answer) {
-    Entity *condition = yeGetByStrFast(answer, "condition");
+    Entity *condition = yeGet(answer, "condition");
 
     if (condition) {
       yeReCreateInt(!yeCheckCondition(condition), answer, "hiden");
@@ -38,36 +38,38 @@ static Entity *getText(Entity *e)
 {
   if (yeType(e) == YSTRING)
     return e;
-  Entity *txt = yeGetByStrFast(e, "text");
+  Entity *txt = yeGet(e, "text");
 
+  if (yeType(txt) == YSTRING)
+    return txt;
   if (!txt) {
     Entity *condition;
-    Entity *txts = yeGetByStr(e, "texts");
+    Entity *txts = yeGet(e, "texts");
 
     YE_ARRAY_FOREACH(txts, cur_txt) {
-      condition = yeGetByStrFast(cur_txt, "condition");
+      condition = yeGet(cur_txt, "condition");
 
       if (condition && !yeCheckCondition(condition))
 	continue;
-      return yeGetByStrFast(cur_txt, "text");
+      return yeGet(cur_txt, "text");
     }
   }
+  return NULL;
 }
 
 static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
 				Entity *menu, Entity *curent)
 {
-  Entity *dialogue = yeGetByIdx(yeGetByStr(wid, "dialogue"), yeGetInt(curent));
-  Entity *answers = yeGetByStr(dialogue, "answers");
+  Entity *dialogue = yeGet(yeGet(wid, "dialogue"), yeGetInt(curent));
+  Entity *answers = yeGet(dialogue, "answers");
   Entity *txt = getText(dialogue);
   Entity *entries;
 
   ywContainerUpdate(wid, textScreen);
   yeReCreateString(yeGetString(txt), textScreen, "text");
   entries = yeReCreateArray(menu, "entries", NULL);
-  yeReplaceBack(menu, wid, "_main");
   YE_ARRAY_FOREACH(answers, answer) {
-    Entity *condition = yeGetByStrFast(answer, "condition");
+    Entity *condition = yeGet(answer, "condition");
 
     if (condition)
       yeReCreateInt(!yeCheckCondition(condition), answer, "hiden");
@@ -92,9 +94,14 @@ void *newDialogueEntity(int nbArgs, void **args)
   return ret;
 }
 
+Entity *getMain(Entity *w)
+{
+  return ywCntWidgetFather(w);
+}
+
 void *dialogueGetMain(int nbArg, void **args)
 {
-  return yeGet(args[0], "_main");
+  return getMain(args[0]);
 }
 
 void *init(int nbArg, void **args)
@@ -127,7 +134,7 @@ void *dialoguePostAction(int nbArgs, void **args)
   if (ret_type == NOTHANDLE)
     return;
   refreshAnswer(e, ywCntGetEntry(e, 0), ywCntGetEntry(e, 1),
-		yeGetByStrFast(e, "active_dialogue"));
+		yeGet(e, "active_dialogue"));
 }
 
 void *dialogueAction(int nbArgs, void **args)
@@ -154,9 +161,9 @@ void *dialogueAction(int nbArgs, void **args)
 
 void *dialogueHide(int nbArgs, void **args)
 {
-  Entity *answers = yeGetByStrFast(args[0], "entries");
+  Entity *answers = yeGet(args[0], "entries");
   Entity *answer = yeGetByIdx(answers,
-			      yeGetInt(yeGetByStr(args[0], "_main.current")));
+			      yeGetInt(yeGet(getMain(args[0]), "current")));
 
   yeReCreateInt(1, answer, "hiden");
   ywMenuDown(args[0]);
@@ -165,7 +172,7 @@ void *dialogueHide(int nbArgs, void **args)
 
 void *dialogueGoto(int nbArgs, void **args)
 {
-  Entity *main = yeGetByStr(args[0], "_main");
+  Entity *main = dialogueGetMain(1, args);
 
   yeReplaceBack(main, args[3], "active_dialogue");
   printfTextAndAnswer(main, ywCntGetEntry(main, 0), args[0], args[3]);
@@ -174,7 +181,7 @@ void *dialogueGoto(int nbArgs, void **args)
 
 void *dialogueChangeText(int nbArgs, void **args)
 {
-  Entity *main = yeGetByStr(args[0], "_main");
+  Entity *main = dialogueGetMain(1, args);
   ywContainerUpdate(main, ywCntGetEntry(main, 0));
   yeReplaceBack(ywCntGetEntry(main, 0), getText(args[3]), "text");
   return (void *)NOACTION;
@@ -195,10 +202,10 @@ void *dialogueInit(int nbArgs, void **args)
 		     main, "post-action");
   yeCreateString("text-screen", textScreen, "<type>");
   yeTryCreateInt(70, textScreen, "size");
-  yePushBack(textScreen, yeGetByStrFast(main, "speaker_background"),
+  yePushBack(textScreen, yeGet(main, "speaker_background"),
 	     "background");
   yeCreateString("menu", answers, "<type>");
-  yePushBack(answers, yeGetByStrFast(main, "answer_background"),
+  yePushBack(answers, yeGet(main, "answer_background"),
 	     "background");
 
   yeTryCreateInt(1, main, "current");

@@ -98,6 +98,11 @@ static inline CntType cntGetTypeFromEntity(Entity *entity) {
   return CNT_HORIZONTAL;
 }
 
+Entity *ywCntWidgetFather(Entity *wid)
+{
+  return yeGet(wid, "$father-container");
+}
+
 int ywPushNewWidget(Entity *container, Entity *wid, int dec_ref)
 {
   Entity *entries = yeGet(container, "entries");
@@ -108,7 +113,7 @@ int ywPushNewWidget(Entity *container, Entity *wid, int dec_ref)
   if (dec_ref)
     yeDestroy(wid);
   yeSetAt(container, "current", ret);
-  yeReplaceBackExt(container, wid, "$father-container", YE_FLAG_NO_COPY);
+  yeReplaceBackExt(wid, container, "$father-container", YE_FLAG_NO_COPY);
   return ret;
 }
 
@@ -300,7 +305,9 @@ static int cntRend(YWidgetState *opac)
 	yeReplace(entries, tmp, tmp2);
 	tmp = tmp2;
       }
+      yeReplaceBackExt(tmp, opac->entity, "$father-container", YE_FLAG_NO_COPY);
       wid = ywidNewWidget(tmp, NULL);
+      printf("new !!");
       if (!wid)
 	continue;
       cntResize(opac);

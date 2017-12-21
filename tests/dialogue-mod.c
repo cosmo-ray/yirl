@@ -36,5 +36,7 @@ void testDialogueMod(void)
   g_assert(wid);
   ywidSetMainWid(wid);
   ygDoLoop();
+  ygCleanGameConfig(&cfg);
+  yeDestroy(dialogue_example);
   ygEnd();
 }

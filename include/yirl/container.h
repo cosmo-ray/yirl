@@ -57,4 +57,6 @@ Entity *ywCntGetLastEntry(Entity *container);
 
 #define ywCntType(opac) (((YContainerState *)opac)->type)
 
+Entity *ywCntWidgetFather(Entity *wid);
+
 #endif
