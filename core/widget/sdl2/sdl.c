@@ -568,7 +568,7 @@ static int sdlCanvasCacheImg(Entity *state, Entity *elem,
   ywSizeCreate(w, h, elem, "$size");
   yeSetDestroy(data, sdlFreeTexture);
   yeGetPush(elem, resource, "$img");
-  yeGetPush(resource, elem, "$size");
+  yeGetPush(elem, resource, "$size");
   ret = 0;
  exit:
   SDL_FreeSurface(surface);
@@ -614,7 +614,7 @@ int sdlCanvasCacheTexture(Entity *state, Entity *elem)
 static int sdlCanvasRendImg(YWidgetState *state, SDLWid *wid, Entity *img)
 {
   SDL_Texture *t = yeGetData(yeGet(img, "$img"));
-  Entity *s = yeGet(img, "$size");
+  Entity *s = ywCanvasObjSize(state->entity, img); //yeGet(img, "$size");
   Entity *p = ywCanvasObjPos(img);
   SDL_Rect rd = { ywPosX(p), ywPosY(p), ywSizeW(s), ywSizeH(s) };
 

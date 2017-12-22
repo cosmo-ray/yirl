@@ -66,6 +66,11 @@ void yeInitMem(void)
   }
 }
 
+int yeEntitysArraySize(void)
+{
+  return yBlockArrayLastPos(entitysArray) + 1;
+}
+
 int yeIsPtrAnEntity(void *ptr)
 {
   return ((union FatEntity *)ptr) >= yBlockArrayGetPtrDirect(entitysArray, 0,

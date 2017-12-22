@@ -53,6 +53,8 @@ int	luaCopy(lua_State *L);
 int	luaType(lua_State *L);
 int	luaYeToLuaString(lua_State *L);
 int	luaYeIncrRef(lua_State *L);
+int	luayeEntitysArraySize(lua_State *L);
+
 
 /* string */
 int	luaGetString(lua_State *L);
@@ -241,6 +243,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeSetAt", luaSetAt));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeToLuaString", luaYeToLuaString));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeIncrRef", luaYeIncrRef));
+  YES_LUA_REGISTRE_CALL(sm, yeEntitysArraySize);
 
   /* string */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeGetString", luaGetString));

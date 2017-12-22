@@ -29,6 +29,7 @@ void testLifecycleSimple(void)
   Entity *test4 = yeCreateString("test", NULL, NULL);
   Entity *test5 = yeCreateFunction("funcName", NULL, NULL, NULL);
 
+  g_assert(yeEntitysArraySize() == 5);
   g_assert(test1);
   g_assert(test2);
   g_assert(test3);

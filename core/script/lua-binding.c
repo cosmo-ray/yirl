@@ -62,6 +62,13 @@ int	luaLen(lua_State *L)
   return 1;
 }
 
+int	luayeEntitysArraySize(lua_State *L)
+{
+  lua_pushnumber(L, yeEntitysArraySize());
+  return 1;
+}
+
+
 int	luaCopy(lua_State *L)
 {
   DPRINT_INFO("enter luaCopyEntity\n");

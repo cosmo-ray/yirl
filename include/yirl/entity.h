@@ -197,6 +197,8 @@ void yeEnd(void);
 
 int yeIsPtrAnEntity(void *ptr);
 
+int yeEntitysArraySize(void);
+
 /**
  * @param str   the type name
  * @return the corresponding type, -1 if type not found
