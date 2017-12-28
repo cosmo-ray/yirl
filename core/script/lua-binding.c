@@ -62,9 +62,27 @@ int	luaLen(lua_State *L)
   return 1;
 }
 
-int	luayeEntitysArraySize(lua_State *L)
+int	luayeRefCount(lua_State *L)
 {
-  lua_pushnumber(L, yeEntitysArraySize());
+  lua_pushnumber(L, yeRefCount(lua_touserdata(L, 1)));
+  return 1;
+}
+
+int	luayeFreeEntitiesInStack(lua_State *L)
+{
+  lua_pushnumber(L, yeFreeEntitiesInStack());
+  return 1;
+}
+
+int	luayeEntitiesUsed(lua_State *L)
+{
+  lua_pushnumber(L, yeEntitiesUsed());
+  return 1;
+}
+
+int	luayeEntitiesArraySize(lua_State *L)
+{
+  lua_pushnumber(L, yeEntitiesArraySize());
   return 1;
 }
 

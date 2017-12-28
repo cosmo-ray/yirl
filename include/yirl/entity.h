@@ -185,6 +185,11 @@ union FatEntity {
 #include "entity-cplusplus.h"
 #endif
 
+static inline int yeRefCount(Entity *e)
+{
+  return e->refCount;
+}
+
 #define yeMetadata(Entity, EntityType)			\
 	(((uint8_t *)Entity) + sizeof(EntityType))
 
@@ -197,7 +202,11 @@ void yeEnd(void);
 
 int yeIsPtrAnEntity(void *ptr);
 
-int yeEntitysArraySize(void);
+int yeEntitiesArraySize(void);
+
+int yeEntitiesUsed(void);
+
+int yeFreeEntitiesInStack(void);
 
 /**
  * @param str   the type name

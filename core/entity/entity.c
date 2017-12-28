@@ -66,7 +66,17 @@ void yeInitMem(void)
   }
 }
 
-int yeEntitysArraySize(void)
+int yeFreeEntitiesInStack(void)
+{
+  return freedElems.len;
+}
+
+int yeEntitiesUsed(void)
+{
+  return yeEntitiesArraySize() - yeFreeEntitiesInStack();
+}
+
+int yeEntitiesArraySize(void)
 {
   return yBlockArrayLastPos(entitysArray) + 1;
 }

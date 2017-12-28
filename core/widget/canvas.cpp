@@ -116,8 +116,10 @@ extern "C" {
     YE_ARRAY_FOREACH(objs, tmpObj) {
       Entity *tmpRect = ywRectCreatePosSize(ywCanvasObjPos(tmpObj),
 					    ywCanvasObjSize(wid, tmpObj), NULL, NULL);
-      if (obj == tmpObj)
+      if (obj == tmpObj) {
+	yeDestroy(tmpRect);
 	continue;
+      }
       if (ywRectCollision(objRect, tmpRect)) {
 	yePushBack(ret, tmpObj, NULL);
       }

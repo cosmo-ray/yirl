@@ -53,8 +53,10 @@ int	luaCopy(lua_State *L);
 int	luaType(lua_State *L);
 int	luaYeToLuaString(lua_State *L);
 int	luaYeIncrRef(lua_State *L);
-int	luayeEntitysArraySize(lua_State *L);
-
+int	luayeEntitiesArraySize(lua_State *L);
+int	luayeFreeEntitiesInStack(lua_State *L);
+int	luayeEntitiesUsed(lua_State *L);
+int	luayeRefCount(lua_State *L);
 
 /* string */
 int	luaGetString(lua_State *L);
@@ -243,7 +245,10 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeSetAt", luaSetAt));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeToLuaString", luaYeToLuaString));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeIncrRef", luaYeIncrRef));
-  YES_LUA_REGISTRE_CALL(sm, yeEntitysArraySize);
+  YES_LUA_REGISTRE_CALL(sm, yeEntitiesArraySize);
+  YES_LUA_REGISTRE_CALL(sm, yeEntitiesUsed);
+  YES_LUA_REGISTRE_CALL(sm, yeFreeEntitiesInStack);
+  YES_LUA_REGISTRE_CALL(sm, yeRefCount);
 
   /* string */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeGetString", luaGetString));
