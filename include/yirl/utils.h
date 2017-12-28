@@ -48,7 +48,7 @@ typedef int32_t int_ptr_t;
 #ifdef _WIN32
 #define PRIint64 "%lli"
 #else
-#define PRIint64 "%"PRIi64
+#define PRIint64 "%" PRIi64
 #endif
 
 #elif __SIZEOF_POINTER__ == 8
@@ -59,7 +59,7 @@ typedef int64_t int_ptr_t;
 #ifdef _WIN32
 #define PRIint64 "%lli"
 #else
-#define PRIint64 "%"PRIi64
+#define PRIint64 "%" PRIi64
 #endif
 
 #else
