@@ -276,6 +276,7 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
     yeDestroy(ret);
   } else {
     iret = (intptr_t)ret;
+    yeCreateInt(iret, stack, NULL);
   }
   script += script[1] + 3;
   --YBytecodeScriptDirectReturn;

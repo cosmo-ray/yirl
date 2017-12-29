@@ -15,8 +15,8 @@ sub 2 {
 }
 
 add2 1 {
-   yg_get_push "add1"
-   call_entity 1 0
-   call_entity 1 0
+   yg_get_push "add1" => add_func
+   call_entity add_func 0
+   call_entity add_func 0
    leave
 }

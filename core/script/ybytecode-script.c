@@ -167,6 +167,75 @@ static int tryStoreNumber(int64_t *dest, Entity *str, Entity *tokInfo)
   return 0;
 }
 
+struct identifiers {
+  const char *str;
+  int num;
+  LIST_ENTRY(identifiers) entries;
+};
+
+LIST_HEAD(identifiersHead, identifiers);
+
+static int getIdent(struct identifiersHead *identHead, const char *name)
+{
+  struct identifiers *iden;
+
+  LIST_FOREACH(iden, identHead, entries) {
+    if (!strcmp(iden->str, name)) {
+      return iden->num;
+    }
+  }
+  return -1;
+}
+
+static int storeIdent(Entity *str, Entity *tokInfo,
+		      struct identifiersHead *identHead, int indent, int tok)
+{
+  const char *cstr = yeTokString(tokInfo, tok);
+  
+  for (int i = 0; cstr[i]; ++i) {
+
+    if (!(yuiIsCharAlphaNum(cstr[i]) || cstr[i] == '_')) {
+      DPRINT_ERR("expected identifier, got '%s'\n", yeTokString(tokInfo, tok));
+      return -1;
+    }
+  }
+  if (getIdent(identHead, cstr) > 0) {
+      DPRINT_ERR("redefinition of '%s'\n", cstr);
+      return -1;
+  }
+  struct identifiers *iden = malloc(sizeof(struct identifiers));
+  iden->str = cstr;
+  iden->num = indent;
+  LIST_INSERT_HEAD(identHead, iden, entries);
+  return 0;
+}
+
+static int tryGetIdentifier(int64_t *dest, Entity *str, Entity *tokInfo,
+			    struct identifiersHead *identHead)
+{
+  int tok = nextNonSeparatorTok(str, tokInfo);
+  int neg_modifier = 1;
+  const char *cstr;
+
+  if (tok == NUMBER_TOK) {
+    *dest = (atoi(yeTokString(tokInfo, tok)) * neg_modifier);
+    return 0;
+  }
+
+  cstr = yeTokString(tokInfo, tok);
+  for (int i = 0; cstr[i]; ++i) {
+
+    if (!(yuiIsCharAlphaNum(cstr[i]) || cstr[i] == '_')) {
+      DPRINT_ERR("expected identifier, got '%s'\n", yeTokString(tokInfo, tok));
+      return -1;
+    }
+  }
+  *dest = getIdent(identHead, cstr);
+  if (*dest < 0)
+    return -1; 
+  return 0;
+}
+
 static Entity *tryStoreStringCurTok(Entity *funcData, Entity *str,
 				    Entity *tokInfo, int tok)
 {
@@ -263,9 +332,17 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
   uint32_t script_len = 1;
   int nb_args = 0;
   int64_t nb_func_args = 0;
+  int have_return = 0;
+  int current_identifier;
   int ret = -1;
   struct labelHead labels = LIST_HEAD_INITIALIZER(labels);
   struct labelHead labels_needed = LIST_HEAD_INITIALIZER(labels_needed);
+  struct identifiersHead idents = LIST_HEAD_INITIALIZER(idents);
+
+#define INCREMENT_IDENTIFIER() do {		\
+    ++current_identifier;			\
+    have_return = 1;				\
+  } while (0)
 
   script[0] = 0;
 
@@ -277,9 +354,17 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
 	       yeTokString(tokInfo, tok), yeGetString(funcName));
     goto exit;
   }
+  current_identifier = nb_func_args - 1;
  still_in_func:
   tok = yeStringNextTok(str, tokInfo);
  still_in_func_no_next:
+  // handle return here, check have_return, and check for a '=>'
+  if (have_return && tok == ASSIGNATION_TOK) {
+    tok = nextNonSeparatorTok(str, tokInfo);
+    storeIdent(str, tokInfo, &idents, current_identifier, tok);
+    have_return = 0;
+    goto still_in_func;
+  }
   switch (tok) {
   case YB_GET_AT_STR_TOK:
     {
@@ -292,6 +377,7 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
       script[script_len + 2] = (uintptr_t)yeGetString(tmpStr);
       script_len += 3;
     }
+    INCREMENT_IDENTIFIER();
     goto still_in_func;
   case YB_NEW_WIDGET_TOK:
     {
@@ -309,6 +395,7 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
       }
       script_len += 3;
     }
+    INCREMENT_IDENTIFIER();
     goto still_in_func;
   case YB_PUSH_BACK_TOK:
     {
@@ -341,10 +428,11 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
       script[script_len + 1] = (uintptr_t)yeGetString(tmpStr);
       script_len += 2;
     }
+    INCREMENT_IDENTIFIER();
     goto still_in_func;
   case YB_CALL_TOK: /* variadic arguments */
     script[script_len] = tok;
-    if (tryStoreNumber(&script[script_len + 2], str, tokInfo) < 0)
+    if (tryGetIdentifier(&script[script_len + 2], str, tokInfo, &idents) < 0)
       goto exit;
     while ((tok = nextNonSeparatorTok(str, tokInfo)) == NUMBER_TOK) {
       ++nb_args;
@@ -353,6 +441,7 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
     script[script_len + 1] = nb_args;
     script_len += nb_args + 3;
     nb_args = 0;
+    INCREMENT_IDENTIFIER();
     goto still_in_func_no_next;
   case YB_ADD_TOK:
   case YB_SUB_TOK:
@@ -377,6 +466,8 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
     if (tryStoreNumber(&script[script_len + 2], str, tokInfo) < 0)
       goto exit;
     script_len += 3;
+    if (tok == YB_GET_AT_IDX_TOK)
+      INCREMENT_IDENTIFIER();
     goto still_in_func;
   case YB_INCR_TOK:
   case YB_RETURN_TOK:
@@ -387,6 +478,8 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
     if (tryStoreNumber(&script[script_len + 1], str, tokInfo) < 0)
       goto exit;
     script_len += 2;
+    if (tok == YB_CREATE_INT_TOK)
+      INCREMENT_IDENTIFIER();
     goto still_in_func;
   case YB_LEAVE_TOK:
   case YB_STACK_POP:
@@ -457,6 +550,12 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
   yePushBack(map, funcData, yeGetString(funcName));
   yeDestroy(data);
  exit:
+  while (!LIST_EMPTY(&idents)) {
+    struct identifiers *n1 = LIST_FIRST(&idents);
+    LIST_REMOVE(n1, entries);
+    free(n1);
+  }
+
   while (!LIST_EMPTY(&labels_needed)) {           /* List Deletion. */
     struct labels *n1 = LIST_FIRST(&labels_needed);
     LIST_REMOVE(n1, entries);
@@ -470,6 +569,7 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
     yeDestroy(n1->str);
     free(n1);
   }
+
   yeDestroy(funcName);
   yeDestroy(funcData);
   return ret;
