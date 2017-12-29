@@ -174,6 +174,11 @@ int	luaySoundStop(lua_State *L);
     lua_setglobal(((YScriptLua *)manager)->l, #value);			\
   } while (0)
 
+#define LUA_SET_INT_GLOBAL_VAL(manager, key, val) do {			\
+    lua_pushnumber(((YScriptLua *)manager)->l, val);			\
+    lua_setglobal(((YScriptLua *)manager)->l, #key);			\
+  } while (0)
+
 static inline int	yesLuaRegister(void *sm)
 {
   lua_pushlightuserdata(((YScriptLua *)sm)->l, (void *)NOTHANDLE);
@@ -192,6 +197,33 @@ static inline int	yesLuaRegister(void *sm)
   lua_setglobal(((YScriptLua *)sm)->l, "YKEY_UP");
   lua_pushnumber(((YScriptLua *)sm)->l, YKEY_NONE);
   lua_setglobal(((YScriptLua *)sm)->l, "YKEY_NONE");
+
+  LUA_SET_INT_GLOBAL_VAL(sm, Y_A_KEY, 'a');
+  LUA_SET_INT_GLOBAL_VAL(sm, Y_B_KEY, 'b');
+  LUA_SET_INT_GLOBAL_VAL(sm, Y_C_KEY, 'c');
+  LUA_SET_INT_GLOBAL_VAL(sm, Y_D_KEY, 'd');
+  LUA_SET_INT_GLOBAL_VAL(sm, Y_E_KEY, 'e');
+  LUA_SET_INT_GLOBAL_VAL(sm, Y_F_KEY, 'f');
+  LUA_SET_INT_GLOBAL_VAL(sm, Y_G_KEY, 'g');
+  LUA_SET_INT_GLOBAL_VAL(sm, Y_H_KEY, 'h');
+  LUA_SET_INT_GLOBAL_VAL(sm, Y_I_KEY, 'i');
+  LUA_SET_INT_GLOBAL_VAL(sm, Y_J_KEY, 'j');
+  LUA_SET_INT_GLOBAL_VAL(sm, Y_K_KEY, 'k');
+  LUA_SET_INT_GLOBAL_VAL(sm, Y_L_KEY, 'l');
+  LUA_SET_INT_GLOBAL_VAL(sm, Y_M_KEY, 'm');
+  LUA_SET_INT_GLOBAL_VAL(sm, Y_N_KEY, 'n');
+  LUA_SET_INT_GLOBAL_VAL(sm, Y_O_KEY, 'o');
+  LUA_SET_INT_GLOBAL_VAL(sm, Y_P_KEY, 'p');
+  LUA_SET_INT_GLOBAL_VAL(sm, Y_Q_KEY, 'q');
+  LUA_SET_INT_GLOBAL_VAL(sm, Y_R_KEY, 'r');
+  LUA_SET_INT_GLOBAL_VAL(sm, Y_S_KEY, 's');
+  LUA_SET_INT_GLOBAL_VAL(sm, Y_T_KEY, 't');
+  LUA_SET_INT_GLOBAL_VAL(sm, Y_U_KEY, 'u');
+  LUA_SET_INT_GLOBAL_VAL(sm, Y_V_KEY, 'v');
+  LUA_SET_INT_GLOBAL_VAL(sm, Y_W_KEY, 'w');
+  LUA_SET_INT_GLOBAL_VAL(sm, Y_X_KEY, 'x');
+  LUA_SET_INT_GLOBAL_VAL(sm, Y_Y_KEY, 'y');
+  LUA_SET_INT_GLOBAL_VAL(sm, Y_Z_KEY, 'z');
 
   lua_pushnumber(((YScriptLua *)sm)->l, 27);
   lua_setglobal(((YScriptLua *)sm)->l, "Y_ESC_KEY");
@@ -366,4 +398,5 @@ static inline int	yesLuaRegister(void *sm)
 #undef LUA_SET_INT_GLOBAL
 #undef YES_RET_IF_FAIL
 #undef YES_LUA_REGISTRE_CALL
+#undef LUA_SET_INT_GLOBAL_VAL
 #endif
