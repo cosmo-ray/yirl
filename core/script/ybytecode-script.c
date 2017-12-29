@@ -190,15 +190,13 @@ static int getIdent(struct identifiersHead *identHead, const char *name)
 static int storeIdent(Entity *str, Entity *tokInfo,
 		      struct identifiersHead *identHead, int indent, int tok)
 {
-  const char *cstr = yeTokString(tokInfo, tok);
+  const char *cstr = yeTokCIdentifier(tokInfo, tok);
   
-  for (int i = 0; cstr[i]; ++i) {
-
-    if (!(yuiIsCharAlphaNum(cstr[i]) || cstr[i] == '_')) {
-      DPRINT_ERR("expected identifier, got '%s'\n", yeTokString(tokInfo, tok));
-      return -1;
-    }
+  if (!cstr) {
+    DPRINT_ERR("expected identifier, got '%s'\n", yeTokString(tokInfo, tok));
+    return -1;
   }
+
   if (getIdent(identHead, cstr) > 0) {
       DPRINT_ERR("redefinition of '%s'\n", cstr);
       return -1;
@@ -222,13 +220,10 @@ static int tryGetIdentifier(int64_t *dest, Entity *str, Entity *tokInfo,
     return 0;
   }
 
-  cstr = yeTokString(tokInfo, tok);
-  for (int i = 0; cstr[i]; ++i) {
-
-    if (!(yuiIsCharAlphaNum(cstr[i]) || cstr[i] == '_')) {
-      DPRINT_ERR("expected identifier, got '%s'\n", yeTokString(tokInfo, tok));
-      return -1;
-    }
+  cstr = yeTokCIdentifier(tokInfo, tok);
+  if (!cstr) {
+    DPRINT_ERR("expected identifier, got '%s'\n", yeTokString(tokInfo, tok));
+    return -1;
   }
   *dest = getIdent(identHead, cstr);
   if (*dest < 0)
@@ -278,12 +273,9 @@ static int tryStoreLabels(int script_pos, Entity *str,
   for (tok = tok > 0 ? tok : nextNonSeparatorTok(str, tokInfo);
        tok != COLON_TOK;
        tok = yeStringNextTok(str, tokInfo)) {
-    const char *cstr = yeTokString(tokInfo, tok);
-    for (int i = 0; cstr[i]; ++i) {
-      if (!(yuiIsCharAlphaNum(cstr[i]) || cstr[i] == '_')) {
-	goto error;
-      }
-    }
+    const char *cstr = yeTokCIdentifier(tokInfo, tok);
+    if (!cstr)
+      goto error;
     yeStringAdd(strTmp, cstr);
   }
   if (!yeGetString(strTmp)) {

@@ -136,6 +136,26 @@ static inline Entity *yeTokInfoCreate(Entity *father, const char *name)
 }
 
 const char *yeTokString(Entity *tokInfo, int tokIdx);
+
+/**
+ * @return a valid C identifier or NULL
+ */
+static inline const char *yeTokCIdentifier(Entity *tokInfo, int tokIdx)
+{
+  const char *cstr;
+  cstr = yeTokString(tokInfo, tok);
+
+  if (unlikely(!cstr))
+    return NULL;
+  for (int i = 0; cstr[i]; ++i) {
+
+    if (!(yuiIsCharAlphaNum(cstr[i]) || cstr[i] == '_')) {
+      return NULL;
+    }
+  }
+  return cstr;
+}
+
 int yeTokLen(Entity *tokInfo, int tokIdx);
 
 int yeStringNextTok(Entity *str, Entity *tokInfo);
