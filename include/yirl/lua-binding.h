@@ -147,6 +147,8 @@ int	luaYwCanvasNewCollisionsArrayWithRectangle(lua_State *L);
 int	luaYwCanvasNewText(lua_State *L);
 int	luaYwCanvasObjSetResourceId(lua_State *L);
 int	luaywCanvasNewRect(lua_State *L);
+int	luaywCanvasCheckCollisions(lua_State *L);
+int	luaywCanvasNewCollisionsArrayExt(lua_State *L);
 
 /* Game and Module */
 int	luaGetMod(lua_State *L);
@@ -189,6 +191,12 @@ static inline int	yesLuaRegister(void *sm)
   lua_setglobal(((YScriptLua *)sm)->l, "YEVE_ACTION");
   lua_pushlightuserdata(((YScriptLua *)sm)->l, (void *)YJSON);
   lua_setglobal(((YScriptLua *)sm)->l, "YJSON");
+
+  lua_pushlightuserdata(((YScriptLua *)sm)->l, (void *)1);
+  lua_setglobal(((YScriptLua *)sm)->l, "Y_TRUE");
+  lua_pushlightuserdata(((YScriptLua *)sm)->l, (void *)0);
+  lua_setglobal(((YScriptLua *)sm)->l, "Y_FALSE");
+
 
   /* set gobales */
   lua_pushnumber(((YScriptLua *)sm)->l, YKEY_DOWN);
@@ -378,6 +386,8 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasNewCollisionsArrayWithRectangle",
 				 luaYwCanvasNewCollisionsArrayWithRectangle));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasObjSetResourceId", luaYwCanvasObjSetResourceId));
+  YES_LUA_REGISTRE_CALL(sm, ywCanvasNewCollisionsArrayExt);
+  YES_LUA_REGISTRE_CALL(sm, ywCanvasCheckCollisions);
 
   /* Game and Modules */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygGetMod", luaGetMod));

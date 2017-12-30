@@ -56,7 +56,13 @@ void ywCanvasObjSetResourceId(Entity *obj, int id);
 
 YCanvasObjType ywCanvasObjType(Entity *obj);
 
+int ywCanvasCheckCollisions(Entity *wid, Entity *obj, Entity *colisionFunc,
+			    Entity *colisionFuncArg);
+
 Entity *ywCanvasNewCollisionsArray(Entity *wid, Entity *obj);
-Entity *ywCanvasNewCollisionsArrayWithRectangle(Entity *wid, Entity *obj);
+Entity *ywCanvasNewCollisionsArrayExt(Entity *wid, Entity *obj,
+				      Entity *colisionFunc,
+				      Entity *colisionFuncArg);
+Entity *ywCanvasNewCollisionsArrayWithRectangle(Entity *wid, Entity *rectangle);
 
 #endif

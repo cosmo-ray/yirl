@@ -165,6 +165,25 @@ int	luaYwCanvasRemoveObj(lua_State *L)
   return 0;
 }
 
+int	luaywCanvasCheckCollisions(lua_State *L)
+{
+  lua_pushnumber(L, ywCanvasCheckCollisions(lua_touserdata(L, 1),
+					    lua_touserdata(L, 2),
+					    lua_touserdata(L, 3),
+					    lua_touserdata(L, 4)));
+  return 1;
+}
+
+int	luaywCanvasNewCollisionsArrayExt(lua_State *L)
+{
+  lua_pushlightuserdata(L, ywCanvasNewCollisionsArrayExt(lua_touserdata(L, 1),
+							 lua_touserdata(L, 2),
+							 lua_touserdata(L, 3),
+							 lua_touserdata(L, 4)));
+  return 1;
+
+}
+
 int luaYwCanvasNewCollisionsArray(lua_State *L)
 {
   lua_pushlightuserdata(L, ywCanvasNewCollisionsArray(lua_touserdata(L, 1),

@@ -22,6 +22,7 @@ extern "C" {
 #include "sdl-driver.h"
 #include "sdl2/canvas-sdl.h"
 #include "yirl/canvas.h"
+#include "yirl/entity-script.h"
 }
 
 static int t = -1;
@@ -106,7 +107,25 @@ extern "C" {
     return yeGet(yeGet(wid, "objs"), idx);
   }
 
+  int ywCanvasCheckCollisions(Entity *wid, Entity *obj, Entity *colisionFunc,
+			      Entity *colisionFuncArg)
+  {
+    Entity *eret = ywCanvasNewCollisionsArrayExt(wid, obj, colisionFunc,
+						colisionFuncArg);
+    int ret = !!eret;
+
+    yeDestroy(eret);
+    return ret;
+  }
+
   Entity *ywCanvasNewCollisionsArray(Entity *wid, Entity *obj)
+  {
+    return ywCanvasNewCollisionsArrayExt(wid, obj, NULL, NULL);
+  }
+
+  Entity *ywCanvasNewCollisionsArrayExt(Entity *wid, Entity *obj,
+					Entity *colisionFunc,
+					Entity *colisionFuncArg)
   {
     Entity *ret = yeCreateArray(NULL, NULL);
     Entity *objs = yeGet(wid, "objs");
@@ -120,7 +139,10 @@ extern "C" {
 	yeDestroy(tmpRect);
 	continue;
       }
-      if (ywRectCollision(objRect, tmpRect)) {
+
+      if (ywRectCollision(objRect, tmpRect) &&
+	  (!colisionFunc || yesCall(colisionFunc, wid,
+				    tmpObj, obj, colisionFuncArg))) {
 	yePushBack(ret, tmpObj, NULL);
       }
       yeDestroy(tmpRect);
