@@ -143,7 +143,7 @@ const char *yeTokString(Entity *tokInfo, int tokIdx);
 static inline const char *yeTokCIdentifier(Entity *tokInfo, int tokIdx)
 {
   const char *cstr;
-  cstr = yeTokString(tokInfo, tok);
+  cstr = yeTokString(tokInfo, tokIdx);
 
   if (unlikely(!cstr))
     return NULL;
