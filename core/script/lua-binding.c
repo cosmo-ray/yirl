@@ -31,6 +31,16 @@ struct entityWrapper {
   int needDestroy;
 };
 
+int	luaentity_tostring(lua_State *L)
+{
+  struct entityWrapper *ew = luaL_checkudata(L, 1, "Entity");
+
+  char *str = yeToCStr(ew->e, -1, 0);
+  lua_pushstring(L, str);
+  free(str);
+  return 1;
+}
+
 int	luaentity_tocentity(lua_State *L)
 {
   struct entityWrapper *ew = luaL_checkudata(L, 1, "Entity");
@@ -61,30 +71,52 @@ static Entity *luaEntityAt(lua_State *L, int pos)
     return ew->e;
 }
 
-int	luaentity_newint(lua_State *L)
+static struct entityWrapper *createEntityWrapper(lua_State *L, int fatherPos,
+						 Entity **father)
 {
-  if (!lua_isnumber(L, 1))
-    return -1;
-  int val = luaL_checknumber(L, 1);
-  int needDestroy = lua_isuserdata(L, 2);
-  Entity *father = NULL;
   struct entityWrapper *ew;
-  const char *name = lua_tostring(L, 3);
+  int needDestroy = lua_isuserdata(L, fatherPos);
 
-  if (needDestroy) {
-    if (lua_islightuserdata(L, 2)) {
-      father = lua_touserdata(L, 2);
-    } else {
-      ew = luaL_checkudata(L, 2, "Entity");
-      father = ew->e;
-    }
-  }
+  if (needDestroy)
+    *father = luaEntityAt(L, fatherPos);
+  else
+    *father = NULL;
   ew = lua_newuserdata(L, sizeof(struct entityWrapper));
-  ew->needDestroy = 0;
-
+  ew->needDestroy = needDestroy;
   luaL_getmetatable(L, "Entity");
   lua_setmetatable(L, -2);
-  ew->needDestroy = needDestroy;
+  return ew;
+}
+
+int	luaentity_newarray(lua_State *L)
+{
+  const char *name = lua_tostring(L, 2);
+  Entity *father;
+  struct entityWrapper *ew = createEntityWrapper(L, 1, &father);
+
+  ew->e = yeCreateArray(father, name);
+  return 1;
+}
+
+
+int	luaentity_newstring(lua_State *L)
+{
+  const char *val = luaL_checkstring(L, 1);
+  const char *name = lua_tostring(L, 3);
+  Entity *father;
+  struct entityWrapper *ew = createEntityWrapper(L, 2, &father);
+
+  ew->e = yeCreateString(val, father, name);
+  return 1;
+}
+
+int	luaentity_newint(lua_State *L)
+{
+  int val = luaL_checknumber(L, 1);
+  const char *name = lua_tostring(L, 3);
+  Entity *father;
+  struct entityWrapper *ew = createEntityWrapper(L, 2, &father);
+
   ew->e = yeCreateInt(val, father, name);
   return 1;
 }

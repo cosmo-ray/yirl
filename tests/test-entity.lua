@@ -34,6 +34,13 @@ function complexFunction()
 
    print(e, yeGetInt(e:cent()))
    e = Entity.new_int(15, father)
-   print(e, yeGetInt(e:cent()))   
+   print(e, yeGetInt(e:cent()))
+   e = Entity.new_string("oh you touch my tralala", father)
+   print(e, yeGetString(e:cent()))
+   local a = Entity.new_array()
+   local a1 = Entity.new_array(a, "idx")
+   e = Entity.new_string("oh my ding ding dong", a1, "str")
+   print(e, a, a1, yeGetString(yeGet(yeGet(a:cent(), "idx"), "str")))
+   print(e)
    return 0
 end
