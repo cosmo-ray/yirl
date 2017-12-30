@@ -151,9 +151,10 @@ void ybytecodeLoopCallFunction(void)
 		     YB_CREATE_INT, 0,
 		     YB_CREATE_INT, 1,
 		     YB_CREATE_INT, 5000000,
-		     YB_JMP, 24,
+		     YB_JMP, 25,
 		     YB_CALL, 2, 1, 2, 3, // 2 arguments, call stack 1,
 				      //with arguments at stack 2 and 3
+		     YB_STACK_POP,
 		     YB_INF, 2, 4, 19,
 		     YB_RETURN, 2, // return 2nd elem, so 15 , 52
 		     YB_END_FUNC
