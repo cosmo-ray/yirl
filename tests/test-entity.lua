@@ -27,3 +27,13 @@ function createString(val)
    local ret = yeCreateString(ylovePtrToString(val))
    return ret
 end
+
+function complexFunction()
+   local father = yeCreateArray()
+   local e = Entity.new_int(10)
+
+   print(e, yeGetInt(e:cent()))
+   e = Entity.new_int(15, father)
+   print(e, yeGetInt(e:cent()))   
+   return 0
+end

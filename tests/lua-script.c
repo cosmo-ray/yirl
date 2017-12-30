@@ -80,6 +80,7 @@ void testLuaScritEntityBind(void)
   g_assert(ysLoadFile(sm,  "I should fail") < 0);
 
   if (ysLoadFile(sm, TESTS_PATH"/test-entity.lua")) {
+    printf("%s\n", ysGetError(sm));
     g_assert(ysGetError(sm));
     g_assert(0);
   }
@@ -94,6 +95,8 @@ void testLuaScritEntityBind(void)
   g_assert(ret);
   g_assert(yeType(ret) == YSTRING);
   g_assert(yuiStrEqual(yeGetString(ret), "tests"));
+
+  ret = ysCall(sm, "complexFunction");
   //call func
   YE_DESTROY(ret);
   ret = yesCall(func, 6);

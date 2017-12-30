@@ -24,6 +24,12 @@
 #include "keydef.h"
 #include "game.h"
 #include <lualib.h>
+#include <lauxlib.h>
+
+/* Entity objets */
+int	luaentity_tocentity(lua_State *L);
+int	luaentity_destroy(lua_State *L);
+int	luaentity_newint(lua_State *L);
 
 /* love lua */
 int	luaYAnd(lua_State *L);
@@ -183,29 +189,24 @@ int	luaySoundStop(lua_State *L);
 
 static inline int	yesLuaRegister(void *sm)
 {
-  lua_pushlightuserdata(((YScriptLua *)sm)->l, (void *)NOTHANDLE);
-  lua_setglobal(((YScriptLua *)sm)->l, "YEVE_NOTHANDLE");
-  lua_pushlightuserdata(((YScriptLua *)sm)->l, (void *)NOACTION);
-  lua_setglobal(((YScriptLua *)sm)->l, "YEVE_NOACTION");
-  lua_pushlightuserdata(((YScriptLua *)sm)->l, (void *)ACTION);
-  lua_setglobal(((YScriptLua *)sm)->l, "YEVE_ACTION");
-  lua_pushlightuserdata(((YScriptLua *)sm)->l, (void *)YJSON);
-  lua_setglobal(((YScriptLua *)sm)->l, "YJSON");
+  lua_State *L = ((YScriptLua *)sm)->l;
+  
+  lua_pushlightuserdata(L, (void *)NOTHANDLE);
+  lua_setglobal(L, "YEVE_NOTHANDLE");
+  lua_pushlightuserdata(L, (void *)NOACTION);
+  lua_setglobal(L, "YEVE_NOACTION");
+  lua_pushlightuserdata(L, (void *)ACTION);
+  lua_setglobal(L, "YEVE_ACTION");
+  lua_pushlightuserdata(L, (void *)YJSON);
+  lua_setglobal(L, "YJSON");
 
-  lua_pushlightuserdata(((YScriptLua *)sm)->l, (void *)1);
-  lua_setglobal(((YScriptLua *)sm)->l, "Y_TRUE");
-  lua_pushlightuserdata(((YScriptLua *)sm)->l, (void *)0);
-  lua_setglobal(((YScriptLua *)sm)->l, "Y_FALSE");
+  lua_pushlightuserdata(L, (void *)1);
+  lua_setglobal(L, "Y_TRUE");
+  lua_pushlightuserdata(L, (void *)0);
+  lua_setglobal(L, "Y_FALSE");
 
 
   /* set gobales */
-  lua_pushnumber(((YScriptLua *)sm)->l, YKEY_DOWN);
-  lua_setglobal(((YScriptLua *)sm)->l, "YKEY_DOWN");
-  lua_pushnumber(((YScriptLua *)sm)->l, YKEY_UP);
-  lua_setglobal(((YScriptLua *)sm)->l, "YKEY_UP");
-  lua_pushnumber(((YScriptLua *)sm)->l, YKEY_NONE);
-  lua_setglobal(((YScriptLua *)sm)->l, "YKEY_NONE");
-
   LUA_SET_INT_GLOBAL_VAL(sm, Y_A_KEY, 'a');
   LUA_SET_INT_GLOBAL_VAL(sm, Y_B_KEY, 'b');
   LUA_SET_INT_GLOBAL_VAL(sm, Y_C_KEY, 'c');
@@ -233,17 +234,41 @@ static inline int	yesLuaRegister(void *sm)
   LUA_SET_INT_GLOBAL_VAL(sm, Y_Y_KEY, 'y');
   LUA_SET_INT_GLOBAL_VAL(sm, Y_Z_KEY, 'z');
 
-  lua_pushnumber(((YScriptLua *)sm)->l, 27);
-  lua_setglobal(((YScriptLua *)sm)->l, "Y_ESC_KEY");
-  lua_pushnumber(((YScriptLua *)sm)->l, Y_UP_KEY);
-  lua_setglobal(((YScriptLua *)sm)->l, "Y_UP_KEY");
-  lua_pushnumber(((YScriptLua *)sm)->l, Y_DOWN_KEY);
-  lua_setglobal(((YScriptLua *)sm)->l, "Y_DOWN_KEY");
-  lua_pushnumber(((YScriptLua *)sm)->l, Y_LEFT_KEY);
-  lua_setglobal(((YScriptLua *)sm)->l, "Y_LEFT_KEY");
-  lua_pushnumber(((YScriptLua *)sm)->l, Y_RIGHT_KEY);
-  lua_setglobal(((YScriptLua *)sm)->l, "Y_RIGHT_KEY");
+  lua_pushnumber(L, YKEY_DOWN);
+  lua_setglobal(L, "YKEY_DOWN");
+  lua_pushnumber(L, YKEY_UP);
+  lua_setglobal(L, "YKEY_UP");
+  lua_pushnumber(L, YKEY_NONE);
+  lua_setglobal(L, "YKEY_NONE");
 
+  lua_pushnumber(L, 27);
+  lua_setglobal(L, "Y_ESC_KEY");
+  lua_pushnumber(L, Y_UP_KEY);
+  lua_setglobal(L, "Y_UP_KEY");
+  lua_pushnumber(L, Y_DOWN_KEY);
+  lua_setglobal(L, "Y_DOWN_KEY");
+  lua_pushnumber(L, Y_LEFT_KEY);
+  lua_setglobal(L, "Y_LEFT_KEY");
+  lua_pushnumber(L, Y_RIGHT_KEY);
+  lua_setglobal(L, "Y_RIGHT_KEY");
+
+  static const struct luaL_Reg luaentity_methods[] = {
+    {"__gc", luaentity_destroy},
+    {"cent", luaentity_tocentity},
+    {NULL, NULL},
+  };
+  static const struct luaL_Reg luaentity_functions[] = {
+    { "new_int", luaentity_newint},
+    {NULL, NULL},
+  };
+
+  luaL_newmetatable(L, "Entity");
+  lua_pushvalue(L, -1);
+  lua_setfield(L, -2, "__index");
+  luaL_setfuncs(L, luaentity_methods, 0);
+  luaL_newlib(L, luaentity_functions);
+  lua_setglobal(L, "Entity");
+  
   /* set entities type global */
   LUA_SET_INT_GLOBAL(sm, YINT);
   LUA_SET_INT_GLOBAL(sm, YSTRING);
@@ -251,6 +276,7 @@ static inline int	yesLuaRegister(void *sm)
   LUA_SET_INT_GLOBAL(sm, YARRAY);
   LUA_SET_INT_GLOBAL(sm, YFUNCTION);
   LUA_SET_INT_GLOBAL(sm, YDATA);
+
 
   /* I love lua */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yAnd", luaYAnd));

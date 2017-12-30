@@ -26,6 +26,69 @@
 #include	"canvas.h"
 #include	"game.h"
 
+struct entityWrapper {
+  Entity *e;
+  int needDestroy;
+};
+
+int	luaentity_tocentity(lua_State *L)
+{
+  struct entityWrapper *ew = luaL_checkudata(L, 1, "Entity");
+
+  lua_pushlightuserdata(L, ew->e);
+  return 1;
+}
+
+int	luaentity_destroy(lua_State *L)
+{
+  struct entityWrapper *ew = luaL_checkudata(L, 1, "Entity");
+
+  if (ew->needDestroy) {
+    yeDestroy(ew->e);
+    ew->needDestroy = 0;
+    ew->e = NULL;
+  }
+  return 0;
+}
+
+static Entity *luaEntityAt(lua_State *L, int pos)
+{
+    if (lua_islightuserdata(L, pos)) {
+      return lua_touserdata(L, pos);
+    }
+
+    struct entityWrapper *ew = luaL_checkudata(L, pos, "Entity");
+    return ew->e;
+}
+
+int	luaentity_newint(lua_State *L)
+{
+  if (!lua_isnumber(L, 1))
+    return -1;
+  int val = luaL_checknumber(L, 1);
+  int needDestroy = lua_isuserdata(L, 2);
+  Entity *father = NULL;
+  struct entityWrapper *ew;
+  const char *name = lua_tostring(L, 3);
+
+  if (needDestroy) {
+    if (lua_islightuserdata(L, 2)) {
+      father = lua_touserdata(L, 2);
+    } else {
+      ew = luaL_checkudata(L, 2, "Entity");
+      father = ew->e;
+    }
+  }
+  ew = lua_newuserdata(L, sizeof(struct entityWrapper));
+  ew->needDestroy = 0;
+
+  luaL_getmetatable(L, "Entity");
+  lua_setmetatable(L, -2);
+  ew->needDestroy = needDestroy;
+  ew->e = yeCreateInt(val, father, name);
+  return 1;
+}
+
 int	luaYAnd(lua_State *L)
 {
   lua_pushnumber(L, (int)lua_tonumber(L, 1) & (int)lua_tonumber(L, 2));
