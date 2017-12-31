@@ -33,6 +33,7 @@ int	luaentity_tostring(lua_State *L);
 int	luaentity_newint(lua_State *L);
 int	luaentity_newstring(lua_State *L);
 int	luaentity_newarray(lua_State *L);
+int	luaentity_index(lua_State *L);
 
 /* love lua */
 int	luaYAnd(lua_State *L);
@@ -258,6 +259,7 @@ static inline int	yesLuaRegister(void *sm)
   static const struct luaL_Reg luaentity_methods[] = {
     {"__gc", luaentity_destroy},
     {"__tostring", luaentity_tostring},
+    {"__index", luaentity_index},
     {"cent", luaentity_tocentity},
     {NULL, NULL},
   };

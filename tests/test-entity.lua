@@ -42,5 +42,7 @@ function complexFunction()
    e = Entity.new_string("oh my ding ding dong", a1, "str")
    print(e, a, a1, yeGetString(yeGet(yeGet(a:cent(), "idx"), "str")))
    print(e)
+   print(a1.str)
+   print(a[0], a[0].str)
    return 0
 end

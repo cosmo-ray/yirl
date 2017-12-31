@@ -26,10 +26,75 @@
 #include	"canvas.h"
 #include	"game.h"
 
+Entity *YLUA_NO_DESTROY_ORPHAN = ((void *)1);
+
 struct entityWrapper {
   Entity *e;
   int needDestroy;
 };
+
+static Entity *luaEntityAt(lua_State *L, int pos)
+{
+    if (lua_islightuserdata(L, pos)) {
+      return lua_touserdata(L, pos);
+    }
+
+    struct entityWrapper *ew = luaL_checkudata(L, pos, "Entity");
+    return ew->e;
+}
+
+static struct entityWrapper *createEntityWrapper(lua_State *L, int fatherPos,
+						 Entity **father)
+{
+  struct entityWrapper *ew;
+  int needDestroy = !lua_isuserdata(L, fatherPos);
+
+  if (*father == YLUA_NO_DESTROY_ORPHAN) {
+    needDestroy = 0;
+    *father = NULL;
+    goto finish_init;
+  }
+  if (needDestroy)
+    *father = NULL;
+  else
+    *father = luaEntityAt(L, fatherPos);
+
+ finish_init:
+  ew = lua_newuserdata(L, sizeof(struct entityWrapper));
+  ew->needDestroy = needDestroy;
+  luaL_getmetatable(L, "Entity");
+  lua_setmetatable(L, -2);
+  return ew;
+}
+
+int	luaentity_index(lua_State *L)
+{
+  struct entityWrapper *ew = luaL_checkudata(L, 1, "Entity");
+  int isNumber = lua_isnumber(L, 2);
+  int isString = lua_isstring(L, 2);
+  Entity *ret;
+  struct entityWrapper *ew_ret;
+  int isbaseMethode;
+
+  lua_getmetatable(L, 1);
+  lua_pushvalue(L, 2);
+  lua_rawget(L, 3);
+  isbaseMethode = !!lua_type(L, lua_gettop(L));
+  if (isbaseMethode) {
+    return 1;
+  }
+
+  if (isNumber) {
+    ret = yeGetByIdx(ew->e, lua_tonumber(L, 2));
+  } else if (isString) {
+    ret = yeGet(ew->e, lua_tostring(L, 2));
+  } else {
+    return -1;
+  }
+  ew_ret = createEntityWrapper(L, 0, &YLUA_NO_DESTROY_ORPHAN);
+  ew_ret->e = ret;
+  return 1;
+}
 
 int	luaentity_tostring(lua_State *L)
 {
@@ -61,37 +126,10 @@ int	luaentity_destroy(lua_State *L)
   return 0;
 }
 
-static Entity *luaEntityAt(lua_State *L, int pos)
-{
-    if (lua_islightuserdata(L, pos)) {
-      return lua_touserdata(L, pos);
-    }
-
-    struct entityWrapper *ew = luaL_checkudata(L, pos, "Entity");
-    return ew->e;
-}
-
-static struct entityWrapper *createEntityWrapper(lua_State *L, int fatherPos,
-						 Entity **father)
-{
-  struct entityWrapper *ew;
-  int needDestroy = lua_isuserdata(L, fatherPos);
-
-  if (needDestroy)
-    *father = luaEntityAt(L, fatherPos);
-  else
-    *father = NULL;
-  ew = lua_newuserdata(L, sizeof(struct entityWrapper));
-  ew->needDestroy = needDestroy;
-  luaL_getmetatable(L, "Entity");
-  lua_setmetatable(L, -2);
-  return ew;
-}
-
 int	luaentity_newarray(lua_State *L)
 {
   const char *name = lua_tostring(L, 2);
-  Entity *father;
+  Entity *father = NULL;
   struct entityWrapper *ew = createEntityWrapper(L, 1, &father);
 
   ew->e = yeCreateArray(father, name);
@@ -103,7 +141,7 @@ int	luaentity_newstring(lua_State *L)
 {
   const char *val = luaL_checkstring(L, 1);
   const char *name = lua_tostring(L, 3);
-  Entity *father;
+  Entity *father = NULL;
   struct entityWrapper *ew = createEntityWrapper(L, 2, &father);
 
   ew->e = yeCreateString(val, father, name);
@@ -114,7 +152,7 @@ int	luaentity_newint(lua_State *L)
 {
   int val = luaL_checknumber(L, 1);
   const char *name = lua_tostring(L, 3);
-  Entity *father;
+  Entity *father = NULL;
   struct entityWrapper *ew = createEntityWrapper(L, 2, &father);
 
   ew->e = yeCreateInt(val, father, name);
