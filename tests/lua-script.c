@@ -67,14 +67,14 @@ void testLuaScritLifecycle(void)
 void testLuaScritEntityBind(void)
 {
   Entity *ret;
+  GameConfig cfg;
   void *sm;
   Entity *func;
   
-  yeInitMem();
-  g_assert(!ysLuaInit());
-  sm = ysNewManager(NULL, 0);
-  yesLuaRegister(sm);
-  g_assert(sm);
+
+  ygInit( ({ ygInitGameConfig(&cfg, "./", NONE); &cfg; }) );
+
+  sm = ygGetLuaManager();
   func = yeCreateFunction("createInt", sm, NULL, NULL);
 
   g_assert(ysLoadFile(sm,  "I should fail") < 0);
@@ -90,7 +90,7 @@ void testLuaScritEntityBind(void)
   ret = ysCall(sm, "yeCreateArray");
   g_assert(ret);
   g_assert(yeType(ret) == YARRAY);
-  YE_DESTROY(ret);
+  yeDestroy(ret);
   ret = ysCall(sm, "createString", "tests");
   g_assert(ret);
   g_assert(yeType(ret) == YSTRING);
@@ -103,9 +103,8 @@ void testLuaScritEntityBind(void)
   g_assert(ret);
   g_assert(yeType(ret) == YINT);
   g_assert(yeGetInt(ret));
-  YE_DESTROY(ret);
-  YE_DESTROY(func);
-  g_assert(!ysDestroyManager(sm));
-  g_assert(!ysLuaEnd());
-  yeEnd();
+  yeDestroy(ret);
+  yeDestroy(func);
+  ygEnd();
+  ygCleanGameConfig(&cfg);
 }

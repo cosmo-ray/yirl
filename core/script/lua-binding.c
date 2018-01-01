@@ -26,7 +26,7 @@
 #include	"canvas.h"
 #include	"game.h"
 
-Entity *YLUA_NO_DESTROY_ORPHAN = ((void *)1);
+Entity *YLUA_NO_DESTROY_ORPHAN = ((void *)0x1);
 
 struct entityWrapper {
   Entity *e;
@@ -51,7 +51,6 @@ static struct entityWrapper *createEntityWrapper(lua_State *L, int fatherPos,
 
   if (*father == YLUA_NO_DESTROY_ORPHAN) {
     needDestroy = 0;
-    *father = NULL;
     goto finish_init;
   }
   if (needDestroy)
@@ -65,6 +64,15 @@ static struct entityWrapper *createEntityWrapper(lua_State *L, int fatherPos,
   luaL_getmetatable(L, "Entity");
   lua_setmetatable(L, -2);
   return ew;
+}
+
+int	luaentity_call(lua_State *L)
+{
+  struct entityWrapper *ew = luaL_checkudata(L, 1, "Entity");
+
+  lua_pushlightuserdata(L, ew->e);
+  lua_replace(L, 1);
+  return luaYesCall(L);
 }
 
 int	luaentity_index(lua_State *L)
@@ -145,6 +153,20 @@ int	luaentity_newstring(lua_State *L)
   struct entityWrapper *ew = createEntityWrapper(L, 2, &father);
 
   ew->e = yeCreateString(val, father, name);
+  return 1;
+}
+
+int	luaentity_newfunc(lua_State *L)
+{
+  const char *val = luaL_checkstring(L, 1);
+  const char *name = lua_tostring(L, 3);
+  Entity *father = NULL;
+  struct entityWrapper *ew = createEntityWrapper(L, 2, &father);
+
+  if (!name)
+    ew->e = yeCreateFunctionSimple(val, ygGetLuaManager(), father);
+  else
+    ew->e = yeCreateFunction(val, ygGetLuaManager(), father, name);
   return 1;
 }
 

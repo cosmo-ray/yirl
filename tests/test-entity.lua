@@ -28,6 +28,10 @@ function createString(val)
    return ret
 end
 
+function printHi()
+   print("hi from printHi")
+end
+
 function complexFunction()
    local father = yeCreateArray()
    local e = Entity.new_int(10)
@@ -43,6 +47,11 @@ function complexFunction()
    print(e, a, a1, yeGetString(yeGet(yeGet(a:cent(), "idx"), "str")))
    print(e)
    print(a1.str)
-   print(a[0], a[0].str)
+   print(a[0], a[0].st)
+   local func = Entity.new_func("printHi", a1, "func")
+   func()
+   print(a1.func)
+   a1.func()
+   a[0][1]()
    return 0
 end

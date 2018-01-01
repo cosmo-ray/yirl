@@ -30,10 +30,12 @@
 int	luaentity_tocentity(lua_State *L);
 int	luaentity_destroy(lua_State *L);
 int	luaentity_tostring(lua_State *L);
+int	luaentity_newfunc(lua_State *L);
 int	luaentity_newint(lua_State *L);
 int	luaentity_newstring(lua_State *L);
 int	luaentity_newarray(lua_State *L);
 int	luaentity_index(lua_State *L);
+int	luaentity_call(lua_State *L);
 
 /* love lua */
 int	luaYAnd(lua_State *L);
@@ -260,12 +262,14 @@ static inline int	yesLuaRegister(void *sm)
     {"__gc", luaentity_destroy},
     {"__tostring", luaentity_tostring},
     {"__index", luaentity_index},
+    {"__call", luaentity_call},
     {"cent", luaentity_tocentity},
     {NULL, NULL},
   };
   static const struct luaL_Reg luaentity_functions[] = {
     { "new_int", luaentity_newint},
     { "new_string", luaentity_newstring},
+    { "new_func", luaentity_newfunc},
     { "new_array", luaentity_newarray},
     {NULL, NULL},
   };
