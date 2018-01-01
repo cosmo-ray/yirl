@@ -88,7 +88,7 @@ static int tccLoadFile(void *sm, const char *filename)
 static int tccLoadString(void *sm, const char *str)
 {
   if (tcc_compile_string(GET_TCC_S(sm), str) < 0) {
-    DPRINT_ERR("failt to compille");
+    DPRINT_ERR("fail to compille");
     return -1;
   }
 
