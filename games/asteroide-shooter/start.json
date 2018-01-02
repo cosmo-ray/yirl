@@ -1,0 +1,11 @@
+{
+    "name" : "ast-shoot",
+    "starting widget" : "main",
+    "pre-load" : [{
+	    "file" : "../../modules/asteroide-shooter/",
+	    "type" : "module"
+    }],
+    "main" : {
+	"<type>" : "asteroide-shooter"
+    }
+}

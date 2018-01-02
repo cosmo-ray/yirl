@@ -1,0 +1,13 @@
+{
+    "name" : "asteroide-shooter",
+    "init-scripts" : [
+	"initAsteroideShooter"
+    ],
+    "pre-load" : [
+	{
+	    "file" : "ast-shoot.lua",
+	    "type" : "lua"
+	}
+    ]
+}
+

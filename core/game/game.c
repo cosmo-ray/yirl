@@ -244,7 +244,10 @@ int ygInit(GameConfig *cfg)
   CHECK_AND_GOTO(luaManager = ysNewManager(NULL, t), NULL, error,
 		    "lua init failed");
   CHECK_AND_GOTO(yesLuaRegister(luaManager), -1, error, "lua init failed");
-
+  if (ysLoadFile(luaManager, "./scripts-dependancies/object-wrapper.lua") < 0) {
+    DPRINT_WARN("can't load scripts-dependancies/object-wrapper.lua: %s",
+		ysGetError(luaManager));
+  }
   CHECK_AND_GOTO(t = ysTccInit(), -1, error, "tcc init failed");
   CHECK_AND_GOTO(tccManager = ysNewManager(NULL, t), NULL, error,
 		    "tcc init failed");

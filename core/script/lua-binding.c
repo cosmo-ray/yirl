@@ -104,6 +104,20 @@ int	luaentity_index(lua_State *L)
   return 1;
 }
 
+int	luaentity_wrapp(lua_State *L)
+{
+  struct entityWrapper *ret;
+  Entity *e;
+
+  if (!lua_islightuserdata(L, 1)) {
+    return -1;
+  }
+  e = lua_touserdata(L, 1);
+  ret = createEntityWrapper(L, 0, &YLUA_NO_DESTROY_ORPHAN);
+  ret->e = e;
+  return 1;
+}
+
 int	luaentity_tostring(lua_State *L)
 {
   struct entityWrapper *ew = luaL_checkudata(L, 1, "Entity");
