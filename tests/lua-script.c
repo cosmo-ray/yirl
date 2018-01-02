@@ -70,7 +70,6 @@ void testLuaScritEntityBind(void)
   GameConfig cfg;
   void *sm;
   Entity *func;
-  
 
   ygInit( ({ ygInitGameConfig(&cfg, "./", NONE); &cfg; }) );
 
@@ -95,6 +94,7 @@ void testLuaScritEntityBind(void)
   g_assert(ret);
   g_assert(yeType(ret) == YSTRING);
   g_assert(yuiStrEqual(yeGetString(ret), "tests"));
+  yeDestroy(ret);
 
   ret = ysCall(sm, "complexFunction");
   //call func

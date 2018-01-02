@@ -44,6 +44,7 @@ function complexFunction()
    local a = Entity.new_array()
    local a1 = Entity.new_array(a, "idx")
    e = Entity.new_string("oh my ding ding dong", a1, "str")
+   yeDestroy(father);
    print(e, a, a1, yeGetString(yeGet(yeGet(a:cent(), "idx"), "str")))
    print(e)
    print(a1.str)
