@@ -75,6 +75,47 @@ int	luaentity_call(lua_State *L)
   return luaYesCall(L);
 }
 
+int	luaentity_newindex(lua_State *L)
+{
+  struct entityWrapper *ew = luaL_checkudata(L, 1, "Entity");
+  Entity *toPush;
+
+  if (lua_isnumber(L, 3)) {
+    toPush = yeCreateInt(lua_tonumber(L, 3), NULL, NULL);
+  } else if (lua_isstring(L, 3)) {
+    toPush = yeCreateString(lua_tostring(L, 3), NULL, NULL);
+  } else if (lua_istable(L, 3)) {
+    toPush = yeCreateArray(NULL, NULL);
+
+    /* doesn't work, should fix :) */
+    /* for (int i = 0;;++i) { */
+    /*   lua_geti(L, 3, i); */
+    /*   printf("top %d\n", lua_gettop(L)); */
+    /*   printf("elem %d\n", lua_type(L, 4)); */
+    /*   if (lua_isnoneornil(L, 4)) */
+    /* 	break; */
+    /* } */
+  } else if (lua_islightuserdata(L, 3)) {
+    toPush = lua_touserdata(L, 3);
+    yeIncrRef(toPush);
+  } else if (lua_isuserdata(L, 3)) {
+    struct entityWrapper *tmpew = luaL_checkudata(L, 3, "Entity");
+
+    toPush = tmpew->e;
+    yeIncrRef(toPush);
+  } else {
+    return luaL_error(L, "type :5 not handle", lua_type(L, 3));
+  }
+
+  if (lua_isnumber(L, 2)) {
+    yePushAt(ew->e, toPush, lua_tonumber(L, 2));
+  } else if (lua_isstring(L, 2)) {
+    yeReplaceBack(ew->e, toPush, lua_tostring(L, 2));
+  }
+  yeDestroy(toPush);
+  return 0;
+}
+
 int	luaentity_index(lua_State *L)
 {
   struct entityWrapper *ew = luaL_checkudata(L, 1, "Entity");
@@ -99,6 +140,8 @@ int	luaentity_index(lua_State *L)
   } else {
     return -1;
   }
+  if (!ret)
+    return 0;
   ew_ret = createEntityWrapper(L, 0, &YLUA_NO_DESTROY_ORPHAN);
   ew_ret->e = ret;
   return 1;

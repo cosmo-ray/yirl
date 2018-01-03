@@ -54,5 +54,12 @@ function complexFunction()
    print(a1.func)
    a1.func()
    a[0][1]()
+   a.hi0 = "i5"
+   a.hi = 5
+   a.ar = { "hi", e}
+   a.a0 = a1
+   print(a.hi0, a.hi, a.ar, a.a0);
+   a.ar.i = 1
+   print(a.ar);
    return 0
 end
