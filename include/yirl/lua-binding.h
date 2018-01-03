@@ -37,6 +37,7 @@ int	luaentity_newarray(lua_State *L);
 int	luaentity_index(lua_State *L);
 int	luaentity_newindex(lua_State *L);
 int	luaentity_call(lua_State *L);
+int	luaentity_mul(lua_State *L);
 int	luaentity_wrapp(lua_State *L);
 int	luaentity__wrapp_(lua_State *L);
 
@@ -269,6 +270,7 @@ static inline int	yesLuaRegister(void *sm)
     {"__index", luaentity_index},
     {"__newindex", luaentity_newindex},
     {"__call", luaentity_call},
+    {"__mul", luaentity_mul},
     {"cent", luaentity_tocentity},
     {NULL, NULL},
   };

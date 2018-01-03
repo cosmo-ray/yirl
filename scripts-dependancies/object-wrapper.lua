@@ -37,12 +37,8 @@ function Event.wrapp(ent)
    return ret;
 end
 
-function CanvasObj:cent()
-   return self.ent:cent()
-end
-
 function Pos.new(x, y, father, name)
-   local ent = ywPosCreate(x. y, father, name)
+   local ent = ywPosCreate(x, y, father, name)
    local needDestroy = false
 
    if father == nil then
@@ -50,11 +46,21 @@ function Pos.new(x, y, father, name)
    end
    ent = Entity._wrapp_(ent, needDestroy)
    local ret = {ent = ent}
+   return ret
+end
+
+function CanvasObj:cent()
+   return self.ent:cent()
+end
+
+function CanvasObj:move(pos)
+   ywCanvasMoveObj(self:cent(), pos.ent:cent())
 end
 
 function CanvasObj.wrapp(ent)
    local ret = { ent=Entity.wrapp(ent) }
    ret.cent = CanvasObj.cent
+   ret.move = CanvasObj.move
    return ret
 end
 

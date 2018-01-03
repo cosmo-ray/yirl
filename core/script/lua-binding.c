@@ -66,6 +66,29 @@ static struct entityWrapper *createEntityWrapper(lua_State *L, int fatherPos,
   return ew;
 }
 
+static double luaNumberAt(lua_State *L, int i)
+{
+  if (lua_islightuserdata(L, i)) {
+    return yeGetInt(lua_touserdata(L, i));
+  } else if (lua_isuserdata(L, i)) {
+    struct entityWrapper *ew = luaL_checkudata(L, i, "Entity");
+
+    return yeGetInt(ew->e);
+  } else if (lua_isnumber(L, i)) {
+    return lua_tonumber(L, i);
+  }
+  return 0;
+}
+
+int	luaentity_mul(lua_State *L)
+{
+  double i0 = luaNumberAt(L, 1);
+  double i1 = luaNumberAt(L, 2);
+
+  lua_pushnumber(L, i0 * i1);
+  return 1;
+}
+
 int	luaentity_call(lua_State *L)
 {
   struct entityWrapper *ew = luaL_checkudata(L, 1, "Entity");
@@ -150,15 +173,10 @@ int	luaentity_index(lua_State *L)
 int	luaentity__wrapp_(lua_State *L)
 {
   struct entityWrapper *ret;
-  Entity *e;
+  Entity *e = luaEntityAt(L, 1);
   int needDestroy = lua_toboolean(L, 1);
   Entity *father = needDestroy ? NULL : YLUA_NO_DESTROY_ORPHAN;
 
-  if (!lua_islightuserdata(L, 1)) {
-    return -1;
-  }
-
-  e = lua_touserdata(L, 1);
   ret = createEntityWrapper(L, 0, &father);
   ret->e = e;
   return 1;
@@ -167,12 +185,8 @@ int	luaentity__wrapp_(lua_State *L)
 int	luaentity_wrapp(lua_State *L)
 {
   struct entityWrapper *ret;
-  Entity *e;
+  Entity *e = luaEntityAt(L, 1);
 
-  if (!lua_islightuserdata(L, 1)) {
-    return -1;
-  }
-  e = lua_touserdata(L, 1);
   ret = createEntityWrapper(L, 0, &YLUA_NO_DESTROY_ORPHAN);
   ret->e = e;
   return 1;

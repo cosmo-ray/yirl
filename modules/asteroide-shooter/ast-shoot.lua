@@ -9,17 +9,24 @@ function action(entity, eve, arg)
 	 if eve:key() == Y_ESC_KEY then
 	    yFinishGame()
 	    return YEVE_ACTION
-	 elseif eve:type() == Y_UP_KEY then move.up_down = -1
-	 elseif eve:type() == Y_DOWN_KEY then move.up_down = 1
-	 elseif eve:type() == Y_LEFT_KEY then move.left_right = -1
-	 elseif eve:type() == Y_RIGHT_KEY then move.left_right = 1
+	 elseif eve:key() == Y_UP_KEY then move.up_down = -1
+	 elseif eve:key() == Y_DOWN_KEY then move.up_down = 1
+	 elseif eve:key() == Y_LEFT_KEY then move.left_right = -1
+	 elseif eve:key() == Y_RIGHT_KEY then move.left_right = 1
+	 end
+      elseif eve:type() == YKEY_UP then
+	 if eve:key() == Y_UP_KEY or eve:key() == Y_DOWN_KEY then move.up_down = 0
+	 elseif eve:key() == Y_LEFT_KEY or eve:key() == Y_RIGHT_KEY then
+	 move.left_right = 0	 
 	 end
       end
       eve = eve:next()
    end
 
-   print(canvas.ent.ship)
-   return YEVE_NOTHANDLE
+   local pos = Pos.new(move.left_right * 10, move.up_down * 10)
+   local ship = CanvasObj.wrapp(canvas.ent.ship)
+   ship:move(pos)
+   return YEVE_ACTION
 end
 
 function createAstShoot(entity)
