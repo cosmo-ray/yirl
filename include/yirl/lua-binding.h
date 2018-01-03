@@ -38,6 +38,7 @@ int	luaentity_index(lua_State *L);
 int	luaentity_newindex(lua_State *L);
 int	luaentity_call(lua_State *L);
 int	luaentity_wrapp(lua_State *L);
+int	luaentity__wrapp_(lua_State *L);
 
 /* love lua */
 int	luaYAnd(lua_State *L);
@@ -163,6 +164,8 @@ int	luaYwCanvasObjSetResourceId(lua_State *L);
 int	luaywCanvasNewRect(lua_State *L);
 int	luaywCanvasCheckCollisions(lua_State *L);
 int	luaywCanvasNewCollisionsArrayExt(lua_State *L);
+int	luaywCanvasNewImg(lua_State *L);
+int	luaywCanvasMoveObj(lua_State *L);
 
 /* Game and Module */
 int	luaGetMod(lua_State *L);
@@ -275,6 +278,7 @@ static inline int	yesLuaRegister(void *sm)
     { "new_func", luaentity_newfunc},
     { "new_array", luaentity_newarray},
     {"wrapp", luaentity_wrapp},
+    {"_wrapp_", luaentity__wrapp_},
     {NULL, NULL},
   };
 
@@ -430,6 +434,9 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasObjSetResourceId", luaYwCanvasObjSetResourceId));
   YES_LUA_REGISTRE_CALL(sm, ywCanvasNewCollisionsArrayExt);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasCheckCollisions);
+  YES_LUA_REGISTRE_CALL(sm, ywCanvasNewImg);
+  YES_LUA_REGISTRE_CALL(sm, ywCanvasMoveObj);
+
 
   /* Game and Modules */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygGetMod", luaGetMod));

@@ -39,6 +39,7 @@ Entity *ywCanvasObjSize(Entity *wid, Entity *obj);
 
 Entity *ywCanvasObjPos(Entity *obj);
 
+int ywCanvasMoveObj(Entity *obj, Entity *pos);
 Entity *ywCanvasObjFromIdx(Entity *wid, int idx);
 int ywCanvasIdxFromObj(Entity *wid, Entity *obj);
 

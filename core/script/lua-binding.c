@@ -104,7 +104,7 @@ int	luaentity_newindex(lua_State *L)
     toPush = tmpew->e;
     yeIncrRef(toPush);
   } else {
-    return luaL_error(L, "type :5 not handle", lua_type(L, 3));
+    return luaL_error(L, "type %d not handle", lua_type(L, 3));
   }
 
   if (lua_isnumber(L, 2)) {
@@ -144,6 +144,23 @@ int	luaentity_index(lua_State *L)
     return 0;
   ew_ret = createEntityWrapper(L, 0, &YLUA_NO_DESTROY_ORPHAN);
   ew_ret->e = ret;
+  return 1;
+}
+
+int	luaentity__wrapp_(lua_State *L)
+{
+  struct entityWrapper *ret;
+  Entity *e;
+  int needDestroy = lua_toboolean(L, 1);
+  Entity *father = needDestroy ? NULL : YLUA_NO_DESTROY_ORPHAN;
+
+  if (!lua_islightuserdata(L, 1)) {
+    return -1;
+  }
+
+  e = lua_touserdata(L, 1);
+  ret = createEntityWrapper(L, 0, &father);
+  ret->e = e;
   return 1;
 }
 
@@ -322,10 +339,26 @@ int	luaYwCanvasMoveObjByIdx(lua_State *L)
   return 1;
 }
 
+int	luaywCanvasMoveObj(lua_State *L)
+{
+  lua_pushnumber(L, ywCanvasMoveObj(lua_touserdata(L, 1),
+				    lua_touserdata(L, 2)));
+  return 1;
+}
+
 int	luaYwCanvasObjSetResourceId(lua_State *L)
 {
   ywCanvasObjSetResourceId(lua_touserdata(L, 1), lua_tonumber(L, 2));
   return 0;
+}
+
+int	luaywCanvasNewImg(lua_State *L)
+{
+  lua_pushlightuserdata(L, ywCanvasNewImgByPath(lua_touserdata(L, 1),
+						lua_tonumber(L, 2),
+						lua_tonumber(L, 3),
+						lua_tostring(L, 4)));
+  return 1;
 }
 
 int	luaYwCanvasNewObj(lua_State *L)
