@@ -435,6 +435,11 @@ static void sdlFreeTexture(void *txt)
   SDL_DestroyTexture(txt);
 }
 
+static void sdlFreeSurface(void *surface)
+{
+  SDL_FreeSurface(surface);
+}
+
 #define Y_SDL_TILD 1
 #define Y_SDL_SPRITE 2
 #define Y_SDL_COLOR 3
@@ -508,16 +513,18 @@ static int sdlCanvasCacheText(Entity *state, Entity *elem, Entity *resource,
 
   image = TTF_RenderUTF8_Solid(sgDefaultFont(), str, color);
   texture = SDL_CreateTextureFromSurface(sg.renderer, image);
-  SDL_FreeSurface(image);
   SDL_QueryTexture(texture, NULL, NULL, &w, &h);
 
 
-  data = yeCreateData(texture, resource, "$img");
-  ywSizeCreate(w, h, resource, "$size");
+  data = yeCreateData(texture, elem, "$img");
   yeSetDestroy(data, sdlFreeTexture);
+  ywSizeCreate(w, h, elem, "$size");
+  data = yeCreateData(image, elem, "$img-surface");
+  yeSetDestroy(data, sdlFreeSurface);
 
-  yeGetPush(resource, elem, "$img");
-  yeGetPush(resource, elem, "$size");
+  yeGetPush(elem, resource, "$img");
+  yeGetPush(elem, resource, "$size");
+  yeGetPush(elem, resource, "$img-surface");
   return 0;
 }
 
@@ -527,7 +534,7 @@ static int sdlCanvasCacheImg(Entity *state, Entity *elem,
   SDL_Surface *surface;
   SDL_Texture *texture;
   Entity *data;
-  int w, h, ret = -1;
+  int w, h;
   Entity *rEnt;
 
   rEnt = yeGet(resource, "img-src-rect");
@@ -562,17 +569,17 @@ static int sdlCanvasCacheImg(Entity *state, Entity *elem,
   }
   texture = SDL_CreateTextureFromSurface(sg.renderer, surface);
   if (unlikely(!texture))
-    goto exit;
+    return -1;
   SDL_QueryTexture(texture, NULL, NULL, &w, &h);
   data = yeCreateData(texture, elem, "$img");
-  ywSizeCreate(w, h, elem, "$size");
   yeSetDestroy(data, sdlFreeTexture);
+  ywSizeCreate(w, h, elem, "$size");
+  data = yeCreateData(surface, elem, "$img-surface");
+  yeSetDestroy(data, sdlFreeSurface);
   yeGetPush(elem, resource, "$img");
   yeGetPush(elem, resource, "$size");
-  ret = 0;
- exit:
-  SDL_FreeSurface(surface);
-  return ret;
+  yeGetPush(elem, resource, "$img-surface");
+  return 0;
 }
 
 int sdlCanvasCacheTexture(Entity *state, Entity *elem)
@@ -599,6 +606,7 @@ int sdlCanvasCacheTexture(Entity *state, Entity *elem)
 			   yeGetIntAt(elem, 2));
   if (yeGetPush(resource, elem, "$img")) {
     yeGetPush(resource, elem, "$size");
+    yeGetPush(resource, elem, "$img-surface");
     return 0;
   }
 
