@@ -38,3 +38,7 @@ int printf(const char *format, ...);
 int sprintf(char *str, const char *format, ...);
 int snprintf(char *str, size_t size, const char *format, ...);
 char *strncpy(char *dest, const char *src, size_t n);
+void free(void *);
+void *malloc(size_t);
+void *realloc(void *, size_t);
+void *calloc(size_t, size_t);

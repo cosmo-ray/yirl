@@ -67,6 +67,8 @@ static int alive = 1;
 static const char *sdl2 = "sdl2";
 static const char *curses = "curses";
 
+char *ygBinaryRootPath = "./";
+
 void *ygGetLuaManager(void)
 {
   return luaManager;
@@ -221,6 +223,7 @@ int ygIsInit(void)
 int ygInit(GameConfig *cfg)
 {
   static int t;
+  char *path;
 
   /* trick use in case of failure in this function to free all */
   init = 1;
@@ -244,10 +247,13 @@ int ygInit(GameConfig *cfg)
   CHECK_AND_GOTO(luaManager = ysNewManager(NULL, t), NULL, error,
 		    "lua init failed");
   CHECK_AND_GOTO(yesLuaRegister(luaManager), -1, error, "lua init failed");
-  if (ysLoadFile(luaManager, "./scripts-dependancies/object-wrapper.lua") < 0) {
-    DPRINT_WARN("can't load scripts-dependancies/object-wrapper.lua: %s",
+
+  path = g_strdup_printf("%s%s", ygBinaryRootPath, "/scripts-dependancies/object-wrapper.lua");
+  if (ysLoadFile(luaManager, path) < 0) {
+    DPRINT_WARN("can't load %s: %s", path,
 		ysGetError(luaManager));
   }
+  g_free(path);
   CHECK_AND_GOTO(t = ysTccInit(), -1, error, "tcc init failed");
   CHECK_AND_GOTO(tccManager = ysNewManager(NULL, t), NULL, error,
 		    "tcc init failed");

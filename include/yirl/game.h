@@ -64,6 +64,14 @@ typedef struct {
 
 #undef GList
 
+extern char *ygBinaryRootPath;
+
+static inline void ygBinaryRootPathFree(void)
+{
+  free(ygBinaryRootPath);
+  ygBinaryRootPath = "./";
+}
+
 #define ygInitGameConfig(cfg, path, render)				\
   _Generic((render),							\
 	   const char *: ygInitGameConfigByStr,				\

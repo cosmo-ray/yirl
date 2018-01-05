@@ -29,12 +29,13 @@ int main(int argc, char **argv)
   const char *render = NULL;
   const char *start = NULL;
   const char *name = NULL;
+  char *binaryRootPath = NULL;
   const char *start_dir = NULL;
   int width = -1;
   int height = -1;
   int render_need_free = 1;
   int start_need_free = 1;
-  const GOptionEntry entries[8] = {
+  const GOptionEntry entries[9] = {
     {"render", 'r', 0,  G_OPTION_ARG_STRING, &render,
      "choose render('sdl2' or curses), default: sdl", NULL},
     {"start", 's', 0,  G_OPTION_ARG_STRING, &start,
@@ -44,6 +45,8 @@ int main(int argc, char **argv)
     {"height", 'H', 0,  G_OPTION_ARG_INT, &height, "window height", NULL},
     {"default-tcc-path", 0, 0,  G_OPTION_ARG_NONE, &default_tcc_path,
      "set this if tcc files are not in start directory", NULL},
+    {"binary-root-path", 0, 0,  G_OPTION_ARG_STRING, &binaryRootPath,
+     "set path to binary directory(which contain, tcc, script-dependancies, and defaults polices)", NULL},
     {"start-dir", 'd', 0,  G_OPTION_ARG_STRING, &start_dir,
      "move on the given directorry,"
      " use as starting module if --start not set", NULL},
@@ -78,6 +81,10 @@ int main(int argc, char **argv)
     start_need_free = 0;
   }
 
+  if (binaryRootPath) {
+    ygBinaryRootPath = binaryRootPath;
+  }
+
   ygInitGameConfig(&cfg, start, render);
   cfg.win_name = name;
   if (width > 0)
@@ -100,5 +107,6 @@ int main(int argc, char **argv)
 
   g_free((char *)start_dir);
   g_free((char *)name);
+  ygBinaryRootPathFree();
   return ret;
 }

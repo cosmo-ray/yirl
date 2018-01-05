@@ -69,6 +69,7 @@ typedef int64_t int_ptr_t;
 #endif
 
 #ifndef Y_INSIDE_TCC
+#include <stdlib.h>
 #include <stddef.h>
 #include <stdio.h>
 #else
