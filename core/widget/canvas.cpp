@@ -123,18 +123,18 @@ extern "C" {
     return ywCanvasNewCollisionsArrayExt(wid, obj, NULL, NULL);
   }
 
-  Entity *ywCanvasNewCollisionsArrayExt(Entity *wid, Entity *obj,
-					Entity *colisionFunc,
-					Entity *colisionFuncArg)
+  Entity *ywCanvasNewCollisionsArrayWithRectangle_(Entity *wid, Entity *objRect,
+						   Entity *obj,
+						   Entity *colisionFunc,
+						   Entity *colisionFuncArg)
   {
     Entity *ret = yeCreateArray(NULL, NULL);
     Entity *objs = yeGet(wid, "objs");
-    Entity *objRect = ywRectCreatePosSize(ywCanvasObjPos(obj),
-					  ywCanvasObjSize(wid, obj), NULL, NULL);
 
     YE_ARRAY_FOREACH(objs, tmpObj) {
       Entity *tmpRect = ywRectCreatePosSize(ywCanvasObjPos(tmpObj),
-					    ywCanvasObjSize(wid, tmpObj), NULL, NULL);
+					    ywCanvasObjSize(wid, tmpObj),
+					    NULL, NULL);
       if (obj == tmpObj) {
 	yeDestroy(tmpRect);
 	continue;
@@ -151,28 +151,27 @@ extern "C" {
       yeDestroy(ret);
       ret = NULL;
     }
+    return ret;
+  }
+
+  Entity *ywCanvasNewCollisionsArrayExt(Entity *wid, Entity *obj,
+					Entity *colisionFunc,
+					Entity *colisionFuncArg)
+  {
+    Entity *objRect = ywRectCreatePosSize(ywCanvasObjPos(obj),
+					  ywCanvasObjSize(wid, obj), NULL, NULL);
+
+    Entity *ret = ywCanvasNewCollisionsArrayWithRectangle_(wid, objRect, obj,
+							   colisionFunc,
+							   colisionFuncArg);
     yeDestroy(objRect);
     return ret;
   }
 
   Entity *ywCanvasNewCollisionsArrayWithRectangle(Entity *wid, Entity *objRect)
   {
-    Entity *ret = yeCreateArray(NULL, NULL);
-    Entity *objs = yeGet(wid, "objs");
-
-    YE_ARRAY_FOREACH(objs, tmpObj) {
-      Entity *tmpRect = ywRectCreatePosSize(ywCanvasObjPos(tmpObj),
-					    ywCanvasObjSize(wid, tmpObj), NULL, NULL);
-      if (ywRectCollision(objRect, tmpRect)) {
-	yePushBack(ret, tmpObj, NULL);
-      }
-      yeDestroy(tmpRect);
-    }
-    if (!yeLen(ret)) {
-      yeDestroy(ret);
-      ret = NULL;
-    }
-    return ret;
+    return ywCanvasNewCollisionsArrayWithRectangle_(wid, objRect, NULL,
+						    NULL, NULL);
   }
 
   int ywCanvasIdxFromObj(Entity *wid, Entity *obj)
