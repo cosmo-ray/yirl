@@ -104,6 +104,8 @@ extern "C" {
 
   Entity *ywCanvasObjFromIdx(Entity *wid, int idx)
   {
+    if (idx < 0)
+      idx = yeLen(yeGet(wid, "objs")) + idx;
     return yeGet(yeGet(wid, "objs"), idx);
   }
 
@@ -121,6 +123,11 @@ extern "C" {
   Entity *ywCanvasNewCollisionsArray(Entity *wid, Entity *obj)
   {
     return ywCanvasNewCollisionsArrayExt(wid, obj, NULL, NULL);
+  }
+
+  int ywCanvasSwapObj(Entity *wid, Entity *obj0, Entity *obj1)
+  {
+    return yeSwapElems(yeGet(wid, "objs"), obj0, obj1);
   }
 
   Entity *ywCanvasNewCollisionsArrayWithRectangle_(Entity *wid, Entity *objRect,

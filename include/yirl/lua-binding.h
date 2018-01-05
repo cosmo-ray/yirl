@@ -167,6 +167,7 @@ int	luaywCanvasCheckCollisions(lua_State *L);
 int	luaywCanvasNewCollisionsArrayExt(lua_State *L);
 int	luaywCanvasNewImg(lua_State *L);
 int	luaywCanvasMoveObj(lua_State *L);
+int	luaywCanvasSwapObj(lua_State *L);
 
 /* Game and Module */
 int	luaGetMod(lua_State *L);
@@ -202,7 +203,7 @@ int	luaySoundStop(lua_State *L);
 static inline int	yesLuaRegister(void *sm)
 {
   lua_State *L = ((YScriptLua *)sm)->l;
-  
+
   lua_pushlightuserdata(L, (void *)NOTHANDLE);
   lua_setglobal(L, "YEVE_NOTHANDLE");
   lua_pushlightuserdata(L, (void *)NOACTION);
@@ -290,7 +291,7 @@ static inline int	yesLuaRegister(void *sm)
   luaL_setfuncs(L, luaentity_methods, 0);
   luaL_newlib(L, luaentity_functions);
   lua_setglobal(L, "Entity");
-  
+
   /* set entities type global */
   LUA_SET_INT_GLOBAL(sm, YINT);
   LUA_SET_INT_GLOBAL(sm, YSTRING);
@@ -438,7 +439,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, ywCanvasCheckCollisions);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasNewImg);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasMoveObj);
-
+  YES_LUA_REGISTRE_CALL(sm, ywCanvasSwapObj);
 
   /* Game and Modules */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygGetMod", luaGetMod));
@@ -453,7 +454,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, ySoundPlay);
   YES_LUA_REGISTRE_CALL(sm, ySoundPlayLoop);
   YES_LUA_REGISTRE_CALL(sm, ySoundStop);
-  
+
   return 0;
 }
 

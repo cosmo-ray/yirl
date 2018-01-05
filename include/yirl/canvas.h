@@ -55,6 +55,8 @@ void ywCanvasRemoveObj(Entity *wid, Entity *obj);
 void ywCanvasStringSet(Entity *obj, Entity *newStr);
 void ywCanvasObjSetResourceId(Entity *obj, int id);
 
+int ywCanvasSwapObj(Entity *wid, Entity *obj0, Entity *obj1);
+
 YCanvasObjType ywCanvasObjType(Entity *obj);
 
 int ywCanvasCheckCollisions(Entity *wid, Entity *obj, Entity *colisionFunc,
