@@ -33,9 +33,9 @@ function createAstShoot(entity)
    local canvas = Canvas.wrapp(entity)
    local ent = canvas.ent
 
-   Entity.new_func("action", canvas.ent, "action")
+   Entity.new_func("action", ent, "action")
    canvas.ent.background = "rgba: 255 255 255 255"
-   ent.ship = canvas:new_img(50, 50, "./DurrrSpaceShip.png"):cent()
+   ent.ship = canvas:new_img(150, 150, "./DurrrSpaceShip.png"):cent()
    ent.move = {};
    ent.move.up_down = 0;
    ent.move.left_right = 0; 
@@ -44,11 +44,6 @@ end
 
 function initAsteroideShooter(entity)
    local e = Entity.wrapp(entity)
-
-   --Entity.new_func("snakeAction", e)
-   --Entity.new_func("snakeDie", e)
-   --Entity.new_func("snakeWarp", e)
-
    Widget.new_subtype("asteroide-shooter", "createAstShoot")
    Entity.new_int(0, e, "score");
 end
