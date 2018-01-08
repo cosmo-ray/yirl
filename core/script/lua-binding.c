@@ -174,10 +174,10 @@ int	luaentity__wrapp_(lua_State *L)
 {
   struct entityWrapper *ret;
   Entity *e = luaEntityAt(L, 1);
-  int needDestroy = lua_toboolean(L, 1);
+  int needDestroy = lua_toboolean(L, 2);
   Entity *father = needDestroy ? NULL : YLUA_NO_DESTROY_ORPHAN;
 
-  ret = createEntityWrapper(L, 0, &father);
+  ret = createEntityWrapper(L, 2, &father);
   ret->e = e;
   return 1;
 }

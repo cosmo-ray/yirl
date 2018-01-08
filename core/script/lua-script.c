@@ -44,7 +44,7 @@ static int luaInit(void *sm, void *args)
 
 static int luaLoadString(void *sm, const char *str)
 {
-  return luaL_dostring(GET_L(sm), str) * -1;  
+  return luaL_dostring(GET_L(sm), str) * -1;
 }
 
 static int luaLoadFile(void *sm, const char *filename)

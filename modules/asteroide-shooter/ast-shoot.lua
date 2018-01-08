@@ -17,7 +17,7 @@ function action(entity, eve, arg)
       elseif eve:type() == YKEY_UP then
 	 if eve:key() == Y_UP_KEY or eve:key() == Y_DOWN_KEY then move.up_down = 0
 	 elseif eve:key() == Y_LEFT_KEY or eve:key() == Y_RIGHT_KEY then
-	 move.left_right = 0	 
+	 move.left_right = 0
 	 end
       end
       eve = eve:next()
@@ -36,9 +36,9 @@ function createAstShoot(entity)
    Entity.new_func("action", ent, "action")
    canvas.ent.background = "rgba: 255 255 255 255"
    ent.ship = canvas:new_img(150, 150, "./DurrrSpaceShip.png"):cent()
-   ent.move = {};
-   ent.move.up_down = 0;
-   ent.move.left_right = 0; 
+   ent.move = {}
+   ent.move.up_down = 0
+   ent.move.left_right = 0
    return canvas:new_wid()
 end
 
