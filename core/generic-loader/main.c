@@ -81,16 +81,17 @@ int main(int argc, char **argv)
     start_need_free = 0;
   }
 
-  if (binaryRootPath) {
-    ygBinaryRootPath = binaryRootPath;
-  }
-
   ygInitGameConfig(&cfg, start, render);
   cfg.win_name = name;
   if (width > 0)
     cfg.w = width;
   if (height > 0)
     cfg.h = height;
+
+  if (binaryRootPath) {
+    ygBinaryRootPath = binaryRootPath;
+  }
+
   if (ygInit(&cfg) < 0)
     goto end;
   if (ygStartLoop(&cfg) < 0)
@@ -107,6 +108,8 @@ int main(int argc, char **argv)
 
   g_free((char *)start_dir);
   g_free((char *)name);
-  ygBinaryRootPathFree();
+  if (binaryRootPath) {
+    ygBinaryRootPathFree();
+  }
   return ret;
 }
