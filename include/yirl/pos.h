@@ -232,6 +232,8 @@ static inline Entity *ywSegmentFromPos(Entity *posA, Entity *posB,
   return ret;
 }
 
+double ywPosAngle(Entity *p0, Entity *p1);
+
 /**
  * move of 1 @from in the direction of @to
  * example: from is 0,0 and to is 0,3, this function will

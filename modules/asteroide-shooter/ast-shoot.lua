@@ -5,6 +5,7 @@ function action(entity, eve, arg)
    local eve = Event.wrapp(eve)
    local canvas = Canvas.wrapp(entity)
    local move = canvas.ent.move
+   local ship = CanvasObj.wrapp(canvas.ent.ship)
 
    while eve:is_end() == false do
       if eve:type() == YKEY_DOWN then
@@ -22,14 +23,14 @@ function action(entity, eve, arg)
 	 move.left_right = 0
 	 end
       elseif eve:type() == YKEY_MOUSEMOTION then
-	 print("motion !", eve:mouse_pos():tostring())
+	 -- I should add an api for that :p
+	 ship:rotate(ywPosAngle(eve:mouse_pos().ent:cent(), ship:pos().ent:cent()) + 90)
       end
       
       eve = eve:next()
    end
 
    local pos = Pos.new(move.left_right * 10, move.up_down * 10)
-   local ship = CanvasObj.wrapp(canvas.ent.ship)
    ship:move(pos)
    return YEVE_ACTION
 end

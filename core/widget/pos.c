@@ -19,6 +19,7 @@
 #define _YIRL_RECT_H_
 
 #include "pos.h"
+#include "math.h"
 
 Entity *ywPosCreateInts(int posX, int posY, Entity *father, const char *str)
 {
@@ -27,6 +28,12 @@ Entity *ywPosCreateInts(int posX, int posY, Entity *father, const char *str)
   yeCreateInt(posX, ret, "x");
   yeCreateInt(posY, ret, "y");
   return ret;
+}
+
+double ywPosAngle(Entity *p0, Entity *p1)
+{
+  return atan2(ywPosY(p0) - ywPosY(p1),
+	       ywPosX(p0) - ywPosX(p1)) * 180 / M_PI;
 }
 
 #endif  /* _YIRL_RECT_H_ */

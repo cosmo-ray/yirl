@@ -920,6 +920,13 @@ int	luaYuiAbs(lua_State *L)
   return 1;
 }
 
+int	luaywPosAngle(lua_State *L)
+{
+  lua_pushnumber(L, ywPosAngle(lua_touserdata(L, 1),
+			       lua_touserdata(L, 2)));
+  return 1;
+}
+
 int	luaywPosX(lua_State *L)
 {
   lua_pushnumber(L, ywPosX(lua_touserdata(L, 1)));
