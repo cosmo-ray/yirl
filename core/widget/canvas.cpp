@@ -307,12 +307,27 @@ extern "C" {
     return obj;
   }
 
-  int ywCanvasForceSize(Entity *obj, Entity *size)
+  static inline Entity *getOrCreateMod(Entity *obj)
   {
     Entity *mod = ywCanvasObjMod(obj);
     if (!mod) {
       mod = yeCreateArray(obj, "$mod");
     }
+    return mod;
+  }
+  
+  int ywCanvasRotate(Entity *obj, double angle)
+  {
+    Entity *mod = getOrCreateMod(obj);
+
+    yeCreateFloatAt(angle, mod, NULL, YCanvasRotate);
+    return 0;
+  }
+
+  int ywCanvasForceSize(Entity *obj, Entity *size)
+  {
+    Entity *mod = getOrCreateMod(obj);
+
     yePushAt(mod, size, YCanvasForceSize);
     return 0;
   }

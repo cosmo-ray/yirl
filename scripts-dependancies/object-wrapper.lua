@@ -61,11 +61,18 @@ function CanvasObj:force_size(size)
    return ywCanvasForceSize(self:cent(), size.ent:cent())
 end
 
+-- Warning !, Attention ! Achtung !
+-- if you are using a map, it's not the angles of the map
+function CanvasObj:rotate(angle)
+   return ywCanvasRotate(self:cent(), angle)
+end
+
 function CanvasObj.wrapp(ent)
    local ret = { ent=Entity.wrapp(ent) }
    ret.cent = CanvasObj.cent
-   ret.move = CanvasObj.move
+   ret.move = CanvasObj.move 
    ret.force_size = CanvasObj.force_size
+   ret.rotate = CanvasObj.rotate
    return ret
 end
 

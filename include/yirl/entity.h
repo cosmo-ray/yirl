@@ -456,6 +456,7 @@ Entity *yeCreate(EntityType type, void *val, Entity *fathers, const char *name);
 Entity *yeCreateInt(int value, Entity *fathers, const char *name);
 Entity *yeCreateIntAt(int value, Entity *father, const char *name, int idx);
 Entity *yeCreateFloat(double value, Entity *fathers, const char *name);
+Entity *yeCreateFloatAt(double value, Entity *fathers, const char *name, int idx);
 Entity *yeCreateString(const char *string, Entity *fathers, const char *name);
 
 int yeCreateInts_(Entity *fathers, int nbVars, ...);

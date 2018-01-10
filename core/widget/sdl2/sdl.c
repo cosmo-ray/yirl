@@ -627,6 +627,7 @@ static void sdlCanvasAplyModifier(Entity *img, SDL_Rect *dst,
 
   if (!mod)
     return;
+  *rotation = yeGetFloat(yeGet(mod, YCanvasRotate));
   return;
 }
 

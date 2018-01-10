@@ -29,6 +29,7 @@ typedef enum  {
 
 typedef enum  {
   YCanvasForceSize,
+  YCanvasRotate,
 } YCanvasModifier;
 
 int ywCanvasInit(void);
@@ -45,10 +46,9 @@ Entity *ywCanvasObjPos(Entity *obj);
 
 /**
  * resize obj to @size, result can be ugly
- * if use with an @obj ot type YCanvasResource
- * will resize every objects using the same resource
  */
 int ywCanvasForceSize(Entity *obj, Entity *size);
+int ywCanvasRotate(Entity *obj, double angle);
 
 int ywCanvasMoveObj(Entity *obj, Entity *pos);
 Entity *ywCanvasObjFromIdx(Entity *wid, int idx);

@@ -38,6 +38,7 @@ function createAstShoot(entity)
    local ship = canvas:new_img(150, 150, "./DurrrSpaceShip.png")
    local shipSize = Pos.new(40, 40)
    ship:force_size(shipSize)
+   ship:rotate(50)
    ent.ship = ship:cent()
    ent.move = {}
    ent.move.up_down = 0

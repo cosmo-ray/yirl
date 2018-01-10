@@ -345,6 +345,13 @@ int	luaCopy(lua_State *L)
   return 1;
 }
 
+int	luaywCanvasRotate(lua_State *L)
+{
+  lua_pushnumber(L, ywCanvasRotate(lua_touserdata(L, 1),
+				   lua_tonumber(L, 2)));
+  return 1;
+}
+
 int	luaywCanvasForceSize(lua_State *L)
 {
   lua_pushnumber(L, ywCanvasForceSize(lua_touserdata(L, 1),

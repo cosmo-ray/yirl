@@ -448,6 +448,16 @@ Entity *yeCreateFloat(double value, Entity *father, const char *name)
   return ((Entity *)ret);
 }
 
+Entity *yeCreateFloatAt(double value, Entity *father, const char *name, int idx)
+{
+  FloatEntity * restrict ret;
+
+  YE_ALLOC_ENTITY(ret, FloatEntity);
+  yeInitAt((Entity *)ret, YFLOAT, father, name, idx);
+  ret->value = value;
+  return ((Entity *)ret);
+}
+
 Entity *yeCreateFunctionExt(const char *funcName, void *manager,
 			    Entity *father, const char *name, uint64_t flags)
 {
