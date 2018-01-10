@@ -35,7 +35,10 @@ function createAstShoot(entity)
 
    Entity.new_func("action", ent, "action")
    canvas.ent.background = "rgba: 255 255 255 255"
-   ent.ship = canvas:new_img(150, 150, "./DurrrSpaceShip.png"):cent()
+   local ship = canvas:new_img(150, 150, "./DurrrSpaceShip.png")
+   local shipSize = Pos.new(40, 40)
+   ship:force_size(shipSize)
+   ent.ship = ship:cent()
    ent.move = {}
    ent.move.up_down = 0
    ent.move.left_right = 0

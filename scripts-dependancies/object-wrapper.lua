@@ -57,10 +57,15 @@ function CanvasObj:move(pos)
    ywCanvasMoveObj(self:cent(), pos.ent:cent())
 end
 
+function CanvasObj:force_size(size)
+   return ywCanvasForceSize(self:cent(), size.ent:cent())
+end
+
 function CanvasObj.wrapp(ent)
    local ret = { ent=Entity.wrapp(ent) }
    ret.cent = CanvasObj.cent
    ret.move = CanvasObj.move
+   ret.force_size = CanvasObj.force_size
    return ret
 end
 
