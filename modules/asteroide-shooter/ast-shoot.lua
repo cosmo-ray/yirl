@@ -1,4 +1,6 @@
 
+local rotationLevel = 0
+
 function action(entity, eve, arg)
    local eve = Event.wrapp(eve)
    local canvas = Canvas.wrapp(entity)
@@ -19,7 +21,10 @@ function action(entity, eve, arg)
 	 elseif eve:key() == Y_LEFT_KEY or eve:key() == Y_RIGHT_KEY then
 	 move.left_right = 0
 	 end
+      elseif eve:type() == YKEY_MOUSEMOTION then
+	 print("motion !", eve:mouse_pos():tostring())
       end
+      
       eve = eve:next()
    end
 
@@ -38,7 +43,6 @@ function createAstShoot(entity)
    local ship = canvas:new_img(150, 150, "./DurrrSpaceShip.png")
    local shipSize = Pos.new(40, 40)
    ship:force_size(shipSize)
-   ship:rotate(50)
    ent.ship = ship:cent()
    ent.move = {}
    ent.move.up_down = 0

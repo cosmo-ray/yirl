@@ -16,6 +16,10 @@ function Event:type()
    return ywidEveType(self:cent())
 end
 
+function Event:mouse_pos()
+   return Pos.wrapp(ywidEveMousePos(self:cent()))
+end
+
 function Event:key()
    return ywidEveKey(self:cent())
 end
@@ -31,10 +35,25 @@ end
 
 function Event.wrapp(ent)
    local ret = { is_end=Event.is_end, cent=Event.cent , next=Event.next,
-		 type = Event.type, key=Event.key }
+		 type = Event.type, key=Event.key, mouse_pos=Event.mouse_pos }
 
    ret.ent = Entity.wrapp(ent)
    return ret;
+end
+
+function Pos:tostring()
+   return ywPosToString(self.ent:cent())
+end
+
+
+function Pos._init_(ent)
+   ent.tostring = Pos.tostring
+   return ent
+end
+
+function Pos.wrapp(p)
+   local ret = {ent = Entity.wrapp(p)}
+   return Pos._init_(ret)
 end
 
 function Pos.new(x, y, father, name)
@@ -46,7 +65,7 @@ function Pos.new(x, y, father, name)
    end
    ent = Entity._wrapp_(ent, needDestroy)
    local ret = {ent = ent}
-   return ret
+   return Pos._init_(ret)
 end
 
 function CanvasObj:cent()
