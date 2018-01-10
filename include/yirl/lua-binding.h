@@ -168,6 +168,7 @@ int	luaywCanvasNewCollisionsArrayExt(lua_State *L);
 int	luaywCanvasNewImg(lua_State *L);
 int	luaywCanvasMoveObj(lua_State *L);
 int	luaywCanvasSwapObj(lua_State *L);
+int	luaywCanvasForceSize(lua_State *L);
 
 /* Game and Module */
 int	luaGetMod(lua_State *L);
@@ -440,6 +441,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, ywCanvasNewImg);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasMoveObj);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasSwapObj);
+  YES_LUA_REGISTRE_CALL(sm, ywCanvasForceSize);
 
   /* Game and Modules */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygGetMod", luaGetMod));

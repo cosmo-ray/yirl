@@ -624,17 +624,10 @@ static void sdlCanvasAplyModifier(Entity *img, SDL_Rect *dst,
 				  double *rotation, SDL_RendererFlip *flip)
 {
   Entity *mod = ywCanvasObjMod(img);
-  Entity *newSize;
 
   if (!mod)
     return;
-  newSize = yeGet(mod, YCanvasForceSize);
-  if (newSize) {
-    dst->x += (dst->w - ywSizeW(newSize)) / 2;
-    dst->y += (dst->h - ywSizeH(newSize)) / 2;
-    dst->w = ywSizeW(newSize);
-    dst->h = ywSizeH(newSize);
-  }
+  return;
 }
 
 static int sdlCanvasRendImg(YWidgetState *state, SDLWid *wid, Entity *img)
@@ -644,7 +637,7 @@ static int sdlCanvasRendImg(YWidgetState *state, SDLWid *wid, Entity *img)
     sdlCanvasCacheTexture(state->entity, img);
     t = yeGetData(yeGet(img, "$img"));
   }
-  Entity *s = yeGet(img, "$size");
+  Entity *s = ywCanvasObjSize(state->entity, img);
   Entity *p = ywCanvasObjPos(img);
   SDL_Rect *sd = NULL;
   SDL_Point *center = NULL;

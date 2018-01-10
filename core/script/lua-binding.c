@@ -336,12 +336,19 @@ int	luaCopy(lua_State *L)
   if (lua_gettop(L) != 2 || !lua_islightuserdata(L, 1) ||
       !lua_islightuserdata(L, 2))
     {
-      luaL_error(L, "function arguments are incorect\n"
-		 "real prototyre is: yeCopy(lightuserdata src, lightuserdata dest)\n");
-      return -1;
+      return luaL_error(L, "function arguments are incorect\n"
+			"prototyre is: yeCopy(lightuserdata src,"
+			"lightuserdata dest)\n");
     }
   lua_pushlightuserdata(L, yeCopy((Entity *)lua_topointer(L, 1),
 				  (Entity *)lua_topointer(L, 2)));
+  return 1;
+}
+
+int	luaywCanvasForceSize(lua_State *L)
+{
+  lua_pushnumber(L, ywCanvasForceSize(lua_touserdata(L, 1),
+				      lua_touserdata(L, 2)));
   return 1;
 }
 
