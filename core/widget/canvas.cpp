@@ -217,7 +217,10 @@ extern "C" {
   Entity *ywCanvasObjSize(Entity *wid, Entity *obj)
   {
     Entity *size;
+    Entity *mod = ywCanvasObjMod(obj);
 
+    if (unlikely(yeGet(mod, YCanvasForceSize)))
+      return yeGet(mod, YCanvasForceSize);
     if (ywCanvasObjType(obj) == YCanvasRect) {
       return yeGet(yeGet(obj, 2), 0);
     }
@@ -265,6 +268,7 @@ extern "C" {
     yeCreateInt(YCanvasString, obj, "canvas-type");
     ywPosCreateInts(x, y, obj, "pos");
     yePushBack(obj, string, "str");
+    sdlCanvasCacheTexture(wid, obj);
     return obj;
   }
 
@@ -276,6 +280,7 @@ extern "C" {
     yeCreateInt(YCanvasImg, obj, "canvas-type");
     ywPosCreateInts(x, y, obj, "pos");
     yeCreateString(path, obj, "img");
+    sdlCanvasCacheTexture(wid, obj);
     return obj;
   }
 
@@ -298,8 +303,18 @@ extern "C" {
     yeCreateInt(YCanvasResource, obj, "canvas-type");
     ywPosCreateInts(x, y, obj, "pos");
     yeCreateInt(id, obj, "id");
+    sdlCanvasCacheTexture(wid, obj);
     return obj;
   }
 
+  int ywCanvasForceSize(Entity *obj, Entity *size)
+  {
+    Entity *mod = ywCanvasObjMod(obj);
+    if (!mod) {
+      mod = yeCreateArray(obj, "$mod");
+    }
+    yePushAt(mod, size, YCanvasForceSize);
+    return 0;
+  }
 }
 

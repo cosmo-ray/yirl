@@ -36,7 +36,6 @@ static int sdl2Render(YWidgetState *state, int t)
   if (ywidBgConfFill(yeGet(entity, "background"), &cfg) >= 0)
     sdlFillBg(wid, &cfg);
   YE_ARRAY_FOREACH(objs, obj) {
-    ywCanvasObjSize(state->entity, obj);
     sdlCanvasRendObj(state, wid, obj);
   }
   return 0;

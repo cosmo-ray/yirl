@@ -27,6 +27,10 @@ typedef enum  {
   YCanvasImg
 } YCanvasObjType;
 
+typedef enum  {
+  YCanvasForceSize,
+} YCanvasModifier;
+
 int ywCanvasInit(void);
 int ywCanvasEnd(void);
 int ysdl2RegistreCanvas(void);
@@ -38,6 +42,13 @@ int ywCanvasMoveObjByIdx(Entity *wid, int objIdx, Entity *pos);
 Entity *ywCanvasObjSize(Entity *wid, Entity *obj);
 
 Entity *ywCanvasObjPos(Entity *obj);
+
+/**
+ * resize obj to @size, result can be ugly
+ * if use with an @obj ot type YCanvasResource
+ * will resize every objects using the same resource
+ */
+int ywCanvasForceSize(Entity *obj, Entity *size);
 
 int ywCanvasMoveObj(Entity *obj, Entity *pos);
 Entity *ywCanvasObjFromIdx(Entity *wid, int idx);
@@ -67,5 +78,10 @@ Entity *ywCanvasNewCollisionsArrayExt(Entity *wid, Entity *obj,
 				      Entity *colisionFunc,
 				      Entity *colisionFuncArg);
 Entity *ywCanvasNewCollisionsArrayWithRectangle(Entity *wid, Entity *rectangle);
+
+static inline Entity *ywCanvasObjMod(Entity *obj)
+{
+  return yeGet(obj, "$mod");
+}
 
 #endif

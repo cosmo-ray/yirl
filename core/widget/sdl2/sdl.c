@@ -619,16 +619,45 @@ int sdlCanvasCacheTexture(Entity *state, Entity *elem)
   return -1;
 }
 
+static void sdlCanvasAplyModifier(Entity *img, SDL_Rect *dst,
+				  SDL_Rect **src, SDL_Point **center,
+				  double *rotation, SDL_RendererFlip *flip)
+{
+  Entity *mod = ywCanvasObjMod(img);
+  Entity *newSize;
+
+  if (!mod)
+    return;
+  newSize = yeGet(mod, YCanvasForceSize);
+  if (newSize) {
+    dst->x += (dst->w - ywSizeW(newSize)) / 2;
+    dst->y += (dst->h - ywSizeH(newSize)) / 2;
+    dst->w = ywSizeW(newSize);
+    dst->h = ywSizeH(newSize);
+  }
+}
+
 static int sdlCanvasRendImg(YWidgetState *state, SDLWid *wid, Entity *img)
 {
   SDL_Texture *t = yeGetData(yeGet(img, "$img"));
-  Entity *s = ywCanvasObjSize(state->entity, img); //yeGet(img, "$size");
+  if (!t) {
+    sdlCanvasCacheTexture(state->entity, img);
+    t = yeGetData(yeGet(img, "$img"));
+  }
+  Entity *s = yeGet(img, "$size");
   Entity *p = ywCanvasObjPos(img);
+  SDL_Rect *sd = NULL;
+  SDL_Point *center = NULL;
   SDL_Rect rd = { ywPosX(p), ywPosY(p), ywSizeW(s), ywSizeH(s) };
+  double rotation = 0;
+  SDL_RendererFlip flip = SDL_FLIP_NONE;
 
   if (unlikely(!t))
     return -1;
-  SDL_RenderCopy(sg.renderer, t, NULL, &rd);
+  sdlCanvasAplyModifier(img, &rd, &sd, &center, &rotation, &flip);
+  SDL_RenderCopyEx(sg.renderer, t, sd, &rd, rotation, center, flip);
+  free(sd);
+  free(center);
   return 0;
 }
 

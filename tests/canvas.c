@@ -109,7 +109,8 @@ void testCanvasSdl2(void)
   ywCanvasNewObj(canvas_example, 25, 40, 0);
   /* Put sara into the canvas */
   ywCanvasNewObj(canvas_example, 70, 100, 1);
-  ywCanvasNewObj(canvas_example, 70, 180, 2);
+  obj = ywCanvasNewObj(canvas_example, 470, 380, 2);
+  ywCanvasForceSize(obj, ywSizeCreate(200, 200, canvas_example, NULL));
   ywCanvasNewObj(canvas_example, 200, 250, 3);
 
   ywCanvasNewImgByPath(canvas_example, 200, 250, "tests/hero.png");
