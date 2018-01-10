@@ -1,6 +1,4 @@
 
-local rotationLevel = 0
-
 function action(entity, eve, arg)
    local eve = Event.wrapp(eve)
    local canvas = Canvas.wrapp(entity)
@@ -24,7 +22,8 @@ function action(entity, eve, arg)
 	 end
       elseif eve:type() == YKEY_MOUSEMOTION then
 	 -- I should add an api for that :p
-	 ship:rotate(ywPosAngle(eve:mouse_pos().ent:cent(), ship:pos().ent:cent()) + 90)
+	 ship:point_top_to(eve:mouse_pos())
+	 --ship:rotate(ywPosAngle(eve:mouse_pos().ent:cent(), ship:pos().ent:cent()) + 90)
       end
       
       eve = eve:next()
@@ -48,6 +47,7 @@ function createAstShoot(entity)
    ent.move = {}
    ent.move.up_down = 0
    ent.move.left_right = 0
+   ent["turn-length"] = 50000
    return canvas:new_wid()
 end
 

@@ -80,6 +80,10 @@ function CanvasObj:pos()
    return Pos.wrapp(ywCanvasObjPos(self:cent()))
 end
 
+function CanvasObj:point_top_to(point)
+   ywCanvasObjPointTopTo(self:cent(), point.ent:cent())
+end
+
 function CanvasObj:force_size(size)
    return ywCanvasForceSize(self:cent(), size.ent:cent())
 end
@@ -97,6 +101,7 @@ function CanvasObj.wrapp(ent)
    ret.pos = CanvasObj.pos 
    ret.force_size = CanvasObj.force_size
    ret.rotate = CanvasObj.rotate
+   ret.point_top_to = CanvasObj.point_top_to
    return ret
 end
 

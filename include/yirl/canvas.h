@@ -79,6 +79,19 @@ Entity *ywCanvasNewCollisionsArrayExt(Entity *wid, Entity *obj,
 				      Entity *colisionFuncArg);
 Entity *ywCanvasNewCollisionsArrayWithRectangle(Entity *wid, Entity *rectangle);
 
+/**
+ * turn @obj so the top of the sprite point in the direction of @point
+ */
+static inline void ywCanvasObjPointTopTo(Entity *obj, Entity *point)
+{
+  ywCanvasRotate(obj, ywPosAngle(ywCanvasObjPos(obj), point) - 90);
+}
+
+static inline void ywCanvasObjPointRightTo(Entity *obj, Entity *point)
+{
+  ywCanvasRotate(obj, ywPosAngle(ywCanvasObjPos(obj), point));
+}
+
 static inline Entity *ywCanvasObjMod(Entity *obj)
 {
   return yeGet(obj, "$mod");

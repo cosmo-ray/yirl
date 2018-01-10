@@ -367,6 +367,18 @@ int	luaywCanvasSwapObj(lua_State *L)
   return 1;
 }
 
+int	luaywCanvasObjPointTopTo(lua_State *L)
+{
+  ywCanvasObjPointTopTo(lua_touserdata(L, 1), lua_touserdata(L, 2));
+  return 0;
+}
+
+int	luaywCanvasObjPointRightTo(lua_State *L)
+{
+  ywCanvasObjPointRightTo(lua_touserdata(L, 1), lua_touserdata(L, 2));
+  return 0;
+}
+
 int	luaYwCanvasMoveObjByIdx(lua_State *L)
 {
   lua_pushnumber(L, ywCanvasMoveObjByIdx(lua_touserdata(L, 1),
