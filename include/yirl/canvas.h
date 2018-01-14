@@ -32,6 +32,11 @@ typedef enum  {
   YCanvasRotate,
 } YCanvasModifier;
 
+typedef union {
+  uint32_t i;
+  uint8_t rgba[4];
+} YCanvasPixiel;
+
 int ywCanvasInit(void);
 int ywCanvasEnd(void);
 int ysdl2RegistreCanvas(void);
@@ -70,6 +75,14 @@ int ywCanvasSwapObj(Entity *wid, Entity *obj0, Entity *obj1);
 
 YCanvasObjType ywCanvasObjType(Entity *obj);
 
+/**
+ * @return 1 if @obj0 is in colision with @obj1
+ */
+int ywCanvasObjectsCheckColisions(Entity *obj0, Entity *obj1);
+
+/**
+ * @return 1 if @obj colide with any object appart itself in @wid
+ */
 int ywCanvasCheckCollisions(Entity *wid, Entity *obj, Entity *colisionFunc,
 			    Entity *colisionFuncArg);
 

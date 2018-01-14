@@ -19,6 +19,6 @@
 #define _SDL2_CANVAS_SDL_H_
 
 int sdlCanvasCacheTexture(Entity *state, Entity *elem);
-int sdlCanvasResize(Entity *obj, Entity *size);
+uint32_t sdlCanvasPixInfo(Entity *obj, int x, int y);
 
 #endif

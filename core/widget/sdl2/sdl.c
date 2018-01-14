@@ -655,6 +655,39 @@ static int sdlCanvasRendImg(YWidgetState *state, SDLWid *wid, Entity *img)
   return 0;
 }
 
+uint32_t sdlCanvasPixInfo(Entity *obj, int x, int y)
+{
+  SDL_Surface *surface = yeGetDataAt(obj, "$img-surface");
+
+  /* printf("%p - %d - %d\n", surface, x, y); */
+  /* printf("%s: %d - %d - %p\n", SDL_GetPixelFormatName(surface->format->format), */
+  /* 	 surface->w, surface->h, surface->pixels); */
+  /* printf("%d\n", surface->format->BitsPerPixel); */
+  if (x >= surface->w || y >= surface->h) {
+    DPRINT_ERR("outch !");
+    return 0;
+  }
+  switch (surface->format->BitsPerPixel) {
+  case 32:
+    return ((uint32_t *)surface->pixels)[x + surface->w * y];
+  case 8:
+    {
+      union {
+	SDL_Color s_col;
+	uint32_t i;
+      } ret;
+      int index = ((Uint8 *)surface->pixels)[(x + surface->w * y)];
+
+      ret.s_col =  surface->format->palette->colors[index];
+      return ret.i;
+    }
+  default:
+    DPRINT_ERR("unsuported pixiel format, %dbits per pixiels",
+	       surface->format->BitsPerPixel);
+  }
+  return 0;
+}
+
 int sdlCanvasRendObj(YWidgetState *state, SDLWid *wid, Entity *obj)
 {
   int type = yeGetIntAt(obj, 0);

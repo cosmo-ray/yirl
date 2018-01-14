@@ -295,7 +295,81 @@ extern "C" {
     return obj;
   }
 
- Entity *ywCanvasNewObj(Entity *wid, int x, int y, int id)
+  static int pixModX(Entity *obj, Entity *mod, int x, int w)
+  {
+    Entity *forcedSize = yeGet(mod, YCanvasForceSize);
+
+    if (unlikely(forcedSize)) {
+      int realW = ywSizeW(yeGet(obj, "$size"));
+
+      return x * realW / w;
+    }
+    return x;
+  }
+
+  static int pixModY(Entity *obj, Entity *mod, int y, int h)
+  {
+    Entity *forcedSize = yeGet(mod, YCanvasForceSize);
+
+    if (unlikely(forcedSize)) {
+      int realH = ywSizeH(yeGet(obj, "$size"));
+
+      return y * realH / h;
+    }
+    return y;
+  }
+
+
+  int	ywCanvasObjectsCheckColisions(Entity *obj0, Entity *obj1)
+  {
+    Entity *r0 = ywRectCreatePosSize(ywCanvasObjPos(obj0),
+				     ywCanvasObjSize(NULL, obj0),
+				     NULL, NULL);
+    Entity *r1 = ywRectCreatePosSize(ywCanvasObjPos(obj1),
+				     ywCanvasObjSize(NULL, obj1),
+				     NULL, NULL);
+    Entity *colisionRects = ywRectColisionRect(r0, r1, NULL, NULL);
+    Entity *crect0 = yeGet(colisionRects, 0);
+    Entity *crect1 = yeGet(colisionRects, 1);
+    Entity *mod0 = ywCanvasObjMod(obj0);
+    Entity *mod1 = ywCanvasObjMod(obj1);
+
+    int ret = 0;
+
+    // ywRectPrint(r0);
+    // ywRectPrint(r1);
+    if (!colisionRects) {
+      goto exit;
+    }
+    ywRectPrint(yeGet(colisionRects, 0));
+    ywRectPrint(yeGet(colisionRects, 1));
+
+    for (int i = 0; i < ywRectH(crect0); ++i) {
+      for (int j = 0; j < ywRectW(crect0); ++j) {
+	YCanvasPixiel pix;
+
+	pix.i = sdlCanvasPixInfo(obj0, pixModX(obj0, mod0, ywRectX(crect0) + j,
+					       ywRectW(r0)),
+				 pixModY(obj0, mod0, ywRectY(crect0) + i,
+					 ywRectH(r0)));
+	if (pix.rgba[3] != 0) {
+	  pix.i = sdlCanvasPixInfo(obj1, pixModX(obj1, mod1, ywRectX(crect1) + j,
+						 ywRectW(r1)),
+				   pixModY(obj1, mod1, ywRectY(crect1) + i,
+					   ywRectH(r1)));
+ 	  if (pix.rgba[3] != 0) {
+	    ret = 1;
+	    goto exit;
+	  }
+	}
+      }
+    }
+  exit:
+    yeMultDestroy(r0, r1, colisionRects);
+    return ret;
+  }
+
+  Entity *ywCanvasNewObj(Entity *wid, int x, int y, int id)
   {
     Entity *objs = getOrCreateObjs(wid);
     Entity *obj = yeCreateArray(objs, NULL);
@@ -315,7 +389,7 @@ extern "C" {
     }
     return mod;
   }
-  
+
   int ywCanvasRotate(Entity *obj, double angle)
   {
     Entity *mod = getOrCreateMod(obj);

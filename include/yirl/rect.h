@@ -137,6 +137,9 @@ static inline int ywRectContainPos(Entity *rect, Entity *pos, int proper)
   return ywRectContain(rect, ywPosX(pos), ywPosY(pos), proper);
 }
 
+Entity *ywRectColisionRect(Entity *rect0, Entity *rect1,
+			   Entity *father, const char *name);
+
 static inline int ywRectCollision(Entity *rect0, Entity *rect1)
 {
   int bx0 = ywRectX(rect0), ex0 = ywRectX(rect0) + ywRectW(rect0);

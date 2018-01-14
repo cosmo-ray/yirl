@@ -51,6 +51,18 @@ static void *moveImg(va_list ap)
       yeRemoveChildByStr(wid, "R-rm");
       return (void *)ACTION;
     }
+    if (ywidEveKey(eve) == '0') {
+      printf("sara: %d\n",
+	     ywCanvasObjectsCheckColisions(ywCanvasObjFromIdx(wid, 0),
+					   ywCanvasObjFromIdx(wid, 1)));
+      printf("floop square: %d\n",
+	     ywCanvasObjectsCheckColisions(ywCanvasObjFromIdx(wid, 0),
+					   ywCanvasObjFromIdx(wid, 2)));
+      printf("text: %d\n",
+	     ywCanvasObjectsCheckColisions(ywCanvasObjFromIdx(wid, 0),
+					   ywCanvasObjFromIdx(wid, 3)));
+      return (void *)NOTHANDLE;
+    }
   }
   return (void *)NOTHANDLE;
 }

@@ -500,8 +500,8 @@ Entity *yeCreateDataExt(void *value, Entity *father, const char *name,
 			YDataFlag flag);
 
 /**
- * Create an Array which is a pair of 2 elements contening: value1 and value2
- * Names are optional
+ * Create an Array which is a pair of 2 elements contening: @value1 and @value2
+ * @names and @father are optional
  */
 static inline Entity *yeCreateTuple(Entity *value1, Entity *value2,
 				    Entity *father, const char *name)
