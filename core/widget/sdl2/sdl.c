@@ -663,8 +663,7 @@ uint32_t sdlCanvasPixInfo(Entity *obj, int x, int y)
   /* printf("%s: %d - %d - %p\n", SDL_GetPixelFormatName(surface->format->format), */
   /* 	 surface->w, surface->h, surface->pixels); */
   /* printf("%d\n", surface->format->BitsPerPixel); */
-  if (x >= surface->w || y >= surface->h) {
-    DPRINT_ERR("outch !");
+  if (x < 0 || x >= surface->w || y < 0 || y >= surface->h) {
     return 0;
   }
   switch (surface->format->BitsPerPixel) {

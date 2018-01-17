@@ -17,6 +17,7 @@
 
 extern "C" {
 #include <glib.h>
+#include <math.h>
 #include "rect.h"
 #include "text-screen.h"
 #include "sdl-driver.h"
@@ -295,68 +296,103 @@ extern "C" {
     return obj;
   }
 
-  static int pixModX(Entity *obj, Entity *mod, int x, int w)
+  static void pixMod(Entity *obj, Entity *rect, Entity *mod,
+		     int &x, int &y, int w, int h)
   {
     Entity *forcedSize = yeGet(mod, YCanvasForceSize);
+    Entity *rotate = yeGet(mod, YCanvasRotate);
+    Entity *size = yeGet(obj, "$size");
+
+    if (unlikely(rotate)) {
+      double r = -(yeGetFloat(rotate) / 180 * M_PI);
+      int sw = ywSizeW(size), sh = ywSizeH(size);
+      int ox = x, oy = y;
+
+      // center in 0,0
+      ox = x - w / 2;
+      oy = y - h / 2;
+
+      // turn x (and y, but turn y isn't a gundam)
+      x = ox * cos(r) - oy * sin(r);
+      y = oy * cos(r) + ox * sin(r);
+      // hight left top is 0,0 again (all hail 0)
+      x += w / 2;
+      y += h / 2;
+      // reset x and y to they original "relative" position
+      if (sw > sh)
+      	y = y - sw / 2 + sh / 2;
+      else
+	x -= sh / 2 - sw / 2;
+    }
 
     if (unlikely(forcedSize)) {
-      int realW = ywSizeW(yeGet(obj, "$size"));
+      int realH = ywSizeH(size);
+      int realW = ywSizeW(size);
 
-      return x * realW / w;
+      x = x * realW / w;
+      y = y * realH / h;
     }
-    return x;
   }
 
-  static int pixModY(Entity *obj, Entity *mod, int y, int h)
+  static Entity *rectRotationMod(Entity *obj, Entity *r, Entity *mod)
   {
-    Entity *forcedSize = yeGet(mod, YCanvasForceSize);
+    Entity *rotate = yeGet(mod, YCanvasRotate);
 
-    if (unlikely(forcedSize)) {
-      int realH = ywSizeH(yeGet(obj, "$size"));
-
-      return y * realH / h;
+    if (unlikely(rotate)) {
+      if (ywRectW(r) > ywRectH(r)) {
+	ywRectSetY(r, ywRectY(r) + ywRectH(r) / 2 - ywRectW(r) / 2 );
+	ywRectSetH(r, ywRectW(r));
+      } else {
+	ywRectSetX(r, ywRectX(r) + ywRectW(r) / 2 - ywRectH(r) / 2);
+	ywRectSetW(r, ywRectH(r));
+      }
     }
-    return y;
+    return r;
   }
 
+  int ywidColisionXPresision = 1;
+  int ywidColisionYPresision = 1;
 
   int	ywCanvasObjectsCheckColisions(Entity *obj0, Entity *obj1)
   {
-    Entity *r0 = ywRectCreatePosSize(ywCanvasObjPos(obj0),
-				     ywCanvasObjSize(NULL, obj0),
-				     NULL, NULL);
-    Entity *r1 = ywRectCreatePosSize(ywCanvasObjPos(obj1),
-				     ywCanvasObjSize(NULL, obj1),
-				     NULL, NULL);
+    Entity *mod0 = ywCanvasObjMod(obj0);
+    Entity *mod1 = ywCanvasObjMod(obj1);
+    Entity *r0 =
+      rectRotationMod(obj0, ywRectCreatePosSize(ywCanvasObjPos(obj0),
+						ywCanvasObjSize(NULL, obj0),
+						NULL, NULL),
+		      mod0);
+    Entity *r1 =
+      rectRotationMod(obj1, ywRectCreatePosSize(ywCanvasObjPos(obj1),
+						ywCanvasObjSize(NULL, obj1),
+						NULL, NULL),
+		      mod1);
     Entity *colisionRects = ywRectColisionRect(r0, r1, NULL, NULL);
     Entity *crect0 = yeGet(colisionRects, 0);
     Entity *crect1 = yeGet(colisionRects, 1);
-    Entity *mod0 = ywCanvasObjMod(obj0);
-    Entity *mod1 = ywCanvasObjMod(obj1);
 
     int ret = 0;
 
-    // ywRectPrint(r0);
-    // ywRectPrint(r1);
+    ywRectPrint(r0);
+    ywRectPrint(r1);
     if (!colisionRects) {
       goto exit;
     }
     ywRectPrint(yeGet(colisionRects, 0));
     ywRectPrint(yeGet(colisionRects, 1));
 
-    for (int i = 0; i < ywRectH(crect0); ++i) {
-      for (int j = 0; j < ywRectW(crect0); ++j) {
+    for (int i = 0; i < ywRectH(crect0); i += ywidColisionYPresision) {
+      for (int j = 0; j < ywRectW(crect0); j += ywidColisionXPresision) {
 	YCanvasPixiel pix;
+	int x = ywRectX(crect0) + j, y = ywRectY(crect0) + i;
 
-	pix.i = sdlCanvasPixInfo(obj0, pixModX(obj0, mod0, ywRectX(crect0) + j,
-					       ywRectW(r0)),
-				 pixModY(obj0, mod0, ywRectY(crect0) + i,
-					 ywRectH(r0)));
+	pixMod(obj0, r0, mod0, x, y, ywRectW(r0), ywRectH(r0));
+	pix.i = sdlCanvasPixInfo(obj0, x, y);
 	if (pix.rgba[3] != 0) {
-	  pix.i = sdlCanvasPixInfo(obj1, pixModX(obj1, mod1, ywRectX(crect1) + j,
-						 ywRectW(r1)),
-				   pixModY(obj1, mod1, ywRectY(crect1) + i,
-					   ywRectH(r1)));
+	  x = ywRectX(crect1) + j;
+	  y = ywRectY(crect1) + i;
+	  pixMod(obj1, r1, mod1, x, y, ywRectW(r1), ywRectH(r1));
+	  pix.i = sdlCanvasPixInfo(obj1, x, y);
  	  if (pix.rgba[3] != 0) {
 	    ret = 1;
 	    goto exit;
