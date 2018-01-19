@@ -145,6 +145,8 @@ void testCanvasSdl2(void)
   yePushBack(canvas_example,
 	     ywCanvasNewRect(canvas_example, 100, 250, rect),
 	     "R-rm");
+  ywCanvasForceSize(yeGet(canvas_example, "r-rm"),
+		    ywSizeCreate(50, 50, canvas_example, NULL));
   yePushBack(canvas_example,
 	     ywCanvasNewText(canvas_example, 100, 300, yeGet(strs, 0)),
 	     "song");
