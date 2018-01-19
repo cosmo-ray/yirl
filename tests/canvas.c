@@ -122,6 +122,7 @@ void testCanvasSdl2(void)
   /* Put sara into the canvas */
   obj = ywCanvasNewObj(canvas_example, 70, 100, 1);
   ywCanvasRotate(obj, -90);
+  ywCanvasForceSize(obj, ywSizeCreate(100, 200, canvas_example, NULL));
   obj = ywCanvasNewObj(canvas_example, 470, 380, 2);
   ywCanvasForceSize(obj, ywSizeCreate(200, 200, canvas_example, NULL));
   obj = ywCanvasNewObj(canvas_example, 200, 250, 3);

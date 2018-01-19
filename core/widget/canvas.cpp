@@ -301,9 +301,9 @@ extern "C" {
   {
     Entity *forcedSize = yeGet(mod, YCanvasForceSize);
     Entity *rotate = yeGet(mod, YCanvasRotate);
-    Entity *size = yeGet(obj, "$size");
 
     if (unlikely(rotate)) {
+      Entity *size = ywCanvasObjSize(NULL, obj);
       double r = -(yeGetFloat(rotate) / 180 * M_PI);
       int sw = ywSizeW(size), sh = ywSizeH(size);
       int ox = x, oy = y;
@@ -315,17 +315,22 @@ extern "C" {
       // turn x (and y, but turn y isn't a gundam)
       x = ox * cos(r) - oy * sin(r);
       y = oy * cos(r) + ox * sin(r);
+
       // hight left top is 0,0 again (all hail 0)
       x += w / 2;
       y += h / 2;
+
       // reset x and y to they original "relative" position
       if (sw > sh)
       	y = y - sw / 2 + sh / 2;
       else
-	x -= sh / 2 - sw / 2;
+	x = x - sh / 2 + sw / 2;
+      w = sw;
+      h = sh;
     }
 
     if (unlikely(forcedSize)) {
+      Entity *size = yeGet(obj, "$size");
       int realH = ywSizeH(size);
       int realW = ywSizeW(size);
 
@@ -373,8 +378,8 @@ extern "C" {
 
     int ret = 0;
 
-    ywRectPrint(r0);
-    ywRectPrint(r1);
+    // ywRectPrint(r0);
+    // ywRectPrint(r1);
     if (!colisionRects) {
       goto exit;
     }
