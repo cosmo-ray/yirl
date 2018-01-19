@@ -97,12 +97,22 @@ Entity *ywCanvasNewCollisionsArrayWithRectangle(Entity *wid, Entity *rectangle);
  */
 static inline void ywCanvasObjPointTopTo(Entity *obj, Entity *point)
 {
-  ywCanvasRotate(obj, ywPosAngle(ywCanvasObjPos(obj), point) - 90);
+  Entity *pos = ywCanvasObjPos(obj);
+  Entity *s = ywCanvasObjSize(NULL, obj);
+
+  ywPosAddXY(pos, ywSizeW(s) / 2, ywSizeH(s) / 2) ;
+  ywCanvasRotate(obj, ywPosAngle(pos, point) - 90);
+  ywPosSubXY(pos, ywSizeW(s) / 2, ywSizeH(s) / 2) ;
 }
 
 static inline void ywCanvasObjPointRightTo(Entity *obj, Entity *point)
 {
-  ywCanvasRotate(obj, ywPosAngle(ywCanvasObjPos(obj), point));
+  Entity *pos = ywCanvasObjPos(obj);
+  Entity *s = ywCanvasObjSize(NULL, obj);
+
+  ywPosAddXY(pos, ywSizeW(s) / 2, ywSizeH(s) / 2) ;
+  ywCanvasRotate(obj, ywPosAngle(pos, point));
+  ywPosSubXY(pos, ywSizeW(s) / 2, ywSizeH(s) / 2) ;
 }
 
 static inline Entity *ywCanvasObjMod(Entity *obj)
