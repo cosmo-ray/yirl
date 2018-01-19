@@ -375,7 +375,6 @@ extern "C" {
     Entity *colisionRects = ywRectColisionRect(r0, r1, NULL, NULL);
     Entity *crect0 = yeGet(colisionRects, 0);
     Entity *crect1 = yeGet(colisionRects, 1);
-
     int ret = 0;
 
     // ywRectPrint(r0);
@@ -383,8 +382,8 @@ extern "C" {
     if (!colisionRects) {
       goto exit;
     }
-    ywRectPrint(yeGet(colisionRects, 0));
-    ywRectPrint(yeGet(colisionRects, 1));
+    // ywRectPrint(yeGet(colisionRects, 0));
+    // ywRectPrint(yeGet(colisionRects, 1));
 
     for (int i = 0; i < ywRectH(crect0); i += ywidColisionYPresision) {
       for (int j = 0; j < ywRectW(crect0); j += ywidColisionXPresision) {
