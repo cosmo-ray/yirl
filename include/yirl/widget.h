@@ -81,6 +81,8 @@ typedef struct {
       char *path;
     };
 
+    uint32_t rgba;
+
   };
 
 } YBgConf;

@@ -61,6 +61,9 @@ static void *moveImg(va_list ap)
       printf("text: %d\n",
 	     ywCanvasObjectsCheckColisions(ywCanvasObjFromIdx(wid, 0),
 					   ywCanvasObjFromIdx(wid, 3)));
+      printf("rect: %d\n",
+	     ywCanvasObjectsCheckColisions(ywCanvasObjFromIdx(wid, 0),
+					   yeGet(wid, "r-rm")));
       return (void *)NOTHANDLE;
     }
   }

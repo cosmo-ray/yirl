@@ -658,7 +658,20 @@ static int sdlCanvasRendImg(YWidgetState *state, SDLWid *wid, Entity *img)
 uint32_t sdlCanvasPixInfo(Entity *obj, int x, int y)
 {
   SDL_Surface *surface = yeGetDataAt(obj, "$img-surface");
+  int type = yeGetIntAt(obj, 0);
 
+  if (type == YCanvasRect) {
+    YBgConf cfg;
+    Entity *s = ywCanvasObjSize(NULL, obj);
+
+    if (y < 0 || y >= ywSizeH(s) || x < 0 || x > ywSizeW(s))
+      return 0;
+    ywidBgConfFill(yeGet(yeGet(obj, 2), 1), &cfg);
+    return cfg.rgba;
+  }
+  if (!surface) {
+    return 0;
+  }
   /* printf("%p - %d - %d\n", surface, x, y); */
   /* printf("%s: %d - %d - %p\n", SDL_GetPixelFormatName(surface->format->format), */
   /* 	 surface->w, surface->h, surface->pixels); */
@@ -666,6 +679,7 @@ uint32_t sdlCanvasPixInfo(Entity *obj, int x, int y)
   if (x < 0 || x >= surface->w || y < 0 || y >= surface->h) {
     return 0;
   }
+
   switch (surface->format->BitsPerPixel) {
   case 32:
     return ((uint32_t *)surface->pixels)[x + surface->w * y];
