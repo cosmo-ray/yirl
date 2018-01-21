@@ -24,6 +24,22 @@ function Event:key()
    return ywidEveKey(self:cent())
 end
 
+function Event:is_key_up()
+   return self:key() == Y_UP_KEY or self:key() == Y_W_KEY
+end
+
+function Event:is_key_down()
+   return self:key() == Y_DOWN_KEY or self:key() == Y_S_KEY
+end
+
+function Event:is_key_left()
+   return self:key() == Y_LEFT_KEY or self:key() == Y_A_KEY
+end
+
+function Event:is_key_right()
+   return self:key() == Y_RIGHT_KEY or self:key() == Y_D_KEY
+end
+
 function Event:next()
    return Event.wrapp(ywidNextEve(self:cent()))
 end
@@ -35,7 +51,9 @@ end
 
 function Event.wrapp(ent)
    local ret = { is_end=Event.is_end, cent=Event.cent , next=Event.next,
-		 type = Event.type, key=Event.key, mouse_pos=Event.mouse_pos }
+		 type = Event.type, key=Event.key, mouse_pos=Event.mouse_pos,
+		 is_key_up=Event.is_key_up, is_key_down=Event.is_key_down,
+		 is_key_left=Event.is_key_left, is_key_right=Event.is_key_right }
 
    ret.ent = Entity.wrapp(ent)
    return ret;

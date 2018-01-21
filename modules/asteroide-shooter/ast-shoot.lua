@@ -10,14 +10,14 @@ function action(entity, eve, arg)
 	 if eve:key() == Y_ESC_KEY then
 	    yFinishGame()
 	    return YEVE_ACTION
-	 elseif eve:key() == Y_UP_KEY then move.up_down = -1
-	 elseif eve:key() == Y_DOWN_KEY then move.up_down = 1
-	 elseif eve:key() == Y_LEFT_KEY then move.left_right = -1
-	 elseif eve:key() == Y_RIGHT_KEY then move.left_right = 1
+	 elseif eve:is_key_up() then move.up_down = -1
+	 elseif eve:is_key_down() then move.up_down = 1
+	 elseif eve:is_key_left() then move.left_right = -1
+	 elseif eve:is_key_right() then move.left_right = 1
 	 end
       elseif eve:type() == YKEY_UP then
-	 if eve:key() == Y_UP_KEY or eve:key() == Y_DOWN_KEY then move.up_down = 0
-	 elseif eve:key() == Y_LEFT_KEY or eve:key() == Y_RIGHT_KEY then
+	 if eve:is_key_up() or eve:is_key_down() then move.up_down = 0
+	 elseif eve:is_key_left() or eve:is_key_right() then
 	 move.left_right = 0
 	 end
       elseif eve:type() == YKEY_MOUSEMOTION then
