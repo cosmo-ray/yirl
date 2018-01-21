@@ -210,6 +210,25 @@ int	luaentity_tocentity(lua_State *L)
   return 1;
 }
 
+int	luaentity_len(lua_State *L)
+{
+  lua_pushnumber(L, yeLen(luaEntityAt(L, 1)));
+  return 1;
+}
+
+int	luaentity_tofloat(lua_State *L)
+{
+  lua_pushnumber(L, yeGetFloat(luaEntityAt(L, 1)));
+  return 1;
+}
+
+int	luaentity_pushback(lua_State *L)
+{
+  lua_pushnumber(L, yePushBack(luaEntityAt(L, 1), luaEntityAt(L, 2),
+			       lua_tostring(L, 3)));
+  return 1;
+}
+
 int	luaentity_destroy(lua_State *L)
 {
   struct entityWrapper *ew = luaL_checkudata(L, 1, "Entity");
@@ -384,6 +403,20 @@ int	luaYwCanvasMoveObjByIdx(lua_State *L)
   lua_pushnumber(L, ywCanvasMoveObjByIdx(lua_touserdata(L, 1),
 					 lua_tonumber(L, 2),
 					 lua_touserdata(L, 3)));
+  return 1;
+}
+
+int	luaywCanvasObjAngle(lua_State *L)
+{
+  lua_pushnumber(L, ywCanvasObjAngle(lua_touserdata(L, 1)));
+  return 1;
+}
+
+int	luaywCanvasAdvenceObj(lua_State *L)
+{
+  lua_pushnumber(L, ywCanvasAdvenceObj(lua_touserdata(L, 1),
+				       lua_tonumber(L, 2),
+				       lua_tonumber(L, 3)));
   return 1;
 }
 

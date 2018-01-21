@@ -40,6 +40,9 @@ int	luaentity_call(lua_State *L);
 int	luaentity_mul(lua_State *L);
 int	luaentity_wrapp(lua_State *L);
 int	luaentity__wrapp_(lua_State *L);
+int	luaentity_len(lua_State *L);
+int	luaentity_pushback(lua_State *L);
+int	luaentity_tofloat(lua_State *L);
 
 /* love lua */
 int	luaYAnd(lua_State *L);
@@ -157,6 +160,7 @@ int	luaYwCanvasMoveObjByIdx(lua_State *L);
 int	luaYwCanvasNewObj(lua_State *L);
 int	luaYwCanvasObjPos(lua_State *L);
 int	luaYwCanvasObjSize(lua_State *L);
+int	luaywCanvasObjAngle(lua_State *L);
 int	luaYwCanvasObjFromIdx(lua_State *L);
 int	luaYwCanvasIdxFromObj(lua_State *L);
 int	luaYwCanvasObjSetPos(lua_State *L);
@@ -169,6 +173,7 @@ int	luaywCanvasCheckCollisions(lua_State *L);
 int	luaywCanvasNewCollisionsArrayExt(lua_State *L);
 int	luaywCanvasNewImg(lua_State *L);
 int	luaywCanvasMoveObj(lua_State *L);
+int	luaywCanvasAdvenceObj(lua_State *L);
 int	luaywCanvasSwapObj(lua_State *L);
 int	luaywCanvasForceSize(lua_State *L);
 int	luaywCanvasRotate(lua_State *L);
@@ -282,6 +287,9 @@ static inline int	yesLuaRegister(void *sm)
     {"__call", luaentity_call},
     {"__mul", luaentity_mul},
     {"cent", luaentity_tocentity},
+    {"len", luaentity_len},
+    {"push_back", luaentity_pushback},
+    {"to_float", luaentity_tofloat},
     {NULL, NULL},
   };
   static const struct luaL_Reg luaentity_functions[] = {
@@ -433,6 +441,8 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasRemoveObj", luaYwCanvasRemoveObj));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasMoveObjByIdx",
 				 luaYwCanvasMoveObjByIdx));
+  YES_LUA_REGISTRE_CALL(sm, ywCanvasAdvenceObj);
+  YES_LUA_REGISTRE_CALL(sm, ywCanvasObjAngle);
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasNewObj", luaYwCanvasNewObj));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasNewText", luaYwCanvasNewText));
   YES_LUA_REGISTRE_CALL(sm, ywCanvasNewRect);

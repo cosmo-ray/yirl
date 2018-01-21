@@ -23,10 +23,25 @@ function action(entity, eve, arg)
       elseif eve:type() == YKEY_MOUSEMOTION then
 	 -- I should add an api for that :p
 	 ship:point_top_to(eve:mouse_pos())
-	 --ship:rotate(ywPosAngle(eve:mouse_pos().ent:cent(), ship:pos().ent:cent()) + 90)
+      elseif eve:type() == YKEY_MOUSEDOWN then
+	 local laser = canvas:new_obj(ship:pos():x() + ship:size():x() / 2 - 5,
+				      ship:pos():y() + ship:size():y() / 2  -5, 0)
+
+	 laser:point_right_to(eve:mouse_pos())
+	 yeCreateFloat(laser:angle() - 90, laser.ent:cent(), "angle")
+	 canvas.ent.lasers:push_back(laser:cent())
       end
-      
       eve = eve:next()
+   end
+
+   for i = 0, canvas.ent.lasers:len() do
+      if canvas.ent.lasers[i] then
+	 local laser = CanvasObj.wrapp(canvas.ent.lasers[i])
+
+	 laser:advance(25, laser.ent.angle:to_float())
+	 -- remove out of map
+	 -- check colision
+      end
    end
 
    local pos = Pos.new(move.left_right * 10, move.up_down * 10)
@@ -38,16 +53,22 @@ function createAstShoot(entity)
    local canvas = Canvas.wrapp(entity)
    local ent = canvas.ent
 
+   ent.resources = {}
+   ent.resources[0] = {}
+   local resource = ent.resources[0]
+   resource["img"] = "jswars_gfx/shot.png"
+
    Entity.new_func("action", ent, "action")
    canvas.ent.background = "rgba: 255 255 255 255"
    local ship = canvas:new_img(150, 150, "./DurrrSpaceShip.png")
    local shipSize = Pos.new(40, 40)
    ship:force_size(shipSize)
    ent.ship = ship:cent()
+   ent.lasers = {}
    ent.move = {}
    ent.move.up_down = 0
    ent.move.left_right = 0
-   ent["turn-length"] = 50000
+   ent["turn-length"] = 100000
    return canvas:new_wid()
 end
 

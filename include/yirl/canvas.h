@@ -49,13 +49,17 @@ Entity *ywCanvasObjSize(Entity *wid, Entity *obj);
 
 Entity *ywCanvasObjPos(Entity *obj);
 
+double ywCanvasObjAngle(Entity *obj);
+
 /**
  * resize obj to @size, result can be ugly
  */
 int ywCanvasForceSize(Entity *obj, Entity *size);
 int ywCanvasRotate(Entity *obj, double angle);
 
+int ywCanvasAdvenceObj(Entity *obj, int speed, double direction);
 int ywCanvasMoveObj(Entity *obj, Entity *pos);
+int ywCanvasMoveObjXY(Entity *obj, int x, int y);
 Entity *ywCanvasObjFromIdx(Entity *wid, int idx);
 int ywCanvasIdxFromObj(Entity *wid, Entity *obj);
 

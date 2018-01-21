@@ -96,6 +96,12 @@ extern "C" {
     return 0;
   }
 
+  int ywCanvasMoveObjXY(Entity *obj, int x, int y)
+  {
+    ywPosAddXY(yeGet(obj, 1), x, y);
+    return 0;
+  }
+
   int ywCanvasMoveObjByIdx(Entity *wid, int objIdx, Entity *pos)
   {
     Entity *obj = yeGet(yeGet(wid, "objs"), objIdx);
@@ -428,6 +434,21 @@ extern "C" {
       mod = yeCreateArray(obj, "$mod");
     }
     return mod;
+  }
+
+  double ywCanvasObjAngle(Entity *obj)
+  {
+    return yeGetFloat(yeGet(ywCanvasObjMod(obj), YCanvasRotate));
+  }
+
+  int ywCanvasAdvenceObj(Entity *obj, int speed, double direction)
+  {
+    direction = direction / 180 * M_PI;
+    int x = speed * sin(direction);
+    int y = speed * cos(direction);
+
+    ywCanvasMoveObjXY(obj, x, -y);
+    return 0;
   }
 
   int ywCanvasRotate(Entity *obj, double angle)
