@@ -43,6 +43,9 @@ int	luaentity__wrapp_(lua_State *L);
 int	luaentity_len(lua_State *L);
 int	luaentity_pushback(lua_State *L);
 int	luaentity_tofloat(lua_State *L);
+int	luaentity_setfloat(lua_State *L);
+int	luaentity_remove(lua_State *L);
+int	luaentity_toint(lua_State *L);
 
 /* love lua */
 int	luaYAnd(lua_State *L);
@@ -179,6 +182,8 @@ int	luaywCanvasForceSize(lua_State *L);
 int	luaywCanvasRotate(lua_State *L);
 int	luaywCanvasObjPointTopTo(lua_State *L);
 int	luaywCanvasObjPointRightTo(lua_State *L);
+int	luaywCanvasObjIsOut(lua_State *L);
+int	luaywCanvasObjectsCheckColisions(lua_State *L);
 
 /* Game and Module */
 int	luaGetMod(lua_State *L);
@@ -290,6 +295,9 @@ static inline int	yesLuaRegister(void *sm)
     {"len", luaentity_len},
     {"push_back", luaentity_pushback},
     {"to_float", luaentity_tofloat},
+    {"to_int", luaentity_toint},
+    {"set_float", luaentity_setfloat},
+    {"remove", luaentity_remove},
     {NULL, NULL},
   };
   static const struct luaL_Reg luaentity_functions[] = {
@@ -465,6 +473,8 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, ywCanvasRotate);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasObjPointTopTo);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasObjPointRightTo);
+  YES_LUA_REGISTRE_CALL(sm, ywCanvasObjIsOut);
+  YES_LUA_REGISTRE_CALL(sm, ywCanvasObjectsCheckColisions);
 
   /* Game and Modules */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygGetMod", luaGetMod));

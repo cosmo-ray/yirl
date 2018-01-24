@@ -65,6 +65,8 @@ int ywCanvasIdxFromObj(Entity *wid, Entity *obj);
 
 void ywCanvasObjSetPos(Entity *obj, int x, int y);
 
+int ywCanvasObjIsOut(Entity *wid, Entity *obj);
+
 Entity *ywCanvasNewObj(Entity *wid, int x, int y, int id);
 Entity *ywCanvasNewRect(Entity *wid, int x, int y, Entity *rect);
 Entity *ywCanvasNewText(Entity *wid, int x, int y, Entity *string);

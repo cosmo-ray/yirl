@@ -466,5 +466,20 @@ extern "C" {
     yePushAt(mod, size, YCanvasForceSize);
     return 0;
   }
+
+  int ywCanvasObjIsOut(Entity *wid, Entity *obj)
+  {
+    Entity *wid_r = yeGet(wid, "wid-pix");
+    Entity *mod = ywCanvasObjMod(obj);
+    Entity *obj_r =
+      rectRotationMod(obj, ywRectCreatePosSize(ywCanvasObjPos(obj),
+					       ywCanvasObjSize(NULL, obj),
+					       NULL, NULL),
+		      mod);
+    int ret = !ywRectCollision(wid_r, obj_r);
+
+    yeDestroy(obj_r);
+    return ret;
+  }
 }
 

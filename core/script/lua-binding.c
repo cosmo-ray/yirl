@@ -98,6 +98,15 @@ int	luaentity_call(lua_State *L)
   return luaYesCall(L);
 }
 
+int	luaentity_remove(lua_State *L)
+{
+  Entity *ae = luaEntityAt(L, 1);
+  Entity *e = luaEntityAt(L, 2);
+
+  lua_pushlightuserdata(L, yeRemoveChild(ae, e));
+  return 1;
+}
+
 int	luaentity_newindex(lua_State *L)
 {
   struct entityWrapper *ew = luaL_checkudata(L, 1, "Entity");
@@ -219,6 +228,18 @@ int	luaentity_len(lua_State *L)
 int	luaentity_tofloat(lua_State *L)
 {
   lua_pushnumber(L, yeGetFloat(luaEntityAt(L, 1)));
+  return 1;
+}
+
+int	luaentity_setfloat(lua_State *L)
+{
+  yeSetFloat(luaEntityAt(L, 1), lua_tonumber(L, 2));
+  return 0;
+}
+
+int	luaentity_toint(lua_State *L)
+{
+  lua_pushnumber(L, yeGetInt(luaEntityAt(L, 1)));
   return 1;
 }
 
@@ -386,6 +407,13 @@ int	luaywCanvasSwapObj(lua_State *L)
   return 1;
 }
 
+int	luaywCanvasObjIsOut(lua_State *L)
+{
+  lua_pushnumber(L, ywCanvasObjIsOut(lua_touserdata(L, 1),
+				     lua_touserdata(L, 2)));
+  return 1;
+}
+
 int	luaywCanvasObjPointTopTo(lua_State *L)
 {
   ywCanvasObjPointTopTo(lua_touserdata(L, 1), lua_touserdata(L, 2));
@@ -497,6 +525,13 @@ int	luaywCanvasCheckCollisions(lua_State *L)
 					    lua_touserdata(L, 2),
 					    lua_touserdata(L, 3),
 					    lua_touserdata(L, 4)));
+  return 1;
+}
+
+int	luaywCanvasObjectsCheckColisions(lua_State *L)
+{
+  lua_pushboolean(L, ywCanvasObjectsCheckColisions(lua_touserdata(L, 1),
+						   lua_touserdata(L, 2)));
   return 1;
 }
 

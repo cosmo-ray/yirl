@@ -34,19 +34,64 @@ function action(entity, eve, arg)
       eve = eve:next()
    end
 
-   for i = 0, canvas.ent.lasers:len() do
-      if canvas.ent.lasers[i] then
-	 local laser = CanvasObj.wrapp(canvas.ent.lasers[i])
+   local lasers = canvas.ent.lasers
+   local asteroides = canvas.ent.asteroides
+   for i = 0, lasers:len() do
+      if lasers[i] then
+	 local laser = CanvasObj.wrapp(lasers[i])
 
 	 laser:advance(25, laser.ent.angle:to_float())
-	 -- remove out of map
-	 -- check colision
+	 if (canvas:is_out(laser) == 1) then
+	    print("kboum", canvas:is_out(laser))
+	    removeObj(canvas, lasers, laser)
+	    laser = nil
+	 else
+	    for i = 0, asteroides:len() do
+	       if (asteroides[i]) then
+		  -- check colision
+		  if laser:colide_with(asteroides[i]) then
+		     asteroides[i].life = asteroides[i].life:to_int() - 1
+		     if asteroides[i].life == 0 then
+			removeObj(canvas, asteroides,
+				  CanvasObj.wrapp(asteroides[i]))
+		     else
+			print(asteroides[i].life)
+			print(asteroides[i].speed)
+			print(asteroides[i].angle:to_float(),
+			      laser.ent.angle:to_float())
+			asteroides[i].speed = asteroides[i].speed:to_int() + 1
+			asteroides[i].angle:set_float(laser.ent.angle:to_float())
+		     end
+		     removeObj(canvas, lasers, laser)
+		     break;
+		  end
+	       end
+	    end
+	 end
+      end
+   end
+   for i = 0, asteroides:len() do
+      if (asteroides[i]) then
+	 --print(asteroides[i].speed, asteroides[i].angle)
+	 local ast = CanvasObj.wrapp(asteroides[i])
+	 ast:advance(ast.ent.speed:to_int(), ast.ent.angle:to_float())
+	 if canvas:is_out(ast) == 1 then
+	    ast.ent.angle:set_float(ast.ent.angle:to_float() + 180)
+	    ast:advance(ast.ent.speed:to_int(), ast.ent.angle:to_float())
+	    ast:advance(ast.ent.speed:to_int(), ast.ent.angle:to_float())
+	    ast:advance(ast.ent.speed:to_int(), ast.ent.angle:to_float())
+	 end
       end
    end
 
    local pos = Pos.new(move.left_right * 10, move.up_down * 10)
    ship:move(pos)
    return YEVE_ACTION
+end
+
+function removeObj(wid, container, obj)
+   wid:remove(obj)
+   container:remove(obj.ent)
 end
 
 function createAstShoot(entity)
@@ -57,6 +102,9 @@ function createAstShoot(entity)
    ent.resources[0] = {}
    local resource = ent.resources[0]
    resource["img"] = "jswars_gfx/shot.png"
+   ent.resources[1] = {}
+   resource = ent.resources[1]
+   resource["img"] = "jswars_gfx/asteroid.png"
 
    Entity.new_func("action", ent, "action")
    canvas.ent.background = "rgba: 255 255 255 255"
@@ -64,6 +112,14 @@ function createAstShoot(entity)
    local shipSize = Pos.new(40, 40)
    ship:force_size(shipSize)
    ent.ship = ship:cent()
+
+   ent.asteroides = {}
+   local bigAst = canvas:new_obj(350, 50, 1)
+   bigAst.ent.life = -1
+   bigAst.ent.speed = 0
+   yeCreateFloat(0, bigAst.ent:cent(), "angle")
+   ent.asteroides:push_back(bigAst:cent())
+
    ent.lasers = {}
    ent.move = {}
    ent.move.up_down = 0

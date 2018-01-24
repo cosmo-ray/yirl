@@ -107,6 +107,10 @@ function CanvasObj:pos()
    return Pos.wrapp(ywCanvasObjPos(self:cent()))
 end
 
+function CanvasObj:colide_with(other)
+   return ywCanvasObjectsCheckColisions(self:cent(), other:cent())
+end
+
 function CanvasObj:size()
    return Pos.wrapp(ywCanvasObjSize(nil, self:cent()))
 end
@@ -149,6 +153,7 @@ function CanvasObj.wrapp(ent)
    ret.rotate = CanvasObj.rotate
    ret.point_top_to = CanvasObj.point_top_to
    ret.point_right_to = CanvasObj.point_right_to
+   ret.colide_with = CanvasObj.colide_with
    return ret
 end
 
@@ -158,7 +163,7 @@ function Canvas:new_img(x, y, path)
 end
 
 function Canvas:new_obj(x, y, objId)
-   local ret = ywCanvasNewObj(self.ent:cent(), x, y, obj)
+   local ret = ywCanvasNewObj(self.ent:cent(), x, y, objId)
    return CanvasObj.wrapp(ret)
 end
 
@@ -167,11 +172,22 @@ function Canvas:new_wid()
    return ret
 end
 
+function Canvas:remove(ent)
+   local e = ent:cent()
+   return ywCanvasRemoveObj(self.ent:cent(), e)
+end
+
+function Canvas:is_out(obj)
+   return ywCanvasObjIsOut(self.ent:cent(), obj:cent())
+end
+
 function Canvas.wrapp(ent)
    local ret = { ent=Entity.wrapp(ent) }
    ret.new_img=Canvas.new_img
    ret.new_obj=Canvas.new_obj
    ret.new_wid=Canvas.new_wid
+   ret.remove=Canvas.remove
+   ret.is_out=Canvas.is_out
    return ret
 end
 
