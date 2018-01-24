@@ -307,21 +307,19 @@ static int cntRend(YWidgetState *opac)
       }
       yeReplaceBackExt(tmp, opac->entity, "$father-container", YE_FLAG_NO_COPY);
       wid = ywidNewWidget(tmp, NULL);
-      printf("new !!");
       if (!wid)
 	continue;
       cntResize(opac);
     }
-    wid->shouldDraw = 0;
     if (needChange)
       wid->hasChange = 2;
 
+    wid->shouldDraw = 0;
     ywidRend(wid);
     wid->hasChange = 0;
-    wid->shouldDraw = 1;
   }
   if (!neested)
-    opac->shouldDraw = 1;
+    opac->shouldDraw = !!opac->hasChange;
   else
     opac->shouldDraw = 0;
   --neested;
@@ -330,16 +328,25 @@ static int cntRend(YWidgetState *opac)
 
 static void cntMidRend(YWidgetState *opac, int percent)
 {
+  static int neested = -1;
   Entity *entries = yeGet(opac->entity, "entries");
+  ++neested;
 
   YE_ARRAY_FOREACH(entries, tmp) {
     YWidgetState *wid = ywidGetState(tmp);
 
     if (!wid)
       continue;
+
+    wid->shouldDraw = 0;
     ywidMidRend(wid, percent);
+    if (wid->hasChange) {
+      opac->hasChange = 1;
+    }
   }
-  ywidDrawScreen();
+  if (!neested)
+    opac->shouldDraw = opac->hasChange;
+  --neested;
 }
 
 static void midRendEnd(YWidgetState *opac)

@@ -35,6 +35,7 @@ static int sdlRend(YWidgetState *state, int t)
   SDL_Color base_color = {0,0,0,255};
   int isPane = 0;
   int pos = 0;
+  int cur = ywMenuGetCurrent(state);
 
   if (!yeStrCmp(type, "panel"))
     isPane = 1;
@@ -57,7 +58,6 @@ static int sdlRend(YWidgetState *state, int t)
     SDL_Color color = base_color;
     int hiden = yeGetInt(yeGet(entry, "hiden"));
     const char *toPrint = yeGetString(yeGet(entry, "text"));
-    int cur = ywMenuGetCurrent(state);
     Entity *destRect;
     Entity *type;
     SDL_Rect txtR;

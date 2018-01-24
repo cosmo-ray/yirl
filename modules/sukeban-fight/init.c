@@ -110,7 +110,7 @@ void *sukeFightAction(int nbArg, void **args)
     Entity *percent = yeGet(cur_bar, "loading-bar-%");
 
     yeSetInt(percent, yeGetInt(curTime) * 100 /
-	     yeGetInt(yeGet(guy, "reload-time")));
+	     yeGetIntAt(guy, "reload-time"));
     if (yeGetInt(percent) >= 100) {
       YTimerReset(timer);
       yeSetInt(pcDoingAction, j);

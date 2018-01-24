@@ -228,10 +228,18 @@ int ywidRegistreTypeRender(const char *type, int t,
 /* rename to push size */
 void ywidResize(YWidgetState *wid);
 
+/**
+ * @brief interal function use to draw screen when the texture has been update
+ */
+int ywidDrawScreen(void);
+
 static inline void ywidMidRend(YWidgetState *opac, int turnPercent)
 {
   if (opac->midRend) {
     opac->midRend(opac, turnPercent);
+  }
+  if (opac->shouldDraw) {
+    ywidDrawScreen();
   }
 }
 
@@ -241,11 +249,6 @@ static inline void ywidMidRendEnd(YWidgetState *opac)
     opac->midRendEnd(opac);
   }
 }
-
-/**
- * @brief interal function use to draw screen when the texture has been update
- */
-int ywidDrawScreen(void);
 
 static inline int ywidRend(YWidgetState *opac)
 {

@@ -373,9 +373,6 @@ static void mapMidRend(YWidgetState *wid, int turnPercent)
     if (widgetOptTab[t].midRend[it])
       widgetOptTab[t].midRend[it](wid, it, turnPercent);
   }
-  if (wid->shouldDraw) {
-    ywidDrawScreen();
-  }
 }
 
 static void mapMidRendEnd(YWidgetState *wid)
