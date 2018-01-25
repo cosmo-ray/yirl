@@ -277,9 +277,7 @@ static int cntRend(YWidgetState *opac)
   Entity *entries = yeGet(opac->entity, "entries");
   int needChange = 0;
   YWidgetState *bg_wid = ywidGetState(yeGet(opac->entity, "$bg"));
-  static int neested = -1;
 
-  ++neested;
   if (!opac->hasChange)
     return 0;
 
@@ -288,9 +286,8 @@ static int cntRend(YWidgetState *opac)
 
   if (bg_wid) {
     yeReplaceBack(bg_wid->entity, yeGet(opac->entity, "wid-pos"), "wid-pos");
-    bg_wid->shouldDraw = 0;
     bg_wid->hasChange = 1;
-    ywidRend(bg_wid);
+    ywidSubRend(bg_wid);
     needChange = 1;
   }
 
@@ -314,23 +311,15 @@ static int cntRend(YWidgetState *opac)
     if (needChange)
       wid->hasChange = 2;
 
-    wid->shouldDraw = 0;
-    ywidRend(wid);
+    ywidSubRend(wid);
     wid->hasChange = 0;
   }
-  if (!neested)
-    opac->shouldDraw = !!opac->hasChange;
-  else
-    opac->shouldDraw = 0;
-  --neested;
   return 0;
 }
 
 static void cntMidRend(YWidgetState *opac, int percent)
 {
-  static int neested = -1;
   Entity *entries = yeGet(opac->entity, "entries");
-  ++neested;
 
   YE_ARRAY_FOREACH(entries, tmp) {
     YWidgetState *wid = ywidGetState(tmp);
@@ -338,15 +327,11 @@ static void cntMidRend(YWidgetState *opac, int percent)
     if (!wid)
       continue;
 
-    wid->shouldDraw = 0;
-    ywidMidRend(wid, percent);
+    ywidSubMidRend(wid, percent);
     if (wid->hasChange) {
       opac->hasChange = 1;
     }
   }
-  if (!neested)
-    opac->shouldDraw = opac->hasChange;
-  --neested;
 }
 
 static void midRendEnd(YWidgetState *opac)

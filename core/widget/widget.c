@@ -104,6 +104,7 @@ void ywidSetMainWid(YWidgetState *wid)
     YWidDestroy(oldWid);
   oldWid = mainWid;
   mainWid = wid;
+  mainWid->hasChange = 1;
 }
 
 int ywidNext(Entity *next)
@@ -292,7 +293,6 @@ static YWidgetState *ywidNewWidgetInternal(int t,
   }
 
   ret->hasChange = 1;
-  ret->shouldDraw = 1;
 
   return ret;
 

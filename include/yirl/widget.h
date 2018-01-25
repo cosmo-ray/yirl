@@ -162,7 +162,6 @@ typedef struct WidgetState_ {
   int type;
   int actionIdx;
   unsigned int hasChange;
-  unsigned int shouldDraw;
 } YWidgetState;
 
 /* struct which define what are common to every rendableWidget of the same type */
@@ -233,12 +232,17 @@ void ywidResize(YWidgetState *wid);
  */
 int ywidDrawScreen(void);
 
-static inline void ywidMidRend(YWidgetState *opac, int turnPercent)
+static inline void ywidSubMidRend(YWidgetState *opac, int turnPercent)
 {
   if (opac->midRend) {
     opac->midRend(opac, turnPercent);
   }
-  if (opac->shouldDraw) {
+}
+
+static inline void ywidMidRend(YWidgetState *opac, int turnPercent)
+{
+  ywidSubMidRend(opac, turnPercent);
+  if (opac->hasChange) {
     ywidDrawScreen();
   }
 }
@@ -250,15 +254,23 @@ static inline void ywidMidRendEnd(YWidgetState *opac)
   }
 }
 
+static inline int ywidSubRend(YWidgetState *opac)
+{
+  int ret = 0;
+  if (opac->render && opac->hasChange) {
+    ret = opac->render(opac);
+    opac->hasChange = 0;
+  }
+  return ret;
+}
+
 static inline int ywidRend(YWidgetState *opac)
 {
   int ret = 0;
   if (opac->render && opac->hasChange) {
     ret = opac->render(opac);
     opac->hasChange = 0;
-    if (opac->shouldDraw) {
-      ywidDrawScreen();
-    }
+    ywidDrawScreen();
   }
   return ret;
 }
