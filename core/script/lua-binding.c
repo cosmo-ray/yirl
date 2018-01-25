@@ -972,6 +972,12 @@ int	luaYeSwapElems(lua_State *L)
   return 1;
 }
 
+int	luaywCntWidgetFather(lua_State *L)
+{
+  lua_pushlightuserdata(L, ywCntWidgetFather(lua_touserdata(L, 1)));
+  return 1;
+}
+
 int	luaYwCntGetEntry(lua_State *L)
 {
   lua_pushlightuserdata(L, ywCntGetEntry(lua_touserdata(L, 1),

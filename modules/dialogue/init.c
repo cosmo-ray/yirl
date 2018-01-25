@@ -143,6 +143,7 @@ void *dialogueAction(int nbArgs, void **args)
   void *ret = (void *)NOTHANDLE;
   Entity *events = args[1];
   Entity *eve = events;
+
   YEVE_FOREACH(eve, events) {
     if (ywidEveType(eve) == YKEY_DOWN) {
       switch (ywidEveKey(eve)) {

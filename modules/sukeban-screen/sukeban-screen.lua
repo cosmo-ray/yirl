@@ -82,7 +82,6 @@ function startDialogue(wid, carac, elem, id)
    local ent = yNewDialogueEntity(yeGet(dialogues, yeGetInt(id)),
 				  nil, nil, speaker_background,
 				  speaker_background)
-   yePushBack(ent, wid, "-sukeban-map");
    ywPushNewWidget(wid, ent, 1)
    yeSetAt(wid, "-inside-dialogue", 1)
    yeDestroy(gc)
@@ -90,7 +89,7 @@ function startDialogue(wid, carac, elem, id)
 end
 
 function backToMap(wid, eve, arg)
-   local sWid = yeGet(yDialogueGetMain(wid), "-sukeban-map")
+   local sWid = ywCntWidgetFather(yDialogueGetMain(wid))
    ywCntPopLastEntry(sWid)
    yeSetAt(sWid, "-inside-dialogue", 0)
 end
