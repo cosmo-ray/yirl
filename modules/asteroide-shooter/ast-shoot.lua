@@ -47,24 +47,21 @@ function action(entity, eve, arg)
 	    laser = nil
 	 else
 	    for i = 0, asteroides:len() do
-	       if (asteroides[i]) then
-		  -- check colision
-		  if laser:colide_with(asteroides[i]) then
-		     asteroides[i].life = asteroides[i].life:to_int() - 1
-		     if asteroides[i].life == 0 then
-			removeObj(canvas, asteroides,
-				  CanvasObj.wrapp(asteroides[i]))
-		     else
-			print(asteroides[i].life)
-			print(asteroides[i].speed)
-			print(asteroides[i].angle:to_float(),
-			      laser.ent.angle:to_float())
-			asteroides[i].speed = asteroides[i].speed:to_int() + 1
-			asteroides[i].angle:set_float(laser.ent.angle:to_float())
-		     end
-		     removeObj(canvas, lasers, laser)
-		     break;
+	       if (asteroides[i]) and laser:colide_with(asteroides[i]) then
+		  asteroides[i].life = asteroides[i].life:to_int() - 1
+		  if asteroides[i].life == 0 then
+		     removeObj(canvas, asteroides,
+			       CanvasObj.wrapp(asteroides[i]))
+		  else
+		     print(asteroides[i].life)
+		     print(asteroides[i].speed)
+		     print(asteroides[i].angle:to_float(),
+			   laser.ent.angle:to_float())
+		     asteroides[i].speed = asteroides[i].speed:to_int() + 1
+		     asteroides[i].angle:set_float(laser.ent.angle:to_float())
 		  end
+		  removeObj(canvas, lasers, laser)
+		  break;
 	       end
 	    end
 	 end
@@ -76,7 +73,8 @@ function action(entity, eve, arg)
 	 local ast = CanvasObj.wrapp(asteroides[i])
 	 ast:advance(ast.ent.speed:to_int(), ast.ent.angle:to_float())
 	 if canvas:is_out(ast) == 1 then
-	    ast.ent.angle:set_float(ast.ent.angle:to_float() + 180)
+	    ast.ent.angle:set_float(ast.ent.angle:to_float() + 90 +
+				       (yuiRand() % 70))
 	    ast:advance(ast.ent.speed:to_int(), ast.ent.angle:to_float())
 	    ast:advance(ast.ent.speed:to_int(), ast.ent.angle:to_float())
 	    ast:advance(ast.ent.speed:to_int(), ast.ent.angle:to_float())
@@ -98,6 +96,7 @@ function createAstShoot(entity)
    local canvas = Canvas.wrapp(entity)
    local ent = canvas.ent
 
+   yuiRandInit()
    ent.resources = {}
    ent.resources[0] = {}
    local resource = ent.resources[0]

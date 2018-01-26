@@ -1221,10 +1221,10 @@ int	luaYwMapPushElem(lua_State *L)
 
 int	luaYwMapPushNbr(lua_State *L)
 {
-  lua_pushlightuserdata(L,
-			ywMapPushNbr(lua_touserdata(L, 1), lua_tonumber(L, 2),
-				     lua_touserdata(L, 3), lua_tostring(L, 4))
-			);
+  lua_pushlightuserdata(L, ywMapPushNbr(lua_touserdata(L, 1),
+					lua_tonumber(L, 2),
+					lua_touserdata(L, 3),
+					lua_tostring(L, 4)));
   return 1;
 }
 
