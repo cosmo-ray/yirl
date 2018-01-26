@@ -15,10 +15,6 @@
 --along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
-
-local Q_KEY = 113
-local L_KEY = 108
-
 function getLooseScreen(entity)
   return yeGet(yeGet(entity, "menus"), "LooseScreen")
 end
@@ -205,24 +201,26 @@ function changeDir(map, eve)
 end
 
 function snakeAction(map, eve, arg)
-   addPeanut(map)
-   moveHead(map)
+   local hasChange = false
 
    while ywidEveIsEnd(eve) == false do
       if ywidEveType(eve) == YKEY_DOWN then
-	 if ywidEveKey(eve) == Q_KEY then
+	 if ywidEveKey(eve) == Y_Q_KEY then
 	    ygCall(nil, "FinishGame")
-	 elseif ywidEveKey(eve) == Y_UP_KEY
-	    or ywidEveKey(eve) == Y_DOWN_KEY
-	    or ywidEveKey(eve) == Y_RIGHT_KEY
-	    or ywidEveKey(eve) == Y_LEFT_KEY then
+	 elseif (ywidEveKey(eve) == Y_UP_KEY
+		    or ywidEveKey(eve) == Y_DOWN_KEY
+		    or ywidEveKey(eve) == Y_RIGHT_KEY
+		 or ywidEveKey(eve) == Y_LEFT_KEY) and hasChange == false then
 	    changeDir(map, eve)
-	 elseif ywidEveKey(eve) == L_KEY then
+	    hasChange = true
+	 elseif ywidEveKey(eve) == Y_L_KEY then
 	    ywidNext(yeGet(map, "next"))
 	 end
       end
       eve = ywidNextEve(eve)
    end
+   addPeanut(map)
+   moveHead(map)
    return YEVE_ACTION
 end
 
