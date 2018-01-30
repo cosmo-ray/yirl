@@ -48,7 +48,7 @@ int yeStringAddNl(Entity *ent, const char *str);
  *
  * @param ent a string entity
  * @param lineLimit hard to explain, use -1, or go read the code...
- * @returnreturn the number a @carac in @ent
+ * @return the number of @carac in @ent
  * @examples yeCountCharacters(str, '\n', -1), will return the number of
  *	     lines in str
  */

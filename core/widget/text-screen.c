@@ -17,6 +17,7 @@
 
 #include <glib.h>
 #include "rect.h"
+#include "game.h"
 #include "text-screen.h"
 
 static int t = -1;
@@ -76,6 +77,41 @@ int ywTextScreenPosAtEndOfText(Entity *wid)
     yeSetAt(wid, "text-threshold", h - nbLines);
   }
   return 0;
+}
+
+const char *ywTextScreenText(Entity *wid)
+{
+  Entity *ret;
+  const char *txt;
+
+  if (likely(!yeGet(wid, "fmt")))
+    return yeGetString(yeGet(wid, "text"));
+
+  ret = yeReCreateString("", wid, "$fmt");
+  txt = yeGetStringAt(wid, "text");
+
+  for (int i = 0; txt[i]; ++i) {
+    if (txt[i] == '{') {
+      char tmp;
+      char *writable_txt = (char *)txt;
+      char *entity_str;
+      int j = i;
+
+      for (; txt[j] && txt[j] != '}'; ++j);
+      if (!txt[j])
+	return NULL;
+      tmp = txt[j];
+      writable_txt[j] = 0;
+      entity_str = yeToCStr(ygGet(&txt[i + 1]), 1, 0);
+      yeStringAdd(ret, entity_str);
+      g_free(entity_str);
+      writable_txt[j] = tmp;
+      i = j;
+    } else {
+      yeStringAddCh(ret, txt[i]);
+    }
+  }
+  return yeGetString(ret);
 }
 
 int ywTextScreenInit(void)

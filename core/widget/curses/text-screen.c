@@ -19,6 +19,7 @@
 #include <curses.h>
 #include <string.h>
 #include <glib.h>
+#include "text-screen.h"
 #include "curses-state.h"
 #include "widget.h"
 #include "entity.h"
@@ -27,7 +28,7 @@ static int cursesRender(YWidgetState *state, int t)
 {
   CWidget *wid = ywidGetRenderData(state, t);
   int x,y,h,w;
-  const char *toPrint = yeGetString(yeGet(state->entity, "text"));
+  const char *toPrint = ywTextScreenText(state->entity);
   int len;
 
   if (unlikely(!toPrint))

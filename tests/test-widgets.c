@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include "tests.h"
+#include "game.h"
 #include "entity.h"
 #include "json-desc.h"
 #include "curses-driver.h"
@@ -94,6 +95,41 @@ void testYWTextScreenCurses(void)
 #endif
 
 #if WITH_SDL == 1
+
+void fmtTxtScreen(void)
+{
+  GameConfig cfg;
+  Entity *ret0;
+  Entity *ret;
+  YWidgetState *wid;
+  Entity *stuff;
+
+  g_assert(!ygInitGameConfig(&cfg, NULL, SDL2));
+  g_assert(!ygInit(&cfg));
+
+  ret0 = ygFileToEnt(YJSON, TESTS_PATH"/widget.json", NULL);
+  ret = yeGet(ret0, "FmtTextScreen");
+
+  stuff = yeCreateArray(NULL, NULL);
+  yePushToGlobalScope(stuff, "main");
+  yeCreateString("initial comit", stuff, "first_commit_name");
+  ygSetInt("yirl_age", 3);
+  yeCreateString("12 10:38:02 2015", stuff, "first_commit_date");
+  wid = ywidNewWidget(ret, NULL);
+  g_assert(wid);
+
+  do {
+    g_assert(ywidRend(wid) != -1);
+  } while(ywidDoTurn(wid) != ACTION);
+
+
+  ygCleanGameConfig(&cfg);
+  YWidDestroy(wid);
+  yeDestroy(ret0);
+  yeDestroy(stuff);
+  ygEnd();
+
+}
 
 void testYWTextScreenSdl2(void)
 {

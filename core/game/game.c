@@ -639,11 +639,12 @@ void ygSetInt(const char *toSet, int val)
   for (end = toSet + len - 1; end != toSet && *end != '.' &&  *end != ':';
        --end, --len);
   if (end == toSet) {
-    DPRINT_ERR("can't set '%s' because variable is in the global scope");
-    return;
+    father = modList;
+  } else {
+    father = yeNGetByStr(modList, toSet, len - 1);
+    toSet += len;
   }
-  father = yeNGetByStr(modList, toSet, len - 1);
-  toSet += len;
+
   if ((e = yeGet(father, toSet)) == NULL)
     yeCreateInt(val, father, toSet);
   else

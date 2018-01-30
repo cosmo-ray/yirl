@@ -70,6 +70,7 @@ void testAllLife(void);
 void testYWTextScreenCurses(void);
 void testYWTextScreenSdl2(void);
 void testYWTextScreenAll(void);
+void fmtTxtScreen(void);
 
 void testCanvasSdl2(void);
 

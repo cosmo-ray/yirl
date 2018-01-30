@@ -21,12 +21,13 @@
 #include <glib.h>
 #include "sdl-internal.h"
 #include "widget.h"
+#include "text-screen.h"
 #include "entity.h"
 
 static int sdlRender(YWidgetState *state, int t)
 {
   SDLWid *wid = ywidGetRenderData(state, t);
-  const char *toPrint = yeGetString(yeGet(state->entity, "text"));
+  const char *toPrint = ywTextScreenText(state->entity);
   YBgConf cfg;
   SDL_Color color = {0, 0, 0, 255};
   int alignementType = YSDL_ALIGN_LEFT;
