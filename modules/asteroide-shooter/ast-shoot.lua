@@ -57,7 +57,9 @@ function action(entity, eve, arg)
 		     print(asteroides[i].speed)
 		     print(asteroides[i].angle:to_float(),
 			   laser.ent.angle:to_float())
-		     asteroides[i].speed = asteroides[i].speed:to_int() + 1
+		     if (asteroides[i].speed < 30) then
+			asteroides[i].speed = asteroides[i].speed:to_int() + 1
+		     end
 		     asteroides[i].angle:set_float(laser.ent.angle:to_float())
 		  end
 		  removeObj(canvas, lasers, laser)
@@ -75,8 +77,6 @@ function action(entity, eve, arg)
 	 if canvas:is_out(ast) == 1 then
 	    ast.ent.angle:set_float(ast.ent.angle:to_float() + 90 +
 				       (yuiRand() % 70))
-	    ast:advance(ast.ent.speed:to_int(), ast.ent.angle:to_float())
-	    ast:advance(ast.ent.speed:to_int(), ast.ent.angle:to_float())
 	    ast:advance(ast.ent.speed:to_int(), ast.ent.angle:to_float())
 	 end
       end
