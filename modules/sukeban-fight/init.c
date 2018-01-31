@@ -59,9 +59,27 @@ static Entity *getLoader(Entity *widget)
   return yeGet(menu_cnt, "loader");
 }
 
+static Entity *getActionMenu(Entity *widget)
+{
+  Entity *menu_cnt = getMenuCnt(widget);
+  return yeGet(menu_cnt, "action_menu");
+}
+
 static Entity *getLoaderAt(Entity *main, int pos)
 {
   ywMenuGetEntry(getLoader(main), pos);
+}
+
+static void swapLoadingAction(Entity *ent)
+{
+  ywCntPopLastEntry(getMenuCnt(ent));
+  ywPushNewWidget(getMenuCnt(ent), getActionMenu(ent), 0);
+}
+
+static void swapActionLoading(Entity *ent)
+{
+  ywCntPopLastEntry(getMenuCnt(ent));
+  ywPushNewWidget(getMenuCnt(ent), getLoader(ent), 0);
 }
 
 void *sukeFightAttack(int nbArg, void **args)
@@ -71,22 +89,32 @@ void *sukeFightAttack(int nbArg, void **args)
   Entity *pcDoingActionIdx = yeGet(main, "pcDoingAction");
   Entity *loader;
 
-  if (yeGetInt(pcDoingActionIdx) < 0) {
+  if (yeGetInt(pcDoingActionIdx) < 0)
     return (void *)NOTHANDLE;
-  }
+
   loader = getLoaderAt(main, yeGetInt(pcDoingActionIdx));
   ywMenuSetLoaderPercent(loader, 0);
   yeSetInt(pcDoingActionIdx, -1);
   YTimerReset(yeGetDataAt(main, "timer"));
   uint64_t t = YTimerGet(yeGetDataAt(main, "timer")) / 100000;
-
+  swapActionLoading(main);
   return (void *)NOTHANDLE;
 }
 
 void *sukeFightAction(int nbArg, void **args)
 {
   Entity *ent = args[0];
+  Entity *eves = args[1];
+  Entity *eve;
   Entity *pcDoingAction = yeGet(ent, "pcDoingAction");
+
+  YEVE_FOREACH(eve, eves) {
+    // for debug, to be remove
+    if (ywidEveType(eve) == YKEY_DOWN && ywidEveKey(eve) == Y_ESC_KEY) {
+      yFinishGame();
+      return (void *)ACTION;
+    }
+  }
 
   if (yeGetInt(pcDoingAction) >= 0) {
     return (void *)NOTHANDLE;
@@ -96,6 +124,7 @@ void *sukeFightAction(int nbArg, void **args)
   uint64_t t = YTimerGet(timer) / 100000;
   Entity *loader = getLoader(ent);
   ywContainerUpdate(ent, loader);
+
 
   for (int j = 0; j < 6; ++j) {
     Entity *curLoadingBar = ywMenuGetEntry(loader, j);
@@ -125,7 +154,8 @@ void *sukeFightAction(int nbArg, void **args)
 
 	yeReCreateInt(yeGetInt(curTime), guy, "start-reload-time");
       }
-      return (void *)NOTHANDLE;
+      swapLoadingAction(ent);
+      return (void *)NOACTION;
     }
   }
 
@@ -227,9 +257,10 @@ void *sukeFightInit(int nbArg, void **args)
   yeCreateInt(20, menu_caracters_list, "size");
   menu_entries = yeCreateArray(menu_caracters_list, "entries");
 
-  loader = yeCreateArray(menu_cnt_entries, NULL);
+  loader = yeCreateArray(menu_cnt, "loader");
+
+  yePushBack(menu_cnt_entries, loader, NULL);
   yeCreateString("menu", loader, "<type>");
-  yePushBack(menu_cnt, loader, "loader");
   yeCreateArray(loader, "entries");
   yeReCreateInt(-1, loader, "current");
 
@@ -243,9 +274,9 @@ void *sukeFightInit(int nbArg, void **args)
       tryPushGuyToMenu(menu_cnt, guy);
   }
 
-  menu = yeCreateArray(menu_cnt_entries, NULL);
+  menu = yeCreateArray(menu_cnt, "action_menu");
+  /* yePushBack(menu_cnt_entries, menu, NULL); */
   yeCreateString("menu", menu, "<type>");
-  yePushBack(menu_cnt, menu, "action_menu");
   yePushBack(menu, ent, "main");
   menu_entries = yeCreateArray(menu, "entries");
   menu_entry = yeCreateArray(menu_entries, NULL);
