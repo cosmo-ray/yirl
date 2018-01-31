@@ -59,21 +59,27 @@ static Entity *getLoader(Entity *widget)
   return yeGet(menu_cnt, "loader");
 }
 
-static Entity *getActionMenu(Entity *widget)
-{
-  Entity *menu_cnt = getMenuCnt(widget);
-  return yeGet(menu_cnt, "action_menu");
-}
-
 static Entity *getLoaderAt(Entity *main, int pos)
 {
   ywMenuGetEntry(getLoader(main), pos);
 }
 
-static void swapLoadingAction(Entity *ent)
+static Entity *getGuyAt(Entity *wid, int at)
+{
+  return yeGet(getLoaderAt(wid, at), "guy");
+}
+
+static Entity *getActionMenu(Entity *widget, int actionIdx)
+{
+  Entity *guy = getGuyAt(widget, actionIdx);
+
+  return yeGet(guy, "action_menu");
+}
+
+static void swapLoadingAction(Entity *ent, int actionIdx)
 {
   ywCntPopLastEntry(getMenuCnt(ent));
-  ywPushNewWidget(getMenuCnt(ent), getActionMenu(ent), 0);
+  ywPushNewWidget(getMenuCnt(ent), getActionMenu(ent, actionIdx), 0);
 }
 
 static void swapActionLoading(Entity *ent)
@@ -154,8 +160,8 @@ void *sukeFightAction(int nbArg, void **args)
 
 	yeReCreateInt(yeGetInt(curTime), guy, "start-reload-time");
       }
-      swapLoadingAction(ent);
-      return (void *)NOACTION;
+      swapLoadingAction(ent, j);
+      return (void *)NOTHANDLE;
     }
   }
 
@@ -186,8 +192,26 @@ void *sukeFightClean(int nbArgs, void **args)
 {
   Entity *ent = args[0];
 
-  yeRemoveChildByStr(yeGet(getMenuCnt(ent), "action_menu"), "main");
+  for (int i = 0; i < 6; ++i) {
+    yeRemoveChildByStr(getGuyAt(ent, i), "main");
+  }
   return NULL;
+}
+
+void makeActionMenu(Entity *guy, Entity *ent)
+{
+  if (!guy)
+    return;
+  Entity *menu = yeCreateArray(guy, "action_menu");
+  yeCreateString("menu", menu, "<type>");
+  yePushBack(menu, ent, "main");
+  Entity *menu_entries = yeCreateArray(menu, "entries");
+  Entity *menu_entry = yeCreateArray(menu_entries, NULL);
+  yeCreateString("attack", menu_entry, "text");
+  yeCreateFunction("sukeFightAttack", ygGetTccManager(), menu_entry, "action");
+  menu_entry = yeCreateArray(menu_entries, NULL);
+  yeCreateString("run away", menu_entry, "text");
+  yeCreateString("FinishGame", menu_entry, "action");
 }
 
 void *sukeFightInit(int nbArg, void **args)
@@ -267,24 +291,14 @@ void *sukeFightInit(int nbArg, void **args)
   for (int i = 0; i < 3; ++i) {
     Entity *guy = yeGet(good_front_row, i);
 
+    makeActionMenu(guy, ent);
     if (guy)
       tryPushGuyToMenu(menu_cnt, guy);
     guy = yeGet(good_back_row, i);
+    makeActionMenu(guy, ent);
     if (guy)
       tryPushGuyToMenu(menu_cnt, guy);
   }
-
-  menu = yeCreateArray(menu_cnt, "action_menu");
-  /* yePushBack(menu_cnt_entries, menu, NULL); */
-  yeCreateString("menu", menu, "<type>");
-  yePushBack(menu, ent, "main");
-  menu_entries = yeCreateArray(menu, "entries");
-  menu_entry = yeCreateArray(menu_entries, NULL);
-  yeCreateString("attack", menu_entry, "text");
-  yeCreateFunction("sukeFightAttack", ygGetTccManager(), menu_entry, "action");
-  menu_entry = yeCreateArray(menu_entries, NULL);
-  yeCreateString("run away", menu_entry, "text");
-  yeCreateString("FinishGame", menu_entry, "action");
 
   ret = ywidNewWidget(ent, "container");
   createMapObjs(ent);
