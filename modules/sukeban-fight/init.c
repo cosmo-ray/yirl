@@ -202,16 +202,26 @@ void makeActionMenu(Entity *guy, Entity *ent)
 {
   if (!guy)
     return;
+  Entity *actions = yeGet(guy, "actions");
+
+  printf("%d %p\n", yeLen(actions), actions);
+
   Entity *menu = yeCreateArray(guy, "action_menu");
   yeCreateString("menu", menu, "<type>");
   yePushBack(menu, ent, "main");
   Entity *menu_entries = yeCreateArray(menu, "entries");
-  Entity *menu_entry = yeCreateArray(menu_entries, NULL);
-  yeCreateString("attack", menu_entry, "text");
-  yeCreateFunction("sukeFightAttack", ygGetTccManager(), menu_entry, "action");
-  menu_entry = yeCreateArray(menu_entries, NULL);
-  yeCreateString("run away", menu_entry, "text");
-  yeCreateString("FinishGame", menu_entry, "action");
+  YE_ARRAY_FOREACH(actions, action) {
+    Entity *menu_entry = yeCreateArray(menu_entries, NULL);
+
+    printf("%s %s\n", yeGetStringAt(action, 0), yeGetStringAt(action, 1));
+    yePushBack(menu_entry, yeGet(action, 0), "text");
+    yePushBack(menu_entry, yeGet(action, 1), "action");
+
+    /* yeCreateFunction("sukeFightAttack", ygGetTccManager(), menu_entry, "action"); */
+    /* menu_entry = yeCreateArray(menu_entries, NULL); */
+    /* yeCreateString("run away", menu_entry, "text"); */
+    /* yeCreateString("FinishGame", menu_entry, "action"); */
+  }
 }
 
 void *sukeFightInit(int nbArg, void **args)

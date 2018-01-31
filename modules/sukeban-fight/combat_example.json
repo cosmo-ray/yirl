@@ -23,10 +23,15 @@
 	    {
 		"name" : "good guy",
 		"reload-time" : 30,
+		"actions" : [["attack", "nope"],
+			     ["quit", "FinishGame"]],
 		"id" : 1
 	    },
 	    {
 		"name" : "smart guy",
+		"actions" : [["attack", "nope"],
+			     ["dance", "nope"],
+			     ["run away", "FinishGame"]],
 		"reload-time" : 40,
 		"id" : 1
 	    }
