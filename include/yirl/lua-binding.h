@@ -23,6 +23,7 @@
 #include "widget.h"
 #include "keydef.h"
 #include "game.h"
+#include "container.h"
 #include <lualib.h>
 #include <lauxlib.h>
 
@@ -265,6 +266,11 @@ static inline int	yesLuaRegister(void *sm)
   LUA_SET_INT_GLOBAL_VAL(sm, Y_X_KEY, 'x');
   LUA_SET_INT_GLOBAL_VAL(sm, Y_Y_KEY, 'y');
   LUA_SET_INT_GLOBAL_VAL(sm, Y_Z_KEY, 'z');
+
+  LUA_SET_INT_GLOBAL_VAL(sm, Y_CNT_VERTICAL, CNT_VERTICAL);
+  LUA_SET_INT_GLOBAL_VAL(sm, Y_CNT_HORIZONTAL, CNT_HORIZONTAL);
+  LUA_SET_INT_GLOBAL_VAL(sm, Y_CNT_STACK, CNT_STACK);
+  LUA_SET_INT_GLOBAL_VAL(sm, Y_CNT_NONE, CNT_NONE);
 
   lua_pushnumber(L, YKEY_DOWN);
   lua_setglobal(L, "YKEY_DOWN");

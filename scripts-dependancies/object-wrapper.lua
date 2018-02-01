@@ -1,5 +1,7 @@
 Widget = {}
 
+Container = {}
+
 Canvas = {}
 
 CanvasObj = {}
@@ -181,6 +183,22 @@ function Canvas:is_out(obj)
    return ywCanvasObjIsOut(self.ent:cent(), obj:cent())
 end
 
+function Canvas.init_entity(ent)
+   local ret = Canvas.wrapp(ent)
+
+   if ret.ent["<type>"] == nil then
+      ret.ent["<type>"] = "canvas"
+   end
+   return ret
+end
+
+function Canvas.new_entity(father, name)
+   local ret = Entity.new_array(father, name)
+
+   ret = Canvas.init_entity(ret);
+   return ret
+end
+
 function Canvas.wrapp(ent)
    local ret = { ent=Entity.wrapp(ent) }
    ret.new_img=Canvas.new_img
@@ -188,6 +206,35 @@ function Canvas.wrapp(ent)
    ret.new_wid=Canvas.new_wid
    ret.remove=Canvas.remove
    ret.is_out=Canvas.is_out
+   return ret
+end
+
+function Container.init_entity(entity, cnt_type)
+   local conntainer = Container.wrapp(entity)
+   local ent = conntainer.ent
+
+   ent.cnt_type = cnt_type
+   ent.entries = {}
+   if ent["<type>"] == nil then
+      ent["<type>"] = "container"
+   end
+   return conntainer
+end
+
+function Container.new_entity(cnt_type, father, name)
+   local ret = Entity.new_array(father, name)
+
+   ret = Container.init_entity(ret, cnt_type);
+   return ret
+end
+
+function Container:new_wid()
+   local ret = ywidNewWidget(self.ent:cent(), "container")
+   return ret
+end
+
+function Container.wrapp(ent)
+   local ret = { ent=Entity.wrapp(ent), new_wid=Container.new_wid}
    return ret
 end
 
