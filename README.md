@@ -80,7 +80,7 @@ A good contribution would be to make yirl compatible with linux coding style.
 Devlopement package of these libs:
 
 * glib2
-* lua 51+
+* lua 52+
 * sdl, sdl_image, sdl_ttf, sdl_mixer
 
 Optinal:
