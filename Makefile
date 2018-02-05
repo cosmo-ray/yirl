@@ -102,7 +102,7 @@ build-generic-loader: $(YIRL_LINKING) $(GEN_LOADER_OBJ)
 	$(CC) -o yirl-loader$(BIN_EXT) $(GEN_LOADER_OBJ) $(BINARY_LINKING) $(LDFLAGS)
 
 clean:	clean-tests clean-shooter
-	rm -rvf $(OBJ) $(OBJXX)
+	rm -rvf $(OBJ) $(OBJXX) $(GEN_LOADER_OBJ)
 
 fclean: clean
 	rm -rvf $(LIBNAME).a $(LIBNAME).so $(LIBNAME).dll
