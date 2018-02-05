@@ -122,7 +122,7 @@ static void cntResize(YWidgetState *opac)
   Entity *entity = opac->entity;
   Entity *entries = yeGet(entity, "entries");
   YContainerState *cnt = ((YContainerState *)opac);
-  Entity *pos = yeGet(entity, "wid-pos");
+  Entity *rect = yeGet(entity, "wid-pos");
   int i = 0;
   size_t len = yeLen(entries);
   int widSize = 0;
@@ -133,12 +133,14 @@ static void cntResize(YWidgetState *opac)
   cnt->type = cntGetTypeFromEntity(entity);
 
   widSize =  ywCntType(opac) == CNT_HORIZONTAL ?
-    yeGetInt(yeGet(pos, "h")) : yeGetInt(yeGet(pos, "w"));
+    ywRectH(rect) : ywRectW(rect);
   usable = widSize;
+
   if (bg) {
-    yeReplaceBack(bg, pos, "wid-pos");
+    yeReplaceBack(bg, rect, "wid-pos");
     ywidResize(ywidGetState(bg));
   }
+
   YE_ARRAY_FOREACH(entries, tmp) {
     YWidgetState *wid = ywidGetState(tmp);
     Entity *ptr;
@@ -149,7 +151,7 @@ static void cntResize(YWidgetState *opac)
       continue;
 
     ptr = wid->entity;
-    tmpPos = ywRectReCreateEnt(pos, ptr, "wid-pos");
+    tmpPos = ywRectReCreateEnt(rect, ptr, "wid-pos");
     size = yeGetInt(yeGet(tmp, "size"));
     if (size <= 0) { /* We equally size the sub-widgets */
       caseLen = usable * (i + 1) / len;
