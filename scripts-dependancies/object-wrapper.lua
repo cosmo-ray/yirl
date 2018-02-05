@@ -4,11 +4,19 @@ Container = {}
 
 Canvas = {}
 
+Menu = {}
+
 CanvasObj = {}
 
 Event = {}
 
 Pos = {}
+
+local function tryPushWidType(ent, t)
+   if ent["<type>"] == nil then
+      ent["<type>"] = t
+   end
+end
 
 function Event:cent()
    return self.ent:cent()
@@ -185,10 +193,7 @@ end
 
 function Canvas.init_entity(ent)
    local ret = Canvas.wrapp(ent)
-
-   if ret.ent["<type>"] == nil then
-      ret.ent["<type>"] = "canvas"
-   end
+   tryPushWidType(ret.ent, "canvas")
    return ret
 end
 
@@ -213,11 +218,9 @@ function Container.init_entity(entity, cnt_type)
    local conntainer = Container.wrapp(entity)
    local ent = conntainer.ent
 
-   ent.cnt_type = cnt_type
+   ent["cnt-type"] = cnt_type
    ent.entries = {}
-   if ent["<type>"] == nil then
-      ent["<type>"] = "container"
-   end
+   tryPushWidType(ent, "container")
    return conntainer
 end
 
@@ -229,12 +232,30 @@ function Container.new_entity(cnt_type, father, name)
 end
 
 function Container:new_wid()
-   local ret = ywidNewWidget(self.ent:cent(), "container")
-   return ret
+   return ywidNewWidget(self.ent:cent(), "container")
 end
 
 function Container.wrapp(ent)
    local ret = { ent=Entity.wrapp(ent), new_wid=Container.new_wid}
+   return ret
+end
+
+function Menu.init_entity(ent)
+   local ret = Menu.wrapp(ent)
+   tryPushWidType(ent, "menu")
+   ret.entries = {}
+   return ret
+end
+
+function Menu.new_entity(father, name)
+   local ret = Entity.new_array(father, name)
+
+   ret = Menu.init_entity(ret);
+   return ret
+end
+
+function Menu.wrapp(ent)
+   local ret = { ent=Entity.wrapp(ent) }
    return ret
 end
 
