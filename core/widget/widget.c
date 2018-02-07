@@ -54,6 +54,10 @@ static YWidgetState *oldWid = NULL;
 
 int ywidWindowWidth = 640;
 int ywidWindowHight = 480;
+int ywidXMouseGlobalPos = 0;
+int ywidYMouseGlobalPos = 0;
+int ywidXMouseLastClick = 0;
+int ywidYMouseLastClick = 0;
 
 void ywidChangeResolution(int w, int h)
 {
@@ -492,6 +496,20 @@ static void ywidFreeEvents(Entity *event)
   yeDestroy(event);
 }
 
+static void trackMouse(Entity *event)
+{
+  if (ywidEveType(event) == YKEY_MOUSEMOTION ||
+      ywidEveType(event) == YKEY_MOUSEWHEEL ||
+      ywidEveType(event) == YKEY_MOUSEDOWN) {
+    ywidXMouseGlobalPos = ywidXMouse(event);
+    ywidYMouseGlobalPos = ywidYMouse(event);
+    if (ywidEveType(event) == YKEY_MOUSEDOWN) {
+      ywidXMouseLastClick = ywidXMouseGlobalPos;
+      ywidYMouseLastClick = ywidYMouseGlobalPos;
+    }
+  }
+}
+
 int ywidDoTurn(YWidgetState *opac)
 {
   int turnLength = yeGetInt(yeGet(opac->entity, "turn-length"));
@@ -528,6 +546,8 @@ int ywidDoTurn(YWidgetState *opac)
 
     for (event = ywidGenericPollEvent(), head = event; event;
 	 event = ywidGenericPollEvent()) {
+
+      trackMouse(event);
       if (old) {
 	yePushAt(old, event, YEVE_NEXT);
 	yeDestroy(event); /* decrement event refcount */
@@ -538,6 +558,7 @@ int ywidDoTurn(YWidgetState *opac)
     head = ywidGenericWaitEvent();
     if (!head)
       return NOTHANDLE;
+    trackMouse(head);
   }
 
   ywidMidRendEnd(mainWid);

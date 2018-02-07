@@ -177,6 +177,16 @@ function Canvas:new_obj(x, y, objId)
    return CanvasObj.wrapp(ret)
 end
 
+function Canvas:new_text(x, y, txt)
+   local ret = ywCanvasNewText(self.ent:cent(), x, y, txt)
+   return CanvasObj.wrapp(ret)
+end
+
+function Canvas:new_rect(x, y, r)
+   local ret = ywCanvasNewRect(self.ent:cent(), x, y, r)
+   return CanvasObj.wrapp(ret)
+end
+
 function Canvas:new_wid()
    local ret = ywidNewWidget(self.ent:cent(), "canvas")
    return ret
@@ -194,6 +204,7 @@ end
 function Canvas.init_entity(ent)
    local ret = Canvas.wrapp(ent)
    tryPushWidType(ret.ent, "canvas")
+   ret.ent.objs = {}
    return ret
 end
 
@@ -209,6 +220,8 @@ function Canvas.wrapp(ent)
    ret.new_img=Canvas.new_img
    ret.new_obj=Canvas.new_obj
    ret.new_wid=Canvas.new_wid
+   ret.new_text=Canvas.new_text
+   ret.new_rect=Canvas.new_rect
    ret.remove=Canvas.remove
    ret.is_out=Canvas.is_out
    return ret
@@ -243,7 +256,7 @@ end
 function Menu.init_entity(ent)
    local ret = Menu.wrapp(ent)
    tryPushWidType(ent, "menu")
-   ret.entries = {}
+   ret.ent.entries = {}
    return ret
 end
 

@@ -200,6 +200,8 @@ Entity *ywidGenericPollEvent(void);
 
 extern int ywidWindowWidth;
 extern int ywidWindowHight;
+extern int ywidXMouseGlobalPos;
+extern int ywidYMouseGlobalPos;
 
 /**
  * Registre a new type of widget

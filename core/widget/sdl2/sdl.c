@@ -362,6 +362,11 @@ static inline int sdlPrintLine(SDLWid *wid,
       if (pos.y >= wid->rect.y && pos.y + fontSize <= wid->rect.y + wid->rect.h) {
 	textSurface = TTF_RenderUTF8_Solid(sgDefaultFont(), str + i, color);
 	text = SDL_CreateTextureFromSurface(renderer, textSurface);
+
+	if (!text) {
+	  SDL_FreeSurface(textSurface);
+	  return -1;
+	}
 	text_width = textSurface->w;
 	SDL_FreeSurface(textSurface);
 

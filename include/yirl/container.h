@@ -27,9 +27,13 @@ typedef enum {
   CNT_NONE
 } CntType;
 
+typedef enum {
+  Y_CNT_GOTO_CURRENT = 0,
+  Y_CNT_UNDER_MOUSE = 1,
+} YCntForwardingStyle;
 typedef struct {
   YWidgetState sate;
-  int curent;
+  YCntForwardingStyle fwStyle;
   /* Default type is vertical */
   int type;
 } YContainerState;

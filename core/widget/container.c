@@ -181,7 +181,9 @@ static int cntInit(YWidgetState *opac, Entity *entity, void *args)
 {
   Entity *entries = yeGet(entity, "entries");
   Entity *bg = yeGet(entity, "background");
+  Entity *eve_forwarding = yeGet(entity, "event_forwarding");
   YWidgetState *wid;
+  YContainerState *cntState = (YContainerState *)opac;
 
   (void)args;
   if (!entries) {
@@ -201,6 +203,9 @@ static int cntInit(YWidgetState *opac, Entity *entity, void *args)
     }
   }
 
+  if (eve_forwarding && !yeStrCmp(eve_forwarding, "under mouse")) {
+    cntState->fwStyle = Y_CNT_UNDER_MOUSE;
+  }
   yeTryCreateInt(0, entity, "current");
   YE_ARRAY_FOREACH(entries, tmp) {
     Entity *ptr = getEntry(entity, tmp);
@@ -268,7 +273,13 @@ static InputStatue cntEvent(YWidgetState *opac, Entity *event)
   if (ret != NOTHANDLE)
     return ret;
 
-  cur = ywidGetState(yeGet(entries, yeGetInt(yeGet(opac->entity, "current"))));
+  if (((YContainerState *)opac)->fwStyle == Y_CNT_GOTO_CURRENT) {
+    cur = ywidGetState(yeGet(entries, yeGetInt(yeGet(opac->entity, "current"))));
+  } else {
+    cur = ywidGetState(ywContainerGetWidgetAt(opac->entity,
+					      ywidXMouseGlobalPos,
+					      ywidYMouseGlobalPos));
+  }
   if (cur)
     ret = ywidHandleEvent(cur, event);
   return ret;
@@ -361,7 +372,7 @@ static void *alloc(void)
   wstate->handleEvent = cntEvent;
   wstate->resize = cntResize;
   wstate->type = t;
-  ret->curent = -1;
+  ret->fwStyle = Y_CNT_GOTO_CURRENT;
   return  ret;
 }
 
