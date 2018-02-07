@@ -269,6 +269,8 @@ extern "C" {
 
   Entity *ywCanvasNewText(Entity *wid, int x, int y, Entity *string)
   {
+    if (!string)
+      return NULL;
     Entity *objs = getOrCreateObjs(wid);
     Entity *obj = yeCreateArray(objs, NULL);
 

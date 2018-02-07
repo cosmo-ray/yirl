@@ -214,7 +214,7 @@ int	luaentity_tostring(lua_State *L)
 {
   struct entityWrapper *ew = luaL_checkudata(L, 1, "Entity");
 
-  char *str = yeToCStr(ew->e, -1, 0);
+  char *str = yeToCStr(ew->e, 10, 0);
   lua_pushstring(L, str);
   free(str);
   return 1;
@@ -594,7 +594,7 @@ int	luaYeIncrRef(lua_State *L)
 
 int	luaYeToLuaString(lua_State *L)
 {
-  char *str = yeToCStr(lua_touserdata(L, 1), -1, 0);
+  char *str = yeToCStr(lua_touserdata(L, 1), 10, 0);
 
   lua_pushstring(L, str);
   free(str);

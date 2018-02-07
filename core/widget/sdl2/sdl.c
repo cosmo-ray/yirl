@@ -643,6 +643,7 @@ static int sdlCanvasRendImg(YWidgetState *state, SDLWid *wid, Entity *img)
     sdlCanvasCacheTexture(state->entity, img);
     t = yeGetData(yeGet(img, "$img"));
   }
+  Entity *wid_pix = yeGet(state->entity, "wid-pix");
   Entity *s = ywCanvasObjSize(state->entity, img);
   Entity *p = ywCanvasObjPos(img);
   SDL_Rect *sd = NULL;
@@ -653,6 +654,8 @@ static int sdlCanvasRendImg(YWidgetState *state, SDLWid *wid, Entity *img)
 
   if (unlikely(!t))
     return -1;
+  rd.x += ywRectX(wid_pix);
+  rd.y += ywRectY(wid_pix);
   sdlCanvasAplyModifier(img, &rd, &sd, &center, &rotation, &flip);
   SDL_RenderCopyEx(sg.renderer, t, sd, &rd, rotation, center, flip);
   free(sd);
@@ -677,10 +680,7 @@ uint32_t sdlCanvasPixInfo(Entity *obj, int x, int y)
   if (!surface) {
     return 0;
   }
-  /* printf("%p - %d - %d\n", surface, x, y); */
-  /* printf("%s: %d - %d - %p\n", SDL_GetPixelFormatName(surface->format->format), */
-  /* 	 surface->w, surface->h, surface->pixels); */
-  /* printf("%d\n", surface->format->BitsPerPixel); */
+
   if (x < 0 || x >= surface->w || y < 0 || y >= surface->h) {
     return 0;
   }
@@ -720,12 +720,15 @@ int sdlCanvasRendObj(YWidgetState *state, SDLWid *wid, Entity *obj)
 
   if (type == YCanvasRect) {
     YBgConf cfg;
+    Entity *wid_pix = yeGet(state->entity, "wid-pix");
 
     ywidBgConfFill(yeGet(yeGet(obj, 2), 1), &cfg);
     c.r = cfg.r;
     c.g = cfg.g;
     c.b = cfg.b;
     c.a = cfg.a;
+    rect.x += ywRectX(wid_pix);
+    rect.y += ywRectY(wid_pix);
     // stuff to do here
     sdlDrawRect(NULL, rect, c);
     return 0;

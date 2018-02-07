@@ -178,12 +178,12 @@ function Canvas:new_obj(x, y, objId)
 end
 
 function Canvas:new_text(x, y, txt)
-   local ret = ywCanvasNewText(self.ent:cent(), x, y, txt)
+   local ret = ywCanvasNewText(self.ent:cent(), x, y, txt:cent())
    return CanvasObj.wrapp(ret)
 end
 
 function Canvas:new_rect(x, y, r)
-   local ret = ywCanvasNewRect(self.ent:cent(), x, y, r)
+   local ret = ywCanvasNewRect(self.ent:cent(), x, y, r:cent())
    return CanvasObj.wrapp(ret)
 end
 
