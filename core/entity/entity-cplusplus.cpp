@@ -47,6 +47,12 @@ void operator delete(void *ptr, long unsigned int end)
   free(ptr);
 }
 
+
+void operator delete(void *ptr, long long unsigned int end)
+{
+  free(ptr);
+}
+
 void *operator new(size_t l)
 {
   void *ret = malloc(l);

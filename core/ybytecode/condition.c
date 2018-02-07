@@ -96,5 +96,5 @@ int yeCheckCondition(Entity *condition)
     yeDestroy(data);
   }
   /* add args */
-  return (long)yesCall(yeGet(actionEnt, 1));
+  return (int_ptr_t)yesCall(yeGet(actionEnt, 1));
 }

@@ -17,6 +17,21 @@ function mingw-i686 {
     var_add BIN_EXT .exe
 }
 
+add_toolchain mingw-64
+function mingw-64 {
+    #export CC=x86_64-w64-mingw32-cc
+    #export PKG_CONFIG=x86_64-w64-mingw32-pkg-config
+    export TCC_LIB_NAME="libtcc.a"
+    export WITH_CURSES=0
+    #export LDFLAGS_EXT="-lntoskrnl"
+    export LIBEXTENSION=dll.a
+    #export AR="x86_64-w64-mingw32-ar"
+    export IS_UNIX=0
+    export YIRL_LINKING=build-static-lib
+    export BINARY_LINKING="\$(LIBNAME).a"
+    var_add BIN_EXT .exe
+}
+
 add_toolchain ubuntu
 function ubuntu {
     export LUA_LIB="`pkg-config --libs lua52`"

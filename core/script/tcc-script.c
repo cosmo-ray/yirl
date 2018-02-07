@@ -128,7 +128,7 @@ static void addFuncSymbole(void *sm, const char *name, int nbArgs, Entity *func)
     yeAddStr(includeStrs, "){return yesCall0(");
   }
   yeAddStr(includeStrs, "(Entity *)");
-  yeAddLong(includeStrs, (long)func);
+  yeAddLong(includeStrs, (int_ptr_t)func);
 
   for (int i = 0; i < nbArgs; ++i) {
     yeAddStr(includeStrs, ",var");

@@ -19,7 +19,7 @@
 
 int     luaPtrToNumber(lua_State *l)
 {
-  lua_pushnumber(l, (long)lua_topointer(l, 1));
+  lua_pushnumber(l, (int_ptr_t)lua_topointer(l, 1));
   return 1;
 }
 
