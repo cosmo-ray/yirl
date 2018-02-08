@@ -586,6 +586,12 @@ int luaywCanvasNewRect(lua_State *L)
   return 1;
 }
 
+int	luaywCanvasPopObj(lua_State *L)
+{
+  ywCanvasPopObj(lua_touserdata(L, 1));
+  return 0;
+}
+
 int	luaYeIncrRef(lua_State *L)
 {
   yeIncrRef(YE_TO_ENTITY(lua_touserdata(L, 1)));

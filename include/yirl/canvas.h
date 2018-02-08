@@ -73,6 +73,10 @@ Entity *ywCanvasNewText(Entity *wid, int x, int y, Entity *string);
 Entity *ywCanvasNewImgByPath(Entity *wid, int x, int y, const char *path);
 
 void ywCanvasRemoveObj(Entity *wid, Entity *obj);
+static inline void ywCanvasPopObj(Entity *wid)
+{
+  yePopBack(yeGet(wid, "objs"));
+}
 
 void ywCanvasStringSet(Entity *obj, Entity *newStr);
 void ywCanvasObjSetResourceId(Entity *obj, int id);

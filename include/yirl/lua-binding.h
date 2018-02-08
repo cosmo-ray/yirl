@@ -187,6 +187,7 @@ int	luaywCanvasObjPointTopTo(lua_State *L);
 int	luaywCanvasObjPointRightTo(lua_State *L);
 int	luaywCanvasObjIsOut(lua_State *L);
 int	luaywCanvasObjectsCheckColisions(lua_State *L);
+int	luaywCanvasPopObj(lua_State *L);
 
 /* Game and Module */
 int	luaGetMod(lua_State *L);
@@ -486,6 +487,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, ywCanvasObjPointRightTo);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasObjIsOut);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasObjectsCheckColisions);
+  YES_LUA_REGISTRE_CALL(sm, ywCanvasPopObj);
 
   /* Game and Modules */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygGetMod", luaGetMod));

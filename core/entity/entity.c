@@ -732,14 +732,12 @@ Entity *yeRemoveChildByEntity(Entity *array, Entity *toRemove)
 
 Entity *yePopBack(Entity *entity)
 {
-  int	len;
+  int len = yeLen(entity);
   Entity *ret;
 
-  if (!checkType(entity, YARRAY)) {
-    DPRINT_ERR("yePopBack: bad entity\n");
+  if (unlikely(!checkType(entity, YARRAY) || !len)) {
     return NULL;
   }
-  len = yeLen(entity);
   ret = yeGet(entity, len - 1);
   if (ret->refCount == 1)
     ret = NULL;

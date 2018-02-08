@@ -381,8 +381,8 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
   goto *((void *)*script);
 
  print_pos:
-  //printf("script instruction pos: "PRIiptr"\n",
-	 //script - origin);
+  printf("script instruction pos: "PRIiptr"\n",
+	 script - origin);
   ++script;
   goto *((void *)*script);
  print_entity:

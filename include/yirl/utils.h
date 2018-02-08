@@ -52,13 +52,14 @@ typedef int32_t int_ptr_t;
 #endif
 
 #elif __SIZEOF_POINTER__ == 8
-#define PRIiptr	"%li"
 typedef int64_t int_ptr_t;
 #define ONE64      1LU
 /* don't know why PRIi64 doesn't seems to work on MinGw 32 */
 #ifdef _WIN32
 #define PRIint64 "%lli"
+#define PRIiptr	"%lli"
 #else
+#define PRIiptr	"%li"
 #define PRIint64 "%" PRIi64
 #endif
 

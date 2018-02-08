@@ -167,6 +167,10 @@ function CanvasObj.wrapp(ent)
    return ret
 end
 
+function Canvas:pop_back()
+   ywCanvasPopObj(self.ent:cent())
+end
+
 function Canvas:new_img(x, y, path)
    local ret = ywCanvasNewImg(self.ent:cent(), x, y, path)
    return CanvasObj.wrapp(ret)
@@ -224,6 +228,7 @@ function Canvas.wrapp(ent)
    ret.new_rect=Canvas.new_rect
    ret.remove=Canvas.remove
    ret.is_out=Canvas.is_out
+   ret.pop_back = Canvas.pop_back
    return ret
 end
 
