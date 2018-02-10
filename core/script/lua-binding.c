@@ -89,6 +89,15 @@ int	luaentity_lt(lua_State *L)
   return 1;
 }
 
+int	luaentity_add(lua_State *L)
+{
+  double i0 = luaNumberAt(L, 1);
+  double i1 = luaNumberAt(L, 2);
+
+  lua_pushnumber(L, i0 + i1);
+  return 1;
+}
+
 int	luaentity_mul(lua_State *L)
 {
   double i0 = luaNumberAt(L, 1);
@@ -472,10 +481,11 @@ int	luaYwCanvasObjSetResourceId(lua_State *L)
 
 int	luaywCanvasNewImg(lua_State *L)
 {
-  lua_pushlightuserdata(L, ywCanvasNewImgByPath(lua_touserdata(L, 1),
-						lua_tonumber(L, 2),
-						lua_tonumber(L, 3),
-						lua_tostring(L, 4)));
+  lua_pushlightuserdata(L, ywCanvasNewImg(lua_touserdata(L, 1),
+					  lua_tonumber(L, 2),
+					  lua_tonumber(L, 3),
+					  lua_tostring(L, 4),
+					  lua_touserdata(L, 5)));
   return 1;
 }
 

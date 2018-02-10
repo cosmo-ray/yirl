@@ -281,7 +281,8 @@ extern "C" {
     return obj;
   }
 
-  Entity *ywCanvasNewImgByPath(Entity *wid, int x, int y, const char *path)
+  Entity *ywCanvasNewImg(Entity *wid, int x, int y, const char *path,
+			 Entity *img_src_rect)
   {
     Entity *objs = getOrCreateObjs(wid);
     Entity *obj = yeCreateArray(objs, NULL);
@@ -289,8 +290,14 @@ extern "C" {
     yeCreateInt(YCanvasImg, obj, "canvas-type");
     ywPosCreateInts(x, y, obj, "pos");
     yeCreateString(path, obj, "img");
+    yePushBack(obj, img_src_rect, "img-src-rect");
     sdlCanvasCacheTexture(wid, obj);
     return obj;
+  }
+
+  Entity *ywCanvasNewImgByPath(Entity *wid, int x, int y, const char *path)
+  {
+    return ywCanvasNewImg(wid, x, y, path, NULL);
   }
 
   Entity *ywCanvasNewRect(Entity *wid, int x, int y, Entity *rect)

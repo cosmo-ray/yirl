@@ -12,6 +12,8 @@ Event = {}
 
 Pos = {}
 
+Rect = {}
+
 local function tryPushWidType(ent, t)
    if ent["<type>"] == nil then
       ent["<type>"] = t
@@ -105,6 +107,28 @@ function Pos.new(x, y, father, name)
    return Pos._init_(ret)
 end
 
+function Rect:cent()
+   return self.ent:cent()
+end
+
+function Rect._init_(ent)
+   ent.cent = Rect.cent
+   return ent
+end
+
+function Rect.new(x, y, w, h, father, name)
+   local ent = ywRectCreate(x, y, w, h, father, name)
+   local needDestroy = false
+
+   if father == nil then
+      needDestroy = true
+   end
+   ent = Entity._wrapp_(ent, needDestroy)
+   local ret = {ent = ent}
+   return Rect._init_(ret)
+end
+
+
 function CanvasObj:cent()
    return self.ent:cent()
 end
@@ -171,8 +195,9 @@ function Canvas:pop_back()
    ywCanvasPopObj(self.ent:cent())
 end
 
-function Canvas:new_img(x, y, path)
-   local ret = ywCanvasNewImg(self.ent:cent(), x, y, path)
+function Canvas:new_img(x, y, path, srcRect)
+   if srcRect then srcRect = srcRect:cent() end
+   local ret = ywCanvasNewImg(self.ent:cent(), x, y, path, srcRect)
    return CanvasObj.wrapp(ret)
 end
 

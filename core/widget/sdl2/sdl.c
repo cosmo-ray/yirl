@@ -542,7 +542,7 @@ static int sdlCanvasCacheImg(Entity *state, Entity *elem,
   int w, h;
   Entity *rEnt;
 
-  rEnt = yeGet(resource, "img-src-rect");
+  rEnt = yeGet(elem, "img-src-rect") ? : yeGet(resource, "img-src-rect");
   surface = IMG_Load(imgPath);
   if (unlikely(!surface)) {
     DPRINT_ERR("fail to load %s", imgPath);
