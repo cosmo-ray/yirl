@@ -89,6 +89,15 @@ int	luaentity_lt(lua_State *L)
   return 1;
 }
 
+int	luaentity_eq(lua_State *L)
+{
+  double i0 = luaNumberAt(L, 1);
+  double i1 = luaNumberAt(L, 2);
+
+  lua_pushboolean(L, i0 == i1);
+  return 1;
+}
+
 int	luaentity_add(lua_State *L)
 {
   double i0 = luaNumberAt(L, 1);
