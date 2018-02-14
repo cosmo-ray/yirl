@@ -162,6 +162,12 @@ int	luaentity_newindex(lua_State *L)
 
     toPush = tmpew->e;
     yeIncrRef(toPush);
+  } else if (lua_isnil(L, 3)) {
+    if (lua_isnumber(L, 2))
+      yeRemoveChild(ew->e, lua_tonumber(L, 2));
+    else
+      yeRemoveChild(ew->e, lua_tostring(L, 2));
+    return 0;
   } else {
     return luaL_error(L, "type %d not handle", lua_type(L, 3));
   }

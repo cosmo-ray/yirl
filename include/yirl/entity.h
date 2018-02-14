@@ -430,9 +430,16 @@ Entity *yePopBack(Entity *array);
 
 #ifndef __cplusplus
 #define yeRemoveChild(array, toRemove)					\
-  (_Generic(array,							\
+  (_Generic(toRemove,							\
 	    Entity *: yeRemoveChildByEntity,				\
 	    void *: yeRemoveChildByEntity,				\
+	    int: yeRemoveChildByIdx,					\
+	    double : yeRemoveChildByIdx,				\
+	    unsigned long long: yeRemoveChildByIdx,			\
+	    long long: yeRemoveChildByIdx,				\
+	    unsigned long: yeRemoveChildByIdx,				\
+	    long: yeRemoveChildByIdx,					\
+	    unsigned int: yeRemoveChildByIdx,				\
 	    Y_GEN_CLANG_ARRAY(char, yeRemoveChildByStr),		\
 	    const char *: yeRemoveChildByStr,				\
 	    char *: yeRemoveChildByStr)((array), (toRemove)))
@@ -440,9 +447,16 @@ Entity *yePopBack(Entity *array);
 
 Entity *yeRemoveChildByEntity(Entity *array, Entity *toRemove);
 
+static inline Entity *yeRemoveChildByIdx(Entity *array, int toRemove);
+
 static inline Entity *yeRemoveChildByStr(Entity *array, const char *toRemove)
 {
   return yeRemoveChild(array, yeGetByStrFast(array, toRemove));
+}
+
+static inline Entity *yeRemoveChildByIdx(Entity *array, int toRemove)
+{
+  return yeRemoveChild(array, yeGet(array, toRemove));
 }
 
 /**
