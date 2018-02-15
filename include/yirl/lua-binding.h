@@ -310,6 +310,7 @@ static inline int	yesLuaRegister(void *sm)
     {"len", luaentity_len},
     {"push_back", luaentity_pushback},
     {"to_float", luaentity_tofloat},
+    {"to_string", luaentity_tostring},
     {"to_int", luaentity_toint},
     {"set_float", luaentity_setfloat},
     {"remove", luaentity_remove},
