@@ -38,13 +38,14 @@ typedef unsigned long long uint64_t;
 
 #ifndef __INT64_C
 #define __INT64_C(c) (c ## LL)
-     #define __UINT64_C(c) (c ## LLU)
+#define __UINT64_C(c) (c ## LLU)
 #endif
+
+#define ONE64      1LLU
 
 #if   __SIZEOF_POINTER__ == 4
 typedef int32_t int_ptr_t;
 #define PRIiptr	"%d"
-#define ONE64      1LLU
 #ifdef _WIN32
 #define PRIint64 "%lli"
 #else
@@ -53,11 +54,10 @@ typedef int32_t int_ptr_t;
 
 #elif __SIZEOF_POINTER__ == 8
 typedef int64_t int_ptr_t;
-#define ONE64      1LU
 /* don't know why PRIi64 doesn't seems to work on MinGw 32 */
 #ifdef _WIN32
 #define PRIint64 "%lli"
-#define PRIiptr	"%lli"
+#define PRIiptr	"%I64d"
 #else
 #define PRIiptr	"%li"
 #define PRIint64 "%" PRIi64
@@ -65,8 +65,6 @@ typedef int64_t int_ptr_t;
 
 #else
 typedef int64_t int_ptr_t;
-#define ONE64      1LLU
-
 #endif
 
 #ifndef Y_INSIDE_TCC
@@ -85,15 +83,9 @@ typedef int64_t int_ptr_t;
 # define unlikely(x)    __builtin_expect(!!(x), 0)
 # endif
 
-# if   __SIZEOF_POINTER__ == 4
 # define ctz64 	   __builtin_ctzll
 # define clz64      __builtin_clzll
 # define popcount64 __builtin_popcountll
-# elif __SIZEOF_POINTER__ == 8
-# define ctz64      __builtin_ctzl
-# define clz64      __builtin_clzl
-# define popcount64 __builtin_popcountl
-# endif
 
 #else
 /* TODO: test this */
