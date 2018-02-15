@@ -238,6 +238,10 @@ int	luaentity_tostring(lua_State *L)
 {
   struct entityWrapper *ew = luaL_checkudata(L, 1, "Entity");
 
+  if (yeType(ew->e) == YSTRING) {
+    lua_pushstring(L, yeGetString(ew->e));
+    return 1;
+  }
   char *str = yeToCStr(ew->e, 10, 0);
   lua_pushstring(L, str);
   free(str);
