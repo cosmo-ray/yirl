@@ -191,7 +191,7 @@ static int storeIdent(Entity *str, Entity *tokInfo,
 		      struct identifiersHead *identHead, int indent, int tok)
 {
   const char *cstr = yeTokCIdentifier(tokInfo, tok);
-  
+
   if (!cstr) {
     DPRINT_ERR("expected identifier, got '%s'\n", yeTokString(tokInfo, tok));
     return -1;

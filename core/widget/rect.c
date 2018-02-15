@@ -68,7 +68,7 @@ Entity *ywRectColisionRect(Entity *rect0, Entity *rect1,
   if (bx0 < bx1 && ex0 > ex1) {
     /* [ {---} ] */
     ret0x = bx1 - bx0;
-    ret1y = 0;
+    ret1x = 0;
     retw = ex1 - bx1;;
   } else if (bx0 < bx1 && ex0 < ex1) {
     /* [ {---] } */
