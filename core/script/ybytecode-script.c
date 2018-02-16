@@ -1,4 +1,4 @@
-/*
+ /*
 **Copyright (C) 2016 Matthias Gatto
 **
 **This program is free software: you can redistribute it and/or modify
@@ -18,6 +18,7 @@
 #include <glib.h>
 #include <stdlib.h>
 #include <string.h>
+#include <setjmp.h>
 
 #include "ybytecode.h"
 #include "ybytecode-script.h"
@@ -29,6 +30,8 @@
 static int t = -1;
 static void *manager;
 static int global;
+
+static jmp_buf error_env;
 
 struct YBytecodeScript {
   YScriptOps ops;
@@ -150,7 +153,7 @@ static int nextNonSeparatorTok(Entity *str, Entity *tokInfo)
   return tok;
 }
 
-static int tryStoreNumber(int64_t *dest, Entity *str, Entity *tokInfo)
+static void tryStoreNumber(int64_t *dest, Entity *str, Entity *tokInfo)
 {
   int tok = nextNonSeparatorTok(str, tokInfo);
   int neg_modifier = 1;
@@ -161,10 +164,9 @@ static int tryStoreNumber(int64_t *dest, Entity *str, Entity *tokInfo)
   }
   if (tok != NUMBER_TOK) {
     DPRINT_ERR("expected number, got '%s'\n", yeTokString(tokInfo, tok));
-    return -1;
+    longjmp(error_env, 1);
   }
   *dest = (atoi(yeTokString(tokInfo, tok)) * neg_modifier);
-  return 0;
 }
 
 struct identifiers {
@@ -187,48 +189,47 @@ static int getIdent(struct identifiersHead *identHead, const char *name)
   return -1;
 }
 
-static int storeIdent(Entity *str, Entity *tokInfo,
+static void storeIdent(Entity *str, Entity *tokInfo,
 		      struct identifiersHead *identHead, int indent, int tok)
 {
   const char *cstr = yeTokCIdentifier(tokInfo, tok);
 
   if (!cstr) {
     DPRINT_ERR("expected identifier, got '%s'\n", yeTokString(tokInfo, tok));
-    return -1;
+    longjmp(error_env, 1);
   }
 
-  if (getIdent(identHead, cstr) > 0) {
+  if (getIdent(identHead, cstr) >= 0) {
       DPRINT_ERR("redefinition of '%s'\n", cstr);
-      return -1;
+      longjmp(error_env, 1);
   }
   struct identifiers *iden = malloc(sizeof(struct identifiers));
-  iden->str = cstr;
+  iden->str = strdup(cstr);
   iden->num = indent;
   LIST_INSERT_HEAD(identHead, iden, entries);
-  return 0;
 }
 
-static int tryGetIdentifier(int64_t *dest, Entity *str, Entity *tokInfo,
+static void tryGetIdentifier(int64_t *dest, Entity *str, Entity *tokInfo,
 			    struct identifiersHead *identHead)
 {
   int tok = nextNonSeparatorTok(str, tokInfo);
-  int neg_modifier = 1;
   const char *cstr;
 
   if (tok == NUMBER_TOK) {
-    *dest = (atoi(yeTokString(tokInfo, tok)) * neg_modifier);
-    return 0;
+    *dest = atoi(yeTokString(tokInfo, tok));
+    return;
   }
 
   cstr = yeTokCIdentifier(tokInfo, tok);
   if (!cstr) {
     DPRINT_ERR("expected identifier, got '%s'\n", yeTokString(tokInfo, tok));
-    return -1;
+    longjmp(error_env, 1);
   }
   *dest = getIdent(identHead, cstr);
-  if (*dest < 0)
-    return -1; 
-  return 0;
+  if (*dest < 0) {
+    DPRINT_ERR("undeclared indentifier: '%s'\n", cstr);
+    longjmp(error_env, 1);
+  }
 }
 
 static Entity *tryStoreStringCurTok(Entity *funcData, Entity *str,
@@ -236,14 +237,17 @@ static Entity *tryStoreStringCurTok(Entity *funcData, Entity *str,
 {
   Entity *ret;
 
-  if (tok != DOUBLE_QUOTE_TOK)
+  if (tok != DOUBLE_QUOTE_TOK) {
     DPRINT_ERR("literal string expected(should begin with '\"', not '%s')",
 	       yeTokString(tokInfo, tok));
+    longjmp(error_env, 1);
+  }
   ret = yeCreateString(NULL, funcData, NULL);
   while ((tok = yeStringNextTok(str, tokInfo)) != DOUBLE_QUOTE_TOK) {
     if (tok == YTOK_END) {
+      DPRINT_ERR("\" is missing to close the string");
       yeDestroy(ret);
-      return NULL;
+      longjmp(error_env, 1);
     }
     yeStringAdd(ret, yeTokString(tokInfo, tok));
   }
@@ -265,9 +269,9 @@ struct labels {
 
 LIST_HEAD(labelHead, labels);
 
-static int tryStoreLabels(int script_pos, Entity *str,
-			  Entity *tokInfo, struct labelHead *labels_head,
-			  int tok)
+static void tryStoreLabels(int script_pos, Entity *str,
+			   Entity *tokInfo, struct labelHead *labels_head,
+			   int tok)
 {
   Entity *strTmp = yeCreateString(NULL, NULL, NULL);
   for (tok = tok > 0 ? tok : nextNonSeparatorTok(str, tokInfo);
@@ -285,11 +289,11 @@ static int tryStoreLabels(int script_pos, Entity *str,
   label->str = strTmp;
   label->pos = script_pos;
   LIST_INSERT_HEAD(labels_head, label, entries);
-  return 0;
+  return;
  error:
   DPRINT_ERR("label must containe only alphanumeric or '_' caracters");
   yeDestroy(strTmp);
-  return -1;
+  longjmp(error_env, 1);
 }
 
 static int linkLabels(struct labelHead *labels,
@@ -336,7 +340,18 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
     have_return = 1;				\
   } while (0)
 
+  /*
+   * This is buggy, we should remove all identifiers
+   * that containe current_identifier as number
+   */
+#define DECREMENT_IDENTIFIER() do {		\
+    --current_identifier;			\
+  } while (0)
+
   script[0] = 0;
+
+  if (setjmp(error_env) == 1)
+    goto exit;
 
   tryStoreNumber(&nb_func_args, str, tokInfo);
   tok = nextNonSeparatorTok(str, tokInfo);
@@ -361,11 +376,8 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
   case YB_GET_AT_STR_TOK:
     {
       script[script_len] = tok;
-      if (tryStoreNumber(&script[script_len + 1], str, tokInfo) < 0)
-	goto exit;
+      tryStoreNumber(&script[script_len + 1], str, tokInfo);
       Entity *tmpStr = tryStoreString(funcData, str, tokInfo);
-      if (!tmpStr)
-	goto exit;
       script[script_len + 2] = (uintptr_t)yeGetString(tmpStr);
       script_len += 3;
     }
@@ -374,15 +386,12 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
   case YB_NEW_WIDGET_TOK:
     {
       script[script_len] = tok;
-      if (tryStoreNumber(&script[script_len + 1], str, tokInfo) < 0)
-	goto exit;
+      tryStoreNumber(&script[script_len + 1], str, tokInfo);
       tok = nextNonSeparatorTok(str, tokInfo);
       if (tok == NIL_TOK) {
 	script[script_len + 2] = 0;
       } else {
 	Entity *tmpStr = tryStoreStringCurTok(funcData, str, tokInfo, tok);
-	if (!tmpStr)
-	  goto exit;
 	script[script_len + 2] = (uintptr_t)yeGetString(tmpStr);
       }
       script_len += 3;
@@ -392,17 +401,13 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
   case YB_PUSH_BACK_TOK:
     {
       script[script_len] = tok;
-      if (tryStoreNumber(&script[script_len + 1], str, tokInfo) < 0)
-	goto exit;
-      if (tryStoreNumber(&script[script_len + 2], str, tokInfo) < 0)
-	goto exit;
+      tryStoreNumber(&script[script_len + 1], str, tokInfo);
+      tryStoreNumber(&script[script_len + 2], str, tokInfo);
       tok = nextNonSeparatorTok(str, tokInfo);
       if (tok == NIL_TOK) {
 	script[script_len + 3] = 0;
       } else {
 	Entity *tmpStr = tryStoreStringCurTok(funcData, str, tokInfo, tok);
-	if (!tmpStr)
-	  goto exit;
 	script[script_len + 3] = (uintptr_t)yeGetString(tmpStr);
       }
       script_len += 4;
@@ -415,17 +420,15 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
 
       Entity *tmpStr = tryStoreString(funcData, str, tokInfo);
 
-      if (!tmpStr)
-	goto exit;
       script[script_len + 1] = (uintptr_t)yeGetString(tmpStr);
       script_len += 2;
     }
     INCREMENT_IDENTIFIER();
     goto still_in_func;
+
   case YB_CALL_TOK: /* variadic arguments */
     script[script_len] = tok;
-    if (tryGetIdentifier(&script[script_len + 2], str, tokInfo, &idents) < 0)
-      goto exit;
+    tryGetIdentifier(&script[script_len + 2], str, tokInfo, &idents);
     while ((tok = nextNonSeparatorTok(str, tokInfo)) == NUMBER_TOK) {
       ++nb_args;
       script[script_len + nb_args + 2] = atoi(yeTokString(tokInfo, tok));
@@ -435,28 +438,25 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
     nb_args = 0;
     INCREMENT_IDENTIFIER();
     goto still_in_func_no_next;
+
   case YB_ADD_TOK:
   case YB_SUB_TOK:
   case YB_DIV_TOK:
   case YB_MULT_TOK:
     script[script_len] = tok;
-    if (tryStoreNumber(&script[script_len + 1], str, tokInfo) < 0)
-      goto exit;
-    if (tryStoreNumber(&script[script_len + 2], str, tokInfo) < 0)
-      goto exit;
-    if (tryStoreNumber(&script[script_len + 3], str, tokInfo) < 0)
-      goto exit;
+    tryStoreNumber(&script[script_len + 1], str, tokInfo);
+    tryStoreNumber(&script[script_len + 2], str, tokInfo);
+    tryStoreNumber(&script[script_len + 3], str, tokInfo);
     script_len += 4;
     goto still_in_func;
+
   case YB_SET_INT_TOK:
   case YB_GET_AT_IDX_TOK:
   case YB_STRING_ADD_CH_TOK:
   case YB_STRING_ADD_CH_ENT_TOK:
     script[script_len] = tok;
-    if (tryStoreNumber(&script[script_len + 1], str, tokInfo) < 0)
-      goto exit;
-    if (tryStoreNumber(&script[script_len + 2], str, tokInfo) < 0)
-      goto exit;
+    tryStoreNumber(&script[script_len + 1], str, tokInfo);
+    tryStoreNumber(&script[script_len + 2], str, tokInfo);
     script_len += 3;
     if (tok == YB_GET_AT_IDX_TOK)
       INCREMENT_IDENTIFIER();
@@ -467,19 +467,20 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
   case YB_PRINT_ENTITY_TOK:
   case YB_REGISTRE_WIDGET_SUBTYPE_TOK:
     script[script_len] = tok;
-    if (tryStoreNumber(&script[script_len + 1], str, tokInfo) < 0)
-      goto exit;
+    tryStoreNumber(&script[script_len + 1], str, tokInfo);
     script_len += 2;
     if (tok == YB_CREATE_INT_TOK)
       INCREMENT_IDENTIFIER();
     goto still_in_func;
   case YB_LEAVE_TOK:
-  case YB_STACK_POP:
+  case YB_STACK_POP_TOK:
   case YB_CREATE_ARRAY_TOK:
   case YB_PRINT_IRET_TOK:
   case YB_PRINT_POS_TOK:
     script[script_len] = tok;
     script_len += 1;
+    if (tok == YB_STACK_POP_TOK)
+      DECREMENT_IDENTIFIER();
     goto still_in_func;
   case SPACES_TOK:
   case RETURN_TOK:
@@ -495,30 +496,21 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
   case YB_INF_COMP_NBR_TOK:
   case YB_SUP_COMP_NBR_TOK:
     script[script_len] = tok;
-    if (tryStoreNumber(&script[script_len + 1], str, tokInfo) < 0)
-      goto exit;
-    if (tryStoreNumber(&script[script_len + 2], str, tokInfo) < 0)
-      goto exit;
-    if (tryStoreLabels(script_len + 3, str,
-		       tokInfo, &labels_needed, -1) < 0)
-      goto exit;
+    tryStoreNumber(&script[script_len + 1], str, tokInfo);
+    tryStoreNumber(&script[script_len + 2], str, tokInfo);
+    tryStoreLabels(script_len + 3, str, tokInfo, &labels_needed, -1);
     script_len += 4;
     goto still_in_func;
   case YB_JMP_TOK:
   case YB_JMP_IF_0_TOK:
     script[script_len] = tok;
-    if (tryStoreLabels(script_len + 1, str,
-		       tokInfo, &labels_needed, -1) < 0)
-      goto exit;
+    tryStoreLabels(script_len + 1, str,
+		   tokInfo, &labels_needed, -1);
     script_len += 2;
     goto still_in_func;
   default:
-    if (!tryStoreLabels(script_len, str,
-			tokInfo, &labels, tok))
-      goto still_in_func;
-    DPRINT_ERR("unexpected '%s' in function '%s'",
-	       yeTokString(tokInfo, tok), yeGetString(funcName));
-    goto exit;
+    tryStoreLabels(script_len, str, tokInfo, &labels, tok);
+    goto still_in_func;
   }
   Entity *data;
 
@@ -544,6 +536,7 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
  exit:
   while (!LIST_EMPTY(&idents)) {
     struct identifiers *n1 = LIST_FIRST(&idents);
+    free((char *)n1->str);
     LIST_REMOVE(n1, entries);
     free(n1);
   }

@@ -89,16 +89,6 @@ typedef struct {
 
 struct WidgetState_;
 
-/* typedef struct yevent { */
-/*   EventType type; */
-/*   int key; */
-/*   unsigned int xMouse; */
-/*   unsigned int yMouse; */
-/*   InputStatue stat; */
-/*   SLIST_HEAD(EveListHead, yevent) *head; */
-/*   SLIST_ENTRY(yevent) lst; */
-/* } YEvent; */
-
 enum {
     YEVE_TYPE = 0,
     YEVE_KEY = 1,
