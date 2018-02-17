@@ -137,6 +137,10 @@ function CanvasObj:move(pos)
    ywCanvasMoveObj(self:cent(), pos.ent:cent())
 end
 
+function CanvasObj:set_pos(x, y)
+   return ywCanvasObjSetPos(self:cent(), x, y)
+end
+
 function CanvasObj:pos()
    return Pos.wrapp(ywCanvasObjPos(self:cent()))
 end
@@ -179,6 +183,7 @@ function CanvasObj.wrapp(ent)
    local ret = { ent=Entity.wrapp(ent) }
    ret.cent = CanvasObj.cent
    ret.move = CanvasObj.move
+   ret.set_pos = CanvasObj.set_pos
    ret.pos = CanvasObj.pos
    ret.size = CanvasObj.size
    ret.angle = CanvasObj.angle
