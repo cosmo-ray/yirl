@@ -483,7 +483,8 @@ static inline int	yesLuaRegister(void *sm)
 				 luaYwCanvasNewCollisionsArray));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasNewCollisionsArrayWithRectangle",
 				 luaYwCanvasNewCollisionsArrayWithRectangle));
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasObjSetResourceId", luaYwCanvasObjSetResourceId));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasObjSetResourceId",
+				 luaYwCanvasObjSetResourceId));
   YES_LUA_REGISTRE_CALL(sm, ywCanvasObjClearCache);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasNewCollisionsArrayExt);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasCheckCollisions);
