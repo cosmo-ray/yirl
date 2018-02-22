@@ -131,12 +131,18 @@ void testCanvasSdl2(void)
   obj = ywCanvasNewObj(canvas_example, 200, 250, 3);
   ywCanvasRotate(obj, 45);
 
-  ywCanvasNewImgByPath(canvas_example, 200, 250, "tests/hero.png");
+  obj = ywCanvasNewImgByPath(canvas_example, 200, 250, "tests/hero.png");
+  Entity *texture = ywCanvasCreateYTexture(obj, NULL, NULL);
+  obj = ywCanvasNewImgFromTexture(canvas_example, 300, 30, texture, NULL);
+  Entity *rect = ywRectCreateInts(0, 0, 50, 40, NULL, NULL);
+  obj = ywCanvasNewImgFromTexture(canvas_example, 200, 70, texture, rect);
+  yeDestroy(texture);
+  yeDestroy(rect);
 
   obj = yeCreateArray(objs, NULL);
   yeCreateInt(YCanvasRect, obj, NULL);
   ywPosCreateInts(400, 250, obj, NULL);
-  Entity *rect = yeCreateArray(obj, "rect");
+  rect = yeCreateArray(obj, "rect");
 
   ywSizeCreate(200, 10, rect, NULL);
   yeCreateString("rgba: 180 0 0 160", rect, NULL);

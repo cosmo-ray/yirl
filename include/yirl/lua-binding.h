@@ -193,6 +193,9 @@ int	luaywCanvasObjPointRightTo(lua_State *L);
 int	luaywCanvasObjIsOut(lua_State *L);
 int	luaywCanvasObjectsCheckColisions(lua_State *L);
 int	luaywCanvasPopObj(lua_State *L);
+int	luaywCanvasCreateYTexture(lua_State *L);
+int	luaywCanvasNewImgFromTexture(lua_State *L);
+
 
 /* Game and Module */
 int	luaGetMod(lua_State *L);

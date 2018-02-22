@@ -1,17 +1,10 @@
 Widget = {}
-
 Container = {}
-
 Canvas = {}
-
 Menu = {}
-
 CanvasObj = {}
-
 Event = {}
-
 Pos = {}
-
 Rect = {}
 
 local function tryPushWidType(ent, t)

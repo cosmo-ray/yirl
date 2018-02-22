@@ -18,7 +18,11 @@
 #ifndef _SDL2_CANVAS_SDL_H_
 #define _SDL2_CANVAS_SDL_H_
 
+struct SDL_Surface;
+
+void sdlFreeSurface(void *surface);
 int sdlCanvasCacheTexture(Entity *state, Entity *elem);
 uint32_t sdlCanvasPixInfo(Entity *obj, int x, int y);
+SDL_Surface *sdlCopySurface(SDL_Surface *surface, Entity *rEnt);
 
 #endif

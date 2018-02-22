@@ -24,6 +24,7 @@ typedef enum  {
   YCanvasResource,
   YCanvasRect,
   YCanvasString,
+  YCanvasTexture,
   YCanvasImg
 } YCanvasObjType;
 
@@ -73,6 +74,8 @@ Entity *ywCanvasNewText(Entity *wid, int x, int y, Entity *string);
 Entity *ywCanvasNewImgByPath(Entity *wid, int x, int y, const char *path);
 Entity *ywCanvasNewImg(Entity *wid, int x, int y, const char *path,
 		       Entity *size);
+Entity *ywCanvasNewImgFromTexture(Entity *wid, int x, int y, Entity *yTexture,
+				  Entity *img_src_rect);
 
 void ywCanvasRemoveObj(Entity *wid, Entity *obj);
 
@@ -133,5 +136,10 @@ static inline Entity *ywCanvasObjMod(Entity *obj)
 {
   return yeGet(obj, "$mod");
 }
+
+/**
+ * Create a texture from a Canvas Objet
+ */
+Entity *ywCanvasCreateYTexture(Entity *obj, Entity *father, const char *name);
 
 #endif

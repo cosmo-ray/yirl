@@ -1,6 +1,6 @@
 /*
 **Copyright (C) 2017 Matthias Gatto
-5C**
+**
 **This program is free software: you can redistribute it and/or modify
 **it under the terms of the GNU Lesser General Public License as published by
 **the Free Software Foundation, either version 3 of the License, or
@@ -287,6 +287,34 @@ extern "C" {
     sdlCanvasCacheTexture(wid, obj);
     return obj;
   }
+
+  Entity *ywCanvasCreateYTexture(Entity *obj, Entity *father, const char *name)
+  {
+    Entity * ret = yeCreateArray(father, name);
+    Entity *data = yeGet(obj, "$img-surface");
+    void *true_surface = sdlCopySurface((SDL_Surface*)yeGetData(data), NULL);
+
+    if (!true_surface)
+      return NULL;
+    data = yeCreateData(true_surface, ret, "$img-surface");
+    yeSetDestroy(data, sdlFreeSurface);
+    return ret;
+  }
+
+  Entity *ywCanvasNewImgFromTexture(Entity *wid, int x, int y, Entity *yTexture,
+				    Entity *img_src_rect)
+  {
+    Entity *objs = getOrCreateObjs(wid);
+    Entity *obj = yeCreateArray(objs, NULL);
+
+    yeCreateInt(YCanvasTexture, obj, "canvas-type");
+    ywPosCreateInts(x, y, obj, "pos");
+    yePushBack(obj, yTexture, "text");
+    yePushBack(obj, img_src_rect, "img-src-rect");
+    sdlCanvasCacheTexture(wid, obj);
+    return obj;    
+  }
+
 
   Entity *ywCanvasNewImg(Entity *wid, int x, int y, const char *path,
 			 Entity *img_src_rect)

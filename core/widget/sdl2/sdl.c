@@ -440,7 +440,7 @@ static void sdlFreeTexture(void *txt)
   SDL_DestroyTexture(txt);
 }
 
-static void sdlFreeSurface(void *surface)
+void sdlFreeSurface(void *surface)
 {
   SDL_FreeSurface(surface);
 }
@@ -533,6 +533,39 @@ static int sdlCanvasCacheText(Entity *state, Entity *elem, Entity *resource,
   return 0;
 }
 
+SDL_Surface *sdlCopySurface(SDL_Surface *surface, Entity *rEnt)
+{
+  SDL_Rect r;
+  SDL_Rect *rptr = NULL;
+  SDL_Surface *tmpSurface = surface;
+  int w = surface->w, h = surface->h;
+
+  if (rEnt) {
+    r.x = ywRectX(rEnt);
+    r.y = ywRectY(rEnt);
+    r.w = ywRectW(rEnt);
+    r.h = ywRectH(rEnt);
+    w = r.w;
+    h = r.h;
+    rptr = &r;
+  }
+
+  surface = SDL_CreateRGBSurface(0, w, h, 32,
+				 tmpSurface->format->Rmask,
+				 tmpSurface->format->Gmask,
+				 tmpSurface->format->Bmask,
+				 tmpSurface->format->Amask);
+
+  if (unlikely(!surface)) {
+    DPRINT_ERR("fail to create surface");
+    SDL_FreeSurface(tmpSurface);
+    return NULL;
+  }
+
+  SDL_BlitSurface(tmpSurface, rptr, surface, NULL);
+  return surface;
+}
+
 static int sdlCanvasCacheImg(Entity *state, Entity *elem,
 			     Entity *resource, const char *imgPath)
 {
@@ -543,34 +576,27 @@ static int sdlCanvasCacheImg(Entity *state, Entity *elem,
   Entity *rEnt;
 
   rEnt = yeGet(elem, "img-src-rect") ? : yeGet(resource, "img-src-rect");
-  surface = IMG_Load(imgPath);
+  if (!imgPath) {
+    surface = yeGetData(yeGet(resource, "$img-surface"));
+    printf("surface: %p\n", surface);
+  } else {
+    surface = IMG_Load(imgPath);
+  }
   if (unlikely(!surface)) {
     DPRINT_ERR("fail to load %s", imgPath);
     return -1;
   }
 
   if (rEnt) {
-    SDL_Rect r;
     SDL_Surface *tmpSurface = surface;
 
-    r.x = ywRectX(rEnt);
-    r.y = ywRectY(rEnt);
-    r.w = ywRectW(rEnt);
-    r.h = ywRectH(rEnt);
-    surface = SDL_CreateRGBSurface(0, r.w, r.h, 32,
-				   tmpSurface->format->Rmask,
-				   tmpSurface->format->Gmask,
-				   tmpSurface->format->Bmask,
-				   tmpSurface->format->Amask);
-    if (unlikely(!surface)) {
-      DPRINT_ERR("fail to create surface");
-      SDL_FreeSurface(tmpSurface);
+    surface = sdlCopySurface(tmpSurface, rEnt);
+    if (!surface)
       return -1;
-    }
-
-    SDL_BlitSurface(tmpSurface, &r, surface, NULL);
-
-    SDL_FreeSurface(tmpSurface);
+    if (imgPath)
+      SDL_FreeSurface(tmpSurface);
+    /* trick to sdlFreeSurface anyway */
+    imgPath = "";
   }
   texture = SDL_CreateTextureFromSurface(sg.renderer, surface);
   if (unlikely(!texture))
@@ -580,7 +606,9 @@ static int sdlCanvasCacheImg(Entity *state, Entity *elem,
   yeSetDestroy(data, sdlFreeTexture);
   ywSizeCreate(w, h, elem, "$size");
   data = yeCreateData(surface, elem, "$img-surface");
-  yeSetDestroy(data, sdlFreeSurface);
+  /* if not img path a texture was use */
+  if (imgPath)
+    yeSetDestroy(data, sdlFreeSurface);
   yeGetPush(elem, resource, "$img");
   yeGetPush(elem, resource, "$size");
   yeGetPush(elem, resource, "$img-surface");
@@ -600,9 +628,11 @@ int sdlCanvasCacheTexture(Entity *state, Entity *elem)
 		    sgGetFontSize(), elem, "$size");
     return 0;
   } else if (unlikely(type == YCanvasImg)) {
-    txt = yeGetStringAt(elem, "img");
+    txt = yeGetStringAt(elem, 2);
     if (txt)
       return sdlCanvasCacheImg(state, elem, NULL, txt);
+  } else if (unlikely(type == YCanvasTexture)) {
+    return sdlCanvasCacheImg(state, elem, yeGet(elem, 2), NULL);
   } else if (unlikely(type != YCanvasResource)) {
     return -1;
   }
@@ -710,7 +740,7 @@ int sdlCanvasRendObj(YWidgetState *state, SDLWid *wid, Entity *obj)
 {
   int type = yeGetIntAt(obj, 0);
 
-  if (type == YCanvasResource || type == YCanvasImg)
+  if (type == YCanvasResource || type == YCanvasImg || type == YCanvasTexture)
     return sdlCanvasRendImg(state, wid, obj);
 
   Entity *p = ywCanvasObjPos(obj);

@@ -543,6 +543,26 @@ int	luaywCanvasNewImg(lua_State *L)
   return 1;
 }
 
+int	luaywCanvasCreateYTexture(lua_State *L)
+{
+  lua_pushlightuserdata(L, ywCanvasCreateYTexture(lua_touserdata(L, 1),
+						  lua_touserdata(L, 2),
+						  lua_tostring(L, 3)));
+  return 1;
+}
+
+int	luaywCanvasNewImgFromTexture(lua_State *L)
+{
+  lua_pushlightuserdata(L, ywCanvasNewImgFromTexture(lua_touserdata(L, 1),
+						     lua_tonumber(L, 2),
+						     lua_tonumber(L, 3),
+						     lua_touserdata(L, 4),
+						     lua_touserdata(L, 5)));
+  return 1;
+}
+
+int	luaywCanvasNewImgFromTexture(lua_State *L);
+
 int	luaYwCanvasNewObj(lua_State *L)
 {
   lua_pushlightuserdata(L, ywCanvasNewObj(lua_touserdata(L, 1),

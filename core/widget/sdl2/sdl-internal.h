@@ -84,4 +84,6 @@ SDL_Rect sdlRectFromRectEntity(Entity *rect);
 
 void sdlConsumeError(void);
 
+SDL_Surface *sdlCopySurface(SDL_Surface *surface, Entity *rEnt);
+
 #endif
