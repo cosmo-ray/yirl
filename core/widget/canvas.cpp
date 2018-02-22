@@ -209,11 +209,18 @@ extern "C" {
     return yeGet(obj, 1);
   }
 
+
+  void ywCanvasObjClearCache(Entity *obj)
+  {
+    yeRemoveChildByStr(obj, "$size");
+    yeRemoveChildByStr(obj, "$img");
+    yeRemoveChildByStr(obj, "$img-surface");
+  }
+
   void ywCanvasObjSetResourceId(Entity *obj, int id)
   {
     yeSetInt(yeGet(obj, 2), id);
-    yeRemoveChildByStr(obj, "$size");
-    yeRemoveChildByStr(obj, "$img");
+    ywCanvasObjClearCache(obj);
   }
 
   void ywCanvasObjSetPos(Entity *obj, int x, int y)

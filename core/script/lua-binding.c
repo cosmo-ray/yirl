@@ -507,6 +507,12 @@ int	luaYwCanvasObjSetResourceId(lua_State *L)
   return 0;
 }
 
+int	luaywCanvasObjClearCache(lua_State *L)
+{
+  ywCanvasObjClearCache(lua_touserdata(L, 1));
+  return 0;
+}
+
 int	luaywCanvasNewImg(lua_State *L)
 {
   lua_pushlightuserdata(L, ywCanvasNewImg(lua_touserdata(L, 1),

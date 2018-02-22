@@ -83,6 +83,7 @@ static inline void ywCanvasPopObj(Entity *wid)
 
 void ywCanvasStringSet(Entity *obj, Entity *newStr);
 void ywCanvasObjSetResourceId(Entity *obj, int id);
+void ywCanvasObjClearCache(Entity *obj);
 
 int ywCanvasSwapObj(Entity *wid, Entity *obj0, Entity *obj1);
 
