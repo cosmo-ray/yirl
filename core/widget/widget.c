@@ -133,6 +133,8 @@ int ywidNext(Entity *next)
     return -1;
   }
 
+  YWidDestroy(oldWid);
+  oldWid = NULL;
   if ((newWid = ywidNewWidget(next, NULL)) == NULL) {
     DPRINT_ERR("fail when creating new widget");
     return -1;
@@ -483,12 +485,15 @@ void YWidDestroy(YWidgetState *wid)
 {
   if (!wid)
     return;
-  yesCall(yeGet(wid->entity, "destroy"), wid->entity);
+
+  Entity *ent = wid->entity;
+  yesCall(yeGet(ent, "destroy"), ent);
   ywidGenericCall(wid, wid->type, destroy);
   if (wid->destroy)
     wid->destroy(wid);
   else
     g_free(wid);
+  yeRemoveChild(ent, "$wid");
 }
 
 static void ywidFreeEvents(Entity *event)

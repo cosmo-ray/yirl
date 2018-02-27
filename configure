@@ -56,7 +56,6 @@ var_add BYTECODE_DIR "core/ybytecode"
 var_add GEN_LOADER_DIR "core/generic-loader"
 var_add LIBEXTENSION so
 var_add LDFLAGS_EXT ""
-var_add YIRL_LINKING build-dynamic-lib
 
 define_add WITH_SOUND 1
 if [ $WITH_SOUND -ne 0 ]; then
@@ -80,6 +79,9 @@ var_add SANITAZERS 0
 if [ $SANITAZERS -eq 1 ]; then
     var_add LIBS_SAN "-lasan -lubsan"
     var_add FLAGS_SAN "-fsanitize=leak -fsanitize=undefined"
+    export YIRL_LINKING=build-static-lib
+    export BINARY_LINKING="\$(LIBNAME).a"
+
 fi
 
 var_add LUA_LIB "\"`pkg-config --libs lua`\""
@@ -100,4 +102,5 @@ var_add YIRL_INCLUDE_PATH $YIRL_INCLUDE_PATH2/yirl/
 var_add TCC_LIB_PATH $PWD/tinycc/
 var_add TCC_LIB_NAME libtcc.a
 
+var_add YIRL_LINKING build-dynamic-lib
 var_add BINARY_LINKING "-lyirl"

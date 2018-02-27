@@ -246,8 +246,9 @@ static int cntDestroy(YWidgetState *opac)
 
   if (bg) {
     YWidDestroy(yeGetData(yeGet(bg, "$wid")));
-    yeDestroy(bg);
+    yeRemoveChild(opac->entity, bg);
   }
+
   YE_ARRAY_FOREACH(entries, tmp) {
     YWidgetState *cur = ywidGetState(tmp);
 
