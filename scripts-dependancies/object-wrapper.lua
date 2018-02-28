@@ -85,6 +85,7 @@ end
 
 function Pos._init_(ent)
    ent.tostring = Pos.tostring
+   ent.to_string = Pos.tostring
    ent.x = Pos.x
    ent.y = Pos.y
    return ent

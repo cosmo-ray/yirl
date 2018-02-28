@@ -355,9 +355,17 @@ int	luaentity_newint(lua_State *L)
   return 1;
 }
 
+int	luayOr(lua_State *L)
+{
+  lua_pushnumber(L,
+		 (int_ptr_t)luaNumberAt(L, 1) | (int_ptr_t)luaNumberAt(L, 2));
+  return (1);
+}
+
 int	luaYAnd(lua_State *L)
 {
-  lua_pushnumber(L, (int)lua_tonumber(L, 1) & (int)lua_tonumber(L, 2));
+  lua_pushnumber(L,
+		 (int_ptr_t)luaNumberAt(L, 1) & (int_ptr_t)luaNumberAt(L, 2));
   return (1);
 }
 
