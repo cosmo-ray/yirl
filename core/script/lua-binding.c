@@ -36,7 +36,10 @@ struct entityWrapper {
 static Entity *luaEntityAt(lua_State *L, int pos)
 {
     if (lua_islightuserdata(L, pos)) {
-      return lua_touserdata(L, pos);
+      void  *udata = lua_touserdata(L, pos);
+      if (yeIsPtrAnEntity(udata))
+	return udata;
+      return NULL;
     }
 
     struct entityWrapper *ew = luaL_checkudata(L, pos, "Entity");
@@ -69,7 +72,11 @@ static struct entityWrapper *createEntityWrapper(lua_State *L, int fatherPos,
 static double luaNumberAt(lua_State *L, int i)
 {
   if (lua_islightuserdata(L, i)) {
-    return yeGetInt(lua_touserdata(L, i));
+    void  *udata = lua_touserdata(L, i);
+
+    if (yeIsPtrAnEntity(udata))
+      return yeGetInt(udata);
+    return (double)(int_ptr_t)udata;
   } else if (lua_isuserdata(L, i)) {
     struct entityWrapper *ew = luaL_checkudata(L, i, "Entity");
 
@@ -163,14 +170,19 @@ int	luaentity_newindex(lua_State *L)
     /*   if (lua_isnoneornil(L, 4)) */
     /* 	break; */
     /* } */
-  } else if (lua_islightuserdata(L, 3)) {
-    toPush = lua_touserdata(L, 3);
-    yeIncrRef(toPush);
-  } else if (lua_isuserdata(L, 3)) {
-    struct entityWrapper *tmpew = luaL_checkudata(L, 3, "Entity");
+  } else if (lua_islightuserdata(L, 3) || lua_isuserdata(L, 3)) {
+    toPush = luaEntityAt(L, 3);
 
-    toPush = tmpew->e;
-    yeIncrRef(toPush);
+    if (toPush) {
+      if (yeType(toPush) == YINT)
+      	toPush = yeCreateInt(yeGetInt(toPush), NULL, NULL);
+      else if (yeType(toPush) == YFLOAT)
+      	toPush = yeCreateFloat(yeGetFloat(toPush), NULL, NULL);
+      else
+	yeIncrRef(toPush);
+    } else {
+      toPush = yeCreateInt((int_ptr_t)lua_touserdata(L, 3), NULL, NULL);
+    }
   } else if (lua_isnil(L, 3)) {
     if (lua_isnumber(L, 2))
       yeRemoveChild(ew->e, lua_tonumber(L, 2));
