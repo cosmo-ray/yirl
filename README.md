@@ -105,19 +105,22 @@ git submodule update --init
 make
 ```
 
+# chat with us
+irc: #yirl on freenode
+discorde: https://discord.gg/8QrKTtV
+
+
 # how to start using yirl
-For now the easier way to use yirl is to come on irc(#yirl on freenode) and ask for help
+For now the easier way to use yirl is to come chat with us and ask for help
 But you can still understand how yirl work by:
 * using examples
-* reading examples json file
+* reading examples json file, and scripting files (either lua, C or yb)
 * copy past an example and change it to create your own game
 * patch evey things that dont work
 
 # Ideas of Contributions/TODO
 
 * use linux coding style
-* reenable sound test
-* refactore sound code
 * create a module that allow to use web radio
 * add isometric view in map
 * add canvas widget, with an api base on html5 canvas
@@ -125,9 +128,7 @@ But you can still understand how yirl work by:
 * add any other cool widget
 * use vulkan/gl
 * fix all broken stuff in curses
-* port to mac os/bsd/haiku, even windows
 * add lisp or any other languge scripting support
-* add a lib over lua api to manipulate entity's as object and handle lifecycle
 * add a tetris module or any other cool game template module
 * add tiled support
 
