@@ -304,6 +304,30 @@ int  yuiRand(void);
 void yuiRandInit(void);
 void yuiRandInitSeed(int s);
 
+static inline int yuiStrCountCh(const char *str, char c, int *longerLine)
+{
+  int ret = 0;
+  int i = 0;
+
+  if (unlikely(!str))
+    return 0;
+  if (longerLine)
+    *longerLine = 0;
+  for (; *str; ++str) {
+    if (unlikely(*str == c)) {
+      if (longerLine && i > *longerLine)
+	*longerLine = i;
+      i = 0;
+      ++ret;
+    } else {
+      ++i;
+    }
+  }
+  if (longerLine && i > *longerLine)
+    *longerLine = i;
+  return ret;
+}
+
 /**
  * @return percent of @value
  */

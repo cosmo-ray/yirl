@@ -97,6 +97,7 @@ void testYGameAllLibBasic(void);
 void testYSoundLib(void);
 
 void testListMod(void);
+void testDialogueBox(void);
 void testDialogueMod(void);
 void testTextInputMod(void);
 void testSukeFightMod(void);

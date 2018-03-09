@@ -470,6 +470,11 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, ywPosToString);
   YES_LUA_REGISTRE_CALL(sm, ywPosAngle);
 
+  /* Size, they're pos with diferent names */
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywSizeW", luaywPosX));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywSizeH", luaywPosY));
+  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywSizeCreate", luaywPosCreate));
+
   /* canvas */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasRemoveObj", luaYwCanvasRemoveObj));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasMoveObjByIdx",

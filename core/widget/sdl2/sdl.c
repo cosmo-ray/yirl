@@ -519,8 +519,6 @@ static int sdlCanvasCacheText(Entity *state, Entity *elem, Entity *resource,
   image = TTF_RenderUTF8_Solid(sgDefaultFont(), str, color);
   texture = SDL_CreateTextureFromSurface(sg.renderer, image);
   SDL_QueryTexture(texture, NULL, NULL, &w, &h);
-
-
   data = yeCreateData(texture, elem, "$img");
   yeSetDestroy(data, sdlFreeTexture);
   ywSizeCreate(w, h, elem, "$size");
@@ -625,8 +623,14 @@ int sdlCanvasCacheTexture(Entity *state, Entity *elem)
   if (type == YCanvasRect) {
     return 0;
   } else if (ywCanvasObjType(elem) == YCanvasString) {
-    ywPosCreateInts(sgGetFontSize() * yeLen(yeGet(elem, 2)),
-		    sgGetFontSize(), elem, "$size");
+    Entity *str = yeGet(elem, 2);
+    int w = 0, h;
+
+    h = yuiStrCountCh(yeGetString(str), '\n', &w);
+    w = (w + 1) * (sgGetFontSize() + 2);
+    h = (h + 1) * (sgGetFontSize() + 2);
+
+    ywPosCreateInts(w, h, elem, "$size");
     return 0;
   } else if (unlikely(type == YCanvasImg)) {
     txt = yeGetStringAt(elem, 2);

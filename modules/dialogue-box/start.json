@@ -1,0 +1,12 @@
+{
+    "name" : "DialogueBox",
+    "init-scripts" : [
+	[ "lua", "initDialogueBox" ]
+    ],
+    "pre-load" : [
+	{
+	    "file" : "init.lua",
+	    "type" : "lua"
+	}
+    ]
+}

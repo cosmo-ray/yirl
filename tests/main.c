@@ -142,6 +142,7 @@ int main(int argc, char **argv)
   TEST_TRY_ADD("/game/sdl/simple", testYGameSdlLibBasic, only);
   TEST_TRY_ADD("/modules/dialogue", testDialogueMod, only);
   TEST_TRY_ADD("/modules/sukeban-fight", testSukeFightMod, only);
+  TEST_TRY_ADD("/modules/dialogue-box", testDialogueBox, only);
 #endif
 #if WITH_CURSES == 1
   TEST_TRY_ADD("/widget/lifecycle/curses", testCursesLife, only);
