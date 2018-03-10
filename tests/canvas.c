@@ -2,6 +2,7 @@
 #include "yirl/pos.h"
 #include "yirl/canvas.h"
 #include "yirl/rect.h"
+#include "yirl/texture.h"
 #include "tests.h"
 
 static void *moveImg(va_list ap)
@@ -122,6 +123,7 @@ void testCanvasSdl2(void)
   /* Put eye into the canvas */
   objs = yeCreateArray(canvas_example, "objs");
   ywCanvasNewObj(canvas_example, 25, 40, 0);
+
   /* Put sara into the canvas */
   obj = ywCanvasNewObj(canvas_example, 70, 100, 1);
   ywCanvasRotate(obj, -90);
@@ -131,14 +133,27 @@ void testCanvasSdl2(void)
   obj = ywCanvasNewObj(canvas_example, 200, 250, 3);
   ywCanvasRotate(obj, 45);
 
+  /* textures */
   obj = ywCanvasNewImgByPath(canvas_example, 200, 250, "tests/hero.png");
   Entity *texture = ywCanvasCreateYTexture(obj, NULL, NULL);
-  obj = ywCanvasNewImgFromTexture(canvas_example, 300, 30, texture, NULL);
+  ywCanvasNewImgFromTexture(canvas_example, 300, 30, texture, NULL);
   Entity *rect = ywRectCreateInts(0, 0, 50, 40, NULL, NULL);
-  obj = ywCanvasNewImgFromTexture(canvas_example, 200, 70, texture, rect);
+  ywCanvasNewImgFromTexture(canvas_example, 200, 70, texture, rect);
   yeDestroy(texture);
   yeDestroy(rect);
 
+  texture = ywTextureNewImg("tests/bg.png", NULL, NULL, NULL);
+  ywCanvasNewImgFromTexture(canvas_example, 360, 30, texture, NULL);
+  yeDestroy(texture);
+
+  rect = ywRectCreateInts(100, 60, 40, 40, NULL, NULL);
+  texture = ywTextureNewImg("tests/Street.png", rect, NULL, NULL);
+  printf("txt: %p\n", texture);
+  ywCanvasNewImgFromTexture(canvas_example, 400, 30, texture, NULL);
+  yeMultDestroy(texture, rect);
+
+
+  /* rects */
   obj = yeCreateArray(objs, NULL);
   yeCreateInt(YCanvasRect, obj, NULL);
   ywPosCreateInts(400, 250, obj, NULL);

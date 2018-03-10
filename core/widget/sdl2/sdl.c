@@ -566,8 +566,7 @@ SDL_Surface *sdlCopySurface(SDL_Surface *surface, Entity *rEnt)
   return surface;
 }
 
-static int sdlCanvasCacheImg(Entity *state, Entity *elem,
-			     Entity *resource, const char *imgPath)
+int sdlCanvasCacheImg(Entity *elem, Entity *resource, const char *imgPath)
 {
   SDL_Surface *surface;
   SDL_Texture *texture;
@@ -581,6 +580,7 @@ static int sdlCanvasCacheImg(Entity *state, Entity *elem,
     printf("surface: %p\n", surface);
   } else {
     surface = IMG_Load(imgPath);
+    printf("load %p - %s\n", surface, imgPath);
   }
   if (unlikely(!surface)) {
     DPRINT_ERR("fail to load %s", imgPath);
@@ -590,6 +590,7 @@ static int sdlCanvasCacheImg(Entity *state, Entity *elem,
   if (rEnt) {
     SDL_Surface *tmpSurface = surface;
 
+    ywRectPrint(rEnt);
     surface = sdlCopySurface(tmpSurface, rEnt);
     if (!surface)
       return -1;
@@ -630,9 +631,9 @@ int sdlCanvasCacheTexture(Entity *state, Entity *elem)
   } else if (unlikely(type == YCanvasImg)) {
     txt = yeGetStringAt(elem, 2);
     if (txt)
-      return sdlCanvasCacheImg(state, elem, NULL, txt);
+      return sdlCanvasCacheImg(elem, NULL, txt);
   } else if (unlikely(type == YCanvasTexture)) {
-    return sdlCanvasCacheImg(state, elem, yeGet(elem, 2), NULL);
+    return sdlCanvasCacheImg(elem, yeGet(elem, 2), NULL);
   } else if (unlikely(type != YCanvasResource)) {
     return -1;
   }
@@ -647,7 +648,7 @@ int sdlCanvasCacheTexture(Entity *state, Entity *elem)
 
   txt = yeGetStringAt(resource, "img");
   if (txt)
-    return sdlCanvasCacheImg(state, elem, resource, txt);
+    return sdlCanvasCacheImg(elem, resource, txt);
   txt = yeGetStringAt(resource, "text");
   if (txt)
     return sdlCanvasCacheText(state, elem, resource, txt);

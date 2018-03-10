@@ -1,5 +1,5 @@
 /*
-**Copyright (C) 2017 Matthias Gatto
+**Copyright (C) 2018 Matthias Gatto
 **
 **This program is free software: you can redistribute it and/or modify
 **it under the terms of the GNU Lesser General Public License as published by
@@ -15,16 +15,17 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _SDL2_CANVAS_SDL_H_
-#define _SDL2_CANVAS_SDL_H_
+#include "texture.h"
+#include "sdl2/canvas-sdl.h"
 
-struct SDL_Surface;
-typedef struct SDL_Surface SDL_Surface;
+Entity *ywTextureNewImg(const char *path, Entity *size,
+			Entity *father, Entity *name)
+{
+  Entity * ret = yeCreateArray(father, name);
+  yePushBack(ret, size, "img-src-rect");
 
-void sdlFreeSurface(void *surface);
-int sdlCanvasCacheTexture(Entity *state, Entity *elem);
-uint32_t sdlCanvasPixInfo(Entity *obj, int x, int y);
-SDL_Surface *sdlCopySurface(SDL_Surface *surface, Entity *rEnt);
-int sdlCanvasCacheImg(Entity *elem, Entity *resource, const char *imgPath);
-
-#endif
+  if (sdlCanvasCacheImg(ret, NULL, path) < 0)
+    return NULL;
+  yeRemoveChild(ret, "img-src-rect");
+  return ret;
+}
