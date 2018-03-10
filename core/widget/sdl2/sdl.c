@@ -575,10 +575,8 @@ int sdlCanvasCacheImg(Entity *elem, Entity *resource, const char *imgPath)
   rEnt = yeGet(elem, "img-src-rect") ? : yeGet(resource, "img-src-rect");
   if (!imgPath) {
     surface = yeGetData(yeGet(resource, "$img-surface"));
-    printf("surface: %p\n", surface);
   } else {
     surface = IMG_Load(imgPath);
-    printf("load %p - %s\n", surface, imgPath);
   }
   if (unlikely(!surface)) {
     DPRINT_ERR("fail to load %s", imgPath);
