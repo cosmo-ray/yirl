@@ -107,7 +107,7 @@ make
 
 # chat with us
 * irc: #yirl on freenode
-* discorde: https://discord.gg/8QrKTtV
+* discord: https://discord.gg/8QrKTtV
 
 
 # how to start using yirl
