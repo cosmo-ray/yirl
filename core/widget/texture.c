@@ -22,10 +22,8 @@ Entity *ywTextureNewImg(const char *path, Entity *size,
 			Entity *father, Entity *name)
 {
   Entity * ret = yeCreateArray(father, name);
-  yePushBack(ret, size, "img-src-rect");
 
-  if (sdlCanvasCacheImg(ret, NULL, path) < 0)
+  if (sdlCanvasCacheImg(ret, NULL, path, size) < 0)
     return NULL;
-  yeRemoveChild(ret, "img-src-rect");
   return ret;
 }

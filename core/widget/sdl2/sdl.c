@@ -564,15 +564,16 @@ SDL_Surface *sdlCopySurface(SDL_Surface *surface, Entity *rEnt)
   return surface;
 }
 
-int sdlCanvasCacheImg(Entity *elem, Entity *resource, const char *imgPath)
+int sdlCanvasCacheImg(Entity *elem, Entity *resource, const char *imgPath,
+		      Entity *rEnt)
 {
   SDL_Surface *surface;
   SDL_Texture *texture;
   Entity *data;
   int w, h;
-  Entity *rEnt;
 
-  rEnt = yeGet(elem, "img-src-rect") ? : yeGet(resource, "img-src-rect");
+  if (!rEnt)
+    rEnt = yeGet(elem, "img-src-rect") ? : yeGet(resource, "img-src-rect");
   if (!imgPath) {
     surface = yeGetData(yeGet(resource, "$img-surface"));
   } else {
@@ -633,9 +634,9 @@ int sdlCanvasCacheTexture(Entity *state, Entity *elem)
   } else if (unlikely(type == YCanvasImg)) {
     txt = yeGetStringAt(elem, 2);
     if (txt)
-      return sdlCanvasCacheImg(elem, NULL, txt);
+      return sdlCanvasCacheImg(elem, NULL, txt, NULL);
   } else if (unlikely(type == YCanvasTexture)) {
-    return sdlCanvasCacheImg(elem, yeGet(elem, 2), NULL);
+    return sdlCanvasCacheImg(elem, yeGet(elem, 2), NULL, NULL);
   } else if (unlikely(type != YCanvasResource)) {
     return -1;
   }
@@ -650,7 +651,7 @@ int sdlCanvasCacheTexture(Entity *state, Entity *elem)
 
   txt = yeGetStringAt(resource, "img");
   if (txt)
-    return sdlCanvasCacheImg(elem, resource, txt);
+    return sdlCanvasCacheImg(elem, resource, txt, NULL);
   txt = yeGetStringAt(resource, "text");
   if (txt)
     return sdlCanvasCacheText(state, elem, resource, txt);

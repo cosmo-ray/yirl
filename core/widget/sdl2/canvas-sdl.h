@@ -25,6 +25,7 @@ void sdlFreeSurface(void *surface);
 int sdlCanvasCacheTexture(Entity *state, Entity *elem);
 uint32_t sdlCanvasPixInfo(Entity *obj, int x, int y);
 SDL_Surface *sdlCopySurface(SDL_Surface *surface, Entity *rEnt);
-int sdlCanvasCacheImg(Entity *elem, Entity *resource, const char *imgPath);
+int sdlCanvasCacheImg(Entity *elem, Entity *resource, const char *imgPath,
+		      Entity *rEnt);
 
 #endif
