@@ -626,7 +626,7 @@ int sdlCanvasCacheTexture(Entity *state, Entity *elem)
     int w = 0, h;
 
     h = yuiStrCountCh(yeGetString(str), '\n', &w);
-    w = (w + 1) * (sgGetFontSize() + 2);
+    w = (w + 1) * (sg.txtWidth);
     h = (h + 1) * (sgGetFontSize() + 2);
 
     ywPosCreateInts(w, h, elem, "$size");
