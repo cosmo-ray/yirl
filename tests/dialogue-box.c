@@ -19,24 +19,63 @@
 #include "yirl/entity-script.h"
 #include "tests.h"
 
+static void *doEvents(va_list ap)
+{
+  static int state = 0;
+  Entity *wid = va_arg(ap, Entity *);
+  Entity *eve = va_arg(ap, Entity *);
+
+  if (eve && (ywidEveType(eve) == YKEY_DOWN)) {
+    if (ywidEveKey(eve) == ' ') {
+      if (!state) {
+	yesCall(ygGet("DialogueBox.remove"), wid, yeGet(wid, "dialogue"));
+
+	Entity *mn = yeCreateArray(NULL, NULL);
+	yeCreateString("hello I love U\nlet me jump in you're game", mn,
+		       "text");
+	Entity *entries = yeCreateArray(mn, "answers");
+	Entity *entry = yeCreateArray(entries, NULL);
+	yeCreateString("she's walking at the streett", entry, "text");
+	entry = yeCreateArray(entries, NULL);
+	yeCreateString("peoples are stange", entry, "text");
+	yeRemoveChild(wid, "dialogue");
+	yesCall(ygGet("DialogueBox.new_menu"), wid, 10, 10, mn,
+		wid, "dialogue");
+	yeDestroy(mn);
+      } else if (state == 1) {
+	yesCall(ygGet("DialogueBox.remove"), wid, yeGet(wid, "dialogue"));
+      }
+      ++state;
+      return (void *)ACTION;
+    }
+  }
+  return (void *)NOTHANDLE;
+}
+
 void testDialogueBox(void)
 {
   yeInitMem();
   GameConfig cfg;
   Entity *canvas = yeCreateArray(NULL, NULL);
   YWidgetState *wid;
+  Entity *actions;
 
   g_assert(!ygInitGameConfig(&cfg, NULL, SDL2));
   g_assert(!ygInit(&cfg));
   g_assert(ygLoadMod(TESTS_PATH"../modules/dialogue-box/"));
   yeCreateString("canvas", canvas, "<type>");
-  yeCreateString("QuitOnKeyDown", canvas, "action");
+  ysRegistreNativeFunc("doEvents", doEvents);
+  actions = yeCreateArray(canvas, "actions");
+  yeCreateString("doEvents", actions, NULL);
+  yeCreateString("QuitOnKeyDown", actions, NULL);
+
   yeCreateString("rgba: 180 40 200 255", canvas, "background");
   yeCreateArray(canvas, "objs");
 
   wid = ywidNewWidget(canvas, NULL);
-  yesCall(ygGet("DialogueBox.new"), canvas, 10, 10,
-	  "hello I love you\nwon't you give me you're name");
+  yesCall(ygGet("DialogueBox.new_text"), canvas, 10, 10,
+	  "hello I love you\nwon't you give me you're name",
+	  canvas, "dialogue");
   /* ygCall("DialogueBox.new", canvas, 10, 10, "hello I love you"); */
   g_assert(wid);
   ywidSetMainWid(wid);
