@@ -65,6 +65,7 @@ Entity *ywCanvasObjFromIdx(Entity *wid, int idx);
 int ywCanvasIdxFromObj(Entity *wid, Entity *obj);
 
 void ywCanvasObjSetPos(Entity *obj, int x, int y);
+void ywCanvasObjSetPosByEntity(Entity *obj, Entity *p);
 
 int ywCanvasObjIsOut(Entity *wid, Entity *obj);
 

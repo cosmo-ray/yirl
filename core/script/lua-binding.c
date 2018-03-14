@@ -603,8 +603,12 @@ int luaYwCanvasIdxFromObj(lua_State *L)
 
 int luaYwCanvasObjSetPos(lua_State *L)
 {
-  ywCanvasObjSetPos(luaEntityAt(L, 1), lua_tonumber(L, 2),
-		    lua_tonumber(L, 3));
+  if (lua_isuserdata(L, 2)) {
+    ywCanvasObjSetPosByEntity(luaEntityAt(L, 1), lua_touserdata(L, 2));
+  } else {
+    ywCanvasObjSetPos(luaEntityAt(L, 1), lua_tonumber(L, 2),
+		      lua_tonumber(L, 3));
+  }
   return 0;
 }
 

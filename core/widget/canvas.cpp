@@ -228,6 +228,11 @@ extern "C" {
     ywPosSetInts(yeGet(obj, 1), x, y);
   }
 
+  void ywCanvasObjSetPosByEntity(Entity *obj, Entity *p)
+  {
+    return ywCanvasObjSetPos(obj, ywPosX(p), ywPosY(p));
+  }
+
   Entity *ywCanvasObjSize(Entity *wid, Entity *obj)
   {
     Entity *size;

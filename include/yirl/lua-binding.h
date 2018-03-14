@@ -291,6 +291,9 @@ static inline int	yesLuaRegister(void *sm)
   LUA_SET_INT_GLOBAL(sm, YKEY_MOUSEWHEEL);
   LUA_SET_INT_GLOBAL(sm, YKEY_MOUSEMOTION);
 
+  lua_pushstring(L, YIRL_MODULES_PATH);
+  lua_setglobal(L, "YIRL_MODULES_PATH");
+
   lua_pushnumber(L, 27);
   lua_setglobal(L, "Y_ESC_KEY");
   lua_pushnumber(L, Y_UP_KEY);
