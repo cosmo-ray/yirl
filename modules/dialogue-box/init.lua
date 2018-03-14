@@ -6,7 +6,8 @@ local arrow_size = 25
 local arrow_threshold = 5
 local arrow_tot = arrow_size + arrow_threshold
 
-function posArray(canvas, box, idx)
+function posArray(box, idx)
+   idx = yLovePtrToNumber(idx)
    local pos = ywCanvasObjPos(yeGet(yeGet(box, 0), idx + 1))
 
    if yLovePtrToNumber(pos) == 0 then
@@ -56,7 +57,6 @@ function newTextAndAnswerDialogue(canvas, x, y, dialogue, father, name)
 	 local txt = yeGet(answers, i)
 
 	 tmp0 = ywCanvasNewText(canvas, x, y, yeGet(txt, "text"))
-	 yePushBack(b0, tmp0)
 	 size = ywCanvasObjSize(canvas, tmp0)
 	 if ywSizeW(size) + arrow_tot > w then
 	    w = ywSizeW(size) + arrow_tot
@@ -71,8 +71,8 @@ function newTextAndAnswerDialogue(canvas, x, y, dialogue, father, name)
    end
 
    local rect = yeCreateArray(gc)
-   ywSizeCreate(ywSizeW(size) + border_threshold,
-		ywSizeH(size) + border_threshold, rect);
+   ywSizeCreate(ywSizeW(size) + border_threshold * 2,
+		ywSizeH(size) + border_threshold * 2, rect);
    yeCreateString(default_color, rect);
    local tmp1 = ywCanvasNewRect(canvas, x, y, rect);
    ywCanvasSwapObj(canvas, yeGet(b0, 0), tmp1)
@@ -80,7 +80,7 @@ function newTextAndAnswerDialogue(canvas, x, y, dialogue, father, name)
    yePushBack(ret, tmp1)
    yePushBack(ret, size)
    yePushBack(ret, arrow)
-   posArray(canvas, ret, 0)
+   posArray(ret, 0)
    yeDestroy(gc)
    return ret
 end
@@ -112,4 +112,5 @@ function initDialogueBox(mod)
    yeCreateFunction("newTextAndAnswerDialogue", mod, "new_menu")
    yeCreateFunction("newTextDialogue", mod, "new_text")
    yeCreateFunction("rmTextDialogue", mod, "remove")
+   yeCreateFunction("posArray", mod, "moveAnswer")
 end

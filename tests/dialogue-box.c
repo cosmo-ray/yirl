@@ -43,6 +43,8 @@ static void *doEvents(va_list ap)
 		wid, "dialogue");
 	yeDestroy(mn);
       } else if (state == 1) {
+	yesCall(ygGet("DialogueBox.moveAnswer"), yeGet(wid, "dialogue"), 1);
+      } else if (state == 2) {
 	yesCall(ygGet("DialogueBox.remove"), wid, yeGet(wid, "dialogue"));
       }
       ++state;

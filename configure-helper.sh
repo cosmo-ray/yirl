@@ -79,6 +79,8 @@ function var_add {
 function var_append {
     eval "export $1=\"\$$1 $2\""
     eval "echo change $1 to: \$$1"
+    echo -n "$1 = " >> config.mk
+    eval "echo \$$1" >> config.mk
 }
 
 function define_add {

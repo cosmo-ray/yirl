@@ -19,6 +19,8 @@
 
 int     luaPtrToNumber(lua_State *l)
 {
+  if (lua_isnumber(l, 1))
+    return 1;
   lua_pushnumber(l, (int_ptr_t)lua_topointer(l, 1));
   return 1;
 }
