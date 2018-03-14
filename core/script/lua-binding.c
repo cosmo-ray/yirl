@@ -861,6 +861,12 @@ int	luaPopBack(lua_State *L)
   return 1;
 }
 
+int	luayePushAt(lua_State *L)
+{
+  yePushAt(luaEntityAt(L, 1), luaEntityAt(L, 2), lua_tonumber(L, 3));
+  return 0;
+}
+
 int	luaPushBack(lua_State *L)
 {
   if (lua_gettop(L) < 2)

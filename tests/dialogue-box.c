@@ -29,6 +29,7 @@ static void *doEvents(va_list ap)
     if (ywidEveKey(eve) == ' ') {
       if (!state) {
 	yesCall(ygGet("DialogueBox.remove"), wid, yeGet(wid, "dialogue"));
+	yeRemoveChild(wid, "dialogue");
 
 	Entity *mn = yeCreateArray(NULL, NULL);
 	yeCreateString("hello I love U\nlet me jump in you're game", mn,
@@ -36,15 +37,26 @@ static void *doEvents(va_list ap)
 	Entity *entries = yeCreateArray(mn, "answers");
 	Entity *entry = yeCreateArray(entries, NULL);
 	yeCreateString("she's walking at the streett", entry, "text");
+
 	entry = yeCreateArray(entries, NULL);
-	yeCreateString("peoples are stange", entry, "text");
-	yeRemoveChild(wid, "dialogue");
+	yeCreateString("peoples are steange", entry, "text");
+	yeCreateInt(1, entry, "hiden");
+
+	entry = yeCreateArray(entries, NULL);
+	yeCreateString("faces look ugly and you're alone", entry, "text");
 	yesCall(ygGet("DialogueBox.new_menu"), wid, 10, 10, mn,
 		wid, "dialogue");
 	yeDestroy(mn);
       } else if (state == 1) {
 	yesCall(ygGet("DialogueBox.moveAnswer"), yeGet(wid, "dialogue"), 1);
       } else if (state == 2) {
+	Entity *answer = yesCall(ygGet("DialogueBox.getAnswer"),
+				 yeGet(wid, "dialogue"), 1);
+	printf("%p - %d\n", answer, yeGetIntAt(answer, "hiden"));
+	yeSetAt(answer, "hiden", 0);
+	printf("%p - %d\n", answer, yeGetIntAt(answer, "hiden"));
+	yesCall(ygGet("DialogueBox.reload"), wid, yeGet(wid, "dialogue"));
+      } else if (state == 3) {
 	yesCall(ygGet("DialogueBox.remove"), wid, yeGet(wid, "dialogue"));
       }
       ++state;
