@@ -18,7 +18,7 @@
 #include "yirl/game.h"
 #include "tests.h"
 
-void testDialogueMod(void)
+static void testDialogueMod_(int isCanvas)
 {
   yeInitMem();
   GameConfig cfg;
@@ -27,11 +27,17 @@ void testDialogueMod(void)
 
   g_assert(!ygInitGameConfig(&cfg, NULL, SDL2));
   g_assert(!ygInit(&cfg));
+  if (isCanvas)
+    g_assert(ygLoadMod(TESTS_PATH"../modules/dialogue-box/"));
   g_assert(ygLoadMod(TESTS_PATH"../modules/dialogue/"));
   dialogue_example = ygFileToEnt(YJSON,
 				 TESTS_PATH"../modules/dialogue/blabla.json",
 				 NULL);
   g_assert(dialogue_example);
+  if (isCanvas) {
+    yeSetAt(dialogue_example, "<type>", "dialogue-canvas");
+    yeCreateString("rgba: 155 155 155 255", dialogue_example, "background");
+  }
   wid = ywidNewWidget(dialogue_example, NULL);
   g_assert(wid);
   ywidSetMainWid(wid);
@@ -39,4 +45,15 @@ void testDialogueMod(void)
   ygCleanGameConfig(&cfg);
   yeDestroy(dialogue_example);
   ygEnd();
+}
+
+void testDialogueMod(void)
+{
+  testDialogueMod_(0);
+}
+
+
+void testDialogueCanvasMod(void)
+{
+  testDialogueMod_(1);
 }

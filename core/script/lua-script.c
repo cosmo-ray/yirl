@@ -81,6 +81,8 @@ static void *luaCall(void *sm, const char *name, va_list ap)
     ++nbArg;
   }
   lua_call(l, nbArg, 1);
+  if (lua_isnumber(l, lua_gettop(l)))
+    return (void *)lua_tointeger(l, lua_gettop(l));
   return (void *)lua_topointer(l, lua_gettop(l));
 }
 

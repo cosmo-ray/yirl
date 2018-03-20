@@ -22,7 +22,9 @@
 
 int     luaNbrToPtr(lua_State *l);
 int     luaPtrToString(lua_State *l);
+int     luaPtrToInt32(lua_State *l);
 int     luaPtrToNumber(lua_State *l);
+int     luaPtrToInt32(lua_State *l);
 int     luaStringToPtr(lua_State *l);
 
 #endif

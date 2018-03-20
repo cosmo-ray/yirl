@@ -25,6 +25,14 @@ int     luaPtrToNumber(lua_State *l)
   return 1;
 }
 
+int     luaPtrToInt32(lua_State *l)
+{
+  if (lua_isnumber(l, 1))
+    return 1;
+  lua_pushnumber(l, (int32_t)(int_ptr_t)lua_topointer(l, 1));
+  return 1;
+}
+
 int     luaPtrToString(lua_State *l)
 {
   lua_pushstring(l, (char *)lua_topointer(l, 1));

@@ -52,9 +52,7 @@ static void *doEvents(va_list ap)
       } else if (state == 2) {
 	Entity *answer = yesCall(ygGet("DialogueBox.getAnswer"),
 				 yeGet(wid, "dialogue"), 1);
-	printf("%p - %d\n", answer, yeGetIntAt(answer, "hiden"));
 	yeSetAt(answer, "hiden", 0);
-	printf("%p - %d\n", answer, yeGetIntAt(answer, "hiden"));
 	yesCall(ygGet("DialogueBox.reload"), wid, yeGet(wid, "dialogue"));
       } else if (state == 3) {
 	yesCall(ygGet("DialogueBox.remove"), wid, yeGet(wid, "dialogue"));

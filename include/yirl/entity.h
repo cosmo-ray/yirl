@@ -611,7 +611,6 @@ void	yeSetStringAtStrIdx(Entity *entity, const char *index, const char *value);
 
 /**
  * Attach @entity on @on at @idx, set @name as ... name
- * we could rename this function as: "yePushAt"
  */
 int yeAttach(Entity *on, Entity *entity, unsigned int idx,
 	     const char *name, uint32_t flag);

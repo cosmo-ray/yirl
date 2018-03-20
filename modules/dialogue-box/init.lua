@@ -3,20 +3,36 @@ local default_color = "rgba: 255 255 255 255"
 local border_threshold = 10
 local txt_threshold = 10
 local arrow_size = 25
-local arrow_threshold = 5
+local arrow_threshold = 6
 local arrow_tot = arrow_size + arrow_threshold
+
+function getDialogue(box)
+   return yeGet(box, 4)
+end
+
+function getAnswers(box)
+   return yeGet(getDialogue(box), "answers")
+end
+
+function pushAnswers(box, answers)
+   local ret = yeReplaceBack(getDialogue(box), answers, "answers")
+   return ret
+end
 
 function getAnswer(box, idx)
    idx = yLovePtrToNumber(idx)
-   return yeGet(yeGet(yeGet(box, 4), "answers"), idx);
+   return yeGet(getAnswers(box), idx)
+end
+
+function getPos(box)
+   return yeGetInt(yeGet(box, 5))
 end
 
 function posArray(box, idx)
-   idx = yLovePtrToNumber(idx)
+   idx = yLovePtrToInt32(idx)
    local pos = ywCanvasObjPos(yeGet(yeGet(box, 0), idx + 1))
 
-   print(box, pos)
-   if yLovePtrToNumber(pos) == 0 then
+   if idx < 0 or yLovePtrToNumber(pos) == 0 then
       return
    end
 
@@ -26,6 +42,7 @@ function posArray(box, idx)
    ywPosAdd(pos, -arrow_tot, 0)
    --ywPosPrint(pos)
    ywCanvasObjSetPos(yeGet(box, 3), pos)
+   yeSetInt(yeGet(box, 5), idx);
    yeDestroy(pos)
 end
 
@@ -97,8 +114,31 @@ function reloadTextAndAnswerDialogue(canvas, x, y, dialogue, ret)
    yePushAt(ret, size, 2)
    yePushAt(ret, arrow, 3)
    yePushAt(ret, dialogue, 4)
-   posArray(ret, 0)
+   if yeGetInt(yeGet(ret, 5)) == 0 then
+      local i = yeCreateInt(0, gc);
+      yePushAt(ret, i, 5)
+   end
+   posArray(ret, getPos(ret))
    yeDestroy(gc)
+end
+
+function newEmptyDialogue(canvas, x, y, father, name)
+   local ret = yeCreateArray(father, ylovePtrToString(name))
+   local rect = yeCreateArray()
+   local dialogue = yeCreateArray()
+   ywSizeCreate(1, 1, rect);
+   yeCreateString(default_color, rect);
+   x = yLovePtrToNumber(x)
+   y = yLovePtrToNumber(y)
+   local tmp1 = ywCanvasNewRect(canvas, x, y, rect)
+   yePushAt(ret, tmp1, 1)
+   yePushAt(ret, dialogue, 4)
+   local i = yeCreateInt(0)
+   yePushAt(ret, i, 5)
+   yeDestroy(dialogue)
+   yeDestroy(rect)
+   yeDestroy(i)
+   return ret
 end
 
 function newTextDialogue(canvas, x, y, text, father, name)
@@ -119,18 +159,16 @@ function rmTextDialogue(canvas, box)
       ywCanvasRemoveObj(canvas, yeGet(b0, i))
       i = i + 1
    end
-   print(yeGet(box, 1), yeGet(box, 2))
    ywCanvasRemoveObj(canvas, yeGet(box, 1))
    ywCanvasRemoveObj(canvas, yeGet(box, 3))
 end
 
 function reload(canvas, box)
-   local dialogue = yeGet(box, 4)
+   local dialogue = getDialogue(box)
    local pos = ywCanvasObjPos(yeGet(box, 1))
    local x = ywPosX(pos)
    local y = ywPosY(pos)
 
-   print(x, y)
    rmTextDialogue(canvas, box)
    reloadTextAndAnswerDialogue(canvas, x, y, dialogue, box)
 end
@@ -138,8 +176,14 @@ end
 function initDialogueBox(mod)
    yeCreateFunction("newTextAndAnswerDialogue", mod, "new_menu")
    yeCreateFunction("newTextDialogue", mod, "new_text")
+   yeCreateFunction("newEmptyDialogue", mod, "new_empty")
    yeCreateFunction("rmTextDialogue", mod, "remove")
    yeCreateFunction("posArray", mod, "moveAnswer")
    yeCreateFunction("getAnswer", mod, "getAnswer")
+   yeCreateFunction("getAnswers", mod, "getAnswers")
+   yeCreateFunction("getDialogue", mod, "getDialogue")
    yeCreateFunction("reload", mod, "reload")
+   yeCreateFunction("getPos", mod, "pos")
+   yeCreateFunction("pushAnswers", mod, "pushAnswers")
+   yeCreateInt(6, mod, "privateDataSize")
 end

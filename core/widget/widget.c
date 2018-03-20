@@ -650,7 +650,8 @@ int ywidHandleEvent(YWidgetState *opac, Entity *event)
     opac->hasChange = (ret == NOTHANDLE ? 0 : 1);
   else
     ret = (ret == NOTHANDLE ? NOACTION : ret);
-  if ((postAction = yeGet(opac->entity, "post-action")) != NULL)
+  if (ygIsAlive() && (postAction = yeGet(opac->entity,
+					 "post-action")) != NULL)
     yesCall(postAction, ret, opac->entity, event);
   return ret;
 }

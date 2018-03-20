@@ -121,6 +121,11 @@ void ygCleanGameConfig(GameConfig *cfg);
 int ygInit(GameConfig *config);
 int ygIsInit(void);
 
+/**
+ * @return true is the game loop is looping
+ */
+int ygIsAlive(void);
+
 int ygStartLoop(GameConfig *config);
 int ygDoLoop(void);
 

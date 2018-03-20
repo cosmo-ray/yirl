@@ -215,6 +215,11 @@ static void addNativeFuncToBaseMod(void)
   ygRegistreFunc(ysNativeManager(), 1, "callNext", "yCallNextWidget");
 }
 
+int ygIsAlive(void)
+{
+  return alive;
+}
+
 int ygIsInit(void)
 {
   return init;

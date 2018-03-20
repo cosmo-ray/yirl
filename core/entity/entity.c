@@ -809,6 +809,8 @@ int yeAttach(Entity *on, Entity *entity,
 	     unsigned int idx, const char *name, uint32_t flag)
 {
   ArrayEntry *entry;
+  Entity *toRemove = NULL;
+  char *oldName = NULL;
 
   if (unlikely(!on || !entity || on->type != YARRAY))
     return -1;
@@ -817,13 +819,19 @@ int yeAttach(Entity *on, Entity *entity,
 			       idx, ArrayEntry);
 
   if (likely(!(YE_TO_ARRAY(on)->values.flag & YBLOCK_ARRAY_NOINIT))) {
-    YE_DESTROY(entry->entity);
-    g_free(entry->name);
+    if (entry->entity == entity)
+      return 0;
+    toRemove = entry->entity;
+    oldName = entry->name;
   }
   entry->entity = entity;
   entry->name = g_strdup(name);
   entry->flags = flag;
   yeIncrRef(entity);
+  if (toRemove) {
+    YE_DESTROY(toRemove);
+    g_free(oldName);
+  }
   return 0;
 }
 
@@ -879,7 +887,7 @@ void	yeSetFunction(Entity *entity, const char *value)
 
 void	yeSetInt(Entity *entity, int value)
 {
-  if (unlikely(!entity))
+  if (unlikely(!entity || (yeType(entity) != YINT && yeType(entity) != YFLOAT)))
     return;
   ((IntEntity *)entity)->value = value;
 }
