@@ -18,4 +18,4 @@
 #include "yirl/entity.h"
 
 Entity *ywTextureNewImg(const char *path, Entity *size,
-			Entity *father, Entity *name);
+			Entity *father, const char *name);

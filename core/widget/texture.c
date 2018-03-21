@@ -19,7 +19,7 @@
 #include "sdl2/canvas-sdl.h"
 
 Entity *ywTextureNewImg(const char *path, Entity *size,
-			Entity *father, Entity *name)
+			Entity *father, const char *name)
 {
   Entity * ret = yeCreateArray(father, name);
 

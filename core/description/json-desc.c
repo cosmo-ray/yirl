@@ -74,6 +74,12 @@ static Entity *parseInt(struct json_object *obj, const char *name,
   return yeCreateInt(json_object_get_int(obj), father, name);
 }
 
+static Entity *parseBool(struct json_object *obj, const char *name,
+			 Entity *father)
+{
+  return yeCreateInt(json_object_get_boolean(obj), father, name);
+}
+
 static Entity *parseFloat(struct json_object *obj, const char *name,
 			  Entity *father)
 {
@@ -94,6 +100,8 @@ static Entity *parseGen(struct json_object *obj, const char *name,
     {
     case json_type_object:
       return parseObject(obj, name, father);
+    case json_type_boolean:
+      return parseBool(obj, name, father);
     case json_type_int:
       return parseInt(obj, name, father);
     case json_type_double:

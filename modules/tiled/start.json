@@ -1,0 +1,12 @@
+{
+    "name" : "tiled",
+    "init-scripts" : [
+	["tcc" ,  "init_tiled" ]
+    ],
+    "pre-load" : [
+	{
+	    "file" : "tiled.c",
+	    "type" : "tcc"
+	}
+    ]
+}

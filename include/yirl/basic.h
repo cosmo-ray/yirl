@@ -42,3 +42,6 @@ void free(void *);
 void *malloc(size_t);
 void *realloc(void *, size_t);
 void *calloc(size_t, size_t);
+size_t strlen(const char *s);
+char *strdup(const char *s);
+char *strndup(const char *s, size_t n);

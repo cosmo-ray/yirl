@@ -97,6 +97,9 @@ void testYGameAllLibBasic(void);
 void testYSoundLib(void);
 
 void testListMod(void);
+
+void testsTiled(void);
+
 void testDialogueBox(void);
 void testDialogueMod(void);
 void testDialogueCanvasMod(void);
