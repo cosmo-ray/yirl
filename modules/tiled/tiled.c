@@ -108,7 +108,6 @@ void *fileToCanvas(int nbArg, void **args)
 					  tileheight, NULL, NULL);
 
       YE_ARRAY_FOREACH(layer_data, tile_id) {
-	printf("hej\n");
 	int tid = yeGetInt(tile_id) - 1;
 
 	if (i && !(i % (layer_w))) {
