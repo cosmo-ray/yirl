@@ -43,6 +43,7 @@ void testsTiled(void)
   g_assert(yesCall(ygGet("tiled.fileToCanvas"),
 		   TESTS_PATH"../modules/tiled/testile.json", canvas));
 
+  ywPosCreateInts(0, 50, canvas, "cam");
   ywidSetMainWid(wid);
   ygDoLoop();
   yeDestroy(canvas);

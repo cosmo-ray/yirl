@@ -670,7 +670,8 @@ static void sdlCanvasAplyModifier(Entity *img, SDL_Rect *dst,
   return;
 }
 
-static int sdlCanvasRendImg(YWidgetState *state, SDLWid *wid, Entity *img)
+static int sdlCanvasRendImg(YWidgetState *state, SDLWid *wid, Entity *img,
+			    Entity *cam)
 {
   SDL_Texture *t = yeGetData(yeGet(img, "$img"));
   if (!t) {
@@ -682,7 +683,8 @@ static int sdlCanvasRendImg(YWidgetState *state, SDLWid *wid, Entity *img)
   Entity *p = ywCanvasObjPos(img);
   SDL_Rect *sd = NULL;
   SDL_Point *center = NULL;
-  SDL_Rect rd = { ywPosX(p), ywPosY(p), ywSizeW(s), ywSizeH(s) };
+  SDL_Rect rd = { ywPosX(p) - ywPosX(cam), ywPosY(p) - ywPosY(cam),
+		  ywSizeW(s), ywSizeH(s) };
   double rotation = 0;
   SDL_RendererFlip flip = SDL_FLIP_NONE;
 
@@ -740,17 +742,18 @@ uint32_t sdlCanvasPixInfo(Entity *obj, int x, int y)
   return 0;
 }
 
-int sdlCanvasRendObj(YWidgetState *state, SDLWid *wid, Entity *obj)
+int sdlCanvasRendObj(YWidgetState *state, SDLWid *wid, Entity *obj, Entity *cam)
 {
   int type = yeGetIntAt(obj, 0);
 
   if (type == YCanvasResource || type == YCanvasImg || type == YCanvasTexture)
-    return sdlCanvasRendImg(state, wid, obj);
+    return sdlCanvasRendImg(state, wid, obj, cam);
 
   Entity *p = ywCanvasObjPos(obj);
   SDL_Color c = {0, 0, 0, 255};
   Entity *s = ywCanvasObjSize(state->entity, obj);
-  SDL_Rect rect = {ywPosX(p), ywPosY(p), ywSizeW(s), ywSizeH(s)};
+  SDL_Rect rect = {ywPosX(p) - ywPosX(cam), ywPosY(p) - ywPosY(cam),
+		   ywSizeW(s), ywSizeH(s)};
 
   if (type == YCanvasRect) {
     YBgConf cfg;

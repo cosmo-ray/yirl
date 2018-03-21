@@ -73,7 +73,8 @@ int sdlPrintText(SDLWid *wid,
 
 int sdlCanvasCacheTexture(Entity *state, Entity *elem);
 
-int sdlCanvasRendObj(YWidgetState *state, SDLWid *wid, Entity *img);
+int sdlCanvasRendObj(YWidgetState *state, SDLWid *wid, Entity *img,
+		     Entity *cam);
 
 int sdlDisplaySprites(YWidgetState *state, SDLWid *wid,
 		      int x, int y, Entity *mapElem,
