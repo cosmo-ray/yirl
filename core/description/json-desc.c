@@ -71,7 +71,7 @@ static Entity *parseArray(struct json_object *obj,
 static Entity *parseInt(struct json_object *obj, const char *name,
 			Entity *father)
 {
-  return yeCreateInt(json_object_get_int(obj), father, name);
+  return yeCreateInt(json_object_get_int64(obj), father, name);
 }
 
 static Entity *parseBool(struct json_object *obj, const char *name,

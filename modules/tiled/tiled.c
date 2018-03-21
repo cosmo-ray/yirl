@@ -17,6 +17,11 @@
 
 #include <yirl/game.h>
 #include <yirl/texture.h>
+#include <yirl/canvas.h>
+
+const unsigned FLIPPED_HORIZONTALLY_FLAG = 0x80000000;
+const unsigned FLIPPED_VERTICALLY_FLAG   = 0x40000000;
+const unsigned FLIPPED_DIAGONALLY_FLAG   = 0x20000000;
 
 char *assetsPath;
 
@@ -108,19 +113,29 @@ void *fileToCanvas(int nbArg, void **args)
 					  tileheight, NULL, NULL);
 
       YE_ARRAY_FOREACH(layer_data, tile_id) {
-	int tid = yeGetInt(tile_id) - 1;
+	uint64_t tid = yeGetInt(tile_id) - 1;
+	uint32_t flags = 0;
+	Entity *cur_img;
 
 	if (i && !(i % (layer_w))) {
 	  y += tileheight;
 	  x = 0;
 	}
-	printf("%d(%d,%d) ", yeGetInt(tile_id), x, y);
-	if (tid >= tilecount)
-	  goto next; /* some transformation happen */
+	printf("%u(%x, %d,%d) ", yeGetInt(tile_id), yeGetInt(tile_id), x, y);
+	if (tid >= tilecount) {
+	  /* some transformation happen */
+	  flags = tid & (FLIPPED_HORIZONTALLY_FLAG | FLIPPED_VERTICALLY_FLAG |
+			 FLIPPED_DIAGONALLY_FLAG);
+	  tid &= ~(FLIPPED_HORIZONTALLY_FLAG | FLIPPED_VERTICALLY_FLAG |
+		   FLIPPED_DIAGONALLY_FLAG);
+	  printf("tid: %x, flags: %x\n", tid, flags);
+	}
 	ywRectSetX(src_rect, margin + ((tilewidth + spacing) * (tid % columns)));
 	ywRectSetY(src_rect, margin + ((tileheight + spacing) * (tid / columns)));
-	ywCanvasNewImgFromTexture(canvas, x, y, texture, src_rect);
-	next:
+	cur_img = ywCanvasNewImgFromTexture(canvas, x, y, texture, src_rect);
+	if (flags == (FLIPPED_VERTICALLY_FLAG | FLIPPED_HORIZONTALLY_FLAG)) {
+	  ywCanvasRotate(cur_img, 180);
+	}
 	x += tilewidth;
 	++i;
       }
