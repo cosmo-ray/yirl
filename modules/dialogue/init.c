@@ -244,27 +244,30 @@ void *dialogueAction(int nbArgs, void **args)
 
   if (drv == &boxDialogueMainDrv) {
     Entity *box = boxGetbox(args[0]);
-    int current = yesCall(ygGet("DialogueBox.pos"), box);
+    int current = (int64_t)yesCall(ygGet("DialogueBox.pos"), box);
     int hasMove = 0;
 
     YEVE_FOREACH(eve, args[1]) {
       if (ywidEveType(eve) == YKEY_DOWN) {
 	if (ywidEveKey(eve) == 'q') {
 	  yFinishGame();
-	  return ACTION;
+	  return (void *)ACTION;
 	} else if(ywidEveKey(eve) == Y_DOWN_KEY) {
 	  current += 1;
 	  hasMove = 1;
 	} else if(ywidEveKey(eve) == Y_UP_KEY) {
 	  current -= 1;
 	  hasMove = 1;
+	} else if(ywidEveKey(eve) == '\n') {
+	  Entity *answer = boxGetAnswer(box, current);
+	  return (void *)ywidActions(box, answer, eve, NULL);
 	}
       }
     }
     if (hasMove) {
       yesCall(ygGet("DialogueBox.moveAnswer"), box, current);
-      current = yesCall(ygGet("DialogueBox.pos"), box);
-      return ACTION;
+      current = (int64_t)yesCall(ygGet("DialogueBox.pos"), box);
+      return (void *)ACTION;
     }
   }
   // canvas movement need to be handle here :p
@@ -286,7 +289,8 @@ void *dialogueHide(int nbArgs, void **args)
 						      "current"));
 
   yeReCreateInt(1, answer, "hiden");
-  ywMenuDown(args[0]);
+  if (drv == &cntDialogueMnDrv)
+    ywMenuDown(args[0]);
   return (void *)NOACTION;
 }
 

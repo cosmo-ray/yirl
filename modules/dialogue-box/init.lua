@@ -21,7 +21,22 @@ end
 
 function getAnswer(box, idx)
    idx = yLovePtrToNumber(idx)
-   return yeGet(getAnswers(box), idx)
+   local answers = getAnswers(box)
+   local i = 0
+   local j = 0
+   local len = yeLen(answers)
+   while i < len do
+      local answer = yeGet(answers, i)
+      local hiden = yeGetInt(yeGet(answer, "hiden"))
+      if (hiden ~= 1) then
+	 if j == idx then
+	    return answer
+	 end
+	 j = j + 1
+      end
+      i = i + 1
+   end
+   return nil
 end
 
 function getPos(box)

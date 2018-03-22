@@ -245,13 +245,15 @@ int yeSetFlagByStr(Entity *array, const char *name, int flag)
  * @param end     the size of the @name parameter we look for
  * @return        return the first entity in the parent @entity found
  */
-static Entity *yeGetByIdxFastWithEnd(Entity *entity, const char *name, int end)
+static Entity *yeGetByIdxFastWithEnd(Entity *entity, const char *name,
+				     int end)
 {
 
   Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(entity)->values, tmp, it, ArrayEntry) {
     if (unlikely(!tmp || !tmp->name))
       continue;
-    if (!strncmp(tmp->name, name, end))
+    if (strlen(tmp->name) == (unsigned int)end &&
+	!strncmp(tmp->name, name, end))
       return tmp->entity;
   }
   return NULL;

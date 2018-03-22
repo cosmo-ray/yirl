@@ -587,7 +587,6 @@ int sdlCanvasCacheImg(Entity *elem, Entity *resource, const char *imgPath,
   if (rEnt) {
     SDL_Surface *tmpSurface = surface;
 
-    ywRectPrint(rEnt);
     surface = sdlCopySurface(tmpSurface, rEnt);
     if (!surface)
       return -1;
