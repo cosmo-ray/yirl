@@ -35,12 +35,21 @@ static void createMapObjs(Entity *ent)
       Entity *guy = yeGet(yeGet(map, x), y);
       Entity *objSize;
       Entity *obj;
+      Entity *pose;
 
       if (!guy)
 	continue;
-      obj = ywCanvasNewObj(canvas, 0, 0,
-			   yeGetIntAt(guy, "id"));
+      pose = yeGetByStr(guy, "poses.base");
+      if (yeGet(pose, "id")) {
+	obj = ywCanvasNewObj(canvas, 0, 0,
+			     yeGetIntAt(pose, "id"));
+      } else if (yeGet(pose, "img")) {
+	obj = ywCanvasNewImg(canvas, 0, 0,
+			     yeGetStringAt(pose, "img"), NULL);
+
+      }
       objSize = ywCanvasObjSize(map, obj);
+      yePushBack(guy, obj, "_canvas");
       ywCanvasObjSetPos(obj,
 			widthQuarter * x + widthQuarter / 2 - ywPosX(objSize) / 2,
 			hightThier * y  + hightThier / 2 - ywPosY(objSize) / 2);
@@ -217,7 +226,6 @@ void makeActionMenu(Entity *guy, Entity *ent)
     yePushBack(menu_entry, yeGet(action, 0), "text");
     yePushBack(menu_entry, yeGet(action, 1), "action");
 
-    /* yeCreateFunction("sukeFightAttack", ygGetTccManager(), menu_entry, "action"); */
     /* menu_entry = yeCreateArray(menu_entries, NULL); */
     /* yeCreateString("run away", menu_entry, "text"); */
     /* yeCreateString("FinishGame", menu_entry, "action"); */
@@ -323,6 +331,7 @@ void *init_sukeban_fight(int nbArg, void **args)
   yeCreateString("sukeban-fight", init, "name");
   yeCreateFunction("sukeFightInit", ygGetManager("tcc"), init, "callback");
   ywidAddSubType(init);
+  yeCreateFunction("sukeFightAttack", ygGetTccManager(), mod, "attack");
 
   return NULL;
 }

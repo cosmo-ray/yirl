@@ -317,7 +317,7 @@ extern "C" {
     yePushBack(obj, yTexture, "text");
     yePushBack(obj, img_src_rect, "img-src-rect");
     sdlCanvasCacheTexture(wid, obj);
-    return obj;    
+    return obj;
   }
 
 

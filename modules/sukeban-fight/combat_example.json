@@ -4,17 +4,23 @@
 	[
 	    {
 		"name" : "big bad guy",
-		"id" : 0
+		"poses" : {
+		    "base" : { "img" : "tests/head.png" }
+		}
 	    }
 	],
 	[
 	    {
 		"name" : "coward guy",
-		"id" : 0
+		"poses" : {
+		    "base" : { "id" : 0 }
+		}
 	    },
 	    {
 		"name" : "small bad guy",
-		"id" : 0
+		"poses" : {
+		    "base" : { "id" : 0 }
+		}
 	    }
 	]
     ],
@@ -23,17 +29,21 @@
 	    {
 		"name" : "good guy",
 		"reload-time" : 30,
-		"actions" : [["attack", "nope"],
+		"actions" : [["attack", "sukeban-fight:attack"],
 			     ["quit", "FinishGame"]],
-		"id" : 1
+		"poses" : {
+		    "base" : { "id" : 1 }
+		}
 	    },
 	    {
 		"name" : "smart guy",
-		"actions" : [["attack", "nope"],
+		"actions" : [["attack", "sukeban-fight:attack"],
 			     ["dance", "nope"],
 			     ["run away", "FinishGame"]],
 		"reload-time" : 40,
-		"id" : 1
+		"poses" : {
+		    "base" : { "id" : 1 }
+		}
 	    }
 	]
     ],
