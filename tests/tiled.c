@@ -19,6 +19,33 @@
 #include "yirl/entity-script.h"
 #include "tests.h"
 
+static void *moveImg(va_list ap)
+{
+  Entity *wid = va_arg(ap, Entity *);
+  Entity *eve = va_arg(ap, Entity *);
+  Entity *cam = yeGet(wid, "cam");
+
+  if (eve && (ywidEveType(eve) == YKEY_DOWN)) {
+    if (ywidEveKey(eve) == Y_UP_KEY) {
+      ywPosAddXY(cam, 0, -10);
+      return (void *)ACTION;
+    }
+    if (ywidEveKey(eve) == Y_DOWN_KEY) {
+      ywPosAddXY(cam, 0, 10);
+      return (void *)ACTION;
+    }
+    if (ywidEveKey(eve) == Y_LEFT_KEY) {
+      ywPosAddXY(cam, -10, 0);
+      return (void *)ACTION;
+    }
+    if (ywidEveKey(eve) == Y_RIGHT_KEY) {
+      ywPosAddXY(cam, 10, 0);
+      return (void *)ACTION;
+    }
+  }
+  return NOTHANDLE;
+}
+
 void testsTiled(void)
 {
   yeInitMem();
@@ -33,7 +60,10 @@ void testsTiled(void)
   g_assert(ygLoadMod(TESTS_PATH"../modules/tiled/"));
   yeCreateString("canvas", canvas, "<type>");
   actions = yeCreateArray(canvas, "actions");
+  ysRegistreNativeFunc("moveImg", moveImg);
+
   yeCreateString("QuitOnKeyDown", actions, NULL);
+  yeCreateString("moveImg", actions, NULL);
   yeCreateString("rgba: 180 140 200 255", canvas, "background");
   yeCreateArray(canvas, "objs");
 
