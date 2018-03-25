@@ -34,7 +34,6 @@ static int sdl2Render(YWidgetState *state, int t)
   Entity *cam = yeGet(entity, "cam");
   YBgConf cfg;
 
-  ywPosPrint(cam);
   if (ywidBgConfFill(yeGet(entity, "background"), &cfg) >= 0)
     sdlFillBg(wid, &cfg);
   YE_ARRAY_FOREACH(objs, obj) {
