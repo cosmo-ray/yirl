@@ -32,7 +32,9 @@
 		"actions" : [["attack", "sukeban-fight:attack"],
 			     ["quit", "FinishGame"]],
 		"poses" : {
-		    "base" : { "id" : 1 }
+		    "base" : { "img" : "tests/SaraFullSheet.png",
+			       "size" : [50, 60],
+			       "pos": [[0, 70]] }
 		}
 	    },
 	    {

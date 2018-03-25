@@ -44,8 +44,12 @@ static void createMapObjs(Entity *ent)
 	obj = ywCanvasNewObj(canvas, 0, 0,
 			     yeGetIntAt(pose, "id"));
       } else if (yeGet(pose, "img")) {
+	Entity *srcRect = ywRectCreatePosSize(yeGet(yeGet(pose, "pos"), 0),
+					      yeGet(pose, "size"),
+					      NULL, NULL);
+
 	obj = ywCanvasNewImg(canvas, 0, 0,
-			     yeGetStringAt(pose, "img"), NULL);
+			     yeGetStringAt(pose, "img"), srcRect);
 
       }
       objSize = ywCanvasObjSize(map, obj);
