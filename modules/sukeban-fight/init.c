@@ -22,10 +22,15 @@
 #include <yirl/rect.h>
 #include <yirl/timer.h>
 
+static Entity *getCanvasWid(Entity *mainWid)
+{
+  return ywCntGetEntry(mainWid, 0);
+}
+
 static void createMapObjs(Entity *ent)
 {
   Entity *map = yeGet(ent, "_map");
-  Entity *canvas = ywCntGetEntry(ent, 0);
+  Entity *canvas = getCanvasWid(ent);
   Entity *size = yeGet(canvas, "wid-pix");
   int widthQuarter = ywRectW(size) / 4;
   int hightThier = ywRectH(size) / 3;
@@ -40,19 +45,24 @@ static void createMapObjs(Entity *ent)
       if (!guy)
 	continue;
       pose = yeGetByStr(guy, "poses.base");
+      /* use pose, can be refacto later */
       if (yeGet(pose, "id")) {
 	obj = ywCanvasNewObj(canvas, 0, 0,
 			     yeGetIntAt(pose, "id"));
       } else if (yeGet(pose, "img")) {
-	Entity *srcRect = ywRectCreatePosSize(yeGet(yeGet(pose, "pos"), 0),
-					      yeGet(pose, "size"),
-					      NULL, NULL);
+	Entity *srcPos = yeGet(pose, "pos");
+	Entity *srcRect = NULL;
 
-	obj = ywCanvasNewImg(canvas, 0, 0,
-			     yeGetStringAt(pose, "img"), srcRect);
+	if (srcPos) {
+	  srcRect = ywRectCreatePosSize(srcPos, yeGet(pose, "size"), NULL, NULL);
+	  yeCreateInt(0, pose, "_cur");
+	}
 
+	obj = ywCanvasNewImg(canvas, 0, 0, yeGetStringAt(pose, "img"), srcRect);
+	yeDestroy(srcRect);
       }
       objSize = ywCanvasObjSize(map, obj);
+      yePushBack(guy, pose, "_cp");
       yePushBack(guy, obj, "_canvas");
       ywCanvasObjSetPos(obj,
 			widthQuarter * x + widthQuarter / 2 - ywPosX(objSize) / 2,
@@ -135,6 +145,40 @@ void *sukeFightAction(int nbArg, void **args)
     }
   }
 
+  /* move into the pose */
+  Entity *map = yeGet(ent, "_map");
+  Entity *canvas = getCanvasWid(ent);
+
+  YE_ARRAY_FOREACH(map, row) {
+    YE_ARRAY_FOREACH(row, guy) {
+      Entity *pose = yeGet(guy, "_cp");
+      Entity *curEnt = yeGet(pose, "_cur");
+      int cur = yeGetInt(curEnt) + 1;
+      Entity *srcPos = yeGet(pose, "pos");
+      Entity *srcRect = NULL;
+      Entity *obj;
+
+      if (!curEnt)
+	continue;
+
+      if (cur > yeGetIntAt(pose, "len"))
+	cur = 0;
+      obj = yeGet(guy, "_canvas");
+      ywCanvasRemoveObj(canvas, obj);
+      srcRect = ywRectCreatePosSize(srcPos, yeGet(pose, "size"), NULL, NULL);
+      srcPos = ywCanvasObjPos(obj);
+      ywRectSetX(srcRect,
+		 ywRectX(srcRect) +
+		 (ywRectW(srcRect) + yeGetIntAt(pose, "margin")) * cur);
+      obj = ywCanvasNewImg(canvas, ywPosX(srcPos), ywPosY(srcPos),
+			   yeGetStringAt(pose, "img"), srcRect);
+      yeDestroy(srcRect);
+      yeReCreateInt(cur, pose, "_cur");
+      yeReplaceBack(guy, obj, "_canvas");
+    }
+  }
+
+  /* let menu handle actions */
   if (yeGetInt(pcDoingAction) >= 0) {
     return (void *)NOTHANDLE;
   }

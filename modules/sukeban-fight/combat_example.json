@@ -34,7 +34,9 @@
 		"poses" : {
 		    "base" : { "img" : "tests/SaraFullSheet.png",
 			       "size" : [50, 60],
-			       "pos": [[0, 70]] }
+			       "pos": [0, 70],
+			       "len": 6,
+			       "margin" : 14 }
 		}
 	    },
 	    {
