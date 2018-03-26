@@ -130,24 +130,12 @@ void *sukeFightAttack(int nbArg, void **args)
   return (void *)NOTHANDLE;
 }
 
-void *sukeFightAction(int nbArg, void **args)
+void *sukeFightPostAction(int nbArg, void **args)
 {
-  Entity *ent = args[0];
-  Entity *eves = args[1];
-  Entity *eve;
-  Entity *pcDoingAction = yeGet(ent, "pcDoingAction");
-
-  YEVE_FOREACH(eve, eves) {
-    // for debug, to be remove
-    if (ywidEveType(eve) == YKEY_DOWN && ywidEveKey(eve) == Y_ESC_KEY) {
-      yFinishGame();
-      return (void *)ACTION;
-    }
-  }
-
+  Entity *ent = args[1];
   /* move into the pose */
-  Entity *map = yeGet(ent, "_map");
   Entity *canvas = getCanvasWid(ent);
+  Entity *map = yeGet(ent, "_map");
 
   YE_ARRAY_FOREACH(map, row) {
     YE_ARRAY_FOREACH(row, guy) {
@@ -175,6 +163,25 @@ void *sukeFightAction(int nbArg, void **args)
       yeDestroy(srcRect);
       yeReCreateInt(cur, pose, "_cur");
       yeReplaceBack(guy, obj, "_canvas");
+    }
+  }
+  ywContainerUpdate(ent, canvas);
+  if (args[0] == NOTHANDLE)
+    return (void *)ACTION;
+}
+
+void *sukeFightAction(int nbArg, void **args)
+{
+  Entity *ent = args[0];
+  Entity *eves = args[1];
+  Entity *eve;
+  Entity *pcDoingAction = yeGet(ent, "pcDoingAction");
+
+  YEVE_FOREACH(eve, eves) {
+    // for debug, to be remove
+    if (ywidEveType(eve) == YKEY_DOWN && ywidEveKey(eve) == Y_ESC_KEY) {
+      yFinishGame();
+      return (void *)ACTION;
     }
   }
 
@@ -303,6 +310,9 @@ void *sukeFightInit(int nbArg, void **args)
   yeReCreateInt(-1, ent, "pcDoingAction");
   yeCreateFunction("sukeFightClean", ygGetManager("tcc"), ent, "destroy");
   yeCreateFunction("sukeFightAction", ygGetManager("tcc"), ent, "action");
+  yeCreateFunction("sukeFightPostAction", ygGetTccManager(),
+		   ent, "post-action");
+
   YTimerReset(yeGetData(yeCreateDataExt(NULL, ent, "timer",
 					YE_DATA_USE_OWN_METADATA)));
   for (int i = 0; i < 4; ++i)

@@ -233,8 +233,9 @@ void *dialoguePostAction(int nbArgs, void **args)
   struct mainDrv *drv = getMainDrv(e);
 
   if (ret_type == NOTHANDLE)
-    return;
+    return NOTHANDLE;
   refreshAnswer(e, drv->getMenu(e), yeGet(e, "active_dialogue"));
+  return ret_type;
 }
 
 void *dialogueAction(int nbArgs, void **args)
