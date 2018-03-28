@@ -111,6 +111,7 @@ void *fileToCanvas(int nbArg, void **args)
       int x_tild = margin, x = yeGetIntAt(layer, "y");
       Entity *src_rect = ywRectCreateInts(0, 0, tilewidth,
 					  tileheight, NULL, NULL);
+      Entity *properties = yeGet(layer, "properties");
 
       YE_ARRAY_FOREACH(layer_data, tile_id) {
 	uint64_t tid = yeGetInt(tile_id) - 1;
@@ -135,6 +136,18 @@ void *fileToCanvas(int nbArg, void **args)
 	cur_img = ywCanvasNewImgFromTexture(canvas, x, y, texture, src_rect);
 	if (flags == (FLIPPED_VERTICALLY_FLAG | FLIPPED_HORIZONTALLY_FLAG)) {
 	  ywCanvasRotate(cur_img, 180);
+	}
+	YE_ARRAY_FOREACH(properties, property) {
+	  if (!yeStrCmp(yeGet(property, "type"), "int")) {
+	    yeCreateInt(yeGetIntAt(property, "value"), cur_img,
+			yeGetStringAt(property, "name"));
+	  } else if (!yeStrCmp(yeGet(property, "type"), "string")) {
+	    yeCreateString(yeGetStringAt(property, "value"), cur_img,
+			   yeGetStringAt(property, "name"));
+	  } else if (!yeStrCmp(yeGet(property, "type"), "float")) {
+	    yeCreateFloat(yeGetFloatAt(property, "value"), cur_img,
+			  yeGetStringAt(property, "name"));
+	  }
 	}
 	x += tilewidth;
 	++i;

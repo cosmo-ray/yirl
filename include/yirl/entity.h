@@ -335,6 +335,31 @@ static inline int yeGetIntAtByStr(Entity *array, const char *pos)
 	    char *: yeGetIntAtByStr)(array, pos))			\
 
 /**
+ * @return	value of entity at @pos in @array, 0 if entity doesn't existe
+ */
+static inline int yeGetFloatAtByIdx(Entity *array, int pos)
+{
+  return yeGetFloat(yeGetByIdx(array, pos));
+}
+
+static inline int yeGetFloatAtByStr(Entity *array, const char *pos)
+{
+  return yeGetFloat(yeGetByStrFast(array, pos));
+}
+
+#define yeGetFloatAt(array, pos)						\
+  (_Generic(pos,							\
+	    unsigned int: yeGetFloatAtByIdx,				\
+	    int: yeGetFloatAtByIdx,					\
+	    long : yeGetFloatAtByIdx,					\
+	    long long : yeGetFloatAtByIdx,				\
+	    unsigned long long : yeGetFloatAtByIdx,			\
+	    unsigned long: yeGetFloatAtByIdx,				\
+	    Y_GEN_CLANG_ARRAY(char, yeGetFloatAtByStr),			\
+	    const char *: yeGetFloatAtByStr,				\
+	    char *: yeGetFloatAtByStr)(array, pos))			\
+
+/**
  * @return 0 if @entity is NULL
  */
 double yeGetFloat(Entity *entity);
