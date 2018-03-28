@@ -112,7 +112,23 @@ void *fileToCanvas(int nbArg, void **args)
       Entity *src_rect = ywRectCreateInts(0, 0, tilewidth,
 					  tileheight, NULL, NULL);
       Entity *properties = yeGet(layer, "properties");
+      Entity *objects = yeGet(layer, "objects");
 
+      if (objects)
+	yeTryCreateArray(canvas, "objects");
+
+      YE_ARRAY_FOREACH(objects, object) {
+	Entity *obj = yeCreateArray(yeGet(canvas, "objects"), NULL);
+	yeGetPush(object, obj, "visible");
+	yeGetPush(object, obj, "id");
+	yeGetPush(object, obj, "name");
+	ywRectCreateInts(yeGetIntAt(object, "x"),
+			 yeGetIntAt(object, "y"),
+			 yeGetIntAt(object, "width"),
+			 yeGetIntAt(object, "height"),
+			 obj, "rect");
+      }
+      
       YE_ARRAY_FOREACH(layer_data, tile_id) {
 	uint64_t tid = yeGetInt(tile_id) - 1;
 	uint32_t flags = 0;

@@ -335,6 +335,11 @@ static inline int yeGetIntAtByStr(Entity *array, const char *pos)
 	    char *: yeGetIntAtByStr)(array, pos))			\
 
 /**
+ * @return 0 if @entity is NULL
+ */
+double yeGetFloat(Entity *entity);
+
+/**
  * @return	value of entity at @pos in @array, 0 if entity doesn't existe
  */
 static inline int yeGetFloatAtByIdx(Entity *array, int pos)
@@ -358,11 +363,6 @@ static inline int yeGetFloatAtByStr(Entity *array, const char *pos)
 	    Y_GEN_CLANG_ARRAY(char, yeGetFloatAtByStr),			\
 	    const char *: yeGetFloatAtByStr,				\
 	    char *: yeGetFloatAtByStr)(array, pos))			\
-
-/**
- * @return 0 if @entity is NULL
- */
-double yeGetFloat(Entity *entity);
 
 /**
  * @return the string value
@@ -514,6 +514,7 @@ Entity *yeCreateFunctionExt(const char *funcName, void *manager,
 			    Entity *father, const char *name, uint64_t flags);
 
 Entity *yeCreateArrayByCStr(Entity *fathers, const char *name);
+
 static inline Entity *yeCreateArrayByEntity(Entity *fathers, Entity *name)
 {
   return yeCreateArrayByCStr(fathers, yeGetString(name));
@@ -529,6 +530,15 @@ static inline Entity *yeCreateArrayByEntity(Entity *fathers, Entity *name)
 	   const char *: yeCreateArrayByCStr,				\
 	   char *: yeCreateArrayByCStr)((fathers), (name))
 #endif
+
+static inline Entity *yeTryCreateArray(Entity *father, const char *name)
+{
+  Entity *ret = yeGet(father, name);
+  if (!ret) {
+    yeCreateArrayByCStr(father, name);
+  }
+  return ret;
+}
 
 Entity *yeCreateArrayAt(Entity *fathers, const char *name, int idx);
 
