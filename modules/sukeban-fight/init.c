@@ -15,10 +15,12 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <yirl/entity-script.h>
 #include <yirl/game.h>
 #include <yirl/container.h>
 #include <yirl/menu.h>
 #include <yirl/canvas.h>
+#include <yirl/texture.h>
 #include <yirl/rect.h>
 #include <yirl/timer.h>
 
@@ -57,8 +59,10 @@ static void createMapObjs(Entity *ent)
 	  srcRect = ywRectCreatePosSize(srcPos, yeGet(pose, "size"), NULL, NULL);
 	  yeCreateInt(0, pose, "_cur");
 	}
-
-	obj = ywCanvasNewImg(canvas, 0, 0, yeGetStringAt(pose, "img"), srcRect);
+	yeRemoveChild(pose, "_texture");
+	ywTextureNewImg(yeGetStringAt(pose, "img"), NULL, pose, "_texture");
+	obj = ywCanvasNewImgFromTexture(canvas, 0, 0, yeGet(pose, "_texture"),
+					srcRect);
 	yeDestroy(srcRect);
       }
       objSize = ywCanvasObjSize(map, obj);
@@ -111,10 +115,8 @@ static void swapActionLoading(Entity *ent)
   ywPushNewWidget(getMenuCnt(ent), getLoader(ent), 0);
 }
 
-void *sukeFightAttack(int nbArg, void **args)
+void *sukeFightEndTurn(Entity *main)
 {
-  Entity *menu = args[0];
-  Entity *main = yeGet(menu, "main");
   Entity *pcDoingActionIdx = yeGet(main, "pcDoingAction");
   Entity *loader;
 
@@ -158,8 +160,8 @@ void *sukeFightPostAction(int nbArg, void **args)
       ywRectSetX(srcRect,
 		 ywRectX(srcRect) +
 		 (ywRectW(srcRect) + yeGetIntAt(pose, "margin")) * cur);
-      obj = ywCanvasNewImg(canvas, ywPosX(srcPos), ywPosY(srcPos),
-			   yeGetStringAt(pose, "img"), srcRect);
+      obj = ywCanvasNewImgFromTexture(canvas, ywPosX(srcPos), ywPosY(srcPos),
+				      yeGet(pose, "_texture"), srcRect);
       yeDestroy(srcRect);
       yeReCreateInt(cur, pose, "_cur");
       yeReplaceBack(guy, obj, "_canvas");
@@ -262,6 +264,24 @@ void *sukeFightClean(int nbArgs, void **args)
   return NULL;
 }
 
+
+void *menuAction(int nbArg, void **args)
+{
+  Entity *mn = args[0];
+  Entity *cur = ywMenuGetCurrentEntry(mn);
+  Entity *main = yeGet(mn, "main");
+  Entity *action = yeGet(cur, "_action");
+  void *ret;
+
+  printf("%d - %p\n", yeType(action) == YSTRING,
+	 ygGet(yeGetString(action)));
+  if (yeType(action) == YSTRING)
+    ret = yesCall(ygGet(yeGetString(action)), mn);
+  printf("oy\n");
+  sukeFightEndTurn(main);
+  return ret;
+}
+
 void makeActionMenu(Entity *guy, Entity *ent)
 {
   if (!guy)
@@ -279,7 +299,8 @@ void makeActionMenu(Entity *guy, Entity *ent)
 
     printf("%s %s\n", yeGetStringAt(action, 0), yeGetStringAt(action, 1));
     yePushBack(menu_entry, yeGet(action, 0), "text");
-    yePushBack(menu_entry, yeGet(action, 1), "action");
+    yeCreateFunction("menuAction", ygGetTccManager(), menu_entry, "action");
+    yePushBack(menu_entry, yeGet(action, 1), "_action");
 
     /* menu_entry = yeCreateArray(menu_entries, NULL); */
     /* yeCreateString("run away", menu_entry, "text"); */
@@ -389,7 +410,7 @@ void *init_sukeban_fight(int nbArg, void **args)
   yeCreateString("sukeban-fight", init, "name");
   yeCreateFunction("sukeFightInit", ygGetManager("tcc"), init, "callback");
   ywidAddSubType(init);
-  yeCreateFunction("sukeFightAttack", ygGetTccManager(), mod, "attack");
+  yeCreateFunction("sukeFightEndTurn", ygGetTccManager(), mod, "endTurn");
 
   return NULL;
 }
