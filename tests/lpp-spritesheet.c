@@ -23,11 +23,14 @@ void testsLpcSpritesheet(void)
 {
   yeInitMem();
   GameConfig cfg;
-  Entity *canvas = yeCreateArray(NULL, NULL);
+  Entity *gc = yeCreateArray(NULL, NULL);
+  Entity *canvas = yeCreateArray(gc, NULL);
+  Entity *caracter = yeCreateArray(gc, NULL);
+  Entity *texture;
+  Entity *obj;
   Entity *mod;
-
-  /* YWidgetState *wid; */
-  /* Entity *actions; */
+  YWidgetState *wid;
+  Entity *actions;
 
   g_assert(!ygInitGameConfig(&cfg, NULL, SDL2));
   g_assert(!ygInit(&cfg));
@@ -38,8 +41,25 @@ void testsLpcSpritesheet(void)
     goto exit;
   }
 
+  actions = yeCreateArray(canvas, "actions");
+  yeCreateString("QuitOnKeyDown", actions, NULL);
+
+  yeCreateString("female", caracter, "sex");
+  yeCreateString("light", caracter, "type");
+  texture = yesCall(ygGet("lpcs.textureFromCaracter"), caracter);
+  g_assert(texture);
+  obj = yesCall(ygGet("lpcs.loadCanvas"), canvas, texture, 0, 0, 50, 50);
+  g_assert(obj);
+
+  yeCreateString("canvas", canvas, "<type>");
+  yeCreateString("rgba: 255 255 255 255", canvas, "background");
+  wid = ywidNewWidget(canvas, NULL);
+  g_assert(wid);
+  ywidSetMainWid(wid);
+  ygDoLoop();
+
  exit:
-  yeDestroy(canvas);
+  yeDestroy(gc);
   ygCleanGameConfig(&cfg);
   ygEnd();
 }

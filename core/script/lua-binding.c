@@ -24,6 +24,7 @@
 #include	"map.h"
 #include	"container.h"
 #include	"canvas.h"
+#include	"texture.h"
 #include	"game.h"
 
 Entity *YLUA_NO_DESTROY_ORPHAN = ((void *)0x1);
@@ -555,11 +556,11 @@ int	luaywCanvasCreateYTexture(lua_State *L)
 
 int	luaywCanvasNewImgFromTexture(lua_State *L)
 {
-  lua_pushlightuserdata(L, ywCanvasNewImgFromTexture(lua_touserdata(L, 1),
+  lua_pushlightuserdata(L, ywCanvasNewImgFromTexture(luaEntityAt(L, 1),
 						     lua_tonumber(L, 2),
 						     lua_tonumber(L, 3),
-						     lua_touserdata(L, 4),
-						     lua_touserdata(L, 5)));
+						     luaEntityAt(L, 4),
+						     luaEntityAt(L, 5)));
   return 1;
 }
 
@@ -681,6 +682,16 @@ int	luaywCanvasPopObj(lua_State *L)
   ywCanvasPopObj(luaEntityAt(L, 1));
   return 0;
 }
+
+int	luaywTextureNewImg(lua_State *L)
+{
+  lua_pushlightuserdata(L, ywTextureNewImg(lua_tostring(L, 1),
+					   luaEntityAt(L, 2),
+					   luaEntityAt(L, 3),
+					   lua_tostring(L, 4)));
+  return 1;
+}
+
 
 int	luaYeIncrRef(lua_State *L)
 {
