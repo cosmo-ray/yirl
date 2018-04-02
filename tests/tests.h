@@ -99,6 +99,7 @@ void testYSoundLib(void);
 void testListMod(void);
 
 void testsTiled(void);
+void testsLpcSpritesheet(void);
 
 void testDialogueBox(void);
 void testDialogueMod(void);
