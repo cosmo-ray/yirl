@@ -35,6 +35,8 @@ int     luaPtrToInt32(lua_State *l)
 
 int     luaPtrToString(lua_State *l)
 {
+  if (lua_isstring(l, 1))
+    return 1;
   lua_pushstring(l, (char *)lua_topointer(l, 1));
   return 1;
 }

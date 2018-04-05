@@ -1463,8 +1463,11 @@ int	luaYGet(lua_State *L)
 
 int	luaYgRegistreFunc(lua_State *L)
 {
-  return ygRegistreFuncInternal(ygGetLuaManager(), lua_tonumber(L, 1),
-				lua_tostring(L, 2), lua_tostring(L, 3));
+  lua_pushnumber(L, ygRegistreFuncInternal(ygGetLuaManager(),
+					   lua_tonumber(L, 1),
+					   lua_tostring(L, 2),
+					   lua_tostring(L, 3)));
+  return 1;
 }
 
 int	luaYgFileToEnt(lua_State *L)

@@ -1,4 +1,26 @@
 {
+    "bartender" : {
+	"image" : { "gender" : "male",
+		    "type" : "light",
+		    "clothes" : ["path/to/pants", "..."]},
+	"dialogue" : {
+	    "text" : "hi, do you want a beer",
+	    "answers" : [
+		{
+		    "text" : "know what, that's not your concern, fuck you",
+		    "action" : "FinishGame"
+		},
+		{
+		    "text" : "sorry, can you repeat ?",
+		    "action" : ["Dialogue:goto", 0]
+		}
+	    ]
+
+	}
+    }
+}
+
+{
     "<type>" : "dialogue",
     "dialogue" : [
 	{

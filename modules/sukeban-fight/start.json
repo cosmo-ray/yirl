@@ -1,9 +1,13 @@
 {
     "name" : "sukeban-fight",
     "init-scripts" : [
-	    "init_sukeban_fight"
+	["lua", "initAnimation"], "init_sukeban_fight"
     ],
     "pre-load" : [
+	{
+	    "file" : "animation.lua",
+	    "type" : "lua"
+	},
 	{
 	    "file" : "init.c",
 	    "type" : "tcc"

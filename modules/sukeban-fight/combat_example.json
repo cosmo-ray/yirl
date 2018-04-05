@@ -29,7 +29,7 @@
 	    {
 		"name" : "good guy",
 		"reload-time" : 30,
-		"actions" : [["attack", "attack"],
+		"actions" : [["attack", ["attack", "sukeban-fight:attack"]],
 			     ["quit", "FinishGame"]],
 		"poses" : {
 		    "base" : { "img" : "tests/SaraFullSheet.png",

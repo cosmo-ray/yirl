@@ -24,9 +24,28 @@
 #include <yirl/rect.h>
 #include <yirl/timer.h>
 
+enum state {
+  NORMAL_STATE,
+  INSIDE_ANIMATION
+};
+
 static Entity *getCanvasWid(Entity *mainWid)
 {
   return ywCntGetEntry(mainWid, 0);
+}
+
+static void tryLoadTexture(Entity *pose)
+{
+  if (!yeGet(pose, "_texture"))
+    ywTextureNewImg(yeGetStringAt(pose, "img"), NULL, pose, "_texture");
+}
+
+static void setAnimationPose(Entity *guy, Entity *pose)
+{
+  tryLoadTexture(pose);
+  if (yeGet(pose, "pos"))
+    yeReCreateInt(0, pose, "_cur");
+  yeReplaceBack(guy, pose, "_cp");
 }
 
 static void createMapObjs(Entity *ent)
@@ -57,16 +76,13 @@ static void createMapObjs(Entity *ent)
 
 	if (srcPos) {
 	  srcRect = ywRectCreatePosSize(srcPos, yeGet(pose, "size"), NULL, NULL);
-	  yeCreateInt(0, pose, "_cur");
 	}
-	yeRemoveChild(pose, "_texture");
-	ywTextureNewImg(yeGetStringAt(pose, "img"), NULL, pose, "_texture");
+	setAnimationPose(guy, pose);
 	obj = ywCanvasNewImgFromTexture(canvas, 0, 0, yeGet(pose, "_texture"),
 					srcRect);
 	yeDestroy(srcRect);
       }
       objSize = ywCanvasObjSize(map, obj);
-      yePushBack(guy, pose, "_cp");
       yePushBack(guy, obj, "_canvas");
       ywCanvasObjSetPos(obj,
 			widthQuarter * x + widthQuarter / 2 - ywPosX(objSize) / 2,
@@ -94,6 +110,11 @@ static Entity *getLoaderAt(Entity *main, int pos)
 static Entity *getGuyAt(Entity *wid, int at)
 {
   return yeGet(getLoaderAt(wid, at), "guy");
+}
+
+static Entity *getCurrentGuy(Entity *main)
+{
+  getGuyAt(main, yeGetIntAt(main, "pcDoingAction"));
 }
 
 static Entity *getActionMenu(Entity *widget, int actionIdx)
@@ -187,10 +208,16 @@ void *sukeFightAction(int nbArg, void **args)
     }
   }
 
+  if (yeGetIntAt(ent, "state") == INSIDE_ANIMATION) {
+    yDoAnimation(ent, "action_anim");
+    return (void *)ACTION;
+  }
+
   /* let menu handle actions */
   if (yeGetInt(pcDoingAction) >= 0) {
     return (void *)NOTHANDLE;
   }
+
 
   void *timer = yeGetDataAt(ent, "timer");
   uint64_t t = YTimerGet(timer) / 100000;
@@ -259,11 +286,27 @@ void *sukeFightClean(int nbArgs, void **args)
   Entity *ent = args[0];
 
   for (int i = 0; i < 6; ++i) {
-    yeRemoveChildByStr(getGuyAt(ent, i), "main");
+    Entity *g = getGuyAt(ent, i);
+
+    if (g)
+      yeRemoveChildByStr(g, "main");
   }
   return NULL;
 }
 
+void *menuActionAnimation(int nbArg, void **args)
+{
+  Entity *main = args[0];
+  Entity *animation = args[1];
+
+  if (yeGetIntAt(animation, "animation_frame") == 5) {
+    yeSetAt(main, "state", NORMAL_STATE);
+    yEndAnimation(main, "action_anim");
+    sukeFightEndTurn(main);
+    return 0;
+  }
+  return 1;
+}
 
 void *menuAction(int nbArg, void **args)
 {
@@ -271,14 +314,34 @@ void *menuAction(int nbArg, void **args)
   Entity *cur = ywMenuGetCurrentEntry(mn);
   Entity *main = yeGet(mn, "main");
   Entity *action = yeGet(cur, "_action");
+  Entity *animPose = yeGet(cur, "_anim");
   void *ret;
 
-  printf("%d - %p\n", yeType(action) == YSTRING,
-	 ygGet(yeGetString(action)));
-  if (yeType(action) == YSTRING)
+  if (yeType(animPose) == YSTRING) {
+    Entity *animeFunc = yeCreateFunction("menuActionAnimation",
+					 ygGetTccManager(), NULL, NULL);
+    Entity *guy = getCurrentGuy(main);
+    Entity *anim = yeCreateArray(NULL, NULL);
+    Entity *pose;
+
+    printf("act %p 0: %s 1:  %s\n", yeGet(yeGet(guy, "poses"),
+					  yeGetString(animPose)),
+	   yeTypeToString(yeType(action)),
+	   yeGetString(animPose));
+    yePushBack(anim, action, "action");
+    yePushBack(anim, yeGet(guy, "_cp"), "old_pose");
+    pose = yeGet(yeGet(guy, "poses"), yeGetString(animPose));
+    setAnimationPose(guy, pose);
+    yInitAnimation(main, anim, animeFunc, "action_anim");
+    yeDestroy(animeFunc);
+    yeDestroy(anim);
+    yeSetAt(main, "state", INSIDE_ANIMATION);
+  } else if (yeType(action) == YSTRING) {
     ret = yesCall(ygGet(yeGetString(action)), mn);
+  }
   printf("oy\n");
-  sukeFightEndTurn(main);
+  if (yeGetIntAt(main, "state") != INSIDE_ANIMATION)
+    sukeFightEndTurn(main);
   return ret;
 }
 
@@ -296,11 +359,17 @@ void makeActionMenu(Entity *guy, Entity *ent)
   Entity *menu_entries = yeCreateArray(menu, "entries");
   YE_ARRAY_FOREACH(actions, action) {
     Entity *menu_entry = yeCreateArray(menu_entries, NULL);
+    Entity *actionInfo = yeGet(action, 1);
 
     printf("%s %s\n", yeGetStringAt(action, 0), yeGetStringAt(action, 1));
     yePushBack(menu_entry, yeGet(action, 0), "text");
     yeCreateFunction("menuAction", ygGetTccManager(), menu_entry, "action");
-    yePushBack(menu_entry, yeGet(action, 1), "_action");
+    if (yeType(actionInfo) == YSTRING) {
+      yePushBack(menu_entry, actionInfo, "_action");
+    } else if (yeType(actionInfo) == YARRAY) {
+      yePushBack(menu_entry, yeGet(actionInfo, 0), "_anim");
+      yePushBack(menu_entry, yeGet(actionInfo, 1), "_action");
+    }
 
     /* menu_entry = yeCreateArray(menu_entries, NULL); */
     /* yeCreateString("run away", menu_entry, "text"); */
@@ -327,8 +396,12 @@ void *sukeFightInit(int nbArg, void **args)
   Entity *loader;
   Entity *loader_entries;
 
+  yeReCreateInt(NORMAL_STATE, ent, "state");
   yeReCreateInt(1, ent, "current");
   yeReCreateInt(-1, ent, "pcDoingAction");
+  yeRemoveChild(ent, "destroy");
+  yeRemoveChild(ent, "action");
+  yeRemoveChild(ent, "post-action");
   yeCreateFunction("sukeFightClean", ygGetManager("tcc"), ent, "destroy");
   yeCreateFunction("sukeFightAction", ygGetManager("tcc"), ent, "action");
   yeCreateFunction("sukeFightPostAction", ygGetTccManager(),
@@ -410,7 +483,6 @@ void *init_sukeban_fight(int nbArg, void **args)
   yeCreateString("sukeban-fight", init, "name");
   yeCreateFunction("sukeFightInit", ygGetManager("tcc"), init, "callback");
   ywidAddSubType(init);
-  yeCreateFunction("sukeFightEndTurn", ygGetTccManager(), mod, "endTurn");
 
   return NULL;
 }
