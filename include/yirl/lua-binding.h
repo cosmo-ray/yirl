@@ -200,6 +200,9 @@ int	luaywCanvasNewImgFromTexture(lua_State *L);
 /* texture */
 int	luaywTextureNewImg(lua_State *L);
 
+/* Menu */
+int	luaywMenuCallActionOn(lua_State *lua);
+
 /* Game and Module */
 int	luaGetMod(lua_State *L);
 int	luaGCall(lua_State *L);
@@ -454,6 +457,9 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapGetResourceId",
 				 luaYwMapGetResourceId));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapGetIdByElem", luaYwMapGetIdByElem));
+
+  /* menu */
+  YES_LUA_REGISTRE_CALL(sm, ywMenuCallActionOn);
 
   /* container */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywReplaceEntry", luaYwReplaceEntry));

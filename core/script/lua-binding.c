@@ -25,6 +25,7 @@
 #include	"container.h"
 #include	"canvas.h"
 #include	"texture.h"
+#include	"menu.h"
 #include	"game.h"
 
 Entity *YLUA_NO_DESTROY_ORPHAN = ((void *)0x1);
@@ -793,6 +794,15 @@ int	luaySoundPlay(lua_State *L)
 int	luaySoundStop(lua_State *L)
 {
   lua_pushnumber(L, ySoundStop(lua_tonumber(L, 1)));
+  return 1;
+}
+
+int	luaywMenuCallActionOn(lua_State *L)
+{
+  lua_pushnumber(L, ywMenuCallActionOn(luaEntityAt(L, 1),
+				       luaEntityAt(L, 2),
+				       lua_tonumber(L, 3),
+				       lua_touserdata(L, 4)));
   return 1;
 }
 
