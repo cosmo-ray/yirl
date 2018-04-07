@@ -166,14 +166,17 @@ int	luaentity_newindex(lua_State *L)
   } else if (lua_istable(L, 3)) {
     toPush = yeCreateArray(NULL, NULL);
 
-    /* doesn't work, should fix :) */
-    /* for (int i = 0;;++i) { */
-    /*   lua_geti(L, 3, i); */
-    /*   printf("top %d\n", lua_gettop(L)); */
-    /*   printf("elem %d\n", lua_type(L, 4)); */
-    /*   if (lua_isnoneornil(L, 4)) */
-    /* 	break; */
-    /* } */
+    /* In lua array start by default at 1 ! */
+    for (int i = 1 ;; ++i) {
+      lua_geti(L, 3, i);
+      if (lua_isnoneornil(L, 4)) {
+    	lua_pop(L, 1);
+    	break;
+      } else if (lua_isnumber(L, 4)) {
+	yeCreateInt(lua_tointeger(L, 4), toPush, NULL);
+      }
+      lua_pop(L, 1);
+    }
   } else if (lua_islightuserdata(L, 3) || lua_isuserdata(L, 3)) {
     toPush = luaEntityAt(L, 3);
 
