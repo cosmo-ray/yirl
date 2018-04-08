@@ -548,11 +548,14 @@ SDL_Surface *sdlCopySurface(SDL_Surface *surface, Entity *rEnt)
     rptr = &r;
   }
 
-  surface = SDL_CreateRGBSurface(0, w, h, 32,
-				 tmpSurface->format->Rmask,
-				 tmpSurface->format->Gmask,
-				 tmpSurface->format->Bmask,
-				 tmpSurface->format->Amask);
+  surface = SDL_CreateRGBSurface(0, w, h, 32, surface->format->Rmask,
+  				 surface->format->Gmask,
+  				 surface->format->Bmask,
+  				 surface->format->Amask);
+  uint32_t ck0;
+  int ri = SDL_GetColorKey(tmpSurface, &ck0);
+  if (!ri)
+    SDL_SetColorKey(surface, 1, ck0);
 
   if (unlikely(!surface)) {
     DPRINT_ERR("fail to create surface");
@@ -700,6 +703,8 @@ static int sdlCanvasRendImg(YWidgetState *state, SDLWid *wid, Entity *img,
 
 uint32_t sdlCanvasPixInfo(Entity *obj, int x, int y)
 {
+  if (!obj)
+    return 0;
   SDL_Surface *surface = yeGetDataAt(obj, "$img-surface");
   int type = yeGetIntAt(obj, 0);
 

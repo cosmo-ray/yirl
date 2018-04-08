@@ -26,6 +26,7 @@ void testsLpcSpritesheet(void)
   Entity *gc = yeCreateArray(NULL, NULL);
   Entity *canvas = yeCreateArray(gc, NULL);
   Entity *caracter = yeCreateArray(gc, NULL);
+  Entity *clothes;
   Entity *texture;
   Entity *obj;
   Entity *mod;
@@ -46,9 +47,29 @@ void testsLpcSpritesheet(void)
 
   yeCreateString("female", caracter, "sex");
   yeCreateString("light", caracter, "type");
+  clothes = yeCreateArray(caracter, "clothes");
+  yeCreateString("hands/gloves/female/golden_gloves_female", clothes, NULL);
+  yeCreateString("feet/boots/female/brown_longboots_female.png", clothes, NULL);
+  yeCreateString("torso/corset_female/corset_red.png", clothes, NULL);
   texture = yesCall(ygGet("lpcs.textureFromCaracter"), caracter);
   g_assert(texture);
+
   obj = yesCall(ygGet("lpcs.loadCanvas"), canvas, texture, 0, 0, 50, 50);
+  g_assert(obj);
+  obj = yesCall(ygGet("lpcs.loadCanvas"), canvas, texture, 1, 0, 100, 50);
+  g_assert(obj);
+  obj = yesCall(ygGet("lpcs.loadCanvas"), canvas, texture, 2, 0, 150, 50);
+  g_assert(obj);
+  obj = yesCall(ygGet("lpcs.loadCanvas"), canvas, texture, 3, 0, 200, 50);
+  g_assert(obj);
+
+  obj = yesCall(ygGet("lpcs.loadCanvas"), canvas, texture, 0, 7, 50, 120);
+  g_assert(obj);
+  obj = yesCall(ygGet("lpcs.loadCanvas"), canvas, texture, 1, 7, 100, 120);
+  g_assert(obj);
+  obj = yesCall(ygGet("lpcs.loadCanvas"), canvas, texture, 2, 7, 150, 120);
+  g_assert(obj);
+  obj = yesCall(ygGet("lpcs.loadCanvas"), canvas, texture, 3, 7, 200, 120);
   g_assert(obj);
 
   yeCreateString("canvas", canvas, "<type>");
@@ -60,6 +81,7 @@ void testsLpcSpritesheet(void)
 
  exit:
   yeDestroy(gc);
+  yeDestroy(texture);
   ygCleanGameConfig(&cfg);
   ygEnd();
 }
