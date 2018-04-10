@@ -199,6 +199,7 @@ int	luaywCanvasNewImgFromTexture(lua_State *L);
 
 /* texture */
 int	luaywTextureNewImg(lua_State *L);
+int	luaywTextureMerge(lua_State *L);
 
 /* Menu */
 int	luaywMenuCallActionOn(lua_State *lua);
@@ -527,6 +528,7 @@ static inline int	yesLuaRegister(void *sm)
 
   /* texture */
   YES_LUA_REGISTRE_CALL(sm, ywTextureNewImg);
+  YES_LUA_REGISTRE_CALL(sm, ywTextureMerge);
   
   /* Game and Modules */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygGetMod", luaGetMod));

@@ -48,9 +48,10 @@ void testsLpcSpritesheet(void)
   yeCreateString("female", caracter, "sex");
   yeCreateString("light", caracter, "type");
   clothes = yeCreateArray(caracter, "clothes");
-  yeCreateString("hands/gloves/female/golden_gloves_female", clothes, NULL);
+  yeCreateString("hands/gloves/female/golden_gloves_female.png", clothes, NULL);
   yeCreateString("feet/boots/female/brown_longboots_female.png", clothes, NULL);
   yeCreateString("torso/corset_female/corset_red.png", clothes, NULL);
+  yeCreateString("hair/female/longknot/pink2.png", clothes, NULL);
   texture = yesCall(ygGet("lpcs.textureFromCaracter"), caracter);
   g_assert(texture);
 

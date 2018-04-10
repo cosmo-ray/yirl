@@ -693,6 +693,15 @@ int	luaywTextureNewImg(lua_State *L)
   return 1;
 }
 
+int	luaywTextureMerge(lua_State *L)
+{
+  lua_pushnumber(L, ywTextureMerge(luaEntityAt(L, 1),
+				   luaEntityAt(L, 2),
+				   luaEntityAt(L, 3),
+				   luaEntityAt(L, 4)));
+  return 1;
+}
+
 
 int	luaYeIncrRef(lua_State *L)
 {

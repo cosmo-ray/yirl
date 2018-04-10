@@ -27,5 +27,7 @@ uint32_t sdlCanvasPixInfo(Entity *obj, int x, int y);
 SDL_Surface *sdlCopySurface(SDL_Surface *surface, Entity *rEnt);
 int sdlCanvasCacheImg(Entity *elem, Entity *resource, const char *imgPath,
 		      Entity *rEnt);
+int sdlMergeSurface(Entity *textSrc, Entity *srcRect,
+		    Entity *textDest, Entity *destRect);
 
 #endif

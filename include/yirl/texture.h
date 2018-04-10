@@ -19,3 +19,12 @@
 
 Entity *ywTextureNewImg(const char *path, Entity *size,
 			Entity *father, const char *name);
+
+/**
+ * merge @src on @dest
+ * @return -1 on error, 0 on sucess
+ */
+int ywTextureMerge(Entity *src, Entity *srcRect,
+		   Entity *dest, Entity *dstRect);
+
+int	ywTextureNormalize(Entity *text);

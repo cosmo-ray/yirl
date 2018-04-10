@@ -18,6 +18,29 @@
 #include "texture.h"
 #include "sdl2/canvas-sdl.h"
 
+int ywTextureMerge(Entity *src, Entity *srcRect,
+		   Entity *dest, Entity *dstRect)
+{
+  if (unlikely(!src || !dest))
+    return -1;
+  ywTextureNormalize(src);
+  ywTextureNormalize(dest);
+  return sdlMergeSurface(src, NULL, dest, NULL);
+}
+
+int	ywTextureNormalize(Entity *text)
+{
+  void *tmp = sdlCopySurface(yeGetDataAt(text, "$img-surface"), NULL);
+  Entity *data;
+
+  if (!tmp)
+    return -1;
+  yeRemoveChild(text, "$img-surface");
+  data = yeCreateData(tmp, text, "$img-surface");
+  yeSetDestroy(data, sdlFreeSurface);
+  return 0;
+}
+
 Entity *ywTextureNewImg(const char *path, Entity *size,
 			Entity *father, const char *name)
 {
@@ -25,5 +48,7 @@ Entity *ywTextureNewImg(const char *path, Entity *size,
 
   if (sdlCanvasCacheImg(ret, NULL, path, size) < 0)
     return NULL;
+  yeRemoveChild(ret, "$size");
+  yeRemoveChild(ret, "$img");
   return ret;
 }

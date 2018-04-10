@@ -531,6 +531,21 @@ static int sdlCanvasCacheText(Entity *state, Entity *elem, Entity *resource,
   return 0;
 }
 
+int sdlMergeSurface(Entity *textSrc, Entity *srcRect,
+		    Entity *textDest, Entity *destRect)
+{
+  SDL_Surface *sSurface = yeGetDataAt(textSrc, "$img-surface");
+  SDL_Surface *dSurface = yeGetDataAt(textDest, "$img-surface");
+
+  /* FIXME: TODO */
+  (void)srcRect;
+  (void)destRect;
+  if (unlikely(!sSurface || !dSurface)) {
+    return -1;
+  }
+  return SDL_BlitSurface(sSurface, NULL, dSurface, NULL);  
+}
+
 SDL_Surface *sdlCopySurface(SDL_Surface *surface, Entity *rEnt)
 {
   SDL_Rect r;
