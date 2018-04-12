@@ -127,6 +127,15 @@ int	luaentity_add(lua_State *L)
   return 1;
 }
 
+int	luaentity_div(lua_State *L)
+{
+  double i0 = luaNumberAt(L, 1);
+  double i1 = luaNumberAt(L, 2);
+
+  lua_pushnumber(L, i0 / i1);
+  return 1;
+}
+
 int	luaentity_mul(lua_State *L)
 {
   double i0 = luaNumberAt(L, 1);
@@ -159,7 +168,9 @@ int	luaentity_newindex(lua_State *L)
   struct entityWrapper *ew = luaL_checkudata(L, 1, "Entity");
   Entity *toPush;
 
-  if (lua_isnumber(L, 3)) {
+  if (lua_isboolean(L, 3)) {
+    toPush = yeCreateInt(lua_toboolean(L, 3), NULL, NULL);
+  } else if (lua_isnumber(L, 3)) {
     toPush = yeCreateInt(lua_tonumber(L, 3), NULL, NULL);
   } else if (lua_isstring(L, 3)) {
     toPush = yeCreateString(lua_tostring(L, 3), NULL, NULL);
@@ -174,6 +185,8 @@ int	luaentity_newindex(lua_State *L)
     	break;
       } else if (lua_isnumber(L, 4)) {
 	yeCreateInt(lua_tointeger(L, 4), toPush, NULL);
+      } else if (lua_isstring(L, 4)) {
+	yeCreateString(lua_tostring(L, 4), toPush, NULL);
       }
       lua_pop(L, 1);
     }

@@ -128,7 +128,7 @@ void *fileToCanvas(int nbArg, void **args)
 			 yeGetIntAt(object, "height"),
 			 obj, "rect");
       }
-      
+
       YE_ARRAY_FOREACH(layer_data, tile_id) {
 	uint64_t tid = yeGetInt(tile_id) - 1;
 	uint32_t flags = 0;

@@ -70,10 +70,10 @@ void testsTiled(void)
   wid = ywidNewWidget(canvas, NULL);
   g_assert(wid);
   yesCall(ygGet("tiled.setAssetPath"), TESTS_PATH"../modules/tiled/");
-  /* g_assert(yesCall(ygGet("tiled.fileToCanvas"), */
-  /* 		   TESTS_PATH"../modules/tiled/testile.json", canvas)); */
   g_assert(yesCall(ygGet("tiled.fileToCanvas"),
-  		   TESTS_PATH"../modules/tiled/Test_bar_map_export.json", canvas));
+  		   TESTS_PATH"../modules/tiled/testile.json", canvas));
+  /* g_assert(yesCall(ygGet("tiled.fileToCanvas"), */
+  /* 		   TESTS_PATH"../modules/tiled/Test_bar_map_export.json", canvas)); */
 
   ywPosCreateInts(0, 50, canvas, "cam");
   ywidSetMainWid(wid);

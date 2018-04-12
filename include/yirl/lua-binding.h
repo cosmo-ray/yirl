@@ -39,6 +39,7 @@ int	luaentity_index(lua_State *L);
 int	luaentity_newindex(lua_State *L);
 int	luaentity_call(lua_State *L);
 int	luaentity_mul(lua_State *L);
+int	luaentity_div(lua_State *L);
 int	luaentity_add(lua_State *L);
 int	luaentity_sub(lua_State *L);
 int	luaentity_lt(lua_State *L);
@@ -282,6 +283,8 @@ static inline int	yesLuaRegister(void *sm)
   LUA_SET_INT_GLOBAL_VAL(sm, Y_X_KEY, 'x');
   LUA_SET_INT_GLOBAL_VAL(sm, Y_Y_KEY, 'y');
   LUA_SET_INT_GLOBAL_VAL(sm, Y_Z_KEY, 'z');
+  /* Spaceeeeee ! */
+  LUA_SET_INT_GLOBAL_VAL(sm, Y_SPACE_KEY, ' ');
 
   LUA_SET_INT_GLOBAL_VAL(sm, Y_CNT_VERTICAL, CNT_VERTICAL);
   LUA_SET_INT_GLOBAL_VAL(sm, Y_CNT_HORIZONTAL, CNT_HORIZONTAL);
@@ -320,6 +323,7 @@ static inline int	yesLuaRegister(void *sm)
     {"__call", luaentity_call},
     {"__mul", luaentity_mul},
     {"__add", luaentity_add},
+    {"__div", luaentity_div},
     {"__sub", luaentity_sub},
     {"__lt", luaentity_lt},
     {"__eq", luaentity_eq},
@@ -405,12 +409,10 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeSetString", luaSetString));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeCreateString", luaCreateString));
 
-
   /* int */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeGetInt", luaGetInt));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeSetInt", luaSetInt));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeCreateInt", luaCreateInt));
-
 
   /* float */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeGetFloat", luaGetFloat));
@@ -529,7 +531,7 @@ static inline int	yesLuaRegister(void *sm)
   /* texture */
   YES_LUA_REGISTRE_CALL(sm, ywTextureNewImg);
   YES_LUA_REGISTRE_CALL(sm, ywTextureMerge);
-  
+
   /* Game and Modules */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygGetMod", luaGetMod));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygCall", luaGCall));

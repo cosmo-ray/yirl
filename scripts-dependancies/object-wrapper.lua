@@ -221,6 +221,9 @@ function Canvas:new_wid()
 end
 
 function Canvas:remove(ent)
+   if ent == nil then
+      return
+   end
    if type(ent) == "number" then
       return ywCanvasMoveObjByIdx(self.ent:cent(), ent)
    end
