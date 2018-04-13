@@ -76,7 +76,6 @@ static void *luaCall(void *sm, const char *name, va_list ap)
 
   for (void *tmp = va_arg(ap, void *); tmp != Y_END_VA_LIST;
        tmp = va_arg(ap, void *)) {
-    DPRINT_INFO("pushing %p\n", tmp);
     lua_pushlightuserdata(l, tmp);
     ++nbArg;
   }
@@ -118,8 +117,9 @@ static void addFuncSymbole(void *sm, const char *name, int nbArgs, Entity *func)
   yeStringAdd(str, tmp_name);
 
   for (int i = 0; i < nbArgs; ++i) {
-    yeAddStr(str, ", var");
+    yeAddStr(str, ", yLoveToPtr(var");
     yeAddInt(str, i);
+    yeAddStr(str, ")");
   }
   yeStringAdd(str, ") end");
   luaLoadString(sm, yeGetString(str));

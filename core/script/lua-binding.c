@@ -27,6 +27,7 @@
 #include	"texture.h"
 #include	"menu.h"
 #include	"game.h"
+#include	"lua-convert.h"
 
 Entity *YLUA_NO_DESTROY_ORPHAN = ((void *)0x1);
 
@@ -35,7 +36,7 @@ struct entityWrapper {
   int needDestroy;
 };
 
-static Entity *luaEntityAt(lua_State *L, int pos)
+Entity *luaEntityAt(lua_State *L, int pos)
 {
   if (lua_islightuserdata(L, pos)) {
       void  *udata = lua_touserdata(L, pos);
@@ -1447,28 +1448,28 @@ int	luaYesCall(lua_State *L)
     lua_pushlightuserdata(L, yesCall(luaEntityAt(L, 1)));
     return 1;
   case 2:
-    LUA_YES_CALL(luaEntityAt(L, 2));
+    LUA_YES_CALL(luaGetPtr(L, 2));
     return 1;
   case 3:
-    LUA_YES_CALL(luaEntityAt(L, 2), luaEntityAt(L, 3));
+    LUA_YES_CALL(luaGetPtr(L, 2), luaGetPtr(L, 3));
     return 1;
   case 4:
-    LUA_YES_CALL(luaEntityAt(L, 2),
-		 luaEntityAt(L, 3), luaEntityAt(L, 4));
+    LUA_YES_CALL(luaGetPtr(L, 2),
+		 luaGetPtr(L, 3), luaGetPtr(L, 4));
     return 1;
   case 5:
-    LUA_YES_CALL(luaEntityAt(L, 2), luaEntityAt(L, 3),
-		 luaEntityAt(L, 4), luaEntityAt(L, 5));
+    LUA_YES_CALL(luaGetPtr(L, 2), luaGetPtr(L, 3),
+		 luaGetPtr(L, 4), luaGetPtr(L, 5));
     return 1;
   case 6:
-    LUA_YES_CALL(luaEntityAt(L, 2), luaEntityAt(L, 3),
-		 luaEntityAt(L, 4), luaEntityAt(L, 5),
-		 luaEntityAt(L, 6));
+    LUA_YES_CALL(luaGetPtr(L, 2), luaGetPtr(L, 3),
+		 luaGetPtr(L, 4), luaGetPtr(L, 5),
+		 luaGetPtr(L, 6));
     return 1;
   case 7:
-    LUA_YES_CALL(luaEntityAt(L, 2), luaEntityAt(L, 3),
-		 luaEntityAt(L, 4), luaEntityAt(L, 5),
-		 luaEntityAt(L, 6), luaEntityAt(L, 7));
+    LUA_YES_CALL(luaGetPtr(L, 2), luaGetPtr(L, 3),
+		 luaGetPtr(L, 4), luaGetPtr(L, 5),
+		 luaGetPtr(L, 6), luaGetPtr(L, 7));
     return 1;
   default:
     DPRINT_ERR("internal error: too much argument");

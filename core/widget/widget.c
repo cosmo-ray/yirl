@@ -312,7 +312,7 @@ int ywidAddSubType(Entity *subType)
   if (!subTypes)
     subTypes = yeCreateArray(NULL, NULL);
   yePushBack(subTypes, subType, NULL);
-  YE_DESTROY(subType);
+  yeDestroy(subType);
   return 0;
 }
 

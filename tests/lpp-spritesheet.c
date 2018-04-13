@@ -27,7 +27,7 @@ void testsLpcSpritesheet(void)
   Entity *canvas = yeCreateArray(gc, NULL);
   Entity *caracter = yeCreateArray(gc, NULL);
   Entity *clothes;
-  Entity *texture;
+  Entity *texture = NULL;
   Entity *obj;
   Entity *mod;
   YWidgetState *wid;

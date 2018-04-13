@@ -17,6 +17,42 @@
 
 #include "lua-convert.h"
 
+void	*luaGetPtr(lua_State *l, int idx)
+{
+  if (lua_islightuserdata(l, idx))
+    return lua_touserdata(l, idx);
+  if (lua_isuserdata(l, idx))
+    return luaEntityAt(l, idx);
+  if (lua_isnumber(l, idx)) {
+    printf("return %p\n", (void *)(uintptr_t)lua_tonumber(l, idx));
+    return (void *)(uintptr_t)lua_tonumber(l, idx);
+  }
+  if (lua_isstring(l, idx)) {
+    printf("return str %p\n", (void *)(uintptr_t)lua_tonumber(l, idx));
+    return (void *)lua_tostring(l, idx);
+  }
+  if (lua_isboolean(l, idx))
+    return (void *)lua_toboolean(l, idx);
+  return NULL;
+}
+
+int     luaToPtr(lua_State *l)
+{
+  if (lua_islightuserdata(l, 1))
+    return 1;
+  if (lua_isuserdata(l, 1))
+    lua_pushlightuserdata(l, luaEntityAt(l, 1));
+  else if (lua_isnumber(l, 1))
+    lua_pushlightuserdata(l, (void *)(uintptr_t)lua_tonumber(l, 1));
+  else if (lua_isstring(l, 1))
+    lua_pushlightuserdata(l, (void *)lua_tostring(l, 1));
+  else if (lua_isboolean(l, 1))
+    lua_pushlightuserdata(l, (void *)lua_toboolean(l, 1));
+  else
+    lua_pushnil(l);
+  return 1;
+}
+
 int     luaPtrToNumber(lua_State *l)
 {
   if (lua_isnumber(l, 1))

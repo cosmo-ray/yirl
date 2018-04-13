@@ -20,6 +20,9 @@
 
 #include "lua-script.h"
 
+Entity *luaEntityAt(lua_State *L, int pos);
+void	*luaGetPtr(lua_State *l, int idx);
+
 int     luaNbrToPtr(lua_State *l);
 int     luaPtrToString(lua_State *l);
 int     luaPtrToInt32(lua_State *l);
