@@ -225,7 +225,7 @@ function Canvas:remove(ent)
       return
    end
    if type(ent) == "number" then
-      return ywCanvasMoveObjByIdx(self.ent:cent(), ent)
+      return ywCanvasRemoveObj(self.ent:cent(), self.ent.objs[ent])
    end
    local e = ent:cent()
    return ywCanvasRemoveObj(self.ent:cent(), e)
