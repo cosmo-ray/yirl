@@ -126,7 +126,7 @@ static void refreshAnswer(Entity *wid, Entity *menu, Entity *curent)
     yesCall(ygGet("DialogueBox.reload"), wid, menu);
 }
 
-static Entity *getText(Entity *e)
+static Entity *getText(Entity *box, Entity *e)
 {
   if (yeType(e) == YSTRING)
     return e;
@@ -143,6 +143,7 @@ static Entity *getText(Entity *e)
 
       if (condition && !yeCheckCondition(condition))
 	continue;
+      ywidActions(box, cur_txt, NULL, NULL);
       return yeGet(cur_txt, "text");
     }
   }
@@ -155,7 +156,7 @@ static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
   struct menuDrv *drv = getMenuDrv(menu);
   Entity *dialogue = yeGet(yeGet(wid, "dialogue"), yeGetInt(curent));
   Entity *answers = yeGet(dialogue, "answers");
-  Entity *txt = getText(dialogue);
+  Entity *txt = getText(menu, dialogue);
   Entity *entries;
 
   if (drv == &cntDialogueMnDrv) {
@@ -311,7 +312,7 @@ void *dialogueChangeText(int nbArgs, void **args)
   struct mainDrv *drv = getMainDrv(main);
 
   ywContainerUpdate(main, getTextWidget(main));
-  yeReplaceBack(drv->getTextWidget(main), getText(args[3]), "text");
+  yeReplaceBack(drv->getTextWidget(main), getText(args[0], args[3]), "text");
   return (void *)NOACTION;
 }
 
