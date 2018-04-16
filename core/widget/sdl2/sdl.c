@@ -112,6 +112,7 @@ void	sdlDrawRect(SDLWid *swid, SDL_Rect rect, SDL_Color color)
     rect.y += swid->rect.y;
     rect.x += swid->rect.x;
   }
+
   SDL_GetRenderDrawColor(sg.renderer, &r, &g, &b, &a);
   SDL_SetRenderDrawColor(sg.renderer, color.r, color.g, color.b, color.a);
   SDL_RenderFillRect(sg.renderer, &rect);

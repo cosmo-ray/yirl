@@ -295,8 +295,12 @@ static int cntRend(YWidgetState *opac)
   if (!opac->hasChange)
     return 0;
 
+#if defined(__APPLE__)
+    needChange = 1;
+#else
   if (opac->hasChange == 2 || ywCntType(opac) == CNT_STACK)
     needChange = 1;
+#endif
 
   if (bg_wid) {
     yeReplaceBack(bg_wid->entity, yeGet(opac->entity, "wid-pos"), "wid-pos");
