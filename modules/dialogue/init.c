@@ -95,6 +95,7 @@ static struct mainDrv *getMainDrv(Entity *main)
   return yeGetDataAt(main, "drv");
 }
 
+
 static Entity *getTextWidget(Entity *main)
 {
   return ywCntGetEntry(main, 0);
@@ -175,6 +176,11 @@ static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
     if (drv == &cntDialogueMnDrv)
       yePushBack(entries, answer, NULL);
   }
+}
+
+void *dialogueGetMain(int nbArgs, void **args)
+{
+  return getMenuDrv(args[0])->getMain(args[0]);
 }
 
 void *newDialogueEntity(int nbArgs, void **args)
