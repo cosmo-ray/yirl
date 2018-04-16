@@ -43,7 +43,7 @@ static void *moveImg(va_list ap)
       return (void *)ACTION;
     }
   }
-  return NOTHANDLE;
+  return (void *)NOTHANDLE;
 }
 
 void testsTiled(void)

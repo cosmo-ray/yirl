@@ -80,7 +80,7 @@ A good contribution would be to make yirl compatible with linux coding style.
 Devlopement package of these libs:
 
 * glib2
-* lua 52+
+* lua 53+
 * sdl, sdl_image, sdl_ttf, sdl_mixer
 
 Optinal:
@@ -130,5 +130,4 @@ But you can still understand how yirl work by:
 * fix all broken stuff in curses
 * add lisp or any other languge scripting support
 * add a tetris module or any other cool game template module
-* add tiled support
 

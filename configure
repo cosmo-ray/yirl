@@ -34,8 +34,8 @@ function mingw-64 {
 
 add_toolchain ubuntu
 function ubuntu {
-    export LUA_LIB="`pkg-config --libs lua52`"
-    export LUA_CFLAGS="`pkg-config --cflags lua52`"
+    export LUA_LIB="`pkg-config --libs lua53`"
+    export LUA_CFLAGS="`pkg-config --cflags lua53`"
 }
 
 parse_args $@
