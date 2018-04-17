@@ -305,10 +305,11 @@ int    ysdl2Init(void)
     goto fail;
   }
 
-  if (sgSetDefaultFont("./sample.ttf") < 0 &&
-      sgSetDefaultFont("/usr/share/fonts/TTF/Vera.ttf") < 0 &&
-      sgSetDefaultFont("/usr/share/fonts/TTF/DejaVuSansMono.ttf") < 0) {
-    DPRINT_ERR("Cannot load \"./sample.ttf\"\n");
+  if (sgSetDefaultFont("./DejaVuSansMono.ttf") < 0 &&
+      sgSetDefaultFont("/Library/Fonts/Tahoma.ttf") < 0 &&
+      sgSetDefaultFont("/usr/share/fonts/TTF/DejaVuSansMono.ttf") < 0 &&
+      sgSetDefaultFont("C:\\Windows\\Fonts\\constanb.ttf")) {
+    DPRINT_ERR("Cannot load fonts\n");
     goto fail;
   }
   // fill the window with a black rectangle
