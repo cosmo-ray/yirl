@@ -388,6 +388,12 @@ int	luaentity_newint(lua_State *L)
   return 1;
 }
 
+int	luayIsLightUserData(lua_State *L)
+{
+  lua_pushboolean(L, lua_islightuserdata(L, 1));
+  return 1;
+}
+
 int	luayOr(lua_State *L)
 {
   lua_pushnumber(L,

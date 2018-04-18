@@ -54,6 +54,7 @@ int	luaentity_remove(lua_State *L);
 int	luaentity_toint(lua_State *L);
 
 /* love lua */
+int	luayIsLightUserData(lua_State *L);
 int	luaYAnd(lua_State *L);
 int	luayOr(lua_State *L);
 int     luaStringToPtr(lua_State *l);
@@ -367,6 +368,7 @@ static inline int	yesLuaRegister(void *sm)
   /* I love lua */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yAnd", luaYAnd));
   YES_LUA_REGISTRE_CALL(sm, yOr);
+  YES_LUA_REGISTRE_CALL(sm, yIsLightUserData);
 
   /* utils */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yuiRand", luaRand));

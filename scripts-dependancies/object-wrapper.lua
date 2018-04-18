@@ -64,16 +64,39 @@ function Event.wrapp(ent)
    return ret;
 end
 
+function Pos:cent()
+   return self.ent:cent()
+end
+
 function Pos:tostring()
    return ywPosToString(self.ent:cent())
 end
 
+function Pos:add(x, y)
+   if type(x) == "number" then
+      return ywPosAdd(self.ent, x, y)
+   end
+   -- else we assume it's an entity
+   local other = Pos.wrapp(x:cent())
+   return ywPosAdd(self.ent, other:x(), other:y())
+end
+
+function Pos:sub(x, y)
+   if type(x) == "number" then
+      return ywPosAdd(self.ent, -x, -y)
+   end
+   -- else we assume it's an entity
+   local other = Pos.wrapp(x:cent())
+   return ywPosAdd(self.ent, -other:x(),
+		      -other:y())
+end
+
 function Pos:x()
-   return ywPosX(self.ent:cent())
+   return ywPosX(self.ent)
 end
 
 function Pos:y()
-   return ywPosY(self.ent:cent())
+   return ywPosY(self.ent)
 end
 
 function Pos._init_(ent)
@@ -81,11 +104,29 @@ function Pos._init_(ent)
    ent.to_string = Pos.tostring
    ent.x = Pos.x
    ent.y = Pos.y
+   ent.sub = Pos.sub
+   ent.add = Pos.add
+   ent.cent = Pos.cent
    return ent
 end
 
 function Pos.wrapp(p)
    local ret = {ent = Entity.wrapp(p)}
+   return Pos._init_(ret)
+end
+
+function Pos.new_copy(other, father, name)
+   if yIsLightUserData(other) == false then
+      other = other:cent()
+   end
+   local ent = ywPosCreate(other, father, name)
+   local needDestroy = false
+
+   if father == nil then
+      needDestroy = true
+   end
+   ent = Entity._wrapp_(ent, needDestroy)
+   local ret = {ent = ent}
    return Pos._init_(ret)
 end
 
@@ -128,11 +169,16 @@ function CanvasObj:cent()
 end
 
 function CanvasObj:move(pos)
-   ywCanvasMoveObj(self:cent(), pos.ent:cent())
+   ywCanvasMoveObj(self:cent(), pos:cent())
 end
 
 function CanvasObj:set_pos(x, y)
-   return ywCanvasObjSetPos(self:cent(), x, y)
+   if type(x) == "number" then
+      return ywCanvasObjSetPos(self:cent(), x, y)
+   end
+   -- else we assume it's an entity
+   local pos = Pos.wrapp(x:cent())
+   return ywCanvasObjSetPos(self:cent(), pos:x(), pos:y())
 end
 
 function CanvasObj:pos()
