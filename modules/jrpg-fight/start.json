@@ -1,0 +1,41 @@
+{
+    "name" : "jrpg-fight",
+    "starting widget" : "main",
+    "init-scripts" : [
+	["lua", "initAnimation"], ["lua", "initFight"]
+    ],
+    "pre-load" : [
+	{
+	    "file" : "../Universal-LPC-spritesheet/",
+	    "type" : "module"
+	},
+	{
+	    "file" : "animation.lua",
+	    "type" : "lua"
+	},
+	{
+	    "file" : "init.lua",
+	    "type" : "lua"
+	}
+    ],
+    "game" : {
+        "<type>" : "jrpg-fight",
+	"next" : "jrpg-fight:main"
+    },
+    "main" : {
+        "<type>" : "menu",
+	"background" : "rgba: 255 255 255 255",
+	"entries" : [
+	    {
+		"text" : "Next Game",
+		"next" : "jrpg-fight:game",
+		"action" : "menuNext"
+	    },
+	    {
+		"text" : "Quit",
+		"action" : "FinishGame"
+	    }
+	]
+    }
+}
+
