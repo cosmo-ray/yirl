@@ -52,70 +52,72 @@ void *fileToCanvas(int nbArg, void **args)
   Entity *tiledEnt;
   Entity *tileset_array;
   void *ret = NULL;
+  Entity *layers;
 
   if (nbArg < 2) {
-    DPRINT_ERR("wring number of arguments:"
+    DPRINT_ERR("wrong number of arguments:"
 	       "should be fileToCanvas(path, canvas)");
+    return NULL;
   }
   printf("tile to canvas !, %s %p\n", args[0], args[1]);
   tiledEnt = ygFileToEnt(YJSON, path, NULL);
   tileset_array = yeGet(tiledEnt, "tilesets");
-  YE_ARRAY_FOREACH(tileset_array, tileset) {
-    Entity *tmp;
-    const char *tmp_path = yeGetString(yeGet(tileset, "source"));
-    const char *img_path;
-    int tileheight, tilewidth, tilecount, columns, spacing, margin;
-    Entity *layers = yeGet(tiledEnt, "layers");
-    Entity *texture;
+  layers = yeGet(tiledEnt, "layers");
+  YE_ARRAY_FOREACH(layers, layer) {
+    Entity *layer_data  = yeGet(layer, "data");
+    int data_len = yeLen(layer_data);
+    int layer_w  = yeGetIntAt(layer, "width");
+    Entity *properties = yeGet(layer, "properties");
+    Entity *objects = yeGet(layer, "objects");
 
-    if (assetsPath) {
-      /* strings length + 1 for \0 and +1 for '\' */
-      int bux_size = strlen(assetsPath) + strlen(tmp_path) + 2;
-      char buf[bux_size]; /* VLA */
+    if (objects)
+      yeTryCreateArray(canvas, "objects");
 
-      snprintf(buf, bux_size, "%s/%s", assetsPath, tmp_path);
-      tmp = ygFileToEnt(YJSON, buf, tileset);
-    } else {
-      tmp = ygFileToEnt(YJSON, tmp_path, tileset);
-    }
-    if (!tmp) {
-      DPRINT_ERR("can't load '%s'\n", tmp_path);
-      goto exit;
-    }
-    tileheight = yeGetIntAt(tmp, "tileheight");
-    tilewidth = yeGetIntAt(tmp, "tilewidth");
-    spacing = yeGetIntAt(tmp, "spacing");
-    margin = yeGetIntAt(tmp, "margin");
-    columns = yeGetIntAt(tmp, "columns");
-    tilecount = yeGetIntAt(tmp, "tilecount");
-    printf("%d %d %d %d %d %d\n", tileheight, tilewidth,
-	   tilecount, columns, spacing, margin);
-    yeRenamePtrStr(tileset, tmp, "_ent");
-    img_path = yeGetString(yeGet(tmp, "image"));
-    if (assetsPath) {
-      int bux_size = strlen(assetsPath) + strlen(img_path) + 2;
-      char buf[bux_size]; /* VLA */
+    YE_ARRAY_FOREACH(tileset_array, tileset) {
+      Entity *tmp;
+      int firstgid = yeGetIntAt(tileset, "firstgid");
+      const char *tmp_path = yeGetString(yeGet(tileset, "source"));
+      const char *img_path;
+      int tileheight, tilewidth, tilecount, columns, spacing, margin;
+      Entity *texture;
 
-      snprintf(buf, bux_size, "%s/%s", assetsPath, img_path);
-      texture = ywTextureNewImg(buf, NULL, tileset, "_texture");
-    } else {
-      texture = ywTextureNewImg(img_path, NULL, tileset, "_texture");
-    }
-    printf("texture %p %p\n", texture, yeGet(tileset, "_texture"));
-    YE_ARRAY_FOREACH(layers, layer) {
-      Entity *layer_data  = yeGet(layer, "data");
-      int data_len = yeLen(layer_data);
-      int layer_w  = yeGetIntAt(layer, "width");
-      int i = 0;
-      int y_tild = margin, y = yeGetIntAt(layer, "x");
-      int x_tild = margin, x = yeGetIntAt(layer, "y");
+      if (assetsPath) {
+	/* strings length + 1 for \0 and +1 for '\' */
+	int bux_size = strlen(assetsPath) + strlen(tmp_path) + 2;
+	char buf[bux_size]; /* VLA */
+
+	snprintf(buf, bux_size, "%s/%s", assetsPath, tmp_path);
+	tmp = ygFileToEnt(YJSON, buf, tileset);
+      } else {
+	tmp = ygFileToEnt(YJSON, tmp_path, tileset);
+      }
+      if (!tmp) {
+	DPRINT_ERR("can't load '%s'\n", tmp_path);
+	goto exit;
+      }
+      tileheight = yeGetIntAt(tmp, "tileheight");
+      tilewidth = yeGetIntAt(tmp, "tilewidth");
+      spacing = yeGetIntAt(tmp, "spacing");
+      margin = yeGetIntAt(tmp, "margin");
+      columns = yeGetIntAt(tmp, "columns");
+      tilecount = yeGetIntAt(tmp, "tilecount");
+      printf("%d %d %d %d %d %d\n", tileheight, tilewidth,
+	     tilecount, columns, spacing, margin);
+      yeRenamePtrStr(tileset, tmp, "_ent");
+      img_path = yeGetString(yeGet(tmp, "image"));
       Entity *src_rect = ywRectCreateInts(0, 0, tilewidth,
 					  tileheight, NULL, NULL);
-      Entity *properties = yeGet(layer, "properties");
-      Entity *objects = yeGet(layer, "objects");
 
-      if (objects)
-	yeTryCreateArray(canvas, "objects");
+      if (assetsPath) {
+	int bux_size = strlen(assetsPath) + strlen(img_path) + 2;
+	char buf[bux_size]; /* VLA */
+
+	snprintf(buf, bux_size, "%s/%s", assetsPath, img_path);
+	texture = ywTextureNewImg(buf, NULL, tileset, "_texture");
+      } else {
+	texture = ywTextureNewImg(img_path, NULL, tileset, "_texture");
+      }
+      printf("texture %p %p\n", texture, yeGet(tileset, "_texture"));
 
       YE_ARRAY_FOREACH(objects, object) {
 	Entity *obj = yeCreateArray(yeGet(canvas, "objects"), NULL);
@@ -129,8 +131,13 @@ void *fileToCanvas(int nbArg, void **args)
 			 obj, "rect");
       }
 
+      int i = 0;
+      int y = yeGetIntAt(layer, "x");
+      int x = yeGetIntAt(layer, "y");
+
       YE_ARRAY_FOREACH(layer_data, tile_id) {
-	uint64_t tid = yeGetInt(tile_id) - 1;
+	uint64_t orig_tid = yeGetInt(tile_id);
+	uint64_t tid = orig_tid - firstgid;
 	uint32_t flags = 0;
 	Entity *cur_img;
 
@@ -147,6 +154,8 @@ void *fileToCanvas(int nbArg, void **args)
 		   FLIPPED_DIAGONALLY_FLAG);
 	  printf("tid: %x, flags: %x\n", tid, flags);
 	}
+	if (orig_tid < firstgid || tid > 1024)
+	  goto next_tile;
 	ywRectSetX(src_rect, margin + ((tilewidth + spacing) * (tid % columns)));
 	ywRectSetY(src_rect, margin + ((tileheight + spacing) * (tid / columns)));
 	cur_img = ywCanvasNewImgFromTexture(canvas, x, y, texture, src_rect);
@@ -165,6 +174,7 @@ void *fileToCanvas(int nbArg, void **args)
 			  yeGetStringAt(property, "name"));
 	  }
 	}
+      next_tile:
 	x += tilewidth;
 	++i;
       }
