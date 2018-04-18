@@ -96,9 +96,14 @@ function attackCallback(main, cur_anim, eve)
 
       if cur_cmb_anim.to then
 	 cur_anim.last_mv_frm = last_frm
-	 cur_anim.base_pos = Pos.new_copy(ylpcsHandePos(cur_anim.guy)).ent
+	 local bp = Pos.new_copy(ylpcsHandePos(cur_anim.guy))
+	 cur_anim.base_pos = bp.ent
 	 local tp = Pos.new_copy(ylpcsHandePos(cur_anim.target))
-	 tp:add(lpcs.w_sprite:to_int())
+	 if (tp:x() < bp:x()) then
+	    tp:add(lpcs.w_sprite:to_int() / 2, 0)
+	 else
+	    tp:add(-lpcs.w_sprite:to_int() / 2, 0)
+	 end
 	 cur_anim.to_pos = tp.ent
 	 local dis = Pos.new_copy(cur_anim.to_pos)
 	 dis:sub(cur_anim.base_pos)
