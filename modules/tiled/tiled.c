@@ -84,7 +84,7 @@ void *fileToCanvas(int nbArg, void **args)
       if (assetsPath) {
 	/* strings length + 1 for \0 and +1 for '\' */
 	int bux_size = strlen(assetsPath) + strlen(tmp_path) + 2;
-	char buf[bux_size]; /* VLA */
+	char buf[1024]; /* VLA */
 
 	snprintf(buf, bux_size, "%s/%s", assetsPath, tmp_path);
 	tmp = ygFileToEnt(YJSON, buf, tileset);
@@ -110,7 +110,7 @@ void *fileToCanvas(int nbArg, void **args)
 
       if (assetsPath) {
 	int bux_size = strlen(assetsPath) + strlen(img_path) + 2;
-	char buf[bux_size]; /* VLA */
+	char buf[1024]; /* VLA */
 
 	snprintf(buf, bux_size, "%s/%s", assetsPath, img_path);
 	texture = ywTextureNewImg(buf, NULL, tileset, "_texture");
@@ -145,7 +145,7 @@ void *fileToCanvas(int nbArg, void **args)
 	  y += tileheight;
 	  x = 0;
 	}
-	printf("%u(%x, %d,%d) ", yeGetInt(tile_id), yeGetInt(tile_id), x, y);
+	//printf("%u(%x, %d,%d) ", yeGetInt(tile_id), yeGetInt(tile_id), x, y);
 	if (tid >= tilecount) {
 	  /* some transformation happen */
 	  flags = tid & (FLIPPED_HORIZONTALLY_FLAG | FLIPPED_VERTICALLY_FLAG |
@@ -179,21 +179,22 @@ void *fileToCanvas(int nbArg, void **args)
 	++i;
       }
       yeDestroy(src_rect);
-      printf("\n");
-      printf("%d\n", yeLen(layer_data));
     }
   }
   yePushBack(canvas, tiledEnt, "tiled-ent");
   ret = (void *)1;
  exit:
+  printf("out !!!!\n");
   yeDestroy(tiledEnt);
   return ret;
 }
 
 void *init_tiled(int nbArg, void **args)
 {
+  printf("hi\n");
   Entity *t = YE_TO_ENTITY(args[0]);
 
+  printf("hi\n");
   yeCreateFunction("setAssetPath", ygGetManager("tcc"), t, "setAssetPath");
   yeCreateFunction("deinit", ygGetManager("tcc"), t, "deinit");
   yeCreateFunction("fileToCanvas", ygGetManager("tcc"), t, "fileToCanvas");

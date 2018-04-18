@@ -21,7 +21,6 @@
 #include "tcc-script.h"
 #include "debug.h"
 
-
 static int t = -1;
 
 const char *ysTccPath;
@@ -51,6 +50,7 @@ static TCCState *createTCCState(YTccScript *state)
   if (l == NULL)
     return NULL;
   if (!ysTccPath) {
+    tccAddSyms(l);
     tcc_add_sysinclude_path(l, YIRL_INCLUDE_PATH);
     tcc_set_lib_path(l, TCC_LIB_PATH);
   } else {
@@ -80,7 +80,6 @@ static int tccInit(void *sm, void *args)
 static int tccLoadFile(void *sm, const char *filename)
 {
   int ret = tcc_add_c_file(GET_TCC_S(sm), filename);
-
   SET_REALLOC_NEEDED(sm);
   return ret;
 }

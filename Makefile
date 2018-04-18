@@ -19,6 +19,7 @@ SRC = 	$(SCRIPT_DIR)/lua-script.c \
 	$(SCRIPT_DIR)/lua-binding.c \
 	$(SCRIPT_DIR)/lua-convert.c \
 	$(SCRIPT_DIR)/tcc-script.c \
+	$(SCRIPT_DIR)/tcc-syms.c \
 	$(SCRIPT_DIR)/native-script.c \
 	$(SCRIPT_DIR)/ybytecode-script.c \
 	$(SCRIPT_DIR)/script.c \

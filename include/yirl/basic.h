@@ -31,7 +31,11 @@
 #ifndef O_ASYNC
 # define O_ASYNC         020000
 #endif
+
 typedef int_ptr_t size_t;
+typedef void FILE;
+
+void	fflushout(void);
 int open(const char *path, int oflag, ...);
 size_t read(int fd, void *buf, size_t count);
 int printf(const char *format, ...);
@@ -45,3 +49,4 @@ void *calloc(size_t, size_t);
 size_t strlen(const char *s);
 char *strdup(const char *s);
 char *strndup(const char *s, size_t n);
+int fflush(FILE *stream);

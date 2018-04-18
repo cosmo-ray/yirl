@@ -27,11 +27,14 @@ extern "C"
    */
   void yuiDebugInit(void);
 
+#if defined(__unix__) || defined(__APPLE__)
   /**
    * @brief Add log to the file or print it to the specified file descriptor.
    */
   void	yuiDebugPrint(int mode, char const* format, ...);
-
+#else
+#define yuiDebugPrint(mode, fmt, args...) printf(fmt, args);
+#endif
   /**
    * @brief Exit the logger
    */

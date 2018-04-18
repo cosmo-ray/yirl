@@ -45,6 +45,7 @@ void	debug_print_(char const* mode, char const* format, va_list vl);
 FILE*	get_file(int mode);
 void	debug_print_info(FILE* fd, const char* mode);
 
+#if defined(__unix__) || defined(__APPLE__)
 void	yuiDebugPrint(int mode, char const* format, ...)
 {
   if (mode >= 0 && mode < 3)
@@ -66,6 +67,7 @@ void	yuiDebugPrint(int mode, char const* format, ...)
       va_end(vl);
     }
 }
+#endif
 
 void	yuiDebugInit()
 {
@@ -100,7 +102,8 @@ void	debug_print_info(FILE* fd, const char* mode)
   fprintf(fd, "[%.7s]", mode);
 }
 
-void	debug_print_(char const* mode, char const* format, va_list vl) {
+void	debug_print_(char const* mode, char const* format, va_list vl)
+{
   debug_print_info(log_confs[INFO].file, mode);
   if (format == NULL)
     fprintf(log_confs[INFO].file, "Unknow Error");    

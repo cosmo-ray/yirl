@@ -432,7 +432,6 @@ Entity *ygLoadMod(const char *path)
   mod = ydFromFile(jsonManager, tmp, NULL);
   if (!mod)
     goto failure;
-
   name = yeGet(mod, "name");
   if (!name) {
     DPRINT_ERR("name not found in %s\n", tmp);
@@ -482,7 +481,7 @@ Entity *ygLoadMod(const char *path)
       yeRenamePtrStr(mod, tmpFile, yeGetString(as));
     } else if (yuiStrEqual0(yeGetString(tmpType), "module")) {
       if (!ygLoadMod(fileStr)) {
-	DPRINT_ERR("fail to load module: %s");
+	DPRINT_ERR("fail to load module: %s", fileStr);
       fail_preload:
 	g_free(fileStr);
 	goto failure;

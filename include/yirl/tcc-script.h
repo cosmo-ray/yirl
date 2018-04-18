@@ -33,6 +33,7 @@ typedef struct {
   int needRealloc;
 } YTccScript;
 
+void	tccAddSyms(TCCState *l);
 
 int ysTccInit(void);
 int ysTccEnd(void);
