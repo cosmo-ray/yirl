@@ -93,6 +93,7 @@ SDL_Surface *wSurface(void)
 static int	sdlDraw(void)
 {
   SDL_RenderPresent(sg.renderer);
+  SDL_RenderClear(sg.renderer);
   return 0;
 }
 

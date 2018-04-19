@@ -289,24 +289,15 @@ static InputStatue cntEvent(YWidgetState *opac, Entity *event)
 static int cntRend(YWidgetState *opac)
 {
   Entity *entries = yeGet(opac->entity, "entries");
-  int needChange = 0;
   YWidgetState *bg_wid = ywidGetState(yeGet(opac->entity, "$bg"));
 
   if (!opac->hasChange)
     return 0;
 
-#if defined(__APPLE__)
-    needChange = 1;
-#else
-  if (opac->hasChange == 2 || ywCntType(opac) == CNT_STACK)
-    needChange = 1;
-#endif
-
   if (bg_wid) {
     yeReplaceBack(bg_wid->entity, yeGet(opac->entity, "wid-pos"), "wid-pos");
     bg_wid->hasChange = 1;
     ywidSubRend(bg_wid);
-    needChange = 1;
   }
 
   YE_ARRAY_FOREACH(entries, tmp) {
@@ -326,8 +317,7 @@ static int cntRend(YWidgetState *opac)
 	continue;
       cntResize(opac);
     }
-    if (needChange)
-      wid->hasChange = 2;
+    wid->hasChange = 2;
 
     ywidSubRend(wid);
     wid->hasChange = 0;
