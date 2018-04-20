@@ -35,7 +35,7 @@
 				 "texts" : [
 				     {
 					 "text": "it was alerady a dumb question when you ask it last time",
-					 "condition": [">", "Dialogue:hasWTF", 0]
+					 "condition": ["=", "Dialogue:hasWTF", 1]
 				     },
 				     {
 					 "text" : "wtf ?",

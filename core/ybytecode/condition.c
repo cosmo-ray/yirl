@@ -76,6 +76,8 @@ int yeCheckCondition(Entity *condition)
 	instructions[i + 2] = YB_SUP;
       } else if (action[0] == '<') {
 	instructions[i + 2] = YB_INF;
+      } else if (action[0] == '=') {
+	instructions[i + 2] = YB_EQUAL;
       } else {
 	return 0;
       }
