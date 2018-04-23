@@ -43,6 +43,9 @@ function endAnimationAttack(main, cur_anim)
 
    obj:set_pos(cur_anim.base_pos)
 
+   if cur_anim.target.char.life <= 0 then
+      print("hes's dead !!!")
+   end
    print(cur_anim.guy.char.life, cur_anim.target.char.life)
    if main.atk_state:to_int() == PJ_ATTACK then
       ylpcsHandelerSetOrigXY(cur_anim.guy, good_orig_pos[1],
