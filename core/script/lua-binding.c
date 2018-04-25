@@ -707,6 +707,12 @@ int	luaywCanvasPopObj(lua_State *L)
   return 0;
 }
 
+int	luaywTextureNormalize(lua_State *L)
+{
+  lua_pushnumber(L, ywTextureNormalize(luaEntityAt(L, 1)));
+  return 1;
+}
+
 int	luaywTextureNewImg(lua_State *L)
 {
   lua_pushlightuserdata(L, ywTextureNewImg(lua_tostring(L, 1),
@@ -953,6 +959,13 @@ int	luaGetString(lua_State *L)
       return -1;
     }
   lua_pushstring(L, yeGetString(luaEntityAt(L, 1)));
+  return 1;
+}
+
+int	luayeGetIntAt(lua_State *L)
+{
+  luaGet(L);
+  lua_pushnumber(L, yeGetInt(lua_touserdata(L, lua_gettop(L))));
   return 1;
 }
 

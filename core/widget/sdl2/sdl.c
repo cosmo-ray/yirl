@@ -745,6 +745,14 @@ uint32_t sdlCanvasPixInfo(Entity *obj, int x, int y)
 
   switch (surface->format->BitsPerPixel) {
   case 32:
+    if (!SDL_ISPIXELFORMAT_ALPHA(surface->format->format) &&
+	((uint32_t *)surface->pixels)[x + surface->w * y]) {
+	YCanvasPixiel ret;
+	ret.i = ((uint32_t *)surface->pixels)[x + surface->w * y];
+	ret.rgba[3] = 255; /* I guess if Alpha is store at the begin, we're fuck */
+
+	return ret.i;
+    }
     return ((uint32_t *)surface->pixels)[x + surface->w * y];
   case 8:
     {

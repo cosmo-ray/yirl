@@ -152,7 +152,6 @@ void *fileToCanvas(int nbArg, void **args)
 			 FLIPPED_DIAGONALLY_FLAG);
 	  tid &= ~(FLIPPED_HORIZONTALLY_FLAG | FLIPPED_VERTICALLY_FLAG |
 		   FLIPPED_DIAGONALLY_FLAG);
-	  printf("tid: %x, flags: %x\n", tid, flags);
 	}
 	if (orig_tid < firstgid || tid > 1024)
 	  goto next_tile;
@@ -162,16 +161,32 @@ void *fileToCanvas(int nbArg, void **args)
 	if (flags == (FLIPPED_VERTICALLY_FLAG | FLIPPED_HORIZONTALLY_FLAG)) {
 	  ywCanvasRotate(cur_img, 180);
 	}
-	YE_ARRAY_FOREACH(properties, property) {
-	  if (!yeStrCmp(yeGet(property, "type"), "int")) {
-	    yeCreateInt(yeGetIntAt(property, "value"), cur_img,
-			yeGetStringAt(property, "name"));
-	  } else if (!yeStrCmp(yeGet(property, "type"), "string")) {
-	    yeCreateString(yeGetStringAt(property, "value"), cur_img,
-			   yeGetStringAt(property, "name"));
-	  } else if (!yeStrCmp(yeGet(property, "type"), "float")) {
-	    yeCreateFloat(yeGetFloatAt(property, "value"), cur_img,
-			  yeGetStringAt(property, "name"));
+	Entity *proTypes = yeGet(layer, "propertytypes");
+	int proTypesIt = 0;
+	YE_ARRAY_FOREACH_EXT(properties, property, it) {
+	  Entity *val = property;
+	  const char *name;
+	  Entity *proType = yeGet(proTypes, proTypesIt);
+
+	  ++proTypesIt;
+	  if (proTypes) {
+	    name = yBlockArrayIteratorGetPtr(it, ArrayEntry)->name;
+	  } else {
+	    name = yeGetStringAt(property, "name");
+	    proType = yeGet(property, "type");
+	    val = yeGet(property, "value");
+	  }
+	  if (!yeStrCmp(proType, "int")) {
+	    printf("property: %s - %d\n", name,
+		   yeGetIntAt(property, "value"));
+	    yeCreateInt(yeGetInt(property), cur_img,
+			name);
+	  } else if (!yeStrCmp(proType, "string")) {
+	    yeCreateString(yeGetString(property), cur_img,
+			   name);
+	  } else if (!yeStrCmp(proType, "float")) {
+	    yeCreateFloat(yeGetFloat(property), cur_img,
+			  name);
 	  }
 	}
       next_tile:

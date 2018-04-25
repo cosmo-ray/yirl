@@ -99,6 +99,7 @@ int	luaSetString(lua_State *L);
 int	luaGetInt(lua_State *L);
 int	luaSetInt(lua_State *L);
 int	luaCreateInt(lua_State *L);
+int	luayeGetIntAt(lua_State *L);
 
 /* float */
 int	luaGetFloat(lua_State *L);
@@ -203,6 +204,7 @@ int	luaywCanvasNewImgFromTexture(lua_State *L);
 /* texture */
 int	luaywTextureNewImg(lua_State *L);
 int	luaywTextureMerge(lua_State *L);
+int	luaywTextureNormalize(lua_State *L);
 
 /* Menu */
 int	luaywMenuCallActionOn(lua_State *lua);
@@ -418,6 +420,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeGetInt", luaGetInt));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeSetInt", luaSetInt));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeCreateInt", luaCreateInt));
+  YES_LUA_REGISTRE_CALL(sm, yeGetIntAt);
 
   /* float */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeGetFloat", luaGetFloat));
@@ -536,6 +539,7 @@ static inline int	yesLuaRegister(void *sm)
   /* texture */
   YES_LUA_REGISTRE_CALL(sm, ywTextureNewImg);
   YES_LUA_REGISTRE_CALL(sm, ywTextureMerge);
+  YES_LUA_REGISTRE_CALL(sm, ywTextureNormalize);
 
   /* Game and Modules */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygGetMod", luaGetMod));
