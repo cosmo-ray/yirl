@@ -70,8 +70,23 @@ void *fileToCanvas(int nbArg, void **args)
     Entity *properties = yeGet(layer, "properties");
     Entity *objects = yeGet(layer, "objects");
 
-    if (objects)
+    if (objects) {
+
       yeTryCreateArray(canvas, "objects");
+
+      YE_ARRAY_FOREACH(objects, object) {
+	Entity *obj = yeCreateArray(yeGet(canvas, "objects"), NULL);
+	yeGetPush(object, obj, "visible");
+	yeGetPush(object, obj, "id");
+	yeGetPush(object, obj, "name");
+	ywRectCreateInts(yeGetIntAt(object, "x"),
+			 yeGetIntAt(object, "y"),
+			 yeGetIntAt(object, "width"),
+			 yeGetIntAt(object, "height"),
+			 obj, "rect");
+      }
+      continue;
+    }
 
     YE_ARRAY_FOREACH(tileset_array, tileset) {
       Entity *tmp;
@@ -116,19 +131,6 @@ void *fileToCanvas(int nbArg, void **args)
 	texture = ywTextureNewImg(buf, NULL, tileset, "_texture");
       } else {
 	texture = ywTextureNewImg(img_path, NULL, tileset, "_texture");
-      }
-      printf("texture %p %p\n", texture, yeGet(tileset, "_texture"));
-
-      YE_ARRAY_FOREACH(objects, object) {
-	Entity *obj = yeCreateArray(yeGet(canvas, "objects"), NULL);
-	yeGetPush(object, obj, "visible");
-	yeGetPush(object, obj, "id");
-	yeGetPush(object, obj, "name");
-	ywRectCreateInts(yeGetIntAt(object, "x"),
-			 yeGetIntAt(object, "y"),
-			 yeGetIntAt(object, "width"),
-			 yeGetIntAt(object, "height"),
-			 obj, "rect");
       }
 
       int i = 0;
@@ -177,8 +179,6 @@ void *fileToCanvas(int nbArg, void **args)
 	    val = yeGet(property, "value");
 	  }
 	  if (!yeStrCmp(proType, "int")) {
-	    printf("property: %s - %d\n", name,
-		   yeGetIntAt(property, "value"));
 	    yeCreateInt(yeGetInt(val), cur_img,
 			name);
 	  } else if (!yeStrCmp(proType, "string")) {
