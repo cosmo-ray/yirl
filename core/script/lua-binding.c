@@ -678,7 +678,7 @@ int luaYwCanvasNewCollisionsArray(lua_State *L)
 
 int luaYwCanvasNewCollisionsArrayWithRectangle(lua_State *L)
 {
-  lua_pushlightuserdata(L, ywCanvasNewCollisionsArray(luaEntityAt(L, 1),
+  lua_pushlightuserdata(L, ywCanvasNewCollisionsArrayWithRectangle(luaEntityAt(L, 1),
 						     luaEntityAt(L, 2)));
   return 1;
 }

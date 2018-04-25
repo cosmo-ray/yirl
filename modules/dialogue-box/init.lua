@@ -1,4 +1,5 @@
-local arrow_path = YIRL_MODULES_PATH .. "dialogue-box/arrow_sheet.png"
+local dir_path = Entity.wrapp(ygGet("DialogueBox.$path")):to_string()
+local arrow_path = dir_path .. "/arrow_sheet.png"
 local default_color = "rgba: 255 255 255 255"
 local border_threshold = 10
 local txt_threshold = 10

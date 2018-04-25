@@ -17,12 +17,15 @@
 
 #include <string.h>
 #include <glib.h>
-
 #include "tcc-script.h"
 #include "texture.h"
 #include "canvas.h"
+
+#include "condition.h"
+#include "container.h"
 #include "entity-script.h"
 #include "game.h"
+#include "menu.h"
 
 void	fflushout(void)
 {
@@ -52,6 +55,7 @@ void	tccAddSyms(TCCState *l)
   tcc_add_symbol(l, "ywCanvasNewImgFromTexture", ywCanvasNewImgFromTexture);
   tcc_add_symbol(l, "ywCanvasRotate", ywCanvasRotate);
   tcc_add_symbol(l, "yeLen", yeLen);
+  tcc_add_symbol(l, "ygGet", ygGet);
   tcc_add_symbol(l, "yeStrCmp", yeStrCmp);
   tcc_add_symbol(l, "yeCreateString", yeCreateString);
   tcc_add_symbol(l, "yeCreateInt", yeCreateInt);
@@ -64,6 +68,26 @@ void	tccAddSyms(TCCState *l)
   tcc_add_symbol(l, "yeGetByIdx", yeGetByIdx);
   tcc_add_symbol(l, "yeSetInt", yeSetInt);
   tcc_add_symbol(l, "yesCallInt", yesCallInt);
+  tcc_add_symbol(l, "yeCheckCondition", yeCheckCondition);
+  tcc_add_symbol(l, "ywCntGetEntry", ywCntGetEntry);
+  tcc_add_symbol(l, "ywidActions", ywidActions);
+  tcc_add_symbol(l, "ywContainerUpdate", ywContainerUpdate);
+  tcc_add_symbol(l, "ywCntWidgetFather", ywCntWidgetFather);
+  tcc_add_symbol(l, "ywidAddSubType", ywidAddSubType);
+  tcc_add_symbol(l, "ygGetTccManager", ygGetTccManager);
+  tcc_add_symbol(l, "ywMenuDown", ywMenuDown);
+  tcc_add_symbol(l, "yeCreateData", yeCreateData);
+  tcc_add_symbol(l, "ywidNewWidget", ywidNewWidget);
+  tcc_add_symbol(l, "ygGetMod", ygGetMod);
+  tcc_add_symbol(l, "yeAttach", yeAttach);
+  tcc_add_symbol(l, "yePushAt", yePushAt);
+  tcc_add_symbol(l, "yeGetByStr", yeGetByStr);
+  tcc_add_symbol(l, "yeGetData", yeGetData);
+  tcc_add_symbol(l, "yeRemoveChildByEntity", yeRemoveChildByEntity);
+  tcc_add_symbol(l, "yeSetString", yeSetString);
+  tcc_add_symbol(l, "ygRegistreFuncInternal", ygRegistreFuncInternal);
+  tcc_add_symbol(l, "yePushBackExt", yePushBackExt);
+
 #else
   (void)l;
 #endif
