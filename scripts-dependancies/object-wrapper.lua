@@ -99,6 +99,10 @@ function Pos:y()
    return ywPosY(self.ent)
 end
 
+function Pos:opposite()
+   ywPosSet(self.ent, -self:x(), -self:y())
+end
+
 function Pos._init_(ent)
    ent.tostring = Pos.tostring
    ent.to_string = Pos.tostring
@@ -106,6 +110,7 @@ function Pos._init_(ent)
    ent.y = Pos.y
    ent.sub = Pos.sub
    ent.add = Pos.add
+   ent.opposite = Pos.opposite
    ent.cent = Pos.cent
    return ent
 end

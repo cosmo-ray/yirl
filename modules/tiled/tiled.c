@@ -179,13 +179,13 @@ void *fileToCanvas(int nbArg, void **args)
 	  if (!yeStrCmp(proType, "int")) {
 	    printf("property: %s - %d\n", name,
 		   yeGetIntAt(property, "value"));
-	    yeCreateInt(yeGetInt(property), cur_img,
+	    yeCreateInt(yeGetInt(val), cur_img,
 			name);
 	  } else if (!yeStrCmp(proType, "string")) {
-	    yeCreateString(yeGetString(property), cur_img,
+	    yeCreateString(yeGetString(val), cur_img,
 			   name);
 	  } else if (!yeStrCmp(proType, "float")) {
-	    yeCreateFloat(yeGetFloat(property), cur_img,
+	    yeCreateFloat(yeGetFloat(val), cur_img,
 			  name);
 	  }
 	}
