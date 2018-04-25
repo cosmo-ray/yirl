@@ -217,6 +217,13 @@ static inline ArrayEntry *yeGetArrayEntryByIdx(Entity *entity, uint32_t i)
   return yBlockArrayGetPtr(&YE_TO_ARRAY(entity)->values, i, ArrayEntry);
 }
 
+char *yeGetKeyAt(Entity *entity, int idx)
+{
+  if (entity)
+    return yeGetArrayEntryByIdx(entity, idx)->name;
+  return NULL;
+}
+
 int yeSetFlagByIdx(Entity *array, int idx, int flag)
 {
   ArrayEntry *ae = yeGetArrayEntryByIdx(array, idx);

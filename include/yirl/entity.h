@@ -298,6 +298,11 @@ Entity *yeGetByStrExt(Entity *entity, const char *name, int64_t *idx);
 #endif
 
 /**
+ * @return the key string if there is one
+ */
+char *yeGetKeyAt(Entity *entity, int idx);
+
+/**
  * Like yeGetByStr but dosn't work with sytaxe like this (entity1.entity11)
  */
 Entity *yeGetByStrFast(Entity *entity, const char *name);

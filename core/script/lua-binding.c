@@ -920,6 +920,12 @@ int	luaPopBack(lua_State *L)
   return 1;
 }
 
+int	luayeGetKeyAt(lua_State *L)
+{
+  lua_pushstring(L, yeGetKeyAt(luaEntityAt(L, 1), lua_tointeger(L, 2)));
+  return 1;
+}
+
 int	luayePushAt(lua_State *L)
 {
   yePushAt(luaEntityAt(L, 1), luaEntityAt(L, 2), lua_tonumber(L, 3));
