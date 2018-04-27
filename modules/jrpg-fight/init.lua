@@ -1,7 +1,11 @@
 local anim_field = "anim"
+local anim_field_e = Entity.new_string(anim_field)
+local txt_anim_field = Entity.new_string("anim_txt")
 local AWAIT_CMD = 0
 local PJ_ATTACK = 1
 local ENEMY_ATTACK = 2
+local ENEMY_WIN = 3
+local PJ_WIN = 4
 local lpcs = Entity.wrapp(ygGet("lpcs"))
 local frm_mult = 5
 local good_orig_pos = {1, 1}
@@ -10,9 +14,19 @@ local bad_orig_pos = {1, 3}
 function fightAction(entity, eve)
    entity = Entity.wrapp(entity)
    eve = Event.wrapp(eve)
+   local ret = YEVE_NOTHANDLE
 
-   if yDoAnimation(entity:cent(),
-		   Entity.new_string(anim_field):cent(),
+   if entity.atk_state:to_int() == PJ_WIN or
+   entity.atk_state:to_int() == ENEMY_WIN then
+
+      yCallNextWidget(entity:cent());
+      return YEVE_ACTION
+   end
+   if yDoAnimation(entity, txt_anim_field) == Y_TRUE and
+   yHasAnimation(entity, txt_anim_field) == Y_FALSE then
+      ret = YEVE_NOACTION
+   end
+   if yDoAnimation(entity, anim_field_e,
 		   eve:cent()) == Y_TRUE then
       return YEVE_ACTION
    end
@@ -23,7 +37,7 @@ function fightAction(entity, eve)
       end
       eve = eve:next()
    end
-   return YEVE_NOTHANDLE
+   return ret
 end
 
 function menuGetMain(menu)
@@ -31,11 +45,22 @@ function menuGetMain(menu)
 end
 
 function combatDmg(main, cur_anim)
+   local canvas = getCanvas(main)
    local dmg = 1
+
    if cur_anim.mod then
       dmg = cur_anim.mod
    end
-   cur_anim.target.char.life = cur_anim.target.char.life - dmg
+   local new_life = cur_anim.target.char.life - dmg
+   cur_anim.target.char.life = new_life
+   local lb = cur_anim.target.life_b
+   lb = CanvasObj.wrapp(lb)
+   local x = lb:pos():x()
+   local y = lb:pos():y()
+   canvas:remove(lb.ent)
+   cur_anim.target.life_b = canvas:new_rect(x, y, "rgba: 0 255 30 255",
+					    Pos.new(50 * new_life / 10,
+						    10).ent).ent
 end
 
 function endAnimationAttack(main, cur_anim)
@@ -44,33 +69,30 @@ function endAnimationAttack(main, cur_anim)
    obj:set_pos(cur_anim.base_pos)
 
    if cur_anim.target.char.life <= 0 then
-      print("hes's dead !!!")
+      if main.atk_state:to_int() == PJ_ATTACK then
+	 main.atk_state = PJ_WIN
+      else
+	 main.atk_state = ENEMY_WIN
+      end
+      yEndAnimation(main, anim_field_e)
+      return
    end
-   print(cur_anim.guy.char.life, cur_anim.target.char.life)
    if main.atk_state:to_int() == PJ_ATTACK then
       ylpcsHandelerSetOrigXY(cur_anim.guy, good_orig_pos[1],
 			     good_orig_pos[2])
       ylpcsHandelerRefresh(cur_anim.guy)
       main.atk_state = ENEMY_ATTACK
-      cur_anim.sucess = false
-      cur_anim.cur_cmb = 0
       local tmp = cur_anim.guy
       yeIncrRef(tmp)
-      cur_anim.guy = cur_anim.target
-      cur_anim.target = tmp
-      cur_anim.combots = cur_anim.guy.char.combots
-      cur_anim.cmb_len = cur_anim.guy.char.combots:len()
+      attack(main, cur_anim.target, cur_anim.guy, (yuiRand() % 2) + 1)
       yeDestroy(tmp)
       --print(cur_anim.guy.name, cur_anim.target.name)
-      yInitAnimation(main:cent(), cur_anim:cent(),
-		     Entity.new_func("attackCallback"):cent(),
-		     Entity.new_string(anim_field):cent())
    else
       ylpcsHandelerSetOrigXY(cur_anim.guy, bad_orig_pos[1],
 			     bad_orig_pos[2])
       ylpcsHandelerRefresh(cur_anim.guy)
       main.atk_state = AWAIT_CMD
-      yEndAnimation(main:cent(), Entity.new_string(anim_field):cent())
+      yEndAnimation(main, anim_field_e)
       ylpcsHandelerSetOrigXY(cur_anim.guy, bad_orig_pos[1],
 			     bad_orig_pos[2])
    end
@@ -91,7 +113,12 @@ function attackCallback(main, cur_anim, eve)
       cur_val_pos = cur_cmb:len() - 1
    end
    local cur_val = cur_cmb[cur_val_pos]:to_int()
+   local can_print_loader = true
 
+   if main.atk_state:to_int() == ENEMY_ATTACK and
+   cur_anim.target.char.can_guard:to_int() == 0 then
+      can_print_loader = false
+   end
    while eve:is_end() == false do
       if eve:type() == YKEY_DOWN and eve:key() == Y_SPACE_KEY then
 	 if (cur_val == 1) then
@@ -141,8 +168,10 @@ function attackCallback(main, cur_anim, eve)
 	 else
 	    cmb_bar[1] = "rgba: 255 30 30 255"
 	 end
-	 cur_anim.loaders[i] = canvas:new_rect(25 + (i * part_len),
-					       5, cmb_bar).ent
+	 if can_print_loader then
+	    cur_anim.loaders[i] = canvas:new_rect(25 + (i * part_len),
+						  5, cmb_bar).ent
+	 end
 	 i = i + 1
       end
    end
@@ -167,72 +196,133 @@ function attackCallback(main, cur_anim, eve)
    end
    if cur_anim.animation_frame >= last_frm then
       local i = 0
+      local computer_sucess
+	 if (yuiRand() % 2) == 0 then
+	     computer_sucess = true
+	 else
+	    computer_sucess = false
+	 end
       while i < cur_cmb:len() do
 	 canvas:remove(cur_anim.loaders[i])
 	 i = i + 1
       end
-      combatDmg(main, cur_anim)
+      local txt = cur_anim.guy.char.name:to_string() .. " attack: "
       if main.atk_state:to_int() == ENEMY_ATTACK then
-	 if (yuiRand() % 2) == 0 then
-	    print("enemy sucess", yuiRand() % 2)
-	    cur_anim.sucess = true
+	 if cur_anim.sucess:to_int() == 1 then
+	    guard_sucess = true
 	 else
-	    print("enemy fail")
-	    cur_anim.sucess = false
+	    guard_sucess = false
 	 end
+	 cur_anim.sucess = computer_sucess
+      else
+	 guard_sucess = computer_sucess
+      end
+      if cur_anim.target.char.can_guard:to_int() == 0 then
+	 guard_sucess = false
+      end
+      startTextAnim(main, txt)
+      if guard_sucess == false then
+	 combatDmg(main, cur_anim)
       end
 
       if cur_anim.sucess:to_int() == 1 then
+	 txt = txt .. "SUCESS, " .. cur_anim.target.char.name:to_string() ..
+	    " guard: "
+	 if cur_anim.target.char.can_guard:to_int() == 0 then
+	    txt = txt .. "CAN'T GUARD"
+	 elseif guard_sucess then
+	    txt = txt .. "SUCESS"
+	 else
+	    txt = txt .. "FAIL"
+	 end
 	 cur_anim.sucess = false
 	 cur_anim.cur_cmb = cur_anim.cur_cmb + 1
 	 if cur_anim.cur_cmb:to_int() < cur_anim.combots:len() then
 	    yInitAnimation(main:cent(), cur_anim:cent(),
-			   Entity.new_func("attackCallback"):cent(),
-			   Entity.new_string(anim_field):cent())
+			   Entity.new_func("attackCallback"),
+			   anim_field_e)
 	 else
+	    -- deal extra domages if sucess last combot
+	    if cur_anim.sucess:to_int() then
+	       combatDmg(main, cur_anim)
+	    end
 	    endAnimationAttack(main, cur_anim)
 	 end
-	 print("SUCESS !!!!")
       else
-	 print("FAIL !!!!")
+	 txt = txt .. "FAIL"
 	 endAnimationAttack(main, cur_anim)
       end
+      startTextAnim(main, txt)
       return Y_FALSE
    end
-   local cmb_bar = Entity.new_array()
+   if can_print_loader then
+      local cmb_bar = Entity.new_array()
 
-   cmb_bar[0] = Pos.new(tot_bar_len *  cur_anim.animation_frame / last_frm, 15).ent
-   cmb_bar[1] = "rgba: 0 255 0 50"
-   cur_anim.loader_percent = canvas:new_rect(25, 5, cmb_bar).ent
+      cmb_bar[0] = Pos.new(tot_bar_len *  cur_anim.animation_frame
+			      / last_frm, 15).ent
+      cmb_bar[1] = "rgba: 0 255 0 50"
+      cur_anim.loader_percent = canvas:new_rect(25, 5, cmb_bar).ent
+   end
    return Y_TRUE
+end
+
+function printTextAnim(main, cur_anim)
+   main = Entity.wrapp(main)
+   cur_anim = Entity.wrapp(cur_anim)
+   local canvas = getCanvas(main)
+
+   if cur_anim.animation_frame:to_int() == 0 then
+      cur_anim.txt_c = canvas:new_text(50, 50, cur_anim.txt).ent
+   end
+   if cur_anim.animation_frame >= 30 then
+      canvas:remove(cur_anim.txt_c)
+      yEndAnimation(main, txt_anim_field)
+      return Y_FALSE
+   end
+   return Y_TRUE
+end
+
+function startTextAnim(main, txt)
+   local anim = Entity.new_array()
+   if main[txt_anim_field:to_string()] then
+      local canvas = getCanvas(main)
+      canvas:remove(main[txt_anim_field:to_string()].txt_c)
+      yEndAnimation(main, txt_anim_field)
+   end
+   anim.txt = txt
+   yInitAnimation(main, anim, Entity.new_func("printTextAnim"),
+		  txt_anim_field)
 end
 
 function attack(main, attacker, attacked, mod)
    local anim = Entity.new_array()
-   print("ore wa senshi !", main:cent(), attacker.char.combots[0]:len(),
-	 attacked.life, mod)
-   print("f0: ", anim_field)
-   main.atk_state = PJ_ATTACK
    anim.sucess = false
    anim.combots = attacker.char.combots
    anim.cmb_len = attacker.char.combots:len()
    anim.cur_cmb = 0
    anim.mod = mod
+   if mod and mod > 1 then
+      print("STRONG ATTACK !")
+      attacker.char.can_guard = false
+   else
+      attacker.char.can_guard = true
+   end
    anim.guy = attacker
    anim.target = attacked
    yInitAnimation(main:cent(), anim:cent(),
 		  Entity.new_func("attackCallback"):cent(),
-		  Entity.new_string(anim_field):cent())
+		  anim_field_e:cent())
 end
 
 function fightAttack(entity, eve)
    local main = menuGetMain(entity)
+   main.atk_state = PJ_ATTACK
    return attack(main, main.gg_handeler, main.bg_handeler)
 end
 
 function fightStrongAttack(entity, eve)
-   print("atack attak attack")
    local main = menuGetMain(entity)
+   main.atk_state = PJ_ATTACK
    return attack(main, main.gg_handeler, main.bg_handeler, 2)
 end
 
@@ -261,6 +351,7 @@ function newDefaultGuy(name, isEnemy)
    ret.combots[1].anim.poses[1] = {2, yPos}
    ret.combots[1].anim.poses[2] = {3, yPos}
    ret.combots[1].anim.poses[3] = {4, yPos}
+   ret.can_guard = true
    ret.sex = "female"
    ret.type = "darkelf"
    return ret
@@ -279,6 +370,7 @@ function fightInit(entity)
    entity.entries = {}
    entity.good_guy = newDefaultGuy("the good", 0)
    entity.bad_guy = newDefaultGuy("the bad", 1)
+   entity.atk_state = AWAIT_CMD
 
    local canvas = Entity.new_array(entity.entries)
    canvas["<type>"] = "canvas"
@@ -303,15 +395,34 @@ function fightInit(entity)
    local wid_pix = canvas["wid-pix"]
    entity.gg_handeler = nil
    entity.bg_handeler = nil
+   local y_carac = wid_pix.h / 2
    ylpcsCreateHandeler(entity.good_guy, canvas, entity, "gg_handeler")
    ylpcsHandelerSetOrigXY(entity.gg_handeler, 1, 1)
    ylpcsHandelerRefresh(entity.gg_handeler)
    ylpcsHandelerMove(entity.gg_handeler,
-		     Pos.new(wid_pix.w - 100, wid_pix.h / 2).ent)
+		     Pos.new(wid_pix.w - 100, y_carac).ent)
+
+
    ylpcsCreateHandeler(entity.bad_guy, canvas, entity, "bg_handeler")
    ylpcsHandelerSetOrigXY(entity.bg_handeler, 1, 3)
    ylpcsHandelerRefresh(entity.bg_handeler)
-   ylpcsHandelerMove(entity.bg_handeler, Pos.new(50, wid_pix.h / 2).ent)
+   ylpcsHandelerMove(entity.bg_handeler, Pos.new(50, y_carac).ent)
+   canvas = Canvas.wrapp(canvas)
+
+   canvas:new_rect(wid_pix.w - 100, y_carac - 25,
+		   "rgba: 255 0 30 255", Pos.new(50, 10).ent)
+   entity.gg_handeler.life_b = canvas:new_rect(wid_pix.w - 100, y_carac - 25,
+					       "rgba: 0 255 30 255",
+					       Pos.new(50, 10).ent).ent
+
+   canvas:new_rect(50, y_carac - 25, "rgba: 255 0 30 255", Pos.new(50, 10).ent)
+   entity.bg_handeler.life_b = canvas:new_rect(50, y_carac - 25,
+					       "rgba: 0 255 30 255",
+					       Pos.new(50, 10).ent).ent
+   -- new rect color white
+   -- new rect color green
+   -- size 110/22 and 100/20
+   -- pos above guy head and target head
    return ret
 end
 

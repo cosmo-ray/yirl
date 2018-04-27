@@ -22,6 +22,17 @@ function startAnimation(main, anime, field)
    return cur_anim
 end
 
+function hasAnimation(main, field)
+   main = Entity.wrapp(main)
+   field = Entity.wrapp(field)
+   local cur_anim = main[field:to_string()]
+
+   if cur_anim then
+      return Y_TRUE
+   end
+   return Y_FALSE
+end
+
 function doAnimation(main, field, eve)
    main = Entity.wrapp(main)
    field = Entity.wrapp(field)
@@ -48,5 +59,6 @@ function initAnimation(ent)
    ygRegistreFunc(3, "startAnimation", "yStartAnimation")
    ygRegistreFunc(3, "doAnimation", "yDoAnimation")
    ygRegistreFunc(2, "endAnimation", "yEndAnimation")
+   ygRegistreFunc(2, "hasAnimation", "yHasAnimation")
 end
 

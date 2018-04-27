@@ -261,8 +261,16 @@ function Canvas:new_text(x, y, txt)
    return CanvasObj.wrapp(ret)
 end
 
-function Canvas:new_rect(x, y, r)
-   local ret = ywCanvasNewRect(self.ent:cent(), x, y, r:cent())
+function Canvas:new_rect(x, y, r, pos)
+   if type(r) == "string" then
+      local color = r
+      local r = Entity.new_array()
+      r[0] = pos
+      r[1] = color
+      local ret = ywCanvasNewRect(self.ent, x, y, r:cent())
+      return CanvasObj.wrapp(ret)
+   end
+   local ret = ywCanvasNewRect(self.ent, x, y, r:cent())
    return CanvasObj.wrapp(ret)
 end
 
