@@ -358,6 +358,7 @@ void *dialogueCanvasInit(int nbArgs, void **args)
   YWidgetState *ret;
   Entity *box;
   Entity *dialogue;
+  Entity *image;
   Entity *data;
 
   if (!ygGetMod("DialogueBox")) {
@@ -382,6 +383,10 @@ void *dialogueCanvasInit(int nbArgs, void **args)
   yeDestroy(data);
   yePushAt(box, main, boxMainPos);
   printfTextAndAnswer(main, boxGetTX(main), box, active_dialogue);
+  image = yeGet(main, "image");
+  if (image) {
+    ywCanvasNewImg(main, 300, 300, yeGetString(image), NULL);
+  }
   yesCall(ygGet("DialogueBox.reload"), main, box);
   return ret;
 }
