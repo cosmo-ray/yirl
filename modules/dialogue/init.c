@@ -360,6 +360,8 @@ void *dialogueCanvasInit(int nbArgs, void **args)
   Entity *dialogue;
   Entity *image;
   Entity *data;
+  Entity *name = yeGet(main, "name");
+  int y = 10;
 
   if (!ygGetMod("DialogueBox")) {
     DPRINT_ERR("DialogueBox module need to be load");
@@ -377,7 +379,12 @@ void *dialogueCanvasInit(int nbArgs, void **args)
   yeCreateArray(main, "objs");
   ret = ywidNewWidget(main, "canvas");
   dialogue = yeGet(main, "dialogue");
-  box = yesCall(ygGet("DialogueBox.new_empty"), main, 10, 10, main, "box");
+  printf("name %s\n", yeGetString(name));
+  if (name) {
+    yesCall(ygGet("DialogueBox.new_text"), main, 10, y, yeGetString(name), main, "name-box");
+    y += 30;
+  }
+  box = yesCall(ygGet("DialogueBox.new_empty"), main, 10, y, main, "box");
   data = yeCreateData(&boxDialogueMnDrv, NULL, NULL);
   yeAttach(box, data, boxMainPos + 1, "drv", 0);
   yeDestroy(data);

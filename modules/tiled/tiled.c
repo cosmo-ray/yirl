@@ -76,6 +76,10 @@ void *fileToCanvas(int nbArg, void **args)
 
       YE_ARRAY_FOREACH(objects, object) {
 	Entity *obj = yeCreateArray(yeGet(canvas, "objects"), NULL);
+	Entity *properties = yeGet(object, "properties");
+	Entity *proTypes = yeGet(object, "propertytypes");
+	int proTypesIt = 0;
+
 	yeGetPush(object, obj, "visible");
 	yeGetPush(object, obj, "id");
 	yeGetPush(object, obj, "name");
@@ -84,6 +88,29 @@ void *fileToCanvas(int nbArg, void **args)
 			 yeGetIntAt(object, "width"),
 			 yeGetIntAt(object, "height"),
 			 obj, "rect");
+
+	YE_ARRAY_FOREACH_EXT(properties, property, it) {
+	  Entity *val = property;
+	  const char *name;
+	  Entity *proType = yeGet(proTypes, proTypesIt);
+
+	  printf("A property !!!!\n");
+	  ++proTypesIt;
+	  if (proTypes) {
+	    name = yBlockArrayIteratorGetPtr(it, ArrayEntry)->name;
+	  } else {
+	    name = yeGetStringAt(property, "name");
+	    proType = yeGet(property, "type");
+	    val = yeGet(property, "value");
+	  }
+	  if (!yeStrCmp(proType, "int")) {
+	    yeCreateInt(yeGetInt(val), obj, name);
+	  } else if (!yeStrCmp(proType, "string")) {
+	    yeCreateString(yeGetString(val), obj, name);
+	  } else if (!yeStrCmp(proType, "float")) {
+	    yeCreateFloat(yeGetFloat(val), obj, name);
+	  }
+	}
       }
       continue;
     }

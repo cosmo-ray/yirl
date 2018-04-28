@@ -88,7 +88,9 @@ function reloadTextAndAnswerDialogue(canvas, x, y, dialogue, ret)
    else
       local answers = yeGet(dialogue, "answers")
       local len = yeLen(answers)
+      local name = yeGet(dialogue, "name")
       local i = 0
+
       tmp0 = ywCanvasNewText(canvas, x + border_threshold,
 			     y + border_threshold, yeGet(dialogue, "text"))
       yePushBack(b0, tmp0)

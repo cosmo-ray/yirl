@@ -332,7 +332,7 @@ function fightStrongAttack(entity, eve)
    return attack(main, main.gg_handeler, main.bg_handeler, 2)
 end
 
-function newDefaultGuy(name, isEnemy)
+function newDefaultGuy(guy, name, isEnemy)
    local ret = Entity.new_array()
 
    ret.name = name
@@ -374,8 +374,8 @@ function fightInit(entity)
    entity.current = 1
    entity["turn-length"] = 30000
    entity.entries = {}
-   entity.good_guy = newDefaultGuy("the good", 0)
-   entity.bad_guy = newDefaultGuy("the bad", 1)
+   entity.good_guy = newDefaultGuy(entity.player, "the good", 0)
+   entity.bad_guy = newDefaultGuy(entity.enemy, "the bad", 1)
    entity.atk_state = AWAIT_CMD
 
    local canvas = Entity.new_array(entity.entries)
