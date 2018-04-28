@@ -293,7 +293,8 @@ extern "C" {
     return obj;
   }
 
-  Entity *ywCanvasNewTextExt(Entity *wid, int x, int y, Entity *string, const char *color)
+  Entity *ywCanvasNewTextExt(Entity *wid, int x, int y, Entity *string,
+			     const char *color)
   {
     if (!string)
       return NULL;

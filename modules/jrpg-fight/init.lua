@@ -333,10 +333,18 @@ function fightStrongAttack(entity, eve)
 end
 
 function newDefaultGuy(guy, name, isEnemy)
-   local ret = Entity.new_array()
+   local ret = nil
 
-   ret.name = name
-   ret.life = 1
+   if guy == nil then
+      ret = Entity.new_array()
+      ret.name = name
+      ret.life = 10
+      ret.sex = "female"
+      ret.type = "darkelf"
+   else
+      print("pas nil !!!")
+      ret = guy
+   end
    ret.combots = {}
    ret.combots[0] = {}
    ret.combots[0].anim = {}
@@ -358,8 +366,6 @@ function newDefaultGuy(guy, name, isEnemy)
    ret.combots[1].anim.poses[2] = {3, yPos}
    ret.combots[1].anim.poses[3] = {4, yPos}
    ret.can_guard = true
-   ret.sex = "female"
-   ret.type = "darkelf"
    return ret
 end
 
@@ -372,7 +378,7 @@ function fightInit(entity)
    entity.action = Entity.new_func("fightAction")
    entity.background = "rgba: 255 255 255 255"
    entity.current = 1
-   entity["turn-length"] = 30000
+   entity["turn-length"] = 100000
    entity.entries = {}
    entity.good_guy = newDefaultGuy(entity.player, "the good", 0)
    entity.bad_guy = newDefaultGuy(entity.enemy, "the bad", 1)
