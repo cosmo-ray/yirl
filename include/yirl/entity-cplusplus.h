@@ -21,7 +21,7 @@
 Entity *yeGetByIdx(Entity *entity, size_t index);
 Entity *yeGetByStrFast(Entity *entity, const char *name);
 Entity *yeRemoveChildByEntity(Entity *array, Entity *toRemove);
-static Entity *yeRemoveChildByStr(Entity *array, const char *toRemove);
+Entity *yeRemoveChildByStr(Entity *array, const char *toRemove);
 
 extern "C++" {
 
