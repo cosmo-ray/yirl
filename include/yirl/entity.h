@@ -479,10 +479,7 @@ Entity *yeRemoveChildByEntity(Entity *array, Entity *toRemove);
 
 static inline Entity *yeRemoveChildByIdx(Entity *array, int toRemove);
 
-static inline Entity *yeRemoveChildByStr(Entity *array, const char *toRemove)
-{
-  return yeRemoveChild(array, yeGetByStrFast(array, toRemove));
-}
+Entity *yeRemoveChildByStr(Entity *array, const char *toRemove);
 
 static inline Entity *yeRemoveChildByIdx(Entity *array, int toRemove)
 {
@@ -995,11 +992,9 @@ static inline Entity *yeReplaceBackExt(Entity *array, Entity *toPush,
   yeIncrRef(toPush);
 
  again:
-  tmp = yeGetByStrFast(array, name);
-  if (tmp) {
-    yeRemoveChild(array, tmp);
+  tmp = yeRemoveChildByStr(array, name);
+  if (tmp)
     goto again;
-  }
 
   if (!yePushBackExt(array, toPush, name, flag))
     ret = toPush;

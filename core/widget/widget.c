@@ -349,6 +349,7 @@ YWidgetState *ywidNewWidget(Entity *entity, const char *type)
   if (shouldInit) {
     YE_ARRAY_FOREACH(subTypes, tmpType) {
       if (yuiStrEqual0(type, yeGetString(yeGet(tmpType, "name")))) {
+	printf("endCallbackArg A0: %p\n", yeGet(entity, "endCallbackArg"));
 	YWidgetState *ret = yesCall(yeGet(tmpType, "callback"), entity);
 
 	if (!ret)

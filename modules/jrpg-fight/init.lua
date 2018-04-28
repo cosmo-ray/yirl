@@ -19,7 +19,13 @@ function fightAction(entity, eve)
    if entity.atk_state:to_int() == PJ_WIN or
    entity.atk_state:to_int() == ENEMY_WIN then
 
-      yCallNextWidget(entity:cent());
+      if entity.endCallback then
+	 entity.endCallback(entity,
+			    entity.endCallbackArg,
+			    entity.atk_state:to_int())
+      else
+	 yCallNextWidget(entity:cent());
+      end
       return YEVE_ACTION
    end
    if yDoAnimation(entity, txt_anim_field) == Y_TRUE and
@@ -330,7 +336,7 @@ function newDefaultGuy(name, isEnemy)
    local ret = Entity.new_array()
 
    ret.name = name
-   ret.life = 10
+   ret.life = 1
    ret.combots = {}
    ret.combots[0] = {}
    ret.combots[0].anim = {}
@@ -419,10 +425,6 @@ function fightInit(entity)
    entity.bg_handeler.life_b = canvas:new_rect(50, y_carac - 25,
 					       "rgba: 0 255 30 255",
 					       Pos.new(50, 10).ent).ent
-   -- new rect color white
-   -- new rect color green
-   -- size 110/22 and 100/20
-   -- pos above guy head and target head
    return ret
 end
 

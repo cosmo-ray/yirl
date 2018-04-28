@@ -738,6 +738,37 @@ Entity *yeRemoveChildByEntity(Entity *array, Entity *toRemove)
   return ret;
 }
 
+Entity *yeRemoveChildByStr(Entity *array, const char *toRemove)
+{
+  Entity *ret;
+
+  if (!checkType(array, YARRAY)) {
+    DPRINT_ERR("bad argument 1 of type '%s', should be array\n",
+	       yeTypeToString(yeType(array)));
+    return NULL;
+  }
+
+  BlockArray *ba = &YE_TO_ARRAY(array)->values;
+  uint16_t flag = ba->flag;
+
+  ba->flag = YBLOCK_ARRAY_NOMIDFREE;
+
+  Y_BLOCK_ARRAY_FOREACH_PTR(*ba, tmp, it, ArrayEntry) {
+
+    tmp = yeGetArrayEntryByIdx(array, it);
+    if (yuiStrEqual0(tmp->name, toRemove)) {
+      ret = tmp->entity;
+      yBlockArrayUnset(ba, it);
+      arrayEntryDestroy(tmp);
+      goto exit;
+    }
+  }
+  ret = NULL;
+
+ exit:
+  ba->flag = flag;
+  return ret;
+}
 
 Entity *yePopBack(Entity *entity)
 {
