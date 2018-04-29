@@ -7,7 +7,7 @@ local ENEMY_ATTACK = 2
 local ENEMY_WIN = 3
 local PJ_WIN = 4
 local lpcs = Entity.wrapp(ygGet("lpcs"))
-local frm_mult = 6
+local frm_mult = 10
 local good_orig_pos = {1, 1}
 local bad_orig_pos = {1, 3}
 
@@ -126,7 +126,8 @@ function attackCallback(main, cur_anim, eve)
       can_print_loader = false
    end
    while eve:is_end() == false do
-      if eve:type() == YKEY_DOWN and eve:key() == Y_SPACE_KEY then
+      if eve:type() == YKEY_DOWN and eve:key() == Y_SPACE_KEY or
+      eve:type() == YKEY_DOWN and eve:key() == Y_ENTER_KEY then
 	 if (cur_val == 1) then
 	    cur_anim.sucess = true
 	    cur_anim.isPush = 1

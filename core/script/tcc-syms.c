@@ -87,6 +87,8 @@ void	tccAddSyms(TCCState *l)
   tcc_add_symbol(l, "yeSetString", yeSetString);
   tcc_add_symbol(l, "ygRegistreFuncInternal", ygRegistreFuncInternal);
   tcc_add_symbol(l, "yePushBackExt", yePushBackExt);
+  tcc_add_symbol(l, "yeRemoveChildByStr", yeRemoveChildByStr);
+  tcc_add_symbol(l, "ywCanvasNewImg", ywCanvasNewImg);
 
 #else
   (void)l;

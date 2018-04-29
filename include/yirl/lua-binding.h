@@ -291,6 +291,7 @@ static inline int	yesLuaRegister(void *sm)
   LUA_SET_INT_GLOBAL_VAL(sm, Y_Z_KEY, 'z');
   /* Spaceeeeee ! */
   LUA_SET_INT_GLOBAL_VAL(sm, Y_SPACE_KEY, ' ');
+  LUA_SET_INT_GLOBAL_VAL(sm, Y_ENTER_KEY, '\n');
 
   LUA_SET_INT_GLOBAL_VAL(sm, Y_CNT_VERTICAL, CNT_VERTICAL);
   LUA_SET_INT_GLOBAL_VAL(sm, Y_CNT_HORIZONTAL, CNT_HORIZONTAL);
