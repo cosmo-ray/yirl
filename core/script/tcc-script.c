@@ -54,7 +54,12 @@ static TCCState *createTCCState(YTccScript *state)
     tcc_add_sysinclude_path(l, YIRL_INCLUDE_PATH);
     tcc_set_lib_path(l, TCC_LIB_PATH);
   } else {
-    tcc_add_sysinclude_path(l, ysTccPath);
+    char *includePath = g_strconcat(ysTccPath, "/include/", NULL);
+    char *includePath2 = g_strconcat(ysTccPath, "/include/tinycc/", NULL);
+    tcc_add_sysinclude_path(l, includePath);
+    tcc_add_sysinclude_path(l, includePath2);
+    g_free(includePath);
+    g_free(includePath2);
     tcc_set_lib_path(l, ysTccPath);
   }
   tcc_add_sysinclude_path(l, YIRL_MODULES_PATH);

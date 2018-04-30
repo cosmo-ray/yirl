@@ -31,6 +31,7 @@ int main(int argc, char **argv)
   const char *name = NULL;
   char *binaryRootPath = NULL;
   const char *start_dir = NULL;
+  const char *tcc_path = "./";
   int width = -1;
   int height = -1;
   int render_need_free = 1;
@@ -70,10 +71,12 @@ int main(int argc, char **argv)
   }
 
   if (start_dir) {
-    if (!default_tcc_path) {
-      ysTccPath = start_dir;
-    }
+    tcc_path = start_dir;
     chdir(start_dir);
+  }
+
+  if (!default_tcc_path) {
+      ysTccPath = tcc_path;
   }
 
   if (!start) {
