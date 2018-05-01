@@ -25,6 +25,57 @@
 #include	"stack.h"
 #include	"script.h"
 
+int yeStringReplace(Entity *ent, const char *substr, const char *replacement)
+{
+  int substrlen = strlen(substr);
+  int replacementlen = strlen(replacement);
+  const char *entChar = yeGetString(ent);
+  int entLen;
+  int16_t begs[256];
+  int nbFound = 0;
+  char *dest;
+  char *toFree;
+  int destLen;
+
+  if (!substrlen || !ent)
+    return 0;
+  entLen = yeLen(ent);
+  dest = (char *)entChar;
+  while ((dest = strstr(dest, substr)) != NULL) {
+    if (nbFound == 256)
+      return -1;
+    begs[nbFound] = dest - entChar;
+    ++dest;
+    ++nbFound;
+  }
+
+  if (!nbFound)
+    return 0;
+  toFree = (char *)entChar;
+  destLen = entLen - (substrlen * nbFound) + (replacementlen * nbFound) + 1;
+  dest = malloc(destLen);
+  YE_TO_STRING(ent)->value = dest;
+  for (int i = 0; i < nbFound; ++i) {
+    int len = begs[i];
+    if (i > 0) {
+      len -= (begs[i - 1] + substrlen);
+    }
+    memcpy(dest, entChar, len);
+    dest += len;
+    memcpy(dest, replacement, replacementlen);
+    dest += replacementlen;
+    entChar += len + substrlen;
+  }
+  memcpy(dest, entChar, entLen - (begs[nbFound -1] + substrlen) + 1);
+  if (YE_TO_STRING(ent)->origin) {
+    free(YE_TO_STRING(ent)->origin);
+    YE_TO_STRING(ent)->origin = NULL;
+  } else {
+    free(toFree);
+  }
+  return nbFound;
+}
+
 int yeStringAddChByEntity(Entity *ent, Entity *ch)
 {
   return yeStringAddCh(ent, yeGetInt(ch));

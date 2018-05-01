@@ -58,6 +58,8 @@ int yeAddStrFromFd(Entity *e, int fd, int len);
 int yeStringAddInt(Entity *ent, int i);
 int yeStringAddLong(Entity *ent, long i);
 
+int yeStringReplace(Entity *ent, const char *substr, const char *replacement);
+
 
 /**
  * @brief store next word in a temporary

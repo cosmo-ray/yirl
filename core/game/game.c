@@ -450,38 +450,49 @@ Entity *ygLoadMod(const char *path)
   YE_ARRAY_FOREACH(preLoad, var) {
     Entity *tmpType = yeGet(var, "type");
     Entity *tmpFile = yeGet(var, "file");
-    char *fileStr = g_strconcat(path, "/",
-				yeGetString(tmpFile), NULL);
+    Entity *pathEnt = yeGet(var, "path");
+    char *fileStr = g_strconcat(path, "/", yeGetString(tmpFile), NULL);
+    const char *pathCstr;
 
+
+    if (tmpFile) {
+      pathCstr = fileStr;
+    } else if (pathEnt) {
+      char *mod_path = g_strdup_printf("%s%s", ygBinaryRootPath, "/modules/");
+
+      yeStringReplace(pathEnt, "YIRL_MODULES_PATH", mod_path);
+      g_free(mod_path);
+      pathCstr = yeGetString(pathEnt);
+    }
     if (yuiStrEqual0(yeGetString(tmpType), "lua")) {
-      if (ysLoadFile(luaManager, fileStr) < 0) {
+      if (ysLoadFile(luaManager, pathCstr) < 0) {
 	DPRINT_ERR("Error when loading '%s': %s\n",
-		   yeGetString(tmpFile), ysGetError(luaManager));
+		   pathCstr, ysGetError(luaManager));
 	goto fail_preload;
       }
 
     } else if (yuiStrEqual0(yeGetString(tmpType), "tcc")) {
-      if (ysLoadFile(tccManager, fileStr) < 0) {
+      if (ysLoadFile(tccManager, pathCstr) < 0) {
 	DPRINT_ERR("Error when loading '%s': %s\n",
-		   yeGetString(tmpFile), ysGetError(tccManager));
+		   pathCstr, ysGetError(tccManager));
 	goto fail_preload;
       }
 
     } else if (yuiStrEqual0(yeGetString(tmpType), "yb")) {
-      if (ysLoadFile(ysYBytecodeManager(), fileStr) < 0) {
+      if (ysLoadFile(ysYBytecodeManager(), pathCstr) < 0) {
 	DPRINT_ERR("Error when loading '%s': %s\n",
-		   yeGetString(tmpFile), ysGetError(tccManager));
+		   pathCstr, ysGetError(tccManager));
 	goto fail_preload;
       }
 
     } else if (yuiStrEqual0(yeGetString(tmpType), "json")) {
       Entity *as = yeGet(var, "as");
-      tmpFile = ydFromFile(jsonManager, fileStr, mod);
+      tmpFile = ydFromFile(jsonManager, pathCstr, mod);
 
       yeRenamePtrStr(mod, tmpFile, yeGetString(as));
     } else if (yuiStrEqual0(yeGetString(tmpType), "module")) {
-      if (!ygLoadMod(fileStr)) {
-	DPRINT_ERR("fail to load module: %s", fileStr);
+      if (!ygLoadMod(pathCstr)) {
+	DPRINT_ERR("fail to load module: %s", pathCstr);
       fail_preload:
 	g_free(fileStr);
 	goto failure;

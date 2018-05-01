@@ -83,6 +83,10 @@ void stringsTests(void)
   g_assert(tok == SPACES);
   g_assert(yeTokLen(tokInfo, tok) == 4);
   yeDestroy(tokInfo);
+  g_assert(yeStringReplace(str, "lite", "track") == 1);
+  g_assert(!yeStrCmp(str, "!\nma track !\n    2 le retour\n"));
+  g_assert(yeStringReplace(str, "\n", "---") == 3);
+  g_assert(!yeStrCmp(str, "!---ma track !---    2 le retour---"));
   yeDestroy(str);
   yeEnd();
 }
