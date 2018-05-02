@@ -438,6 +438,8 @@ Entity *ygLoadMod(const char *path)
     goto failure;
   }
 
+  if (yeGet(modList, yeGetString(name)))
+    goto exit;
   yePushBack(modList, mod, yeGetString(name));
   yeDestroy(mod);
   yeCreateString(path, mod, "$path");
@@ -680,11 +682,16 @@ int ygBind(YWidgetState *wid, const char *callback)
 static int ygParseStartAndGame(GameConfig *config)
 {
   Entity *starting_widget;
+  Entity *ws;
+  Entity *wn;
 
   mainMod = ygLoadMod(config->startingMod->path);
+  ws = yeGet(mainMod, "window size");
+  wn = yeGet(mainMod, "window name");
 
   starting_widget = yeGet(mainMod, "$starting widget");
 
+  
   if (starting_widget) {
     YWidgetState *wid = ywidNewWidget(starting_widget, NULL);
 
@@ -703,6 +710,10 @@ static int ygParseStartAndGame(GameConfig *config)
       return -1;
   }
 
+  if (ws)
+    ywidChangeResolution(yeGetIntAt(ws, 0), yeGetIntAt(ws, 1));
+  if (wn)
+    ywidSetWindowName(yeGetString(wn));
   return ygDoLoop();
 }
 

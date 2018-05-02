@@ -43,7 +43,7 @@ int ycursInit(void)
   keypad(stdscr, TRUE);
   start_color();
   init_pair(1, COLOR_BLACK, COLOR_WHITE);
-  type = ywidRegistreRender(resize, CPollEvent, CWaitEvent, CDraw);
+  type = ywidRegistreRender(resize, CPollEvent, CWaitEvent, CDraw, NULL, NULL);
   return type;
 }
 

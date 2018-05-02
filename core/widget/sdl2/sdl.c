@@ -260,6 +260,40 @@ static Entity *SDLPollEvent(void)
   return SDLConvertEvent(&event);
 }
 
+static void changeWindName(const char *name)
+{
+  SDL_SetWindowTitle(sg.pWindow, name);
+}
+
+static int sdlRenderCreate(void)
+{
+    sg.renderer = SDL_CreateRenderer(sg.pWindow, -1,
+				   SDL_RENDERER_TARGETTEXTURE);
+  if (!sg.renderer) {
+    DPRINT_ERR("Get render from window: %s\n", SDL_GetError());
+    return -1;
+  }
+
+  if (SDL_SetRenderDrawBlendMode(sg.renderer, SDL_BLENDMODE_BLEND) < 0) {
+    DPRINT_ERR("failt to set blend mode: %s\n", SDL_GetError());
+    return -1;
+  }
+  return 0;
+}
+
+static int sdlChangeResolution(void)
+{
+  SDL_SetWindowSize(sg.pWindow, ywidWindowWidth, ywidWindowHight);
+  SDL_DestroyRenderer(sg.renderer);
+  if (sdlRenderCreate() < 0) {
+    DPRINT_ERR("SDL is DEAD");
+    ysdl2Destroy();
+    return -1;
+  }
+  SDL_RenderClear(sg.renderer);
+  return 0;
+}
+
 int    ysdl2Init(void)
 {
   if (type != -1)
@@ -295,16 +329,8 @@ int    ysdl2Init(void)
   }
 
   // Render for the main windows
-  sg.renderer = SDL_CreateRenderer(sg.pWindow, -1,
-				   SDL_RENDERER_TARGETTEXTURE);
-  if (!sg.renderer) {
-    DPRINT_ERR("Get render from window: %s\n", SDL_GetError());
+  if (sdlRenderCreate() < 0)
     goto fail;
-  }
-
-  if (SDL_SetRenderDrawBlendMode(sg.renderer, SDL_BLENDMODE_BLEND) < 0) {
-    goto fail;
-  }
 
   if (sgSetDefaultFont("./DejaVuSansMono.ttf") < 0 &&
       sgSetDefaultFont("/Library/Fonts/Tahoma.ttf") < 0 &&
@@ -317,7 +343,9 @@ int    ysdl2Init(void)
   // SDL_Rect   rect = sg.getRect();
 
   SDL_RenderClear(sg.renderer);
-  type = ywidRegistreRender(sdlResize, SDLPollEvent, SDLWaitEvent, sdlDraw);
+  type = ywidRegistreRender(sdlResize, SDLPollEvent, SDLWaitEvent,
+			    sdlDraw, sdlChangeResolution,
+			    changeWindName);
   return type;
 
  fail:

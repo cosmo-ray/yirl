@@ -178,6 +178,7 @@ int ywidColorFromString(char *str, uint8_t *r, uint8_t *g,
 
 void ywidChangeResolution(int w, int h);
 
+
 int ywidBgConfFill(Entity *entity, YBgConf *cfg);
 
 static inline YWidgetState *ywidGetState(Entity *wid)
@@ -204,7 +205,9 @@ int ywidUnregiste(int t);
 int ywidRegistreRender(void (*resizePtr)(YWidgetState *wid, int renderType),
 		       Entity *(*pollEvent)(void),
 		       Entity *(*waitEvent)(void),
-		       int (*draw)(void));
+		       int (*draw)(void),
+		       int (*changeResolution)(void),
+		       void (*changeWinName)(const char *));
 void ywidRegistreMidRend(void (*midRender)(YWidgetState *, int, int),
 			 int widgetType, int renderType);
 

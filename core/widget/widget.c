@@ -42,6 +42,8 @@ struct renderOpt {
   Entity *(*pollEvent)(void);
   int (*draw)(void);
   void (*resizePtr) (YWidgetState *wid, int renderType);
+  int (*changeResolution) (void);
+  void (*changeWinName)(const char *);
 };
 
 /* contain the options unique to one type of widget */
@@ -63,6 +65,14 @@ void ywidChangeResolution(int w, int h)
 {
   ywidWindowWidth = w;
   ywidWindowHight = h;
+  YUI_FOREACH_BITMASK(rendersMask, i, tmask) {
+    if (renderOpTab->changeResolution)
+      renderOpTab->changeResolution();
+  }
+  YWidgetState *wid = ywidGetMainWid();
+  if (wid) {
+    ywidResize(wid);
+  }
 }
 
 void ywidSetWindowName(const char *str)
@@ -70,6 +80,11 @@ void ywidSetWindowName(const char *str)
   if (!configs)
     configs = yeCreateArray(NULL, NULL);
   yeCreateString(str, configs, "win-name");
+
+  YUI_FOREACH_BITMASK(rendersMask, i, tmask) {
+    if (renderOpTab->changeWinName)
+      renderOpTab->changeWinName(str);
+  }
 }
 
 const char *ywidWindowName(void)
@@ -349,7 +364,6 @@ YWidgetState *ywidNewWidget(Entity *entity, const char *type)
   if (shouldInit) {
     YE_ARRAY_FOREACH(subTypes, tmpType) {
       if (yuiStrEqual0(type, yeGetString(yeGet(tmpType, "name")))) {
-	printf("endCallbackArg A0: %p\n", yeGet(entity, "endCallbackArg"));
 	YWidgetState *ret = yesCall(yeGet(tmpType, "callback"), entity);
 
 	if (!ret)
@@ -426,7 +440,9 @@ void ywidRegistreMidRend(void (*midRender)(YWidgetState *, int, int),
 int ywidRegistreRender(void (*resizePtr)(YWidgetState *wid, int renderType),
 		       Entity *(*pollEvent)(void),
 		       Entity *(*waitEvent)(void),
-		       int (*draw)(void))
+		       int (*draw)(void),
+		       int (*changeResolution)(void),
+		       void (*changeWinName)(const char *))
 {
   YUI_FOREACH_BITMASK(~rendersMask, i, tmask) {
     rendersMask |= (1 << i);
@@ -434,6 +450,8 @@ int ywidRegistreRender(void (*resizePtr)(YWidgetState *wid, int renderType),
     renderOpTab[i].pollEvent = pollEvent;
     renderOpTab[i].waitEvent = waitEvent;
     renderOpTab[i].draw = draw;
+    renderOpTab[i].changeResolution = changeResolution;
+    renderOpTab[i].changeWinName = changeWinName;
     return i;
   }
   return -1;
