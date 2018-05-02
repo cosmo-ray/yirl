@@ -49,8 +49,8 @@ static TCCState *createTCCState(YTccScript *state)
   tcc_set_options(l, "-nostdlib");
   if (l == NULL)
     return NULL;
+  tccAddSyms(l);
   if (!ysTccPath) {
-    tccAddSyms(l);
     tcc_add_sysinclude_path(l, YIRL_INCLUDE_PATH);
     tcc_set_lib_path(l, TCC_LIB_PATH);
   } else {
