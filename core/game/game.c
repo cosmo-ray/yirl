@@ -454,7 +454,7 @@ Entity *ygLoadMod(const char *path)
     Entity *tmpFile = yeGet(var, "file");
     Entity *pathEnt = yeGet(var, "path");
     char *fileStr = g_strconcat(path, "/", yeGetString(tmpFile), NULL);
-    const char *pathCstr;
+    const char *pathCstr = "no path set";
 
 
     if (tmpFile) {
