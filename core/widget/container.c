@@ -222,7 +222,8 @@ static int cntInit(YWidgetState *opac, Entity *entity, void *args)
     yeReplaceBackExt(ptr, entity, "$father-container", YE_FLAG_NO_COPY);
     if (ptr != tmp) {
       YE_ARRAY_FOREACH_EXT(tmp, entry, it) {
-	const char *n = yBlockArrayIteratorGetPtr(it, ArrayEntry)->name;
+	const char *n =
+	  yeArrayEntryName(yBlockArrayIteratorGetPtr(it, ArrayEntry));
 	if (yuiStrEqual0(n, "name"))
 	  continue;
 	yePushBack(ptr, entry, n);
