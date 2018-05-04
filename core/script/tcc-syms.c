@@ -36,7 +36,6 @@ void	tccAddSyms(TCCState *l)
 {
 #ifdef WIN32
   tcc_add_symbol(l, "free", free);
-  tcc_add_symbol(l, "fflushout", fflushout);
   tcc_add_symbol(l, "strdup", strdup);
   tcc_add_symbol(l, "printf", printf);
   tcc_add_symbol(l, "ygFileToEnt", ygFileToEnt);
@@ -91,6 +90,6 @@ void	tccAddSyms(TCCState *l)
   tcc_add_symbol(l, "ywCanvasNewImg", ywCanvasNewImg);
 
 #else
-  (void)l;
+  tcc_add_symbol(l, "fflushout", fflushout);
 #endif
 }

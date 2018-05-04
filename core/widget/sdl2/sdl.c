@@ -75,8 +75,6 @@ int sgSetDefaultFont(const char *path)
   sg.txtWidth = w;
 
   sg.font = font;
-  if (!font)
-    return -1;
   return -0;
 }
 
@@ -156,6 +154,8 @@ void    ysdl2Destroy(void)
 {
   if (type == -1)
     return;
+  TTF_CloseFont(sg.font);
+  SDL_DestroyRenderer(sg.renderer);
   SDL_DestroyWindow(sg.pWindow);
   IMG_Quit();
   TTF_Quit();

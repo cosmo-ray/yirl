@@ -438,8 +438,10 @@ Entity *ygLoadMod(const char *path)
     goto failure;
   }
 
-  if (yeGet(modList, yeGetString(name)))
+  if (yeGet(modList, yeGetString(name))) {
+    yeDestroy(mod);
     goto exit;
+  }
   yePushBack(modList, mod, yeGetString(name));
   yeDestroy(mod);
   yeCreateString(path, mod, "$path");
@@ -691,7 +693,6 @@ static int ygParseStartAndGame(GameConfig *config)
 
   starting_widget = yeGet(mainMod, "$starting widget");
 
-  
   if (starting_widget) {
     YWidgetState *wid = ywidNewWidget(starting_widget, NULL);
 
