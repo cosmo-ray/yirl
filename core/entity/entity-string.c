@@ -52,8 +52,8 @@ int yeStringReplace(Entity *ent, const char *substr, const char *replacement)
   if (!nbFound)
     return 0;
   toFree = (char *)entChar;
-  destLen = entLen - (substrlen * nbFound) + (replacementlen * nbFound) + 1;
-  dest = malloc(destLen);
+  destLen = entLen - (substrlen * nbFound) + (replacementlen * nbFound);
+  dest = malloc(destLen + 1);
   YE_TO_STRING(ent)->value = dest;
   for (int i = 0; i < nbFound; ++i) {
     int len = begs[i];
@@ -73,6 +73,7 @@ int yeStringReplace(Entity *ent, const char *substr, const char *replacement)
   } else {
     free(toFree);
   }
+  YE_TO_STRING(ent)->len = destLen;
   return nbFound;
 }
 
@@ -194,15 +195,17 @@ int yeStringShrink(Entity *str, uint32_t len)
 void yeStringShrinkBlank(Entity *s)
 {
   const char *str = yeGetString(s);
+  int l = 0;
 
   if (unlikely(!str))
     return;
-  for (; (*str == ' ' || *str == '\t'); ++str);
-  if (str == yeGetString(s))
+  for (; (*str == ' ' || *str == '\t'); ++str)
+    ++l;
+  if (!l)
     return;
   if (!YE_TO_STRING(s)->origin)
     YE_TO_STRING(s)->origin = YE_TO_STRING(s)->value;
-  YE_TO_STRING(s)->len += str - YE_TO_STRING(s)->value;
+  YE_TO_STRING(s)->len -= l;
   YE_TO_STRING(s)->value = (char *)str;
 }
 
