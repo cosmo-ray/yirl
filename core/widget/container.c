@@ -85,6 +85,7 @@ int ywReplaceEntry(Entity *container, int idx, Entity *entry)
   Entity *new = getEntry(container, entry);
   int size = yeGetIntAt(old, "size");
 
+  ywidGetState(old)->needDestroy = 1;
   yeReCreateInt(size, new, "size");
   yeReplace(entries, old, new);
   return 0;

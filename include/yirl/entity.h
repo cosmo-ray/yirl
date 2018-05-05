@@ -187,7 +187,9 @@ union FatEntity {
 
 static inline int yeRefCount(Entity *e)
 {
-  return e->refCount;
+  if (likely(e))
+    return e->refCount;
+  return 0;
 }
 
 #define yeMetadata(Entity, EntityType)			\
