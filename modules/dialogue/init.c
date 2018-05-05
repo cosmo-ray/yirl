@@ -351,6 +351,11 @@ void *dialogueInit(int nbArgs, void **args)
   return ret;
 }
 
+void *dialogueDestroy(int nbArgs, void **args)
+{
+  yeRemoveChild(yeGet(args[0], "box"), args[0]);
+}
+
 void *dialogueCanvasInit(int nbArgs, void **args)
 {
   Entity *main = args[0];
@@ -379,7 +384,6 @@ void *dialogueCanvasInit(int nbArgs, void **args)
   yeCreateArray(main, "objs");
   ret = ywidNewWidget(main, "canvas");
   dialogue = yeGet(main, "dialogue");
-  printf("name %s\n", yeGetString(name));
   if (name) {
     yesCall(ygGet("DialogueBox.new_text"), main, 10, y, yeGetString(name), main, "name-box");
     y += 30;
@@ -389,6 +393,7 @@ void *dialogueCanvasInit(int nbArgs, void **args)
   yeAttach(box, data, boxMainPos + 1, "drv", 0);
   yeDestroy(data);
   yePushAt(box, main, boxMainPos);
+  yeCreateFunction("dialogueDestroy", ygGetTccManager(), main, "destroy");
   printfTextAndAnswer(main, boxGetTX(main), box, active_dialogue);
   image = yeGet(main, "image");
   if (image) {

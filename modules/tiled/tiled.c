@@ -15,6 +15,7 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <yirl/entity.h>
 #include <yirl/game.h>
 #include <yirl/texture.h>
 #include <yirl/canvas.h>

@@ -55,7 +55,7 @@ Entity *ywCntGetEntry(Entity *container, int idx);
 
 int ywReplaceEntry(Entity *container, int idx, Entity *entry);
 
-Entity *ywCntPopLastEntry(Entity *container);
+void ywCntPopLastEntry(Entity *container);
 
 Entity *ywCntGetLastEntry(Entity *container);
 

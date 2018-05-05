@@ -296,6 +296,7 @@ static YWidgetState *ywidNewWidgetInternal(int t,
   }
 
   ret->entity = entity;
+  ret->needDestroy = 0;
 
   if (yeGet(entity, "$wid")) {
     DPRINT_WARN("$wid alerady existe, this may lead to odd and very unexpected behavior !!!!");
@@ -665,14 +666,27 @@ int ywidHandleEvent(YWidgetState *opac, Entity *event)
   if (opac->handleEvent)
     ret = opac->handleEvent(opac, event);
 
+  if (opac->needDestroy)
+    goto destroy;
+
+
   if (!opac->hasChange)
     opac->hasChange = (ret == NOTHANDLE ? 0 : 1);
   else
     ret = (ret == NOTHANDLE ? NOACTION : ret);
+
   if (ygIsAlive() && (postAction = yeGet(opac->entity,
 					 "post-action")) != NULL)
     ret = (int_ptr_t)yesCall(postAction, ret, opac->entity, event);
+
+  if (opac->needDestroy)
+    goto destroy;
   return ret;
+
+ destroy:
+  yeRemoveChildByStr(opac->entity, "$father-container");
+  YWidDestroy(opac);
+  return ACTION;
 }
 
 int ywIsPixsOnWid(Entity *widget, int posX, int posY)

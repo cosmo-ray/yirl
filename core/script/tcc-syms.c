@@ -34,7 +34,6 @@ void	fflushout(void)
 
 void	tccAddSyms(TCCState *l)
 {
-#ifdef WIN32
   tcc_add_symbol(l, "free", free);
   tcc_add_symbol(l, "strdup", strdup);
   tcc_add_symbol(l, "printf", printf);
@@ -88,8 +87,8 @@ void	tccAddSyms(TCCState *l)
   tcc_add_symbol(l, "yePushBackExt", yePushBackExt);
   tcc_add_symbol(l, "yeRemoveChildByStr", yeRemoveChildByStr);
   tcc_add_symbol(l, "ywCanvasNewImg", ywCanvasNewImg);
-
-#else
   tcc_add_symbol(l, "fflushout", fflushout);
+#if defined(__unix__) || defined(__APPLE__)
+  tcc_add_symbol(l, "yuiDebugPrint", yuiDebugPrint);
 #endif
 }

@@ -152,6 +152,7 @@ typedef struct WidgetState_ {
   int type;
   int actionIdx;
   unsigned int hasChange;
+  unsigned int needDestroy;
 } YWidgetState;
 
 /* struct which define what are common to every rendableWidget of the same type */
