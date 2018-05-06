@@ -95,21 +95,20 @@ void ybytecodeScript(void)
 {
   void *sm = NULL;
   int64_t test1[] = {0,
-  		     YB_CREATE_INT, 0, //stack 1 - 2
-  		     YB_CREATE_INT, 1, //stack 0 - 4
-  		     YB_CREATE_INT, 50000000, // 6
-  		     YB_ADD, 1, 2, 0,
-  		     YB_RETURN, 0,
-  		     YB_END_FUNC
+		     YB_CREATE_INT, 0, //stack 1 - 2
+		     YB_CREATE_INT, 1, //stack 0 - 4
+		     YB_CREATE_INT, 50000000, // 6
+		     YB_ADD, 1, 2, 0,
+		     YB_RETURN, 0,
+		     YB_END_FUNC
   };
   int64_t testWithArgs[] = {0,
-  			    YB_BRUTAL_CAST, 0, YINT,
-  			    YB_BRUTAL_CAST, 1, YINT,
-  			    YB_ADD, 0, 1, 0,
-  			    YB_RETURN, 0,
-  			    YB_END_FUNC
+			    YB_BRUTAL_CAST, 0, YINT,
+			    YB_BRUTAL_CAST, 1, YINT,
+			    YB_ADD, 0, 1, 0,
+			    YB_RETURN, 0,
+			    YB_END_FUNC
   };
-
   int64_t testWithEntArgs[] = {0,
 			       YB_CREATE_INT, 0,
 			       YB_ADD, 0, 1, 2,

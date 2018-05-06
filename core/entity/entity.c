@@ -206,7 +206,7 @@ static inline int	findIdxPoint(const char *name)
 static inline ArrayEntry *yeGetArrayEntryByStr(Entity *entity, const char *str)
 {
   Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(entity)->values, elem, it, ArrayEntry) {
-    if (elem && yuiStrEqual(str, yeArrayEntryName(elem)))
+    if (elem && yuiStrEqual(str, elem->name))
       return elem;
   }
   return NULL;
@@ -220,7 +220,7 @@ static inline ArrayEntry *yeGetArrayEntryByIdx(Entity *entity, uint32_t i)
 char *yeGetKeyAt(Entity *entity, int idx)
 {
   if (entity)
-    return yeArrayEntryName(yeGetArrayEntryByIdx(entity, idx));
+    return yeGetArrayEntryByIdx(entity, idx)->name;
   return NULL;
 }
 
@@ -257,10 +257,10 @@ static Entity *yeGetByIdxFastWithEnd(Entity *entity, const char *name,
 {
 
   Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(entity)->values, tmp, it, ArrayEntry) {
-    if (unlikely(!tmp || !yeArrayEntryName(tmp)))
+    if (unlikely(!tmp || !tmp->name))
       continue;
-    if (strlen(yeArrayEntryName(tmp)) == (unsigned int)end &&
-	!strncmp(yeArrayEntryName(tmp), name, end))
+    if (strlen(tmp->name) == (unsigned int)end &&
+	!strncmp(tmp->name, name, end))
       return tmp->entity;
   }
   return NULL;
@@ -272,9 +272,9 @@ Entity *yeGetByStrFast(Entity *entity, const char *name)
     return NULL;
 
   Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(entity)->values, tmp, it, ArrayEntry) {
-    if (unlikely(!tmp || !yeArrayEntryName(tmp)))
+    if (unlikely(!tmp || !tmp->name))
       continue;
-    if (yuiStrEqual(yeArrayEntryName(tmp), name))
+    if (yuiStrEqual(tmp->name, name))
       return tmp->entity;
   }
   return NULL;
@@ -286,9 +286,9 @@ Entity *yeGetByStrExt(Entity *entity, const char *name, int64_t *idx)
     return NULL;
 
   Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(entity)->values, tmp, it, ArrayEntry) {
-    if (!tmp || !yeArrayEntryName(tmp))
+    if (!tmp || !tmp->name)
       continue;
-    if (yuiStrEqual(yeArrayEntryName(tmp), name)) {
+    if (yuiStrEqual(tmp->name, name)) {
       *idx = it;
       return tmp->entity;
     }
@@ -365,7 +365,7 @@ int yeArrayIdx(Entity *entity, const char *lookup)
   Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(entity)->values, tmp, it, ArrayEntry) {
     if (unlikely(!tmp))
       continue;
-    if (yuiStrEqual0(yeArrayEntryName(tmp), lookup))
+    if (yuiStrEqual0(tmp->name, lookup))
       return it;
   }
   return -1;
@@ -515,35 +515,14 @@ Entity *yeReCreateData(void *value, Entity *father, const char *name)
 static inline void arrayEntryInit(ArrayEntry *ae)
 {
   ae->entity = NULL;
-  ae->name.ptr = NULL;
-}
-
-static inline void arrayEntryDupName(ArrayEntry *ae, const char *name)
-{
-  if (!name) {
-    ae->name.ptr =  NULL;
-    return;
-  }
-  int l = strlen(name);
-  if (l && l < 8) {
-    ae->flags |= YE_FLAG_NOT_ALLOCATED;
-    strcpy(ae->name.tab, name);
-  } else {
-    ae->name.ptr = g_strdup(name);
-  }
-}
-
-static inline void freeArrayEntryName(ArrayEntry *ae)
-{
-  if (!(ae->flags & YE_FLAG_NOT_ALLOCATED))
-    g_free(ae->name.ptr);
+  ae->name = NULL;
 }
 
 static inline void arrayEntryDestroy(ArrayEntry *ae)
 {
   if (unlikely(!ae))
     return;
-  freeArrayEntryName(ae);
+  g_free(ae->name);
   yeDestroy(ae->entity);
   arrayEntryInit(ae);
 }
@@ -777,7 +756,7 @@ Entity *yeRemoveChildByStr(Entity *array, const char *toRemove)
   Y_BLOCK_ARRAY_FOREACH_PTR(*ba, tmp, it, ArrayEntry) {
 
     tmp = yeGetArrayEntryByIdx(array, it);
-    if (yuiStrEqual0(yeArrayEntryName(tmp), toRemove)) {
+    if (yuiStrEqual0(tmp->name, toRemove)) {
       ret = tmp->entity;
       yBlockArrayUnset(ba, it);
       arrayEntryDestroy(tmp);
@@ -843,7 +822,7 @@ static inline void yeAttachChild(Entity *on, Entity *entity,
   entry = yBlockArraySetGetPtr(&YE_TO_ARRAY(on)->values,
 			       yeLen(on), ArrayEntry);
   entry->entity = entity;
-  entry->name.ptr = g_strdup(name);
+  entry->name = g_strdup(name);
   entry->flags = 0;
   return;
 }
@@ -872,28 +851,26 @@ int yeAttach(Entity *on, Entity *entity,
   ArrayEntry *entry;
   Entity *toRemove = NULL;
   char *oldName = NULL;
-  uint32_t oldFlag = 0;
 
   if (unlikely(!on || !entity || on->type != YARRAY))
     return -1;
 
-  entry = yBlockArraySetGetPtr(&YE_TO_ARRAY(on)->values, idx, ArrayEntry);
+  entry = yBlockArraySetGetPtr(&YE_TO_ARRAY(on)->values,
+			       idx, ArrayEntry);
 
   if (likely(!(YE_TO_ARRAY(on)->values.flag & YBLOCK_ARRAY_NOINIT))) {
     if (entry->entity == entity)
       return 0;
     toRemove = entry->entity;
-    oldName = yeArrayEntryName(entry);
-    oldFlag = entry->flags;
+    oldName = entry->name;
   }
   entry->entity = entity;
+  entry->name = g_strdup(name);
   entry->flags = flag;
-  arrayEntryDupName(entry, name);
   yeIncrRef(entity);
   if (toRemove) {
     YE_DESTROY(toRemove);
-    if (!(oldFlag & YE_FLAG_NOT_ALLOCATED))
-      free(oldName);
+    g_free(oldName);
   }
   return 0;
 }
@@ -1039,7 +1016,7 @@ static ArrayEntity *yeCopyContainer(ArrayEntity* src, ArrayEntity* dest,
       continue;
 
     destElem->flags = elem->flags;
-    arrayEntryDupName(destElem, yeArrayEntryName(elem));
+    destElem->name = g_strdup(elem->name);
 
     if (elem->flags & YE_FLAG_NO_COPY) {
       tmp = elem->entity;
@@ -1055,7 +1032,7 @@ static ArrayEntity *yeCopyContainer(ArrayEntity* src, ArrayEntity* dest,
 
     if (yeDoestInclude(used, elem->entity)) {
       DPRINT_ERR("inifnit loop referance, at elem %s",
-		 yeArrayEntryName(elem) ? yeArrayEntryName(elem) : "(null)");
+		 elem->name ? elem->name : "(null)");
       return NULL;
     }
 
@@ -1067,7 +1044,7 @@ static ArrayEntity *yeCopyContainer(ArrayEntity* src, ArrayEntity* dest,
 
     if (!yeCopyInternal(elem->entity, destElem->entity, used, refs)) {
       DPRINT_ERR("fail to copy elem %s",
-		 yeArrayEntryName(elem) ? yeArrayEntryName(elem) : "(null)");
+		 elem->name ? elem->name : "(null)");
       return NULL;
     }
   }
@@ -1155,8 +1132,8 @@ static void yeToCStrInternal(Entity *entity, int deep, GString *str, int flag)
 	if (it) {
 	  g_string_append(str, " | ");
 	}
-	if (yeArrayEntryName(tmp))
-	  g_string_append_printf(str, "name: \"%s\", ", yeArrayEntryName(tmp));
+	if (tmp->name)
+	  g_string_append_printf(str, "name: \"%s\", ", tmp->name);
 	g_string_append_printf(str, "idx: " PRIint64 ", ", it);
 	g_string_append_printf(str, "val: ");
       }

@@ -159,6 +159,7 @@ function attackCallback(main, cur_anim, eve)
 	 dis:sub(cur_anim.base_pos)
 	 cur_anim.mv_per_frm = Pos.new(dis:x() / cur_anim.last_mv_frm,
 				       dis:y() / cur_anim.last_mv_frm).ent
+	 print("wololo:", cur_anim.to_pos, cur_anim.base_pos, dis.ent)
       end
 
       cur_anim.isPush = 0

@@ -153,7 +153,7 @@ static json_object *jsonObjectFromStringEntity(Entity *entity)
 static int isArray(Entity *entity)
 {
   YE_ARRAY_FOREACH_EXT(entity, child, it) {
-    if (yeArrayEntryName(yBlockArrayIteratorGetPtr(it, ArrayEntry)))
+    if (yBlockArrayIteratorGetPtr(it, ArrayEntry)->name)
       return 0;
   }
   return 1;
@@ -180,8 +180,7 @@ static json_object *jsonObjectFromArrayEntity(Entity *entity)
 
   YE_ARRAY_FOREACH_EXT(entity, child, it) {
     char buf[32];
-    const char *key =
-      yeArrayEntryName(yBlockArrayIteratorGetPtr(it, ArrayEntry));
+    const char *key = yBlockArrayIteratorGetPtr(it, ArrayEntry)->name;
 
     if (!key) {
       snprintf(buf, 32, "%d", it.pos);

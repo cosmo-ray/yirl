@@ -98,7 +98,7 @@ void *fileToCanvas(int nbArg, void **args)
 	  printf("A property !!!!\n");
 	  ++proTypesIt;
 	  if (proTypes) {
-	    name = yeArrayEntryName(yBlockArrayIteratorGetPtr(it, ArrayEntry));
+	    name = yBlockArrayIteratorGetPtr(it, ArrayEntry)->name;
 	  } else {
 	    name = yeGetStringAt(property, "name");
 	    proType = yeGet(property, "type");
@@ -200,7 +200,7 @@ void *fileToCanvas(int nbArg, void **args)
 
 	  ++proTypesIt;
 	  if (proTypes) {
-	    name = yeArrayEntryName(yBlockArrayIteratorGetPtr(it, ArrayEntry));
+	    name = yBlockArrayIteratorGetPtr(it, ArrayEntry)->name;
 	  } else {
 	    name = yeGetStringAt(property, "name");
 	    proType = yeGet(property, "type");

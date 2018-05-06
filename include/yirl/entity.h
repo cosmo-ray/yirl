@@ -86,8 +86,7 @@ typedef enum
 
 typedef enum {
   YE_FLAG_NULL = 0,
-  YE_FLAG_NO_COPY = 1,
-  YE_FLAG_NOT_ALLOCATED = 2
+  YE_FLAG_NO_COPY = 1
 } ArrayEntryFlags;
 
 typedef enum {
@@ -111,14 +110,9 @@ typedef struct Entity_
 
 } Entity;
 
-typedef union {
-  char *ptr;
-  char tab[8];
-} ArrayEntryName;
-
 typedef	struct {
   Entity *entity;
-  ArrayEntryName name;
+  char *name;
   uint32_t flags;
 } ArrayEntry;
 
@@ -265,13 +259,6 @@ Entity *yeBrutalCast(Entity *entity, int type);
   YE_ARRAY_FOREACH_EXT(array, val, it##val)
 
 int	yeArrayIdx(Entity *array, const char *lookup);
-
-static inline char *yeArrayEntryName(ArrayEntry *ae)
-{
-  if (likely(ae->flags & YE_FLAG_NOT_ALLOCATED))
-    return ae->name.tab;
-  return ae->name.ptr;
-}
 
 Entity *yeGetLast(Entity *array);
 
@@ -742,7 +729,7 @@ static inline Entity *yeReCreateArray(Entity *array, const char *name,
     return yeCreateArray(NULL, NULL);
   Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(array)->values, tmp,
 			    it, ArrayEntry) {
-    if (tmp && yuiStrEqual0(yeArrayEntryName(tmp), name)) {
+    if (tmp && yuiStrEqual0(tmp->name, name)) {
       if (child) {
 	YE_INCR_REF(child);
       } else {
@@ -971,7 +958,7 @@ static inline Entity *yeFind(Entity *entity,
   Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(entity)->values, tmp, it, ArrayEntry) {
     Entity *ret;
 
-    if ((ret = finder(yeArrayEntryName(tmp), tmp->entity, arg)) != NULL)
+    if ((ret = finder(tmp->name, tmp->entity, arg)) != NULL)
       return ret;
   }
   return NULL;
@@ -1095,7 +1082,6 @@ static inline int yeSwapElems(Entity *array, Entity *elem0, Entity *elem1)
 {
   ArrayEntry *entry0 = NULL;
   ArrayEntry *entry1 = NULL;
-  ArrayEntryName tmpName;
 
   if (!array || !elem0 || !elem1 || elem0 == elem1)
     return -1;
@@ -1112,9 +1098,7 @@ static inline int yeSwapElems(Entity *array, Entity *elem0, Entity *elem1)
     return -1;
 
   YUI_SWAP_PTR(entry0->entity, entry1->entity, Entity *);
-  tmpName = entry0->name;
-  entry0->name = entry1->name;
-  entry1->name = tmpName;
+  YUI_SWAP_PTR(entry0->name, entry1->name, char *);
   return 0;
 }
 
