@@ -82,9 +82,9 @@ function endAnimationAttack(main, cur_anim)
       return
    end
    if main.atk_state:to_int() == PJ_ATTACK then
-      ylpcsHandelerSetOrigXY(cur_anim.guy, good_orig_pos[1],
+      ylpcsHandlerSetOrigXY(cur_anim.guy, good_orig_pos[1],
 			     good_orig_pos[2])
-      ylpcsHandelerRefresh(cur_anim.guy)
+      ylpcsHandlerRefresh(cur_anim.guy)
       main.atk_state = ENEMY_ATTACK
       local tmp = cur_anim.guy
       yeIncrRef(tmp)
@@ -92,11 +92,11 @@ function endAnimationAttack(main, cur_anim)
       yeDestroy(tmp)
       --print(cur_anim.guy.name, cur_anim.target.name)
    else
-      ylpcsHandelerSetOrigXY(cur_anim.guy, bad_orig_pos[1],
+      ylpcsHandlerSetOrigXY(cur_anim.guy, bad_orig_pos[1],
 			     bad_orig_pos[2])
-      ylpcsHandelerRefresh(cur_anim.guy)
+      ylpcsHandlerRefresh(cur_anim.guy)
       main.atk_state = AWAIT_CMD
-      ylpcsHandelerSetOrigXY(cur_anim.guy, bad_orig_pos[1],
+      ylpcsHandlerSetOrigXY(cur_anim.guy, bad_orig_pos[1],
 			     bad_orig_pos[2])
    end
 end
@@ -192,8 +192,8 @@ function attackCallback(main, eve)
       local co_pos = cur_anim.animation_frame * last / last_frm
       local cur_orig = Pos.wrapp(cur_cmb_anim.poses[co_pos])
 
-      ylpcsHandelerSetOrigXY(cur_anim.guy, cur_orig:x(), cur_orig:y())
-      ylpcsHandelerRefresh(cur_anim.guy)
+      ylpcsHandlerSetOrigXY(cur_anim.guy, cur_orig:x(), cur_orig:y())
+      ylpcsHandlerRefresh(cur_anim.guy)
    end
    if cur_anim.animation_frame >= last_frm then
       local i = 0
@@ -313,13 +313,13 @@ end
 function fightAttack(entity, eve)
    local main = menuGetMain(entity)
    main.atk_state = PJ_ATTACK
-   return attack(main, main.gg_handeler, main.bg_handeler)
+   return attack(main, main.gg_handler, main.bg_handler)
 end
 
 function fightStrongAttack(entity, eve)
    local main = menuGetMain(entity)
    main.atk_state = PJ_ATTACK
-   return attack(main, main.gg_handeler, main.bg_handeler, 2)
+   return attack(main, main.gg_handler, main.bg_handler, 2)
 end
 
 function newDefaultGuy(guy, name, isEnemy)
@@ -396,30 +396,30 @@ function fightInit(entity)
    menu.entries[1].action = Entity.new_func("fightStrongAttack")
    local ret = ywidNewWidget(entity, "container")
    local wid_pix = canvas["wid-pix"]
-   entity.gg_handeler = nil
-   entity.bg_handeler = nil
+   entity.gg_handler = nil
+   entity.bg_handler = nil
    local y_carac = wid_pix.h / 2
-   ylpcsCreateHandeler(entity.good_guy, canvas, entity, "gg_handeler")
-   ylpcsHandelerSetOrigXY(entity.gg_handeler, 1, 1)
-   ylpcsHandelerRefresh(entity.gg_handeler)
-   ylpcsHandelerMove(entity.gg_handeler,
+   ylpcsCreateHandler(entity.good_guy, canvas, entity, "gg_handler")
+   ylpcsHandlerSetOrigXY(entity.gg_handler, 1, 1)
+   ylpcsHandlerRefresh(entity.gg_handler)
+   ylpcsHandlerMove(entity.gg_handler,
 		     Pos.new(wid_pix.w - 100, y_carac).ent)
 
 
-   ylpcsCreateHandeler(entity.bad_guy, canvas, entity, "bg_handeler")
-   ylpcsHandelerSetOrigXY(entity.bg_handeler, 1, 3)
-   ylpcsHandelerRefresh(entity.bg_handeler)
-   ylpcsHandelerMove(entity.bg_handeler, Pos.new(50, y_carac).ent)
+   ylpcsCreateHandler(entity.bad_guy, canvas, entity, "bg_handler")
+   ylpcsHandlerSetOrigXY(entity.bg_handler, 1, 3)
+   ylpcsHandlerRefresh(entity.bg_handler)
+   ylpcsHandlerMove(entity.bg_handler, Pos.new(50, y_carac).ent)
    canvas = Canvas.wrapp(canvas)
 
    canvas:new_rect(wid_pix.w - 100, y_carac - 25,
 		   "rgba: 255 0 30 255", Pos.new(50, 10).ent)
-   entity.gg_handeler.life_b = canvas:new_rect(wid_pix.w - 100, y_carac - 25,
+   entity.gg_handler.life_b = canvas:new_rect(wid_pix.w - 100, y_carac - 25,
 					       "rgba: 0 255 30 255",
 					       Pos.new(50, 10).ent).ent
 
    canvas:new_rect(50, y_carac - 25, "rgba: 255 0 30 255", Pos.new(50, 10).ent)
-   entity.bg_handeler.life_b = canvas:new_rect(50, y_carac - 25,
+   entity.bg_handler.life_b = canvas:new_rect(50, y_carac - 25,
 					       "rgba: 0 255 30 255",
 					       Pos.new(50, 10).ent).ent
    return ret
