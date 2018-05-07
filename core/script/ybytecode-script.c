@@ -209,6 +209,17 @@ static void storeIdent(Entity *str, Entity *tokInfo,
   LIST_INSERT_HEAD(identHead, iden, entries);
 }
 
+static int isIdentifier(Entity *str, Entity *tokInfo, int tok,
+			struct identifiersHead *identHead)
+{
+  const char *cstr;
+
+  if (tok == NUMBER_TOK)
+    return 1;
+  cstr = yeTokCIdentifier(tokInfo, tok);
+  return getIdent(identHead, cstr) >= 0;
+}
+
 static void tryGetIdentifier(int64_t *dest, Entity *str, Entity *tokInfo,
 			    struct identifiersHead *identHead)
 {
@@ -429,9 +440,13 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
   case YB_CALL_TOK: /* variadic arguments */
     script[script_len] = tok;
     tryGetIdentifier(&script[script_len + 2], str, tokInfo, &idents);
-    while ((tok = nextNonSeparatorTok(str, tokInfo)) == NUMBER_TOK) {
+    while (isIdentifier(str, tokInfo, (tok = nextNonSeparatorTok(str, tokInfo)),
+			&idents)) {
       ++nb_args;
-      script[script_len + nb_args + 2] = atoi(yeTokString(tokInfo, tok));
+      if (tok == NUMBER_TOK)
+	script[script_len + nb_args + 2] = atoi(yeTokString(tokInfo, tok));
+      else
+	script[script_len + nb_args + 2] = getIdent(&idents, yeTokCIdentifier(tokInfo, tok));
     }
     script[script_len + 1] = nb_args;
     script_len += nb_args + 3;
@@ -496,7 +511,7 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
   case YB_INF_COMP_NBR_TOK:
   case YB_SUP_COMP_NBR_TOK:
     script[script_len] = tok;
-    tryStoreNumber(&script[script_len + 1], str, tokInfo);
+    tryGetIdentifier(&script[script_len + 1], str, tokInfo, &idents);
     tryStoreNumber(&script[script_len + 2], str, tokInfo);
     tryStoreLabels(script_len + 3, str, tokInfo, &labels_needed, -1);
     script_len += 4;
