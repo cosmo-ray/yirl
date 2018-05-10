@@ -160,7 +160,6 @@ static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
   Entity *txt;
   Entity *entries;
 
-  printf("is block %d\n", yeGetIntAt(wid, "isBlock"));
   if (yeGetIntAt(wid, "isBlock") == 1) {
     dialogue = yeGet(wid, "block");
   } else {
@@ -333,27 +332,30 @@ void *dialogueBlock(int nbArgs, void **args)
   char *block_answer = NULL;
 
   if (nbArgs > 3)
-    block_dialogue = args[3];
+    block_action = args[3];
   if (nbArgs > 4)
-    block_action = args[4];
+    block_dialogue = args[4];
   if (nbArgs > 5)
     block_answer = args[5];
 
   if (!block) {
-    if (!block_action || !block_dialogue)
+    if (!block_action)
       return NULL;
     block = yeCreateArray(main, "block");
     answers = yeCreateArray(block, "answers");
     yeCreateArray(answers, NULL);
    }
   answer = yeGet(answers, 0);
+  printf("%p\n", block_dialogue);
   if (block_dialogue)
-    yeReCreateString(yeGetString(block_dialogue),
-		     block, "text");
+    yeReCreateString(yeGetString(block_dialogue), block, "text");
+  else if (!yeGet(block, "text"))
+    yeCreateString("this persone don't want to talk to you", block, "text");
+
   if (block_answer)
     yeReCreateString(yeGetString(block_answer), answer, "text");
-  else
-    yeReCreateString("end dialogue", answer, "text");
+  else if (!yeGet(answer, "text"))
+    yeCreateString("end dialogue", answer, "text");
 
   if (block_action)
     yeReCreateString(yeGetString(block_action), answer, "action");
