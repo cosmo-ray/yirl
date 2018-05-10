@@ -467,11 +467,11 @@ int	luaCopy(lua_State *L)
 {
   DPRINT_INFO("enter luaCopyEntity\n");
   if (lua_gettop(L) != 2 ||
-      !lua_islightuserdata(L, 2))
+      !lua_isuserdata(L, 2))
     {
       return luaL_error(L, "function arguments are incorect\n"
-			"prototyre is: yeCopy(lightuserdata src,"
-			"lightuserdata dest)\n");
+			"prototyre is: yeCopy(Entity src,"
+			"Entity dest)\n");
     }
   lua_pushlightuserdata(L, yeCopy(luaEntityAt(L, 1),
 				  luaEntityAt(L, 2)));
