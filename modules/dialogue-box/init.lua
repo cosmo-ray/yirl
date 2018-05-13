@@ -80,8 +80,9 @@ function reloadTextAndAnswerDialogue(canvas, x, y, dialogue, ret)
    local arrow = nil
 
    if yeType(dialogue) == YSTRING then
+      local tmpText = yeCreateYirlFmtString(dialogue, gc)
       tmp0 = ywCanvasNewText(canvas, x + border_threshold,
-			     y + border_threshold, dialogue)
+			     y + border_threshold, tmpText)
       size = ywCanvasObjSize(canvas, tmp0)
       size = ywSizeCreate(size, gc)
       yePushBack(b0, tmp0)
@@ -90,9 +91,10 @@ function reloadTextAndAnswerDialogue(canvas, x, y, dialogue, ret)
       local len = yeLen(answers)
       local name = yeGet(dialogue, "name")
       local i = 0
-
+      local tmpText = yeCreateYirlFmtString(yeGet(dialogue, "text"), gc)
+      
       tmp0 = ywCanvasNewText(canvas, x + border_threshold,
-			     y + border_threshold, yeGet(dialogue, "text"))
+			     y + border_threshold, tmpText)
       yePushBack(b0, tmp0)
       size = ywCanvasObjSize(canvas, tmp0)
       local x0 = ywPosX(ywCanvasObjPos(tmp0))
@@ -105,7 +107,8 @@ function reloadTextAndAnswerDialogue(canvas, x, y, dialogue, ret)
 	    local x = x0 + arrow_tot
 	    local y = ywPosY(ywCanvasObjPos(tmp0)) + txt_threshold + ywSizeH(size)
 
-	    tmp0 = ywCanvasNewText(canvas, x, y, yeGet(txt, "text"))
+	    tmpText = yeCreateYirlFmtString(yeGet(txt, "text"), gc)
+	    tmp0 = ywCanvasNewText(canvas, x, y, tmpText)
 	    size = ywCanvasObjSize(canvas, tmp0)
 	    if ywSizeW(size) + arrow_tot > w then
 	       w = ywSizeW(size) + arrow_tot

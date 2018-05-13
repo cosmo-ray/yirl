@@ -24,6 +24,7 @@
 #include	"utils.h"
 #include	"stack.h"
 #include	"script.h"
+#include	"game.h"
 
 int yeStringReplace(Entity *ent, const char *substr, const char *replacement)
 {
@@ -420,4 +421,33 @@ int yeStringNextTok(Entity *str, Entity *tokInfo)
   yeSetString(word, begStr);
   *cStr = tmp;
   return YTOK_WORD;
+}
+
+Entity *yeCreateYirlFmtString(Entity *fmt, Entity *father, const char *name)
+{
+  Entity *ret = yeReCreateString("", father, name);
+  const char *txt = yeGetString(fmt);
+
+  for (int i = 0; txt[i]; ++i) {
+    if (txt[i] == '{') {
+      char tmp;
+      char *writable_txt = (char *)txt;
+      char *entity_str;
+      int j = i;
+
+      for (; txt[j] && txt[j] != '}'; ++j);
+      if (!txt[j])
+	return NULL;
+      tmp = txt[j];
+      writable_txt[j] = 0;
+      entity_str = yeToCStr(ygGet(&txt[i + 1]), 1, 0);
+      yeStringAdd(ret, entity_str);
+      g_free(entity_str);
+      writable_txt[j] = tmp;
+      i = j;
+    } else {
+      yeStringAddCh(ret, txt[i]);
+    }
+  }
+  return ret;
 }

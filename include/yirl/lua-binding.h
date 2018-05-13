@@ -95,6 +95,7 @@ int	luayeRefCount(lua_State *L);
 int	luaGetString(lua_State *L);
 int	luaCreateString(lua_State *L);
 int	luaSetString(lua_State *L);
+int	luayeCreateYirlFmtString(lua_State *L);
 
 /* int */
 int	luaGetInt(lua_State *L);
@@ -419,6 +420,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeGetString", luaGetString));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeSetString", luaSetString));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeCreateString", luaCreateString));
+  YES_LUA_REGISTRE_CALL(sm, yeCreateYirlFmtString);
 
   /* int */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeGetInt", luaGetInt));

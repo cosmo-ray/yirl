@@ -979,6 +979,14 @@ int	luaGetString(lua_State *L)
   return 1;
 }
 
+int	luayeCreateYirlFmtString(lua_State *L)
+{
+  lua_pushlightuserdata(L, yeCreateYirlFmtString(luaEntityAt(L, 1),
+						 luaEntityAt(L, 2),
+						 lua_tostring(L, 3)));
+  return 1;
+}
+
 int	luayeGetIntAt(lua_State *L)
 {
   luaGet(L);

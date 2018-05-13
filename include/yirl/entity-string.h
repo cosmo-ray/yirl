@@ -174,3 +174,9 @@ int yeStringShrink(Entity *str, uint32_t len);
  * @brief remove all blank and tab up front
  */
 void yeStringShrinkBlank(Entity *str);
+
+/**
+ * @brief create a string using @fmt, this function need ygInit() to be call first
+ * @param fmt YIRL format string, that use {} to indicate entity path
+ */
+Entity *yeCreateYirlFmtString(Entity *fmt, Entity *father, const char *name);
