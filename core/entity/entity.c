@@ -1105,13 +1105,16 @@ Entity*		yeCopy(Entity* src, Entity* dest)
 }
 
 
-static void yeToCStrInternal(Entity *entity, int deep, GString *str, int flag)
+static void yeToCStrInternal(Entity *entity, int deep, GString *str, int flag, int origDeep)
 {
   if (!deep)
     return;
   switch (yeType(entity)) {
   case YSTRING :
-    g_string_append_printf(str, "\"%s\"", yeGetString(entity));
+    if (deep == origDeep)
+      g_string_append_printf(str, "%s", yeGetString(entity));
+    else
+      g_string_append_printf(str, "\"%s\"", yeGetString(entity));
     break;
   case YINT :
     g_string_append_printf(str, "'%d'", yeGetInt(entity));
@@ -1137,7 +1140,7 @@ static void yeToCStrInternal(Entity *entity, int deep, GString *str, int flag)
 	g_string_append_printf(str, "idx: " PRIint64 ", ", it);
 	g_string_append_printf(str, "val: ");
       }
-      yeToCStrInternal(tmp->entity, deep - 1, str, flag);
+      yeToCStrInternal(tmp->entity, deep - 1, str, flag, origDeep);
     }
 
     g_string_append_c(str, ']');
@@ -1156,7 +1159,7 @@ char *yeToCStr(Entity *entity, int deep, int flag)
 {
   GString *str = g_string_new(NULL);
 
-  yeToCStrInternal(entity, deep, str, flag);
+  yeToCStrInternal(entity, deep, str, flag, deep);
   return g_string_free(str, 0);
 }
 
