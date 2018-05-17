@@ -82,6 +82,7 @@ Devlopement package of these libs:
 * glib2
 * lua 53+
 * sdl, sdl_image, sdl_ttf, sdl_mixer
+* json-c
 
 Optinal:
 * ncurses
