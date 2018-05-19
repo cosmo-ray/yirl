@@ -74,6 +74,7 @@ A good contribution would be to make yirl compatible with linux coding style.
 
 # Projects using YIRL
 * https://uso.itch.io/pre-hangover-simulator
+* https://harald8.itch.io/pre-hangover-quest
 
 # Dependancies
 
@@ -110,6 +111,12 @@ make
 * irc: #yirl on freenode
 * discord: https://discord.gg/8QrKTtV
 
+
+# Modules
+Modules are a very important part of yirl, a modules can be a set of functions,
+A widget that will implement some game mechanisme(like snake), or a full game (like game/vapz)
+
+Each modules have a start.json file that will serve as entre file, and will tell YIRL how to load every other files
 
 # how to start using yirl
 For now the easier way to use yirl is to come chat with us and ask for help
