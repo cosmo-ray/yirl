@@ -55,7 +55,7 @@ static Entity *findEnt(const char *useless, Entity *ent, void *ent2)
 int ywMapIsSmoot(Entity *map);
 
 /* crop the map and print the middle of it */
-static int sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
+static void sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
 {
   Entity *map = yeGet(entity, "map");
   Entity *cam = yeGet(entity, "cam");
@@ -99,9 +99,6 @@ static int sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
       ++cury;
     }
   }
-
-  sdl2MidRender(state, wid, entity, 0);
-  return 0;
 }
 
 static void sdl2MidRender(YWidgetState *state, SDLWid *wid, Entity *ent,
@@ -122,6 +119,7 @@ static void sdl2MidRender(YWidgetState *state, SDLWid *wid, Entity *ent,
   int32_t endX = begX + wCam;
   int32_t endY = begY + hCam;
 
+  sdl2PartialRender(state, wid, ent);
   if (!ywMapIsSmoot(ent))
     return;
 
@@ -149,8 +147,8 @@ static void sdl2MidRender(YWidgetState *state, SDLWid *wid, Entity *ent,
     Entity *from = yeGet(tbl, 0);
     Entity *to = yeGet(tbl, 1);
     Entity *seg = ywPosDoPercent(ywSegmentFromPos(from, to,
-						  gc, NULL),
-				 percent);
+                                                  gc, NULL),
+                                 percent);
     ywPosAdd(from, seg);
     {PRINT_BG_AT(from)};
     ywPosAddXY(from, 0, 1); // 0/1
@@ -172,6 +170,7 @@ static void sdl2MidRender(YWidgetState *state, SDLWid *wid, Entity *ent,
     ywPosAddXY(from, 1, 1); // 0/0
     yeClearArray(gc);
   }
+
 
   YE_ARRAY_FOREACH(mv_tbl, tbl2) {
     Entity *from = yeGet(tbl2, 0);
@@ -270,9 +269,10 @@ static int sdl2Render(YWidgetState *state, int t)
   SDLWid *wid = ywidGetRenderData(state, t);
   Entity *ent = state->entity;
 
-  if (ywMapType(ent) == YMAP_PARTIAL)
-    return sdl2PartialRender(state, wid, ent);
-  return sdl2FullRender(state, wid, ent);
+  if (ywMapType(ent) != YMAP_PARTIAL)
+    return sdl2FullRender(state, wid, ent);
+  sdl2MidRender(state, wid, ent, 0);
+  return 0;
 }
 
 static int sdl2Init(YWidgetState *wid, int t)
