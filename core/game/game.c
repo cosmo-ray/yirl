@@ -540,7 +540,7 @@ Entity *ygLoadMod(const char *path)
       DPRINT_ERR("start does not suport loader of type %s", yeGetString(type));
     }
   } else {
-    starting_widget = yeGet(mod, yeGetString(starting_widget));
+    starting_widget = yeGetByStr(mod, yeGetString(starting_widget));
   }
   yePushBack(mod, starting_widget, "$starting widget");
   printf(" === add module: \"%s\" === \n", yeGetString(name));
