@@ -41,6 +41,8 @@ static Entity *getAnswer(Entity *mn, int idx);
 static Entity *getTextWidget(Entity *main);
 static Entity *getMenu(Entity *main);
 
+static void *dialogueGotoNext(int nbArgs, void **args);
+
 struct mainDrv cntDialogueMainDrv = {
   getTextWidget, getMenu
 };
@@ -172,6 +174,7 @@ static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
     entries = yeReCreateArray(menu, "entries", NULL);
   } else {
     yesCall(ygGet("DialogueBox.pushAnswers"), menu, answers);
+    yesCall(ygGet("DialogueBox.moveAnswer"), menu, 0);
   }
   yeReCreateString(yeGetString(txt), textScreen, "text");
 
@@ -232,6 +235,7 @@ void *init(int nbArg, void **args)
   yeCreateFunction("dialogueChangeText", ygGetTccManager(), mod, "change-text");
   yeCreateFunction("dialogueHide", ygGetTccManager(), mod, "hide");
   yeCreateFunction("dialogueGoto", ygGetTccManager(), mod, "goto");
+  yeCreateFunction("dialogueGotoNext", ygGetTccManager(), mod, "gotoNext");
   yeCreateFunction("dialogueBlock", ygGetTccManager(), mod, "block");
 
   yeCreateFunctionSimple("newDialogue", ygGetTccManager(), mod);
@@ -276,7 +280,15 @@ void *dialogueAction(int nbArgs, void **args)
 	  hasMove = 1;
 	} else if(ywidEveKey(eve) == '\n') {
 	  Entity *answer = boxGetAnswer(box, current);
-	  return (void *)ywidActions(box, answer, eve, NULL);
+
+	  if (!yeGet(answer, "action") && !yeGet(answer, "actions")) {
+	    void *args[] = {box, answer};
+
+	    /* so... that's a stupide way to call a tcc entity function */
+	    return dialogueGotoNext(2, args);
+	  } else {
+	    return (void *)ywidActions(box, answer, eve, NULL);
+	  }
 	}
       }
     }
@@ -315,8 +327,19 @@ void *dialogueGoto(int nbArgs, void **args)
   Entity *main = getMenuDrv(args[0])->getMain(args[0]);
   struct mainDrv *drv = getMainDrv(main);
 
-  yeReplaceBack(main, args[3], "active_dialogue");
+  yeReCreateInt(yeGetInt(args[3]), main, "active_dialogue");
   printfTextAndAnswer(main, drv->getTextWidget(main), args[0], args[3]);
+  return (void *)NOACTION;
+}
+
+void *dialogueGotoNext(int nbArgs, void **args)
+{
+  Entity *main = getMenuDrv(args[0])->getMain(args[0]);
+  struct mainDrv *drv = getMainDrv(main);
+  Entity *active_dialogue = yeGet(main, "active_dialogue");
+
+  yeAddInt(active_dialogue, 1);
+  printfTextAndAnswer(main, drv->getTextWidget(main), args[0], active_dialogue);
   return (void *)NOACTION;
 }
 
@@ -346,7 +369,6 @@ void *dialogueBlock(int nbArgs, void **args)
     yeCreateArray(answers, NULL);
    }
   answer = yeGet(answers, 0);
-  printf("%p\n", block_dialogue);
   if (block_dialogue)
     yeReCreateString(yeGetString(block_dialogue), block, "text");
   else if (!yeGet(block, "text"))
