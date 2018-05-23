@@ -5,6 +5,7 @@ Contributor Code of Conduct
 The goal of this code of conduct is to be very exclusive and to help anyone remember the absurdity and meanless state of they existance that, regadless of gender, sexual orientation, ability, ethnicity, socioeconomic status, and religion(or lack thereof).
 
 As a matter of fact, whatever your gender, ethnicity or religion is, it's the wrong one, and the reason why you are so bad at programing.
+Exept if you're goth, goth are exactly like us, exept they listen to cradle of filth.
 
 # Our Standards
 
