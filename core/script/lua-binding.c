@@ -1266,7 +1266,7 @@ int	luaYwRectCreate(lua_State *L)
 int	luaywRectCollision(lua_State *L)
 {
   lua_pushboolean(L, ywRectCollision(luaEntityAt(L, 1),
-				  luaEntityAt(L, 2)));
+				     luaEntityAt(L, 2)));
   return 1;
 }
 
