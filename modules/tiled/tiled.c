@@ -65,6 +65,7 @@ void *fileToCanvas(int nbArg, void **args)
   tileset_array = yeGet(tiledEnt, "tilesets");
   layers = yeGet(tiledEnt, "layers");
   YE_ARRAY_FOREACH(layers, layer) {
+    Entity *layer_name = yeGet(layer, "name");
     Entity *layer_data  = yeGet(layer, "data");
     int data_len = yeLen(layer_data);
     int layer_w  = yeGetIntAt(layer, "width");
@@ -84,6 +85,7 @@ void *fileToCanvas(int nbArg, void **args)
 	yeGetPush(object, obj, "visible");
 	yeGetPush(object, obj, "id");
 	yeGetPush(object, obj, "name");
+	yePushBack(obj, yeGet(layer, "name"), "layer_name");
 	ywRectCreateInts(yeGetIntAt(object, "x"),
 			 yeGetIntAt(object, "y"),
 			 yeGetIntAt(object, "width"),

@@ -132,7 +132,7 @@ int	luaywidEveMousePos(lua_State *L);
 
 /* rect */
 int	luaYwRectCreate(lua_State *L);
-
+int	luaywRectCollision(lua_State *L);
 
 /* pos */
 int	luaywPosCreate(lua_State *L);
@@ -492,6 +492,7 @@ static inline int	yesLuaRegister(void *sm)
 
   /* rect */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywRectCreate", luaYwRectCreate));
+  YES_LUA_REGISTRE_CALL(sm, ywRectCollision);
 
   /* pos */
   YES_LUA_REGISTRE_CALL(sm, ywPosX);
