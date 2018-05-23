@@ -80,6 +80,7 @@ int	luaYeReplace(lua_State *L);
 int	luaYeReplaceBack(lua_State *L);
 int	luaYeReplaceAtIdx(lua_State *L);
 int	luaYeSwapElems(lua_State *L);
+int	luayeRenameIdxStr(lua_State *L);
 
 /* Entity */
 int	luaCopy(lua_State *L);
@@ -90,6 +91,7 @@ int	luayeEntitiesArraySize(lua_State *L);
 int	luayeFreeEntitiesInStack(lua_State *L);
 int	luayeEntitiesUsed(lua_State *L);
 int	luayeRefCount(lua_State *L);
+int	luayeConvert(lua_State *L);
 
 /* string */
 int	luaGetString(lua_State *L);
@@ -296,6 +298,7 @@ static inline int	yesLuaRegister(void *sm)
 
   LUA_SET_INT_GLOBAL_VAL(sm, Y_CNT_VERTICAL, CNT_VERTICAL);
   LUA_SET_INT_GLOBAL_VAL(sm, Y_CNT_HORIZONTAL, CNT_HORIZONTAL);
+
   LUA_SET_INT_GLOBAL_VAL(sm, Y_CNT_STACK, CNT_STACK);
   LUA_SET_INT_GLOBAL_VAL(sm, Y_CNT_NONE, CNT_NONE);
 
@@ -404,6 +407,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeReplaceAtIdx", luaYeReplaceAtIdx));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeReplaceBack", luaYeReplaceBack));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeSwapElems", luaYeSwapElems));
+  YES_LUA_REGISTRE_CALL(sm, yeRenameIdxStr);
 
   /* Entity */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeCopy", luaCopy));
@@ -415,6 +419,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, yeEntitiesUsed);
   YES_LUA_REGISTRE_CALL(sm, yeFreeEntitiesInStack);
   YES_LUA_REGISTRE_CALL(sm, yeRefCount);
+  YES_LUA_REGISTRE_CALL(sm, yeConvert);
 
   /* string */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeGetString", luaGetString));

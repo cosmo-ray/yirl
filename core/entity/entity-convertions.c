@@ -118,6 +118,7 @@ Entity *yeConvert(Entity *entity, int type)
     case YINT:
 	    return entity;
     case YFLOAT:
+      return yeBrutalCast(entity, YFLOAT);
     case YDATA:
     case YSTRING:
     case YFUNCTION:
@@ -134,6 +135,7 @@ Entity *yeConvert(Entity *entity, int type)
     case YFLOAT:
 	    return entity;
     case YINT:
+      return yeBrutalCast(entity, YINT);
     case YDATA:
     case YSTRING:
     case YFUNCTION:

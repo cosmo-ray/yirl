@@ -42,8 +42,17 @@ static t_log_mode log_confs[] = {
 };
 
 void	debug_print_(char const* mode, char const* format, va_list vl);
-FILE*	get_file(int mode);
 void	debug_print_info(FILE* fd, const char* mode);
+
+static FILE*	get_file(int mode)
+{
+  static FILE * file = NULL;
+  
+  (void)mode;
+  if (file == NULL)
+    file = fopen("log.txt", "a");
+  return file;
+}
 
 #if defined(__unix__) || defined(__APPLE__)
 void	yuiDebugPrint(int mode, char const* format, ...)
@@ -73,26 +82,29 @@ void	yuiDebugInit()
 {
   if (isInit)
     return;
+  void *tmp;
   log_confs[INFO].file = get_file(0);
+  tmp = log_confs[INFO].file;
   debug_print_info(log_confs[INFO].file, log_confs[INFO].str);
-  fprintf(log_confs[INFO].file, "Initiate log file with %p\n",
-	  log_confs[INFO].file);
+  fprintf(log_confs[INFO].file, "Initiate log file with %p\n", tmp);
 
   log_confs[WARNING].file = get_file(0);
+  tmp = log_confs[WARNING].file;
   debug_print_info(log_confs[WARNING].file, log_confs[WARNING].str);
-  fprintf(log_confs[WARNING].file, "Initiate log file with %p\n",
-	  log_confs[WARNING].file);
+  fprintf(log_confs[WARNING].file, "Initiate log file with %p\n", tmp);
 
   log_confs[D_ERROR].file = get_file(0);
+  tmp = log_confs[D_ERROR].file;
   debug_print_info(log_confs[D_ERROR].file, log_confs[D_ERROR].str);
-  fprintf(log_confs[D_ERROR].file, "Initiate log file with %p\n",
-	  log_confs[D_ERROR].file);
+  fprintf(log_confs[D_ERROR].file, "Initiate log file with %p\n", tmp); 
 }
 
 void	yuiDebugExit()
 {
+  void *tmp;
   debug_print_info(log_confs[INFO].file, INFO_STR);
-  fprintf(log_confs[INFO].file, "Closing logging file with %p\n", log_confs[INFO].file);
+  tmp = log_confs[INFO].file;
+  fprintf(log_confs[INFO].file, "Closing logging file with %p\n", tmp);
   fclose(log_confs[INFO].file);
   isInit = 0;
 }
@@ -110,15 +122,5 @@ void	debug_print_(char const* mode, char const* format, va_list vl)
   else
     vfprintf(log_confs[INFO].file, format, vl);
   fflush(log_confs[INFO].file);
-}
-
-FILE*	get_file(int mode)
-{
-  static FILE * file = NULL;
-  
-  (void)mode;
-  if (file == NULL)
-    file = fopen("log.txt", "a");
-  return file;
 }
 

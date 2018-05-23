@@ -1163,6 +1163,17 @@ char *yeToCStr(Entity *entity, int deep, int flag)
   return g_string_free(str, 0);
 }
 
+int yeRenameIdxStr(Entity *array, int idx, const char *str)
+{
+  ArrayEntry *ae = yeGetArrayEntryByIdx(array, idx);
+
+  if (!ae)
+    return -1;
+  g_free(ae->name);
+  ae->name = strdup(str);
+  return 0;
+}
+
 int yeRenamePtrStr(Entity *array, Entity *ptr, const char *str)
 {
   YE_INCR_REF(ptr);

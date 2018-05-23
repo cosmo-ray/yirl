@@ -444,6 +444,12 @@ int	luayeRefCount(lua_State *L)
   return 1;
 }
 
+int	luayeConvert(lua_State *L)
+{
+  lua_pushlightuserdata(L, yeConvert(luaEntityAt(L, 1), lua_tonumber(L, 2)));
+  return 1;
+}
+
 int	luayeFreeEntitiesInStack(lua_State *L)
 {
   lua_pushnumber(L, yeFreeEntitiesInStack());
@@ -1171,6 +1177,14 @@ int	luaYeSwapElems(lua_State *L)
 				luaEntityAt(L, 2),
 				luaEntityAt(L, 3))
 		 );
+  return 1;
+}
+
+int	luayeRenameIdxStr(lua_State *L)
+{
+  lua_pushnumber(L, yeRenameIdxStr(luaEntityAt(L, 1),
+				   lua_tonumber(L, 2),
+				   lua_tostring(L, 3)));
   return 1;
 }
 

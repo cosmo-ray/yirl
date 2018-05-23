@@ -36,7 +36,7 @@ typedef enum {
 typedef enum
   {
     BAD_TYPE = -1,
-    YINT= 0,
+    YINT = 0,
     YFLOAT = 1,
     YSTRING = 2,
     YARRAY = 3,
@@ -226,6 +226,13 @@ const char *yeTypeToString(int type);
 /**
  * @brief convert @entity to @type
  * Will try to be smarter than brutal cast to have javascripts like convertion
+ * NOTE: this function isn't complet yet, and support only convertion:
+ * From int to int
+ * From int to float
+ * From float to float
+ * From float to int
+ * From string to string
+ * From string to  array
  * @return NULL if fail, @entity otherwise
  */
 Entity *yeConvert(Entity *entity, int type);
@@ -978,6 +985,7 @@ char *yeToCStr(Entity *entity, int deep, int flag);
  * @ptr is found.
  */
 int yeRenamePtrStr(Entity *array, Entity *ptr, const char *str);
+int yeRenameIdxStr(Entity *array, int idx, const char *str);
 
 /**
  * @brief remove all entity name @name inside @array and push @toPush

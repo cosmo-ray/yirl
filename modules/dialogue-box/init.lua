@@ -92,7 +92,7 @@ function reloadTextAndAnswerDialogue(canvas, x, y, dialogue, ret)
       local name = yeGet(dialogue, "name")
       local i = 0
       local tmpText = yeCreateYirlFmtString(yeGet(dialogue, "text"), gc)
-      
+
       tmp0 = ywCanvasNewText(canvas, x + border_threshold,
 			     y + border_threshold, tmpText)
       yePushBack(b0, tmp0)
@@ -102,6 +102,10 @@ function reloadTextAndAnswerDialogue(canvas, x, y, dialogue, ret)
       local h = ywSizeH(size)
       while i < len do
 	 local txt = yeGet(answers, i)
+	 if yeType(txt) == YSTRING then
+	    yeConvert(txt, YARRAY)
+	    yeRenameIdxStr(txt, 0, "text")
+	 end
 	 local hiden = yeGetInt(yeGet(txt, "hiden"))
 	 if (hiden ~= 1) then
 	    local x = x0 + arrow_tot
