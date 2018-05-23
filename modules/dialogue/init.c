@@ -169,6 +169,10 @@ static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
   }
   txt = getText(menu, dialogue);
   answers = yeGet(dialogue, "answers");
+  if (!answers) {
+    answers = yeCreateArray(dialogue, "answers");
+    yePushBack(answers, yeGet(dialogue, "answer"), NULL);
+  }
   if (drv == &cntDialogueMnDrv) {
     ywContainerUpdate(wid, textScreen);
     entries = yeReCreateArray(menu, "entries", NULL);
