@@ -1241,6 +1241,19 @@ int	luaywPosY(lua_State *L)
   return 1;
 }
 
+int	luaywRectW(lua_State *L)
+{
+  lua_pushnumber(L, ywRectW(luaEntityAt(L, 1)));
+  return 1;
+}
+
+int	luaywRectH(lua_State *L)
+{
+    lua_pushnumber(L, ywRectH(luaEntityAt(L, 1)));
+    return 1;
+}
+
+
 int	luaYwRectCreate(lua_State *L)
 {
   if (lua_isnumber(L, 1)) {
