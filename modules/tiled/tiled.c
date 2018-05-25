@@ -60,7 +60,6 @@ void *fileToCanvas(int nbArg, void **args)
 	       "should be fileToCanvas(path, canvas)");
     return NULL;
   }
-  printf("tile to canvas !, %s %p\n", args[0], args[1]);
   tiledEnt = ygFileToEnt(YJSON, path, NULL);
   tileset_array = yeGet(tiledEnt, "tilesets");
   layers = yeGet(tiledEnt, "layers");
@@ -97,7 +96,6 @@ void *fileToCanvas(int nbArg, void **args)
 	  const char *name;
 	  Entity *proType = yeGet(proTypes, proTypesIt);
 
-	  printf("A property !!!!\n");
 	  ++proTypesIt;
 	  if (proTypes) {
 	    name = yBlockArrayIteratorGetPtr(it, ArrayEntry)->name;
@@ -146,8 +144,6 @@ void *fileToCanvas(int nbArg, void **args)
       margin = yeGetIntAt(tmp, "margin");
       columns = yeGetIntAt(tmp, "columns");
       tilecount = yeGetIntAt(tmp, "tilecount");
-      printf("%d %d %d %d %d %d\n", tileheight, tilewidth,
-	     tilecount, columns, spacing, margin);
       yeRenamePtrStr(tileset, tmp, "_ent");
       img_path = yeGetString(yeGet(tmp, "image"));
       Entity *src_rect = ywRectCreateInts(0, 0, tilewidth,
@@ -177,7 +173,6 @@ void *fileToCanvas(int nbArg, void **args)
 	  y += tileheight;
 	  x = 0;
 	}
-	//printf("%u(%x, %d,%d) ", yeGetInt(tile_id), yeGetInt(tile_id), x, y);
 	if (tid >= tilecount) {
 	  /* some transformation happen */
 	  flags = tid & (FLIPPED_HORIZONTALLY_FLAG | FLIPPED_VERTICALLY_FLAG |
@@ -229,17 +224,14 @@ void *fileToCanvas(int nbArg, void **args)
   yePushBack(canvas, tiledEnt, "tiled-ent");
   ret = (void *)1;
  exit:
-  printf("out !!!!\n");
   yeDestroy(tiledEnt);
   return ret;
 }
 
 void *init_tiled(int nbArg, void **args)
 {
-  printf("hi\n");
   Entity *t = YE_TO_ENTITY(args[0]);
 
-  printf("hi\n");
   yeCreateFunction("setAssetPath", ygGetManager("tcc"), t, "setAssetPath");
   yeCreateFunction("deinit", ygGetManager("tcc"), t, "deinit");
   yeCreateFunction("fileToCanvas", ygGetManager("tcc"), t, "fileToCanvas");
