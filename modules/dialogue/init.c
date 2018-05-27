@@ -170,8 +170,14 @@ static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
   txt = getText(menu, dialogue);
   answers = yeGet(dialogue, "answers");
   if (!answers) {
+    Entity *answer = yeGet(dialogue, "answer");
+
     answers = yeCreateArray(dialogue, "answers");
-    yePushBack(answers, yeGet(dialogue, "answer"), NULL);
+    if (answer) {
+      yePushBack(answers, answer, NULL);
+    } else {
+      yeCreateString("(continue)", answers, NULL);
+    }
   }
   if (drv == &cntDialogueMnDrv) {
     ywContainerUpdate(wid, textScreen);
