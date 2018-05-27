@@ -63,6 +63,10 @@ void *fileToCanvas(int nbArg, void **args)
   tiledEnt = ygFileToEnt(YJSON, path, NULL);
   tileset_array = yeGet(tiledEnt, "tilesets");
   layers = yeGet(tiledEnt, "layers");
+  yeReCreateInt(yeGetIntAt(tiledEnt, "width") * yeGetIntAt(tiledEnt, "tilewidth"),
+		canvas, "tiled-wpix");
+  yeReCreateInt(yeGetIntAt(tiledEnt, "height") * yeGetIntAt(tiledEnt, "tileheight"),
+		canvas, "tiled-hpix");
   YE_ARRAY_FOREACH(layers, layer) {
     Entity *layer_name = yeGet(layer, "name");
     Entity *layer_data  = yeGet(layer, "data");
@@ -221,7 +225,7 @@ void *fileToCanvas(int nbArg, void **args)
       yeDestroy(src_rect);
     }
   }
-  yePushBack(canvas, tiledEnt, "tiled-ent");
+  yeReplaceBack(canvas, tiledEnt, "tiled-ent");
   ret = (void *)1;
  exit:
   yeDestroy(tiledEnt);
