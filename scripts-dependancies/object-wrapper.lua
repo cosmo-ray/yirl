@@ -362,9 +362,18 @@ function Menu.new_entity(father, name)
 end
 
 function Menu.wrapp(ent)
-   local ret = { ent=Entity.wrapp(ent) }
+   local ret = { ent=Entity.wrapp(ent), push=Menu.push}
    return ret
 end
+
+function Menu:push(txt, action)
+   local l = yeLen(self.ent.entries)
+
+   self.ent.entries[l] = {}
+   self.ent.entries[l].text = txt
+   self.ent.entries[l].action = action
+end
+
 
 function Widget.new_subtype(name, functionName)
    local init = Entity.new_array()
