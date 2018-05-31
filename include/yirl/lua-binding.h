@@ -64,6 +64,7 @@ int     luaToPtr(lua_State *l);
 int	luaRand(lua_State *L);
 int	luaRandInit(lua_State *L);
 int	luaYuiAbs(lua_State *L);
+int	luayuiMkdir(lua_State *L);
 
 /* Array */
 int	luaGet(lua_State *L);
@@ -385,6 +386,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yuiRand", luaRand));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yuiRandInit", luaRandInit));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yuiAbs", luaYuiAbs));
+  YES_LUA_REGISTRE_CALL(sm, yuiMkdir);
 
   /* Lua conceptor should love me */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yloveNbrToPtr", luaNbrToPtr));

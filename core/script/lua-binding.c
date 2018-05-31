@@ -1222,6 +1222,12 @@ int	luaYuiAbs(lua_State *L)
   return 1;
 }
 
+int	luayuiMkdir(lua_State *L)
+{
+  yuiMkdir(lua_tostring(L, 1));
+  return 0;
+}
+
 int	luaywPosAngle(lua_State *L)
 {
   lua_pushnumber(L, ywPosAngle(luaEntityAt(L, 1),

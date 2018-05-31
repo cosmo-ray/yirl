@@ -17,6 +17,8 @@
 
 #include <stdlib.h>
 #include <sys/time.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include <unistd.h>
 #include <time.h>
 #include <string.h>
@@ -72,4 +74,9 @@ void yuiRandInit(void)
 int  yuiRand(void)
 {
   return rand();
+}
+
+void yuiMkdir(const char *dir)
+{
+  mkdir(dir, 0755);
 }

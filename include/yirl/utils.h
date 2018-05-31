@@ -304,6 +304,8 @@ int  yuiRand(void);
 void yuiRandInit(void);
 void yuiRandInitSeed(int s);
 
+void yuiMkdir(const char *dir);
+
 static inline int yuiStrCountCh(const char *str, char c, int *longerLine)
 {
   int ret = 0;
