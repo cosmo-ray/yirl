@@ -44,11 +44,13 @@ not_printable:
 }
 
 global text_input_init 1 {
-        string ""
+        string "" => txt
 	push_back 0 1 "text"
-	yg_get_push "text_input_action"
+	yg_get_push "text_input_action" => action
 	push_back 0 2 "action"
-	new_widget 0 "text-screen"
-	print_entity 3
-	return 3
+        int 0 => cursor
+        push_back 0 3 "cursor" 
+	new_widget 0 "text-screen" => wid
+	print_entity wid
+	return wid
 }
