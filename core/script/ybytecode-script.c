@@ -28,6 +28,8 @@
 #include "game.h"
 
 static int t = -1;
+static int line;
+static const char *curFileName;
 static void *manager;
 static int global;
 
@@ -39,6 +41,12 @@ struct YBytecodeScript {
 };
 
 int YBytecodeScriptDirectReturn;
+
+#define	YBYTECODE_ERROR(format, args...)	do {			\
+    printf("[ %s : %d]\n" format "\n",					\
+	   curFileName, line, ## args);					\
+  } while (0)
+
 
 #define DEF(a, b, c) YUI_CAT(a, _TOK),
 
@@ -94,7 +102,7 @@ static void *ybytecodeFastCall(void *opacFunc, va_list ap)
   yeDestroy(stack);
   if (!ret) {
     if (ybytecode_error) {
-      DPRINT_ERR("%s", ybytecode_error);
+      YBYTECODE_ERROR("%s", ybytecode_error);
       g_free(ybytecode_error);
       ybytecode_error = NULL;
     }
@@ -149,7 +157,10 @@ static int nextNonSeparatorTok(Entity *str, Entity *tokInfo)
 {
   int tok;
 
-  while (isTokSeparato((tok = yeStringNextTok(str, tokInfo))));
+  while (isTokSeparato((tok = yeStringNextTok(str, tokInfo)))) {
+    if (tok == RETURN_TOK)
+      ++line;
+  }
   return tok;
 }
 
@@ -163,7 +174,7 @@ static void tryStoreNumber(int64_t *dest, Entity *str, Entity *tokInfo)
     tok = yeStringNextTok(str, tokInfo);
   }
   if (tok != NUMBER_TOK) {
-    DPRINT_ERR("expected number, got '%s'\n", yeTokString(tokInfo, tok));
+    YBYTECODE_ERROR("expected number, got '%s'\n", yeTokString(tokInfo, tok));
     longjmp(error_env, 1);
   }
   *dest = (atoi(yeTokString(tokInfo, tok)) * neg_modifier);
@@ -182,7 +193,7 @@ static int getIdent(struct identifiersHead *identHead, const char *name)
   struct identifiers *iden;
 
   LIST_FOREACH(iden, identHead, entries) {
-    if (!strcmp(iden->str, name)) {
+    if (name && !strcmp(iden->str, name)) {
       return iden->num;
     }
   }
@@ -195,12 +206,12 @@ static void storeIdent(Entity *str, Entity *tokInfo,
   const char *cstr = yeTokCIdentifier(tokInfo, tok);
 
   if (!cstr) {
-    DPRINT_ERR("expected identifier, got '%s'\n", yeTokString(tokInfo, tok));
+    YBYTECODE_ERROR("expected identifier, got '%s'\n", yeTokString(tokInfo, tok));
     longjmp(error_env, 1);
   }
 
   if (getIdent(identHead, cstr) >= 0) {
-      DPRINT_ERR("redefinition of '%s'\n", cstr);
+      YBYTECODE_ERROR("redefinition of '%s'\n", cstr);
       longjmp(error_env, 1);
   }
   struct identifiers *iden = malloc(sizeof(struct identifiers));
@@ -233,12 +244,12 @@ static void tryGetIdentifier(int64_t *dest, Entity *str, Entity *tokInfo,
 
   cstr = yeTokCIdentifier(tokInfo, tok);
   if (!cstr) {
-    DPRINT_ERR("expected identifier, got '%s'\n", yeTokString(tokInfo, tok));
+    YBYTECODE_ERROR("expected identifier, got '%s'\n", yeTokString(tokInfo, tok));
     longjmp(error_env, 1);
   }
   *dest = getIdent(identHead, cstr);
   if (*dest < 0) {
-    DPRINT_ERR("undeclared indentifier: '%s'\n", cstr);
+    YBYTECODE_ERROR("undeclared indentifier: '%s'\n", cstr);
     longjmp(error_env, 1);
   }
 }
@@ -249,14 +260,14 @@ static Entity *tryStoreStringCurTok(Entity *funcData, Entity *str,
   Entity *ret;
 
   if (tok != DOUBLE_QUOTE_TOK) {
-    DPRINT_ERR("literal string expected(should begin with '\"', not '%s')",
-	       yeTokString(tokInfo, tok));
+    YBYTECODE_ERROR("literal string expected(should begin with '\"', not '%s')",
+		    yeTokString(tokInfo, tok));
     longjmp(error_env, 1);
   }
   ret = yeCreateString(NULL, funcData, NULL);
   while ((tok = yeStringNextTok(str, tokInfo)) != DOUBLE_QUOTE_TOK) {
     if (tok == YTOK_END) {
-      DPRINT_ERR("\" is missing to close the string");
+      YBYTECODE_ERROR("\" is missing to close the string");
       yeDestroy(ret);
       longjmp(error_env, 1);
     }
@@ -302,7 +313,7 @@ static void tryStoreLabels(int script_pos, Entity *str,
   LIST_INSERT_HEAD(labels_head, label, entries);
   return;
  error:
-  DPRINT_ERR("label must containe only alphanumeric or '_' caracters");
+  YBYTECODE_ERROR("label must containe only alphanumeric or '_' caracters");
   yeDestroy(strTmp);
   longjmp(error_env, 1);
 }
@@ -368,7 +379,7 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
   tok = nextNonSeparatorTok(str, tokInfo);
 
   if (tok != OPEN_BRACE_TOK) {
-    DPRINT_ERR("unexpected '%s', expect '{' in function '%s'",
+    YBYTECODE_ERROR("unexpected '%s', expect '{' in function '%s'",
 	       yeTokString(tokInfo, tok), yeGetString(funcName));
     goto exit;
   }
@@ -468,13 +479,18 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
   case YB_SET_INT_TOK:
   case YB_GET_AT_IDX_TOK:
   case YB_STRING_ADD_CH_TOK:
-  case YB_STRING_ADD_CH_ENT_TOK:
     script[script_len] = tok;
-    tryStoreNumber(&script[script_len + 1], str, tokInfo);
+    tryGetIdentifier(&script[script_len + 1], str, tokInfo, &idents);
     tryStoreNumber(&script[script_len + 2], str, tokInfo);
     script_len += 3;
     if (tok == YB_GET_AT_IDX_TOK)
       INCREMENT_IDENTIFIER();
+    goto still_in_func;
+  case YB_STRING_ADD_CH_ENT_TOK:
+    script[script_len] = tok;
+    tryGetIdentifier(&script[script_len + 1], str, tokInfo, &idents);
+    tryGetIdentifier(&script[script_len + 2], str, tokInfo, &idents);
+    script_len += 3;
     goto still_in_func;
   case YB_INCR_TOK:
   case YB_RETURN_TOK:
@@ -482,7 +498,7 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
   case YB_PRINT_ENTITY_TOK:
   case YB_REGISTRE_WIDGET_SUBTYPE_TOK:
     script[script_len] = tok;
-    tryStoreNumber(&script[script_len + 1], str, tokInfo);
+    tryGetIdentifier(&script[script_len + 1], str, tokInfo, &idents);
     script_len += 2;
     if (tok == YB_CREATE_INT_TOK)
       INCREMENT_IDENTIFIER();
@@ -497,8 +513,10 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
     if (tok == YB_STACK_POP_TOK)
       DECREMENT_IDENTIFIER();
     goto still_in_func;
-  case SPACES_TOK:
   case RETURN_TOK:
+    ++line;
+    /* FALLTHROUGH */
+  case SPACES_TOK:
     goto still_in_func;
   case YB_END_FUNC_TOK:
     script[script_len] = tok;
@@ -582,6 +600,9 @@ static int loadFile(void *opac, const char *fileName)
   int tok;
   int ret = -1;
   Entity *tokInfo = yeTokInfoCreate(NULL, NULL);
+  curFileName = fileName;
+
+  line = 1;
 
   /* populate tokInfo, withstuff declare inside "ybytecode-asm-tok.h" */
 #define DEF(a, b, c) YUI_CAT(DEF_, c)(a, b)
@@ -600,14 +621,16 @@ static int loadFile(void *opac, const char *fileName)
 
   while ((tok = yeStringNextTok(str, tokInfo)) != YTOK_END) {
     switch (tok) {
-    case SPACES_TOK:
     case RETURN_TOK:
+      ++line;
+      /* FALLTHROUGH */
+    case SPACES_TOK:
       break;
     case GLOBAL_TOK:
       global = 1;
       tok = nextNonSeparatorTok(str, tokInfo);
       if (tok != YTOK_WORD) {
-	DPRINT_ERR("global keyword expect a function");
+	YBYTECODE_ERROR("global keyword expect a function");
 	goto exit;
       }
       /* fall through */
@@ -619,11 +642,13 @@ static int loadFile(void *opac, const char *fileName)
     case CPP_COMMENT_TOK:
     still_in_comment:
       tok = yeStringNextTok(str, tokInfo);
-      if (tok != YTOK_END && tok != RETURN_TOK)
+      if (tok != YTOK_END && tok != RETURN_TOK) {
+	++line;
 	goto still_in_comment;
+      }
       break;
     default:
-      DPRINT_ERR("error unexpected token: '%s'\n", yeTokString(tokInfo, tok));
+      YBYTECODE_ERROR("error unexpected token: '%s'\n", yeTokString(tokInfo, tok));
       goto exit;
     }
   }

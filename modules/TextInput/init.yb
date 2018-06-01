@@ -18,6 +18,7 @@ not_printable:
 }
 
 global text_input_action 3 {
+	int 0 => ret
 	yg_get_push "FinishGame" => finishGame_
 	get_at_idx 1 15 => eve_status
 	get_at_idx 1 0  => eve_type
@@ -26,20 +27,20 @@ global text_input_action 3 {
 	not_equal_nbr eve_type 0 not_printable:
 	not_equal_nbr eve_key 10 not_enter:
 	call_entity finishGame_
+	stack_pop
 not_enter:
 	call_entity isPrintable eve_key
 	stack_pop
 	print_iret
 	is_iret_0 not_printable:
-	get_at_str 0 "text"
-	print_entity 8
-	string_add_ch_ent 8 6
-	int 1
-	return 9
+	get_at_str 0 "text" => txt
+	print_entity txt
+	string_add_ch_ent txt eve_key
+	set_int ret 1
+	return ret
 not_printable:
-	int 0
-	print_entity 8
-	return 8
+	print_entity ret
+	return ret
 }
 
 global text_input_init 1 {
