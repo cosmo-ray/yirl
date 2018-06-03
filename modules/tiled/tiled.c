@@ -184,7 +184,7 @@ void *fileToCanvas(int nbArg, void **args)
 	  tid &= ~(FLIPPED_HORIZONTALLY_FLAG | FLIPPED_VERTICALLY_FLAG |
 		   FLIPPED_DIAGONALLY_FLAG);
 	}
-	if (orig_tid < firstgid || tid > 1024)
+	if (orig_tid < firstgid || tid > tilecount)
 	  goto next_tile;
 	ywRectSetX(src_rect, margin + ((tilewidth + spacing) * (tid % columns)));
 	ywRectSetY(src_rect, margin + ((tileheight + spacing) * (tid / columns)));
