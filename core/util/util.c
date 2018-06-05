@@ -24,6 +24,10 @@
 #include <string.h>
 #include "utils.h"
 
+#if defined(_WIN32)
+#include <windows.h>
+#endif
+
 int yuiRegister(YManagerAllocator *ma, void *(*allocator)(void))
 {
   if (unlikely(!ma || ma->len >= MAX_NB_MANAGER - 1))
@@ -78,5 +82,10 @@ int  yuiRand(void)
 
 void yuiMkdir(const char *dir)
 {
-  mkdir(dir, 0755);
+  (void)dir;
+  #if defined(_WIN32)
+    mkdir(dir);
+  #else
+    mkdir(dir, 0755);
+  #endif
 }
