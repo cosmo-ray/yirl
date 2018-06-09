@@ -70,8 +70,12 @@ end
 
 function endAnimationAttack(main, cur_anim)
    local obj = CanvasObj.wrapp(cur_anim.guy.canvas)
+   local bpos = cur_anim.base_pos
 
    obj:set_pos(cur_anim.base_pos)
+   bpos = Pos.wrapp(bpos)
+   ywCanvasObjSetPos(cur_anim.guy.life_b0, bpos:x(), bpos:y() - 25)
+   ywCanvasObjSetPos(cur_anim.guy.life_b, bpos:x(), bpos:y() - 25)
 
    if cur_anim.target.char.life <= 0 then
       if main.atk_state:to_int() == PJ_ATTACK then
@@ -186,6 +190,8 @@ function attackCallback(main, eve)
       local obj = CanvasObj.wrapp(cur_anim.guy.canvas)
 
       obj:move(cur_anim.mv_per_frm)
+      ywCanvasMoveObj(cur_anim.guy.life_b0, cur_anim.mv_per_frm)
+      ywCanvasMoveObj(cur_anim.guy.life_b, cur_anim.mv_per_frm)
    end
    if cur_cmb_anim.poses then
       local last = cur_cmb_anim.poses:len()
@@ -412,13 +418,16 @@ function fightInit(entity)
    ylpcsHandlerMove(entity.bg_handler, Pos.new(50, y_carac).ent)
    canvas = Canvas.wrapp(canvas)
 
-   canvas:new_rect(wid_pix.w - 100, y_carac - 25,
-		   "rgba: 255 0 30 255", Pos.new(50, 10).ent)
+   entity.gg_handler.life_b0 = canvas:new_rect(wid_pix.w - 100, y_carac - 25,
+					       "rgba: 255 0 30 255",
+					       Pos.new(50, 10).ent).ent
    entity.gg_handler.life_b = canvas:new_rect(wid_pix.w - 100, y_carac - 25,
 					       "rgba: 0 255 30 255",
 					       Pos.new(50, 10).ent).ent
 
-   canvas:new_rect(50, y_carac - 25, "rgba: 255 0 30 255", Pos.new(50, 10).ent)
+   entity.bg_handler.life_b0 = canvas:new_rect(50, y_carac - 25,
+					       "rgba: 255 0 30 255",
+					       Pos.new(50, 10).ent).ent
    entity.bg_handler.life_b = canvas:new_rect(50, y_carac - 25,
 					       "rgba: 0 255 30 255",
 					       Pos.new(50, 10).ent).ent
