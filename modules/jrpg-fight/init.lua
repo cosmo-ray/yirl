@@ -57,6 +57,7 @@ function combatDmg(main, cur_anim)
       dmg = cur_anim.mod
    end
    local new_life = cur_anim.target.char.life - dmg
+   local max_life = cur_anim.target.char.max_life
    cur_anim.target.char.life = new_life
    local lb = cur_anim.target.life_b
    lb = CanvasObj.wrapp(lb)
@@ -64,7 +65,7 @@ function combatDmg(main, cur_anim)
    local y = lb:pos():y()
    canvas:remove(lb.ent)
    cur_anim.target.life_b = canvas:new_rect(x, y, "rgba: 0 255 30 255",
-					    Pos.new(50 * new_life / 10,
+					    Pos.new(50 * new_life / max_life,
 						    10).ent).ent
 end
 
@@ -329,39 +330,8 @@ function fightStrongAttack(entity, eve)
 end
 
 function newDefaultGuy(guy, name, isEnemy)
-   local ret = nil
+   local ret = guy
 
-   if guy == nil then
-      ret = Entity.new_array()
-      ret.name = name
-      ret.life = 10
-      ret.sex = "female"
-      ret.type = "darkelf"
-   else
-      ret = guy
-   end
-   ret.combots = {}
-   ret.combots[0] = {}
-   ret.combots[0].anim = {}
-   ret.combots[0].touch = { 0, 0, 0, 0, 0, 1, 1 }
-   ret.combots[0].anim.to = "target"
-   ret.combots[0].anim.poses = {}
-   local yPos = 5 + isEnemy * 2
-   ret.combots[0].anim.poses[0] = {1, yPos}
-   ret.combots[0].anim.poses[1] = {2, yPos}
-   ret.combots[0].anim.poses[2] = {3, yPos}
-   ret.combots[0].anim.poses[3] = {4, yPos}
-   ret.combots[1] = {}
-   ret.combots[1].anim = {}
-   ret.combots[1].touch = { 0, 1, 1, 2, 2, 2, 2 }
-   yPos = 13 + isEnemy * 2
-   ret.combots[1].anim.poses = {}
-   ret.combots[1].anim.poses[0] = {0, yPos}
-   ret.combots[1].anim.poses[1] = {2, yPos}
-   ret.combots[1].anim.poses[2] = {1, yPos}
-   ret.combots[1].anim.poses[3] = {2, yPos}
-   ret.combots[1].anim.poses[4] = {2, yPos}
-   ret.combots[1].anim.poses[5] = {4, yPos}
    ret.can_guard = true
    return ret
 end
@@ -418,19 +388,25 @@ function fightInit(entity)
    ylpcsHandlerMove(entity.bg_handler, Pos.new(50, y_carac).ent)
    canvas = Canvas.wrapp(canvas)
 
+   local life = entity.good_guy.life
+   local max_life = entity.good_guy.max_life
    entity.gg_handler.life_b0 = canvas:new_rect(wid_pix.w - 100, y_carac - 25,
 					       "rgba: 255 0 30 255",
 					       Pos.new(50, 10).ent).ent
    entity.gg_handler.life_b = canvas:new_rect(wid_pix.w - 100, y_carac - 25,
 					       "rgba: 0 255 30 255",
-					       Pos.new(50, 10).ent).ent
+					       Pos.new(50 * life / max_life,
+						       10).ent).ent
 
+   local life = entity.bad_guy.life
+   local max_life = entity.bad_guy.max_life
    entity.bg_handler.life_b0 = canvas:new_rect(50, y_carac - 25,
 					       "rgba: 255 0 30 255",
 					       Pos.new(50, 10).ent).ent
    entity.bg_handler.life_b = canvas:new_rect(50, y_carac - 25,
 					       "rgba: 0 255 30 255",
-					       Pos.new(50, 10).ent).ent
+					       Pos.new(50 * life / max_life,
+						       10).ent).ent
    return ret
 end
 

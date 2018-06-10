@@ -20,6 +20,52 @@
     ],
     "game" : {
         "<type>" : "jrpg-fight",
+	"player" : {
+	    "sex": "female",
+	    "name": "ikea",
+	    "life": 10,
+	    "max_life": 15,
+	    "type": "tanned",
+	    "combots" : [
+		{
+		    "touch": [ 0, 0, 1, 1, 1, 0, 0 ],
+		    "anim" : {
+			"to" : "target",
+			"poses" : [ [1, 5], [2, 5], [3, 5], [4, 5] ]
+		    }
+		},
+		{
+		    "touch": [ 0, 0, 1, 1, 2, 2, 1, 0, 0, 0 ],
+		    "anim" : {
+			"poses" : [ [1, 5], [2, 5], [3, 5], [4, 5] ]
+		    }
+		}
+	    ]
+	},
+	"enemy" : {
+	    "sex": "female",
+	    "name": "danemark",
+	    "life": 10,
+	    "max_life": 10,
+	    "type": "darkelf2",
+	    "combots" : [
+		{
+		    "touch": [ 0, 0, 0, 0, 0, 1, 1 ],
+		    "anim" : {
+			"to" : "target",
+			"poses" : [ [1, 7], [2, 7], [3, 7], [4, 7] ]
+		    }
+		},
+		{
+		    "touch": [ 0, 1, 1, 2, 2, 2, 2],
+		    "anim" : {
+			"poses" : [ [1, 15], [2, 15], [1, 15],
+				    [2, 15], [2, 15], [4, 15] ]
+		    }
+		}
+	    ]
+
+	},
 	"next" : "jrpg-fight:main"
     },
     "main" : {
@@ -36,6 +82,6 @@
 		"action" : "FinishGame"
 	    }
 	]
-    }
+    },
 }
 
