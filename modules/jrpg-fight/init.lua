@@ -8,6 +8,7 @@ local lpcs = Entity.wrapp(ygGet("lpcs"))
 local frm_mult = 10
 local good_orig_pos = {1, 1}
 local bad_orig_pos = {1, 3}
+local combots = nil
 
 function fightAction(entity, eve)
    entity = Entity.wrapp(entity)
@@ -332,6 +333,32 @@ end
 function newDefaultGuy(guy, name, isEnemy)
    local ret = guy
 
+   if guy.combots == nil then
+      local cmb = nil
+      print("cmbs:", combots)
+      if guy.attack then
+	 cmb = combots[guy.attack:to_string()]
+      else
+	 cmb = combots[0]
+      end
+      guy.combots = {}
+      yeCopy(cmb, guy.combots)
+      if isEnemy then
+	 local j = 0
+	 while j < yeLen(guy.combots[j]) do
+	    cmb = guy.combots[j]
+	    local i = 0
+	    local poses = cmb.anim.poses
+	    while i < yeLen(poses) do
+	       local c_pos = poses[i]
+	       poses[i][1] = poses[i][1] + 2
+	       i = i + 1
+	    end
+	    j = j + 1
+	 end
+      end
+      print("cmb !!!:", guy.combots)
+   end
    ret.can_guard = true
    return ret
 end
@@ -347,8 +374,8 @@ function fightInit(entity)
    entity.current = 1
    entity["turn-length"] = 50000
    entity.entries = {}
-   entity.good_guy = newDefaultGuy(entity.player, "the good", 0)
-   entity.bad_guy = newDefaultGuy(entity.enemy, "the bad", 1)
+   entity.good_guy = newDefaultGuy(entity.player, "the good", false)
+   entity.bad_guy = newDefaultGuy(entity.enemy, "the bad", true)
    entity.atk_state = AWAIT_CMD
 
    local canvas = Entity.new_array(entity.entries)
@@ -410,10 +437,15 @@ function fightInit(entity)
    return ret
 end
 
+function setCombots(path)
+   combots = Entity.wrapp(ygGet(ylovePtrToString(path)))
+end
+
 function initFight(mod)
    local init = yeCreateArray()
    yuiRandInit()
    yeCreateString("jrpg-fight", init, "name")
    yeCreateFunction("fightInit", init, "callback")
+   ygRegistreFunc(1, "setCombots", "yJrpgFightSetCombots")
    ywidAddSubType(init)
 end
