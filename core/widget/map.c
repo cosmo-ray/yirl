@@ -178,6 +178,7 @@ static int mapInitCheckResources(Entity *resources)
   } else if (unlikely(!firstELem || !yeLen(firstELem) || !yeLen(resources) ||
 		      !(yeGet(firstELem, "map-char") ||
 			yeGet(firstELem, "map-tild") ||
+			yeGet(firstELem, "map-color") ||
 			yeGet(firstELem, "map-sprite")))) {
     DPRINT_ERR("resource bad format");
     return -1;

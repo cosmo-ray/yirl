@@ -101,7 +101,11 @@ function moveHeadInternal(map, opos, npos)
 
    if yeLen(destCase) > 1 then
       if (yeGetInt(yeGet(destCase, 1)) ~= 2) then
-	 ywidNext(yeGet(map, "next"))
+	 if yLovePtrToNumber(yeGet(map, "die")) ~= 0 then
+	    yesCall(yeGet(map, "die"), map)
+	 else
+	    ywidNext(yeGet(map, "next"))
+	 end
       end
       local score = yeGet(ygGetMod("snake"), "score")
       rmPeanut(map, destCase)
@@ -122,7 +126,6 @@ function moveHeadInternal(map, opos, npos)
 
    if bodyLen == 0 then
       yeReplaceBack(head, npos, "pos")
-      yesCall(yeGet(map, "endTurn"))
       return
    end
 
@@ -150,7 +153,6 @@ function moveHeadInternal(map, opos, npos)
    end
 
    yeReplaceBack(head, npos, "pos")
-   yesCall(yeGet(map, "endTurn"), nil, nil)
 end
 
 function moveHead(map)

@@ -26,6 +26,7 @@
 #include "widget.h"
 #include "rect.h"
 #include "map.h"
+#include "game.h"
 #include "canvas.h"
 
 static int type = -1;
@@ -490,10 +491,20 @@ static SDL_Texture *sdlLoasAndCachTexture(Entity *elem)
     return texture;
   SDL_Surface *image;
 
-  if ((path = yeGetString(yeGet(elem, "map-tild"))) != NULL) {
+  if (yeGet(elem, "map-tild") != NULL) {
+    char *mod_path = g_strdup_printf("%s%s", ygBinaryRootPath, "/modules/");
+
+    yeStringReplace(yeGet(elem, "map-tild"), "YIRL_MODULES_PATH", mod_path);
+    g_free(mod_path);
     yeCreateInt(Y_SDL_TILD, elem, "$sdl-type");
-  } else if ((path = yeGetString(yeGet(elem, "map-srite"))) != NULL) {
+    path = yeGetString(yeGet(elem, "map-tild"));
+  } else if (yeGet(elem, "map-srite") != NULL) {
+    char *mod_path = g_strdup_printf("%s%s", ygBinaryRootPath, "/modules/");
+
+    yeStringReplace(yeGet(elem, "map-srite"), "YIRL_MODULES_PATH", mod_path);
+    g_free(mod_path);
     yeCreateInt(Y_SDL_SPRITE, elem, "$sdl-type");
+    path = yeGetString(yeGet(elem, "map-srite"));
   } else if ((path = yeGetString(yeGet(elem, "map-color"))) != NULL) {
     SDL_Color *col = g_new(SDL_Color, 1);
 

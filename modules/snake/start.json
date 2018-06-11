@@ -8,6 +8,29 @@
 	    "file" : "snake.lua",
 	    "type" : "lua"
 	}
+    ],
+    "resources" : [
+	{
+	    "name" : "floar",
+	    "map-color" : "rgba: 200 200 200 255",
+	},
+	{
+	    "name" : "head",
+	    "map-char" : "X"
+	},
+	{
+	    "name" : "peanut",
+	    "map-char" : "C"
+	},
+	{
+	    "name" : "eatead",
+	    "map-char" : "O"
+	},
+	{
+	    "name" : "body",
+	    "map-char" : "0"
+	}
+
     ]
 }
 

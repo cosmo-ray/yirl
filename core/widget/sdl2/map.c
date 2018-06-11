@@ -63,16 +63,11 @@ static void sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
   int hMap = ywMapH(entity);
   int wCam = ywRectW(cam);
   int hCam = ywRectH(cam);
-  YBgConf cfg;
   unsigned int sizeSpriteW;
   unsigned int sizeSpriteH;
   int32_t begX = ywRectX(cam);
   int32_t begY = ywRectY(cam);
   uint32_t thresholdX;
-
-  if (ywidBgConfFill(yeGet(entity, "background"), &cfg) >= 0) {
-    sdlFillBg(wid, &cfg);
-  }
 
   ywMapGetSpriteSize(entity, &sizeSpriteW, &sizeSpriteH, &thresholdX);
 
@@ -118,6 +113,11 @@ static void sdl2MidRender(YWidgetState *state, SDLWid *wid, Entity *ent,
   int32_t begY = ywRectY(cam);
   int32_t endX = begX + wCam;
   int32_t endY = begY + hCam;
+  YBgConf cfg;
+
+  if (ywidBgConfFill(yeGet(ent, "background"), &cfg) >= 0) {
+    sdlFillBg(wid, &cfg);
+  }
 
   sdl2PartialRender(state, wid, ent);
   if (!ywMapIsSmoot(ent))
