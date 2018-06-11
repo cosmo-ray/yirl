@@ -207,8 +207,12 @@ function snakeAction(map, eve, arg)
 
    while ywidEveIsEnd(eve) == false do
       if ywidEveType(eve) == YKEY_DOWN then
-	 if ywidEveKey(eve) == Y_Q_KEY then
-	    ygCall(nil, "FinishGame")
+	 if ywidEveKey(eve) == Y_Q_KEY or ywidEveKey(eve) == Y_ESC_KEY then
+	    if yLovePtrToNumber(yeGet(map, "die")) ~= 0 then
+	       yesCall(yeGet(map, "quit"), map)
+	    else
+	       ygCall(nil, "FinishGame")
+	    end
 	 elseif (ywidEveKey(eve) == Y_UP_KEY
 		    or ywidEveKey(eve) == Y_DOWN_KEY
 		    or ywidEveKey(eve) == Y_RIGHT_KEY
