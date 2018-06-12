@@ -187,6 +187,7 @@ static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
     yesCall(ygGet("DialogueBox.moveAnswer"), menu, 0);
   }
   yeReCreateString(yeGetString(txt), textScreen, "text");
+  yeReCreateInt(1, menu, "isDialogue");
 
   YE_ARRAY_FOREACH(answers, answer) {
     Entity *condition = yeGet(answer, "condition");
