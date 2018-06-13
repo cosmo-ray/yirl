@@ -50,6 +50,7 @@ void *fileToCanvas(int nbArg, void **args)
 {
   const char *path = args[0];
   Entity *canvas = args[1];
+  Entity *upCanvas = nbArg > 2 ? args[2] : NULL;
   Entity *tiledEnt;
   Entity *tileset_array;
   void *ret = NULL;
@@ -127,6 +128,7 @@ void *fileToCanvas(int nbArg, void **args)
       const char *img_path;
       int tileheight, tilewidth, tilecount, columns, spacing, margin;
       Entity *texture;
+      int isUpLayer = 0;
 
       if (assetsPath) {
 	/* strings length + 1 for \0 and +1 for '\' */
@@ -167,6 +169,18 @@ void *fileToCanvas(int nbArg, void **args)
       int y = yeGetIntAt(layer, "x");
       int x = yeGetIntAt(layer, "y");
 
+      printf("test canvas up\n");
+      if (upCanvas) {
+	YE_ARRAY_FOREACH_EXT(properties, property, it) {
+	  const char *name;
+
+	  name = yBlockArrayIteratorGetPtr(it, ArrayEntry)->name;
+	  if (name && !strcmp(name, "upLayer")) {
+	    isUpLayer = 1;
+	  }
+	}
+      }
+      printf("is canvas up %d\n", isUpLayer);
       YE_ARRAY_FOREACH(layer_data, tile_id) {
 	uint64_t orig_tid = yeGetInt(tile_id);
 	uint64_t tid = orig_tid - firstgid;
@@ -188,7 +202,10 @@ void *fileToCanvas(int nbArg, void **args)
 	  goto next_tile;
 	ywRectSetX(src_rect, margin + ((tilewidth + spacing) * (tid % columns)));
 	ywRectSetY(src_rect, margin + ((tileheight + spacing) * (tid / columns)));
-	cur_img = ywCanvasNewImgFromTexture(canvas, x, y, texture, src_rect);
+	if (!isUpLayer)
+	  cur_img = ywCanvasNewImgFromTexture(canvas, x, y, texture, src_rect);
+	else
+	  cur_img = ywCanvasNewImgFromTexture(upCanvas, x, y, texture, src_rect);
 	if (flags == (FLIPPED_VERTICALLY_FLAG | FLIPPED_HORIZONTALLY_FLAG)) {
 	  ywCanvasRotate(cur_img, 180);
 	}
