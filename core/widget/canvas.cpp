@@ -146,20 +146,15 @@ extern "C" {
     Entity *objs = yeGet(wid, "objs");
 
     YE_ARRAY_FOREACH(objs, tmpObj) {
-      Entity *tmpRect = ywRectCreatePosSize(ywCanvasObjPos(tmpObj),
-					    ywCanvasObjSize(wid, tmpObj),
-					    NULL, NULL);
-      if (obj == tmpObj) {
-	yeDestroy(tmpRect);
+      if (obj == tmpObj)
 	continue;
-      }
 
-      if (ywRectCollision(objRect, tmpRect) &&
+      if (ywRectCollisionWithPos(objRect, ywCanvasObjPos(tmpObj),
+				 ywCanvasObjSize(wid, tmpObj)) &&
 	  (!colisionFunc || yesCall(colisionFunc, wid,
 				    tmpObj, obj, colisionFuncArg))) {
 	yePushBack(ret, tmpObj, NULL);
       }
-      yeDestroy(tmpRect);
     }
     if (!yeLen(ret)) {
       yeDestroy(ret);
