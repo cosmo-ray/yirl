@@ -79,6 +79,7 @@ function reloadTextAndAnswerDialogue(canvas, x, y, dialogue, ret)
    local size = nil
    local arrow = nil
 
+   print(x, y)
    if yeType(dialogue) == YSTRING then
       local tmpText = yeCreateYirlFmtString(dialogue, gc)
       tmp0 = ywCanvasNewText(canvas, x + border_threshold,
@@ -198,17 +199,37 @@ function reload(canvas, box)
    reloadTextAndAnswerDialogue(canvas, x, y, dialogue, box)
 end
 
+function setPos(box, x, y)
+   if yLovePtrToNumber(box) == 0 then
+      return
+   end
+   local b0 = yeGet(box, 0)
+   local len = yeLen(b0)
+   local i = 0
+   x = yLovePtrToNumber(x)
+   y = yLovePtrToNumber(y)
+
+   while i < len do
+      ywCanvasObjSetPos(yeGet(b0, i), x, y)
+      i = i + 1
+   end
+   ywCanvasObjSetPos(yeGet(box, 1), x, y)
+   ywCanvasObjSetPos(yeGet(box, 3), x, y)
+end
+
 function initDialogueBox(mod)
    yeCreateFunction("newTextAndAnswerDialogue", mod, "new_menu")
    yeCreateFunction("newTextDialogue", mod, "new_text")
    yeCreateFunction("newEmptyDialogue", mod, "new_empty")
    yeCreateFunction("rmTextDialogue", mod, "remove")
+   yeCreateFunction("rmTextDialogue", mod, "rm")
    yeCreateFunction("posArray", mod, "moveAnswer")
    yeCreateFunction("getAnswer", mod, "getAnswer")
    yeCreateFunction("getAnswers", mod, "getAnswers")
    yeCreateFunction("getDialogue", mod, "getDialogue")
    yeCreateFunction("reload", mod, "reload")
    yeCreateFunction("getPos", mod, "pos")
+   yeCreateFunction("setPos", mod, "set_pos")
    yeCreateFunction("pushAnswers", mod, "pushAnswers")
    yeCreateInt(6, mod, "privateDataSize")
 end

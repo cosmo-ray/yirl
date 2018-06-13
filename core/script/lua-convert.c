@@ -24,11 +24,9 @@ void	*luaGetPtr(lua_State *l, int idx)
   if (lua_isuserdata(l, idx))
     return luaEntityAt(l, idx);
   if (lua_isnumber(l, idx)) {
-    printf("return %p\n", (void *)(uintptr_t)lua_tonumber(l, idx));
     return (void *)(uintptr_t)lua_tonumber(l, idx);
   }
   if (lua_isstring(l, idx)) {
-    printf("return str %p\n", (void *)(uintptr_t)lua_tonumber(l, idx));
     return (void *)lua_tostring(l, idx);
   }
   if (lua_isboolean(l, idx))
