@@ -169,7 +169,6 @@ void *fileToCanvas(int nbArg, void **args)
       int y = yeGetIntAt(layer, "x");
       int x = yeGetIntAt(layer, "y");
 
-      printf("test canvas up\n");
       if (upCanvas) {
 	YE_ARRAY_FOREACH_EXT(properties, property, it) {
 	  const char *name;
@@ -180,7 +179,6 @@ void *fileToCanvas(int nbArg, void **args)
 	  }
 	}
       }
-      printf("is canvas up %d\n", isUpLayer);
       YE_ARRAY_FOREACH(layer_data, tile_id) {
 	uint64_t orig_tid = yeGetInt(tile_id);
 	uint64_t tid = orig_tid - firstgid;
