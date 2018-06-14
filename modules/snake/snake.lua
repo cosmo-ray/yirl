@@ -102,6 +102,13 @@ function moveHeadInternal(map, opos, npos)
    if yeLen(destCase) > 1 then
       if (yeGetInt(yeGet(destCase, 1)) ~= 2) then
 	 if yLovePtrToNumber(yeGet(map, "die")) ~= 0 then
+	    -- if dreadful_die is on, so
+	    -- there will be no widget left once out of die
+	    if yeGetInt(yeGet(map, "dreadful_die") == 1) then
+	       yeDestroy(npos);
+	       yesCall(yeGet(map, "die"), map)
+	       return true
+	    end
 	    yesCall(yeGet(map, "die"), map)
 	 else
 	    ywidNext(yeGet(map, "next"))
@@ -126,7 +133,7 @@ function moveHeadInternal(map, opos, npos)
 
    if bodyLen == 0 then
       yeReplaceBack(head, npos, "pos")
-      return
+      return false
    end
 
    local i = 0
@@ -153,6 +160,7 @@ function moveHeadInternal(map, opos, npos)
    end
 
    yeReplaceBack(head, npos, "pos")
+   return false
 end
 
 function moveHead(map)
@@ -179,7 +187,9 @@ function moveHead(map)
    elseif (ywPosIsSameY(npos, ywMapH(map))) then
       hitWall(map, opos, npos, 3)
    else
-      moveHeadInternal(map, opos, npos)
+      if moveHeadInternal(map, opos, npos) then
+	 return
+      end
    end
    yeDestroy(npos);
 end
@@ -213,6 +223,7 @@ function snakeAction(map, eve, arg)
 	    else
 	       ygCall(nil, "FinishGame")
 	    end
+	    return YEVE_ACTION
 	 elseif (ywidEveKey(eve) == Y_UP_KEY
 		    or ywidEveKey(eve) == Y_DOWN_KEY
 		    or ywidEveKey(eve) == Y_RIGHT_KEY
