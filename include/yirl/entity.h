@@ -178,7 +178,7 @@ union FatEntity {
 	StringEntity StringEntity;
 	DataEntity DataEntity;
 	FunctionEntity FunctionEntity;
-	uint8_t totalSize[256];
+	uint8_t totalSize[128];
 };
 
 #ifdef __cplusplus
