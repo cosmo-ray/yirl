@@ -33,6 +33,8 @@ typedef enum  {
   YCanvasRotate,
 } YCanvasModifier;
 
+#define YCANVAS_IMG_IDX 5
+
 typedef union {
   uint32_t i;
   uint8_t rgba[4];

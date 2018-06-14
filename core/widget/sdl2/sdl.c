@@ -556,12 +556,16 @@ static int sdlCanvasCacheText(Entity *state, Entity *elem, Entity *resource,
   SDL_Surface *image;
   SDL_Texture *texture;
   Entity *data;
+  Entity *tmp;
   int w = 0, h = 0;
 
   image = TTF_RenderUTF8_Solid(sgDefaultFont(), str, color);
   texture = SDL_CreateTextureFromSurface(sg.renderer, image);
   SDL_QueryTexture(texture, NULL, NULL, &w, &h);
-  data = yeCreateData(texture, elem, "$img");
+  if ((tmp = yeGet(elem, YCANVAS_IMG_IDX))) {
+    yePushBack(elem, tmp, yeGetKeyAt(elem, YCANVAS_IMG_IDX));
+  }
+  data = yeCreateDataAt(texture, elem, "$img", YCANVAS_IMG_IDX);
   yeSetDestroy(data, sdlFreeTexture);
   ywSizeCreate(w, h, elem, "$size");
   data = yeCreateData(image, elem, "$img-surface");
@@ -630,6 +634,7 @@ int sdlCanvasCacheImg(Entity *elem, Entity *resource, const char *imgPath,
   SDL_Surface *surface;
   SDL_Texture *texture;
   Entity *data;
+  Entity *tmp;
   int w, h;
 
   if (!rEnt)
@@ -659,7 +664,10 @@ int sdlCanvasCacheImg(Entity *elem, Entity *resource, const char *imgPath,
   if (unlikely(!texture))
     return -1;
   SDL_QueryTexture(texture, NULL, NULL, &w, &h);
-  data = yeCreateData(texture, elem, "$img");
+  if ((tmp = yeGet(elem, YCANVAS_IMG_IDX))) {
+    yePushBack(elem, tmp, yeGetKeyAt(elem, YCANVAS_IMG_IDX));
+  }
+  data = yeCreateDataAt(texture, elem, "$img", YCANVAS_IMG_IDX);
   yeSetDestroy(data, sdlFreeTexture);
   ywSizeCreate(w, h, elem, "$size");
   data = yeCreateData(surface, elem, "$img-surface");
@@ -702,7 +710,13 @@ int sdlCanvasCacheTexture(Entity *state, Entity *elem)
 
   resource = yeGet(yeGet(state, "resources"),
 			   yeGetIntAt(elem, 2));
-  if (yeGetPush(resource, elem, "$img")) {
+  Entity *tmp = yeGet(resource, "$img");
+  if (tmp) {
+    if ((tmp = yeGet(elem, YCANVAS_IMG_IDX))) {
+      yePushBack(elem, tmp, yeGetKeyAt(elem, YCANVAS_IMG_IDX));
+    }
+    yePushAt(elem, tmp, YCANVAS_IMG_IDX);
+    yeRenameIdxStr(elem, YCANVAS_IMG_IDX, "$img");
     yeGetPush(resource, elem, "$size");
     yeGetPush(resource, elem, "$img-surface");
     return 0;
@@ -747,10 +761,10 @@ static int sdlCanvasRendImg(YWidgetState *state, SDLWid *wid, Entity *img,
       || rd.x > ywRectW(wid_pix)) {
     return 0;
   }
-  t = yeGetData(yeGet(img, "$img"));
+  t = yeGetData(yeGet(img, YCANVAS_IMG_IDX));
   if (!t) {
     sdlCanvasCacheTexture(state->entity, img);
-    t = yeGetData(yeGet(img, "$img"));
+    t = yeGetData(yeGet(img, YCANVAS_IMG_IDX));
     if (unlikely(!t))
       return -1;
   }
