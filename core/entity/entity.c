@@ -399,7 +399,19 @@ Entity *yeCreateData(void *value, Entity *father, const char *name)
   yeInit((Entity *)ret, YDATA, father, name);
   ret->value = value;
   ret->destroy = NULL;
-    return ((Entity *)ret);
+  return ((Entity *)ret);
+}
+
+
+Entity *yeCreateDataAt(void *value, Entity *father, const char *name, int idx)
+{
+  DataEntity * restrict ret;
+
+  YE_ALLOC_ENTITY(ret, DataEntity);
+  yeInitAt((Entity *)ret, YDATA, father, name, idx);
+  ret->value = value;
+  ret->destroy = NULL;
+  return ((Entity *)ret);
 }
 
 Entity *yeCreateDataExt(void *value, Entity *father, const char *name,

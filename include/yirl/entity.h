@@ -555,6 +555,7 @@ Entity *yeCreateArrayAt(Entity *fathers, const char *name, int idx);
 
 Entity *yeCreateArrayExt(Entity *fathers, const char *name, uint32_t flags);
 
+Entity *yeCreateDataAt(void *value, Entity *father, const char *name, int idx);
 Entity *yeCreateData(void *value, Entity *father, const char *name);
 Entity *yeCreateDataExt(void *value, Entity *father, const char *name,
 			YDataFlag flag);
