@@ -730,14 +730,8 @@ static void sdlCanvasAplyModifier(Entity *img, SDL_Rect *dst,
 }
 
 static int sdlCanvasRendImg(YWidgetState *state, SDLWid *wid, Entity *img,
-			    Entity *cam)
+			    Entity *cam, Entity *wid_pix)
 {
-  SDL_Texture *t = yeGetData(yeGet(img, "$img"));
-  if (!t) {
-    sdlCanvasCacheTexture(state->entity, img);
-    t = yeGetData(yeGet(img, "$img"));
-  }
-  Entity *wid_pix = yeGet(state->entity, "wid-pix");
   Entity *s = ywCanvasObjSize(state->entity, img);
   Entity *p = ywCanvasObjPos(img);
   SDL_Rect *sd = NULL;
@@ -746,9 +740,21 @@ static int sdlCanvasRendImg(YWidgetState *state, SDLWid *wid, Entity *img,
 		  ywSizeW(s), ywSizeH(s) };
   double rotation = 0;
   SDL_RendererFlip flip = SDL_FLIP_NONE;
+  SDL_Texture *t = NULL;
 
-  if (unlikely(!t))
-    return -1;
+
+  if (rd.x + rd.w < 0 || rd.y + rd.h < 0 || rd.y > ywRectH(wid_pix)
+      || rd.x > ywRectW(wid_pix)) {
+    return 0;
+  }
+  t = yeGetData(yeGet(img, "$img"));
+  if (!t) {
+    sdlCanvasCacheTexture(state->entity, img);
+    t = yeGetData(yeGet(img, "$img"));
+    if (unlikely(!t))
+      return -1;
+  }
+
   rd.x += ywRectX(wid_pix);
   rd.y += ywRectY(wid_pix);
   sdlCanvasAplyModifier(img, &rd, &sd, &center, &rotation, &flip);
@@ -811,12 +817,13 @@ uint32_t sdlCanvasPixInfo(Entity *obj, int x, int y)
   return 0;
 }
 
-int sdlCanvasRendObj(YWidgetState *state, SDLWid *wid, Entity *obj, Entity *cam)
+int sdlCanvasRendObj(YWidgetState *state, SDLWid *wid, Entity *obj, Entity *cam,
+		     Entity *wid_pix)
 {
   int type = yeGetIntAt(obj, 0);
 
   if (type == YCanvasResource || type == YCanvasImg || type == YCanvasTexture)
-    return sdlCanvasRendImg(state, wid, obj, cam);
+    return sdlCanvasRendImg(state, wid, obj, cam, wid_pix);
 
   Entity *p = ywCanvasObjPos(obj);
   SDL_Color c = {0, 0, 0, 255};
@@ -826,7 +833,6 @@ int sdlCanvasRendObj(YWidgetState *state, SDLWid *wid, Entity *obj, Entity *cam)
 
   if (type == YCanvasRect) {
     YBgConf cfg;
-    Entity *wid_pix = yeGet(state->entity, "wid-pix");
 
     ywidBgConfFill(yeGet(yeGet(obj, 2), 1), &cfg);
     c.r = cfg.r;

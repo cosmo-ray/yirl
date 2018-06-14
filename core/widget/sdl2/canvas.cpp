@@ -32,12 +32,13 @@ static int sdl2Render(YWidgetState *state, int t)
   Entity *entity = state->entity;
   Entity *objs = yeGet(entity, "objs");
   Entity *cam = yeGet(entity, "cam");
+  Entity *widPix = yeGet(state->entity, "wid-pix");
   YBgConf cfg;
 
   if (ywidBgConfFill(yeGet(entity, "background"), &cfg) >= 0)
     sdlFillBg(wid, &cfg);
   YE_ARRAY_FOREACH(objs, obj) {
-    sdlCanvasRendObj(state, wid, obj, cam);
+    sdlCanvasRendObj(state, wid, obj, cam, widPix);
   }
   return 0;
 }
