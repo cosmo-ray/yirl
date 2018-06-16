@@ -321,7 +321,6 @@ static int cntRend(YWidgetState *opac)
       cntResize(opac);
     }
     wid->hasChange = 2;
-
     ywidSubRend(wid);
     wid->hasChange = 0;
   }

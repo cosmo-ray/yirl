@@ -232,6 +232,9 @@ static inline void ywidSubMidRend(YWidgetState *opac, int turnPercent)
 {
   if (opac->midRend) {
     opac->midRend(opac, turnPercent);
+  } else {
+    opac->hasChange = 1;
+    opac->render(opac);
   }
 }
 
@@ -245,7 +248,9 @@ static inline void ywidMidRend(YWidgetState *opac, int turnPercent)
 
 static inline void ywidMidRendEnd(YWidgetState *opac)
 {
-  if (opac && opac->midRendEnd) {
+  if (unlikely(!opac))
+    return;
+  if (opac->midRendEnd) {
     opac->midRendEnd(opac);
   }
 }
