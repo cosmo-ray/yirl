@@ -38,6 +38,18 @@ void	tccAddSyms(TCCState *l)
   tcc_add_symbol(l, "strdup", strdup);
   tcc_add_symbol(l, "printf", printf);
   tcc_add_symbol(l, "ygFileToEnt", ygFileToEnt);
+  tcc_add_symbol(l, "ywMapPushElem", ywMapPushElem);
+  tcc_add_symbol(l, "ywMapGetCase", ywMapGetCase);
+  tcc_add_symbol(l, "ywMapMvTableRemove", ywMapMvTableRemove);
+  tcc_add_symbol(l, "yuiRand", yuiRand);
+  tcc_add_symbol(l, "ywPosCreateInts", ywPosCreateInts);
+  tcc_add_symbol(l, "ywidNext", ywidNext);
+  tcc_add_symbol(l, "yuiRandInit", yuiRandInit);
+  tcc_add_symbol(l, "ywMapCreateDefaultEntity", ywMapCreateDefaultEntity);
+  tcc_add_symbol(l, "ywMapPushNbr", ywMapPushNbr);
+  tcc_add_symbol(l, "ywRectReCreateInts", ywRectReCreateInts);
+  tcc_add_symbol(l, "ywMapGetIdByElem", ywMapGetIdByElem);
+  tcc_add_symbol(l, "ywMapAdvenceWithPos", ywMapAdvenceWithPos);
   tcc_add_symbol(l, "yeGetByStrFast", yeGetByStrFast);
   tcc_add_symbol(l, "yBlockArrayIteratorCreate", yBlockArrayIteratorCreate);
   tcc_add_symbol(l, "memmove", memmove);
