@@ -52,8 +52,6 @@ static Entity *findEnt(const char *useless, Entity *ent, void *ent2)
   return NULL;
 }
 
-int ywMapIsSmoot(Entity *map);
-
 /* crop the map and print the middle of it */
 static void sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
 {
@@ -96,6 +94,33 @@ static void sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
   }
 }
 
+/* rend all the map, regardeless if the map is bigger than the screen */
+static int sdl2FullRender(YWidgetState *state, SDLWid *wid, Entity *entity)
+{
+  Entity *map = yeGet(entity, "map");
+  unsigned int wMap = ywMapW(entity);
+  unsigned int sizeSpriteW;
+  unsigned int sizeSpriteH;
+  uint32_t thresholdX;
+
+  ywMapGetSpriteSize(entity, &sizeSpriteW, &sizeSpriteH, &thresholdX);
+
+  YE_ARRAY_FOREACH_EXT(map, mapCase, it) {
+    unsigned int curx = yBlockArrayIteratorIdx(it) % wMap;
+    unsigned int cury = yBlockArrayIteratorIdx(it) / wMap;
+
+    YE_ARRAY_FOREACH(mapCase, mapElem) {
+      if (unlikely(sdlDisplaySprites(state, wid, curx, cury, mapElem,
+				     sizeSpriteW, sizeSpriteH, thresholdX,
+				     0, NULL) < 0)) {
+	sdlConsumeError();
+      }
+    }
+  }
+
+  return 0;
+}
+
 static void sdl2MidRender(YWidgetState *state, SDLWid *wid, Entity *ent,
 			  int percent)
 {
@@ -115,12 +140,21 @@ static void sdl2MidRender(YWidgetState *state, SDLWid *wid, Entity *ent,
   int32_t endY = begY + hCam;
   YBgConf cfg;
 
+  if (unlikely(!hMap || !wMap)) {
+    DPRINT_ERR("can't rend empty map\n");
+    return;
+  }
+
   if (ywidBgConfFill(yeGet(ent, "background"), &cfg) >= 0) {
     sdlFillBg(wid, &cfg);
   }
 
-  sdl2PartialRender(state, wid, ent);
-  if (!ywMapIsSmoot(ent))
+  if (ywMapType(ent) != YMAP_PARTIAL)
+    sdl2FullRender(state, wid, ent);
+  else
+    sdl2PartialRender(state, wid, ent);
+
+  if (!ywIsSmootOn)
     return;
 
   if (begX < 0) {
@@ -224,54 +258,12 @@ static void sdl2MidRender(YWidgetState *state, SDLWid *wid, Entity *ent,
   yeDestroy(gc);
 }
 
-/* rend all the map, regardeless if the map is bigger than the screen */
-static int sdl2FullRender(YWidgetState *state, SDLWid *wid, Entity *entity)
-{
-  Entity *map = yeGet(entity, "map");
-  unsigned int lenMap = ywMapLen(entity);
-  unsigned int wMap = ywMapW(entity);
-  YBgConf cfg;
-  unsigned int hMap = lenMap / wMap;
-  unsigned int sizeSpriteW;
-  unsigned int sizeSpriteH;
-  uint32_t thresholdX;
-
-  if (unlikely(!hMap || !wMap || !yeLen(map))) {
-    DPRINT_ERR("can't rend empty map\n");
-    return -1;
-  }
-
-  if (ywidBgConfFill(yeGet(entity, "background"), &cfg) >= 0) {
-    sdlFillBg(wid, &cfg);
-  }
-
-  ywMapGetSpriteSize(entity, &sizeSpriteW, &sizeSpriteH, &thresholdX);
-
-  YE_ARRAY_FOREACH_EXT(map, mapCase, it) {
-    unsigned int curx = yBlockArrayIteratorIdx(it) % wMap;
-    unsigned int cury = yBlockArrayIteratorIdx(it) / wMap;
-
-    YE_ARRAY_FOREACH(mapCase, mapElem) {
-      if (unlikely(sdlDisplaySprites(state, wid, curx, cury, mapElem,
-				     sizeSpriteW, sizeSpriteH, thresholdX,
-				     0, NULL) < 0)) {
-	sdlConsumeError();
-      }
-    }
-  }
-
-  sdl2MidRender(state, wid, state->entity, 0);
-  return 0;
-}
-
 static int sdl2Render(YWidgetState *state, int t)
 {
   SDLWid *wid = ywidGetRenderData(state, t);
   Entity *ent = state->entity;
 
-  if (ywMapType(ent) != YMAP_PARTIAL)
-    return sdl2FullRender(state, wid, ent);
-  sdl2MidRender(state, wid, ent, 0);
+  sdl2MidRender(state, wid, ent, ywTurnPecent);
   return 0;
 }
 
@@ -283,19 +275,10 @@ static int sdl2Init(YWidgetState *wid, int t)
 }
 
 
-static void midRender(YWidgetState *state, int t, int percent)
-{
-  SDLWid *wid = ywidGetRenderData(state, t);
-  Entity *ent = state->entity;
-
-  return sdl2MidRender(state, wid, ent, percent);
-}
-
 int ysdl2RegistreMap(void)
 {
   int ret = ywidRegistreTypeRender("map", ysdl2Type(),
 				   sdl2Render, sdl2Init, sdlWidDestroy);
-  ywidRegistreMidRend(midRender, ret, ysdl2Type());
   return ret;
 }
 

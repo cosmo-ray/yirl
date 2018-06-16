@@ -327,23 +327,6 @@ static int cntRend(YWidgetState *opac)
   return 0;
 }
 
-static void cntMidRend(YWidgetState *opac, int percent)
-{
-  Entity *entries = yeGet(opac->entity, "entries");
-
-  YE_ARRAY_FOREACH(entries, tmp) {
-    YWidgetState *wid = ywidGetState(tmp);
-
-    if (!wid)
-      continue;
-
-    ywidSubMidRend(wid, percent);
-    if (wid->hasChange) {
-      opac->hasChange = 1;
-    }
-  }
-}
-
 static void midRendEnd(YWidgetState *opac)
 {
   Entity *entries = yeGet(opac->entity, "entries");
@@ -365,7 +348,6 @@ static void *alloc(void)
   wstate->init = cntInit;
   wstate->destroy = cntDestroy;
   wstate->midRendEnd = midRendEnd;
-  wstate->midRend = cntMidRend;
   wstate->handleEvent = cntEvent;
   wstate->resize = cntResize;
   wstate->type = t;

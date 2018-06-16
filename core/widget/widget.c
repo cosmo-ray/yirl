@@ -56,10 +56,12 @@ static YWidgetState *oldWid = NULL;
 
 int ywidWindowWidth = 640;
 int ywidWindowHight = 480;
-int ywidXMouseGlobalPos = 0;
-int ywidYMouseGlobalPos = 0;
-int ywidXMouseLastClick = 0;
-int ywidYMouseLastClick = 0;
+int ywidXMouseGlobalPos;
+int ywidYMouseGlobalPos;
+int ywidXMouseLastClick;
+int ywidYMouseLastClick;
+int ywIsSmootOn;
+int ywTurnPecent;
 
 void ywidChangeResolution(int w, int h)
 {
@@ -425,18 +427,12 @@ int ywidRegistreTypeRender(const char *type, int renderType,
       widgetOptTab[i].render[renderType] = render;
       widgetOptTab[i].init[renderType] = init;
       widgetOptTab[i].destroy[renderType] = destroy;
-      widgetOptTab[i].midRend[renderType] = NULL;
       return i;
     }
   }
   return -1;
 }
 
-void ywidRegistreMidRend(void (*midRender)(YWidgetState *, int, int),
-			 int widgetType, int renderType)
-{
-  widgetOptTab[widgetType].midRend[renderType] = midRender;
-}
 
 int ywidRegistreRender(void (*resizePtr)(YWidgetState *wid, int renderType),
 		       Entity *(*pollEvent)(void),
@@ -549,20 +545,22 @@ int ywidDoTurn(YWidgetState *opac)
 
   if (turnLength > 0) {
     int64_t i = 0;
-    uint16_t percent;
 
     i = turnLength - YTimerGet(cnt);
-    percent = 100 - (i * 100 / turnLength);
-    while (i > 0 && percent < 95) {
+    ywTurnPecent = 100 - (i * 100 / turnLength);
+    while (i > 0 && ywTurnPecent < 95) {
       int newPercent;
 
-      ywidMidRend(mainWid, percent);
+      if (ywIsSmootOn) {
+	mainWid->hasChange = 1;
+	ywidRend(mainWid);
+      }
       do {
-	usleep(1);
+	usleep(10);
 	i = turnLength - YTimerGet(cnt);
 	newPercent = 100 - (i * 100 / turnLength);
-      } while (newPercent == percent);
-      percent = newPercent;
+      } while (newPercent == ywTurnPecent);
+      ywTurnPecent = newPercent;
     }
     if (i > 0) {
       usleep(i);
@@ -585,7 +583,7 @@ int ywidDoTurn(YWidgetState *opac)
       return NOTHANDLE;
     trackMouse(head);
   }
-
+  ywTurnPecent = 0;
   ywidMidRendEnd(mainWid);
   ret = ywidHandleEvent(opac, head);
   ywidFreeEvents(head);

@@ -140,7 +140,6 @@ typedef struct WidgetState_ {
   Entity *entity;
   YRenderState renderStates[64];
   int (*render)(struct WidgetState_ *opac);
-  void (*midRend)(struct WidgetState_ *opac, int turnPercent);
   void (*midRendEnd)(struct WidgetState_ *opac);
   InputStatue (*handleEvent)(struct WidgetState_ *opac, Entity *event);
   void (*resize)(struct WidgetState_ *opac);
@@ -160,8 +159,6 @@ struct widgetOpt {
   char *name;
   uint64_t rendersMask;
   int (*render[MAX_NB_MANAGER])(YWidgetState *wid, int renderType);
-  void (*midRend[MAX_NB_MANAGER])(struct WidgetState_ *opac, int t,
-				  int turnPercent);
   int (*init[MAX_NB_MANAGER])(YWidgetState *opac, int t);
   void (*destroy[MAX_NB_MANAGER])(YWidgetState *opac, int t);
 };
@@ -194,6 +191,8 @@ extern int ywidWindowWidth;
 extern int ywidWindowHight;
 extern int ywidXMouseGlobalPos;
 extern int ywidYMouseGlobalPos;
+extern int ywIsSmootOn;
+extern int ywTurnPecent;
 
 /**
  * Registre a new type of widget
@@ -209,8 +208,6 @@ int ywidRegistreRender(void (*resizePtr)(YWidgetState *wid, int renderType),
 		       int (*draw)(void),
 		       int (*changeResolution)(void),
 		       void (*changeWinName)(const char *));
-void ywidRegistreMidRend(void (*midRender)(YWidgetState *, int, int),
-			 int widgetType, int renderType);
 
 void ywidRemoveRender(int renderType);
 
@@ -227,24 +224,6 @@ void ywidResize(YWidgetState *wid);
  * @brief interal function use to draw screen when the texture has been update
  */
 int ywidDrawScreen(void);
-
-static inline void ywidSubMidRend(YWidgetState *opac, int turnPercent)
-{
-  if (opac->midRend) {
-    opac->midRend(opac, turnPercent);
-  } else {
-    opac->hasChange = 1;
-    opac->render(opac);
-  }
-}
-
-static inline void ywidMidRend(YWidgetState *opac, int turnPercent)
-{
-  ywidSubMidRend(opac, turnPercent);
-  if (opac->hasChange) {
-    ywidDrawScreen();
-  }
-}
 
 static inline void ywidMidRendEnd(YWidgetState *opac)
 {

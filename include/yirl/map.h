@@ -137,7 +137,8 @@ Entity *ywMapPushNbr(Entity *state, int toPush,
  */
 static inline void ywMapSetSmootMovement(Entity *map, int smoot)
 {
-  yeReCreateInt(smoot, map, "$smoot");
+  (void)map;
+  ywIsSmootOn = smoot;
 }
 
 Entity *ywMapMvTablePush(Entity *map, Entity *from,

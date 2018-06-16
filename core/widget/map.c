@@ -368,13 +368,6 @@ static int mapRend(YWidgetState *opac)
   return 0;
 }
 
-static void mapMidRend(YWidgetState *wid, int turnPercent)
-{
-  YUI_FOREACH_BITMASK(widgetOptTab[t].rendersMask, it, useless_tmask) {
-    if (widgetOptTab[t].midRend[it])
-      widgetOptTab[t].midRend[it](wid, it, turnPercent);
-  }
-}
 
 static void mapMidRendEnd(YWidgetState *wid)
 {
@@ -401,7 +394,6 @@ static void *alloc(void)
     return NULL;
 
   wstate->render = mapRend;
-  wstate->midRend = mapMidRend;
   wstate->midRendEnd = mapMidRendEnd;
   wstate->init = mapInit;
   wstate->destroy = mapDestroy;
@@ -472,12 +464,6 @@ int ywMapEnd(void)
   return 0;
 }
 
-int ywMapIsSmoot(Entity *map);
-int ywMapIsSmoot(Entity *map)
-{
-  return yeGetInt(yeGet(map, "$smoot"));
-}
-
 void ywMapMvTableRemove(Entity *map, Entity *to_rm)
 {
   Entity *mv_tbl;
@@ -501,7 +487,7 @@ Entity *ywMapMvTablePush(Entity *map, Entity *from,
   Entity *mv_tbl;
   Entity *ret;
 
-  if (!ywMapIsSmoot(map))
+  if (!ywIsSmootOn)
     return NULL;
   mv_tbl = yeGet(map, "$mv_tbl");
   ret = yeCreateArray(mv_tbl, NULL);
