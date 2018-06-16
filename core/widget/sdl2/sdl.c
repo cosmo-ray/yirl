@@ -712,8 +712,9 @@ int sdlCanvasCacheTexture(Entity *state, Entity *elem)
 			   yeGetIntAt(elem, 2));
   Entity *tmp = yeGet(resource, "$img");
   if (tmp) {
-    if ((tmp = yeGet(elem, YCANVAS_IMG_IDX))) {
-      yePushBack(elem, tmp, yeGetKeyAt(elem, YCANVAS_IMG_IDX));
+    Entity *tmp2 = yeGet(resource, "$img");
+    if ((tmp2 = yeGet(elem, YCANVAS_IMG_IDX))) {
+      yePushBack(elem, tmp2, yeGetKeyAt(elem, YCANVAS_IMG_IDX));
     }
     yePushAt(elem, tmp, YCANVAS_IMG_IDX);
     yeRenameIdxStr(elem, YCANVAS_IMG_IDX, "$img");
