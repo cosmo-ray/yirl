@@ -49,6 +49,12 @@ function action(entity, eve, arg)
 	    for i = 0, asteroides:len() do
 	       if (asteroides[i]) and laser:colide_with(asteroides[i]) then
 		  asteroides[i].life = asteroides[i].life:to_int() - 1
+		  canvas.ent.score = canvas.ent.score + 1
+		  canvas:remove(canvas.ent.score_canvas)
+		  canvas.ent.score_canvas =
+		     canvas:new_text(10, 10,
+				     Entity.new_string("score: "..
+						       canvas.ent.score:to_int())):cent()
 		  if asteroides[i].life == 0 then
 		     removeObj(canvas, asteroides,
 			       CanvasObj.wrapp(asteroides[i]))
@@ -111,7 +117,7 @@ function createAstShoot(entity)
    local shipSize = Pos.new(40, 40)
    ship:force_size(shipSize)
    ent.ship = ship:cent()
-
+      
    ent.asteroides = {}
    local bigAst = canvas:new_obj(350, 50, 1)
    bigAst.ent.life = -1
@@ -120,7 +126,11 @@ function createAstShoot(entity)
    ent.asteroides:push_back(bigAst:cent())
 
    ent.lasers = {}
-   ent.move = {}
+   ent.score = 0
+   ent.score_canvas =
+      canvas:new_text(10, 10, Entity.new_string("score: "..
+						ent.score:to_int())):cent()
+      ent.move = {}
    ent.move.up_down = 0
    ent.move.left_right = 0
    ent["turn-length"] = 100000
@@ -130,5 +140,4 @@ end
 function initAsteroideShooter(entity)
    local e = Entity.wrapp(entity)
    Widget.new_subtype("asteroide-shooter", "createAstShoot")
-   Entity.new_int(0, e, "score");
 end
