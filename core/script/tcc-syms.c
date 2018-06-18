@@ -89,6 +89,7 @@ void	tccAddSyms(TCCState *l)
   tcc_add_symbol(l, "ywCanvasNewImg", ywCanvasNewImg);
   tcc_add_symbol(l, "fflushout", fflushout);
   tcc_add_symbol(l, "yeStringAddInt", yeStringAddInt);
+  tcc_add_symbol(l, "strcmp", strcmp);
 #if defined(__unix__) || defined(__APPLE__)
   tcc_add_symbol(l, "yuiDebugPrint", yuiDebugPrint);
 #endif
