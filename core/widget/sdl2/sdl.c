@@ -684,6 +684,7 @@ int sdlCanvasCacheTexture(Entity *state, Entity *elem)
 {
   int type = yeGetIntAt(elem, 0);
   Entity *resource;
+  Entity *texture;
   const char *txt;
 
   if (type == YCanvasRect) {
@@ -723,6 +724,20 @@ int sdlCanvasCacheTexture(Entity *state, Entity *elem)
     return 0;
   }
 
+  texture = yeGet(resource, "texture");
+  if (texture) {
+    int ret;
+    Entity *imgSrcRect;
+
+    sdlCanvasCacheImg(resource, texture, NULL, NULL);
+    imgSrcRect = yeGet(resource, "img-src-rect");
+    yeIncrRef(imgSrcRect);
+    yeRemoveChild(resource, imgSrcRect);
+    ret = sdlCanvasCacheImg(elem, resource, NULL, NULL);
+    yePushBack(resource, imgSrcRect, "img-src-rect");
+    yeDestroy(imgSrcRect);
+    return ret;
+  }
   txt = yeGetStringAt(resource, "img");
   if (txt)
     return sdlCanvasCacheImg(elem, resource, txt, NULL);

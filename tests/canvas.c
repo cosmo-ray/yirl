@@ -139,6 +139,12 @@ void testCanvasSdl2(void)
   ywCanvasNewImgFromTexture(canvas_example, 300, 30, texture, NULL);
   Entity *rect = ywRectCreateInts(0, 0, 50, 40, NULL, NULL);
   ywCanvasNewImgFromTexture(canvas_example, 200, 70, texture, rect);
+
+  resource = yeCreateArray(resources, NULL);
+  yePushBack(resource, texture, "texture");
+  ywRectCreateInts(0, 10, 50, 20, resource, "img-src-rect");
+  ywCanvasNewObj(canvas_example, 20, 400, 4);
+
   yeDestroy(texture);
   yeDestroy(rect);
 
