@@ -731,7 +731,8 @@ int sdlCanvasCacheTexture(Entity *state, Entity *elem)
 
     sdlCanvasCacheImg(resource, texture, NULL, NULL);
     imgSrcRect = yeGet(resource, "img-src-rect");
-    yeIncrRef(imgSrcRect);
+    if (imgSrcRect)
+      yeIncrRef(imgSrcRect);
     yeRemoveChild(resource, imgSrcRect);
     ret = sdlCanvasCacheImg(elem, resource, NULL, NULL);
     yePushBack(resource, imgSrcRect, "img-src-rect");
