@@ -247,17 +247,17 @@ end
 
 function Canvas:new_img(x, y, path, srcRect)
    if srcRect then srcRect = srcRect:cent() end
-   local ret = ywCanvasNewImg(self.ent:cent(), x, y, path, srcRect)
+   local ret = ywCanvasNewImg(self.ent, x, y, path, srcRect)
    return CanvasObj.wrapp(ret)
 end
 
 function Canvas:new_obj(x, y, objId)
-   local ret = ywCanvasNewObj(self.ent:cent(), x, y, objId)
+   local ret = ywCanvasNewObj(self.ent, x, y, objId)
    return CanvasObj.wrapp(ret)
 end
 
 function Canvas:new_text(x, y, txt)
-   local ret = ywCanvasNewText(self.ent:cent(), x, y, txt:cent())
+   local ret = ywCanvasNewText(self.ent, x, y, txt:cent())
    return CanvasObj.wrapp(ret)
 end
 

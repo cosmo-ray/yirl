@@ -46,7 +46,8 @@ function action(entity, eve, arg)
 	    removeObj(canvas, lasers, laser)
 	    laser = nil
 	 else
-	    for i = 0, asteroides:len() do
+	    local ast_l = asteroides:len()
+	    for i = 0, ast_l do
 	       if (asteroides[i]) and laser:colide_with(asteroides[i]) then
 		  asteroides[i].life = asteroides[i].life:to_int() - 1
 		  canvas.ent.score = canvas.ent.score + 1
@@ -54,8 +55,9 @@ function action(entity, eve, arg)
 		  canvas.ent.score_canvas =
 		     canvas:new_text(10, 10,
 				     Entity.new_string("score: "..
-						       canvas.ent.score:to_int())):cent()
-		  if asteroides[i].life == 0 then
+							  canvas.ent.score:to_int())):cent()
+		  print("life:", asteroides[i].life)
+		  if asteroides[i].life:to_int() == 0 then
 		     removeObj(canvas, asteroides,
 			       CanvasObj.wrapp(asteroides[i]))
 		  else
@@ -67,6 +69,22 @@ function action(entity, eve, arg)
 			asteroides[i].speed = asteroides[i].speed:to_int() + 1
 		     end
 		     asteroides[i].angle:set_float(laser.ent.angle:to_float())
+		     local p = CanvasObj.wrapp(asteroides[i]):pos()
+		     local bigAst = canvas:new_obj(p:x(), p:y(), 1)
+
+		     --bigAst:force_size(Pos:new(20, 20))
+		     if asteroides[i].life < 0 then
+			bigAst.ent.life = canvas.ent.score:to_int() / 10 + 1
+		     elseif asteroides[i].life > 1 then
+			bigAst.ent.life = asteroides[i].life - 1
+		     else
+			bigAst.ent.life = 1
+		     end
+		     bigAst.ent.speed = asteroides[i].speed
+		     yeCreateFloat(-asteroides[i].angle:to_float(),
+				   bigAst.ent, "angle")
+ 		     asteroides:push_back(bigAst:cent())
+		     print("l: ", asteroides:len())
 		  end
 		  removeObj(canvas, lasers, laser)
 		  break;
@@ -117,7 +135,6 @@ function createAstShoot(entity)
    local shipSize = Pos.new(40, 40)
    ship:force_size(shipSize)
    ent.ship = ship:cent()
-      
    ent.asteroides = {}
    local bigAst = canvas:new_obj(350, 50, 1)
    bigAst.ent.life = -1
