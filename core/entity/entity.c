@@ -963,6 +963,8 @@ int	yeGetInt(Entity *entity)
 {
   if (unlikely(!entity)) {
     return 0;
+  } else if (yeType(entity) == YFLOAT) {
+    return (int64_t)YE_TO_FLOAT(entity)->value;
   }
   return YE_TO_INT(entity)->value;
 }
