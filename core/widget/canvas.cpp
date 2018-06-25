@@ -238,10 +238,10 @@ extern "C" {
       return yeGet(yeGet(obj, 2), 0);
     }
 
-    size = yeGet(obj, "$size");
+    size = yeGet(obj, YCANVAS_SIZE_IDX);
     if (!size) {
       sdlCanvasCacheTexture(wid, obj);
-      size = yeGet(obj, "$size");
+      size = yeGet(obj, YCANVAS_SIZE_IDX);
     }
     return size;
   }
@@ -395,7 +395,7 @@ extern "C" {
     }
 
     if (unlikely(forcedSize)) {
-      Entity *size = yeGet(obj, "$size");
+      Entity *size = yeGet(obj, YCANVAS_SIZE_IDX);
       int realH = ywSizeH(size);
       int realW = ywSizeW(size);
 

@@ -556,18 +556,14 @@ static int sdlCanvasCacheText(Entity *state, Entity *elem, Entity *resource,
   SDL_Surface *image;
   SDL_Texture *texture;
   Entity *data;
-  Entity *tmp;
   int w = 0, h = 0;
 
   image = TTF_RenderUTF8_Solid(sgDefaultFont(), str, color);
   texture = SDL_CreateTextureFromSurface(sg.renderer, image);
   SDL_QueryTexture(texture, NULL, NULL, &w, &h);
-  if ((tmp = yeGet(elem, YCANVAS_IMG_IDX))) {
-    yePushBack(elem, tmp, yeGetKeyAt(elem, YCANVAS_IMG_IDX));
-  }
   data = yeCreateDataAt(texture, elem, "$img", YCANVAS_IMG_IDX);
   yeSetDestroy(data, sdlFreeTexture);
-  ywSizeCreate(w, h, elem, "$size");
+  ywSizeCreateAt(w, h, elem, "$size", YCANVAS_SIZE_IDX);
   data = yeCreateData(image, elem, "$img-surface");
   yeSetDestroy(data, sdlFreeSurface);
 
@@ -634,7 +630,6 @@ int sdlCanvasCacheImg(Entity *elem, Entity *resource, const char *imgPath,
   SDL_Surface *surface;
   SDL_Texture *texture;
   Entity *data;
-  Entity *tmp;
   int w, h;
 
   if (!rEnt)
@@ -664,12 +659,9 @@ int sdlCanvasCacheImg(Entity *elem, Entity *resource, const char *imgPath,
   if (unlikely(!texture))
     return -1;
   SDL_QueryTexture(texture, NULL, NULL, &w, &h);
-  if ((tmp = yeGet(elem, YCANVAS_IMG_IDX))) {
-    yePushBack(elem, tmp, yeGetKeyAt(elem, YCANVAS_IMG_IDX));
-  }
   data = yeCreateDataAt(texture, elem, "$img", YCANVAS_IMG_IDX);
   yeSetDestroy(data, sdlFreeTexture);
-  ywSizeCreate(w, h, elem, "$size");
+  ywSizeCreateAt(w, h, elem, "$size", YCANVAS_SIZE_IDX);
   data = yeCreateData(surface, elem, "$img-surface");
   /* if not img path a texture was use */
   if (imgPath)
@@ -697,7 +689,7 @@ int sdlCanvasCacheTexture(Entity *state, Entity *elem)
     w = (w + 1) * (sg.txtWidth);
     h = (h + 1) * (sgGetFontSize() + 2);
 
-    ywPosCreateInts(w, h, elem, "$size");
+    ywSizeCreateAt(w, h, elem, "$size", YCANVAS_SIZE_IDX);
     return 0;
   } else if (unlikely(type == YCanvasImg)) {
     txt = yeGetStringAt(elem, 2);
@@ -713,10 +705,6 @@ int sdlCanvasCacheTexture(Entity *state, Entity *elem)
 			   yeGetIntAt(elem, 2));
   Entity *tmp = yeGet(resource, "$img");
   if (tmp) {
-    Entity *tmp2 = yeGet(resource, "$img");
-    if ((tmp2 = yeGet(elem, YCANVAS_IMG_IDX))) {
-      yePushBack(elem, tmp2, yeGetKeyAt(elem, YCANVAS_IMG_IDX));
-    }
     yePushAt(elem, tmp, YCANVAS_IMG_IDX);
     yeRenameIdxStr(elem, YCANVAS_IMG_IDX, "$img");
     yeGetPush(resource, elem, "$size");
