@@ -1,3 +1,4 @@
+local modPath = Entity.wrapp(ygGet("asteroide-shooter.$path")):to_string()
 
 function action(entity, eve, arg)
    local eve = Event.wrapp(eve)
@@ -98,6 +99,17 @@ function action(entity, eve, arg)
 	 --print(asteroides[i].speed, asteroides[i].angle)
 	 local ast = CanvasObj.wrapp(asteroides[i])
 	 ast:advance(ast.ent.speed:to_int(), ast.ent.angle:to_float())
+	 if asteroides[i] and ship:colide_with(asteroides[i]) then
+	    if canvas.ent.die then
+	       canvas.ent.die(canvas.ent)
+	    elseif canvas.ent.next then
+	       ywidNext(canvas.ent.next)
+	    else
+	       yFinishGame()
+	    end
+	    return YEVE_ACTION
+	 end
+
 	 if canvas:is_out(ast) == 1 then
 	    ast.ent.angle:set_float(ast.ent.angle:to_float() + 90 +
 				       (yuiRand() % 70))
@@ -107,7 +119,13 @@ function action(entity, eve, arg)
    end
 
    local pos = Pos.new(move.left_right * 10, move.up_down * 10)
+   local sp = ship:pos()
+   local size = ship:size()
    ship:move(pos)
+   if (sp:x() < 0 or sp:x() + size:x() > canvas.ent['wid-pix'].w
+       or sp:y() < 0 or sp:y() + size:y() > canvas.ent['wid-pix'].h) then
+      ship:move(Pos.new(-pos:x(), -pos:y()))
+   end
    return YEVE_ACTION
 end
 
@@ -124,14 +142,14 @@ function createAstShoot(entity)
    ent.resources = {}
    ent.resources[0] = {}
    local resource = ent.resources[0]
-   resource["img"] = "jswars_gfx/shot.png"
+   resource["img"] = modPath .. "jswars_gfx/shot.png"
    ent.resources[1] = {}
    resource = ent.resources[1]
-   resource["img"] = "jswars_gfx/asteroid.png"
+   resource["img"] = modPath .. "jswars_gfx/asteroid.png"
 
    Entity.new_func("action", ent, "action")
    canvas.ent.background = "rgba: 255 255 255 255"
-   local ship = canvas:new_img(150, 150, "./DurrrSpaceShip.png")
+   local ship = canvas:new_img(150, 150, modPath .. "/DurrrSpaceShip.png")
    local shipSize = Pos.new(40, 40)
    ship:force_size(shipSize)
    ent.ship = ship:cent()
