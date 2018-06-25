@@ -34,6 +34,7 @@ typedef enum  {
 } YCanvasModifier;
 
 #define YCANVAS_IMG_IDX 5
+#define YCANVAS_SIZE_IDX 6
 
 typedef union {
   uint32_t i;

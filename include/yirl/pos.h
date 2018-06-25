@@ -54,6 +54,7 @@ static inline char * ywPosToString(Entity *pos)
 }
 
 #define ywSizeCreate(w, h, father, name) (ywPosCreate(w, h, father, name))
+#define ywSizeCreateAt(w, h, father, name, idx) (ywPosCreateAt(w, h, father, name, idx))
 
 /**
  * @posX The position in X
@@ -66,6 +67,10 @@ static inline char * ywPosToString(Entity *pos)
  */
 Entity *ywPosCreateInts(int posX, int posY, Entity *father,
 			const char *name);
+
+Entity *ywPosCreateAt(int posX, int posY, Entity *father,
+		      const char *name, int idx);
+
 
 static inline Entity *ywPosCreateEnt(Entity *other, int useless,
 				     Entity *father, const char *name)

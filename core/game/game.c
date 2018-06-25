@@ -93,7 +93,6 @@ void *ygGetTccManager(void)
     }									\
   } while (0)
 
-
 static void *ygTerminateCallback(va_list va)
 {
   ysdl2WindowMode();

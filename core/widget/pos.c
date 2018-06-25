@@ -30,6 +30,15 @@ Entity *ywPosCreateInts(int posX, int posY, Entity *father, const char *str)
   return ret;
 }
 
+Entity *ywPosCreateAt(int posX, int posY, Entity *father, const char *str, int idx)
+{
+  Entity *ret = yeCreateArrayAt(father, str, idx);
+
+  yeCreateInt(posX, ret, "x");
+  yeCreateInt(posY, ret, "y");
+  return ret;
+}
+
 double ywPosAngle(Entity *p0, Entity *p1)
 {
   return atan2(ywPosY(p0) - ywPosY(p1),
