@@ -9,6 +9,10 @@ function action(entity, eve, arg)
    while eve:is_end() == false do
       if eve:type() == YKEY_DOWN then
 	 if eve:key() == Y_ESC_KEY then
+	    if canvas.ent.quit then
+	       canvas.ent.quit(canvas.ent)
+	       return YEVE_ACTION
+	    end
 	    yFinishGame()
 	    return YEVE_ACTION
 	 elseif eve:is_key_up() then move.up_down = -1

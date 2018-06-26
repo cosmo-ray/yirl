@@ -1201,6 +1201,14 @@ int	luaYwCntGetEntry(lua_State *L)
   return 1;
 }
 
+int	luaywidAction(lua_State *L)
+{
+  lua_pushnumber(L, ywidAction(luaEntityAt(L, 1),
+			       luaEntityAt(L, 2),
+			       luaEntityAt(L, 3),
+			       luaEntityAt(L, 4)));
+  return 1;
+}
 
 int	luaYwCntPopLastEntry(lua_State *L)
 {
