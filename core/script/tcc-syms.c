@@ -61,6 +61,8 @@ void	tccAddSyms(TCCState *l)
   tcc_add_symbol(l, "ywTextureNewImg", ywTextureNewImg);
   tcc_add_symbol(l, "ywRectCreateInts", ywRectCreateInts);
   tcc_add_symbol(l, "yeCreateArrayByCStr", yeCreateArrayByCStr);
+  tcc_add_symbol(l, "yeCreateArrayAt", yeCreateArrayAt);
+  tcc_add_symbol(l, "ywCanvasNewObj", ywCanvasNewObj);
   tcc_add_symbol(l, "yeGetInt", yeGetInt);
   tcc_add_symbol(l, "ywCanvasNewImgFromTexture", ywCanvasNewImgFromTexture);
   tcc_add_symbol(l, "ywCanvasRotate", ywCanvasRotate);

@@ -69,6 +69,8 @@ void ywCntPopLastEntry(Entity *container)
 {
   Entity *ret = ywCntGetLastEntry(container);
 
+  if (!ret)
+    return;
   ywidGetState(ret)->needDestroy = 1;
   yePopBack(yeGet(container, "entries"));
 }

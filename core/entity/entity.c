@@ -188,7 +188,11 @@ Entity *yeGetByIdx(Entity *entity, size_t index)
 
 Entity *yeGetLast(Entity *array)
 {
-  return yeGet(array, yeLen(array) - 1);
+  size_t l = yeLen(array);
+
+  if (unlikely(!l))
+    return NULL;
+  return yeGet(array, l - 1);
 }
 
 /**
