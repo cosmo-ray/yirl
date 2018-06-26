@@ -68,6 +68,7 @@ void *fileToCanvas(int nbArg, void **args)
 		canvas, "tiled-wpix");
   yeReCreateInt(yeGetIntAt(tiledEnt, "height") * yeGetIntAt(tiledEnt, "tileheight"),
 		canvas, "tiled-hpix");
+  Entity *resources = yeReCreateArray(canvas, "resources", NULL);
   YE_ARRAY_FOREACH(layers, layer) {
     Entity *layer_name = yeGet(layer, "name");
     Entity *layer_data  = yeGet(layer, "data");
@@ -181,7 +182,7 @@ void *fileToCanvas(int nbArg, void **args)
       }
       YE_ARRAY_FOREACH(layer_data, tile_id) {
 	uint64_t orig_tid = yeGetInt(tile_id);
-	uint64_t tid = orig_tid - firstgid;
+	uint64_t tid;
 	uint32_t flags = 0;
 	Entity *cur_img;
 
@@ -189,21 +190,29 @@ void *fileToCanvas(int nbArg, void **args)
 	  y += tileheight;
 	  x = 0;
 	}
-	if (tid >= tilecount) {
+	if (orig_tid >= tilecount) {
 	  /* some transformation happen */
-	  flags = tid & (FLIPPED_HORIZONTALLY_FLAG | FLIPPED_VERTICALLY_FLAG |
-			 FLIPPED_DIAGONALLY_FLAG);
-	  tid &= ~(FLIPPED_HORIZONTALLY_FLAG | FLIPPED_VERTICALLY_FLAG |
-		   FLIPPED_DIAGONALLY_FLAG);
+	  flags = orig_tid & (FLIPPED_HORIZONTALLY_FLAG | FLIPPED_VERTICALLY_FLAG |
+			      FLIPPED_DIAGONALLY_FLAG);
+	  orig_tid &= ~(FLIPPED_HORIZONTALLY_FLAG | FLIPPED_VERTICALLY_FLAG |
+			FLIPPED_DIAGONALLY_FLAG);
 	}
-	if (orig_tid < firstgid || tid > tilecount)
+	tid = orig_tid - firstgid;
+	if (orig_tid < firstgid || tid >= tilecount)
 	  goto next_tile;
 	ywRectSetX(src_rect, margin + ((tilewidth + spacing) * (tid % columns)));
 	ywRectSetY(src_rect, margin + ((tileheight + spacing) * (tid / columns)));
-	if (!isUpLayer)
-	  cur_img = ywCanvasNewImgFromTexture(canvas, x, y, texture, src_rect);
-	else
+	if (isUpLayer) {
 	  cur_img = ywCanvasNewImgFromTexture(upCanvas, x, y, texture, src_rect);
+	} else {
+	  Entity *resource = yeGet(resources, orig_tid);
+	  if (!resource) {
+	    resource = yeCreateArrayAt(resources, NULL, orig_tid);
+	    yePushBack(resource, texture, "texture");
+	    yePushBack(resource, src_rect, "img-src-rect");
+	  }
+	  cur_img = ywCanvasNewObj(canvas, x, y, orig_tid);
+	}
 	if (flags == (FLIPPED_VERTICALLY_FLAG | FLIPPED_HORIZONTALLY_FLAG)) {
 	  ywCanvasRotate(cur_img, 180);
 	}
