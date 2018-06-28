@@ -30,6 +30,15 @@ typedef struct {
   unsigned int current;
 } YMenuState;
 
+static void *tryCallMoveOn(YWidgetState *wid)
+{
+  Entity *moveOn = yeGet(wid->entity, "moveOn");
+  if (moveOn)
+    return yesCall(moveOn, wid->entity, ((YMenuState *)wid)->current,
+		   ywMenuGetCurrentEntry(wid->entity));
+  return (void *)NOACTION;
+}
+
 static void *nmMenuDown(YWidgetState *wid)
 {
   ((YMenuState *)wid)->current += 1;
@@ -38,7 +47,7 @@ static void *nmMenuDown(YWidgetState *wid)
     ((YMenuState *)wid)->current = 0;
   if (yeGetInt(yeGet(ywMenuGetCurrentEntry(wid->entity), "hiden")))
     return nmMenuDown(wid);
-  return (void *)NOACTION;
+  return tryCallMoveOn(wid);
 }
 
 static void *nmMenuUp(YWidgetState *wid)
@@ -49,7 +58,7 @@ static void *nmMenuUp(YWidgetState *wid)
     ((YMenuState *)wid)->current = yeLen(yeGet(wid->entity, "entries")) - 1;
   if (yeGetInt(yeGet(ywMenuGetCurrentEntry(wid->entity), "hiden")))
     return nmMenuUp(wid);
-  return (void *)NOACTION;
+  return tryCallMoveOn(wid);
 }
 
 static void *nmMenuMove(va_list ap)
