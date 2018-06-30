@@ -79,7 +79,6 @@ function reloadTextAndAnswerDialogue(canvas, x, y, dialogue, ret)
    local size = nil
    local arrow = nil
 
-   print(x, y)
    if yeType(dialogue) == YSTRING then
       local tmpText = yeCreateYirlFmtString(dialogue, gc)
       tmp0 = ywCanvasNewText(canvas, x + border_threshold,

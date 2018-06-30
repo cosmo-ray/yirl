@@ -392,7 +392,6 @@ void *dialogueBlock(int nbArgs, void **args)
 
   if (block_action)
     yeReCreateString(yeGetString(block_action), answer, "action");
-    
 
   yeReCreateInt(1, main, "isBlock");
   return (void *)NOACTION;
