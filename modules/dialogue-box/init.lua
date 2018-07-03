@@ -175,6 +175,18 @@ function newTextDialogue(canvas, x, y, text, father, name)
    return ret
 end
 
+function getTextDialogue(box)
+   if yLovePtrToNumber(box) == 0 then
+      return nil
+   end
+
+   local txt = yeGet(box, 4)
+   if yeType(txt) == YSTRING then
+      return txt
+   end
+      return yeGet(txt, "text")
+end
+
 function rmTextDialogue(canvas, box)
    local b0 = yeGet(box, 0)
    local len = yeLen(b0)
@@ -219,6 +231,7 @@ end
 function initDialogueBox(mod)
    yeCreateFunction("newTextAndAnswerDialogue", mod, "new_menu")
    yeCreateFunction("newTextDialogue", mod, "new_text")
+   yeCreateFunction("getTextDialogue", mod, "get_text")
    yeCreateFunction("newEmptyDialogue", mod, "new_empty")
    yeCreateFunction("rmTextDialogue", mod, "remove")
    yeCreateFunction("rmTextDialogue", mod, "rm")
