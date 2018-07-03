@@ -41,7 +41,7 @@ void yscriptBenchLoop(void)
 				  YBLOCK_ARRAY_NOMIDFREE);
   Entity *tmp;
 
-  // this is a simple for(int i = 0; i < 500 000; ++i)
+  // this is a simple for(int i = 0; i < 5 000 000; ++i)
   int64_t test1[] = {0,
 		     YB_CREATE_INT, 0, //stack[0] = 2 // 2
 		     YB_JMP, 7, // jmp to loop comparaison // 4
@@ -69,7 +69,7 @@ void yscriptLoop(void)
 				  YBLOCK_ARRAY_NOMIDFREE);
   Entity *tmp;
 
-  // this is a simple for(int i = 0; i < 500 000; ++i)
+  // this is a simple for(int i = 0; i < 5000; ++i)
   int64_t test1[] = {0,
 		     YB_CREATE_INT, 0, //stack 1 - 2
 		     YB_CREATE_INT, 1, //stack 0 - 4

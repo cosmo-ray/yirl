@@ -101,7 +101,7 @@ typedef enum {
 
 
 #define	ENTITY_HEADER				\
-  unsigned int refCount;			\
+  uint32_t refCount;				\
   EntityType type;				\
 
 typedef struct Entity_
