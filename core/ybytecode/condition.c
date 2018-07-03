@@ -54,8 +54,8 @@ int yeCheckCondition(Entity *condition)
     Entity *data = yeCreateDataExt(NULL, NULL, NULL,
 				   YE_DATA_USE_OWN_METADATA);
     uint64_t *instructions = yeGetData(data);
-    int16_t instMaxLen =
-      yeMetadataSize(DataEntity) / sizeof(uint64_t);
+/*     int16_t instMaxLen = */
+/*       yeMetadataSize(DataEntity) / sizeof(uint64_t); */
 
     instructions[0] = 0; // not compilled yet
     actionEnt = yeConvert(actionEnt, YARRAY);
