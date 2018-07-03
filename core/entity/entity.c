@@ -63,6 +63,7 @@ void yeInitMem(void)
 		       YBLOCK_ARRAY_NUMA | YBLOCK_ARRAY_NOINIT |
 		       YBLOCK_ARRAY_NOMIDFREE);
     isInit = 1;
+    yBlockArrayDataNextSize0 = yeMetadataSize(ArrayEntity);
   }
 }
 
@@ -439,7 +440,7 @@ Entity *yeCreateArrayByCStr(Entity *father, const char *name)
 
   YE_ALLOC_ENTITY(ret, ArrayEntity);
   yeInit((Entity *)ret, YARRAY, father, name);
-  yBlockArrayInit(&ret->values, ArrayEntry);
+  yBlockArrayInitExt(&ret->values, ArrayEntry, YBLOCK_ARRAY_NO_BLOCKS_NEXT0);
   return (YE_TO_ENTITY(ret));
 }
 
@@ -449,7 +450,7 @@ Entity *yeCreateArrayExt(Entity *father, const char *name, uint32_t flags)
 
   YE_ALLOC_ENTITY(ret, ArrayEntity);
   yeInit((Entity *)ret, YARRAY, father, name);
-  yBlockArrayInitExt(&ret->values, ArrayEntry, flags);
+  yBlockArrayInitExt(&ret->values, ArrayEntry, flags | YBLOCK_ARRAY_NO_BLOCKS_NEXT0);
   return (YE_TO_ENTITY(ret));
 }
 
@@ -459,7 +460,7 @@ Entity *yeCreateArrayAt(Entity *father, const char *name, int idx)
 
   YE_ALLOC_ENTITY(ret, ArrayEntity);
   yeInitAt((Entity *)ret, YARRAY, father, name, idx);
-  yBlockArrayInit(&ret->values, ArrayEntry);
+  yBlockArrayInitExt(&ret->values, ArrayEntry, YBLOCK_ARRAY_NO_BLOCKS_NEXT0);
   return (YE_TO_ENTITY(ret));
 }
 

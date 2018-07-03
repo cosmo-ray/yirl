@@ -32,7 +32,9 @@ void testBlockArray(void)
   uint64_t tmp = 1337;
   BlockArrayIterator iterator;
 
+  printf("0\n");
   yBlockArrayInit(&test.array, uint64_t);
+  printf("1\n");
 
   iterator = yBlockArrayIteratorCreate(&test.array, 0);
   g_assert(yBlockArrayIteratorIsEnd(&iterator));
@@ -45,6 +47,7 @@ void testBlockArray(void)
   g_assert(yBlockArrayBlockPos(2) == 0);
   g_assert(yBlockArrayBlockPos(64) == 1);
   g_assert(yBlockArrayBlockPos(128) == 2);
+  printf("2\n");
 
   g_assert(!yBlockArrayIsBlockAllocated(test.array, 0));
   g_assert(!yBlockArrayIsBlockAllocated(test.array, 1));

@@ -25,9 +25,12 @@
 #define YBLOCK_ARRAY_NOINIT 2
 #define YBLOCK_ARRAY_NOMIDFREE 4
 #define YBLOCK_ARRAY_NO_ALIGN 8
+#define YBLOCK_ARRAY_NO_BLOCKS_NEXT0 16
 
 #define Y_BLOCK_ARRAY_BLOCK_SIZE 64
 #define YBA_MAX_ELEM_SIZE 1024
+
+extern size_t yBlockArrayDataNextSize0;
 
 typedef struct {
   uint64_t *blocks;

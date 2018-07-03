@@ -24,6 +24,8 @@
 
 #define ALLOC_SIZE 0xfffffff
 
+size_t yBlockArrayDataNextSize0;
+
 inline void yBlockArrayInitInternal(BlockArray *ba, size_t elemSize, int flag)
 {
   g_assert(elemSize < YBA_MAX_ELEM_SIZE);
@@ -41,7 +43,9 @@ inline void yBlockArrayInitInternal(BlockArray *ba, size_t elemSize, int flag)
 
 inline void yBlockArrayFree(BlockArray *ba)
 {
-  free(ba->blocks);
+  if (!(ba->flag & YBLOCK_ARRAY_NO_BLOCKS_NEXT0) &&
+      ba->nbBlock * sizeof(uint64_t) >= yBlockArrayDataNextSize0)
+    free(ba->blocks);
   ba->nbBlock = 0;
   ba->size = 0;
   ba->lastPos = -1;
@@ -57,10 +61,27 @@ void yBlockArrayExpandBlocks(BlockArray *ba, int nb)
 
   if (ba->flag & YBLOCK_ARRAY_NUMA)
     nb += 16;
-  ba->nbBlock += nb;
+  if (ba->flag & YBLOCK_ARRAY_NO_BLOCKS_NEXT0 &&
+      ba->nbBlock * sizeof(uint64_t) < yBlockArrayDataNextSize0) {
+    int16_t nNb = ba->nbBlock + nb;
+    char *src = (void *)ba;
+
+    src += sizeof(BlockArray);
+    if (nNb * sizeof(uint64_t) >= yBlockArrayDataNextSize0) {
+      ba->blocks = g_malloc(nNb * sizeof(uint64_t));
+      /* So we can free memory */
+      ba->flag ^= YBLOCK_ARRAY_NO_BLOCKS_NEXT0;
+      memcpy(ba->blocks, src, ba->nbBlock * sizeof(uint64_t));
+    } else {
+      ba->blocks = (void *)src;
+    }
+    ba->nbBlock = nNb;
+  } else {
+    ba->nbBlock += nb;
+    ba->blocks = g_realloc(ba->blocks, ba->nbBlock * sizeof(uint64_t));
+  }
   if (!(ba->flag & YBLOCK_ARRAY_NUMA))
     ba->elems = g_realloc(ba->elems, ba->nbBlock * BLOCK_REAL_SIZE(ba));
-  ba->blocks = g_realloc(ba->blocks, ba->nbBlock * sizeof(uint64_t));
   ba->size = ba->nbBlock * 64 - (1 * !!ba->nbBlock);
 
   if (nb > 0) {

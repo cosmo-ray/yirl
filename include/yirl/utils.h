@@ -78,6 +78,8 @@ typedef int64_t int_ptr_t;
 // if compiller gcc
 #if defined(__GNUC__) && (__GNUC__ >= 4)
 
+#define vectorize_loop #pragma ivec
+
 # ifndef likely
 # define likely(x)      __builtin_expect(!!(x), 1)
 # define unlikely(x)    __builtin_expect(!!(x), 0)
@@ -88,6 +90,9 @@ typedef int64_t int_ptr_t;
 # define popcount64 __builtin_popcountll
 
 #else
+
+#define vectorize_loop
+
 /* TODO: test this */
 # define ctz64 yuiCtz64
 # define clz64 yuiClz64
