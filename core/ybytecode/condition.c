@@ -63,17 +63,20 @@ int yeCheckCondition(Entity *condition)
     if (!action)
       return 0;
 
-    i = 1;
-    pushComVal(yeGet(condition, 1), instructions, &i);
-    pushComVal(yeGet(condition, 2), instructions, &i);
     switch(len) {
     case 1:
+    case 2:
+      i = 1;
+      pushComVal(yeGet(condition, 1), instructions, &i);
+      pushComVal(yeGet(condition, 2), instructions, &i);
       if (action[0] == '>') {
 	instructions[i + 1] = YB_SUP;
       } else if (action[0] == '<') {
 	instructions[i + 1] = YB_INF;
       } else if (action[0] == '=') {
 	instructions[i + 1] = YB_EQUAL;
+      } else if (len == 2 && action[0] == '!' && action[1] == '=') {
+	instructions[i + 1] = YB_NOT_EQUAL;
       } else {
 	return 0;
       }
