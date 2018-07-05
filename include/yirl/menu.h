@@ -23,6 +23,9 @@
 int ywMenuInit(void);
 int ywMenuEnd(void);
 int ywMenuGetCurrent(YWidgetState *opac);
+static inline int ywMenuGetCurrentByEntity(Entity *entity) {
+  return ywMenuGetCurrent(ywidGetState(entity));
+}
 Entity *ywMenuGetCurrentEntry(Entity *entity);
 
 int ywMenuHasChange(YWidgetState *opac);

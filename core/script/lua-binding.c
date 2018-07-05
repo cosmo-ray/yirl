@@ -861,6 +861,12 @@ int	luaywMenuCallActionOn(lua_State *L)
   return 1;
 }
 
+int	luaywMenuGetCurrent(lua_State *L)
+{
+  lua_pushnumber(L, ywMenuGetCurrentByEntity(luaEntityAt(L, 1)));
+  return 1;
+}
+
 /**
  * This is not a strict binding of the original yeCreateFunction,
  * because the original has to handle managers,
