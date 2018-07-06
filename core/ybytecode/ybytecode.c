@@ -76,7 +76,7 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
 	inst_compille(YB_LEAVE, end, 0);
 	inst_compille(YB_RETURN, end_ret, 1);
 	inst_compille(YB_RETURN_IVAL, end_ret_ival, 1);
-	inst_compille(YB_RETURN0, end_ret0, 1);
+	inst_compille(YB_RETURN0, end_ret0, 0);
 	inst_compille(YB_YG_GET_PUSH, yg_get_push, 1);
 	inst_compille(YB_YG_GET_PUSH_INT, yg_get_push_int, 1);
 	inst_compille(YB_GET_AT_IDX, get_at_idx, 2);
@@ -428,6 +428,7 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
   ++script;
   ret = yeGet(stack, *script);
   yeIncrRef(ret);
+  /* fall though */
  end:
   yeClearArray(stack);
   return ret;
