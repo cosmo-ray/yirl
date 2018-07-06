@@ -170,14 +170,25 @@ void *fileToCanvas(int nbArg, void **args)
       int y = yeGetIntAt(layer, "x");
       int x = yeGetIntAt(layer, "y");
 
-      if (upCanvas) {
-	YE_ARRAY_FOREACH_EXT(properties, property, it) {
-	  const char *name;
+      YE_ARRAY_FOREACH_EXT(properties, property, it) {
+	const char *name;
 
-	  name = yBlockArrayIteratorGetPtr(it, ArrayEntry)->name;
-	  if (name && !strcmp(name, "upLayer")) {
-	    isUpLayer = 1;
-	  }
+	name = yBlockArrayIteratorGetPtr(it, ArrayEntry)->name;
+	if (!name)
+	  continue;
+	if (upCanvas && !strcmp(name, "upLayer")) {
+	  isUpLayer = 1;
+	} else if (!strcmp(name, "Condition")) {
+	  Entity *condition = yeCreateArray(NULL, NULL);
+	  int ret;
+
+	  yeCreateString(yeGetString(property), condition, NULL);
+	  yePushBack(condition, yeGet(properties, "ConditionArg0"), NULL);
+	  yePushBack(condition, yeGet(properties, "ConditionArg1"), NULL);
+	  ret = yeCheckCondition(condition);
+	  yeDestroy(condition);
+	  if (!ret)
+	    goto next_tileset;
 	}
       }
       YE_ARRAY_FOREACH(layer_data, tile_id) {
@@ -246,6 +257,7 @@ void *fileToCanvas(int nbArg, void **args)
 	x += tilewidth;
 	++i;
       }
+    next_tileset:
       yeDestroy(src_rect);
     }
   }
