@@ -178,6 +178,9 @@ function CanvasObj:move(pos)
 end
 
 function CanvasObj:set_pos(x, y)
+   if x == nil then
+      return
+   end
    if type(x) == "number" then
       return ywCanvasObjSetPos(self:cent(), x, y)
    end

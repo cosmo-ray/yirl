@@ -50,6 +50,24 @@ function menuGetMain(menu)
    return Entity.wrapp(ywCntWidgetFather(ywCntWidgetFather(menu)))
 end
 
+function combatDmgInternal(main, target, dmg)
+   local canvas = getCanvas(main)
+   local new_life = target.char.life - dmg
+   local max_life = target.char.max_life
+   if new_life > max_life then
+      new_life = max_life:to_int()
+   end
+   target.char.life = new_life
+   local lb = target.life_b
+   lb = CanvasObj.wrapp(lb)
+   local x = lb:pos():x()
+   local y = lb:pos():y()
+   canvas:remove(lb.ent)
+   target.life_b = canvas:new_rect(x, y, "rgba: 0 255 30 255",
+				   Pos.new(50 * new_life / max_life,
+					   10).ent).ent
+end
+
 function combatDmg(main, cur_anim)
    local canvas = getCanvas(main)
    local dmg = 1
@@ -57,17 +75,7 @@ function combatDmg(main, cur_anim)
    if cur_anim.mod then
       dmg = cur_anim.mod
    end
-   local new_life = cur_anim.target.char.life - dmg
-   local max_life = cur_anim.target.char.max_life
-   cur_anim.target.char.life = new_life
-   local lb = cur_anim.target.life_b
-   lb = CanvasObj.wrapp(lb)
-   local x = lb:pos():x()
-   local y = lb:pos():y()
-   canvas:remove(lb.ent)
-   cur_anim.target.life_b = canvas:new_rect(x, y, "rgba: 0 255 30 255",
-					    Pos.new(50 * new_life / max_life,
-						    10).ent).ent
+   combatDmgInternal(main, cur_anim.target, dmg)
 end
 
 function endAnimationAttack(main, cur_anim)
@@ -147,8 +155,7 @@ function attackCallback(main, eve)
 
       if cur_cmb_anim.to then
 	 cur_anim.last_mv_frm = last_frm
-	 local bp = Pos.new_copy(ylpcsHandePos(cur_anim.guy))
-	 cur_anim.base_pos = bp.ent
+	 local bp = Pos.wrapp(cur_anim.base_pos)
 	 local tp = Pos.new_copy(ylpcsHandePos(cur_anim.target))
 	 if (tp:x() < bp:x()) then
 	    tp:add(lpcs.w_sprite:to_int() / 2, 0)
@@ -315,19 +322,35 @@ function attack(main, attacker, attacked, mod)
    end
    anim.guy = attacker
    anim.target = attacked
+   local bp = Pos.new_copy(ylpcsHandePos(anim.guy))
+   anim.base_pos = bp.ent
    main.attack_info = anim
+   return anim
 end
 
 function fightAttack(entity, eve)
    local main = menuGetMain(entity)
    main.atk_state = PJ_ATTACK
-   return attack(main, main.gg_handler, main.bg_handler)
+   attack(main, main.gg_handler, main.bg_handler)
+   return YEVE_ACTION
 end
 
 function fightStrongAttack(entity, eve)
-   local main = menuGetMain(entity)
+  local main = menuGetMain(entity)
    main.atk_state = PJ_ATTACK
-   return attack(main, main.gg_handler, main.bg_handler, 2)
+   attack(main, main.gg_handler, main.bg_handler, 2)
+   return YEVE_ACTION
+end
+
+function fightRecover(entity, eve)
+   local main = menuGetMain(entity)
+
+   main.atk_state = PJ_ATTACK
+   local anime = attack(main, main.gg_handler, main.bg_handler)
+   combatDmgInternal(main, anime.guy, -1)
+   endAnimationAttack(main, anime)
+   print("Recover !!!!!!")
+   return YEVE_ACTION
 end
 
 function newDefaultGuy(guy, name, isEnemy)
@@ -397,6 +420,9 @@ function fightInit(entity)
    menu.entries[1] = {}
    menu.entries[1].text = "strong attack"
    menu.entries[1].action = Entity.new_func("fightStrongAttack")
+   menu.entries[2] = {}
+   menu.entries[2].text = "recover"
+   menu.entries[2].action = Entity.new_func("fightRecover")
    local ret = ywidNewWidget(entity, "container")
    local wid_pix = canvas["wid-pix"]
    entity.gg_handler = nil
