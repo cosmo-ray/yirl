@@ -26,6 +26,10 @@
 	    "life": 10,
 	    "max_life": 15,
 	    "type": "tanned",
+	    "usable_items": {
+		"screw": 3,
+		"screw_driver": 1
+	    },
 	    "combots" : [
 		{
 		    "touch": [ 0, 0, 1, 1, 1, 0, 0 ],
