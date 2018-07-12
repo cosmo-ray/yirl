@@ -100,10 +100,15 @@ function endAnimationAttack(main, cur_anim)
 			     good_orig_pos[2])
       ylpcsHandlerRefresh(cur_anim.guy)
       main.atk_state = ENEMY_ATTACK
-      local tmp = cur_anim.guy
-      yeIncrRef(tmp)
-      attack(main, cur_anim.target, cur_anim.guy, (yuiRand() % 2) + 1)
-      yeDestroy(tmp)
+      local r = yuiRand() % 3
+      if (r < 2) then
+	 local tmp = cur_anim.guy
+	 yeIncrRef(tmp)
+	 attack(main, cur_anim.target, cur_anim.guy, (yAnd(r, 1)) + 1)
+	 yeDestroy(tmp)
+      else
+	 fightRecoverInternal(main, cur_anim.target, cur_anim.guy)
+      end
       --print(cur_anim.guy.name, cur_anim.target.name)
    else
       ylpcsHandlerSetOrigXY(cur_anim.guy, bad_orig_pos[1],
@@ -342,13 +347,17 @@ function fightStrongAttack(entity, eve)
    return YEVE_ACTION
 end
 
+function fightRecoverInternal(main, guy, target)
+   local anime = attack(main, guy, target)
+   combatDmgInternal(main, guy, -1)
+   endAnimationAttack(main, anime)
+end
+
 function fightRecover(entity, eve)
    local main = menuGetMain(entity)
 
    main.atk_state = PJ_ATTACK
-   local anime = attack(main, main.gg_handler, main.bg_handler)
-   combatDmgInternal(main, anime.guy, -1)
-   endAnimationAttack(main, anime)
+   fightRecoverInternal(main, main.gg_handler, main.bg_handler)
    print("Recover !!!!!!")
    return YEVE_ACTION
 end
