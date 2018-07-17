@@ -18,6 +18,14 @@
 	    "type" : "lua"
 	}
     ],
+    "objects" : {
+	"screw" : {
+	    "hp+": 5
+	},
+	"screw_driver" : {
+	    "atk+" : [4, 3]
+	}
+    },
     "game" : {
         "<type>" : "jrpg-fight",
 	"player" : {

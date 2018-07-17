@@ -426,6 +426,14 @@ int	luaGet(lua_State *L)
   return -1;
 }
 
+int	luayeGetPush(lua_State *L)
+{
+  lua_pushlightuserdata(L, yeGetPush(luaEntityAt(L, 1),
+				     luaEntityAt(L, 2),
+				     lua_tostring (L, 3)));
+  return 1;
+}
+
 int	luaLen(lua_State *L)
 {
   DPRINT_INFO("luaGetArrayMenber\n");
@@ -864,6 +872,19 @@ int	luaywMenuCallActionOn(lua_State *L)
 int	luaywMenuGetCurrent(lua_State *L)
 {
   lua_pushnumber(L, ywMenuGetCurrentByEntity(luaEntityAt(L, 1)));
+  return 1;
+}
+
+int	luaywMenuGetCurrentEntry(lua_State *L)
+{
+  lua_pushlightuserdata(L, ywMenuGetCurrentEntry(luaEntityAt(L, 1)));
+  return 1;
+}
+
+int	luaywMenuPushEntry(lua_State *L)
+{
+  lua_pushnumber(L, ywMenuPushEntry(luaEntityAt(L, 1), lua_tostring(L, 2),
+				    luaEntityAt(L, 3)));
   return 1;
 }
 

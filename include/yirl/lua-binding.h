@@ -82,6 +82,7 @@ int	luaYeReplaceBack(lua_State *L);
 int	luaYeReplaceAtIdx(lua_State *L);
 int	luaYeSwapElems(lua_State *L);
 int	luayeRenameIdxStr(lua_State *L);
+int	luayeGetPush(lua_State *L);
 
 /* Entity */
 int	luaCopy(lua_State *L);
@@ -218,6 +219,8 @@ int	luaywTextureNormalize(lua_State *L);
 /* Menu */
 int	luaywMenuCallActionOn(lua_State *lua);
 int	luaywMenuGetCurrent(lua_State *lua);
+int	luaywMenuPushEntry(lua_State *lua);
+int	luaywMenuGetCurrentEntry(lua_State *lua);
 
 /* Game and Module */
 int	luaGetMod(lua_State *L);
@@ -414,6 +417,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeReplaceBack", luaYeReplaceBack));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeSwapElems", luaYeSwapElems));
   YES_LUA_REGISTRE_CALL(sm, yeRenameIdxStr);
+  YES_LUA_REGISTRE_CALL(sm, yeGetPush);
 
   /* Entity */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeCopy", luaCopy));
@@ -490,6 +494,8 @@ static inline int	yesLuaRegister(void *sm)
   /* menu */
   YES_LUA_REGISTRE_CALL(sm, ywMenuCallActionOn);
   YES_LUA_REGISTRE_CALL(sm, ywMenuGetCurrent);
+  YES_LUA_REGISTRE_CALL(sm, ywMenuGetCurrentEntry);
+  YES_LUA_REGISTRE_CALL(sm, ywMenuPushEntry);
 
   /* container */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywReplaceEntry", luaYwReplaceEntry));

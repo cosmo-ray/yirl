@@ -34,6 +34,8 @@ int ywMenuPosFromPix(Entity *wid, uint32_t x, uint32_t y);
 void ywMenuDown(Entity *wid);
 void ywMenuUp(Entity *wid);
 
+int ywMenuPushEntry(Entity *menu, const char *name, Entity *func);
+
 Entity *ywMenuGetEntry(Entity *container, int idx);
 
 static inline Entity *ywMenuLoaderPercent(Entity *loader)

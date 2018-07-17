@@ -228,6 +228,18 @@ int ywMenuPosFromPix(Entity *wid, uint32_t x, uint32_t y)
   return -1;
 }
 
+int ywMenuPushEntry(Entity *menu, const char *name, Entity *func)
+{
+  Entity *entries = yeGet(menu, "entries");
+  if (unlikely(!entries))
+    yeCreateArray(menu, "entries");
+  Entity *entry = yeCreateArray(entries, name);
+
+  yeCreateString(name, entry, "text");
+  yePushBack(entry, func, "action");
+  return 0;
+}
+
 int ywMenuGetCurrent(YWidgetState *opac)
 {
   return ((YMenuState *)opac)->current;

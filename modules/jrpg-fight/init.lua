@@ -8,6 +8,7 @@ local lpcs = Entity.wrapp(ygGet("lpcs"))
 local frm_mult = 10
 local good_orig_pos = {1, 1}
 local bad_orig_pos = {1, 3}
+local objetcs = Entity.wrapp(ygGet("jrpg-fight:objects"))
 local combots = nil
 
 function fightAction(entity, eve)
@@ -362,6 +363,33 @@ function fightRecover(entity, eve)
    return YEVE_ACTION
 end
 
+function useItem(menu, eve)
+   print("use Item !!!")
+   local curItem = Entity.wrapp(ywMenuGetCurrentEntry(menu))
+   print("ci", curItem, ywMenuGetCurrent(menu))
+end
+
+function fightItems(entity, func)
+   local main = menuGetMain(entity)
+   local pc = main.gg_handler.char
+   local menuCnt = ywCntWidgetFather(entity)
+   local itemsMenu = Menu.new_entity().ent
+
+   --main.atk_state = PJ_ATTACK
+   yeGetPush(menuCnt, itemsMenu, "background");
+   local ui = pc.usable_items
+   local i = 0
+   while i < yeLen(ui) do
+      local nb_i = ui[i]
+      local item = objetcs[yeGetKeyAt(ui, i)]
+      ywMenuPushEntry(itemsMenu, yeGetKeyAt(ui, i), Entity.new_func("useItem"))
+      print(yeGetKeyAt(ui, i), nb_i, item)
+      i = i + 1
+   end
+   print(itemsMenu)
+   ywPushNewWidget(menuCnt, itemsMenu);
+end
+
 function newDefaultGuy(guy, name, isEnemy)
    local ret = guy
 
@@ -423,15 +451,10 @@ function fightInit(entity)
    local menu = Entity.new_array(menuCnt.entries)
    menu["<type>"] = "menu"
    menu.entries = {}
-   menu.entries[0] = {}
-   menu.entries[0].text = "attack"
-   menu.entries[0].action = Entity.new_func("fightAttack")
-   menu.entries[1] = {}
-   menu.entries[1].text = "strong attack"
-   menu.entries[1].action = Entity.new_func("fightStrongAttack")
-   menu.entries[2] = {}
-   menu.entries[2].text = "recover"
-   menu.entries[2].action = Entity.new_func("fightRecover")
+   ywMenuPushEntry(menu, "attack", Entity.new_func("fightAttack"))
+   ywMenuPushEntry(menu, "strong attack", Entity.new_func("fightStrongAttack"))
+   ywMenuPushEntry(menu, "recover", Entity.new_func("fightRecover"))
+   ywMenuPushEntry(menu, "use_items", Entity.new_func("fightItems"))
    local ret = ywidNewWidget(entity, "container")
    local wid_pix = canvas["wid-pix"]
    entity.gg_handler = nil
