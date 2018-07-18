@@ -375,6 +375,7 @@ function Menu:push(txt, action)
    self.ent.entries[l] = {}
    self.ent.entries[l].text = txt
    self.ent.entries[l].action = action
+   return self.ent.entries[l]
 end
 
 
