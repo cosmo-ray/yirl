@@ -20,10 +20,14 @@
     ],
     "objects" : {
 	"screw" : {
-	    "hp+": 5
+	    "stats+" : {
+		"life": 5
+	    }
 	},
 	"screw_driver" : {
-	    "atk+" : [4, 3]
+	    "stats+" : {
+		"def" : [1, 3]
+	    }
 	}
     },
     "game" : {

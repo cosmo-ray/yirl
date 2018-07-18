@@ -363,10 +363,21 @@ function fightRecover(entity, eve)
    return YEVE_ACTION
 end
 
-function useItem(menu, eve)
-   print("use Item !!!")
+function useItem(item, target)
+   if item["stats+"] then
+      print("st ++")
+   end
+   print("target")
+   print("use item", item, target:cent())
+end
+
+function useItemCallback(menu, eve)
+   local main = menuGetMain(menu)
    local curItem = Entity.wrapp(ywMenuGetCurrentEntry(menu))
-   print("ci", curItem, ywMenuGetCurrent(menu))
+   local item = objetcs[curItem.text:to_string()]
+
+   print("tiem", curItem.text, item, main:cent())
+   useItem(item, main.gg_handler)
 end
 
 function fightItems(entity, func)
@@ -382,7 +393,8 @@ function fightItems(entity, func)
    while i < yeLen(ui) do
       local nb_i = ui[i]
       local item = objetcs[yeGetKeyAt(ui, i)]
-      ywMenuPushEntry(itemsMenu, yeGetKeyAt(ui, i), Entity.new_func("useItem"))
+      ywMenuPushEntry(itemsMenu, yeGetKeyAt(ui, i),
+		      Entity.new_func("useItemCallback"))
       print(yeGetKeyAt(ui, i), nb_i, item)
       i = i + 1
    end
