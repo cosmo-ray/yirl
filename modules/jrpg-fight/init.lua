@@ -386,14 +386,14 @@ function useItemCallback(menu, eve)
    local curItem = Entity.wrapp(ywMenuGetCurrentEntry(menu))
    local item = objetcs[curItem.text:to_string()]
 
-   useItem(main, item, main.gg_handler)
+   local ret = useItem(main, item, main.gg_handler)
+   useItemBack(menu)
+   return ret
 end
 
 function useItemBack(menu)
    local mnCnt = ywCntWidgetFather(menu)
-   print("hi, ", mnCnt)
    ywCntPopLastEntry(mnCnt)
-   print("ho, ", Entity.wrapp(mnCnt).current)
    return YEVE_ACTION
 end
 
