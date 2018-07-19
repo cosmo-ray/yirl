@@ -20,11 +20,13 @@
     ],
     "objects" : {
 	"screw" : {
+	    "type": "usable",
 	    "stats+" : {
 		"life": 5
 	    }
 	},
 	"screw_driver" : {
+	    "type": "combat_usable",
 	    "stats+" : {
 		"def" : [1, 3]
 	    }

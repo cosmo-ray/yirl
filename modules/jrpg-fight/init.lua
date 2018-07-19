@@ -363,12 +363,22 @@ function fightRecover(entity, eve)
    return YEVE_ACTION
 end
 
-function useItem(item, target)
-   if item["stats+"] then
-      print("st ++")
+function useItem(main, item, target)
+   local stPlus = Entity.wrapp(yeGet(item, "stats+"))
+
+   if stPlus then
+      local i = 0
+      while i < yeLen(stPlus) do
+	 if yeGetKeyAt(stPlus, i) == "life" then
+	    combatDmgInternal(main, target, -stPlus[i]:to_int())
+	 end
+	 i = i + 1
+      end
+      local anime = attack(main, target, main.bg_handler)
+      main.atk_state = PJ_ATTACK
+      endAnimationAttack(main, anime)
    end
-   print("target")
-   print("use item", item, target:cent())
+   return YEVE_ACTION
 end
 
 function useItemCallback(menu, eve)
@@ -376,8 +386,15 @@ function useItemCallback(menu, eve)
    local curItem = Entity.wrapp(ywMenuGetCurrentEntry(menu))
    local item = objetcs[curItem.text:to_string()]
 
-   print("tiem", curItem.text, item, main:cent())
-   useItem(item, main.gg_handler)
+   useItem(main, item, main.gg_handler)
+end
+
+function useItemBack(menu)
+   local mnCnt = ywCntWidgetFather(menu)
+   print("hi, ", mnCnt)
+   ywCntPopLastEntry(mnCnt)
+   print("ho, ", Entity.wrapp(mnCnt).current)
+   return YEVE_ACTION
 end
 
 function fightItems(entity, func)
@@ -390,6 +407,8 @@ function fightItems(entity, func)
    yeGetPush(menuCnt, itemsMenu, "background");
    local ui = pc.usable_items
    local i = 0
+   ywMenuPushEntry(itemsMenu, "<-- back",
+		   Entity.new_func("useItemBack"))
    while i < yeLen(ui) do
       local nb_i = ui[i]
       local item = objetcs[yeGetKeyAt(ui, i)]
