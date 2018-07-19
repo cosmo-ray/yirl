@@ -68,11 +68,18 @@ Entity *ywCntGetLastEntry(Entity *container)
 void ywCntPopLastEntry(Entity *container)
 {
   Entity *ret = ywCntGetLastEntry(container);
+  Entity *entries;
+  Entity *cur;
 
   if (!ret)
     return;
+  cur = yeGet(container, "current");
+  entries = yeGet(container, "entries");
   ywidGetState(ret)->needDestroy = 1;
-  yePopBack(yeGet(container, "entries"));
+  yePopBack(entries);
+  if (yeGetInt(cur) && yeLen(entries) == yeGetUInt(cur)) {
+    yeSubInt(cur, 1);
+  }
 }
 
 Entity *ywCntGetEntry(Entity *container, int idx)

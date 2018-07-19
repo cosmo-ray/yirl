@@ -336,6 +336,10 @@ static inline int yeGetIntAtByStr(Entity *array, const char *pos)
   return yeGetInt(yeGetByStrFast(array, pos));
 }
 
+static inline uint32_t yeGetUInt(Entity *i) {
+  return (uint32_t)yeGetInt(i);
+}
+
 #define yeGetIntAt(array, pos)						\
   (_Generic(pos,							\
 	    unsigned int: yeGetIntAtByIdx,				\
