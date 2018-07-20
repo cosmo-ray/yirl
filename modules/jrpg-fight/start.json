@@ -27,9 +27,7 @@
 	},
 	"screw_driver" : {
 	    "type": "combat_usable",
-	    "stats+" : {
-		"def" : [1, 3]
-	    }
+	    "dmg" : 6
 	}
     },
     "game" : {

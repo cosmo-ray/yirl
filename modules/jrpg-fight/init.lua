@@ -365,6 +365,8 @@ end
 
 function useItem(main, item, target)
    local stPlus = Entity.wrapp(yeGet(item, "stats+"))
+   local dmg = Entity.wrapp(yeGet(item, "dmg"))
+   local hasAction = false
 
    if stPlus then
       local i = 0
@@ -374,7 +376,14 @@ function useItem(main, item, target)
 	 end
 	 i = i + 1
       end
+      hasAction = true
+   end
+   if dmg then
+      combatDmgInternal(main, target, dmg:to_int())
+   end
+   if hasAction then
       local anime = attack(main, target, main.bg_handler)
+
       main.atk_state = PJ_ATTACK
       endAnimationAttack(main, anime)
    end
