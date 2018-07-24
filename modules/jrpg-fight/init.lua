@@ -10,6 +10,10 @@ local good_orig_pos = {1, 1}
 local bad_orig_pos = {1, 3}
 local objetcs = Entity.wrapp(ygGet("jrpg-fight:objects"))
 local combots = nil
+local chooseTargetNone = 0
+local chooseTargetLeft = 100
+local chooseTargetRight = 500
+local chooseTargetY = 160
 
 function fightAction(entity, eve)
    entity = Entity.wrapp(entity)
@@ -27,6 +31,9 @@ function fightAction(entity, eve)
 	 yCallNextWidget(entity:cent());
       end
       return YEVE_ACTION
+   end
+   if yeGetInt(entity.chooseTarget) > chooseTargetNone then
+      return useItemsChooseTarget(entity, eve)
    end
    if yDoAnimation(entity, txt_anim_field) == Y_TRUE and
    yHasAnimation(entity, txt_anim_field) == Y_FALSE then
@@ -363,7 +370,7 @@ function fightRecover(entity, eve)
    return YEVE_ACTION
 end
 
-function useItem(main, item, target)
+function useItem(main, item, target, user, nextGuy)
    local stPlus = Entity.wrapp(yeGet(item, "stats+"))
    local dmg = Entity.wrapp(yeGet(item, "dmg"))
    local hasAction = false
@@ -381,21 +388,68 @@ function useItem(main, item, target)
    if dmg then
       combatDmgInternal(main, target, dmg:to_int())
    end
-   if hasAction then
-      local anime = attack(main, target, main.bg_handler)
+   local anime = attack(main, user, nextGuy)
 
-      main.atk_state = PJ_ATTACK
-      endAnimationAttack(main, anime)
-   end
+   endAnimationAttack(main, anime)
    return YEVE_ACTION
+end
+
+function useItemChooseTargetClean(main, canvas)
+   canvas:remove(main.chooseTargetArrow)
+   main.chooseTargetArrow = nil
+   main.chooseTarget = chooseTargetNone
+   main.inUseItem = nil
+end
+
+function useItemsChooseTarget(main, eve)
+   local canvas = getCanvas(main)
+
+   while eve:is_end() == false do
+      if eve:is_key_left() then
+	 canvas:remove(main.chooseTargetArrow)
+	 main.chooseTarget = chooseTargetLeft
+	 main.chooseTargetArrow = canvas:new_text(chooseTargetLeft,
+						  chooseTargetY,
+						  Entity.new_string("<--")).ent
+	 return YEVE_ACTION
+      elseif eve:is_key_right() then
+	 canvas:remove(main.chooseTargetArrow)
+	 main.chooseTarget = chooseTargetRight
+	 main.chooseTargetArrow = canvas:new_text(chooseTargetRight,
+						  chooseTargetY,
+						  Entity.new_string("-->")).ent
+	 return YEVE_ACTION
+      elseif eve:type() == YKEY_UP and eve:key() == Y_ESC_KEY then
+	 useItemChooseTargetClean(main, canvas)
+	 return YEVE_ACTION
+      elseif eve:type() == YKEY_DOWN and eve:key() == Y_ENTER_KEY then
+	 local target = nil
+	 main.atk_state = PJ_ATTACK
+	 if main.chooseTarget:to_int() == chooseTargetLeft then
+	    target = main.bg_handler
+	 else
+	    target = main.gg_handler
+	 end
+	 useItem(main, main.inUseItem, target, main.gg_handler, main.bg_handler)
+	 useItemChooseTargetClean(main, canvas)
+	 return YEVE_ACTION
+      end
+      eve = eve:next()
+   end
+   return YEVE_NOACTION
 end
 
 function useItemCallback(menu, eve)
    local main = menuGetMain(menu)
    local curItem = Entity.wrapp(ywMenuGetCurrentEntry(menu))
    local item = objetcs[curItem.text:to_string()]
+   local canvas = getCanvas(main)
 
-   local ret = useItem(main, item, main.gg_handler)
+   --local ret = useItem(main, item, main.gg_handler)
+   main.chooseTarget = chooseTargetRight
+   main.chooseTargetArrow = canvas:new_text(chooseTargetRight, chooseTargetY,
+					    Entity.new_string("-->")).ent
+   main.inUseItem = item
    useItemBack(menu)
    return ret
 end
@@ -412,7 +466,6 @@ function fightItems(entity, func)
    local menuCnt = ywCntWidgetFather(entity)
    local itemsMenu = Menu.new_entity().ent
 
-   --main.atk_state = PJ_ATTACK
    yeGetPush(menuCnt, itemsMenu, "background");
    local ui = pc.usable_items
    local i = 0
