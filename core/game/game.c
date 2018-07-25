@@ -577,7 +577,7 @@ static Entity *ygGetFunc(Entity *mod, const char *funcName)
     return yeGet(mod, funcName);
 
   ret = yeGet(globalsFunctions, funcName);
-  if (!ret) {
+  if (!ret && ysGetFastPath(ysNativeManager(), funcName)) {
     ret = yeCreateFunctionSimple(funcName, ysNativeManager(), globalsFunctions);
   }
   return ret;
