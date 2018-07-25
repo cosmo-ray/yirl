@@ -28,6 +28,7 @@
 #include	"menu.h"
 #include	"game.h"
 #include	"lua-convert.h"
+#include	"condition.h"
 
 Entity *YLUA_NO_DESTROY_ORPHAN = ((void *)0x1);
 
@@ -1687,5 +1688,11 @@ int	luaYeReplaceBack(lua_State *L)
   lua_pushlightuserdata(L, yeReplaceBack(luaEntityAt(L, 1),
 					 luaEntityAt(L, 2),
 					 lua_tostring(L, 3)));
+  return 1;
+}
+
+int	luayeCheckCondition(lua_State *L)
+{
+  lua_pushboolean(L, yeCheckCondition(luaEntityAt(L, 1)));
   return 1;
 }
