@@ -456,9 +456,15 @@ function useItemCallback(menu, eve)
    local canvas = getCanvas(main)
 
    --local ret = useItem(main, item, main.gg_handler)
-   main.chooseTarget = chooseTargetRight
-   main.chooseTargetArrow = canvas:new_text(chooseTargetRight, chooseTargetY,
-					    Entity.new_string("-->")).ent
+   if yeGetString(item.default_target) == "enemy" then
+      main.chooseTarget = chooseTargetLeft
+      main.chooseTargetArrow = canvas:new_text(chooseTargetLeft, chooseTargetY,
+					       Entity.new_string("<--")).ent
+   else
+      main.chooseTarget = chooseTargetRight
+      main.chooseTargetArrow = canvas:new_text(chooseTargetRight, chooseTargetY,
+					       Entity.new_string("-->")).ent
+   end
    main.inUseItem = item
    yeReplaceBack(main, curItem.it_nb, "cur_item_nb")
    useItemBack(menu)

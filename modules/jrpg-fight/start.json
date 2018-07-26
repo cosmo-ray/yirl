@@ -27,6 +27,7 @@
 	},
 	"screw_driver" : {
 	    "type": "combat_usable",
+	    "default_target": "enemy",
 	    "dmg" : 6
 	}
     },
