@@ -108,8 +108,13 @@ function endAnimationAttack(main, cur_anim)
 			     good_orig_pos[2])
       ylpcsHandlerRefresh(cur_anim.guy)
       main.atk_state = ENEMY_ATTACK
-      local r = yuiRand() % 3
-      if (r < 2) then
+      local r = 0
+      if cur_anim.target.char.life < (cur_anim.target.char.max_life / 2) then
+	 r = yuiRand() % 3
+      else
+	 r = yuiRand() % 2
+      end
+      if r < 2 then
 	 local tmp = cur_anim.guy
 	 yeIncrRef(tmp)
 	 attack(main, cur_anim.target, cur_anim.guy, (yAnd(r, 1)) + 1)
