@@ -399,6 +399,7 @@ function useItemChooseTargetClean(main, canvas)
    main.chooseTargetArrow = nil
    main.chooseTarget = chooseTargetNone
    main.inUseItem = nil
+   main.cur_item_nb = nil
 end
 
 function useItemsChooseTarget(main, eve)
@@ -430,6 +431,9 @@ function useItemsChooseTarget(main, eve)
 	 else
 	    target = main.gg_handler
 	 end
+	 local cin = main.cur_item_nb
+	 print("cin is no sin: ", cin)
+	 yeSetInt(cin, cin:to_int() - 1)
 	 useItem(main, main.inUseItem, target, main.gg_handler, main.bg_handler)
 	 useItemChooseTargetClean(main, canvas)
 	 return YEVE_ACTION
@@ -442,7 +446,13 @@ end
 function useItemCallback(menu, eve)
    local main = menuGetMain(menu)
    local curItem = Entity.wrapp(ywMenuGetCurrentEntry(menu))
-   local item = objetcs[curItem.text:to_string()]
+
+   print(curItem.it_nb)
+   if curItem.it_nb < 1 then
+      return useItemBack(menu)
+   end
+
+   local item = objetcs[curItem.it_name:to_string()]
    local canvas = getCanvas(main)
 
    --local ret = useItem(main, item, main.gg_handler)
@@ -450,6 +460,7 @@ function useItemCallback(menu, eve)
    main.chooseTargetArrow = canvas:new_text(chooseTargetRight, chooseTargetY,
 					    Entity.new_string("-->")).ent
    main.inUseItem = item
+   yeReplaceBack(main, curItem.it_nb, "cur_item_nb")
    useItemBack(menu)
    return ret
 end
@@ -472,10 +483,15 @@ function fightItems(entity, func)
    ywMenuPushEntry(itemsMenu, "<-- back",
 		   Entity.new_func("useItemBack"))
    while i < yeLen(ui) do
-      local nb_i = ui[i]
+      local nb_i_ent = ui[i]
+      local nb_i = math.floor(yeGetInt(nb_i_ent))
       local item = objetcs[yeGetKeyAt(ui, i)]
-      ywMenuPushEntry(itemsMenu, yeGetKeyAt(ui, i),
-		      Entity.new_func("useItemCallback"))
+      local entry = ywMenuPushEntry(itemsMenu,
+				    yeGetKeyAt(ui, i) .. ": " .. nb_i,
+				    Entity.new_func("useItemCallback"))
+      entry = Entity.wrapp(entry)
+      entry.it_name = yeGetKeyAt(ui, i)
+      yePushBack(entry, nb_i_ent, "it_nb")
       print(yeGetKeyAt(ui, i), nb_i, item)
       i = i + 1
    end
