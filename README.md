@@ -22,19 +22,21 @@ YIRL is licensed under the LGPL licence, the idea behind that, is that you can a
 # Tree:
 
 * include: headers
-  * widget: widgets API
+ * sys: system header, that can be usefull for TCC
+  * queue.h: man 3 QUEUE
+ * tinycc: tcc libc header
+ * yirl: yirl header, use internally and for TCC scripting
     * widget.h: widget base class and common widgets functions
     * map.h: a square map
     * menu.h
+    * canvas.h: canvas API(for 2D rendering)
     * text-screen.h: a simple text widget.
     * container.h: widget that contain others widgets
     * pos.h: helpers to manipulate everything with a position
     * rect.h: helpers for rectangles
     * sdl-driver.h
     * curses-driver.h
-    * widget-callback.h
     * keydef.h: keyboard touches define base on curses key numbers
-  * core: everything exept widgets
     * game.h: the main header, initialise everything and manage yirl's modules
     * entity.h: the yirl entity system, use by everything in the engine
     * debug.h: some debug functions
