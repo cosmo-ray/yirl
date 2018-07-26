@@ -22,10 +22,10 @@ YIRL is licensed under the LGPL licence, the idea behind that, is that you can a
 # Tree:
 
 * include: headers
- * sys: system header, that can be usefull for TCC
-  * queue.h: man 3 QUEUE
- * tinycc: tcc libc header
- * yirl: yirl header, use internally and for TCC scripting
+  * sys: system header, that can be usefull for TCC
+    * queue.h: man 3 QUEUE
+  * tinycc: tcc libc header
+  * yirl: yirl header, use internally and for TCC scripting
     * widget.h: widget base class and common widgets functions
     * map.h: a square map
     * menu.h
