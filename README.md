@@ -23,7 +23,7 @@ YIRL is licensed under the LGPL licence, the idea behind that, is that you can a
 
 * include: headers
   * sys: system header, that can be usefull for TCC
-    * queue.h: man 3 QUEUE
+    * queue.h: [man 3 queue](https://linux.die.net/man/3/queue)
   * tinycc: tcc libc header
   * yirl: yirl header, use internally and for TCC scripting
     * widget.h: widget base class and common widgets functions
