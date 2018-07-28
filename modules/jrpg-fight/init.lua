@@ -8,7 +8,7 @@ local lpcs = Entity.wrapp(ygGet("lpcs"))
 local frm_mult = 10
 local good_orig_pos = {1, 1}
 local bad_orig_pos = {1, 3}
-local objetcs = Entity.wrapp(ygGet("jrpg-fight:objects"))
+local objects = nil
 local combots = nil
 local chooseTargetNone = 0
 local chooseTargetLeft = 100
@@ -457,7 +457,7 @@ function useItemCallback(menu, eve)
       return useItemBack(menu)
    end
 
-   local item = objetcs[curItem.it_name:to_string()]
+   local item = objects[curItem.it_name:to_string()]
    local canvas = getCanvas(main)
 
    --local ret = useItem(main, item, main.gg_handler)
@@ -491,12 +491,13 @@ function fightItems(entity, func)
    yeGetPush(menuCnt, itemsMenu, "background");
    local ui = pc.usable_items
    local i = 0
+   print("UI:", ui)
    ywMenuPushEntry(itemsMenu, "<-- back",
 		   Entity.new_func("useItemBack"))
    while i < yeLen(ui) do
       local nb_i_ent = ui[i]
       local nb_i = math.floor(yeGetInt(nb_i_ent))
-      local item = objetcs[yeGetKeyAt(ui, i)]
+      local item = objects[yeGetKeyAt(ui, i)]
       local entry = ywMenuPushEntry(itemsMenu,
 				    yeGetKeyAt(ui, i) .. ": " .. nb_i,
 				    Entity.new_func("useItemCallback"))
@@ -515,7 +516,6 @@ function newDefaultGuy(guy, name, isEnemy)
 
    if guy.combots == nil then
       local cmb = nil
-      print("cmbs:", combots)
       if guy.attack then
 	 cmb = combots[guy.attack:to_string()]
       else
@@ -537,7 +537,6 @@ function newDefaultGuy(guy, name, isEnemy)
 	    j = j + 1
 	 end
       end
-      print("cmb !!!:", guy.combots)
    end
    ret.can_guard = true
    return ret
@@ -557,6 +556,9 @@ function fightInit(entity)
    entity.good_guy = newDefaultGuy(entity.player, "the good", false)
    entity.bad_guy = newDefaultGuy(entity.enemy, "the bad", true)
    entity.atk_state = AWAIT_CMD
+   objects = Entity.wrapp(ygGet("jrpg-fight:objects"))
+   print("UO0:", entity.player.usable_items,
+	 entity.good_guy.usable_items)
 
    local canvas = Entity.new_array(entity.entries)
    canvas["<type>"] = "canvas"
