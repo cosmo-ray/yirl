@@ -100,6 +100,7 @@ int	luaGetString(lua_State *L);
 int	luaCreateString(lua_State *L);
 int	luaSetString(lua_State *L);
 int	luayeCreateYirlFmtString(lua_State *L);
+int	luayeStrCaseCmp(lua_State *L);
 
 /* int */
 int	luaGetInt(lua_State *L);

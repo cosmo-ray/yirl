@@ -140,6 +140,14 @@ static inline int	checkType(const Entity *entity, EntityType type)
   return (likely(entity != NULL && entity->type == type));
 }
 
+int yeStrCaseCmp(Entity *ent, const char *str)
+{
+  const char *eStr = yeGetString(ent);
+  if (!eStr)
+    return -1;
+  return strcasecmp(eStr, str);
+}
+
 int yeStrCmp(Entity *ent1, const char *str)
 {
   const char *eStr = yeGetString(ent1);

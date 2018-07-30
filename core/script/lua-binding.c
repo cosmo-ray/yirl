@@ -1021,6 +1021,12 @@ int	luayeCreateYirlFmtString(lua_State *L)
   return 1;
 }
 
+int	luayeStrCaseCmp(lua_State *L)
+{
+  lua_pushnumber(L, yeStrCaseCmp(luaEntityAt(L, 1), lua_tostring(L, 2)));
+  return 1;
+}
+
 int	luayeGetIntAt(lua_State *L)
 {
   luaGet(L);

@@ -21,6 +21,8 @@
 
 int yeStrCmp(Entity *ent1, const char *str);
 
+int yeStrCaseCmp(Entity *ent, const char *str);
+
 /**
  * @brief Add @str to the string entity @Ent
  */
