@@ -1029,7 +1029,7 @@ int	luayeStrCaseCmp(lua_State *L)
 
 int	luayeToLower(lua_State *L)
 {
-  lua_pushnumber(L, yeToLower(luaEntityAt(L, 1)));
+  lua_pushlightuserdata(L, yeToLower(luaEntityAt(L, 1)));
   return 1;
 }
 

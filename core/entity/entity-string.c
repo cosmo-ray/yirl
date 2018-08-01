@@ -27,17 +27,17 @@
 #include	"script.h"
 #include	"game.h"
 
-int yeToLower(Entity *e)
+Entity *yeToLower(Entity *e)
 {
   char *c = (char *)yeGetString(e);
 
   if (unlikely(!c))
-    return -1;
+    return NULL;
 
   for (; *c; ++c) {
     *c = tolower(*c);
   }
-  return 0;
+  return e;
 }
 
 int yeStringReplace(Entity *ent, const char *substr, const char *replacement)

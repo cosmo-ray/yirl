@@ -19,7 +19,7 @@
  * DO NOT INCLUDE THIS FILE, include entity.h instead
  */
 
-int yeToLower(Entity *e);
+Entity *yeToLower(Entity *e);
 
 int yeStrCmp(Entity *ent1, const char *str);
 
