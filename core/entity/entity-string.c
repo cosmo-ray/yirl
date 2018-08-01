@@ -20,11 +20,25 @@
 #include	<glib.h>
 #include	<inttypes.h>
 #include	<unistd.h>
+#include	<ctype.h>
 #include	"entity.h"
 #include	"utils.h"
 #include	"stack.h"
 #include	"script.h"
 #include	"game.h"
+
+int yeToLower(Entity *e)
+{
+  char *c = (char *)yeGetString(e);
+
+  if (unlikely(!c))
+    return -1;
+
+  for (; *c; ++c) {
+    *c = tolower(*c);
+  }
+  return 0;
+}
 
 int yeStringReplace(Entity *ent, const char *substr, const char *replacement)
 {

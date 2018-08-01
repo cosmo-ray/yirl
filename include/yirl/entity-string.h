@@ -19,6 +19,8 @@
  * DO NOT INCLUDE THIS FILE, include entity.h instead
  */
 
+int yeToLower(Entity *e);
+
 int yeStrCmp(Entity *ent1, const char *str);
 
 int yeStrCaseCmp(Entity *ent, const char *str);
