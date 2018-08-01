@@ -70,6 +70,7 @@ void	tccAddSyms(TCCState *l)
   tcc_add_symbol(l, "ygGet", ygGet);
   tcc_add_symbol(l, "yeStrCmp", yeStrCmp);
   tcc_add_symbol(l, "yeStrCaseCmp", yeStrCaseCmp);
+  tcc_add_symbol(l, "yeToLower", yeToLower);
   tcc_add_symbol(l, "yeCreateString", yeCreateString);
   tcc_add_symbol(l, "yeCreateInt", yeCreateInt);
   tcc_add_symbol(l, "yeCreateFloat", yeCreateFloat);

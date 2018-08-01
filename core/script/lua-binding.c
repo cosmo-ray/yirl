@@ -1027,6 +1027,12 @@ int	luayeStrCaseCmp(lua_State *L)
   return 1;
 }
 
+int	luayeToLower(lua_State *L)
+{
+  lua_pushnumber(L, yeToLower(luaEntityAt(L, 1)));
+  return 1;
+}
+
 int	luayeGetIntAt(lua_State *L)
 {
   luaGet(L);
