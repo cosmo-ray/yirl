@@ -38,6 +38,21 @@ static inline int pushComVal(Entity *val, uint64_t *instructions, int *idx)
   return 0;
 }
 
+static inline int pushStrComVal(Entity *val, uint64_t *instructions, int *idx)
+{
+  int i = *idx;
+
+  *idx = i + 2;
+  if (ygGet(yeGetString(val))) {
+    instructions[i] = YB_YG_GET_PUSH;
+    instructions[i + 1] = (size_t)yeGetString(val);
+  } else {
+    instructions[i] = YB_CREATE_STRING;
+    instructions[i + 1] = (size_t)yeGetString(val);
+  }
+  return 0;
+}
+
 int yeCheckCondition(Entity *condition)
 {
   Entity *actionEnt = yeGetByIdx(condition, 0);
@@ -67,6 +82,12 @@ int yeCheckCondition(Entity *condition)
     case 1:
     case 2:
       i = 1;
+      if (len == 2 && action[0] == 'S' && action[1] == '=') {
+	pushStrComVal(yeGet(condition, 1), instructions, &i);
+	pushStrComVal(yeGet(condition, 2), instructions, &i);
+	instructions[i] = YB_STR_EQUAL;
+	goto comparaisons_instructions;
+      }
       pushComVal(yeGet(condition, 1), instructions, &i);
       pushComVal(yeGet(condition, 2), instructions, &i);
       if (action[0] == '>') {
@@ -77,9 +98,11 @@ int yeCheckCondition(Entity *condition)
 	instructions[i] = YB_EQUAL;
       } else if (len == 2 && action[0] == '!' && action[1] == '=') {
 	instructions[i] = YB_NOT_EQUAL;
-      } else {
+      }
+      else {
 	return 0;
       }
+    comparaisons_instructions:
       instructions[i + 1] = 0;
       instructions[i + 2] = 1;
       instructions[i + 3] = i + 5;

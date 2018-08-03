@@ -408,13 +408,31 @@ void *dialogueChangeText(int nbArgs, void **args)
   return (void *)NOACTION;
 }
 
+Entity *defaultActiveDialogue(Entity *main)
+{
+  int i = 0;
+  Entity *cur_dialogue;
+  Entity *condition;
+
+ again:
+  cur_dialogue = yeGet(yeGet(main, "dialogue"), i);
+  condition = yeGet(cur_dialogue, "condition");
+  if (condition && !yeCheckCondition(condition)) {
+    ++i;
+    goto again;
+  }
+  if (yeGetIntAt(main, "keep_dialogue") == 1)
+    return yeTryCreateInt(i, main, "active_dialogue");
+  return yeReCreateInt(i, main, "active_dialogue");
+}
+
 void *dialogueInit(int nbArgs, void **args)
 {
   Entity *main = args[0];
   Entity *entries = yeCreateArray(main, "entries");
   Entity *textScreen = yeCreateArray(entries, NULL);
   Entity *answers = yeCreateArray(entries, NULL);
-  Entity *active_dialogue = yeTryCreateInt(0, main, "active_dialogue");
+  Entity *active_dialogue = defaultActiveDialogue(main);
   void *ret;
 
   yeCreateData(&cntDialogueMainDrv, main, "drv");
@@ -446,7 +464,7 @@ void *dialogueDestroy(int nbArgs, void **args)
 void *dialogueCanvasInit(int nbArgs, void **args)
 {
   Entity *main = args[0];
-  Entity *active_dialogue = yeTryCreateInt(0, main, "active_dialogue");
+  Entity *active_dialogue = defaultActiveDialogue(main);
   YWidgetState *ret;
   Entity *box;
   Entity *dialogue;
