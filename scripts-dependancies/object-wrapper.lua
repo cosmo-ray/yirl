@@ -6,11 +6,16 @@ CanvasObj = {}
 Event = {}
 Pos = {}
 Rect = {}
+File = {}
 
 local function tryPushWidType(ent, t)
    if ent["<type>"] == nil then
       ent["<type>"] = t
    end
+end
+
+function File.jsonToEnt(name)
+   return Entity._wrapp_(ygFileToEnt(YJSON, name), true)
 end
 
 function Event:cent()
