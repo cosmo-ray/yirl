@@ -264,6 +264,11 @@ function Canvas:new_obj(x, y, objId)
    return CanvasObj.wrapp(ret)
 end
 
+function Canvas:new_texture(x, y, text, srcRect)
+   local ret = ywCanvasNewImgFromTexture(self.ent, x, y, text, srcRect)
+   return CanvasObj.wrapp(ret)
+end
+
 function Canvas:new_text(x, y, txt)
    local ret = ywCanvasNewText(self.ent, x, y, txt:cent())
    return CanvasObj.wrapp(ret)
@@ -322,6 +327,7 @@ function Canvas.wrapp(ent)
    ret.new_obj=Canvas.new_obj
    ret.new_wid=Canvas.new_wid
    ret.new_text=Canvas.new_text
+   ret.new_texture=Canvas.new_texture
    ret.new_rect=Canvas.new_rect
    ret.remove=Canvas.remove
    ret.is_out=Canvas.is_out
