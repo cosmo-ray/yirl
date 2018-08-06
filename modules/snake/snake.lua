@@ -120,7 +120,7 @@ function moveHeadInternal(map, opos, npos)
       yeSetInt(score, yeGetInt(score) + 1)
       addBody(map, opos)
       bodyLen = 0
-      yesCall(yeGet(map, "eat"), score, nil)
+      yesCall(yeGet(map, "eat"), score, map)
    end
 
    if (yuiAbs(ywPosX(npos) - ywPosX(opos)) > 1) then
@@ -241,6 +241,13 @@ function snakeAction(map, eve, arg)
    return YEVE_ACTION
 end
 
+function showScore(score, entity)
+   print("show score !!")
+   local tx = yeGet(entity, "score_wid")
+   yeSetString(yeGet(tx, "text"), "score: " ..
+		  math.floor(yeGetInt(score)))
+end
+
 function createSnake(entity)
    -- TODO: this functions: C/lua
    snakeMap(entity)
@@ -302,6 +309,7 @@ function initSnake(entity)
    yeCreateFunction("snakeAction", entity)
    yeCreateFunction("snakeDie", entity)
    yeCreateFunction("snakeWarp", entity)
+   yeCreateFunction("showScore", entity)
 
    local init = yeCreateArray(nil, nil)
 
