@@ -5,6 +5,7 @@ local ENEMY_ATTACK = 2
 local ENEMY_WIN = 3
 local PJ_WIN = 4
 local lpcs = Entity.wrapp(ygGet("lpcs"))
+local modPath = Entity.wrapp(ygGet("jrpg-fight.$path")):to_string()
 local frm_mult = 10
 local good_orig_pos = {1, 1}
 local bad_orig_pos = {1, 3}

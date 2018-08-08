@@ -46,9 +46,8 @@ Entity *ywTextureNewImg(const char *path, Entity *size,
 {
   Entity * ret = yeCreateArray(father, name);
 
-  if (sdlCanvasCacheImg(ret, NULL, path, size) < 0)
+  if (sdlCanvasCacheImg2(ret, NULL, path, size,
+			 YSDL_CACHE_IMG_NO_TEXTURE) < 0)
     return NULL;
-  yeRemoveChild(ret, "$size");
-  yeRemoveChild(ret, "$img");
   return ret;
 }

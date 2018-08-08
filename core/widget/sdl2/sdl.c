@@ -15,6 +15,10 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/* You can admirate the beautifull shape of the includes below */
+/*      |     */
+/*      V     */
+
 #include <glib.h>
 #include <unistd.h>
 #include <SDL2/SDL.h>
@@ -22,8 +26,8 @@
 #include <SDL2/SDL_image.h>
 #include "sdl-internal.h"
 #include "canvas-sdl.h"
-#include "utils.h"
 #include "widget.h"
+#include "utils.h"
 #include "rect.h"
 #include "map.h"
 #include "game.h"
@@ -624,8 +628,8 @@ SDL_Surface *sdlCopySurface(SDL_Surface *surface, Entity *rEnt)
   return surface;
 }
 
-int sdlCanvasCacheImg(Entity *elem, Entity *resource, const char *imgPath,
-		      Entity *rEnt)
+int sdlCanvasCacheImg2(Entity *elem, Entity *resource, const char *imgPath,
+		       Entity *rEnt, int32_t flag)
 {
   SDL_Surface *surface;
   SDL_Texture *texture;
@@ -657,19 +661,31 @@ int sdlCanvasCacheImg(Entity *elem, Entity *resource, const char *imgPath,
   }
   texture = SDL_CreateTextureFromSurface(sg.renderer, surface);
   if (unlikely(!texture))
-    return -1;
-  SDL_QueryTexture(texture, NULL, NULL, &w, &h);
-  data = yeCreateDataAt(texture, elem, "$img", YCANVAS_IMG_IDX);
-  yeSetDestroy(data, sdlFreeTexture);
-  ywSizeCreateAt(w, h, elem, "$size", YCANVAS_SIZE_IDX);
+    goto free_surface;
+  if (!(flag & YSDL_CACHE_IMG_NO_TEXTURE)) {
+    SDL_QueryTexture(texture, NULL, NULL, &w, &h);
+    data = yeCreateDataAt(texture, elem, "$img", YCANVAS_IMG_IDX);
+    yeSetDestroy(data, sdlFreeTexture);
+    ywSizeCreateAt(w, h, elem, "$size", YCANVAS_SIZE_IDX);
+    yeGetPush(elem, resource, "$img");
+    yeGetPush(elem, resource, "$size");
+  }
   data = yeCreateData(surface, elem, "$img-surface");
-  /* if not img path a texture was use */
+  /* if no img path a texture was use */
   if (imgPath)
     yeSetDestroy(data, sdlFreeSurface);
-  yeGetPush(elem, resource, "$img");
-  yeGetPush(elem, resource, "$size");
   yeGetPush(elem, resource, "$img-surface");
   return 0;
+ free_surface:
+  if (imgPath)
+    sdlFreeSurface(surface);
+  return -1;
+}
+
+int sdlCanvasCacheImg(Entity *elem, Entity *resource, const char *imgPath,
+		      Entity *rEnt)
+{
+  return sdlCanvasCacheImg2(elem, resource, imgPath, rEnt, 0);
 }
 
 int sdlCanvasCacheTexture(Entity *state, Entity *elem)

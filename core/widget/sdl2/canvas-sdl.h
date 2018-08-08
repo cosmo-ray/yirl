@@ -18,6 +18,10 @@
 #ifndef _SDL2_CANVAS_SDL_H_
 #define _SDL2_CANVAS_SDL_H_
 
+typedef enum {
+  YSDL_CACHE_IMG_NO_TEXTURE = 1
+} ysdlImgCacheFlag;
+
 struct SDL_Surface;
 typedef struct SDL_Surface SDL_Surface;
 
@@ -27,6 +31,8 @@ uint32_t sdlCanvasPixInfo(Entity *obj, int x, int y);
 SDL_Surface *sdlCopySurface(SDL_Surface *surface, Entity *rEnt);
 int sdlCanvasCacheImg(Entity *elem, Entity *resource, const char *imgPath,
 		      Entity *rEnt);
+int sdlCanvasCacheImg2(Entity *elem, Entity *resource, const char *imgPath,
+		       Entity *rEnt, int32_t flag);
 int sdlMergeSurface(Entity *textSrc, Entity *srcRect,
 		    Entity *textDest, Entity *destRect);
 
