@@ -589,7 +589,7 @@ int sdlMergeSurface(Entity *textSrc, Entity *srcRect,
   if (unlikely(!sSurface || !dSurface)) {
     return -1;
   }
-  return SDL_BlitSurface(sSurface, NULL, dSurface, NULL);  
+  return SDL_BlitSurface(sSurface, NULL, dSurface, NULL);
 }
 
 SDL_Surface *sdlCopySurface(SDL_Surface *surface, Entity *rEnt)
@@ -659,10 +659,13 @@ int sdlCanvasCacheImg2(Entity *elem, Entity *resource, const char *imgPath,
     /* trick to sdlFreeSurface anyway */
     imgPath = "";
   }
-  texture = SDL_CreateTextureFromSurface(sg.renderer, surface);
-  if (unlikely(!texture))
-    goto free_surface;
   if (!(flag & YSDL_CACHE_IMG_NO_TEXTURE)) {
+    texture = SDL_CreateTextureFromSurface(sg.renderer, surface);
+    if (unlikely(!texture)) {
+      DPRINT_ERR("fail to create a texture from surface(size: %d %d): %s",
+		 surface->w, surface->h, SDL_GetError());
+      goto free_surface;
+    }
     SDL_QueryTexture(texture, NULL, NULL, &w, &h);
     data = yeCreateDataAt(texture, elem, "$img", YCANVAS_IMG_IDX);
     yeSetDestroy(data, sdlFreeTexture);

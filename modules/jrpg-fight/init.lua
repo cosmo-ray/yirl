@@ -33,6 +33,17 @@ function fightAction(entity, eve)
       end
       return YEVE_ACTION
    end
+
+   if entity.explosion_time then
+      entity.explosion_time = entity.explosion_time - 1
+      if entity.explosion_time:to_int() == 0 then
+	 local canvas = getCanvas(entity)
+	 entity.explosion_time = nil
+	 canvas:remove(entity.explosion)
+	 entity.explosion = nil
+      end
+      return YEVE_ACTION
+   end
    if yeGetInt(entity.chooseTarget) > chooseTargetNone then
       return useItemsChooseTarget(entity, eve)
    end
@@ -65,6 +76,12 @@ function combatDmgInternal(main, target, dmg)
    local max_life = target.char.max_life
    if new_life > max_life then
       new_life = max_life:to_int()
+   end
+   if dmg > 0 then
+      local p = ylpcsHandePos(target)
+      canvas:remove(main.explosion)
+      main.explosion = canvas:new_texture(ywPosX(p), ywPosY(p), main.explosion_txt).ent
+      main.explosion_time = 5
    end
    target.char.life = new_life
    local lb = target.life_b
@@ -372,7 +389,6 @@ function fightRecover(entity, eve)
 
    main.atk_state = PJ_ATTACK
    fightRecoverInternal(main, main.gg_handler, main.bg_handler)
-   print("Recover !!!!!!")
    return YEVE_ACTION
 end
 
@@ -552,14 +568,16 @@ function fightInit(entity)
    entity.action = Entity.new_func("fightAction")
    entity.background = "rgba: 255 255 255 255"
    entity.current = 1
-   entity["turn-length"] = 50000
+   entity["turn-length"] = 30000
    entity.entries = {}
    entity.good_guy = newDefaultGuy(entity.player, "the good", false)
    entity.bad_guy = newDefaultGuy(entity.enemy, "the bad", true)
    entity.atk_state = AWAIT_CMD
+   local test = ywTextureNewImg(modPath .. "/explosion.png",
+				Rect.new(512 + 45, 32, 64, 64).ent,
+				entity, "explosion_txt")
+   ywTextureNormalize(test)
    objects = Entity.wrapp(ygGet("jrpg-fight:objects"))
-   print("UO0:", entity.player.usable_items,
-	 entity.good_guy.usable_items)
 
    local canvas = Entity.new_array(entity.entries)
    canvas["<type>"] = "canvas"
@@ -612,9 +630,9 @@ function fightInit(entity)
 					       "rgba: 255 0 30 255",
 					       Pos.new(50, 10).ent).ent
    entity.bg_handler.life_b = canvas:new_rect(50, y_carac - 25,
-					       "rgba: 0 255 30 255",
-					       Pos.new(50 * life / max_life,
-						       10).ent).ent
+					      "rgba: 0 255 30 255",
+					      Pos.new(50 * life / max_life,
+						      10).ent).ent
    return ret
 end
 
