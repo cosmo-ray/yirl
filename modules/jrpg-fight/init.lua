@@ -91,9 +91,11 @@ function combatDmgInternal(main, target, dmg)
    local x = lb:pos():x()
    local y = lb:pos():y()
    canvas:remove(lb.ent)
-   target.life_b = canvas:new_rect(x, y, "rgba: 0 255 30 255",
-				   Pos.new(50 * new_life / max_life,
-					   10).ent).ent
+   if new_life > 0 then
+      target.life_b = canvas:new_rect(x, y, "rgba: 0 255 30 255",
+				      Pos.new(50 * new_life / max_life,
+					      10).ent).ent
+   end
 end
 
 function combatDmg(main, cur_anim)
