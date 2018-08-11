@@ -41,6 +41,8 @@ function fightAction(entity, eve)
 	 entity.explosion_time = nil
 	 canvas:remove(entity.explosion)
 	 entity.explosion = nil
+	 canvas:remove(entity.wrong)
+	 entity.wrong = nil
       end
       return YEVE_ACTION
    end
@@ -107,11 +109,12 @@ end
 function endAnimationAttack(main, cur_anim)
    local obj = CanvasObj.wrapp(cur_anim.guy.canvas)
    local bpos = cur_anim.base_pos
+   local guy = cur_anim.guy
 
    obj:set_pos(cur_anim.base_pos)
    bpos = Pos.wrapp(bpos)
-   ywCanvasObjSetPos(cur_anim.guy.life_b0, bpos:x(), bpos:y() - 25)
-   ywCanvasObjSetPos(cur_anim.guy.life_b, bpos:x(), bpos:y() - 25)
+   ywCanvasObjSetPos(guy.life_b0, bpos:x(), bpos:y() - 25)
+   ywCanvasObjSetPos(guy.life_b, bpos:x(), bpos:y() - 25)
 
    if cur_anim.target.char.life <= 0 then
       if main.atk_state:to_int() == PJ_ATTACK then
@@ -122,9 +125,9 @@ function endAnimationAttack(main, cur_anim)
       return
    end
    if main.atk_state:to_int() == PJ_ATTACK then
-      ylpcsHandlerSetOrigXY(cur_anim.guy, good_orig_pos[1],
+      ylpcsHandlerSetOrigXY(guy, good_orig_pos[1],
 			     good_orig_pos[2])
-      ylpcsHandlerRefresh(cur_anim.guy)
+      ylpcsHandlerRefresh(guy)
       main.atk_state = ENEMY_ATTACK
       local r = 0
       if cur_anim.target.char.life < (cur_anim.target.char.max_life / 2) then
@@ -133,20 +136,20 @@ function endAnimationAttack(main, cur_anim)
 	 r = yuiRand() % 2
       end
       if r < 2 then
-	 local tmp = cur_anim.guy
+	 local tmp = guy
 	 yeIncrRef(tmp)
-	 attack(main, cur_anim.target, cur_anim.guy, (yAnd(r, 1)) + 1)
+	 attack(main, cur_anim.target, guy, (yAnd(r, 1)) + 1)
 	 yeDestroy(tmp)
       else
-	 fightRecoverInternal(main, cur_anim.target, cur_anim.guy)
+	 fightRecoverInternal(main, cur_anim.target, guy)
       end
       --print(cur_anim.guy.name, cur_anim.target.name)
    else
-      ylpcsHandlerSetOrigXY(cur_anim.guy, bad_orig_pos[1],
+      ylpcsHandlerSetOrigXY(guy, bad_orig_pos[1],
 			     bad_orig_pos[2])
-      ylpcsHandlerRefresh(cur_anim.guy)
+      ylpcsHandlerRefresh(guy)
       main.atk_state = AWAIT_CMD
-      ylpcsHandlerSetOrigXY(cur_anim.guy, bad_orig_pos[1],
+      ylpcsHandlerSetOrigXY(guy, bad_orig_pos[1],
 			     bad_orig_pos[2])
    end
 end
@@ -165,10 +168,12 @@ function attackCallback(main, eve)
    end
    local cur_val = cur_cmb[cur_val_pos]:to_int()
    local can_print_loader = true
+   local guy = cur_anim.guy
+   local target = cur_anim.target
 
    cur_anim.animation_frame = cur_anim.animation_frame + 1
    if main.atk_state:to_int() == ENEMY_ATTACK and
-   cur_anim.target.char.can_guard:to_int() == 0 then
+   target.char.can_guard:to_int() == 0 then
       can_print_loader = false
    end
    while eve:is_end() == false do
@@ -192,7 +197,7 @@ function attackCallback(main, eve)
       if cur_cmb_anim.to then
 	 cur_anim.last_mv_frm = last_frm
 	 local bp = Pos.wrapp(cur_anim.base_pos)
-	 local tp = Pos.new_copy(ylpcsHandePos(cur_anim.target))
+	 local tp = Pos.new_copy(ylpcsHandePos(target))
 	 if (tp:x() < bp:x()) then
 	    tp:add(lpcs.w_sprite:to_int() / 2, 0)
 	 else
@@ -232,19 +237,19 @@ function attackCallback(main, eve)
    canvas:remove(cur_anim.loader_percent)
    if cur_cmb_anim.to and
    cur_anim.animation_frame < cur_anim.last_mv_frm then
-      local obj = CanvasObj.wrapp(cur_anim.guy.canvas)
+      local obj = CanvasObj.wrapp(guy.canvas)
 
       obj:move(cur_anim.mv_per_frm)
-      ywCanvasMoveObj(cur_anim.guy.life_b0, cur_anim.mv_per_frm)
-      ywCanvasMoveObj(cur_anim.guy.life_b, cur_anim.mv_per_frm)
+      ywCanvasMoveObj(guy.life_b0, cur_anim.mv_per_frm)
+      ywCanvasMoveObj(guy.life_b, cur_anim.mv_per_frm)
    end
    if cur_cmb_anim.poses then
       local last = cur_cmb_anim.poses:len()
       local co_pos = cur_anim.animation_frame * last / last_frm
       local cur_orig = Pos.wrapp(cur_cmb_anim.poses[co_pos])
 
-      ylpcsHandlerSetOrigXY(cur_anim.guy, cur_orig:x(), cur_orig:y())
-      ylpcsHandlerRefresh(cur_anim.guy)
+      ylpcsHandlerSetOrigXY(guy, cur_orig:x(), cur_orig:y())
+      ylpcsHandlerRefresh(guy)
    end
    if cur_anim.animation_frame >= last_frm then
       local i = 0
@@ -258,7 +263,7 @@ function attackCallback(main, eve)
 	 canvas:remove(cur_anim.loaders[i])
 	 i = i + 1
       end
-      local txt = cur_anim.guy.char.name:to_string() .. " attack: "
+      local txt = guy.char.name:to_string() .. " attack: "
       if main.atk_state:to_int() == ENEMY_ATTACK then
 	 if cur_anim.sucess:to_int() == 1 then
 	    guard_sucess = true
@@ -269,18 +274,24 @@ function attackCallback(main, eve)
       else
 	 guard_sucess = computer_sucess
       end
-      if cur_anim.target.char.can_guard:to_int() == 0 then
+      if target.char.can_guard:to_int() == 0 then
 	 guard_sucess = false
       end
       startTextAnim(main, txt)
       if guard_sucess == false then
 	 combatDmg(main, cur_anim)
+      else
+	 local p = ylpcsHandePos(target)
+	 canvas:remove(main.wrong)
+	 main.wrong = canvas:new_texture(ywPosX(p) -5, ywPosY(p),
+					 main.wrong_txt).ent
+	 main.explosion_time = 5
       end
 
       if cur_anim.sucess:to_int() == 1 then
-	 txt = txt .. "SUCESS, " .. cur_anim.target.char.name:to_string() ..
+	 txt = txt .. "SUCESS, " .. target.char.name:to_string() ..
 	    " guard: "
-	 if cur_anim.target.char.can_guard:to_int() == 0 then
+	 if target.char.can_guard:to_int() == 0 then
 	    txt = txt .. "CAN'T GUARD"
 	 elseif guard_sucess then
 	    txt = txt .. "SUCESS"
@@ -573,10 +584,11 @@ function fightInit(entity)
    entity.good_guy = newDefaultGuy(entity.player, "the good", false)
    entity.bad_guy = newDefaultGuy(entity.enemy, "the bad", true)
    entity.atk_state = AWAIT_CMD
-   local test = ywTextureNewImg(modPath .. "/explosion.png",
-				Rect.new(512 + 45, 32, 64, 64).ent,
-				entity, "explosion_txt")
-   ywTextureNormalize(test)
+   ywTextureNewImg(modPath .. "/explosion.png",
+		   Rect.new(512 + 45, 32, 64, 64).ent,
+		   entity, "explosion_txt")
+   ywTextureNewImg(modPath .. "/image0009.png",
+		   nil,  entity, "wrong_txt")
    objects = Entity.wrapp(ygGet("jrpg-fight:objects"))
 
    local canvas = Entity.new_array(entity.entries)
