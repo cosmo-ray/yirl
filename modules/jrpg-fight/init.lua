@@ -43,6 +43,8 @@ function fightAction(entity, eve)
 	 entity.explosion = nil
 	 canvas:remove(entity.wrong)
 	 entity.wrong = nil
+	 canvas:remove(entity.heart)
+	 entity.heart = nil
       end
       return YEVE_ACTION
    end
@@ -76,13 +78,19 @@ function combatDmgInternal(main, target, dmg)
    local canvas = getCanvas(main)
    local new_life = target.char.life - dmg
    local max_life = target.char.max_life
+   local p = ylpcsHandePos(target)
+
    if new_life > max_life then
       new_life = max_life:to_int()
    end
    if dmg > 0 then
-      local p = ylpcsHandePos(target)
       canvas:remove(main.explosion)
       main.explosion = canvas:new_texture(ywPosX(p), ywPosY(p), main.explosion_txt).ent
+      main.explosion_time = 5
+   elseif dmg < 0 then
+      canvas:remove(main.heart)
+      main.heart = canvas:new_texture(ywPosX(p) -5, ywPosY(p),
+				      main.heart_txt).ent
       main.explosion_time = 5
    end
    target.char.life = new_life
@@ -591,6 +599,8 @@ function fightInit(entity)
 		   entity, "explosion_txt")
    ywTextureNewImg(modPath .. "/image0009.png",
 		   nil,  entity, "wrong_txt")
+   ywTextureNewImg(modPath .. "/image0007.png",
+		   nil,  entity, "heart_txt")
    objects = Entity.wrapp(ygGet("jrpg-fight:objects"))
 
    local canvas = Entity.new_array(entity.entries)
