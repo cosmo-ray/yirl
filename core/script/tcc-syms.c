@@ -38,6 +38,7 @@ void	tccAddSyms(TCCState *l)
   tcc_add_symbol(l, "strdup", strdup);
   tcc_add_symbol(l, "printf", printf);
   tcc_add_symbol(l, "ygFileToEnt", ygFileToEnt);
+  tcc_add_symbol(l, "ywMapSetSmootMovement", ywMapSetSmootMovement);
   tcc_add_symbol(l, "ywMapPushElem", ywMapPushElem);
   tcc_add_symbol(l, "ywMapGetCase", ywMapGetCase);
   tcc_add_symbol(l, "ywMapMvTableRemove", ywMapMvTableRemove);

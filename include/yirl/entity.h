@@ -809,7 +809,7 @@ void *yeGetFunctionFastPath(Entity *entity);
 static inline EntityType yeType(const Entity *entity)
 {
 	if (likely(entity != NULL))
-		return (entity->type);
+		return entity->type;
 	return (EntityType)-1;
 }
 

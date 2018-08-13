@@ -135,11 +135,7 @@ Entity *ywMapPushNbr(Entity *state, int toPush,
 /**
  * @smoot	true to activate smoort movement
  */
-static inline void ywMapSetSmootMovement(Entity *map, int smoot)
-{
-  (void)map;
-  ywIsSmootOn = smoot;
-}
+void ywMapSetSmootMovement(Entity *map, int smoot);
 
 Entity *ywMapMvTablePush(Entity *map, Entity *from,
 			 Entity *to, Entity *elem, Entity *callback);

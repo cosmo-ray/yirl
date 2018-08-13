@@ -497,6 +497,12 @@ Entity *ywidGenericWaitEvent(void)
   return NULL;
 }
 
+void ywMapSetSmootMovement(Entity *map, int smoot)
+{
+  (void)map;
+  ywIsSmootOn = smoot;
+}
+
 void YWidDestroy(YWidgetState *wid)
 {
   if (!wid)
