@@ -4,7 +4,7 @@
 	"entries" : [
 	    {
 		"text" : "Play",
-		"next" : "vapp:game",
+		"next" : "vapz:scenes.game",
 		"action" : "menuNext",
 	    },
 	    {
@@ -30,5 +30,9 @@
 	"action" : "nextOnKeyDown",
 	"text-align" : "center",
 	"text-color" : "rgba: 100 100 100 255"
+    },
+    "game": {
+	"<type>": "vapz",
+	"resources": "vapp:resources.map"
     }
 }

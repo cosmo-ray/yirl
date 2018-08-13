@@ -21,15 +21,12 @@
 #include <yirl/container.h>
 #include <yirl/rect.h>
 #include <yirl/text-screen.h>
+#include <yirl/entity-script.h>
 
 void *init(int nbArgs, void **args)
 {
   Entity *mod = args[0];
   Entity *init;
-  Entity *map = yeCreateArray(mod, "game");
-
-  yeCreateString("vapz", map, "<type>");
-  yePushBack(map, yeGetByStr(mod, "resources.map"), "resources");
 
   yeCreateFunction("scoreInit", ygGetManager("tcc"), mod, "scoreInit");
   init = yeCreateArray(NULL, NULL);
@@ -151,8 +148,12 @@ static void clean(Entity *wid)
   yeRemoveChildByStr(wid, "entries");
 }
 
-static int lose(int score)
+static int lose(Entity *wid, int score)
 {
+  if (yeGet(wid, "die")) {
+    yesCall(yeGet(wid, "die"), wid, score);
+    return 1;
+  }
   Entity *str = yeCreateString("vapz:scenes.lose", NULL, NULL);
   Entity *txt = ygGet("vapz:scenes.lose.text");
   yeSetString(txt, "you lose, score: ");
@@ -204,7 +205,11 @@ void *vapzAction(int nbArgs, void **args)
       continue;
     switch (ywidEveKey(eve)) {
     case Y_ESC_KEY:
-      ywidNext(yeCreateString("vapz:scenes.main", gc, NULL));
+      if (yeGet(wid, "quit")) {
+	yesCall(yeGet(wid, "quit"), wid);
+      } else {
+	ywidNext(yeCreateString("vapz:scenes.main", gc, NULL));
+      }
       clean(wid);
       yeDestroy(gc);
       return (void *)ACTION;
@@ -259,13 +264,13 @@ void *vapzAction(int nbArgs, void **args)
     pushBullet(map, bulletPos, bulletDir);
   Entity *isTouch = ywMapGetEntityById(map, vkPos, 2);
   if (isTouch) {
-    lose(yeGetInt(yeGetByStrFast(map, "score")));
+    lose(wid, yeGetInt(yeGetByStrFast(map, "score")));
     clean(wid);
     goto exit;
   }
   if (ret == (void *)ACTION) {
     if (colCheck(map, textScreen, vkPos)) {
-      lose(yeGetInt(yeGetByStrFast(map, "score")));
+      lose(wid, yeGetInt(yeGetByStrFast(map, "score")));
       clean(wid);
       goto exit;
     }
@@ -299,6 +304,8 @@ void *vapzInit(int nbArgs, void **args)
     ywPosCreateInts(12, 12, viking, "pos");
   Entity *textScreen;
 
+  if (yeType(resources) == YSTRING)
+    resources = ygGet(yeGetString(resources));
   yuiRandInit();
   cur_layer = ywMapCreateDefaultEntity(layers, NULL, resources,
 				       0, 25, 25);
