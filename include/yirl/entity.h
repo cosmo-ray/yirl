@@ -351,17 +351,7 @@ static inline uint32_t yeGetUInt(Entity *i) {
   return (uint32_t)yeGetInt(i);
 }
 
-#define yeGetIntAt(array, pos)						\
-  (_Generic(pos,							\
-	    unsigned int: yeGetIntAtByIdx,				\
-	    int: yeGetIntAtByIdx,					\
-	    long : yeGetIntAtByIdx,					\
-	    long long : yeGetIntAtByIdx,				\
-	    unsigned long long : yeGetIntAtByIdx,			\
-	    unsigned long: yeGetIntAtByIdx,				\
-	    Y_GEN_CLANG_ARRAY(char, yeGetIntAtByStr),			\
-	    const char *: yeGetIntAtByStr,				\
-	    char *: yeGetIntAtByStr)(array, pos))			\
+#define yeGetIntAt(array, pos) (yeGetInt(yeGet(array, pos)))
 
 /**
  * @return 0 if @entity is NULL
@@ -381,17 +371,7 @@ static inline int yeGetFloatAtByStr(Entity *array, const char *pos)
   return yeGetFloat(yeGetByStrFast(array, pos));
 }
 
-#define yeGetFloatAt(array, pos)						\
-  (_Generic(pos,							\
-	    unsigned int: yeGetFloatAtByIdx,				\
-	    int: yeGetFloatAtByIdx,					\
-	    long : yeGetFloatAtByIdx,					\
-	    long long : yeGetFloatAtByIdx,				\
-	    unsigned long long : yeGetFloatAtByIdx,			\
-	    unsigned long: yeGetFloatAtByIdx,				\
-	    Y_GEN_CLANG_ARRAY(char, yeGetFloatAtByStr),			\
-	    const char *: yeGetFloatAtByStr,				\
-	    char *: yeGetFloatAtByStr)(array, pos))			\
+#define yeGetFloatAt(array, pos) (yeGetFloat(yeGet(array, pos)))
 
 /**
  * @return the string value
@@ -412,32 +392,10 @@ static inline const char *yeGetStringAtByStr(Entity *array, const char *key)
   return yeGetString(yeGet(array, key));
 }
 
-#define yeGetStringAt(array, pos)						\
-  _Generic((pos),							\
-	   unsigned int: yeGetStringAtByIdx,				\
-	   int: yeGetStringAtByIdx,					\
-	   long : yeGetStringAtByIdx,					\
-	   long long : yeGetStringAtByIdx,				\
-	   unsigned long long : yeGetStringAtByIdx,			\
-	   unsigned long: yeGetStringAtByIdx,				\
-	   Y_GEN_CLANG_ARRAY(char, yeGetStringAtByStr),			\
-	   const char *: yeGetStringAtByStr,				\
-	   char *: yeGetStringAtByStr)(array, (pos))			\
-
+#define yeGetStringAt(array, pos) yeGetString(yeGet(array, pos))
 void *yeGetData(Entity *entity);
 
-#define yeGetDataAt(array, pos)						\
-  _Generic((pos),							\
-	   unsigned int: yeGetDataAtByIdx,				\
-	   int: yeGetDataAtByIdx,					\
-	   long : yeGetDataAtByIdx,					\
-	   long long : yeGetDataAtByIdx,				\
-	   unsigned long long : yeGetDataAtByIdx,			\
-	   unsigned long: yeGetDataAtByIdx,				\
-	   Y_GEN_CLANG_ARRAY(char, yeGetDataAtByStr),			\
-	   const char *: yeGetDataAtByStr,				\
-	   char *: yeGetDataAtByStr)(array, (pos))			\
-
+#define yeGetDataAt(array, pos) yeGetData(yeGet(array, pos))
 /**
  * @return	value of entity at @pos in @array, 0 if entity doesn't existe
  */
