@@ -78,6 +78,7 @@ int main(int argc, char **argv)
   TEST_TRY_ADD("/entity/lifecycle/again", testLifeDeathRebirdAndAgain, only);
 
   TEST_TRY_ADD("/entity/get", testGet, only);
+  TEST_TRY_ADD("/entity/get2", testGetByEntity, only);
 
   TEST_TRY_ADD("/entity/strings", stringsTests, only);
 

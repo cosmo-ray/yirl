@@ -35,6 +35,23 @@ void testGet(void)
   yeEnd();
 }
 
+void testGetByEntity(void)
+{
+  yeInitMem();
+  Entity *a = yeCreateArray(NULL, NULL);
+  Entity *str = yeCreateString("str", a, "str");
+  Entity *idx = yeCreateInt(1, a, "idx");
+
+  g_assert(yeGet(a, str) == str);
+  g_assert(yeGet(a, idx) == idx);
+  yeSetInt(idx, 0);
+  yeSetString(str, "idx");
+  g_assert(yeGet(a, str) == idx);
+  g_assert(yeGet(a, idx) == str);
+  yeDestroy(a);
+  yeEnd();
+}
+
 void testSetSimple(void)
 {
   yeInitMem();

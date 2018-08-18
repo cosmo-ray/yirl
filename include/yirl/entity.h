@@ -210,6 +210,13 @@ int yeEntitiesUsed(void);
 
 int yeFreeEntitiesInStack(void);
 
+static inline EntityType yeType(const Entity *entity)
+{
+	if (likely(entity != NULL))
+		return entity->type;
+	return (EntityType)-1;
+}
+
 /**
  * @param str   the type name
  * @return the corresponding type, -1 if type not found
@@ -292,6 +299,8 @@ Entity *yeNGetByStr(Entity *entity, const char *name, int len);
  */
 Entity *yeGetByStrExt(Entity *entity, const char *name, int64_t *idx);
 
+static inline Entity *yeGetByEntity(Entity *array, Entity *key);
+
 #ifndef __cplusplus
 #define yeGet(ENTITY, INDEX) _Generic((INDEX),				\
 				      unsigned int: yeGetByIdx,		\
@@ -300,12 +309,14 @@ Entity *yeGetByStrExt(Entity *entity, const char *name, int64_t *idx);
 				      long long : yeGetByIdx,		\
 				      unsigned long long : yeGetByIdx,	\
 				      unsigned long: yeGetByIdx,	\
+				      Entity *: yeGetByEntity,		\
+				      const Entity *: yeGetByEntity,		\
 				      Y_GEN_CLANG_ARRAY(char, yeGetByStrFast), \
 				      const char *: yeGetByStrFast,	\
 				      char *: yeGetByStrFast) (ENTITY, INDEX)
 
 #endif
-
+ 
 /**
  * @return the key string if there is one
  */
@@ -806,13 +817,6 @@ const char *yeGetFunction(Entity *entity);
 
 void *yeGetFunctionFastPath(Entity *entity);
 
-static inline EntityType yeType(const Entity *entity)
-{
-	if (likely(entity != NULL))
-		return entity->type;
-	return (EntityType)-1;
-}
-
 /**
  * Check if Entity are the same type and if they are not NULL and copy the values from src to dest.
  * @src	The source Entity from where the values will be copied from.
@@ -843,6 +847,15 @@ static inline Entity *yeGetPush(Entity *src, Entity *dst, const char *name)
     return NULL;
   yePushBack(dst, ret, name);
   return ret;
+}
+
+static inline Entity *yeGetByEntity(Entity *array, Entity *key)
+{
+  if (yeType(key) == YINT)
+    return yeGet(array, yeGetInt(key));
+  else if (yeType(key) == YSTRING)
+    return yeGet(array, yeGetString(key));
+  return NULL;
 }
 
 static inline int yeArrayContainEntity(Entity *array, const char *str)

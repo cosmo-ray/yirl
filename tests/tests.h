@@ -33,6 +33,7 @@ void stringsTests(void);
 void testCopy(void);
 
 void testGet(void);
+void testGetByEntity(void);
 
 void testSetSimple(void);
 void testSetComplex(void);
