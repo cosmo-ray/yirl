@@ -135,8 +135,7 @@ function endAnimationAttack(main, cur_anim)
       return
    end
    if main.atk_state:to_int() == PJ_ATTACK then
-      ylpcsHandlerSetOrigXY(guy, good_orig_pos[1],
-			     good_orig_pos[2])
+      ylpcsHandlerSetOrigXY(guy, good_orig_pos[1], good_orig_pos[2])
       ylpcsHandlerRefresh(guy)
       main.atk_state = ENEMY_ATTACK
       local r = 0
@@ -156,11 +155,9 @@ function endAnimationAttack(main, cur_anim)
       --print(cur_anim.guy.name, cur_anim.target.name)
    else
       ylpcsHandlerSetOrigXY(guy, bad_orig_pos[1],
-			     bad_orig_pos[2])
+			    bad_orig_pos[2])
       ylpcsHandlerRefresh(guy)
       main.atk_state = AWAIT_CMD
-      ylpcsHandlerSetOrigXY(guy, bad_orig_pos[1],
-			     bad_orig_pos[2])
    end
 end
 
@@ -256,6 +253,9 @@ function attackCallback(main, eve)
    if cur_cmb_anim.poses then
       local last = cur_cmb_anim.poses:len()
       local co_pos = cur_anim.animation_frame * last / last_frm
+      if co_pos == last then
+	 co_pos = last - 1
+      end
       local cur_orig = Pos.wrapp(cur_cmb_anim.poses[co_pos])
 
       ylpcsHandlerSetOrigXY(guy, cur_orig:x(), cur_orig:y())
@@ -626,14 +626,14 @@ function fightInit(entity)
    entity.bg_handler = nil
    local y_carac = wid_pix.h / 2
    ylpcsCreateHandler(entity.good_guy, canvas, entity, "gg_handler")
-   ylpcsHandlerSetOrigXY(entity.gg_handler, 1, 1)
+   ylpcsHandlerSetOrigXY(entity.gg_handler, good_orig_pos[1], good_orig_pos[2])
    ylpcsHandlerRefresh(entity.gg_handler)
    ylpcsHandlerMove(entity.gg_handler,
 		     Pos.new(wid_pix.w - 100, y_carac).ent)
 
 
    ylpcsCreateHandler(entity.bad_guy, canvas, entity, "bg_handler")
-   ylpcsHandlerSetOrigXY(entity.bg_handler, 1, 3)
+   ylpcsHandlerSetOrigXY(entity.bg_handler, bad_orig_pos[1], bad_orig_pos[2])
    ylpcsHandlerRefresh(entity.bg_handler)
    ylpcsHandlerMove(entity.bg_handler, Pos.new(50, y_carac).ent)
    canvas = Canvas.wrapp(canvas)
