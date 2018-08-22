@@ -89,9 +89,11 @@ function combatDmgInternal(main, target, dmg)
       main.explosion_time = 5
    elseif dmg < 0 then
       canvas:remove(main.heart)
-      main.heart = canvas:new_texture(ywPosX(p) -5, ywPosY(p),
+      local heart = canvas:new_texture(ywPosX(p) -5, ywPosY(p),
 				      main.heart_txt).ent
+      main.heart = heart
       main.explosion_time = 5
+      ywCanvasSetWeight(canvas.ent, heart, 10);
    end
    target.char.life = new_life
    local lb = target.life_b

@@ -739,6 +739,14 @@ int	luaywTextureNormalize(lua_State *L)
   return 1;
 }
 
+int	luaywCanvasSetWeight(lua_State *L)
+{
+  lua_pushnumber(L, ywCanvasSetWeight(luaEntityAt(L, 1),
+				      luaEntityAt(L, 2),
+				      lua_tonumber(L, 3)));
+  return 1;
+}
+
 int	luaywTextureNewImg(lua_State *L)
 {
   lua_pushlightuserdata(L, ywTextureNewImg(lua_tostring(L, 1),

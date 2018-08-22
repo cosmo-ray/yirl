@@ -33,8 +33,8 @@ typedef enum  {
   YCanvasRotate,
 } YCanvasModifier;
 
-#define YCANVAS_IMG_IDX 5
-#define YCANVAS_SIZE_IDX 6
+#define YCANVAS_IMG_IDX 6
+#define YCANVAS_SIZE_IDX 7
 
 typedef union {
   uint32_t i;
@@ -72,6 +72,8 @@ void ywCanvasObjSetPosByEntity(Entity *obj, Entity *p);
 
 int ywCanvasObjIsOut(Entity *wid, Entity *obj);
 
+int ywCanvasSetWeight(Entity *wid, Entity *canvas, int weight);
+
 Entity *ywCanvasNewObj(Entity *wid, int x, int y, int id);
 Entity *ywCanvasNewRect(Entity *wid, int x, int y, Entity *rect);
 Entity *ywCanvasNewText(Entity *wid, int x, int y, Entity *string);
@@ -96,6 +98,12 @@ void ywCanvasStringSet(Entity *obj, Entity *newStr);
 void ywCanvasObjSetResourceId(Entity *obj, int id);
 void ywCanvasObjClearCache(Entity *obj);
 
+/**
+ * @brief Swap obj0 position with obj1 in z order
+ * this won't move image on the screen, but can put obj0
+ * on top of obj1 or the oposit depending of they position
+ * this operation change the weight of obj0 and obj1
+ */
 int ywCanvasSwapObj(Entity *wid, Entity *obj0, Entity *obj1);
 
 YCanvasObjType ywCanvasObjType(Entity *obj);
