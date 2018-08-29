@@ -160,6 +160,7 @@ void testYWTextScreenSdl2(void)
   g_assert(!t);
   ysRegistreNativeFunc("txQuitOnQ", testTXQuitOnQ);
 
+  yeCreateInt(10, map, "cursor");
   wid = ywidNewWidget(map, NULL);
   g_assert(wid);
 

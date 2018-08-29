@@ -31,6 +31,7 @@ static int sdlRender(YWidgetState *state, int t)
   YBgConf cfg;
   SDL_Color color = {0, 0, 0, 255};
   int alignementType = YSDL_ALIGN_LEFT;
+  Entity *cursor = yeGet(state->entity, "cursor");
 
   if (ywidBgConfFill(yeGet(state->entity, "background"), &cfg) >= 0)
     sdlFillBg(wid, &cfg);
@@ -45,9 +46,18 @@ static int sdlRender(YWidgetState *state, int t)
     DPRINT_WARN("NO Font Set !");
     return 0;
   }
-  SDL_Rect txtR = {0, yeGetInt(yeGetByStr(state->entity, "text-threshold")),
+  int threshold = yeGetIntAt(state->entity, "text-threshold");
+  SDL_Rect txtR = {0, threshold,
 		   wid->rect.w, wid->rect.h};
   sdlPrintText(wid, toPrint, color, txtR, alignementType);
+  if (cursor) {
+    int c_pos = yeGetInt(cursor);
+    int f_s = yeGetInt(yeGet(state->entity, "font-size"));
+    SDL_Rect rect = {f_s * c_pos, threshold, 2, f_s};
+    SDL_Color color = {0, 0, 0, 255};
+
+    sdlDrawRect(wid, rect, color);
+  }
   return 0;
 }
 
