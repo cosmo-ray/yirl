@@ -601,5 +601,21 @@ extern "C" {
     yeDestroy(obj_r);
     return ret;
   }
+
+  int ywCanvasDoPathfinding(Entity *canvas, Entity *obj, Entity *to_pos,
+			    Entity *speed, Entity *path_array)
+  {
+    if (!path_array)
+      return -1;
+
+    Entity *opos = ywCanvasObjPos(obj);
+    Entity *tmpPos = ywPosCreateEnt(opos, 0, NULL, NULL);
+    (void)canvas;
+
+    while (ywPosMoveToward2(tmpPos, to_pos, ywPosX(speed), ywPosY(speed)))
+      ywPosCreateEnt(tmpPos, 0, path_array, NULL);
+    yeDestroy(tmpPos);
+    return 0;
+  }
 }
 

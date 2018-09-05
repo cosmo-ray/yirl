@@ -176,6 +176,9 @@ int	luaentity_newindex(lua_State *L)
     toPush = yeCreateInt(lua_tonumber(L, 3), NULL, NULL);
   } else if (lua_isstring(L, 3)) {
     toPush = yeCreateString(lua_tostring(L, 3), NULL, NULL);
+    /* this would be sure a cool feature */
+  /* } else if (lua_isfunction(L, 3)) { */
+  /*   abort(); */
   } else if (lua_istable(L, 3)) {
     toPush = yeCreateArray(NULL, NULL);
 
@@ -744,6 +747,16 @@ int	luaywCanvasSetWeight(lua_State *L)
   lua_pushnumber(L, ywCanvasSetWeight(luaEntityAt(L, 1),
 				      luaEntityAt(L, 2),
 				      lua_tonumber(L, 3)));
+  return 1;
+}
+
+int	luaywCanvasDoPathfinding(lua_State *L)
+{
+  lua_pushnumber(L, ywCanvasDoPathfinding(luaEntityAt(L, 1),
+					  luaEntityAt(L, 2),
+					  luaEntityAt(L, 3),
+					  luaEntityAt(L, 4),
+					  luaEntityAt(L, 5)));
   return 1;
 }
 

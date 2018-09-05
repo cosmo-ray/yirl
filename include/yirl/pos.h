@@ -239,6 +239,26 @@ static inline Entity *ywSegmentFromPos(Entity *posA, Entity *posB,
 
 double ywPosAngle(Entity *p0, Entity *p1);
 
+static inline int ywPosMoveToward2(Entity *from, Entity *to,
+				   int max_x, int max_y)
+{
+  int x = 0, y = 0, s;
+
+  x = ywPosX(to) - ywPosX(from);
+  s = x;
+  x = yuiAbs(x) > max_x ? max_x : yuiAbs(x);
+  x = s < 0 ? -x : x;
+
+  y = ywPosY(to) - ywPosY(from);
+  s = y;
+  y = yuiAbs(y) > max_y ? max_y : yuiAbs(y);
+  y = s < 0 ? -y : y;
+
+  ywPosAddXY(from, x, y);
+  return x || y;
+}
+
+
 /**
  * move of 1 @from in the direction of @to
  * example: from is 0,0 and to is 0,3, this function will

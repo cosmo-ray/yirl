@@ -213,6 +213,7 @@ int	luaywCanvasPopObj(lua_State *L);
 int	luaywCanvasCreateYTexture(lua_State *L);
 int	luaywCanvasNewImgFromTexture(lua_State *L);
 int	luaywCanvasSetWeight(lua_State *L);
+int	luaywCanvasDoPathfinding(lua_State *L);
 
 /* texture */
 int	luaywTextureNewImg(lua_State *L);
@@ -576,6 +577,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, ywCanvasCreateYTexture);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasNewImgFromTexture);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasSetWeight);
+  YES_LUA_REGISTRE_CALL(sm, ywCanvasDoPathfinding);
 
   /* texture */
   YES_LUA_REGISTRE_CALL(sm, ywTextureNewImg);
