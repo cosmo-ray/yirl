@@ -274,6 +274,7 @@ char *yuistrcpy(char *dest, const char *src);
 char *yuistrncpy(char *dest, const char *src, size_t n);
 size_t yuistrlen(const char *s);
 
+/* This is usefull for macro and constant, otherwise use abs(so if a variable) */
 #define yuiAbs(val) (val > 0 ? val : - val)
 
 static inline int yuiStrEqual(const char *str1, const char *str2)

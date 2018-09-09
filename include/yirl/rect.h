@@ -120,6 +120,13 @@ static inline Entity *ywRectSetH(Entity *pos, int posH)
   return pos;
 }
 
+static inline Entity *ywRectAddWH(Entity *r, int w, int h)
+{
+  yeAddInt(yeGetByIdx(r, 2), w);
+  yeAddInt(yeGetByIdx(r, 3), h);
+  return r;
+}
+
 /**
  * @return true if the point at @posx, @posy is inside @rect if @proper is true
  * doen't return true when on the edge
@@ -173,7 +180,7 @@ static inline int ywRectCollision(Entity *rect0, Entity *rect1)
   return 1;
 }
 
-static inline char * ywRectToString(Entity *r)
+static inline char *ywRectToString(Entity *r)
 {
   static char tmp[4][256];
   static int i;

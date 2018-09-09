@@ -1443,6 +1443,15 @@ int	luaywPosAdd(lua_State *L)
   return 1;
 }
 
+int	luaywPosMoveToward2(lua_State *L)
+{
+  lua_pushboolean(L, ywPosMoveToward2(luaEntityAt(L, 1),
+				      luaEntityAt(L, 2),
+				      lua_tonumber(L, 3),
+				      lua_tonumber(L, 4)));
+  return 1;
+}
+
 int	luaYwMapMove(lua_State *L)
 {
   if (lua_isstring(L, 4))

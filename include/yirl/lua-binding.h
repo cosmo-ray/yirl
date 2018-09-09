@@ -153,6 +153,7 @@ int	luaywPosToString(lua_State *L);
 int	luaywPosX(lua_State *L);
 int	luaywPosY(lua_State *L);
 int	luaywPosAngle(lua_State *L);
+int	luaywPosMoveToward2(lua_State *L);
 
 /* map */
 int	luaYwMapPosFromInt(lua_State *L);
@@ -534,6 +535,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, ywPosPrint);
   YES_LUA_REGISTRE_CALL(sm, ywPosToString);
   YES_LUA_REGISTRE_CALL(sm, ywPosAngle);
+  YES_LUA_REGISTRE_CALL(sm, ywPosMoveToward2);
 
   /* Size, they're pos with diferent names */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywSizeW", luaywPosX));
