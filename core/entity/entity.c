@@ -329,7 +329,8 @@ Entity *yeNGetByStr(Entity *entity, const char *name, int len)
 
     ret = yeGetByIdxFastWithEnd(entity, name, i);
     name += i + 1;
-    cur += i;
+    cur += i + 1;
+    entity = ret;
   }
 
   return ret;
