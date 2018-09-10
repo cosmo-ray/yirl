@@ -170,6 +170,13 @@ typedef	struct
   void	*fastPath;
 } FunctionEntity;
 
+union SmallEntity {
+  Entity Entity;
+  IntEntity IntEntity;
+  FloatEntity FloatEntity;
+  uint8_t totalSize[16];
+};
+
 union FatEntity {
 	Entity Entity;
 	ArrayEntity ArrayEntity;
