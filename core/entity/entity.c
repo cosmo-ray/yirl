@@ -30,39 +30,86 @@
 static STACK_CREATE(freedElems, int64);
 static int isInit;
 static BlockArray entitysArray;
+static Entity *curentFat;
+static Entity *entity0;
+int fatPosition;
 static inline Entity *yeInit(Entity *entity, EntityType type,
 			     Entity *father, const char *name);
+
+uint8_t fatPosToFLag[4] = {YENTITY_SMALL_SIZE_P0, YENTITY_SMALL_SIZE_P1,
+			   YENTITY_SMALL_SIZE_P2, YENTITY_SMALL_SIZE_P3};
 
 #define YE_DECR_REF(entity) do {		\
     entity->refCount -= 1;		       	\
   } while (0)
 
-#define YE_DESTROY_ENTITY(entity, type) do {				\
+#define YE_DESTROY_ENTITY__(entity)				\
+  int64_t unset =						\
+    (size_t)(((union FatEntity *)entity)			\
+	     - yBlockArrayGetPtrDirect(entitysArray, 0,		\
+				       union FatEntity));	\
+  yBlockArrayUnset(&entitysArray, unset);			\
+  stack_push(freedElems, unset);				\
+
+#define YE_DESTROY_ENTITY_SMALL(entity, type) do {			\
     YE_DECR_REF(entity);						\
     if (entity->refCount < 1) {						\
-      int64_t unset =							\
-	(size_t)(((union FatEntity *)entity)				\
-		 - yBlockArrayGetPtrDirect(entitysArray, 0, union FatEntity));	\
-      yBlockArrayUnset(&entitysArray, unset);				\
-      stack_push(freedElems, unset);					\
+      int pos = ((intptr_t)((char *)entity - (char *)entity0) % 128) / 32; \
+      Entity *first = YE_TO_ENTITY(((union SmallEntity *)entity - pos)); \
+      first->flag ^= fatPosToFLag[pos];					\
+      if (!first->flag) {						\
+	if (first == curentFat) {					\
+	  curentFat = NULL;						\
+	  fatPosition = 0;						\
+	}								\
+	YE_DESTROY_ENTITY__(first);					\
+      }									\
     }									\
   } while (0);
 
-#define YE_ALLOC_ENTITY(ret, type) do {					\
+#define YE_ALLOC_ENTITY_SMALL(ret, type) do {				\
+    if (fatPosition == 0) {						\
+      YE_ALLOC_ENTITY_BASE(ret, type);					\
+      curentFat = YE_TO_ENTITY(ret);					\
+      ++fatPosition;							\
+    } else {								\
+      ret = (type *)((union SmallEntity *)curentFat + fatPosition);	\
+      ret->refCount = 1;						\
+      curentFat->flag |= fatPosToFLag[fatPosition];			\
+      ++fatPosition;							\
+      if (fatPosition > 3) {						\
+	fatPosition = 0;						\
+	curentFat = NULL;						\
+      }									\
+    }									\
+  } while (0);
+
+#define YE_ALLOC_ENTITY_BASE(ret, type) do {				\
     ret = &(yBlockArraySetGetPtr(&entitysArray,				\
 				 stack_pop(freedElems,			\
 					   yBlockArrayLastPos(entitysArray) + 1), \
 				 union FatEntity)->type);		\
+    ret->flag = YENTITY_SMALL_SIZE_P0;					\
     ret->refCount = 1;							\
   } while (0);
 
+#define YE_ALLOC_ENTITY_ArrayEntity(ret, type) YE_ALLOC_ENTITY_BASE(ret, type)
+#define YE_ALLOC_ENTITY_IntEntity(ret, type) YE_ALLOC_ENTITY_SMALL(ret, type)
+#define YE_ALLOC_ENTITY_DataEntity(ret, type) YE_ALLOC_ENTITY_BASE(ret, type)
+#define YE_ALLOC_ENTITY_FloatEntity(ret, type) YE_ALLOC_ENTITY_SMALL(ret, type)
+#define YE_ALLOC_ENTITY_FunctionEntity(ret, type) YE_ALLOC_ENTITY_BASE(ret, type)
+#define YE_ALLOC_ENTITY_StringEntity(ret, type) YE_ALLOC_ENTITY_BASE(ret, type)
+
+#define YE_ALLOC_ENTITY(ret, type) YUI_CAT(YE_ALLOC_ENTITY_, type)(ret, type)
+#define YE_DESTROY_ENTITY(entity, type) YE_DESTROY_ENTITY_SMALL(entity, type)
 
 void yeInitMem(void)
 {
-  if (!isInit) {
+ if (!isInit) {
     yBlockArrayInitExt(&entitysArray, union FatEntity,
 		       YBLOCK_ARRAY_BIG_CHUNK | YBLOCK_ARRAY_NOINIT |
 		       YBLOCK_ARRAY_NOMIDFREE);
+    entity0 = yBlockArrayGetPtrDirect(entitysArray, 0, Entity);
     isInit = 1;
     yBlockArrayDataNextSize0 = yeMetadataSize(ArrayEntity);
   }
@@ -85,8 +132,7 @@ int yeEntitiesArraySize(void)
 
 int yeIsPtrAnEntity(void *ptr)
 {
-  return ((union FatEntity *)ptr) >= yBlockArrayGetPtrDirect(entitysArray, 0,
-							     union FatEntity) &&
+  return ((Entity *)ptr) >= entity0 &&
     ((union FatEntity *)ptr) <= (yBlockArrayGetPtrDirect(entitysArray,
 							 0, union FatEntity) +
 				 yBlockArrayLastPos(entitysArray));
@@ -109,6 +155,8 @@ int yeCreateInts_(Entity *fathers, int nbVars, ...)
 void yeEnd(void)
 {
   isInit = 0;
+  fatPosition = 0;
+  curentFat = NULL;
   stack_destroy(freedElems);
   yBlockArrayFree(&entitysArray);
 }

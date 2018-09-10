@@ -138,6 +138,7 @@ Entity *yeConvert(Entity *entity, int type)
       return yeBrutalCast(entity, YINT);
     case YDATA:
     case YSTRING:
+      /* Not Posible Because of the stupdity of small entity */
     case YFUNCTION:
     case YARRAY:
     case BAD_TYPE:

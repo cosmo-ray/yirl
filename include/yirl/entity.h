@@ -45,6 +45,16 @@ typedef enum
     NBR_ENTITYTYPE = 6
   } EntityType;
 
+typedef enum
+  {
+   YENTITY_SMALL_SIZE_P0 = 1,
+   YENTITY_SMALL_SIZE_P1 = 2,
+   YENTITY_SMALL_SIZE_P2 = 4,
+   YENTITY_SMALL_SIZE_P3 = 8
+  } EntityFlag;
+
+#define YENTITY_FLAG_LAST = YENTITY_SMALL_SIZE_P3;
+
 #define YE_FORMAT_OPT_BREAK_ARRAY_END 1
 #define YE_FORMAT_OPT_PRINT_ONLY_VAL_ARRAY 2
 
@@ -102,7 +112,8 @@ typedef enum {
 
 #define	ENTITY_HEADER				\
   uint32_t refCount;				\
-  EntityType type;				\
+  uint16_t type;				\
+  uint16_t flag;				\
 
 typedef struct Entity_
 {
@@ -174,18 +185,20 @@ union SmallEntity {
   Entity Entity;
   IntEntity IntEntity;
   FloatEntity FloatEntity;
-  uint8_t totalSize[16];
+  StringEntity StringEntity;
+  uint8_t totalSize[32];
 };
 
 union FatEntity {
-	Entity Entity;
-	ArrayEntity ArrayEntity;
-	IntEntity IntEntity;
-	FloatEntity FloatEntity;
-	StringEntity StringEntity;
-	DataEntity DataEntity;
-	FunctionEntity FunctionEntity;
-	uint8_t totalSize[128];
+  Entity Entity;
+  ArrayEntity ArrayEntity;
+  IntEntity IntEntity;
+  FloatEntity FloatEntity;
+  StringEntity StringEntity;
+  DataEntity DataEntity;
+  FunctionEntity FunctionEntity;
+  union SmallEntity SnallEntities[4];
+  uint8_t totalSize[128];
 };
 
 #ifdef __cplusplus
@@ -219,9 +232,9 @@ int yeFreeEntitiesInStack(void);
 
 static inline EntityType yeType(const Entity *entity)
 {
-	if (likely(entity != NULL))
-		return entity->type;
-	return (EntityType)-1;
+  if (likely(entity != NULL))
+    return (EntityType)entity->type;
+  return (EntityType)BAD_TYPE;
 }
 
 /**
