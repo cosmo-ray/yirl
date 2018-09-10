@@ -21,7 +21,7 @@
 #include "utils.h"
 
 /* TODO: uniformize that ... */
-#define YBLOCK_ARRAY_NUMA 1
+#define YBLOCK_ARRAY_BIG_CHUNK 1
 #define YBLOCK_ARRAY_NOINIT 2
 #define YBLOCK_ARRAY_NOMIDFREE 4
 #define YBLOCK_ARRAY_NO_ALIGN 8

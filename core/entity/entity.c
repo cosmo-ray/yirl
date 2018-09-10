@@ -61,7 +61,7 @@ void yeInitMem(void)
 {
   if (!isInit) {
     yBlockArrayInitExt(&entitysArray, union FatEntity,
-		       YBLOCK_ARRAY_NUMA | YBLOCK_ARRAY_NOINIT |
+		       YBLOCK_ARRAY_BIG_CHUNK | YBLOCK_ARRAY_NOINIT |
 		       YBLOCK_ARRAY_NOMIDFREE);
     isInit = 1;
     yBlockArrayDataNextSize0 = yeMetadataSize(ArrayEntity);

@@ -30,7 +30,7 @@ inline void yBlockArrayInitInternal(BlockArray *ba, size_t elemSize, int flag)
 {
   g_assert(elemSize < YBA_MAX_ELEM_SIZE);
   ba->elemSize = elemSize;
-  if (flag & YBLOCK_ARRAY_NUMA)
+  if (flag & YBLOCK_ARRAY_BIG_CHUNK)
     ba->elems = malloc(ALLOC_SIZE);
   else
     ba->elems = NULL;
@@ -59,7 +59,7 @@ void yBlockArrayExpandBlocks(BlockArray *ba, int nb)
 {
   uint64_t oldPos = ba->nbBlock;
 
-  if (ba->flag & YBLOCK_ARRAY_NUMA)
+  if (ba->flag & YBLOCK_ARRAY_BIG_CHUNK)
     nb += 16;
   if (ba->flag & YBLOCK_ARRAY_NO_BLOCKS_NEXT0 &&
       ba->nbBlock * sizeof(uint64_t) < yBlockArrayDataNextSize0) {
@@ -80,7 +80,7 @@ void yBlockArrayExpandBlocks(BlockArray *ba, int nb)
     ba->nbBlock += nb;
     ba->blocks = g_realloc(ba->blocks, ba->nbBlock * sizeof(uint64_t));
   }
-  if (!(ba->flag & YBLOCK_ARRAY_NUMA))
+  if (!(ba->flag & YBLOCK_ARRAY_BIG_CHUNK))
     ba->elems = g_realloc(ba->elems, ba->nbBlock * BLOCK_REAL_SIZE(ba));
   ba->size = ba->nbBlock * 64 - (1 * !!ba->nbBlock);
 
