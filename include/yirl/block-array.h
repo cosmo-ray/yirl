@@ -205,10 +205,10 @@ static inline int8_t *yBlockArraySetGetPtrInternal(BlockArray *ba, size_t pos)
 	   ((ba).blocks[yfi] ^						\
 	    Y_BLOCK_ARRAY_MAKE_SET(tmpBeg##elem & 63LLU)),		\
 	   tmp##it, it;							\
-	 ((tmp##it = YUI_GET_FIRST_BIT(tmpmask)) || 1) &&		\
+	 tmpmask &&							\
+	   ((tmp##it = YUI_GET_FIRST_BIT(tmpmask)) || 1) &&		\
 	   ((it = yfi * 64 + tmp##it) || 1) &&				\
-	   ((elem = getter(ba, it, type)) || 1) &&			\
-	   tmpmask;							\
+	   ((elem = getter(ba, it, type)) || 1);			\
 	 tmpmask ^= (1LLU << tmp##it))
 
 

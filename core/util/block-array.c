@@ -113,6 +113,8 @@ inline void yBlockArrayIteratorIncr(BlockArrayIterator *it)
     it->blockPos += j;
     it->mask = yBlockArrayGetBlock(*it->array, it->blockPos);
     it->pos = 0;
+    if (!it->mask)
+      return;
   }
   it->pos = YUI_GET_FIRST_BIT(it->mask);
   it->mask &= ~(ONE64 << it->pos);
