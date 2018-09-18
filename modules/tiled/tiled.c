@@ -61,14 +61,40 @@ void *fileToCanvas(int nbArg, void **args)
 	       "should be fileToCanvas(path, canvas)");
     return NULL;
   }
+
   tiledEnt = ygFileToEnt(YJSON, path, NULL);
   tileset_array = yeGet(tiledEnt, "tilesets");
+
+  YE_ARRAY_FOREACH(tileset_array, tileset) {
+    const char *tmp_path = yeGetString(yeGet(tileset, "source"));
+    Entity *tmp;
+
+    if (assetsPath) {
+      /* strings length + 1 for \0 and +1 for '\' */
+      int buf_size = strlen(assetsPath) + strlen(tmp_path) + 2;
+      char buf[1024]; /* VLA */
+
+      snprintf(buf, buf_size, "%s/%s", assetsPath, tmp_path);
+      tmp = ygFileToEnt(YJSON, buf, NULL);
+    } else {
+      tmp = ygFileToEnt(YJSON, tmp_path, NULL);
+    }
+
+    if (!tmp) {
+      DPRINT_ERR("can't load '%s'\n", tmp_path);
+      goto exit;
+    }
+    yePushBack(tileset, tmp, "_ent");
+    yeDestroy(tmp);
+  }
+
   layers = yeGet(tiledEnt, "layers");
   yeReCreateInt(yeGetIntAt(tiledEnt, "width") * yeGetIntAt(tiledEnt, "tilewidth"),
 		canvas, "tiled-wpix");
   yeReCreateInt(yeGetIntAt(tiledEnt, "height") * yeGetIntAt(tiledEnt, "tileheight"),
 		canvas, "tiled-hpix");
   Entity *resources = yeReCreateArray(canvas, "resources", NULL);
+
   YE_ARRAY_FOREACH(layers, layer) {
     Entity *layer_name = yeGet(layer, "name");
     Entity *layer_data  = yeGet(layer, "data");
@@ -123,44 +149,28 @@ void *fileToCanvas(int nbArg, void **args)
     }
 
     YE_ARRAY_FOREACH(tileset_array, tileset) {
-      Entity *tmp;
+      Entity *tmp = yeGet(tileset, "_ent");
       int firstgid = yeGetIntAt(tileset, "firstgid");
-      const char *tmp_path = yeGetString(yeGet(tileset, "source"));
       const char *img_path;
       int tileheight, tilewidth, tilecount, columns, spacing, margin;
       Entity *texture;
       int isUpLayer = 0;
 
-      if (assetsPath) {
-	/* strings length + 1 for \0 and +1 for '\' */
-	int bux_size = strlen(assetsPath) + strlen(tmp_path) + 2;
-	char buf[1024]; /* VLA */
-
-	snprintf(buf, bux_size, "%s/%s", assetsPath, tmp_path);
-	tmp = ygFileToEnt(YJSON, buf, tileset);
-      } else {
-	tmp = ygFileToEnt(YJSON, tmp_path, tileset);
-      }
-      if (!tmp) {
-	DPRINT_ERR("can't load '%s'\n", tmp_path);
-	goto exit;
-      }
       tileheight = yeGetIntAt(tmp, "tileheight");
       tilewidth = yeGetIntAt(tmp, "tilewidth");
       spacing = yeGetIntAt(tmp, "spacing");
       margin = yeGetIntAt(tmp, "margin");
       columns = yeGetIntAt(tmp, "columns");
       tilecount = yeGetIntAt(tmp, "tilecount");
-      yeRenamePtrStr(tileset, tmp, "_ent");
       img_path = yeGetString(yeGet(tmp, "image"));
       Entity *src_rect = ywRectCreateInts(0, 0, tilewidth,
 					  tileheight, NULL, NULL);
 
       if (assetsPath) {
-	int bux_size = strlen(assetsPath) + strlen(img_path) + 2;
+	int buf_size = strlen(assetsPath) + strlen(img_path) + 2;
 	char buf[1024]; /* VLA */
 
-	snprintf(buf, bux_size, "%s/%s", assetsPath, img_path);
+	snprintf(buf, buf_size, "%s/%s", assetsPath, img_path);
 	texture = ywTextureNewImg(buf, NULL, tileset, "_texture");
       } else {
 	texture = ywTextureNewImg(img_path, NULL, tileset, "_texture");
