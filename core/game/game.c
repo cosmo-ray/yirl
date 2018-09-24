@@ -449,7 +449,6 @@ Entity *ygLoadMod(const char *path)
   yeCreateString(path, mod, "$path");
   type = yeGet(mod, "type");
   file = yeGet(mod, "file");
-  starting_widget = yeGet(mod, "starting widget");
   preLoad = yeGet(mod, "pre-load");
   initScripts = yeGet(mod, "init-scripts");
 
@@ -521,6 +520,7 @@ Entity *ygLoadMod(const char *path)
     }
   }
 
+  starting_widget = yeGet(mod, "starting widget");
   if (type) {
     if (yuiStrEqual(yeGetString(type), "json")) {
       char *fileStr;

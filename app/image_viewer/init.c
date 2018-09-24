@@ -64,4 +64,5 @@ void *init(int nbArg, void **args)
   yeCreateFunction("viewerAction", ygGetManager("tcc"), actions, NULL);
   yeCreateString("QuitOnKeyDown", actions, NULL);
   yeCreateFunction("viewerInit", ygGetManager("tcc"), canvas, "init");
+  yeCreateString("main", mod, "starting widget");
 }
