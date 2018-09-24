@@ -42,6 +42,12 @@ void *viewerAction(int nbArg, void **args)
     }
     yeMultDestroy(tmpPos, str);
     return (void *)ACTION;
+  } else if (ywidEveType(eve) == YKEY_MOUSEDOWN) {
+    Entity *tmpPos = ywPosCreate(ywidEveMousePos(eve), 0, NULL, NULL);
+
+    ywPosAdd(tmpPos, yeGet(wid, "cam"));
+    printf("[%d, %d]\n", ywPosX(tmpPos), ywPosY(tmpPos));
+    yeDestroy(tmpPos);
   }
   return (void *)NOTHANDLE;
 }
