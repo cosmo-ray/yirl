@@ -276,8 +276,10 @@ static YWidgetState *ywidNewWidgetInternal(int t,
 {
   YWidgetState *ret;
   Entity *pos = yeGet(entity, "wid-pos");
-  Entity *initer = ygGetFuncExt(yeGetString(yeGet(entity, "init")));
+  Entity *initer = yeGet(entity, "init");
 
+  if (yeType(initer) != YFUNCTION)
+    initer = ygGetFuncExt(yeGetString(initer));
   if (widgetTab.len <= t || widgetTab.allocator[t] == NULL) {
     return NULL;
   }

@@ -44,6 +44,16 @@ typedef union {
 int ywCanvasInit(void);
 int ywCanvasEnd(void);
 int ysdl2RegistreCanvas(void);
+
+
+static Entity *ywCreateCanvasEnt(Entity *father, char *name)
+{
+  Entity *ret = yeCreateArray(father, name);
+
+  yeCreateString("canvas", ret, "<type>");
+  return ret;
+}
+
 /**
  * add @pos to object position at @objIdx
  */

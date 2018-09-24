@@ -39,7 +39,13 @@ static inline void ywPosPrint(Entity *pos)
 	 ywPosX(pos), ywPosY(pos));
 }
 
-static inline char * ywPosToString(Entity *pos)
+static inline void ywSizePrint(Entity *s)
+{
+  printf("w: %d - h: %d\n",
+	 ywPosX(s), ywPosY(s));
+}
+
+static inline char * ywPosSizeToString(Entity *pos, char a, char b)
 {
   static char tmp[4][256];
   static int i;
@@ -48,10 +54,14 @@ static inline char * ywPosToString(Entity *pos)
     return (char *)"(nil)";
   ++i;
   i &= 3;
-  snprintf(tmp[i], 256, "x: %d - y: %d",
-	   yeGetInt(yeGetByIdx(pos, 0)), yeGetInt(yeGetByIdx(pos, 1)));
+  snprintf(tmp[i], 256, "%c: %d - %c: %d", a,
+	   yeGetInt(yeGetByIdx(pos, 0)), b,
+	   yeGetInt(yeGetByIdx(pos, 1)));
   return tmp[i];
 }
+
+#define ywPosToString(pos) ywPosSizeToString(pos, 'x', 'y')
+#define ywSizeToString(pos) ywPosSizeToString(pos, 'w', 'h')
 
 #define ywSizeCreate(w, h, father, name) (ywPosCreate(w, h, father, name))
 #define ywSizeCreateAt(w, h, father, name, idx) (ywPosCreateAt(w, h, father, name, idx))

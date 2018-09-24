@@ -1,0 +1,13 @@
+{
+    "name": "image viewer",
+    "init-scripts" : [
+	"init"
+    ],
+    "starting widget" : "main",
+    "pre-load" : [
+	{
+	    "file" : "init.c",
+	    "type" : "tcc"
+	}
+    ]
+}

@@ -64,6 +64,8 @@ typedef struct {
 
 #undef GList
 
+extern char *yProgramArg;
+
 extern char *ygBinaryRootPath;
 
 static inline void ygBinaryRootPathFree(void)

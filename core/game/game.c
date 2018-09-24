@@ -67,6 +67,8 @@ static int alive = 1;
 static const char *sdl2 = "sdl2";
 static const char *curses = "curses";
 
+char *yProgramArg;
+
 char *ygBinaryRootPath = "./";
 
 void *ygGetLuaManager(void)
@@ -113,7 +115,6 @@ static void *quitOnKeyDown(va_list ap)
   YEVE_FOREACH(eve, events) {
     if (ywidEveType(eve) == YKEY_DOWN) {
       if (ywidEveKey(eve) == 'q' ||
-	  ywidEveKey(eve) == '\n' ||
 	  ywidEveKey(eve) == Y_ESC_KEY) {
 	alive = 0;
 	ret = (void *)ACTION;
@@ -360,6 +361,8 @@ void ygEnd()
   yeDestroy(baseMod);
   baseMod = NULL;
   yeEnd();
+  free(yProgramArg);
+  yProgramArg = NULL;
   init = 0;
 }
 

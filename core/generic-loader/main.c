@@ -36,7 +36,7 @@ int main(int argc, char **argv)
   int height = -1;
   int render_need_free = 1;
   int start_need_free = 1;
-  const GOptionEntry entries[9] = {
+  const GOptionEntry entries[10] = {
     {"render", 'r', 0,  G_OPTION_ARG_STRING, &render,
      "choose render('sdl2' or curses), default: sdl", NULL},
     {"start", 's', 0,  G_OPTION_ARG_STRING, &start,
@@ -44,6 +44,7 @@ int main(int argc, char **argv)
     {"name", 'n', 0,  G_OPTION_ARG_STRING, &name, "window name", NULL},
     {"width", 'W', 0,  G_OPTION_ARG_INT, &width, "window width", NULL},
     {"height", 'H', 0,  G_OPTION_ARG_INT, &height, "window height", NULL},
+    {"arg", 0, 0,  G_OPTION_ARG_STRING, &yProgramArg, "program argument", NULL},
     {"default-tcc-path", 0, 0,  G_OPTION_ARG_NONE, &default_tcc_path,
      "set this if tcc files are not in start directory", NULL},
     {"binary-root-path", 0, 0,  G_OPTION_ARG_STRING, &binaryRootPath,
