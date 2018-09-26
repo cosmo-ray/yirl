@@ -5,6 +5,7 @@ Menu = {}
 CanvasObj = {}
 Event = {}
 Pos = {}
+Size = Pos
 Rect = {}
 File = {}
 

@@ -85,6 +85,11 @@ int ywCanvasObjIsOut(Entity *wid, Entity *obj);
 int ywCanvasSetWeight(Entity *wid, Entity *canvas, int weight);
 
 Entity *ywCanvasNewObj(Entity *wid, int x, int y, int id);
+/**
+ * @param rect is not a rect but an array entity containing
+ * the size at index 0, and a string of the color at index 1
+ * x, and y are alerady used to define the starting point of the rect
+ */
 Entity *ywCanvasNewRect(Entity *wid, int x, int y, Entity *rect);
 Entity *ywCanvasNewText(Entity *wid, int x, int y, Entity *string);
 Entity *ywCanvasNewTextExt(Entity *wid, int x, int y, Entity *string,
