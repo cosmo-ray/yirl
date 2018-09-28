@@ -91,6 +91,7 @@ Entity *ywCanvasNewObj(Entity *wid, int x, int y, int id);
  * x, and y are alerady used to define the starting point of the rect
  */
 Entity *ywCanvasNewRect(Entity *wid, int x, int y, Entity *rect);
+Entity *ywCanvasNewTextByStr(Entity *wid, int x, int y, const char *str);
 Entity *ywCanvasNewText(Entity *wid, int x, int y, Entity *string);
 Entity *ywCanvasNewTextExt(Entity *wid, int x, int y, Entity *string,
 			   const char *color);

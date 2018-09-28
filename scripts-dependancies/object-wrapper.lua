@@ -271,7 +271,7 @@ function Canvas:new_texture(x, y, text, srcRect)
 end
 
 function Canvas:new_text(x, y, txt)
-   local ret = ywCanvasNewText(self.ent, x, y, txt:cent())
+   local ret = ywCanvasNewText(self.ent, x, y, txt)
    return CanvasObj.wrapp(ret)
 end
 

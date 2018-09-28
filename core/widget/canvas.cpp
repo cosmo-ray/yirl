@@ -348,6 +348,20 @@ extern "C" {
     return obj;
   }
 
+  Entity *ywCanvasNewTextByStr(Entity *wid, int x, int y, const char *str)
+  {
+    if (!str)
+      return NULL;
+    Entity *obj = yeCreateArray(NULL, NULL);
+
+    yeCreateInt(YCanvasString, obj, "canvas-type");
+    ywPosCreateInts(x, y, obj, "pos");
+    yeCreateString(str, obj, "str");
+    ywCanvasSetWeightInternal(wid, obj, 0, 1);
+    sdlCanvasCacheTexture(wid, obj);
+    return obj;
+  }
+
   Entity *ywCanvasNewTextExt(Entity *wid, int x, int y, Entity *string,
 			     const char *color)
   {

@@ -714,10 +714,18 @@ int	luaywCanvasNewTextExt(lua_State *L)
 
 int luaYwCanvasNewText(lua_State *L)
 {
-  lua_pushlightuserdata(L, ywCanvasNewText(luaEntityAt(L, 1),
-					   lua_tonumber(L, 2),
-					   lua_tonumber(L, 3),
-					   luaEntityAt(L, 4)));
+  if (lua_isstring(L, 4)) {
+    lua_pushlightuserdata(L, ywCanvasNewTextByStr(luaEntityAt(L, 1),
+						  lua_tonumber(L, 2),
+						  lua_tonumber(L, 3),
+						  lua_tostring(L, 4)));
+
+  } else {
+    lua_pushlightuserdata(L, ywCanvasNewText(luaEntityAt(L, 1),
+					     lua_tonumber(L, 2),
+					     lua_tonumber(L, 3),
+					     luaEntityAt(L, 4)));
+  }
   return 1;
 }
 
