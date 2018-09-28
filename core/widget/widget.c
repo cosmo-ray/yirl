@@ -63,6 +63,8 @@ int ywidYMouseLastClick;
 int ywIsSmootOn;
 int ywTurnPecent;
 
+int yeveWindowGetFocus;
+
 void ywidChangeResolution(int w, int h)
 {
   ywidWindowWidth = w;

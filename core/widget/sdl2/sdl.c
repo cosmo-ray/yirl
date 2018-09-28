@@ -209,6 +209,9 @@ static inline Entity *SDLConvertEvent(SDL_Event* event)
   yeCreateIntAt(NOTHANDLE, eve, NULL, YEVE_STATUS);
   switch(event->type)
     {
+    case SDL_WINDOWEVENT:
+      yeveWindowGetFocus = 1;
+      break;
     case SDL_KEYUP:
       yeCreateIntAt(YKEY_UP, eve, NULL, YEVE_TYPE);
       break;

@@ -27,6 +27,8 @@
 #include "yirl/keydef.h"
 #include "yirl/pos.h"
 
+extern int yeveWindowGetFocus;
+
 typedef enum
   {
     YRECALL_INIT = 0,
@@ -247,7 +249,8 @@ static inline int ywidSubRend(YWidgetState *opac)
 static inline int ywidRend(YWidgetState *opac)
 {
   int ret = 0;
-  if (opac->render && opac->hasChange) {
+  if (opac->render && (opac->hasChange || yeveWindowGetFocus)) {
+    yeveWindowGetFocus = 0;
     ret = opac->render(opac);
     opac->hasChange = 0;
     ywidDrawScreen();
