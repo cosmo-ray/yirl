@@ -209,6 +209,12 @@ static inline Entity *SDLConvertEvent(SDL_Event* event)
   yeCreateIntAt(NOTHANDLE, eve, NULL, YEVE_STATUS);
   switch(event->type)
     {
+    case SDL_QUIT:
+    case SDL_APP_TERMINATING:
+      printf("Quit requested by user");
+      if (ygIsInit())
+	ygTerminate();
+      break;
     case SDL_WINDOWEVENT:
       yeveWindowGetFocus = 1;
       break;

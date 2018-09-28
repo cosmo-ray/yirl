@@ -95,11 +95,16 @@ void *ygGetTccManager(void)
     }									\
   } while (0)
 
-static void *ygTerminateCallback(va_list va)
+void ygTerminate(void)
 {
   ysdl2WindowMode();
-  (void)va;
   alive = 0;
+}
+
+static void *ygTerminateCallback(va_list va)
+{
+  (void)va;
+  ygTerminate();
   return (void *)ACTION;
 }
 

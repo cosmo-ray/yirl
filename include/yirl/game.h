@@ -139,6 +139,7 @@ int ygLoadScript(Entity *mod, void *manager, const char *path);
 
 void *ygGetManager(const char *name);
 
+void ygTerminate(void);
 void ygEnd(void);
 
 /* scrits managers */
