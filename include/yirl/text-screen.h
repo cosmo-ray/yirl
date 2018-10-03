@@ -24,5 +24,6 @@ int ywTextScreenInit(void);
 int ywTextScreenEnd(void);
 int ywTextScreenPosAtEndOfText(Entity *wid);
 const char *ywTextScreenText(Entity *wid);
+Entity *ywTextScreenTextEnt(Entity *wid);
 
 #endif

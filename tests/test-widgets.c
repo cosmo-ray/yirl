@@ -145,7 +145,7 @@ void testYWTextScreenSdl2(void)
   jsonManager = ydNewManager(t);
   g_assert(jsonManager != NULL);
   ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
-  map = yeGet(ret, "TextScreenTest");
+  map = yeGet(ret, "ScroolingTest");
   g_assert(map);
   g_assert(!ydJsonEnd());
   g_assert(!ydDestroyManager(jsonManager));
@@ -166,7 +166,6 @@ void testYWTextScreenSdl2(void)
 
   do {
     g_assert(ywidRend(wid) != -1);
-    usleep(100000);
   } while(ywidDoTurn(wid) != ACTION);
 
   g_assert(!ywTextScreenEnd());
@@ -176,6 +175,7 @@ void testYWTextScreenSdl2(void)
   YE_DESTROY(ret);
   yeEnd();
 }
+
 
 void testSdlLife(void)
 {

@@ -47,10 +47,10 @@ typedef enum
 
 typedef enum
   {
-   YENTITY_SMALL_SIZE_P0 = 1,
-   YENTITY_SMALL_SIZE_P1 = 2,
-   YENTITY_SMALL_SIZE_P2 = 4,
-   YENTITY_SMALL_SIZE_P3 = 8
+   YENTITY_SMALL_SIZE_P0 = 1 << 0,
+   YENTITY_SMALL_SIZE_P1 = 1 << 1,
+   YENTITY_SMALL_SIZE_P2 = 1 << 2,
+   YENTITY_SMALL_SIZE_P3 = 1 << 3
   } EntityFlag;
 
 #define YENTITY_FLAG_LAST = YENTITY_SMALL_SIZE_P3;
@@ -501,6 +501,8 @@ Entity *yeCreateIntAt(int value, Entity *father, const char *name, int idx);
 Entity *yeCreateFloat(double value, Entity *fathers, const char *name);
 Entity *yeCreateFloatAt(double value, Entity *fathers, const char *name, int idx);
 Entity *yeCreateString(const char *string, Entity *fathers, const char *name);
+Entity *yeCreateNString(const char *string, int l, Entity *fathers,
+			const char *name);
 
 int yeCreateInts_(Entity *fathers, int nbVars, ...);
 
@@ -609,6 +611,11 @@ void	yeSetFloat(Entity *entity, double value);
  * @param val     the string to set to the StringEntity
  */
 void	yeSetString(Entity *entity, const char *value);
+
+/**
+ * similar to @yeSetString but copy at most n byte
+ */
+void	yeSetNString(Entity *e, const char *str, size_t n);
 
 /**
  * @brief set a function entity to NULL

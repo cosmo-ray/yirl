@@ -577,6 +577,19 @@ Entity *yeCreateString(const char *string, Entity *father, const char *name)
   return (YE_TO_ENTITY(ret));
 }
 
+Entity *yeCreateNString(const char *string, int n, Entity *father,
+			const char *name)
+{
+  StringEntity *ret;
+
+  YE_ALLOC_ENTITY(ret, StringEntity);
+  yeInit((Entity *)ret, YSTRING, father, name);
+  ret->value = NULL;
+  ret->origin = NULL;
+  yeSetNString(YE_TO_ENTITY(ret), string, n);
+  return (YE_TO_ENTITY(ret));
+}
+
 Entity *yeReCreateData(void *value, Entity *father, const char *name)
 {
   Entity *ret = yeGet(father, name);
@@ -858,6 +871,29 @@ Entity *yePopBack(Entity *entity)
     ret = NULL;
   yeExpandArray(entity, len - 1);
   return (ret);
+}
+
+void	yeSetNString(Entity *e, const char *str, size_t n)
+{
+  if (unlikely(!e))
+    return;
+  if (YE_TO_STRING(e)->value != NULL) {
+    if (e->type == YSTRING && YE_TO_STRING(e)->origin != NULL)
+      free(YE_TO_STRING(e)->origin);
+    else
+      free(YE_TO_STRING(e)->value);
+  }
+  if (str != NULL) {
+    char *tmp_val = strndup(str, n);
+    YE_TO_STRING(e)->value = tmp_val;
+    if (e->type == YSTRING)
+      YE_TO_STRING(e)->len = strlen(tmp_val);
+  } else {
+    YE_TO_STRING(e)->value = NULL;
+    if (e->type == YSTRING)
+      YE_TO_STRING(e)->len = 0;
+  }
+  YE_TO_STRING(e)->origin = NULL;
 }
 
 void	yeSetString(Entity *entity, const char *val)

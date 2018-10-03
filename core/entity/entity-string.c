@@ -40,6 +40,45 @@ Entity *yeToLower(Entity *e)
   return e;
 }
 
+Entity *yeStringAddTmpEnd(Entity *e, size_t newEndPos,
+			  Entity *father, const char *name)
+{
+  Entity *ret;
+  size_t l = yeLen(e);
+  char *str = YE_TO_STRING(e)->value;
+
+  if (newEndPos >= l)
+    return NULL;
+  ret = yeCreateArray(father, name);
+  yeCreateInt(l, ret, NULL);
+  yeCreateNString(&str[newEndPos], 1, ret, NULL);
+  str[newEndPos] = '\0';
+  YE_TO_STRING(e)->len = strlen(str);
+  return ret;
+}
+
+void yeStringRestoreEnd(Entity *e, Entity *oldEnd, int shouldFree)
+{
+  int oldLen = YE_TO_STRING(e)->len;
+  YE_TO_STRING(e)->len = yeGetIntAt(oldEnd, 0);
+  YE_TO_STRING(e)->value[oldLen] = yeGetStringAt(oldEnd, 1)[0];
+  if (shouldFree)
+    yeDestroy(oldEnd);
+}
+
+signed char yeStringReplaceCharAt(Entity *ent, char c, size_t at)
+{
+  int ret;
+  char *str = YE_TO_STRING(ent)->value;
+
+
+  if (yeLen(ent) >= at)
+    return -1;
+  ret = str[at];
+  str[at] = c;
+  return ret;
+}
+
 int yeStringReplace(Entity *ent, const char *substr, const char *replacement)
 {
   int substrlen = strlen(substr);

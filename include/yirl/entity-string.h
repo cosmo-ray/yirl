@@ -64,6 +64,29 @@ int yeStringAddLong(Entity *ent, long i);
 
 int yeStringReplace(Entity *ent, const char *substr, const char *replacement);
 
+/**
+ * @brief replace the character at @at by @c
+ * @return the character at @ent[@at] before it was replace, or -1
+ */
+signed char yeStringReplaceCharAt(Entity *ent, char c, size_t at);
+
+/**
+ * @brief change the len of the string, to @newEndPos + 1
+ * this function add a '\0' at e[newEndPos], and change e->len to newEndPos + 1
+ * @return a Tuple Entity containing the old len and what was @at e[newEndPos],
+ * this tuple must be used be yeStringRestoreEnd
+ */
+Entity *yeStringAddTmpEnd(Entity *e, size_t newEndPos,
+			  Entity *father, const char *name);
+
+/**
+ * @brief restore len before yeStringAddTmpEnd was call
+ * @param oldEnd return of yeStringAddTmpEnd
+ * @param shouldFree 1 if oldEnd need to be free, otherwise,
+ *	  oldEnd won't be free, and the FSF unhappy
+ */
+void yeStringRestoreEnd(Entity *e, Entity *oldEnd, int shouldFree);
+
 
 /**
  * @brief store next word in a temporary
