@@ -165,6 +165,7 @@ void testYWTextScreenSdl2(void)
   g_assert(wid);
 
   do {
+    wid->hasChange = 1;
     g_assert(ywidRend(wid) != -1);
   } while(ywidDoTurn(wid) != ACTION);
 
