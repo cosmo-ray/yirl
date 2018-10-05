@@ -9,6 +9,12 @@ Size = Pos
 Rect = {}
 File = {}
 
+-- Should have a C wrapper, but I'm lazy
+
+function yeGetStringAt(e, i)
+   return yeGetString(yeGet(e, i))
+end
+
 local function tryPushWidType(ent, t)
    if ent["<type>"] == nil then
       ent["<type>"] = t

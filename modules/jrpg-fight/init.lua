@@ -666,11 +666,29 @@ function setCombots(path)
    combots = Entity.wrapp(ygGet(ylovePtrToString(path)))
 end
 
+function getWinner(wid, id)
+   if id == PJ_WIN then
+      return yeGet(wid, "enemy");
+   else
+      return yeGet(wid, "player");
+   end
+end
+
+function getLooser(wid, id)
+   if id == PJ_WIN then
+      return yeGet(wid, "player");
+   else
+      return yeGet(wid, "enemy");
+   end
+end
+
 function initFight(mod)
    local init = yeCreateArray()
    yuiRandInit()
    yeCreateString("jrpg-fight", init, "name")
    yeCreateFunction("fightInit", init, "callback")
    ygRegistreFunc(1, "setCombots", "yJrpgFightSetCombots")
+   ygRegistreFunc(1, "getWinner", "yJrpgGetWinner")
+   ygRegistreFunc(1, "getLooser", "yJrpgGetLooser")
    ywidAddSubType(init)
 end
