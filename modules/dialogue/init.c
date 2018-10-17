@@ -41,7 +41,7 @@ static Entity *getAnswer(Entity *mn, int idx);
 static Entity *getTextWidget(Entity *main);
 static Entity *getMenu(Entity *main);
 
-static void *dialogueGotoNext(int nbArgs, void **args);
+void *dialogueGotoNext(int nbArgs, void **args);
 
 struct mainDrv cntDialogueMainDrv = {
   getTextWidget, getMenu
@@ -161,6 +161,7 @@ static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
   Entity *answers;
   Entity *txt;
   Entity *entries;
+  int destroyable_answers = 0;
 
   if (yeGetIntAt(wid, "isBlock") == 1) {
     dialogue = yeGet(wid, "block");
@@ -169,10 +170,17 @@ static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
   }
   txt = getText(menu, dialogue);
   answers = yeGet(dialogue, "answers");
+
   if (!answers) {
     Entity *answer = yeGet(dialogue, "answer");
 
-    answers = yeCreateArray(dialogue, "answers");
+    if (yeType(dialogue) == YSTRING) {
+      answers = yeCreateArray(NULL, NULL);
+      destroyable_answers = 1;
+    } else {
+      answers = yeCreateArray(dialogue, "answers");
+    }
+
     if (answer) {
       yePushBack(answers, answer, NULL);
     } else {
@@ -194,9 +202,19 @@ static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
 
     if (condition)
       yeReCreateInt(!yeCheckCondition(condition), answer, "hiden");
-    if (drv == &cntDialogueMnDrv)
-      yePushBack(entries, answer, NULL);
+    if (drv == &cntDialogueMnDrv) {
+      if (yeType(answer) == YSTRING) {
+	Entity *strAnswer = answer;
+	answer = yeCreateArray(entries, NULL);
+	yePushBack(answer, strAnswer, "text");
+	yeCreateString("Dialogue.gotoNext", answer, "action");
+      } else {
+	yePushBack(entries, answer, NULL);
+      }
+    }
   }
+  if (destroyable_answers)
+    yeDestroy(answers);
 }
 
 void *dialogueGetMain(int nbArgs, void **args)
@@ -262,10 +280,8 @@ void *dialoguePostAction(int nbArgs, void **args)
   Entity *e = args[1];
   struct mainDrv *drv = getMainDrv(e);
 
-  if (ret_type == NOTHANDLE)
-    return NOTHANDLE;
   refreshAnswer(e, drv->getMenu(e), yeGet(e, "active_dialogue"));
-  return ret_type;
+  return ret_type == ACTION ? ACTION: NOACTION;
 }
 
 void *dialogueAction(int nbArgs, void **args)
@@ -349,6 +365,9 @@ void *dialogueGotoNext(int nbArgs, void **args)
   struct mainDrv *drv = getMainDrv(main);
   Entity *active_dialogue = yeGet(main, "active_dialogue");
 
+  if (drv == &cntDialogueMainDrv) {
+    ywtextScreenResetTimer(ywCntGetEntry(main, 0));
+  }
   yeAddInt(active_dialogue, 1);
   printfTextAndAnswer(main, drv->getTextWidget(main), args[0], active_dialogue);
   return (void *)NOACTION;
@@ -440,6 +459,7 @@ void *dialogueInit(int nbArgs, void **args)
   yeCreateFunction("dialogueAction", ygGetTccManager(), main, "action");
   yeCreateFunction("dialoguePostAction", ygGetTccManager(),
 		     main, "post-action");
+  yeGetPush(main, textScreen, "text-speed");
   yeCreateString("text-screen", textScreen, "<type>");
   yeTryCreateInt(70, textScreen, "size");
   yePushBack(textScreen, yeGet(main, "speaker_background"),

@@ -249,6 +249,11 @@ EntityType yeStringToType(const char *str);
  */
 const char *yeTypeToString(int type);
 
+static inline const char *yeTypeAsString(Entity *e)
+{
+  return yeTypeToString(yeType(e));
+}
+
 
 /**
  * @brief convert @entity to @type

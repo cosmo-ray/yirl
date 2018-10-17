@@ -119,6 +119,13 @@ Entity *ywTextScreenTextEnt(Entity *wid)
   return ret;
 }
 
+void ywtextScreenResetTimer(Entity *e)
+{
+  YTextScreenState *state = (YTextScreenState *)ywidGetState(e);
+
+  YTimerReset(state->timerTxtSpeed);
+}
+
 const char *ywTextScreenText(Entity *wid)
 {
   return yeGetString(ywTextScreenTextEnt(wid));
