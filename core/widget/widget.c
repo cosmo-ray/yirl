@@ -602,6 +602,8 @@ int ywidDoTurn(YWidgetState *opac)
 
 InputStatue ywidAction(Entity *action, Entity *wid, Entity *eve, Entity *arg)
 {
+  if (unlikely(!action))
+    return NOTHANDLE;
   if (yeType(action) == YSTRING) {
     Entity *f = ygGet(yeGetString(action));
     InputStatue r = (InputStatue)yesCall(f, wid, eve, arg);

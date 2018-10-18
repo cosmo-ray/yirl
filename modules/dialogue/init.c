@@ -113,6 +113,11 @@ static Entity *getAnswers(Entity *mn)
   return yeGet(mn, "entries");
 }
 
+static size_t dialogueLen(Entity *main)
+{
+  return yeLen(yeGet(main, "dialogue"));
+}
+
 static void refreshAnswer(Entity *wid, Entity *menu, Entity *curent)
 {
   struct menuDrv *drv = getMenuDrv(menu);
@@ -369,6 +374,9 @@ void *dialogueGotoNext(int nbArgs, void **args)
     ywtextScreenResetTimer(ywCntGetEntry(main, 0));
   }
   yeAddInt(active_dialogue, 1);
+  if (yeGetInt(active_dialogue) >= dialogueLen(main)) {
+    return (void *)ywidAction(yeGet(main, "endAction"), args[0], NULL, NULL);
+  }
   printfTextAndAnswer(main, drv->getTextWidget(main), args[0], active_dialogue);
   return (void *)NOACTION;
 }
