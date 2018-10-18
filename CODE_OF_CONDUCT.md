@@ -37,9 +37,13 @@ local and global, especially global, namespace are for bad devlopers who don't k
 
 This Code of Conduct is adapted from the Contributor Covenant, version 1.4, available at http://contributor-covenant.org/version/1/4
 
-# Note in case of stupidity
+# Note about Huges
+
+in the hope to make this comunity as hostile as posible, Hugs are completely forbiden for everyone exept for Free Bsd Devlopeurs.
+
+# Note
 
 Nothing serious here, We just don't like code of conduct, we think most peoples are smart enouth to know how to behave
-If you don't have an aceptable atitude, we'll warn you, and maybe ban you.
+If you don't have an aceptable atitude, we wont be happy, and take mesure whatever it is.
 
 
