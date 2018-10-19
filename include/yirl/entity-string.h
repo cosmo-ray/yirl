@@ -23,6 +23,9 @@ Entity *yeToLower(Entity *e);
 
 int yeStrCmp(Entity *ent1, const char *str);
 
+#define yeStrCmpAt(e, str, at)			\
+  (yeStrCmp(yeGet(e, at), str))
+
 int yeStrCaseCmp(Entity *ent, const char *str);
 
 /**
