@@ -19,12 +19,23 @@ void testEntityPatch(void)
   mn2 = yeCreateArray(NULL, NULL);
 
   yeCopy(mn, mn2);
+  entries = yeGet(mn2, "entries");
+
+  yeRemoveChild(entries, 2);
+  g_assert(yeLen(entries) == 2);
+
+  patch = yePatchCreate(mn, mn2, NULL, NULL);
+  g_assert(patch);
+  yePatchAply(mn, patch);
+  yeDestroy(patch);
+
+  g_assert(yeLen(yeGet(mn, "entries")) == 2);
+
   /* Manu rentre chez toi c'est a moi qu'tu fait d'la peine... */
   yeReCreateString("manu", mn2, "<type>");
   yeCreateString("ayoyoyo", mn2, "wololo");
   yeRemoveChild(mn2, "background");
   yeReCreateInt(1337, mn2, "button_background");
-  entries = yeGet(mn2, "entries");
   yeSetAt(yeGet(entries, 0), "text", "new text");
   yeCreateFloat(3.14, entries, NULL);
 
@@ -39,7 +50,7 @@ void testEntityPatch(void)
   g_assert(yeGetIntAt(mn, "button_background") == 1337);
   g_assert(!yeGet(mn, "background"));
   entries = yeGet(mn, "entries");
-  g_assert(yeGetFloatAt(entries, 3) == 3.14);
+  g_assert(yeGetFloatAt(entries, 2) == 3.14);
   g_assert(!yeStrCmpAt(yeGet(entries, 0), "new text", "text"));
   ydJsonEnd();
   ydDestroyManager(jsonManager);
