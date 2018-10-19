@@ -577,6 +577,20 @@ Entity *yeCreateString(const char *string, Entity *father, const char *name)
   return (YE_TO_ENTITY(ret));
 }
 
+Entity *yeCreateStringAt(const char *string, Entity *father,
+			 const char *name, int idx)
+{
+  StringEntity *ret;
+
+  YE_ALLOC_ENTITY(ret, StringEntity);
+  yeInitAt((Entity *)ret, YSTRING, father, name, idx);
+  ret->value = NULL;
+  ret->origin = NULL;
+  yeSetString(YE_TO_ENTITY(ret), string);
+  return (YE_TO_ENTITY(ret));
+}
+
+
 Entity *yeCreateNString(const char *string, int n, Entity *father,
 			const char *name)
 {
@@ -1321,6 +1335,18 @@ int yeArrayContainEntitiesInternal(Entity *entity, ...)
     }
   }
   va_end(ap);
+  return 1;
+}
+
+int yeIsPureArray(Entity *e)
+{
+  if (yeType(e) != YARRAY)
+    return 0;
+
+  YE_ARRAY_FOREACH_ENTRY(e, entry) {
+    if (entry->name)
+      return 0;
+  }
   return 1;
 }
 

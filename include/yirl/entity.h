@@ -26,16 +26,17 @@
 
 #define NONNULL(arg) __attribute__ ((nonnull (arg)))
 
-typedef enum {
-  YE_FIND_MONE = 0,
-  YE_FIND_LINK_NO_GET = 1,
-  YE_FIND_LINK_NO_DEEP = 2
-} YeFindFlag;
+typedef enum
+  {
+   YE_FIND_MONE = 0,
+   YE_FIND_LINK_NO_GET = 1,
+   YE_FIND_LINK_NO_DEEP = 2
+  } YeFindFlag;
 
 /* All entity type, each is defined later inside a struture */
 typedef enum
   {
-    BAD_TYPE = -1,
+   BAD_TYPE = -1,
     YINT = 0,
     YFLOAT = 1,
     YSTRING = 2,
@@ -238,6 +239,11 @@ static inline EntityType yeType(const Entity *entity)
 }
 
 /**
+ * @return 1 if e is an array that doen't contain any named key
+ */
+int yeIsPureArray(Entity *e);
+
+/**
  * @param str   the type name
  * @return the corresponding type, -1 if type not found
  */
@@ -293,6 +299,13 @@ Entity *yeBrutalCast(Entity *entity, int type);
 	 YE_ARRAY_FOREACH_SET_VAL(it, val);	\
        yBlockArrayIteratorIncr(&it))
 
+#define YE_ARRAY_FOREACH_ENTRY(array, val)	\
+  ArrayEntry *val;					\
+  for (BlockArrayIterator it =			\
+	 YE_ARRAY_FOREACH_INIT(array);		\
+       !yBlockArrayIteratorIsEnd(&it) &&	\
+	 ({ val =  yBlockArrayIteratorGetPtr(it, ArrayEntry) ; 1; });	\
+       yBlockArrayIteratorIncr(&it))
 
 #define YE_ARRAY_FOREACH(array, val)		\
   YE_ARRAY_FOREACH_EXT(array, val, it##val)
@@ -341,7 +354,7 @@ static inline Entity *yeGetByEntity(Entity *array, Entity *key);
 				      char *: yeGetByStrFast) (ENTITY, INDEX)
 
 #endif
- 
+
 /**
  * @return the key string if there is one
  */
@@ -506,6 +519,8 @@ Entity *yeCreateIntAt(int value, Entity *father, const char *name, int idx);
 Entity *yeCreateFloat(double value, Entity *fathers, const char *name);
 Entity *yeCreateFloatAt(double value, Entity *fathers, const char *name, int idx);
 Entity *yeCreateString(const char *string, Entity *fathers, const char *name);
+Entity *yeCreateStringAt(const char *string, Entity *father,
+			 const char *name, int idx);
 Entity *yeCreateNString(const char *string, int l, Entity *fathers,
 			const char *name);
 
@@ -873,7 +888,7 @@ static inline int yeStringIndexChar(Entity *entityStr, const char *chars)
   return -1;
 }
 
-static inline int yeOpsIntAddInt(IntEntity *e, int i)
+static inline int yeIntAddInt(IntEntity *e, int i)
 {
   e->value += i;
   return 0;
@@ -893,7 +908,7 @@ static inline int yeAddInt(Entity *e, int i)
 {
   switch (yeType(e)) {
   case YINT:
-    return yeOpsIntAddInt(YE_TO_INT(e), i);
+    return yeIntAddInt(YE_TO_INT(e), i);
   case YSTRING:
     return yeStringAddInt(e, i);
   default :
@@ -1118,5 +1133,37 @@ static inline int yeSwapElems(Entity *array, Entity *elem0, Entity *elem1)
   return 0;
 }
 
+/**
+ * @return 1 if content of a and b is the same, work only for string, int and float
+ */
+static inline int yeEqual(Entity *a, Entity *b)
+{
+  if (yeType(a) != yeType(b))
+    return 0;
+  switch (yeType(a)) {
+  case YINT:
+    return yeGetInt(a) == yeGetInt(b);
+  case YFLOAT:
+    return yeGetFloat(a) == yeGetFloat(b);
+  case YSTRING:
+    return !yeStrCmp(a, yeGetString(b));
+  default:
+    break;
+  }
+  return 0;
+}
+
+/**
+ * create an entity that contain a representation of the diference between
+ * orginalEntity and patchEntity
+ *
+ * @param father
+ * @param name
+ * @return the patch entity
+ */
+Entity *yePatchCreate(Entity *orginalEntity, Entity *patchEntity,
+		      Entity *father, const char *name);
+
+void yePatchAply(Entity *dest, Entity *patch);
 
 #endif

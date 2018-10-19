@@ -83,6 +83,7 @@ int main(int argc, char **argv)
   TEST_TRY_ADD("/entity/strings", stringsTests, only);
 
   TEST_TRY_ADD("/entity/copy", testCopy, only);
+  TEST_TRY_ADD("/entity/patch", testEntityPatch, only);
 
   TEST_TRY_ADD("/entity/setunset/simple", testSetSimple, only);
   TEST_TRY_ADD("/entity/setunset/complex", testSetComplex, only);

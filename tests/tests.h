@@ -31,6 +31,7 @@ void testLifeDeathRebirdAndAgain(void);
 void stringsTests(void);
 
 void testCopy(void);
+void testEntityPatch(void);
 
 void testGet(void);
 void testGetByEntity(void);

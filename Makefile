@@ -2,7 +2,8 @@ NAME= yirl
 
 LIBNAME= lib$(NAME)
 
-all:	build-generic-loader build-tests build-shooter build-sm-mod-ex build-snake-ex
+all:	build-generic-loader build-tests build-shooter \
+	build-sm-mod-ex build-snake-ex
 
 include config.mk
 
@@ -31,6 +32,7 @@ SRC = 	$(SCRIPT_DIR)/lua-script.c \
 	$(ENTITY_DIR)/entity.c \
 	$(ENTITY_DIR)/entity-string.c \
 	$(ENTITY_DIR)/entity-convertions.c \
+	$(ENTITY_DIR)/entity-patch.c \
 	$(GAME_DIR)/game.c \
 	$(UTIL_DIR)/util.c \
 	$(UTIL_DIR)/block-array.c \
