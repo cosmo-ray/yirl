@@ -94,6 +94,8 @@ int	luayeFreeEntitiesInStack(lua_State *L);
 int	luayeEntitiesUsed(lua_State *L);
 int	luayeRefCount(lua_State *L);
 int	luayeConvert(lua_State *L);
+int	luayePatchCreate(lua_State *L);
+int	luayePatchAply(lua_State *L);
 
 /* string */
 int	luaGetString(lua_State *L);
@@ -438,6 +440,8 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, yeFreeEntitiesInStack);
   YES_LUA_REGISTRE_CALL(sm, yeRefCount);
   YES_LUA_REGISTRE_CALL(sm, yeConvert);
+  YES_LUA_REGISTRE_CALL(sm, yePatchCreate);
+  YES_LUA_REGISTRE_CALL(sm, yePatchAply);
 
   /* string */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeGetString", luaGetString));

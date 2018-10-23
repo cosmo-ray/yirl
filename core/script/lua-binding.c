@@ -280,6 +280,20 @@ int	luaentity_wrapp(lua_State *L)
   return 1;
 }
 
+int	luayePatchCreate(lua_State *L)
+{
+  lua_pushlightuserdata(L, yePatchCreate(luaEntityAt(L, 1), luaEntityAt(L, 2),
+					 luaEntityAt(L, 3),
+					 lua_tostring(L, 4)));
+  return 1;
+}
+
+int	luayePatchAply(lua_State *L)
+{
+  yePatchAply(luaEntityAt(L, 1), luaEntityAt(L, 2));
+  return 0;
+}
+
 int	luaentity_tostring(lua_State *L)
 {
   struct entityWrapper *ew = luaL_checkudata(L, 1, "Entity");

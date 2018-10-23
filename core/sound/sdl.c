@@ -23,7 +23,7 @@
 #include "sound.h"
 #include "sound-libvlc.h"
 
-#define ARRAY_SIZE 128
+#define ARRAY_SIZE 256
 
 static Mix_Music *musiques[ARRAY_SIZE];
 static uint8_t is_used[ARRAY_SIZE];

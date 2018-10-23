@@ -49,6 +49,7 @@ static inline Entity *patchCreate(Entity *father, const char *name)
 {
   Entity *ret = yeCreateArray(father, name);
   yeCreateIntAt(YEP_NONE, ret, NULL, YEP_OPERATION);
+  yeCreateIntAt(YEP_NONE, ret, NULL, YEP_NAME_IDX);
   return ret;
 }
 
