@@ -116,7 +116,7 @@ make
 
 # Modules
 Modules are a very important part of yirl, a modules can be a set of functions,
-A widget that will implement some game mechanisme(like snake), or a full game (like game/vapz)
+A widget that implement some game mechanisme(like snake), or a full game (like game/vapz)
 
 Each modules have a start.json file that will serve as entre file, and will tell YIRL how to load every other files
 
@@ -137,7 +137,7 @@ But you can still understand how yirl work by:
 * add an hex map
 * add any other cool widget
 * use vulkan/gl
-* fix all broken stuff in curses
-* add lisp or any other languge scripting support
+* fix all broken stuff in ncurses
+* add lisp or any other script language support
 * add a tetris module or any other cool game template module
 
