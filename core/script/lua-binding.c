@@ -1020,6 +1020,12 @@ int	luayePushAt(lua_State *L)
   return 0;
 }
 
+int	luayeInsertAt(lua_State *L)
+{
+  yeInsertAt(luaEntityAt(L, 1), luaEntityAt(L, 2), lua_tonumber(L, 3), lua_tostring(L, 4));
+  return 0;
+}
+
 int	luaPushBack(lua_State *L)
 {
   if (lua_gettop(L) < 2)

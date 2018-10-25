@@ -73,6 +73,7 @@ int	luaCreateArray(lua_State *L);
 int	luaPopBack(lua_State *L);
 int	luaPushBack(lua_State *L);
 int	luayePushAt(lua_State *L);
+int	luayeInsertAt(lua_State *L);
 int	luayeGetKeyAt(lua_State *L);
 int	luaRemoveChild(lua_State *L);
 int	luaDestroy(lua_State *L);
@@ -420,6 +421,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yePushBack", luaPushBack));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yePopBack", luaPopBack));
   YES_LUA_REGISTRE_CALL(sm, yePushAt);
+  YES_LUA_REGISTRE_CALL(sm, yeInsertAt);
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeRemoveChild", luaRemoveChild));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeDestroy", luaDestroy));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeReplace", luaYeReplace));
