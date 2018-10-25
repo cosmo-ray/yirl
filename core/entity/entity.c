@@ -790,7 +790,7 @@ Entity *yeExpandArray(Entity *entity, unsigned int size)
 }
 
 int	yePushBackExt(Entity *entity, Entity *toPush,
-		      const char *name, int flag)
+		      const char *name, uint64_t flag)
 {
   return yeAttach(entity, toPush, yeLen(entity), name, flag);
 }
@@ -971,11 +971,19 @@ static inline Entity *yeInit(Entity *entity, EntityType type,
 }
 
 int yeAttach(Entity *on, Entity *entity,
-	     unsigned int idx, const char *name, uint32_t flag)
+	     unsigned int idx, const char *name, uint64_t flag)
 {
   ArrayEntry *entry;
   Entity *toRemove = NULL;
   char *oldName = NULL;
+  union {
+    struct {
+      uint32_t entry_flag;
+      uint32_t attach_flag;
+    };
+    uint64_t f;
+  } f;
+  f.f = flag;
 
   if (unlikely(!on || !entity || on->type != YARRAY))
     return -1;
@@ -990,10 +998,14 @@ int yeAttach(Entity *on, Entity *entity,
     oldName = entry->name;
   }
   entry->entity = entity;
-  entry->name = g_strdup(name);
-  entry->flags = flag;
-  yeIncrRef(entity);
-  if (toRemove) {
+  if (flag & YE_ATTACH_STEAL_NAME)
+    entry->name = (char *)name;
+  else
+    entry->name = g_strdup(name);
+  entry->flags = f.entry_flag;
+  if (!(flag & YE_ATTACH_NO_INC_REF))
+    yeIncrRef(entity);
+  if (toRemove && !(flag & YE_ATTACH_NO_MEM_FREE)) {
     YE_DESTROY(toRemove);
     g_free(oldName);
   }
@@ -1003,6 +1015,34 @@ int yeAttach(Entity *on, Entity *entity,
 int yePushAt(Entity *array, Entity *toPush, int idx)
 {
   return yeAttach(array, toPush, idx, NULL, 0);
+}
+
+int yeInsertAt(Entity *array, Entity *toPush, size_t idx, const char *name)
+{
+  uint64_t attachFlag = 0;
+
+  if (yeLen(array) < idx || !yeGet(array, idx)) {
+    yeAttach(array, toPush, idx, name, 0);
+    return 0;
+  }
+
+  for (size_t i = idx; i < yeLen(array); ++i) {
+    Entity *tmpToPush = toPush;
+    const char *tmpName = name;
+
+    toPush = yeGet(array, i);
+    name = yeGetKeyAt(array, i);
+    yeAttach(array, tmpToPush, i, tmpName, attachFlag);
+    if (!toPush)
+      return 0;
+
+    if (!attachFlag) {
+      attachFlag = YE_ATTACH_NO_MEM_FREE | YE_ATTACH_NO_INC_REF |
+	YE_ATTACH_STEAL_NAME;
+    }
+  }
+  yePushBackExt(array, toPush, name, attachFlag);
+  return 0;
 }
 
 void	yeSetStringAt(Entity *entity, unsigned int index, const char *value)

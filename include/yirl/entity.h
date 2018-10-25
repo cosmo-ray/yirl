@@ -56,6 +56,12 @@ typedef enum
 
 #define YENTITY_FLAG_LAST = YENTITY_SMALL_SIZE_P3;
 
+enum {
+  YE_ATTACH_NO_MEM_FREE = 1 << 32,
+  YE_ATTACH_NO_INC_REF = 1 << 33,
+  YE_ATTACH_STEAL_NAME = 1 << 34
+};
+
 #define YE_FORMAT_OPT_BREAK_ARRAY_END 1
 #define YE_FORMAT_OPT_PRINT_ONLY_VAL_ARRAY 2
 
@@ -465,12 +471,18 @@ Entity *yeExpandArray(Entity *entity, unsigned int size);
  */
 int yePushBack(Entity *array, Entity *toPush, const char *name);
 int yePushBackExt(Entity *entity, Entity *toPush,
-		  const char *name, int flag);
+		  const char *name, uint64_t flag);
 
 /**
  * Push @toPush at @idx
  */
 int yePushAt(Entity *array, Entity *toPush, int idx);
+
+/**
+ * Insert arrat at idx, might be ways lot eavierst that yePushAt, because it
+ * move all elems after idx
+ */
+int yeInsertAt(Entity *array, Entity *toPush, size_t idx, const char *name);
 
 /**
  * @param	array the array
@@ -680,7 +692,7 @@ void	yeSetStringAtStrIdx(Entity *entity, const char *index, const char *value);
  * Attach @entity on @on at @idx, set @name as ... name
  */
 int yeAttach(Entity *on, Entity *entity, unsigned int idx,
-	     const char *name, uint32_t flag);
+	     const char *name, uint64_t flag);
 
 #ifndef __cplusplus
 /* TODO: should create an element if doesn't exist */
