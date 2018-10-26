@@ -4,7 +4,7 @@ Contributor Code of Conduct
 
 The goal of this code of conduct is to be very exclusive and to help anyone remember the absurdity and meanless state of they existance, that, regadless of gender, sexual orientation, ability, ethnicity, socioeconomic status, and religion(or lack thereof).
 
-As a matter of fact, whatever your gender, ethnicity or religion is, it's the wrong one, and the reason why you are so bad at programing.
+As a matter of fact, whatever your gender, ethnicity, religion or text editor is, it's the wrong one, and the reason why you are so bad at programing.
 
 Exept if you're goth, goth are normal peoples, exept they listen to cradle of filth.
 
@@ -25,7 +25,7 @@ Examples of unaceptable behavior that contributes to creating a positive environ
 
 # Our Responsibilities
 
-Some peoples think contribution to Open Source is a good way to make the world better or some stupid hipi stuff like that.
+Some peoples think contribution to Open Source is a good way to make the world better or some stupid hippi stuff like that.
 
 We're here to remember them, this is wrong, we're all doom, and useless.
 
@@ -37,9 +37,9 @@ local and global, especially global, namespace are for bad devlopers who don't k
 
 This Code of Conduct is adapted from the Contributor Covenant, version 1.4, available at http://contributor-covenant.org/version/1/4
 
-# Note about Hugs
+# Note about Virtual Hugs
 
-in the hope to make this comunity as hostile as posible, Hugs are completely forbiden for everyone exept for Free Bsd Devlopers.
+in the hope to make this comunity as hostile as posible, Virtual Hugs are completely forbiden for everyone exept for Free Bsd Devlopers.
 
 # Note
 
