@@ -1,0 +1,12 @@
+{
+    "name" : "Hightscore",
+    "init-scripts" : [
+	["lua", "init"]
+    ],
+    "pre-load" : [
+	{
+	    "file" : "score.lua",
+	    "type" : "lua"
+	}
+    ]
+}
