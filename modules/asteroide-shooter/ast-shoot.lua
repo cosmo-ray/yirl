@@ -105,7 +105,7 @@ function action(entity, eve, arg)
 	 ast:advance(ast.ent.speed:to_int(), ast.ent.angle:to_float())
 	 if asteroides[i] and ship:colide_with(asteroides[i]) then
 	    if canvas.ent.die then
-	       canvas.ent.die(canvas.ent)
+	       canvas.ent.die(canvas.ent, canvas.ent.score:to_int())
 	    elseif canvas.ent.next then
 	       ywidNext(canvas.ent.next)
 	    else
