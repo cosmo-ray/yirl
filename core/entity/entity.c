@@ -1032,14 +1032,12 @@ int yeInsertAt(Entity *array, Entity *toPush, size_t idx, const char *name)
 
     toPush = yeGet(array, i);
     name = yeGetKeyAt(array, i);
-    yeAttach(array, tmpToPush, i, tmpName, attachFlag);
+    yeAttach(array, tmpToPush, i, tmpName, attachFlag | YE_ATTACH_NO_MEM_FREE);
     if (!toPush)
       return 0;
 
-    if (!attachFlag) {
-      attachFlag = YE_ATTACH_NO_MEM_FREE | YE_ATTACH_NO_INC_REF |
-	YE_ATTACH_STEAL_NAME;
-    }
+    if (!attachFlag)
+      attachFlag = YE_ATTACH_NO_INC_REF | YE_ATTACH_STEAL_NAME;
   }
   yePushBackExt(array, toPush, name, attachFlag);
   return 0;
