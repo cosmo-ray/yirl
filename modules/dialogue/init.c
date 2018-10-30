@@ -369,11 +369,19 @@ void *dialogueGotoNext(int nbArgs, void **args)
   Entity *main = getMenuDrv(args[0])->getMain(args[0]);
   struct mainDrv *drv = getMainDrv(main);
   Entity *active_dialogue = yeGet(main, "active_dialogue");
+  Entity *condition;
 
   if (drv == &cntDialogueMainDrv) {
     ywtextScreenResetTimer(ywCntGetEntry(main, 0));
   }
-  yeAddInt(active_dialogue, 1);
+
+  do {
+    yeAddInt(active_dialogue, 1);
+    Entity *cur_dialogue = yeGet(yeGet(main, "dialogue"),
+				 yeGetInt(active_dialogue));
+    condition = yeGet(cur_dialogue, "condition");
+  } while (condition && !yeCheckCondition(condition));
+
   if (yeGetInt(active_dialogue) >= dialogueLen(main)) {
     return (void *)ywidAction(yeGet(main, "endAction"), args[0], NULL, NULL);
   }

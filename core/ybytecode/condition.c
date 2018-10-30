@@ -53,6 +53,16 @@ static inline int pushStrComVal(Entity *val, uint64_t *instructions, int *idx)
   return 0;
 }
 
+int conditionCall(Entity *condition)
+{
+  Entity *f = ygGet(yeGetStringAt(condition, 1));
+  Entity *arg1 = yeLen(condition) > 2 ? yeGet(condition, 2) : Y_END_VA_LIST;
+  Entity *arg2 = yeLen(condition) > 3 ? yeGet(condition, 3) : Y_END_VA_LIST;
+  Entity *arg3 = yeLen(condition) > 4 ? yeGet(condition, 4) : Y_END_VA_LIST;
+
+  return (uint64_t)yesCall(f, arg1, arg2, arg3);
+}
+
 int yeCheckCondition(Entity *condition)
 {
   Entity *actionEnt = yeGetByIdx(condition, 0);
@@ -65,6 +75,9 @@ int yeCheckCondition(Entity *condition)
     return 0;
   /* compille stuff \0/ */
   if (yeType(actionEnt) == YSTRING) {
+    if (!yeStrCmp(actionEnt, "call")) {
+      return conditionCall(condition);
+    }
     int len = yeLen(actionEnt);
     Entity *data = yeCreateDataExt(NULL, NULL, NULL,
 				   YE_DATA_USE_OWN_METADATA);
