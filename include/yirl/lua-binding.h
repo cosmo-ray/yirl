@@ -183,6 +183,7 @@ int	luaYwPushNewWidget(lua_State *L);
 int	luaYwCntPopLastEntry(lua_State *L);
 int	luaYwReplaceEntry(lua_State *L);
 int	luaywCntWidgetFather(lua_State *L);
+int	luaywCntConstructChilds(lua_State *L);
 
 /* canvas */
 int	luaYwCanvasRemoveObj(lua_State *L);
@@ -229,6 +230,7 @@ int	luaywMenuCallActionOn(lua_State *lua);
 int	luaywMenuGetCurrent(lua_State *lua);
 int	luaywMenuPushEntry(lua_State *lua);
 int	luaywMenuGetCurrentEntry(lua_State *lua);
+int	luaywMenuMove(lua_State *lua);
 
 /* Game and Module */
 int	luaGetMod(lua_State *L);
@@ -513,6 +515,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, ywMenuGetCurrent);
   YES_LUA_REGISTRE_CALL(sm, ywMenuGetCurrentEntry);
   YES_LUA_REGISTRE_CALL(sm, ywMenuPushEntry);
+  YES_LUA_REGISTRE_CALL(sm, ywMenuMove);
 
   /* container */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywReplaceEntry", luaYwReplaceEntry));
@@ -520,6 +523,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywPushNewWidget", luaYwPushNewWidget));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCntPopLastEntry", luaYwCntPopLastEntry));
   YES_LUA_REGISTRE_CALL(sm, ywCntWidgetFather);
+  YES_LUA_REGISTRE_CALL(sm, ywCntConstructChilds);
 
   /* rect */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywRectCreate", luaYwRectCreate));

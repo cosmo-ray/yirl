@@ -33,6 +33,7 @@ int ywMenuPosFromPix(Entity *wid, uint32_t x, uint32_t y);
 
 void ywMenuDown(Entity *wid);
 void ywMenuUp(Entity *wid);
+void *ywMenuMove(Entity *ent, uint32_t at);
 
 Entity *ywMenuPushEntry(Entity *menu, const char *name, Entity *func);
 

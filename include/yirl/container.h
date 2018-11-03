@@ -31,6 +31,7 @@ typedef enum {
   Y_CNT_GOTO_CURRENT = 0,
   Y_CNT_UNDER_MOUSE = 1,
 } YCntForwardingStyle;
+
 typedef struct {
   YWidgetState sate;
   YCntForwardingStyle fwStyle;
@@ -62,5 +63,14 @@ Entity *ywCntGetLastEntry(Entity *container);
 #define ywCntType(opac) (((YContainerState *)opac)->type)
 
 Entity *ywCntWidgetFather(Entity *wid);
+
+/**
+ * @brief create widget from child that are just entity
+ * it is posible to add child to a container at runtime
+ * a way to do so is simply to push a new entity in a container "entries"
+ * so sometime a container have child that are not yet created widget
+ * so this function is usefull to create all childs widgets
+ */
+void ywCntConstructChilds(Entity *ent);
 
 #endif

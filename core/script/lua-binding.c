@@ -932,6 +932,13 @@ int	luaywMenuPushEntry(lua_State *L)
   return 1;
 }
 
+int	luaywMenuMove(lua_State *L)
+{
+  lua_pushlightuserdata(L, ywMenuMove(luaEntityAt(L, 1),
+				      lua_tonumber(L, 2)));
+  return 1;
+}
+
 /**
  * This is not a strict binding of the original yeCreateFunction,
  * because the original has to handle managers,
@@ -1288,6 +1295,12 @@ int	luaYwCntGetEntry(lua_State *L)
   lua_pushlightuserdata(L, ywCntGetEntry(luaEntityAt(L, 1),
 					 lua_tonumber(L, 2)));
   return 1;
+}
+
+int	luaywCntConstructChilds(lua_State *L)
+{
+  ywCntConstructChilds(luaEntityAt(L, 1));
+  return 0;
 }
 
 int	luaywidAction(lua_State *L)

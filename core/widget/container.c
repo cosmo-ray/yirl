@@ -75,7 +75,8 @@ void ywCntPopLastEntry(Entity *container)
     return;
   cur = yeGet(container, "current");
   entries = yeGet(container, "entries");
-  ywidGetState(ret)->needDestroy = 1;
+  if (ywidGetState(ret))
+    ywidGetState(ret)->needDestroy = 1;
   yePopBack(entries);
   if (yeGetInt(cur) && yeLen(entries) == yeGetUInt(cur)) {
     yeSubInt(cur, 1);
@@ -296,6 +297,36 @@ static InputStatue cntEvent(YWidgetState *opac, Entity *event)
   if (cur)
     ret = ywidHandleEvent(cur, event);
   return ret;
+}
+
+void ywCntConstructChilds(Entity *ent)
+{
+  Entity *entries = yeGet(ent, "entries");
+  YWidgetState *opac = ywidGetState(ent);
+
+  if (unlikely(!opac))
+    return;
+
+  YE_ARRAY_FOREACH(entries, tmp) {
+    YWidgetState *wid = ywidGetState(tmp);
+
+    /* try to create the widget */
+    if (unlikely(!wid)) {
+     Entity *tmp2 = getEntry(ent, tmp);
+
+      if (tmp2 != tmp) {
+	yeReplace(entries, tmp, tmp2);
+	tmp = tmp2;
+      }
+      yeReplaceBackExt(tmp, ent, "$father-container", YE_FLAG_NO_COPY);
+      wid = ywidNewWidget(tmp, NULL);
+      if (!wid)
+	continue;
+      if (wid->type == t)
+	ywCntConstructChilds(tmp);
+      cntResize(opac);
+    }
+  }
 }
 
 static int cntRend(YWidgetState *opac)
