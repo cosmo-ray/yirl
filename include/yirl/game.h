@@ -154,6 +154,21 @@ void ygSetInt(const char *toSet, int val);
 int ygAddDefine(const char *name, char *val);
 
 /**
+ * Create a copy of an entity of type float, int or string
+ * which is obtain by calling ygGet(entityPath)
+ * check at each turn if the copied and stalked entities are the same, if not, call
+ * callback(originalEntity, copiedEntity, arg), then copy the original again
+ */
+int ygStalk(const char *entityPath, Entity *callback, Entity *arg);
+
+int ygUnstalk(const char *entityPath);
+
+static inline int ygEqual(const char *path, Entity *o)
+{
+  return yeEqual(ygGet(path), o);
+}
+
+/**
  * @brief   push @ent to yirl global scope
  * @param   ent entity to push
  * @param   name mandatory name

@@ -61,6 +61,7 @@ static Entity *mainMod;
 static Entity *modList;
 static Entity *baseMod;
 static Entity *globalsFunctions;
+static Entity *stalked_array;
 
 static int alive = 1;
 
@@ -322,6 +323,7 @@ int ygInit(GameConfig *cfg)
     }
   }
   modList = yeCreateArray(NULL, NULL);
+  stalked_array = yeCreateArray(NULL, NULL);
 
   return 0;
 error:
@@ -365,6 +367,8 @@ void ygEnd()
   globalsFunctions = NULL;
   yeDestroy(baseMod);
   baseMod = NULL;
+  yeDestroy(stalked_array);
+  stalked_array = NULL;
   yeEnd();
   free(yProgramArg);
   yProgramArg = NULL;
@@ -725,6 +729,45 @@ static int ygParseStartAndGame(GameConfig *config)
   return ygDoLoop();
 }
 
+int ygStalk(const char *entityPath, Entity *callback, Entity *arg)
+{
+  Entity *stalked = yeReCreateArray(stalked_array, entityPath, NULL);
+  Entity *target = ygGet(entityPath);
+
+  if (unlikely(!target || !callback))
+    goto error;
+
+  yeCreateString(entityPath, stalked, NULL);
+  if (!yeCreateCopy(target, stalked, NULL))
+    goto error;
+  yePushBack(stalked, callback, NULL);
+  yePushBack(stalked, arg, NULL);
+  return 0;
+ error:
+  yeRemoveChild(stalked_array, stalked);
+  return -1;
+}
+
+int ygUnstalk(const char *entityPath)
+{
+  if (!yeGet(stalked_array, entityPath))
+    return -1;
+  yeRemoveChild(stalked_array, entityPath);
+  return 0;
+}
+
+static void checkSlakedEntity(void)
+{
+  YE_ARRAY_FOREACH(stalked_array, elem) {
+    Entity *original = ygGet(yeGetStringAt(elem, 0));
+    Entity *copy = yeGet(elem, 1);
+    if (!yeEqual(original, copy)) {
+      yesCall(yeGet(elem, 2), original, copy, yeGet(elem, 3));
+      yeCopy(original, copy);
+    }
+  }
+}
+
 int ygDoLoop(void)
 {
   alive = 1;
@@ -736,6 +779,7 @@ int ygDoLoop(void)
       return -1;
     }
     g_assert(ywidRend(wid) != -1);
+    checkSlakedEntity();
     ywidDoTurn(wid);
   } while(alive);
 

@@ -970,6 +970,26 @@ static inline Entity *yeInit(Entity *entity, EntityType type,
   return entity;
 }
 
+Entity *yeCreateCopy(Entity *src, Entity *father, const char *name)
+{
+  ArrayEntity *aret;
+  Entity *ret;
+
+  YE_ALLOC_ENTITY(aret, ArrayEntity);
+  ret = (Entity *)aret;
+  yeInit(ret, yeType(src), father, name);
+  // a better way would be to be sure the copy always succed
+  if (!yeCopy(src, ret)) {
+    if (father)
+      yeRemoveChild(father, ret);
+    else
+      yeDestroy(ret);
+    return NULL;
+  }
+  return ret;
+}
+
+
 int yeAttach(Entity *on, Entity *entity,
 	     unsigned int idx, const char *name, uint64_t flag)
 {
@@ -1259,7 +1279,7 @@ static Entity*		yeCopyInternal(Entity* src, Entity* dest,
   return NULL;
 }
 
-Entity*		yeCopy(Entity* src, Entity* dest)
+Entity	*yeCopy(Entity* src, Entity* dest)
 {
   Entity *refs = yeCreateArray(NULL, NULL);
   Entity *used = yeCreateArray(NULL, NULL);

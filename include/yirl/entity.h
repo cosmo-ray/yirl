@@ -761,12 +761,12 @@ static inline Entity *yeReCreateFunction(const char *funcName, void *manager,
 
 Entity *yeReCreateData(void *value, Entity *father, const char *name);
 
-static inline Entity *yeReCreateArray(Entity *array, const char *name,
+static inline Entity *yeReCreateArray(Entity *father, const char *name,
 				      Entity *child)
 {
-  if (!array)
+  if (!father)
     return yeCreateArray(NULL, NULL);
-  Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(array)->values, tmp,
+  Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(father)->values, tmp,
 			    it, ArrayEntry) {
     if (tmp && yuiStrEqual0(tmp->name, name)) {
       if (child) {
@@ -780,9 +780,9 @@ static inline Entity *yeReCreateArray(Entity *array, const char *name,
     }
   }
   if (child) {
-    return yePushBack(array, child, name) < 0 ? NULL : child;
+    return yePushBack(father, child, name) < 0 ? NULL : child;
   }
-  return yeCreateArray(array, name);
+  return yeCreateArray(father, name);
 }
 
 static inline Entity *yeReCreateInt(int value, Entity *father,
@@ -840,6 +840,8 @@ void *yeGetFunctionFastPath(Entity *entity);
  * @return NULL if entities do not have the same type or are NULL, @dest otherwise.
  */
 Entity *yeCopy(Entity* src, Entity* dest);
+
+Entity *yeCreateCopy(Entity *src, Entity *father, const char *name);
 
 /**
  * @brief move @what from @src to @dest
