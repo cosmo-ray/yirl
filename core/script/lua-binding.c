@@ -1725,6 +1725,19 @@ int	luaYgEntToFile(lua_State *L)
   return 1;
 }
 
+int	luaygStalk(lua_State *L)
+{
+  lua_pushboolean(L, !ygStalk(lua_tostring(L, 1), luaEntityAt(L, 2),
+			      luaEntityAt(L, 3)));
+  return 1;
+}
+
+int	luaygUnstalk(lua_State *L)
+{
+  lua_pushboolean(L, !ygUnstalk(lua_tostring(L, 1)));
+  return 1;
+}
+
 int	luaSetAt(lua_State *L)
 {
   Entity *ent = NULL;
