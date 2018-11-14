@@ -137,7 +137,7 @@ void *fileToCanvas(int nbArg, void **args)
 	    proType = yeGet(property, "type");
 	    val = yeGet(property, "value");
 	  }
-	  if (!yeStrCmp(proType, "int")) {
+	  if (!yeStrCmp(proType, "int") || !yeStrCmp(proType, "bool")) {
 	    yeCreateInt(yeGetInt(val), obj, name);
 	  } else if (!yeStrCmp(proType, "string")) {
 	    yeCreateString(yeGetString(val), obj, name);
