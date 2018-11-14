@@ -19,6 +19,7 @@
 #include <yirl/game.h>
 #include <yirl/texture.h>
 #include <yirl/canvas.h>
+#include <yirl/condition.h>
 
 const unsigned FLIPPED_HORIZONTALLY_FLAG = 0x80000000;
 const unsigned FLIPPED_VERTICALLY_FLAG   = 0x40000000;
