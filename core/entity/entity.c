@@ -972,18 +972,29 @@ static inline Entity *yeInit(Entity *entity, EntityType type,
 
 Entity *yeCreateCopy(Entity *src, Entity *father, const char *name)
 {
-  ArrayEntity *aret;
   Entity *ret;
 
-  YE_ALLOC_ENTITY(aret, ArrayEntity);
-  ret = (Entity *)aret;
-  yeInit(ret, yeType(src), father, name);
-  // a better way would be to be sure the copy always succed
-  if (!yeCopy(src, ret)) {
-    if (father)
-      yeRemoveChild(father, ret);
-    else
-      yeDestroy(ret);
+  switch (yeType(src)) {
+  case YINT:
+    return yeCreateInt(yeGetInt(src), father, name);
+  case YSTRING:
+    return yeCreateString(yeGetString(src), father, name);
+  case YFLOAT:
+    return yeCreateFloat(yeGetFloat(src), father, name);
+  case YARRAY:
+  case YFUNCTION:
+    ret = yeType(src) == YARRAY ?
+      yeCreateArray(father, name) :
+    yeCreateFunction(NULL, NULL, father, name);
+    if (!yeCopy(src, ret)) {
+      if (father)
+	yeRemoveChild(father, ret);
+      else
+	yeDestroy(ret);
+      return NULL;
+    }
+    break;
+  default:
     return NULL;
   }
   return ret;

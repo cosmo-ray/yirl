@@ -1693,8 +1693,10 @@ int	luaygSetInt(lua_State *L)
 
 int	luaYGet(lua_State *L)
 {
-  if (lua_isstring(L, 1))
+  if (lua_isstring(L, 1)) {
+    printf("%p\n", ygGet(lua_tostring(L, 1)));
     lua_pushlightuserdata(L, ygGet(lua_tostring(L, 1)));
+  }
   else if (lua_islightuserdata(L, 1))
     lua_pushlightuserdata(L, ygGet(yeGetString(luaEntityAt(L, 1))));
   return 1;
@@ -1736,6 +1738,12 @@ int	luaygUnstalk(lua_State *L)
 {
   lua_pushboolean(L, !ygUnstalk(lua_tostring(L, 1)));
   return 1;
+}
+
+int	luaygReCreateInt(lua_State *L)
+{
+  ygReCreateInt(lua_tostring(L, 1), lua_tonumber(L, 2));
+  return 0;
 }
 
 int	luaSetAt(lua_State *L)

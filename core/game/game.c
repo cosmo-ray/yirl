@@ -659,6 +659,31 @@ Entity *ygGet(const char *toFind)
   return yeGetByStr(ygGetMod(tmp), funcName);
 }
 
+void ygReCreateInt(const char *toSet, int val)
+{
+  Entity *father = modList;
+  char buf[1024];
+
+  for (uint32_t i = 0, b_len = 0;
+       ({ buf[b_len] = toSet[i]; ++b_len; toSet[i] ;});
+       ++i) {
+    if (unlikely(b_len > 1024))
+      return;
+    if (toSet[i] == '.' || toSet[i] == ':') {
+      Entity *nfather;
+      buf[b_len -1] = 0;
+      nfather = yeGet(father, buf);
+      if (!nfather)
+	nfather = yeCreateArray(father, buf);
+      father = nfather;
+      b_len = 0;
+      continue;
+    }
+  }
+
+  yeReCreateInt(val, father, buf);
+}
+
 void ygSetInt(const char *toSet, int val)
 {
   int len = strlen(toSet);
@@ -761,7 +786,10 @@ static void checkSlakedEntity(void)
   YE_ARRAY_FOREACH(stalked_array, elem) {
     Entity *original = ygGet(yeGetStringAt(elem, 0));
     Entity *copy = yeGet(elem, 1);
+    printf("%s %d - %d\n", yeTypeAsString(original),
+	   yeGetInt(original), yeGetInt(copy));
     if (!yeEqual(original, copy)) {
+      printf("pas equal!\n");
       yesCall(yeGet(elem, 2), original, copy, yeGet(elem, 3));
       yeCopy(original, copy);
     }

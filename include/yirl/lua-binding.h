@@ -242,6 +242,7 @@ int	luaYGet(lua_State *L);
 int	luaygSetInt(lua_State *L);
 int	luaygStalk(lua_State *L);
 int	luaygUnstalk(lua_State *L);
+int	luaygReCreateInt(lua_State *L);
 
 /* Audio */
 int	luaySoundLoad(lua_State *L);
@@ -608,6 +609,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, ygSetInt);
   YES_LUA_REGISTRE_CALL(sm, ygStalk);
   YES_LUA_REGISTRE_CALL(sm, ygUnstalk);
+  YES_LUA_REGISTRE_CALL(sm, ygReCreateInt);
 
   /* Audio */
   YES_LUA_REGISTRE_CALL(sm, ySoundLoad);

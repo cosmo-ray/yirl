@@ -150,6 +150,7 @@ int ygBind(YWidgetState *wid, const char *callback);
 
 Entity *ygGet(const char *toFind);
 void ygSetInt(const char *toSet, int val);
+void ygReCreateInt(const char *toSet, int val);
 
 int ygAddDefine(const char *name, char *val);
 

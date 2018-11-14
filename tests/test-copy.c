@@ -17,7 +17,7 @@
 
 #include <glib.h>
 #include "entity.h"
-#include "tests.h"  
+#include "tests.h"
 
 void	testCopy(void)
 {
@@ -45,6 +45,11 @@ void	testCopy(void)
     g_assert(yeGetInt(yeGet(array, 0)) == 7);
     g_assert(yeLen(array) == 1);
   }
+
+  Entity *copA = yeCreateCopy(array2, NULL, NULL);
+
+  g_assert(yeGetInt(yeGet(copA, 0)) == 7);
+  g_assert(yeLen(copA) == 1);
 
   yePushBack(array, yeGet(array, 0), "other");
   yeCopy(array, array2);
