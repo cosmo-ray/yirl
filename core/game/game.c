@@ -784,10 +784,7 @@ static void checkSlakedEntity(void)
   YE_ARRAY_FOREACH(stalked_array, elem) {
     Entity *original = ygGet(yeGetStringAt(elem, 0));
     Entity *copy = yeGet(elem, 1);
-    printf("%s %d - %d\n", yeTypeAsString(original),
-	   yeGetInt(original), yeGetInt(copy));
     if (!yeEqual(original, copy)) {
-      printf("pas equal!\n");
       yesCall(yeGet(elem, 2), original, copy, yeGet(elem, 3));
       yeCopy(original, copy);
     }
