@@ -114,6 +114,8 @@ static int sdlRend(YWidgetState *state, int t)
     }
     ++pos;
   }
+  if (ywidBgConfFill(yeGet(state->entity, "foreground"), &cfg) >= 0)
+    sdlFillBg(wid, &cfg);
   return 0;
 }
 

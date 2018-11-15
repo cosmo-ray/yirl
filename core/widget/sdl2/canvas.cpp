@@ -40,6 +40,8 @@ static int sdl2Render(YWidgetState *state, int t)
   YE_ARRAY_FOREACH(objs, obj) {
     sdlCanvasRendObj(state, wid, obj, cam, widPix);
   }
+  if (ywidBgConfFill(yeGet(state->entity, "foreground"), &cfg) >= 0)
+    sdlFillBg(wid, &cfg);
   return 0;
 }
 

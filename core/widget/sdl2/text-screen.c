@@ -58,6 +58,8 @@ static int sdlRender(YWidgetState *state, int t)
 
     sdlDrawRect(wid, rect, color);
   }
+  if (ywidBgConfFill(yeGet(state->entity, "foreground"), &cfg) >= 0)
+    sdlFillBg(wid, &cfg);
   return 0;
 }
 

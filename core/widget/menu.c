@@ -191,7 +191,6 @@ static InputStatue mnEvent(YWidgetState *opac, Entity *event)
       Entity *onEsc = yeGet(opac->entity, "onEsc");
 
       if (onEsc) {
-	printf("excape danger zone !\n");
 	return (InputStatue)yesCall(onEsc, opac->entity,
 				    ((YMenuState *)opac)->current,
 				    ywMenuGetCurrentEntry(opac->entity));

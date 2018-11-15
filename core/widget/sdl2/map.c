@@ -255,6 +255,10 @@ static void sdl2MidRender(YWidgetState *state, SDLWid *wid, Entity *ent,
 
     yeClearArray(gc);
   }
+
+  if (ywidBgConfFill(yeGet(state->entity, "foreground"), &cfg) >= 0)
+    sdlFillBg(wid, &cfg);
+
   yeDestroy(gc);
 }
 
