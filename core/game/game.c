@@ -166,9 +166,11 @@ static void *nextWid(va_list ap)
 static void *setInt(va_list ap)
 {
   Entity *wid = va_arg(ap, Entity *);
-  Entity *toSet;
+  // presently toSet is set here to events
+  Entity *toSet = va_arg(ap, Entity *);
   Entity *value;
 
+  // here we really set to it's value
   toSet = va_arg(ap, Entity *);
   value = va_arg(ap, Entity *);
   (void)wid;
