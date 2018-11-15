@@ -600,20 +600,20 @@ int ywidDoTurn(YWidgetState *opac)
   return ret;
 }
 
-InputStatue ywidAction(Entity *action, Entity *wid, Entity *eve, Entity *arg)
+InputStatue ywidAction(Entity *action, Entity *wid, Entity *eve)
 {
   if (unlikely(!action))
     return NOTHANDLE;
   if (yeType(action) == YSTRING) {
     Entity *f = ygGet(yeGetString(action));
-    InputStatue r = (InputStatue)yesCall(f, wid, eve, arg);
+    InputStatue r = (InputStatue)yesCall(f, wid, eve);
 
     if (unlikely(!ygIsInit())) {
       yeDestroy(f);
     }
     return r;
   } else if (yeType(action) == YFUNCTION) {
-    return (InputStatue)yesCall(action, wid, eve, arg);
+    return (InputStatue)yesCall(action, wid, eve);
   } else {
     Entity *f = yeGet(action, 0);
     Entity *arg1 = yeLen(action) > 1 ? yeGet(action, 1) : Y_END_VA_LIST;
@@ -622,7 +622,7 @@ InputStatue ywidAction(Entity *action, Entity *wid, Entity *eve, Entity *arg)
 
     if (yeType(f) == YSTRING)
       f = ygGet(yeGetString(f));
-    InputStatue r = (InputStatue)yesCall(f, wid, eve, arg, arg1, arg2, arg3);
+    InputStatue r = (InputStatue)yesCall(f, wid, eve, arg1, arg2, arg3);
     if (unlikely(!ygIsInit() && yeType(f) == YSTRING)) {
       yeDestroy(f);
     }
@@ -630,11 +630,11 @@ InputStatue ywidAction(Entity *action, Entity *wid, Entity *eve, Entity *arg)
   }
 }
 
-InputStatue ywidActions(Entity *wid, Entity *actionWid, Entity *eve, void *arg)
+InputStatue ywidActions(Entity *wid, Entity *actionWid, Entity *eve)
 {
   Entity *actions = yeGet(actionWid, "action");
   if (actions)
-    return ywidAction(actions, wid, eve, arg);
+    return ywidAction(actions, wid, eve);
   actions = yeGet(actionWid, "actions");
   InputStatue ret = NOTHANDLE;
 
@@ -643,11 +643,11 @@ InputStatue ywidActions(Entity *wid, Entity *actionWid, Entity *eve, void *arg)
   switch (yeType(actions)) {
   case YSTRING:
   case YFUNCTION:
-    return ywidAction(actions, wid, eve, arg);
+    return ywidAction(actions, wid, eve);
   case YARRAY:
     {
       YE_ARRAY_FOREACH(actions, action) {
-	int cur_ret = ywidAction(action, wid, eve, arg);
+	int cur_ret = ywidAction(action, wid, eve);
 
 	if (cur_ret > ret)
 	  ret = cur_ret;
@@ -665,7 +665,7 @@ InputStatue ywidActions(Entity *wid, Entity *actionWid, Entity *eve, void *arg)
 InputStatue ywidEventCallActionSin(YWidgetState *opac,
 				   Entity *event)
 {
-  return ywidActions(opac->entity, opac->entity, event, NULL);
+  return ywidActions(opac->entity, opac->entity, event);
 }
 
 int ywidHandleEvent(YWidgetState *opac, Entity *event)

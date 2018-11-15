@@ -166,15 +166,11 @@ static void *nextWid(va_list ap)
 static void *setInt(va_list ap)
 {
   Entity *wid = va_arg(ap, Entity *);
-  void *useless = va_arg(ap, Entity *);
   Entity *toSet;
   Entity *value;
 
-  (void)useless;
-  useless = va_arg(ap, void *);
   toSet = va_arg(ap, Entity *);
   value = va_arg(ap, Entity *);
-  (void)useless;
   (void)wid;
   ygSetInt(yeGetString(toSet), yeGetInt(value));
   return (void *)NOACTION;

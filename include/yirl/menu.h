@@ -49,18 +49,17 @@ static inline void ywMenuSetLoaderPercent(Entity *loader, int val)
   yeSetAt(loader, "loading-bar-%", val);
 }
 
-InputStatue ywMenuCallActionOnByEntity(Entity *opac, Entity *event, int idx,
-				       void *arg);
+InputStatue ywMenuCallActionOnByEntity(Entity *opac, Entity *event, int idx);
 InputStatue ywMenuCallActionOnByState(YWidgetState *opac, Entity *event,
-				      int idx, void *arg);
+				      int idx);
 
 #ifndef Y_INSIDE_TCC
 
-#define ywMenuCallActionOn(wid, eve, idx, arg)		\
+#define ywMenuCallActionOn(wid, eve, idx)		\
   _Generic((wid),					\
 	   Entity * : ywMenuCallActionOnByEntity,	\
 	   YWidgetState * : ywMenuCallActionOnByState	\
-	   )(wid, eve, idx, arg)
+	   )(wid, eve, idx)
 
 #else
 

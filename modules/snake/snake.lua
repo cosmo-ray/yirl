@@ -212,7 +212,7 @@ function changeDir(map, eve)
    end
 end
 
-function snakeAction(map, eve, arg)
+function snakeAction(map, eve)
    local hasChange = false
 
    while ywidEveIsEnd(eve) == false do

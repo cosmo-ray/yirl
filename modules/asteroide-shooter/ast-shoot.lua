@@ -1,6 +1,6 @@
 local modPath = Entity.wrapp(ygGet("asteroide-shooter.$path")):to_string()
 
-function action(entity, eve, arg)
+function action(entity, eve)
    local eve = Event.wrapp(eve)
    local canvas = Canvas.wrapp(entity)
    local move = canvas.ent.move

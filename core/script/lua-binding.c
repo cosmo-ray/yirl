@@ -908,8 +908,7 @@ int	luaywMenuCallActionOn(lua_State *L)
 {
   lua_pushnumber(L, ywMenuCallActionOn(luaEntityAt(L, 1),
 				       luaEntityAt(L, 2),
-				       lua_tonumber(L, 3),
-				       lua_touserdata(L, 4)));
+				       lua_tonumber(L, 3)));
   return 1;
 }
 
@@ -1307,8 +1306,7 @@ int	luaywidAction(lua_State *L)
 {
   lua_pushnumber(L, ywidAction(luaEntityAt(L, 1),
 			       luaEntityAt(L, 2),
-			       luaEntityAt(L, 3),
-			       luaEntityAt(L, 4)));
+			       luaEntityAt(L, 3)));
   return 1;
 }
 

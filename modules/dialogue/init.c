@@ -151,7 +151,7 @@ static Entity *getText(Entity *box, Entity *e)
 
       if (condition && !yeCheckCondition(condition))
 	continue;
-      ywidActions(box, cur_txt, NULL, NULL);
+      ywidActions(box, cur_txt, NULL);
       return yeGet(cur_txt, "text");
     }
   }
@@ -319,7 +319,7 @@ void *dialogueAction(int nbArgs, void **args)
 	    /* so... that's a stupide way to call a tcc entity function */
 	    return dialogueGotoNext(2, args);
 	  } else {
-	    return (void *)ywidActions(box, answer, eve, NULL);
+	    return (void *)ywidActions(box, answer, eve);
 	  }
 	}
       }
@@ -359,8 +359,8 @@ void *dialogueGoto(int nbArgs, void **args)
   Entity *main = getMenuDrv(args[0])->getMain(args[0]);
   struct mainDrv *drv = getMainDrv(main);
 
-  yeReCreateInt(yeGetInt(args[3]), main, "active_dialogue");
-  printfTextAndAnswer(main, drv->getTextWidget(main), args[0], args[3]);
+  yeReCreateInt(yeGetInt(args[2]), main, "active_dialogue");
+  printfTextAndAnswer(main, drv->getTextWidget(main), args[0], args[2]);
   return (void *)NOACTION;
 }
 
@@ -383,7 +383,7 @@ void *dialogueGotoNext(int nbArgs, void **args)
   } while (condition && !yeCheckCondition(condition));
 
   if (yeGetInt(active_dialogue) >= dialogueLen(main)) {
-    return (void *)ywidAction(yeGet(main, "endAction"), args[0], NULL, NULL);
+    return (void *)ywidAction(yeGet(main, "endAction"), args[0], NULL);
   }
   printfTextAndAnswer(main, drv->getTextWidget(main), args[0], active_dialogue);
   return (void *)NOACTION;
@@ -400,12 +400,12 @@ void *dialogueBlock(int nbArgs, void **args)
   char *block_action = NULL;
   char *block_answer = NULL;
 
+  if (nbArgs > 2)
+    block_action = args[2];
   if (nbArgs > 3)
-    block_action = args[3];
+    block_dialogue = args[3];
   if (nbArgs > 4)
-    block_dialogue = args[4];
-  if (nbArgs > 5)
-    block_answer = args[5];
+    block_answer = args[4];
 
   if (!block) {
     if (!block_action)
@@ -439,7 +439,7 @@ void *dialogueChangeText(int nbArgs, void **args)
   struct mainDrv *drv = getMainDrv(main);
 
   ywContainerUpdate(main, getTextWidget(main));
-  yeReplaceBack(drv->getTextWidget(main), getText(args[0], args[3]), "text");
+  yeReplaceBack(drv->getTextWidget(main), getText(args[0], args[2]), "text");
   return (void *)NOACTION;
 }
 
