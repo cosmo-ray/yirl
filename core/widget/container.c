@@ -331,34 +331,47 @@ void ywCntConstructChilds(Entity *ent)
 
 static int cntRend(YWidgetState *opac)
 {
-  Entity *entries = yeGet(opac->entity, "entries");
+  Entity *ent = opac->entity;
+  Entity *entries = yeGet(ent, "entries");
   YWidgetState *bg_wid = ywidGetState(yeGet(opac->entity, "$bg"));
+  Entity *auto_foreground;
+  int32_t idx = 0;
 
   if (!opac->hasChange)
     return 0;
 
   if (bg_wid) {
-    yeReplaceBack(bg_wid->entity, yeGet(opac->entity, "wid-pos"), "wid-pos");
+    yeReplaceBack(bg_wid->entity, yeGet(ent, "wid-pos"), "wid-pos");
     bg_wid->hasChange = 1;
     ywidSubRend(bg_wid);
   }
 
+  auto_foreground = yeGet(ent, "auto_foreground");
   YE_ARRAY_FOREACH(entries, tmp) {
     YWidgetState *wid = ywidGetState(tmp);
 
     /* try to create the widget */
     if (unlikely(!wid)) {
-      Entity *tmp2 = getEntry(opac->entity, tmp);
+      Entity *tmp2 = getEntry(ent, tmp);
 
       if (tmp2 != tmp) {
 	yeReplace(entries, tmp, tmp2);
 	tmp = tmp2;
       }
-      yeReplaceBackExt(tmp, opac->entity, "$father-container", YE_FLAG_NO_COPY);
+      yeReplaceBackExt(tmp, ent, "$father-container", YE_FLAG_NO_COPY);
       wid = ywidNewWidget(tmp, NULL);
       if (!wid)
 	continue;
       cntResize(opac);
+    }
+    if (ywCntType(opac) != CNT_STACK && auto_foreground) {
+      int current = yeGetIntAt(opac->entity, "current");
+
+      if (current == idx)
+	yeRemoveChild(wid->entity, "foreground");
+      else
+	yeReplaceBack(wid->entity, auto_foreground, "foreground");
+      ++idx;
     }
     wid->hasChange = 2;
     ywidSubRend(wid);
