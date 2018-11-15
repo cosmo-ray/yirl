@@ -763,6 +763,7 @@ int ygStalk(const char *entityPath, Entity *callback, Entity *arg)
   yeCreateString(entityPath, stalked, NULL);
   if (!yeCreateCopy(target, stalked, NULL))
     goto error;
+
   yePushBack(stalked, callback, NULL);
   yePushBack(stalked, arg, NULL);
   return 0;

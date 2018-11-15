@@ -187,7 +187,17 @@ static InputStatue mnEvent(YWidgetState *opac, Entity *event)
     return NOTHANDLE;
 
   if (ywidEveType(event) == YKEY_DOWN) {
-    if (ywidEveKey(event) == '\n') {
+    if (ywidEveKey(event) == Y_ESC_KEY) {
+      Entity *onEsc = yeGet(opac->entity, "onEsc");
+
+      if (onEsc) {
+	printf("excape danger zone !\n");
+	return (InputStatue)yesCall(onEsc, opac->entity,
+				    ((YMenuState *)opac)->current,
+				    ywMenuGetCurrentEntry(opac->entity));
+      }
+
+    } else if (ywidEveKey(event) == '\n') {
       ret = ywMenuCallActionOn(opac, event, ((YMenuState *)opac)->current);
     } else {
       ret = (InputStatue)yesCall(yeGet(opac->entity, "move"), opac->entity, event);

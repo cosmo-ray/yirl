@@ -339,7 +339,7 @@ static inline int	yesLuaRegister(void *sm)
   lua_pushstring(L, YIRL_MODULES_PATH);
   lua_setglobal(L, "YIRL_MODULES_PATH");
 
-  lua_pushnumber(L, 27);
+  lua_pushnumber(L, Y_ESC_KEY);
   lua_setglobal(L, "Y_ESC_KEY");
   lua_pushnumber(L, Y_UP_KEY);
   lua_setglobal(L, "Y_UP_KEY");
