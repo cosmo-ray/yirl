@@ -36,6 +36,7 @@ static int sdlRend(YWidgetState *state, int t)
   int isPane = 0;
   int pos = 0;
   int cur = ywMenuGetCurrent(state);
+  Entity *pre_text = yeGet(state->entity, "pre-text");
 
   if (!yeStrCmp(type, "panel"))
     isPane = 1;
@@ -52,6 +53,23 @@ static int sdlRend(YWidgetState *state, int t)
 
   if (!sgDefaultFont()) {
     DPRINT_WARN("NO Font Set !");
+  }
+
+  if (pre_text) {
+    Entity *destRect;
+    SDL_Rect txtR;
+
+    if (isPane) {
+      DPRINT_ERR("pre_text not supported with panel yet");
+    }
+
+    destRect = ywRectReCreateInts(0, pos * sgGetFontSize() + 1,
+				  wid->rect.w, sgGetFontSize() + 1,
+				  NULL, NULL);
+    txtR = sdlRectFromRectEntity(destRect);
+    yeDestroy(destRect);
+    sdlPrintText(wid, yeGetString(pre_text), base_color, txtR, alignementType);
+    pos = 1;
   }
 
   YE_ARRAY_FOREACH_EXT(entries, entry, it) {

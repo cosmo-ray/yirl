@@ -387,12 +387,13 @@ function Menu.wrapp(ent)
    return ret
 end
 
-function Menu:push(txt, action)
+function Menu:push(txt, action, arg)
    local l = yeLen(self.ent.entries)
 
    self.ent.entries[l] = {}
    self.ent.entries[l].text = txt
    self.ent.entries[l].action = action
+   self.ent.entries[l].arg = arg
    return self.ent.entries[l]
 end
 
