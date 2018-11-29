@@ -112,7 +112,8 @@ Entity *ywTextScreenTextEnt(Entity *wid)
     return yeGet(wid, "text");
 
   if (aleradyFormated)
-    return yeGet(wid, "text");
+    return yeGet(wid, "$fmt");
+
   txt = yeGet(wid, "text");
   ret = yeCreateYirlFmtString(txt, wid, "$fmt");
   aleradyFormated = 1;
