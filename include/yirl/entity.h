@@ -401,6 +401,8 @@ static inline uint32_t yeGetUInt(Entity *i) {
  */
 double yeGetFloat(Entity *entity);
 
+#define yeGetFloatDirect(entity) (YE_TO_FLOAT(entity)->value)
+
 /**
  * @return	value of entity at @pos in @array, 0 if entity doesn't existe
  */

@@ -976,11 +976,11 @@ Entity *yeCreateCopy(Entity *src, Entity *father, const char *name)
 
   switch (yeType(src)) {
   case YINT:
-    return yeCreateInt(yeGetInt(src), father, name);
+    return yeCreateInt(yeGetIntDirect(src), father, name);
   case YSTRING:
     return yeCreateString(yeGetString(src), father, name);
   case YFLOAT:
-    return yeCreateFloat(yeGetFloat(src), father, name);
+    return yeCreateFloat(yeGetFloatDirect(src), father, name);
   case YARRAY:
   case YFUNCTION:
     ret = yeType(src) == YARRAY ?
@@ -1146,7 +1146,7 @@ int	yeGetInt(Entity *entity)
   if (unlikely(!entity)) {
     return 0;
   } else if (yeType(entity) == YFLOAT) {
-    return (int64_t)YE_TO_FLOAT(entity)->value;
+    return (int64_t)yeGetFloatDirect(entity);
   }
   return YE_TO_INT(entity)->value;
 }
@@ -1260,10 +1260,10 @@ static Entity*		yeCopyInternal(Entity* src, Entity* dest,
     switch (yeType(src))
     {
     case YINT:
-      yeSetInt(dest, yeGetInt(src));
+      yeSetInt(dest, yeGetIntDirect(src));
       break;
     case YFLOAT:
-      yeSetFloat(dest, yeGetFloat(src));
+      yeSetFloat(dest, yeGetFloatDirect(src));
       break;
     case YSTRING:
       strVal = yeGetString(src);
@@ -1313,10 +1313,10 @@ static void yeToCStrInternal(Entity *entity, int deep, GString *str, int flag, i
       g_string_append_printf(str, "\"%s\"", yeGetString(entity));
     break;
   case YINT :
-    g_string_append_printf(str, "'%d'", yeGetInt(entity));
+    g_string_append_printf(str, "'%d'", (uint32_t)yeGetIntDirect(entity));
     break;
   case YFLOAT :
-    g_string_append_printf(str, "'%f'", yeGetFloat(entity));
+    g_string_append_printf(str, "'%f'", yeGetFloatDirect(entity));
     break;
   case YFUNCTION :
     g_string_append_printf(str, "(%s)", yeGetFunction(entity));
