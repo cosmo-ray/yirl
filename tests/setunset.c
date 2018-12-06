@@ -30,6 +30,7 @@ void testGet(void)
 
   g_assert(b == yeGet(a, "b"));
   g_assert(c == yeGetByStr(a, "b.c"));
+  g_assert(c == yeGetByStr(a, "b.0"));
   g_assert(b == yeNGetByStr(a, "b.c", 1));
   yeDestroy(a);
   yeEnd();

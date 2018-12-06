@@ -317,7 +317,12 @@ int yeSetFlagByStr(Entity *array, const char *name, int flag)
 static Entity *yeGetByIdxFastWithEnd(Entity *entity, const char *name,
 				     int end)
 {
+  char *isNum = NULL;
+  int idx;
 
+  idx = strtod(name, &isNum);
+  if (isNum != name)
+    return yeGet(entity, idx);
   Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(entity)->values, tmp, it, ArrayEntry) {
     if (unlikely(!tmp || !tmp->name))
       continue;
@@ -395,8 +400,15 @@ Entity *yeGetByStr(Entity *entity, const char *name)
   }
 
   i = findIdxPoint(name);
-  if (i == -1)
+  if (i == -1) {
+    char *isNum = NULL;
+    int idx;
+
+    idx = strtod(name, &isNum);
+    if (isNum != name)
+      return yeGet(entity, idx);
     return yeGet(entity, name);
+  }
  return yeGetByStr(yeGetByIdxFastWithEnd(entity, name, i), name + i + 1);
 }
 
