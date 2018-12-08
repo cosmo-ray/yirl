@@ -209,7 +209,6 @@ void *fileToCanvas(int nbArg, void **args)
 	uint32_t flags = 0;
 	Entity *cur_img;
 
-	printf("ti\n");
 	if (i && !(i % (layer_w))) {
 	  y += tileheight;
 	  x = 0;
