@@ -82,6 +82,9 @@ void ywCanvasObjSetPosByEntity(Entity *obj, Entity *p);
 
 int ywCanvasObjIsOut(Entity *wid, Entity *obj);
 
+void ywCanvasDisableWeight(void);
+void ywCanvasEnableWeight(void);
+
 int ywCanvasSetWeight(Entity *wid, Entity *canvas, int weight);
 
 Entity *ywCanvasNewObj(Entity *wid, int x, int y, int id);

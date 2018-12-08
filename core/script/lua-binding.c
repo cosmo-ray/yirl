@@ -764,6 +764,18 @@ int	luaywTextureNormalize(lua_State *L)
   return 1;
 }
 
+int	luaywCanvasDisableWeight(lua_State *L)
+{
+  ywCanvasDisableWeight();
+  return 0;
+}
+
+int	luaywCanvasEnableWeight(lua_State *L)
+{
+  ywCanvasEnableWeight();
+  return 0;
+}
+
 int	luaywCanvasSetWeight(lua_State *L)
 {
   lua_pushnumber(L, ywCanvasSetWeight(luaEntityAt(L, 1),

@@ -103,6 +103,7 @@ void *fileToCanvas(int nbArg, void **args)
     int layer_w  = yeGetIntAt(layer, "width");
     Entity *properties = yeGet(layer, "properties");
     Entity *objects = yeGet(layer, "objects");
+    Entity *proTypes = yeGet(layer, "propertytypes");
 
     if (objects) {
 
@@ -117,7 +118,7 @@ void *fileToCanvas(int nbArg, void **args)
 	yeGetPush(object, obj, "visible");
 	yeGetPush(object, obj, "id");
 	yeGetPush(object, obj, "name");
-	yePushBack(obj, yeGet(layer, "name"), "layer_name");
+	yePushBack(obj, layer_name, "layer_name");
 	ywRectCreateInts(yeGetIntAt(object, "x"),
 			 yeGetIntAt(object, "y"),
 			 yeGetIntAt(object, "width"),
@@ -208,6 +209,7 @@ void *fileToCanvas(int nbArg, void **args)
 	uint32_t flags = 0;
 	Entity *cur_img;
 
+	printf("ti\n");
 	if (i && !(i % (layer_w))) {
 	  y += tileheight;
 	  x = 0;
@@ -238,7 +240,6 @@ void *fileToCanvas(int nbArg, void **args)
 	if (flags == (FLIPPED_VERTICALLY_FLAG | FLIPPED_HORIZONTALLY_FLAG)) {
 	  ywCanvasRotate(cur_img, 180);
 	}
-	Entity *proTypes = yeGet(layer, "propertytypes");
 	int proTypesIt = 0;
 	YE_ARRAY_FOREACH_EXT(properties, property, it) {
 	  Entity *val = property;

@@ -27,11 +27,11 @@ extern "C" {
 }
 
 static int t = -1;
+static bool ywCanHasWeight = false;
 
 class YCanvasState : public YWidgetState {
 public:
-  YCanvasState() {
-  }
+  YCanvasState() {}
 };
 
 static int tsInit(YWidgetState *opac, Entity *entity, void *args)
@@ -143,6 +143,16 @@ extern "C" {
     return ywCanvasNewCollisionsArrayExt(wid, obj, NULL, NULL);
   }
 
+  void ywCanvasDisableWeight()
+  {
+    ywCanHasWeight = false;
+  }
+
+  void ywCanvasEnableWeight()
+  {
+    ywCanHasWeight = true;
+  }
+
   int ywCanvasSetWeightInternal(Entity *wid, Entity *obj, int weight,
 				int newObj)
   {
@@ -150,6 +160,8 @@ extern "C" {
     uint32_t i = 0;
     Entity *toPush = obj;
 
+    if (!ywCanHasWeight)
+      goto out;
     if (!newObj) {
       if (yeGetIntAt(obj, "weight") == weight)
 	return 0;
@@ -191,6 +203,7 @@ extern "C" {
       yeDestroy(toPush);
       toPush = c_obj;
     }
+  out:
     yePushBack(objs, toPush, NULL);
     yeDestroy(toPush);
     return 0;
