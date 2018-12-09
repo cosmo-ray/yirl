@@ -174,7 +174,7 @@ static inline int8_t *yBlockArrayGetInternal(BlockArray *ba, size_t pos)
 
     return (int8_t *)nullPtr;
   }
-  return ba->elems + (pos * ba->elemSize);
+  return yBlockArrayFastGet(*ba, pos);
 }
 
 static inline int8_t *yBlockArraySetGetPtrInternal(BlockArray *ba, size_t pos)

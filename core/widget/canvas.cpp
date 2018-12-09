@@ -281,7 +281,7 @@ extern "C" {
 
   YCanvasObjType ywCanvasObjType(Entity *obj)
   {
-    return static_cast<YCanvasObjType>(yeGetInt(yeGet(obj, 0)));
+    return static_cast<YCanvasObjType>(yeGetIntDirect(yeGetByIdxDirect(obj, 0)));
   }
 
   Entity *ywCanvasObjPos(Entity *obj)

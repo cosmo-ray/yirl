@@ -241,7 +241,8 @@ Entity *yeGetByIdx(Entity *entity, size_t index)
 {
   if (unlikely(entity == NULL))
     return NULL;
-  return yeGetByIdxDirect(entity, index);
+  return yBlockArrayGet(&YE_TO_ARRAY(entity)->values,
+			index, ArrayEntry).entity;
 }
 
 Entity *yeGetLast(Entity *array)

@@ -702,7 +702,7 @@ int sdlCanvasCacheImg(Entity *elem, Entity *resource, const char *imgPath,
 
 int sdlCanvasCacheTexture(Entity *state, Entity *elem)
 {
-  int type = yeGetIntAt(elem, 0);
+  int type = ywCanvasObjType(elem);
   Entity *resource;
   Entity *texture;
   const char *txt;
