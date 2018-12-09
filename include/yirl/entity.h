@@ -326,7 +326,8 @@ Entity *yeGetByIdx(Entity *entity, size_t index);
 
 static inline Entity *yeGetByIdxDirect(Entity *entity, size_t index)
 {
-  return yBlockArrayGet(&YE_TO_ARRAY(entity)->values, index, ArrayEntry).entity;
+  return yBlockArrayGetDirect(&YE_TO_ARRAY(entity)->values,
+			      index, ArrayEntry).entity;
 }
 
 /**

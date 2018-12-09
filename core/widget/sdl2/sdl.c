@@ -783,15 +783,15 @@ static int sdlCanvasRendImg(YWidgetState *state, SDLWid *wid, Entity *img,
   Entity *p = ywCanvasObjPos(img);
   SDL_Rect *sd = NULL;
   SDL_Point *center = NULL;
-  SDL_Rect rd = { ywPosX(p) - ywPosX(cam), ywPosY(p) - ywPosY(cam),
-		  ywSizeW(s), ywSizeH(s) };
+  SDL_Rect rd = { ywPosXDirect(p) - ywPosX(cam), ywPosYDirect(p) - ywPosY(cam),
+		  ywSizeWDirect(s), ywSizeHDirect(s) };
   double rotation = 0;
   SDL_RendererFlip flip = SDL_FLIP_NONE;
   SDL_Texture *t = NULL;
 
 
-  if (rd.x + rd.w < 0 || rd.y + rd.h < 0 || rd.y > ywRectH(wid_pix)
-      || rd.x > ywRectW(wid_pix)) {
+  if (rd.x + rd.w < 0 || rd.y + rd.h < 0 || rd.y > ywRectHDirect(wid_pix)
+      || rd.x > ywRectWDirect(wid_pix)) {
     return 0;
   }
   t = yeGetData(yeGet(img, YCANVAS_IMG_IDX));

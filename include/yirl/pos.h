@@ -23,6 +23,9 @@
 #define ywSizeW(size) (ywPosX(size))
 #define ywSizeH(size) (ywPosY(size))
 
+#define ywSizeWDirect(size) (ywPosXDirect(size))
+#define ywSizeHDirect(size) (ywPosYDirect(size))
+
 static inline int ywPosX(Entity *pos)
 {
   return yeGetInt(yeGetByIdx(pos, 0));
@@ -31,6 +34,16 @@ static inline int ywPosX(Entity *pos)
 static inline int ywPosY(Entity *pos)
 {
   return yeGetInt(yeGetByIdx(pos, 1));
+}
+
+static inline int ywPosXDirect(Entity *pos)
+{
+  return yeGetIntDirect(yeGetByIdxDirect(pos, 0));
+}
+
+static inline int ywPosYDirect(Entity *pos)
+{
+  return yeGetIntDirect(yeGetByIdxDirect(pos, 1));
 }
 
 static inline void ywPosPrint(Entity *pos)

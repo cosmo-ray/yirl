@@ -40,6 +40,16 @@ static inline int ywRectH(Entity *e)
   return yeGetInt(yeGetByIdx(e, 3));
 }
 
+static inline int ywRectWDirect(Entity *e)
+{
+  return yeGetIntDirect(yeGetByIdxDirect(e, 2));
+}
+
+static inline int ywRectHDirect(Entity *e)
+{
+  return yeGetIntDirect(yeGetByIdxDirect(e, 3));
+}
+
 /**
  * @father the father of the returned entity in which we store the return,
  * can be NULL.
