@@ -43,12 +43,7 @@ inline void yBlockArrayInitInternal(BlockArray *ba, size_t elemSize, int flag)
 
 inline void yBlockArrayFree(BlockArray *ba)
 {
-  if (!(ba->flag & YBLOCK_ARRAY_NO_BLOCKS_NEXT0) &&
-      ba->nbBlock * sizeof(uint64_t) >= yBlockArrayDataNextSize0)
-    free(ba->blocks);
-  ba->nbBlock = 0;
-  ba->size = 0;
-  ba->lastPos = -1;
+  yBlockArrayFreeBlocks(ba);
   free(ba->elems);
 }
 
@@ -68,7 +63,7 @@ void yBlockArrayExpandBlocks(BlockArray *ba, int nb)
 
     src += sizeof(BlockArray);
     if (nNb * sizeof(uint64_t) >= yBlockArrayDataNextSize0) {
-      ba->blocks = g_malloc(nNb * sizeof(uint64_t));
+      ba->blocks = malloc(nNb * sizeof(uint64_t));
       /* So we can free memory */
       ba->flag ^= YBLOCK_ARRAY_NO_BLOCKS_NEXT0;
       memcpy(ba->blocks, src, ba->nbBlock * sizeof(uint64_t));

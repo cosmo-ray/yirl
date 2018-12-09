@@ -140,6 +140,26 @@ static inline void yBlockArrayUnset(BlockArray *ba, int32_t pos)
     yBlockArrayExpandBlocks(ba, toFree);
 }
 
+static inline void yBlockArrayFreeBlocks(BlockArray *ba)
+{
+  if (!(ba->flag & YBLOCK_ARRAY_NO_BLOCKS_NEXT0) &&
+      ba->nbBlock * sizeof(uint64_t) >= yBlockArrayDataNextSize0)
+    free(ba->blocks);
+}
+
+static inline void yBlockArrayClear(BlockArray *ba)
+{
+  if (!ba->flag & YBLOCK_ARRAY_BIG_CHUNK) {
+    free(ba->elems);
+    ba->elems = NULL;
+  }
+  yBlockArrayFreeBlocks(ba);
+  ba->blocks = NULL;
+  ba->lastPos = -1;
+  ba->nbBlock = 0;
+  ba->size = 0;
+}
+
 static inline void yBlockArraySet(BlockArray *ba, int32_t pos)
 {
   uint64_t blockPos = yBlockArrayBlockPos(pos);

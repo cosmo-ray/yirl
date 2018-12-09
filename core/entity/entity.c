@@ -701,8 +701,8 @@ void yeClearArray(Entity *entity)
     return;
   Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(entity)->values, ae, i, ArrayEntry) {
     arrayEntryDestroy(ae);
-    yBlockArrayUnset(&YE_TO_ARRAY(entity)->values, i);
   }
+  yBlockArrayClear(&YE_TO_ARRAY(entity)->values);
 }
 
 void yeDestroyArray(Entity *entity)

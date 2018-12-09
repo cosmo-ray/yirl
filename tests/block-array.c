@@ -73,8 +73,20 @@ void testBlockArray(void)
     fflush(stdout);
     g_assert(yBlockArrayIsSet(test.array, i));
     g_assert(!yBlockArrayIsFree(test.array, i));
-    yBlockArrayFree(&test.array);
+    yBlockArrayClear(&test.array);
     g_assert(yBlockArrayLastPos(test.array) == -1);
+  }
+
+  for (int i = 0; i < 1000; ++i) {
+    yBlockArrayInit(&test.array, int);
+    g_assert(yBlockArrayLastPos(test.array) == -1);
+    yBlockArrayCopyElem(&test.array, i, i);
+    g_assert(yBlockArrayLastPos(test.array) == i);
+    g_assert(yBlockArrayGet(&test.array, i, int) == i);
+    fflush(stdout);
+    g_assert(yBlockArrayIsSet(test.array, i));
+    g_assert(!yBlockArrayIsFree(test.array, i));
+    yBlockArrayFree(&test.array);
   }
 
 #define VAL_TEST (64 * 7 + 5)
@@ -97,8 +109,8 @@ void testBlockArray(void)
   yBlockArrayIteratorIncr(&iterator);
   g_assert(yBlockArrayIteratorIsEnd(&iterator));
 
-  yBlockArrayFree(&test.array);
-    Y_BLOCK_ARRAY_FOREACH(test.array, useless3, useless2, uint64_t) {
+  yBlockArrayClear(&test.array);
+  Y_BLOCK_ARRAY_FOREACH(test.array, useless3, useless2, uint64_t) {
     /* should not be here */
     g_assert(0);
   }
@@ -151,7 +163,7 @@ void testBlockArray(void)
   Y_BLOCK_ARRAY_FOREACH_SINCE(test.array, 64 * 4, elem0, it, uint64_t) {
     g_assert(elem0 == tmp);
     g_assert((it == 64 * 4));
-    ++nbIteration;    
+    ++nbIteration;
   }
   g_assert(nbIteration == 1);
 
@@ -176,7 +188,7 @@ void testBlockArray(void)
     ++nbIteration;
   }
   g_assert(nbIteration == 1);
-  
+
   yBlockArrayUnset(&test.array, 64 * 4 - 1);
 
   g_assert(!yBlockArrayIsBlockAllocated(test.array, 4));
