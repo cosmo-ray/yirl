@@ -1,4 +1,4 @@
-# HURL isn't a Rogue-like
+# YIRL isn't a Rogue-like
 
 YIRL is a WIP,
 

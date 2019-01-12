@@ -39,7 +39,7 @@ This Code of Conduct is adapted from the Contributor Covenant, version 1.4, avai
 
 # Note about Virtual Hugs
 
-in the hope to make this county as hostile as possibly, Virtual Hugs are completely forbidden for everyone expat for Free BSDs Developers.
+in the hope to make this project as hostile as possibly, Virtual Hugs are completely forbidden for everyone expet for Free BSDs Developers.
 
 # Note
 
