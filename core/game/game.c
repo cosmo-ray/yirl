@@ -178,6 +178,21 @@ static void *setInt(va_list ap)
   return (void *)NOACTION;
 }
 
+static void *recreateInt(va_list ap)
+{
+  Entity *wid = va_arg(ap, Entity *);
+  // presently toSet is set here to events
+  Entity *toSet = va_arg(ap, Entity *);
+  Entity *value;
+
+  // here we really set to it's value
+  toSet = va_arg(ap, Entity *);
+  value = va_arg(ap, Entity *);
+  (void)wid;
+  ygReCreateInt(yeGetString(toSet), yeGetInt(value))
+  return (void *)NOACTION;
+}
+
 static void *nextOnKeyDown(va_list ap)
 {
   va_list tmp_ap;
@@ -212,6 +227,7 @@ static void addNativeFuncToBaseMod(void)
   ysRegistreCreateNativeEntity(nextOnKeyDown, "nextOnKeyDown",
 			       baseMod, NULL);
   ysRegistreCreateNativeEntity(setInt, "setInt", baseMod, NULL);
+  ysRegistreCreateNativeEntity(recreateInt, "recreateInt", baseMod, NULL);
   yeCreateFunctionSimple("menuMove", ysNativeManager(), baseMod);
   yeCreateFunctionSimple("menuNext", ysNativeManager(), baseMod);
   yeCreateFunctionSimple("menuActions", ysNativeManager(), baseMod);
