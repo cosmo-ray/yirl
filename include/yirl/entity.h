@@ -236,11 +236,16 @@ int yeEntitiesUsed(void);
 
 int yeFreeEntitiesInStack(void);
 
-static inline EntityType yeType(const Entity *entity)
+static inline EntityType yeType(const Entity * const entity)
 {
   if (likely(entity != NULL))
     return (EntityType)entity->type;
   return (EntityType)BAD_TYPE;
+}
+
+static inline int yeIsNum(const Entity * const e)
+{
+  return yeType(e) == YINT || yeType(e) == YFLOAT;
 }
 
 /**

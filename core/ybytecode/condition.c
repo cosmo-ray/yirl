@@ -65,6 +65,13 @@ int conditionCall(Entity *condition)
 
 int yeCheckCondition(Entity *condition)
 {
+  if (yeType(condition) == YSTRING) {
+    Entity *e = ygGet(yeGetString(condition));
+    if (yeIsNum(e))
+      return !!yeGetInt(e);
+    return !!e;
+  }
+
   Entity *actionEnt = yeGetByIdx(condition, 0);
   const char *action = yeGetString(actionEnt);
   int i = 0;
