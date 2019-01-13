@@ -27,6 +27,7 @@ void testLifecycleFlow(void);
 void testLifecycleComplex(void);
 void testLifecycleAkwarde(void);
 void testLifeDeathRebirdAndAgain(void);
+void testAutoFree(void);
 
 void stringsTests(void);
 

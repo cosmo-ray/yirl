@@ -128,7 +128,11 @@ typedef int64_t int_ptr_t;
 #define YUI_IS_PROBE(...) YUI_SECOND(__VA_ARGS__, 0)
 #define YUI_PROBE() ~, 1
 
+#define NOP(x) x
+
 #define YUI_CAT(a,b) a ## b
+
+#define YUI_CATCAT(a,b,c) a ## b ## c
 
 #define YUI_NOT(x) YUI_IS_PROBE(YUI_CAT(_NOT_, x))
 #define _NOT_0 YUI_PROBE()

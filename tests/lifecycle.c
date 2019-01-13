@@ -178,3 +178,29 @@ void testLifeDeathRebirdAndAgain(void)
   YE_DESTROY(mainEnt);
   yeEnd();
 }
+
+void testAutoFree_(void)
+{
+  YE_NEW(Array, ar);
+  YE_NEW(Int, test1, 10);
+  YE_NEW(INT, test, 3);
+  YE_NEW(Float, testf, 10.5);
+  YE_NEW(String, tests, "hej");
+  YE_NEW(int, test2, 46);
+
+  g_assert(yeGetInt(test) == 3 &&
+	   yeGetInt(test1) == 10 &&
+	   yeGetInt(test2) == 46);
+  yePushBack(ar, test1, "test1");
+  g_assert(yeGetFloat(testf) == 10.5);
+  g_assert(!yeStrCmp(tests, "hej"));
+  g_assert(yeGetIntAt(ar, "test1") == 10);
+}
+
+void testAutoFree(void)
+{
+  yeInitMem();
+  testAutoFree_();
+  g_assert(!yeEntitiesArraySize());
+  yeEnd();
+}

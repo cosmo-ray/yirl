@@ -22,6 +22,7 @@
 #ifndef	_YIRL_ENTITY_H
 #define	_YIRL_ENTITY_H
 
+#include "entity-macro.h"
 #include "block-array.h"
 
 #define NONNULL(arg) __attribute__ ((nonnull (arg)))
@@ -615,6 +616,11 @@ void yeDestroyFunction(Entity *entity);
 void yeDestroyRef(Entity *entity);
 void yeDestroyArray(Entity *entity);
 void yeDestroyData(Entity *entity) ;
+
+static inline void yeAutoFreeDestroy(Entity **entity)
+{
+  yeDestroy(*entity);
+}
 
 void yeMultDestroy_(Entity *toRm, ...);
 
