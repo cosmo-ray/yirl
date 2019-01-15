@@ -632,6 +632,7 @@ InputStatue ywidAction(Entity *action, Entity *wid, Entity *eve)
 
 InputStatue ywidActions(Entity *wid, Entity *actionWid, Entity *eve)
 {
+  printf("%d\n", actionWid->refCount);
   Entity *actions = yeGet(actionWid, "action");
   if (actions)
     return ywidAction(actions, wid, eve);

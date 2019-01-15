@@ -61,7 +61,7 @@ void *viewerInit(int nbArg, void **args)
 }
 
 
-void *init(int nbArg, void **args)
+void *mod_init(int nbArg, void **args)
 {
   Entity *mod = YE_TO_ENTITY(args[0]);
 

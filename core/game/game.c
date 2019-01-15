@@ -544,6 +544,8 @@ Entity *ygLoadMod(const char *path)
   }
 
   starting_widget = yeGet(mod, "starting widget");
+  if (!starting_widget)
+    starting_widget = yeGet(mod, "starting_widget");
   if (type) {
     if (yuiStrEqual(yeGetString(type), "json")) {
       char *fileStr;
