@@ -449,19 +449,26 @@ Entity *ygLoadMod(const char *path)
   Entity *initScripts;
   Entity *name;
 
-  tmp = g_strconcat(path, "/start.json", NULL);
-  if (!tmp) {
-    DPRINT_ERR("cannot allocated path(like something went really wrong)");
-    return NULL;
+  tmp = g_strconcat(path, "/start.c", NULL);
+  CHECK_AND_RET(tmp, NULL, NULL,
+		"cannot allocated path(like something went really wrong)");
+  if (!ysLoadFile(tccManager, tmp)) {
+    mod = yeCreateArray(NULL, NULL);
+    ysCall(tccManager, "mod_init", mod);
+    if (!mod)
+      yeDestroy(mod);
   }
-  mod = ydFromFile(jsonManager, tmp, NULL);
+  if (!mod) {
+    g_free(tmp);
+    tmp = g_strconcat(path, "/start.json", NULL);
+    CHECK_AND_RET(tmp, NULL, NULL,
+		  "cannot allocated path(like something went really wrong)");
+    mod = ydFromFile(jsonManager, tmp, NULL);
+  }
   if (!mod)
     goto failure;
   name = yeGet(mod, "name");
-  if (!name) {
-    DPRINT_ERR("name not found in %s\n", tmp);
-    goto failure;
-  }
+  CHECK_AND_GOTO(name, NULL, failure, "name not found in %s\n", tmp);
 
   if (yeGet(modList, yeGetString(name))) {
     yeDestroy(mod);

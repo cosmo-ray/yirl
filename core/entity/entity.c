@@ -565,7 +565,7 @@ Entity *yeCreateFunctionExt(const char *funcName, void *manager,
   ret->value = NULL;
   ret->manager = manager;
   if (likely(manager) && !(flags & YE_FUNC_NO_FASTPATH_INIT))
-    ret->fastPath = ysGetFastPath(manager, name);
+    ret->fastPath = ysGetFastPath(manager, funcName);
   else
     ret->fastPath = NULL;
   yeSetString(YE_TO_ENTITY(ret), funcName);

@@ -56,6 +56,8 @@ void *viewerInit(int nbArg, void **args)
 {
   Entity *canvas = args[0];
 
+  if (!yProgramArg)
+    return NULL;
   ywCanvasNewImg(canvas, 0, 0, yProgramArg, NULL);
   ywPosCreateInts(0, 0, canvas, "cam");
 }
@@ -63,12 +65,14 @@ void *viewerInit(int nbArg, void **args)
 
 void *mod_init(int nbArg, void **args)
 {
-  Entity *mod = YE_TO_ENTITY(args[0]);
-
+  Entity *mod = args[0];
   Entity *canvas = ywCreateCanvasEnt(mod, "main");
   Entity *actions = yeCreateArray(canvas, "actions");
+
   yeCreateFunction("viewerAction", ygGetManager("tcc"), actions, NULL);
   yeCreateString("QuitOnKeyDown", actions, NULL);
   yeCreateFunction("viewerInit", ygGetManager("tcc"), canvas, "init");
+  yeCreateString("image viewer", mod, "name");
   yeCreateString("main", mod, "starting widget");
+  return (void *)1;
 }
