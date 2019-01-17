@@ -454,16 +454,31 @@ Entity *ygLoadMod(const char *path)
 		"cannot allocated path(like something went really wrong)");
   if (!ysLoadFile(tccManager, tmp)) {
     mod = yeCreateArray(NULL, NULL);
-    ysCall(tccManager, "mod_init", mod);
-    if (!mod)
+    yeCreateString(path, mod, "$path");
+    if (!ysCall(tccManager, "mod_init", mod))
       yeDestroy(mod);
   }
+
+  if (!mod) {
+    g_free(tmp);
+    tmp = g_strconcat(path, "/start.lua", NULL);
+    CHECK_AND_RET(tmp, NULL, NULL,
+		  "cannot allocated path(like something went really wrong)");
+    if (!ysLoadFile(luaManager, tmp)) {
+      mod = yeCreateArray(NULL, NULL);
+      yeCreateString(path, mod, "$path");
+      if (!ysCall(luaManager, "mod_init", mod))
+	yeDestroy(mod);
+    }
+  }
+
   if (!mod) {
     g_free(tmp);
     tmp = g_strconcat(path, "/start.json", NULL);
     CHECK_AND_RET(tmp, NULL, NULL,
 		  "cannot allocated path(like something went really wrong)");
     mod = ydFromFile(jsonManager, tmp, NULL);
+    yeCreateString(path, mod, "$path");
   }
   if (!mod)
     goto failure;
@@ -476,7 +491,6 @@ Entity *ygLoadMod(const char *path)
   }
   yePushBack(modList, mod, yeGetString(name));
   yeDestroy(mod);
-  yeCreateString(path, mod, "$path");
   type = yeGet(mod, "type");
   file = yeGet(mod, "file");
   preLoad = yeGet(mod, "pre-load");

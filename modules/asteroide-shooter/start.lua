@@ -1,4 +1,4 @@
-local modPath = Entity.wrapp(ygGet("asteroide-shooter.$path")):to_string()
+local modPath = nil
 
 function action(entity, eve)
    local eve = Event.wrapp(eve)
@@ -176,7 +176,11 @@ function createAstShoot(entity)
    return canvas:new_wid()
 end
 
-function initAsteroideShooter(entity)
+function mod_init(entity)
    local e = Entity.wrapp(entity)
+   e.name = "asteroide-shooter"
+   modPath = e["$path"]:to_string()
    Widget.new_subtype("asteroide-shooter", "createAstShoot")
+   print(e, " - ", modPath)
+   return Y_TRUE
 end
