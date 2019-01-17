@@ -449,31 +449,24 @@ Entity *ygLoadMod(const char *path)
   Entity *initScripts;
   Entity *name;
 
-  tmp = g_strconcat(path, "/start.c", NULL);
-  CHECK_AND_RET(tmp, NULL, NULL,
-		"cannot allocated path(like something went really wrong)");
-  if (!ysLoadFile(tccManager, tmp)) {
-    mod = yeCreateArray(NULL, NULL);
-    yeCreateString(path, mod, "$path");
-    if (!ysCall(tccManager, "mod_init", mod))
-      yeDestroy(mod);
-  }
+  for (int i = 0; i < 2; ++i) {
+    const char * const starts[] = {"/start.c", "/start.lua"};
+    void * const managers[] = {tccManager, luaManager};
 
-  if (!mod) {
-    g_free(tmp);
-    tmp = g_strconcat(path, "/start.lua", NULL);
+    tmp = g_strconcat(path, starts[i], NULL);
     CHECK_AND_RET(tmp, NULL, NULL,
 		  "cannot allocated path(like something went really wrong)");
-    if (!ysLoadFile(luaManager, tmp)) {
+    if (!access(tmp, F_OK) && !ysLoadFile(managers[i], tmp)) {
       mod = yeCreateArray(NULL, NULL);
       yeCreateString(path, mod, "$path");
-      if (!ysCall(luaManager, "mod_init", mod))
-	yeDestroy(mod);
+      if (ysCall(managers[i], "mod_init", mod))
+	break;
     }
+    yeDestroy(mod);
+    g_free(tmp);
   }
 
   if (!mod) {
-    g_free(tmp);
     tmp = g_strconcat(path, "/start.json", NULL);
     CHECK_AND_RET(tmp, NULL, NULL,
 		  "cannot allocated path(like something went really wrong)");
