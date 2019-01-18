@@ -178,7 +178,6 @@ end
 
 function mod_init(entity)
    local e = Entity.wrapp(entity)
-   e.name = "asteroide-shooter"
    modPath = e["$path"]:to_string()
    Widget.new_subtype("asteroide-shooter", "createAstShoot")
    print(e, " - ", modPath)

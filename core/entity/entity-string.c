@@ -235,6 +235,17 @@ int yeCountCharacters(Entity *str, char carac, int lineLimit)
   return ret;
 }
 
+int yeStringTruncate(Entity *str, uint32_t len)
+{
+  uint32_t l = yeLen(str);
+  if (len >= l)
+    return -1;
+  l -= len;
+  YE_TO_STRING(str)->value[l] = '\0';
+  YE_TO_STRING(str)->len = l;
+  return 0;
+}
+
 int yeStringShrink(Entity *str, uint32_t len)
 {
   if (len >= yeLen(str))

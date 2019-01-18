@@ -193,6 +193,11 @@ int yeTokLen(Entity *tokInfo, int tokIdx);
 int yeStringNextTok(Entity *str, Entity *tokInfo);
 
 /**
+ * @brief remove @len caracters at the end of @str
+ */
+int yeStringTruncate(Entity *str, uint32_t len);
+
+/**
  * @brief remove @len caracters at the begin of @str
  *
  * @param str the string to shrink

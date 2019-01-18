@@ -449,6 +449,7 @@ Entity *ygLoadMod(const char *path)
   Entity *initScripts;
   Entity *name;
 
+  YE_NEW(string, tmp_name, "");
   for (int i = 0; i < 2; ++i) {
     const char * const starts[] = {"/start.c", "/start.lua"};
     void * const managers[] = {tccManager, luaManager};
@@ -473,10 +474,25 @@ Entity *ygLoadMod(const char *path)
     mod = ydFromFile(jsonManager, tmp, NULL);
     yeCreateString(path, mod, "$path");
   }
+
   if (!mod)
     goto failure;
   name = yeGet(mod, "name");
-  CHECK_AND_GOTO(name, NULL, failure, "name not found in %s\n", tmp);
+
+  if (!name) {
+    char *last_slash = strrchr(path, '/');
+    int short_end = 0;
+
+    if (strlen(last_slash) == 1) {
+      do {--last_slash;} while (last_slash != path && *last_slash != '/');
+      short_end = 1;
+    }
+    if (*last_slash == '/')
+      ++last_slash;
+    yeSetString(tmp_name, last_slash);
+    yeStringTruncate(tmp_name, short_end);
+    name = tmp_name;
+  }
 
   if (yeGet(modList, yeGetString(name))) {
     yeDestroy(mod);
