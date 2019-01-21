@@ -985,6 +985,14 @@ int	luaWidNext(lua_State *L)
   return 1;
 }
 
+int	luayevMouseDown(lua_State *L)
+{
+  int ret2 = 0;
+  lua_pushboolean(L, yevMouseDown(luaEntityAt(L, 1), &ret2));
+  lua_pushnumber(L, ret2);
+  return 2;
+}
+
 int	luaWidEveIsEnd(lua_State *L)
 {
   lua_pushboolean(L, luaEntityAt(L, 1) == NULL);
@@ -1008,9 +1016,6 @@ int	luaEveKey(lua_State *L)
   lua_pushnumber(L, ywidEveKey(luaEntityAt(L, 1)));
   return 1;
 }
-
-/* TODO: Add luaEveMouseX() */
-/* TODO: Add luaEveMouseY() */
 
 int	luaPopBack(lua_State *L)
 {

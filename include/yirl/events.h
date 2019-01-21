@@ -24,6 +24,14 @@
 int yevIsKeyDown(Entity *events, int k);
 int yevIsKeyUp(Entity *events, int k);
 
+/* defaults groupes */
+extern Entity *yevGrpUp;
+extern Entity *yevGrpDown;
+extern Entity *yevGrpLeft;
+extern Entity *yevGrpRight;
+
+/* int yedCheckKeys(Entity *events, int type, ...); */
+
 Entity *yevMousePos(Entity *events);
 
 int yevMouseDown(Entity *events, int *button);

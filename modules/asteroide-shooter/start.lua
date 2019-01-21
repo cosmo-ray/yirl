@@ -1,42 +1,44 @@
 local modPath = nil
 
 function action(entity, eve)
-   local eve = Event.wrapp(eve)
    local canvas = Canvas.wrapp(entity)
    local move = canvas.ent.move
    local ship = CanvasObj.wrapp(canvas.ent.ship)
 
-   while eve:is_end() == false do
-      if eve:type() == YKEY_DOWN then
-	 if eve:key() == Y_ESC_KEY then
-	    if canvas.ent.quit then
-	       canvas.ent.quit(canvas.ent)
-	       return YEVE_ACTION
-	    end
-	    yFinishGame()
-	    return YEVE_ACTION
-	 elseif eve:is_key_up() then move.up_down = -1
-	 elseif eve:is_key_down() then move.up_down = 1
-	 elseif eve:is_key_left() then move.left_right = -1
-	 elseif eve:is_key_right() then move.left_right = 1
-	 end
-      elseif eve:type() == YKEY_UP then
-	 if eve:is_key_up() or eve:is_key_down() then move.up_down = 0
-	 elseif eve:is_key_left() or eve:is_key_right() then
-	 move.left_right = 0
-	 end
-      elseif eve:type() == YKEY_MOUSEMOTION then
-	 -- I should add an api for that :p
-	 ship:point_top_to(eve:mouse_pos())
-      elseif eve:type() == YKEY_MOUSEDOWN then
-	 local laser = canvas:new_obj(ship:pos():x() + ship:size():x() / 2 - 5,
+   print("yevIsKeyDown(eve, Y_ESC_KEY): ",  yevIsKeyDown(eve, Y_ESC_KEY))
+   if yevIsKeyDown(eve, Y_ESC_KEY) then
+      if canvas.ent.quit then
+	 canvas.ent.quit(canvas.ent)
+	 return YEVE_ACTION
+      end
+      yFinishGame()
+      return YEVE_ACTION
+   elseif yevIsKeyDown(eve, Y_UP_KEY) then move.up_down = -1
+   elseif yevIsKeyDown(eve, Y_DOWN_KEY) then move.up_down = 1
+   elseif yevIsKeyDown(eve, Y_LEFT_KEY) then move.left_right = -1
+   elseif yevIsKeyDown(eve, Y_RIGHT_KEY) then move.left_right = 1
+   end
+   if yevIsKeyUp(eve, Y_UP_KEY) or yevIsKeyUp(eve, Y_DOWN_KEY) then
+      move.up_down = 0
+   elseif yevIsKeyUp(eve, Y_LEFT_KEY) or yevIsKeyUp(eve, Y_RIGHT_KEY) then
+      move.left_right = 0
+   end
+   local pos = yevMousePos(eve)
+   print(pos)
+   if pos ~= nil then
+      -- I should add an api for that :p
+      pos = Pos.wrapp(pos)
+      ship:point_top_to(pos)
+   end
+   local ret, button = yevMouseDown(eve, button);
+   print("ret, button, pos: ", ret, button, pos)
+   if ret then
+      local laser = canvas:new_obj(ship:pos():x() + ship:size():x() / 2 - 5,
 				      ship:pos():y() + ship:size():y() / 2  -5, 0)
 
-	 laser:point_right_to(eve:mouse_pos())
-	 yeCreateFloat(laser:angle() - 90, laser.ent:cent(), "angle")
-	 canvas.ent.lasers:push_back(laser:cent())
-      end
-      eve = eve:next()
+      laser:point_right_to(pos)
+      yeCreateFloat(laser:angle() - 90, laser.ent:cent(), "angle")
+      canvas.ent.lasers:push_back(laser:cent())
    end
 
    local lasers = canvas.ent.lasers

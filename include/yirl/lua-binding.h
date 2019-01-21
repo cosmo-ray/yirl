@@ -22,10 +22,41 @@
 #include "lua-convert.h"
 #include "widget.h"
 #include "keydef.h"
+#include "events.h"
 #include "game.h"
 #include "container.h"
 #include <lualib.h>
 #include <lauxlib.h>
+
+#define LUA_IMPLEMENT_I_EI(func)					\
+  static inline int lua##func(lua_State *L)				\
+  {									\
+    lua_pushnumber(L, func(luaEntityAt(L, 1), lua_tointeger(L, 2)));	\
+    return 1;								\
+  }
+
+#define LUA_IMPLEMENT_B_EI(func)					\
+  static inline int lua##func(lua_State *L)				\
+  {									\
+    lua_pushboolean(L, func(luaEntityAt(L, 1), lua_tointeger(L, 2)));	\
+    return 1;								\
+  }
+
+#define LUA_IMPLEMENT_I_E(func)						\
+  static inline int lua##func(lua_State *L)				\
+  {									\
+    lua_pushnumber(L, func(luaEntityAt(L, 1)));				\
+    return 1;								\
+  }
+
+#define LUA_IMPLEMENT_E_E(func)						\
+  static inline int lua##func(lua_State *L)				\
+  {									\
+    Entity *ret = func(luaEntityAt(L, 1));				\
+    if (ret) lua_pushlightuserdata(L, ret); else lua_pushnil(L);	\
+    return 1;								\
+  }
+
 
 /* Entity objets */
 int	luaentity_tocentity(lua_State *L);
@@ -137,6 +168,11 @@ int	luaWidEveIsEnd(lua_State *L);
 int	luaEveType(lua_State *L);
 int	luaEveKey(lua_State *L);
 int	luaywidEveMousePos(lua_State *L);
+
+LUA_IMPLEMENT_B_EI(yevIsKeyDown);
+LUA_IMPLEMENT_B_EI(yevIsKeyUp);
+LUA_IMPLEMENT_E_E(yevMousePos);
+int	luayevMouseDown(lua_State *L);
 
 /* rect */
 int	luaYwRectCreate(lua_State *L);
@@ -492,6 +528,10 @@ static inline int	yesLuaRegister(void *sm)
   // Add ywidEveStat()
   // Add ywidEveMouseX()
   // Add ywidEveMouseY()
+  YES_LUA_REGISTRE_CALL(sm, yevIsKeyDown);
+  YES_LUA_REGISTRE_CALL(sm, yevIsKeyUp);
+  YES_LUA_REGISTRE_CALL(sm, yevMousePos);
+  YES_LUA_REGISTRE_CALL(sm, yevMouseDown);
 
   /* map */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapPosFromInt", luaYwMapPosFromInt));
