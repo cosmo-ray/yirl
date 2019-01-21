@@ -993,6 +993,43 @@ int	luayevMouseDown(lua_State *L)
   return 2;
 }
 
+int	luayevCheckKeys(lua_State *L)
+{
+  switch (lua_gettop(L)) {
+  case 3:
+    lua_pushboolean(L, yevCheckKeys(luaEntityAt(L, 1),
+				    luaNumberAt(L, 2),
+				    luaNumberAt(L, 3)));
+    break;
+  case 4:
+    lua_pushboolean(L, yevCheckKeys(luaEntityAt(L, 1),
+				    luaNumberAt(L, 2),
+				    luaNumberAt(L, 3),
+				    luaNumberAt(L, 4)));
+    break;
+  case 5:
+    lua_pushboolean(L, yevCheckKeys(luaEntityAt(L, 1),
+				    luaNumberAt(L, 2),
+				    luaNumberAt(L, 3),
+				    luaNumberAt(L, 4),
+				    luaNumberAt(L, 5)));
+    break;
+  case 6:
+    lua_pushboolean(L, yevCheckKeys(luaEntityAt(L, 1),
+				    luaNumberAt(L, 2),
+				    luaNumberAt(L, 3),
+				    luaNumberAt(L, 4),
+				    luaNumberAt(L, 5),
+				    luaNumberAt(L, 6)));
+    break;
+
+default:
+    DPRINT_ERR("internal error: wrong number of argument");
+    return 0;
+  }
+  return 1;
+}
+
 int	luaWidEveIsEnd(lua_State *L)
 {
   lua_pushboolean(L, luaEntityAt(L, 1) == NULL);

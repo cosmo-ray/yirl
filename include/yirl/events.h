@@ -30,7 +30,7 @@ extern Entity *yevGrpDown;
 extern Entity *yevGrpLeft;
 extern Entity *yevGrpRight;
 
-static inline int yedCheckKeysInt(Entity *events, EventType type, int *keys)
+static inline int yevCheckKeysInt(Entity *events, EventType type, int *keys)
 {
   Entity *eve = events;
 
@@ -48,10 +48,10 @@ static inline int yedCheckKeysInt(Entity *events, EventType type, int *keys)
 }
 
 /**
- * usage exemple: yedCheckKeys(events, YKEY_DOWN, 'a', 'b')
+ * usage exemple: yevCheckKeys(events, YKEY_DOWN, 'a', 'b')
  */
-#define yedCheckKeys(events, type, keys...)	\
-  ({ int k[] = { keys, -1}; int r = yedCheckKeysInt(events, type, k);  r; })
+#define yevCheckKeys(events, type, keys...)	\
+  ({ int k[] = { keys, -1}; int r = yevCheckKeysInt(events, type, k);  r; })
 
 Entity *yevMousePos(Entity *events);
 

@@ -173,6 +173,7 @@ LUA_IMPLEMENT_B_EI(yevIsKeyDown);
 LUA_IMPLEMENT_B_EI(yevIsKeyUp);
 LUA_IMPLEMENT_E_E(yevMousePos);
 int	luayevMouseDown(lua_State *L);
+int	luayevCheckKeys(lua_State *L);
 
 /* rect */
 int	luaYwRectCreate(lua_State *L);
@@ -525,13 +526,11 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidEveType", luaEveType));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidEveKey", luaEveKey));
   YES_LUA_REGISTRE_CALL(sm, ywidEveMousePos);
-  // Add ywidEveStat()
-  // Add ywidEveMouseX()
-  // Add ywidEveMouseY()
   YES_LUA_REGISTRE_CALL(sm, yevIsKeyDown);
   YES_LUA_REGISTRE_CALL(sm, yevIsKeyUp);
   YES_LUA_REGISTRE_CALL(sm, yevMousePos);
   YES_LUA_REGISTRE_CALL(sm, yevMouseDown);
+  YES_LUA_REGISTRE_CALL(sm, yevCheckKeys);
 
   /* map */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapPosFromInt", luaYwMapPosFromInt));

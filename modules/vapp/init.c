@@ -225,12 +225,12 @@ void *vapzAction(int nbArgs, void **args)
     ret = (void *)ACTION;
     ywPosSetX(nextPos, 1);
   }
-  if (yevIsKeyDown(events,  'w') || yevIsKeyDown(events,  'z')) {
+  if (yevCheckKeys(events, YKEY_DOWN, 'w', 'z')) {
     fire = 1;
     bulletDir = ywPosCreateInts(0, -1, gc, NULL);
     ret = (void *)ACTION;
   }
-  if (yedCheckKeys(events, YKEY_DOWN, 'a', 'q')) {
+  if (yevCheckKeys(events, YKEY_DOWN, 'a', 'q')) {
     fire = 1;
     bulletDir = ywPosCreateInts(-1, 0, gc, NULL);
     ret = (void *)ACTION;

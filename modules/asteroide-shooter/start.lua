@@ -12,8 +12,8 @@ function action(entity, eve)
       end
       yFinishGame()
       return YEVE_ACTION
-   elseif yevIsKeyDown(eve, Y_UP_KEY) then move.up_down = -1
-   elseif yevIsKeyDown(eve, Y_DOWN_KEY) then move.up_down = 1
+   elseif yevCheckKeys(eve, YKEY_DOWN, Y_UP_KEY, Y_W_KEY) then move.up_down = -1
+   elseif yevCheckKeys(eve, YKEY_DOWN, Y_DOWN_KEY, Y_S_KEY) then move.up_down = 1
    elseif yevIsKeyDown(eve, Y_LEFT_KEY) then move.left_right = -1
    elseif yevIsKeyDown(eve, Y_RIGHT_KEY) then move.left_right = 1
    end
@@ -33,8 +33,12 @@ function action(entity, eve)
       local laser = canvas:new_obj(ship:pos():x() + ship:size():x() / 2 - 5,
 				      ship:pos():y() + ship:size():y() / 2  -5, 0)
 
+      local angle = -90
+      if button == 3 then
+	 angle = 90
+      end
       laser:point_right_to(pos)
-      yeCreateFloat(laser:angle() - 90, laser.ent:cent(), "angle")
+      yeCreateFloat(laser:angle() + angle, laser.ent:cent(), "angle")
       canvas.ent.lasers:push_back(laser:cent())
    end
 
