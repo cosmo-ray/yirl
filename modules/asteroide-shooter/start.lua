@@ -5,7 +5,6 @@ function action(entity, eve)
    local move = canvas.ent.move
    local ship = CanvasObj.wrapp(canvas.ent.ship)
 
-   print("yevIsKeyDown(eve, Y_ESC_KEY): ",  yevIsKeyDown(eve, Y_ESC_KEY))
    if yevIsKeyDown(eve, Y_ESC_KEY) then
       if canvas.ent.quit then
 	 canvas.ent.quit(canvas.ent)
@@ -24,14 +23,12 @@ function action(entity, eve)
       move.left_right = 0
    end
    local pos = yevMousePos(eve)
-   print(pos)
-   if pos ~= nil then
+   if pos then
       -- I should add an api for that :p
       pos = Pos.wrapp(pos)
       ship:point_top_to(pos)
    end
    local ret, button = yevMouseDown(eve, button);
-   print("ret, button, pos: ", ret, button, pos)
    if ret then
       local laser = canvas:new_obj(ship:pos():x() + ship:size():x() / 2 - 5,
 				      ship:pos():y() + ship:size():y() / 2  -5, 0)
@@ -49,7 +46,6 @@ function action(entity, eve)
 
 	 laser:advance(25, laser.ent.angle:to_float())
 	 if (canvas:is_out(laser) == 1) then
-	    print("kboum", canvas:is_out(laser))
 	    removeObj(canvas, lasers, laser)
 	    laser = nil
 	 else
@@ -63,15 +59,10 @@ function action(entity, eve)
 		     canvas:new_text(10, 10,
 				     Entity.new_string("score: "..
 							  canvas.ent.score:to_int())):cent()
-		  print("life:", asteroides[i].life)
 		  if asteroides[i].life:to_int() == 0 then
 		     removeObj(canvas, asteroides,
 			       CanvasObj.wrapp(asteroides[i]))
 		  else
-		     print(asteroides[i].life)
-		     print(asteroides[i].speed)
-		     print(asteroides[i].angle:to_float(),
-			   laser.ent.angle:to_float())
 		     if (asteroides[i].speed < 30) then
 			asteroides[i].speed = asteroides[i].speed:to_int() + 1
 		     end
@@ -91,7 +82,6 @@ function action(entity, eve)
 		     yeCreateFloat(-asteroides[i].angle:to_float(),
 				   bigAst.ent, "angle")
  		     asteroides:push_back(bigAst:cent())
-		     print("l: ", asteroides:len())
 		  end
 		  removeObj(canvas, lasers, laser)
 		  break;
@@ -182,6 +172,5 @@ function mod_init(entity)
    local e = Entity.wrapp(entity)
    modPath = e["$path"]:to_string()
    Widget.new_subtype("asteroide-shooter", "createAstShoot")
-   print(e, " - ", modPath)
    return Y_TRUE
 end
