@@ -17,6 +17,7 @@
 
 #include <yirl/game.h>
 #include <yirl/menu.h>
+#include <yirl/events.h>
 #include <yirl/map.h>
 #include <yirl/container.h>
 #include <yirl/rect.h>
@@ -185,10 +186,9 @@ static int pizzaTurn(Entity *map)
 
 void *vapzAction(int nbArgs, void **args)
 {
-  Entity *gc = yeCreateArray(NULL, NULL);
+  YE_NEW(Array, gc);
   Entity *wid = args[0];
   Entity *events = args[1];
-  Entity *eve = events;
   Entity *vk = yeGetByStrFast(wid, "viking");
   Entity *vkPos = yeGetByStrFast(vk, "pos");
   Entity *nextPos = ywPosCreateInts(0, 0, gc, NULL);
@@ -200,79 +200,65 @@ void *vapzAction(int nbArgs, void **args)
   void *ret = tl ? (void *)ACTION : (void *)NOTHANDLE;
   int fire = 0;
 
-  YEVE_FOREACH(eve, events) {
-    if (ywidEveType(eve) != YKEY_DOWN)
-      continue;
-    switch (ywidEveKey(eve)) {
-    case Y_ESC_KEY:
-      if (yeGet(wid, "quit")) {
-	yesCall(yeGet(wid, "quit"), wid);
-      } else {
-	ywidNext(yeCreateString("vapz:scenes.main", gc, NULL));
-      }
-      clean(wid);
-      yeDestroy(gc);
-      return (void *)ACTION;
-      break;
-    case '\n':
-      ret = (void *)ACTION;
-      break;
-    case Y_UP_KEY:
-      ret = (void *)ACTION;
-      ywPosSetY(nextPos, -1);
-      break;
-    case Y_DOWN_KEY:
-      ret = (void *)ACTION;
-      ywPosSetY(nextPos, 1);
-      break;
-    case Y_LEFT_KEY:
-      ret = (void *)ACTION;
-      ywPosSetX(nextPos, -1);
-      break;
-    case Y_RIGHT_KEY:
-      ret = (void *)ACTION;
-      ywPosSetX(nextPos, 1);
-      break;
-    case 'w':
-    case 'z':
-      fire = 1;
-      bulletDir = ywPosCreateInts(0, -1, gc, NULL);
-      ret = (void *)ACTION;
-      break;
-    case 'a':
-    case 'q':
-      fire = 1;
-      bulletDir = ywPosCreateInts(-1, 0, gc, NULL);
-      ret = (void *)ACTION;
-      break;
-    case 's':
-      fire = 1;
-      bulletDir = ywPosCreateInts(0, 1, gc, NULL);
-      ret = (void *)ACTION;
-      break;
-    case 'd':
-      fire = 1;
-      bulletDir = ywPosCreateInts(1, 0, gc, NULL);
-      ret = (void *)ACTION;
-      break;
-
-    default:
-      break;
+  if (yevIsKeyDown(events, Y_ESC_KEY)) {
+    if (yeGet(wid, "quit")) {
+      yesCall(yeGet(wid, "quit"), wid);
+    } else {
+      ywidNext(yeCreateString("vapz:scenes.main", gc, NULL));
     }
+      clean(wid);
+      return (void *)ACTION;
   }
+  if (yevIsKeyDown(events, Y_UP_KEY)) {
+    ret = (void *)ACTION;
+    ywPosSetY(nextPos, -1);
+  }
+  if (yevIsKeyDown(events, Y_DOWN_KEY)) {
+    ret = (void *)ACTION;
+    ywPosSetY(nextPos, 1);
+  }
+  if (yevIsKeyDown(events,  Y_LEFT_KEY)) {
+    ret = (void *)ACTION;
+    ywPosSetX(nextPos, -1);
+  }
+  if (yevIsKeyDown(events,  Y_RIGHT_KEY)) {
+    ret = (void *)ACTION;
+    ywPosSetX(nextPos, 1);
+  }
+  if (yevIsKeyDown(events,  'w') || yevIsKeyDown(events,  'z')) {
+    fire = 1;
+    bulletDir = ywPosCreateInts(0, -1, gc, NULL);
+    ret = (void *)ACTION;
+  }
+  if (yevIsKeyDown(events,  'a') || yevIsKeyDown(events,  'q')) {
+    fire = 1;
+    bulletDir = ywPosCreateInts(-1, 0, gc, NULL);
+    ret = (void *)ACTION;
+  }
+  if (yevIsKeyDown(events,  's')) {
+    fire = 1;
+    bulletDir = ywPosCreateInts(0, 1, gc, NULL);
+    ret = (void *)ACTION;
+  }
+  if (yevIsKeyDown(events,  'd')) {
+    fire = 1;
+    bulletDir = ywPosCreateInts(1, 0, gc, NULL);
+    ret = (void *)ACTION;
+  }
+
   if (bulletDir)
     pushBullet(map, bulletPos, bulletDir);
   Entity *isTouch = ywMapGetEntityById(map, vkPos, 2);
   if (isTouch) {
     lose(wid, yeGetInt(yeGetByStrFast(map, "score")));
     clean(wid);
-    goto exit;
+    return ret;
   }
   if (ret == (void *)ACTION) {
     if (colCheck(map, textScreen, vkPos)) {
       lose(wid, yeGetInt(yeGetByStrFast(map, "score")));
       clean(wid);
-      goto exit;
+      return ret;
     }
     bulletsTurn(map, textScreen);
     pizzaTurn(map);
@@ -285,9 +271,6 @@ void *vapzAction(int nbArgs, void **args)
   Entity *cam = ywMapCam(map);
   ywPosSubXY(newCamPos, ywRectW(cam) / 2, ywRectH(cam) / 2);
   ywMapSetCamPos(map, newCamPos);
-
- exit:
-  yeDestroy(gc);
   return ret;
 }
 
