@@ -43,6 +43,7 @@ SRC = 	$(SCRIPT_DIR)/lua-script.c \
 	$(WID_DIR)/map.c \
 	$(WID_DIR)/pos.c \
 	$(WID_DIR)/rect.c \
+	$(WID_DIR)/events.c \
 	$(WID_DIR)/container.c \
 	$(WID_DIR)/texture.c \
 	$(SDL_WID_DIR)/sdl.c \

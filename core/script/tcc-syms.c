@@ -25,12 +25,16 @@
 #include "container.h"
 #include "entity-script.h"
 #include "game.h"
+#include "events.h"
 #include "menu.h"
 
 void	fflushout(void)
 {
   fflush(stdout);
 }
+
+#define ADD_SYM(s)				\
+  tcc_add_symbol(l, #s, s)
 
 void	tccAddSyms(TCCState *l)
 {
@@ -110,6 +114,10 @@ void	tccAddSyms(TCCState *l)
   tcc_add_symbol(l, "yProgramArg", &yProgramArg);
   tcc_add_symbol(l, "ywCanvasDisableWeight", ywCanvasDisableWeight);
   tcc_add_symbol(l, "ywCanvasSetWeight", ywCanvasSetWeight);
+  ADD_SYM(yevMouseDown);
+  ADD_SYM(yevMousePos);
+  ADD_SYM(yevIsKeyUp);
+  ADD_SYM(yevIsKeyDown);
 #if defined(__unix__) || defined(__APPLE__)
   tcc_add_symbol(l, "yuiDebugPrint", yuiDebugPrint);
 #endif
