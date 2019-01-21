@@ -230,7 +230,7 @@ void *vapzAction(int nbArgs, void **args)
     bulletDir = ywPosCreateInts(0, -1, gc, NULL);
     ret = (void *)ACTION;
   }
-  if (yevIsKeyDown(events,  'a') || yevIsKeyDown(events,  'q')) {
+  if (yedCheckKeys(events, YKEY_DOWN, 'a', 'q')) {
     fire = 1;
     bulletDir = ywPosCreateInts(-1, 0, gc, NULL);
     ret = (void *)ACTION;

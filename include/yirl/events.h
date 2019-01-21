@@ -30,7 +30,28 @@ extern Entity *yevGrpDown;
 extern Entity *yevGrpLeft;
 extern Entity *yevGrpRight;
 
-/* int yedCheckKeys(Entity *events, int type, ...); */
+static inline int yedCheckKeysInt(Entity *events, EventType type, int *keys)
+{
+  Entity *eve = events;
+
+  YEVE_FOREACH(eve, events) {
+    if (ywidEveType(eve) != type)
+      continue;
+    int ck = ywidEveKey(eve);
+
+    for (int k = *keys; k >= 0; ({ ++keys; k = *keys; })) {
+      if (ck == k)
+	return 1;
+    }
+  }
+  return 0;
+}
+
+/**
+ * usage exemple: yedCheckKeys(events, YKEY_DOWN, 'a', 'b')
+ */
+#define yedCheckKeys(events, type, keys...)	\
+  ({ int k[] = { keys, -1}; int r = yedCheckKeysInt(events, type, k);  r; })
 
 Entity *yevMousePos(Entity *events);
 
