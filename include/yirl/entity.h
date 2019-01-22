@@ -321,6 +321,8 @@ Entity *yeBrutalCast(Entity *entity, int type);
 #define YE_ARRAY_FOREACH(array, val)		\
   YE_ARRAY_FOREACH_EXT(array, val, it##val)
 
+#define YE_FOREACH YE_ARRAY_FOREACH
+
 int	yeArrayIdx(Entity *array, const char *lookup);
 
 Entity *yeGetLast(Entity *array);
@@ -544,7 +546,7 @@ Entity *yeCreateStringAt(const char *string, Entity *father,
 Entity *yeCreateNString(const char *string, int l, Entity *fathers,
 			const char *name);
 
-int yeCreateInts_(Entity *fathers, int nbVars, ...);
+Entity *yeCreateInts_(Entity *fathers, int nbVars, ...);
 
 #define yeCreateInts(father, args...)				\
   (yeCreateInts_((father), YUI_GET_ARG_COUNT(args), args))

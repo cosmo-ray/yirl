@@ -993,6 +993,31 @@ int	luayevMouseDown(lua_State *L)
   return 2;
 }
 
+int	luayevCreateGrp(lua_State *L)
+{
+  switch (lua_gettop(L)) {
+  case 2:
+    lua_pushlightuserdata(L, yevCreateGrp(luaEntityAt(L, 1),
+					  (uint64_t)luaNumberAt(L, 2)));
+    break;
+  case 3:
+    lua_pushlightuserdata(L, yevCreateGrp(luaEntityAt(L, 1),
+					  (uint64_t)luaNumberAt(L, 2),
+					  (uint64_t)luaNumberAt(L, 3)));
+    break;
+  case 4:
+    lua_pushlightuserdata(L, yevCreateGrp(luaEntityAt(L, 1),
+					  (uint64_t)luaNumberAt(L, 2),
+					  (uint64_t)luaNumberAt(L, 3),
+					  (uint64_t)luaNumberAt(L, 4)));
+    break;
+default:
+    DPRINT_ERR("internal error: wrong number of argument");
+    return 0;
+  }
+  return 1;
+}
+
 int	luayevCheckKeys(lua_State *L)
 {
   switch (lua_gettop(L)) {

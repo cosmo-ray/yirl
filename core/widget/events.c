@@ -53,6 +53,44 @@ Entity *yevMousePos(Entity *events)
   return NULL;
 }
 
+int yevIsGrpDown(Entity *events, Entity *grp)
+{
+  Entity *eve = events;
+
+  YEVE_FOREACH(eve, events) {
+    if (ywidEveType(eve) != YKEY_DOWN)
+      continue;
+    int ck = ywidEveKey(eve);
+
+    YE_FOREACH(grp, key) {
+      int k = yeGetInt(key);
+
+      if (ck == k)
+	return 1;
+    }
+  }
+  return 0;
+}
+
+int yevIsGrpUp(Entity *events, Entity *grp)
+{
+  Entity *eve = events;
+
+  YEVE_FOREACH(eve, events) {
+    if (ywidEveType(eve) != YKEY_UP)
+      continue;
+    int ck = ywidEveKey(eve);
+
+    YE_FOREACH(grp, key) {
+      int k = yeGetInt(key);
+
+      if (ck == k)
+	return 1;
+    }
+  }
+  return 0;
+}
+
 int yevMouseDown(Entity *events, int *button)
 {
   Entity *eve = events;

@@ -1,4 +1,8 @@
 local modPath = nil
+local upKeys = nil
+local downKeys = nil
+local leftKeys = nil
+local rightKeys = nil
 
 function action(entity, eve)
    local canvas = Canvas.wrapp(entity)
@@ -12,14 +16,14 @@ function action(entity, eve)
       end
       yFinishGame()
       return YEVE_ACTION
-   elseif yevCheckKeys(eve, YKEY_DOWN, Y_UP_KEY, Y_W_KEY) then move.up_down = -1
-   elseif yevCheckKeys(eve, YKEY_DOWN, Y_DOWN_KEY, Y_S_KEY) then move.up_down = 1
-   elseif yevIsKeyDown(eve, Y_LEFT_KEY) then move.left_right = -1
-   elseif yevIsKeyDown(eve, Y_RIGHT_KEY) then move.left_right = 1
+   elseif yevIsGrpDown(eve, upKeys) then move.up_down = -1
+   elseif yevIsGrpDown(eve, downKeys) then move.up_down = 1
+   elseif yevIsGrpDown(eve, leftKeys) then move.left_right = -1
+   elseif yevIsGrpDown(eve, rightKeys) then move.left_right = 1
    end
-   if yevIsKeyUp(eve, Y_UP_KEY) or yevIsKeyUp(eve, Y_DOWN_KEY) then
+   if yevIsGrpUp(eve, upKeys) or yevIsGrpUp(eve, downKeys) then
       move.up_down = 0
-   elseif yevIsKeyUp(eve, Y_LEFT_KEY) or yevIsKeyUp(eve, Y_RIGHT_KEY) then
+   elseif yevIsGrpUp(eve, leftKeys) or yevIsGrpUp(eve, rightKeys) then
       move.left_right = 0
    end
    local pos = yevMousePos(eve)
@@ -174,6 +178,10 @@ end
 
 function mod_init(entity)
    local e = Entity.wrapp(entity)
+   upKeys = Event.CreateGrp(Y_UP_KEY, Y_W_KEY)
+   downKeys = Event.CreateGrp(Y_DOWN_KEY, Y_S_KEY)
+   leftKeys = Event.CreateGrp(Y_LEFT_KEY, Y_A_KEY)
+   rightKeys = Event.CreateGrp(Y_RIGHT_KEY, Y_D_KEY)
    modPath = e["$path"]:to_string()
    Widget.new_subtype("asteroide-shooter", "createAstShoot")
    return Y_TRUE

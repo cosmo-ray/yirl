@@ -138,18 +138,19 @@ int yeIsPtrAnEntity(void *ptr)
 				 yBlockArrayLastPos(entitysArray));
 }
 
-int yeCreateInts_(Entity *fathers, int nbVars, ...)
+Entity *yeCreateInts_(Entity *fathers, int nbVars, ...)
 {
   va_list ap;
 
   if (!fathers)
-    return -1;
+    fathers = yeCreateArray(NULL, NULL);
   va_start(ap, nbVars);
   for (int i = 0; i < nbVars; ++i) {
-    yeCreateInt(va_arg(ap, int), fathers, NULL);
+    uint64_t ii = va_arg(ap, uint64_t);
+    yeCreateInt(ii, fathers, NULL);
   }
   va_end(ap);
-  return 0;
+  return fathers;
 }
 
 void yeEnd(void)

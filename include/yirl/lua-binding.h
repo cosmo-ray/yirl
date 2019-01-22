@@ -35,13 +35,6 @@
     return 1;								\
   }
 
-#define LUA_IMPLEMENT_B_EI(func)					\
-  static inline int lua##func(lua_State *L)				\
-  {									\
-    lua_pushboolean(L, func(luaEntityAt(L, 1), lua_tointeger(L, 2)));	\
-    return 1;								\
-  }
-
 #define LUA_IMPLEMENT_I_E(func)						\
   static inline int lua##func(lua_State *L)				\
   {									\
@@ -49,10 +42,33 @@
     return 1;								\
   }
 
+
+#define LUA_IMPLEMENT_B_EI(func)					\
+  static inline int lua##func(lua_State *L)				\
+  {									\
+    lua_pushboolean(L, func(luaEntityAt(L, 1), lua_tointeger(L, 2)));	\
+    return 1;								\
+  }
+
+#define LUA_IMPLEMENT_B_EE(func)					\
+  static inline int lua##func(lua_State *L)				\
+  {									\
+    lua_pushboolean(L, func(luaEntityAt(L, 1), luaEntityAt(L, 2)));	\
+    return 1;								\
+  }
+
 #define LUA_IMPLEMENT_E_E(func)						\
   static inline int lua##func(lua_State *L)				\
   {									\
     Entity *ret = func(luaEntityAt(L, 1));				\
+    if (ret) lua_pushlightuserdata(L, ret); else lua_pushnil(L);	\
+    return 1;								\
+  }
+
+#define LUA_IMPLEMENT_E_EE(func)					\
+  static inline int lua##func(lua_State *L)				\
+  {									\
+    Entity *ret = func(luaEntityAt(L, 1), luaEntityAt(L, 2));		\
     if (ret) lua_pushlightuserdata(L, ret); else lua_pushnil(L);	\
     return 1;								\
   }
@@ -174,6 +190,9 @@ LUA_IMPLEMENT_B_EI(yevIsKeyUp);
 LUA_IMPLEMENT_E_E(yevMousePos);
 int	luayevMouseDown(lua_State *L);
 int	luayevCheckKeys(lua_State *L);
+int	luayevCreateGrp(lua_State *L);
+LUA_IMPLEMENT_B_EE(yevIsGrpDown);
+LUA_IMPLEMENT_B_EE(yevIsGrpUp);
 
 /* rect */
 int	luaYwRectCreate(lua_State *L);
@@ -531,6 +550,9 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, yevMousePos);
   YES_LUA_REGISTRE_CALL(sm, yevMouseDown);
   YES_LUA_REGISTRE_CALL(sm, yevCheckKeys);
+  YES_LUA_REGISTRE_CALL(sm, yevIsGrpDown);
+  YES_LUA_REGISTRE_CALL(sm, yevIsGrpUp);
+  YES_LUA_REGISTRE_CALL(sm, yevCreateGrp);
 
   /* map */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapPosFromInt", luaYwMapPosFromInt));

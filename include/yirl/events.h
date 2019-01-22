@@ -24,11 +24,16 @@
 int yevIsKeyDown(Entity *events, int k);
 int yevIsKeyUp(Entity *events, int k);
 
-/* defaults groupes */
-extern Entity *yevGrpUp;
-extern Entity *yevGrpDown;
-extern Entity *yevGrpLeft;
-extern Entity *yevGrpRight;
+#define yevCreateGrp yeCreateInts
+
+/**
+ * @return 1 if a key of grp is press down
+ */
+int yevIsGrpDown(Entity *events, Entity *grp);
+/**
+ * @return 1 if a key of grp is press up
+ */
+int yevIsGrpUp(Entity *events, Entity *grp);
 
 static inline int yevCheckKeysInt(Entity *events, EventType type, int *keys)
 {

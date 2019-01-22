@@ -25,6 +25,24 @@ function File.jsonToEnt(name)
    return Entity._wrapp_(ygFileToEnt(YJSON, name), true)
 end
 
+function Event.CreateGrp(a, b, c, d, e)
+   local ret = nil
+   print(a, b, c, d, e)
+   if b == nil then
+      ret = yevCreateGrp(nil, a)
+   elseif c == nil then
+      ret = yevCreateGrp(nil, a, b)
+   elseif d == nil then
+      ret = yevCreateGrp(nil, a, b, c)
+   elseif e == nil then
+      ret = yevCreateGrp(nil, a, b, c, d)
+   end
+   print(ret, yeLen(ret), yeGetIntAt(ret, 1))
+   ret = Entity._wrapp_(ret, true)
+   print(ret)
+   return ret
+end
+
 function Event:cent()
    return self.ent:cent()
 end
