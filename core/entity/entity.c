@@ -912,7 +912,7 @@ void	yeSetNString(Entity *e, const char *str, size_t n)
       free(YE_TO_STRING(e)->value);
   }
   if (str != NULL) {
-    char *tmp_val = strndup(str, n);
+    char *tmp_val = g_strndup(str, n);
     YE_TO_STRING(e)->value = tmp_val;
     if (e->type == YSTRING)
       YE_TO_STRING(e)->len = strlen(tmp_val);
