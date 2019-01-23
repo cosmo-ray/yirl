@@ -29,9 +29,6 @@ void testLifecycleSimple(void)
   Entity *test4 = yeCreateString("test", NULL, NULL);
   Entity *test5 = yeCreateFunction("funcName", NULL, NULL, NULL);
 
-  printf("%ld %ld %ld %ld %ld %d\n", sizeof(Entity), sizeof(FloatEntity),
-	 sizeof(IntEntity), sizeof(StringEntity), sizeof(EntityType),
-	 yeEntitiesArraySize());
   g_assert(yeEntitiesArraySize() == 4);
   g_assert(test1);
   g_assert(test2);

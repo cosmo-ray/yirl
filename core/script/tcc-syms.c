@@ -21,6 +21,7 @@
 #include "texture.h"
 #include "canvas.h"
 
+#include "text-screen.h"
 #include "condition.h"
 #include "container.h"
 #include "entity-script.h"
@@ -118,6 +119,8 @@ void	tccAddSyms(TCCState *l)
   ADD_SYM(yevMousePos);
   ADD_SYM(yevIsKeyUp);
   ADD_SYM(yevIsKeyDown);
+  ADD_SYM(ywtextScreenResetTimer);
+  ADD_SYM(ywidAction);
 #if defined(__unix__) || defined(__APPLE__)
   tcc_add_symbol(l, "yuiDebugPrint", yuiDebugPrint);
 #endif
