@@ -153,7 +153,6 @@ typedef struct WidgetState_ {
   int type;
   int actionIdx;
   unsigned int hasChange;
-  unsigned int needDestroy;
 } YWidgetState;
 
 /* struct which define what are common to every rendableWidget of the same type */
@@ -178,6 +177,7 @@ int ywidColorFromString(char *str, uint8_t *r, uint8_t *g,
 
 void ywidChangeResolution(int w, int h);
 
+void ywidMarkAsDestroyable(YWidgetState *kboumable);
 
 int ywidBgConfFill(Entity *entity, YBgConf *cfg);
 

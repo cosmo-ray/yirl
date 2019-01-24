@@ -65,6 +65,36 @@ int ywTurnPecent;
 
 int yeveWindowGetFocus;
 
+struct Kaboumable {
+  YWidgetState *kwid;
+  struct Kaboumable *prev;
+} *kaboumables;
+
+/**
+ * this destroy all widget mark as destroyable in a very american way
+ * hence KBOUM ! (BOUM could have been enough, but I like KDE)
+ */
+static void doKaboum(void)
+{
+  while (kaboumables) {
+    struct Kaboumable *pk = kaboumables->prev;
+
+    yeRemoveChildByStr(kaboumables->kwid->entity, "$father-container");
+    YWidDestroy(kaboumables->kwid);
+    free(kaboumables);
+    kaboumables = pk;
+  }
+}
+
+void ywidMarkAsDestroyable(YWidgetState *kboumable)
+{
+  struct Kaboumable *ck = kaboumables;
+
+  kaboumables = malloc(sizeof(struct Kaboumable));
+  kaboumables->kwid = kboumable;
+  kaboumables->prev = ck;
+}
+
 void ywidChangeResolution(int w, int h)
 {
   ywidWindowWidth = w;
@@ -101,6 +131,7 @@ const char *ywidWindowName(void)
 
 void ywidFreeWidgets(void)
 {
+  doKaboum();
   YWidDestroy(mainWid);
   YWidDestroy(oldWid);
   yeDestroy(subTypes);
@@ -302,7 +333,6 @@ static YWidgetState *ywidNewWidgetInternal(int t,
   }
 
   ret->entity = entity;
-  ret->needDestroy = 0;
 
   if (yeGet(entity, "$wid")) {
     DPRINT_WARN("$wid alerady existe, this may lead to odd and very unexpected behavior !!!!");
@@ -550,6 +580,7 @@ int ywidDoTurn(YWidgetState *opac)
   Entity *head;
   Entity *event;
 
+  doKaboum();
   if (!cnt)
     cnt = YTimerCreate();
 
@@ -676,10 +707,6 @@ int ywidHandleEvent(YWidgetState *opac, Entity *event)
   if (opac->handleEvent)
     ret = opac->handleEvent(opac, event);
 
-  if (opac->needDestroy)
-    goto destroy;
-
-
   if (!opac->hasChange)
     opac->hasChange = (ret == NOTHANDLE ? 0 : 1);
   else
@@ -689,14 +716,7 @@ int ywidHandleEvent(YWidgetState *opac, Entity *event)
 					 "post-action")) != NULL)
     ret = (int_ptr_t)yesCall(postAction, ret, opac->entity, event);
 
-  if (opac->needDestroy)
-    goto destroy;
   return ret;
-
- destroy:
-  yeRemoveChildByStr(opac->entity, "$father-container");
-  YWidDestroy(opac);
-  return ACTION;
 }
 
 int ywIsPixsOnWid(Entity *widget, int posX, int posY)

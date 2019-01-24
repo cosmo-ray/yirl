@@ -76,7 +76,7 @@ void ywCntPopLastEntry(Entity *container)
   cur = yeGet(container, "current");
   entries = yeGet(container, "entries");
   if (ywidGetState(ret))
-    ywidGetState(ret)->needDestroy = 1;
+    ywidMarkAsDestroyable(ywidGetState(ret));
   yePopBack(entries);
   if (yeGetInt(cur) && yeLen(entries) == yeGetUInt(cur)) {
     yeSubInt(cur, 1);
@@ -95,7 +95,7 @@ int ywReplaceEntry(Entity *container, int idx, Entity *entry)
   Entity *new = getEntry(container, entry);
   int size = yeGetIntAt(old, "size");
 
-  ywidGetState(old)->needDestroy = 1;
+  ywidMarkAsDestroyable(ywidGetState(old));
   yeReCreateInt(size, new, "size");
   yeReplace(entries, old, new);
   return 0;
