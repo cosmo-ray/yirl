@@ -17,7 +17,7 @@ not_printable:
         return 1
 }
 
-global text_input_action 3 {
+global text_input_action 2 {
 	int 0 => ret
 	yg_get_push "FinishGame" => finishGame_
 	get_at_idx 1 15 => eve_status
@@ -49,7 +49,7 @@ global text_input_init 1 {
 	yg_get_push "text_input_action" => action
 	push_back 0 2 "action"
         int 0 => cursor
-        push_back 0 3 "cursor" 
+        push_back 0 3 "cursor"
 	new_widget 0 "text-screen" => wid
 	print_entity wid
 	return wid
