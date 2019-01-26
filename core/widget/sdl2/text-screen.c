@@ -52,8 +52,9 @@ static int sdlRender(YWidgetState *state, int t)
   sdlPrintText(wid, toPrint, color, txtR, alignementType);
   if (cursor) {
     int c_pos = yeGetInt(cursor);
-    int f_s = yeGetInt(yeGet(state->entity, "font-size"));
-    SDL_Rect rect = {f_s * c_pos, threshold, 2, f_s};
+    int32_t f_sw = sgGetTxtW();
+    int32_t f_sh = sgGetTxtH();
+    SDL_Rect rect = {f_sw * c_pos, threshold, 2, f_sh};
     SDL_Color color = {0, 0, 0, 255};
 
     sdlDrawRect(wid, rect, color);

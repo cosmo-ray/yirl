@@ -15,7 +15,7 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/* You can admirate the beautifull shape of the includes below */
+/* You can admirate the beautiful shape of the includes below */
 /*      |     */
 /*      V     */
 
@@ -81,6 +81,16 @@ int sgSetDefaultFont(const char *path)
 
   sg.font = font;
   return -0;
+}
+
+uint32_t sgGetTxtW(void)
+{
+  return sg.txtWidth;
+}
+
+uint32_t sgGetTxtH(void)
+{
+  return sg.txtHeight;
 }
 
 int sgGetFontSize(void)

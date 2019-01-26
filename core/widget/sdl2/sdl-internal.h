@@ -59,6 +59,9 @@ void sdlWidDestroy(YWidgetState *wid, int t);
 
 int sgGetFontSize(void);
 
+uint32_t sgGetTxtW(void);
+uint32_t sgGetTxtH(void);
+
 SDL_Rect  getRect(void);
 SDL_Surface *wSurface(void);
 SDL_Renderer *sgRenderer(void);
