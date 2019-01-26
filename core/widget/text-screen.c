@@ -22,7 +22,8 @@
 #include "text-screen.h"
 
 static int t = -1;
-static int aleradyFormated = 0;
+static int aleradyFormated;
+static int aleradyTextified;
 
 typedef struct {
   YWidgetState sate;
@@ -61,6 +62,7 @@ static int tsRend(YWidgetState *opac)
   YTimer *timer = o_txt->timerTxtSpeed;
 
   aleradyFormated = 0;
+  aleradyTextified = 0;
   txt = ywTextScreenTextEnt(opac->entity);
   if (timer) {
     c_pos = YTimerGet(timer) / yeGetIntAt(opac->entity, "text-speed");
@@ -103,18 +105,41 @@ int ywTextScreenPosAtEndOfText(Entity *wid)
   return 0;
 }
 
+static Entity *ywTextScreenText2(Entity *wid)
+{
+  Entity *txt = yeGet(wid, "text");
+  Entity *ret = NULL;
+
+  if (yeType(txt) != YARRAY) {
+    return txt;
+  }
+
+  if (aleradyTextified)
+    return yeGet(wid, "$text");
+
+  YE_FOREACH(txt, c_txt) {
+    if (!ret) {
+      ret = yeReCreateString(yeGetString(c_txt), wid, "$text");
+      yeStringAddCh(ret, '\n');
+    } else {
+      yeStringAddNl(ret, yeGetString(c_txt));
+    }
+  }
+  aleradyTextified = 1;
+  return ret;
+}
+
 Entity *ywTextScreenTextEnt(Entity *wid)
 {
   Entity *ret;
-  Entity *txt;
+  Entity *txt = ywTextScreenText2(wid);
 
   if (likely(!yeGet(wid, "fmt")))
-    return yeGet(wid, "text");
+    return txt;
 
   if (aleradyFormated)
     return yeGet(wid, "$fmt");
 
-  txt = yeGet(wid, "text");
   ret = yeCreateYirlFmtString(txt, wid, "$fmt");
   aleradyFormated = 1;
   return ret;

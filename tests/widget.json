@@ -18,7 +18,7 @@
 {
     "TextScreenTest" : {
 	"<type>" : "text-screen",
-	"text" : "All's death, something was living here, But today...\nbut far in the dark i see light, bonjour ééé",
+	"text" : ["All's death, something was living here, But today...\nfar in the dark i see light", "bonjour ééé"],
 	"action": "txQuitOnQ",
 	"background": "rgba: 250 250 250 255"
     },
