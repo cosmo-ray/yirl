@@ -91,7 +91,18 @@ function reloadTextAndAnswerDialogue(canvas, x, y, dialogue, ret)
       local len = yeLen(answers)
       local name = yeGet(dialogue, "name")
       local i = 0
-      local tmpText = yeCreateYirlFmtString(yeGet(dialogue, "text"), gc)
+      local tmpText = yeGet(dialogue, "text")
+
+      if yeType(tmpText) == YARRAY then
+	 local array = tmpText
+	 local j = 0
+	 tmpText = yeCreateString("", gc)
+	 while j < yeLen(array) do
+	    yeStringAddNl(tmpText, yeGetStringAt(array, j));
+	    j = j + 1
+	 end
+      end
+      tmpText = yeCreateYirlFmtString(tmpText, gc)
 
       tmp0 = ywCanvasNewText(canvas, x + border_threshold,
 			     y + border_threshold, tmpText)

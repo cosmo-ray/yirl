@@ -42,6 +42,13 @@
     return 1;								\
   }
 
+#define LUA_IMPLEMENT_I_ES(func)					\
+  static inline int lua##func(lua_State *L)				\
+  {									\
+    lua_pushnumber(L, func(luaEntityAt(L, 1), lua_tostring(L, 2)));	\
+    return 1;								\
+  }
+
 
 #define LUA_IMPLEMENT_B_EI(func)					\
   static inline int lua##func(lua_State *L)				\
@@ -152,6 +159,8 @@ int	luaSetString(lua_State *L);
 int	luayeCreateYirlFmtString(lua_State *L);
 int	luayeStrCaseCmp(lua_State *L);
 int	luayeToLower(lua_State *L);
+LUA_IMPLEMENT_I_ES(yeStringAddNl);
+LUA_IMPLEMENT_I_ES(yeStringAdd);
 
 /* int */
 int	luaGetInt(lua_State *L);
@@ -515,6 +524,8 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, yeCreateYirlFmtString);
   YES_LUA_REGISTRE_CALL(sm, yeStrCaseCmp);
   YES_LUA_REGISTRE_CALL(sm, yeToLower);
+  YES_LUA_REGISTRE_CALL(sm, yeStringAddNl);
+  YES_LUA_REGISTRE_CALL(sm, yeStringAdd);
 
 
   /* int */

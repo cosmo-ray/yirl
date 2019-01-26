@@ -140,7 +140,7 @@ static Entity *getText(Entity *box, Entity *e)
     return e;
   Entity *txt = yeGet(e, "text");
 
-  if (yeType(txt) == YSTRING)
+  if (yeType(txt) == YSTRING || yeType(txt) == YARRAY)
     return txt;
   if (!txt) {
     Entity *condition;
@@ -199,7 +199,10 @@ static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
     yesCall(ygGet("DialogueBox.pushAnswers"), menu, answers);
     yesCall(ygGet("DialogueBox.moveAnswer"), menu, 0);
   }
-  yeReCreateString(yeGetString(txt), textScreen, "text");
+  if (yeType(txt) == YARRAY)
+    yeReplaceBack(textScreen, txt, "text");
+  else
+    yeReCreateString(yeGetString(txt), textScreen, "text");
   yeReCreateInt(1, menu, "isDialogue");
 
   YE_ARRAY_FOREACH(answers, answer) {
