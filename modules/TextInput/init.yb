@@ -33,6 +33,9 @@ not_enter:
 	stack_pop
 	print_iret
 	is_iret_0 not_printable:
+	get_at_str 0 "cursor" => cursor
+	incr cursor
+	print_entity cursor
 	get_at_str 0 "text" => txt
 	print_entity txt
 	string_add_ch_ent txt eve_key
