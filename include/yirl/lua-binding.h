@@ -25,6 +25,7 @@
 #include "events.h"
 #include "game.h"
 #include "container.h"
+#include "canvas.h"
 #include <lualib.h>
 #include <lauxlib.h>
 
@@ -286,6 +287,7 @@ int	luaywCanvasSetWeight(lua_State *L);
 int	luaywCanvasDisableWeight(lua_State *L);
 int	luaywCanvasEnableWeight(lua_State *L);
 int	luaywCanvasDoPathfinding(lua_State *L);
+LUA_IMPLEMENT_B_EE(ywCanvasCheckColisionsRectObj)
 
 /* texture */
 int	luaywTextureNewImg(lua_State *L);
@@ -669,6 +671,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, ywCanvasEnableWeight);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasSetWeight);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasDoPathfinding);
+  YES_LUA_REGISTRE_CALL(sm, ywCanvasCheckColisionsRectObj);
 
   /* texture */
   YES_LUA_REGISTRE_CALL(sm, ywTextureNewImg);

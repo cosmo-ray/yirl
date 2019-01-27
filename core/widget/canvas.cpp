@@ -511,6 +511,38 @@ extern "C" {
   int ywidColisionXPresision = 1;
   int ywidColisionYPresision = 1;
 
+  int	ywCanvasCheckColisionsRectObj(Entity *r0, Entity *obj1)
+  {
+    Entity *mod1 = ywCanvasObjMod(obj1);
+    yeAutoFree Entity *r1 =
+      rectRotationMod(obj1, ywRectCreatePosSize(ywCanvasObjPos(obj1),
+						ywCanvasObjSize(NULL, obj1),
+						NULL, NULL),
+		      mod1);
+    yeAutoFree Entity *colisionRects = ywRectColisionRect(r0, r1, NULL, NULL);
+    Entity *crect1 = yeGet(colisionRects, 1);
+
+    if (!colisionRects) {
+      return 0;
+    }
+
+    for (int i = 0; i < ywRectH(crect1); i += ywidColisionYPresision) {
+      for (int j = 0; j < ywRectW(crect1); j += ywidColisionXPresision) {
+	YCanvasPixiel pix;
+	int x, y;
+
+	x = ywRectX(crect1) + j;
+	y = ywRectY(crect1) + i;
+	pixMod(obj1, r1, mod1, x, y, ywRectW(r1), ywRectH(r1));
+	pix.i = sdlCanvasPixInfo(obj1, x, y);
+	if (pix.rgba[3] != 0) {
+	  return 1;
+	}
+      }
+    }
+    return 0;
+  }
+
   int	ywCanvasObjectsCheckColisions(Entity *obj0, Entity *obj1)
   {
     Entity *mod0 = ywCanvasObjMod(obj0);
