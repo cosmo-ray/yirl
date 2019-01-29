@@ -1,7 +1,7 @@
 [submodule "tinycc"]
 	path = tinycc
-	#url = http://repo.or.cz/tinycc.git
-	url = https://github.com/cosmo-ray/tcc.git
+	url = http://repo.or.cz/tinycc.git
+	#url = https://github.com/cosmo-ray/tcc.git
 [submodule "modules/Universal-LPC-spritesheet"]
 	path = modules/Universal-LPC-spritesheet
 	url = https://github.com/cosmo-ray/Universal-LPC-spritesheet.git
