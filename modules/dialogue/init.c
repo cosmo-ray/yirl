@@ -136,8 +136,9 @@ static void refreshAnswer(Entity *wid, Entity *menu, Entity *curent)
 
 static Entity *getText(Entity *box, Entity *e)
 {
-  if (yeType(e) == YSTRING)
+  if (yeType(e) == YSTRING || (yeType(e) == YARRAY && !yeGetKeyAt(e, 0))) {
     return e;
+  }
   Entity *txt = yeGet(e, "text");
 
   if (yeType(txt) == YSTRING || yeType(txt) == YARRAY)
@@ -179,13 +180,12 @@ static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
   if (!answers) {
     Entity *answer = yeGet(dialogue, "answer");
 
-    if (yeType(dialogue) == YSTRING) {
+    if (dialogue == txt) {
       answers = yeCreateArray(NULL, NULL);
       destroyable_answers = 1;
     } else {
       answers = yeCreateArray(dialogue, "answers");
     }
-
     if (answer) {
       yePushBack(answers, answer, NULL);
     } else {
