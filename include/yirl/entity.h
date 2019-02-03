@@ -955,16 +955,13 @@ static inline int yeAddStr(Entity *e, const char *str)
   }
 }
 
-static inline int yeAddEntInt(Entity *e, IntEntity *ie)
-{
-  return yeAddInt(e, yeGetInt(YE_TO_ENTITY(ie)));
-}
-
 static inline int yeAddEnt(Entity *e, Entity *e2)
 {
   switch (yeType(e2)) {
   case YINT:
-    return yeAddEntInt(e, YE_TO_INT(e2));
+    return yeAddInt(e, yeGetInt(e2));
+  case YSTRING:
+    return yeAddStr(e, yeGetString(e2));
   default :
     return -1;
   }

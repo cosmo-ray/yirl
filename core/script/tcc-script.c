@@ -39,6 +39,152 @@ static int tccLoadString(void *sm, const char *str);
 #define UNSET_REALLOC_NEEDED(sm) (((YTccScript *)(sm))->needRealloc = 0)
 #define NEED_REALLOC(sm) (((YTccScript *)(sm))->needRealloc)
 
+#define eBError(ua, fmt, args...) do {					\
+    asprintf(&ua->error, fmt, args);					\
+    ua->should_free = 1;						\
+    return -1;								\
+  } while (0);
+
+static void gCreateEnt(Entity *str, const char *father, Entity *name)
+{
+  const char *curTok = tcc_tok_str();
+  int tok = tcc_tok();
+  TCCSym *s;
+
+  if (tcc_tok_is_decimal(tok))
+    yeStringAdd(str, "yeReCreateInt(");
+  else if (tcc_tok_is_str(tok))
+    yeStringAdd(str, "yeReCreateString(");
+  else if (tcc_tok_is_ident(tok)) {
+    s = tcc_sym();
+    if (tcc_sym_is_function(s)) {
+      yeStringAdd(str, "yeReCreateFunction(\"");
+      yeStringAdd(str, curTok);
+      yeStringAdd(str, "\",ygGetManager(\"tcc\"),");
+      goto getter;
+    }
+  }
+  yeStringAdd(str, curTok);
+  yeStringAddCh(str, ',');
+ getter:
+  yeStringAdd(str, father);
+  yeStringAddCh(str, ',');
+  if (name) {
+    yeStringAddCh(str, '"');
+    yeAddEnt(str, name);
+    yeStringAddCh(str, '"');
+  } else {
+    yeStringAdd(str, "NULL");
+  }
+  yeStringAdd(str, ");\n");
+}
+
+static int tccYEntityBlockCallback(TCCUserAction *ua)
+{
+  const char *curTok;
+  YE_NEW(string, str, "");
+  printf("Entity block !!!!!\n");
+
+  tcc_next();
+  curTok = tcc_tok_str();
+  if (curTok[0] != '{') {
+    ua->error = "YEntityBlock, missing '{' at block begining";
+    return -1;
+  }
+  while (1) {
+    int isDot;
+    int arrayEnd = 1;
+    int arrayStart = 0;
+    YE_NEW(string, tmp_getter, "");
+    YE_NEW(string, tmp_sgetter, "");
+    YE_NEW(string, tmp_name, "");
+    Entity *real_getter = tmp_sgetter;
+
+    tcc_next();
+    curTok = tcc_tok_str();
+    printf("%s\n", curTok);
+    if (!strcmp(curTok, "}"))
+      break;
+    if (!strcmp(curTok, "<eof>")) {
+      return -1;
+    }
+
+    yeStringAdd(tmp_sgetter, curTok);
+    yeStringAdd(tmp_getter, "yeGetByStr(");
+    yeStringAdd(tmp_getter, curTok);
+    yeStringAdd(tmp_getter, ", \"");
+
+    tcc_next();
+    isDot = tcc_tok() == '.';
+
+    int nbDots = 1;
+    for (; isDot; ++nbDots) {
+      tcc_next();
+      curTok = tcc_tok_str();
+      if (nbDots >= 2) {
+	yeAddEnt(tmp_getter, tmp_name);
+      }
+      yeSetString(tmp_name, curTok);
+      tcc_next();
+      isDot = tcc_tok() == '.';
+      if (isDot && nbDots >= 2)
+	yeStringAdd(tmp_getter, ".");
+    }
+
+    if (nbDots > 2)
+      real_getter = tmp_getter;
+    yeStringAdd(tmp_getter, "\")");
+
+    if (tcc_tok() != '=')
+      eBError(ua, "YEntityBlock, unexpected token: '%s'", tcc_tok_str());
+    tcc_next();
+
+    if (tcc_tok() == '{') {
+      tcc_next();
+      if (tcc_tok_is_decimal(tcc_tok())) {
+	arrayStart = atoi(tcc_tok_str());
+	if (arrayStart < 0)
+	  eBError(ua, "YEntityBlock, invalide number %d", arrayStart);
+	arrayEnd = arrayStart + 1;
+	tcc_next();
+	if (tcc_tok() == '-') {
+	  tcc_next();
+	  arrayEnd = atoi(tcc_tok_str());
+	  if (arrayEnd <= arrayStart)
+	    eBError(ua, "YEntityBlock, invalide number %d", arrayEnd);
+	  tcc_next();
+	}
+      }
+      if (tcc_tok() != ':')
+	eBError(ua, "YEntityBlock, unexpected token: '%s'", tcc_tok_str());
+      tcc_next();
+
+      // use a C reserved standart work to avoid colision
+      yeStringAdd(str, "{ Entity *_Entity_father = yeReCreateArray(");
+      yeAddEnt(str, real_getter);
+      yeStringAdd(str, ",\"");
+      yeAddEnt(str, tmp_name);
+      yeStringAdd(str, "\", NULL);\n");
+      for (int i = arrayStart; i < arrayEnd; ++i)
+	gCreateEnt(str, "_Entity_father", NULL);
+
+      yeStringAdd(str, "};");
+      tcc_next();
+      if (tcc_tok() != '}')
+	eBError(ua, "YEntityBlock, unexpected token: '%s'", tcc_tok_str());
+    } else {
+      gCreateEnt(str, yeGetString(real_getter), tmp_name);
+    }
+    tcc_next(); // get ';'
+  }
+
+  ua->should_free = 1;
+  ua->include_string = strdup(yeGetString(str));
+  return TCCAddBlock;
+}
+
+#undef eBError
+
 static TCCState *createTCCState(YTccScript *state)
 {
   TCCState *l;
@@ -65,6 +211,7 @@ static TCCState *createTCCState(YTccScript *state)
   tcc_add_sysinclude_path(l, YIRL_MODULES_PATH);
   tcc_define_symbol(l, "Y_INSIDE_TCC", NULL);
   tcc_set_output_type(l, TCC_OUTPUT_MEMORY);
+  tcc_add_user_token(l, "YEntityBlock", tccYEntityBlockCallback);
   return l;
 }
 

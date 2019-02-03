@@ -95,7 +95,7 @@ COMMON_CFLAGS += $(FLAGS_SAN)
 
 CXXFLAGS = $(COMMON_CFLAGS) -x c++ -Wno-missing-exception-spec -fno-exceptions -fno-rtti
 
-CFLAGS += $(COMMON_CFLAGS) -std=gnu11
+CFLAGS += $(COMMON_CFLAGS) -std=gnu11 -D_GNU_SOURCE
 
 build-static-lib: $(OBJ) $(OBJXX)
 	$(AR)  -r -c -s $(LIBNAME).a $(OBJ) $(OBJXX)
