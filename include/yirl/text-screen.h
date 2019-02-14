@@ -27,5 +27,6 @@ void ywtextScreenResetTimer(Entity *wid);
 int ywTextScreenPosAtEndOfText(Entity *wid);
 const char *ywTextScreenText(Entity *wid);
 Entity *ywTextScreenTextEnt(Entity *wid);
+void ywTextScreenReformat(void);
 
 #endif

@@ -70,6 +70,8 @@ struct Kaboumable {
   struct Kaboumable *prev;
 } *kaboumables;
 
+int ywTurnLengthOverwrite = -1;
+
 /**
  * this destroy all widget mark as destroyable in a very american way
  * hence KBOUM ! (BOUM could have been enough, but I like KDE)
@@ -573,7 +575,8 @@ static void trackMouse(Entity *event)
 
 int ywidDoTurn(YWidgetState *opac)
 {
-  int turnLength = yeGetInt(yeGet(opac->entity, "turn-length"));
+  int turnLength = ywTurnLengthOverwrite >= 0 ? ywTurnLengthOverwrite :
+    yeGetInt(yeGet(opac->entity, "turn-length"));
   int ret;
   static YTimer *cnt = NULL;
   Entity *old = NULL;

@@ -196,6 +196,8 @@ extern int ywidYMouseGlobalPos;
 extern int ywIsSmootOn;
 extern int ywTurnPecent;
 
+extern int ywTurnLengthOverwrite;
+
 /**
  * Registre a new type of widget
  * @return the type of the new type
