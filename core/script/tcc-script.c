@@ -45,38 +45,100 @@ static int tccLoadString(void *sm, const char *str);
     return -1;								\
   } while (0);
 
-static void gCreateEnt(Entity *str, const char *father, Entity *name)
+static int gCreateEnt(TCCUserAction *ua, Entity *str,
+		      Entity *real_getter, Entity *tmp_name,
+		      int neested, int pos)
 {
-  const char *curTok = tcc_tok_str();
   int tok = tcc_tok();
-  TCCSym *s;
 
-  if (tcc_tok_is_decimal(tok))
-    yeStringAdd(str, "yeReCreateInt(");
-  else if (tcc_tok_is_str(tok))
-    yeStringAdd(str, "yeReCreateString(");
-  else if (tcc_tok_is_ident(tok)) {
-    s = tcc_sym();
-    if (tcc_sym_is_function(s)) {
-      yeStringAdd(str, "yeReCreateFunction(\"");
-      yeStringAdd(str, curTok);
-      yeStringAdd(str, "\",ygGetManager(\"tcc\"),");
-      goto getter;
+  if (tok == '{' || tok == '[') {
+    int arrayEnd = 1;
+    int arrayStart = 0;
+    char close = tok == '{' ? '}' : ']';
+    YE_NEW(string, father_name,"_Entity_father");
+
+    yeStringAddInt(father_name, neested);
+    yeStringAdd(str, "\n{\n");
+    yeStringAdd(str, "Entity *");
+    yeAddEnt(str, father_name);
+    yeStringAdd(str, " = yeReCreateArray(");
+    yeAddEnt(str, real_getter);
+    yeStringAddCh(str, ',');
+    if (!tmp_name) {
+      yeStringAdd(str, "NULL");
+    } else {
+      yeStringAdd(str, "\"");
+      yeAddEnt(str, tmp_name);
+      yeStringAddCh(str, '"');
     }
-  }
-  yeStringAdd(str, curTok);
-  yeStringAddCh(str, ',');
- getter:
-  yeStringAdd(str, father);
-  yeStringAddCh(str, ',');
-  if (name) {
-    yeStringAddCh(str, '"');
-    yeAddEnt(str, name);
-    yeStringAddCh(str, '"');
+    yeStringAdd(str, ", NULL);\n");
+
+    do {
+      if (tok == '{') {
+	tcc_next();
+	if (tcc_tok_is_decimal(tcc_tok())) {
+	  arrayStart = atoi(tcc_tok_str());
+	  if (arrayStart < 0)
+	    eBError(ua, "YEntityBlock, invalide number %d", arrayStart);
+	  arrayEnd = arrayStart + 1;
+	  tcc_next();
+	  if (tcc_tok() == '-') {
+	    tcc_next();
+	    arrayEnd = atoi(tcc_tok_str());
+	    if (arrayEnd <= arrayStart)
+	      eBError(ua, "YEntityBlock, invalide number %d", arrayEnd);
+	    tcc_next();
+	  }
+	}
+	if (tcc_tok() != ':')
+	  eBError(ua, "YEntityBlock, unexpected token: '%s'", tcc_tok_str());
+      }
+      tcc_next();
+
+      // use a C reserved standart work to avoid colision
+      for (int i = arrayStart, j = 0; i < arrayEnd; ++i, ++j)
+	gCreateEnt(ua, str, father_name, NULL, neested + 1, arrayStart + j);
+
+      tcc_next();
+    } while (tcc_tok() == ',');
+    yeStringAdd(str, "};\n");
+    if (tcc_tok() != close)
+      eBError(ua, "YEntityBlock, unexpected token: '%s'", tcc_tok_str());
   } else {
-    yeStringAdd(str, "NULL");
+    const char *curTok = tcc_tok_str();
+    TCCSym *s;
+
+    if (tcc_tok_is_decimal(tok))
+      yeStringAdd(str, "yeReCreateInt(");
+    else if (tcc_tok_is_str(tok))
+      yeStringAdd(str, "yeReCreateString(");
+    else if (tcc_tok_is_ident(tok)) {
+      s = tcc_sym();
+      if (tcc_sym_is_function(s)) {
+	yeStringAdd(str, "yeReCreateFunction(\"");
+	yeStringAdd(str, curTok);
+	yeStringAdd(str, "\",ygGetManager(\"tcc\"),");
+	goto getter;
+      } else if (tcc_sym_is_decimal(s)) {
+	yeStringAdd(str, "yeReCreateInt(");
+	printf("%s\n", curTok);
+      }
+    }
+    yeStringAdd(str, curTok);
+    yeStringAddCh(str, ',');
+  getter:
+    yeAddEnt(str, real_getter);
+    yeStringAddCh(str, ',');
+    if (tmp_name) {
+      yeStringAddCh(str, '"');
+      yeAddEnt(str, tmp_name);
+      yeStringAddCh(str, '"');
+    } else {
+      yeStringAdd(str, "NULL");
+    }
+    yeStringAdd(str, ");\n");
   }
-  yeStringAdd(str, ");\n");
+  return 0;
 }
 
 static int tccYEntityBlockCallback(TCCUserAction *ua)
@@ -93,8 +155,6 @@ static int tccYEntityBlockCallback(TCCUserAction *ua)
   }
   while (1) {
     int isDot;
-    int arrayEnd = 1;
-    int arrayStart = 0;
     YE_NEW(string, tmp_getter, "");
     YE_NEW(string, tmp_sgetter, "");
     YE_NEW(string, tmp_name, "");
@@ -115,18 +175,29 @@ static int tccYEntityBlockCallback(TCCUserAction *ua)
     yeStringAdd(tmp_getter, ", \"");
 
     tcc_next();
-    isDot = tcc_tok() == '.';
+    isDot = tcc_tok() == '.' || tcc_tok() == '[';
 
     int nbDots = 1;
+    int isArray = tcc_tok() == '[';
+    int isKeyStr = 0;
     for (; isDot; ++nbDots) {
       tcc_next();
       curTok = tcc_tok_str();
+      isKeyStr = tcc_tok_is_str(tcc_tok());
       if (nbDots >= 2) {
 	yeAddEnt(tmp_getter, tmp_name);
       }
       yeSetString(tmp_name, curTok);
       tcc_next();
-      isDot = tcc_tok() == '.';
+      if (isArray) {
+	if (isKeyStr) { /* remove the double quotes in string */
+	  yeStringShrink(tmp_name, 1);
+	  yeStringTruncate(tmp_name, 1);
+	}
+	tcc_next(); // ']'
+      }
+      isDot = tcc_tok() == '.' || tcc_tok() == '[';
+      isArray = tcc_tok() == '[';
       if (isDot && nbDots >= 2)
 	yeStringAdd(tmp_getter, ".");
     }
@@ -138,43 +209,8 @@ static int tccYEntityBlockCallback(TCCUserAction *ua)
     if (tcc_tok() != '=')
       eBError(ua, "YEntityBlock, unexpected token: '%s'", tcc_tok_str());
     tcc_next();
-
-    if (tcc_tok() == '{') {
-      tcc_next();
-      if (tcc_tok_is_decimal(tcc_tok())) {
-	arrayStart = atoi(tcc_tok_str());
-	if (arrayStart < 0)
-	  eBError(ua, "YEntityBlock, invalide number %d", arrayStart);
-	arrayEnd = arrayStart + 1;
-	tcc_next();
-	if (tcc_tok() == '-') {
-	  tcc_next();
-	  arrayEnd = atoi(tcc_tok_str());
-	  if (arrayEnd <= arrayStart)
-	    eBError(ua, "YEntityBlock, invalide number %d", arrayEnd);
-	  tcc_next();
-	}
-      }
-      if (tcc_tok() != ':')
-	eBError(ua, "YEntityBlock, unexpected token: '%s'", tcc_tok_str());
-      tcc_next();
-
-      // use a C reserved standart work to avoid colision
-      yeStringAdd(str, "{ Entity *_Entity_father = yeReCreateArray(");
-      yeAddEnt(str, real_getter);
-      yeStringAdd(str, ",\"");
-      yeAddEnt(str, tmp_name);
-      yeStringAdd(str, "\", NULL);\n");
-      for (int i = arrayStart; i < arrayEnd; ++i)
-	gCreateEnt(str, "_Entity_father", NULL);
-
-      yeStringAdd(str, "};");
-      tcc_next();
-      if (tcc_tok() != '}')
-	eBError(ua, "YEntityBlock, unexpected token: '%s'", tcc_tok_str());
-    } else {
-      gCreateEnt(str, yeGetString(real_getter), tmp_name);
-    }
+    if (gCreateEnt(ua, str, real_getter, tmp_name, 0) < 0)
+      return -1;
     tcc_next(); // get ';'
   }
 

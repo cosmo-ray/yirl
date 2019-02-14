@@ -115,12 +115,15 @@ void	tccAddSyms(TCCState *l)
   tcc_add_symbol(l, "yProgramArg", &yProgramArg);
   tcc_add_symbol(l, "ywCanvasDisableWeight", ywCanvasDisableWeight);
   tcc_add_symbol(l, "ywCanvasSetWeight", ywCanvasSetWeight);
+  tcc_add_symbol(l, "ywTurnLengthOverwrite", &ywTurnLengthOverwrite);
   ADD_SYM(yevMouseDown);
   ADD_SYM(yevMousePos);
   ADD_SYM(yevIsKeyUp);
   ADD_SYM(yevIsKeyDown);
   ADD_SYM(ywtextScreenResetTimer);
   ADD_SYM(ywidAction);
+  ADD_SYM(yeStringReplaceCharAt);
+  ADD_SYM(ywTextScreenReformat);
 #if defined(__unix__) || defined(__APPLE__)
   tcc_add_symbol(l, "yuiDebugPrint", yuiDebugPrint);
 #endif
