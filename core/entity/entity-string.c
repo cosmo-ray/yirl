@@ -71,8 +71,7 @@ signed char yeStringReplaceCharAt(Entity *ent, char c, size_t at)
   int ret;
   char *str = YE_TO_STRING(ent)->value;
 
-
-  if (yeLen(ent) >= at)
+  if (at >= yeLen(ent))
     return -1;
   ret = str[at];
   str[at] = c;
