@@ -46,6 +46,14 @@ static int tccLoadString(void *sm, const char *str);
 		return -1;				\
 	} while (0);
 
+#define eBInvalideNumber(ua, num)				\
+	eBError(ua, "YEntityBlock, invalide number %d", num);
+
+#define eBUnexpectTok(ua, tokSTr)				\
+	eBError(ua, "YEntityBlock, unexpected token: '%s'", tokSTr);
+
+
+
 static void gCreateEntFunc(Entity *str, const char *t, int p)
 {
 	if (p < 0) {
@@ -69,6 +77,7 @@ static int gCreateEnt(TCCUserAction *ua, Entity *str,
 		int arrayEnd = 1;
 		int arrayStart = 0;
 		char close = tok == '{' ? '}' : ']';
+		// use a C reserved standart work to avoid colision
 		YE_NEW(string, father_name,"_Entity_father");
 
 		yeStringAddInt(father_name, neested);
@@ -87,43 +96,42 @@ static int gCreateEnt(TCCUserAction *ua, Entity *str,
 		}
 		yeStringAdd(str, ", NULL);\n");
 
-		do {
-			if (tok == '{') {
+	again:
+		if (tok == '{') {
+			tcc_next();
+			if (tcc_tok_is_decimal(tcc_tok())) {
+				arrayStart = atoi(tcc_tok_str());
+				if (arrayStart < 0)
+					eBInvalideNumber(ua, arrayStart);
+				arrayEnd = arrayStart + 1;
 				tcc_next();
-				if (tcc_tok_is_decimal(tcc_tok())) {
-					arrayStart = atoi(tcc_tok_str());
-					if (arrayStart < 0)
-						eBError(ua, "YEntityBlock, invalide number %d", arrayStart);
-					arrayEnd = arrayStart + 1;
+				if (tcc_tok() == '-') {
 					tcc_next();
-					if (tcc_tok() == '-') {
-						tcc_next();
-						arrayEnd = atoi(tcc_tok_str());
-						if (arrayEnd <= arrayStart) {
-							eBError(ua,
-								"YEntityBlock, invalide number %d",
-								arrayEnd);
-						}
-						tcc_next();
-					}
+					arrayEnd = atoi(tcc_tok_str());
+					if (arrayEnd <= arrayStart)
+						eBInvalideNumber(ua, arrayEnd);
+					tcc_next();
 				}
-				if (tcc_tok() != ':')
-					eBError(ua, "YEntityBlock, unexpected token: '%s'",
-						tcc_tok_str());
 			}
+			if (tcc_tok() != ':')
+				eBUnexpectTok(ua, tcc_tok_str());
 			tcc_next();
 
-			// use a C reserved standart work to avoid colision
-			for (int i = arrayStart, j = 0; i < arrayEnd; ++i, ++j)
+			for (int i = arrayStart, j = 0; i < arrayEnd; ++i, ++j) {
 				gCreateEnt(ua, str, father_name,
 					   NULL, neested + 1, arrayStart + j);
-
+			}
+		} else {
 			tcc_next();
-		} while (tcc_tok() == ',');
+			gCreateEnt(ua, str, father_name, NULL, neested + 1, -1);
+		}
+
+		tcc_next();
+		if (tcc_tok() == ',')
+			goto again;
 		yeStringAdd(str, "};\n");
 		if (tcc_tok() != close)
-			eBError(ua, "YEntityBlock, unexpected token: '%s'",
-				tcc_tok_str());
+			eBUnexpectTok(ua, tcc_tok_str());
 	} else {
 		const char *curTok = tcc_tok_str();
 		TCCSym *s = tcc_sym();
