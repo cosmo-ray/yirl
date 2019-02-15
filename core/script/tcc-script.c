@@ -52,7 +52,33 @@ static int tccLoadString(void *sm, const char *str);
 #define eBUnexpectTok(ua, tokSTr)				\
 	eBError(ua, "YEntityBlock, unexpected token: '%s'", tokSTr);
 
+static int gIf(Entity *str)
+{
+	int parentesis = 0;
 
+	tcc_next();
+	if (tcc_tok() != '(')
+		return -1;
+	yeStringAddCh(str, '(');
+	while (1) {
+		tcc_next();
+		if (tcc_tok() == '(') {
+			printf("p: %d\n", parentesis);
+			yeStringAddCh(str, '(');
+			++parentesis;
+			continue;
+		}
+		if (tcc_tok() == ')') {
+			printf("p: %d\n", parentesis);
+			yeStringAddCh(str, ')');
+			if (!parentesis--)
+				return 0;
+			continue;
+		}
+
+		yeStringAdd(str, tcc_tok_str());
+	}
+}
 
 static void gCreateEntFunc(Entity *str, const char *t, int p)
 {
@@ -69,7 +95,7 @@ static void gCreateEntFunc(Entity *str, const char *t, int p)
 
 static int gCreateEnt(TCCUserAction *ua, Entity *str,
 		      Entity *real_getter, Entity *tmp_name,
-		      int neested, int pos)
+		      int neested, int pos, int isGetterArray)
 {
 	int tok = tcc_tok();
 
@@ -78,24 +104,31 @@ static int gCreateEnt(TCCUserAction *ua, Entity *str,
 		int arrayStart = 0;
 		char close = tok == '{' ? '}' : ']';
 		// use a C reserved standart work to avoid colision
-		YE_NEW(string, father_name,"_Entity_father");
+		YE_NEW(string, father_name_, "_Entity_father");
+		Entity *father_name = father_name_;
 
-		yeStringAddInt(father_name, neested);
 		yeStringAdd(str, "\n{\n");
-		yeStringAdd(str, "Entity *");
-		yeAddEnt(str, father_name);
-		yeStringAdd(str, " = yeReCreateArray(");
-		yeAddEnt(str, real_getter);
-		yeStringAddCh(str, ',');
-		if (!tmp_name) {
-			yeStringAdd(str, "NULL");
+		if (isGetterArray) {
+			yeStringAddInt(father_name, neested);
+			yeStringAdd(str, "Entity *");
+			yeAddEnt(str, father_name);
+			yeStringAdd(str, " = yeReCreateArray(");
+			yeAddEnt(str, real_getter);
+			yeStringAddCh(str, ',');
+			if (!tmp_name) {
+				yeStringAdd(str, "NULL");
+			} else {
+				yeStringAdd(str, "\"");
+				yeAddEnt(str, tmp_name);
+				yeStringAddCh(str, '"');
+			}
+			yeStringAdd(str, ", NULL);\n");
 		} else {
-			yeStringAdd(str, "\"");
-			yeAddEnt(str, tmp_name);
-			yeStringAddCh(str, '"');
+			father_name = real_getter;
+			yeStringAdd(str, "yeClearArray(");
+			yeAddEnt(str, father_name);
+			yeStringAdd(str, ");");
 		}
-		yeStringAdd(str, ", NULL);\n");
-
 	again:
 		if (tok == '{') {
 			tcc_next();
@@ -119,11 +152,13 @@ static int gCreateEnt(TCCUserAction *ua, Entity *str,
 
 			for (int i = arrayStart, j = 0; i < arrayEnd; ++i, ++j) {
 				gCreateEnt(ua, str, father_name,
-					   NULL, neested + 1, arrayStart + j);
+					   NULL, neested + 1, arrayStart + j,
+					   1);
 			}
 		} else {
 			tcc_next();
-			gCreateEnt(ua, str, father_name, NULL, neested + 1, -1);
+			gCreateEnt(ua, str, father_name, NULL, neested + 1,
+				   -1, 1);
 		}
 
 		tcc_next();
@@ -176,6 +211,8 @@ static int gCreateEnt(TCCUserAction *ua, Entity *str,
 static int tccYEntityBlockCallback(TCCUserAction *ua)
 {
 	const char *curTok;
+	int scope = 0;
+	int last_tok_was_else = 0;
 	YE_NEW(string, str, "");
 	printf("Entity block !!!!!\n");
 
@@ -186,20 +223,47 @@ static int tccYEntityBlockCallback(TCCUserAction *ua)
 		return -1;
 	}
 	while (1) {
+		tcc_next();
+		if (tcc_tok() == '{') {
+			yeStringAddCh(str, '{');
+			++scope;
+			continue;
+		}
+		if (tcc_tok() == '}') {
+			printf("%d\n", scope);
+			if (!scope--)
+				break;
+			yeStringAddCh(str, '}');
+			continue;
+		}
+		curTok = tcc_tok_str();
+
+		if (!strcmp(curTok, "<eof>")) {
+			return -1;
+		}
+
+		if (!strcmp(curTok, "if")) {
+			if (last_tok_was_else)
+				yeStringAddCh(str, ' ');
+			yeStringAdd(str, curTok);
+			if (gIf(str) < 0)
+				return -1;
+			continue;
+		}
+
+		if (!strcmp(curTok, "else")) {
+			yeStringAdd(str, curTok);
+			last_tok_was_else = 1;
+			continue;
+		}
+
+		last_tok_was_else = 0;
 		int isDot;
+		int isGetterArray = 0;
 		YE_NEW(string, tmp_getter, "");
 		YE_NEW(string, tmp_sgetter, "");
 		YE_NEW(string, tmp_name, "");
 		Entity *real_getter = tmp_sgetter;
-
-		tcc_next();
-		curTok = tcc_tok_str();
-		printf("%s\n", curTok);
-		if (!strcmp(curTok, "}"))
-			break;
-		if (!strcmp(curTok, "<eof>")) {
-			return -1;
-		}
 
 		yeStringAdd(tmp_sgetter, curTok);
 		yeStringAdd(tmp_getter, "yeGetByStr(");
@@ -213,6 +277,7 @@ static int tccYEntityBlockCallback(TCCUserAction *ua)
 		int isArray = tcc_tok() == '[';
 		int isKeyStr = 0;
 		for (; isDot; ++nbDots) {
+			isGetterArray = 1;
 			tcc_next();
 			curTok = tcc_tok_str();
 			isKeyStr = tcc_tok_is_str(tcc_tok());
@@ -235,6 +300,7 @@ static int tccYEntityBlockCallback(TCCUserAction *ua)
 				yeStringAdd(tmp_getter, ".");
 		}
 
+		printf("nb dots: %d !!!!!\n", nbDots);
 		if (nbDots > 2)
 			real_getter = tmp_getter;
 		yeStringAdd(tmp_getter, "\")");
@@ -242,7 +308,8 @@ static int tccYEntityBlockCallback(TCCUserAction *ua)
 		if (tcc_tok() != '=')
 			eBError(ua, "YEntityBlock, unexpected token: '%s'", tcc_tok_str());
 		tcc_next();
-		if (gCreateEnt(ua, str, real_getter, tmp_name, 0, -1) < 0)
+		if (gCreateEnt(ua, str, real_getter, tmp_name, 0,
+			       -1, isGetterArray) < 0)
 			return -1;
 		tcc_next(); // get ';'
 	}
