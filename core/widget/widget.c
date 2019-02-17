@@ -29,8 +29,8 @@ static Entity *subTypes = NULL;
 static Entity *configs = NULL;
 
 static YManagerAllocator widgetTab = {
-  {NULL},
-  0
+	{NULL},
+	0
 };
 
 
@@ -38,12 +38,12 @@ static uint64_t rendersMask = 0;
 
 /* struct which define what are common to every render of the same type */
 struct renderOpt {
-  Entity *(*waitEvent)(void);
-  Entity *(*pollEvent)(void);
-  int (*draw)(void);
-  void (*resizePtr) (YWidgetState *wid, int renderType);
-  int (*changeResolution) (void);
-  void (*changeWinName)(const char *);
+	Entity *(*waitEvent)(void);
+	Entity *(*pollEvent)(void);
+	int (*draw)(void);
+	void (*resizePtr) (YWidgetState *wid, int renderType);
+	int (*changeResolution) (void);
+	void (*changeWinName)(const char *);
 };
 
 /* contain the options unique to one type of widget */
@@ -66,8 +66,8 @@ int ywTurnPecent;
 int yeveWindowGetFocus;
 
 struct Kaboumable {
-  YWidgetState *kwid;
-  struct Kaboumable *prev;
+	YWidgetState *kwid;
+	struct Kaboumable *prev;
 } *kaboumables;
 
 int ywTurnLengthOverwrite = -1;
@@ -78,370 +78,379 @@ int ywTurnLengthOverwrite = -1;
  */
 static void doKaboum(void)
 {
-  while (kaboumables) {
-    struct Kaboumable *pk = kaboumables->prev;
+	while (kaboumables) {
+		struct Kaboumable *pk = kaboumables->prev;
 
-    yeRemoveChildByStr(kaboumables->kwid->entity, "$father-container");
-    YWidDestroy(kaboumables->kwid);
-    free(kaboumables);
-    kaboumables = pk;
-  }
+		yeRemoveChildByStr(kaboumables->kwid->entity,
+				   "$father-container");
+		YWidDestroy(kaboumables->kwid);
+		free(kaboumables);
+		kaboumables = pk;
+	}
 }
 
 void ywidMarkAsDestroyable(YWidgetState *kboumable)
 {
-  struct Kaboumable *ck = kaboumables;
+	struct Kaboumable *ck = kaboumables;
 
-  kaboumables = malloc(sizeof(struct Kaboumable));
-  kaboumables->kwid = kboumable;
-  kaboumables->prev = ck;
+	kaboumables = malloc(sizeof(struct Kaboumable));
+	kaboumables->kwid = kboumable;
+	kaboumables->prev = ck;
 }
 
 void ywidChangeResolution(int w, int h)
 {
-  ywidWindowWidth = w;
-  ywidWindowHight = h;
-  YUI_FOREACH_BITMASK(rendersMask, i, tmask) {
-    if (renderOpTab->changeResolution)
-      renderOpTab->changeResolution();
-  }
-  YWidgetState *wid = ywidGetMainWid();
-  if (wid) {
-    ywidResize(wid);
-  }
+	ywidWindowWidth = w;
+	ywidWindowHight = h;
+	YUI_FOREACH_BITMASK(rendersMask, i, tmask) {
+		if (renderOpTab->changeResolution)
+			renderOpTab->changeResolution();
+	}
+	YWidgetState *wid = ywidGetMainWid();
+	if (wid) {
+		ywidResize(wid);
+	}
 }
 
 void ywidSetWindowName(const char *str)
 {
-  if (!configs)
-    configs = yeCreateArray(NULL, NULL);
-  yeCreateString(str, configs, "win-name");
+	if (!configs)
+		configs = yeCreateArray(NULL, NULL);
+	yeCreateString(str, configs, "win-name");
 
-  YUI_FOREACH_BITMASK(rendersMask, i, tmask) {
-    if (renderOpTab->changeWinName)
-      renderOpTab->changeWinName(str);
-  }
+	YUI_FOREACH_BITMASK(rendersMask, i, tmask) {
+		if (renderOpTab->changeWinName)
+			renderOpTab->changeWinName(str);
+	}
 }
 
 const char *ywidWindowName(void)
 {
-  const char *ret = yeGetString(yeGet(configs, "win-name"));
-  if (ret)
-    return  ret;
-  return "YIRL isn't a rogue like";
+	const char *ret = yeGetString(yeGet(configs, "win-name"));
+	if (ret)
+		return  ret;
+	return "YIRL isn't a rogue like";
 }
 
 void ywidFreeWidgets(void)
 {
-  doKaboum();
-  YWidDestroy(mainWid);
-  YWidDestroy(oldWid);
-  yeDestroy(subTypes);
-  yeDestroy(configs);
-  configs = NULL;
-  subTypes = NULL;
-  mainWid = NULL;
-  oldWid = NULL;
+	doKaboum();
+	YWidDestroy(mainWid);
+	YWidDestroy(oldWid);
+	yeDestroy(subTypes);
+	yeDestroy(configs);
+	configs = NULL;
+	subTypes = NULL;
+	mainWid = NULL;
+	oldWid = NULL;
 }
 
 inline YWidgetState *ywidGetMainWid(void)
 {
-  return mainWid;
+	return mainWid;
 }
 
 const char *ywidTypeName(YWidgetState *wid)
 {
-  return widgetOptTab[ywidType(wid)].name;
+	return widgetOptTab[ywidType(wid)].name;
 }
 
 void ywidSetMainWid(YWidgetState *wid)
 {
-  if (oldWid && oldWid != wid && oldWid != mainWid)
-    YWidDestroy(oldWid);
-  oldWid = mainWid;
-  mainWid = wid;
-  mainWid->hasChange = 1;
+	if (oldWid && oldWid != wid && oldWid != mainWid)
+		YWidDestroy(oldWid);
+	oldWid = mainWid;
+	mainWid = wid;
+	mainWid->hasChange = 1;
 }
 
 int ywidNext(Entity *next)
 {
-  YWidgetState *newWid;
-  const char *str = yeGetString(next);
+	YWidgetState *newWid;
+	const char *str = yeGetString(next);
 
-  if (!next) {
-    DPRINT_ERR("next is null");
-    return -1;
-  }
+	if (!next) {
+		DPRINT_ERR("next is null");
+		return -1;
+	}
 
-  if (yeType(next) != YSTRING) {
-    DPRINT_ERR("next is of type %s, should be a string",
-	       yeTypeToString(yeType(next)));
-    return -1;
-  }
+	if (yeType(next) != YSTRING) {
+		DPRINT_ERR("next is of type %s, should be a string",
+			   yeTypeToString(yeType(next)));
+		return -1;
+	}
 
-  next = ygGet(str);
-  if (!next) {
-    DPRINT_ERR("fail to retrive %s", str);
-    return -1;
-  }
+	next = ygGet(str);
+	if (!next) {
+		DPRINT_ERR("fail to retrive %s", str);
+		return -1;
+	}
 
-  YWidDestroy(oldWid);
-  oldWid = NULL;
-  if ((newWid = ywidNewWidget(next, NULL)) == NULL) {
-    DPRINT_ERR("fail when creating new widget");
-    return -1;
-  }
+	YWidDestroy(oldWid);
+	oldWid = NULL;
+	if ((newWid = ywidNewWidget(next, NULL)) == NULL) {
+		DPRINT_ERR("fail when creating new widget");
+		return -1;
+	}
 
-  ywidSetMainWid(newWid);
-  return 0;
+	ywidSetMainWid(newWid);
+	return 0;
 }
 
 int ywidColorFromString(char *str, uint8_t *r, uint8_t *g,
 			uint8_t *b, uint8_t *a)
 {
-  size_t len;
-  int limiterPos = 0;
-  int ret = -1;
+	size_t len;
+	int limiterPos = 0;
+	int ret = -1;
 
-  if (!str)
-    return -1;
-  for (int i = 0; str[i]; ++i) {
-    if (str[i] == ':') {
-      limiterPos = i;
-      break;
-    }
-  }
+	if (!str)
+		return -1;
+	for (int i = 0; str[i]; ++i) {
+		if (str[i] == ':') {
+			limiterPos = i;
+			break;
+		}
+	}
 
-  len = strlen(str);
-  // collor or whatever
-  if (limiterPos) {
-    char tmp;
+	len = strlen(str);
+	// collor or whatever
+	if (limiterPos) {
+		char tmp;
 
-    tmp = str[limiterPos];
-    str[limiterPos] = '\0';
+		tmp = str[limiterPos];
+		str[limiterPos] = '\0';
 
-    if (yuiStrEqual(str, "rgba")) {
-      char **rgba;
-      int i;
+		if (yuiStrEqual(str, "rgba")) {
+			char **rgba;
+			int i;
 
-      str += (limiterPos + 1);
-      if (len < sizeof("rgba:r,g,b,a"))
-	goto exit;
+			str += (limiterPos + 1);
+			if (len < sizeof("rgba:r,g,b,a"))
+				goto exit;
 
-      rgba = g_strsplit_set(str, ", :", 5);
-      for (i = 0; i < 4 && rgba[i] != NULL; ++i);
+			rgba = g_strsplit_set(str, ", :", 5);
+			for (i = 0; i < 4 && rgba[i] != NULL; ++i);
 
-      if (i >= 4) {
-	/* rgba[0] contain "rgba:" */
-	*r = atoi(rgba[1]);
-	*g = atoi(rgba[2]);
-	*b = atoi(rgba[3]);
-	*a = atoi(rgba[4]);
-	ret = 0;
-      } else {
-	DPRINT_ERR("invalide rgba color string: %s", str);
-      }
+			if (i >= 4) {
+				/* rgba[0] contain "rgba:" */
+				*r = atoi(rgba[1]);
+				*g = atoi(rgba[2]);
+				*b = atoi(rgba[3]);
+				*a = atoi(rgba[4]);
+				ret = 0;
+			} else {
+				DPRINT_ERR("invalide rgba color string: %s",
+					   str);
+			}
 
-      g_strfreev(rgba);
-    }
+			g_strfreev(rgba);
+		}
 
-  exit:
-    str -= (limiterPos + 1);
-    str[limiterPos] = tmp;
-  }
-  return ret;
+	exit:
+		str -= (limiterPos + 1);
+		str[limiterPos] = tmp;
+	}
+	return ret;
 }
 
 int ywidBgConfFill(Entity *entity, YBgConf *cfg)
 {
-  char *str = (char *)yeGetString(entity);
+	char *str = (char *)yeGetString(entity);
 
-  cfg->type = BG_BUG;
-  if (!str)
-    return -1;
+	cfg->type = BG_BUG;
+	if (!str)
+		return -1;
 
-  if (!ywidColorFromString(str, &cfg->r, &cfg->g, &cfg->b, &cfg->a))
-    cfg->type = BG_COLOR;
-  else if ((cfg->path = g_strdup(str)) != NULL)
-    cfg->type = BG_IMG;
-  else
-    return -1;
+	if (!ywidColorFromString(str, &cfg->r, &cfg->g, &cfg->b, &cfg->a))
+		cfg->type = BG_COLOR;
+	else if ((cfg->path = g_strdup(str)) != NULL)
+		cfg->type = BG_IMG;
+	else
+		return -1;
 
-  return 0;
+	return 0;
 }
 
 void ywidRemoveRender(int renderType)
 {
-  rendersMask ^= (1LLU << renderType);
-  renderOpTab[renderType].resizePtr = NULL;
-  for(int i = 0; i < MAX_NB_MANAGER; ++i) {
-    widgetOptTab[i].rendersMask ^= (1LLU << renderType);
-    widgetOptTab[i].init[renderType] = NULL;
-    widgetOptTab[i].render[renderType] = NULL;
-  }
+	rendersMask ^= (1LLU << renderType);
+	renderOpTab[renderType].resizePtr = NULL;
+	for(int i = 0; i < MAX_NB_MANAGER; ++i) {
+		widgetOptTab[i].rendersMask ^= (1LLU << renderType);
+		widgetOptTab[i].init[renderType] = NULL;
+		widgetOptTab[i].render[renderType] = NULL;
+	}
 }
 
 int ywidRegister(void *(*allocator)(void), const char *name)
 {
-  int ret = yuiRegister(&widgetTab, allocator);
-  if (ret < 0)
-    return -1;
+	int ret = yuiRegister(&widgetTab, allocator);
+	if (ret < 0)
+		return -1;
 
-  widgetOptTab[ret].name = g_strdup(name);
-  if (!widgetOptTab[ret].name)
-    return -1;
+	widgetOptTab[ret].name = g_strdup(name);
+	if (!widgetOptTab[ret].name)
+		return -1;
 
-  widgetOptTab[ret].rendersMask = 0;
-  memset(widgetOptTab[ret].init, 0, 64 * sizeof(void *));
-  memset(widgetOptTab[ret].render, 0, 64 * sizeof(void *));
-  memset(widgetOptTab[ret].destroy, 0, 64 * sizeof(void *));
-  return ret;
+	widgetOptTab[ret].rendersMask = 0;
+	memset(widgetOptTab[ret].init, 0, 64 * sizeof(void *));
+	memset(widgetOptTab[ret].render, 0, 64 * sizeof(void *));
+	memset(widgetOptTab[ret].destroy, 0, 64 * sizeof(void *));
+	return ret;
 }
 
 int ywidUnregiste(int t)
 {
-  g_free(widgetOptTab[t].name);
-  widgetOptTab[t].name = NULL;
-  return yuiUnregiste(&widgetTab, t);
+	g_free(widgetOptTab[t].name);
+	widgetOptTab[t].name = NULL;
+	return yuiUnregiste(&widgetTab, t);
 }
 
 static YWidgetState *ywidNewWidgetInternal(int t,
 					   Entity *entity,
 					   int shouldInit)
 {
-  YWidgetState *ret;
-  Entity *pos = yeGet(entity, "wid-pos");
-  Entity *initer = yeGet(entity, "init");
+	YWidgetState *ret;
+	Entity *pos = yeGet(entity, "wid-pos");
+	Entity *initer = yeGet(entity, "init");
 
-  if (yeType(initer) != YFUNCTION)
-    initer = ygGetFuncExt(yeGetString(initer));
-  if (widgetTab.len <= t || widgetTab.allocator[t] == NULL) {
-    return NULL;
-  }
+	if (yeType(initer) != YFUNCTION)
+		initer = ygGetFuncExt(yeGetString(initer));
+	if (widgetTab.len <= t || widgetTab.allocator[t] == NULL) {
+		return NULL;
+	}
 
-  if (pos == NULL)
-    pos = ywRectCreateInts(0, 0, 1000, 1000, entity, "wid-pos");
-  ywRectCreateInts(ywRectX(pos) * ywidWindowWidth / 1000,
-		   ywRectY(pos) * ywidWindowHight / 1000,
-		   ywRectW(pos) * ywidWindowWidth / 1000,
-		   ywRectH(pos) * ywidWindowHight / 1000,
-		   entity, "wid-pix");
+	if (pos == NULL)
+		pos = ywRectCreateInts(0, 0, 1000, 1000, entity, "wid-pos");
+	ywRectCreateInts(ywRectX(pos) * ywidWindowWidth / 1000,
+			 ywRectY(pos) * ywidWindowHight / 1000,
+			 ywRectW(pos) * ywidWindowWidth / 1000,
+			 ywRectH(pos) * ywidWindowHight / 1000,
+			 entity, "wid-pix");
 
-  ret = widgetTab.allocator[t]();
+	ret = widgetTab.allocator[t]();
 
-  if (ret == NULL) {
-    DPRINT_ERR("fail to allocate widget\n");
-    return NULL;
-  }
+	if (ret == NULL) {
+		DPRINT_ERR("fail to allocate widget\n");
+		return NULL;
+	}
 
-  ret->entity = entity;
+	ret->entity = entity;
 
-  if (yeGet(entity, "$wid")) {
-    DPRINT_WARN("$wid alerady existe, this may lead to odd and very unexpected behavior !!!!");
-  }
-  yeReCreateData(ret, entity, "$wid");
+	if (yeGet(entity, "$wid")) {
+		DPRINT_WARN("$wid alerady existe,"
+			    " this may lead to odd and"
+			    " very unexpected behavior !!!!");
+	}
+	yeReCreateData(ret, entity, "$wid");
 
-  /* Init widget */
-  if (ret->init(ret, entity, NULL)) {
-    DPRINT_ERR("fail durring init\n");
-    goto error;
-  }
+	/* Init widget */
+	if (ret->init(ret, entity, NULL)) {
+		DPRINT_ERR("fail durring init\n");
+		goto error;
+	}
 
-  /* Init sub widget */
-  if (shouldInit && initer) {
-    yesCall(initer, ret->entity, entity);
-  }
+	/* Init sub widget */
+	if (shouldInit && initer) {
+		yesCall(initer, ret->entity, entity);
+	}
 
-  ret->hasChange = 1;
+	ret->hasChange = 1;
 
-  return ret;
+	return ret;
 
- error:
-  ret->destroy(ret);
-  return NULL;
+error:
+	ret->destroy(ret);
+	return NULL;
 }
 
 int ywidAddSubType(Entity *subType)
 {
-  if (!subTypes)
-    subTypes = yeCreateArray(NULL, NULL);
-  yePushBack(subTypes, subType, NULL);
-  yeDestroy(subType);
-  return 0;
+	if (!subTypes)
+		subTypes = yeCreateArray(NULL, NULL);
+	yePushBack(subTypes, subType, NULL);
+	yeDestroy(subType);
+	return 0;
 }
 
 YWidgetState *ywidNewWidget(Entity *entity, const char *type)
 {
-  Entity *recreateLogic;
-  int shouldInit = 1;
+	Entity *recreateLogic;
+	int shouldInit = 1;
 
-  if (!entity) {
-    DPRINT_ERR("entity is NULL");
-    return NULL;
-  }
+	if (!entity) {
+		DPRINT_ERR("entity is NULL");
+		return NULL;
+	}
 
-  if (!type) {
-    type = yeGetString(yeGet(entity, "<type>"));
-  }
+	if (!type) {
+		type = yeGetString(yeGet(entity, "<type>"));
+	}
 
-  if (!type) {
-    DPRINT_ERR("unable to get type");
-    return NULL;
-  }
+	if (!type) {
+		DPRINT_ERR("unable to get type");
+		return NULL;
+	}
 
-  if ((recreateLogic = yeGet(entity, "recreate-logic")) != NULL) {
-    switch (yeGetInt(recreateLogic)) {
-    case YRECALL_INIT:
-      break;
-    case YRESET:
-      return yesCall(yeGet(entity, "reset"), entity);
-    case YNOTHING:
-      shouldInit = 0;
-    }
-  }
+	if ((recreateLogic = yeGet(entity, "recreate-logic")) != NULL) {
+		switch (yeGetInt(recreateLogic)) {
+		case YRECALL_INIT:
+			break;
+		case YRESET:
+			return yesCall(yeGet(entity, "reset"), entity);
+		case YNOTHING:
+			shouldInit = 0;
+		}
+	}
 
-  if (shouldInit) {
-    YE_ARRAY_FOREACH(subTypes, tmpType) {
-      if (yuiStrEqual0(type, yeGetString(yeGet(tmpType, "name")))) {
-	YWidgetState *ret = yesCall(yeGet(tmpType, "callback"), entity);
+	if (shouldInit) {
+		YE_ARRAY_FOREACH(subTypes, tmpType) {
+			if (yuiStrEqual0(type,
+					 yeGetStringAt(tmpType, "name"))) {
+				YWidgetState *ret =
+					yesCall(yeGet(tmpType,
+						      "callback"), entity);
 
-	if (!ret)
-	  DPRINT_ERR("init for type '%s' fail", type);
-	return ret;
-      }
-    }
-  }
+				if (!ret) {
+					DPRINT_ERR("init for type '%s' fail",
+						   type);
+				}
+				return ret;
+			}
+		}
+	}
 
-  for (int i = 0; i < 64; ++i) {
-    if (widgetOptTab[i].name &&
-	yuiStrEqual(type, widgetOptTab[i].name)) {
-      return ywidNewWidgetInternal(i, entity, shouldInit);
-    }
-  }
-  DPRINT_ERR("unable to find widget type: '%s'", type);
-  return NULL;
+	for (int i = 0; i < 64; ++i) {
+		if (widgetOptTab[i].name &&
+		    yuiStrEqual(type, widgetOptTab[i].name)) {
+			return ywidNewWidgetInternal(i, entity, shouldInit);
+		}
+	}
+	DPRINT_ERR("unable to find widget type: '%s'", type);
+	return NULL;
 }
 
 void ywidResize(YWidgetState *wid)
 {
-  if (!wid) {
-    DPRINT_ERR("wid is NULL");
-    return;
-  }
-  Entity *pos = yeGet(wid->entity, "wid-pos");
+	if (!wid) {
+		DPRINT_ERR("wid is NULL");
+		return;
+	}
+	Entity *pos = yeGet(wid->entity, "wid-pos");
 
-  ywRectSet(yeGet(wid->entity, "wid-pix"),
-	    ywRectX(pos) * ywidWindowWidth / 1000,
-	    ywRectY(pos) * ywidWindowHight / 1000,
-	    ywRectW(pos) * ywidWindowWidth / 1000,
-	    ywRectH(pos) * ywidWindowHight / 1000);
-  wid->hasChange = 1;
-  if (wid->resize)
-    wid->resize(wid);
-  YUI_FOREACH_BITMASK(rendersMask, i, tmask) {
-    if (wid->renderStates[i].opac)
-      renderOpTab[i].resizePtr(wid, i);
-  }
+	ywRectSet(yeGet(wid->entity, "wid-pix"),
+		  ywRectX(pos) * ywidWindowWidth / 1000,
+		  ywRectY(pos) * ywidWindowHight / 1000,
+		  ywRectW(pos) * ywidWindowWidth / 1000,
+		  ywRectH(pos) * ywidWindowHight / 1000);
+	wid->hasChange = 1;
+	if (wid->resize)
+		wid->resize(wid);
+	YUI_FOREACH_BITMASK(rendersMask, i, tmask) {
+		if (wid->renderStates[i].opac)
+			renderOpTab[i].resizePtr(wid, i);
+	}
 }
 
 /**
@@ -454,19 +463,20 @@ int ywidRegistreTypeRender(const char *type, int renderType,
 			   int (*init)(YWidgetState *opac, int t),
 			   void (*destroy)(YWidgetState *opac, int t))
 {
-  if (renderType < 0) {
-    return -1;
-  }
-  for (int i = 0; i < 64; ++i) {
-    if (widgetOptTab[i].name && g_str_equal(type, widgetOptTab[i].name)) {
-      widgetOptTab[i].rendersMask |= ONE64 << renderType;
-      widgetOptTab[i].render[renderType] = render;
-      widgetOptTab[i].init[renderType] = init;
-      widgetOptTab[i].destroy[renderType] = destroy;
-      return i;
-    }
-  }
-  return -1;
+	if (renderType < 0) {
+		return -1;
+	}
+	for (int i = 0; i < 64; ++i) {
+		if (widgetOptTab[i].name &&
+		    g_str_equal(type, widgetOptTab[i].name)) {
+			widgetOptTab[i].rendersMask |= ONE64 << renderType;
+			widgetOptTab[i].render[renderType] = render;
+			widgetOptTab[i].init[renderType] = init;
+			widgetOptTab[i].destroy[renderType] = destroy;
+			return i;
+		}
+	}
+	return -1;
 }
 
 
@@ -477,255 +487,262 @@ int ywidRegistreRender(void (*resizePtr)(YWidgetState *wid, int renderType),
 		       int (*changeResolution)(void),
 		       void (*changeWinName)(const char *))
 {
-  YUI_FOREACH_BITMASK(~rendersMask, i, tmask) {
-    rendersMask |= (1 << i);
-    renderOpTab[i].resizePtr = resizePtr;
-    renderOpTab[i].pollEvent = pollEvent;
-    renderOpTab[i].waitEvent = waitEvent;
-    renderOpTab[i].draw = draw;
-    renderOpTab[i].changeResolution = changeResolution;
-    renderOpTab[i].changeWinName = changeWinName;
-    return i;
-  }
-  return -1;
+	YUI_FOREACH_BITMASK(~rendersMask, i, tmask) {
+		rendersMask |= (1 << i);
+		renderOpTab[i].resizePtr = resizePtr;
+		renderOpTab[i].pollEvent = pollEvent;
+		renderOpTab[i].waitEvent = waitEvent;
+		renderOpTab[i].draw = draw;
+		renderOpTab[i].changeResolution = changeResolution;
+		renderOpTab[i].changeWinName = changeWinName;
+		return i;
+	}
+	return -1;
 }
 
 
 Entity *ywidGenericPollEvent(void)
 {
-  YUI_FOREACH_BITMASK(rendersMask, i, tmask) {
-    Entity *ret = renderOpTab[i].pollEvent();
-    if (ret)
-      return ret;
-  }
-  return NULL;
+	YUI_FOREACH_BITMASK(rendersMask, i, tmask) {
+		Entity *ret = renderOpTab[i].pollEvent();
+		if (ret)
+			return ret;
+	}
+	return NULL;
 }
 
 int ywidDrawScreen(void)
 {
-  YUI_FOREACH_BITMASK(rendersMask, i, tmask) {
-    int ret;
+	YUI_FOREACH_BITMASK(rendersMask, i, tmask) {
+		int ret;
 
-    ret = renderOpTab[i].draw();
-    if (ret)
-      return ret;
-  }
-  return 0;
+		ret = renderOpTab[i].draw();
+		if (ret)
+			return ret;
+	}
+	return 0;
 }
 
 
 Entity *ywidGenericWaitEvent(void)
 {
-  if (!rendersMask)
-    return NULL;
-  if (YUI_COUNT_1_BIT(rendersMask) == 1) {
-    return renderOpTab[YUI_GET_FIRST_BIT(rendersMask)].waitEvent();
-  } else {
-    Entity *ret;
-    while (1) {
-      YUI_FOREACH_BITMASK(rendersMask, i, tmask) {
-	if (renderOpTab[i].pollEvent && (ret = renderOpTab[i].pollEvent()))
-	  return ret;
-      }
-      usleep(50);
-    }
-  }
-  return NULL;
+	if (!rendersMask)
+		return NULL;
+	if (YUI_COUNT_1_BIT(rendersMask) == 1) {
+		return renderOpTab[YUI_GET_FIRST_BIT(rendersMask)].waitEvent();
+	} else {
+		Entity *ret;
+		while (1) {
+			YUI_FOREACH_BITMASK(rendersMask, i, tmask) {
+				if (renderOpTab[i].pollEvent &&
+				    (ret = renderOpTab[i].pollEvent()))
+					return ret;
+			}
+			usleep(50);
+		}
+	}
+	return NULL;
 }
 
 void ywMapSetSmootMovement(Entity *map, int smoot)
 {
-  (void)map;
-  ywIsSmootOn = smoot;
+	(void)map;
+	ywIsSmootOn = smoot;
 }
 
 void YWidDestroy(YWidgetState *wid)
 {
-  if (!wid)
-    return;
+	if (!wid)
+		return;
 
-  Entity *ent = wid->entity;
-  yesCall(yeGet(ent, "destroy"), ent);
-  ywidGenericCall(wid, wid->type, destroy);
-  if (wid->destroy)
-    wid->destroy(wid);
-  else
-    g_free(wid);
-  yeRemoveChild(ent, "$wid");
+	Entity *ent = wid->entity;
+	yesCall(yeGet(ent, "destroy"), ent);
+	ywidGenericCall(wid, wid->type, destroy);
+	if (wid->destroy)
+		wid->destroy(wid);
+	else
+		g_free(wid);
+	yeRemoveChild(ent, "$wid");
 }
 
 static void ywidFreeEvents(Entity *event)
 {
-  yeDestroy(event);
+	yeDestroy(event);
 }
 
 static void trackMouse(Entity *event)
 {
-  if (ywidEveType(event) == YKEY_MOUSEMOTION ||
-      ywidEveType(event) == YKEY_MOUSEWHEEL ||
-      ywidEveType(event) == YKEY_MOUSEDOWN) {
-    ywidXMouseGlobalPos = ywidXMouse(event);
-    ywidYMouseGlobalPos = ywidYMouse(event);
-    if (ywidEveType(event) == YKEY_MOUSEDOWN) {
-      ywidXMouseLastClick = ywidXMouseGlobalPos;
-      ywidYMouseLastClick = ywidYMouseGlobalPos;
-    }
-  }
+	if (ywidEveType(event) == YKEY_MOUSEMOTION ||
+	    ywidEveType(event) == YKEY_MOUSEWHEEL ||
+	    ywidEveType(event) == YKEY_MOUSEDOWN) {
+		ywidXMouseGlobalPos = ywidXMouse(event);
+		ywidYMouseGlobalPos = ywidYMouse(event);
+		if (ywidEveType(event) == YKEY_MOUSEDOWN) {
+			ywidXMouseLastClick = ywidXMouseGlobalPos;
+			ywidYMouseLastClick = ywidYMouseGlobalPos;
+		}
+	}
 }
 
 int ywidDoTurn(YWidgetState *opac)
 {
-  int turnLength = ywTurnLengthOverwrite >= 0 ? ywTurnLengthOverwrite :
-    yeGetInt(yeGet(opac->entity, "turn-length"));
-  int ret;
-  static YTimer *cnt = NULL;
-  Entity *old = NULL;
-  Entity *head;
-  Entity *event;
+	int turnLength = ywTurnLengthOverwrite >= 0 ? ywTurnLengthOverwrite :
+		yeGetInt(yeGet(opac->entity, "turn-length"));
+	int ret;
+	static YTimer *cnt = NULL;
+	Entity *old = NULL;
+	Entity *head;
+	Entity *event;
 
-  doKaboum();
-  if (!cnt)
-    cnt = YTimerCreate();
+	doKaboum();
+	if (!cnt)
+		cnt = YTimerCreate();
 
-  if (turnLength > 0) {
-    int64_t i = 0;
+	if (turnLength > 0) {
+		int64_t i = 0;
 
-    i = turnLength - YTimerGet(cnt);
-    ywTurnPecent = 100 - (i * 100 / turnLength);
-    while (i > 0 && ywTurnPecent < 95) {
-      int newPercent;
+		i = turnLength - YTimerGet(cnt);
+		ywTurnPecent = 100 - (i * 100 / turnLength);
+		while (i > 0 && ywTurnPecent < 95) {
+			int newPercent;
 
-      if (ywIsSmootOn) {
-	mainWid->hasChange = 1;
-	ywidRend(mainWid);
-      }
-      do {
-	usleep(10);
-	i = turnLength - YTimerGet(cnt);
-	newPercent = 100 - (i * 100 / turnLength);
-      } while (newPercent == ywTurnPecent);
-      ywTurnPecent = newPercent;
-    }
-    if (i > 0) {
-      usleep(i);
-    }
-    YTimerReset(cnt);
+			if (ywIsSmootOn) {
+				mainWid->hasChange = 1;
+				ywidRend(mainWid);
+			}
+			do {
+				usleep(10);
+				i = turnLength - YTimerGet(cnt);
+				newPercent = 100 - (i * 100 / turnLength);
+			} while (newPercent == ywTurnPecent);
+			ywTurnPecent = newPercent;
+		}
+		if (i > 0) {
+			usleep(i);
+		}
+		YTimerReset(cnt);
 
-    for (event = ywidGenericPollEvent(), head = event; event;
-	 event = ywidGenericPollEvent()) {
+		for (event = ywidGenericPollEvent(), head = event; event;
+		     event = ywidGenericPollEvent()) {
 
-      trackMouse(event);
-      if (old) {
-	yePushAt(old, event, YEVE_NEXT);
-	yeDestroy(event); /* decrement event refcount */
-      }
-      old = event;
-    }
-  } else {
-    head = ywidGenericWaitEvent();
-    if (!head)
-      return NOTHANDLE;
-    trackMouse(head);
-  }
-  ywTurnPecent = 0;
-  ywidMidRendEnd(mainWid);
-  ret = ywidHandleEvent(opac, head);
-  ywidFreeEvents(head);
-  return ret;
+			trackMouse(event);
+			if (old) {
+				yePushAt(old, event, YEVE_NEXT);
+				yeDestroy(event); /* decrement event refcount */
+			}
+			old = event;
+		}
+	} else {
+		head = ywidGenericWaitEvent();
+		if (!head)
+			return NOTHANDLE;
+		trackMouse(head);
+	}
+	ywTurnPecent = 0;
+	ywidMidRendEnd(mainWid);
+	ret = ywidHandleEvent(opac, head);
+	ywidFreeEvents(head);
+	return ret;
 }
 
 InputStatue ywidAction(Entity *action, Entity *wid, Entity *eve)
 {
-  if (unlikely(!action))
-    return NOTHANDLE;
-  if (yeType(action) == YSTRING) {
-    Entity *f = ygGet(yeGetString(action));
-    InputStatue r = (InputStatue)yesCall(f, wid, eve);
+	if (unlikely(!action))
+		return NOTHANDLE;
 
-    if (unlikely(!ygIsInit())) {
-      yeDestroy(f);
-    }
-    return r;
-  } else if (yeType(action) == YFUNCTION) {
-    return (InputStatue)yesCall(action, wid, eve);
-  } else {
-    Entity *f = yeGet(action, 0);
-    Entity *arg1 = yeLen(action) > 1 ? yeGet(action, 1) : Y_END_VA_LIST;
-    Entity *arg2 = yeLen(action) > 2 ? yeGet(action, 2) : Y_END_VA_LIST;
-    Entity *arg3 = yeLen(action) > 3 ? yeGet(action, 3) : Y_END_VA_LIST;
+	if (yeType(action) == YSTRING) {
+		Entity *f = ygGet(yeGetString(action));
+		InputStatue r = (InputStatue)yesCall(f, wid, eve);
 
-    if (yeType(f) == YSTRING)
-      f = ygGet(yeGetString(f));
-    InputStatue r = (InputStatue)yesCall(f, wid, eve, arg1, arg2, arg3);
-    if (unlikely(!ygIsInit() && yeType(f) == YSTRING)) {
-      yeDestroy(f);
-    }
-    return r;
-  }
+		if (unlikely(!ygIsInit())) {
+			yeDestroy(f);
+		}
+		return r;
+	} else if (yeType(action) == YFUNCTION) {
+		return (InputStatue)yesCall(action, wid, eve);
+	} else {
+		Entity *f = yeGet(action, 0);
+		Entity *arg1 = yeLen(action) > 1 ?
+			yeGet(action, 1) : Y_END_VA_LIST;
+		Entity *arg2 = yeLen(action) > 2 ?
+			yeGet(action, 2) : Y_END_VA_LIST;
+		Entity *arg3 = yeLen(action) > 3 ?
+			yeGet(action, 3) : Y_END_VA_LIST;
+
+		if (yeType(f) == YSTRING)
+			f = ygGet(yeGetString(f));
+
+		InputStatue r = (InputStatue)yesCall(f, wid, eve, arg1,
+						     arg2, arg3);
+
+		if (unlikely(!ygIsInit() && yeType(f) == YSTRING))
+			yeDestroy(f);
+		return r;
+	}
 }
 
 InputStatue ywidActions(Entity *wid, Entity *actionWid, Entity *eve)
 {
-  Entity *actions = yeGet(actionWid, "action");
-  if (actions)
-    return ywidAction(actions, wid, eve);
-  actions = yeGet(actionWid, "actions");
-  InputStatue ret = NOTHANDLE;
+	Entity *actions = yeGet(actionWid, "action");
+	if (actions)
+		return ywidAction(actions, wid, eve);
+	actions = yeGet(actionWid, "actions");
+	InputStatue ret = NOTHANDLE;
 
-  if (!actions)
-    return NOTHANDLE;
-  switch (yeType(actions)) {
-  case YSTRING:
-  case YFUNCTION:
-    return ywidAction(actions, wid, eve);
-  case YARRAY:
-    {
-      YE_ARRAY_FOREACH(actions, action) {
-	int cur_ret = ywidAction(action, wid, eve);
+	if (!actions)
+		return NOTHANDLE;
+	switch (yeType(actions)) {
+	case YSTRING:
+	case YFUNCTION:
+		return ywidAction(actions, wid, eve);
+	case YARRAY:
+	{
+		YE_ARRAY_FOREACH(actions, action) {
+			int cur_ret = ywidAction(action, wid, eve);
 
-	if (cur_ret > ret)
-	  ret = cur_ret;
-      }
-    }
-    break;
-  default:
-    DPRINT_ERR("Bad entity type: (%d) %s", yeType(actions),
-	       yeTypeToString(yeType(actions)));
-    return NOTHANDLE;
-  }
-  return ret;
+			if (cur_ret > ret)
+				ret = cur_ret;
+		}
+	}
+	break;
+	default:
+		DPRINT_ERR("Bad entity type: (%d) %s", yeType(actions),
+			   yeTypeToString(yeType(actions)));
+		return NOTHANDLE;
+	}
+	return ret;
 }
 
 InputStatue ywidEventCallActionSin(YWidgetState *opac,
 				   Entity *event)
 {
-  return ywidActions(opac->entity, opac->entity, event);
+	return ywidActions(opac->entity, opac->entity, event);
 }
 
 int ywidHandleEvent(YWidgetState *opac, Entity *event)
 {
-  int ret = 0;
-  Entity *postAction;
+	int ret = 0;
+	Entity *postAction;
 
-  if (opac->handleEvent)
-    ret = opac->handleEvent(opac, event);
+	if (opac->handleEvent)
+		ret = opac->handleEvent(opac, event);
 
-  if (!opac->hasChange)
-    opac->hasChange = (ret == NOTHANDLE ? 0 : 1);
-  else
-    ret = (ret == NOTHANDLE ? NOACTION : ret);
+	if (!opac->hasChange)
+		opac->hasChange = (ret == NOTHANDLE ? 0 : 1);
+	else
+		ret = (ret == NOTHANDLE ? NOACTION : ret);
 
-  if (ygIsAlive() && (postAction = yeGet(opac->entity,
-					 "post-action")) != NULL)
-    ret = (int_ptr_t)yesCall(postAction, ret, opac->entity, event);
+	if (ygIsAlive() && (postAction = yeGet(opac->entity,
+					       "post-action")) != NULL)
+		ret = (int_ptr_t)yesCall(postAction, ret, opac->entity, event);
 
-  return ret;
+	return ret;
 }
 
 int ywIsPixsOnWid(Entity *widget, int posX, int posY)
 {
-  Entity *pixR = yeGet(widget, "wid-pix");
+	Entity *pixR = yeGet(widget, "wid-pix");
 
-  return posX > ywRectX(pixR) && posX < (ywRectX(pixR) + ywRectW(pixR)) &&
-    posY > ywRectY(pixR) && posY < (ywRectY(pixR) + ywRectH(pixR));
+	return posX > ywRectX(pixR) && posX < (ywRectX(pixR) + ywRectW(pixR)) &&
+		posY > ywRectY(pixR) && posY < (ywRectY(pixR) + ywRectH(pixR));
 }
