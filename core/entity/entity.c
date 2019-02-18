@@ -1240,7 +1240,7 @@ static ArrayEntity *yeCopyContainer(ArrayEntity* src, ArrayEntity* dest,
       continue;
     }
 
-    if (yeDoestInclude(used, elem->entity)) {
+    if (yeDoesInclude(used, elem->entity)) {
       DPRINT_ERR("inifnit loop referance, at elem %s",
 		 elem->name ? elem->name : "(null)");
       return NULL;
