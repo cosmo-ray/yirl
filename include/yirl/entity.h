@@ -28,32 +28,32 @@
 #define NONNULL(arg) __attribute__ ((nonnull (arg)))
 
 typedef enum
-  {
-   YE_FIND_MONE = 0,
-   YE_FIND_LINK_NO_GET = 1,
-   YE_FIND_LINK_NO_DEEP = 2
-  } YeFindFlag;
+{
+	YE_FIND_MONE = 0,
+	YE_FIND_LINK_NO_GET = 1,
+	YE_FIND_LINK_NO_DEEP = 2
+} YeFindFlag;
 
 /* All entity type, each is defined later inside a struture */
 typedef enum
-  {
-   BAD_TYPE = -1,
-    YINT = 0,
-    YFLOAT = 1,
-    YSTRING = 2,
-    YARRAY = 3,
-    YFUNCTION = 4,
-    YDATA = 5,
-    NBR_ENTITYTYPE = 6
-  } EntityType;
+{
+	BAD_TYPE = -1,
+	YINT = 0,
+	YFLOAT = 1,
+	YSTRING = 2,
+	YARRAY = 3,
+	YFUNCTION = 4,
+	YDATA = 5,
+	NBR_ENTITYTYPE = 6
+} EntityType;
 
 typedef enum
-  {
-   YENTITY_SMALL_SIZE_P0 = 1 << 0,
-   YENTITY_SMALL_SIZE_P1 = 1 << 1,
-   YENTITY_SMALL_SIZE_P2 = 1 << 2,
-   YENTITY_SMALL_SIZE_P3 = 1 << 3
-  } EntityFlag;
+{
+	YENTITY_SMALL_SIZE_P0 = 1 << 0,
+	YENTITY_SMALL_SIZE_P1 = 1 << 1,
+	YENTITY_SMALL_SIZE_P2 = 1 << 2,
+	YENTITY_SMALL_SIZE_P3 = 1 << 3
+} EntityFlag;
 
 #define YENTITY_FLAG_LAST = YENTITY_SMALL_SIZE_P3;
 
@@ -80,132 +80,132 @@ typedef enum
 #define	YE_TO_DATA(X) ((DataEntity *)X)
 #define	YE_TO_C_DATA(X) ((const DataEntity *)X)
 
-/* TODO: move most of this code to yeDestroy, remove this */
+  /* TODO: move most of this code to yeDestroy, remove this */
 #define YE_DESTROY(X) do {			\
-    if (X == NULL)				\
-      break;					\
-    if (X->refCount == 1) {			\
-      yeDestroy(X);				\
-      X = NULL;					\
-    } else {					\
-      yeDestroy(X);				\
-    }						\
-  } while (0);
+		if (X == NULL)			\
+			break;			\
+		if (X->refCount == 1) {		\
+			yeDestroy(X);		\
+			X = NULL;		\
+		} else {			\
+			yeDestroy(X);		\
+		}				\
+	} while (0);
 
 
 #define YE_INCR_REF(entity) do {		\
-      entity->refCount += 1;			\
-    } while (0)
+		entity->refCount += 1;		\
+	} while (0)
 
 
-    /* TODO: remove this macros and do a static inline function  */
+  /* TODO: remove this macros and do a static inline function  */
 #define yeIncrRef YE_INCR_REF
 
 typedef enum {
-  YE_FLAG_NULL = 0,
-  YE_FLAG_NO_COPY = 1
+	YE_FLAG_NULL = 0,
+	YE_FLAG_NO_COPY = 1
 } ArrayEntryFlags;
 
 typedef enum {
-  YE_FUNC_NONE = 0,
-  YE_FUNC_NO_FASTPATH_INIT = 1
+	YE_FUNC_NONE = 0,
+	YE_FUNC_NO_FASTPATH_INIT = 1
 } FunctionFlags;
 
 typedef enum {
-  YE_DATA_NONE = 0,
-  YE_DATA_USE_OWN_METADATA = 1,
+	YE_DATA_NONE = 0,
+	YE_DATA_USE_OWN_METADATA = 1,
 } YDataFlag;
 
 
 #define	ENTITY_HEADER				\
-  uint32_t refCount;				\
-  uint16_t type;				\
-  uint16_t flag;				\
+	uint32_t refCount;			\
+	uint16_t type;				\
+	uint16_t flag;				\
 
 typedef struct Entity_
 {
-  ENTITY_HEADER
+	ENTITY_HEADER
 
 } Entity;
 
 typedef	struct {
-  Entity *entity;
-  char *name;
-  uint32_t flags;
+	Entity *entity;
+	char *name;
+	uint32_t flags;
 } ArrayEntry;
 
 typedef	struct
 {
-  ENTITY_HEADER
+	ENTITY_HEADER
 
-  BlockArray values;
+	BlockArray values;
 } ArrayEntity;
 
 typedef	struct
 {
-  ENTITY_HEADER
+	ENTITY_HEADER
 
-  int_ptr_t	value;
+	int_ptr_t	value;
 } IntEntity;
 
 typedef	struct
 {
-  ENTITY_HEADER
+	ENTITY_HEADER
 
-  double	value;
+	double	value;
 } FloatEntity;
 
 typedef	struct
 {
-  ENTITY_HEADER
+	ENTITY_HEADER
 
-  char	*value;
-  unsigned int len;
-  char *origin;
+	char	*value;
+	unsigned int len;
+	char *origin;
 } StringEntity;
 
 typedef	struct
 {
-  ENTITY_HEADER
+	ENTITY_HEADER
 
-  void	*value;
-  void	(*destroy)(void *);
+	void	*value;
+	void	(*destroy)(void *);
 } DataEntity;
 
 typedef	struct
 {
-  ENTITY_HEADER
+	ENTITY_HEADER
 
-  /* Name of the function */
-  char	*value;
-  /* A pointer to the coresponding script manager */
-  void	*manager;
-  /*
-   * A ptr use by the scripts to call a function faster
-   * than if we was using the name of the function.
-   * This is initialyse to NULL
-   */
-  void	*fastPath;
+	/* Name of the function */
+	char	*value;
+	/* A pointer to the coresponding script manager */
+	void	*manager;
+	/*
+	 * A ptr use by the scripts to call a function faster
+	 * than if we was using the name of the function.
+	 * This is initialyse to NULL
+	 */
+	void	*fastPath;
 } FunctionEntity;
 
 union SmallEntity {
-  Entity Entity;
-  IntEntity IntEntity;
-  FloatEntity FloatEntity;
-  StringEntity StringEntity;
-  uint8_t totalSize[32];
+	Entity Entity;
+	IntEntity IntEntity;
+	FloatEntity FloatEntity;
+	StringEntity StringEntity;
+	uint8_t totalSize[32];
 };
 
 union FatEntity {
-  Entity Entity;
-  ArrayEntity ArrayEntity;
-  IntEntity IntEntity;
-  FloatEntity FloatEntity;
-  StringEntity StringEntity;
-  DataEntity DataEntity;
-  FunctionEntity FunctionEntity;
-  union SmallEntity SnallEntities[4];
-  uint8_t totalSize[128];
+	Entity Entity;
+	ArrayEntity ArrayEntity;
+	IntEntity IntEntity;
+	FloatEntity FloatEntity;
+	StringEntity StringEntity;
+	DataEntity DataEntity;
+	FunctionEntity FunctionEntity;
+	union SmallEntity SnallEntities[4];
+	uint8_t totalSize[128];
 };
 
 #ifdef __cplusplus
@@ -214,9 +214,9 @@ union FatEntity {
 
 static inline int yeRefCount(Entity *e)
 {
-  if (likely(e))
-    return e->refCount;
-  return 0;
+	if (likely(e))
+		return e->refCount;
+	return 0;
 }
 
 #define yeMetadata(Entity, EntityType)			\
@@ -239,14 +239,14 @@ int yeFreeEntitiesInStack(void);
 
 static inline EntityType yeType(const Entity * const entity)
 {
-  if (likely(entity != NULL))
-    return (EntityType)entity->type;
-  return (EntityType)BAD_TYPE;
+	if (likely(entity != NULL))
+		return (EntityType)entity->type;
+	return (EntityType)BAD_TYPE;
 }
 
 static inline int yeIsNum(const Entity * const e)
 {
-  return yeType(e) == YINT || yeType(e) == YFLOAT;
+	return yeType(e) == YINT || yeType(e) == YFLOAT;
 }
 
 /**
@@ -268,7 +268,7 @@ const char *yeTypeToString(int type);
 
 static inline const char *yeTypeAsString(Entity *e)
 {
-  return yeTypeToString(yeType(e));
+	return yeTypeToString(yeType(e));
 }
 
 
@@ -295,31 +295,34 @@ Entity *yeConvert(Entity *entity, int type);
  */
 Entity *yeBrutalCast(Entity *entity, int type);
 
-#define YE_ARRAY_FOREACH_INIT(array)				\
-  (array == NULL ? yBlockArrayIteratorCreate(NULL, 0) :		\
-   yBlockArrayIteratorCreate(&YE_TO_ARRAY(array)->values, 0))
+#define YE_ARRAY_FOREACH_INIT(array)					\
+	(array == NULL ? yBlockArrayIteratorCreate(NULL, 0) :		\
+	 yBlockArrayIteratorCreate(&YE_TO_ARRAY(array)->values, 0))
 
 #define YE_ARRAY_FOREACH_SET_VAL(it, val)				\
-  ((val = yBlockArrayIteratorGetPtr(it, ArrayEntry)->entity) || 1)
+	((val = yBlockArrayIteratorGetPtr(it, ArrayEntry)->entity) || 1)
 
-#define YE_ARRAY_FOREACH_EXT(array, val, it)	\
-  Entity *val;					\
-  for (BlockArrayIterator it =			\
-	 YE_ARRAY_FOREACH_INIT(array);		\
-       !yBlockArrayIteratorIsEnd(&it) &&	\
-	 YE_ARRAY_FOREACH_SET_VAL(it, val);	\
-       yBlockArrayIteratorIncr(&it))
+#define YE_ARRAY_FOREACH_EXT(array, val, it)		\
+	Entity *val;					\
+	for (BlockArrayIterator it =			\
+		     YE_ARRAY_FOREACH_INIT(array);	\
+	     !yBlockArrayIteratorIsEnd(&it) &&		\
+		     YE_ARRAY_FOREACH_SET_VAL(it, val);	\
+	     yBlockArrayIteratorIncr(&it))
 
-#define YE_ARRAY_FOREACH_ENTRY(array, val)	\
-  ArrayEntry *val;					\
-  for (BlockArrayIterator it =			\
-	 YE_ARRAY_FOREACH_INIT(array);		\
-       !yBlockArrayIteratorIsEnd(&it) &&	\
-	 ({ val =  yBlockArrayIteratorGetPtr(it, ArrayEntry) ; 1; });	\
-       yBlockArrayIteratorIncr(&it))
+#define YE_ARRAY_FOREACH_ENTRY(array, val)				\
+	ArrayEntry *val;						\
+	for (BlockArrayIterator it =					\
+		     YE_ARRAY_FOREACH_INIT(array);			\
+	     !yBlockArrayIteratorIsEnd(&it) &&				\
+		     ({							\
+			     val =  yBlockArrayIteratorGetPtr(it, ArrayEntry); \
+			     1;						\
+		     });						\
+	     yBlockArrayIteratorIncr(&it))
 
 #define YE_ARRAY_FOREACH(array, val)		\
-  YE_ARRAY_FOREACH_EXT(array, val, it##val)
+	YE_ARRAY_FOREACH_EXT(array, val, it##val)
 
 #define YE_FOREACH YE_ARRAY_FOREACH
 
@@ -334,8 +337,8 @@ Entity *yeGetByIdx(Entity *entity, size_t index);
 
 static inline Entity *yeGetByIdxDirect(Entity *entity, size_t index)
 {
-  return yBlockArrayGetPtrDirect(YE_TO_ARRAY(entity)->values,
-				 index, ArrayEntry)->entity;
+	return yBlockArrayGetPtrDirect(YE_TO_ARRAY(entity)->values,
+				       index, ArrayEntry)->entity;
 }
 
 /**
@@ -391,16 +394,16 @@ int	yeGetInt(Entity *entity);
  */
 static inline int yeGetIntAtByIdx(Entity *array, int pos)
 {
-  return yeGetInt(yeGetByIdx(array, pos));
+	return yeGetInt(yeGetByIdx(array, pos));
 }
 
 static inline int yeGetIntAtByStr(Entity *array, const char *pos)
 {
-  return yeGetInt(yeGetByStrFast(array, pos));
+	return yeGetInt(yeGetByStrFast(array, pos));
 }
 
 static inline uint32_t yeGetUInt(Entity *i) {
-  return (uint32_t)yeGetInt(i);
+	return (uint32_t)yeGetInt(i);
 }
 
 #define yeGetIntAt(array, pos) (yeGetInt(yeGet(array, pos)))
@@ -417,12 +420,12 @@ double yeGetFloat(Entity *entity);
  */
 static inline int yeGetFloatAtByIdx(Entity *array, int pos)
 {
-  return yeGetFloat(yeGetByIdx(array, pos));
+	return yeGetFloat(yeGetByIdx(array, pos));
 }
 
 static inline int yeGetFloatAtByStr(Entity *array, const char *pos)
 {
-  return yeGetFloat(yeGetByStrFast(array, pos));
+	return yeGetFloat(yeGetByStrFast(array, pos));
 }
 
 #define yeGetFloatAt(array, pos) (yeGetFloat(yeGet(array, pos)))
@@ -438,12 +441,12 @@ const char *yeGetString(Entity *entity);
  */
 static inline const char *yeGetStringAtByIdx(Entity *array, int pos)
 {
-  return yeGetString(yeGetByIdx(array, pos));
+	return yeGetString(yeGetByIdx(array, pos));
 }
 
 static inline const char *yeGetStringAtByStr(Entity *array, const char *key)
 {
-  return yeGetString(yeGet(array, key));
+	return yeGetString(yeGet(array, key));
 }
 
 #define yeGetStringAt(array, pos) yeGetString(yeGet(array, pos))
@@ -455,7 +458,7 @@ void *yeGetData(Entity *entity);
  */
 static inline void *yeGetDataAtByIdx(Entity *array, int pos)
 {
-  return yeGetData(yeGetByIdx(array, pos));
+	return yeGetData(yeGetByIdx(array, pos));
 }
 
 /**
@@ -463,7 +466,7 @@ static inline void *yeGetDataAtByIdx(Entity *array, int pos)
  */
 static inline void *yeGetDataAtByStr(Entity *array, const char *pos)
 {
-  return yeGetData(yeGetByStr(array, pos));
+	return yeGetData(yeGetByStr(array, pos));
 }
 
 
@@ -525,7 +528,7 @@ Entity *yeRemoveChildByStr(Entity *array, const char *toRemove);
 
 static inline Entity *yeRemoveChildByIdx(Entity *array, int toRemove)
 {
-  return yeRemoveChild(array, yeGet(array, toRemove));
+	return yeRemoveChild(array, yeGet(array, toRemove));
 }
 
 /**
@@ -549,7 +552,7 @@ Entity *yeCreateNString(const char *string, int l, Entity *fathers,
 Entity *yeCreateInts_(Entity *fathers, int nbVars, ...);
 
 #define yeCreateInts(father, args...)				\
-  (yeCreateInts_((father), YUI_GET_ARG_COUNT(args), args))
+	(yeCreateInts_((father), YUI_GET_ARG_COUNT(args), args))
 
 
 #define yeCreateFunctionSimple(name, manager, father)	\
@@ -565,7 +568,7 @@ Entity *yeCreateArrayByCStr(Entity *fathers, const char *name);
 
 static inline Entity *yeCreateArrayByEntity(Entity *fathers, Entity *name)
 {
-  return yeCreateArrayByCStr(fathers, yeGetString(name));
+	return yeCreateArrayByCStr(fathers, yeGetString(name));
 }
 
 #ifndef __cplusplus
@@ -581,11 +584,11 @@ static inline Entity *yeCreateArrayByEntity(Entity *fathers, Entity *name)
 
 static inline Entity *yeTryCreateArray(Entity *father, const char *name)
 {
-  Entity *ret = yeGet(father, name);
-  if (!ret) {
-    yeCreateArrayByCStr(father, name);
-  }
-  return ret;
+	Entity *ret = yeGet(father, name);
+	if (!ret) {
+		yeCreateArrayByCStr(father, name);
+	}
+	return ret;
 }
 
 Entity *yeCreateArrayAt(Entity *fathers, const char *name, int idx);
@@ -597,19 +600,6 @@ Entity *yeCreateData(void *value, Entity *father, const char *name);
 Entity *yeCreateDataExt(void *value, Entity *father, const char *name,
 			YDataFlag flag);
 
-/**
- * Create an Array which is a pair of 2 elements contening: @value1 and @value2
- * @names and @father are optional
- */
-static inline Entity *yeCreateTuple(Entity *value1, Entity *value2,
-				    Entity *father, const char *name)
-{
-  Entity *ret = yeCreateArray(father, name);
-  yePushBack(ret, value1, NULL);
-  yePushBack(ret, value2, NULL);
-  return ret;
-}
-
 void yeDestroy(Entity *entity);
 void yeDestroyInt(Entity *entity);
 void yeDestroyFloat(Entity *entity);
@@ -619,9 +609,12 @@ void yeDestroyRef(Entity *entity);
 void yeDestroyArray(Entity *entity);
 void yeDestroyData(Entity *entity) ;
 
+/**
+ * utility for YE_NEW
+ */
 static inline void yeAutoFreeDestroy(Entity **entity)
 {
-  yeDestroy(*entity);
+	yeDestroy(*entity);
 }
 
 void yeMultDestroy_(Entity *toRm, ...);
@@ -711,37 +704,37 @@ int yeAttach(Entity *on, Entity *entity, unsigned int idx,
 
 #ifndef __cplusplus
 /* TODO: should create an element if doesn't exist */
-#define yeSetAtIntIxd(ENTITY, INDEX, VALUE)		\
-  _Generic((VALUE),					\
-	   int: yeSetIntAt,				\
-	   float: yeSetFloatAt,				\
-	   Y_GEN_CLANG_ARRAY(char, yeSetStringAt),	\
-	   const char *: yeSetStringAt,			\
-	   char *: yeSetStringAt)(ENTITY, INDEX, VALUE)
+#define yeSetAtIntIxd(ENTITY, INDEX, VALUE)			\
+	_Generic((VALUE),					\
+		 int: yeSetIntAt,				\
+		 float: yeSetFloatAt,				\
+		 Y_GEN_CLANG_ARRAY(char, yeSetStringAt),	\
+		 const char *: yeSetStringAt,			\
+		 char *: yeSetStringAt)(ENTITY, INDEX, VALUE)
 
 #define YE_SET_AT_STRIDX_INTERNAL(WHAT)				\
-  _Generic((WHAT),						\
-	   int: yeSetIntAtStrIdx,				\
-	   float: yeSetFloatAtStrIdx,				\
-	   const char *: yeSetStringAtStrIdx,			\
-	   Y_GEN_CLANG_ARRAY(char, yeSetStringAtStrIdx),	\
-	   char *: yeSetStringAtStrIdx)
+	_Generic((WHAT),					\
+		 int: yeSetIntAtStrIdx,				\
+		 float: yeSetFloatAtStrIdx,			\
+		 const char *: yeSetStringAtStrIdx,		\
+		 Y_GEN_CLANG_ARRAY(char, yeSetStringAtStrIdx),	\
+		 char *: yeSetStringAtStrIdx)
 
-#define yeSetAtStrIdx(ENTITY, INDEX, VALUE)		\
-  yeSetAtStrIdxInternal(VALUE)(ENTITY, INDEX, VALUE)
+#define yeSetAtStrIdx(ENTITY, INDEX, VALUE)			\
+	yeSetAtStrIdxInternal(VALUE)(ENTITY, INDEX, VALUE)
 
 #define yeSetAt(ENTITY, INDEX, VALUE)					\
-  _Generic((INDEX),							\
-	   int: _Generic((VALUE),					\
-			 int: yeSetIntAt,				\
-			 float: yeSetFloatAt,				\
-			 const char *: yeSetStringAt,			\
-			 Y_GEN_CLANG_ARRAY(char, yeSetStringAt),	\
-			 char *: yeSetStringAt),			\
-	   char *: YE_SET_AT_STRIDX_INTERNAL(VALUE),			\
-	   Y_GEN_CLANG_ARRAY(char, YE_SET_AT_STRIDX_INTERNAL(VALUE)),	\
-	   const char *: YE_SET_AT_STRIDX_INTERNAL(VALUE)		\
-	   )(ENTITY, INDEX, VALUE)
+	_Generic((INDEX),						\
+		 int: _Generic((VALUE),					\
+			       int: yeSetIntAt,				\
+			       float: yeSetFloatAt,			\
+			       const char *: yeSetStringAt,		\
+			       Y_GEN_CLANG_ARRAY(char, yeSetStringAt),	\
+			       char *: yeSetStringAt),			\
+		 char *: YE_SET_AT_STRIDX_INTERNAL(VALUE),		\
+		 Y_GEN_CLANG_ARRAY(char, YE_SET_AT_STRIDX_INTERNAL(VALUE)), \
+		 const char *: YE_SET_AT_STRIDX_INTERNAL(VALUE)		\
+		)(ENTITY, INDEX, VALUE)
 
 #endif
 
@@ -754,25 +747,25 @@ int yeAttach(Entity *on, Entity *entity, unsigned int idx,
 
 #define YE_GET_REAL_TYPE(type) RECREATE_IS_##type
 
-#define YE_IMPL_RECREATE(_type, value, father, name)		\
-  Entity *ret = yeGetByStrFast(father, name);			\
-								\
-  if (ret) {							\
-    if (unlikely(ret->type != YE_GET_REAL_TYPE(_type))) {	\
-      yeRemoveChild(father, ret);				\
-    } else {							\
-      yeSet##_type(ret, value);					\
-      return ret;						\
-    }								\
-  }								\
-  return yeCreate##_type(value, father, name);			\
+#define YE_IMPL_RECREATE(_type, value, father, name)			\
+	Entity *ret = yeGetByStrFast(father, name);			\
+									\
+	if (ret) {							\
+		if (unlikely(ret->type != YE_GET_REAL_TYPE(_type))) {	\
+			yeRemoveChild(father, ret);			\
+		} else {						\
+			yeSet##_type(ret, value);			\
+			return ret;					\
+		}							\
+	}								\
+	return yeCreate##_type(value, father, name);			\
 
 
 static inline Entity *yeReCreateFunction(const char *funcName, void *manager,
 					 Entity *father, const char *name)
 {
-  yeRemoveChildByStr(father, name);
-  return yeCreateFunction(funcName, manager, father, name);
+	yeRemoveChildByStr(father, name);
+	return yeCreateFunction(funcName, manager, father, name);
 }
 
 Entity *yeReCreateData(void *value, Entity *father, const char *name);
@@ -780,55 +773,55 @@ Entity *yeReCreateData(void *value, Entity *father, const char *name);
 static inline Entity *yeReCreateArray(Entity *father, const char *name,
 				      Entity *child)
 {
-  if (!father || !name)
-    return yeCreateArray(father, NULL);
+	if (!father || !name)
+		return yeCreateArray(father, NULL);
 
-  Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(father)->values, tmp,
-			    it, ArrayEntry) {
-    if (tmp && yuiStrEqual0(tmp->name, name)) {
-      if (child) {
-	YE_INCR_REF(child);
-      } else {
-	child = yeCreateArray(NULL, NULL);
-      }
-      YE_DESTROY(tmp->entity);
-      tmp->entity = child;
-      return child;
-    }
-  }
-  if (child) {
-    return yePushBack(father, child, name) < 0 ? NULL : child;
-  }
-  return yeCreateArray(father, name);
+	Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(father)->values, tmp,
+				  it, ArrayEntry) {
+		if (tmp && yuiStrEqual0(tmp->name, name)) {
+			if (child) {
+				YE_INCR_REF(child);
+			} else {
+				child = yeCreateArray(NULL, NULL);
+			}
+			YE_DESTROY(tmp->entity);
+			tmp->entity = child;
+			return child;
+		}
+	}
+	if (child) {
+		return yePushBack(father, child, name) < 0 ? NULL : child;
+	}
+	return yeCreateArray(father, name);
 }
 
 static inline Entity *yeReCreateInt(int value, Entity *father,
 				    const char *name)
 {
-  YE_IMPL_RECREATE(Int, value, father, name);
+	YE_IMPL_RECREATE(Int, value, father, name);
 }
 
 
 static inline Entity *yeReCreateFloat(double value, Entity *father,
 				      const char *name)
 {
-  YE_IMPL_RECREATE(Float, value, father, name);
+	YE_IMPL_RECREATE(Float, value, father, name);
 }
 
 static inline Entity *yeReCreateString(const char *string,
 				       Entity *father, const char *name)
 {
-  YE_IMPL_RECREATE(String, string, father, name);
+	YE_IMPL_RECREATE(String, string, father, name);
 }
 
 static inline Entity *yeTryCreateInt(int value, Entity *father,
 				     const char *name)
 {
-  Entity *ret = yeGetByStrFast(father, name);
-  if (!ret) {
-    yeCreateInt(value, father, name);
-  }
-  return ret;
+	Entity *ret = yeGetByStrFast(father, name);
+	if (!ret) {
+		yeCreateInt(value, father, name);
+	}
+	return ret;
 }
 
 /**
@@ -868,7 +861,7 @@ Entity	*yeMoveByEntity(Entity* src, Entity* dest, Entity *what,
 
 static inline Entity *yeMoveByStr(Entity* src, Entity* dest, const char *what)
 {
-  return yeMoveByEntity(src, dest, yeGet(src, what), what);
+	return yeMoveByEntity(src, dest, yeGet(src, what), what);
 }
 
 /**
@@ -876,135 +869,135 @@ static inline Entity *yeMoveByStr(Entity* src, Entity* dest, const char *what)
  */
 static inline Entity *yeGetPush(Entity *src, Entity *dst, const char *name)
 {
-  Entity *ret = yeGet(src, name);
+	Entity *ret = yeGet(src, name);
 
-  if (!ret)
-    return NULL;
-  yePushBack(dst, ret, name);
-  return ret;
+	if (!ret)
+		return NULL;
+	yePushBack(dst, ret, name);
+	return ret;
 }
 
 static inline Entity *yeGetByEntity(Entity *array, Entity *key)
 {
-  if (yeType(key) == YINT)
-    return yeGet(array, yeGetInt(key));
-  else if (yeType(key) == YSTRING)
-    return yeGet(array, yeGetString(key));
-  return NULL;
+	if (yeType(key) == YINT)
+		return yeGet(array, yeGetInt(key));
+	else if (yeType(key) == YSTRING)
+		return yeGet(array, yeGetString(key));
+	return NULL;
 }
 
 static inline int yeArrayContainEntity(Entity *array, const char *str)
 {
-  return !!yeGet(array, str);
+	return !!yeGet(array, str);
 }
 
 int yeArrayContainEntitiesInternal(Entity *entity, ...);
 
-#define yeArrayContainEntities(array, ARGS...)		\
-  yeArrayContainEntitiesInternal(array, ARRAY, NULL)
+#define yeArrayContainEntities(array, ARGS...)			\
+	yeArrayContainEntitiesInternal(array, ARRAY, NULL)
 
 static inline int yeStringIndexChar(Entity *entityStr, const char *chars)
 {
-  const char *str = yeGetString(entityStr);
-  int len = yeLen(entityStr);
+	const char *str = yeGetString(entityStr);
+	int len = yeLen(entityStr);
 
-  for (int i = 0; i < len; ++i) {
-    for (int j = 0; chars[j]; ++j) {
-      if (str[i] == chars[j])
-	return i;
-      return -1;
-    }
-  }
-  return -1;
+	for (int i = 0; i < len; ++i) {
+		for (int j = 0; chars[j]; ++j) {
+			if (str[i] == chars[j])
+				return i;
+			return -1;
+		}
+	}
+	return -1;
 }
 
 static inline int yeIntAddInt(IntEntity *e, int i)
 {
-  e->value += i;
-  return 0;
+	e->value += i;
+	return 0;
 }
 
 static inline int yeAddLong(Entity *e, long i)
 {
-  switch (yeType(e)) {
-  case YSTRING:
-    return yeStringAddLong(e, i);
-  default :
-    return -1;
-  }
+	switch (yeType(e)) {
+	case YSTRING:
+		return yeStringAddLong(e, i);
+	default :
+		return -1;
+	}
 }
 
 static inline int yeAddInt(Entity *e, int i)
 {
-  switch (yeType(e)) {
-  case YINT:
-    return yeIntAddInt(YE_TO_INT(e), i);
-  case YSTRING:
-    return yeStringAddInt(e, i);
-  default :
-    return -1;
-  }
+	switch (yeType(e)) {
+	case YINT:
+		return yeIntAddInt(YE_TO_INT(e), i);
+	case YSTRING:
+		return yeStringAddInt(e, i);
+	default :
+		return -1;
+	}
 }
 
 static inline int yeAddStr(Entity *e, const char *str)
 {
-  switch (yeType(e)) {
-  case YSTRING:
-    return yeStringAdd(e, str);
-  default :
-    return -1;
-  }
+	switch (yeType(e)) {
+	case YSTRING:
+		return yeStringAdd(e, str);
+	default :
+		return -1;
+	}
 }
 
 static inline int yeAddEnt(Entity *e, Entity *e2)
 {
-  switch (yeType(e2)) {
-  case YINT:
-    return yeAddInt(e, yeGetInt(e2));
-  case YSTRING:
-    return yeAddStr(e, yeGetString(e2));
-  default :
-    return -1;
-  }
-  return -1;
+	switch (yeType(e2)) {
+	case YINT:
+		return yeAddInt(e, yeGetInt(e2));
+	case YSTRING:
+		return yeAddStr(e, yeGetString(e2));
+	default :
+		return -1;
+	}
+	return -1;
 }
 
 static inline int yeMultInt(Entity *e, int i)
 {
-  switch (yeType(e)) {
-  case YINT:
-    YE_TO_INT(e)->value *= i;
-    return 0;
-  default :
-    return -1;
-  }
+	switch (yeType(e)) {
+	case YINT:
+		YE_TO_INT(e)->value *= i;
+		return 0;
+	default :
+		return -1;
+	}
 }
 
 static inline int yeSubInt(Entity *e, int i)
 {
-  switch (yeType(e)) {
-  case YINT:
-    YE_TO_INT(e)->value -= i;
-    return 0;
-  default :
-    return -1;
-  }
+	switch (yeType(e)) {
+	case YINT:
+		YE_TO_INT(e)->value -= i;
+		return 0;
+	default :
+		return -1;
+	}
 }
 
 static inline int yeSubEntInt(Entity *e, IntEntity *ie)
 {
-  return yeSubInt(e, yeGetInt(YE_TO_ENTITY(ie)));
+	return yeSubInt(e, yeGetInt(YE_TO_ENTITY(ie)));
 }
 
 static inline int yeSubEnt(Entity *e, Entity *e2)
 {
-  switch (yeType(e2)) {
-  case YINT:
-    return yeSubEntInt(e, YE_TO_INT(e2));
-  default :
-    return -1;
-  }
-  return -1;
+	switch (yeType(e2)) {
+	case YINT:
+		return yeSubEntInt(e, YE_TO_INT(e2));
+	default :
+		return -1;
+	}
+	return -1;
 }
 
 static inline Entity *yeFind(Entity *entity,
@@ -1012,13 +1005,14 @@ static inline Entity *yeFind(Entity *entity,
 					       Entity *, void *),
 			     void *arg)
 {
-  Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(entity)->values, tmp, it, ArrayEntry) {
-    Entity *ret;
+	Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(entity)->values, tmp,
+				  it, ArrayEntry) {
+		Entity *ret;
 
-    if ((ret = finder(tmp->name, tmp->entity, arg)) != NULL)
-      return ret;
-  }
-  return NULL;
+		if ((ret = finder(tmp->name, tmp->entity, arg)) != NULL)
+			return ret;
+	}
+	return NULL;
 }
 
 /**
@@ -1044,62 +1038,62 @@ int yeRenameIdxStr(Entity *array, int idx, const char *str);
 static inline Entity *yeReplaceBackExt(Entity *array, Entity *toPush,
 				       const char *name, int flag)
 {
-  Entity *tmp;
-  Entity *ret = NULL;
+	Entity *tmp;
+	Entity *ret = NULL;
 
-  if (unlikely(!toPush))
-    return NULL;
-  yeIncrRef(toPush);
+	if (unlikely(!toPush))
+		return NULL;
+	yeIncrRef(toPush);
 
- again:
-  tmp = yeRemoveChildByStr(array, name);
-  if (tmp)
-    goto again;
+again:
+	tmp = yeRemoveChildByStr(array, name);
+	if (tmp)
+		goto again;
 
-  if (!yePushBackExt(array, toPush, name, flag))
-    ret = toPush;
+	if (!yePushBackExt(array, toPush, name, flag))
+		ret = toPush;
 
-  yeDestroy(toPush);
-  return ret;
+	yeDestroy(toPush);
+	return ret;
 }
 static inline Entity *yeReplaceBack(Entity *array, Entity *toPush,
 				    const char *name)
 {
-  return yeReplaceBackExt(array, toPush, name, 0);
+	return yeReplaceBackExt(array, toPush, name, 0);
 }
 
 static inline Entity *yeReplaceAtIdx(Entity *array, Entity *toPush, int idx)
 {
-  if (!array || !toPush)
-    return NULL;
+	if (!array || !toPush)
+		return NULL;
 
-  ArrayEntry *entry = yBlockArrayGetPtr(&YE_TO_ARRAY(array)->values, idx,
-					ArrayEntry);
-  if (!entry)
-    return NULL;
+	ArrayEntry *entry = yBlockArrayGetPtr(&YE_TO_ARRAY(array)->values, idx,
+					      ArrayEntry);
+	if (!entry)
+		return NULL;
 
-  yeIncrRef(toPush);
-  yeDestroy(entry->entity);
-  entry->entity = toPush;
-  return toPush;
+	yeIncrRef(toPush);
+	yeDestroy(entry->entity);
+	entry->entity = toPush;
+	return toPush;
 }
 
 static inline int yeReplace(Entity *array, Entity *toReplace, Entity *toPush)
 {
-  if (!array || !toReplace || !toPush)
-    return -1;
+	if (!array || !toReplace || !toPush)
+		return -1;
 
-  Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(array)->values, tmp,
-			    it, ArrayEntry) {
-    if (tmp && tmp->entity == toReplace) {
-      yeIncrRef(toPush);
-      yeDestroy(toReplace);
-      tmp->entity = toPush;
-      return 0;
-    }
-  }
+	Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(array)->values, tmp,
+				  it, ArrayEntry) {
+		if (tmp && tmp->entity == toReplace) {
+			yeIncrRef(toPush);
+			yeDestroy(toReplace);
+			tmp->entity = toPush;
+			return 0;
+		}
+	}
 
-  return -1;
+	return -1;
 }
 
 /**
@@ -1109,14 +1103,14 @@ static inline int yeReplace(Entity *array, Entity *toReplace, Entity *toPush)
  */
 static inline int yeDoestInclude(Entity *array, Entity *toFind)
 {
-  if (!array || !toFind)
-    return 0;
-  Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(array)->values, tmp,
-			    it, ArrayEntry) {
-    if (tmp && tmp->entity == toFind)
-      return 1;
-  }
-  return 0;
+	if (!array || !toFind)
+		return 0;
+	Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(array)->values, tmp,
+				  it, ArrayEntry) {
+		if (tmp && tmp->entity == toFind)
+			return 1;
+	}
+	return 0;
 }
 
 void yeIncrChildsRef(Entity *array);
@@ -1138,26 +1132,26 @@ int yeSetFlagByIdx(Entity *array, int idx, int flag);
  */
 static inline int yeSwapElems(Entity *array, Entity *elem0, Entity *elem1)
 {
-  ArrayEntry *entry0 = NULL;
-  ArrayEntry *entry1 = NULL;
+	ArrayEntry *entry0 = NULL;
+	ArrayEntry *entry1 = NULL;
 
-  if (!array || !elem0 || !elem1 || elem0 == elem1)
-    return -1;
-  Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(array)->values, tmp,
-			    it, ArrayEntry) {
-    if (!tmp)
-      continue;
-    if (tmp->entity == elem0)
-      entry0 = tmp;
-    if (tmp->entity == elem1)
-      entry1 = tmp;
-  }
-  if (!entry0 || !entry1)
-    return -1;
+	if (!array || !elem0 || !elem1 || elem0 == elem1)
+		return -1;
+	Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(array)->values, tmp,
+				  it, ArrayEntry) {
+		if (!tmp)
+			continue;
+		if (tmp->entity == elem0)
+			entry0 = tmp;
+		if (tmp->entity == elem1)
+			entry1 = tmp;
+	}
+	if (!entry0 || !entry1)
+		return -1;
 
-  YUI_SWAP_PTR(entry0->entity, entry1->entity, Entity *);
-  YUI_SWAP_PTR(entry0->name, entry1->name, char *);
-  return 0;
+	YUI_SWAP_PTR(entry0->entity, entry1->entity, Entity *);
+	YUI_SWAP_PTR(entry0->name, entry1->name, char *);
+	return 0;
 }
 
 /**
@@ -1165,19 +1159,19 @@ static inline int yeSwapElems(Entity *array, Entity *elem0, Entity *elem1)
  */
 static inline int yeEqual(Entity *a, Entity *b)
 {
-  if (yeType(a) != yeType(b))
-    return 0;
-  switch (yeType(a)) {
-  case YINT:
-    return yeGetInt(a) == yeGetInt(b);
-  case YFLOAT:
-    return yeGetFloat(a) == yeGetFloat(b);
-  case YSTRING:
-    return !yeStrCmp(a, yeGetString(b));
-  default:
-    break;
-  }
-  return 0;
+	if (yeType(a) != yeType(b))
+		return 0;
+	switch (yeType(a)) {
+	case YINT:
+		return yeGetInt(a) == yeGetInt(b);
+	case YFLOAT:
+		return yeGetFloat(a) == yeGetFloat(b);
+	case YSTRING:
+		return !yeStrCmp(a, yeGetString(b));
+	default:
+		break;
+	}
+	return 0;
 }
 
 /**
