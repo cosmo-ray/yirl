@@ -378,6 +378,14 @@ static inline Entity *yeGetByEntity(Entity *array, Entity *key);
 char *yeGetKeyAt(Entity *entity, int idx);
 
 /**
+ * push array_src[idx] in array_dest, keep the string key if there is one
+ * the element is push at the end of array_dest.
+ */
+#define yePushKeyAndVal(array_dest, array_src, idx)	\
+	yePushBack(array_dest, yeGet(array_src, idx),	\
+		   yeGetKeyAt(array_src, idx))
+
+/**
  * Like yeGetByStr but dosn't work with sytaxe like this (entity1.entity11)
  */
 Entity *yeGetByStrFast(Entity *entity, const char *name);
