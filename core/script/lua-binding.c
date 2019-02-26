@@ -426,6 +426,20 @@ int	luaYAnd(lua_State *L)
   return (1);
 }
 
+int	luayIsNil(lua_State *l)
+{
+	int isNil;
+
+	if (lua_islightuserdata(l, 1))
+		isNil = !lua_touserdata(l, 1);
+	else if (lua_isnumber(l, 1))
+		isNil = !lua_tonumber(l, 1);
+	else
+		isNil = lua_isnil(l, 1);
+	lua_pushboolean(l, isNil);
+	return 1;
+}
+
 int	luaGet(lua_State *L)
 {
   if (lua_gettop(L) != 2 || !lua_isuserdata(L, 1)) {

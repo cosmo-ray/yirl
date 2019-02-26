@@ -114,6 +114,10 @@ int	luaYAnd(lua_State *L);
 int	luayOr(lua_State *L);
 int     luaStringToPtr(lua_State *l);
 int     luaToPtr(lua_State *l);
+/**
+ * check nil the way C check NULL, which is the only sain way to do it
+ */
+int	luayIsNil(lua_State *l);
 
 /* util */
 int	luaRand(lua_State *L);
@@ -471,6 +475,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yAnd", luaYAnd));
   YES_LUA_REGISTRE_CALL(sm, yOr);
   YES_LUA_REGISTRE_CALL(sm, yIsLightUserData);
+  YES_LUA_REGISTRE_CALL(sm, yIsNil);
 
   /* utils */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yuiRand", luaRand));
