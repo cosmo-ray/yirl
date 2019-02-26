@@ -31,14 +31,14 @@ and fprintf need FILE handler.
 static int isInit;
 
 typedef struct s_log_mode {
-  const char * const str;
-  FILE*		file;
+	const char * const str;
+	FILE*		file;
 }		t_log_mode;
 
 static t_log_mode log_confs[] = {
-  { INFO_STR, NULL },
-  { WARNING_STR, NULL },
-  { ERROR_STR, NULL },
+	{ INFO_STR, NULL },
+	{ WARNING_STR, NULL },
+	{ ERROR_STR, NULL },
 };
 
 void	debug_print_(char const* mode, char const* format, va_list vl);
@@ -46,81 +46,81 @@ void	debug_print_info(FILE* fd, const char* mode);
 
 static FILE*	get_file(int mode)
 {
-  static FILE * file = NULL;
-  
-  (void)mode;
-  if (file == NULL)
-    file = fopen("log.txt", "a");
-  return file;
+	static FILE * file = NULL;
+
+	(void)mode;
+	if (file == NULL)
+		file = fopen("log.txt", "a");
+	return file;
 }
 
 #if defined(__unix__) || defined(__APPLE__)
 void	yuiDebugPrint(int mode, char const* format, ...)
 {
-  if (mode >= 0 && mode < 3)
-    {
-      va_list	vl;
-
-      va_start(vl, format);
-#ifndef NO_PRINT_ON_CERR
-      if (mode > 0)
+	if (mode >= 0 && mode < 3)
 	{
-	    va_list	vl2;
+		va_list	vl;
 
-	    va_copy(vl2, vl);
-	    y_vprintf(2, format, vl2);
-	    va_end(vl2);
-	}
+		va_start(vl, format);
+#ifndef NO_PRINT_ON_CERR
+		if (mode > 0)
+		{
+			va_list	vl2;
+
+			va_copy(vl2, vl);
+			y_vprintf(2, format, vl2);
+			va_end(vl2);
+		}
 #endif
-      debug_print_(log_confs[mode].str, format, vl);
-      va_end(vl);
-    }
+		debug_print_(log_confs[mode].str, format, vl);
+		va_end(vl);
+	}
 }
 #endif
 
 void	yuiDebugInit()
 {
-  if (isInit)
-    return;
-  void *tmp;
-  log_confs[INFO].file = get_file(0);
-  tmp = log_confs[INFO].file;
-  debug_print_info(log_confs[INFO].file, log_confs[INFO].str);
-  fprintf(log_confs[INFO].file, "Initiate log file with %p\n", tmp);
+	if (isInit)
+		return;
+	void *tmp;
+	log_confs[INFO].file = get_file(0);
+	tmp = log_confs[INFO].file;
+	debug_print_info(log_confs[INFO].file, log_confs[INFO].str);
+	fprintf(log_confs[INFO].file, "Initiate log file with %p\n", tmp);
 
-  log_confs[WARNING].file = get_file(0);
-  tmp = log_confs[WARNING].file;
-  debug_print_info(log_confs[WARNING].file, log_confs[WARNING].str);
-  fprintf(log_confs[WARNING].file, "Initiate log file with %p\n", tmp);
+	log_confs[WARNING].file = get_file(0);
+	tmp = log_confs[WARNING].file;
+	debug_print_info(log_confs[WARNING].file, log_confs[WARNING].str);
+	fprintf(log_confs[WARNING].file, "Initiate log file with %p\n", tmp);
 
-  log_confs[D_ERROR].file = get_file(0);
-  tmp = log_confs[D_ERROR].file;
-  debug_print_info(log_confs[D_ERROR].file, log_confs[D_ERROR].str);
-  fprintf(log_confs[D_ERROR].file, "Initiate log file with %p\n", tmp); 
+	log_confs[D_ERROR].file = get_file(0);
+	tmp = log_confs[D_ERROR].file;
+	debug_print_info(log_confs[D_ERROR].file, log_confs[D_ERROR].str);
+	fprintf(log_confs[D_ERROR].file, "Initiate log file with %p\n", tmp);
 }
 
 void	yuiDebugExit()
 {
-  void *tmp;
-  debug_print_info(log_confs[INFO].file, INFO_STR);
-  tmp = log_confs[INFO].file;
-  fprintf(log_confs[INFO].file, "Closing logging file with %p\n", tmp);
-  fclose(log_confs[INFO].file);
-  isInit = 0;
+	void *tmp;
+	debug_print_info(log_confs[INFO].file, INFO_STR);
+	tmp = log_confs[INFO].file;
+	fprintf(log_confs[INFO].file, "Closing logging file with %p\n", tmp);
+	fclose(log_confs[INFO].file);
+	isInit = 0;
 }
 
 void	debug_print_info(FILE* fd, const char* mode)
 {
-  fprintf(fd, "[%.7s]", mode);
+	fprintf(fd, "[%.7s]", mode);
 }
 
 void	debug_print_(char const* mode, char const* format, va_list vl)
 {
-  debug_print_info(log_confs[INFO].file, mode);
-  if (format == NULL)
-    fprintf(log_confs[INFO].file, "Unknow Error");    
-  else
-    vfprintf(log_confs[INFO].file, format, vl);
-  fflush(log_confs[INFO].file);
+	debug_print_info(log_confs[INFO].file, mode);
+	if (format == NULL)
+		fprintf(log_confs[INFO].file, "Unknow Error");
+	else
+		vfprintf(log_confs[INFO].file, format, vl);
+	fflush(log_confs[INFO].file);
 }
 

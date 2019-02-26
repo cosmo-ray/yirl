@@ -30,62 +30,62 @@
 
 int yuiRegister(YManagerAllocator *ma, void *(*allocator)(void))
 {
-  if (unlikely(!ma || ma->len >= MAX_NB_MANAGER - 1))
-    return -1;
-  ma->allocator[ma->len] = allocator;
-  ma->len += 1;
-  return ma->len - 1;
+	if (unlikely(!ma || ma->len >= MAX_NB_MANAGER - 1))
+		return -1;
+	ma->allocator[ma->len] = allocator;
+	ma->len += 1;
+	return ma->len - 1;
 }
 
 int yuiUnregiste(YManagerAllocator *ma, int t)
 {
-  if (unlikely(!ma || ma->len <= t || t < 0))
-    return -1;
-  ma->allocator[t] = NULL;
-  if (t == ma->len - 1)
-    ma->len -= 1;
-  while (ma->len && ma->allocator[ma->len - 1] == NULL) {
-    ma->len -= 1;
-  }
-  return 0;
+	if (unlikely(!ma || ma->len <= t || t < 0))
+		return -1;
+	ma->allocator[t] = NULL;
+	if (t == ma->len - 1)
+		ma->len -= 1;
+	while (ma->len && ma->allocator[ma->len - 1] == NULL) {
+		ma->len -= 1;
+	}
+	return 0;
 }
 
 size_t yuistrlen(const char *s)
 {
-  return strlen(s);
+	return strlen(s);
 }
 
 char *yuistrcpy(char *dest, const char *src)
 {
-  return strcpy(dest, src);
+	return strcpy(dest, src);
 }
 
 char *yuistrncpy(char *dest, const char *src, size_t n)
 {
-  return strncpy(dest, src, n);
+	return strncpy(dest, src, n);
 }
 
 void yuiRandInitSeed(int s)
 {
-  srand(s);
+	srand(s);
 }
 
 void yuiRandInit(void)
 {
-  yuiRandInitSeed(time(NULL) + getpid());
+	yuiRandInitSeed(time(NULL) + getpid());
 }
 
 int  yuiRand(void)
 {
-  return rand();
+	return rand();
 }
 
 void yuiMkdir(const char *dir)
 {
-  (void)dir;
-  #if defined(_WIN32)
-    mkdir(dir);
-  #else
-    mkdir(dir, 0755);
-  #endif
+	(void)dir;
+#if defined(_WIN32)
+	mkdir(dir);
+#else
+	mkdir(dir, 0755);
+#endif
 }
