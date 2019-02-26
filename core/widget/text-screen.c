@@ -23,6 +23,7 @@
 
 static int t = -1;
 static int aleradyFormated;
+static int aleradyTextified;
 
 typedef struct {
   YWidgetState sate;
@@ -61,6 +62,7 @@ static int tsRend(YWidgetState *opac)
   YTimer *timer = o_txt->timerTxtSpeed;
 
   aleradyFormated = 0;
+  aleradyTextified = 0;
   txt = ywTextScreenTextEnt(opac->entity);
   if (timer) {
     c_pos = YTimerGet(timer) / yeGetIntAt(opac->entity, "text-speed");
@@ -112,6 +114,9 @@ static Entity *ywTextScreenText2(Entity *wid)
     return txt;
   }
 
+  if (aleradyTextified)
+    return yeGet(wid, "$text");
+
   YE_FOREACH(txt, c_txt) {
     if (!ret) {
       ret = yeReCreateString(yeGetString(c_txt), wid, "$text");
@@ -120,6 +125,7 @@ static Entity *ywTextScreenText2(Entity *wid)
       yeStringAddNl(ret, yeGetString(c_txt));
     }
   }
+  aleradyTextified = 1;
   return ret;
 }
 
