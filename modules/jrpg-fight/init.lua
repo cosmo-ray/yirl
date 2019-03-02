@@ -16,6 +16,9 @@ local chooseTargetLeft = 100
 local chooseTargetRight = 500
 local chooseTargetY = 160
 
+local LPCS_T = 0
+local SPRITES_T = 1
+
 function fightAction(entity, eve)
    entity = Entity.wrapp(entity)
    eve = Event.wrapp(eve)
@@ -68,6 +71,13 @@ function fightAction(entity, eve)
       eve = eve:next()
    end
    return ret
+end
+
+function setOrig(handler, x, y)
+   if yeGetIntAt(handler, "type") == LPCS_T then
+      ylpcsHandlerSetOrigXY(handler, x, y)
+      ylpcsHandlerRefresh(handler)
+   end
 end
 
 function menuGetMain(menu)
@@ -137,8 +147,7 @@ function endAnimationAttack(main, cur_anim)
       return
    end
    if main.atk_state:to_int() == PJ_ATTACK then
-      ylpcsHandlerSetOrigXY(guy, good_orig_pos[1], good_orig_pos[2])
-      ylpcsHandlerRefresh(guy)
+      setOrig(guy, good_orig_pos[1], good_orig_pos[2])
       main.atk_state = ENEMY_ATTACK
       local r = 0
       if cur_anim.target.char.life < (cur_anim.target.char.max_life / 2) then
@@ -156,9 +165,7 @@ function endAnimationAttack(main, cur_anim)
       end
       --print(cur_anim.guy.name, cur_anim.target.name)
    else
-      ylpcsHandlerSetOrigXY(guy, bad_orig_pos[1],
-			    bad_orig_pos[2])
-      ylpcsHandlerRefresh(guy)
+      setOrig(guy, bad_orig_pos[1], bad_orig_pos[2])
       main.atk_state = AWAIT_CMD
    end
 end
@@ -260,8 +267,7 @@ function attackCallback(main, eve)
       end
       local cur_orig = Pos.wrapp(cur_cmb_anim.poses[co_pos])
 
-      ylpcsHandlerSetOrigXY(guy, cur_orig:x(), cur_orig:y())
-      ylpcsHandlerRefresh(guy)
+      setOrig(guy, cur_orig:x(), cur_orig:y())
    end
    if cur_anim.animation_frame >= last_frm then
       local i = 0
@@ -631,13 +637,30 @@ function fightInit(entity)
    ylpcsHandlerSetOrigXY(entity.gg_handler, good_orig_pos[1], good_orig_pos[2])
    ylpcsHandlerRefresh(entity.gg_handler)
    ylpcsHandlerMove(entity.gg_handler,
-		     Pos.new(wid_pix.w - 100, y_carac).ent)
+		    Pos.new(wid_pix.w - 100, y_carac).ent)
 
 
-   ylpcsCreateHandler(entity.bad_guy, canvas, entity, "bg_handler")
-   ylpcsHandlerSetOrigXY(entity.bg_handler, bad_orig_pos[1], bad_orig_pos[2])
-   ylpcsHandlerRefresh(entity.bg_handler)
-   ylpcsHandlerMove(entity.bg_handler, Pos.new(50, y_carac).ent)
+   local bad_guy = entity.bad_guy
+   if bad_guy.clothes then
+      ylpcsCreateHandler(entity.bad_guy, canvas, entity, "bg_handler")
+      ylpcsHandlerSetOrigXY(entity.bg_handler, bad_orig_pos[1], bad_orig_pos[2])
+      ylpcsHandlerRefresh(entity.bg_handler)
+      ylpcsHandlerMove(entity.bg_handler, Pos.new(50, y_carac).ent)
+      entity.bg_handler.type = LPCS_T
+   else
+      local sp = bad_guy.sprite
+      local bg_h = Entity.new_array()
+      local canvas = Canvas.wrapp(canvas)
+      local s = yeGetIntAt(sp, "size")
+
+      entity.bg_handler = bg_h
+      bg_h.type = SPRITES_T
+      bg_h.canvas = canvas:new_img(50, y_carac, sp.path:to_string(),
+				   Rect.new(yeGetIntAt(sp, "x"),
+					    yeGetIntAt(sp, "y"),
+					    s, s)):cent()
+      bg_h.char = bad_guy
+   end
    canvas = Canvas.wrapp(canvas)
 
    local life = entity.good_guy.life

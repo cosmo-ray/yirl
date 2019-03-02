@@ -58,6 +58,7 @@ void *viewerInit(int nbArg, void **args)
 
   if (!yProgramArg)
     return NULL;
+  printf("open '%s' image\n", yProgramArg);
   ywCanvasNewImg(canvas, 0, 0, yProgramArg, NULL);
   ywPosCreateInts(0, 0, canvas, "cam");
 }
