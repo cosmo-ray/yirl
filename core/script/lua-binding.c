@@ -914,19 +914,19 @@ int	luaySoundLoad(lua_State *L)
 
 int	luaySoundPlayLoop(lua_State *L)
 {
-  lua_pushnumber(L, ySoundPlayLoop(lua_tonumber(L, 1)));
+  lua_pushnumber(L, ySoundPlayLoop(luaNumberAt(L, 1)));
   return 1;
 }
 
 int	luaySoundPlay(lua_State *L)
 {
-  lua_pushnumber(L, ySoundPlay(lua_tonumber(L, 1)));
+  lua_pushnumber(L, ySoundPlay(luaNumberAt(L, 1)));
   return 1;
 }
 
 int	luaySoundStop(lua_State *L)
 {
-  lua_pushnumber(L, ySoundStop(lua_tonumber(L, 1)));
+  lua_pushnumber(L, ySoundStop(luaNumberAt(L, 1)));
   return 1;
 }
 
