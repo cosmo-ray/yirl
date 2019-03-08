@@ -13,11 +13,24 @@ local objects = nil
 local combots = nil
 local chooseTargetNone = 0
 local chooseTargetLeft = 100
-local chooseTargetRight = 500
-local chooseTargetY = 160
+local chooseTargetRight = 530
+local chooseTargetY = 1
+
+local enemy_idx = 0
 
 local LPCS_T = 0
 local SPRITES_T = 1
+
+local function getCanvas(main)
+   return Canvas.wrapp(main.entries[0])
+end
+
+local function mk_location(wid_h)
+   local y_carac = wid_h / 2
+
+   return {{y_carac}, {wid_h / 3, wid_h - wid_h / 3},
+      {y_carac - 120, y_carac, y_carac + 100}}
+end
 
 function fightAction(entity, eve)
    entity = Entity.wrapp(entity)
@@ -132,6 +145,10 @@ function endAnimationAttack(main, cur_anim)
    local obj = CanvasObj.wrapp(cur_anim.guy.canvas)
    local bpos = cur_anim.base_pos
    local guy = cur_anim.guy
+   local is_enemy_next = false
+   local bad_guys = main.bg_handlers
+   local next_guy = cur_anim.target
+   local next_target = cur_anim.guy
 
    obj:set_pos(cur_anim.base_pos)
    bpos = Pos.wrapp(bpos)
@@ -146,9 +163,25 @@ function endAnimationAttack(main, cur_anim)
       end
       return
    end
-   if main.atk_state:to_int() == PJ_ATTACK then
+
+   print("so ? ", yeLen(bad_guys), enemy_idx)
+   print("grrrr ", main.atk_state:to_int(), PJ_ATTACK)
+   if main.atk_state:to_int() == PJ_ATTACK or
+   yeLen(bad_guys) > enemy_idx then
+      print("enemy case")
+      next_guy = bad_guys[enemy_idx]
+      next_target = main.gg_handler
+      enemy_idx = enemy_idx + 1
+      is_enemy_next = true
+   else
+      print("pj case")
+      enemy_idx = 0
+   end
+
+   if is_enemy_next then
       setOrig(guy, good_orig_pos[1], good_orig_pos[2])
       main.atk_state = ENEMY_ATTACK
+      print("wesh ?", main.atk_state)
       local r = 0
       if cur_anim.target.char.life < (cur_anim.target.char.max_life / 2) then
 	 r = yuiRand() % 3
@@ -158,13 +191,14 @@ function endAnimationAttack(main, cur_anim)
       if r < 2 then
 	 local tmp = guy
 	 yeIncrRef(tmp)
-	 attack(main, cur_anim.target, guy, (yAnd(r, 1)) + 1)
+	 attack(main, next_guy, next_target, (yAnd(r, 1)) + 1)
 	 yeDestroy(tmp)
       else
-	 fightRecoverInternal(main, cur_anim.target, guy)
+	 fightRecoverInternal(main, next_guy, next_target)
       end
       --print(cur_anim.guy.name, cur_anim.target.name)
    else
+      print("not hapenning")
       setOrig(guy, bad_orig_pos[1], bad_orig_pos[2])
       main.atk_state = AWAIT_CMD
    end
@@ -192,6 +226,7 @@ function attackCallback(main, eve)
    target.char.can_guard:to_int() == 0 then
       can_print_loader = false
    end
+
    while eve:is_end() == false do
       if eve:type() == YKEY_DOWN and eve:key() == Y_SPACE_KEY or
       eve:type() == YKEY_DOWN and eve:key() == Y_ENTER_KEY then
@@ -206,6 +241,7 @@ function attackCallback(main, eve)
       end
       eve = eve:next()
    end
+
    if cur_anim.animation_frame:to_int() == 0 then
       local i = 0
       local part_len = tot_bar_len / cur_cmb:len()
@@ -246,10 +282,12 @@ function attackCallback(main, eve)
 	 i = i + 1
       end
    end
+
    if (cur_val == 2 and cur_anim.isPush < 1) then
       cur_anim.sucess = false
       --print("kboum !", cur_val, cur_anim.isPush)
    end
+
    canvas:remove(cur_anim.loader_percent)
    if cur_cmb_anim.to and
    cur_anim.animation_frame < cur_anim.last_mv_frm then
@@ -258,7 +296,9 @@ function attackCallback(main, eve)
       obj:move(cur_anim.mv_per_frm)
       ywCanvasMoveObj(guy.life_b0, cur_anim.mv_per_frm)
       ywCanvasMoveObj(guy.life_b, cur_anim.mv_per_frm)
+
    end
+
    if cur_cmb_anim.poses then
       local last = cur_cmb_anim.poses:len()
       local co_pos = cur_anim.animation_frame * last / last_frm
@@ -269,14 +309,15 @@ function attackCallback(main, eve)
 
       setOrig(guy, cur_orig:x(), cur_orig:y())
    end
+
    if cur_anim.animation_frame >= last_frm then
       local i = 0
       local computer_sucess
-	 if (yuiRand() % 2) == 0 then
-	     computer_sucess = true
-	 else
-	    computer_sucess = false
-	 end
+      if (yuiRand() % 2) == 0 then
+	 computer_sucess = true
+      else
+	 computer_sucess = false
+      end
       while i < cur_cmb:len() do
 	 canvas:remove(cur_anim.loaders[i])
 	 i = i + 1
@@ -396,14 +437,14 @@ end
 function fightAttack(entity, eve)
    local main = menuGetMain(entity)
    main.atk_state = PJ_ATTACK
-   attack(main, main.gg_handler, main.bg_handler)
+   attack(main, main.gg_handler, main.bg_handlers[0])
    return YEVE_ACTION
 end
 
 function fightStrongAttack(entity, eve)
   local main = menuGetMain(entity)
    main.atk_state = PJ_ATTACK
-   attack(main, main.gg_handler, main.bg_handler, 2)
+   attack(main, main.gg_handler, main.bg_handlers[0], 2)
    return YEVE_ACTION
 end
 
@@ -417,7 +458,7 @@ function fightRecover(entity, eve)
    local main = menuGetMain(entity)
 
    main.atk_state = PJ_ATTACK
-   fightRecoverInternal(main, main.gg_handler, main.bg_handler)
+   fightRecoverInternal(main, main.gg_handler, main.bg_handlers[0])
    return YEVE_ACTION
 end
 
@@ -453,24 +494,61 @@ function useItemChooseTargetClean(main, canvas)
    main.cur_item_nb = nil
 end
 
+function chooseTargetLoc(main, side, nb_handles,  y)
+   local canvas = getCanvas(main)
+   local location = mk_location(canvas.ent["wid-pix"].h)
+   local arrow = nil
+
+   if (main.chooseTargetArrow) then
+      canvas:remove(main.chooseTargetArrow)
+   end
+
+   if side == chooseTargetLeft then
+      arrow = Entity.new_string("<--")
+   else
+      arrow = Entity.new_string("-->")
+   end
+
+   main.chooseTarget = side
+   main.chooseTargetArrow = canvas:new_text(side,
+					    location[nb_handles][y],
+					    arrow).ent
+   return YEVE_ACTION
+end
+
+function checkCanChooseTarget(main, nb_enemy)
+   return main.chooseTarget:to_int() == chooseTargetLeft and nb_enemy > 1
+end
+
 function useItemsChooseTarget(main, eve)
    local canvas = getCanvas(main)
+   local location = mk_location(canvas.ent["wid-pix"].h)
+   local nb_enemy = yeLen(main.bg_handlers)
 
    while eve:is_end() == false do
       if eve:is_key_left() then
-	 canvas:remove(main.chooseTargetArrow)
-	 main.chooseTarget = chooseTargetLeft
-	 main.chooseTargetArrow = canvas:new_text(chooseTargetLeft,
-						  chooseTargetY,
-						  Entity.new_string("<--")).ent
-	 return YEVE_ACTION
+	 if nb_enemy == 3 then
+	    chooseTargetY = 2
+	 else
+	    chooseTargetY = 1
+	 end
+	 return chooseTargetLoc(main, chooseTargetLeft, nb_enemy, chooseTargetY)
       elseif eve:is_key_right() then
-	 canvas:remove(main.chooseTargetArrow)
-	 main.chooseTarget = chooseTargetRight
-	 main.chooseTargetArrow = canvas:new_text(chooseTargetRight,
-						  chooseTargetY,
-						  Entity.new_string("-->")).ent
-	 return YEVE_ACTION
+	 return chooseTargetLoc(main, chooseTargetRight, 1, 1)
+      elseif eve:type() == YKEY_DOWN and eve:is_key_up() and
+	 checkCanChooseTarget(main, nb_enemy) then
+	 chooseTargetY = chooseTargetY - 1
+	 if chooseTargetY < 1 then
+	    chooseTargetY = nb_enemy
+	 end
+	 return chooseTargetLoc(main, chooseTargetLeft, nb_enemy, chooseTargetY)
+      elseif eve:type() == YKEY_DOWN and eve:is_key_down() and
+	 checkCanChooseTarget(main, nb_enemy) then
+	 chooseTargetY = chooseTargetY + 1
+	 if chooseTargetY > nb_enemy then
+	    chooseTargetY = 1
+	 end
+	 return chooseTargetLoc(main, chooseTargetLeft, nb_enemy, chooseTargetY)
       elseif eve:type() == YKEY_UP and eve:key() == Y_ESC_KEY then
 	 useItemChooseTargetClean(main, canvas)
 	 return YEVE_ACTION
@@ -478,14 +556,14 @@ function useItemsChooseTarget(main, eve)
 	 local target = nil
 	 main.atk_state = PJ_ATTACK
 	 if main.chooseTarget:to_int() == chooseTargetLeft then
-	    target = main.bg_handler
+	    target = main.bg_handlers[0]
 	 else
 	    target = main.gg_handler
 	 end
 	 local cin = main.cur_item_nb
 	 print("cin is no sin: ", cin)
 	 yeSetInt(cin, cin:to_int() - 1)
-	 useItem(main, main.inUseItem, target, main.gg_handler, main.bg_handler)
+	 useItem(main, main.inUseItem, target, main.gg_handler, main.bg_handlers[0])
 	 useItemChooseTargetClean(main, canvas)
 	 return YEVE_ACTION
       end
@@ -508,13 +586,9 @@ function useItemCallback(menu, eve)
 
    --local ret = useItem(main, item, main.gg_handler)
    if yeGetString(item.default_target) == "enemy" then
-      main.chooseTarget = chooseTargetLeft
-      main.chooseTargetArrow = canvas:new_text(chooseTargetLeft, chooseTargetY,
-					       Entity.new_string("<--")).ent
+      chooseTargetLoc(main, chooseTargetLeft, 1, 1)
    else
-      main.chooseTarget = chooseTargetRight
-      main.chooseTargetArrow = canvas:new_text(chooseTargetRight, chooseTargetY,
-					       Entity.new_string("-->")).ent
+      chooseTargetLoc(main, chooseTargetRight, 1, 1)
    end
    main.inUseItem = item
    yeReplaceBack(main, curItem.it_nb, "cur_item_nb")
@@ -562,7 +636,8 @@ function newDefaultGuy(guy, name, isEnemy)
 
    if guy.combots == nil then
       local cmb = nil
-      if guy.attack then
+      print("guy attack:", guy.attack, guy)
+     if guy.attack then
 	 cmb = combots[guy.attack:to_string()]
       else
 	 cmb = combots[0]
@@ -588,10 +663,6 @@ function newDefaultGuy(guy, name, isEnemy)
    return ret
 end
 
-function getCanvas(main)
-   return Canvas.wrapp(main.entries[0])
-end
-
 function fightInit(entity)
    entity = Entity.wrapp(entity)
    entity.action = Entity.new_func("fightAction")
@@ -600,7 +671,6 @@ function fightInit(entity)
    entity["turn-length"] = 30000
    entity.entries = {}
    entity.good_guy = newDefaultGuy(entity.player, "the good", false)
-   entity.bad_guy = newDefaultGuy(entity.enemy, "the bad", true)
    entity.atk_state = AWAIT_CMD
    ywTextureNewImg(modPath .. "/explosion.png",
 		   Rect.new(512 + 45, 32, 64, 64).ent,
@@ -631,8 +701,9 @@ function fightInit(entity)
    local ret = ywidNewWidget(entity, "container")
    local wid_pix = canvas["wid-pix"]
    entity.gg_handler = nil
-   entity.bg_handler = nil
+   entity.bg_handlers = nil
    local y_carac = wid_pix.h / 2
+   local locations = mk_location(wid_pix.h)
    ylpcsCreateHandler(entity.good_guy, canvas, entity, "gg_handler")
    ylpcsHandlerSetOrigXY(entity.gg_handler, good_orig_pos[1], good_orig_pos[2])
    ylpcsHandlerRefresh(entity.gg_handler)
@@ -640,28 +711,61 @@ function fightInit(entity)
 		    Pos.new(wid_pix.w - 100, y_carac).ent)
 
 
-   local bad_guy = entity.bad_guy
-   if bad_guy.clothes then
-      ylpcsCreateHandler(entity.bad_guy, canvas, entity, "bg_handler")
-      ylpcsHandlerSetOrigXY(entity.bg_handler, bad_orig_pos[1], bad_orig_pos[2])
-      ylpcsHandlerRefresh(entity.bg_handler)
-      ylpcsHandlerMove(entity.bg_handler, Pos.new(50, y_carac).ent)
-      entity.bg_handler.type = LPCS_T
-   else
-      local sp = bad_guy.sprite
-      local bg_h = Entity.new_array()
-      local canvas = Canvas.wrapp(canvas)
-      local s = yeGetIntAt(sp, "size")
+   local bad_guys = entity.enemy
 
-      entity.bg_handler = bg_h
-      bg_h.type = SPRITES_T
-      bg_h.canvas = canvas:new_img(50, y_carac, sp.path:to_string(),
-				   Rect.new(yeGetIntAt(sp, "x"),
-					    yeGetIntAt(sp, "y"),
-					    s, s)):cent()
-      bg_h.char = bad_guy
+   if yIsNil(bad_guys.max_life) == false then
+      bad_guys = Entity.new_array()
+
+      bad_guys[0] = entity.enemy
+      entity.enemy = bad_guys
+   end
+
+   local i = 0
+   local nb_bg = yeLen(bad_guys)
+   if nb_bg > 3 then
+      nb_bg = 3
    end
    canvas = Canvas.wrapp(canvas)
+   local bg_handlers = Entity.new_array(entity, "bg_handlers")
+   while i < nb_bg do
+      local bad_guy = newDefaultGuy(bad_guys[i], "the bad", true)
+      local bg_h = nil
+      local y = locations[nb_bg][i + 1]
+
+      if bad_guy.clothes then
+	 bg_h = Entity.wrapp(ylpcsCreateHandler(bad_guy, canvas.ent))
+	 ylpcsHandlerSetOrigXY(bg_h, bad_orig_pos[1], bad_orig_pos[2])
+	 ylpcsHandlerRefresh(bg_h)
+	 ylpcsHandlerMove(bg_h, Pos.new(50, y).ent)
+	 bg_h.type = LPCS_T
+      else
+	 local sp = bad_guy.sprite
+	 local s = yeGetIntAt(sp, "size")
+
+	 bg_h = Entity.new_array()
+	 bg_h.type = SPRITES_T
+	 bg_h.canvas = canvas:new_img(50, y, sp.path:to_string(),
+				      Rect.new(yeGetIntAt(sp, "x"),
+					       yeGetIntAt(sp, "y"),
+					       s, s)):cent()
+	 bg_h.char = bad_guy
+      end
+      bg_handlers[i] = bg_h
+      local life = bad_guy.life
+      local max_life = bad_guy.max_life
+      print("l ", life, " - ml ", max_life )
+      print(yeLen(bg_handlers))
+      bg_h.life_b0 = canvas:new_rect(50, y - 25,
+				     "rgba: 255 0 30 255",
+				     Pos.new(50, 10).ent).ent
+      bg_h.life_b = canvas:new_rect(50, y - 25,
+				    "rgba: 0 255 30 255",
+				    Pos.new(50 * life / max_life,
+					    10).ent).ent
+
+      i = i + 1
+   end
+   print(yeLen(entity.bg_handlers))
 
    local life = entity.good_guy.life
    local max_life = entity.good_guy.max_life
@@ -673,15 +777,6 @@ function fightInit(entity)
 					       Pos.new(50 * life / max_life,
 						       10).ent).ent
 
-   local life = entity.bad_guy.life
-   local max_life = entity.bad_guy.max_life
-   entity.bg_handler.life_b0 = canvas:new_rect(50, y_carac - 25,
-					       "rgba: 255 0 30 255",
-					       Pos.new(50, 10).ent).ent
-   entity.bg_handler.life_b = canvas:new_rect(50, y_carac - 25,
-					      "rgba: 0 255 30 255",
-					      Pos.new(50 * life / max_life,
-						      10).ent).ent
    return ret
 end
 
