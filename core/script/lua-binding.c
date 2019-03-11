@@ -370,6 +370,17 @@ int	luaentity_newarray(lua_State *L)
 }
 
 
+int	luaentity_newcopy(lua_State *L)
+{
+	Entity *val = luaEntityAt(L, 1);
+	const char *name = lua_tostring(L, 3);
+	Entity *father = NULL;
+	struct entityWrapper *ew = createEntityWrapper(L, 2, &father);
+
+	ew->e = yeCreateCopy(val, father, name);
+	return 1;
+}
+
 int	luaentity_newstring(lua_State *L)
 {
   const char *val = luaL_checkstring(L, 1);
