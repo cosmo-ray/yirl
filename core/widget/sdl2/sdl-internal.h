@@ -47,6 +47,16 @@ void sdlResize(YWidgetState *wid, int renderType);
 
 void sdlWidInit(YWidgetState *wid, int t);
 
+/**
+ * like init but does more stuff
+ */
+static int sdlWidInit2(YWidgetState *wid, int t)
+{
+	wid->renderStates[t].opac = malloc(sizeof(SDLWid));
+	sdlWidInit(wid, t);
+	return 0;
+}
+
 int sdlFillColorBg(SDLWid *swid, short r, short g, short b, short a);
 
 int sdlFillImgBg(SDLWid *swid, const char *cimg);

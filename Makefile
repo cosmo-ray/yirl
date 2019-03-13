@@ -47,6 +47,7 @@ SRC = 	$(SCRIPT_DIR)/lua-script.c \
 	$(WID_DIR)/container.c \
 	$(WID_DIR)/texture.c \
 	$(WID_DIR)/video.c \
+	$(SDL_WID_DIR)/video.c \
 	$(SDL_WID_DIR)/sdl.c \
 	$(SDL_WID_DIR)/map.c \
 	$(SDL_WID_DIR)/menu.c \

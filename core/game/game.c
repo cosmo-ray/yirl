@@ -46,6 +46,7 @@
 #include "map.h"
 #include "text-screen.h"
 #include "canvas.h"
+#include "video.h"
 #include "container.h"
 #include "native-script.h"
 #include "condition.h"
@@ -310,6 +311,7 @@ int ygInit(GameConfig *cfg)
   CHECK_AND_GOTO(ywTextScreenInit(), -1, error, "Text Screen init failed");
   CHECK_AND_GOTO(ywContainerInit(), -1, error, "Container init failed");
   CHECK_AND_GOTO(ywCanvasInit(), -1, error, "Canvas init failed");
+  CHECK_AND_GOTO(ywVideoInit(), -1, error, "Video init failed");
 
   for (GList *tmp = cfg->rConf; tmp; tmp = tmp->next) {
     //TODO check which render to use :)
@@ -330,6 +332,7 @@ int ygInit(GameConfig *cfg)
       CHECK_AND_GOTO(ysdl2RegistreMenu(), -1, error, "Menu init failed");
       CHECK_AND_GOTO(ysdl2RegistreMap(), -1, error, "Map init failed");
       CHECK_AND_GOTO(ysdl2RegistreCanvas(), -1, error, "Canvas SDL2 init failed");
+      CHECK_AND_GOTO(ysdl2RegistreVideo(), -1, error, "Video SDL2 init failed");
 #else
       DPRINT_ERR("yirl is not compille with SDL2 support");
 #endif

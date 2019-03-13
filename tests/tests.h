@@ -77,6 +77,8 @@ void fmtTxtScreen(void);
 
 void testCanvasSdl2(void);
 
+void testVideoSdl2(void);
+
 void testYWMenuCurses(void);
 void testYWMenuSdl2(void);
 void testPanelMenuSdl2(void);

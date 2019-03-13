@@ -14,3 +14,12 @@
 **You should have received a copy of the GNU Lesser General Public License
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+#ifndef YIRL_VIDEO_H_
+#define YIRL_VIDEO_H_
+
+int ywVideoInit(void);
+int ywVideoEnd(void);
+int ysdl2RegistreVideo(void);
+
+#endif

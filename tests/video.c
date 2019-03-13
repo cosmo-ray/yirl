@@ -15,28 +15,39 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <libavcodec/avcodec.h>
-#include <libavutil/imgutils.h>
-#include <libavformat/avformat.h>
-#include <libswscale/swscale.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <string.h>
 #include <glib.h>
-#include "sdl-internal.h"
-#include "video.h"
-#include "entity.h"
+#include "yirl/game.h"
+#include "yirl/pos.h"
+#include "yirl/video.h"
+#include "yirl/rect.h"
+#include "yirl/texture.h"
+#include "tests.h"
 
-static int render(YWidgetState *state, int t)
+void testVideoSdl2(void)
 {
-	printf("rendering video '%s'!!!\n",
-	       yeGetStringAt(state->entity, "video"));
-	return 0;
-}
+	  yeInitMem();
+	  GameConfig cfg;
+	  Entity *example = yeCreateArray(NULL, NULL);
+	  Entity *actions;
+	  YWidgetState *wid;
 
-int ysdl2RegistreVideo(void)
-{
-	return ywidRegistreTypeRender("video", ysdl2Type(),
-				      render, sdlWidInit2,
-				      sdlWidDestroy);
+	  g_assert(!ygInitGameConfig(&cfg, NULL, SDL2));
+	  g_assert(!ygInit(&cfg));
+
+	  yeCreateString("video", example, "<type>");
+	  actions = yeCreateArray(example, "actions");
+	  yeCreateString("QuitOnKeyDown", actions, NULL);
+	  yeCreateString("Mobile Suit Gundam - AMV - The Soldiers of Sorrow.flv",
+			 example, "video");
+
+	  wid = ywidNewWidget(example, NULL);
+	  g_assert(wid);
+	  ywidSetMainWid(wid);
+	  ygDoLoop();
+	  yeDestroy(example);
+	  ygEnd();
+	  ygCleanGameConfig(&cfg);
 }
