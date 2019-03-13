@@ -46,6 +46,7 @@ SRC = 	$(SCRIPT_DIR)/lua-script.c \
 	$(WID_DIR)/events.c \
 	$(WID_DIR)/container.c \
 	$(WID_DIR)/texture.c \
+	$(WID_DIR)/video.c \
 	$(SDL_WID_DIR)/sdl.c \
 	$(SDL_WID_DIR)/map.c \
 	$(SDL_WID_DIR)/menu.c \
@@ -68,7 +69,7 @@ GEN_LOADER_SRC = $(GEN_LOADER_DIR)/main.c
 GEN_LOADER_OBJ = $(GEN_LOADER_SRC:.c=.o)
 
 LDFLAGS += $(TCC_LIB_PATH)$(TCC_LIB_NAME)
-LDFLAGS += -L./
+LDFLAGS += -L./ -lavutil -lavformat -lavcodec
 LDFLAGS += $(shell $(PKG_CONFIG) --libs glib-2.0)
 LDFLAGS += $(LUA_LIB)
 LDFLAGS += $(VLC_LIB)

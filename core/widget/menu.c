@@ -118,6 +118,12 @@ static void *mnActions(va_list ap)
   return ret;
 }
 
+static int mnRend(YWidgetState *opac)
+{
+	ywidGenericRend(opac, t, render);
+	return 0;
+}
+
 void ywMenuUp(Entity *wid)
 {
   nmMenuUp(ywidGetState(wid));
@@ -140,19 +146,6 @@ static int mnInit(YWidgetState *opac, Entity *entity, void *args)
     yeCreateFunction("menuMove", ysNativeManager(), entity, "move");
   }
   ((YMenuState *)opac)->current = yeGetInt(yeGet(entity, "current"));
-  return 0;
-}
-
-static int mnDestroy(YWidgetState *opac)
-{
-  g_free(opac);
-  return 0;
-}
-
-static int mnRend(YWidgetState *opac)
-{
-  ywidGenericRend(opac, t, render);
-  opac->hasChange = 0;
   return 0;
 }
 
@@ -220,7 +213,7 @@ static void *alloc(void)
     return NULL;
   wstate->render = mnRend;
   wstate->init = mnInit;
-  wstate->destroy = mnDestroy;
+  wstate->destroy = ywDestroyState;
   wstate->handleEvent = mnEvent;
   wstate->type = t;
   return  ret;

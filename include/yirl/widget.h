@@ -272,6 +272,7 @@ int ywidDoTurn(YWidgetState *opac);
     ywidGenericCall(wid_, widType, func);		\
   } while (0);
 
+
 static inline int ywidType(void *opac)
 {
   return ((YWidgetState *)opac)->type;
@@ -290,6 +291,7 @@ YWidgetState *ywidNewWidget(Entity *entity,
 			    const char *type);
 
 void YWidDestroy(YWidgetState *wid);
+int ywDestroyState(YWidgetState *opac);
 
 int ywidNext(Entity *next);
 

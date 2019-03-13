@@ -537,6 +537,12 @@ void ywMapSetSmootMovement(Entity *map, int smoot)
   ywIsSmootOn = smoot;
 }
 
+int ywDestroyState(YWidgetState *opac)
+{
+  free(opac);
+  return 0;
+}
+
 void YWidDestroy(YWidgetState *wid)
 {
   if (!wid)
