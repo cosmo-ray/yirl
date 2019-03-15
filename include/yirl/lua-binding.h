@@ -58,6 +58,14 @@
     return 1;								\
   }
 
+#define LUA_IMPLEMENT_B_ES(func)					\
+  static inline int lua##func(lua_State *L)				\
+  {									\
+    lua_pushboolean(L, func(luaEntityAt(L, 1), lua_tostring(L, 2)));	\
+    return 1;								\
+  }
+
+
 #define LUA_IMPLEMENT_B_EE(func)					\
   static inline int lua##func(lua_State *L)				\
   {									\
@@ -157,6 +165,9 @@ int	luayeRefCount(lua_State *L);
 int	luayeConvert(lua_State *L);
 int	luayePatchCreate(lua_State *L);
 int	luayePatchAply(lua_State *L);
+
+/* bool */
+int	luayeGetBoolAt(lua_State *L);
 
 /* string */
 int	luaGetString(lua_State *L);
@@ -526,7 +537,11 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, yePatchCreate);
   YES_LUA_REGISTRE_CALL(sm, yePatchAply);
 
-  /* string */
+/* bool */
+  YES_LUA_REGISTRE_CALL(sm, yeGetBoolAt);
+
+
+/* string */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeGetString", luaGetString));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeSetString", luaSetString));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeCreateString", luaCreateString));

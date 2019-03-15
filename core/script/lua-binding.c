@@ -1199,6 +1199,13 @@ int	luayeGetIntAt(lua_State *L)
   return 1;
 }
 
+int	luayeGetBoolAt(lua_State *L)
+{
+  luaGet(L);
+  lua_pushboolean(L, yeGetInt(lua_touserdata(L, lua_gettop(L))));
+  return 1;
+}
+
 int	luaGetInt(lua_State *L)
 {
   lua_pushnumber(L, yeGetInt(luaEntityAt(L, 1)));

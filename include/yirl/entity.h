@@ -416,6 +416,8 @@ static inline uint32_t yeGetUInt(Entity *i) {
 
 #define yeGetIntAt(array, pos) (yeGetInt(yeGet(array, pos)))
 
+#define yeGetBoolAt(array, pos) (!!yeGetIntAt(array, pos))
+
 /**
  * @return 0 if @entity is NULL
  */
