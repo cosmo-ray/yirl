@@ -70,6 +70,22 @@ function newTextAndAnswerDialogue(canvas, x, y, dialogue, father, name)
    return ret
 end
 
+local function getText(dialogue, gc)
+   local tmpText = yeGet(dialogue, "text")
+
+   if yeType(tmpText) == YARRAY then
+      local array = tmpText
+      local j = 0
+      tmpText = yeCreateString("", gc)
+      while j < yeLen(array) do
+	 yeStringAddNl(tmpText, yeGetStringAt(array, j));
+	 j = j + 1
+      end
+   end
+
+   return tmpText
+end
+
 function reloadTextAndAnswerDialogue(canvas, x, y, dialogue, ret)
    local gc = yeCreateArray()
    local b0 = yeCreateArray(gc)
@@ -93,15 +109,7 @@ function reloadTextAndAnswerDialogue(canvas, x, y, dialogue, ret)
       local i = 0
       local tmpText = yeGet(dialogue, "text")
 
-      if yeType(tmpText) == YARRAY then
-	 local array = tmpText
-	 local j = 0
-	 tmpText = yeCreateString("", gc)
-	 while j < yeLen(array) do
-	    yeStringAddNl(tmpText, yeGetStringAt(array, j));
-	    j = j + 1
-	 end
-      end
+      tmpText = getText(dialogue, gc)
       tmpText = yeCreateYirlFmtString(tmpText, gc)
 
       tmp0 = ywCanvasNewText(canvas, x + border_threshold,
@@ -122,7 +130,8 @@ function reloadTextAndAnswerDialogue(canvas, x, y, dialogue, ret)
 	    local x = x0 + arrow_tot
 	    local y = ywPosY(ywCanvasObjPos(tmp0)) + txt_threshold + ywSizeH(size)
 
-	    tmpText = yeCreateYirlFmtString(yeGet(txt, "text"), gc)
+	    tmpText = getText(txt, gc)
+	    tmpText = yeCreateYirlFmtString(tmpText, gc)
 	    tmp0 = ywCanvasNewText(canvas, x, y, tmpText)
 	    size = ywCanvasObjSize(canvas, tmp0)
 	    if ywSizeW(size) + arrow_tot > w then
