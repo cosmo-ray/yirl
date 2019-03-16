@@ -453,20 +453,16 @@ int	luayIsNil(lua_State *l)
 
 int	luaGet(lua_State *L)
 {
-  if (lua_gettop(L) != 2 || !lua_isuserdata(L, 1)) {
-    goto error;
-  } else if (lua_isnumber(L, 2)) {
-    lua_pushlightuserdata(L, yeGetByIdx(luaEntityAt(L, 1),
-				       lua_tonumber (L, 2)));
-    return 1;
-  } else if (lua_isstring(L, 2)) {
-    lua_pushlightuserdata(L, yeGetByStrFast(luaEntityAt(L, 1),
-					    lua_tostring (L, 2)));
-    return 1;
-  }
- error:
-  luaL_error(L, "function arguments for yeGet are incorect");
-  return -1;
+	if (lua_isnumber(L, 2)) {
+		lua_pushlightuserdata(L, yeGetByIdx(luaEntityAt(L, 1),
+						    lua_tonumber (L, 2)));
+		return 1;
+	} else if (lua_isstring(L, 2)) {
+		lua_pushlightuserdata(L, yeGetByStrFast(luaEntityAt(L, 1),
+							lua_tostring (L, 2)));
+		return 1;
+	}
+	return 0;
 }
 
 int	luayeGetPush(lua_State *L)
