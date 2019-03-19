@@ -460,6 +460,7 @@ static inline const char *yeGetStringAtByStr(Entity *array, const char *key)
 }
 
 #define yeGetStringAt(array, pos) yeGetString(yeGet(array, pos))
+
 void *yeGetData(Entity *entity);
 
 #define yeGetDataAt(array, pos) yeGetData(yeGet(array, pos))
