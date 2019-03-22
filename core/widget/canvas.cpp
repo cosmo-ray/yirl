@@ -103,13 +103,13 @@ extern "C" {
 
   int ywCanvasMoveObj(Entity *obj, Entity *pos)
   {
-    ywPosAdd(yeGet(obj, 1), pos);
+    ywPosAdd(yeGet(obj, YCANVAS_POS_IDX), pos);
     return 0;
   }
 
   int ywCanvasMoveObjXY(Entity *obj, int x, int y)
   {
-    ywPosAddXY(yeGet(obj, 1), x, y);
+    ywPosAddXY(yeGet(obj, YCANVAS_POS_IDX), x, y);
     return 0;
   }
 
@@ -286,7 +286,7 @@ extern "C" {
 
   Entity *ywCanvasObjPos(Entity *obj)
   {
-    return yeGet(obj, 1);
+    return yeGet(obj, YCANVAS_POS_IDX);
   }
 
 
@@ -305,7 +305,7 @@ extern "C" {
 
   void ywCanvasObjSetPos(Entity *obj, int x, int y)
   {
-    ywPosSetInts(yeGet(obj, 1), x, y);
+    ywPosSetInts(yeGet(obj, YCANVAS_POS_IDX), x, y);
   }
 
   void ywCanvasObjSetPosByEntity(Entity *obj, Entity *p)

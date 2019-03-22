@@ -33,6 +33,9 @@ typedef enum  {
   YCanvasRotate,
 } YCanvasModifier;
 
+#define YCANVAS_TYPE_IDX 0
+#define YCANVAS_POS_IDX 1
+#define YCANVAS_DATA_IDX 2
 #define YCANVAS_IMG_IDX 6
 #define YCANVAS_SIZE_IDX 7
 

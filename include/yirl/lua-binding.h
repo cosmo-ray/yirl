@@ -30,64 +30,76 @@
 #include <lauxlib.h>
 
 #define LUA_IMPLEMENT_I_EI(func)					\
-  static inline int lua##func(lua_State *L)				\
-  {									\
-    lua_pushnumber(L, func(luaEntityAt(L, 1), lua_tointeger(L, 2)));	\
-    return 1;								\
-  }
+	static inline int lua##func(lua_State *L)			\
+	{								\
+		lua_pushnumber(L, func(luaEntityAt(L, 1),		\
+				       lua_tointeger(L, 2)));		\
+		return 1;						\
+	}
 
-#define LUA_IMPLEMENT_I_E(func)						\
-  static inline int lua##func(lua_State *L)				\
-  {									\
-    lua_pushnumber(L, func(luaEntityAt(L, 1)));				\
-    return 1;								\
-  }
+#define LUA_IMPLEMENT_I_E(func)					\
+	static inline int lua##func(lua_State *L)		\
+	{							\
+		lua_pushnumber(L, func(luaEntityAt(L, 1)));	\
+		return 1;					\
+	}
 
 #define LUA_IMPLEMENT_I_ES(func)					\
-  static inline int lua##func(lua_State *L)				\
-  {									\
-    lua_pushnumber(L, func(luaEntityAt(L, 1), lua_tostring(L, 2)));	\
-    return 1;								\
-  }
+	static inline int lua##func(lua_State *L)			\
+	{								\
+		lua_pushnumber(L, func(luaEntityAt(L, 1),		\
+				       lua_tostring(L, 2)));		\
+		return 1;						\
+	}
 
 
 #define LUA_IMPLEMENT_B_EI(func)					\
-  static inline int lua##func(lua_State *L)				\
-  {									\
-    lua_pushboolean(L, func(luaEntityAt(L, 1), lua_tointeger(L, 2)));	\
-    return 1;								\
-  }
+	static inline int lua##func(lua_State *L)			\
+	{								\
+		lua_pushboolean(L, func(luaEntityAt(L, 1),		\
+					lua_tointeger(L, 2)));		\
+		return 1;						\
+	}
 
 #define LUA_IMPLEMENT_B_ES(func)					\
-  static inline int lua##func(lua_State *L)				\
-  {									\
-    lua_pushboolean(L, func(luaEntityAt(L, 1), lua_tostring(L, 2)));	\
-    return 1;								\
-  }
+	static inline int lua##func(lua_State *L)			\
+	{								\
+		lua_pushboolean(L, func(luaEntityAt(L, 1),		\
+					lua_tostring(L, 2)));		\
+		return 1;						\
+	}
 
 
 #define LUA_IMPLEMENT_B_EE(func)					\
-  static inline int lua##func(lua_State *L)				\
-  {									\
-    lua_pushboolean(L, func(luaEntityAt(L, 1), luaEntityAt(L, 2)));	\
-    return 1;								\
-  }
+	static inline int lua##func(lua_State *L)			\
+	{								\
+		lua_pushboolean(L, func(luaEntityAt(L, 1),		\
+					luaEntityAt(L, 2)));		\
+		return 1;						\
+	}
+
+#define LUA_IMPLEMENT_V_EE(func)				\
+	static inline int lua##func(lua_State *L)		\
+	{							\
+		func(luaEntityAt(L, 1), luaEntityAt(L, 2));	\
+		return 0;					\
+	}
 
 #define LUA_IMPLEMENT_E_E(func)						\
-  static inline int lua##func(lua_State *L)				\
-  {									\
-    Entity *ret = func(luaEntityAt(L, 1));				\
-    if (ret) lua_pushlightuserdata(L, ret); else lua_pushnil(L);	\
-    return 1;								\
-  }
+	static inline int lua##func(lua_State *L)			\
+	{								\
+		Entity *ret = func(luaEntityAt(L, 1));			\
+		if (ret) lua_pushlightuserdata(L, ret); else lua_pushnil(L); \
+		return 1;						\
+	}
 
 #define LUA_IMPLEMENT_E_EE(func)					\
-  static inline int lua##func(lua_State *L)				\
-  {									\
-    Entity *ret = func(luaEntityAt(L, 1), luaEntityAt(L, 2));		\
-    if (ret) lua_pushlightuserdata(L, ret); else lua_pushnil(L);	\
-    return 1;								\
-  }
+	static inline int lua##func(lua_State *L)			\
+	{								\
+		Entity *ret = func(luaEntityAt(L, 1), luaEntityAt(L, 2)); \
+		if (ret) lua_pushlightuserdata(L, ret); else lua_pushnil(L); \
+		return 1;						\
+	}
 
 
 /* Entity objets */
@@ -303,7 +315,8 @@ int	luaywCanvasSetWeight(lua_State *L);
 int	luaywCanvasDisableWeight(lua_State *L);
 int	luaywCanvasEnableWeight(lua_State *L);
 int	luaywCanvasDoPathfinding(lua_State *L);
-LUA_IMPLEMENT_B_EE(ywCanvasCheckColisionsRectObj)
+LUA_IMPLEMENT_B_EE(ywCanvasCheckColisionsRectObj);
+LUA_IMPLEMENT_V_EE(ywCanvasStringSet);
 
 /* texture */
 int	luaywTextureNewImg(lua_State *L);
@@ -694,6 +707,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, ywCanvasSetWeight);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasDoPathfinding);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasCheckColisionsRectObj);
+  YES_LUA_REGISTRE_CALL(sm, ywCanvasStringSet);
 
   /* texture */
   YES_LUA_REGISTRE_CALL(sm, ywTextureNewImg);
