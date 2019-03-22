@@ -92,6 +92,9 @@ int yeCheckCondition(Entity *condition)
 		} else if (!yeStrCmp(actionEnt, "and")) {
 			return yeCheckCondition(yeGet(condition, 1)) &&
 				yeCheckCondition(yeGet(condition, 2));
+		} else if (!yeStrCmp(actionEnt, "or")) {
+			return yeCheckCondition(yeGet(condition, 1)) ||
+				yeCheckCondition(yeGet(condition, 2));
 		} else if (!yeStrCmp(actionEnt, "exist")) {
 			return !!ygGet(yeGetStringAt(condition, 1));
 		}
