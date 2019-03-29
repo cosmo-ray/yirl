@@ -503,10 +503,13 @@ int yePushBackExt(Entity *entity, Entity *toPush,
 int yePushAt(Entity *array, Entity *toPush, int idx);
 
 /**
- * Insert arrat at idx, might be ways lot eavierst that yePushAt, because it
+ * Insert toPush at idx, might be ways lot eavierst that yePushAt, because it
  * move all elems after idx
  */
 int yeInsertAt(Entity *array, Entity *toPush, size_t idx, const char *name);
+
+#define yePushFront(array, toPush, name)	\
+	yeInsertAt(array, toPush, 0, name)
 
 /**
  * @param	array the array

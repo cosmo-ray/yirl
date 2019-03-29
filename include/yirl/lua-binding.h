@@ -164,6 +164,7 @@ int	luaYeReplaceAtIdx(lua_State *L);
 int	luaYeSwapElems(lua_State *L);
 int	luayeRenameIdxStr(lua_State *L);
 int	luayeGetPush(lua_State *L);
+LUA_IMPLEMENT_B_EE(yeDoesInclude);
 
 /* Entity */
 int	luaCopy(lua_State *L);
@@ -535,6 +536,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeSwapElems", luaYeSwapElems));
   YES_LUA_REGISTRE_CALL(sm, yeRenameIdxStr);
   YES_LUA_REGISTRE_CALL(sm, yeGetPush);
+  YES_LUA_REGISTRE_CALL(sm, yeDoesInclude);
 
   /* Entity */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeCopy", luaCopy));

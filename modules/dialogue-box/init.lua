@@ -248,6 +248,10 @@ function setPos(box, x, y)
    ywCanvasObjSetPos(yeGet(box, 3), x, y)
 end
 
+function getCurAnswer(box)
+   return getAnswer(box, getPos(box))
+end
+
 function initDialogueBox(mod)
    yeCreateFunction("newTextAndAnswerDialogue", mod, "new_menu")
    yeCreateFunction("newTextDialogue", mod, "new_text")
@@ -257,6 +261,7 @@ function initDialogueBox(mod)
    yeCreateFunction("rmTextDialogue", mod, "rm")
    yeCreateFunction("posArray", mod, "moveAnswer")
    yeCreateFunction("getAnswer", mod, "getAnswer")
+   yeCreateFunction("getCurAnswer", mod, "getCurAnswer")
    yeCreateFunction("getAnswers", mod, "getAnswers")
    yeCreateFunction("getDialogue", mod, "getDialogue")
    yeCreateFunction("reload", mod, "reload")
