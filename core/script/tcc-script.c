@@ -63,13 +63,11 @@ static int gIf(Entity *str)
 	while (1) {
 		tcc_next();
 		if (tcc_tok() == '(') {
-			printf("p: %d\n", parentesis);
 			yeStringAddCh(str, '(');
 			++parentesis;
 			continue;
 		}
 		if (tcc_tok() == ')') {
-			printf("p: %d\n", parentesis);
 			yeStringAddCh(str, ')');
 			if (!parentesis--)
 				return 0;
@@ -183,7 +181,6 @@ static int gCreateEnt(TCCUserAction *ua, Entity *str,
 				goto getter;
 			} else if (tcc_sym_is_decimal(s)) {
 				gCreateEntFunc(str, "Int", pos);
-				printf("%s\n", curTok);
 			}
 		}
 		yeStringAdd(str, curTok);
@@ -214,7 +211,6 @@ static int tccYEntityBlockCallback(TCCUserAction *ua)
 	int scope = 0;
 	int last_tok_was_else = 0;
 	YE_NEW(string, str, "");
-	printf("Entity block !!!!!\n");
 
 	tcc_next();
 	curTok = tcc_tok_str();
@@ -230,7 +226,6 @@ static int tccYEntityBlockCallback(TCCUserAction *ua)
 			continue;
 		}
 		if (tcc_tok() == '}') {
-			printf("%d\n", scope);
 			if (!scope--)
 				break;
 			yeStringAddCh(str, '}');
@@ -300,7 +295,6 @@ static int tccYEntityBlockCallback(TCCUserAction *ua)
 				yeStringAdd(tmp_getter, ".");
 		}
 
-		printf("nb dots: %d !!!!!\n", nbDots);
 		if (nbDots > 2)
 			real_getter = tmp_getter;
 		yeStringAdd(tmp_getter, "\")");
