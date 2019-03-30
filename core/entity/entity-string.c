@@ -150,8 +150,8 @@ int yeStringAdd(Entity *ent, const char *str)
     YE_TO_STRING(ent)->value = realloc(YE_TO_STRING(ent)->value,
 				       totalLength + 1);
     char *beg = YE_TO_STRING(ent)->value + origLen;
-    strncpy(beg, str, strLen);
-    beg[strLen] = '\0';
+    /* as strlen is use, strcpy is as safe as strlcpy */
+    strcpy(beg, str);
   } else {
     YE_TO_STRING(ent)->value = g_strdup_printf("%s%s", YE_TO_STRING(ent)->value,
 					       str);
