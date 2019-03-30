@@ -11,6 +11,20 @@ File = {}
 
 -- Should have a C wrapper, but I'm lazy
 
+function yIsLuaString(str)
+   if type(str) == "string" then
+      return true
+   end
+   return false
+end
+
+function yLuaString(str)
+   if yIsLuaString(str) then
+      return str
+   end
+   return yeGetString(str)
+end
+
 function yeGetStringAt(e, i)
    return yeGetString(yeGet(e, i))
 end
@@ -297,13 +311,6 @@ end
 function Canvas:new_text(x, y, txt)
    local ret = ywCanvasNewText(self.ent, x, y, txt)
    return CanvasObj.wrapp(ret)
-end
-
-function isLuaString(str)
-   if type(str) == "string" then
-      return true
-   end
-   return false
 end
 
 function Canvas:new_rect(x, y, r, pos)
