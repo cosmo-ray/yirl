@@ -299,6 +299,13 @@ function Canvas:new_text(x, y, txt)
    return CanvasObj.wrapp(ret)
 end
 
+function isLuaString(str)
+   if type(str) == "string" then
+      return true
+   end
+   return false
+end
+
 function Canvas:new_rect(x, y, r, pos)
    if type(r) == "string" then
       local color = r
