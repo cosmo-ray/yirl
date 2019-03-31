@@ -216,7 +216,13 @@ static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
 	if (yeGetIntAt(wid, "isBlock") == 1) {
 		dialogue = yeGet(wid, "block");
 	} else {
-		dialogue = yeGet(yeGet(wid, "dialogue"), yeGetInt(curent));
+		if (yeIsNum(curent)) {
+			dialogue = yeGet(yeGet(wid, "dialogue"),
+					 yeGetInt(curent));
+		} else {
+			dialogue = yeGet(yeGet(wid, "dialogue"),
+					 yeGetString(curent));
+		}
 	}
 	txt = getText(menu, dialogue);
 	answers = yeGet(dialogue, "answers");
@@ -413,8 +419,14 @@ void *dialogueGoto(int nbArgs, void **args)
 {
   Entity *main = getMenuDrv(args[0])->getMain(args[0]);
   struct mainDrv *drv = getMainDrv(main);
+  int idx;
 
-  yeReCreateInt(yeGetInt(args[2]), main, "active_dialogue");
+  if (yeIsNum(args[2]))
+	  idx = yeGetInt(args[2]);
+  else
+	  idx = yeArrayIdx(yeGet(main, "dialogue"), args[2]);
+
+  yeReCreateInt(idx, main, "active_dialogue");
   printfTextAndAnswer(main, drv->getTextWidget(main), args[0], args[2]);
   return (void *)NOACTION;
 }
