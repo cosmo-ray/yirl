@@ -33,7 +33,6 @@ static YManagerAllocator widgetTab = {
 	0
 };
 
-
 static uint64_t rendersMask = 0;
 
 /* struct which define what are common to every render of the same type */
@@ -584,6 +583,8 @@ static void trackMouse(Entity *event)
 	}
 }
 
+int64_t ywidTurnTimer;
+
 int ywidDoTurn(YWidgetState *opac)
 {
 	int turnLength = ywTurnLengthOverwrite >= 0 ? ywTurnLengthOverwrite :
@@ -598,10 +599,23 @@ int ywidDoTurn(YWidgetState *opac)
 	if (!cnt)
 		cnt = YTimerCreate();
 
-	if (turnLength > 0) {
+	ywidTurnTimer = YTimerGet(cnt);
+	if (turnLength == Y_REQUEST_ANIMATION_FRAME) {
+		YTimerReset(cnt);
+		for (event = ywidGenericPollEvent(), head = event; event;
+		     event = ywidGenericPollEvent()) {
+
+			trackMouse(event);
+			if (old) {
+				yePushAt(old, event, YEVE_NEXT);
+				yeDestroy(event); /* decrement event refcount */
+			}
+			old = event;
+		}
+	} else if (turnLength > 0) {
 		int64_t i = 0;
 
-		i = turnLength - YTimerGet(cnt);
+		i = turnLength - ywidTurnTimer;
 		ywTurnPecent = 100 - (i * 100 / turnLength);
 		while (i > 0 && ywTurnPecent < 95) {
 			int newPercent;

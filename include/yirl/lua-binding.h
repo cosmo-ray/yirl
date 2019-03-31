@@ -216,6 +216,7 @@ int	luaNewWidget(lua_State *L);
 int	luaWidNext(lua_State *L);
 int	luaAddSubType(lua_State *L);
 int	luaywidAction(lua_State *L);
+int	luaywidTurnTimer(lua_State *L);
 
 /* event */
 int	luaWidNextEve(lua_State *L);
@@ -425,6 +426,8 @@ static inline int	yesLuaRegister(void *sm)
   LUA_SET_INT_GLOBAL_VAL(sm, Y_CNT_STACK, CNT_STACK);
   LUA_SET_INT_GLOBAL_VAL(sm, Y_CNT_NONE, CNT_NONE);
 
+  LUA_SET_INT_GLOBAL(sm, Y_REQUEST_ANIMATION_FRAME);
+
   lua_pushnumber(L, YKEY_DOWN);
   lua_setglobal(L, "YKEY_DOWN");
   lua_pushnumber(L, YKEY_UP);
@@ -588,6 +591,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidNext", luaWidNext));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidAddSubType", luaAddSubType));
   YES_LUA_REGISTRE_CALL(sm, ywidAction);
+  YES_LUA_REGISTRE_CALL(sm, ywidTurnTimer);
 
   /* evenements */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidNextEve", luaWidNextEve));

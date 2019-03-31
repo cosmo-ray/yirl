@@ -836,113 +836,107 @@ int	luaywTextureMerge(lua_State *L)
 
 int	luaYeIncrRef(lua_State *L)
 {
-  yeIncrRef(luaEntityAt(L, 1));
-  return 0;
+	yeIncrRef(luaEntityAt(L, 1));
+	return 0;
 }
 
 int	luaYeToLuaString(lua_State *L)
 {
-  char *str = yeToCStr(luaEntityAt(L, 1), 10, 0);
+	char *str = yeToCStr(luaEntityAt(L, 1), 10, 0);
 
-  lua_pushstring(L, str);
-  free(str);
-  return 1;
+	lua_pushstring(L, str);
+	free(str);
+	return 1;
+}
+
+int	luaywidTurnTimer(lua_State *L)
+{
+	lua_pushnumber(L, ywidTurnTimer);
+	return 1;
 }
 
 int	luaSetMainWid(lua_State *L)
 {
-  ywidSetMainWid(lua_touserdata(L, 1));
-  return 0;
+	ywidSetMainWid(lua_touserdata(L, 1));
+	return 0;
 }
 
 int	luaAddSubType(lua_State *L)
 {
-  ywidAddSubType(luaEntityAt(L, 1));
-  return 0;
+	ywidAddSubType(luaEntityAt(L, 1));
+	return 0;
 }
 
 
 int	luaNewWidget(lua_State *L)
 {
-  lua_pushlightuserdata(L, ywidNewWidget(luaEntityAt(L, 1),
-					 lua_tostring(L, 2)));
-  return 1;
+	lua_pushlightuserdata(L, ywidNewWidget(luaEntityAt(L, 1),
+					       lua_tostring(L, 2)));
+	return 1;
 }
 
 int	luaCreateArray(lua_State *L)
 {
-  lua_pushlightuserdata(L, yeCreateArray(luaEntityAt(L, 1),
-					 lua_tostring(L, 2)));
-  return 1;
+	lua_pushlightuserdata(L, yeCreateArray(luaEntityAt(L, 1),
+					       lua_tostring(L, 2)));
+	return 1;
 }
 
 int	luaCreateString(lua_State *L)
 {
-  if (!lua_isstring(L, 1)) {
-    luaL_error(L, "missing string");
-    return -1;
-  }
-  Entity *ret = yeCreateString(lua_tostring(L, 1),
-			       luaEntityAt(L, 2),
-			       lua_tostring(L, 3));
-  lua_pushlightuserdata(L, ret);
-  return 1;
+	Entity *ret = yeCreateString(lua_tostring(L, 1),
+				     luaEntityAt(L, 2),
+				     lua_tostring(L, 3));
+	lua_pushlightuserdata(L, ret);
+	return 1;
 }
 
 int	luaCreateInt(lua_State *L)
 {
-  if (!lua_isnumber(L, 1)) {
-    luaL_error(L, "missing string");
-    return -1;
-  }
-  lua_pushlightuserdata(L, yeCreateInt((int)lua_tonumber(L, 1),
-				       luaEntityAt(L, 2),
-				       lua_tostring(L, 3)));
-  return 1;
+	lua_pushlightuserdata(L, yeCreateInt((int)lua_tonumber(L, 1),
+					     luaEntityAt(L, 2),
+					     lua_tostring(L, 3)));
+	return 1;
 }
 
 int	luaCreateFloat(lua_State *L)
 {
-  if (!lua_isnumber(L, 1)) {
-    luaL_error(L, "missing string");
-    return -1;
-  }
-  lua_pushlightuserdata(L, yeCreateFloat(lua_tonumber(L, 1),
-					 luaEntityAt(L, 2),
-					 lua_tostring(L, 3)));
-  return 1;
+	lua_pushlightuserdata(L, yeCreateFloat(lua_tonumber(L, 1),
+					       luaEntityAt(L, 2),
+					       lua_tostring(L, 3)));
+	return 1;
 }
 
 int	luaySoundLoad(lua_State *L)
 {
-  lua_pushnumber(L, ySoundLoad(lua_tostring(L, 1)));
-  return 1;
+	lua_pushnumber(L, ySoundLoad(lua_tostring(L, 1)));
+	return 1;
 }
 
 int	luaySoundPlayLoop(lua_State *L)
 {
-  lua_pushnumber(L, ySoundPlayLoop(luaNumberAt(L, 1)));
-  return 1;
+	lua_pushnumber(L, ySoundPlayLoop(luaNumberAt(L, 1)));
+	return 1;
 }
 
 int	luaySoundPlay(lua_State *L)
 {
-  lua_pushnumber(L, ySoundPlay(luaNumberAt(L, 1)));
-  return 1;
+	lua_pushnumber(L, ySoundPlay(luaNumberAt(L, 1)));
+	return 1;
 }
 
 int	luaySoundStop(lua_State *L)
 {
-  lua_pushnumber(L, ySoundStop(luaNumberAt(L, 1)));
-  return 1;
+	lua_pushnumber(L, ySoundStop(luaNumberAt(L, 1)));
+	return 1;
 }
 
 int	luaywMenuCallActionOn(lua_State *L)
 {
-  lua_pushnumber(L, ywMenuCallActionOn(luaEntityAt(L, 1),
-				       luaEntityAt(L, 2),
-				       lua_tonumber(L, 3)));
-  return 1;
+	lua_pushnumber(L, ywMenuCallActionOn(luaEntityAt(L, 1),
+					     luaEntityAt(L, 2),
+					     lua_tonumber(L, 3)));
+	return 1;
 }
 
 int	luaywMenuGetCurrent(lua_State *L)
