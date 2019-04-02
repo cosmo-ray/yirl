@@ -608,7 +608,8 @@ int ywidDoTurn(YWidgetState *opac)
 			trackMouse(event);
 			if (old) {
 				yePushAt(old, event, YEVE_NEXT);
-				yeDestroy(event); /* decrement event refcount */
+				/* decrement event refcount */
+				yeDestroy(event);
 			}
 			old = event;
 		}

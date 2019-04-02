@@ -17,6 +17,7 @@
 
 #include	<lauxlib.h>
 #include	<stdlib.h>
+#include	<unistd.h>
 #include	"lua-binding.h"
 #include	"debug.h"
 #include	"entity.h"
@@ -1386,6 +1387,12 @@ int	luayuiMkdir(lua_State *L)
 {
   yuiMkdir(lua_tostring(L, 1));
   return 0;
+}
+
+int	luayuiUsleep(lua_State *L)
+{
+	usleep(luaNumberAt(L, 1));
+	return 0;
 }
 
 int	luaywPosAngle(lua_State *L)
