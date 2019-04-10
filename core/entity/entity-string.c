@@ -492,6 +492,8 @@ Entity *yeCreateYirlFmtString(Entity *fmt, Entity *father, const char *name)
   Entity *ret = yeReCreateString("", father, name);
   const char *txt = yeGetString(fmt);
 
+  if (unlikely(!txt))
+	  return NULL;
   for (int i = 0; txt[i]; ++i) {
     if (txt[i] == '{') {
       char tmp;
