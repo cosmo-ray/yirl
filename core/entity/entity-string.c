@@ -27,6 +27,21 @@
 #include	"script.h"
 #include	"game.h"
 
+int yeStrChrIdx(Entity *str_ent, char c)
+{
+	const char *str = yeGetString(str_ent);
+	const char *p;
+	intptr_t r;
+	if (unlikely(!str))
+		return -1;
+	p = strchr(str, c);
+	if (unlikely(!p))
+		return -1;
+	r = p - str;
+
+	return r;
+}
+
 Entity *yeToLower(Entity *e)
 {
   char *c = (char *)yeGetString(e);
@@ -76,6 +91,18 @@ signed char yeStringReplaceCharAt(Entity *ent, char c, size_t at)
   ret = str[at];
   str[at] = c;
   return ret;
+}
+
+int yeStringReplaceStrAt(Entity *haystack, const char *needle, size_t at)
+{
+	int l = strlen(needle);
+
+	for (int i = 0; i < l; ++i) {
+		char c = needle[i];
+		if (unlikely(yeStringReplaceCharAt(haystack, c, at + i) < 0))
+			return -1;
+	}
+	return 0;
 }
 
 int yeStringReplace(Entity *ent, const char *substr, const char *replacement)

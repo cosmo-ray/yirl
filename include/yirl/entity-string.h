@@ -33,6 +33,13 @@ int yeStrCaseCmp(Entity *ent, const char *str);
  */
 int yeStringAdd(Entity *ent, const char *str);
 
+/**
+ * @return the index of c in ent or -1
+ * note: this function cast an intptr_t in int it's undefined behavior in
+ * case of overflow or when case pointer are fuck up
+ * in a complete esoteric architecture
+ */
+int yeStrChrIdx(Entity *str_ent, char c);
 
 /**
  * @brief Add @c to the string entity @Ent
@@ -72,6 +79,8 @@ int yeStringReplace(Entity *ent, const char *substr, const char *replacement);
  * @return the character at @ent[@at] before it was replace, or -1
  */
 signed char yeStringReplaceCharAt(Entity *ent, char c, size_t at);
+
+int yeStringReplaceStrAt(Entity *haystack, const char *needle, size_t at);
 
 /**
  * @brief change the len of the string, to @newEndPos + 1

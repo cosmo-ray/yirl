@@ -91,6 +91,18 @@ static void gCreateEntFunc(Entity *str, const char *t, int p)
 	}
 }
 
+static void gAddEntName(Entity *str, Entity *tmp_name)
+{
+	if (tmp_name) {
+		yeStringAddCh(str, '"');
+		yeAddEnt(str, tmp_name);
+		yeStringAddCh(str, '"');
+	} else {
+		yeStringAdd(str, "NULL");
+	}
+
+}
+
 static int gCreateEnt(TCCUserAction *ua, Entity *str,
 		      Entity *real_getter, Entity *tmp_name,
 		      int neested, int pos, int isGetterArray)
@@ -128,8 +140,13 @@ static int gCreateEnt(TCCUserAction *ua, Entity *str,
 			yeStringAdd(str, ");");
 		}
 	again:
+		tcc_next();
+		if (tcc_tok() == close) {
+			yeStringAdd(str, "};\n");
+			return 0;
+		}
+
 		if (tok == '{') {
-			tcc_next();
 			if (tcc_tok_is_decimal(tcc_tok())) {
 				arrayStart = atoi(tcc_tok_str());
 				if (arrayStart < 0)
@@ -154,7 +171,6 @@ static int gCreateEnt(TCCUserAction *ua, Entity *str,
 					   1);
 			}
 		} else {
-			tcc_next();
 			gCreateEnt(ua, str, father_name, NULL, neested + 1,
 				   -1, 1);
 		}
@@ -181,6 +197,25 @@ static int gCreateEnt(TCCUserAction *ua, Entity *str,
 				goto getter;
 			} else if (tcc_sym_is_decimal(s)) {
 				gCreateEntFunc(str, "Int", pos);
+			} else {
+				// assuming pointer
+				printf("push maybe ptr '%s'\n", curTok);
+				if (pos >= 0)
+					yeStringAdd(str, "yeAttach(");
+				else
+					yeStringAdd(str, "yeReplaceBack(");
+				yeAddEnt(str, real_getter);
+				yeStringAddCh(str, ',');
+				yeStringAdd(str, curTok);
+				yeStringAddCh(str, ',');
+				gAddEntName(str, tmp_name);
+				if (pos >= 0) {
+					yeStringAddCh(str, ',');
+					yeStringAddInt(str, pos);
+					yeStringAdd(str, ", 0");
+				}
+				yeStringAdd(str, ");\n");
+				return 0;
 			}
 		}
 		yeStringAdd(str, curTok);
@@ -188,13 +223,7 @@ static int gCreateEnt(TCCUserAction *ua, Entity *str,
 	getter:
 		yeAddEnt(str, real_getter);
 		yeStringAddCh(str, ',');
-		if (tmp_name) {
-			yeStringAddCh(str, '"');
-			yeAddEnt(str, tmp_name);
-			yeStringAddCh(str, '"');
-		} else {
-			yeStringAdd(str, "NULL");
-		}
+		gAddEntName(str, tmp_name);
 		if (pos >=0 && !(tcc_tok_is_ident(tok) &&
 				 tcc_sym_is_function(s))) {
 			yeStringAddCh(str, ',');

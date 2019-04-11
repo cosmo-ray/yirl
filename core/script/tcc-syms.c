@@ -123,7 +123,9 @@ void	tccAddSyms(TCCState *l)
   ADD_SYM(ywtextScreenResetTimer);
   ADD_SYM(ywidAction);
   ADD_SYM(yeStringReplaceCharAt);
+  ADD_SYM(yeStringReplaceStrAt);
   ADD_SYM(ywTextScreenReformat);
+  ADD_SYM(yeStrChrIdx);
 #if defined(__unix__) || defined(__APPLE__)
   tcc_add_symbol(l, "yuiDebugPrint", yuiDebugPrint);
 #endif
