@@ -31,16 +31,70 @@ int yeStrChrIdx(Entity *str_ent, char c)
 {
 	const char *str = yeGetString(str_ent);
 	const char *p;
-	intptr_t r;
+
 	if (unlikely(!str))
 		return -1;
 	p = strchr(str, c);
 	if (unlikely(!p))
 		return -1;
-	r = p - str;
-
-	return r;
+	return p - str;
 }
+
+int yeStrIsRangeChr(Entity *str_ent, int beg, int end, char c)
+{
+	const char *str = yeGetString(str_ent);
+	int l = yeLen(str_ent);
+
+	if (unlikely(!str))
+		return 0;
+	if (beg > end || end > l)
+		return 0;
+	for (; beg < end; ++beg) {
+		if (str[beg] != c)
+			return 0;
+	}
+	return 1;
+}
+
+int yeStrIsRangeStr(Entity *str_ent, int beg, int end, const char *str)
+{
+	int32_t m;
+
+	if (!str)
+		return 0;
+	for (;*str; ++str) {
+		m |= yeStrIsRangeChr(str_ent, beg, end, *str);
+	}
+	return !!m;
+}
+
+int yeStrDoesRangeContainChr(Entity *str_ent, int beg, int end, char c)
+{
+	const char *str = yeGetString(str_ent);
+	int l = yeLen(str_ent);
+
+	if (unlikely(!str))
+		return 0;
+	if (beg > end || end > l)
+		return 0;
+	for (; beg < end; ++beg) {
+		if (str[beg] == c)
+			return 1;
+	}
+	return 0;
+}
+
+int yeStrDoesRangeContainStr(Entity *str_ent, int beg, int end, const char *str)
+{
+	if (!str)
+		return 0;
+	for (;*str; ++str) {
+		if (yeStrIsRangeChr(str_ent, beg, end, *str))
+			return 1;
+	}
+	return 0;
+}
+
 
 Entity *yeToLower(Entity *e)
 {

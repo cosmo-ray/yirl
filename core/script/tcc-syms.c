@@ -126,6 +126,10 @@ void	tccAddSyms(TCCState *l)
   ADD_SYM(yeStringReplaceStrAt);
   ADD_SYM(ywTextScreenReformat);
   ADD_SYM(yeStrChrIdx);
+  ADD_SYM(yeStrIsRangeChr);
+  ADD_SYM(yeStrIsRangeStr);
+  ADD_SYM(yeStrDoesRangeContainChr);
+  ADD_SYM(yeStrDoesRangeContainStr);
 #if defined(__unix__) || defined(__APPLE__)
   tcc_add_symbol(l, "yuiDebugPrint", yuiDebugPrint);
 #endif

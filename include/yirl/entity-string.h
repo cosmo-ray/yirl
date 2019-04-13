@@ -42,6 +42,15 @@ int yeStringAdd(Entity *ent, const char *str);
 int yeStrChrIdx(Entity *str_ent, char c);
 
 /**
+ * check that all char from beg to end are only c or include inside str
+ */
+int yeStrIsRangeChr(Entity *str_ent, int beg, int end, char c);
+int yeStrIsRangeStr(Entity *str_ent, int beg, int end, const char *str);
+
+int yeStrDoesRangeContainChr(Entity *str_ent, int beg, int end, char c);
+int yeStrDoesRangeContainStr(Entity *str_ent, int beg, int end, const char *str);
+
+/**
  * @brief Add @c to the string entity @Ent
  */
 int yeStringAddCh(Entity *ent, char c);
