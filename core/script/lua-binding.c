@@ -230,33 +230,33 @@ int	luaentity_newindex(lua_State *L)
 
 int	luaentity_index(lua_State *L)
 {
-  struct entityWrapper *ew = luaL_checkudata(L, 1, "Entity");
-  int isNumber = lua_isnumber(L, 2);
-  int isString = lua_isstring(L, 2);
-  Entity *ret;
-  struct entityWrapper *ew_ret;
-  int isbaseMethode;
+	struct entityWrapper *ew = luaL_checkudata(L, 1, "Entity");
+	int isNumber = lua_isnumber(L, 2);
+	int isString = lua_isstring(L, 2);
+	Entity *ret;
+	struct entityWrapper *ew_ret;
+	int isbaseMethode;
 
-  lua_getmetatable(L, 1);
-  lua_pushvalue(L, 2);
-  lua_rawget(L, 3);
-  isbaseMethode = !!lua_type(L, lua_gettop(L));
-  if (isbaseMethode) {
-    return 1;
-  }
+	lua_getmetatable(L, 1);
+	lua_pushvalue(L, 2);
+	lua_rawget(L, 3);
+	isbaseMethode = !!lua_type(L, lua_gettop(L));
+	if (isbaseMethode) {
+		return 1;
+	}
 
-  if (isNumber) {
-    ret = yeGetByIdx(ew->e, lua_tonumber(L, 2));
-  } else if (isString) {
-    ret = yeGet(ew->e, lua_tostring(L, 2));
-  } else {
-    return -1;
-  }
-  if (!ret)
-    return 0;
-  ew_ret = createEntityWrapper(L, 0, &YLUA_NO_DESTROY_ORPHAN);
-  ew_ret->e = ret;
-  return 1;
+	if (isNumber) {
+		ret = yeGetByIdx(ew->e, lua_tonumber(L, 2));
+	} else if (isString) {
+		ret = yeGet(ew->e, lua_tostring(L, 2));
+	} else {
+		return -1;
+	}
+	if (!ret)
+		return 0;
+	ew_ret = createEntityWrapper(L, 0, &YLUA_NO_DESTROY_ORPHAN);
+	ew_ret->e = ret;
+	return 1;
 }
 
 int	luaentity__wrapp_(lua_State *L)
