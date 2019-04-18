@@ -56,19 +56,46 @@ void ycursDestroy(void)
   type = -1;
 }
 
+extern unsigned int ywTurnId;
 
 static inline Entity *CGetEvent(void)
 {
-  Entity *eve = yeCreateArray(NULL, NULL);
+	YE_NEW(Array, eve);
+	static struct { int c; unsigned int turn_id; }  buf[128];
+	static int last;
+	int c = getch();
 
-  yeCreateIntAt(getch(), eve, NULL, YEVE_KEY);
-  yeCreateIntAt(YKEY_DOWN, eve, NULL, YEVE_TYPE);
-  yeCreateIntAt(NOTHANDLE, eve, NULL, YEVE_STATUS);
-  if (ywidEveKey(eve) == ERR) {
-    yeDestroy(eve);
-    return NULL;
-  }
-  return eve;
+	if (c == ERR) {
+		for (int i = last - 1; i >= 0; --i) {
+			if (buf[i].turn_id != ywTurnId) {
+				--last;
+				c = buf[i].c;
+				if (i != last) {
+					buf[i].c = buf[last].c;
+					buf[i].turn_id = buf[last].turn_id;
+				}
+				yeCreateIntAt(YKEY_UP, eve, NULL, YEVE_TYPE);
+				goto end;
+			}
+		}
+		return NULL;
+	}  else {
+		yeCreateIntAt(YKEY_DOWN, eve, NULL, YEVE_TYPE);
+		for (int i = 0; i < last; ++i) {
+			if (buf[i].c == c) {
+				buf[i].turn_id = ywTurnId;
+				goto end;
+			}
+		}
+		buf[last].c = c;
+		buf[last].turn_id = ywTurnId;
+		++last;
+	}
+end:
+	yeIncrRef(eve);
+	yeCreateIntAt(c, eve, NULL, YEVE_KEY);
+	yeCreateIntAt(NOTHANDLE, eve, NULL, YEVE_STATUS);
+	return eve;
 }
 
 

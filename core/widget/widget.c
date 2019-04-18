@@ -61,6 +61,7 @@ int ywidXMouseLastClick;
 int ywidYMouseLastClick;
 int ywIsSmootOn;
 int ywTurnPecent;
+unsigned int ywTurnId;
 
 int yeveWindowGetFocus;
 
@@ -595,6 +596,7 @@ int ywidDoTurn(YWidgetState *opac)
 	Entity *head;
 	Entity *event;
 
+	++ywTurnId;
 	doKaboum();
 	if (!cnt)
 		cnt = YTimerCreate();
