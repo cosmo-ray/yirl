@@ -92,6 +92,7 @@ COMMON_CFLAGS += -Werror -Wall -Wextra -Wno-unused-function -Wno-unused-paramete
 COMMON_CFLAGS += -DYIRL_INCLUDE_PATH=\"$(YIRL_INCLUDE_PATH2)\"
 COMMON_CFLAGS += -DTCC_LIB_PATH=\"$(TCC_LIB_PATH)\"
 COMMON_CFLAGS += $(FLAGS_SAN)
+COMMON_CFLAGS += -Wno-unknown-warning-option
 
 CXXFLAGS = $(COMMON_CFLAGS) -x c++ -Wno-missing-exception-spec -fno-exceptions -fno-rtti
 

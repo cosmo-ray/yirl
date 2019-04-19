@@ -30,6 +30,16 @@ function ubuntu {
     export LUA_CFLAGS="`pkg-config --cflags lua53`"
 }
 
+
+add_toolchain centos
+function centos {
+    export LUA_LIB="`pkg-config --libs lua-5.3`"
+    export LUA_CFLAGS="`pkg-config --cflags lua-5.3`"
+    export CC=clang
+}
+
+
+
 parse_args $@
 
 

@@ -358,6 +358,7 @@ int    ysdl2Init(void)
 
   if (sgSetDefaultFont("./DejaVuSansMono.ttf") < 0 &&
       sgSetDefaultFont("/Library/Fonts/Tahoma.ttf") < 0 &&
+      sgSetDefaultFont("/usr/share/fonts/liberation/LiberationMono-Regular.ttf") < 0 &&
       sgSetDefaultFont("/usr/share/fonts/TTF/DejaVuSansMono.ttf") < 0 &&
       sgSetDefaultFont("C:\\Windows\\Fonts\\constanb.ttf")) {
     DPRINT_ERR("Cannot load fonts\n");

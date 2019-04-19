@@ -44,7 +44,7 @@ void *ywMenuMove(Entity *ent, uint32_t at)
   YMenuState *s = (YMenuState *)ywidGetState(ent);
 
   if (at > yeLen(yeGet(ent, "entries")))
-    return NOTHANDLE;
+    return (void *)NOTHANDLE;
   s->current = at;
   return tryCallMoveOn((YWidgetState *)s);
 }

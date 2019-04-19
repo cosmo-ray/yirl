@@ -58,7 +58,7 @@ int yeStrIsRangeChr(Entity *str_ent, int beg, int end, char c)
 
 int yeStrIsRangeStr(Entity *str_ent, int beg, int end, const char *str)
 {
-	int32_t m;
+	int32_t m = 0;
 
 	if (!str)
 		return 0;

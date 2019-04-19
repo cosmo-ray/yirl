@@ -233,7 +233,8 @@ static inline unsigned int yuiCtz64(uint64_t v)
     type [15]: func,				\
     type [16]: func,				\
     type [17]: func,				\
-    type [18]: func
+    type [18]: func,				\
+    type [1024]: func
 
 
 typedef struct {
