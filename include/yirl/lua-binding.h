@@ -111,6 +111,7 @@ int	luaentity_newint(lua_State *L);
 int	luaentity_newstring(lua_State *L);
 int	luaentity_newarray(lua_State *L);
 int	luaentity_newcopy(lua_State *L);
+int	luaentity_newfloat(lua_State *L);
 int	luaentity_index(lua_State *L);
 int	luaentity_newindex(lua_State *L);
 int	luaentity_call(lua_State *L);
@@ -480,6 +481,7 @@ static inline int	yesLuaRegister(void *sm)
     { "new_string", luaentity_newstring},
     { "new_func", luaentity_newfunc},
     { "new_array", luaentity_newarray},
+    { "new_float", luaentity_newfloat},
     { "new_copy", luaentity_newcopy},
     {"wrapp", luaentity_wrapp},
     {"_wrapp_", luaentity__wrapp_},

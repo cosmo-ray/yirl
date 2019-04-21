@@ -87,6 +87,8 @@ static double luaNumberAt(lua_State *L, int i)
   } else if (lua_isuserdata(L, i)) {
     struct entityWrapper *ew = luaL_checkudata(L, i, "Entity");
 
+    if (unlikely(yeType(ew->e) == YFLOAT))
+	    return yeGetFloat(ew->e);
     return yeGetInt(ew->e);
   } else if (lua_isnumber(L, i)) {
     return lua_tonumber(L, i);
@@ -415,6 +417,17 @@ int	luaentity_newint(lua_State *L)
   struct entityWrapper *ew = createEntityWrapper(L, 2, &father);
 
   ew->e = yeCreateInt(val, father, name);
+  return 1;
+}
+
+int	luaentity_newfloat(lua_State *L)
+{
+  int val = luaL_checknumber(L, 1);
+  const char *name = lua_tostring(L, 3);
+  Entity *father = NULL;
+  struct entityWrapper *ew = createEntityWrapper(L, 2, &father);
+
+  ew->e = yeCreateFloat(val, father, name);
   return 1;
 }
 
