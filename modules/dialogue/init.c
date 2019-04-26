@@ -239,7 +239,17 @@ static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
 		if (answer) {
 			yePushBack(answers, answer, NULL);
 		} else {
-			yeCreateString("(continue)", answers, NULL);
+			if (yeGet(dialogue, "action")) {
+				Entity *answer = yeCreateArray(answers, NULL);
+				yeCreateString("(continue)", answer, "text");
+				yeGetPush(dialogue, answer, "action");
+			} else if (yeGet(dialogue, "actions")) {
+				Entity *answer = yeCreateArray(answers, NULL);
+				yeCreateString("(continue)", answer, "text");
+				yeGetPush(dialogue, answer, "actions");
+			} else {
+				yeCreateString("(continue)", answers, NULL);
+			}
 		}
 	}
 	if (drv == &cntDialogueMnDrv) {

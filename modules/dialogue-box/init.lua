@@ -76,11 +76,16 @@ local function getText(dialogue, gc)
    if yeType(tmpText) == YARRAY then
       local array = tmpText
       local j = 0
+
       tmpText = yeCreateString("", gc)
       while j < yeLen(array) do
-	 yeStringAddNl(tmpText, yeGetStringAt(array, j));
+	 yeStringAddNl(tmpText, yeGetStringAt(array, j))
 	 j = j + 1
       end
+   end
+   if (yIsNil(yeGetString(tmpText))) then
+      yeSetString(tmpText, "BUG: CAN'T RETRIVE \"text\"");
+      return tmpText
    end
 
    return tmpText
