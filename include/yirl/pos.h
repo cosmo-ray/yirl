@@ -18,6 +18,7 @@
 #ifndef _YIRL_POS_H_
 #define _YIRL_POS_H_
 
+#include <math.h>
 #include "yirl/entity.h"
 
 #define ywSizeW(size) (ywPosX(size))
