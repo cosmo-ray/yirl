@@ -308,4 +308,12 @@ static inline int ywPosMoveToward(Entity *from, Entity *to)
   return x || y;
 }
 
+static inline uint32_t ywPosDistance(Entity *p0, Entity *p1)
+{
+	uint32_t x = ywPosX(p0) - ywPosX(p1);
+	uint32_t y = ywPosY(p0) - ywPosY(p1);
+
+	return sqrt(x * x + y * y);
+}
+
 #endif
