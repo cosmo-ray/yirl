@@ -23,6 +23,8 @@ SRC = 	$(SCRIPT_DIR)/lua-script.c \
 	$(SCRIPT_DIR)/tcc-syms.c \
 	$(SCRIPT_DIR)/native-script.c \
 	$(SCRIPT_DIR)/ybytecode-script.c \
+	$(SCRIPT_DIR)/s7-script.c \
+	$(SCRIPT_DIR)/s7.c \
 	$(SCRIPT_DIR)/script.c \
 	$(BYTECODE_DIR)/ybytecode.c \
 	$(BYTECODE_DIR)/condition.c \
@@ -85,6 +87,7 @@ COMMON_CFLAGS += $(shell $(PKG_CONFIG) --cflags glib-2.0)
 COMMON_CFLAGS += -I$(YIRL_INCLUDE_PATH)
 COMMON_CFLAGS += -I$(YIRL_INCLUDE_PATH2)
 COMMON_CFLAGS += -I$(TCC_LIB_PATH)
+COMMON_CFLAGS += -I./core/script/
 COMMON_CFLAGS += -fpic
 COMMON_CFLAGS += $(LUA_CFLAGS)
 COMMON_CFLAGS += -Werror -Wall -Wextra -Wno-unused-function -Wno-unused-parameter -Wno-int-to-pointer-cast
@@ -97,6 +100,9 @@ COMMON_CFLAGS += -Wno-unknown-warning-option
 CXXFLAGS = $(COMMON_CFLAGS) -x c++ -Wno-missing-exception-spec -fno-exceptions -fno-rtti
 
 CFLAGS += $(COMMON_CFLAGS) -std=gnu11 -D_GNU_SOURCE
+
+$(SCRIPT_DIR)/s7.o:
+	$(CC) -c -o $(SCRIPT_DIR)/s7.o $(SCRIPT_DIR)/s7.c -Wno-implicit-fallthrough $(CFLAGS)
 
 build-static-lib: $(OBJ) $(OBJXX)
 	$(AR)  -r -c -s $(LIBNAME).a $(OBJ) $(OBJXX)
