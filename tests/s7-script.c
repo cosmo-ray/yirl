@@ -37,6 +37,7 @@ void testS7ScriptCall(void)
 	ysLoadFile(sm, "./tests/hi.scm");
 
 	ysCall(sm, "display", e);
+	printf("%p\n", ysCall(sm, "display_ent", e));
 
 	g_assert(!ysDestroyManager(sm));
 	g_assert(!ysS7End());

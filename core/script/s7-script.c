@@ -12,6 +12,16 @@ typedef struct {
 	s7_scheme *s7;
 } YScriptS7;
 
+static s7_pointer int_cast(s7_scheme *sc, s7_pointer args)
+{
+	return s7_make_integer(sc, (intptr_t)s7_c_pointer(s7_car(args)));
+}
+
+static s7_pointer ptr_cast(s7_scheme *sc, s7_pointer args)
+{
+	return s7_make_c_pointer(sc, (void *)s7_integer(s7_car(args)));
+}
+
 static int init(void *sm, void *args)
 {
 	s7_scheme *s7;
@@ -21,6 +31,8 @@ static int init(void *sm, void *args)
 	if (s7 == NULL)
 		return -1;
 	GET_S7(sm) = s7;
+	s7_define_safe_function(s7, "int_cast", int_cast, 1, 0, false, "");
+	s7_define_safe_function(s7, "ptr_cast", ptr_cast, 1, 0, false, "");
 	return 0;
 }
 
@@ -44,6 +56,7 @@ int loadString(void *s, const char *str)
 }
 
 #define CPTR(idx) s7_make_c_pointer(s, args[idx])
+
 
 static void *call(void *sm, const char *name, va_list ap)
 {
@@ -78,10 +91,11 @@ static void *call(void *sm, const char *name, va_list ap)
 		break;
 	}
 	r = s7_call(s, f, a);
-	/* s7_integer(s7_call(s7, */
-	/* 		   s7_name_to_value(s7, "add1"), */
-	/* 		   s7_cons(s7, s7_make_integer(s7, 2), s7_nil(s7)))); */
-	return r;
+	if (s7_is_c_pointer(r))
+		return s7_c_pointer(r);
+	if (s7_is_integer(r))
+		return (void *)s7_integer(r);
+	return NULL;
 }
 
 static void *allocator(void)
