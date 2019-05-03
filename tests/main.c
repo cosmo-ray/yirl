@@ -107,6 +107,8 @@ int main(int argc, char **argv)
   TEST_TRY_ADD("/script/lua/lifecycle", testLuaScritLifecycle, only);
   TEST_TRY_ADD("/script/lua/entity", testLuaScritEntityBind, only);
 
+  TEST_TRY_ADD("/script/s7/call", testS7ScriptCall, only);
+
   TEST_TRY_ADD("/script/scripts/add-function", testScriptAddFunction, only);
 
   TEST_TRY_ADD("/parser/json/simple-file", testJsonLoadFile, only);

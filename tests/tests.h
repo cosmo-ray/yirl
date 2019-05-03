@@ -54,6 +54,8 @@ void ybytecodeReadFile(void);
 void testLuaScritLifecycle(void);
 void testLuaScritEntityBind(void);
 
+void testS7ScriptCall(void);
+
 void testTccScritLifecycle(void);
 void testTccTestsMacros(void);
 void testTccAddDefine(void);
