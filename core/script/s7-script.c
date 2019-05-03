@@ -22,6 +22,18 @@ static s7_pointer ptr_cast(s7_scheme *sc, s7_pointer args)
 	return s7_make_c_pointer(sc, (void *)s7_integer(s7_car(args)));
 }
 
+#define S7_IMPLEMENT_I_E(func)						\
+	static s7_pointer s7##func(s7_scheme *s, s7_pointer a)		\
+	{								\
+		return s7_make_integer(s,				\
+				       func(s7_c_pointer(s7_car(a))));	\
+	}
+
+S7_IMPLEMENT_I_E(yeGetInt);
+
+#define S7_DEF_F(name)				\
+	s7_define_safe_function(s7, #name, s7##name, 1, 0, false, "")
+
 static int init(void *sm, void *args)
 {
 	s7_scheme *s7;
@@ -33,6 +45,7 @@ static int init(void *sm, void *args)
 	GET_S7(sm) = s7;
 	s7_define_safe_function(s7, "int_cast", int_cast, 1, 0, false, "");
 	s7_define_safe_function(s7, "ptr_cast", ptr_cast, 1, 0, false, "");
+	S7_DEF_F(yeGetInt);
 	return 0;
 }
 

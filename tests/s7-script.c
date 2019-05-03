@@ -32,12 +32,14 @@ void testS7ScriptCall(void)
 	g_assert(sm);
 
 	Entity *e = yeCreateArray(NULL, NULL);
+	Entity *i = yeCreateInt(1337, e, NULL);
 	 /* I should dup 2 to a file and check the file after */
 	ysLoadString(sm, "(begin (display \"hello string!\") (newline))");
 	ysLoadFile(sm, "./tests/hi.scm");
 
 	ysCall(sm, "display", e);
 	printf("%p\n", ysCall(sm, "display_ent", e));
+	g_assert((intptr_t)ysCall(sm, "display_eint", i) == 1337);
 
 	g_assert(!ysDestroyManager(sm));
 	g_assert(!ysS7End());
