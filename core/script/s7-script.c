@@ -1,6 +1,8 @@
 #include <glib.h>
 #include "s7-script.h"
 #include "s7.h"
+#include "game.h"
+#include "widget.h"
 
 static int t = -1;
 
@@ -22,6 +24,32 @@ static s7_pointer ptr_cast(s7_scheme *sc, s7_pointer args)
 	return s7_make_c_pointer(sc, (void *)s7_integer(s7_car(args)));
 }
 
+static s7_pointer string_cast(s7_scheme *sc, s7_pointer args)
+{
+	return s7_make_string(sc, (void *)s7_c_pointer(s7_car(args)));
+}
+
+static s7_pointer s7ywidNewWidget(s7_scheme *sc, s7_pointer a)
+{
+	return s7_make_c_pointer(sc, ywidNewWidget(s7_c_pointer(s7_car(a)),
+						   s7_string(s7_cdr(a))));
+}
+
+#define S7MP s7_make_c_pointer
+
+#define S7_IMPLEMENT_E_SES(func)					\
+	static s7_pointer s7##func(s7_scheme *s, s7_pointer a)		\
+	{								\
+		return S7MP(s,						\
+			    func(					\
+				    s7_string(s7_list_ref(s, a, 0)),	\
+				    s7_c_pointer(s7_list_ref(s, a, 1)),	\
+				    s7_string(s7_list_ref(s, a, 2))	\
+				    ));					\
+	}
+
+S7_IMPLEMENT_E_SES(yeCreateString);
+
 #define S7_IMPLEMENT_I_E(func)						\
 	static s7_pointer s7##func(s7_scheme *s, s7_pointer a)		\
 	{								\
@@ -31,8 +59,8 @@ static s7_pointer ptr_cast(s7_scheme *sc, s7_pointer args)
 
 S7_IMPLEMENT_I_E(yeGetInt);
 
-#define S7_DEF_F(name)				\
-	s7_define_safe_function(s7, #name, s7##name, 1, 0, false, "")
+#define S7_DEF_F(name, nargs, optargs)					\
+	s7_define_safe_function(s7, #name, s7##name, nargs, optargs, false, "")
 
 static int init(void *sm, void *args)
 {
@@ -44,8 +72,12 @@ static int init(void *sm, void *args)
 		return -1;
 	GET_S7(sm) = s7;
 	s7_define_safe_function(s7, "int_cast", int_cast, 1, 0, false, "");
+	s7_define_safe_function(s7, "string_cast", string_cast, 1, 0, false, "");
+	s7_define_safe_function(s7, "str_cast", string_cast, 1, 0, false, "");
 	s7_define_safe_function(s7, "ptr_cast", ptr_cast, 1, 0, false, "");
-	S7_DEF_F(yeGetInt);
+	S7_DEF_F(yeGetInt, 1, 0);
+	S7_DEF_F(ywidNewWidget, 2, 0);
+	S7_DEF_F(yeCreateString, 1, 2);
 	return 0;
 }
 
@@ -89,14 +121,13 @@ static void *call(void *sm, const char *name, va_list ap)
 		++nbArg;
 	}
 
+	printf("nb: %d\n", nbArg);
 	switch (nbArg) {
 	case 1:
 		a = s7_cons(s, CPTR(0), s7_nil(s));
 		break;
-	case 2:
-		a = s7_cons(s, CPTR(0), CPTR(1));
-		break;
 	default:
+		printf("2 args %p %p\n", args[0], args[1]);
 		a = s7_list(s, nbArg, CPTR(0), CPTR(1), CPTR(2),
 			    CPTR(3), CPTR(4), CPTR(5),
 			    CPTR(6), CPTR(7), CPTR(8),

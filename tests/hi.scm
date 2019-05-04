@@ -14,4 +14,13 @@
 		  )
 	    )
     )
+  (define mk_hello
+    (lambda (father name)
+      (begin
+	(display father)
+	(display name)
+	( yeCreateString "hello world !" father (string_cast  name ) )
+	)
+      )
+    )
   )

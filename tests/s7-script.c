@@ -33,6 +33,7 @@ void testS7ScriptCall(void)
 
 	Entity *e = yeCreateArray(NULL, NULL);
 	Entity *i = yeCreateInt(1337, e, NULL);
+	Entity *f = yeCreateFunction("display", sm, e, NULL);
 	 /* I should dup 2 to a file and check the file after */
 	ysLoadString(sm, "(begin (display \"hello string!\") (newline))");
 	ysLoadFile(sm, "./tests/hi.scm");
@@ -40,6 +41,9 @@ void testS7ScriptCall(void)
 	ysCall(sm, "display", e);
 	printf("%p\n", ysCall(sm, "display_ent", e));
 	g_assert((intptr_t)ysCall(sm, "display_eint", i) == 1337);
+	yesCall(f, i);
+	printf("mk_hi: %s\n", yeGetString(ysCall(sm, "mk_hello", e, "name")));
+	printf("mk_hi 2: %s\n", yeGetStringAt(e, "name"));
 
 	g_assert(!ysDestroyManager(sm));
 	g_assert(!ysS7End());

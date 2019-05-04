@@ -297,8 +297,7 @@ static inline void *ywidGetRenderData(YWidgetState *state, int t)
 
 int ywidAddSubType(Entity *subType);
 
-YWidgetState *ywidNewWidget(Entity *entity,
-			    const char *type);
+YWidgetState *ywidNewWidget(Entity *entity, const char *type);
 
 void YWidDestroy(YWidgetState *wid);
 
