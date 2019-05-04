@@ -44,7 +44,10 @@ void testS7ScriptCall(void)
 	yesCall(f, i);
 	printf("mk_hi: %s\n", yeGetString(ysCall(sm, "mk_hello", e, "name")));
 	printf("mk_hi 2: %s\n", yeGetStringAt(e, "name"));
+	Entity *s2 = ysCall(sm, "mk_hello2");
 
+	printf("%s\n", yeGetString(s2));
+	yeMultDestroy(e, s2);
 	g_assert(!ysDestroyManager(sm));
 	g_assert(!ysS7End());
 	yeEnd();

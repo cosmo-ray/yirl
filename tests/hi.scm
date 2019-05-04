@@ -15,7 +15,7 @@
 	    )
     )
   (define mk_hello
-    (lambda (father name)
+    (lambda  (father name)
       (begin
 	(display father)
 	(display name)
@@ -23,4 +23,11 @@
 	)
       )
     )
+
+  (define mk_hello2
+    (lambda ()
+      ( yeCreateString "hello world !"  )
+      )
+    )
   )
+
