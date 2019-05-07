@@ -143,6 +143,7 @@ void ygTerminate(void);
 void ygEnd(void);
 
 /* scrits managers */
+void *ygS7Manager(void);
 void *ygGetLuaManager(void);
 void *ygGetTccManager(void);
 

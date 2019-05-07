@@ -112,6 +112,7 @@ static inline Entity *ywPosCreateEnt(Entity *other, int useless,
 	   void *: ywPosCreateEnt,			\
 	   const Entity *: ywPosCreateEnt,		\
 	   double : ywPosCreateInts,			\
+	   long int : ywPosCreateInts,			\
 	   int : ywPosCreateInts) (x, y, father, name)
 
 static inline Entity *ywPosSetInts(Entity *pos, int posX, int posY)

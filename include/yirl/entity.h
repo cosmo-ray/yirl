@@ -93,9 +93,7 @@ typedef enum
 	} while (0);
 
 
-#define YE_INCR_REF(entity) do {		\
-		entity->refCount += 1;		\
-	} while (0)
+#define YE_INCR_REF(entity) ({ YE_TO_ENTITY(entity)->refCount += 1; entity ;})
 
 
   /* TODO: remove this macros and do a static inline function  */

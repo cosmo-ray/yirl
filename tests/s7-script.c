@@ -47,6 +47,7 @@ void testS7ScriptCall(void)
 	Entity *s2 = ysCall(sm, "mk_hello2");
 
 	printf("%s\n", yeGetString(s2));
+	printf("%d - %d\n", e->refCount,  s2->refCount);
 	yeMultDestroy(e, s2);
 	g_assert(!ysDestroyManager(sm));
 	g_assert(!ysS7End());

@@ -32,6 +32,7 @@
 #include "lua-script.h"
 #include "lua-binding.h"
 #include "tcc-script.h"
+#include "s7-script.h"
 #include "native-script.h"
 #include "ybytecode-script.h"
 
@@ -56,6 +57,7 @@ static void *rawfileManager;
 
 static void *luaManager;
 static void *tccManager;
+static void *s7Manager;
 
 static Entity *mainMod;
 static Entity *modList;
@@ -71,6 +73,11 @@ static const char *curses = "curses";
 char *yProgramArg;
 
 char *ygBinaryRootPath = "./";
+
+void *ygS7Manager(void)
+{
+  return s7Manager;
+}
 
 void *ygGetLuaManager(void)
 {
@@ -283,6 +290,10 @@ int ygInit(GameConfig *cfg)
   CHECK_AND_GOTO(tccManager = ysNewManager(NULL, t), NULL, error,
 		    "tcc init failed");
 
+  CHECK_AND_GOTO(t = ysS7Init(), -1, error, "s7 init failed");
+  CHECK_AND_GOTO(s7Manager = ysNewManager(NULL, t), NULL, error,
+		    "s7 init failed");
+
   /* Init widgets */
   baseMod = yeCreateArray(NULL, NULL);
   addNativeFuncToBaseMod();
@@ -377,6 +388,8 @@ void ygEnd()
   ysTccEnd();
   ysDestroyManager(luaManager);
   ysLuaEnd();
+  ysDestroyManager(s7Manager);
+  ysS7End();
   yeDestroy(globalsFunctions);
   globalsFunctions = NULL;
   yeDestroy(baseMod);
@@ -419,6 +432,8 @@ void *ygGetManager(const char *name)
     return luaManager;
   else if (yuiStrEqual0(name, "yb"))
     return ysYBytecodeManager();
+  else if (yuiStrEqual0(name, "s7"))
+    return s7Manager;
   return NULL;
 }
 
@@ -450,9 +465,9 @@ Entity *ygLoadMod(const char *path)
   Entity *name;
 
   YE_NEW(string, tmp_name, "");
-  for (int i = 0; i < 2; ++i) {
-    const char * const starts[] = {"/start.c", "/start.lua"};
-    void * const managers[] = {tccManager, luaManager};
+  for (int i = 0; i < 3; ++i) {
+    const char * const starts[] = {"/start.c", "/start.lua", "/start.scm"};
+    void * const managers[] = {tccManager, luaManager, s7Manager};
 
     tmp = g_strconcat(path, starts[i], NULL);
     CHECK_AND_RET(tmp, NULL, NULL,
@@ -531,6 +546,13 @@ Entity *ygLoadMod(const char *path)
 
     } else if (yuiStrEqual0(yeGetString(tmpType), "tcc")) {
       if (ysLoadFile(tccManager, pathCstr) < 0) {
+	DPRINT_ERR("Error when loading '%s': %s\n",
+		   pathCstr, ysGetError(tccManager));
+	goto fail_preload;
+      }
+
+    } else if (yuiStrEqual0(yeGetString(tmpType), "s7")) {
+      if (ysLoadFile(s7Manager, pathCstr) < 0) {
 	DPRINT_ERR("Error when loading '%s': %s\n",
 		   pathCstr, ysGetError(tccManager));
 	goto fail_preload;

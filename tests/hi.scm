@@ -18,7 +18,8 @@
     (lambda  (father name)
       (begin
 	(display father)
-	(display name)
+	(display (string_cast  name) )
+	(display ( yeCreateString "hello world !" father (string_cast  name ) ))
 	( yeCreateString "hello world !" father (string_cast  name ) )
 	)
       )
