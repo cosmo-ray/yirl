@@ -28,35 +28,35 @@ extern "C" {
 
 static int sdl2Render(YWidgetState *state, int t)
 {
-  SDLWid *wid = reinterpret_cast<SDLWid *>(ywidGetRenderData(state, t));
-  Entity *entity = state->entity;
-  Entity *objs = yeGet(entity, "objs");
-  Entity *cam = yeGet(entity, "cam");
-  Entity *widPix = yeGet(state->entity, "wid-pix");
-  YBgConf cfg;
+	SDLWid *wid = reinterpret_cast<SDLWid *>(ywidGetRenderData(state, t));
+	Entity *entity = state->entity;
+	Entity *objs = yeGet(entity, "objs");
+	Entity *cam = yeGet(entity, "cam");
+	Entity *widPix = yeGet(state->entity, "wid-pix");
+	YBgConf cfg;
 
-  if (ywidBgConfFill(yeGet(entity, "background"), &cfg) >= 0)
-    sdlFillBg(wid, &cfg);
-  YE_ARRAY_FOREACH(objs, obj) {
-    sdlCanvasRendObj(state, wid, obj, cam, widPix);
-  }
-  if (ywidBgConfFill(yeGet(state->entity, "foreground"), &cfg) >= 0)
-    sdlFillBg(wid, &cfg);
-  return 0;
+	if (ywidBgConfFill(yeGet(entity, "background"), &cfg) >= 0)
+		sdlFillBg(wid, &cfg);
+	YE_ARRAY_FOREACH(objs, obj) {
+		sdlCanvasRendObj(state, wid, obj, cam, widPix);
+	}
+	if (ywidBgConfFill(yeGet(state->entity, "foreground"), &cfg) >= 0)
+		sdlFillBg(wid, &cfg);
+	return 0;
 }
 
 static int sdl2Init(YWidgetState *wid, int t)
 {
-  wid->renderStates[t].opac = g_new(SDLWid, 1);
-  sdlWidInit(wid, t);
-  return 0;
+	wid->renderStates[t].opac = g_new(SDLWid, 1);
+	sdlWidInit(wid, t);
+	return 0;
 }
 
 extern "C" {
-  int ysdl2RegistreCanvas(void)
-  {
-    int ret = ywidRegistreTypeRender("canvas", ysdl2Type(),
-				     sdl2Render, sdl2Init, sdlWidDestroy);
-    return ret;
-  }
+	int ysdl2RegistreCanvas(void)
+	{
+		int ret = ywidRegistreTypeRender("canvas", ysdl2Type(),
+						 sdl2Render, sdl2Init, sdlWidDestroy);
+		return ret;
+	}
 }

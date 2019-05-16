@@ -207,6 +207,16 @@ void ywSetTurnLengthOverwrite(int i);
 int ywGetTurnLengthOverwrite(void);
 unsigned int ywTurnId(void);
 
+static inline int yWindowWidth(void)
+{
+	return ywidWindowWidth;
+}
+
+static inline int yWindowHeight(void)
+{
+	return ywidWindowHight;
+}
+
 /**
  * Registre a new type of widget
  * @return the type of the new type

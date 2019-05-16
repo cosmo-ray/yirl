@@ -99,6 +99,9 @@ typedef enum
   /* TODO: remove this macros and do a static inline function  */
 #define yeIncrRef YE_INCR_REF
 
+#define YE_NULLIFY(e)				\
+	({ yeDestroy(e); e = NULL; })
+
 typedef enum {
 	YE_FLAG_NULL = 0,
 	YE_FLAG_NO_COPY = 1

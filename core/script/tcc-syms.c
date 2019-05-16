@@ -117,6 +117,7 @@ void	tccAddSyms(TCCState *l)
   tcc_add_symbol(l, "ywCanvasSetWeight", ywCanvasSetWeight);
   tcc_add_symbol(l, "ywTurnId", ywTurnId);
   tcc_add_symbol(l, "ywidTurnTimer", &ywidTurnTimer);
+  ADD_SYM(yeStringAdd);
   ADD_SYM(yevMouseDown);
   ADD_SYM(yeStringAddCh);
   ADD_SYM(yeStringAdd);
@@ -153,7 +154,24 @@ void	tccAddSyms(TCCState *l)
   ADD_SYM(yeStrIsRangeChr);
   ADD_SYM(yeStrIsRangeStr);
   ADD_SYM(yeStrDoesRangeContainChr);
+  ADD_SYM(ywMenuGetCurrentEntry);
+  ADD_SYM(yeGetKeyAt);
+  ADD_SYM(yeArrayIdx);
   ADD_SYM(yeStrDoesRangeContainStr);
+  ADD_SYM(ygTerminate);
+  ADD_SYM(yeClearArray);
+  ADD_SYM(yeSetIntAt);
+  ADD_SYM(yePopBack);
+  ADD_SYM(yeCreateStringAt);
+  ADD_SYM(yeCreateIntAt);
+  ADD_SYM(yeSetStringAt);
+  ADD_SYM(ySoundPlay);
+  ADD_SYM(yevIsGrpDown);
+  ADD_SYM(yevIsGrpUp);
+  ADD_SYM(yeStringAddCh);
+  ADD_SYM(ygGetLuaManager);
+  ADD_SYM(ySoundLoad);
+  ADD_SYM(yeCreateInts_);
 #if defined(__unix__) || defined(__APPLE__)
   tcc_add_symbol(l, "yuiDebugPrint", yuiDebugPrint);
 #endif

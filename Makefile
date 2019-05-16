@@ -24,7 +24,6 @@ SRC = 	$(SCRIPT_DIR)/lua-script.c \
 	$(SCRIPT_DIR)/native-script.c \
 	$(SCRIPT_DIR)/ybytecode-script.c \
 	$(SCRIPT_DIR)/s7-script.c \
-	$(SCRIPT_DIR)/s7.c \
 	$(SCRIPT_DIR)/script.c \
 	$(BYTECODE_DIR)/ybytecode.c \
 	$(BYTECODE_DIR)/condition.c \
@@ -56,6 +55,10 @@ SRC = 	$(SCRIPT_DIR)/lua-script.c \
 SRC += $(CURSES_SRC)
 
 SRC += $(SOUND_SRC)
+
+O_SRC = $(SCRIPT_DIR)/s7.c
+
+O_OBJ = $(O_SRC:.c=.o)
 
 SRCXX += 	$(ENTITY_DIR)/entity-cplusplus.cpp \
 		$(WID_DIR)/canvas.cpp \
@@ -102,13 +105,13 @@ CXXFLAGS = $(COMMON_CFLAGS) -x c++ -Wno-missing-exception-spec -fno-exceptions -
 CFLAGS += $(COMMON_CFLAGS) -std=gnu11 -D_GNU_SOURCE
 
 $(SCRIPT_DIR)/s7.o:
-	$(CC) -c -o $(SCRIPT_DIR)/s7.o $(SCRIPT_DIR)/s7.c -Wno-implicit-fallthrough $(CFLAGS)
+	$(CC) -c -o $(SCRIPT_DIR)/s7.o $(SCRIPT_DIR)/s7.c -Wno-implicit-fallthrough -fPIC -O0 -g
 
-build-static-lib: $(OBJ) $(OBJXX)
-	$(AR)  -r -c -s $(LIBNAME).a $(OBJ) $(OBJXX)
+build-static-lib: $(OBJ) $(O_OBJ) $(OBJXX)
+	$(AR)  -r -c -s $(LIBNAME).a $(OBJ) $(O_OBJ) $(OBJXX)
 
-build-dynamic-lib: $(OBJ) $(OBJXX)
-	$(CC) -shared -o  $(LIBNAME).$(LIBEXTENSION) $(OBJ) $(OBJXX) $(LDFLAGS)
+build-dynamic-lib: $(OBJ) $(O_OBJ) $(OBJXX)
+	$(CC) -shared -o  $(LIBNAME).$(LIBEXTENSION) $(OBJ) $(O_OBJ) $(OBJXX) $(LDFLAGS)
 
 build-generic-loader: $(YIRL_LINKING) $(GEN_LOADER_OBJ)
 	$(CC) -o yirl-loader$(BIN_EXT) $(GEN_LOADER_OBJ) $(BINARY_LINKING) $(LDFLAGS)
@@ -117,4 +120,4 @@ clean:	clean-tests clean-shooter
 	rm -rvf $(OBJ) $(OBJXX) $(GEN_LOADER_OBJ)
 
 fclean: clean
-	rm -rvf $(LIBNAME).a $(LIBNAME).so $(LIBNAME).dll
+	rm -rvf $(LIBNAME).a $(O_OBJ) $(LIBNAME).so $(LIBNAME).dll

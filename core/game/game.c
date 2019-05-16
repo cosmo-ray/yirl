@@ -480,6 +480,7 @@ Entity *ygLoadMod(const char *path)
     }
     yeDestroy(mod);
     g_free(tmp);
+    tmp = NULL;
   }
 
   if (!mod) {
