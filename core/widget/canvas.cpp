@@ -565,6 +565,12 @@ extern "C" {
     if (!colisionRects) {
       goto exit;
     }
+    if (yeGetIntAt(obj0, 0) == YCanvasString ||
+	yeGetIntAt(obj1, 0) == YCanvasString) {
+	    ret = 1;
+	    goto exit;
+    }
+
     // ywRectPrint(yeGet(colisionRects, 0));
     // ywRectPrint(yeGet(colisionRects, 1));
 
@@ -741,11 +747,9 @@ extern "C" {
 			      yeGetIntAt(col, "Collision")) {
 				  ywPosSubXY(tmpRect, ywRectW(tmpRect) * optx,
 					     ywRectH(tmpRect) * opty);
-				  printf("nope %d\n", i);
 				  goto continue_loop;
 			  }
 		  }
-		  printf("ja %d\n", i);
 		  ret = 1;
 		  ywPosAddXY(tmpRect, -10, 10);
 		  ywRectAddWH(tmpRect, 20, 20);
@@ -757,7 +761,6 @@ extern "C" {
 	  }
 	  yeSetInt(yeGet(curDirInfo, 1), curDir);
 	  yeDestroy(tmpRect);
-	  printf("ret :%d\n", ret);
 	  return ret;
   }
 

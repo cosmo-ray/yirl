@@ -152,6 +152,14 @@ Entity *ygGet(const char *toFind);
 void ygSetInt(const char *toSet, int val);
 void ygReCreateInt(const char *toSet, int val);
 
+#define ygGetInt(path) yeGetInt(ygGet(path))
+
+static inline void ygIntAdd(const char *toSet, int toAdd)
+{
+	int i = ygGetInt(toSet);
+	ygSetInt(toSet, i + toAdd);
+}
+
 int ygAddDefine(const char *name, char *val);
 
 /**

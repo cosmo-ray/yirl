@@ -66,6 +66,14 @@ Entity *ywCanvasObjSize(Entity *wid, Entity *obj);
 
 Entity *ywCanvasObjPos(Entity *obj);
 
+static inline int ywCanvasObjPosX(Entity *obj) {
+	return ywPosX(ywCanvasObjPos(obj));
+}
+
+static inline int ywCanvasObjPosY(Entity *obj) {
+	return ywPosY(ywCanvasObjPos(obj));
+}
+
 double ywCanvasObjAngle(Entity *obj);
 
 /**
