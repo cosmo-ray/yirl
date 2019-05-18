@@ -297,7 +297,6 @@ static int sdlRenderCreate(void)
     DPRINT_ERR("Get render from window: %s\n", SDL_GetError());
     return -1;
   }
-
   if (SDL_SetRenderDrawBlendMode(sg.renderer, SDL_BLENDMODE_BLEND) < 0) {
     DPRINT_ERR("failt to set blend mode: %s\n", SDL_GetError());
     return -1;
@@ -687,6 +686,7 @@ int sdlCanvasCacheImg2(Entity *elem, Entity *resource, const char *imgPath,
       goto free_surface;
     }
     SDL_QueryTexture(texture, NULL, NULL, &w, &h);
+    printf("text %p %d %d\n", texture, w, h);
     data = yeCreateDataAt(texture, elem, "$img", YCANVAS_IMG_IDX);
     yeSetDestroy(data, sdlFreeTexture);
     ywSizeCreateAt(w, h, elem, "$size", YCANVAS_SIZE_IDX);
@@ -816,6 +816,8 @@ static int sdlCanvasRendImg(YWidgetState *state, SDLWid *wid, Entity *img,
   rd.x += ywRectX(wid_pix);
   rd.y += ywRectY(wid_pix);
   sdlCanvasAplyModifier(img, &rd, &sd, &center, &rotation, &flip);
+  /* printf("rend %p (%d %d %d %d) %f\n", t, */
+  /* 	 rd.x, rd.y, rd.h, rd.w, rotation); */
   SDL_RenderCopyEx(sg.renderer, t, sd, &rd, rotation, center, flip);
   free(sd);
   free(center);

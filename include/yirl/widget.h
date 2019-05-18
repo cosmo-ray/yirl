@@ -32,6 +32,7 @@ extern int yeveWindowGetFocus;
 #define Y_REQUEST_ANIMATION_FRAME -1
 
 extern int64_t ywidTurnTimer;
+extern unsigned int ywTurnId;
 
 typedef enum
   {

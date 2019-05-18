@@ -116,6 +116,8 @@ void	tccAddSyms(TCCState *l)
   tcc_add_symbol(l, "ywCanvasDisableWeight", ywCanvasDisableWeight);
   tcc_add_symbol(l, "ywCanvasSetWeight", ywCanvasSetWeight);
   tcc_add_symbol(l, "ywTurnLengthOverwrite", &ywTurnLengthOverwrite);
+  tcc_add_symbol(l, "ywTurnId", &ywTurnId);
+  tcc_add_symbol(l, "ywidTurnTimer", &ywidTurnTimer);
   ADD_SYM(yevMouseDown);
   ADD_SYM(yevMousePos);
   ADD_SYM(yevIsKeyUp);
