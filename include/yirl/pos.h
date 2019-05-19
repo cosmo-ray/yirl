@@ -18,7 +18,11 @@
 #ifndef _YIRL_POS_H_
 #define _YIRL_POS_H_
 
+#ifndef Y_INSIDE_TCC
 #include <math.h>
+#else
+double sqrt(double x);
+#endif
 #include "yirl/entity.h"
 
 #define ywSizeW(size) (ywPosX(size))

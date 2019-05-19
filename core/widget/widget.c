@@ -61,7 +61,7 @@ int ywidXMouseLastClick;
 int ywidYMouseLastClick;
 int ywIsSmootOn;
 int ywTurnPecent;
-unsigned int ywTurnId;
+unsigned int ywTurnId_;
 
 int yeveWindowGetFocus;
 
@@ -71,6 +71,21 @@ struct Kaboumable {
 } *kaboumables;
 
 int ywTurnLengthOverwrite = -1;
+
+unsigned int ywTurnId(void)
+{
+	return ywTurnId_;
+}
+
+int ywGetTurnLengthOverwrite(void)
+{
+	return ywTurnLengthOverwrite;
+}
+
+void ywSetTurnLengthOverwrite(int i)
+{
+	ywTurnLengthOverwrite = i;
+}
 
 /**
  * this destroy all widget mark as destroyable in a very american way
@@ -596,7 +611,7 @@ int ywidDoTurn(YWidgetState *opac)
 	Entity *head;
 	Entity *event;
 
-	++ywTurnId;
+	++ywTurnId_;
 	doKaboum();
 	if (!cnt)
 		cnt = YTimerCreate();

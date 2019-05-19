@@ -32,7 +32,6 @@ extern int yeveWindowGetFocus;
 #define Y_REQUEST_ANIMATION_FRAME -1
 
 extern int64_t ywidTurnTimer;
-extern unsigned int ywTurnId;
 
 typedef enum
   {
@@ -202,6 +201,10 @@ extern int ywIsSmootOn;
 extern int ywTurnPecent;
 
 extern int ywTurnLengthOverwrite;
+
+void ywSetTurnLengthOverwrite(int i);
+int ywGetTurnLengthOverwrite(void);
+unsigned int ywTurnId(void);
 
 /**
  * Registre a new type of widget
