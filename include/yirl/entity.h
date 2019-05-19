@@ -845,6 +845,8 @@ static inline Entity *yeTryCreateInt(int value, Entity *father,
  */
 size_t yeLen(Entity *entity);
 
+#define yeLenAt(e, at)				\
+	yeLen(yeGet(e, at))
 
 #include "entity-string.h"
 
@@ -904,6 +906,13 @@ static inline int yeArrayContainEntity(Entity *array, const char *str)
 {
 	return !!yeGet(array, str);
 }
+
+#define yeAddAt(e, at, toAdd)			\
+	yeAdd(yeGet(e, at), toAdd)
+
+#define yeAdd(e, toAdd)							\
+	_Generic(toAdd, int: yeAddInt, Entity *: yeAddEnt)		\
+		(e, toAdd)
 
 int yeArrayContainEntitiesInternal(Entity *entity, ...);
 
