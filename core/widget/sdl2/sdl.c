@@ -904,7 +904,9 @@ int sdlCanvasRendObj(YWidgetState *state, SDLWid *wid, Entity *obj, Entity *cam,
     sdlDrawRect(NULL, rect, c);
     return 0;
   } else if (type == YCanvasString) {
-    if (yeGet(obj, 3)) {
+    Entity *col = yeGet(obj, 3);
+
+    if (col && yeType(col) == YSTRING) {
       ywidColorFromString((char *)yeGetStringAt(obj, 3),
 			  &c.r, &c.g, &c.b, &c.a);
     }
