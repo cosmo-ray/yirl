@@ -733,7 +733,6 @@ extern "C" {
 		  int optx = optimalArrayOp[optimalArray[i]][0];
 		  int opty = optimalArrayOp[optimalArray[i]][1];
 
-		  printf("test");
 		  if (curDir & optimalArray[i])
 			  continue;
 		  curDir |= optimalArray[i];

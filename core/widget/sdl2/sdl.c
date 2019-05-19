@@ -686,7 +686,6 @@ int sdlCanvasCacheImg2(Entity *elem, Entity *resource, const char *imgPath,
       goto free_surface;
     }
     SDL_QueryTexture(texture, NULL, NULL, &w, &h);
-    printf("text %p %d %d\n", texture, w, h);
     data = yeCreateDataAt(texture, elem, "$img", YCANVAS_IMG_IDX);
     yeSetDestroy(data, sdlFreeTexture);
     ywSizeCreateAt(w, h, elem, "$size", YCANVAS_SIZE_IDX);
