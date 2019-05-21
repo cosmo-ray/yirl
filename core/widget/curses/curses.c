@@ -56,8 +56,6 @@ void ycursDestroy(void)
   type = -1;
 }
 
-extern unsigned int ywTurnId;
-
 static inline Entity *CGetEvent(void)
 {
 	YE_NEW(Array, eve);
@@ -67,7 +65,7 @@ static inline Entity *CGetEvent(void)
 
 	if (c == ERR) {
 		for (int i = last - 1; i >= 0; --i) {
-			if (buf[i].turn_id != ywTurnId) {
+			if (buf[i].turn_id != ywTurnId()) {
 				--last;
 				c = buf[i].c;
 				if (i != last) {
@@ -83,12 +81,12 @@ static inline Entity *CGetEvent(void)
 		yeCreateIntAt(YKEY_DOWN, eve, NULL, YEVE_TYPE);
 		for (int i = 0; i < last; ++i) {
 			if (buf[i].c == c) {
-				buf[i].turn_id = ywTurnId;
+				buf[i].turn_id = ywTurnId();
 				goto end;
 			}
 		}
 		buf[last].c = c;
-		buf[last].turn_id = ywTurnId;
+		buf[last].turn_id = ywTurnId();
 		++last;
 	}
 end:

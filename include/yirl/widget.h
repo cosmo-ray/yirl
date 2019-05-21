@@ -28,6 +28,7 @@
 #include "yirl/pos.h"
 
 extern int yeveWindowGetFocus;
+extern int ywNeedTextureReload;
 
 #define Y_REQUEST_ANIMATION_FRAME -1
 

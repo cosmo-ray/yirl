@@ -313,6 +313,7 @@ static int sdlChangeResolution(void)
     ysdl2Destroy();
     return -1;
   }
+  ywNeedTextureReload = 1;
   SDL_RenderClear(sg.renderer);
   return 0;
 }
@@ -789,38 +790,39 @@ static void sdlCanvasAplyModifier(Entity *img, SDL_Rect *dst,
 static int sdlCanvasRendImg(YWidgetState *state, SDLWid *wid, Entity *img,
 			    Entity *cam, Entity *wid_pix)
 {
-  Entity *s = ywCanvasObjSize(state->entity, img);
-  Entity *p = ywCanvasObjPos(img);
-  SDL_Rect *sd = NULL;
-  SDL_Point *center = NULL;
-  SDL_Rect rd = { ywPosXDirect(p) - ywPosX(cam), ywPosYDirect(p) - ywPosY(cam),
-		  ywSizeWDirect(s), ywSizeHDirect(s) };
-  double rotation = 0;
-  SDL_RendererFlip flip = SDL_FLIP_NONE;
-  SDL_Texture *t = NULL;
+	Entity *s = ywCanvasObjSize(state->entity, img);
+	Entity *p = ywCanvasObjPos(img);
+	SDL_Rect *sd = NULL;
+	SDL_Point *center = NULL;
+	SDL_Rect rd = { ywPosXDirect(p) - ywPosX(cam),
+			ywPosYDirect(p) - ywPosY(cam),
+			ywSizeWDirect(s), ywSizeHDirect(s) };
+	double rotation = 0;
+	SDL_RendererFlip flip = SDL_FLIP_NONE;
+	SDL_Texture *t = NULL;
 
 
-  if (rd.x + rd.w < 0 || rd.y + rd.h < 0 || rd.y > ywRectHDirect(wid_pix)
-      || rd.x > ywRectWDirect(wid_pix)) {
-    return 0;
-  }
-  t = yeGetData(yeGet(img, YCANVAS_IMG_IDX));
-  if (!t) {
-    sdlCanvasCacheTexture(state->entity, img);
-    t = yeGetData(yeGet(img, YCANVAS_IMG_IDX));
-    if (unlikely(!t))
-      return -1;
-  }
+	if (rd.x + rd.w < 0 || rd.y + rd.h < 0 || rd.y > ywRectHDirect(wid_pix)
+	    || rd.x > ywRectWDirect(wid_pix)) {
+		return 0;
+	}
+	t = yeGetData(yeGet(img, YCANVAS_IMG_IDX));
+	if (!t || ywNeedTextureReload) {
+		sdlCanvasCacheTexture(state->entity, img);
+		t = yeGetData(yeGet(img, YCANVAS_IMG_IDX));
+		if (unlikely(!t))
+			return -1;
+	}
 
-  rd.x += ywRectX(wid_pix);
-  rd.y += ywRectY(wid_pix);
-  sdlCanvasAplyModifier(img, &rd, &sd, &center, &rotation, &flip);
-  /* printf("rend %p (%d %d %d %d) %f\n", t, */
-  /* 	 rd.x, rd.y, rd.h, rd.w, rotation); */
-  SDL_RenderCopyEx(sg.renderer, t, sd, &rd, rotation, center, flip);
-  free(sd);
-  free(center);
-  return 0;
+	rd.x += ywRectX(wid_pix);
+	rd.y += ywRectY(wid_pix);
+	sdlCanvasAplyModifier(img, &rd, &sd, &center, &rotation, &flip);
+	/* printf("rend %p (%d %d %d %d) %f\n", t, */
+	/* 	 rd.x, rd.y, rd.h, rd.w, rotation); */
+	SDL_RenderCopyEx(sg.renderer, t, sd, &rd, rotation, center, flip);
+	free(sd);
+	free(center);
+	return 0;
 }
 
 uint32_t sdlCanvasPixInfo(Entity *obj, int x, int y)

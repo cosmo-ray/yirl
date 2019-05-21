@@ -25,6 +25,8 @@
 #include "rect.h"
 #include "entity-script.h"
 
+int ywNeedTextureReload;
+
 static Entity *subTypes = NULL;
 static Entity *configs = NULL;
 
@@ -672,6 +674,7 @@ int ywidDoTurn(YWidgetState *opac)
 	}
 	ywTurnPecent = 0;
 	ywidMidRendEnd(mainWid);
+	ywNeedTextureReload = 0;
 	ret = ywidHandleEvent(opac, head);
 	ywidFreeEvents(head);
 	return ret;
