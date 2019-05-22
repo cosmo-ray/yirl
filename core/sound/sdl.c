@@ -23,12 +23,30 @@
 #include "sound.h"
 #include "sound-libvlc.h"
 
-#define ARRAY_SIZE 256
+#define ARRAY_SIZE 255
 
-static Mix_Music *musiques[ARRAY_SIZE];
-static uint8_t is_used[ARRAY_SIZE];
+enum sount_type {
+	SOUND_UNUSED_,
+	SOUND_MIX_,
+	SOUND_CHUNK_
+};
+
+static union {
+	Mix_Music *m;
+	Mix_Chunk *c;
+} musiques[ARRAY_SIZE];
+static uint8_t types[ARRAY_SIZE];
 
 static int lastElem;
+
+static inline int find_chan(Mix_Chunk *c)
+{
+	for (int i = 0; i < ARRAY_SIZE; ++i) {
+		if (Mix_GetChunk(i) == c)
+			return i;
+	}
+	return -1;
+}
 
 static int init(void)
 {
@@ -46,6 +64,7 @@ static int init(void)
     Mix_Quit();
     return -1;
   }
+  Mix_AllocateChannels(255);
   return 0;
 }
 
@@ -58,43 +77,96 @@ static int end(void)
   return 0;
 }
 
-static int libsdl_load(const char *path)
+static int next_free_elem(void)
 {
-  int nameId = lastElem;
+	for (int i = 0; i < ARRAY_SIZE; ++i) {
+		int el = (lastElem + i) % ARRAY_SIZE;
+		if (!types[el])
+			return el;
+	}
+	return -1;
+}
 
-  if (g_file_test(path, G_FILE_TEST_EXISTS) == 0) {
-    DPRINT_ERR("%s doesn't exist", path);
-    goto error;
-  }
+static int music_set_elem_path_check(const char *path, int *el)
+{
+	int nameId = next_free_elem();
 
+	if (nameId < 0) {
+		DPRINT_ERR("Max Music reach");
+		return -1;
+	}
+		
+	if (g_file_test(path, G_FILE_TEST_EXISTS) == 0) {
+		DPRINT_ERR("%s doesn't exist", path);
+		return -1;
+	}
+	*el = nameId;
+	return 0;
+}
 
-  musiques[nameId] = Mix_LoadMUS(path);
-  if (!musiques[nameId]) {
-    DPRINT_ERR("fail to load %s", path);
-    goto error;
-  }
-  is_used[nameId] = 1;
-  ++lastElem;
-  return nameId;
- error:
-  return -1;
+static int libsdl_chunk_load(const char *path)
+{
+	int nameId;
+
+	if (music_set_elem_path_check(path, &nameId) < 0)
+		goto error;
+	musiques[nameId].c = Mix_LoadWAV(path);
+	if (!musiques[nameId].c) {
+		DPRINT_ERR("fail to load %s", path);
+		goto error;
+	}
+	types[nameId] = SOUND_CHUNK_;
+	++lastElem;
+	lastElem = lastElem % ARRAY_SIZE;
+	return nameId;
+error:
+	return -1;
+}
+
+static int libsdl_music_load(const char *path)
+{
+	int nameId;
+
+	if (music_set_elem_path_check(path, &nameId) < 0)
+		goto error;
+	musiques[nameId].m = Mix_LoadMUS(path);
+	if (!musiques[nameId].m) {
+		DPRINT_ERR("fail to load %s", path);
+		goto error;
+	}
+	types[nameId] = SOUND_MIX_;
+	++lastElem;
+	lastElem = lastElem % ARRAY_SIZE;
+	return nameId;
+error:
+	return -1;
 }
 
 #define CHECK_NAMEID(nameId) do {				\
-    if (!is_used[nameId] || nameId >= ARRAY_SIZE)		\
-      return -1;						\
-  } while (0)
+		if (!types[nameId] || nameId >= ARRAY_SIZE)	\
+			return -1;				\
+	} while (0)
 
 static int libsdl_play(int nameId)
 {
   CHECK_NAMEID(nameId);
-  return Mix_PlayMusic(musiques[nameId], 0);
+  if (types[nameId] == SOUND_MIX_)
+	  return Mix_PlayMusic(musiques[nameId].m, 0);
+  int c = find_chan(musiques[nameId].c);
+
+  if (c) {
+	  Mix_Resume(c);
+	  return 0;
+  }
+  return Mix_PlayChannel(-1, musiques[nameId].c, 0);
 }
 
 static int libsdl_play_loop(int nameId)
 {
   CHECK_NAMEID(nameId);
-  return Mix_PlayMusic(musiques[nameId], -1);
+  if (types[nameId] == SOUND_MIX_)
+	  return Mix_PlayMusic(musiques[nameId].m, 1);
+  return Mix_PlayChannel(-1, musiques[nameId].c, 1);
 }
 
 /* int libsdl_soundLvl(int nameId, int soundLvl) */
@@ -107,27 +179,40 @@ static int libsdl_play_loop(int nameId)
 /*   CHECK_NAMEID(nameId); */
 /* } */
 
-/* int libsdl_pause(int nameId) */
-/* { */
-/*   int result = 0; */
+static int libsdl_pause(int nameId)
+{
+  CHECK_NAMEID(nameId);
+  if (types[nameId] == SOUND_MIX_) {
+	  Mix_PauseMusic();
+	  return 0;
+  }
 
-/*   CHECK_NAMEID(nameId); */
-/*   return result; */
-/* } */
+  int c = find_chan(musiques[nameId].c);
+
+  if (c < 0)
+	  return -1;
+  Mix_Pause(c);
+  return 0;
+}
 
 static int libsdl_stop(int nameId)
 {
-  CHECK_NAMEID(nameId);
-  Mix_FreeMusic(musiques[nameId]);
-  is_used[nameId] = 0;
-  return 0;
+	CHECK_NAMEID(nameId);
+	if (types[nameId] == SOUND_MIX_)
+		Mix_FreeMusic(musiques[nameId].m);
+	else
+		Mix_FreeChunk(musiques[nameId].c);
+	types[nameId] = SOUND_UNUSED_;
+	return 0;
 }
 
 SoundState sdlDriver = {
   .libInit = init,
   .libEnd = end,
-  .load = libsdl_load,
+  .pause = libsdl_pause,
+  .load = libsdl_chunk_load,
   .play = libsdl_play,
+  .load_music = libsdl_music_load,
   .play_loop = libsdl_play_loop,
   .stop = libsdl_stop
 };

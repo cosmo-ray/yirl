@@ -23,6 +23,7 @@ typedef struct {
   int (* load)(const char *path);
   int (* play)(int);
   int (* play_loop)(int);
+  int (* load_music)(const char *path);
   int (* status)(int);
   int (* ySoundLevel)(int, int);
   int (* pause)(int);
@@ -41,8 +42,17 @@ int ySoundLoad(const char *path);
  */
 int ySoundPlay(int id);
 
+int ySoundMusicLoad(const char *path);
+
 /**
- * Same as ySoundPlay() in loop
+ * @return 0 upon success, -1 on error
+ */
+int ySoundMusicPlay(int id);
+
+int ySoundMusicStop(int id);
+
+/**
+ * Same as ySoundMusicPlay() in loop
  */
 int ySoundPlayLoop(int id);
 

@@ -53,6 +53,10 @@ int ySoundLoad(const char *path)
 {
   RET_OR_CALL(defaultSoundDriver.load, path);
 }
+int ySoundLoadMusic(const char *path)
+{
+	RET_OR_CALL(defaultSoundDriver.load_music, path);
+}
 
 int ySoundPlay(int id)
 {
