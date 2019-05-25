@@ -154,7 +154,7 @@ static int libsdl_play(int nameId)
 	  return Mix_PlayMusic(musiques[nameId].m, 0);
   int c = find_chan(musiques[nameId].c);
 
-  if (c) {
+  if (c >= 0) {
 	  Mix_Resume(c);
 	  return 0;
   }
