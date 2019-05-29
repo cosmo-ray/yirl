@@ -138,7 +138,7 @@ S7_IMPLE_CREATOR(String, s7_string);
 				    s7_c_object_value(s7_list_ref(s, a, 0)), \
 				    s7_integer(s7_list_ref(s, a, 1)),	\
 				    s7_integer(s7_list_ref(s, a, 2)),	\
-				    s7_c_object_value(s7_list_ref(s, a, 3)) \
+				    E_AT(s, a, 3)			\
 				    ));					\
 	}
 
@@ -168,16 +168,36 @@ S7_IMPLE_CREATOR(String, s7_string);
 		return s7_nil(s);					\
 	}
 
+#define BIND_E_EIIS(func, u0, u1)					\
+	static s7_pointer s7##func(s7_scheme *s, s7_pointer a)		\
+	{								\
+		return S7ME(s, s7m->et,					\
+			    func(					\
+				    s7_c_object_value(s7_list_ref(s, a, 0)), \
+				    s7_integer(s7_list_ref(s, a, 1)),	\
+				    s7_integer(s7_list_ref(s, a, 2)),	\
+				    s7_string(s7_list_ref(s, a, 3))	\
+				    ));					\
+	}
+
 #define BIND_B_EEE(f, u0, u1)						\
 	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)		\
 	{								\
 		return S7MB(s,						\
-			    !!f( E_AT(s, a, 0), E_AT(s, a, 1), \
-				    E_AT(s, a, 2)));					\
+			    !!f( E_AT(s, a, 0), E_AT(s, a, 1),		\
+				 E_AT(s, a, 2)));			\
 	}
 
 #define E_AT(s, a, idx) (s7_list_ref(s, a, idx) != s7_nil(s) ?		\
 			 s7_c_object_value(s7_list_ref(s, a, idx)) :	\
+			 NULL)
+
+#define S_AT(s, a, idx) (s7_list_ref(s, a, idx) != s7_nil(s) ?	\
+			 s7_string(s7_list_ref(s, a, idx)) :		\
+			 NULL)
+
+#define I_AT(s, a, idx) (s7_list_ref(s, a, idx) != s7_nil(s) ?	\
+			 s7_integer(s7_list_ref(s, a, idx)) :		\
 			 NULL)
 
 #define BIND_B_EEEE(f, u0, u1)						\
@@ -252,6 +272,24 @@ S7_IMPLE_CREATOR(String, s7_string);
 	{								\
 		return S7ME(s, s7m->et,					\
 			    f(s7_c_object_value(s7_list_ref(s, a, 0)))); \
+	}
+
+#define BIND_E_EE(f, useless0, uesless1)				\
+	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)		\
+	{								\
+		return S7ME(s, s7m->et, f(E_AT(s, a, 0), E_AT(s, a, 1))); \
+	}
+
+#define BIND_E_EI(f, useless0, uesless1)				\
+	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)		\
+	{								\
+		return S7ME(s, s7m->et, f(E_AT(s, a, 0), I_AT(s, a, 1))); \
+	}
+
+#define BIND_E_ES(f, useless0, uesless1)				\
+	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)		\
+	{								\
+		return S7ME(s, s7m->et, f(E_AT(s, a, 0), S_AT(s, a, 1))); \
 	}
 
 

@@ -37,12 +37,12 @@ void stringsTests(void)
 
   g_assert(str);
   g_assert(yeLen(str) == 0);
-  g_assert(!yeStringAddNl(str, NULL));
+  g_assert(yeStringAddNl(str, NULL));
   g_assert(!yeStrCmp(str, "\n"));
   g_assert(yeCountCharacters(str, '\n', -1) == 1);
-  g_assert(!yeStringAdd(str, "ma lite !\n"));
+  g_assert(yeStringAdd(str, "ma lite !\n"));
   g_assert(!yeStrCmp(str, "\nma lite !\n"));
-  g_assert(!yeStringAddNl(str, "ma lite !"));
+  g_assert(yeStringAddNl(str, "ma lite !"));
   g_assert(!yeStrCmp(str, "\nma lite !\nma lite !\n"));
   g_assert(yeCountCharacters(str, '\n', -1) == 3);
   g_assert(yeCountCharacters(str, '\n', 9) == 5);
@@ -51,7 +51,7 @@ void stringsTests(void)
   g_assert(!yeStrCmp(str, "ma lite !\nma lite !\n"));
   g_assert(!yeStringShrink(str, 3));
   g_assert(!yeStrCmp(str, "lite !\nma lite !\n"));
-  g_assert(!yeStringAddNl(str, "    2 le retour"));
+  g_assert(yeStringAddNl(str, "    2 le retour"));
   g_assert(!yeStrCmp(str, "lite !\nma lite !\n    2 le retour\n"));
   g_assert(yuiStrEqual(yeStringNextWord(str, &l, 0), "lite"));
   g_assert(l == 4);

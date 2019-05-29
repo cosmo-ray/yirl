@@ -211,19 +211,19 @@ int yeStringReplace(Entity *ent, const char *substr, const char *replacement)
 	return nbFound;
 }
 
-int yeStringAddChByEntity(Entity *ent, Entity *ch)
+Entity *yeStringAddChByEntity(Entity *ent, Entity *ch)
 {
 	return yeStringAddCh(ent, yeGetInt(ch));
 }
 
-int yeStringAdd(Entity *ent, const char *str)
+Entity *yeStringAdd(Entity *ent, const char *str)
 {
 	int origLen;
 	int totalLength;
 	int strLen;
 
 	if (unlikely(!ent || !str))
-		return -1;
+		return NULL;
 	strLen = strlen(str);
 	origLen = yeLen(ent);
 	totalLength = origLen + strLen;
@@ -241,62 +241,60 @@ int yeStringAdd(Entity *ent, const char *str)
 		YE_TO_STRING(ent)->origin = NULL;
 	}
 	YE_TO_STRING(ent)->len = totalLength;
-	return 0;
+	return ent;
 }
 
-int yeStringAddCh(Entity *ent, char c)
+Entity *yeStringAddCh(Entity *ent, char c)
 {
 	char buf[2] = {c, 0};
 
 	return yeStringAdd(ent, buf);
 }
 
-int yeStringAddNl(Entity *ent, const char *str)
+Entity *yeStringAddNl(Entity *ent, const char *str)
 {
 	yeStringAdd(ent, str);
 	return yeStringAdd(ent, "\n");
 }
 
-int yeStringAddInt(Entity *ent, int i)
+Entity *yeStringAddInt(Entity *ent, int i)
 {
 	char *tmp = YE_TO_STRING(ent)->value;
 
 	if (unlikely(!tmp))
-		return -1;
+		return NULL;
 	YE_TO_STRING(ent)->value = g_strdup_printf("%s%d", tmp, i);
 	YE_TO_STRING(ent)->len = strlen(YE_TO_STRING(ent)->value);
 	YE_TO_STRING(ent)->origin = NULL;
 	g_free(tmp);
-	return 0;
+	return ent;
 }
 
-int yeStringAddLong(Entity *ent, long i)
+Entity *yeStringAddLong(Entity *ent, long i)
 {
 	char *tmp = YE_TO_STRING(ent)->value;
 
 	if (unlikely(!tmp))
-		return -1;
+		return NULL;
 	YE_TO_STRING(ent)->value = g_strdup_printf("%s%ld", tmp, i);
 	YE_TO_STRING(ent)->len = strlen(YE_TO_STRING(ent)->value);
 	YE_TO_STRING(ent)->origin = NULL;
 	g_free(tmp);
-	return 0;
+	return ent;
 }
 
-int yeAddStrFromFd(Entity *e, int fd, int len)
+Entity *yeAddStrFromFd(Entity *e, int fd, int len)
 {
-	int ret = -1;
 	char *tmp = g_new(char, len + 1);
 
 	if (!tmp || read(fd, tmp, len) < 0)
 		goto exit;
 	tmp[len] = 0;
-	if (yeStringAdd(e, tmp) < 0)
+	if (!yeStringAdd(e, tmp))
 		goto exit;
-	ret = 0;
 exit:
 	g_free(tmp);
-	return ret;
+	return e;
 }
 
 int yeCountCharacters(Entity *str, char carac, int lineLimit)

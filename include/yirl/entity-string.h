@@ -31,7 +31,7 @@ int yeStrCaseCmp(Entity *ent, const char *str);
 /**
  * @brief Add @str to the string entity @Ent
  */
-int yeStringAdd(Entity *ent, const char *str);
+Entity *yeStringAdd(Entity *ent, const char *str);
 
 /**
  * @return the index of c in ent or -1
@@ -53,18 +53,18 @@ int yeStrDoesRangeContainStr(Entity *str_ent, int beg, int end, const char *str)
 /**
  * @brief Add @c to the string entity @Ent
  */
-int yeStringAddCh(Entity *ent, char c);
+Entity *yeStringAddCh(Entity *ent, char c);
 
 /**
  * @param ch an int entity representing an ascii character
  * @brief Add @ch value to the string entity @Ent
  */
-int yeStringAddChByEntity(Entity *ent, Entity *ch);
+Entity *yeStringAddChByEntity(Entity *ent, Entity *ch);
 
 /**
  * @brief same as yeStringAdd, but add a new line
  */
-int yeStringAddNl(Entity *ent, const char *str);
+Entity *yeStringAddNl(Entity *ent, const char *str);
 
 /**
  * @brief Count the number of @carac in @ent
@@ -77,9 +77,9 @@ int yeStringAddNl(Entity *ent, const char *str);
  */
 int yeCountCharacters(Entity *ent, char carac, int lineLimit);
 
-int yeAddStrFromFd(Entity *e, int fd, int len);
-int yeStringAddInt(Entity *ent, int i);
-int yeStringAddLong(Entity *ent, long i);
+Entity *yeAddStrFromFd(Entity *e, int fd, int len);
+Entity *yeStringAddInt(Entity *ent, int i);
+Entity *yeStringAddLong(Entity *ent, long i);
 
 int yeStringReplace(Entity *ent, const char *substr, const char *replacement);
 

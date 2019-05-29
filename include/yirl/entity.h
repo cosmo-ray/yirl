@@ -945,7 +945,8 @@ static inline int yeAddLong(Entity *e, long i)
 {
 	switch (yeType(e)) {
 	case YSTRING:
-		return yeStringAddLong(e, i);
+		yeStringAddLong(e, i);
+		return 0;
 	default :
 		return -1;
 	}
@@ -957,7 +958,8 @@ static inline int yeAddInt(Entity *e, int i)
 	case YINT:
 		return yeIntAddInt(YE_TO_INT(e), i);
 	case YSTRING:
-		return yeStringAddInt(e, i);
+		yeStringAddInt(e, i);
+		return 0;
 	default :
 		return -1;
 	}
@@ -967,7 +969,8 @@ static inline int yeAddStr(Entity *e, const char *str)
 {
 	switch (yeType(e)) {
 	case YSTRING:
-		return yeStringAdd(e, str);
+		yeStringAdd(e, str);
+		return 0;
 	default :
 		return -1;
 	}

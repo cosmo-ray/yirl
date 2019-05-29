@@ -7,10 +7,14 @@
 #define BIND_V_E	BIND
 #define BIND_V_EI	BIND
 #define BIND_V_EII	BIND
+#define BIND_E_EE	BIND
+#define BIND_E_ES	BIND
+#define BIND_E_EI	BIND
 #define BIND_B_EE	BIND
 #define BIND_B_EES	BIND
 #define BIND_B_EEE	BIND
 #define BIND_E_EIIE	BIND
+#define BIND_E_EIIS	BIND
 #define BIND_B_EEEE	BIND
 #else
 #define PUSH_I_GLOBAL(X)
@@ -27,9 +31,14 @@ BIND_B_EES(yePushBack, 2, 1);
 BIND_B_EEEE(ywCanvasCheckCollisions, 2, 1);
 
 BIND_E_EIIE(ywCanvasNewRect, 2, 2);
+BIND_E_EIIE(ywCanvasNewText, 2, 2);
+BIND_E_EIIS(ywCanvasNewTextByStr, 2, 2);
 
 BIND_B_EE(yevIsGrpUp, 2, 0);
 BIND_B_EE(yevIsGrpDown, 2, 0);
+
+BIND_E_EI(yeStringAddInt, 2, 0);
+BIND_E_EI(yeStringAddLong, 2, 0);
 
 BIND_E_E(ywCanvasObjPos, 1, 0);
 
@@ -61,11 +70,15 @@ PUSH_I_GLOBAL(Y_DOWN_KEY);
 PUSH_I_GLOBAL(Y_LEFT_KEY);
 PUSH_I_GLOBAL(Y_RIGHT_KEY);
 
+#undef BIND_E_EIIS
 #undef BIND_E_EIIE
 #undef BIND_B_EEEE
 #undef BIND_B_EES
 #undef BIND_B_EEE
 #undef BIND_B_EE
+#undef BIND_E_EE
+#undef BIND_E_ES
+#undef BIND_E_EI
 #undef BIND_V_EI
 #undef BIND_V_EII
 #undef BIND_NONE
