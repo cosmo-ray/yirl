@@ -89,12 +89,12 @@ int yeStringReplace(Entity *ent, const char *substr, const char *replacement);
  */
 signed char yeStringReplaceCharAt(Entity *ent, char c, size_t at);
 
-int yeStringReplaceStrAt(Entity *haystack, const char *needle, size_t at);
+Entity *yeStringReplaceStrAt(Entity *haystack, const char *needle, size_t at);
 
 /**
  * @brief change the len of the string, to @newEndPos + 1
  * this function add a '\0' at e[newEndPos], and change e->len to newEndPos + 1
- * @return a Tuple Entity containing the old len and what was @at e[newEndPos],
+ * @return a Tuple Entity containing the old len and what was at e[newEndPos],
  * this tuple must be used be yeStringRestoreEnd
  */
 Entity *yeStringAddTmpEnd(Entity *e, size_t newEndPos,
@@ -212,21 +212,24 @@ int yeStringNextTok(Entity *str, Entity *tokInfo);
 
 /**
  * @brief remove @len caracters at the end of @str
+ * @return str or NULL
  */
-int yeStringTruncate(Entity *str, uint32_t len);
+Entity *yeStringTruncate(Entity *str, uint32_t len);
 
 /**
  * @brief remove @len caracters at the begin of @str
  *
  * @param str the string to shrink
  * @param len the number of carac to remove
+ * @return str or NULL
  */
-int yeStringShrink(Entity *str, uint32_t len);
+Entity *yeStringShrink(Entity *str, uint32_t len);
 
 /**
  * @brief remove all blank and tab up front
+ * @return str
  */
-void yeStringShrinkBlank(Entity *str);
+Entity *yeStringShrinkBlank(Entity *str);
 
 /**
  * @brief create a string using @fmt, this function need ygInit() to be call first

@@ -147,16 +147,16 @@ signed char yeStringReplaceCharAt(Entity *ent, char c, size_t at)
 	return ret;
 }
 
-int yeStringReplaceStrAt(Entity *haystack, const char *needle, size_t at)
+Entity *yeStringReplaceStrAt(Entity *haystack, const char *needle, size_t at)
 {
 	int l = strlen(needle);
 
 	for (int i = 0; i < l; ++i) {
 		char c = needle[i];
 		if (unlikely(yeStringReplaceCharAt(haystack, c, at + i) < 0))
-			return -1;
+			return NULL;
 	}
-	return 0;
+	return haystack;
 }
 
 int yeStringReplace(Entity *ent, const char *substr, const char *replacement)
@@ -315,43 +315,44 @@ int yeCountCharacters(Entity *str, char carac, int lineLimit)
 	return ret;
 }
 
-int yeStringTruncate(Entity *str, uint32_t len)
+Entity *yeStringTruncate(Entity *str, uint32_t len)
 {
 	uint32_t l = yeLen(str);
 	if (len >= l)
-		return -1;
+		return NULL;
 	l -= len;
 	YE_TO_STRING(str)->value[l] = '\0';
 	YE_TO_STRING(str)->len = l;
-	return 0;
+	return str;
 }
 
-int yeStringShrink(Entity *str, uint32_t len)
+Entity *yeStringShrink(Entity *str, uint32_t len)
 {
 	if (len >= yeLen(str))
-		return -1;
+		return NULL;
 	if (!YE_TO_STRING(str)->origin)
 		YE_TO_STRING(str)->origin = YE_TO_STRING(str)->value;
 	YE_TO_STRING(str)->value += len;
 	YE_TO_STRING(str)->len -= len;
-	return 0;
+	return str;
 }
 
-void yeStringShrinkBlank(Entity *s)
+Entity *yeStringShrinkBlank(Entity *s)
 {
 	const char *str = yeGetString(s);
 	int l = 0;
 
 	if (unlikely(!str))
-		return;
+		return NULL;
 	for (; (*str == ' ' || *str == '\t'); ++str)
 		++l;
 	if (!l)
-		return;
+		return NULL;
 	if (!YE_TO_STRING(s)->origin)
 		YE_TO_STRING(s)->origin = YE_TO_STRING(s)->value;
 	YE_TO_STRING(s)->len -= l;
 	YE_TO_STRING(s)->value = (char *)str;
+	return s;
 }
 
 const char *yeStringNextWord(Entity *str, int *len, int shrinkBlank)
