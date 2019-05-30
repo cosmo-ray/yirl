@@ -135,12 +135,12 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
   goto *((void *)*script);
 
  string_add_ch_ent:
-  iret = yeStringAddChByEntity(yeGetByIdxDirect(stack, script[1]), yeGetByIdxDirect(stack, script[2]));
+  yeStringAddChByEntity(yeGetByIdxDirect(stack, script[1]), yeGetByIdxDirect(stack, script[2]));
   script += 3;
   goto *((void *)*script);
 
  string_add_ch:
-  iret = yeStringAddCh(yeGetByIdxDirect(stack, script[1]), script[2]);
+  yeStringAddCh(yeGetByIdxDirect(stack, script[1]), script[2]);
   script += 3;
   goto *((void *)*script);
 

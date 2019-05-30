@@ -665,7 +665,7 @@ void	yeSetFloat(Entity *entity, double value);
  * @param entity  the StringEntity to set the string to
  * @param val     the string to set to the StringEntity
  */
-void	yeSetString(Entity *entity, const char *value);
+Entity	*yeSetString(Entity *entity, const char *value);
 
 /**
  * similar to @yeSetString but copy at most n byte

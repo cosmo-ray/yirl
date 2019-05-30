@@ -25,11 +25,19 @@
 		      (if (ywCanvasCheckCollisions p bl)
 			  (yeSetIntAt p "b_x_dir" (- x) ))))
 	    (do_mv (lambda (p pl x y) (ywCanvasMoveObjXY pl x y) ))
+	    (goal (lambda (p bl who)
+		    (begin
+		      (display "\nGOAL !!!\n")
+		      (if (= who 0) (yeIncrAt p "p0-score")
+			  (yeIncrAt p "p1-score"))
+		      (ywCanvasObjSetPos bl (/ (yWindowWidth) 2) 20)
+		      )
+		    ))
 	    (ai (lambda (p p1 p1p blp) 1 ))
 	    (p0 (yeGet p "p0"))
 	    (p1 (yeGet p "p1"))
 	    (bl (yeGet p "bl"))
-	    (bx (yeGetIntAt p "b_x_dir"))
+	    (bx (lambda (p) (yeGetIntAt p "b_x_dir")))
 	    (by (lambda (p) (yeGetIntAt p "b_y_dir")))
 	    (blp (ywCanvasObjPos (yeGet p "bl")))
 	    (p0p (ywCanvasObjPos (yeGet p "p0")))
@@ -40,16 +48,22 @@
 	  (if (yevIsGrpDown eve (yeGet p "up_k") ) (yeSetIntAt p "up" 1))
 	  (if (yevIsGrpUp eve (yeGet p "down_k") ) (yeSetIntAt p "down" 0))
 	  (if (yevIsGrpUp eve (yeGet p "up_k") ) (yeSetIntAt p "up" 0))
-	  (if (= (yeGetIntAt p "up") 1)
-	      (do_mv p p0 0 (chk_y p0p -4))
-	      )
-	  (if (= (yeGetIntAt p "down") 1)
-	      (do_mv p p0 0 (chk_y p0p 4))
-	      )
-	  (chk_bx p bl bx)
-	  (do_mv p bl (yeGetIntAt p "b_x_dir") (chk_by p blp (by p) flip_dy))
-
+	  (if (= (yeGetIntAt p "up") 1) (do_mv p p0 0 (chk_y p0p -4)))
+	  (if (= (yeGetIntAt p "down") 1) (do_mv p p0 0 (chk_y p0p 4)))
+	  (chk_bx p bl (bx p))
+	  (do_mv p bl (bx p) (chk_by p blp (by p) flip_dy))
+	  (if (< (ywPosX blp) 0) (goal p bl 0))
+	  (if (> (ywPosX blp) (yWindowWidth)) (goal p bl 1))
 	  (do_mv p p1 0 (chk_y p1p (ai p p1 p1p blp)))
+
+					; reprint score:
+	  (ywCanvasStringSet
+	   (yeGet p "score")
+	   (yeStringAddInt
+	    (yeStringAdd (yeStringAddInt
+			  (yeCreateString  "score: ") (yeGetIntAt p "p0-score"))
+			 " - ") (yeGetIntAt p "p1-score"))
+	   )
 	  YEVE_ACTION)
 	)
       )
@@ -86,7 +100,7 @@
 		      "p1")
 	  (yePushBack p (ywCanvasNewTextByStr p
 					      (- (/ (yWindowWidth) 2) 70)
-					      5 "" ))
+					      5 "" ) "score")
 	  (yeCreateFunction "pong_action" p "action")
 	  (yeCreateInt 0 p "down")
 	  (yeCreateInt 0 p "up")
@@ -101,14 +115,10 @@
       )
     )
 
-  (define mk_pong
-    (lambda () (init_pong (yeCreateArray) ) )
-    )
-
   (define mod_init
     (lambda (mod)
       (begin
-	(yePushBack mod (mk_pong) "start")
+	(yePushBack mod (init_pong (yeCreateArray)) "start")
 	(yeCreateString "start" mod "starting_widget")
 	(yeCreateString "pong" mod "name")
 	(display (yeGet mod "starting_widget"))

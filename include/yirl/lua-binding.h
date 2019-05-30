@@ -101,6 +101,14 @@
 		return 1;						\
 	}
 
+#define LUA_IMPLEMENT_E_ES(func)					\
+	static inline int lua##func(lua_State *L)			\
+	{								\
+		Entity *ret = func(luaEntityAt(L, 1), lua_tostring(L, 2)); \
+		if (ret) lua_pushlightuserdata(L, ret); else lua_pushnil(L); \
+		return 1;						\
+	}
+
 
 /* Entity objets */
 int	luaentity_tocentity(lua_State *L);
@@ -191,8 +199,8 @@ int	luaSetString(lua_State *L);
 int	luayeCreateYirlFmtString(lua_State *L);
 int	luayeStrCaseCmp(lua_State *L);
 int	luayeToLower(lua_State *L);
-LUA_IMPLEMENT_I_ES(yeStringAddNl);
-LUA_IMPLEMENT_I_ES(yeStringAdd);
+LUA_IMPLEMENT_E_ES(yeStringAddNl);
+LUA_IMPLEMENT_E_ES(yeStringAdd);
 
 /* int */
 int	luaGetInt(lua_State *L);

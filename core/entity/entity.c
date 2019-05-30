@@ -937,10 +937,10 @@ void	yeSetNString(Entity *e, const char *str, size_t n)
 	YE_TO_STRING(e)->origin = NULL;
 }
 
-void	yeSetString(Entity *entity, const char *val)
+Entity	*yeSetString(Entity *entity, const char *val)
 {
 	if (unlikely(!entity))
-		return;
+		return NULL;
 	if (YE_TO_STRING(entity)->value != NULL) {
 		if (entity->type == YSTRING && YE_TO_STRING(entity)->origin)
 			free(YE_TO_STRING(entity)->origin);
@@ -957,6 +957,7 @@ void	yeSetString(Entity *entity, const char *val)
 			YE_TO_STRING(entity)->len = 0;
 	}
 	YE_TO_STRING(entity)->origin = NULL;
+	return entity;
 }
 
 void yeSetDestroy(Entity *entity, void (*destroyFunc)(void *))
@@ -1104,32 +1105,32 @@ int yeInsertAt(Entity *array, Entity *toPush, size_t idx, const char *name)
 
 void	yeSetStringAt(Entity *entity, unsigned int index, const char *value)
 {
-	return yeSetString(yeGet(entity, index), value);
+	yeSetString(yeGet(entity, index), value);
 }
 
 void	yeSetIntAt(Entity *entity, unsigned int index, int value)
 {
-	return yeSetInt(yeGet(entity, index), value);
+	yeSetInt(yeGet(entity, index), value);
 }
 
 void	yeSetFloatAt(Entity *entity, unsigned int index, double value)
 {
-	return yeSetFloat(yeGet(entity, index), value);
+	yeSetFloat(yeGet(entity, index), value);
 }
 
 void	yeSetStringAtStrIdx(Entity *entity, const char *index, const char *value)
 {
-	return yeSetString(yeGet(entity, index), value);
+	yeSetString(yeGet(entity, index), value);
 }
 
 void	yeSetIntAtStrIdx(Entity *entity, const char *index, int value)
 {
-	return yeSetInt(yeGet(entity, index), value);
+	yeSetInt(yeGet(entity, index), value);
 }
 
 void	yeSetFloatAtStrIdx(Entity *entity, const char *index, double value)
 {
-	return yeSetFloat(yeGet(entity, index), value);
+	yeSetFloat(yeGet(entity, index), value);
 }
 
 void	yeUnsetFunction(Entity *entity)
@@ -1144,7 +1145,7 @@ void	yeSetFunction(Entity *entity, const char *value)
 	if (unlikely(!entity))
 		return;
 	YE_TO_FUNC(entity)->fastPath = NULL;
-	return yeSetString(entity, value);
+	yeSetString(entity, value);
 }
 
 void	yeSetInt(Entity *entity, int value)
@@ -1278,8 +1279,8 @@ static ArrayEntity *yeCopyContainer(ArrayEntity* src, ArrayEntity* dest,
 	return dest;
 }
 
-static Entity*		yeCopyInternal(Entity* src, Entity* dest,
-				       Entity *used, Entity *refs)
+static Entity *yeCopyInternal(Entity* src, Entity* dest,
+			      Entity *used, Entity *refs)
 {
 	const char* strVal = NULL;
 

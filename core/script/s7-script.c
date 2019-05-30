@@ -198,7 +198,7 @@ S7_IMPLE_CREATOR(String, s7_string);
 
 #define I_AT(s, a, idx) (s7_list_ref(s, a, idx) != s7_nil(s) ?	\
 			 s7_integer(s7_list_ref(s, a, idx)) :		\
-			 NULL)
+			 0)
 
 #define BIND_B_EEEE(f, u0, u1)						\
 	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)		\
@@ -221,6 +221,14 @@ S7_IMPLE_CREATOR(String, s7_string);
 	{							\
 		f(s7_c_object_value(s7_car(a)),			\
 		  s7_integer(s7_list_ref(s, a, 1)));		\
+		return s7_nil(s);				\
+	}
+
+#define BIND_V_EE(f, useless0, useless01)			\
+	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)	\
+	{							\
+		f(s7_c_object_value(s7_car(a)),			\
+		  E_AT(s, a, 1));				\
 		return s7_nil(s);				\
 	}
 
