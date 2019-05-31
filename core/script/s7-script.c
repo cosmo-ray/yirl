@@ -5,6 +5,7 @@
 #include "canvas.h"
 #include "widget.h"
 #include "pos.h"
+#include "entity-script.h"
 #include "events.h"
 
 static int t = -1;
@@ -12,15 +13,16 @@ static int t = -1;
 #define GET_OPS(sm) (((YScriptS7 *)sm)->ops)
 #define GET_S7(sm) (((YScriptS7 *)sm)->s7)
 #define GET_ET(sm) (((YScriptS7 *)sm)->et)
+#define GET_GET(sm) (((YScriptS7 *)sm)->get)
 
 typedef struct {
 	YScriptOps ops;
 	s7_scheme *s7;
 	s7_int et;
+	s7_int get;
 } YScriptS7;
 
 YScriptS7 *s7m = NULL;
-Entity *gc_array;
 
 static s7_pointer int_cast(s7_scheme *sc, s7_pointer args)
 {
@@ -37,22 +39,55 @@ static s7_pointer string_cast(s7_scheme *sc, s7_pointer args)
 	return s7_make_string(sc, (void *)s7_c_pointer(s7_car(args)));
 }
 
+#define E_AT(s, a, idx) (s7_list_ref(s, a, idx) != s7_nil(s) ?		\
+			 (Entity *)s7_c_object_value(s7_list_ref(s, a, idx)) : \
+			 NULL)
+
+#define S_AT(s, a, idx) (s7_list_ref(s, a, idx) != s7_nil(s) ?	\
+			 s7_string(s7_list_ref(s, a, idx)) :	\
+			 NULL)
+
+#define I_AT(s, a, idx) (s7_list_ref(s, a, idx) != s7_nil(s) ?	\
+			 s7_integer(s7_list_ref(s, a, idx)) :	\
+			 0)
+
 static s7_pointer s7ywidNewWidget(s7_scheme *sc, s7_pointer a)
 {
 	return s7_make_c_pointer(sc, ywidNewWidget(s7_c_object_value(s7_car(a)),
 						   s7_string(s7_cdr(a))));
 }
 
+#define E_YE_GET(e)						\
+	Entity *ar__ = s7_c_object_value(s7_car(a));		\
+	s7_pointer k__ = s7_list_ref(s, a, 1);			\
+	if (s7_is_string(k__))					\
+		e = yeGet(ar__, s7_string(k__));		\
+	else							\
+		e = yeGet(ar__, s7_integer(k__));		\
+
+static s7_pointer s7yeIncrAt(s7_scheme *s, s7_pointer a)
+{
+	Entity *e = NULL;
+
+	E_YE_GET(e);
+	yeAdd(e, 1);
+	return s7_nil(s);
+}
+
+static s7_pointer s7yeAddAt(s7_scheme *s, s7_pointer a)
+{
+	Entity *e = NULL;
+
+	E_YE_GET(e);
+	yeAdd(e, I_AT(s, a, 2));
+	return s7_nil(s);
+}
+
 static s7_pointer s7yeGet(s7_scheme *s, s7_pointer a)
 {
 	Entity *e = NULL;
-	s7_pointer k = s7_list_ref(s, a, 1);
-	Entity *ar = s7_c_object_value(s7_car(a));
 
-	if (s7_is_string(k))
-		e = yeGet(ar, s7_string(k));
-	else
-		e = yeGet(ar, s7_integer(k));
+	E_YE_GET(e);
 	if (!e)
 		return s7_nil(s);
 	return s7_make_c_object(s, s7m->et, e);
@@ -61,19 +96,14 @@ static s7_pointer s7yeGet(s7_scheme *s, s7_pointer a)
 static s7_pointer s7yeGetIntAt(s7_scheme *s, s7_pointer a)
 {
 	Entity *e = NULL;
-	s7_pointer k = s7_list_ref(s, a, 1);
-	Entity *ar = s7_c_object_value(s7_car(a));
 
-	if (s7_is_string(k))
-		e = yeGet(ar, s7_string(k));
-	else
-		e = yeGet(ar, s7_integer(k));
+	E_YE_GET(e);
 	return s7_make_integer(s, yeGetInt(e));
 }
 
 #define S7_END_CREATOR(X)						\
 	s7_pointer f = s7_list_ref(s, a, X);				\
-	s7_pointer r = s7_make_c_object(s, s7m->et, ne);		\
+	s7_pointer r = s7_make_c_object(s, s7m->get, ne);		\
 	if (f != s7_nil(s))						\
 		yePushBack(s7_c_object_value(f), ne,			\
 			   s7_string(s7_list_ref(s, a, X + 1)));	\
@@ -84,7 +114,7 @@ static s7_pointer s7yeGetIntAt(s7_scheme *s, s7_pointer a)
 	static s7_pointer s7yeCreate##t(s7_scheme *s, s7_pointer a)	\
 	{								\
 		Entity *ne = yeCreate##t(tf(s7_list_ref(s, a, 0)),	\
-					 gc_array, NULL);		\
+					 NULL, NULL);		\
 		S7_END_CREATOR(1);					\
 	}
 
@@ -109,7 +139,6 @@ static s7_pointer s7ywPosCreate(s7_scheme *s, s7_pointer a)
 
 	S7_END_CREATOR(2);
 }
-
 
 S7_IMPLE_CREATOR(Int, s7_integer);
 S7_IMPLE_CREATOR(String, s7_string);
@@ -188,17 +217,6 @@ S7_IMPLE_CREATOR(String, s7_string);
 				 E_AT(s, a, 2)));			\
 	}
 
-#define E_AT(s, a, idx) (s7_list_ref(s, a, idx) != s7_nil(s) ?		\
-			 s7_c_object_value(s7_list_ref(s, a, idx)) :	\
-			 NULL)
-
-#define S_AT(s, a, idx) (s7_list_ref(s, a, idx) != s7_nil(s) ?	\
-			 s7_string(s7_list_ref(s, a, idx)) :		\
-			 NULL)
-
-#define I_AT(s, a, idx) (s7_list_ref(s, a, idx) != s7_nil(s) ?	\
-			 s7_integer(s7_list_ref(s, a, idx)) :		\
-			 0)
 
 #define BIND_B_EEEE(f, u0, u1)						\
 	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)		\
@@ -227,8 +245,7 @@ S7_IMPLE_CREATOR(String, s7_string);
 #define BIND_V_EE(f, useless0, useless01)			\
 	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)	\
 	{							\
-		f(s7_c_object_value(s7_car(a)),			\
-		  E_AT(s, a, 1));				\
+		f(E_AT(s, a, 0), E_AT(s, a, 1));		\
 		return s7_nil(s);				\
 	}
 
@@ -282,6 +299,13 @@ S7_IMPLE_CREATOR(String, s7_string);
 			    f(s7_c_object_value(s7_list_ref(s, a, 0)))); \
 	}
 
+#define BIND_E_S(f, useless0, uesless1)					\
+	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)		\
+	{								\
+		return S7ME(s, s7m->et,					\
+			    f(s7_string(s7_list_ref(s, a, 0))));	\
+	}
+
 #define BIND_E_EE(f, useless0, uesless1)				\
 	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)		\
 	{								\
@@ -300,6 +324,29 @@ S7_IMPLE_CREATOR(String, s7_string);
 		return S7ME(s, s7m->et, f(E_AT(s, a, 0), S_AT(s, a, 1))); \
 	}
 
+
+static s7_pointer s7yesCall(s7_scheme *s, s7_pointer a)
+{
+	void *args[17];
+	void *r;
+
+	for (int i = 0; i < 16; ++i) {
+		args[i] = E_AT(s, a, i);
+		if (!args[i]) {
+			args[i] = Y_END_VA_LIST;
+			break;
+		}
+		args[16] = Y_END_VA_LIST;
+	}
+
+	r = yesCallInt(args[0], args[1], args[2], args[3], args[4],
+		       args[5], args[6], args[7], args[8], args[9],
+		       args[10], args[11], args[12], args[13], args[14],
+		       args[15]);
+	if (yeIsPtrAnEntity(r))
+		return s7_make_c_object(s, s7m->et, r);
+	return s7_make_integer(s, (intptr_t) r);
+}
 
 static s7_pointer s7yevCreateGrp(s7_scheme *s, s7_pointer a)
 {
@@ -360,7 +407,7 @@ static s7_pointer s7yeSetIntAt(s7_scheme *s, s7_pointer a)
 
 void destroyer(void *e)
 {
-	yeRemoveChild(gc_array, e);
+	yeDestroy(e);
 }
 
 static s7_pointer stringifier(s7_scheme *s7, s7_pointer args)
@@ -378,6 +425,7 @@ static int init(void *sm, void *args)
 {
 	s7_scheme *s7;
 	s7_int et;
+	s7_int get;
 
 	(void)args;
 	s7 = s7_init();
@@ -386,13 +434,14 @@ static int init(void *sm, void *args)
 	s7_gc_on(s7, true);
 	GET_S7(sm) = s7;
 	s7m = sm;
-	if (!gc_array)
-		gc_array = yeCreateArray(NULL, NULL);
-	et =  s7_make_c_type(s7, "Entity");
+	et = s7_make_c_type(s7, "Entity");
 	s7_c_type_set_to_string(s7, et, stringifier);
-	s7_c_type_set_free(s7, et, destroyer);
-	/* s7_c_type_set_mark(s7, et, marker); */
+
+	get = s7_make_c_type(s7, "Entity");
+	s7_c_type_set_to_string(s7, get, stringifier);
+	s7_c_type_set_free(s7, get, destroyer);
 	GET_ET(sm) = et;
+	GET_GET(sm) = get;
 
 	s7_define_safe_function(s7, "int_cast", int_cast, 1, 0, false, "");
 	s7_define_safe_function(s7, "string_cast", string_cast, 1, 0, false, "");
@@ -424,7 +473,6 @@ static int init(void *sm, void *args)
 static int destroy(void *sm)
 {
 	s7_quit(GET_S7(sm));
-	YE_NULLIFY(gc_array);
 	free((YScriptS7 *)sm);
 	return 0;
 }

@@ -908,11 +908,17 @@ static inline int yeArrayContainEntity(Entity *array, const char *str)
 	return !!yeGet(array, str);
 }
 
+#define yeIncrAt(e, at) yeAdd(yeGet(e, at), 1)
+
 #define yeAddAt(e, at, toAdd)			\
 	yeAdd(yeGet(e, at), toAdd)
 
 #define yeAdd(e, toAdd)							\
-	_Generic(toAdd, int: yeAddInt, Entity *: yeAddEnt)		\
+	_Generic(toAdd, int: yeAddInt,					\
+		 long : yeAddLong,					\
+		 const char *: yeAddStr,				\
+		 char *: yeAddStr,					\
+		 Entity *: yeAddEnt)					\
 		(e, toAdd)
 
 int yeArrayContainEntitiesInternal(Entity *entity, ...);
@@ -944,6 +950,8 @@ static inline int yeIntAddInt(IntEntity *e, int i)
 static inline int yeAddLong(Entity *e, long i)
 {
 	switch (yeType(e)) {
+	case YINT:
+		return yeIntAddInt(YE_TO_INT(e), i);
 	case YSTRING:
 		yeStringAddLong(e, i);
 		return 0;

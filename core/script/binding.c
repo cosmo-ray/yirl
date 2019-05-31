@@ -3,6 +3,7 @@
 #define BIND_I_V(a)	BIND(a,0,0)
 #define BIND_I_E	BIND
 #define BIND_S_E	BIND
+#define BIND_E_S	BIND
 #define BIND_V_E	BIND
 #define BIND_V_EI	BIND
 #define BIND_V_EE	BIND
@@ -46,10 +47,14 @@ BIND_E_EI(yeStringAddLong, 2, 0);
 
 BIND_E_E(ywCanvasObjPos, 1, 0);
 
+BIND_E_S(ygGet, 1, 0);
+
 BIND_V_E(ywPosPrint, 1, 0);
 BIND_V_E(ywSizePrint, 1, 0);
 
 BIND_V_EE(ywCanvasStringSet, 2, 0);
+BIND_NONE(yeIncrAt, 2, 0);
+BIND_NONE(yeAddAt, 3, 0);
 
 BIND_S_E(ywPosToString, 1, 0);
 BIND_S_E(ywSizeToString, 1, 0);
@@ -69,6 +74,7 @@ BIND_I_V(yWindowWidth);
 BIND_I_V(yWindowHeight);
 
 BIND_NONE(yevCreateGrp, 1, 9);
+BIND_NONE(yesCall, 1, 15);
 
 PUSH_I_GLOBAL(Y_ESC_KEY);
 PUSH_I_GLOBAL(Y_UP_KEY);
@@ -90,6 +96,7 @@ PUSH_I_GLOBAL(Y_RIGHT_KEY);
 #undef BIND_NONE
 #undef BIND_V_E
 #undef BIND_V_EE
+#undef BIND_E_S
 #undef BIND_S_E
 #undef BIND_I_E
 #undef BIND_E_E
