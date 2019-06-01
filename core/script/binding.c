@@ -64,6 +64,7 @@ BIND_I_E(yeRefCount, 1, 0);
 BIND_I_E(yeType, 1, 0);
 BIND_I_E(ywPosY, 1, 0);
 BIND_I_E(ywPosX, 1, 0);
+BIND_I_E(ywidAddSubType, 1, 0);
 
 BIND_V_EI(yeSetInt, 2, 0);
 

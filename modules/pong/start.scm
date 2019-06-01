@@ -70,9 +70,9 @@
 			 " - ") (yeGetIntAt p "p1-score"))
 	   )
 	  (if (= (yeGetIntAt p "p0-score") (yeGetIntAt p "win-score"))
-	      (yesCall (ygGet "FinishGame")))
+	      (if (yeIsChild p "quit") (yesCall (yeGet p "quit") p) (yesCall (ygGet "FinishGame"))))
 	  (if (= (yeGetIntAt p "p1-score") (yeGetIntAt p "win-score"))
-	      (yesCall (ygGet "FinishGame")))
+	      (if (yeIsChild p "quit") (yesCall (yeGet p "quit") p) (yesCall (ygGet "FinishGame"))))
 	  YEVE_ACTION)
 	)
       )
@@ -97,7 +97,7 @@
 		  ))
 	    )
 	(begin
-	  (yeCreateString "canvas" p "<type>")
+	  (display "\n\nPONG INIT \n\n")
 	  (yeCreateArray  p "objs")
 	  (yeCreateString "rgba: 0 0 100 255" p "background")
 	  (yeCreateInt 15000 p "turn-length")
@@ -125,15 +125,24 @@
       )
     )
 
+  (define pong_init
+    (lambda (wid)
+      (ywidNewWidget (init_pong wid) "canvas")
+      )
+    )
+
   (define mod_init
     (lambda (mod)
-      (begin
-	(yePushBack mod (init_pong (yeCreateArray)) "start")
-	(yeCreateString "start" mod "starting_widget")
-	(yeCreateString "pong" mod "name")
-	(display (yeGet mod "starting_widget"))
-	mod
+      (let ((init (yeCreateArray ) ) )
+	(begin
+	  (yeCreateString "pong" mod "name")
+	  (yeCreateFunction "pong_init" init "callback")
+	  (yeCreateString "pong" init "name")
+	  (ywidAddSubType init)
+	  mod
+	  )
 	)
       )
     )
+
   )

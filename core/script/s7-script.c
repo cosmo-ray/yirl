@@ -54,7 +54,7 @@ static s7_pointer string_cast(s7_scheme *sc, s7_pointer args)
 static s7_pointer s7ywidNewWidget(s7_scheme *sc, s7_pointer a)
 {
 	return s7_make_c_pointer(sc, ywidNewWidget(s7_c_object_value(s7_car(a)),
-						   s7_string(s7_cdr(a))));
+						   S_AT(sc, a, 1)));
 }
 
 #define E_YE_GET(e)						\
@@ -92,6 +92,15 @@ static s7_pointer s7yeGet(s7_scheme *s, s7_pointer a)
 		return s7_nil(s);
 	return s7_make_c_object(s, s7m->et, e);
 }
+
+static s7_pointer s7yeIsChild(s7_scheme *s, s7_pointer a)
+{
+	Entity *e = NULL;
+
+	E_YE_GET(e);
+	return s7_make_boolean(s, !!e);
+}
+
 
 static s7_pointer s7yeGetIntAt(s7_scheme *s, s7_pointer a)
 {
@@ -443,6 +452,7 @@ static int init(void *sm, void *args)
 	GET_ET(sm) = et;
 	GET_GET(sm) = get;
 
+	s7_define_safe_function(s7, "yeIsChild", s7yeIsChild, 2, 0, false, "");
 	s7_define_safe_function(s7, "int_cast", int_cast, 1, 0, false, "");
 	s7_define_safe_function(s7, "string_cast", string_cast, 1, 0, false, "");
 	s7_define_safe_function(s7, "str_cast", string_cast, 1, 0, false, "");
