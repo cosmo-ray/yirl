@@ -188,10 +188,11 @@ void *fileToCanvas(int nbArg, void **args)
 	    int x = yeGetIntAt(layer, "y");
 
 	    YE_ARRAY_FOREACH_EXT(properties, property, it) {
+		int isAyyay = yeType(property) == YARRAY;
 		const char *name;
 
 		name = yBlockArrayIteratorGetPtr(it, ArrayEntry)->name;
-		if (yeType(property) == YARRAY) {
+		if (isAyyay) {
 		    name = yeGetStringAt(property, "name");
 		}
 		if (!name)
@@ -202,11 +203,31 @@ void *fileToCanvas(int nbArg, void **args)
 		    Entity *condition = yeCreateArray(NULL, NULL);
 		    int ret;
 
-		    yeCreateString(yeGetString(property), condition, NULL);
-		    yePushBack(condition, yeGet(properties, "ConditionArg0"),
-			       NULL);
-		    yePushBack(condition, yeGet(properties, "ConditionArg1"),
-			       NULL);
+		    if (!isAyyay) {
+			yeCreateString(yeGetString(property), condition, NULL);
+			yePushBack(condition, yeGet(properties, "ConditionArg0"),
+				   NULL);
+			yePushBack(condition, yeGet(properties, "ConditionArg1"),
+				   NULL);
+		    } else {
+			yeCreateString(yeGetStringAt(property, "value"),
+				       condition, NULL);
+			YE_FOREACH(properties, ca0) {
+			    if (!strcmp(yeGetStringAt(ca0, "name"),
+					"ConditionArg0")) {
+				yePushBack(condition, yeGet(ca0, "value"),
+					   NULL);
+			    }
+			}
+			YE_FOREACH(properties, ca1) {
+			    if (!strcmp(yeGetStringAt(ca1, "name"),
+					"ConditionArg1")) {
+				yePushBack(condition, yeGet(ca1, "value"),
+					   NULL);
+			    }
+			}
+
+		    }
 		    ret = yeCheckCondition(condition);
 		    yeDestroy(condition);
 		    if (!ret)
