@@ -23,10 +23,14 @@
 int ywMenuInit(void);
 int ywMenuEnd(void);
 int ywMenuGetCurrent(YWidgetState *opac);
+
 static inline int ywMenuGetCurrentByEntity(Entity *entity) {
   return ywMenuGetCurrent(ywidGetState(entity));
 }
+
 Entity *ywMenuGetCurrentEntry(Entity *entity);
+
+void ywMenuSetCurrentEntry(Entity *entity, Entity *newCur);
 
 int ywMenuHasChange(YWidgetState *opac);
 int ywMenuPosFromPix(Entity *wid, uint32_t x, uint32_t y);

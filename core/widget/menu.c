@@ -213,81 +213,86 @@ static InputStatue mnEvent(YWidgetState *opac, Entity *event)
 
 static void *alloc(void)
 {
-  YMenuState *ret = g_new0(YMenuState, 1);
-  YWidgetState *wstate = (YWidgetState *)ret;
+	YMenuState *ret = g_new0(YMenuState, 1);
+	YWidgetState *wstate = (YWidgetState *)ret;
 
-  if (!ret)
-    return NULL;
-  wstate->render = mnRend;
-  wstate->init = mnInit;
-  wstate->destroy = mnDestroy;
-  wstate->handleEvent = mnEvent;
-  wstate->type = t;
-  return  ret;
+	if (!ret)
+		return NULL;
+	wstate->render = mnRend;
+	wstate->init = mnInit;
+	wstate->destroy = mnDestroy;
+	wstate->handleEvent = mnEvent;
+	wstate->type = t;
+	return  ret;
 }
 
 int ywMenuHasChange(YWidgetState *opac)
 {
-  return opac->hasChange;
+	return opac->hasChange;
 }
 
 int ywMenuPosFromPix(Entity *wid, uint32_t x, uint32_t y)
 {
-  Entity *entries = yeGet(wid, "entries");
-  Entity *pos = yeGet(wid, "wid-pix");
+	Entity *entries = yeGet(wid, "entries");
+	Entity *pos = yeGet(wid, "wid-pix");
 
-  YE_ARRAY_FOREACH_EXT(entries, entry, it) {
-    Entity *rect = yeGet(entry, "$rect");
-    if (ywRectContain(rect, x - ywRectX(pos), y - ywRectY(pos), 1))
-      return it.pos;
-  }
-  return -1;
+	YE_ARRAY_FOREACH_EXT(entries, entry, it) {
+		Entity *rect = yeGet(entry, "$rect");
+		if (ywRectContain(rect, x - ywRectX(pos), y - ywRectY(pos), 1))
+			return it.pos;
+	}
+	return -1;
 }
 
 Entity *ywMenuPushEntry(Entity *menu, const char *name, Entity *func)
 {
-  Entity *entries = yeGet(menu, "entries");
-  if (unlikely(!entries))
-    yeCreateArray(menu, "entries");
-  Entity *entry = yeCreateArray(entries, name);
+	Entity *entries = yeGet(menu, "entries");
+	if (unlikely(!entries))
+		yeCreateArray(menu, "entries");
+	Entity *entry = yeCreateArray(entries, name);
 
-  yeCreateString(name, entry, "text");
-  yePushBack(entry, func, "action");
-  return entry;
+	yeCreateString(name, entry, "text");
+	yePushBack(entry, func, "action");
+	return entry;
 }
 
 int ywMenuGetCurrent(YWidgetState *opac)
 {
-  return ((YMenuState *)opac)->current;
+	return ((YMenuState *)opac)->current;
+}
+
+void ywMenuSetCurrentEntry(Entity *entity, Entity *entry)
+{
+	ywMenuMove(yeGet(entity, "entries"), yeArrayIdx(entity, entry));
 }
 
 Entity *ywMenuGetCurrentEntry(Entity *entity)
 {
-  return yeGet(yeGet(entity, "entries"),
-	       ywMenuGetCurrent(ywidGetState(entity)));
+	return yeGet(yeGet(entity, "entries"),
+		     ywMenuGetCurrent(ywidGetState(entity)));
 }
 
 int ywMenuInit(void)
 {
-  if (t != -1)
-    return t;
-  t = ywidRegister(alloc, "menu");
-  ysRegistreNativeFunc("menuMove", nmMenuMove);
-  ysRegistreNativeFunc("panelMove", nmPanelMove);
-  ysRegistreNativeFunc("menuNext", nmMenuNext);
-  ysRegistreNativeFunc("menuActions", mnActions);
-  return t;
+	if (t != -1)
+		return t;
+	t = ywidRegister(alloc, "menu");
+	ysRegistreNativeFunc("menuMove", nmMenuMove);
+	ysRegistreNativeFunc("panelMove", nmPanelMove);
+	ysRegistreNativeFunc("menuNext", nmMenuNext);
+	ysRegistreNativeFunc("menuActions", mnActions);
+	return t;
 }
 
 int ywMenuEnd(void)
 {
-  if (ywidUnregiste(t) < 0)
-    return -1;
-  t = -1;
-  return 0;
+	if (ywidUnregiste(t) < 0)
+		return -1;
+	t = -1;
+	return 0;
 }
 
 Entity *ywMenuGetEntry(Entity *container, int idx)
 {
-  return ywCntGetEntry(container, idx);
+	return ywCntGetEntry(container, idx);
 }

@@ -141,7 +141,7 @@ void	tccAddSyms(TCCState *l)
   ADD_SYM(ywCanvasNewText);
   ADD_SYM(ygReCreateInt);
   ADD_SYM(ygSetInt);
-  
+
   ADD_SYM(yevMousePos);
   ADD_SYM(yevIsKeyUp);
   ADD_SYM(yevIsKeyDown);
@@ -156,7 +156,7 @@ void	tccAddSyms(TCCState *l)
   ADD_SYM(yeStrDoesRangeContainChr);
   ADD_SYM(ywMenuGetCurrentEntry);
   ADD_SYM(yeGetKeyAt);
-  ADD_SYM(yeArrayIdx);
+  ADD_SYM(yeArrayIdx_str);
   ADD_SYM(yeStrDoesRangeContainStr);
   ADD_SYM(ygTerminate);
   ADD_SYM(yeClearArray);
@@ -172,6 +172,7 @@ void	tccAddSyms(TCCState *l)
   ADD_SYM(ygGetLuaManager);
   ADD_SYM(ySoundLoad);
   ADD_SYM(yeCreateInts_);
+  ADD_SYM(ywMenuSetCurrentEntry);
 #if defined(__unix__) || defined(__APPLE__)
   tcc_add_symbol(l, "yuiDebugPrint", yuiDebugPrint);
 #endif

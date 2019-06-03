@@ -17,6 +17,8 @@
 
 #include <yirl/game.h>
 #include <yirl/menu.h>
+#include <yirl/canvas.h>
+#include <yirl/text-screen.h>
 #include <yirl/entity-script.h>
 #include <yirl/container.h>
 #include <yirl/condition.h>
@@ -26,15 +28,16 @@ void *yFinishGame();
 static int current_answer;
 
 struct mainDrv {
-  Entity *(*getTextWidget)(Entity *);
-  Entity *(*getMenu)(Entity *);
+	Entity *(*getTextWidget)(Entity *);
+	Entity *(*getMenu)(Entity *);
 };
 
 struct menuDrv {
-  Entity *(*getAnswer)(Entity *, int);
-  Entity *(*getCurAnswer)(Entity *);
-  Entity *(*getAnswers)(Entity *);
-  Entity *(*getMain)(Entity *);
+	Entity *(*getAnswer)(Entity *, int);
+	Entity *(*getCurAnswer)(Entity *);
+	void (*setCurAnswer)(Entity *, Entity *);
+	Entity *(*getAnswers)(Entity *);
+	Entity *(*getMain)(Entity *);
 };
 
 static Entity *getMain(Entity *mn);
@@ -46,6 +49,11 @@ static Entity *getMnCurAnswer(Entity *mn)
 	return ywMenuGetCurrentEntry(mn);
 }
 
+static void setMnCurAnswer(Entity *mn, Entity *new_cur)
+{
+	return ywMenuSetCurrentEntry(mn, new_cur);
+}
+
 static Entity *getTextWidget(Entity *main);
 static Entity *getMenu(Entity *main);
 
@@ -53,52 +61,68 @@ void *dialogueGotoNext(int nbArgs, void **args);
 
 
 struct mainDrv cntDialogueMainDrv = {
-  getTextWidget, getMenu
+	getTextWidget, getMenu
 };
 
 struct menuDrv cntDialogueMnDrv = {
-	getAnswer, getMnCurAnswer, getAnswers, getMain
+	getAnswer, getMnCurAnswer, setMnCurAnswer, getAnswers, getMain
 };
 
 int boxMainPos;
 
 static Entity *boxGetbox(Entity *main)
 {
-  return yeGet(main, "box");
+	return yeGet(main, "box");
 }
 
 static Entity *boxGetTX(Entity *main)
 {
-  return yesCall(ygGet("DialogueBox.getDialogue"), boxGetbox(main));
+	return yesCall(ygGet("DialogueBox.getDialogue"), boxGetbox(main));
 }
 
 struct mainDrv boxDialogueMainDrv = {
-  boxGetTX, boxGetbox
+	boxGetTX, boxGetbox
 };
 
 
 static Entity *boxGetAnswer(Entity *box, int idx)
 {
-  return yesCall(ygGet("DialogueBox.getAnswer"), box, idx);
+	return yesCall(ygGet("DialogueBox.getAnswer"), box, idx);
 }
 
-static Entity *boxGetCurAnswer(Entity *box, int idx)
+static Entity *boxGetCurAnswer(Entity *box)
 {
-  return yesCall(ygGet("DialogueBox.getCurAnswer"), box, idx);
+	return yesCall(ygGet("DialogueBox.getCurAnswer"), box);
 }
 
 static Entity *boxGetAnswers(Entity *box)
 {
-  return yesCall(ygGet("DialogueBox.getAnswers"), box);
+	return yesCall(ygGet("DialogueBox.getAnswers"), box);
+}
+
+static void boxSetCurAnswer(Entity *box, Entity *nc)
+{
+	Entity *an;
+	Entity *answers = boxGetAnswers(box);
+
+	for (int i = 0; i < yeLen(answers); ++i) {
+		if ((an = boxGetAnswer(box, i)) == NULL)
+			continue;
+		if (nc == an) {
+			yesCall(ygGet("DialogueBox.moveAnswer"), box, i);
+			return;
+		}
+	}
 }
 
 static Entity *boxGetMain(Entity *box)
 {
-  return yeGet(box, boxMainPos);
+	return yeGet(box, boxMainPos);
 }
 
 struct menuDrv boxDialogueMnDrv = {
-  boxGetAnswer, boxGetCurAnswer, boxGetAnswers, boxGetMain
+	boxGetAnswer, boxGetCurAnswer, boxSetCurAnswer,
+	boxGetAnswers, boxGetMain
 };
 
 static struct menuDrv *getMenuDrv(Entity *menu)
@@ -142,7 +166,6 @@ static inline void findReplace__box(Entity *box, Entity *c)
 		Entity *cur = ae->entity;
 
 		if (yeType(cur) == YSTRING && !yeStrCmp(cur, "__box")) {
-			printf("replace %p by %p\n", cur, box);
 			yeReplace(c, cur, box);
 		} else if (yeType(cur) == YARRAY) {
 			findReplace__box(box, cur);
@@ -150,13 +173,21 @@ static inline void findReplace__box(Entity *box, Entity *c)
 	}
 }
 
-static int dialogueCondition(Entity *box, Entity *c)
+static int dialogueCondition(Entity *box, Entity *c, Entity *answer)
 {
 	int ret;
+	Entity *ca = NULL;
 
-	findReplace__box(box, c);
+	if (answer) {
+		ca = getMenuDrv(box)->getCurAnswer(box);
+		getMenuDrv(box)->setCurAnswer(box, answer);
+		findReplace__box(box, c);
+	}
 	yeReCreateInt(1, box, "is_dialogue_condition");
 	ret = yeCheckCondition(c);
+	if (ca) {
+		getMenuDrv(box)->setCurAnswer(box, ca);
+	}
 	yeRemoveChild(box, "is_dialogue_condition");
 	return ret;
 }
@@ -170,7 +201,7 @@ static void refreshAnswer(Entity *wid, Entity *menu, Entity *curent)
 		Entity *condition = yeGet(answer, "condition");
 
 		if (condition) {
-			yeReCreateInt(!dialogueCondition(menu, condition),
+			yeReCreateInt(!dialogueCondition(menu, condition, answer),
 				      answer, "hiden");
 		}
 	}
@@ -194,7 +225,7 @@ static Entity *getText(Entity *box, Entity *e)
     YE_ARRAY_FOREACH(txts, cur_txt) {
       condition = yeGet(cur_txt, "condition");
 
-      if (condition && !dialogueCondition(box, condition))
+      if (condition && !dialogueCondition(box, condition, NULL))
 	continue;
       ywidActions(box, cur_txt, NULL);
       return yeGet(cur_txt, "text");
@@ -269,7 +300,7 @@ static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
 		Entity *condition = yeGet(answer, "condition");
 
 		if (condition) {
-			yeReCreateInt(!dialogueCondition(menu, condition),
+			yeReCreateInt(!dialogueCondition(menu, condition, answer),
 				      answer, "hiden");
 		}
 
@@ -301,24 +332,24 @@ void *dialogueGetMain(int nbArgs, void **args)
 
 void *newDialogueEntity(int nbArgs, void **args)
 {
-  Entity *dialogue = args[0];
-  Entity *father = args[1];
-  Entity *name = args[2];
-  Entity *speaker_background = args[3];
-  Entity *answer_background = args[4];
-  Entity *ret = yeCreateArray(father, name);
+	Entity *dialogue = args[0];
+	Entity *father = args[1];
+	Entity *name = args[2];
+	Entity *speaker_background = args[3];
+	Entity *answer_background = args[4];
+	Entity *ret = yeCreateArray(father, name);
 
-  yePushBack(ret, dialogue, "dialogue");
-  yeCreateString("dialogue", ret, "<type>");
+	yePushBack(ret, dialogue, "dialogue");
+	yeCreateString("dialogue", ret, "<type>");
 
-  yePushBack(ret, speaker_background, "speaker_background");
-  yePushBack(ret, answer_background, "answer_background");
-  return ret;
+	yePushBack(ret, speaker_background, "speaker_background");
+	yePushBack(ret, answer_background, "answer_background");
+	return ret;
 }
 
 Entity *getMain(Entity *w)
 {
-  return ywCntWidgetFather(w);
+	return ywCntWidgetFather(w);
 }
 
 void *init(int nbArg, void **args)
@@ -354,12 +385,12 @@ void *init(int nbArg, void **args)
 
 void *dialoguePostAction(int nbArgs, void **args)
 {
-  uint64_t ret_type = (long)args[0];
-  Entity *e = args[1];
-  struct mainDrv *drv = getMainDrv(e);
+	uint64_t ret_type = (long)args[0];
+	Entity *e = args[1];
+	struct mainDrv *drv = getMainDrv(e);
 
-  refreshAnswer(e, drv->getMenu(e), yeGet(e, "active_dialogue"));
-  return ret_type == ACTION ? ACTION: NOACTION;
+	refreshAnswer(e, drv->getMenu(e), yeGet(e, "active_dialogue"));
+	return ((void *)ret_type == ACTION ? ACTION: NOACTION);
 }
 
 void *dialogueAction(int nbArgs, void **args)
@@ -434,7 +465,7 @@ void *dialogueGoto(int nbArgs, void **args)
   if (yeIsNum(args[2]))
 	  idx = yeGetInt(args[2]);
   else
-	  idx = yeArrayIdx(yeGet(main, "dialogue"), args[2]);
+	  idx = yeArrayIdx(yeGet(main, "dialogue"), YE_TO_ENTITY(args[2]));
 
   yeReCreateInt(idx, main, "active_dialogue");
   printfTextAndAnswer(main, drv->getTextWidget(main), args[0], args[2]);
@@ -458,7 +489,7 @@ void *dialogueGotoNext(int nbArgs, void **args)
     Entity *cur_dialogue = yeGet(yeGet(main, "dialogue"),
 				 yeGetInt(active_dialogue));
     condition = yeGet(cur_dialogue, "condition");
-  } while (condition && !dialogueCondition(box, condition));
+  } while (condition && !dialogueCondition(box, condition, NULL));
 
   if (yeGetInt(active_dialogue) >= dialogueLen(main)) {
     return (void *)ywidAction(yeGet(main, "endAction"), box, NULL);

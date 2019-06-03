@@ -327,7 +327,25 @@ Entity *yeBrutalCast(Entity *entity, int type);
 
 #define YE_FOREACH YE_ARRAY_FOREACH
 
-int	yeArrayIdx(Entity *array, const char *lookup);
+#define yeArrayIdx(a, lookup)					\
+	_Generic(lookup,					\
+		 char *: yeArrayIdx_str,			\
+		 Entity *: yeArrayIdx_ent,			\
+		 const Entity *: yeArrayIdx_ent,		\
+		 const char *: yeArrayIdx_str)(a, lookup)	\
+
+int	yeArrayIdx_str(Entity *array, const char *lookup);
+
+static inline int	yeArrayIdx_ent(Entity *array, Entity *lookup)
+{
+	int i = 0;
+	YE_FOREACH(array, cc) {
+		if (cc == lookup)
+			return i;
+		++i;
+	}
+	return -1;
+}
 
 Entity *yeGetLast(Entity *array);
 

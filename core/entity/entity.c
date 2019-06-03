@@ -443,7 +443,7 @@ static inline Entity *yeInitAt(Entity * restrict const entity,
 	return entity;
 }
 
-int yeArrayIdx(Entity *entity, const char *lookup)
+int yeArrayIdx_str(Entity *entity, const char *lookup)
 {
 	if (!entity || !lookup || yeType(entity) != YARRAY)
 		return -1;
