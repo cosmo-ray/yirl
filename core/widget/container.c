@@ -75,8 +75,11 @@ void ywCntPopLastEntry(Entity *container)
     return;
   cur = yeGet(container, "current");
   entries = yeGet(container, "entries");
-  if (ywidGetState(ret))
+  if (ywidGetState(ret)) {
     ywidMarkAsDestroyable(ywidGetState(ret));
+    yeCreateInt(1, ret, "need_yedestroy");
+    yeIncrRef(ret);
+  }
   yePopBack(entries);
   if (yeGetInt(cur) && yeLen(entries) == yeGetUInt(cur)) {
     yeSubInt(cur, 1);

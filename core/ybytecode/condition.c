@@ -29,7 +29,6 @@ static inline int pushComVal(Entity *val, uint64_t *instructions, int *idx)
 		*idx = i + 2;
 		instructions[i] = YB_CREATE_INT;
 		instructions[i + 1] = yeGetInt(val);
-		/* return yeGetInt(val); */
 	} else if (yeType(val) == YSTRING) {
 		*idx = i + 2;
 		instructions[i] = YB_YG_GET_PUSH_INT;

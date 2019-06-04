@@ -98,6 +98,7 @@ static void doKaboum(void)
 	while (kaboumables) {
 		struct Kaboumable *pk = kaboumables->prev;
 
+		printf("kboum !!\n");
 		yeRemoveChildByStr(kaboumables->kwid->entity,
 				   "$father-container");
 		YWidDestroy(kaboumables->kwid);
@@ -580,6 +581,8 @@ void YWidDestroy(YWidgetState *wid)
 	else
 		g_free(wid);
 	yeRemoveChild(ent, "$wid");
+	if (yeGetIntAt(ent, "need_yedestroy"))
+		yeDestroy(ent);
 }
 
 static void ywidFreeEvents(Entity *event)
