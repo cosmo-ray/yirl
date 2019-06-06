@@ -47,6 +47,34 @@ void *setAssetPath(int nbArg, void **args)
     assetsPath = strdup(newPath);
 }
 
+static void handle_properties(Entity *properties,
+			      Entity *proTypes, Entity *dest)
+{
+    int proTypesIt = 0;
+
+    YE_ARRAY_FOREACH_EXT(properties, property, it) {
+	Entity *val = property;
+	const char *name;
+	Entity *proType = yeGet(proTypes, proTypesIt);
+
+	++proTypesIt;
+	if (proTypes) {
+	    name = yBlockArrayIteratorGetPtr(it, ArrayEntry)->name;
+	} else {
+	    name = yeGetStringAt(property, "name");
+	    proType = yeGet(property, "type");
+	    val = yeGet(property, "value");
+	}
+	if (!yeStrCmp(proType, "int") || !yeStrCmp(proType, "bool")) {
+	    yeCreateInt(yeGetInt(val), dest, name);
+	} else if (!yeStrCmp(proType, "string")) {
+	    yeCreateString(yeGetString(val), dest, name);
+	} else if (!yeStrCmp(proType, "float")) {
+	    yeCreateFloat(yeGetFloat(val), dest, name);
+	}
+    }
+}
+
 void *fileToCanvas(int nbArg, void **args)
 {
     const char *path = args[0];
@@ -66,6 +94,9 @@ void *fileToCanvas(int nbArg, void **args)
     tiledEnt = ygFileToEnt(YJSON, path, NULL);
     tileset_array = yeGet(tiledEnt, "tilesets");
 
+    handle_properties(yeGet(tiledEnt, "properties"),
+		      yeGet(tiledEnt, "propertytypes"),
+		      canvas);
     YE_ARRAY_FOREACH(tileset_array, tileset) {
 	const char *tmp_path = yeGetString(yeGet(tileset, "source"));
 	Entity *tmp;
@@ -277,32 +308,8 @@ void *fileToCanvas(int nbArg, void **args)
 			      FLIPPED_HORIZONTALLY_FLAG)) {
 		    ywCanvasRotate(cur_img, 180);
 		}
-		int proTypesIt = 0;
-		YE_ARRAY_FOREACH_EXT(properties, property, it) {
-		    Entity *val = property;
-		    const char *name;
-		    Entity *proType = yeGet(proTypes, proTypesIt);
+		handle_properties(properties, proTypes, cur_img);
 
-		    ++proTypesIt;
-		    if (proTypes) {
-			name = yBlockArrayIteratorGetPtr(it,
-							 ArrayEntry)->name;
-		    } else {
-			name = yeGetStringAt(property, "name");
-			proType = yeGet(property, "type");
-			val = yeGet(property, "value");
-		    }
-		    if (!yeStrCmp(proType, "int")) {
-			yeCreateInt(yeGetInt(val), cur_img,
-				    name);
-		    } else if (!yeStrCmp(proType, "string")) {
-			yeCreateString(yeGetString(val), cur_img,
-				       name);
-		    } else if (!yeStrCmp(proType, "float")) {
-			yeCreateFloat(yeGetFloat(val), cur_img,
-				      name);
-		    }
-		}
 	      next_tile:
 		x += tilewidth;
 		++i;

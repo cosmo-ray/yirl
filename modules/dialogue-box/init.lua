@@ -49,7 +49,7 @@ function posArray(box, idx)
    local pos = ywCanvasObjPos(yeGet(yeGet(box, 0), idx + 1))
 
    if idx < 0 or yLovePtrToNumber(pos) == 0 then
-      if idx >= 0 then
+      if idx >= 0  and getAnswer(box, idx) ~= nil then
 	 yeSetInt(yeGet(box, 5), idx);
       end
       return
