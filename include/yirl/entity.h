@@ -336,7 +336,7 @@ Entity *yeBrutalCast(Entity *entity, int type);
 
 int	yeArrayIdx_str(Entity *array, const char *lookup);
 
-static inline int	yeArrayIdx_ent(Entity *array, Entity *lookup)
+static inline int yeArrayIdx_ent(Entity *array, Entity *lookup)
 {
 	int i = 0;
 	YE_FOREACH(array, cc) {

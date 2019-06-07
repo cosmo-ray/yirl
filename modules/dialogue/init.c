@@ -467,7 +467,7 @@ void *dialogueGoto(int nbArgs, void **args)
   if (yeIsNum(args[2]))
 	  idx = yeGetInt(args[2]);
   else
-	  idx = yeArrayIdx(yeGet(main, "dialogue"), YE_TO_ENTITY(args[2]));
+	  idx = yeArrayIdx(yeGet(main, "dialogue"), yeGetString(args[2]));
 
   yeReCreateInt(idx, main, "active_dialogue");
   printfTextAndAnswer(main, drv->getTextWidget(main), args[0], args[2]);
@@ -501,7 +501,6 @@ void *dialogueGotoNext(int nbArgs, void **args)
   if (yeGetInt(active_dialogue) >= dialogueLen(main)) {
     return (void *)ywidAction(yeGet(main, "endAction"), box, NULL);
   }
-  printf("active: %d\n", yeGetInt(active_dialogue));
   printfTextAndAnswer(main, drv->getTextWidget(main), box, active_dialogue);
   return (void *)NOACTION;
 }
@@ -643,7 +642,8 @@ void *dialogueCanvasInit(int nbArgs, void **args)
   ret = ywidNewWidget(main, "canvas");
   dialogue = yeGet(main, "dialogue");
   if (name) {
-    yesCall(ygGet("DialogueBox.new_text"), main, 10, y, yeGetString(name), main, "name-box");
+    yesCall(ygGet("DialogueBox.new_text"), main, 10, y,
+	    yeGetString(name), main, "name-box");
     y += 30;
   }
   box = yesCall(ygGet("DialogueBox.new_empty"), main, 10, y, main, "box");
