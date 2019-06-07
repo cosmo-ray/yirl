@@ -37,11 +37,25 @@
 		return 1;						\
 	}
 
+#define LUA_IMPLEMENT_I_I(func)						\
+	static inline int lua##func(lua_State *L)			\
+	{								\
+		lua_pushnumber(L, func(lua_tointeger(L, 1)));		\
+		return 1;						\
+	}
+
 #define LUA_IMPLEMENT_I_E(func)					\
 	static inline int lua##func(lua_State *L)		\
 	{							\
 		lua_pushnumber(L, func(luaEntityAt(L, 1)));	\
 		return 1;					\
+	}
+
+#define LUA_IMPLEMENT_I_S(func)						\
+	static inline int lua##func(lua_State *L)			\
+	{								\
+		lua_pushnumber(L, func(lua_tostring(L, 1)));		\
+		return 1;						\
 	}
 
 #define LUA_IMPLEMENT_I_ES(func)					\
@@ -355,10 +369,11 @@ int	luaygUnstalk(lua_State *L);
 int	luaygReCreateInt(lua_State *L);
 
 /* Audio */
-int	luaySoundLoad(lua_State *L);
+LUA_IMPLEMENT_I_S(ySoundLoad)
 int	luaySoundPlay(lua_State *L);
 int	luaySoundPlayLoop(lua_State *L);
 int	luaySoundStop(lua_State *L);
+LUA_IMPLEMENT_I_S(ySoundMusicLoad)
 
 /* condition */
 int	luayeCheckCondition(lua_State *L);
@@ -749,6 +764,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, ySoundPlay);
   YES_LUA_REGISTRE_CALL(sm, ySoundPlayLoop);
   YES_LUA_REGISTRE_CALL(sm, ySoundStop);
+  YES_LUA_REGISTRE_CALL(sm, ySoundMusicLoad);
 
   /* Condition */
   YES_LUA_REGISTRE_CALL(sm, yeCheckCondition);

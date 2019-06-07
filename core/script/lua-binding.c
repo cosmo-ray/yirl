@@ -921,12 +921,6 @@ int	luaCreateFloat(lua_State *L)
 	return 1;
 }
 
-int	luaySoundLoad(lua_State *L)
-{
-	lua_pushnumber(L, ySoundLoad(lua_tostring(L, 1)));
-	return 1;
-}
-
 int	luaySoundPlayLoop(lua_State *L)
 {
 	lua_pushnumber(L, ySoundPlayLoop(luaNumberAt(L, 1)));

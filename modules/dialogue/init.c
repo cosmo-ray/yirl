@@ -272,10 +272,12 @@ static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
 		} else {
 			if (yeGet(dialogue, "action")) {
 				Entity *answer = yeCreateArray(answers, NULL);
+
 				yeCreateString("(continue)", answer, "text");
 				yeGetPush(dialogue, answer, "action");
 			} else if (yeGet(dialogue, "actions")) {
 				Entity *answer = yeCreateArray(answers, NULL);
+
 				yeCreateString("(continue)", answer, "text");
 				yeGetPush(dialogue, answer, "actions");
 			} else {
@@ -479,6 +481,7 @@ void *dialogueGotoNext(int nbArgs, void **args)
   struct mainDrv *drv = getMainDrv(main);
   Entity *active_dialogue = yeGet(main, "active_dialogue");
   Entity *condition;
+  int pass;
 
   if (drv == &cntDialogueMainDrv) {
     ywtextScreenResetTimer(ywCntGetEntry(main, 0));
@@ -489,11 +492,16 @@ void *dialogueGotoNext(int nbArgs, void **args)
     Entity *cur_dialogue = yeGet(yeGet(main, "dialogue"),
 				 yeGetInt(active_dialogue));
     condition = yeGet(cur_dialogue, "condition");
-  } while (condition && !dialogueCondition(box, condition, NULL));
+    if (condition)
+	    pass = dialogueCondition(box, condition, NULL);
+    else
+	    pass = 1;
+  } while (!pass);
 
   if (yeGetInt(active_dialogue) >= dialogueLen(main)) {
     return (void *)ywidAction(yeGet(main, "endAction"), box, NULL);
   }
+  printf("active: %d\n", yeGetInt(active_dialogue));
   printfTextAndAnswer(main, drv->getTextWidget(main), box, active_dialogue);
   return (void *)NOACTION;
 }

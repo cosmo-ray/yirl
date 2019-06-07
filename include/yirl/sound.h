@@ -45,13 +45,6 @@ int ySoundPlay(int id);
 int ySoundMusicLoad(const char *path);
 
 /**
- * @return 0 upon success, -1 on error
- */
-int ySoundMusicPlay(int id);
-
-int ySoundMusicStop(int id);
-
-/**
  * Same as ySoundMusicPlay() in loop
  */
 int ySoundPlayLoop(int id);
