@@ -60,6 +60,10 @@ O_SRC = $(SCRIPT_DIR)/s7.c
 
 O_OBJ = $(O_SRC:.c=.o)
 
+DUCK_SRC = $(DUCK_V)/src/duktape.c
+
+DUCK_OBJ = $(DUCK_SRC:.c=.o)
+
 SRCXX += 	$(ENTITY_DIR)/entity-cplusplus.cpp \
 		$(WID_DIR)/canvas.cpp \
 		$(SDL_WID_DIR)/canvas.cpp
@@ -104,13 +108,24 @@ CXXFLAGS = $(COMMON_CFLAGS) -x c++ -Wno-missing-exception-spec -fno-exceptions -
 
 CFLAGS += $(COMMON_CFLAGS) -std=gnu11 -D_GNU_SOURCE
 
+DUCK_V = duktape-2.3.0
+
+get-duck:
+	wget "https://duktape.org/$(DUCK_V).tar.xz"
+
+$(DUCK_V): get-duck
+	tar xvfJ $(DUCK_V).tar.xz
+
+$(DUCK_OBJ):
+	$(CC) -c -o $(DUCK_OBJ) $(DUCK_SRC) -fPIC -Os -g -std=c99 -Wall -fstrict-aliasing -fomit-frame-pointer
+
 $(SCRIPT_DIR)/s7.o:
 	$(CC) -c -o $(SCRIPT_DIR)/s7.o $(SCRIPT_DIR)/s7.c -Wno-implicit-fallthrough -fPIC -O0 -g
 
-build-static-lib: $(OBJ) $(O_OBJ) $(OBJXX)
+build-static-lib: $(OBJ) $(O_OBJ) $(OBJXX) $(DUCK_OBJ)
 	$(AR)  -r -c -s $(LIBNAME).a $(OBJ) $(O_OBJ) $(OBJXX)
 
-build-dynamic-lib: $(OBJ) $(O_OBJ) $(OBJXX)
+build-dynamic-lib: $(OBJ) $(O_OBJ) $(OBJXX) $(DUCK_OBJ)
 	$(CC) -shared -o  $(LIBNAME).$(LIBEXTENSION) $(OBJ) $(O_OBJ) $(OBJXX) $(LDFLAGS)
 
 build-generic-loader: $(YIRL_LINKING) $(GEN_LOADER_OBJ)
@@ -120,4 +135,4 @@ clean:	clean-tests clean-shooter
 	rm -rvf $(OBJ) $(OBJXX) $(GEN_LOADER_OBJ)
 
 fclean: clean
-	rm -rvf $(LIBNAME).a $(O_OBJ) $(LIBNAME).so $(LIBNAME).dll
+	rm -rvf $(LIBNAME).a $(O_OBJ) $(DUCK_OBJ) $(LIBNAME).so $(LIBNAME).dll
