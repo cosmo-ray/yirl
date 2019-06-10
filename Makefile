@@ -24,6 +24,7 @@ SRC = 	$(SCRIPT_DIR)/lua-script.c \
 	$(SCRIPT_DIR)/native-script.c \
 	$(SCRIPT_DIR)/ybytecode-script.c \
 	$(SCRIPT_DIR)/s7-script.c \
+	$(SCRIPT_DIR)/duk-script.c \
 	$(SCRIPT_DIR)/script.c \
 	$(BYTECODE_DIR)/ybytecode.c \
 	$(BYTECODE_DIR)/condition.c \
@@ -60,9 +61,13 @@ O_SRC = $(SCRIPT_DIR)/s7.c
 
 O_OBJ = $(O_SRC:.c=.o)
 
-DUCK_SRC = $(DUCK_V)/src/duktape.c
+DUCK_SRC = $(DUCK_V)/src/duktape.c \
+	   $(DUCK_V)/extras/print-alert/duk_print_alert.c \
+	   $(DUCK_V)/extras/console/duk_console.c
 
-DUCK_OBJ = $(DUCK_SRC:.c=.o)
+DUK_OBJ =  $(DUCK_SRC:.c=.o)
+
+DUK_FLAGS =  -fPIC -Os -g -std=c99 -Wall -fstrict-aliasing -fomit-frame-pointer
 
 SRCXX += 	$(ENTITY_DIR)/entity-cplusplus.cpp \
 		$(WID_DIR)/canvas.cpp \
@@ -95,6 +100,7 @@ COMMON_CFLAGS += -I$(YIRL_INCLUDE_PATH)
 COMMON_CFLAGS += -I$(YIRL_INCLUDE_PATH2)
 COMMON_CFLAGS += -I$(TCC_LIB_PATH)
 COMMON_CFLAGS += -I./core/script/
+COMMON_CFLAGS += -I./$(DUCK_V)/ -I./$(DUCK_V)/src/ # <--- last one is here so I can compile extras
 COMMON_CFLAGS += -fpic
 COMMON_CFLAGS += $(LUA_CFLAGS)
 COMMON_CFLAGS += -Werror -Wall -Wextra -Wno-unused-function -Wno-unused-parameter -Wno-int-to-pointer-cast
@@ -116,17 +122,23 @@ get-duck:
 $(DUCK_V): get-duck
 	tar xvfJ $(DUCK_V).tar.xz
 
-$(DUCK_OBJ):
-	$(CC) -c -o $(DUCK_OBJ) $(DUCK_SRC) -fPIC -Os -g -std=c99 -Wall -fstrict-aliasing -fomit-frame-pointer
+$(DUCK_V)/src/duktape.o:
+	$(CC) -c -o $(DUCK_V)/src/duktape.o $(DUCK_V)/src/duktape.c $(DUK_FLAGS)
+
+$(DUCK_V)/extras/print-alert/duk_print_alert.o:
+	$(CC) -c -o $(DUCK_V)/extras/print-alert/duk_print_alert.o $(DUCK_V)/extras/print-alert/duk_print_alert.c $(DUK_FLAGS) -I./$(DUCK_V)/src/
+
+$(DUCK_V)/extras/print-alert/duk_console.o:
+	$(CC) -c -o $(DUCK_V)/extras/console/duk_console.o $(DUCK_V)/extras/console/duk_console.c $(DUK_FLAGS) -I./$(DUCK_V)/src/
 
 $(SCRIPT_DIR)/s7.o:
 	$(CC) -c -o $(SCRIPT_DIR)/s7.o $(SCRIPT_DIR)/s7.c -Wno-implicit-fallthrough -fPIC -O0 -g
 
-build-static-lib: $(OBJ) $(O_OBJ) $(OBJXX) $(DUCK_OBJ)
-	$(AR)  -r -c -s $(LIBNAME).a $(OBJ) $(O_OBJ) $(OBJXX)
+build-static-lib: $(OBJ) $(O_OBJ) $(OBJXX) $(DUK_OBJ)
+	$(AR)  -r -c -s $(LIBNAME).a $(OBJ) $(O_OBJ) $(OBJXX) $(DUK_OBJ)
 
-build-dynamic-lib: $(OBJ) $(O_OBJ) $(OBJXX) $(DUCK_OBJ)
-	$(CC) -shared -o  $(LIBNAME).$(LIBEXTENSION) $(OBJ) $(O_OBJ) $(OBJXX) $(LDFLAGS)
+build-dynamic-lib: $(OBJ) $(O_OBJ) $(OBJXX) $(DUK_OBJ)
+	$(CC) -shared -o  $(LIBNAME).$(LIBEXTENSION) $(OBJ) $(O_OBJ) $(OBJXX) $(DUK_OBJ) $(LDFLAGS)
 
 build-generic-loader: $(YIRL_LINKING) $(GEN_LOADER_OBJ)
 	$(CC) -o yirl-loader$(BIN_EXT) $(GEN_LOADER_OBJ) $(BINARY_LINKING) $(LDFLAGS)

@@ -109,6 +109,8 @@ int main(int argc, char **argv)
 
   TEST_TRY_ADD("/script/s7/call", testS7ScriptCall, only);
 
+  TEST_TRY_ADD("/script/duktape/call", testDukScriptCall, only);
+
   TEST_TRY_ADD("/script/scripts/add-function", testScriptAddFunction, only);
 
   TEST_TRY_ADD("/parser/json/simple-file", testJsonLoadFile, only);

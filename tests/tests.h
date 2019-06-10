@@ -56,6 +56,8 @@ void testLuaScritEntityBind(void);
 
 void testS7ScriptCall(void);
 
+void testDukScriptCall(void);
+
 void testTccScritLifecycle(void);
 void testTccTestsMacros(void);
 void testTccAddDefine(void);
