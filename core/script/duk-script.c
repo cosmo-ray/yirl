@@ -38,10 +38,76 @@ static int t = -1;
 #define OPS(s) ((YScriptDuk *)s)->ops
 #define CTX(s) ((YScriptDuk *)s)->ctx
 
+#define GET_E(ctx, i)				\
+	duk_get_pointer(ctx, i)
+
+#define PUSH_E(c, e)				\
+	duk_push_pointer(c, e)
+
+
 typedef struct {
 	YScriptOps ops;
 	duk_context *ctx;
 } YScriptDuk;
+
+static duk_ret_t dukto_str(duk_context *ctx)
+{
+	if (duk_is_pointer(ctx, 0)) {
+		void *p = duk_get_pointer(ctx, 0);
+		duk_push_string(ctx, (char *)p);
+	} else {
+		duk_push_null(ctx);
+	}
+	return 1;
+}
+
+static duk_ret_t dukyeCreateString(duk_context *ctx)
+{
+	PUSH_E(ctx, yeCreateString(duk_get_string(ctx, 0),
+				   GET_E(ctx, 1),
+				   duk_get_string(ctx, 2)));
+	return 1;
+}
+
+#define BIND_I_E(x, u0, u1)					\
+	static duk_ret_t duk##x(duk_context *ctx) {		\
+		duk_push_int(ctx, x(GET_E(ctx, 0)));		\
+		return 1;					\
+	}
+
+#define DUMB_FUNC(x)						\
+	static duk_ret_t duk##x(duk_context *ctx) {		\
+		printf("BIND not yet implemented %s\n", #x);	\
+		return 0;					\
+	}
+
+DUMB_FUNC(ywPosCreate);
+DUMB_FUNC(yeGet);
+DUMB_FUNC(yeGetIntAt);
+DUMB_FUNC(yeSetIntAt);
+DUMB_FUNC(yevCreateGrp);
+DUMB_FUNC(yesCall);
+DUMB_FUNC(yeIncrAt);
+DUMB_FUNC(yeAddAt);
+
+#define BIND_I_V(a) DUMB_FUNC(a)
+#define BIND_S_E(a, b, c) DUMB_FUNC(a)
+#define BIND_E_S(a, b, c) DUMB_FUNC(a)
+#define BIND_V_E(a, b, c) DUMB_FUNC(a)
+#define BIND_V_EI(a, b, c) DUMB_FUNC(a)
+#define BIND_V_EE(a, b, c) DUMB_FUNC(a)
+#define BIND_V_EII(a, b, c) DUMB_FUNC(a)
+#define BIND_E_E(a, b, c) DUMB_FUNC(a)
+#define BIND_E_EE(a, b, c) DUMB_FUNC(a)
+#define BIND_E_ES(a, b, c) DUMB_FUNC(a)
+#define BIND_E_EI(a, b, c) DUMB_FUNC(a)
+#define BIND_B_EE(a, b, c) DUMB_FUNC(a)
+#define BIND_B_EES(a, b, c) DUMB_FUNC(a)
+#define BIND_B_EEE(a, b, c) DUMB_FUNC(a)
+#define BIND_E_EIIE(a, b, c) DUMB_FUNC(a)
+#define BIND_E_EIIS(a, b, c) DUMB_FUNC(a)
+#define BIND_B_EEEE(a, b, c) DUMB_FUNC(a)
+#include "binding.c"
 
 static void *call(void *sm, const char *name, va_list ap)
 {
@@ -52,13 +118,20 @@ static void *call(void *sm, const char *name, va_list ap)
 	for (void *tmp = va_arg(ap, void *); tmp != Y_END_VA_LIST;
 	     tmp = va_arg(ap, void *)) {
 		if (!yeIsPtrAnEntity(tmp))
+			PUSH_E(ctx, tmp);
+		else if ((intptr_t)tmp < 65536)
 			duk_push_int(ctx, (intptr_t)tmp);
 		else
 			duk_push_pointer(ctx, tmp);
 		++i;
 	}
 	duk_call(ctx, i);
-	return (void *)duk_get_pointer(ctx, duk_get_top(ctx));
+	i = duk_get_top(ctx) - 1;
+	if (duk_is_pointer(ctx, i))
+		return duk_get_pointer(ctx, i);
+	if (duk_is_boolean(ctx, i))
+		return (void *)duk_get_boolean(ctx, i);
+	return (void *)duk_get_int(ctx, i);
 }
 
 static int destroy(void *sm)
@@ -75,6 +148,25 @@ static int init(void *sm, void *args)
 	duk_print_alert_init(ctx, 0);
 	duk_console_init(ctx, 0);
 	CTX(sm) = ctx;
+	duk_push_global_object(ctx);
+
+#define BIND(x, args, oargs)						\
+	duk_push_string(ctx, #x);					\
+	duk_push_c_function(ctx,					\
+			    duk##x, args + oargs ?			\
+			    args + oargs : DUK_VARARGS);		\
+	duk_def_prop(ctx, -3, DUK_DEFPROP_HAVE_VALUE |			\
+		     DUK_DEFPROP_SET_WRITABLE | DUK_DEFPROP_SET_CONFIGURABLE);
+
+#define PUSH_I_GLOBAL(X)
+#define IN_CALL 1
+
+	BIND(to_str, 1, 0);
+	BIND(yeCreateString, 1, 2);
+#include "binding.c"
+#undef IN_CALL
+
+	duk_pop(ctx);
 	return 0;
 }
 

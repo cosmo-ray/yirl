@@ -19,8 +19,10 @@
 #define BIND_E_EIIS	BIND
 #define BIND_B_EEEE	BIND
 #else
+
 #define PUSH_I_GLOBAL(X)
 #define BIND_NONE(a, b, c)
+
 #endif
 
 BIND_NONE(ywPosCreate, 2, 2);
@@ -65,6 +67,7 @@ BIND_I_E(yeType, 1, 0);
 BIND_I_E(ywPosY, 1, 0);
 BIND_I_E(ywPosX, 1, 0);
 BIND_I_E(ywidAddSubType, 1, 0);
+BIND_I_E(yeGetInt, 1, 0);
 
 BIND_V_EI(yeSetInt, 2, 0);
 

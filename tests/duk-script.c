@@ -40,7 +40,8 @@ void testDukScriptCall(void)
 	Entity *f = yeCreateFunction("alert", sm, e, NULL);
 
 	ysCall(sm, "alert", e);
-	printf("%p\n", ysCall(sm, "display_ent", e));
+	printf("ret ent: %ld\n", (intptr_t)ysCall(sm, "display_ent", e));
+
 	g_assert((intptr_t)ysCall(sm, "display_eint", i) == 1337);
 	yesCall(f, i);
 	printf("mk_hi: %s\n", yeGetString(ysCall(sm, "mk_hello", e, "name")));

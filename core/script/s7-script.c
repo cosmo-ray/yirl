@@ -420,9 +420,6 @@ static s7_pointer s7yevCreateGrp(s7_scheme *s, s7_pointer a)
 #define BIND_E_EIIE(f, a, b) S7_IMPLEMENT_E_EIIE(f)
 #include "binding.c"
 
-
-S7_IMPLEMENT_I_E(yeGetInt);
-
 static s7_pointer s7yeSetIntAt(s7_scheme *s, s7_pointer a)
 {
 	int val = s7_integer(s7_list_ref(s, a, 2));
@@ -484,7 +481,6 @@ static int init(void *sm, void *args)
 #define BIND(name, nargs, optargs)					\
 	s7_define_safe_function(s7, #name, s7##name, nargs, optargs, false, "")
 
-	BIND(yeGetInt, 1, 0);
 	BIND(ywidNewWidget, 2, 0);
 	BIND(yeCreateString, 1, 2);
 	BIND(yeCreateInt, 1, 2);
