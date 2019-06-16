@@ -44,11 +44,12 @@ static int t = -1;
 #define PUSH_E(c, e)				\
 	duk_push_pointer(c, e)
 
-
 typedef struct {
 	YScriptOps ops;
 	duk_context *ctx;
 } YScriptDuk;
+
+YScriptDuk *cur_sc;
 
 static duk_ret_t dukto_str(duk_context *ctx)
 {
@@ -61,6 +62,22 @@ static duk_ret_t dukto_str(duk_context *ctx)
 	return 1;
 }
 
+static duk_ret_t dukywidNewWidget(duk_context *ctx)
+{
+	duk_push_pointer(ctx, ywidNewWidget(GET_E(ctx, 0),
+						  duk_get_string(ctx, 1)));
+	return 1;
+}
+
+static duk_ret_t dukyeGet(duk_context *ctx)
+{
+	if (duk_is_string(ctx, 1))
+		PUSH_E(ctx, yeGet(GET_E(ctx, 0), duk_get_string(ctx, 1)));
+	else
+		PUSH_E(ctx, yeGet(GET_E(ctx, 0), duk_get_int(ctx, 1)));
+	return 1;
+}
+
 static duk_ret_t dukyeCreateString(duk_context *ctx)
 {
 	PUSH_E(ctx, yeCreateString(duk_get_string(ctx, 0),
@@ -69,9 +86,46 @@ static duk_ret_t dukyeCreateString(duk_context *ctx)
 	return 1;
 }
 
+static duk_ret_t dukyeCreateFunction(duk_context *ctx)
+{
+	PUSH_E(ctx, yeCreateFunction(duk_get_string(ctx, 0),
+				     ygGetManager("js"),
+				     GET_E(ctx, 1),
+				     duk_get_string(ctx, 2)));
+	return 1;
+}
+
+static duk_ret_t dukyeCreateArray(duk_context *ctx)
+{
+	PUSH_E(ctx, yeCreateArray(GET_E(ctx, 0),
+				   duk_get_string(ctx, 1)));
+	return 1;
+}
+
+static duk_ret_t dukyeReCreateArray(duk_context *ctx)
+{
+	PUSH_E(ctx, yeReCreateArray(GET_E(ctx, 0),
+				    duk_get_string(ctx, 1),
+				    GET_E(ctx, 2)));
+	return 1;
+}
+
+
+#define BIND_I_V(x)						\
+	static duk_ret_t duk##x(duk_context *ctx) {		\
+		duk_push_int(ctx, x());				\
+		return 1;					\
+	}
+
 #define BIND_I_E(x, u0, u1)					\
 	static duk_ret_t duk##x(duk_context *ctx) {		\
 		duk_push_int(ctx, x(GET_E(ctx, 0)));		\
+		return 1;					\
+	}
+
+#define BIND_S_E(x, u0, u1)					\
+	static duk_ret_t duk##x(duk_context *ctx) {		\
+		duk_push_string(ctx, x(GET_E(ctx, 0)));		\
 		return 1;					\
 	}
 
@@ -82,7 +136,6 @@ static duk_ret_t dukyeCreateString(duk_context *ctx)
 	}
 
 DUMB_FUNC(ywPosCreate);
-DUMB_FUNC(yeGet);
 DUMB_FUNC(yeGetIntAt);
 DUMB_FUNC(yeSetIntAt);
 DUMB_FUNC(yevCreateGrp);
@@ -90,8 +143,6 @@ DUMB_FUNC(yesCall);
 DUMB_FUNC(yeIncrAt);
 DUMB_FUNC(yeAddAt);
 
-#define BIND_I_V(a) DUMB_FUNC(a)
-#define BIND_S_E(a, b, c) DUMB_FUNC(a)
 #define BIND_E_S(a, b, c) DUMB_FUNC(a)
 #define BIND_V_E(a, b, c) DUMB_FUNC(a)
 #define BIND_V_EI(a, b, c) DUMB_FUNC(a)
@@ -113,6 +164,7 @@ static void *call(void *sm, const char *name, va_list ap)
 {
 	duk_context *ctx = CTX(sm);
 	int i = 0;
+	void *r;
 
 	duk_get_global_string(ctx, name);
 	for (void *tmp = va_arg(ap, void *); tmp != Y_END_VA_LIST;
@@ -128,10 +180,13 @@ static void *call(void *sm, const char *name, va_list ap)
 	duk_call(ctx, i);
 	i = duk_get_top(ctx) - 1;
 	if (duk_is_pointer(ctx, i))
-		return duk_get_pointer(ctx, i);
-	if (duk_is_boolean(ctx, i))
-		return (void *)duk_get_boolean(ctx, i);
-	return (void *)duk_get_int(ctx, i);
+		r = duk_get_pointer(ctx, i);
+	else if (duk_is_boolean(ctx, i))
+		r = (void *)duk_get_boolean(ctx, i);
+	else
+		r = (void *)duk_get_int(ctx, i);
+	duk_pop(ctx);
+	return r;
 }
 
 static int destroy(void *sm)
@@ -141,9 +196,16 @@ static int destroy(void *sm)
 	return 0;
 }
 
+static void fatal_handler(void *udata, const char *msg)
+{
+	DPRINT_ERR("BAZOKA: %p - %s\n",
+		   udata, msg ? msg : "(nil)");
+	abort();
+}
+
 static int init(void *sm, void *args)
 {
-	duk_context *ctx = duk_create_heap_default();
+	duk_context *ctx = duk_create_heap(NULL, NULL, NULL, NULL, fatal_handler);
 
 	duk_print_alert_init(ctx, 0);
 	duk_console_init(ctx, 0);
@@ -158,11 +220,25 @@ static int init(void *sm, void *args)
 	duk_def_prop(ctx, -3, DUK_DEFPROP_HAVE_VALUE |			\
 		     DUK_DEFPROP_SET_WRITABLE | DUK_DEFPROP_SET_CONFIGURABLE);
 
-#define PUSH_I_GLOBAL(X)
-#define IN_CALL 1
+#define PUSH_I_GLOBAL_VAL(x, val)					\
+	duk_push_string(ctx, #x);					\
+	duk_push_int(ctx, val);						\
+	duk_def_prop(ctx, -3, DUK_DEFPROP_HAVE_VALUE |			\
+		     DUK_DEFPROP_SET_WRITABLE | DUK_DEFPROP_SET_CONFIGURABLE);
 
+
+#define PUSH_I_GLOBAL(X) PUSH_I_GLOBAL_VAL(X, X)
+
+	PUSH_I_GLOBAL_VAL(is_yirl, 1);
+	PUSH_I_GLOBAL_VAL(YEVE_NOTHANDLE, NOTHANDLE);
+	PUSH_I_GLOBAL_VAL(YEVE_ACTION, ACTION);
 	BIND(to_str, 1, 0);
 	BIND(yeCreateString, 1, 2);
+	BIND(yeCreateArray, 0, 2);
+	BIND(yeReCreateArray, 2, 1);
+	BIND(yeCreateFunction, 1, 2);
+	BIND(ywidNewWidget, 1, 2);
+#define IN_CALL 1
 #include "binding.c"
 #undef IN_CALL
 

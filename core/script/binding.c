@@ -61,6 +61,7 @@ BIND_NONE(yeAddAt, 3, 0);
 BIND_S_E(ywPosToString, 1, 0);
 BIND_S_E(ywSizeToString, 1, 0);
 BIND_S_E(ywRectToString, 1, 0);
+BIND_S_E(yeGetString, 1, 0);
 
 BIND_I_E(yeRefCount, 1, 0);
 BIND_I_E(yeType, 1, 0);
@@ -68,6 +69,7 @@ BIND_I_E(ywPosY, 1, 0);
 BIND_I_E(ywPosX, 1, 0);
 BIND_I_E(ywidAddSubType, 1, 0);
 BIND_I_E(yeGetInt, 1, 0);
+BIND_I_E(yeLen, 1, 0);
 
 BIND_V_EI(yeSetInt, 2, 0);
 

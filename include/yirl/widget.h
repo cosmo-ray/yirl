@@ -104,6 +104,10 @@ enum {
     YEVE_NEXT = 16
 };
 
+#define YEVE_ACTION ((void *)ACTION)
+
+#define YEVE_NOTHANDLE ((void *)NOTHANDLE)
+
 static inline EventType ywidEveType(Entity *eve)
 {
   return (EventType)yeGetInt(yeGet(eve, YEVE_TYPE));

@@ -33,6 +33,7 @@
 #include "lua-binding.h"
 #include "tcc-script.h"
 #include "s7-script.h"
+#include "duk-script.h"
 #include "native-script.h"
 #include "ybytecode-script.h"
 
@@ -58,6 +59,7 @@ static void *rawfileManager;
 static void *luaManager;
 static void *tccManager;
 static void *s7Manager;
+static void *dukManager;
 
 static Entity *mainMod;
 static Entity *modList;
@@ -73,6 +75,11 @@ static const char *curses = "curses";
 char *yProgramArg;
 
 char *ygBinaryRootPath = "./";
+
+void *ygDukManager(void)
+{
+  return dukManager;
+}
 
 void *ygS7Manager(void)
 {
@@ -294,6 +301,10 @@ int ygInit(GameConfig *cfg)
   CHECK_AND_GOTO(s7Manager = ysNewManager(NULL, t), NULL, error,
 		    "s7 init failed");
 
+  CHECK_AND_GOTO(t = ysDukInit(), -1, error, "Duk init failed");
+  CHECK_AND_GOTO(dukManager = ysNewManager(NULL, t), NULL, error,
+		    "Duk init failed");
+
   /* Init widgets */
   baseMod = yeCreateArray(NULL, NULL);
   addNativeFuncToBaseMod();
@@ -390,6 +401,8 @@ void ygEnd()
   ysLuaEnd();
   ysDestroyManager(s7Manager);
   ysS7End();
+  ysDestroyManager(dukManager);
+  ysDukEnd();
   yeDestroy(globalsFunctions);
   globalsFunctions = NULL;
   yeDestroy(baseMod);
@@ -434,203 +447,224 @@ void *ygGetManager(const char *name)
     return ysYBytecodeManager();
   else if (yuiStrEqual0(name, "s7"))
     return s7Manager;
+  else if (yuiStrEqual0(name, "js"))
+    return dukManager;
   return NULL;
 }
 
 Entity *ygFileToEnt(YFileType t, const char *path, Entity *father)
 {
-  if (t == YJSON)
-    return ydFromFile(jsonManager, path, father);
-  else if (t == YRAW_FILE)
-    return ydFromFile(rawfileManager, path, father);
-  return NULL;
+	if (t == YJSON)
+		return ydFromFile(jsonManager, path, father);
+	else if (t == YRAW_FILE)
+		return ydFromFile(rawfileManager, path, father);
+	return NULL;
 }
 
 int ygEntToFile(YFileType t, const char *path, Entity *ent)
 {
-  if (t == YJSON)
-    return ydToFile(jsonManager, path, ent);
-  return -1;
+	if (t == YJSON)
+		return ydToFile(jsonManager, path, ent);
+	return -1;
 }
 
 Entity *ygLoadMod(const char *path)
 {
-  char *tmp;
-  Entity *mod = NULL;
-  Entity *type;
-  Entity *file;
-  Entity *starting_widget;
-  Entity *preLoad;
-  Entity *initScripts;
-  Entity *name;
+	char *tmp;
+	Entity *mod = NULL;
+	Entity *type;
+	Entity *file;
+	Entity *starting_widget;
+	Entity *preLoad;
+	Entity *initScripts;
+	Entity *name;
 
-  YE_NEW(string, tmp_name, "");
-  for (int i = 0; i < 3; ++i) {
-    const char * const starts[] = {"/start.c", "/start.lua", "/start.scm"};
-    void * const managers[] = {tccManager, luaManager, s7Manager};
+	YE_NEW(string, tmp_name, "");
+	for (int i = 0; i < 3; ++i) {
+		const char * const starts[] = {"/start.c", "/start.lua",
+					       "/start.scm", "/start.js"};
+		void * const managers[] = {tccManager, luaManager,
+					   s7Manager, dukManager};
 
-    tmp = g_strconcat(path, starts[i], NULL);
-    CHECK_AND_RET(tmp, NULL, NULL,
-		  "cannot allocated path(like something went really wrong)");
-    if (!access(tmp, F_OK) && !ysLoadFile(managers[i], tmp)) {
-      mod = yeCreateArray(NULL, NULL);
-      yeCreateString(path, mod, "$path");
-      if (ysCall(managers[i], "mod_init", mod))
-	break;
-    }
-    yeDestroy(mod);
-    g_free(tmp);
-    tmp = NULL;
-  }
+		tmp = g_strconcat(path, starts[i], NULL);
+		CHECK_AND_RET(tmp, NULL, NULL,
+			      "cannot allocated path(like something went really wrong)");
+		if (!access(tmp, F_OK) && !ysLoadFile(managers[i], tmp)) {
+			mod = yeCreateArray(NULL, NULL);
+			yeCreateString(path, mod, "$path");
+			if (ysCall(managers[i], "mod_init", mod))
+				break;
+		}
+		yeDestroy(mod);
+		g_free(tmp);
+		tmp = NULL;
+	}
 
-  if (!mod) {
-    tmp = g_strconcat(path, "/start.json", NULL);
-    CHECK_AND_RET(tmp, NULL, NULL,
-		  "cannot allocated path(like something went really wrong)");
-    mod = ydFromFile(jsonManager, tmp, NULL);
-    yeCreateString(path, mod, "$path");
-  }
+	if (!mod) {
+		tmp = g_strconcat(path, "/start.json", NULL);
+		CHECK_AND_RET(tmp, NULL, NULL,
+			      "cannot allocated path(like something went really wrong)");
+		mod = ydFromFile(jsonManager, tmp, NULL);
+		yeCreateString(path, mod, "$path");
+	}
 
-  if (!mod)
-    goto failure;
-  name = yeGet(mod, "name");
+	if (!mod)
+		goto failure;
+	name = yeGet(mod, "name");
 
-  if (!name) {
-    char *last_slash = strrchr(path, '/');
-    int short_end = 0;
+	if (!name) {
+		char *last_slash = strrchr(path, '/');
+		int short_end = 0;
 
-    if (strlen(last_slash) == 1) {
-      do {--last_slash;} while (last_slash != path && *last_slash != '/');
-      short_end = 1;
-    }
-    if (*last_slash == '/')
-      ++last_slash;
-    yeSetString(tmp_name, last_slash);
-    yeStringTruncate(tmp_name, short_end);
-    name = tmp_name;
-  }
+		if (strlen(last_slash) == 1) {
+			do {
+				--last_slash;
+			} while (last_slash != path && *last_slash != '/');
+			short_end = 1;
+		}
+		if (*last_slash == '/')
+			++last_slash;
+		yeSetString(tmp_name, last_slash);
+		yeStringTruncate(tmp_name, short_end);
+		name = tmp_name;
+	}
 
-  if (yeGet(modList, yeGetString(name))) {
-    yeDestroy(mod);
-    goto exit;
-  }
-  yePushBack(modList, mod, yeGetString(name));
-  yeDestroy(mod);
-  type = yeGet(mod, "type");
-  file = yeGet(mod, "file");
-  preLoad = yeGet(mod, "pre-load");
-  initScripts = yeGet(mod, "init-scripts");
+	if (yeGet(modList, yeGetString(name))) {
+		yeDestroy(mod);
+		goto exit;
+	}
+	yePushBack(modList, mod, yeGetString(name));
+	yeDestroy(mod);
+	type = yeGet(mod, "type");
+	file = yeGet(mod, "file");
+	preLoad = yeGet(mod, "pre-load");
+	initScripts = yeGet(mod, "init-scripts");
 
-  YE_ARRAY_FOREACH(preLoad, var) {
-    Entity *tmpType = yeGet(var, "type");
-    Entity *tmpFile = yeGet(var, "file");
-    Entity *pathEnt = yeGet(var, "path");
-    char *fileStr = g_strconcat(path, "/", yeGetString(tmpFile), NULL);
-    const char *pathCstr = "no path set";
+	YE_ARRAY_FOREACH(preLoad, var) {
+		Entity *tmpType = yeGet(var, "type");
+		Entity *tmpFile = yeGet(var, "file");
+		Entity *pathEnt = yeGet(var, "path");
+		char *fileStr = g_strconcat(path, "/",
+					    yeGetString(tmpFile), NULL);
+		const char *pathCstr = "no path set";
 
 
-    if (tmpFile) {
-      pathCstr = fileStr;
-    } else if (pathEnt) {
-      char *mod_path = g_strdup_printf("%s%s", ygBinaryRootPath, "/modules/");
+		if (tmpFile) {
+			pathCstr = fileStr;
+		} else if (pathEnt) {
+			char *mod_path = g_strdup_printf("%s%s",
+							 ygBinaryRootPath,
+							 "/modules/");
 
-      yeStringReplace(pathEnt, "YIRL_MODULES_PATH", mod_path);
-      g_free(mod_path);
-      pathCstr = yeGetString(pathEnt);
-    }
-    if (yuiStrEqual0(yeGetString(tmpType), "lua")) {
-      if (ysLoadFile(luaManager, pathCstr) < 0) {
-	DPRINT_ERR("Error when loading '%s': %s\n",
-		   pathCstr, ysGetError(luaManager));
-	goto fail_preload;
-      }
+			yeStringReplace(pathEnt, "YIRL_MODULES_PATH", mod_path);
+			g_free(mod_path);
+			pathCstr = yeGetString(pathEnt);
+		}
+		if (yuiStrEqual0(yeGetString(tmpType), "lua")) {
+			if (ysLoadFile(luaManager, pathCstr) < 0) {
+				DPRINT_ERR("Error when loading '%s': %s\n",
+					   pathCstr, ysGetError(luaManager));
+				goto fail_preload;
+			}
 
-    } else if (yuiStrEqual0(yeGetString(tmpType), "tcc")) {
-      if (ysLoadFile(tccManager, pathCstr) < 0) {
-	DPRINT_ERR("Error when loading '%s': %s\n",
-		   pathCstr, ysGetError(tccManager));
-	goto fail_preload;
-      }
+		} else if (yuiStrEqual0(yeGetString(tmpType), "tcc")) {
+			if (ysLoadFile(tccManager, pathCstr) < 0) {
+				DPRINT_ERR("Error when loading '%s': %s\n",
+					   pathCstr, ysGetError(tccManager));
+				goto fail_preload;
+			}
 
-    } else if (yuiStrEqual0(yeGetString(tmpType), "s7")) {
-      if (ysLoadFile(s7Manager, pathCstr) < 0) {
-	DPRINT_ERR("Error when loading '%s': %s\n",
-		   pathCstr, ysGetError(tccManager));
-	goto fail_preload;
-      }
+		} else if (yuiStrEqual0(yeGetString(tmpType), "s7")) {
+			if (ysLoadFile(s7Manager, pathCstr) < 0) {
+				DPRINT_ERR("Error when loading '%s': %s\n",
+					   pathCstr, ysGetError(s7Manager));
+				goto fail_preload;
+			}
 
-    } else if (yuiStrEqual0(yeGetString(tmpType), "yb")) {
-      if (ysLoadFile(ysYBytecodeManager(), pathCstr) < 0) {
-	DPRINT_ERR("Error when loading '%s': %s\n",
-		   pathCstr, ysGetError(tccManager));
-	goto fail_preload;
-      }
+		} else if (yuiStrEqual0(yeGetString(tmpType), "yb")) {
+			if (ysLoadFile(ysYBytecodeManager(), pathCstr) < 0) {
+				DPRINT_ERR("Error when loading '%s': %s\n",
+					   pathCstr,
+					   ysGetError(ysYBytecodeManager()));
+				goto fail_preload;
+			}
+		} else if (yuiStrEqual0(yeGetString(tmpType), "js")) {
+			if (ysLoadFile(dukManager, pathCstr) < 0) {
+				DPRINT_ERR("Error when loading '%s': %s\n",
+					   pathCstr, ysGetError(dukManager));
+				goto fail_preload;
+			}
+		} else if (yuiStrEqual0(yeGetString(tmpType), "json")) {
+			Entity *as = yeGet(var, "as");
+			tmpFile = ydFromFile(jsonManager, pathCstr, mod);
 
-    } else if (yuiStrEqual0(yeGetString(tmpType), "json")) {
-      Entity *as = yeGet(var, "as");
-      tmpFile = ydFromFile(jsonManager, pathCstr, mod);
+			yeRenamePtrStr(mod, tmpFile, yeGetString(as));
+		} else if (yuiStrEqual0(yeGetString(tmpType), "module")) {
+			if (!ygLoadMod(pathCstr)) {
+				DPRINT_ERR("fail to load module: %s", pathCstr);
+			fail_preload:
+				g_free(fileStr);
+				goto failure;
+			}
+		}
+		g_free(fileStr);
+	}
 
-      yeRenamePtrStr(mod, tmpFile, yeGetString(as));
-    } else if (yuiStrEqual0(yeGetString(tmpType), "module")) {
-      if (!ygLoadMod(pathCstr)) {
-	DPRINT_ERR("fail to load module: %s", pathCstr);
-      fail_preload:
-	g_free(fileStr);
-	goto failure;
-      }
-    }
-    g_free(fileStr);
-  }
+	YE_ARRAY_FOREACH(initScripts, var2) {
+		if (yeType(var2) == YSTRING) {
+			void *fastPath = ysGetFastPath(tccManager,
+						       yeGetString(var2));
 
-  YE_ARRAY_FOREACH(initScripts, var2) {
-    if (yeType(var2) == YSTRING) {
-      void *fastPath = ysGetFastPath(tccManager, yeGetString(var2));
+			if (fastPath)
+				ysFCall(tccManager, fastPath, mod);
+			else
+				ysCall(luaManager, yeGetString(var2), mod);
+		} else if (yeType(var2) == YARRAY) {
+			ysCall(ygGetManager(yeGetString(yeGet(var2, 0))),
+			       yeGetString(yeGet(var2, 1)), mod);
+		}
+	}
 
-      if (fastPath)
-	ysFCall(tccManager, fastPath, mod);
-      else
-	ysCall(luaManager, yeGetString(var2), mod);
-    } else if (yeType(var2) == YARRAY) {
-      ysCall(ygGetManager(yeGetString(yeGet(var2, 0))),
-	     yeGetString(yeGet(var2, 1)), mod);
-    }
-  }
+	starting_widget = yeGet(mod, "starting widget");
+	if (!starting_widget)
+		starting_widget = yeGet(mod, "starting_widget");
+	if (type) {
+		if (yuiStrEqual(yeGetString(type), "json")) {
+			char *fileStr;
+			const char *mod_name = "$main file";
 
-  starting_widget = yeGet(mod, "starting widget");
-  if (!starting_widget)
-    starting_widget = yeGet(mod, "starting_widget");
-  if (type) {
-    if (yuiStrEqual(yeGetString(type), "json")) {
-      char *fileStr;
-      const char *mod_name = "$main file";
+			fileStr = g_strconcat(path, "/",
+					      yeGetString(file), NULL);
+			file = ydFromFile(jsonManager, fileStr, mod);
+			g_free(fileStr);
+			if (!file) {
+				goto failure;
+			}
+			if (yeGet(mod, "as"))
+				mod_name = yeGetString(yeGet(mod, "as"));
+			yeRenamePtrStr(mod, file, mod_name);
 
-      fileStr = g_strconcat(path, "/",
-			    yeGetString(file), NULL);
-      file = ydFromFile(jsonManager, fileStr, mod);
-      g_free(fileStr);
-      if (!file) {
-	goto failure;
-      }
-      if (yeGet(mod, "as"))
-	mod_name = yeGetString(yeGet(mod, "as"));
-      yeRenamePtrStr(mod, file, mod_name);
+			starting_widget = yeGet(file,
+						yeGetString(starting_widget));
+		} else {
+			DPRINT_ERR("start does not suport loader of type %s",
+				   yeGetString(type));
+		}
+	} else {
+		if (yeType(starting_widget) == YSTRING) {
+			starting_widget =
+				yeGetByStr(mod, yeGetString(starting_widget));
+		}
+	}
+	yePushBack(mod, starting_widget, "$starting widget");
+	printf(" === add module: \"%s\" === \n", yeGetString(name));
 
-      starting_widget = yeGet(file, yeGetString(starting_widget));
-    } else {
-      DPRINT_ERR("start does not suport loader of type %s", yeGetString(type));
-    }
-  } else {
-    starting_widget = yeGetByStr(mod, yeGetString(starting_widget));
-  }
-  yePushBack(mod, starting_widget, "$starting widget");
-  printf(" === add module: \"%s\" === \n", yeGetString(name));
-
-  goto exit;
- failure:
-  yeRemoveChild(modList, mod);
- exit:
-  g_free(tmp);
-  return mod;
+	goto exit;
+failure:
+	yeRemoveChild(modList, mod);
+exit:
+	g_free(tmp);
+	return mod;
 }
 
 Entity *ygGetMod(const char *path)

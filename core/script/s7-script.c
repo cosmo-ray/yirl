@@ -472,9 +472,9 @@ static int init(void *sm, void *args)
 	s7_define_safe_function(s7, "str_cast", string_cast, 1, 0, false, "");
 	s7_define_safe_function(s7, "ptr_cast", ptr_cast, 1, 0, false, "");
 	s7_define_variable(s7, "YEVE_ACTION",
-			   s7_make_c_pointer(s7, (void *)ACTION));
+			   s7_make_c_pointer(s7, YEVE_ACTION));
 	s7_define_variable(s7, "YEVE_NOTHANDLE",
-			   s7_make_c_pointer(s7, (void *)NOTHANDLE));
+			   s7_make_c_pointer(s7, YEVE_NOTHANDLE));
 
 
 #define PUSH_I_GLOBAL(g) s7_define_variable(s7, #g, s7_make_integer(s7, g))
