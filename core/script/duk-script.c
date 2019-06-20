@@ -75,6 +75,12 @@ static duk_ret_t dukyjsCall(duk_context *ctx)
 	return duk_get_top(ctx);
 }
 
+static duk_ret_t dukyeDestroy(duk_context *ctx)
+{
+	yeDestroy(GET_E(ctx, 0));
+	return 0;
+}
+
 static duk_ret_t dukto_str(duk_context *ctx)
 {
 	if (duk_is_pointer(ctx, 0)) {
@@ -123,6 +129,14 @@ static duk_ret_t dukyeCreateString(duk_context *ctx)
 	PUSH_E(ctx, yeCreateString(duk_get_string(ctx, 0),
 				   GET_E(ctx, 1),
 				   duk_get_string(ctx, 2)));
+	return 1;
+}
+
+static duk_ret_t dukyeCreateInt(duk_context *ctx)
+{
+	PUSH_E(ctx, yeCreateInt(duk_get_int(ctx, 0),
+				GET_E(ctx, 1),
+				duk_get_string(ctx, 2)));
 	return 1;
 }
 
@@ -182,9 +196,45 @@ static duk_ret_t dukyeReCreateArray(duk_context *ctx)
 		return 1;					\
 	}
 
+#define BIND_V_E(x, u0, u1)			\
+	static duk_ret_t duk##x(duk_context *ctx) {		\
+		x(GET_E(ctx, 0));				\
+		return 0;					\
+	}
+
+#define BIND_V_EE(x, u0, u1)					\
+	static duk_ret_t duk##x(duk_context *ctx) {		\
+		x(GET_E(ctx, 0), GET_E(ctx, 1));		\
+		return 0;					\
+	}
+
+#define BIND_V_EI(x, u0, u1)					\
+	static duk_ret_t duk##x(duk_context *ctx) {		\
+		x(GET_E(ctx, 0), duk_get_int(ctx, 1));		\
+		return 0;					\
+	}
+
+#define BIND_V_EII(x, u0, u1)						\
+	static duk_ret_t duk##x(duk_context *ctx) {			\
+		x(GET_E(ctx, 0), duk_get_int(ctx, 1), duk_get_int(ctx, 2)); \
+		return 0;						\
+	}
+
 #define BIND_I_E(x, u0, u1)					\
 	static duk_ret_t duk##x(duk_context *ctx) {		\
 		duk_push_int(ctx, x(GET_E(ctx, 0)));		\
+		return 1;					\
+	}
+
+#define BIND_I_I(x, u0, u1)					\
+	static duk_ret_t duk##x(duk_context *ctx) {		\
+		duk_push_int(ctx, x(duk_get_int(ctx, 0)));	\
+		return 1;					\
+	}
+
+#define BIND_I_S(x, u0, u1)					\
+	static duk_ret_t duk##x(duk_context *ctx) {		\
+		duk_push_int(ctx, x(duk_get_string(ctx, 0)));	\
 		return 1;					\
 	}
 
@@ -215,10 +265,6 @@ DUMB_FUNC(yesCall);
 DUMB_FUNC(yeIncrAt);
 DUMB_FUNC(yeAddAt);
 
-#define BIND_V_E(a, b, c) DUMB_FUNC(a)
-#define BIND_V_EI(a, b, c) DUMB_FUNC(a)
-#define BIND_V_EE(a, b, c) DUMB_FUNC(a)
-#define BIND_V_EII(a, b, c) DUMB_FUNC(a)
 #define BIND_E_EE(a, b, c) DUMB_FUNC(a)
 #define BIND_E_ES(a, b, c) DUMB_FUNC(a)
 #define BIND_E_EI(a, b, c) DUMB_FUNC(a)
@@ -308,6 +354,7 @@ static int init(void *sm, void *args)
 	PUSH_I_GLOBAL_VAL(YEVE_ACTION, ACTION);
 	BIND(to_str, 1, 0);
 	BIND(yeCreateString, 1, 2);
+	BIND(yeCreateInt, 1, 2);
 	BIND(yeCreateArray, 0, 2);
 	BIND(yeReCreateArray, 2, 1);
 	BIND(yeCreateFunction, 1, 2);
@@ -315,6 +362,7 @@ static int init(void *sm, void *args)
 	BIND(ygLoadScript, 3, 0);
 	BIND(ygGetManager, 1, 0);
 	BIND(yjsCall, 0, 0);
+	BIND(yeDestroy, 1, 0);
 #define IN_CALL 1
 #include "binding.c"
 #undef IN_CALL
@@ -323,7 +371,18 @@ static int init(void *sm, void *args)
 			"function yeGetIntAt(e, at) "
 			"{ return yeGetInt(yeGet(e, at)) }"
 			"function yeGetStringAt(e, at) "
-			"{ return yeGetString(yeGet(e, at)) }");
+			"{ return yeGetString(yeGet(e, at)) }"
+			"function yeTryCreateArray(e, at) {"
+			"var r = yeGet(e, at);"
+			"if (r) return r;"
+			"return yeCreateArray(e, at);"
+			"}"
+			"function yeTryCreateInt(i, e, at) {"
+			"var r = yeGet(e, at);"
+			"if (r) return r;"
+			"return yeCreateInt(i, e, at);"
+			"}"
+		);
 	return 0;
 }
 

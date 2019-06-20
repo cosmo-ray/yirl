@@ -268,6 +268,19 @@ S7_IMPLE_CREATOR(String, s7_string);
 		return s7_nil(s);				\
 	}
 
+
+#define BIND_I_S(f, u0, u1)						\
+	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)		\
+	{								\
+		return S7MI(s, f(s7_string(s7_car(a))));		\
+	}
+
+#define BIND_I_I(f, u0, u1)						\
+	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)		\
+	{								\
+		return S7MI(s, f(s7_integer(s7_car(a))));		\
+	}
+
 #define BIND_V_EE(f, useless0, useless01)			\
 	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)	\
 	{							\

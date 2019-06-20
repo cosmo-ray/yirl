@@ -1,6 +1,8 @@
 #ifdef IN_CALL
 #define BIND_NONE	BIND
 #define BIND_I_V(a)	BIND(a,0,0)
+#define BIND_I_I	BIND
+#define BIND_I_S	BIND
 #define BIND_I_E	BIND
 #define BIND_S_E	BIND
 #define BIND_E_S	BIND
@@ -39,6 +41,11 @@ BIND_E_EIIE(ywCanvasNewRect, 2, 2);
 BIND_E_EIIE(ywCanvasNewText, 2, 2);
 BIND_E_EIIS(ywCanvasNewTextByStr, 2, 2);
 
+BIND_I_S(ySoundLoad, 1, 0);
+BIND_I_S(ySoundMusicLoad, 1, 0);
+
+BIND_I_I(ySoundPlay, 1, 0);
+
 BIND_B_EE(yevIsGrpUp, 2, 0);
 BIND_B_EE(yevIsGrpDown, 2, 0);
 
@@ -50,6 +57,7 @@ BIND_E_EI(yeStringAddLong, 2, 0);
 
 BIND_E_E(ywCanvasObjPos, 1, 0);
 BIND_E_E(ywidNextEve, 1, 0);
+BIND_E_E(yeIncrRef, 1, 0);
 
 BIND_E_S(ygGet, 1, 0);
 
@@ -59,6 +67,8 @@ BIND_V_E(ywPosPrint, 1, 0);
 BIND_V_E(ywSizePrint, 1, 0);
 
 BIND_V_EE(ywCanvasStringSet, 2, 0);
+BIND_V_EE(yeRemoveChildByEntity, 2, 0);
+
 BIND_NONE(yeIncrAt, 2, 0);
 BIND_NONE(yeAddAt, 3, 0);
 
@@ -103,6 +113,8 @@ PUSH_I_GLOBAL(Y_RCTRL_KEY);
 PUSH_I_GLOBAL(YKEY_DOWN);
 PUSH_I_GLOBAL(YKEY_UP);
 
+PUSH_I_GLOBAL(Y_REQUEST_ANIMATION_FRAME);
+
 #undef BIND_E_EIIS
 #undef BIND_E_EIIE
 #undef BIND_B_EEEE
@@ -121,6 +133,8 @@ PUSH_I_GLOBAL(YKEY_UP);
 #undef BIND_E_S
 #undef BIND_S_E
 #undef BIND_I_E
+#undef BIND_I_I
+#undef BIND_I_S
 #undef BIND_E_E
 #undef BIND_I_V
 #undef PUSH_I_GLOBAL

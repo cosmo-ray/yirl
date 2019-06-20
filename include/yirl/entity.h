@@ -93,11 +93,8 @@ typedef enum
 	} while (0);
 
 
-#define YE_INCR_REF(entity) ({ YE_TO_ENTITY(entity)->refCount += 1; entity ;})
+#define YE_INCR_REF(entity) ({YE_TO_ENTITY(entity)->refCount += 1; entity ;})
 
-
-  /* TODO: remove this macros and do a static inline function  */
-#define yeIncrRef YE_INCR_REF
 
 #define YE_NULLIFY(e)				\
 	({ yeDestroy(e); e = NULL; })
@@ -212,6 +209,13 @@ union FatEntity {
 #ifdef __cplusplus
 #include "entity-cplusplus.h"
 #endif
+
+static inline Entity *yeIncrRef(Entity *e)
+{
+	if (unlikely(!e))
+		return NULL;
+	return YE_INCR_REF(e);
+}
 
 static inline int yeRefCount(Entity *e)
 {
