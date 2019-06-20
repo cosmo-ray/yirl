@@ -2,7 +2,7 @@ NAME= yirl
 
 LIBNAME= lib$(NAME)
 
-all:	build-generic-loader build-tests build-shooter \
+all:	yirl-loader build-tests build-shooter \
 	build-sm-mod-ex build-snake-ex
 
 include config.mk
@@ -140,7 +140,7 @@ build-static-lib: $(OBJ) $(O_OBJ) $(OBJXX) $(DUK_OBJ)
 build-dynamic-lib: $(OBJ) $(O_OBJ) $(OBJXX) $(DUK_OBJ)
 	$(CC) -shared -o  $(LIBNAME).$(LIBEXTENSION) $(OBJ) $(O_OBJ) $(OBJXX) $(DUK_OBJ) $(LDFLAGS)
 
-build-generic-loader: $(YIRL_LINKING) $(GEN_LOADER_OBJ)
+yirl-loader: $(YIRL_LINKING) $(GEN_LOADER_OBJ)
 	$(CC) -o yirl-loader$(BIN_EXT) $(GEN_LOADER_OBJ) $(BINARY_LINKING) $(LDFLAGS)
 
 clean:	clean-tests clean-shooter

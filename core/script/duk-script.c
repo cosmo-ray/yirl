@@ -28,6 +28,7 @@
 
 #include "game.h"
 #include "canvas.h"
+#include "keydef.h"
 #include "widget.h"
 #include "pos.h"
 #include "entity-script.h"
@@ -51,6 +52,29 @@ typedef struct {
 
 YScriptDuk *cur_sc;
 
+static duk_ret_t dukyjsCall(duk_context *ctx)
+{
+	const char *fname;
+	int i = duk_get_top(ctx) - 1;
+	printf("top %d\n", i);
+	if (duk_is_pointer(ctx, 0)) {
+		Entity *e = GET_E(ctx, 0);
+		void *fp;
+
+		if ((fp = yeGetFunctionFastPath(e)) != NULL) {
+			duk_push_heapptr(ctx, fp);
+			duk_replace(ctx, 0);
+		} else {
+			fname = yeGetString(GET_E(ctx, 0));
+			duk_push_string(ctx, fname);
+			duk_replace(ctx, 0);
+		}
+	}
+	duk_call(ctx, i);
+	printf("ret %d - %d\n", (duk_get_top(ctx)), i);
+	return duk_get_top(ctx);
+}
+
 static duk_ret_t dukto_str(duk_context *ctx)
 {
 	if (duk_is_pointer(ctx, 0)) {
@@ -62,10 +86,26 @@ static duk_ret_t dukto_str(duk_context *ctx)
 	return 1;
 }
 
+static duk_ret_t dukygGetManager(duk_context *ctx)
+{
+	duk_push_pointer(ctx, ygGetManager(duk_get_string(ctx, 0)));
+	return 1;
+}
+
+static duk_ret_t dukygLoadScript(duk_context *ctx)
+{
+	duk_push_int(ctx,
+		     ygLoadScript(GET_E(ctx, 0),
+				  duk_get_pointer(ctx, 1),
+				  duk_get_string(ctx, 2)
+		       ));
+	return 1;
+}
+
 static duk_ret_t dukywidNewWidget(duk_context *ctx)
 {
 	duk_push_pointer(ctx, ywidNewWidget(GET_E(ctx, 0),
-						  duk_get_string(ctx, 1)));
+					    duk_get_string(ctx, 1)));
 	return 1;
 }
 
@@ -88,7 +128,21 @@ static duk_ret_t dukyeCreateString(duk_context *ctx)
 
 static duk_ret_t dukyeCreateFunction(duk_context *ctx)
 {
-	PUSH_E(ctx, yeCreateFunction(duk_get_string(ctx, 0),
+	const char *str = NULL;
+	if (duk_is_function(ctx, 0)) {
+		Entity *e;
+
+		e = yeCreateFunctionExt("unreachable by name",
+					ygGetManager("js"),
+					GET_E(ctx, 1),
+					duk_get_string(ctx, 2),
+					YE_FUNC_NO_FASTPATH_INIT);
+		YE_TO_FUNC(e)->fastPath = duk_get_heapptr(ctx, 0);
+		PUSH_E(ctx, e);
+		return 1;
+	}
+	str = duk_get_string(ctx, 0);
+	PUSH_E(ctx, yeCreateFunction(str,
 				     ygGetManager("js"),
 				     GET_E(ctx, 1),
 				     duk_get_string(ctx, 2)));
@@ -110,6 +164,17 @@ static duk_ret_t dukyeReCreateArray(duk_context *ctx)
 	return 1;
 }
 
+#define BIND_E_S(x, u0, u1)						\
+	static duk_ret_t duk##x(duk_context *ctx) {			\
+		PUSH_E(ctx, x(duk_get_string(ctx, 0)));			\
+		return 1;						\
+	}
+
+#define BIND_V_I(x, u0, u1)					\
+	static duk_ret_t duk##x(duk_context *ctx) {		\
+		x(duk_get_int(ctx, 0));				\
+		return 0;					\
+	}
 
 #define BIND_I_V(x)						\
 	static duk_ret_t duk##x(duk_context *ctx) {		\
@@ -129,11 +194,18 @@ static duk_ret_t dukyeReCreateArray(duk_context *ctx)
 		return 1;					\
 	}
 
+#define BIND_E_E(x, u0, u1)			\
+	static duk_ret_t duk##x(duk_context *ctx) {	\
+		PUSH_E(ctx, x(GET_E(ctx, 0)));		\
+		return 1;				\
+	}
+
 #define DUMB_FUNC(x)						\
 	static duk_ret_t duk##x(duk_context *ctx) {		\
 		printf("BIND not yet implemented %s\n", #x);	\
 		return 0;					\
 	}
+
 
 DUMB_FUNC(ywPosCreate);
 DUMB_FUNC(yeGetIntAt);
@@ -143,12 +215,10 @@ DUMB_FUNC(yesCall);
 DUMB_FUNC(yeIncrAt);
 DUMB_FUNC(yeAddAt);
 
-#define BIND_E_S(a, b, c) DUMB_FUNC(a)
 #define BIND_V_E(a, b, c) DUMB_FUNC(a)
 #define BIND_V_EI(a, b, c) DUMB_FUNC(a)
 #define BIND_V_EE(a, b, c) DUMB_FUNC(a)
 #define BIND_V_EII(a, b, c) DUMB_FUNC(a)
-#define BIND_E_E(a, b, c) DUMB_FUNC(a)
 #define BIND_E_EE(a, b, c) DUMB_FUNC(a)
 #define BIND_E_ES(a, b, c) DUMB_FUNC(a)
 #define BIND_E_EI(a, b, c) DUMB_FUNC(a)
@@ -226,8 +296,12 @@ static int init(void *sm, void *args)
 	duk_def_prop(ctx, -3, DUK_DEFPROP_HAVE_VALUE |			\
 		     DUK_DEFPROP_SET_WRITABLE | DUK_DEFPROP_SET_CONFIGURABLE);
 
+#define PUSH_I_GLOBAL(x)						\
+	duk_push_string(ctx, #x);					\
+	duk_push_int(ctx, x);						\
+	duk_def_prop(ctx, -3, DUK_DEFPROP_HAVE_VALUE |			\
+		     DUK_DEFPROP_SET_WRITABLE | DUK_DEFPROP_SET_CONFIGURABLE);
 
-#define PUSH_I_GLOBAL(X) PUSH_I_GLOBAL_VAL(X, X)
 
 	PUSH_I_GLOBAL_VAL(is_yirl, 1);
 	PUSH_I_GLOBAL_VAL(YEVE_NOTHANDLE, NOTHANDLE);
@@ -238,11 +312,18 @@ static int init(void *sm, void *args)
 	BIND(yeReCreateArray, 2, 1);
 	BIND(yeCreateFunction, 1, 2);
 	BIND(ywidNewWidget, 1, 2);
+	BIND(ygLoadScript, 3, 0);
+	BIND(ygGetManager, 1, 0);
+	BIND(yjsCall, 0, 0);
 #define IN_CALL 1
 #include "binding.c"
 #undef IN_CALL
-
 	duk_pop(ctx);
+	duk_eval_string(ctx,
+			"function yeGetIntAt(e, at) "
+			"{ return yeGetInt(yeGet(e, at)) }"
+			"function yeGetStringAt(e, at) "
+			"{ return yeGetString(yeGet(e, at)) }");
 	return 0;
 }
 

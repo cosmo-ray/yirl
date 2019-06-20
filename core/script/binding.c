@@ -4,6 +4,7 @@
 #define BIND_I_E	BIND
 #define BIND_S_E	BIND
 #define BIND_E_S	BIND
+#define BIND_V_I	BIND
 #define BIND_V_E	BIND
 #define BIND_V_EI	BIND
 #define BIND_V_EE	BIND
@@ -48,8 +49,11 @@ BIND_E_EI(yeStringAddInt, 2, 0);
 BIND_E_EI(yeStringAddLong, 2, 0);
 
 BIND_E_E(ywCanvasObjPos, 1, 0);
+BIND_E_E(ywidNextEve, 1, 0);
 
 BIND_E_S(ygGet, 1, 0);
+
+BIND_V_I(ywSetTurnLengthOverwrite, 1, 0);
 
 BIND_V_E(ywPosPrint, 1, 0);
 BIND_V_E(ywSizePrint, 1, 0);
@@ -70,12 +74,15 @@ BIND_I_E(ywPosX, 1, 0);
 BIND_I_E(ywidAddSubType, 1, 0);
 BIND_I_E(yeGetInt, 1, 0);
 BIND_I_E(yeLen, 1, 0);
+BIND_I_E(ywidEveKey, 1, 0);
+BIND_I_E(ywidEveType, 1, 0);
 
 BIND_V_EI(yeSetInt, 2, 0);
 
 BIND_V_EII(ywCanvasMoveObjXY, 3, 0);
 BIND_V_EII(ywCanvasObjSetPos, 3, 0);
 
+BIND_I_V(ywGetTurnLengthOverwrite);
 BIND_I_V(yWindowWidth);
 BIND_I_V(yWindowHeight);
 
@@ -87,6 +94,14 @@ PUSH_I_GLOBAL(Y_UP_KEY);
 PUSH_I_GLOBAL(Y_DOWN_KEY);
 PUSH_I_GLOBAL(Y_LEFT_KEY);
 PUSH_I_GLOBAL(Y_RIGHT_KEY);
+
+PUSH_I_GLOBAL(Y_LSHIFT_KEY);
+PUSH_I_GLOBAL(Y_RSHIFT_KEY);
+PUSH_I_GLOBAL(Y_LCTRL_KEY);
+PUSH_I_GLOBAL(Y_RCTRL_KEY);
+
+PUSH_I_GLOBAL(YKEY_DOWN);
+PUSH_I_GLOBAL(YKEY_UP);
 
 #undef BIND_E_EIIS
 #undef BIND_E_EIIE
@@ -100,6 +115,7 @@ PUSH_I_GLOBAL(Y_RIGHT_KEY);
 #undef BIND_V_EI
 #undef BIND_V_EII
 #undef BIND_NONE
+#undef BIND_V_I
 #undef BIND_V_E
 #undef BIND_V_EE
 #undef BIND_E_S

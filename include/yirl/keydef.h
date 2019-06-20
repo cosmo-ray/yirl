@@ -18,6 +18,15 @@
 #ifndef _YIRL_KEYDEF_H_
 #define _YIRL_KEYDEF_H_
 
+/* For ascii char use char representation 'a' '\n'... */
+
+/* Steal that from sdl, I guess "0x40000000" mean something,
+ * I just didn't know what at the moment I write those lines */
+#define Y_LSHIFT_KEY 0x400000e1
+#define Y_RSHIFT_KEY 0x400000e5
+#define Y_LCTRL_KEY 0x400000e0
+#define Y_RCTRL_KEY 0x400000e4
+
 #define Y_ESC_KEY 27
 #define Y_UP_KEY 259
 #define Y_DOWN_KEY 258

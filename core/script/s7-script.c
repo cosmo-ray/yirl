@@ -284,6 +284,12 @@ S7_IMPLE_CREATOR(String, s7_string);
 				   s7_c_object_value(s7_list_ref(s, a, 1)))); \
 	}
 
+#define BIND_V_I(func, u0, u1)						\
+	static s7_pointer s7##func(s7_scheme *s, s7_pointer a)		\
+	{								\
+		func(s7_integer(s7_car(a)));				\
+		return s7_nil(s);					\
+	}
 
 #define BIND_I_V(func)							\
 	static s7_pointer s7##func(s7_scheme *s, s7_pointer a)		\
