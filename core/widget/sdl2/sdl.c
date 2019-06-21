@@ -661,58 +661,67 @@ SDL_Surface *sdlCopySurface(SDL_Surface *surface, Entity *rEnt)
 int sdlCanvasCacheImg2(Entity *elem, Entity *resource, const char *imgPath,
 		       Entity *rEnt, int32_t flag)
 {
-  SDL_Surface *surface;
-  SDL_Texture *texture;
-  Entity *data;
-  int w, h;
+	SDL_Surface *surface;
+	SDL_Texture *texture;
+	Entity *data;
+	int w, h;
 
-  if (!rEnt)
-    rEnt = yeGet(elem, "img-src-rect") ? : yeGet(resource, "img-src-rect");
-  if (!imgPath) {
-    surface = yeGetData(yeGet(resource, "$img-surface"));
-  } else {
-    surface = IMG_Load(imgPath);
-  }
-  if (unlikely(!surface)) {
-    DPRINT_ERR("fail to load %s", imgPath);
-    return -1;
-  }
+	if (!rEnt)
+		rEnt = yeGet(elem, "img-src-rect") ? :
+			yeGet(resource, "img-src-rect");
+	if (!imgPath) {
+		surface = yeGetData(yeGet(resource, "$img-surface"));
+	} else {
+		if (!g_file_test(imgPath, G_FILE_TEST_EXISTS)) {
+			char *cd = get_current_dir_name();
+			DPRINT_ERR("no sure file %s(current dir: %s)", imgPath,
+				   cd);
+			free(cd); // but who still use CD today ?
+			return -1;
+		}
+		surface = IMG_Load(imgPath);
+	}
+	if (unlikely(!surface)) {
+		DPRINT_ERR("fail to load %s", imgPath);
+		return -1;
+	}
 
-  if (rEnt) {
-    SDL_Surface *tmpSurface = surface;
+	if (rEnt) {
+		SDL_Surface *tmpSurface = surface;
 
-    surface = sdlCopySurface(tmpSurface, rEnt);
-    if (!surface)
-      return -1;
-    if (imgPath)
-      SDL_FreeSurface(tmpSurface);
-    /* trick to sdlFreeSurface anyway */
-    imgPath = "";
-  }
-  if (!(flag & YSDL_CACHE_IMG_NO_TEXTURE)) {
-    texture = SDL_CreateTextureFromSurface(sg.renderer, surface);
-    if (unlikely(!texture)) {
-      DPRINT_ERR("fail to create a texture from surface(size: %d %d): %s",
-		 surface->w, surface->h, SDL_GetError());
-      goto free_surface;
-    }
-    SDL_QueryTexture(texture, NULL, NULL, &w, &h);
-    data = yeCreateDataAt(texture, elem, "$img", YCANVAS_IMG_IDX);
-    yeSetDestroy(data, sdlFreeTexture);
-    ywSizeCreateAt(w, h, elem, "$size", YCANVAS_SIZE_IDX);
-    yeGetPush(elem, resource, "$img");
-    yeGetPush(elem, resource, "$size");
-  }
-  data = yeCreateData(surface, elem, "$img-surface");
-  /* if no img path a texture was use */
-  if (imgPath)
-    yeSetDestroy(data, sdlFreeSurface);
-  yeGetPush(elem, resource, "$img-surface");
-  return 0;
- free_surface:
-  if (imgPath)
-    sdlFreeSurface(surface);
-  return -1;
+		surface = sdlCopySurface(tmpSurface, rEnt);
+		if (!surface)
+			return -1;
+		if (imgPath)
+			SDL_FreeSurface(tmpSurface);
+		/* trick to sdlFreeSurface anyway */
+		imgPath = "";
+	}
+	if (!(flag & YSDL_CACHE_IMG_NO_TEXTURE)) {
+		texture = SDL_CreateTextureFromSurface(sg.renderer, surface);
+		if (unlikely(!texture)) {
+			DPRINT_ERR("fail to create a texture from surface"
+				   "(size: %d %d): %s",
+				   surface->w, surface->h, SDL_GetError());
+			goto free_surface;
+		}
+		SDL_QueryTexture(texture, NULL, NULL, &w, &h);
+		data = yeCreateDataAt(texture, elem, "$img", YCANVAS_IMG_IDX);
+		yeSetDestroy(data, sdlFreeTexture);
+		ywSizeCreateAt(w, h, elem, "$size", YCANVAS_SIZE_IDX);
+		yeGetPush(elem, resource, "$img");
+		yeGetPush(elem, resource, "$size");
+	}
+	data = yeCreateData(surface, elem, "$img-surface");
+	/* if no img path a texture was use */
+	if (imgPath)
+		yeSetDestroy(data, sdlFreeSurface);
+	yeGetPush(elem, resource, "$img-surface");
+	return 0;
+free_surface:
+	if (imgPath)
+		sdlFreeSurface(surface);
+	return -1;
 }
 
 int sdlCanvasCacheImg(Entity *elem, Entity *resource, const char *imgPath,

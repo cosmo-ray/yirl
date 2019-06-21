@@ -24,6 +24,7 @@
 #include "pos.h"
 #include "entity-script.h"
 #include "events.h"
+#include "texture.h"
 
 static int t = -1;
 
@@ -185,6 +186,18 @@ S7_IMPLE_CREATOR(String, s7_string);
 				    ));					\
 	}
 
+
+#define BIND_E_EIIEE(f, u0, u1)						\
+	static s7_pointer s7##f(s7_scheme *s, s7_pointer a) {		\
+		return S7ME(s, s7m->et,					\
+			    f(s7_c_object_value(s7_list_ref(s, a, 0)), \
+			      s7_integer(s7_list_ref(s, a, 1)),		\
+			      s7_integer(s7_list_ref(s, a, 2)),		\
+			      E_AT(s, a, 3),				\
+			      E_AT(s, a, 4)				\
+				    ));					\
+	}
+
 #define S7_IMPLEMENT_E_EIIE(func)					\
 	static s7_pointer s7##func(s7_scheme *s, s7_pointer a)		\
 	{								\
@@ -215,6 +228,14 @@ S7_IMPLE_CREATOR(String, s7_string);
 			    func(s7_c_object_value(s7_car(a))));	\
 	}
 
+#define BIND_I_EE(f, u0, u1)						\
+	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)		\
+	{								\
+		return S7MI(s,						\
+			    f(s7_c_object_value(s7_car(a)),		\
+			      E_AT(s, a, 1)				\
+				    ));					\
+	}
 
 #define S7_IMPLEMENT_V_E(func)						\
 	static s7_pointer s7##func(s7_scheme *s, s7_pointer a)		\
@@ -231,6 +252,18 @@ S7_IMPLE_CREATOR(String, s7_string);
 				    s7_c_object_value(s7_list_ref(s, a, 0)), \
 				    s7_integer(s7_list_ref(s, a, 1)),	\
 				    s7_integer(s7_list_ref(s, a, 2)),	\
+				    s7_string(s7_list_ref(s, a, 3))	\
+				    ));					\
+	}
+
+#define BIND_E_SEES(func, u0, u1)					\
+	static s7_pointer s7##func(s7_scheme *s, s7_pointer a)		\
+	{								\
+		return S7ME(s, s7m->et,					\
+			    func(					\
+				    s7_string(s7_list_ref(s, a, 0)),	\
+				    E_AT(s, a, 1),			\
+				    E_AT(s, a, 2),			\
 				    s7_string(s7_list_ref(s, a, 3))	\
 				    ));					\
 	}

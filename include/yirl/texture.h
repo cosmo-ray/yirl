@@ -15,6 +15,9 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef	YIRL_TEXTURE_H_
+#define	YIRL_TEXTURE_H_
+
 #include "yirl/entity.h"
 
 Entity *ywTextureNewImg(const char *path, Entity *size,
@@ -28,3 +31,5 @@ int ywTextureMerge(Entity *src, Entity *srcRect,
 		   Entity *dest, Entity *dstRect);
 
 int	ywTextureNormalize(Entity *text);
+
+#endif

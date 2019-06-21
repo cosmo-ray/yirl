@@ -30,6 +30,7 @@
 #include "canvas.h"
 #include "keydef.h"
 #include "widget.h"
+#include "texture.h"
 #include "pos.h"
 #include "entity-script.h"
 #include "events.h"
@@ -132,6 +133,21 @@ static duk_ret_t dukyeCreateString(duk_context *ctx)
 	return 1;
 }
 
+static duk_ret_t dukywRectCreateInts(duk_context *ctx)
+{
+	PUSH_E(ctx, ywRectCreateInts(duk_get_int(ctx, 0), duk_get_int(ctx, 1),
+				     duk_get_int(ctx, 2), duk_get_int(ctx, 3),
+				     GET_E(ctx, 4), duk_get_string(ctx, 5)));
+	return 1;
+}
+
+static duk_ret_t dukywPosCreate(duk_context *ctx)
+{
+	PUSH_E(ctx, ywPosCreate(duk_get_int(ctx, 0), duk_get_int(ctx, 1),
+				GET_E(ctx, 2), duk_get_string(ctx, 3)));
+	return 1;
+}
+
 static duk_ret_t dukyeCreateInt(duk_context *ctx)
 {
 	PUSH_E(ctx, yeCreateInt(duk_get_int(ctx, 0),
@@ -177,6 +193,55 @@ static duk_ret_t dukyeReCreateArray(duk_context *ctx)
 				    GET_E(ctx, 2)));
 	return 1;
 }
+
+#define BIND_E_EIIEE(f, u0, u1)						\
+	static duk_ret_t duk##f(duk_context *ctx) {			\
+		PUSH_E(ctx, f(GET_E(ctx, 0),				\
+			      duk_get_int(ctx, 1),			\
+			      duk_get_int(ctx, 2),			\
+			      GET_E(ctx, 3),				\
+			      GET_E(ctx, 4)));				\
+		return 1;						\
+	}
+
+#define BIND_E_EIIE(f, u0, u1)						\
+	static duk_ret_t duk##f(duk_context *ctx) {			\
+		PUSH_E(ctx, f(GET_E(ctx, 0),				\
+			      duk_get_int(ctx, 1),			\
+			      duk_get_int(ctx, 2),			\
+			      GET_E(ctx, 3)));				\
+		return 1;						\
+	}
+
+
+#define BIND_E_EIIS(f, u0, u1)			\
+	static duk_ret_t duk##f(duk_context *ctx) {			\
+		PUSH_E(ctx, f(GET_E(ctx, 0),				\
+			      duk_get_int(ctx, 1),			\
+			      duk_get_int(ctx, 2),			\
+			      duk_get_string(ctx, 3)));			\
+		return 1;						\
+	}
+
+#define BIND_E_EIII(f, u0, u1)						\
+	static duk_ret_t duk##f(duk_context *ctx) {			\
+		PUSH_E(ctx, f(GET_E(ctx, 0),				\
+			      duk_get_int(ctx, 1),			\
+			      duk_get_int(ctx, 2),			\
+			      duk_get_int(ctx, 3)));			\
+		return 1;						\
+	}
+
+#define BIND_E_SEES(f, u0, u1)						\
+	static duk_ret_t duk##f(duk_context *ctx) {			\
+		PUSH_E(ctx, f(						\
+			       duk_get_string(ctx, 0),			\
+			       GET_E(ctx, 1),				\
+			       GET_E(ctx, 2),				\
+			       duk_get_string(ctx, 3)			\
+			       ));					\
+		return 1;						\
+	}
 
 #define BIND_E_S(x, u0, u1)						\
 	static duk_ret_t duk##x(duk_context *ctx) {			\
@@ -226,6 +291,12 @@ static duk_ret_t dukyeReCreateArray(duk_context *ctx)
 		return 1;					\
 	}
 
+#define BIND_I_EE(x, u0, u1)						\
+	static duk_ret_t duk##x(duk_context *ctx) {			\
+		duk_push_int(ctx, x(GET_E(ctx, 0), GET_E(ctx, 1)));	\
+		return 1;						\
+	}
+
 #define BIND_I_I(x, u0, u1)					\
 	static duk_ret_t duk##x(duk_context *ctx) {		\
 		duk_push_int(ctx, x(duk_get_int(ctx, 0)));	\
@@ -257,7 +328,6 @@ static duk_ret_t dukyeReCreateArray(duk_context *ctx)
 	}
 
 
-DUMB_FUNC(ywPosCreate);
 DUMB_FUNC(yeGetIntAt);
 DUMB_FUNC(yeSetIntAt);
 DUMB_FUNC(yevCreateGrp);
@@ -271,8 +341,6 @@ DUMB_FUNC(yeAddAt);
 #define BIND_B_EE(a, b, c) DUMB_FUNC(a)
 #define BIND_B_EES(a, b, c) DUMB_FUNC(a)
 #define BIND_B_EEE(a, b, c) DUMB_FUNC(a)
-#define BIND_E_EIIE(a, b, c) DUMB_FUNC(a)
-#define BIND_E_EIIS(a, b, c) DUMB_FUNC(a)
 #define BIND_B_EEEE(a, b, c) DUMB_FUNC(a)
 #include "binding.c"
 
@@ -370,18 +438,24 @@ static int init(void *sm, void *args)
 	duk_eval_string(ctx,
 			"function yeGetIntAt(e, at) "
 			"{ return yeGetInt(yeGet(e, at)) }"
+
 			"function yeGetStringAt(e, at) "
 			"{ return yeGetString(yeGet(e, at)) }"
+
 			"function yeTryCreateArray(e, at) {"
 			"var r = yeGet(e, at);"
 			"if (r) return r;"
 			"return yeCreateArray(e, at);"
 			"}"
+
 			"function yeTryCreateInt(i, e, at) {"
 			"var r = yeGet(e, at);"
 			"if (r) return r;"
 			"return yeCreateInt(i, e, at);"
 			"}"
+
+			"function ywSizeCreate(w, h, f, n)"
+			"{return ywPosCreate(w, h, f, n);}"
 		);
 	return 0;
 }

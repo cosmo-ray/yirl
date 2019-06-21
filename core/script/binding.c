@@ -4,6 +4,7 @@
 #define BIND_I_I	BIND
 #define BIND_I_S	BIND
 #define BIND_I_E	BIND
+#define BIND_I_EE	BIND
 #define BIND_S_E	BIND
 #define BIND_E_S	BIND
 #define BIND_V_I	BIND
@@ -18,9 +19,11 @@
 #define BIND_B_EE	BIND
 #define BIND_B_EES	BIND
 #define BIND_B_EEE	BIND
+#define BIND_E_SEES	BIND
 #define BIND_E_EIIE	BIND
 #define BIND_E_EIIS	BIND
 #define BIND_B_EEEE	BIND
+#define BIND_E_EIIEE    BIND
 #else
 
 #define PUSH_I_GLOBAL(X)
@@ -34,12 +37,17 @@ BIND_NONE(yeGetIntAt, 2, 0);
 BIND_NONE(yeSetIntAt, 3, 0);
 
 BIND_B_EES(yePushBack, 2, 1);
+BIND_B_EES(ywCanvasCreateYTexture, 3, 0);
 
-BIND_B_EEEE(ywCanvasCheckCollisions, 2, 1);
+BIND_B_EEEE(ywCanvasCheckCollisions, 3, 1);
+
+BIND_E_EIIEE(ywCanvasNewImgFromTexture, 4, 1);
 
 BIND_E_EIIE(ywCanvasNewRect, 2, 2);
 BIND_E_EIIE(ywCanvasNewText, 2, 2);
+
 BIND_E_EIIS(ywCanvasNewTextByStr, 2, 2);
+BIND_E_EIIS(ywCanvasNewImgByPath, 4, 0);
 
 BIND_I_S(ySoundLoad, 1, 0);
 BIND_I_S(ySoundMusicLoad, 1, 0);
@@ -68,6 +76,7 @@ BIND_V_E(ywSizePrint, 1, 0);
 
 BIND_V_EE(ywCanvasStringSet, 2, 0);
 BIND_V_EE(yeRemoveChildByEntity, 2, 0);
+BIND_V_EE(ywCanvasRemoveObj, 2, 0);
 
 BIND_NONE(yeIncrAt, 2, 0);
 BIND_NONE(yeAddAt, 3, 0);
@@ -76,6 +85,8 @@ BIND_S_E(ywPosToString, 1, 0);
 BIND_S_E(ywSizeToString, 1, 0);
 BIND_S_E(ywRectToString, 1, 0);
 BIND_S_E(yeGetString, 1, 0);
+
+BIND_I_EE(ywCanvasForceSize, 2, 0);
 
 BIND_I_E(yeRefCount, 1, 0);
 BIND_I_E(yeType, 1, 0);
@@ -96,6 +107,8 @@ BIND_I_V(ywGetTurnLengthOverwrite);
 BIND_I_V(yWindowWidth);
 BIND_I_V(yWindowHeight);
 
+BIND_E_SEES(ywTextureNewImg, 4, 0);
+
 BIND_NONE(yevCreateGrp, 1, 9);
 BIND_NONE(yesCall, 1, 15);
 
@@ -115,9 +128,11 @@ PUSH_I_GLOBAL(YKEY_UP);
 
 PUSH_I_GLOBAL(Y_REQUEST_ANIMATION_FRAME);
 
+#undef BIND_E_EIIEE
 #undef BIND_E_EIIS
 #undef BIND_E_EIIE
 #undef BIND_B_EEEE
+#undef BIND_E_SEES
 #undef BIND_B_EES
 #undef BIND_B_EEE
 #undef BIND_B_EE
@@ -133,6 +148,7 @@ PUSH_I_GLOBAL(Y_REQUEST_ANIMATION_FRAME);
 #undef BIND_E_S
 #undef BIND_S_E
 #undef BIND_I_E
+#undef BIND_I_EE
 #undef BIND_I_I
 #undef BIND_I_S
 #undef BIND_E_E
