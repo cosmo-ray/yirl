@@ -679,6 +679,7 @@ void yeDestroyFloat(Entity *entity)
 void yeDestroyFunction(Entity *entity)
 {
 	if (entity->refCount == 1) {
+		ysEDestroy(YE_TO_FUNC(entity)->manager, entity);
 		free(YE_TO_FUNC(entity)->value);
 		YE_DESTROY_ENTITY(entity, FunctionEntity);
 	} else {

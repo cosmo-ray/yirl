@@ -106,6 +106,8 @@ BIND_V_EII(ywCanvasObjSetPos, 3, 0);
 BIND_I_V(ywGetTurnLengthOverwrite);
 BIND_I_V(yWindowWidth);
 BIND_I_V(yWindowHeight);
+BIND_I_V(ywidGetTurnTimer);
+BIND_I_V(yeEntitiesArraySize);
 
 BIND_E_SEES(ywTextureNewImg, 4, 0);
 

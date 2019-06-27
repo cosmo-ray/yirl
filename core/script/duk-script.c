@@ -19,6 +19,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <stdio.h>
 
 #include <glib.h>
 
@@ -40,11 +41,50 @@ static int t = -1;
 #define OPS(s) ((YScriptDuk *)s)->ops
 #define CTX(s) ((YScriptDuk *)s)->ctx
 
-#define GET_E(ctx, i)				\
-	duk_get_pointer(ctx, i)
+static duk_ret_t dukyeDestroy(duk_context *ctx);
 
-#define PUSH_E(c, e)				\
-	duk_push_pointer(c, e)
+static inline int is_ent(duk_context *ctx, int i)
+{
+	return duk_is_object(ctx, i);
+}
+
+static inline Entity *GET_E(duk_context *ctx, int i)
+{
+	Entity *r;
+
+	if (!duk_is_object(ctx, i))
+		return NULL;
+	duk_get_prop_index(ctx, i, 0);
+ 	r = duk_get_pointer(ctx, -1);
+ 	duk_pop(ctx);
+	return r;
+}
+
+static inline void PUSH_E(duk_context *c, Entity *e)
+{
+	if (unlikely(!e)) {
+		duk_push_null(c);
+		return;
+	}
+	/* [stack...] */
+	duk_push_object(c);
+	/* [stack...] [obj] */
+	duk_push_pointer(c, e);
+	/* [stack...] [obj] [ptr] */
+	duk_put_prop_index(c, -2, 0);
+}
+
+static inline void mk_ent(duk_context *c, Entity *e, int add_destroy)
+{
+	PUSH_E(c, e);
+	if (!add_destroy || unlikely(!e))
+		return;
+	/* [stack...] [obj] */
+	duk_push_c_function(c, dukyeDestroy, 1);
+	/* [stack...] [obj] [c func] */
+	duk_set_finalizer(c, -1);
+	/* [stack...] [obj] */
+}
 
 typedef struct {
 	YScriptOps ops;
@@ -53,32 +93,68 @@ typedef struct {
 
 YScriptDuk *cur_sc;
 
+static void e_destroy(void *s, Entity *e)
+{
+	if (yeIData(e)) {
+		duk_context *ctx = CTX(s);
+
+		duk_push_heap_stash(ctx);
+		/* [stack...]  [stash] */
+		duk_del_prop_string(ctx, -1, yeGetFunction(e));
+		duk_pop(ctx);
+	}
+}
+
+static duk_ret_t dukyjsFunc(duk_context *ctx)
+{
+	Entity *e = GET_E(ctx, 0);
+	const char *fname;
+
+	if (yeIData(e)) {
+		/* [stack...] */
+		duk_push_heap_stash(ctx);
+		/* [stack...]  [stash] */
+		duk_get_prop_string(ctx, -1, yeGetFunction(e));
+		/* [stack...]  [stash] [function/undefine ?] */
+		duk_replace(ctx, -2);
+		/* [stack] [function/undefine ?] */
+
+	} else {
+		fname = yeGetString(GET_E(ctx, 0));
+		duk_push_string(ctx, fname);
+	}
+	return 1;
+}
+
 static duk_ret_t dukyjsCall(duk_context *ctx)
 {
-	const char *fname;
 	int i = duk_get_top(ctx) - 1;
-	printf("top %d\n", i);
-	if (duk_is_pointer(ctx, 0)) {
-		Entity *e = GET_E(ctx, 0);
-		void *fp;
 
-		if ((fp = yeGetFunctionFastPath(e)) != NULL) {
-			duk_push_heapptr(ctx, fp);
-			duk_replace(ctx, 0);
-		} else {
-			fname = yeGetString(GET_E(ctx, 0));
-			duk_push_string(ctx, fname);
-			duk_replace(ctx, 0);
-		}
+	if (is_ent(ctx, 0)) {
+		/* [entity func] [argv...] */
+		dukyjsFunc(ctx);
+		/* [entity func] [argv...] [func] */
+		duk_replace(ctx, 0);
+		/* [func] [argv...] */
 	}
 	duk_call(ctx, i);
-	printf("ret %d - %d\n", (duk_get_top(ctx)), i);
 	return duk_get_top(ctx);
 }
 
 static duk_ret_t dukyeDestroy(duk_context *ctx)
 {
-	yeDestroy(GET_E(ctx, 0));
+	Entity *e;
+
+	printf("destroy %d\n", is_ent(ctx, 0));
+	if (!is_ent(ctx, 0))
+		return 0;
+	duk_get_prop_index(ctx, 0, 0);
+ 	e = duk_get_pointer(ctx, 1);
+	printf("e: %p - %d\n", e, e ? e->refCount : 0);
+	duk_push_null(ctx);
+	duk_put_prop_index(ctx, 0, 0);
+	yeDestroy(e);
+ 	duk_pop(ctx);
 	return 0;
 }
 
@@ -116,6 +192,13 @@ static duk_ret_t dukywidNewWidget(duk_context *ctx)
 	return 1;
 }
 
+static duk_ret_t dukyeSetIntAt(duk_context *ctx)
+{
+	yeSetIntAt(GET_E(ctx, 0), duk_get_int(ctx, 1),
+		   duk_get_int(ctx, 2));
+	return 0;
+}
+
 static duk_ret_t dukyeGet(duk_context *ctx)
 {
 	if (duk_is_string(ctx, 1))
@@ -127,70 +210,86 @@ static duk_ret_t dukyeGet(duk_context *ctx)
 
 static duk_ret_t dukyeCreateString(duk_context *ctx)
 {
-	PUSH_E(ctx, yeCreateString(duk_get_string(ctx, 0),
+	mk_ent(ctx, yeCreateString(duk_get_string(ctx, 0),
 				   GET_E(ctx, 1),
-				   duk_get_string(ctx, 2)));
+				   duk_get_string(ctx, 2)),
+	       !GET_E(ctx, 1));
 	return 1;
 }
 
 static duk_ret_t dukywRectCreateInts(duk_context *ctx)
 {
-	PUSH_E(ctx, ywRectCreateInts(duk_get_int(ctx, 0), duk_get_int(ctx, 1),
+	mk_ent(ctx, ywRectCreateInts(duk_get_int(ctx, 0), duk_get_int(ctx, 1),
 				     duk_get_int(ctx, 2), duk_get_int(ctx, 3),
-				     GET_E(ctx, 4), duk_get_string(ctx, 5)));
+				     GET_E(ctx, 4), duk_get_string(ctx, 5)),
+	       !GET_E(ctx, 4));
 	return 1;
 }
 
 static duk_ret_t dukywPosCreate(duk_context *ctx)
 {
-	PUSH_E(ctx, ywPosCreate(duk_get_int(ctx, 0), duk_get_int(ctx, 1),
-				GET_E(ctx, 2), duk_get_string(ctx, 3)));
+	mk_ent(ctx, ywPosCreate(duk_get_int(ctx, 0), duk_get_int(ctx, 1),
+				GET_E(ctx, 2), duk_get_string(ctx, 3)),
+	       !GET_E(ctx, 2));
 	return 1;
 }
 
 static duk_ret_t dukyeCreateInt(duk_context *ctx)
 {
-	PUSH_E(ctx, yeCreateInt(duk_get_int(ctx, 0),
+	mk_ent(ctx, yeCreateInt(duk_get_int(ctx, 0),
 				GET_E(ctx, 1),
-				duk_get_string(ctx, 2)));
+				duk_get_string(ctx, 2)), !GET_E(ctx, 1));
 	return 1;
 }
 
 static duk_ret_t dukyeCreateFunction(duk_context *ctx)
 {
+	static int glob_cnt;
 	const char *str = NULL;
 	if (duk_is_function(ctx, 0)) {
 		Entity *e;
+		char *rname = NULL;
 
-		e = yeCreateFunctionExt("unreachable by name",
-					ygGetManager("js"),
-					GET_E(ctx, 1),
-					duk_get_string(ctx, 2),
-					YE_FUNC_NO_FASTPATH_INIT);
-		YE_TO_FUNC(e)->fastPath = duk_get_heapptr(ctx, 0);
-		PUSH_E(ctx, e);
+		asprintf(&rname, "_r%d", glob_cnt++);
+		/* [stack...] */
+		duk_push_heap_stash(ctx);
+		/* [stack...]  [stash] */
+		duk_dup(ctx, 0);
+		/* [stack...]  [stash] [function] */
+		duk_put_prop_string(ctx, -2, rname);
+		/* [stack...] [stash] */
+		e = yeCreateFunction(rname, ygGetManager("js"),
+				     GET_E(ctx, 1), duk_get_string(ctx, 2));
+		YE_TO_FUNC(e)->idata = 0x1;
+		duk_pop(ctx);
+		/* [stack...] */
+		free(rname);
+		mk_ent(ctx, e, !GET_E(ctx, 1));
 		return 1;
 	}
 	str = duk_get_string(ctx, 0);
-	PUSH_E(ctx, yeCreateFunction(str,
+	mk_ent(ctx, yeCreateFunction(str,
 				     ygGetManager("js"),
 				     GET_E(ctx, 1),
-				     duk_get_string(ctx, 2)));
+				     duk_get_string(ctx, 2)),
+	       !GET_E(ctx, 1));
 	return 1;
 }
 
 static duk_ret_t dukyeCreateArray(duk_context *ctx)
 {
-	PUSH_E(ctx, yeCreateArray(GET_E(ctx, 0),
-				   duk_get_string(ctx, 1)));
+	mk_ent(ctx, yeCreateArray(GET_E(ctx, 0),
+				  duk_get_string(ctx, 1)),
+	       !GET_E(ctx, 0));
 	return 1;
 }
 
 static duk_ret_t dukyeReCreateArray(duk_context *ctx)
 {
-	PUSH_E(ctx, yeReCreateArray(GET_E(ctx, 0),
+	mk_ent(ctx, yeReCreateArray(GET_E(ctx, 0),
 				    duk_get_string(ctx, 1),
-				    GET_E(ctx, 2)));
+				    GET_E(ctx, 2)),
+		!GET_E(ctx, 0));
 	return 1;
 }
 
@@ -329,7 +428,6 @@ static duk_ret_t dukyeReCreateArray(duk_context *ctx)
 
 
 DUMB_FUNC(yeGetIntAt);
-DUMB_FUNC(yeSetIntAt);
 DUMB_FUNC(yevCreateGrp);
 DUMB_FUNC(yesCall);
 DUMB_FUNC(yeIncrAt);
@@ -353,7 +451,7 @@ static void *call(void *sm, const char *name, va_list ap)
 	duk_get_global_string(ctx, name);
 	for (void *tmp = va_arg(ap, void *); tmp != Y_END_VA_LIST;
 	     tmp = va_arg(ap, void *)) {
-		if (!yeIsPtrAnEntity(tmp))
+		if (yeIsPtrAnEntity(tmp))
 			PUSH_E(ctx, tmp);
 		else if ((intptr_t)tmp < 65536)
 			duk_push_int(ctx, (intptr_t)tmp);
@@ -363,7 +461,9 @@ static void *call(void *sm, const char *name, va_list ap)
 	}
 	duk_call(ctx, i);
 	i = duk_get_top(ctx) - 1;
-	if (duk_is_pointer(ctx, i))
+	if (is_ent(ctx, i))
+		r = GET_E(ctx, i);
+	else if (duk_is_pointer(ctx, i))
 		r = duk_get_pointer(ctx, i);
 	else if (duk_is_boolean(ctx, i))
 		r = (void *)duk_get_boolean(ctx, i);
@@ -429,6 +529,7 @@ static int init(void *sm, void *args)
 	BIND(ywidNewWidget, 1, 2);
 	BIND(ygLoadScript, 3, 0);
 	BIND(ygGetManager, 1, 0);
+	BIND(yjsFunc, 0, 0);
 	BIND(yjsCall, 0, 0);
 	BIND(yeDestroy, 1, 0);
 #define IN_CALL 1
@@ -488,6 +589,7 @@ static void *allocator(void)
 
 	ret = g_new0(YScriptDuk, 1);
 	ret->ops.init = init;
+	ret->ops.e_destroy = e_destroy;
 	ret->ops.destroy = destroy;
 	ret->ops.loadFile = loadFile;
 	ret->ops.loadString = loadString;

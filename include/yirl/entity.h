@@ -183,7 +183,10 @@ typedef	struct
 	 * than if we was using the name of the function.
 	 * This is initialyse to NULL
 	 */
-	void	*fastPath;
+	union {
+		void	*fastPath;
+		intptr_t idata;
+	};
 } FunctionEntity;
 
 union SmallEntity {
@@ -881,6 +884,11 @@ size_t yeLen(Entity *entity);
 const char *yeGetFunction(Entity *entity);
 
 void *yeGetFunctionFastPath(Entity *entity);
+
+static inline intptr_t yeIData(Entity *e)
+{
+	return YE_TO_FUNC(e)->idata;
+}
 
 /**
  * Check if Entity are the same type and if they are not NULL and copy the values from src to dest.

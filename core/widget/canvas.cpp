@@ -352,7 +352,7 @@ extern "C" {
 
   void ywCanvasRemoveObj(Entity *wid, Entity *obj)
   {
-    Entity *objs = getOrCreateObjs(wid);
+    Entity *objs = yeGet(wid, "objs");
 
     yeRemoveChild(objs, obj);
   }
@@ -417,15 +417,15 @@ extern "C" {
   Entity *ywCanvasNewImgFromTexture(Entity *wid, int x, int y, Entity *yTexture,
 				    Entity *img_src_rect)
   {
-    Entity *obj = yeCreateArray(NULL, NULL);
+	  Entity *obj = yeCreateArray(NULL, NULL);
 
-    yeCreateInt(YCanvasTexture, obj, "canvas-type");
-    ywPosCreateInts(x, y, obj, "pos");
-    yePushBack(obj, yTexture, "text");
-    yePushBack(obj, img_src_rect, "img-src-rect");
-    ywCanvasSetWeightInternal(wid, obj, 0, 1);
-    sdlCanvasCacheTexture(wid, obj);
-    return obj;
+	  yeCreateInt(YCanvasTexture, obj, "canvas-type");
+	  ywPosCreateInts(x, y, obj, "pos");
+	  yePushBack(obj, yTexture, "text");
+	  yePushBack(obj, img_src_rect, "img-src-rect");
+	  ywCanvasSetWeightInternal(wid, obj, 0, 1);
+	  sdlCanvasCacheTexture(wid, obj);
+	  return obj;
   }
 
 
@@ -655,10 +655,12 @@ extern "C" {
 
   int ywCanvasForceSize(Entity *obj, Entity *size)
   {
-    Entity *mod = getOrCreateMod(obj);
+	  if (!obj || !size)
+		  return -1;
+	  Entity *mod = getOrCreateMod(obj);
 
-    yePushAt(mod, size, YCanvasForceSize);
-    return 0;
+	  yePushAt(mod, size, YCanvasForceSize);
+	  return 0;
   }
 
   int ywCanvasObjIsOut(Entity *wid, Entity *obj)

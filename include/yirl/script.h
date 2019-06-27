@@ -25,17 +25,19 @@
 #define Y_END_VA_LIST ((void *)0xDEAD0000)
 
 typedef struct {
-  int (*init)(void *opac, void *args);
-  int (*loadFile)(void *opac, const char *fileName);
-  int (*loadString)(void *opac, const char *str);
-  int (* registreFunc)(void *opac, const char *name, void *arg);
-  void (*addFuncSymbole)(void *sm, const char *name, int nbArgs, Entity *func);
-  void *(*call)(void *opac, const char *name, va_list ap);
-  void *(*fastCall)(void *opacFunction, va_list ap);
-  void *(*getFastPath)(void *scriptManager, const char *name);
-  int (*addDefine)(void *opac, const char *name, const char *val);
-  const char *(*getError)(void *opac);
-  int (*destroy)(void *opac);
+	int (*init)(void *opac, void *args);
+	int (*loadFile)(void *opac, const char *fileName);
+	int (*loadString)(void *opac, const char *str);
+	int (* registreFunc)(void *opac, const char *name, void *arg);
+	void (*addFuncSymbole)(void *sm, const char *name, int nbArgs,
+			       Entity *func);
+	void *(*call)(void *opac, const char *name, va_list ap);
+	void *(*fastCall)(void *opacFunction, va_list ap);
+	void *(*getFastPath)(void *scriptManager, const char *name);
+	void (*e_destroy)(void *manager, Entity *e);
+	int (*addDefine)(void *opac, const char *name, const char *val);
+	const char *(*getError)(void *opac);
+	int (*destroy)(void *opac);
 } YScriptOps;
 
 YManagerAllocator *ysScriptsTab(void);
@@ -52,6 +54,14 @@ void *ysFCallInt(void *sm, void *name,  ...);
 					      YUI_VA_ARGS_HANDELER(Y_END_VA_LIST, \
 								   args))
 
+
+static inline void ysEDestroy(void *sm, Entity *f)
+{
+	if (likely(!((YScriptOps *)sm)->e_destroy))
+		return;
+
+	((YScriptOps *)sm)->e_destroy(sm, f);
+}
 
 static inline int ysAddDefine(void *sm, const char *name, const char *val)
 {

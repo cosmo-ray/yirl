@@ -72,7 +72,7 @@ struct Kaboumable {
 	struct Kaboumable *prev;
 } *kaboumables;
 
-int ywTurnLengthOverwrite = -1;
+int ywTurnLengthOverwrite = -2;
 
 unsigned int ywTurnId(void)
 {
@@ -608,7 +608,7 @@ int64_t ywidTurnTimer;
 
 int ywidDoTurn(YWidgetState *opac)
 {
-	int turnLength = ywTurnLengthOverwrite >= 0 ? ywTurnLengthOverwrite :
+	int turnLength = ywTurnLengthOverwrite >= -1 ? ywTurnLengthOverwrite :
 		yeGetInt(yeGet(opac->entity, "turn-length"));
 	int ret;
 	static YTimer *cnt = NULL;

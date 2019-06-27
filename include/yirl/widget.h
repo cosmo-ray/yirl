@@ -33,6 +33,10 @@ extern int ywNeedTextureReload;
 #define Y_REQUEST_ANIMATION_FRAME -1
 
 extern int64_t ywidTurnTimer;
+static inline int64_t ywidGetTurnTimer(void)
+{
+	return ywidTurnTimer;
+}
 
 typedef enum
   {

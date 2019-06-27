@@ -490,25 +490,25 @@ void sdlResize(YWidgetState *wid, int renderType)
 
 void sdlWidInit(YWidgetState *wid, int t)
 {
-  sdlResize(wid, t);
+	sdlResize(wid, t);
 }
 
 void sdlWidDestroy(YWidgetState *wid, int t)
 {
-  SDLWid *swid = wid->renderStates[t].opac;
+	SDLWid *swid = wid->renderStates[t].opac;
 
-  g_free(swid);
+	g_free(swid);
 }
 
 /* Wrapper for DataEntity destroy */
 static void sdlFreeTexture(void *txt)
 {
-  SDL_DestroyTexture(txt);
+	SDL_DestroyTexture(txt);
 }
 
 void sdlFreeSurface(void *surface)
 {
-  SDL_FreeSurface(surface);
+	SDL_FreeSurface(surface);
 }
 
 #define Y_SDL_TILD 1
@@ -674,6 +674,7 @@ int sdlCanvasCacheImg2(Entity *elem, Entity *resource, const char *imgPath,
 	} else {
 		if (!g_file_test(imgPath, G_FILE_TEST_EXISTS)) {
 			char *cd = get_current_dir_name();
+
 			DPRINT_ERR("no sure file %s(current dir: %s)", imgPath,
 				   cd);
 			free(cd); // but who still use CD today ?
@@ -709,14 +710,17 @@ int sdlCanvasCacheImg2(Entity *elem, Entity *resource, const char *imgPath,
 		data = yeCreateDataAt(texture, elem, "$img", YCANVAS_IMG_IDX);
 		yeSetDestroy(data, sdlFreeTexture);
 		ywSizeCreateAt(w, h, elem, "$size", YCANVAS_SIZE_IDX);
-		yeGetPush(elem, resource, "$img");
-		yeGetPush(elem, resource, "$size");
+		if (imgPath) {
+			yeGetPush(elem, resource, "$img");
+			yeGetPush(elem, resource, "$size");
+		}
 	}
 	data = yeCreateData(surface, elem, "$img-surface");
 	/* if no img path a texture was use */
-	if (imgPath)
+	if (imgPath) {
 		yeSetDestroy(data, sdlFreeSurface);
-	yeGetPush(elem, resource, "$img-surface");
+		yeGetPush(elem, resource, "$img-surface");
+	}
 	return 0;
 free_surface:
 	if (imgPath)
@@ -727,71 +731,71 @@ free_surface:
 int sdlCanvasCacheImg(Entity *elem, Entity *resource, const char *imgPath,
 		      Entity *rEnt)
 {
-  return sdlCanvasCacheImg2(elem, resource, imgPath, rEnt, 0);
+	return sdlCanvasCacheImg2(elem, resource, imgPath, rEnt, 0);
 }
 
 int sdlCanvasCacheTexture(Entity *state, Entity *elem)
 {
-  int type = ywCanvasObjType(elem);
-  Entity *resource;
-  Entity *texture;
-  const char *txt;
+	int type = ywCanvasObjType(elem);
+	Entity *resource;
+	Entity *texture;
+	const char *txt;
 
-  if (type == YCanvasRect) {
-    return 0;
-  } else if (ywCanvasObjType(elem) == YCanvasString) {
-    Entity *str = yeGet(elem, 2);
-    int w = 0, h;
+	if (type == YCanvasRect) {
+		return 0;
+	} else if (ywCanvasObjType(elem) == YCanvasString) {
+		Entity *str = yeGet(elem, 2);
+		int w = 0, h;
 
-    h = yuiStrCountCh(yeGetString(str), '\n', &w);
-    w = (w + 1) * (sg.txtWidth);
-    h = (h + 1) * (sgGetFontSize() + 2);
+		h = yuiStrCountCh(yeGetString(str), '\n', &w);
+		w = (w + 1) * (sg.txtWidth);
+		h = (h + 1) * (sgGetFontSize() + 2);
 
-    ywSizeCreateAt(w, h, elem, "$size", YCANVAS_SIZE_IDX);
-    return 0;
-  } else if (unlikely(type == YCanvasImg)) {
-    txt = yeGetStringAt(elem, 2);
-    if (txt)
-      return sdlCanvasCacheImg(elem, NULL, txt, NULL);
-  } else if (unlikely(type == YCanvasTexture)) {
-    return sdlCanvasCacheImg(elem, yeGet(elem, 2), NULL, NULL);
-  } else if (unlikely(type != YCanvasResource)) {
-    return -1;
-  }
+		ywSizeCreateAt(w, h, elem, "$size", YCANVAS_SIZE_IDX);
+		return 0;
+	} else if (unlikely(type == YCanvasImg)) {
+		txt = yeGetStringAt(elem, 2);
+		if (txt)
+			return sdlCanvasCacheImg(elem, NULL, txt, NULL);
+	} else if (unlikely(type == YCanvasTexture)) {
+		return sdlCanvasCacheImg(elem, yeGet(elem, 2), NULL, NULL);
+	} else if (unlikely(type != YCanvasResource)) {
+		return -1;
+	}
 
-  resource = yeGet(yeGet(state, "resources"),
-			   yeGetIntAt(elem, 2));
-  Entity *tmp = yeGet(resource, "$img");
-  if (tmp) {
-    yePushAt(elem, tmp, YCANVAS_IMG_IDX);
-    yeRenameIdxStr(elem, YCANVAS_IMG_IDX, "$img");
-    yeGetPush(resource, elem, "$size");
-    yeGetPush(resource, elem, "$img-surface");
-    return 0;
-  }
+	resource = yeGet(yeGet(state, "resources"),
+			 yeGetIntAt(elem, 2));
+	Entity *tmp = yeGet(resource, "$img");
+	if (tmp) {
+		yePushAt(elem, tmp, YCANVAS_IMG_IDX);
+		yeRenameIdxStr(elem, YCANVAS_IMG_IDX, "$img");
+		yeGetPush(resource, elem, "$size");
+		yeGetPush(resource, elem, "$img-surface");
+		return 0;
+	}
 
-  texture = yeGet(resource, "texture");
-  if (texture) {
-    int ret;
-    Entity *imgSrcRect;
+	texture = yeGet(resource, "texture");
+	if (texture) {
+		int ret;
+		Entity *imgSrcRect;
 
-    sdlCanvasCacheImg(resource, texture, NULL, NULL);
-    imgSrcRect = yeGet(resource, "img-src-rect");
-    if (imgSrcRect)
-      yeIncrRef(imgSrcRect);
-    yeRemoveChild(resource, imgSrcRect);
-    ret = sdlCanvasCacheImg(elem, resource, NULL, NULL);
-    yePushBack(resource, imgSrcRect, "img-src-rect");
-    yeDestroy(imgSrcRect);
-    return ret;
-  }
-  txt = yeGetStringAt(resource, "img");
-  if (txt)
-    return sdlCanvasCacheImg(elem, resource, txt, NULL);
-  txt = yeGetStringAt(resource, "text");
-  if (txt)
-    return sdlCanvasCacheText(state, elem, resource, txt);
-  return -1;
+		sdlCanvasCacheImg(resource, texture, NULL, NULL);
+		imgSrcRect = yeGet(resource, "img-src-rect");
+		if (imgSrcRect)
+			yeIncrRef(imgSrcRect);
+		yeRemoveChild(resource, imgSrcRect);
+		ret = sdlCanvasCacheImg(elem, resource, NULL, NULL);
+		yePushBack(resource, imgSrcRect, "img-src-rect");
+		yeDestroy(imgSrcRect);
+		return ret;
+	}
+	txt = yeGetStringAt(resource, "img");
+	if (txt)
+		return sdlCanvasCacheImg(elem, resource, txt, NULL);
+	txt = yeGetStringAt(resource, "text");
+	if (txt)
+		return sdlCanvasCacheText(state, elem, resource, txt);
+	return -1;
 }
 
 static void sdlCanvasAplyModifier(Entity *img, SDL_Rect *dst,
@@ -874,7 +878,8 @@ uint32_t sdlCanvasPixInfo(Entity *obj, int x, int y)
 	((uint32_t *)surface->pixels)[x + surface->w * y]) {
 	YCanvasPixiel ret;
 	ret.i = ((uint32_t *)surface->pixels)[x + surface->w * y];
-	ret.rgba[3] = 255; /* I guess if Alpha is store at the begin, we're fuck */
+/* I guess if Alpha is store at the begin, we're fuck */
+	ret.rgba[3] = 255;
 
 	return ret.i;
     }
