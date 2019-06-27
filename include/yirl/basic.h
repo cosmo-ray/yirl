@@ -33,6 +33,7 @@
 #endif
 
 typedef int_ptr_t size_t;
+typedef int_ptr_t intptr_t;
 typedef void FILE;
 
 void	fflushout(void);

@@ -57,7 +57,7 @@ void *ysFCallInt(void *sm, void *name,  ...);
 
 static inline void ysEDestroy(void *sm, Entity *f)
 {
-	if (likely(!((YScriptOps *)sm)->e_destroy))
+	if (unlikely(!sm) || likely(!((YScriptOps *)sm)->e_destroy))
 		return;
 
 	((YScriptOps *)sm)->e_destroy(sm, f);

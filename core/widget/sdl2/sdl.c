@@ -189,8 +189,6 @@ static int  convertToYKEY(SDL_Keycode key)
   if ((key >= 'a' && key <= 'z') ||
       (key >= '0' && key <= '9') || key == ' ')
     return key;
-  printf("shift %x %x ctrl %x %x\n", SDLK_LSHIFT, SDLK_RSHIFT,
-	 SDLK_LCTRL, SDLK_RCTRL);
   switch (key)
     {
     case SDLK_LSHIFT:
