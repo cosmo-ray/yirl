@@ -330,6 +330,8 @@ int    ysdl2Init(void)
 {
   if (type != -1)
     return type;
+  char ttf_path[strlen(ygBinaryRootPath) + sizeof("/DejaVuSansMono.ttf")];
+  sprintf(ttf_path, "%s%s", ygBinaryRootPath, "/DejaVuSansMono.ttf");
 
   /* Initialisation simple */
   if (SDL_Init(SDL_INIT_EVERYTHING) != 0 ) {
@@ -363,8 +365,9 @@ int    ysdl2Init(void)
   // Render for the main windows
   if (sdlRenderCreate() < 0)
     goto fail;
-
-  if (sgSetDefaultFont("./DejaVuSansMono.ttf") < 0 &&
+  
+  if (sgSetDefaultFont(ttf_path) < 0 &&
+      sgSetDefaultFont("./DejaVuSansMono.ttf") < 0 &&
       sgSetDefaultFont("/Library/Fonts/Tahoma.ttf") < 0 &&
       sgSetDefaultFont("/usr/share/fonts/liberation/LiberationMono-Regular.ttf") < 0 &&
       sgSetDefaultFont("/usr/share/fonts/TTF/DejaVuSansMono.ttf") < 0 &&

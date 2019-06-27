@@ -480,7 +480,7 @@ Entity *ygLoadMod(const char *path)
 	Entity *name;
 
 	YE_NEW(string, tmp_name, "");
-	for (int i = 0; i < 3; ++i) {
+	for (int i = 0; i < 4; ++i) {
 		const char * const starts[] = {"/start.c", "/start.lua",
 					       "/start.scm", "/start.js"};
 		void * const managers[] = {tccManager, luaManager,
