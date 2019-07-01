@@ -53,6 +53,8 @@ BIND_I_S(ySoundLoad, 1, 0);
 BIND_I_S(ySoundMusicLoad, 1, 0);
 
 BIND_I_I(ySoundPlay, 1, 0);
+BIND_I_I(ySoundPause, 1, 0);
+BIND_I_I(ySoundStop, 1, 0);
 
 BIND_B_EE(yevIsGrpUp, 2, 0);
 BIND_B_EE(yevIsGrpDown, 2, 0);
@@ -137,12 +139,12 @@ PUSH_I_GLOBAL(Y_REQUEST_ANIMATION_FRAME);
 #undef BIND_E_SEES
 #undef BIND_B_EES
 #undef BIND_B_EEE
+#undef BIND_V_EII
 #undef BIND_B_EE
 #undef BIND_E_EE
 #undef BIND_E_ES
 #undef BIND_E_EI
 #undef BIND_V_EI
-#undef BIND_V_EII
 #undef BIND_NONE
 #undef BIND_V_I
 #undef BIND_V_E

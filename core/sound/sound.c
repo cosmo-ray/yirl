@@ -26,9 +26,9 @@
 int audioLibUsed = -1;
 
 #define RET_OR_CALL(func, args...)		\
-  if (unlikely(!func))				\
-    return -1;					\
-  return func(args)
+	if (unlikely(!func))			\
+		return -1;			\
+	return func(args)
 
 SoundState noSound;
 
@@ -36,22 +36,22 @@ extern SoundState defaultSoundDriver;
 
 int ysound_init(void)
 {
-  if (unlikely(!defaultSoundDriver.libInit))
-    return -1;
-  return defaultSoundDriver.libInit();
+	if (unlikely(!defaultSoundDriver.libInit))
+		return -1;
+	return defaultSoundDriver.libInit();
 }
 
 int ysound_end(void)
 {
-  if (unlikely(!defaultSoundDriver.libEnd))
-    return -1;
-  return defaultSoundDriver.libEnd();
+	if (unlikely(!defaultSoundDriver.libEnd))
+		return -1;
+	return defaultSoundDriver.libEnd();
 }
 
 /* ---- shortcut ---- */
 int ySoundLoad(const char *path)
 {
-  RET_OR_CALL(defaultSoundDriver.load, path);
+	RET_OR_CALL(defaultSoundDriver.load, path);
 }
 
 int ySoundMusicLoad(const char *path)
@@ -61,27 +61,32 @@ int ySoundMusicLoad(const char *path)
 
 int ySoundPlay(int id)
 {
-  RET_OR_CALL(defaultSoundDriver.play, id);
+	RET_OR_CALL(defaultSoundDriver.play, id);
 }
 
 int ySoundPlayLoop(int id)
 {
-  RET_OR_CALL(defaultSoundDriver.play_loop, id);
+	RET_OR_CALL(defaultSoundDriver.play_loop, id);
 }
 
 int ySoundLevel(int id, int soundLvl)
 {
-  RET_OR_CALL(defaultSoundDriver.ySoundLevel, id, soundLvl);
+	RET_OR_CALL(defaultSoundDriver.ySoundLevel, id, soundLvl);
 }
 
 int ySoundStatus(int id)
 {
-  RET_OR_CALL(defaultSoundDriver.status, id);
+	RET_OR_CALL(defaultSoundDriver.status, id);
 }
 
 int ySoundStop(int id)
 {
-  RET_OR_CALL(defaultSoundDriver.stop, id);
+	RET_OR_CALL(defaultSoundDriver.stop, id);
+}
+
+int ySoundPause(int id)
+{
+	RET_OR_CALL(defaultSoundDriver.pause, id);
 }
 
 #undef RET_OR_CALL

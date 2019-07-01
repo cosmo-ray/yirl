@@ -141,16 +141,55 @@ static duk_ret_t dukyjsCall(duk_context *ctx)
 	return duk_get_top(ctx);
 }
 
+static void *get_arg(duk_context *ctx, int i)
+{
+	if (is_ent(ctx, i))
+		return GET_E(ctx, i);
+	if (duk_is_string(ctx, i))
+		return (void *)duk_get_string(ctx, i);
+	if (duk_is_number(ctx, i))
+		return (void *)duk_get_int(ctx, i);
+	return duk_get_pointer(ctx, i);
+}
+
+static duk_ret_t dukyesCall(duk_context *ctx)
+{
+	Entity *e = GET_E(ctx, 0);
+
+	switch (duk_get_top(ctx)) {
+	case 1:
+		PUSH_E(ctx, yesCall(e));
+		return 1;
+	case 2:
+		PUSH_E(ctx, yesCall(e, get_arg(ctx, 1)));
+		return 1;
+	case 3:
+		PUSH_E(ctx, yesCall(e, get_arg(ctx, 1), get_arg(ctx, 2)));
+		return 1;
+	case 4:
+		PUSH_E(ctx, yesCall(e, get_arg(ctx, 1),
+				    get_arg(ctx, 2), get_arg(ctx, 3)));
+		return 1;
+	case 5:
+		PUSH_E(ctx, yesCall(e, get_arg(ctx, 1), get_arg(ctx, 2),
+				    get_arg(ctx, 3), get_arg(ctx, 4)));
+		return 1;
+	default:
+		DPRINT_ERR("internal error: too much argument");
+		return -1;
+	}
+
+	return -1;
+}
+
 static duk_ret_t dukyeDestroy(duk_context *ctx)
 {
 	Entity *e;
 
-	printf("destroy %d\n", is_ent(ctx, 0));
 	if (!is_ent(ctx, 0))
 		return 0;
 	duk_get_prop_index(ctx, 0, 0);
  	e = duk_get_pointer(ctx, 1);
-	printf("e: %p - %d\n", e, e ? e->refCount : 0);
 	duk_push_null(ctx);
 	duk_put_prop_index(ctx, 0, 0);
 	yeDestroy(e);
@@ -429,7 +468,6 @@ static duk_ret_t dukyeReCreateArray(duk_context *ctx)
 
 DUMB_FUNC(yeGetIntAt);
 DUMB_FUNC(yevCreateGrp);
-DUMB_FUNC(yesCall);
 DUMB_FUNC(yeIncrAt);
 DUMB_FUNC(yeAddAt);
 
@@ -520,6 +558,7 @@ static int init(void *sm, void *args)
 	PUSH_I_GLOBAL_VAL(is_yirl, 1);
 	PUSH_I_GLOBAL_VAL(YEVE_NOTHANDLE, NOTHANDLE);
 	PUSH_I_GLOBAL_VAL(YEVE_ACTION, ACTION);
+	BIND(ywRectCreateInts, 4, 2);
 	BIND(to_str, 1, 0);
 	BIND(yeCreateString, 1, 2);
 	BIND(yeCreateInt, 1, 2);
