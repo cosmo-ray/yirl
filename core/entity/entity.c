@@ -151,7 +151,6 @@ Entity *yeCreateInts_(Entity *fathers, int nbVars, ...)
 	va_start(ap, nbVars);
 	for (int i = 0; i < nbVars; ++i) {
 		uint64_t ii = va_arg(ap, uint64_t);
-		printf("grp create %p ! %ld\n", fathers, ii);
 		yeCreateInt(ii, fathers, NULL);
 	}
 	va_end(ap);
