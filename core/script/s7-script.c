@@ -344,6 +344,12 @@ S7_IMPLE_CREATOR(String, s7_string);
 		return S7MI(s, func());					\
 	}
 
+#define BIND_V_V(x)							\
+	static s7_pointer s7##x(s7_scheme *s, s7_pointer a) {		\
+		x();							\
+		return s7_nil(s);					\
+	}
+
 #define BIND_V_vaE(f, useless0)						\
 	static s7_pointer s7##func(s7_scheme *s, s7_pointer a)		\
 	{								\
@@ -529,6 +535,9 @@ static int init(void *sm, void *args)
 			   s7_make_c_pointer(s7, YEVE_NOTHANDLE));
 
 
+#define PUSH_I_GLOBAL_VAL(g, VAL) s7_define_variable(s7, #g, \
+						     s7_make_integer(s7, VAL))
+
 #define PUSH_I_GLOBAL(g) s7_define_variable(s7, #g, s7_make_integer(s7, g))
 #define BIND(name, nargs, optargs)					\
 	s7_define_safe_function(s7, #name, s7##name, nargs, optargs, false, "")
@@ -538,6 +547,7 @@ static int init(void *sm, void *args)
 	BIND(yeCreateInt, 1, 2);
 	BIND(yeCreateFunction, 1, 2);
 	BIND(yeCreateArray, 0, 2);
+	BIND(yesCall, 1, 15);
 #define IN_CALL 1
 #include "binding.c"
 #undef IN_CALL

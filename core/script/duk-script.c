@@ -387,6 +387,12 @@ static duk_ret_t dukyeReCreateArray(duk_context *ctx)
 		return 1;						\
 	}
 
+#define BIND_V_V(x)						\
+	static duk_ret_t duk##x(duk_context *ctx) {		\
+		x();						\
+		return 0;					\
+	}
+
 #define BIND_V_I(x, u0, u1)					\
 	static duk_ret_t duk##x(duk_context *ctx) {		\
 		x(duk_get_int(ctx, 0));				\
@@ -570,6 +576,7 @@ static int init(void *sm, void *args)
 	BIND(ygGetManager, 1, 0);
 	BIND(yjsFunc, 0, 0);
 	BIND(yjsCall, 0, 0);
+	BIND(yesCall, 0, 0);
 	BIND(yeDestroy, 1, 0);
 #define IN_CALL 1
 #include "binding.c"

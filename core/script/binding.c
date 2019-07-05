@@ -1,5 +1,6 @@
 #ifdef IN_CALL
 #define BIND_NONE	BIND
+#define BIND_V_V(a)	BIND(a,0,0)
 #define BIND_I_V(a)	BIND(a,0,0)
 #define BIND_I_I	BIND
 #define BIND_I_S	BIND
@@ -27,6 +28,7 @@
 #else
 
 #define PUSH_I_GLOBAL(X)
+#define PUSH_I_GLOBAL_VAL(X, V)
 #define BIND_NONE(a, b, c)
 
 #endif
@@ -71,10 +73,14 @@ BIND_E_E(yeIncrRef, 1, 0);
 
 BIND_E_S(ygGet, 1, 0);
 
+BIND_V_V(ywCanvasDisableWeight);
+BIND_V_V(ywCanvasEnableWeight);
+
 BIND_V_I(ywSetTurnLengthOverwrite, 1, 0);
 
 BIND_V_E(ywPosPrint, 1, 0);
 BIND_V_E(ywSizePrint, 1, 0);
+BIND_V_E(ywCanvasClear, 1, 0);
 
 BIND_V_EE(ywCanvasStringSet, 2, 0);
 BIND_V_EE(yeRemoveChildByEntity, 2, 0);
@@ -114,7 +120,6 @@ BIND_I_V(yeEntitiesArraySize);
 BIND_E_SEES(ywTextureNewImg, 4, 0);
 
 BIND_NONE(yevCreateGrp, 1, 9);
-BIND_NONE(yesCall, 1, 15);
 
 PUSH_I_GLOBAL(Y_ESC_KEY);
 PUSH_I_GLOBAL(Y_UP_KEY);
@@ -126,6 +131,8 @@ PUSH_I_GLOBAL(Y_LSHIFT_KEY);
 PUSH_I_GLOBAL(Y_RSHIFT_KEY);
 PUSH_I_GLOBAL(Y_LCTRL_KEY);
 PUSH_I_GLOBAL(Y_RCTRL_KEY);
+
+PUSH_I_GLOBAL_VAL(Y_SPACE_KEY, ' ');
 
 PUSH_I_GLOBAL(YKEY_DOWN);
 PUSH_I_GLOBAL(YKEY_UP);
@@ -145,18 +152,20 @@ PUSH_I_GLOBAL(Y_REQUEST_ANIMATION_FRAME);
 #undef BIND_E_ES
 #undef BIND_E_EI
 #undef BIND_V_EI
+#undef BIND_V_EE
+#undef BIND_I_EE
 #undef BIND_NONE
 #undef BIND_V_I
+#undef BIND_V_V
 #undef BIND_V_E
-#undef BIND_V_EE
 #undef BIND_E_S
 #undef BIND_S_E
 #undef BIND_I_E
-#undef BIND_I_EE
 #undef BIND_I_I
 #undef BIND_I_S
 #undef BIND_E_E
 #undef BIND_I_V
 #undef PUSH_I_GLOBAL
+#undef PUSH_I_GLOBAL_VAL
 #undef IN_CALL
 
