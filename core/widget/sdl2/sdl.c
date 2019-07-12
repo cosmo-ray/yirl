@@ -665,13 +665,14 @@ int sdlCanvasCacheImg2(Entity *elem, Entity *resource, const char *imgPath,
 	SDL_Surface *surface;
 	SDL_Texture *texture;
 	Entity *data;
-	int w, h;
+	int w, h, isText = 0;
 
 	if (!rEnt)
 		rEnt = yeGet(elem, "img-src-rect") ? :
 			yeGet(resource, "img-src-rect");
 	if (!imgPath) {
 		surface = yeGetData(yeGet(resource, "$img-surface"));
+		isText = 1;
 	} else {
 		if (!g_file_test(imgPath, G_FILE_TEST_EXISTS)) {
 			char *cd = get_current_dir_name();
@@ -711,7 +712,7 @@ int sdlCanvasCacheImg2(Entity *elem, Entity *resource, const char *imgPath,
 		data = yeCreateDataAt(texture, elem, "$img", YCANVAS_IMG_IDX);
 		yeSetDestroy(data, sdlFreeTexture);
 		ywSizeCreateAt(w, h, elem, "$size", YCANVAS_SIZE_IDX);
-		if (imgPath) {
+		if (!isText) {
 			yeGetPush(elem, resource, "$img");
 			yeGetPush(elem, resource, "$size");
 		}
@@ -720,8 +721,9 @@ int sdlCanvasCacheImg2(Entity *elem, Entity *resource, const char *imgPath,
 	/* if no img path a texture was use */
 	if (imgPath) {
 		yeSetDestroy(data, sdlFreeSurface);
-		yeGetPush(elem, resource, "$img-surface");
 	}
+	if (!isText)
+		yeGetPush(elem, resource, "$img-surface");
 	return 0;
 free_surface:
 	if (imgPath)

@@ -48,6 +48,7 @@ int ywCanvasInit(void);
 int ywCanvasEnd(void);
 int ysdl2RegistreCanvas(void);
 
+void ywCanvasClear(Entity *canvas);
 
 static Entity *ywCreateCanvasEnt(Entity *father, char *name)
 {
