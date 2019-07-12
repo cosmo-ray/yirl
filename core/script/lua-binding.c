@@ -981,39 +981,40 @@ int	luaywMenuMove(lua_State *L)
  */
 int     luaCreateFunction(lua_State *L)
 {
-  void *ret;
+	void *ret;
 
-  if (!lua_tostring(L, 3)) {
-    ret = yeCreateFunctionSimple(lua_tostring(L, 1),
-				 ygGetLuaManager(), luaEntityAt(L, 2));
-  } else {
-    ret = yeCreateFunction(lua_tostring(L, 1),
-			   ygGetLuaManager(), luaEntityAt(L, 2),
-			   lua_tostring(L, 3));
-  }
+	if (!lua_tostring(L, 3)) {
+		ret = yeCreateFunctionSimple(lua_tostring(L, 1),
+					     ygGetLuaManager(),
+					     luaEntityAt(L, 2));
+	} else {
+		ret = yeCreateFunction(lua_tostring(L, 1),
+				       ygGetLuaManager(), luaEntityAt(L, 2),
+				       lua_tostring(L, 3));
+	}
 
-  lua_pushlightuserdata(L, ret);
-  return 1;
+	lua_pushlightuserdata(L, ret);
+	return 1;
 }
 
 int	luaWidNextEve(lua_State *L)
 {
-  lua_pushlightuserdata(L, ywidNextEve(luaEntityAt(L, 1)));
-  return 1;
+	lua_pushlightuserdata(L, ywidNextEve(luaEntityAt(L, 1)));
+	return 1;
 }
 
 int	luaWidNext(lua_State *L)
 {
-  lua_pushnumber(L, ywidNext(lua_touserdata(L, 1)));
-  return 1;
+	lua_pushnumber(L, ywidNext(luaEntityAt(L, 1), luaEntityAt(L, 2)));
+	return 1;
 }
 
 int	luayevMouseDown(lua_State *L)
 {
-  int ret2 = 0;
-  lua_pushboolean(L, yevMouseDown(luaEntityAt(L, 1), &ret2));
-  lua_pushnumber(L, ret2);
-  return 2;
+	int ret2 = 0;
+	lua_pushboolean(L, yevMouseDown(luaEntityAt(L, 1), &ret2));
+	lua_pushnumber(L, ret2);
+	return 2;
 }
 
 int	luayevCreateGrp(lua_State *L)

@@ -23,6 +23,7 @@
 #include "timer.h"
 #include "widget.h"
 #include "rect.h"
+#include "container.h"
 #include "entity-script.h"
 
 int ywNeedTextureReload;
@@ -182,7 +183,7 @@ void ywidSetMainWid(YWidgetState *wid)
 	mainWid->hasChange = 1;
 }
 
-int ywidNext(Entity *next)
+int ywidNext(Entity *next, Entity *target)
 {
 	YWidgetState *newWid;
 	const char *str = yeGetString(next);
@@ -204,15 +205,25 @@ int ywidNext(Entity *next)
 		return -1;
 	}
 
-	YWidDestroy(oldWid);
-	oldWid = NULL;
-	if ((newWid = ywidNewWidget(next, NULL)) == NULL) {
-		DPRINT_ERR("fail when creating new widget");
-		return -1;
+	if (yeType(target) == YSTRING) {
+	  if (!yeStrCmp(target, "main")) {
+		  target = ywidGetMainWid()->entity;
+	  }
 	}
 
-	ywidSetMainWid(newWid);
-	return 0;
+	if (ywidGetState(target) == mainWid) {
+
+		YWidDestroy(oldWid);
+		oldWid = NULL;
+		if ((newWid = ywidNewWidget(next, NULL)) == NULL) {
+			DPRINT_ERR("fail when creating new widget");
+			return -1;
+		}
+
+		ywidSetMainWid(newWid);
+		return 0;
+	}
+	return ywReplaceEntryByEntity(ywCntWidgetFather(target), target, next);
 }
 
 int ywidColorFromString(char *str, uint8_t *r, uint8_t *g,

@@ -159,7 +159,7 @@ static int lose(Entity *wid, int score)
   Entity *txt = ygGet("vapz:scenes.lose.text");
   yeSetString(txt, "you lose, score: ");
   yeAddInt(txt, score);
-  ywidNext(str);
+  ywidNext(str, NULL);
   yeDestroy(str);
   return 1;
 }
@@ -204,7 +204,7 @@ void *vapzAction(int nbArgs, void **args)
     if (yeGet(wid, "quit")) {
       yesCall(yeGet(wid, "quit"), wid);
     } else {
-      ywidNext(yeCreateString("vapz:scenes.main", gc, NULL));
+      ywidNext(yeCreateString("vapz:scenes.main", gc, NULL), NULL);
     }
       clean(wid);
       return (void *)ACTION;

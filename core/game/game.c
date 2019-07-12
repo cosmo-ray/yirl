@@ -167,15 +167,31 @@ static void *fullScreenOnOff(va_list ap)
 static void *nextWid(va_list ap)
 {
   Entity *wid = va_arg(ap, Entity *);
+  Entity *target = va_arg(ap, Entity *);
   Entity *next = yeGet(wid, "next");
 
-  if (!next) {
-    DPRINT_ERR("unable to get next widget");
-    return (void *)BUG;
+  printf("next %d %p\n", !target || target == Y_END_VA_LIST, target);
+  if (target == Y_END_VA_LIST || yeType(target) != YSTRING ||
+      !yeGet(target, "<type>")) {
+	  printf("no target\n");
+	  Entity *te = yeGet(wid, "next_target");
+	  if (te)
+		  target = te;
+	  else
+		  target = wid;
   }
 
-  if (ywidNext(next) < 0)
-    return (void *)BUG;
+  if (!next) {
+	  if (ywidGetState(target) != ywidGetMainWid()) {
+		  ywRemoveEntryByEntity(ywCntWidgetFather(target), target);
+		  return (void *)ACTION;
+	  }
+	  DPRINT_ERR("unable to get next widget");
+	  return (void *)BUG;
+  }
+
+  if (ywidNext(next, target) < 0)
+	  return (void *)BUG;
   return (void *)ACTION;
 }
 

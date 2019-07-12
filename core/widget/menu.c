@@ -99,13 +99,14 @@ static void *nmPanelMove(va_list ap)
 
 static void *nmMenuNext(va_list ap)
 {
-  YWidgetState *wid = ywidGetState(va_arg(ap, Entity *));
-  Entity *next = yeGet(wid->entity, "entries");
+	Entity *e = va_arg(ap, Entity *);
+	YWidgetState *wid = ywidGetState(e);
+	Entity *next = yeGet(e, "entries");
 
-  next = yeGet(next, ((YMenuState *)wid)->current);
-  next = yeGet(next, "next");
+	next = yeGet(next, ((YMenuState *)wid)->current);
+	next = yeGet(next, "next");
 
-  return ywidNext(next) ? (void *)BUG : (void *)ACTION;
+	return ywidNext(next, e) ? (void *)BUG : (void *)ACTION;
 }
 
 

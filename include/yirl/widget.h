@@ -319,7 +319,7 @@ YWidgetState *ywidNewWidget(Entity *entity, const char *type);
 
 void YWidDestroy(YWidgetState *wid);
 
-int ywidNext(Entity *next);
+int ywidNext(Entity *next, Entity *target);
 
 void ywidSetMainWid(YWidgetState *wid);
 YWidgetState *ywidGetMainWid(void);
