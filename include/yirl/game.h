@@ -178,6 +178,9 @@ static inline int ygEqual(const char *path, Entity *o)
   return yeEqual(ygGet(path), o);
 }
 
+int ygModDir(const char * restrict const mod);
+int ygModDirOut(void);
+
 /**
  * @brief   push @ent to yirl global scope
  * @param   ent entity to push

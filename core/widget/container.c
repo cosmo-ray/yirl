@@ -91,6 +91,20 @@ Entity *ywCntGetEntry(Entity *container, int idx)
   return yeGet(yeGet(container, "entries"), idx);
 }
 
+int ywRemoveEntryByEntity(Entity *container, Entity *target)
+{
+	Entity *le = ywCntGetLastEntry(container);
+	Entity *ets = yeGet(container, "entries");
+
+	if (target == le)
+		goto out;
+	if (yeSwapElems(ets, target, le) < 0)
+		return -1;
+out:
+	ywCntPopLastEntry(container);
+	return 0;
+}
+
 int ywReplaceEntry(Entity *container, int idx, Entity *entry)
 {
   Entity *entries = yeGet(container, "entries");

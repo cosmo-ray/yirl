@@ -54,7 +54,15 @@ Entity *ywContainerGetWidgetAt(Entity *container, int posX, int posY);
 
 Entity *ywCntGetEntry(Entity *container, int idx);
 
+int ywReplaceEntryByEntity(Entity *container, Entity *target);
+
 int ywReplaceEntry(Entity *container, int idx, Entity *entry);
+
+static inline int
+ywReplaceEntryByEntity(Entity *container, Entity *target, Entity *entry)
+{
+	return ywReplaceEntry(yeArrayIdx(yeGet(container, "entries"), target));
+}
 
 void ywCntPopLastEntry(Entity *container);
 

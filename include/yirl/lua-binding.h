@@ -37,6 +37,13 @@
 		return 1;						\
 	}
 
+#define LUA_IMPLEMENT_I_V(func)						\
+	static inline int lua##func(lua_State *L)			\
+	{								\
+		lua_pushnumber(L, func());				\
+		return 1;						\
+	}
+
 #define LUA_IMPLEMENT_I_I(func)						\
 	static inline int lua##func(lua_State *L)			\
 	{								\
@@ -367,6 +374,8 @@ int	luaygSetInt(lua_State *L);
 int	luaygStalk(lua_State *L);
 int	luaygUnstalk(lua_State *L);
 int	luaygReCreateInt(lua_State *L);
+LUA_IMPLEMENT_I_V(ygModDirOut);
+LUA_IMPLEMENT_I_S(ygModDir);
 
 /* Audio */
 LUA_IMPLEMENT_I_S(ySoundLoad)
@@ -758,6 +767,8 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, ygStalk);
   YES_LUA_REGISTRE_CALL(sm, ygUnstalk);
   YES_LUA_REGISTRE_CALL(sm, ygReCreateInt);
+  YES_LUA_REGISTRE_CALL(sm, ygModDir);
+  YES_LUA_REGISTRE_CALL(sm, ygModDirOut);
 
   /* Audio */
   YES_LUA_REGISTRE_CALL(sm, ySoundLoad);

@@ -72,6 +72,8 @@ static int alive = 1;
 static const char *sdl2 = "sdl2";
 static const char *curses = "curses";
 
+static char main_dir[PATH_MAX];
+
 char *yProgramArg;
 
 char *ygBinaryRootPath = "./";
@@ -361,6 +363,10 @@ int ygInit(GameConfig *cfg)
   modList = yeCreateArray(NULL, NULL);
   stalked_array = yeCreateArray(NULL, NULL);
 
+  /* Get Current Path, this comment is useless,
+   * but that small function need more visibility */
+  getcwd(main_dir, PATH_MAX);
+
   return 0;
 error:
   ygEnd();
@@ -437,19 +443,29 @@ int ygRegistreFuncInternal(void *manager, int nbArgs, const char *name,
   return 0;
 }
 
+int ygModDir(const char * restrict const mod)
+{
+	return chdir(yeGetStringAt(ygGet(mod), "$path"));
+}
+
+int ygModDirOut(void)
+{
+	return chdir(main_dir);
+}
+
 void *ygGetManager(const char *name)
 {
-  if (yuiStrEqual0(name, "tcc"))
-    return tccManager;
-  else if (yuiStrEqual0(name, "lua"))
-    return luaManager;
-  else if (yuiStrEqual0(name, "yb"))
-    return ysYBytecodeManager();
-  else if (yuiStrEqual0(name, "s7"))
-    return s7Manager;
-  else if (yuiStrEqual0(name, "js"))
-    return dukManager;
-  return NULL;
+	if (yuiStrEqual0(name, "tcc"))
+		return tccManager;
+	else if (yuiStrEqual0(name, "lua"))
+		return luaManager;
+	else if (yuiStrEqual0(name, "yb"))
+		return ysYBytecodeManager();
+	else if (yuiStrEqual0(name, "s7"))
+		return s7Manager;
+	else if (yuiStrEqual0(name, "js"))
+		return dukManager;
+	return NULL;
 }
 
 Entity *ygFileToEnt(YFileType t, const char *path, Entity *father)
