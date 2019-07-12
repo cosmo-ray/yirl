@@ -365,7 +365,7 @@ int    ysdl2Init(void)
   // Render for the main windows
   if (sdlRenderCreate() < 0)
     goto fail;
-  
+
   if (sgSetDefaultFont(ttf_path) < 0 &&
       sgSetDefaultFont("./DejaVuSansMono.ttf") < 0 &&
       sgSetDefaultFont("/Library/Fonts/Tahoma.ttf") < 0 &&
