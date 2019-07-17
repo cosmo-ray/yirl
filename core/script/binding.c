@@ -73,8 +73,8 @@ BIND_E_E(yeIncrRef, 1, 0);
 
 BIND_E_S(ygGet, 1, 0);
 
-BIND_V_V(ywCanvasDisableWeight);
-BIND_V_V(ywCanvasEnableWeight);
+BIND_V_E(ywCanvasDisableWeight, 1, 0);
+BIND_V_E(ywCanvasEnableWeight, 1, 0);
 
 BIND_V_I(ywSetTurnLengthOverwrite, 1, 0);
 

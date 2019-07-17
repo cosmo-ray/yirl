@@ -248,6 +248,8 @@ int	luaWidNext(lua_State *L);
 int	luaAddSubType(lua_State *L);
 int	luaywidAction(lua_State *L);
 int	luaywidTurnTimer(lua_State *L);
+LUA_IMPLEMENT_I_E(ywHeight);
+LUA_IMPLEMENT_I_E(ywWidth);
 
 /* event */
 int	luaWidNextEve(lua_State *L);
@@ -329,6 +331,7 @@ int	luaywCanvasNewTextExt(lua_State *L);
 int	luaYwCanvasObjSetResourceId(lua_State *L);
 int	luaywCanvasObjClearCache(lua_State *L);
 int	luaywCanvasNewRect(lua_State *L);
+int	luaywCanvasNewRectangle(lua_State *L);
 int	luaywCanvasCheckCollisions(lua_State *L);
 int	luaywCanvasNewCollisionsArrayExt(lua_State *L);
 int	luaywCanvasNewImg(lua_State *L);
@@ -376,6 +379,10 @@ int	luaygUnstalk(lua_State *L);
 int	luaygReCreateInt(lua_State *L);
 LUA_IMPLEMENT_I_V(ygModDirOut);
 LUA_IMPLEMENT_I_S(ygModDir);
+
+LUA_IMPLEMENT_I_V(yWindowWidth);
+LUA_IMPLEMENT_I_V(yWindowHeight);
+
 
 /* Audio */
 LUA_IMPLEMENT_I_S(ySoundLoad)
@@ -450,6 +457,7 @@ static inline int	yesLuaRegister(void *sm)
   LUA_SET_INT_GLOBAL_VAL(sm, Y_X_KEY, 'x');
   LUA_SET_INT_GLOBAL_VAL(sm, Y_Y_KEY, 'y');
   LUA_SET_INT_GLOBAL_VAL(sm, Y_Z_KEY, 'z');
+
   /* Spaceeeeee ! */
   LUA_SET_INT_GLOBAL_VAL(sm, Y_SPACE_KEY, ' ');
   LUA_SET_INT_GLOBAL_VAL(sm, Y_ENTER_KEY, '\n');
@@ -628,6 +636,8 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidAddSubType", luaAddSubType));
   YES_LUA_REGISTRE_CALL(sm, ywidAction);
   YES_LUA_REGISTRE_CALL(sm, ywidTurnTimer);
+  YES_LUA_REGISTRE_CALL(sm, ywWidth);
+  YES_LUA_REGISTRE_CALL(sm, ywHeight);
 
   /* evenements */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidNextEve", luaWidNextEve));
@@ -718,6 +728,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasNewText", luaYwCanvasNewText));
   YES_LUA_REGISTRE_CALL(sm, ywCanvasNewTextExt);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasNewRect);
+  YES_LUA_REGISTRE_CALL(sm, ywCanvasNewRectangle);
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasObjPos", luaYwCanvasObjPos));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasObjSize", luaYwCanvasObjSize));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasObjFromIdx", luaYwCanvasObjFromIdx));
@@ -769,6 +780,8 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, ygReCreateInt);
   YES_LUA_REGISTRE_CALL(sm, ygModDir);
   YES_LUA_REGISTRE_CALL(sm, ygModDirOut);
+  YES_LUA_REGISTRE_CALL(sm, yWindowWidth);
+  YES_LUA_REGISTRE_CALL(sm, yWindowHeight);
 
   /* Audio */
   YES_LUA_REGISTRE_CALL(sm, ySoundLoad);

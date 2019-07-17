@@ -94,8 +94,8 @@ void ywCanvasObjSetPosByEntity(Entity *obj, Entity *p);
 
 int ywCanvasObjIsOut(Entity *wid, Entity *obj);
 
-void ywCanvasDisableWeight(void);
-void ywCanvasEnableWeight(void);
+void ywCanvasDisableWeight(Entity *w);
+void ywCanvasEnableWeight(Entity *w);
 
 int ywCanvasSetWeight(Entity *wid, Entity *canvas, int weight);
 
@@ -106,6 +106,19 @@ Entity *ywCanvasNewObj(Entity *wid, int x, int y, int id);
  * x, and y are alerady used to define the starting point of the rect
  */
 Entity *ywCanvasNewRect(Entity *wid, int x, int y, Entity *rect);
+
+static inline  Entity *ywCanvasNewRectangle(Entity *wid, int x, int y, int w,
+					    int h, const char *str)
+{
+	yeAutoFree Entity *rect = yeCreateArray(NULL, NULL);
+	Entity *obj;
+
+	ywPosCreateInts(w, h, rect, NULL);
+	yeCreateString(str, rect, NULL);
+	obj = ywCanvasNewRect(wid, x, y, rect);
+	return obj;
+}
+
 Entity *ywCanvasNewTextByStr(Entity *wid, int x, int y, const char *str);
 Entity *ywCanvasNewText(Entity *wid, int x, int y, Entity *string);
 Entity *ywCanvasNewTextExt(Entity *wid, int x, int y, Entity *string,

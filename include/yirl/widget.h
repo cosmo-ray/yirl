@@ -26,6 +26,7 @@
 #include "yirl/utils.h"
 #include "yirl/keydef.h"
 #include "yirl/pos.h"
+#include "yirl/rect.h"
 
 extern int yeveWindowGetFocus;
 extern int ywNeedTextureReload;
@@ -194,6 +195,8 @@ void ywidMarkAsDestroyable(YWidgetState *kboumable);
 
 int ywidBgConfFill(Entity *entity, YBgConf *cfg);
 
+#define ywidCastState(w, t) ((t *)ywidGetState(w))
+
 static inline YWidgetState *ywidGetState(Entity *wid)
 {
   return (YWidgetState *)yeGetData(yeGetByStrFast(wid, "$wid"));
@@ -223,6 +226,16 @@ static inline int yWindowWidth(void)
 static inline int yWindowHeight(void)
 {
 	return ywidWindowHight;
+}
+
+static int ywWidth(Entity *w)
+{
+	return ywRectW(yeGet(w, "wid-pix"));
+}
+
+static int ywHeight(Entity *w)
+{
+	return ywRectH(yeGet(w, "wid-pix"));
 }
 
 /**

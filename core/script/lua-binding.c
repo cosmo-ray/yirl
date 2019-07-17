@@ -763,28 +763,41 @@ int	luaywCanvasNewTextExt(lua_State *L)
 
 int luaYwCanvasNewText(lua_State *L)
 {
-  if (lua_isstring(L, 4)) {
-    lua_pushlightuserdata(L, ywCanvasNewTextByStr(luaEntityAt(L, 1),
-						  lua_tonumber(L, 2),
-						  lua_tonumber(L, 3),
-						  lua_tostring(L, 4)));
+	if (lua_isstring(L, 4)) {
+		lua_pushlightuserdata(
+			L, ywCanvasNewTextByStr(luaEntityAt(L, 1),
+						lua_tonumber(L, 2),
+						lua_tonumber(L, 3),
+						lua_tostring(L, 4)));
 
-  } else {
-    lua_pushlightuserdata(L, ywCanvasNewText(luaEntityAt(L, 1),
-					     lua_tonumber(L, 2),
-					     lua_tonumber(L, 3),
-					     luaEntityAt(L, 4)));
-  }
-  return 1;
+	} else {
+		lua_pushlightuserdata(
+			L, ywCanvasNewText(luaEntityAt(L, 1),
+					   lua_tonumber(L, 2),
+					   lua_tonumber(L, 3),
+					   luaEntityAt(L, 4)));
+	}
+	return 1;
+}
+
+int	luaywCanvasNewRectangle(lua_State *L)
+{
+	lua_pushlightuserdata(L, ywCanvasNewRectangle(luaEntityAt(L, 1),
+						      lua_tonumber(L, 2),
+						      lua_tonumber(L, 3),
+						      lua_tonumber(L, 4),
+						      lua_tonumber(L, 5),
+						      lua_tostring(L, 6)));
+	return 1;
 }
 
 int luaywCanvasNewRect(lua_State *L)
 {
-  lua_pushlightuserdata(L, ywCanvasNewRect(luaEntityAt(L, 1),
-					   lua_tonumber(L, 2),
-					   lua_tonumber(L, 3),
-					   luaEntityAt(L, 4)));
-  return 1;
+	lua_pushlightuserdata(L, ywCanvasNewRect(luaEntityAt(L, 1),
+						 lua_tonumber(L, 2),
+						 lua_tonumber(L, 3),
+						 luaEntityAt(L, 4)));
+	return 1;
 }
 
 int	luaywCanvasPopObj(lua_State *L)
@@ -801,13 +814,13 @@ int	luaywTextureNormalize(lua_State *L)
 
 int	luaywCanvasDisableWeight(lua_State *L)
 {
-  ywCanvasDisableWeight();
+  ywCanvasDisableWeight(luaEntityAt(L, 1));
   return 0;
 }
 
 int	luaywCanvasEnableWeight(lua_State *L)
 {
-  ywCanvasEnableWeight();
+  ywCanvasEnableWeight(luaEntityAt(L, 1));
   return 0;
 }
 

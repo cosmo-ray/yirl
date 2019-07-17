@@ -27,11 +27,11 @@ extern "C" {
 }
 
 static int t = -1;
-static bool ywCanHasWeight = false;
 
 class YCanvasState : public YWidgetState {
 public:
-  YCanvasState() {}
+	bool ywCanHasWeight = false;
+	YCanvasState() {}
 };
 
 static int tsInit(YWidgetState *opac, Entity *entity, void *args)
@@ -144,24 +144,29 @@ extern "C" {
 		return ywCanvasNewCollisionsArrayExt(wid, obj, NULL, NULL);
 	}
 
-	void ywCanvasDisableWeight()
+	void ywCanvasDisableWeight(Entity *w)
 	{
-		ywCanHasWeight = false;
+		YCanvasState *s = ywidCastState(w, YCanvasState);
+
+		s->ywCanHasWeight = false;
 	}
 
-	void ywCanvasEnableWeight()
+	void ywCanvasEnableWeight(Entity *w)
 	{
-		ywCanHasWeight = true;
+		YCanvasState *s = ywidCastState(w, YCanvasState);
+
+		s->ywCanHasWeight = true;
 	}
 
 	int ywCanvasSetWeightInternal(Entity *wid, Entity *obj, int weight,
 				      int newObj)
 	{
+		YCanvasState *s = ywidCastState(wid, YCanvasState);
 		Entity *objs = getOrCreateObjs(wid);
 		uint32_t i = 0;
 		Entity *toPush = obj;
 
-		if (!ywCanHasWeight)
+		if (s && !s->ywCanHasWeight)
 			goto out;
 		if (!newObj) {
 			if (yeGetIntAt(obj, "weight") == weight)
@@ -194,13 +199,12 @@ extern "C" {
 		for (; i < yeLen(objs); ++i) {
 			Entity *c_obj = yeGet(objs, i);
 
+			yeIncrRef(c_obj);
 			yePushAt(objs, toPush, i);
 			if (!c_obj) {
 				yeDestroy(toPush);
-				toPush = NULL;
-				break;
+				return 0;
 			}
-			yeIncrRef(c_obj);
 			yeDestroy(toPush);
 			toPush = c_obj;
 		}
@@ -235,14 +239,6 @@ extern "C" {
       if (obj == tmpObj)
 	continue;
 
-      if (ywRectCollisionWithPos(objRect, ywCanvasObjPos(tmpObj),
-				     ywCanvasObjSize(wid, tmpObj)))
-	      printf("%s - %s %s: %d %d %p %d\n", ywRectToString(objRect),
-		     ywPosToString(ywCanvasObjPos(tmpObj)),
-		     ywSizeToString(ywCanvasObjSize(wid, tmpObj)),
-		     ywRectCollisionWithPos(objRect, ywCanvasObjPos(tmpObj),
-					    ywCanvasObjSize(wid, tmpObj)),
-		     !colisionFunc, colisionFunc, yeType(colisionFunc));
       if (ywRectCollisionWithPos(objRect, ywCanvasObjPos(tmpObj),
 				 ywCanvasObjSize(wid, tmpObj)) &&
 	  (!colisionFunc || yesCall(colisionFunc, wid,
