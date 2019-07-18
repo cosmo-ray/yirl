@@ -25,6 +25,10 @@
 
 #define ARRAY_SIZE 255
 
+/* because for now we use our own SDL directory
+ * and it's hard to mix wit system include, we do that ugly hack */
+extern DECLSPEC double SDLCALL Mix_MusicDuration(Mix_Music *music);
+
 enum sount_type {
 	SOUND_UNUSED_,
 	SOUND_MIX_,
@@ -206,6 +210,14 @@ static int libsdl_stop(int nameId)
 	return 0;
 }
 
+static int duration(int nameId)
+{
+	CHECK_NAMEID(nameId);
+	if (types[nameId] != SOUND_MIX_)
+		return -1;
+	return (Mix_MusicDuration(musiques[nameId].m) * 1000);
+}
+
 SoundState sdlDriver = {
   .libInit = init,
   .libEnd = end,
@@ -214,7 +226,8 @@ SoundState sdlDriver = {
   .play = libsdl_play,
   .load_music = libsdl_music_load,
   .play_loop = libsdl_play_loop,
-  .stop = libsdl_stop
+  .stop = libsdl_stop,
+  .duration = duration
 };
 
 #undef ARRAY_SIZE

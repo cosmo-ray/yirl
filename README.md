@@ -86,8 +86,9 @@ Development package of these libs:
 
 * glib2
 * lua 53+
-* sdl, sdl_image, sdl_ttf, sdl_mixer
+* sdl2, sdl2_image, sdl2_ttf
 * json-c
+* sdl2_mixer with a version >= 2.0.5 (you can use ./configure --clone-sdl-mixer)
 
 Optional:
 * ncurses

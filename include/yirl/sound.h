@@ -28,6 +28,7 @@ typedef struct {
   int (* ySoundLevel)(int, int);
   int (* pause)(int);
   int (* stop)(int);
+  int (* duration)(int);
 } SoundState;
 
 extern int audioLibUsed;
@@ -43,6 +44,8 @@ int ySoundLoad(const char *path);
 int ySoundPlay(int id);
 
 int ySoundMusicLoad(const char *path);
+
+int ySoundDuration(int id);
 
 /**
  * Same as ySoundMusicPlay() in loop

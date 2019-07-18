@@ -88,5 +88,9 @@ int ySoundPause(int id)
 {
 	RET_OR_CALL(defaultSoundDriver.pause, id);
 }
+int ySoundDuration(int id)
+{
+	RET_OR_CALL(defaultSoundDriver.duration, id);
+}
 
 #undef RET_OR_CALL

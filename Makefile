@@ -88,6 +88,10 @@ QUICKJS_LIB_PATH = $(QUICKJS_PATH)/libquickjs.a
 GEN_LOADER_SRC = $(GEN_LOADER_DIR)/main.c
 GEN_LOADER_OBJ = $(GEN_LOADER_SRC:.c=.o)
 
+#../SDL_mixer/build/.libs/libSDL2_mixer-2.0.so.0.2.2
+#SDL_MIXER_LDFLAGS = "/home/uso/SDL_mixer/build/.libs/libSDL2_mixer.a"
+#SDL_MIXER_CFLAGS = "-I../SDL_mixer/"
+
 LDFLAGS += $(TCC_LIB_PATH)$(TCC_LIB_NAME)
 LDFLAGS += -L./
 LDFLAGS += $(shell $(PKG_CONFIG) --libs glib-2.0)
@@ -98,7 +102,7 @@ LDFLAGS += $(CURSES_LIB)
 LDFLAGS += $(NUMA_LIB)
 LDFLAGS += $(shell $(PKG_CONFIG) --libs SDL2_image)
 LDFLAGS += $(shell $(PKG_CONFIG) --libs SDL2_ttf)
-LDFLAGS += $(shell $(PKG_CONFIG) --libs SDL2_mixer)
+LDFLAGS += $(SDL_MIXER_LDFLAGS) #  $(shell $(PKG_CONFIG) --libs SDL2_mixer)
 LDFLAGS += $(LDFLAGS_EXT)
 LDFLAGS += $(LIBS_SAN)
 
@@ -117,6 +121,7 @@ COMMON_CFLAGS += -DYIRL_INCLUDE_PATH=\"$(YIRL_INCLUDE_PATH2)\"
 COMMON_CFLAGS += -DTCC_LIB_PATH=\"$(TCC_LIB_PATH)\"
 COMMON_CFLAGS += $(FLAGS_SAN)
 COMMON_CFLAGS += -Wno-unknown-warning-option
+COMMON_CFLAGS += -Wno-cast-function-type
 COMMON_CFLAGS += -fno-strict-aliasing # casting entity doesn't really respect strict aliasing rules
 
 CXXFLAGS = $(COMMON_CFLAGS) -x c++ -Wno-missing-exception-spec -fno-exceptions -fno-rtti

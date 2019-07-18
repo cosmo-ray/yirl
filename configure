@@ -5,6 +5,7 @@ LINEHELPER[1]="--debug			add -g, maybe more latter"
 LINEHELPER[2]="--ndebug			no debug mode, for realease"
 LINEHELPER[3]="--hell-march		optimise for native architecturet"
 LINEHELPER[4]="--asan			compile with adress sanitazer"
+LINEHELPER[5]="--clone-sdl-mixer	like it say"
 
 source configure-helper.sh
 
@@ -12,6 +13,7 @@ for arg in $@; do
     if [ "--with-gamemod" = $arg ]; then
 	COMMON_CFLAGS+="-DGAMEMOD"
     fi
+
     if [ "--debug" = $arg ]; then
 	COMMON_CFLAGS+="-g"
     fi
@@ -19,10 +21,20 @@ for arg in $@; do
 	SANITAZERS=1
     fi
     if [ "--ndebug" = $arg ]; then
- 	COMMON_CFLAGS+="-DNDEBUG -03"
+ 	COMMON_CFLAGS+=" -DNDEBUG -O3"
     fi
     if [ "--hell-march" = $arg ]; then
- 	COMMON_CFLAGS+="-march-native"
+ 	COMMON_CFLAGS+=" -march=native"
+    fi
+
+    if [ "--clone-sdl-mixer" = $arg ]; then
+	if [ ! -d "./SDL_mixer/" ] ; then
+	    hg clone "http://hg.libsdl.org/SDL_mixer/"
+	fi
+	if [ ! -d "./SDL_mixer/" ] ; then
+	    echo "can't clone SDL_mixer with mercurial"
+	    exit 1
+	fi
     fi
 done
 
@@ -66,6 +78,8 @@ function centos {
 
 parse_args $@
 
+
+var_add SDL_MIXER_LDFLAGS "$PWD/SDL_mixer/build/.libs/libSDL2_mixer.a"
 
 var_add AR ar
 var_add PKG_CONFIG pkg-config

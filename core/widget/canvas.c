@@ -852,7 +852,7 @@ static int pathfindingChooseDirection(Entity *canvas,
 	ywRectAddWH(tmpRect, -20, -20);
 
 	for (int i = 0; i < 4; ++i) {
-		yeAutoFree Entity *colArray;
+		yeAutoFree Entity *colArray = NULL;
 		int optx = optimalArrayOp[optimalArray[i]][0];
 		int opty = optimalArrayOp[optimalArray[i]][1];
 

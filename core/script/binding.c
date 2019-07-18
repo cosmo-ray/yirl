@@ -51,6 +51,7 @@ BIND_S(ySoundMusicLoad, 1, 0);
 BIND_I(ySoundPlay, 1, 0);
 BIND_I(ySoundPause, 1, 0);
 BIND_I(ySoundStop, 1, 0);
+BIND_I(ySoundDuration, 1, 0);
 
 BIND_EE(yevIsGrpUp, 2, 0);
 BIND_EE(yevIsGrpDown, 2, 0);
