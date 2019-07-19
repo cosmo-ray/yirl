@@ -170,64 +170,68 @@ int	luaentity_remove(lua_State *L)
 
 int	luaentity_newindex(lua_State *L)
 {
-  struct entityWrapper *ew = luaL_checkudata(L, 1, "Entity");
-  Entity *toPush;
+	struct entityWrapper *ew = luaL_checkudata(L, 1, "Entity");
+	Entity *toPush;
 
-  if (lua_isboolean(L, 3)) {
-    toPush = yeCreateInt(lua_toboolean(L, 3), NULL, NULL);
-  } else if (lua_isnumber(L, 3)) {
-    toPush = yeCreateInt(lua_tonumber(L, 3), NULL, NULL);
-  } else if (lua_isstring(L, 3)) {
-    toPush = yeCreateString(lua_tostring(L, 3), NULL, NULL);
-    /* this would be sure a cool feature */
-  /* } else if (lua_isfunction(L, 3)) { */
-  /*   abort(); */
-  } else if (lua_istable(L, 3)) {
-    toPush = yeCreateArray(NULL, NULL);
+	if (lua_isboolean(L, 3)) {
+		toPush = yeCreateInt(lua_toboolean(L, 3), NULL, NULL);
+	} else if (lua_isnumber(L, 3)) {
+		toPush = yeCreateInt(lua_tonumber(L, 3), NULL, NULL);
+	} else if (lua_isstring(L, 3)) {
+		toPush = yeCreateString(lua_tostring(L, 3), NULL, NULL);
+		/* this would be sure a cool feature */
+		/* } else if (lua_isfunction(L, 3)) { */
+		/*   abort(); */
+	} else if (lua_istable(L, 3)) {
+		toPush = yeCreateArray(NULL, NULL);
 
-    /* In lua array start by default at 1 ! */
-    for (int i = 1 ;; ++i) {
-      lua_geti(L, 3, i);
-      if (lua_isnoneornil(L, 4)) {
-    	lua_pop(L, 1);
-    	break;
-      } else if (lua_isnumber(L, 4)) {
-	yeCreateInt(lua_tointeger(L, 4), toPush, NULL);
-      } else if (lua_isstring(L, 4)) {
-	yeCreateString(lua_tostring(L, 4), toPush, NULL);
-      }
-      lua_pop(L, 1);
-    }
-  } else if (lua_islightuserdata(L, 3) || lua_isuserdata(L, 3)) {
-    toPush = luaEntityAt(L, 3);
+		/* In lua array start by default at 1 ! */
+		for (int i = 1 ;; ++i) {
+			lua_geti(L, 3, i);
+			if (lua_isnoneornil(L, 4)) {
+				lua_pop(L, 1);
+				break;
+			} else if (lua_isnumber(L, 4)) {
+				yeCreateInt(lua_tointeger(L, 4), toPush, NULL);
+			} else if (lua_isstring(L, 4)) {
+				yeCreateString(lua_tostring(L, 4), toPush,
+					       NULL);
+			}
+			lua_pop(L, 1);
+		}
+	} else if (lua_islightuserdata(L, 3) || lua_isuserdata(L, 3)) {
+		toPush = luaEntityAt(L, 3);
 
-    if (toPush) {
-      if (yeType(toPush) == YINT)
-      	toPush = yeCreateInt(yeGetIntDirect(toPush), NULL, NULL);
-      else if (yeType(toPush) == YFLOAT)
-      	toPush = yeCreateFloat(yeGetFloatDirect(toPush), NULL, NULL);
-      else
-	yeIncrRef(toPush);
-    } else {
-      toPush = yeCreateInt((int_ptr_t)lua_touserdata(L, 3), NULL, NULL);
-    }
-  } else if (lua_isnil(L, 3)) {
-    if (lua_isnumber(L, 2))
-      yeRemoveChild(ew->e, lua_tonumber(L, 2));
-    else
-      yeRemoveChild(ew->e, lua_tostring(L, 2));
-    return 0;
-  } else {
-    return luaL_error(L, "type %d not handle", lua_type(L, 3));
-  }
+		if (toPush) {
+			if (yeType(toPush) == YINT)
+				toPush = yeCreateInt(yeGetIntDirect(toPush),
+						     NULL, NULL);
+			else if (yeType(toPush) == YFLOAT)
+				toPush = yeCreateFloat(yeGetFloatDirect(toPush),
+						       NULL, NULL);
+			else
+				yeIncrRef(toPush);
+		} else {
+			toPush = yeCreateInt((int_ptr_t)lua_touserdata(L, 3),
+					     NULL, NULL);
+		}
+	} else if (lua_isnil(L, 3)) {
+		if (lua_isnumber(L, 2))
+			yeRemoveChild(ew->e, lua_tonumber(L, 2));
+		else
+			yeRemoveChild(ew->e, lua_tostring(L, 2));
+		return 0;
+	} else {
+		return luaL_error(L, "type %d not handle", lua_type(L, 3));
+	}
 
-  if (lua_isnumber(L, 2)) {
-    yePushAt(ew->e, toPush, lua_tonumber(L, 2));
-  } else if (lua_isstring(L, 2)) {
-    yeReplaceBack(ew->e, toPush, lua_tostring(L, 2));
-  }
-  yeDestroy(toPush);
-  return 0;
+	if (lua_isnumber(L, 2)) {
+		yePushAt(ew->e, toPush, lua_tonumber(L, 2));
+	} else if (lua_isstring(L, 2)) {
+		yeReplaceBack(ew->e, toPush, lua_tostring(L, 2));
+	}
+	yeDestroy(toPush);
+	return 0;
 }
 
 int	luaentity_index(lua_State *L)
