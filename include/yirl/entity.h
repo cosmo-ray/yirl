@@ -1070,6 +1070,8 @@ static inline Entity *yeFind(Entity *entity,
 					       Entity *, void *),
 			     void *arg)
 {
+	if (!entity)
+		return NULL;
 	Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(entity)->values, tmp,
 				  it, ArrayEntry) {
 		Entity *ret;
