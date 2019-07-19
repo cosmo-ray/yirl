@@ -455,16 +455,29 @@ int	luaYAnd(lua_State *L)
   return (1);
 }
 
+#define luaIsNil_()				\
+	if (lua_islightuserdata(l, 1))		\
+		isNil = !lua_touserdata(l, 1);	\
+	else if (lua_isnumber(l, 1))		\
+		isNil = !lua_tonumber(l, 1);	\
+	else					\
+		isNil = lua_isnil(l, 1);	\
+
+
+int	luayIsNNil(lua_State *l)
+{
+	int isNil;
+
+	luaIsNil_();
+	lua_pushboolean(l, !isNil);
+	return 1;
+}
+
 int	luayIsNil(lua_State *l)
 {
 	int isNil;
 
-	if (lua_islightuserdata(l, 1))
-		isNil = !lua_touserdata(l, 1);
-	else if (lua_isnumber(l, 1))
-		isNil = !lua_tonumber(l, 1);
-	else
-		isNil = lua_isnil(l, 1);
+	luaIsNil_();
 	lua_pushboolean(l, isNil);
 	return 1;
 }
