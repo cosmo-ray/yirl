@@ -1081,6 +1081,25 @@ static inline Entity *yeFind(Entity *entity,
 }
 
 /**
+ * @brief helper for yeFind
+ */
+static inline Entity *yeStrEqFinder(const char *name, Entity *str, void *o_str)
+{
+	(void)name;
+	if (yeStrEq(str, (const char *)o_str))
+		return str;
+	return NULL;
+}
+
+/**
+ * @brief Find a string in array
+*/
+static inline Entity *yeFindString(Entity *array, const char *str)
+{
+	return yeFind(array, yeStrEqFinder, (void *)str);
+}
+
+/**
  * Convert an Entity to a C String (char *)
  * @param	entity The entity
  * @param	deep If @entity is an array, how deep we should print it

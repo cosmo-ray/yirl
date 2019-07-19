@@ -210,6 +210,7 @@ int	luayeRefCount(lua_State *L);
 int	luayeConvert(lua_State *L);
 int	luayePatchCreate(lua_State *L);
 int	luayePatchAply(lua_State *L);
+LUA_IMPLEMENT_E_ES(yeFindString);
 
 /* bool */
 int	luayeGetBoolAt(lua_State *L);
@@ -600,6 +601,8 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, yeConvert);
   YES_LUA_REGISTRE_CALL(sm, yePatchCreate);
   YES_LUA_REGISTRE_CALL(sm, yePatchAply);
+  YES_LUA_REGISTRE_CALL(sm, yeFindString);
+
 
 /* bool */
   YES_LUA_REGISTRE_CALL(sm, yeGetBoolAt);

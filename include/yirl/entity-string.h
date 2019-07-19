@@ -21,7 +21,13 @@
 
 Entity *yeToLower(Entity *e);
 
+
 int yeStrCmp(Entity *ent1, const char *str);
+
+static inline int yeStrEq(Entity *e, const char *s)
+{
+	return !yeStrCmp(e, s);
+}
 
 #define yeStrCmpAt(e, str, at)			\
   (yeStrCmp(yeGet(e, at), str))
