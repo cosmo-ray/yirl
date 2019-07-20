@@ -58,6 +58,14 @@
 		return 1;					\
 	}
 
+#define LUA_IMPLEMENT_I_EE(func)				\
+	static inline int lua##func(lua_State *L)		\
+	{							\
+		lua_pushnumber(L, func(luaEntityAt(L, 1),	\
+				       luaEntityAt(L, 2)));	\
+		return 1;					\
+	}
+
 #define LUA_IMPLEMENT_I_S(func)						\
 	static inline int lua##func(lua_State *L)			\
 	{								\
@@ -103,6 +111,13 @@
 	static inline int lua##func(lua_State *L)		\
 	{							\
 		func(luaEntityAt(L, 1), luaEntityAt(L, 2));	\
+		return 0;					\
+	}
+
+#define BIND_V_E(f, u0, u1)					\
+	static inline int lua##f(lua_State *L)			\
+	{							\
+		f(luaEntityAt(L, 1));				\
 		return 0;					\
 	}
 
@@ -315,6 +330,7 @@ int	luaYwCntPopLastEntry(lua_State *L);
 int	luaYwReplaceEntry(lua_State *L);
 int	luaywCntWidgetFather(lua_State *L);
 int	luaywCntConstructChilds(lua_State *L);
+LUA_IMPLEMENT_I_EE(ywContainerUpdate);
 
 /* canvas */
 int	luaYwCanvasRemoveObj(lua_State *L);
@@ -355,6 +371,7 @@ int	luaywCanvasEnableWeight(lua_State *L);
 int	luaywCanvasDoPathfinding(lua_State *L);
 LUA_IMPLEMENT_B_EE(ywCanvasCheckColisionsRectObj);
 LUA_IMPLEMENT_V_EE(ywCanvasStringSet);
+BIND_V_E(ywCanvasClear, 0, 0);
 
 /* texture */
 int	luaywTextureNewImg(lua_State *L);
@@ -695,6 +712,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCntPopLastEntry", luaYwCntPopLastEntry));
   YES_LUA_REGISTRE_CALL(sm, ywCntWidgetFather);
   YES_LUA_REGISTRE_CALL(sm, ywCntConstructChilds);
+  YES_LUA_REGISTRE_CALL(sm, ywContainerUpdate);
 
   /* rect */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywRectCreate", luaYwRectCreate));
@@ -766,6 +784,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, ywCanvasDoPathfinding);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasCheckColisionsRectObj);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasStringSet);
+  YES_LUA_REGISTRE_CALL(sm, ywCanvasClear);
 
   /* texture */
   YES_LUA_REGISTRE_CALL(sm, ywTextureNewImg);
