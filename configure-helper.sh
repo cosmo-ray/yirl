@@ -5,12 +5,20 @@ NB_TOOLCHAIN=0
 function usage {
     echo "usage: ./configure [options]"
     echo "options:"
-    echo "-h --help"
-    echo "-t --toolchain <TOOLCHAIN>"
+    echo "  -h --help"
+    echo "  -t --toolchain <TOOLCHAIN>"
+    for i in "${LINEHELPER[@]}"
+    do
+	echo "  $i"
+    done
+    echo "toolchaines: "
     for i in "${TOOLCHAINS[@]}"
     do
-	echo "		$i"
+	echo "  $i"
     done
+    echo "usefull variables:"
+    echo "  COMMON_CFLAGS		CFLAGS for C and C++"
+    echo "  CFLAGS		CFLAGS for C"
 }
 
 function parse_args {
@@ -48,6 +56,12 @@ function parse_args {
 	    *)
 		break ;;
 	esac
+	echo "toolchains: "
+	for i in "${TOOLCHAINS[@]}"
+	do
+	    echo -n "  $i"
+	done
+
     done
 }
 
@@ -57,7 +71,6 @@ function add_toolchain {
     else
 	TOOLCHAINS[$NB_TOOLCHAIN]="$1"
     fi
-    echo add toolchain ${TOOLCHAINS[$NB_TOOLCHAIN]}
     NB_TOOLCHAIN=$(($NB_TOOLCHAIN + 1))
 }
 

@@ -1,6 +1,14 @@
 #!/bin/bash
 
+LINEHELPER[0]="--with-gamemod		add fersal gamemod support"
+
 source configure-helper.sh
+
+for arg in $@; do
+    if [ "--with-gamemod" = $arg ]; then
+	COMMON_CFLAGS+="-DGAMEMOD"
+    fi
+done
 
 add_toolchain mingw-i686
 function mingw-i686 {

@@ -52,6 +52,10 @@
 #include "native-script.h"
 #include "condition.h"
 
+#ifdef GAMEMOD
+#include <gamemode_client.h>
+#endif
+
 static int init;
 static void *jsonManager;
 static void *rawfileManager;
@@ -290,6 +294,11 @@ int ygInit(GameConfig *cfg)
   /* Init parseurs */
   yeInitMem();
 
+  /* Init Game mode if GAMEMODE is set */
+  #ifdef GAMEMOD
+  gamemode_request_start();
+  #endif
+
   globalsFunctions = yeCreateArray(NULL, NULL);
   CHECK_AND_RET(t = ydJsonInit(), -1, -1,
 		    "json init failed");
@@ -435,6 +444,9 @@ void ygEnd()
   free(yProgramArg);
   yProgramArg = NULL;
   init = 0;
+  #ifdef GAMEMODE
+  gamemode_request_end();
+  #endif
 }
 
 int ygRegistreFuncInternal(void *manager, int nbArgs, const char *name,
