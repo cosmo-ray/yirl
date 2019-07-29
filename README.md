@@ -8,6 +8,9 @@ YIRL has been started as an school project at EPITECH
 
 The first version, the one release at the end of my scholarship can be found on bitbucket
 
+# for peoples that don't like github:
+https://git.iglou.eu/Matthias/yirl
+I take PR here too :)
 
 # Concept:
 The idea behind YIRL is to give to the user some basic tools and widgets that everyone can reuse or wrap into more complex widgets.
@@ -18,7 +21,7 @@ As an example the [snake module](https://github.com/cosmo-ray/yirl/tree/master/m
 Snake module is written in lua, but as YIRL have a generic script system, we could have written snake in any scripting language.
 Here is an example how Snake module can be use: https://github.com/cosmo-ray/yirl/tree/master/example/modules/snake.
 
-Now only lua and C with tcc are supported for scripting, feel free to add your language :).
+supportted scripting languuages are lua, C(with tinycc), scheme(s7), javascript(duktape) and yb(wirlown asm) feel free to add your language :).
 
 
 # License:
