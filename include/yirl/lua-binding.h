@@ -192,6 +192,7 @@ int	luaRandInit(lua_State *L);
 int	luaYuiAbs(lua_State *L);
 int	luayuiMkdir(lua_State *L);
 int	luayuiUsleep(lua_State *L);
+LUA_IMPLEMENT_I_S(yuiFileExist);
 
 /* Array */
 int	luaGet(lua_State *L);
@@ -576,6 +577,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yuiAbs", luaYuiAbs));
   YES_LUA_REGISTRE_CALL(sm, yuiMkdir);
   YES_LUA_REGISTRE_CALL(sm, yuiUsleep);
+  YES_LUA_REGISTRE_CALL(sm, yuiFileExist);
 
   /* Lua conceptor should love me */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yloveNbrToPtr", luaNbrToPtr));

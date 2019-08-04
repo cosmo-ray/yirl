@@ -193,6 +193,9 @@ int ywidNext(Entity *next, Entity *target)
 		return -1;
 	}
 
+	if (yeType(next) == YARRAY && yeGet(next, "<type>"))
+		goto next_is_wid;
+
 	if (yeType(next) != YSTRING) {
 		DPRINT_ERR("next is of type %s, should be a string",
 			   yeTypeToString(yeType(next)));
@@ -203,6 +206,11 @@ int ywidNext(Entity *next, Entity *target)
 	if (!next) {
 		DPRINT_ERR("fail to retrive %s", str);
 		return -1;
+	}
+
+next_is_wid:
+	if (!target) {
+		target = mainWid->entity;
 	}
 
 	if (yeType(target) == YSTRING) {

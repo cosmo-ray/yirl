@@ -174,10 +174,8 @@ static void *nextWid(va_list ap)
   Entity *target = va_arg(ap, Entity *);
   Entity *next = yeGet(wid, "next");
 
-  printf("next %d %p\n", !target || target == Y_END_VA_LIST, target);
   if (target == Y_END_VA_LIST || yeType(target) != YSTRING ||
       !yeGet(target, "<type>")) {
-	  printf("no target\n");
 	  Entity *te = yeGet(wid, "next_target");
 	  if (te)
 		  target = te;
