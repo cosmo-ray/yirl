@@ -659,6 +659,37 @@ SDL_Surface *sdlCopySurface(SDL_Surface *surface, Entity *rEnt)
   return surface;
 }
 
+
+static int sdlCacheBigTexture(Entity *e, SDL_Surface *s,
+				int tot_w, int tot_h)
+{
+	Entity *txts_h = yeCreateArrayAt(e, "$img", YCANVAS_IMG_IDX);
+	SDL_Texture *t;
+	SDL_Surface *tmp_s;
+
+	printf("CACHE BIG TEXTURE !");
+	ywSizeCreateAt(tot_w, tot_h, e, "$size", YCANVAS_SIZE_IDX);
+	for (int y = 0, h, o_tot_w = tot_w ;tot_h; tot_h -= h, y += 2048) {
+		Entity *txts_w = yeCreateArray(txts_h, NULL);
+
+		h = tot_h > 2048 ? 2048 : tot_h;
+
+		for (int x = 0, w; tot_w; tot_w -= w, x += 2048) {
+			yeAutoFree Entity *rdest;
+
+			w = tot_w > 2048 ? 2048 : tot_w;
+			rdest = ywRectCreateInts(x, y, w, h, NULL, NULL);
+			tmp_s = sdlCopySurface(s, rdest);
+			t = SDL_CreateTextureFromSurface(sg.renderer, tmp_s);
+			Entity *d = yeCreateData(t, txts_w, NULL);
+			yeSetDestroy(d, sdlFreeTexture);
+		}
+		tot_w = o_tot_w;
+	}
+	yeSetAt(e, 0, YCanvasBigTexture);
+	return 0;
+}
+
 int sdlCanvasCacheImg2(Entity *elem, Entity *resource, const char *imgPath,
 		       Entity *rEnt, int32_t flag)
 {
@@ -703,6 +734,13 @@ int sdlCanvasCacheImg2(Entity *elem, Entity *resource, const char *imgPath,
 	if (!(flag & YSDL_CACHE_IMG_NO_TEXTURE)) {
 		texture = SDL_CreateTextureFromSurface(sg.renderer, surface);
 		if (unlikely(!texture)) {
+			if (!resource &&
+			    (surface->w > 2048 || surface->h  > 2048)) {
+				printf("try store big texture\n");
+				if (sdlCacheBigTexture(elem, surface,
+					    surface->w, surface->h) >= 0)
+					goto store_surface;
+			}
 			DPRINT_ERR("fail to create a texture from surface"
 				   "(size: %d %d): %s",
 				   surface->w, surface->h, SDL_GetError());
@@ -717,6 +755,7 @@ int sdlCanvasCacheImg2(Entity *elem, Entity *resource, const char *imgPath,
 			yeGetPush(elem, resource, "$size");
 		}
 	}
+store_surface:
 	data = yeCreateData(surface, elem, "$img-surface");
 	/* if no img path a texture was use */
 	if (imgPath) {
@@ -905,11 +944,37 @@ uint32_t sdlCanvasPixInfo(Entity *obj, int x, int y)
   return 0;
 }
 
+static int sdlCanvasRendBigImg(YWidgetState *state, SDLWid *wid,
+			       Entity *obj, Entity *cam, Entity *wid_pix)
+{
+	printf("rend BIG image !!!!\n");
+	int threshold_y = 0;
+	Entity *txts_h = yeGet(obj, YCANVAS_IMG_IDX);
+
+	YE_FOREACH(txts_h, txts_w) {
+		int threshold_x = 0;
+		YE_FOREACH(txts_w, texture) {
+			SDL_Texture *t = yeGetData(texture);
+			int w, h;
+
+			SDL_QueryTexture(t, NULL, NULL, &w, &h);
+			SDL_RenderCopy(sg.renderer, t, NULL,
+				       &(SDL_Rect){threshold_x, threshold_y,
+						       w, h} );
+			threshold_x += 2048;
+		}
+		threshold_y += 2048;
+	}
+	return 0;
+}
+
 int sdlCanvasRendObj(YWidgetState *state, SDLWid *wid, Entity *obj, Entity *cam,
 		     Entity *wid_pix)
 {
   int type = yeGetIntAt(obj, 0);
 
+  if (type == YCanvasBigTexture)
+  	  return sdlCanvasRendBigImg(state, wid, obj, cam, wid_pix);
   if (type == YCanvasResource || type == YCanvasImg || type == YCanvasTexture)
     return sdlCanvasRendImg(state, wid, obj, cam, wid_pix);
 

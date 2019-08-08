@@ -25,7 +25,9 @@ typedef enum  {
   YCanvasRect,
   YCanvasString,
   YCanvasTexture,
-  YCanvasImg
+  YCanvasImg,
+  YCanvasBigTexture,
+  YCnvasEndType
 } YCanvasObjType;
 
 typedef enum  {

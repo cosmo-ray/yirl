@@ -541,8 +541,8 @@ function attack(main, attacker, attacked, mod)
    local anim = mk_anim(main, attacker, attacked)
 
    anim.sucess = false
-   anim.combots = attacker.char.combots
-   anim.cmb_len = attacker.char.combots:len()
+   anim.combots = attacker.char._combots
+   anim.cmb_len = attacker.char._combots:len()
    anim.cur_cmb = 0
    anim.mod = mod
    if mod and mod > 1 then
@@ -733,8 +733,8 @@ function fightItems(entity, func)
    yeGetPush(menuCnt, itemsMenu, "background");
    local ui = pc.usable_items
    local i = 0
-   ywMenuPushEntry(itemsMenu, "<-- back",
-		   Entity.new_func("useItemBack"))
+   ywMenuPushEntry(itemsMenu, "<-- back", Entity.new_func("useItemBack"))
+
    while i < yeLen(ui) do
       local nb_i_ent = ui[i]
       local nb_i = math.floor(yeGetInt(nb_i_ent))
@@ -753,19 +753,20 @@ end
 function newDefaultGuy(guy, name, isEnemy)
    local ret = guy
 
-   if guy.combots == nil then
+   if guy._combots == nil then
       local cmb = nil
       if guy.attack then
 	 cmb = combots[guy.attack:to_string()]
       else
 	 cmb = combots[0]
       end
-      guy.combots = {}
-      yeCopy(cmb, guy.combots)
+      print("name:", guy.name, name)
+      guy._combots = {}
+      yeCopy(cmb, guy._combots)
       if isEnemy then
 	 local j = 0
-	 while j < yeLen(guy.combots[j]) do
-	    cmb = guy.combots[j]
+	 while j < yeLen(guy._combots[j]) do
+	    cmb = guy._combots[j]
 	    local i = 0
 	    local poses = cmb.anim.poses
 	    while i < yeLen(poses) do
@@ -807,7 +808,7 @@ function fightInit(entity)
 
    local canvas = Entity.new_array(entity.entries)
    canvas["<type>"] = "canvas"
-   canvas.background = "rgba: 255 255 0 255"
+   --canvas.background = "\"" .. modPath .. "BG City.jpg\""
    canvas.size = 70
    canvas.objs = {}
    local menuCnt = Entity.new_array(entity.entries)
@@ -829,6 +830,7 @@ function fightInit(entity)
    local y_carac = wid_pix.h / 2
    local locations = mk_location(wid_pix.h)
    ylpcsCreateHandler(good_guy, canvas, entity, "gg_handler")
+   ywCanvasNewImg(canvas, 0, 0, modPath .. "BG_City.jpg")
    ylpcsHandlerSetOrigXY(entity.gg_handler, good_orig_pos[1], good_orig_pos[2])
    ylpcsHandlerRefresh(entity.gg_handler)
    ylpcsHandlerMove(entity.gg_handler,
