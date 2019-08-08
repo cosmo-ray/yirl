@@ -28,6 +28,11 @@
 #include <windows.h>
 #endif
 
+int yuiFileExist(const char *path)
+{
+	return access(path, F_OK);
+}
+
 int yuiRegister(YManagerAllocator *ma, void *(*allocator)(void))
 {
 	if (unlikely(!ma || ma->len >= MAX_NB_MANAGER - 1))

@@ -313,10 +313,7 @@ void yuiRandInitSeed(int s);
 
 void yuiMkdir(const char *dir);
 
-static inline int yuiFileExist(const char *path)
-{
-	return access(path, F_OK);
-}
+int yuiFileExist(const char *path);
 
 static inline int yuiStrCountCh(const char *str, char c, int *longerLine)
 {
