@@ -31,135 +31,135 @@ static int t = -1;
 
 static int luaInit(void *sm, void *args)
 {
-  lua_State *l;
+	lua_State *l;
 
-  (void)args;
-  l = luaL_newstate();
-  if (l == NULL)
-    return -1;
-  luaL_openlibs(l);
-  GET_L(sm) = l;
-  return 0;
+	(void)args;
+	l = luaL_newstate();
+	if (l == NULL)
+		return -1;
+	luaL_openlibs(l);
+	GET_L(sm) = l;
+	return 0;
 }
 
 static int luaLoadString(void *sm, const char *str)
 {
-  return luaL_dostring(GET_L(sm), str) * -1;
+	return luaL_dostring(GET_L(sm), str) * -1;
 }
 
 static int luaLoadFile(void *sm, const char *filename)
 {
-  return luaL_dofile(GET_L(sm), filename) * -1;
+	return luaL_dofile(GET_L(sm), filename) * -1;
 }
 
 static int luaRegistreFunc(void *sm, const char *name, void *arg)
 {
-  lua_register(GET_L(sm), name, arg);
-  return 0;
+	lua_register(GET_L(sm), name, arg);
+	return 0;
 }
 
 static const char *luaGetError(void *sm)
 {
-  return (lua_tostring(GET_L(sm), -1));
+	return (lua_tostring(GET_L(sm), -1));
 }
 
 
 static void *luaCall(void *sm, const char *name, va_list ap)
 {
-  lua_State *l = GET_L(sm);
-  int nbArg = 0;
+	lua_State *l = GET_L(sm);
+	int nbArg = 0;
 
-  lua_getglobal(l, name);
-  if (lua_isnil(l, -1)) {
-    return NULL;
-  }
+	lua_getglobal(l, name);
+	if (lua_isnil(l, -1)) {
+		return NULL;
+	}
 
-  for (void *tmp = va_arg(ap, void *); tmp != Y_END_VA_LIST;
-       tmp = va_arg(ap, void *)) {
-    lua_pushlightuserdata(l, tmp);
-    ++nbArg;
-  }
-  lua_call(l, nbArg, 1);
-  if (lua_isnumber(l, lua_gettop(l)))
-    return (void *)lua_tointeger(l, lua_gettop(l));
-  return (void *)lua_topointer(l, lua_gettop(l));
+	for (void *tmp = va_arg(ap, void *); tmp != Y_END_VA_LIST;
+	     tmp = va_arg(ap, void *)) {
+		lua_pushlightuserdata(l, tmp);
+		++nbArg;
+	}
+	lua_call(l, nbArg, 1);
+	if (lua_isnumber(l, lua_gettop(l)))
+		return (void *)lua_tointeger(l, lua_gettop(l));
+	return (void *)lua_topointer(l, lua_gettop(l));
 }
 
 static int luaDestroy(void *sm)
 {
-  lua_close(GET_L(sm));
-  g_free((YScriptLua *)sm);
-  return 0;
+	lua_close(GET_L(sm));
+	g_free((YScriptLua *)sm);
+	return 0;
 }
 
 static void addFuncSymbole(void *sm, const char *name, int nbArgs, Entity *func)
 {
-  Entity *str = yeCreateString("function ", NULL, NULL);
-  char *tmp_name;
+	Entity *str = yeCreateString("function ", NULL, NULL);
+	char *tmp_name;
 
-  if (!name)
-	  name = yeGetString(func);
-  tmp_name = g_strdup_printf("%sGlobal", name);
+	if (!name)
+		name = yeGetString(func);
+	tmp_name = g_strdup_printf("%sGlobal", name);
 
-  lua_pushlightuserdata(((YScriptLua *)sm)->l, func);
-  lua_setglobal(((YScriptLua *)sm)->l, tmp_name);
+	lua_pushlightuserdata(((YScriptLua *)sm)->l, func);
+	lua_setglobal(((YScriptLua *)sm)->l, tmp_name);
 
-  yeAddStr(str, name);
-  yeAddStr(str, "(");
-  for (int i = 0; i < nbArgs; ++i) {
-    if (i)
-      yeAddStr(str, ", ");
-    yeAddStr(str, "var");
-    yeAddInt(str, i);
-  }
+	yeAddStr(str, name);
+	yeAddStr(str, "(");
+	for (int i = 0; i < nbArgs; ++i) {
+		if (i)
+			yeAddStr(str, ", ");
+		yeAddStr(str, "var");
+		yeAddInt(str, i);
+	}
 
-  yeStringAdd(str, ") return yesCall(");
-  yeStringAdd(str, tmp_name);
+	yeStringAdd(str, ") return yesCall(");
+	yeStringAdd(str, tmp_name);
 
-  for (int i = 0; i < nbArgs; ++i) {
-    yeAddStr(str, ", yLoveToPtr(var");
-    yeAddInt(str, i);
-    yeAddStr(str, ")");
-  }
-  yeStringAdd(str, ") end");
-  luaLoadString(sm, yeGetString(str));
-  g_free(tmp_name);
-  yeDestroy(str);
+	for (int i = 0; i < nbArgs; ++i) {
+		yeAddStr(str, ", yLoveToPtr(var");
+		yeAddInt(str, i);
+		yeAddStr(str, ")");
+	}
+	yeStringAdd(str, ") end");
+	luaLoadString(sm, yeGetString(str));
+	g_free(tmp_name);
+	yeDestroy(str);
 }
 
 static void *luaAllocator(void)
 {
-  YScriptLua *ret;
+	YScriptLua *ret;
 
-  ret = g_new0(YScriptLua, 1);
-  if (ret == NULL)
-    return NULL;
-  ret->l = NULL;
-  ret->ops.init = luaInit;
-  ret->ops.destroy = luaDestroy;
-  ret->ops.loadFile = luaLoadFile;
-  ret->ops.loadString = luaLoadString;
-  ret->ops.call = luaCall;
-  ret->ops.getError = luaGetError;
-  ret->ops.registreFunc = luaRegistreFunc;
-  ret->ops.addFuncSymbole = addFuncSymbole;
-  return (void *)ret;
+	ret = g_new0(YScriptLua, 1);
+	if (ret == NULL)
+		return NULL;
+	ret->l = NULL;
+	ret->ops.init = luaInit;
+	ret->ops.destroy = luaDestroy;
+	ret->ops.loadFile = luaLoadFile;
+	ret->ops.loadString = luaLoadString;
+	ret->ops.call = luaCall;
+	ret->ops.getError = luaGetError;
+	ret->ops.registreFunc = luaRegistreFunc;
+	ret->ops.addFuncSymbole = addFuncSymbole;
+	return (void *)ret;
 }
 
 int ysLuaGetType(void)
 {
-  return t;
+	return t;
 }
 
 int ysLuaInit(void)
 {
-  t = ysRegister(luaAllocator);
-  return t;
+	t = ysRegister(luaAllocator);
+	return t;
 }
 
 int ysLuaEnd(void)
 {
-  return ysUnregiste(t);
+	return ysUnregiste(t);
 }
 
 #undef GET_OPS

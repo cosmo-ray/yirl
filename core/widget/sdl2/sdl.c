@@ -947,23 +947,37 @@ uint32_t sdlCanvasPixInfo(Entity *obj, int x, int y)
 static int sdlCanvasRendBigImg(YWidgetState *state, SDLWid *wid,
 			       Entity *obj, Entity *cam, Entity *wid_pix)
 {
-	printf("rend BIG image !!!!\n");
+	Entity *p = ywCanvasObjPos(obj);
+	int x0 = ywPosXDirect(p) - ywPosX(cam);
+	int y0 = ywPosYDirect(p) - ywPosY(cam);
 	int threshold_y = 0;
+	SDL_Surface *surface = yeGetDataAt(obj, "$img-surface");
+	Entity *s = ywCanvasObjSize(state->entity, obj);
 	Entity *txts_h = yeGet(obj, YCANVAS_IMG_IDX);
+	int wpercent = 100 * ywSizeW(s) / surface->w ;
+	int wadd = 2048 * wpercent / 100;
+	int hpercent = 100 * ywSizeH(s) / surface->h;
+	int hadd = 2048 * hpercent / 100;
 
 	YE_FOREACH(txts_h, txts_w) {
 		int threshold_x = 0;
 		YE_FOREACH(txts_w, texture) {
 			SDL_Texture *t = yeGetData(texture);
 			int w, h;
+			int x, y;
 
 			SDL_QueryTexture(t, NULL, NULL, &w, &h);
+
+			x = x0 + threshold_x;
+			y = y0 + threshold_y;
+			w = yuiPercentOf(w, wpercent);
+			h = yuiPercentOf(h, hpercent);
+
 			SDL_RenderCopy(sg.renderer, t, NULL,
-				       &(SDL_Rect){threshold_x, threshold_y,
-						       w, h} );
-			threshold_x += 2048;
+				       &(SDL_Rect) { x, y, w, h} );
+			threshold_x += wadd;
 		}
-		threshold_y += 2048;
+		threshold_y += hadd;
 	}
 	return 0;
 }

@@ -573,7 +573,7 @@ int	luaywCanvasRotate(lua_State *L)
 int	luaywCanvasForceSize(lua_State *L)
 {
   lua_pushnumber(L, ywCanvasForceSize(luaEntityAt(L, 1),
-				      lua_touserdata(L, 2)));
+				      luaEntityAt(L, 2)));
   return 1;
 }
 

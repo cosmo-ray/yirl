@@ -611,64 +611,65 @@ extern "C" {
     return ret;
   }
 
-  Entity *ywCanvasNewObj(Entity *wid, int x, int y, int id)
-  {
-    Entity *obj = yeCreateArray(NULL, NULL);
+	Entity *ywCanvasNewObj(Entity *wid, int x, int y, int id)
+	{
+		Entity *obj = yeCreateArray(NULL, NULL);
 
-    yeCreateInt(YCanvasResource, obj, "canvas-type");
-    ywPosCreateInts(x, y, obj, "pos");
-    yeCreateInt(id, obj, "id");
-    ywCanvasSetWeightInternal(wid, obj, 0, 1);
-    sdlCanvasCacheTexture(wid, obj);
-    return obj;
-  }
+		yeCreateInt(YCanvasResource, obj, "canvas-type");
+		ywPosCreateInts(x, y, obj, "pos");
+		yeCreateInt(id, obj, "id");
+		ywCanvasSetWeightInternal(wid, obj, 0, 1);
+		sdlCanvasCacheTexture(wid, obj);
+		return obj;
+	}
 
-  static inline Entity *getOrCreateMod(Entity *obj)
-  {
-    Entity *mod = ywCanvasObjMod(obj);
-    if (!mod) {
-      mod = yeCreateArray(obj, "$mod");
-    }
-    return mod;
-  }
+	static inline Entity *getOrCreateMod(Entity *obj)
+	{
+		Entity *mod = ywCanvasObjMod(obj);
+		if (!mod) {
+			mod = yeCreateArray(obj, "$mod");
+		}
+		return mod;
+	}
 
-  double ywCanvasObjAngle(Entity *obj)
-  {
-    return yeGetFloat(yeGet(ywCanvasObjMod(obj), YCanvasRotate));
-  }
+	double ywCanvasObjAngle(Entity *obj)
+	{
+		return yeGetFloat(yeGet(ywCanvasObjMod(obj), YCanvasRotate));
+	}
 
-  int ywCanvasAdvenceObj(Entity *obj, int speed, double direction)
-  {
-    direction = direction / 180 * M_PI;
-    int x = speed * sin(direction);
-    int y = speed * cos(direction);
+	int ywCanvasAdvenceObj(Entity *obj, int speed, double direction)
+	{
+		direction = direction / 180 * M_PI;
+		int x = speed * sin(direction);
+		int y = speed * cos(direction);
 
-    ywCanvasMoveObjXY(obj, x, -y);
-    return 0;
-  }
+		ywCanvasMoveObjXY(obj, x, -y);
+		return 0;
+	}
 
-  int ywCanvasRotate(Entity *obj, double angle)
-  {
-    Entity *mod = getOrCreateMod(obj);
+	int ywCanvasRotate(Entity *obj, double angle)
+	{
+		Entity *mod = getOrCreateMod(obj);
 
-    yeCreateFloatAt(angle, mod, NULL, YCanvasRotate);
-    return 0;
-  }
+		yeCreateFloatAt(angle, mod, NULL, YCanvasRotate);
+		return 0;
+	}
 
-  int ywCanvasForceSize(Entity *obj, Entity *size)
-  {
-	  if (!obj || !size)
-		  return -1;
-	  Entity *mod = getOrCreateMod(obj);
+	int ywCanvasForceSize(Entity *obj, Entity *size)
+	{
+		if (!obj || !size)
+			return -1;
+		Entity *mod = getOrCreateMod(obj);
 
-	  yePushAt(mod, size, YCanvasForceSize);
-	  return 0;
-  }
+		ywSizePrint(size);
+		yePushAt(mod, size, YCanvasForceSize);
+		return 0;
+	}
 
   int ywCanvasObjIsOut(Entity *wid, Entity *obj)
   {
-    Entity *wid_r = yeGet(wid, "wid-pix");
-    Entity *mod = ywCanvasObjMod(obj);
+	  Entity *wid_r = yeGet(wid, "wid-pix");
+	  Entity *mod = ywCanvasObjMod(obj);
     Entity *obj_r =
       rectRotationMod(obj, ywRectCreatePosSize(ywCanvasObjPos(obj),
 					       ywCanvasObjSize(NULL, obj),
