@@ -216,6 +216,10 @@ extern "C" {
 
 	int ywCanvasSetWeight(Entity *wid, Entity *obj, int weight)
 	{
+		YCanvasState *s = ywidCastState(wid, YCanvasState);
+
+		if (unlikely(!s->ywCanHasWeight))
+			return -1;
 		return ywCanvasSetWeightInternal(wid, obj, weight, 0);
 	}
 

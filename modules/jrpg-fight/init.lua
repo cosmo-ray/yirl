@@ -317,7 +317,6 @@ function fightAction(entity, eve)
       return YEVE_ACTION
    end
 
-   print("state:", entity.atk_state)
    if yeGetInt(entity.chooseTarget) > chooseTargetNone then
       return chooseTarget(entity, eve)
    end
@@ -333,12 +332,15 @@ function fightAction(entity, eve)
       return YEVE_ACTION
    end
 
-   while eve:is_end() == false do
-      if eve:key() == Y_ESC_KEY then
-	 yCallNextWidget(entity:cent());
-	 return YEVE_ACTION
+   -- change that to allow esc to quit
+   if false then
+      while eve:is_end() == false do
+	 if eve:key() == Y_ESC_KEY then
+	    yCallNextWidget(entity:cent());
+	    return YEVE_ACTION
+	 end
+	 eve = eve:next()
       end
-      eve = eve:next()
    end
    return ret
 end
@@ -569,10 +571,16 @@ function fightAttack(entity, eve)
    return YEVE_ACTION
 end
 
+local function strong_attack(main, guy, oguy)
+   return attack(main, guy, oguy, 2)
+end
+
 function fightStrongAttack(entity, eve)
-  local main = menuGetMain(entity)
-   attack(main, main.gg_handler, main.bg_handlers[0], 2)
-  return YEVE_ACTION
+   local main = menuGetMain(entity)
+   chooseTargetLoc(main, chooseTargetLeft,
+		   yeLen(main.bg_handlers), chooseTargetY)
+   chooseTargetFunc = strong_attack
+   return YEVE_ACTION
 end
 
 function fightRecoverInternal(main, guy, target)
@@ -648,7 +656,6 @@ function chooseTarget(main, eve)
    local location = mk_location(canvas.ent["wid-pix"].h)
    local nb_enemy = yeLen(main.bg_handlers)
 
-   print("chooseTarget")
    while eve:is_end() == false do
       if eve:is_key_left() then
 	 if nb_enemy == 3 then
@@ -832,6 +839,7 @@ function fightInit(entity)
    ywMenuPushEntry(menu, "recover", Entity.new_func("fightRecover"))
    ywMenuPushEntry(menu, "use_items", Entity.new_func("fightItems"))
    local ret = ywidNewWidget(entity, "container")
+   ywCanvasEnableWeight(canvas)
    local wid_pix = canvas["wid-pix"]
    entity.gg_handler = nil
    entity.bg_handlers = nil
