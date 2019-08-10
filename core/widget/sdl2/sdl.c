@@ -964,12 +964,11 @@ static int sdlCanvasRendBigImg(YWidgetState *state, SDLWid *wid,
 		YE_FOREACH(txts_w, texture) {
 			SDL_Texture *t = yeGetData(texture);
 			int w, h;
-			int x, y;
+			int x = x0 + threshold_x;
+			int y = y0 + threshold_y;
 
 			SDL_QueryTexture(t, NULL, NULL, &w, &h);
 
-			x = x0 + threshold_x;
-			y = y0 + threshold_y;
 			w = yuiPercentOf(w, wpercent);
 			h = yuiPercentOf(h, hpercent);
 
@@ -982,45 +981,47 @@ static int sdlCanvasRendBigImg(YWidgetState *state, SDLWid *wid,
 	return 0;
 }
 
-int sdlCanvasRendObj(YWidgetState *state, SDLWid *wid, Entity *obj, Entity *cam,
-		     Entity *wid_pix)
+int sdlCanvasRendObj(YWidgetState *state, SDLWid *wid, Entity *obj,
+		     Entity *cam, Entity *wid_pix)
 {
-  int type = yeGetIntAt(obj, 0);
+	int type = yeGetIntAt(obj, 0);
 
-  if (type == YCanvasBigTexture)
-  	  return sdlCanvasRendBigImg(state, wid, obj, cam, wid_pix);
-  if (type == YCanvasResource || type == YCanvasImg || type == YCanvasTexture)
-    return sdlCanvasRendImg(state, wid, obj, cam, wid_pix);
+	if (type == YCanvasBigTexture)
+		return sdlCanvasRendBigImg(state, wid, obj, cam, wid_pix);
+	if (type == YCanvasResource || type == YCanvasImg ||
+	    type == YCanvasTexture)
+		return sdlCanvasRendImg(state, wid, obj, cam, wid_pix);
 
-  Entity *p = ywCanvasObjPos(obj);
-  SDL_Color c = {0, 0, 0, 255};
-  Entity *s = ywCanvasObjSize(state->entity, obj);
-  SDL_Rect rect = {ywPosX(p) - ywPosX(cam), ywPosY(p) - ywPosY(cam),
-		   ywSizeW(s), ywSizeH(s)};
+	Entity *p = ywCanvasObjPos(obj);
+	SDL_Color c = {0, 0, 0, 255};
+	Entity *s = ywCanvasObjSize(state->entity, obj);
+	SDL_Rect rect = {ywPosX(p) - ywPosX(cam), ywPosY(p) - ywPosY(cam),
+			 ywSizeW(s), ywSizeH(s)};
 
-  if (type == YCanvasRect) {
-    YBgConf cfg;
+	if (type == YCanvasRect) {
+		YBgConf cfg;
 
-    ywidBgConfFill(yeGet(yeGet(obj, 2), 1), &cfg);
-    c.r = cfg.r;
-    c.g = cfg.g;
-    c.b = cfg.b;
-    c.a = cfg.a;
-    rect.x += ywRectX(wid_pix);
-    rect.y += ywRectY(wid_pix);
-    // stuff to do here
-    sdlDrawRect(NULL, rect, c);
-    return 0;
-  } else if (type == YCanvasString) {
-    Entity *col = yeGet(obj, 3);
+		ywidBgConfFill(yeGet(yeGet(obj, 2), 1), &cfg);
+		c.r = cfg.r;
+		c.g = cfg.g;
+		c.b = cfg.b;
+		c.a = cfg.a;
+		rect.x += ywRectX(wid_pix);
+		rect.y += ywRectY(wid_pix);
+		// stuff to do here
+		sdlDrawRect(NULL, rect, c);
+		return 0;
+	} else if (type == YCanvasString) {
+		Entity *col = yeGet(obj, 3);
 
-    if (col && yeType(col) == YSTRING) {
-      ywidColorFromString((char *)yeGetStringAt(obj, 3),
-			  &c.r, &c.g, &c.b, &c.a);
-    }
-    sdlPrintText(wid, yeGetStringAt(obj, 2), c, rect, YSDL_ALIGN_LEFT);
-  }
-  return -1;
+		if (col && yeType(col) == YSTRING) {
+			ywidColorFromString((char *)yeGetStringAt(obj, 3),
+					    &c.r, &c.g, &c.b, &c.a);
+		}
+		sdlPrintText(wid, yeGetStringAt(obj, 2), c,
+			     rect, YSDL_ALIGN_LEFT);
+	}
+	return -1;
 }
 
 int sdlDisplaySprites(YWidgetState *state, SDLWid *wid,

@@ -10,7 +10,7 @@ local frm_mult = 10
 local good_orig_pos = {1, 1}
 local bad_orig_pos = {1, 3}
 local objects = nil
-local combots = nil
+local combots = Entity.wrapp(ygGet("jrpg-fight.game.combots"))
 local chooseTargetNone = 0
 local chooseTargetLeft = 100
 local chooseTargetRight = 530
@@ -63,13 +63,7 @@ local function new_handler(main, guy, y)
    local guy = newDefaultGuy(guy, "the bad", true)
    local bg_h = nil
 
-   if guy.clothes then
-      bg_h = Entity.wrapp(ylpcsCreateHandler(guy, canvas.ent))
-      ylpcsHandlerSetOrigXY(bg_h, bad_orig_pos[1], bad_orig_pos[2])
-      ylpcsHandlerRefresh(bg_h)
-      ylpcsHandlerMove(bg_h, Pos.new(50, y).ent)
-      bg_h.type = LPCS_T
-   else
+   if guy.sprite then
       local sp = guy.sprite
       local s = yeGetIntAt(sp, "size")
 
@@ -80,6 +74,12 @@ local function new_handler(main, guy, y)
 					    yeGetIntAt(sp, "y"),
 					    s, s)):cent()
       bg_h.char = guy
+   else
+      bg_h = Entity.wrapp(ylpcsCreateHandler(guy, canvas.ent))
+      ylpcsHandlerSetOrigXY(bg_h, bad_orig_pos[1], bad_orig_pos[2])
+      ylpcsHandlerRefresh(bg_h)
+      ylpcsHandlerMove(bg_h, Pos.new(50, y).ent)
+      bg_h.type = LPCS_T
    end
 
    local life = guy.life
@@ -96,223 +96,7 @@ local function new_handler(main, guy, y)
    return bg_h
 end
 
-function fightAction(entity, eve)
-   entity = Entity.wrapp(entity)
-   eve = Event.wrapp(eve)
-   local ret = YEVE_NOTHANDLE
-
-   if entity.atk_state:to_int() == PJ_WIN or
-   entity.atk_state:to_int() == ENEMY_WIN then
-
-      if entity.endCallback then
-	 entity.endCallback(entity,
-			    entity.endCallbackArg,
-			    entity.atk_state:to_int())
-      else
-	 yCallNextWidget(entity:cent());
-      end
-      return YEVE_ACTION
-   end
-
-   if entity.explosion_time then
-      entity.explosion_time = entity.explosion_time - 1
-      if entity.explosion_time:to_int() == 0 then
-	 local canvas = getCanvas(entity)
-	 entity.explosion_time = nil
-	 canvas:remove(entity.explosion)
-	 entity.explosion = nil
-	 canvas:remove(entity.wrong)
-	 entity.wrong = nil
-	 canvas:remove(entity.heart)
-	 entity.heart = nil
-      end
-      return YEVE_ACTION
-   end
-
-   if yeGetInt(entity.chooseTarget) > chooseTargetNone then
-      return chooseTarget(entity, eve)
-   end
-
-   if yDoAnimation(entity, txt_anim_field) == Y_TRUE and
-   yHasAnimation(entity, txt_anim_field) == Y_FALSE then
-      ret = YEVE_NOACTION
-   end
-
-   if entity.atk_state:to_int() == PJ_ATTACK or
-   entity.atk_state:to_int() == ENEMY_ATTACK then
-      attackCallback(entity, eve)
-      return YEVE_ACTION
-   end
-
-   while eve:is_end() == false do
-      if eve:key() == Y_ESC_KEY then
-	 yCallNextWidget(entity:cent());
-	 return YEVE_ACTION
-      end
-      eve = eve:next()
-   end
-   return ret
-end
-
-function setOrig(handler, x, y)
-   if yeGetIntAt(handler, "type") == LPCS_T then
-      ylpcsHandlerSetOrigXY(handler, x, y)
-      ylpcsHandlerRefresh(handler)
-   end
-end
-
-function menuGetMain(menu)
-   return Entity.wrapp(ywCntWidgetFather(ywCntWidgetFather(menu)))
-end
-
-
-function combatDmgInternal(main, target, dmg)
-   local canvas = getCanvas(main)
-   local new_life = target.char.life - dmg
-   local max_life = target.char.max_life
-   local p = ylpcsHandePos(target)
-
-   if new_life > max_life then
-      new_life = max_life:to_int()
-   end
-   if dmg > 0 then
-      canvas:remove(main.explosion)
-      main.explosion = canvas:new_texture(ywPosX(p), ywPosY(p), main.explosion_txt).ent
-      main.explosion_time = 5
-   elseif dmg < 0 then
-      canvas:remove(main.heart)
-      local heart = canvas:new_texture(ywPosX(p) -5, ywPosY(p),
-				      main.heart_txt).ent
-      main.heart = heart
-      main.explosion_time = 5
-      ywCanvasSetWeight(canvas.ent, heart, 10);
-   end
-   target.char.life = new_life
-   reset_life_b(main, target)
-end
-
-function combatDmg(main, cur_anim)
-   local canvas = getCanvas(main)
-   local dmg = 1
-
-   if cur_anim.mod then
-      dmg = cur_anim.mod
-   end
-   combatDmgInternal(main, cur_anim.target, dmg)
-end
-
-function endAnimationAttack(main, cur_anim)
-   local obj = CanvasObj.wrapp(cur_anim.guy.canvas)
-   local bpos = cur_anim.base_pos
-   local guy = cur_anim.guy
-   local is_enemy_next = false
-   local bad_guys = main.bg_handlers
-   local next_guy = cur_anim.target
-   local next_target = guy
-   local have_win = true
-
-   obj:set_pos(bpos)
-   bpos = Pos.wrapp(bpos)
-   ywCanvasObjSetPos(guy.life_b0, bpos:x(), bpos:y() - 25)
-   ywCanvasObjSetPos(guy.life_b, bpos:x(), bpos:y() - 25)
-
-   if main.player.life <= 0 then
-      main.atk_state = ENEMY_WIN
-      return
-   else
-      local enemies = main.enemy
-      local nb_enemies = yeLen(enemies)
-
-      if yIsNil(enemies.max_life) then
-	 local i = 0
-	 while i < nb_enemies do
-	    if enemies[i].life > 0 then
-	       have_win = false
-	    elseif enemies_not_on_screen > 0 and
-	    yeGetBoolAt(enemies[i], "on_screen") then
-	       local j = 0
-	       while j < nb_enemies do
-		  if enemies[j].life > 0 and
-		  yeGetBoolAt(enemies[j], "on_screen") == false then
-		     local screen_idx = yeGetIntAt(enemies[i], "screen_idx")
-		     local y = ywPosY(ylpcsHandePos(bad_guys[screen_idx]))
-
-		     rm_handler(main, bad_guys[screen_idx])
-		     bad_guys[screen_idx] = new_handler(main, enemies[j], y)
-		     print(j, " replace ", i, "enemies left:", enemies_not_on_screen)
-		     enemies[j].screen_idx = screen_idx
-		     enemies[j].on_screen = true
-		     enemies[i].on_screen = false
-		     reset_life_b(main, bad_guys[screen_idx])
-		     enemies_not_on_screen = enemies_not_on_screen - 1
-		     have_win = false
-		     break
-		  else
-		     print(j, enemies[j].life,
-			   yeGetBoolAt(enemies[j], "on_screen"))
-		  end
-		  j = j + 1
-	       end
-	    end
-	    i = i + 1
-	 end
-      elseif enemies.life > 0 then
-	 have_win = false
-      end
-   end
-   if have_win then
-      print("WIN !")
-      main.atk_state = PJ_WIN
-      return
-   end
-
-   if main.atk_state:to_int() == PJ_ATTACK or
-   yeLen(bad_guys) > enemy_idx then
-      local all_dead = true
-      while (yeLen(bad_guys) > enemy_idx) do
-	 if bad_guys[enemy_idx].char.life > 0 then
-	    all_dead = false
-	    break
-	 end
-	 enemy_idx = enemy_idx + 1
-      end
-      if all_dead == false then
-	 next_guy = bad_guys[enemy_idx]
-	 next_target = main.gg_handler
-	 enemy_idx = enemy_idx + 1
-	 is_enemy_next = true
-      else
-	 enemy_idx = 0
-      end
-   else
-      enemy_idx = 0
-   end
-
-   if is_enemy_next then
-      setOrig(guy, good_orig_pos[1], good_orig_pos[2])
-      main.atk_state = ENEMY_ATTACK
-      local r = 0
-      if cur_anim.target.char.life < (cur_anim.target.char.max_life / 2) then
-	 r = yuiRand() % 3
-      else
-	 r = yuiRand() % 2
-      end
-      if r < 2 then
-	 local tmp = guy
-	 yeIncrRef(tmp)
-	 attack(main, next_guy, next_target, (yAnd(r, 1)) + 1)
-	 yeDestroy(tmp)
-      else
-	 fightRecoverInternal(main, next_guy, next_target)
-      end
-      --print(cur_anim.guy.name, cur_anim.target.name)
-   else
-      setOrig(guy, bad_orig_pos[1], bad_orig_pos[2])
-      main.atk_state = AWAIT_CMD
-   end
-end
-
-function attackCallback(main, eve)
+local function attackCallback(main, eve)
    local cur_anim = main.attack_info
    local cur_cmb_idx = cur_anim.cur_cmb:to_int()
    local cur_cmb = cur_anim.combots[cur_cmb_idx].touch
@@ -321,9 +105,11 @@ function attackCallback(main, eve)
    local tot_bar_len = 30 * cur_cmb:len()
    local last_frm = cur_cmb:len() * frm_mult
    local cur_val_pos = cur_anim.animation_frame / frm_mult
+
    if cur_val_pos == cur_cmb:len() then
       cur_val_pos = cur_cmb:len() - 1
    end
+
    local cur_val = cur_cmb[cur_val_pos]:to_int()
    local can_print_loader = true
    local guy = cur_anim.guy
@@ -498,6 +284,227 @@ function attackCallback(main, eve)
    end
 end
 
+function fightAction(entity, eve)
+   entity = Entity.wrapp(entity)
+   eve = Event.wrapp(eve)
+   local ret = YEVE_NOTHANDLE
+
+   if entity.atk_state:to_int() == PJ_WIN or
+   entity.atk_state:to_int() == ENEMY_WIN then
+
+      if entity.endCallback then
+	 entity.endCallback(entity,
+			    entity.endCallbackArg,
+			    entity.atk_state:to_int())
+      else
+	 yCallNextWidget(entity:cent());
+      end
+      return YEVE_ACTION
+   end
+
+   if entity.explosion_time then
+      entity.explosion_time = entity.explosion_time - 1
+      if entity.explosion_time:to_int() == 0 then
+	 local canvas = getCanvas(entity)
+	 entity.explosion_time = nil
+	 canvas:remove(entity.explosion)
+	 entity.explosion = nil
+	 canvas:remove(entity.wrong)
+	 entity.wrong = nil
+	 canvas:remove(entity.heart)
+	 entity.heart = nil
+      end
+      return YEVE_ACTION
+   end
+
+   print("state:", entity.atk_state)
+   if yeGetInt(entity.chooseTarget) > chooseTargetNone then
+      return chooseTarget(entity, eve)
+   end
+
+   if yDoAnimation(entity, txt_anim_field) == Y_TRUE and
+   yHasAnimation(entity, txt_anim_field) == Y_FALSE then
+      ret = YEVE_NOACTION
+   end
+
+   if entity.atk_state:to_int() == PJ_ATTACK or
+   entity.atk_state:to_int() == ENEMY_ATTACK then
+      attackCallback(entity, eve)
+      return YEVE_ACTION
+   end
+
+   while eve:is_end() == false do
+      if eve:key() == Y_ESC_KEY then
+	 yCallNextWidget(entity:cent());
+	 return YEVE_ACTION
+      end
+      eve = eve:next()
+   end
+   return ret
+end
+
+function setOrig(handler, x, y)
+   if yeGetIntAt(handler, "type") == LPCS_T then
+      ylpcsHandlerSetOrigXY(handler, x, y)
+      ylpcsHandlerRefresh(handler)
+   end
+end
+
+function menuGetMain(menu)
+   return Entity.wrapp(ywCntWidgetFather(ywCntWidgetFather(menu)))
+end
+
+
+function combatDmgInternal(main, target, dmg)
+   local canvas = getCanvas(main)
+   local new_life = target.char.life - dmg
+   local max_life = target.char.max_life
+   local p = ylpcsHandePos(target)
+
+   if new_life > max_life then
+      new_life = max_life:to_int()
+   end
+   if dmg > 0 then
+      canvas:remove(main.explosion)
+      main.explosion = canvas:new_texture(ywPosX(p), ywPosY(p), main.explosion_txt).ent
+      main.explosion_time = 5
+   elseif dmg < 0 then
+      canvas:remove(main.heart)
+      local heart = canvas:new_texture(ywPosX(p) -5, ywPosY(p),
+				      main.heart_txt).ent
+      main.heart = heart
+      main.explosion_time = 5
+      ywCanvasSetWeight(canvas.ent, heart, 10);
+   end
+   target.char.life = new_life
+   reset_life_b(main, target)
+end
+
+function combatDmg(main, cur_anim)
+   local canvas = getCanvas(main)
+   local dmg = 1
+
+   if cur_anim.mod then
+      dmg = cur_anim.mod
+   end
+   combatDmgInternal(main, cur_anim.target, dmg)
+end
+
+function endAnimationAttack(main, cur_anim)
+   local obj = CanvasObj.wrapp(cur_anim.guy.canvas)
+   local bpos = cur_anim.base_pos
+   local guy = cur_anim.guy
+   local is_enemy_next = false
+   local bad_guys = main.bg_handlers
+   local next_guy = cur_anim.target
+   local next_target = guy
+   local have_win = true
+
+   obj:set_pos(bpos)
+   bpos = Pos.wrapp(bpos)
+   ywCanvasObjSetPos(guy.life_b0, bpos:x(), bpos:y() - 25)
+   ywCanvasObjSetPos(guy.life_b, bpos:x(), bpos:y() - 25)
+
+   if main.player.life <= 0 then
+      main.atk_state = ENEMY_WIN
+      return
+   end
+   local enemies = main.enemy
+   local nb_enemies = yeLen(enemies)
+
+   if yIsNil(enemies.max_life) then
+      local i = 0
+      while i < nb_enemies do
+	 if enemies[i].life > 0 then
+	    have_win = false
+	 elseif enemies_not_on_screen > 0 and
+	 yeGetBoolAt(enemies[i], "on_screen") then
+	    local j = 0
+	    while j < nb_enemies do
+	       if enemies[j].life > 0 and
+	       yeGetBoolAt(enemies[j], "on_screen") == false then
+		  local screen_idx = yeGetIntAt(enemies[i], "screen_idx")
+		  local y = ywPosY(ylpcsHandePos(bad_guys[screen_idx]))
+
+		  rm_handler(main, bad_guys[screen_idx])
+		  bad_guys[screen_idx] = new_handler(main, enemies[j], y)
+		  print(j, " replace ", i, "enemies left:", enemies_not_on_screen)
+		  enemies[j].screen_idx = screen_idx
+		  enemies[j].on_screen = true
+		  enemies[i].on_screen = false
+		  reset_life_b(main, bad_guys[screen_idx])
+		  enemies_not_on_screen = enemies_not_on_screen - 1
+		  have_win = false
+		  break
+	       end
+	       print(j, enemies[j].life,
+		     yeGetBoolAt(enemies[j], "on_screen"))
+	       j = j + 1
+	    end
+	 end
+	 i = i + 1
+      end
+   elseif enemies.life > 0 then
+      have_win = false
+   end
+
+   if have_win then
+      print("WIN !")
+      main.atk_state = PJ_WIN
+      return
+   end
+
+   if main.atk_state:to_int() == PJ_ATTACK or
+   yeLen(bad_guys) > enemy_idx then
+      local all_dead = true
+      while (yeLen(bad_guys) > enemy_idx) do
+	 if bad_guys[enemy_idx].char.life > 0 then
+	    all_dead = false
+	    break
+	 end
+	 enemy_idx = enemy_idx + 1
+      end
+      if all_dead == false then
+	 next_guy = bad_guys[enemy_idx]
+	 next_target = main.gg_handler
+	 enemy_idx = enemy_idx + 1
+	 is_enemy_next = true
+      else
+	 enemy_idx = 0
+      end
+   else
+      enemy_idx = 0
+   end
+
+   if is_enemy_next then
+      if main.atk_state:to_int() == ENEMY_ATTACK then
+	 setOrig(guy, bad_orig_pos[1], bad_orig_pos[2])
+      else
+	 setOrig(guy, good_orig_pos[1], good_orig_pos[2])
+	 main.atk_state = ENEMY_ATTACK
+      end
+      local r = 0
+      if cur_anim.target.char.life < (cur_anim.target.char.max_life / 2) then
+	 r = yuiRand() % 3
+      else
+	 r = yuiRand() % 2
+      end
+      if r < 2 then
+	 local tmp = guy
+	 yeIncrRef(tmp)
+	 attack(main, next_guy, next_target, (yAnd(r, 1)) + 1)
+	 yeDestroy(tmp)
+      else
+	 fightRecoverInternal(main, next_guy, next_target)
+      end
+      --print(cur_anim.guy.name, cur_anim.target.name)
+   else
+      print("set orig not enemy next")
+      setOrig(guy, bad_orig_pos[1], bad_orig_pos[2])
+      main.atk_state = AWAIT_CMD
+   end
+end
+
 function printTextAnim(main, cur_anim)
    main = Entity.wrapp(main)
    cur_anim = Entity.wrapp(cur_anim)
@@ -556,7 +563,6 @@ end
 
 function fightAttack(entity, eve)
    local main = menuGetMain(entity)
-   main.atk_state = PJ_ATTACK
    chooseTargetLoc(main, chooseTargetLeft,
 		   yeLen(main.bg_handlers), chooseTargetY)
    chooseTargetFunc = attack
@@ -611,14 +617,6 @@ function useItem(main, user, target)
    return YEVE_ACTION
 end
 
-function chooseTargetClean(main, canvas)
-   canvas:remove(main.chooseTargetArrow)
-   main.chooseTargetArrow = nil
-   main.chooseTarget = chooseTargetNone
-   main.inUseItem = nil
-   main.cur_item_nb = nil
-end
-
 function chooseTargetLoc(main, side, nb_handles, y)
    local canvas = getCanvas(main)
    local location = mk_location(canvas.ent["wid-pix"].h)
@@ -650,6 +648,7 @@ function chooseTarget(main, eve)
    local location = mk_location(canvas.ent["wid-pix"].h)
    local nb_enemy = yeLen(main.bg_handlers)
 
+   print("chooseTarget")
    while eve:is_end() == false do
       if eve:is_key_left() then
 	 if nb_enemy == 3 then
@@ -661,37 +660,46 @@ function chooseTarget(main, eve)
       elseif eve:is_key_right() then
 	 return chooseTargetLoc(main, chooseTargetRight, 1, 1)
       elseif eve:type() == YKEY_DOWN and eve:is_key_up() and
-	 checkCanChooseTarget(main, nb_enemy) then
+      checkCanChooseTarget(main, nb_enemy) then
 	 chooseTargetY = chooseTargetY - 1
 	 if chooseTargetY < 1 then
 	    chooseTargetY = nb_enemy
 	 end
 	 return chooseTargetLoc(main, chooseTargetLeft, nb_enemy, chooseTargetY)
       elseif eve:type() == YKEY_DOWN and eve:is_key_down() and
-	 checkCanChooseTarget(main, nb_enemy) then
+      checkCanChooseTarget(main, nb_enemy) then
 	 chooseTargetY = chooseTargetY + 1
 	 if chooseTargetY > nb_enemy then
 	    chooseTargetY = 1
 	 end
 	 return chooseTargetLoc(main, chooseTargetLeft, nb_enemy, chooseTargetY)
       elseif eve:type() == YKEY_UP and eve:key() == Y_ESC_KEY then
-	 chooseTargetClean(main, canvas)
-	 return YEVE_ACTION
+	 goto clean
       elseif eve:type() == YKEY_DOWN and eve:key() == Y_ENTER_KEY then
 	 local target = nil
-	 main.atk_state = PJ_ATTACK
 	 if main.chooseTarget:to_int() == chooseTargetLeft then
 	    target = main.bg_handlers[chooseTargetY - 1]
 	 else
 	    target = main.gg_handler
 	 end
 	 chooseTargetFunc(main, main.gg_handler, target)
-	 chooseTargetClean(main, canvas)
-	 return YEVE_ACTION
+	 main.atk_state = PJ_ATTACK
+	 goto clean
       end
       eve = eve:next()
    end
-   return YEVE_NOACTION
+
+   if true then
+      return YEVE_NOACTION
+   end
+
+   :: clean ::
+   canvas:remove(main.chooseTargetArrow)
+   main.chooseTargetArrow = nil
+   main.chooseTarget = chooseTargetNone
+   main.inUseItem = nil
+   main.cur_item_nb = nil
+   return YEVE_ACTION
 end
 
 function useItemCallback(menu, eve)
