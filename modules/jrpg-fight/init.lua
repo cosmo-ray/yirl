@@ -99,7 +99,7 @@ local function new_handler(main, guy, y)
 end
 
 
-local function compute_time_frm(frm)
+local function compute_time(frm)
    return frm * us_per_frm
 end
 
@@ -119,7 +119,7 @@ local function reset_cmb_bar(main, anim, target, cmb_idx)
    target.char.can_guard:to_int() == 0 then
       can_print_loader = false
    end
-   anim.last_mv_time = compute_time_frm(last_frm)
+   anim.last_mv_time = compute_time(last_frm)
 
    if cur_cmb_anim.to then
       local bp = Pos.wrapp(anim.base_pos)
@@ -191,7 +191,7 @@ local function attackCallback(main, eve)
       time_acc = time_acc % us_per_frm
       new_frm = true
    end
-   local cur_time = compute_time_frm(cur_anim.animation_frame:to_int()) + time_acc
+   local cur_time = compute_time(cur_anim.animation_frame:to_int()) + time_acc
 
    if main.atk_state:to_int() == ENEMY_ATTACK and
    target.char.can_guard:to_int() == 0 then
@@ -415,7 +415,8 @@ function combatDmgInternal(main, target, dmg)
    end
    if dmg > 0 then
       canvas:remove(main.explosion)
-      main.explosion = canvas:new_texture(ywPosX(p), ywPosY(p), main.explosion_txt).ent
+      main.explosion = canvas:new_texture(ywPosX(p),
+					  ywPosY(p), main.explosion_txt).ent
       main.explosion_time = 5
    elseif dmg < 0 then
       canvas:remove(main.heart)
