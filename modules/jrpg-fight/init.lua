@@ -29,11 +29,14 @@ local function getCanvas(main)
    return Canvas.wrapp(main.entries[0])
 end
 
-local function mk_location(wid_h)
-   local y_carac = wid_h / 2
+local function mk_location(wid_h, start_y)
+   local y_carac = wid_h / 2 + start_y
+   local base_threshold = 100
 
+   print("WID H:", wid_h)
+   if (wid_h < 500) then base_threshold = 80 end
    return {{y_carac}, {wid_h / 3, wid_h - wid_h / 3},
-      {y_carac - 120, y_carac, y_carac + 100}}
+      {y_carac - base_threshold - 10, y_carac, y_carac + base_threshold}}
 end
 
 local function reset_life_b(main, handler)
@@ -686,7 +689,8 @@ end
 
 function chooseTargetLoc(main, side, nb_handles, y)
    local canvas = getCanvas(main)
-   local location = mk_location(canvas.ent["wid-pix"].h)
+   local location = mk_location(canvas.ent["wid-pix"].h,
+				yeGetInt(main.ychar_start))
    local arrow = nil
 
    if (main.chooseTargetArrow) then
@@ -712,7 +716,8 @@ end
 
 function chooseTarget(main, eve)
    local canvas = getCanvas(main)
-   local location = mk_location(canvas.ent["wid-pix"].h)
+   local location = mk_location(canvas.ent["wid-pix"].h,
+				yeGetInt(main.ychar_start))
    local nb_enemy = yeLen(main.bg_handlers)
 
    while eve:is_end() == false do
@@ -882,7 +887,7 @@ function fightInit(entity)
    local canvas = Entity.new_array(entity.entries)
    canvas["<type>"] = "canvas"
    --canvas.background = "\"" .. modPath .. "BG City.jpg\""
-   canvas.size = 70
+   canvas.size = 75
    canvas.objs = {}
    local menuCnt = Entity.new_array(entity.entries)
    menuCnt["<type>"] = "container"
@@ -901,8 +906,13 @@ function fightInit(entity)
    local wid_pix = canvas["wid-pix"]
    entity.gg_handler = nil
    entity.bg_handlers = nil
-   local y_carac = wid_pix.h / 2
-   local locations = mk_location(wid_pix.h)
+   local wid_h = wid_pix.h
+   local y_start = yeGetInt(entity.ychar_start)
+   if y_start > 0 then
+      local wid_h = wid_pix.h - y_start
+   end
+   local y_carac = wid_h / 2 + y_start
+   local locations = mk_location(wid_h, y_start)
    ylpcsCreateHandler(good_guy, canvas, entity, "gg_handler")
    local bg = ywCanvasNewImg(canvas, 0, 0, modPath .. "BG_City.jpg")
    ywCanvasForceSize(bg, Size.new(ywRectW(wid_pix) + 50, ywRectH(wid_pix) + 50).ent)
