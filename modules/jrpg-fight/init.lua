@@ -6,7 +6,7 @@ local ENEMY_WIN = 3
 local PJ_WIN = 4
 local lpcs = Entity.wrapp(ygGet("lpcs"))
 local modPath = Entity.wrapp(ygGet("jrpg-fight.$path")):to_string()
-local us_per_frm = 400000
+local us_per_frm = 150000
 local good_orig_pos = {1, 1}
 local bad_orig_pos = {1, 3}
 local objects = nil
@@ -98,6 +98,11 @@ local function new_handler(main, guy, y)
    return bg_h
 end
 
+
+local function compute_time_frm(frm)
+   return frm * us_per_frm
+end
+
 local time_acc = 0
 
 local function reset_cmb_bar(main, anim, target, cmb_idx)
@@ -114,9 +119,9 @@ local function reset_cmb_bar(main, anim, target, cmb_idx)
    target.char.can_guard:to_int() == 0 then
       can_print_loader = false
    end
+   anim.last_mv_time = compute_time_frm(last_frm)
 
    if cur_cmb_anim.to then
-      anim.last_mv_frm = last_frm
       local bp = Pos.wrapp(anim.base_pos)
       local tp = Pos.new_copy(ylpcsHandePos(target))
       if (tp:x() < bp:x()) then
@@ -127,8 +132,7 @@ local function reset_cmb_bar(main, anim, target, cmb_idx)
       anim.to_pos = tp.ent
       local dis = Pos.new_copy(anim.to_pos)
       dis:sub(anim.base_pos)
-      anim.mv_per_frm = Pos.new(dis:x() / anim.last_mv_frm,
-				dis:y() / anim.last_mv_frm).ent
+      anim.to_pos_dis = dis.ent
    end
 
    anim.isPush = 0
@@ -169,6 +173,8 @@ local function attackCallback(main, eve)
    local last_frm = cur_cmb:len()
    local cur_val_pos = cur_anim.animation_frame:to_int()
    local new_frm = false
+   local time_diff = ywidTurnTimer()
+   local tot_time = cur_anim.last_mv_time:to_int()
 
    if cur_val_pos == cur_cmb:len() then
       cur_val_pos = cur_cmb:len() - 1
@@ -179,12 +185,14 @@ local function attackCallback(main, eve)
    local guy = cur_anim.guy
    local target = cur_anim.target
 
-   time_acc = time_acc + ywidTurnTimer()
+   time_acc = time_acc + time_diff
    if time_acc > us_per_frm then
       cur_anim.animation_frame = cur_anim.animation_frame + 1
-      time_acc = 0
+      time_acc = time_acc % us_per_frm
       new_frm = true
    end
+   local cur_time = compute_time_frm(cur_anim.animation_frame:to_int()) + time_acc
+
    if main.atk_state:to_int() == ENEMY_ATTACK and
    target.char.can_guard:to_int() == 0 then
       can_print_loader = false
@@ -207,17 +215,20 @@ local function attackCallback(main, eve)
 
    if (cur_val == 2 and cur_anim.isPush < 1) then
       cur_anim.sucess = false
-      --print("kboum !", cur_val, cur_anim.isPush)
    end
 
    canvas:remove(cur_anim.loader_percent)
-   if cur_cmb_anim.to and
-   cur_anim.animation_frame < cur_anim.last_mv_frm and new_frm then
+   if cur_cmb_anim.to and cur_time <= tot_time then
       local obj = CanvasObj.wrapp(guy.canvas)
+      local tpd = cur_anim.to_pos_dis
+      local tpdx = ywPosX(tpd)
+      local tpdy = ywPosY(tpd)
+      local advance = Pos.new(tpdx * time_diff / tot_time,
+			      tpdy * time_diff / tot_time).ent
 
-      obj:move(cur_anim.mv_per_frm)
-      ywCanvasMoveObj(guy.life_b0, cur_anim.mv_per_frm)
-      ywCanvasMoveObj(guy.life_b, cur_anim.mv_per_frm)
+      obj:move(advance)
+      ywCanvasMoveObj(guy.life_b0, advance)
+      ywCanvasMoveObj(guy.life_b, advance)
 
    end
 
@@ -241,12 +252,14 @@ local function attackCallback(main, eve)
 	 computer_sucess = false
       end
 
-      if can_print_loader then
+      if yIsNNil(cur_anim.loaders) then
 	 local i = 0
 	 while i < cur_cmb:len() do
+	    print("rm loader: ", cur_anim.loaders)
 	    canvas:remove(cur_anim.loaders[i])
 	    i = i + 1
 	 end
+	 cur_anim.loaders = nil
       end
 
       local txt = guy.char.name:to_string() .. " attack: "
@@ -306,12 +319,12 @@ local function attackCallback(main, eve)
       startTextAnim(main, txt)
       return
    end
+
    if can_print_loader then
       print("can_print_loader:", can_print_loader)
       local cmb_bar = Entity.new_array()
 
-      cmb_bar[0] = Pos.new(tot_bar_len *  cur_anim.animation_frame
-			      / last_frm, 15).ent
+      cmb_bar[0] = Pos.new(tot_bar_len * cur_time / tot_time, 15).ent
       cmb_bar[1] = "rgba: 0 255 0 50"
       cur_anim.loader_percent = canvas:new_rect(25, 5, cmb_bar).ent
    end
@@ -441,6 +454,16 @@ function endAnimationAttack(main, cur_anim)
    ywCanvasObjSetPos(guy.life_b0, bpos:x(), bpos:y() - 25)
    ywCanvasObjSetPos(guy.life_b, bpos:x(), bpos:y() - 25)
 
+   if yIsNNil(cur_anim.loaders) then
+      local canvas = getCanvas(main)
+
+      local i = 0
+      while i < cur_anim.loaders:len() do
+	 canvas:remove(cur_anim.loaders[i])
+	 i = i + 1
+      end
+      cur_anim.loaders = nil
+   end
    if main.player.life <= 0 then
       main.atk_state = ENEMY_WIN
       return
