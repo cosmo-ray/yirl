@@ -6,7 +6,7 @@ local ENEMY_WIN = 3
 local PJ_WIN = 4
 local lpcs = Entity.wrapp(ygGet("lpcs"))
 local modPath = Entity.wrapp(ygGet("jrpg-fight.$path")):to_string()
-local frm_mult = 10
+local us_per_frm = 400000
 local good_orig_pos = {1, 1}
 local bad_orig_pos = {1, 3}
 local objects = nil
@@ -22,6 +22,8 @@ local enemies_not_on_screen = 0
 
 local LPCS_T = 0
 local SPRITES_T = 1
+
+local BAR_PIX_MULT = 30
 
 local function getCanvas(main)
    return Canvas.wrapp(main.entries[0])
@@ -96,15 +98,77 @@ local function new_handler(main, guy, y)
    return bg_h
 end
 
+local time_acc = 0
+
+local function reset_cmb_bar(main, anim, target, cmb_idx)
+   local cur_cmb_anim = anim.combots[cmb_idx].anim
+   local cur_cmb = anim.combots[cmb_idx].touch
+   local tot_bar_len = BAR_PIX_MULT * cur_cmb:len()
+   local part_len = tot_bar_len / cur_cmb:len()
+   local last_frm = cur_cmb:len()
+   local canvas = getCanvas(main)
+   local can_print_loader = true
+
+   anim.animation_frame = 0
+   if main.atk_state:to_int() == ENEMY_ATTACK and
+   target.char.can_guard:to_int() == 0 then
+      can_print_loader = false
+   end
+
+   if cur_cmb_anim.to then
+      anim.last_mv_frm = last_frm
+      local bp = Pos.wrapp(anim.base_pos)
+      local tp = Pos.new_copy(ylpcsHandePos(target))
+      if (tp:x() < bp:x()) then
+	 tp:add(lpcs.w_sprite:to_int() / 2, 0)
+      else
+	 tp:add(-lpcs.w_sprite:to_int() / 2, 0)
+      end
+      anim.to_pos = tp.ent
+      local dis = Pos.new_copy(anim.to_pos)
+      dis:sub(anim.base_pos)
+      anim.mv_per_frm = Pos.new(dis:x() / anim.last_mv_frm,
+				dis:y() / anim.last_mv_frm).ent
+   end
+
+   anim.isPush = 0
+   if can_print_loader then
+      anim.loaders = Entity.new_array()
+      local i = 0
+      while i < cur_cmb:len() do
+	 local cmb_bar = Entity.new_array()
+	 -- print block...
+	 cmb_bar[0] = Pos.new(part_len, 15).ent
+	 --print(Pos.new(part_len, 15):tostring(), cmb_bar)
+	 if cur_cmb[i]:to_int() == 1 then
+	    cmb_bar[1] = "rgba: 30 30 255 255"
+	 elseif cur_cmb[i]:to_int() == 2 then
+	    cmb_bar[1] = "rgba: 50 50 127 255"
+	 else
+	    cmb_bar[1] = "rgba: 255 30 30 255"
+	 end
+	 anim.loaders[i] = canvas:new_rect(25 + (i * part_len),
+					   5, cmb_bar).ent
+	 i = i + 1
+      end
+   end
+   print("Can print loader:", can_print_loader, main.atk_state:to_int(),
+	 target.char.can_guard:to_int())
+
+   print(anim.combots)
+
+end
+
 local function attackCallback(main, eve)
    local cur_anim = main.attack_info
    local cur_cmb_idx = cur_anim.cur_cmb:to_int()
    local cur_cmb = cur_anim.combots[cur_cmb_idx].touch
    local cur_cmb_anim = cur_anim.combots[cur_cmb_idx].anim
    local canvas = getCanvas(main)
-   local tot_bar_len = 30 * cur_cmb:len()
-   local last_frm = cur_cmb:len() * frm_mult
-   local cur_val_pos = cur_anim.animation_frame / frm_mult
+   local tot_bar_len = BAR_PIX_MULT * cur_cmb:len()
+   local last_frm = cur_cmb:len()
+   local cur_val_pos = cur_anim.animation_frame:to_int()
+   local new_frm = false
 
    if cur_val_pos == cur_cmb:len() then
       cur_val_pos = cur_cmb:len() - 1
@@ -115,7 +179,12 @@ local function attackCallback(main, eve)
    local guy = cur_anim.guy
    local target = cur_anim.target
 
-   cur_anim.animation_frame = cur_anim.animation_frame + 1
+   time_acc = time_acc + ywidTurnTimer()
+   if time_acc > us_per_frm then
+      cur_anim.animation_frame = cur_anim.animation_frame + 1
+      time_acc = 0
+      new_frm = true
+   end
    if main.atk_state:to_int() == ENEMY_ATTACK and
    target.char.can_guard:to_int() == 0 then
       can_print_loader = false
@@ -136,47 +205,6 @@ local function attackCallback(main, eve)
       eve = eve:next()
    end
 
-   if cur_anim.animation_frame:to_int() == 0 then
-      local i = 0
-      local part_len = tot_bar_len / cur_cmb:len()
-
-      if cur_cmb_anim.to then
-	 cur_anim.last_mv_frm = last_frm
-	 local bp = Pos.wrapp(cur_anim.base_pos)
-	 local tp = Pos.new_copy(ylpcsHandePos(target))
-	 if (tp:x() < bp:x()) then
-	    tp:add(lpcs.w_sprite:to_int() / 2, 0)
-	 else
-	    tp:add(-lpcs.w_sprite:to_int() / 2, 0)
-	 end
-	 cur_anim.to_pos = tp.ent
-	 local dis = Pos.new_copy(cur_anim.to_pos)
-	 dis:sub(cur_anim.base_pos)
-	 cur_anim.mv_per_frm = Pos.new(dis:x() / cur_anim.last_mv_frm,
-				       dis:y() / cur_anim.last_mv_frm).ent
-      end
-
-      cur_anim.isPush = 0
-      cur_anim.loaders = Entity.new_array()
-      while i < cur_cmb:len() do
-	 local cmb_bar = Entity.new_array()
-	 -- print block...
-	 cmb_bar[0] = Pos.new(part_len, 15).ent
-	 if cur_cmb[i]:to_int() == 1 then
-	    cmb_bar[1] = "rgba: 30 30 255 255"
-	 elseif cur_cmb[i]:to_int() == 2 then
-	    cmb_bar[1] = "rgba: 50 50 127 255"
-	 else
-	    cmb_bar[1] = "rgba: 255 30 30 255"
-	 end
-	 if can_print_loader then
-	    cur_anim.loaders[i] = canvas:new_rect(25 + (i * part_len),
-						  5, cmb_bar).ent
-	 end
-	 i = i + 1
-      end
-   end
-
    if (cur_val == 2 and cur_anim.isPush < 1) then
       cur_anim.sucess = false
       --print("kboum !", cur_val, cur_anim.isPush)
@@ -184,7 +212,7 @@ local function attackCallback(main, eve)
 
    canvas:remove(cur_anim.loader_percent)
    if cur_cmb_anim.to and
-   cur_anim.animation_frame < cur_anim.last_mv_frm then
+   cur_anim.animation_frame < cur_anim.last_mv_frm and new_frm then
       local obj = CanvasObj.wrapp(guy.canvas)
 
       obj:move(cur_anim.mv_per_frm)
@@ -205,7 +233,6 @@ local function attackCallback(main, eve)
    end
 
    if cur_anim.animation_frame >= last_frm then
-      local i = 0
 
       local computer_sucess
       if (yuiRand() % 2) == 0 then
@@ -214,9 +241,12 @@ local function attackCallback(main, eve)
 	 computer_sucess = false
       end
 
-      while i < cur_cmb:len() do
-	 canvas:remove(cur_anim.loaders[i])
-	 i = i + 1
+      if can_print_loader then
+	 local i = 0
+	 while i < cur_cmb:len() do
+	    canvas:remove(cur_anim.loaders[i])
+	    i = i + 1
+	 end
       end
 
       local txt = guy.char.name:to_string() .. " attack: "
@@ -258,8 +288,10 @@ local function attackCallback(main, eve)
 	 end
 	 cur_anim.sucess = false
 	 cur_anim.cur_cmb = cur_anim.cur_cmb + 1
+	 print("NEXT CMB: ", cur_anim.cur_cmb - 1, cur_anim.cur_cmb,
+	       cur_anim.combots:len())
 	 if cur_anim.cur_cmb:to_int() < cur_anim.combots:len() then
-	    cur_anim.animation_frame = -1
+	    reset_cmb_bar(main, cur_anim, target, cur_anim.cur_cmb:to_int())
 	 else
 	    -- deal extra domages if sucess last combot
 	    if cur_anim.sucess:to_int() then
@@ -275,6 +307,7 @@ local function attackCallback(main, eve)
       return
    end
    if can_print_loader then
+      print("can_print_loader:", can_print_loader)
       local cmb_bar = Entity.new_array()
 
       cmb_bar[0] = Pos.new(tot_bar_len *  cur_anim.animation_frame
@@ -289,6 +322,7 @@ function fightAction(entity, eve)
    eve = Event.wrapp(eve)
    local ret = YEVE_NOTHANDLE
 
+   --print("Last Turn Length: ", ywidTurnTimer())
    if entity.atk_state:to_int() == PJ_WIN or
    entity.atk_state:to_int() == ENEMY_WIN then
 
@@ -542,7 +576,7 @@ function mk_anim(main, guy, target)
    anim.base_pos = bp.ent
    anim.guy = guy
    anim.target = target
-   anim.animation_frame = -1
+   anim.animation_frame = 0
    return anim
 end
 
@@ -560,6 +594,7 @@ function attack(main, attacker, attacked, mod)
       attacker.char.can_guard = true
    end
    main.attack_info = anim
+   reset_cmb_bar(main, anim, attacked, 0)
    return anim
 end
 
@@ -696,9 +731,8 @@ function chooseTarget(main, eve)
       eve = eve:next()
    end
 
-   if true then
-      return YEVE_NOACTION
-   end
+   -- without the if I got an error
+   if true then return YEVE_NOACTION end
 
    :: clean ::
    canvas:remove(main.chooseTargetArrow)
@@ -808,7 +842,7 @@ function fightInit(entity)
    entity.destroy = Entity.new_func("fightKboum")
    entity.background = "rgba: 255 255 255 255"
    entity.current = 1
-   entity["turn-length"] = 30000
+   entity["turn-length"] = Y_REQUEST_ANIMATION_FRAME
    entity.entries = {}
    local good_guy = newDefaultGuy(entity.player, "the good", false)
    entity.atk_state = AWAIT_CMD
