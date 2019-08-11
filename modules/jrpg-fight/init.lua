@@ -915,11 +915,14 @@ function fightInit(entity)
    local locations = mk_location(wid_h, y_start)
    ylpcsCreateHandler(good_guy, canvas, entity, "gg_handler")
    local bg = ywCanvasNewImg(canvas, 0, 0, modPath .. "BG_City.jpg")
-   ywCanvasForceSize(bg, Size.new(ywRectW(wid_pix) + 50, ywRectH(wid_pix) + 50).ent)
+   ywCanvasForceSize(bg, Size.new(ywRectW(wid_pix) + 50,
+				  ywRectH(wid_pix) + 50).ent)
    ylpcsHandlerSetOrigXY(entity.gg_handler, good_orig_pos[1], good_orig_pos[2])
    ylpcsHandlerRefresh(entity.gg_handler)
    ylpcsHandlerMove(entity.gg_handler,
 		    Pos.new(wid_pix.w - 100, y_carac).ent)
+
+   chooseTargetRight = wid_pix.w - 130
 
    local bad_guys = entity.enemy
 
