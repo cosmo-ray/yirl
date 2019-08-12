@@ -6,7 +6,7 @@ local ENEMY_WIN = 3
 local PJ_WIN = 4
 local lpcs = Entity.wrapp(ygGet("lpcs"))
 local modPath = Entity.wrapp(ygGet("jrpg-fight.$path")):to_string()
-local us_per_frm = 150000
+local us_per_frm = 130000
 local good_orig_pos = {1, 1}
 local bad_orig_pos = {1, 3}
 local objects = nil
@@ -647,7 +647,9 @@ end
 
 function fightRecoverInternal(main, guy, target)
    local anime = attack(main, guy, target)
-   combatDmgInternal(main, guy, -1)
+   local heal = 1 + yeGetInt(guy.char.recover_level)
+
+   combatDmgInternal(main, guy, -heal)
    endAnimationAttack(main, anime)
 end
 
