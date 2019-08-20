@@ -33,9 +33,9 @@ local function mk_location(wid_h, start_y)
    local y_carac = wid_h / 2 + start_y
    local base_threshold = 100
 
-   print("WID H:", wid_h)
+   --print("WID H:", wid_h)
    if (wid_h < 500) then base_threshold = 80 end
-   return {{y_carac}, {wid_h / 3, wid_h - wid_h / 3},
+   return {{y_carac}, {base_threshold + wid_h / 3, base_threshold + wid_h - wid_h / 3},
       {y_carac - base_threshold - 10, y_carac, y_carac + base_threshold}}
 end
 
@@ -258,7 +258,7 @@ local function attackCallback(main, eve)
       if yIsNNil(cur_anim.loaders) then
 	 local i = 0
 	 while i < cur_cmb:len() do
-	    print("rm loader: ", cur_anim.loaders)
+	    --print("rm loader: ", cur_anim.loaders)
 	    canvas:remove(cur_anim.loaders[i])
 	    i = i + 1
 	 end
