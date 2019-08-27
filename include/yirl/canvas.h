@@ -177,6 +177,11 @@ Entity *ywCanvasNewCollisionsArrayExt(Entity *wid, Entity *obj,
 Entity *ywCanvasNewCollisionsArrayWithRectangle(Entity *wid, Entity *rectangle);
 
 /**
+ * @return colision array of obj where add_pos have been add to obj pos
+ */
+Entity *ywCanvasProjectedColisionArray(Entity *wid, Entity *ojb, Entity *add_pos);
+
+/**
  * turn @obj so the top of the sprite point in the direction of @point
  */
 static inline void ywCanvasObjPointTopTo(Entity *obj, Entity *point)

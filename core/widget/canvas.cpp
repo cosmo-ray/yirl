@@ -271,11 +271,13 @@ extern "C" {
     return ret;
   }
 
-  Entity *ywCanvasNewCollisionsArrayWithRectangle(Entity *wid, Entity *objRect)
-  {
-    return ywCanvasNewCollisionsArrayWithRectangle_(wid, objRect, NULL,
-						    NULL, NULL);
-  }
+	Entity *ywCanvasNewCollisionsArrayWithRectangle(Entity *wid,
+							Entity *objRect)
+	{
+		return ywCanvasNewCollisionsArrayWithRectangle_(wid, objRect,
+								NULL,
+								NULL, NULL);
+	}
 
 	int ywCanvasIdxFromObj(Entity *wid, Entity *obj)
 	{
@@ -559,6 +561,20 @@ extern "C" {
     }
     return 0;
   }
+
+
+	Entity *ywCanvasProjectedColisionArray(Entity *wid, Entity *obj,
+					       Entity *add_pos)
+	{
+		Entity *ret;
+		Entity *s = ywCanvasObjSize(wid, obj);
+		Entity *p = ywCanvasObjPos(obj);
+		yeAutoFree Entity *cr = ywRectCreatePosSize(p, s, NULL, NULL);
+
+		ywPosAdd(cr, add_pos);
+		ret = ywCanvasNewCollisionsArrayWithRectangle(wid, cr);
+		return ret;
+	}
 
   int	ywCanvasObjectsCheckColisions(Entity *obj0, Entity *obj1)
   {

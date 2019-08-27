@@ -383,7 +383,7 @@ function fightAction(entity, eve)
    end
 
    -- change that to allow esc to quit
-   if false then
+   if true then
       while eve:is_end() == false do
 	 if eve:key() == Y_ESC_KEY then
 	    yCallNextWidget(entity:cent());

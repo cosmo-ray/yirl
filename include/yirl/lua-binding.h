@@ -145,6 +145,14 @@
 		return 1;						\
 	}
 
+#define LUA_IMPLEMENT_E_EEE(func)					\
+	static inline int lua##func(lua_State *L)			\
+	{								\
+		Entity *ret = func(luaEntityAt(L, 1), luaEntityAt(L, 2), \
+				   luaEntityAt(L, 3));			\
+		if (ret) lua_pushlightuserdata(L, ret); else lua_pushnil(L); \
+		return 1;						\
+	}
 
 /* Entity objets */
 int	luaentity_tocentity(lua_State *L);
@@ -374,6 +382,7 @@ int	luaywCanvasDoPathfinding(lua_State *L);
 LUA_IMPLEMENT_B_EE(ywCanvasCheckColisionsRectObj);
 LUA_IMPLEMENT_V_EE(ywCanvasStringSet);
 BIND_V_E(ywCanvasClear, 0, 0);
+LUA_IMPLEMENT_E_EEE(ywCanvasProjectedColisionArray);
 
 /* texture */
 int	luaywTextureNewImg(lua_State *L);
@@ -789,6 +798,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, ywCanvasCheckColisionsRectObj);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasStringSet);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasClear);
+  YES_LUA_REGISTRE_CALL(sm, ywCanvasProjectedColisionArray);
 
   /* texture */
   YES_LUA_REGISTRE_CALL(sm, ywTextureNewImg);
