@@ -563,6 +563,17 @@ extern "C" {
   }
 
 
+	Entity *ywCanvasProjectedArColisionArray(Entity *wid, Entity *rect,
+						 Entity *add_pos)
+	{
+		Entity *ret;
+		yeAutoFree Entity *cr = ywRectCreateEnt(rect, NULL, NULL);
+
+		ywPosAdd(cr, add_pos);
+		ret = ywCanvasNewCollisionsArrayWithRectangle(wid, cr);
+		return ret;
+	}
+
 	Entity *ywCanvasProjectedColisionArray(Entity *wid, Entity *obj,
 					       Entity *add_pos)
 	{

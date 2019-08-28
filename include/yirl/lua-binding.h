@@ -383,6 +383,7 @@ LUA_IMPLEMENT_B_EE(ywCanvasCheckColisionsRectObj);
 LUA_IMPLEMENT_V_EE(ywCanvasStringSet);
 BIND_V_E(ywCanvasClear, 0, 0);
 LUA_IMPLEMENT_E_EEE(ywCanvasProjectedColisionArray);
+LUA_IMPLEMENT_E_EEE(ywCanvasProjectedArColisionArray);
 
 /* texture */
 int	luaywTextureNewImg(lua_State *L);
@@ -799,6 +800,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, ywCanvasStringSet);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasClear);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasProjectedColisionArray);
+  YES_LUA_REGISTRE_CALL(sm, ywCanvasProjectedArColisionArray);
 
   /* texture */
   YES_LUA_REGISTRE_CALL(sm, ywTextureNewImg);

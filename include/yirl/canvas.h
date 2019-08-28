@@ -181,6 +181,9 @@ Entity *ywCanvasNewCollisionsArrayWithRectangle(Entity *wid, Entity *rectangle);
  */
 Entity *ywCanvasProjectedColisionArray(Entity *wid, Entity *ojb, Entity *add_pos);
 
+Entity *ywCanvasProjectedArColisionArray(Entity *wid, Entity *rect,
+					 Entity *add_pos);
+
 /**
  * turn @obj so the top of the sprite point in the direction of @point
  */
