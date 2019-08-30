@@ -15,7 +15,6 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-extern "C" {
 #include <glib.h>
 #include <math.h>
 #include "rect.h"
@@ -24,15 +23,13 @@ extern "C" {
 #include "sdl2/canvas-sdl.h"
 #include "yirl/canvas.h"
 #include "yirl/entity-script.h"
-}
 
 static int t = -1;
 
-class YCanvasState : public YWidgetState {
-public:
-	bool ywCanHasWeight = false;
-	YCanvasState() {}
-};
+typedef struct {
+	YWidgetState sate;
+	_Bool ywCanHasWeight;
+} YCanvasState;
 
 static int tsInit(YWidgetState *opac, Entity *entity, void *args)
 {
@@ -45,7 +42,7 @@ static int tsInit(YWidgetState *opac, Entity *entity, void *args)
 
 static int tsDestroy(YWidgetState *opac)
 {
-	delete opac;
+	g_free(opac);
 	return 0;
 }
 
@@ -57,179 +54,176 @@ static int tsRend(YWidgetState *opac)
 
 static void *alloc(void)
 {
-	YCanvasState *ret = new YCanvasState;
-
+	YCanvasState *s = g_new0(YCanvasState, 1);
+	YWidgetState *ret = (YWidgetState *)s;
 	ret->render = tsRend;
 	ret->init = tsInit;
 	ret->destroy = tsDestroy;
 	ret->handleEvent = ywidEventCallActionSin;
-	ret->resize = NULL;
-	ret->midRendEnd = NULL;
 	ret->type = t;
-	return  ret;
+	return ret;
 }
 
-extern "C" {
-	static Entity *getOrCreateObjs(Entity *wid)
-	{
-		Entity *objs = yeGet(wid, "objs");
+static Entity *getOrCreateObjs(Entity *wid)
+{
+	Entity *objs = yeGet(wid, "objs");
 
-		if (unlikely(!objs)) {
-			objs = yeCreateArray(wid, "objs");
-			if (unlikely(!objs))
-				return NULL;
-		}
-		return objs;
+	if (unlikely(!objs)) {
+		objs = yeCreateArray(wid, "objs");
+		if (unlikely(!objs))
+			return NULL;
 	}
+	return objs;
+}
 
-	int ywCanvasInit(void)
-	{
-		if (ysdl2Type() < 0) {
-			DPRINT_ERR("sdl is needed for canvas");
-		}
-		if (t != -1)
-			return t;
-		t = ywidRegister(alloc, "canvas");
+int ywCanvasInit(void)
+{
+	if (ysdl2Type() < 0) {
+		DPRINT_ERR("sdl is needed for canvas");
+	}
+	if (t != -1)
 		return t;
-	}
+	t = ywidRegister(alloc, "canvas");
+	return t;
+}
 
-	int ywCanvasEnd(void)
-	{
-		if (ywidUnregiste(t) < 0)
+int ywCanvasEnd(void)
+{
+	if (ywidUnregiste(t) < 0)
+		return -1;
+	t = -1;
+	return 0;
+}
+
+int ywCanvasMoveObj(Entity *obj, Entity *pos)
+{
+	ywPosAdd(yeGet(obj, YCANVAS_POS_IDX), pos);
+	return 0;
+}
+
+int ywCanvasMoveObjXY(Entity *obj, int x, int y)
+{
+	ywPosAddXY(yeGet(obj, YCANVAS_POS_IDX), x, y);
+	return 0;
+}
+
+int ywCanvasMoveObjByIdx(Entity *wid, int objIdx, Entity *pos)
+{
+	Entity *obj = yeGet(yeGet(wid, "objs"), objIdx);
+
+	return ywCanvasMoveObj(obj, pos);
+}
+
+Entity *ywCanvasObjFromIdx(Entity *wid, int idx)
+{
+	if (idx < 0)
+		idx = yeLen(yeGet(wid, "objs")) + idx;
+	return yeGet(yeGet(wid, "objs"), idx);
+}
+
+int ywCanvasCheckCollisions(Entity *wid, Entity *obj, Entity *colisionFunc,
+			    Entity *colisionFuncArg)
+{
+	Entity *eret = ywCanvasNewCollisionsArrayExt(wid, obj,
+						     colisionFunc,
+						     colisionFuncArg);
+	int ret = !!eret;
+
+	yeDestroy(eret);
+	return ret;
+}
+
+Entity *ywCanvasNewCollisionsArray(Entity *wid, Entity *obj)
+{
+	return ywCanvasNewCollisionsArrayExt(wid, obj, NULL, NULL);
+}
+
+void ywCanvasDisableWeight(Entity *w)
+{
+	YCanvasState *s = ywidCastState(w, YCanvasState);
+
+	s->ywCanHasWeight = 0;
+}
+
+void ywCanvasEnableWeight(Entity *w)
+{
+	YCanvasState *s = ywidCastState(w, YCanvasState);
+
+	s->ywCanHasWeight = 1;
+}
+
+int ywCanvasSetWeightInternal(Entity *wid, Entity *obj, int weight,
+			      int newObj)
+{
+	YCanvasState *s = ywidCastState(wid, YCanvasState);
+	Entity *objs = getOrCreateObjs(wid);
+	uint32_t i = 0;
+	Entity *toPush = obj;
+
+	if (s && !s->ywCanHasWeight)
+		goto out;
+	if (!newObj) {
+		if (yeGetIntAt(obj, "weight") == weight)
+			return 0;
+		yeIncrRef(toPush);
+		if (!yeRemoveChildByEntity(objs, obj)) {
+			yeDestroy(toPush);
 			return -1;
-		t = -1;
-		return 0;
-	}
-
-	int ywCanvasMoveObj(Entity *obj, Entity *pos)
-	{
-		ywPosAdd(yeGet(obj, YCANVAS_POS_IDX), pos);
-		return 0;
-	}
-
-	int ywCanvasMoveObjXY(Entity *obj, int x, int y)
-	{
-		ywPosAddXY(yeGet(obj, YCANVAS_POS_IDX), x, y);
-		return 0;
-	}
-
-	int ywCanvasMoveObjByIdx(Entity *wid, int objIdx, Entity *pos)
-	{
-		Entity *obj = yeGet(yeGet(wid, "objs"), objIdx);
-
-		return ywCanvasMoveObj(obj, pos);
-	}
-
-	Entity *ywCanvasObjFromIdx(Entity *wid, int idx)
-	{
-		if (idx < 0)
-			idx = yeLen(yeGet(wid, "objs")) + idx;
-		return yeGet(yeGet(wid, "objs"), idx);
-	}
-
-	int ywCanvasCheckCollisions(Entity *wid, Entity *obj, Entity *colisionFunc,
-				    Entity *colisionFuncArg)
-	{
-		Entity *eret = ywCanvasNewCollisionsArrayExt(wid, obj,
-							     colisionFunc,
-							     colisionFuncArg);
-		int ret = !!eret;
-
-		yeDestroy(eret);
-		return ret;
-	}
-
-	Entity *ywCanvasNewCollisionsArray(Entity *wid, Entity *obj)
-	{
-		return ywCanvasNewCollisionsArrayExt(wid, obj, NULL, NULL);
-	}
-
-	void ywCanvasDisableWeight(Entity *w)
-	{
-		YCanvasState *s = ywidCastState(w, YCanvasState);
-
-		s->ywCanHasWeight = false;
-	}
-
-	void ywCanvasEnableWeight(Entity *w)
-	{
-		YCanvasState *s = ywidCastState(w, YCanvasState);
-
-		s->ywCanHasWeight = true;
-	}
-
-	int ywCanvasSetWeightInternal(Entity *wid, Entity *obj, int weight,
-				      int newObj)
-	{
-		YCanvasState *s = ywidCastState(wid, YCanvasState);
-		Entity *objs = getOrCreateObjs(wid);
-		uint32_t i = 0;
-		Entity *toPush = obj;
-
-		if (s && !s->ywCanHasWeight)
-			goto out;
-		if (!newObj) {
-			if (yeGetIntAt(obj, "weight") == weight)
-				return 0;
-			yeIncrRef(toPush);
-			if (!yeRemoveChildByEntity(objs, obj)) {
-				yeDestroy(toPush);
-				return -1;
-			}
 		}
-		yeReCreateInt(weight, obj, "weight");
-		for (; i < yeLen(objs); ++i) {
-			Entity *c_obj = yeGet(objs, i);
-			int c_w;
+	}
+	yeReCreateInt(weight, obj, "weight");
+	for (; i < yeLen(objs); ++i) {
+		Entity *c_obj = yeGet(objs, i);
+		int c_w;
 
-			if (!c_obj)
-				continue;
-			c_w = yeGetIntAt(c_obj, "weight");
+		if (!c_obj)
+			continue;
+		c_w = yeGetIntAt(c_obj, "weight");
 
-			if (weight < c_w) {
-				yeIncrRef(c_obj);
-				yePushAt(objs, toPush, i);
-				yeDestroy(toPush);
-				toPush = c_obj;
-				++i;
-				break;
-			}
-		}
-
-		for (; i < yeLen(objs); ++i) {
-			Entity *c_obj = yeGet(objs, i);
-
+		if (weight < c_w) {
 			yeIncrRef(c_obj);
 			yePushAt(objs, toPush, i);
-			if (!c_obj) {
-				yeDestroy(toPush);
-				return 0;
-			}
 			yeDestroy(toPush);
 			toPush = c_obj;
+			++i;
+			break;
 		}
-	out:
-		yePushBack(objs, toPush, NULL);
+	}
+
+	for (; i < yeLen(objs); ++i) {
+		Entity *c_obj = yeGet(objs, i);
+
+		yeIncrRef(c_obj);
+		yePushAt(objs, toPush, i);
+		if (!c_obj) {
+			yeDestroy(toPush);
+			return 0;
+		}
 		yeDestroy(toPush);
-		return 0;
+		toPush = c_obj;
 	}
+out:
+	yePushBack(objs, toPush, NULL);
+	yeDestroy(toPush);
+	return 0;
+}
 
-	int ywCanvasSetWeight(Entity *wid, Entity *obj, int weight)
-	{
-		YCanvasState *s = ywidCastState(wid, YCanvasState);
+int ywCanvasSetWeight(Entity *wid, Entity *obj, int weight)
+{
+	YCanvasState *s = ywidCastState(wid, YCanvasState);
 
-		if (unlikely(!s->ywCanHasWeight))
-			return -1;
-		return ywCanvasSetWeightInternal(wid, obj, weight, 0);
-	}
+	if (unlikely(!s->ywCanHasWeight))
+		return -1;
+	return ywCanvasSetWeightInternal(wid, obj, weight, 0);
+}
 
-	int ywCanvasSwapObj(Entity *wid, Entity *obj0, Entity *obj1)
-	{
-		int tmp = yeGetIntAt(obj1, "weight");
-		yeSetInt(yeGet(obj1, "weight"), yeGetIntAt(obj0, "weight"));
-		yeSetInt(yeGet(obj0, "weight"), tmp);
-		return yeSwapElems(yeGet(wid, "objs"), obj0, obj1);
-	}
+int ywCanvasSwapObj(Entity *wid, Entity *obj0, Entity *obj1)
+{
+	int tmp = yeGetIntAt(obj1, "weight");
+	yeSetInt(yeGet(obj1, "weight"), yeGetIntAt(obj0, "weight"));
+	yeSetInt(yeGet(obj0, "weight"), tmp);
+	return yeSwapElems(yeGet(wid, "objs"), obj0, obj1);
+}
 
   Entity *ywCanvasNewCollisionsArrayWithRectangle_(Entity *wid, Entity *objRect,
 						   Entity *obj,
@@ -271,143 +265,142 @@ extern "C" {
     return ret;
   }
 
-	Entity *ywCanvasNewCollisionsArrayWithRectangle(Entity *wid,
-							Entity *objRect)
-	{
-		return ywCanvasNewCollisionsArrayWithRectangle_(wid, objRect,
-								NULL,
-								NULL, NULL);
-	}
+Entity *ywCanvasNewCollisionsArrayWithRectangle(Entity *wid,
+						Entity *objRect)
+{
+	return ywCanvasNewCollisionsArrayWithRectangle_(wid, objRect,
+							NULL,
+							NULL, NULL);
+}
 
-	int ywCanvasIdxFromObj(Entity *wid, Entity *obj)
-	{
-		Entity *objs = yeGet(wid, "objs");
-		YE_ARRAY_FOREACH_EXT(objs, tmpObj, it) {
-			if (tmpObj == obj) {
-				return yBlockArrayIteratorIdx(it);
-			}
+int ywCanvasIdxFromObj(Entity *wid, Entity *obj)
+{
+	Entity *objs = yeGet(wid, "objs");
+	YE_ARRAY_FOREACH_EXT(objs, tmpObj, it) {
+		if (tmpObj == obj) {
+			return yBlockArrayIteratorIdx(it);
 		}
-		return -1;
+	}
+	return -1;
+}
+
+YCanvasObjType ywCanvasObjType(Entity *obj)
+{
+	return yeGetIntDirect(yeGetByIdxDirect(obj, 0));
+}
+
+Entity *ywCanvasObjPos(Entity *obj)
+{
+	return yeGet(obj, YCANVAS_POS_IDX);
+}
+
+
+void ywCanvasObjClearCache(Entity *obj)
+{
+	yeRemoveChildByStr(obj, "$size");
+	yeRemoveChildByStr(obj, "$img");
+	yeRemoveChildByStr(obj, "$img-surface");
+}
+
+void ywCanvasObjSetResourceId(Entity *obj, int id)
+{
+	yeSetInt(yeGet(obj, 2), id);
+	ywCanvasObjClearCache(obj);
+}
+
+void ywCanvasObjSetPos(Entity *obj, int x, int y)
+{
+	ywPosSetInts(yeGet(obj, YCANVAS_POS_IDX), x, y);
+}
+
+void ywCanvasObjSetPosByEntity(Entity *obj, Entity *p)
+{
+	return ywCanvasObjSetPos(obj, ywPosX(p), ywPosY(p));
+}
+
+Entity *ywCanvasObjSize(Entity *wid, Entity *obj)
+{
+	Entity *size;
+	Entity *mod = ywCanvasObjMod(obj);
+
+	if (unlikely(yeGet(mod, YCanvasForceSize)))
+		return yeGet(mod, YCanvasForceSize);
+	if (ywCanvasObjType(obj) == YCanvasRect) {
+		return yeGet(yeGet(obj, 2), 0);
 	}
 
-	YCanvasObjType ywCanvasObjType(Entity *obj)
-	{
-		return static_cast<YCanvasObjType>
-			(yeGetIntDirect(yeGetByIdxDirect(obj, 0)));
-	}
-
-	Entity *ywCanvasObjPos(Entity *obj)
-	{
-		return yeGet(obj, YCANVAS_POS_IDX);
-	}
-
-
-	void ywCanvasObjClearCache(Entity *obj)
-	{
-		yeRemoveChildByStr(obj, "$size");
-		yeRemoveChildByStr(obj, "$img");
-		yeRemoveChildByStr(obj, "$img-surface");
-	}
-
-	void ywCanvasObjSetResourceId(Entity *obj, int id)
-	{
-		yeSetInt(yeGet(obj, 2), id);
-		ywCanvasObjClearCache(obj);
-	}
-
-	void ywCanvasObjSetPos(Entity *obj, int x, int y)
-	{
-		ywPosSetInts(yeGet(obj, YCANVAS_POS_IDX), x, y);
-	}
-
-	void ywCanvasObjSetPosByEntity(Entity *obj, Entity *p)
-	{
-		return ywCanvasObjSetPos(obj, ywPosX(p), ywPosY(p));
-	}
-
-	Entity *ywCanvasObjSize(Entity *wid, Entity *obj)
-	{
-		Entity *size;
-		Entity *mod = ywCanvasObjMod(obj);
-
-		if (unlikely(yeGet(mod, YCanvasForceSize)))
-			return yeGet(mod, YCanvasForceSize);
-		if (ywCanvasObjType(obj) == YCanvasRect) {
-			return yeGet(yeGet(obj, 2), 0);
-		}
-
+	size = yeGet(obj, YCANVAS_SIZE_IDX);
+	if (!size) {
+		sdlCanvasCacheTexture(wid, obj);
 		size = yeGet(obj, YCANVAS_SIZE_IDX);
-		if (!size) {
-			sdlCanvasCacheTexture(wid, obj);
-			size = yeGet(obj, YCANVAS_SIZE_IDX);
-		}
-		return size;
 	}
+	return size;
+}
 
-	void ywCanvasStringSet(Entity *obj, Entity *newStr)
-	{
-		if (ywCanvasObjType(obj) != YCanvasString)
-			return;
-		yeReplaceAtIdx(obj, newStr, 2);
-		yeRemoveChildByStr(obj, "$size");
-	}
+void ywCanvasStringSet(Entity *obj, Entity *newStr)
+{
+	if (ywCanvasObjType(obj) != YCanvasString)
+		return;
+	yeReplaceAtIdx(obj, newStr, 2);
+	yeRemoveChildByStr(obj, "$size");
+}
 
-	void ywCanvasRemoveObj(Entity *wid, Entity *obj)
-	{
-		Entity *objs = yeGet(wid, "objs");
+void ywCanvasRemoveObj(Entity *wid, Entity *obj)
+{
+	Entity *objs = yeGet(wid, "objs");
 
-		yeRemoveChild(objs, obj);
-	}
+	yeRemoveChild(objs, obj);
+}
 
-	Entity *ywCanvasNewText(Entity *wid, int x, int y, Entity *string)
-	{
-		if (!string)
-			return NULL;
-		Entity *obj = yeCreateArray(NULL, NULL);
+Entity *ywCanvasNewText(Entity *wid, int x, int y, Entity *string)
+{
+	if (!string)
+		return NULL;
+	Entity *obj = yeCreateArray(NULL, NULL);
 
-		yeCreateInt(YCanvasString, obj, "canvas-type");
-		ywPosCreateInts(x, y, obj, "pos");
-		yePushBack(obj, string, "str");
-		ywCanvasSetWeightInternal(wid, obj, 0, 1);
-		sdlCanvasCacheTexture(wid, obj);
-		return obj;
-	}
+	yeCreateInt(YCanvasString, obj, "canvas-type");
+	ywPosCreateInts(x, y, obj, "pos");
+	yePushBack(obj, string, "str");
+	ywCanvasSetWeightInternal(wid, obj, 0, 1);
+	sdlCanvasCacheTexture(wid, obj);
+	return obj;
+}
 
-	Entity *ywCanvasNewTextByStr(Entity *wid, int x, int y, const char *str)
-	{
-		if (!str)
-			return NULL;
-		Entity *obj = yeCreateArray(NULL, NULL);
+Entity *ywCanvasNewTextByStr(Entity *wid, int x, int y, const char *str)
+{
+	if (!str)
+		return NULL;
+	Entity *obj = yeCreateArray(NULL, NULL);
 
-		yeCreateInt(YCanvasString, obj, "canvas-type");
-		ywPosCreateInts(x, y, obj, "pos");
-		yeCreateString(str, obj, "str");
-		ywCanvasSetWeightInternal(wid, obj, 0, 1);
-		sdlCanvasCacheTexture(wid, obj);
-		return obj;
-	}
+	yeCreateInt(YCanvasString, obj, "canvas-type");
+	ywPosCreateInts(x, y, obj, "pos");
+	yeCreateString(str, obj, "str");
+	ywCanvasSetWeightInternal(wid, obj, 0, 1);
+	sdlCanvasCacheTexture(wid, obj);
+	return obj;
+}
 
-	Entity *ywCanvasNewTextExt(Entity *wid, int x, int y, Entity *string,
-				   const char *color)
-	{
-		if (!string)
-			return NULL;
-		Entity *obj = yeCreateArray(NULL, NULL);
+Entity *ywCanvasNewTextExt(Entity *wid, int x, int y, Entity *string,
+			   const char *color)
+{
+	if (!string)
+		return NULL;
+	Entity *obj = yeCreateArray(NULL, NULL);
 
-		yeCreateInt(YCanvasString, obj, "canvas-type");
-		ywPosCreateInts(x, y, obj, "pos");
-		yePushBack(obj, string, "str");
-		yeCreateString(color, obj, "color");
-		ywCanvasSetWeightInternal(wid, obj, 0, 1);
-		sdlCanvasCacheTexture(wid, obj);
-		return obj;
-	}
+	yeCreateInt(YCanvasString, obj, "canvas-type");
+	ywPosCreateInts(x, y, obj, "pos");
+	yePushBack(obj, string, "str");
+	yeCreateString(color, obj, "color");
+	ywCanvasSetWeightInternal(wid, obj, 0, 1);
+	sdlCanvasCacheTexture(wid, obj);
+	return obj;
+}
 
 
-	void ywCanvasClear(Entity *canvas)
-	{
-		yeClearArray(yeGet(canvas, "objs"));
-	}
+void ywCanvasClear(Entity *canvas)
+{
+	yeClearArray(yeGet(canvas, "objs"));
+}
 
   Entity *ywCanvasCreateYTexture(Entity *obj, Entity *father, const char *name)
   {
@@ -469,7 +462,7 @@ extern "C" {
   }
 
   static void pixMod(Entity *obj, Entity *rect, Entity *mod,
-		     int &x, int &y, int w, int h)
+		     int *x, int *y, int w, int h)
   {
     Entity *forcedSize = yeGet(mod, YCanvasForceSize);
     Entity *rotate = yeGet(mod, YCanvasRotate);
@@ -478,25 +471,25 @@ extern "C" {
       Entity *size = ywCanvasObjSize(NULL, obj);
       double r = -(yeGetFloat(rotate) / 180 * M_PI);
       int sw = ywSizeW(size), sh = ywSizeH(size);
-      int ox = x, oy = y;
+      int ox = *x, oy = *y;
 
       // center in 0,0
-      ox = x - w / 2;
-      oy = y - h / 2;
+      ox = ox - w / 2;
+      oy = oy - h / 2;
 
       // turn x (and y, but turn y isn't a gundam)
-      x = ox * cos(r) - oy * sin(r);
-      y = oy * cos(r) + ox * sin(r);
+      *x = ox * cos(r) - oy * sin(r);
+      *y = oy * cos(r) + ox * sin(r);
 
       // hight left top is 0,0 again (all hail 0)
-      x += w / 2;
-      y += h / 2;
+      *x += w / 2;
+      *y += h / 2;
 
       // reset x and y to they original "relative" position
       if (sw > sh)
-      	y = y - sw / 2 + sh / 2;
+      	*y = *y - sw / 2 + sh / 2;
       else
-	x = x - sh / 2 + sw / 2;
+	*x = *x - sh / 2 + sw / 2;
       w = sw;
       h = sh;
     }
@@ -506,8 +499,8 @@ extern "C" {
       int realH = ywSizeH(size);
       int realW = ywSizeW(size);
 
-      x = x * realW / w;
-      y = y * realH / h;
+      *x = *x * realW / w;
+      *y = *y * realH / h;
     }
   }
 
@@ -552,7 +545,7 @@ extern "C" {
 
 	x = ywRectX(crect1) + j;
 	y = ywRectY(crect1) + i;
-	pixMod(obj1, r1, mod1, x, y, ywRectW(r1), ywRectH(r1));
+	pixMod(obj1, r1, mod1, &x, &y, ywRectW(r1), ywRectH(r1));
 	pix.i = sdlCanvasPixInfo(obj1, x, y);
 	if (pix.rgba[3] != 0) {
 	  return 1;
@@ -563,29 +556,29 @@ extern "C" {
   }
 
 
-	Entity *ywCanvasProjectedArColisionArray(Entity *wid, Entity *rect,
-						 Entity *add_pos)
-	{
-		Entity *ret;
-		yeAutoFree Entity *cr = ywRectCreateEnt(rect, NULL, NULL);
+Entity *ywCanvasProjectedArColisionArray(Entity *wid, Entity *rect,
+					 Entity *add_pos)
+{
+	Entity *ret;
+	yeAutoFree Entity *cr = ywRectCreateEnt(rect, NULL, NULL);
 
-		ywPosAdd(cr, add_pos);
-		ret = ywCanvasNewCollisionsArrayWithRectangle(wid, cr);
-		return ret;
-	}
+	ywPosAdd(cr, add_pos);
+	ret = ywCanvasNewCollisionsArrayWithRectangle(wid, cr);
+	return ret;
+}
 
-	Entity *ywCanvasProjectedColisionArray(Entity *wid, Entity *obj,
-					       Entity *add_pos)
-	{
-		Entity *ret;
-		Entity *s = ywCanvasObjSize(wid, obj);
-		Entity *p = ywCanvasObjPos(obj);
-		yeAutoFree Entity *cr = ywRectCreatePosSize(p, s, NULL, NULL);
+Entity *ywCanvasProjectedColisionArray(Entity *wid, Entity *obj,
+				       Entity *add_pos)
+{
+	Entity *ret;
+	Entity *s = ywCanvasObjSize(wid, obj);
+	Entity *p = ywCanvasObjPos(obj);
+	yeAutoFree Entity *cr = ywRectCreatePosSize(p, s, NULL, NULL);
 
-		ywPosAdd(cr, add_pos);
-		ret = ywCanvasNewCollisionsArrayWithRectangle(wid, cr);
-		return ret;
-	}
+	ywPosAdd(cr, add_pos);
+	ret = ywCanvasNewCollisionsArrayWithRectangle(wid, cr);
+	return ret;
+}
 
   int	ywCanvasObjectsCheckColisions(Entity *obj0, Entity *obj1)
   {
@@ -623,12 +616,12 @@ extern "C" {
 	YCanvasPixiel pix;
 	int x = ywRectX(crect0) + j, y = ywRectY(crect0) + i;
 
-	pixMod(obj0, r0, mod0, x, y, ywRectW(r0), ywRectH(r0));
+	pixMod(obj0, r0, mod0, &x, &y, ywRectW(r0), ywRectH(r0));
 	pix.i = sdlCanvasPixInfo(obj0, x, y);
 	if (pix.rgba[3] != 0) {
 	  x = ywRectX(crect1) + j;
 	  y = ywRectY(crect1) + i;
-	  pixMod(obj1, r1, mod1, x, y, ywRectW(r1), ywRectH(r1));
+	  pixMod(obj1, r1, mod1, &x, &y, ywRectW(r1), ywRectH(r1));
 	  pix.i = sdlCanvasPixInfo(obj1, x, y);
  	  if (pix.rgba[3] != 0) {
 	    ret = 1;
@@ -642,75 +635,76 @@ extern "C" {
     return ret;
   }
 
-	Entity *ywCanvasNewObj(Entity *wid, int x, int y, int id)
-	{
-		Entity *obj = yeCreateArray(NULL, NULL);
+Entity *ywCanvasNewObj(Entity *wid, int x, int y, int id)
+{
+	Entity *obj = yeCreateArray(NULL, NULL);
 
-		yeCreateInt(YCanvasResource, obj, "canvas-type");
-		ywPosCreateInts(x, y, obj, "pos");
-		yeCreateInt(id, obj, "id");
-		ywCanvasSetWeightInternal(wid, obj, 0, 1);
-		sdlCanvasCacheTexture(wid, obj);
-		return obj;
+	yeCreateInt(YCanvasResource, obj, "canvas-type");
+	ywPosCreateInts(x, y, obj, "pos");
+	yeCreateInt(id, obj, "id");
+	ywCanvasSetWeightInternal(wid, obj, 0, 1);
+	sdlCanvasCacheTexture(wid, obj);
+	return obj;
+}
+
+static inline Entity *getOrCreateMod(Entity *obj)
+{
+	Entity *mod = ywCanvasObjMod(obj);
+	if (!mod) {
+		mod = yeCreateArray(obj, "$mod");
 	}
+	return mod;
+}
 
-	static inline Entity *getOrCreateMod(Entity *obj)
-	{
-		Entity *mod = ywCanvasObjMod(obj);
-		if (!mod) {
-			mod = yeCreateArray(obj, "$mod");
-		}
-		return mod;
-	}
+double ywCanvasObjAngle(Entity *obj)
+{
+	return yeGetFloat(yeGet(ywCanvasObjMod(obj), YCanvasRotate));
+}
 
-	double ywCanvasObjAngle(Entity *obj)
-	{
-		return yeGetFloat(yeGet(ywCanvasObjMod(obj), YCanvasRotate));
-	}
+int ywCanvasAdvenceObj(Entity *obj, int speed, double direction)
+{
+	direction = direction / 180 * M_PI;
+	int x = speed * sin(direction);
+	int y = speed * cos(direction);
 
-	int ywCanvasAdvenceObj(Entity *obj, int speed, double direction)
-	{
-		direction = direction / 180 * M_PI;
-		int x = speed * sin(direction);
-		int y = speed * cos(direction);
+	ywCanvasMoveObjXY(obj, x, -y);
+	return 0;
+}
 
-		ywCanvasMoveObjXY(obj, x, -y);
-		return 0;
-	}
+int ywCanvasRotate(Entity *obj, double angle)
+{
+	Entity *mod = getOrCreateMod(obj);
 
-	int ywCanvasRotate(Entity *obj, double angle)
-	{
-		Entity *mod = getOrCreateMod(obj);
+	yeCreateFloatAt(angle, mod, NULL, YCanvasRotate);
+	return 0;
+}
 
-		yeCreateFloatAt(angle, mod, NULL, YCanvasRotate);
-		return 0;
-	}
+int ywCanvasForceSize(Entity *obj, Entity *size)
+{
+	if (!obj || !size)
+		return -1;
+	Entity *mod = getOrCreateMod(obj);
 
-	int ywCanvasForceSize(Entity *obj, Entity *size)
-	{
-		if (!obj || !size)
-			return -1;
-		Entity *mod = getOrCreateMod(obj);
+	ywSizePrint(size);
+	yePushAt(mod, size, YCanvasForceSize);
+	return 0;
+}
 
-		ywSizePrint(size);
-		yePushAt(mod, size, YCanvasForceSize);
-		return 0;
-	}
+int ywCanvasObjIsOut(Entity *wid, Entity *obj)
+{
+	Entity *wid_r = yeGet(wid, "wid-pix");
+	Entity *mod = ywCanvasObjMod(obj);
+	Entity *obj_r =
+		rectRotationMod(obj, ywRectCreatePosSize(ywCanvasObjPos(obj),
+							 ywCanvasObjSize(NULL,
+									 obj),
+							 NULL, NULL),
+				mod);
+	int ret = !ywRectCollision(wid_r, obj_r);
 
-  int ywCanvasObjIsOut(Entity *wid, Entity *obj)
-  {
-	  Entity *wid_r = yeGet(wid, "wid-pix");
-	  Entity *mod = ywCanvasObjMod(obj);
-    Entity *obj_r =
-      rectRotationMod(obj, ywRectCreatePosSize(ywCanvasObjPos(obj),
-					       ywCanvasObjSize(NULL, obj),
-					       NULL, NULL),
-		      mod);
-    int ret = !ywRectCollision(wid_r, obj_r);
-
-    yeDestroy(obj_r);
-    return ret;
-  }
+	yeDestroy(obj_r);
+	return ret;
+}
 
 #define YW_PATH_WENT_LEFT 1
 #define YW_PATH_WENT_RIGHT 2
@@ -853,5 +847,4 @@ extern "C" {
 	  yeMultDestroy(curDirInfo, newDirInfo, tmpArray);
 	  return 0;
   }
-}
 
