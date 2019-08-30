@@ -504,21 +504,24 @@ void ywCanvasClear(Entity *canvas)
     }
   }
 
-  static Entity *rectRotationMod(Entity *obj, Entity *r, Entity *mod)
-  {
-    Entity *rotate = yeGet(mod, YCanvasRotate);
+static Entity *rectRotationMod(Entity *obj, Entity *r, Entity *mod)
+{
+	Entity *rotate = yeGet(mod, YCanvasRotate);
 
-    if (unlikely(rotate)) {
-      if (ywRectW(r) > ywRectH(r)) {
-	ywRectSetY(r, ywRectY(r) + ywRectH(r) / 2 - ywRectW(r) / 2 );
-	ywRectSetH(r, ywRectW(r));
-      } else {
-	ywRectSetX(r, ywRectX(r) + ywRectW(r) / 2 - ywRectH(r) / 2);
-	ywRectSetW(r, ywRectH(r));
-      }
-    }
-    return r;
-  }
+	if (unlikely(rotate)) {
+		int rw = ywRectW(r);
+		int rh = ywRectH(r);
+
+		if (rw > rh) {
+			ywRectSetY(r, ywRectY(r) + rh / 2 - rw / 2 );
+			ywRectSetH(r, rw);
+		} else {
+			ywRectSetX(r, ywRectX(r) + rw / 2 - rh / 2);
+			ywRectSetW(r, rh);
+		}
+	}
+	return r;
+}
 
   int ywidColisionXPresision = 1;
   int ywidColisionYPresision = 1;
