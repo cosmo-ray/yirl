@@ -586,60 +586,64 @@ Entity *ywCanvasProjectedColisionArray(Entity *wid, Entity *obj,
 	return ret;
 }
 
-  int	ywCanvasObjectsCheckColisions(Entity *obj0, Entity *obj1)
-  {
-    Entity *mod0 = ywCanvasObjMod(obj0);
-    Entity *mod1 = ywCanvasObjMod(obj1);
-    Entity *r0 =
-      rectRotationMod(obj0, ywRectCreatePosSize(ywCanvasObjPos(obj0),
-						ywCanvasObjSize(NULL, obj0),
-						NULL, NULL),
-		      mod0);
-    Entity *r1 =
-      rectRotationMod(obj1, ywRectCreatePosSize(ywCanvasObjPos(obj1),
-						ywCanvasObjSize(NULL, obj1),
-						NULL, NULL),
-		      mod1);
-    Entity *colisionRects = ywRectColisionRect(r0, r1, NULL, NULL);
-    Entity *crect0 = yeGet(colisionRects, 0);
-    Entity *crect1 = yeGet(colisionRects, 1);
-    int ret = 0;
+int	ywCanvasObjectsCheckColisions(Entity *obj0, Entity *obj1)
+{
+	Entity *mod0 = ywCanvasObjMod(obj0);
+	Entity *mod1 = ywCanvasObjMod(obj1);
+	Entity *r0 =
+		rectRotationMod(obj0, ywRectCreatePosSize(ywCanvasObjPos(obj0),
+							  ywCanvasObjSize(NULL,
+									  obj0),
+							  NULL, NULL),
+				mod0);
+	Entity *r1 =
+		rectRotationMod(obj1, ywRectCreatePosSize(ywCanvasObjPos(obj1),
+							  ywCanvasObjSize(NULL,
+									  obj1),
+							  NULL, NULL),
+				mod1);
+	Entity *colisionRects = ywRectColisionRect(r0, r1, NULL, NULL);
+	Entity *crect0 = yeGet(colisionRects, 0);
+	Entity *crect1 = yeGet(colisionRects, 1);
+	int ret = 0;
 
-    if (!colisionRects) {
-      goto exit;
-    }
-    if (yeGetIntAt(obj0, 0) == YCanvasString ||
-	yeGetIntAt(obj1, 0) == YCanvasString) {
-	    ret = 1;
-	    goto exit;
-    }
-
-    // ywRectPrint(yeGet(colisionRects, 0));
-    // ywRectPrint(yeGet(colisionRects, 1));
-
-    for (int i = 0; i < ywRectH(crect0); i += ywidColisionYPresision) {
-      for (int j = 0; j < ywRectW(crect0); j += ywidColisionXPresision) {
-	YCanvasPixiel pix;
-	int x = ywRectX(crect0) + j, y = ywRectY(crect0) + i;
-
-	pixMod(obj0, r0, mod0, &x, &y, ywRectW(r0), ywRectH(r0));
-	pix.i = sdlCanvasPixInfo(obj0, x, y);
-	if (pix.rgba[3] != 0) {
-	  x = ywRectX(crect1) + j;
-	  y = ywRectY(crect1) + i;
-	  pixMod(obj1, r1, mod1, &x, &y, ywRectW(r1), ywRectH(r1));
-	  pix.i = sdlCanvasPixInfo(obj1, x, y);
- 	  if (pix.rgba[3] != 0) {
-	    ret = 1;
-	    goto exit;
-	  }
+	if (!colisionRects) {
+		goto exit;
 	}
-      }
-    }
-  exit:
-    yeMultDestroy(r0, r1, colisionRects);
-    return ret;
-  }
+	if (yeGetIntAt(obj0, 0) == YCanvasString ||
+	    yeGetIntAt(obj1, 0) == YCanvasString) {
+		ret = 1;
+		goto exit;
+	}
+
+	// ywRectPrint(yeGet(colisionRects, 0));
+	// ywRectPrint(yeGet(colisionRects, 1));
+
+	for (int i = 0; i < ywRectH(crect0); i += ywidColisionYPresision) {
+		for (int j = 0; j < ywRectW(crect0);
+		     j += ywidColisionXPresision) {
+			YCanvasPixiel pix;
+			int x = ywRectX(crect0) + j, y = ywRectY(crect0) + i;
+
+			pixMod(obj0, r0, mod0, &x, &y, ywRectW(r0), ywRectH(r0));
+			pix.i = sdlCanvasPixInfo(obj0, x, y);
+			if (pix.rgba[3] != 0) {
+				x = ywRectX(crect1) + j;
+				y = ywRectY(crect1) + i;
+				pixMod(obj1, r1, mod1, &x, &y,
+				       ywRectW(r1), ywRectH(r1));
+				pix.i = sdlCanvasPixInfo(obj1, x, y);
+				if (pix.rgba[3] != 0) {
+					ret = 1;
+					goto exit;
+				}
+			}
+		}
+	}
+exit:
+	yeMultDestroy(r0, r1, colisionRects);
+	return ret;
+}
 
 Entity *ywCanvasNewObj(Entity *wid, int x, int y, int id)
 {
