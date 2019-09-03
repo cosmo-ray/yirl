@@ -199,54 +199,69 @@ static void *nextWid(va_list ap)
 
 static void *setInt(va_list ap)
 {
-  Entity *wid = va_arg(ap, Entity *);
-  // presently toSet is set here to events
-  Entity *toSet = va_arg(ap, Entity *);
-  Entity *value;
+	Entity *wid = va_arg(ap, Entity *);
+	// presently toSet is set here to events
+	Entity *toSet = va_arg(ap, Entity *);
+	Entity *value;
 
-  // here we really set to it's value
-  toSet = va_arg(ap, Entity *);
-  value = va_arg(ap, Entity *);
-  (void)wid;
-  ygSetInt(yeGetString(toSet), yeGetInt(value));
-  return (void *)NOACTION;
+	// here we really set to it's value
+	toSet = va_arg(ap, Entity *);
+	value = va_arg(ap, Entity *);
+	(void)wid;
+	ygSetInt(yeGetString(toSet), yeGetInt(value));
+	return (void *)NOACTION;
 }
 
 static void *recreateInt(va_list ap)
 {
-  Entity *wid = va_arg(ap, Entity *);
-  // presently toSet is set here to events
-  Entity *toSet = va_arg(ap, Entity *);
-  Entity *value;
+	Entity *wid = va_arg(ap, Entity *);
+	// presently toSet is set here to events
+	Entity *toSet = va_arg(ap, Entity *);
+	Entity *value;
 
-  // here we really set to it's value
-  toSet = va_arg(ap, Entity *);
-  value = va_arg(ap, Entity *);
-  (void)wid;
-  ygReCreateInt(yeGetString(toSet), yeGetInt(value));
-  return (void *)NOACTION;
+	// here we really set to it's value
+	toSet = va_arg(ap, Entity *);
+	value = va_arg(ap, Entity *);
+	(void)wid;
+	ygIncreaseInt(yeGetString(toSet), yeGetInt(value));
+	return (void *)NOACTION;
+}
+
+static void *increaseInt(va_list ap)
+{
+	Entity *wid = va_arg(ap, Entity *);
+	// presently toSet is set here to events
+	Entity *toSet = va_arg(ap, Entity *);
+	Entity *value;
+
+	// here we really set to it's value
+	toSet = va_arg(ap, Entity *);
+	value = va_arg(ap, Entity *);
+	(void)wid;
+	ygReCreateInt(yeGetString(toSet), yeGetInt(value));
+	return (void *)NOACTION;
 }
 
 static void *nextOnKeyDown(va_list ap)
 {
-  va_list tmp_ap;
-  va_copy(tmp_ap, ap);
-  va_arg(tmp_ap, Entity *);
-  Entity *events = va_arg(tmp_ap, Entity *);
-  Entity *eve = events;
-  void *ret = (void *)NOTHANDLE;
+	va_list tmp_ap;
+	va_copy(tmp_ap, ap);
+	va_arg(tmp_ap, Entity *);
+	Entity *events = va_arg(tmp_ap, Entity *);
+	Entity *eve = events;
+	void *ret = (void *)NOTHANDLE;
 
-  YEVE_FOREACH(eve, events) {
-    if (ywidEveType(eve) == YKEY_DOWN) {
-      if (ywidEveKey(eve) == ' ' ||
-	  ywidEveKey(eve) == '\n' ||
-	  ywidEveKey(eve) == Y_ESC_KEY) {
-	ret = nextWid(ap);
-      }
-    }
-  }
-  va_end(tmp_ap);
-  return ret;
+	YEVE_FOREACH(eve, events) {
+		if (ywidEveType(eve) == YKEY_DOWN) {
+			if (ywidEveKey(eve) == ' ' ||
+			    ywidEveKey(eve) == '\n' ||
+			    ywidEveKey(eve) == Y_ESC_KEY) {
+				ret = nextWid(ap);
+			}
+		}
+	}
+	va_end(tmp_ap);
+	return ret;
 }
 
 #define TO_RC(X) ((RenderConf *)(X))
@@ -262,6 +277,7 @@ static void addNativeFuncToBaseMod(void)
 			       baseMod, NULL);
   ysRegistreCreateNativeEntity(setInt, "setInt", baseMod, NULL);
   ysRegistreCreateNativeEntity(recreateInt, "recreateInt", baseMod, NULL);
+  ysRegistreCreateNativeEntity(increaseInt, "increaseInt", baseMod, NULL);
   yeCreateFunctionSimple("menuMove", ysNativeManager(), baseMod);
   yeCreateFunctionSimple("menuNext", ysNativeManager(), baseMod);
   yeCreateFunctionSimple("menuActions", ysNativeManager(), baseMod);
@@ -802,6 +818,15 @@ Entity *ygGet(const char *toFind)
     return retVal;
   }
   return yeGetByStr(ygGetMod(tmp), funcName);
+}
+
+void ygIncreaseInt(const char *toInc, int val)
+{
+	Entity *e = ygGet(toInc);
+
+	if (!e)
+		return ygReCreateInt(toInc, val);
+	yeAdd(e, val);
 }
 
 void ygReCreateInt(const char *toSet, int val)
