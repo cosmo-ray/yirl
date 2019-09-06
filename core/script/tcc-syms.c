@@ -173,6 +173,7 @@ void	tccAddSyms(TCCState *l)
   ADD_SYM(ySoundLoad);
   ADD_SYM(yeCreateInts_);
   ADD_SYM(ywMenuSetCurrentEntry);
+  ADD_SYM(ySoundMusicLoad);
 #if defined(__unix__) || defined(__APPLE__)
   tcc_add_symbol(l, "yuiDebugPrint", yuiDebugPrint);
 #endif
