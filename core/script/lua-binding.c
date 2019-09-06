@@ -28,6 +28,7 @@
 #include	"texture.h"
 #include	"menu.h"
 #include	"game.h"
+#include	"timer.h"
 #include	"lua-convert.h"
 #include	"condition.h"
 
@@ -1876,4 +1877,22 @@ int	luayeCheckCondition(lua_State *L)
 {
   lua_pushboolean(L, yeCheckCondition(luaEntityAt(L, 1)));
   return 1;
+}
+
+int	luaYTimerGet(lua_State *L)
+{
+	lua_pushnumber(L, YTimerGet(lua_touserdata(L, 1)));
+	return 1;
+}
+
+int	luaYTimerReset(lua_State *L)
+{
+	YTimerReset(lua_touserdata(L, 1));
+	return 0;
+}
+
+int	luaYTimerCreate(lua_State *L)
+{
+	lua_pushlightuserdata(L, YTimerCreate());
+	return 1;
 }

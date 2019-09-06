@@ -425,6 +425,17 @@ LUA_IMPLEMENT_I_S(ySoundMusicLoad)
 /* condition */
 int	luayeCheckCondition(lua_State *L);
 
+/* Timer */
+int	luaYTimerGet(lua_State *L);
+int	luaYTimerReset(lua_State *L);
+int	luaYTimerCreate(lua_State *L);
+
+static inline int luaYTimerDestroy(lua_State *L)
+{
+	free(lua_touserdata(L, 1));
+	return 0;
+}
+
 #define YES_RET_IF_FAIL(OPERATION)		\
   if (OPERATION < 0) return -1;
 
@@ -832,6 +843,12 @@ static inline int	yesLuaRegister(void *sm)
 
   /* Condition */
   YES_LUA_REGISTRE_CALL(sm, yeCheckCondition);
+
+  /* Timer */
+  YES_LUA_REGISTRE_CALL(sm, YTimerGet);
+  YES_LUA_REGISTRE_CALL(sm, YTimerReset);
+  YES_LUA_REGISTRE_CALL(sm, YTimerCreate);
+  YES_LUA_REGISTRE_CALL(sm, YTimerDestroy);
 
   return 0;
 }
