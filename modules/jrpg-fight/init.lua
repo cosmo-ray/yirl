@@ -79,6 +79,13 @@ local function new_handler(main, guy, y)
 					    yeGetIntAt(sp, "y"),
 					    s, s)):cent()
       bg_h.char = guy
+      if sp.enlarge then
+	 local enlarge = yeGetInt(sp.enlarge)
+	 local fsize_pos = Size.new(s * enlarge / 100,
+				   s * enlarge / 100).ent
+
+	 ywCanvasForceSize(bg_h.canvas, fsize_pos)
+      end
    else
       bg_h = Entity.wrapp(ylpcsCreateHandler(guy, canvas.ent))
       ylpcsHandlerSetOrigXY(bg_h, bad_orig_pos[1], bad_orig_pos[2])
