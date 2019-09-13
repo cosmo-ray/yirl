@@ -223,7 +223,6 @@ static void *recreateInt(va_list ap)
 	toSet = va_arg(ap, Entity *);
 	value = va_arg(ap, Entity *);
 	(void)wid;
-	printf("recreate int: %s %d\n", yeGetString(toSet), yeGetInt(value));
 	ygReCreateInt(yeGetString(toSet), yeGetInt(value));
 	return (void *)NOACTION;
 }
