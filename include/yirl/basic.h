@@ -34,12 +34,18 @@
 
 typedef int_ptr_t size_t;
 typedef int_ptr_t intptr_t;
-typedef void FILE;
+
+typedef struct __FILE FILE;
+#define EOF (-1)
+extern FILE *stdin;
+extern FILE *stdout;
+extern FILE *stderr;
 
 void	fflushout(void);
 int open(const char *path, int oflag, ...);
 size_t read(int fd, void *buf, size_t count);
 int printf(const char *format, ...);
+int fprintf(FILE *stream, const char *format, ...);
 int sprintf(char *str, const char *format, ...);
 int snprintf(char *str, size_t size, const char *format, ...);
 char *strncpy(char *dest, const char *src, size_t n);
@@ -53,3 +59,11 @@ char *strndup(const char *s, size_t n);
 int strcmp(const char *s1, const char *s2);
 int strncmp(const char *s1, const char *s2, size_t n);
 int fflush(FILE *stream);
+
+void abort(void);
+
+#define assert(expr) if (!expr) {				\
+		fprintf(stderr, "assertion fail at %s:%d\n",	\
+			__LINE__, __FILE__);			\
+		abort();					\
+	};
