@@ -62,8 +62,13 @@ int fflush(FILE *stream);
 
 void abort(void);
 
+#ifdef NDEBUG
+#define assert(expr)
+#else
 #define assert(expr) if (!expr) {				\
 		fprintf(stderr, "assertion fail at %s:%d\n",	\
 			__LINE__, __FILE__);			\
 		abort();					\
 	};
+
+#endif
