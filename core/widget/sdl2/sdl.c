@@ -639,6 +639,10 @@ SDL_Surface *sdlCopySurface(SDL_Surface *surface, Entity *rEnt)
     h = r.h;
     rptr = &r;
   }
+  if (!w || !h) {
+	  DPRINT_ERR("Surface size can't be 0");
+	  return NULL;
+  }
 
   surface = SDL_CreateRGBSurface(0, w, h, 32, surface->format->Rmask,
   				 surface->format->Gmask,
@@ -724,8 +728,9 @@ int sdlCanvasCacheImg2(Entity *elem, Entity *resource, const char *imgPath,
 		SDL_Surface *tmpSurface = surface;
 
 		surface = sdlCopySurface(tmpSurface, rEnt);
-		if (!surface)
+		if (!surface) {
 			return -1;
+		}
 		if (imgPath)
 			SDL_FreeSurface(tmpSurface);
 		/* trick to sdlFreeSurface anyway */
