@@ -139,6 +139,7 @@ void	tccAddSyms(TCCState *l)
   ADD_SYM(ywCanvasObjSetPos);
   ADD_SYM(ywCanvasObjectsCheckColisions);
   ADD_SYM(ywCanvasNewText);
+  ADD_SYM(ywCanvasObjSetPosByEntity);
   ADD_SYM(ygReCreateInt);
   ADD_SYM(ygSetInt);
 
