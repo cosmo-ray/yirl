@@ -140,6 +140,8 @@ Entity *ywCanvasNewCollisionsArray(Entity *wid, Entity *obj)
 
 void ywCanvasDisableWeight(Entity *w)
 {
+	if (!w)
+		return;
 	YCanvasState *s = ywidCastState(w, YCanvasState);
 
 	s->ywCanHasWeight = 0;
@@ -147,6 +149,8 @@ void ywCanvasDisableWeight(Entity *w)
 
 void ywCanvasEnableWeight(Entity *w)
 {
+	if (!w)
+		return;
 	YCanvasState *s = ywidCastState(w, YCanvasState);
 
 	s->ywCanHasWeight = 1;
