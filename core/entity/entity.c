@@ -246,6 +246,7 @@ Entity *yeGetByIdx(Entity *entity, size_t index)
 {
 	if (unlikely(entity == NULL))
 		return NULL;
+	assert(entity->refCount);
 	return yBlockArrayGet(&YE_TO_ARRAY(entity)->values,
 			      index, ArrayEntry).entity;
 }
@@ -343,8 +344,10 @@ static Entity *yeGetByIdxFastWithEnd(Entity *entity, const char *name,
 
 Entity *yeGetByStrFast(Entity *entity, const char *name)
 {
-	if (unlikely(!entity || !name || yeType(entity) != YARRAY))
+	if (unlikely(!entity || !name))
 		return NULL;
+	assert(entity->refCount);
+	assert(yeType(entity) == YARRAY);
 
 	Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(entity)->values, tmp,
 				  it, ArrayEntry) {

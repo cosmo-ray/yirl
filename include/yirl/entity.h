@@ -247,8 +247,10 @@ int yeFreeEntitiesInStack(void);
 
 static inline EntityType yeType(const Entity * const entity)
 {
-	if (likely(entity != NULL))
+	if (likely(entity != NULL)) {
+		assert(entity->refCount);
 		return (EntityType)entity->type;
+	}
 	return (EntityType)BAD_TYPE;
 }
 

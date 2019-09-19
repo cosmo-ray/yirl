@@ -20,6 +20,7 @@
 /*      V     */
 
 #include <glib.h>
+#include <assert.h>
 #include <unistd.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
@@ -864,6 +865,8 @@ static int sdlCanvasRendImg(YWidgetState *state, SDLWid *wid, Entity *img,
 	Entity *p = ywCanvasObjPos(img);
 	SDL_Rect *sd = NULL;
 	SDL_Point *center = NULL;
+	assert(p);
+	assert(s);
 	SDL_Rect rd = { ywPosXDirect(p) - ywPosX(cam),
 			ywPosYDirect(p) - ywPosY(cam),
 			ywSizeWDirect(s), ywSizeHDirect(s) };

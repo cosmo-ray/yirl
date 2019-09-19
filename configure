@@ -8,6 +8,9 @@ for arg in $@; do
     if [ "--with-gamemod" = $arg ]; then
 	COMMON_CFLAGS+="-DGAMEMOD"
     fi
+    if [ "--debug" = $arg ]; then
+	COMMON_CFLAGS+="-DNDEBUG -g"
+    fi
 done
 
 add_toolchain mingw-i686
