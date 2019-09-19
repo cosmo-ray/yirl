@@ -361,8 +361,11 @@ Entity *yeGetByStrFast(Entity *entity, const char *name)
 
 Entity *yeGetByStrExt(Entity *entity, const char *name, int64_t *idx)
 {
-	if (!entity || !name || yeType(entity) != YARRAY)
+	if (unlikely(!entity || !name))
 		return NULL;
+
+	assert(entity->refCount);
+	assert(yeType(entity) == YARRAY);
 
 	Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(entity)->values, tmp,
 				  it, ArrayEntry) {
@@ -386,6 +389,8 @@ Entity *yeNGetByStr(Entity *entity, const char *name, int len)
 		DPRINT_INFO("can not find entity for %s\n", name);
 		return NULL;
 	}
+	assert(entity->refCount);
+	assert(yeType(entity) == YARRAY);
 
 	while (cur < len) {
 		int i;
@@ -411,6 +416,8 @@ Entity *yeGetByStr(Entity *entity, const char *name)
 		DPRINT_INFO("can not find entity for %s\n", name);
 		return NULL;
 	}
+	assert(entity->refCount);
+	assert(yeType(entity) == YARRAY);
 
 	i = findIdxPoint(name);
 	if (i == -1) {
@@ -447,8 +454,11 @@ static inline Entity *yeInitAt(Entity * restrict const entity,
 
 int yeArrayIdx_str(Entity *entity, const char *lookup)
 {
-	if (!entity || !lookup || yeType(entity) != YARRAY)
+	if (unlikely(!entity || !lookup))
 		return -1;
+
+	assert(entity->refCount);
+	assert(yeType(entity) == YARRAY);
 
 	Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(entity)->values, tmp,
 				  it, ArrayEntry) {
