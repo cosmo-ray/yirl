@@ -12,7 +12,11 @@ function getDialogue(box)
 end
 
 function getAnswers(box)
-   return yeGet(getDialogue(box), "answers")
+   local d = getDialogue(box)
+   if yeType(d) == YARRAY then
+      return yeGet(d, "answers")
+   end
+   return nil
 end
 
 function pushAnswers(box, answers)
@@ -28,12 +32,14 @@ function getAnswer(box, idx)
    local len = yeLen(answers)
    while i < len do
       local answer = yeGet(answers, i)
-      local hiden = yeGetInt(yeGet(answer, "hiden"))
-      if (hiden ~= 1) then
-	 if j == idx then
-	    return answer
+      if yeType(answer) == YARRAY then
+	 local hiden = yeGetInt(yeGet(answer, "hiden"))
+	 if (hiden ~= 1) then
+	    if j == idx then
+	       return answer
+	    end
+	    j = j + 1
 	 end
-	 j = j + 1
       end
       i = i + 1
    end
@@ -95,6 +101,10 @@ local function getText(dialogue, gc)
 end
 
 function reloadTextAndAnswerDialogue(canvas, x, y, dialogue, ret)
+   if (yIsNil(canvas)) then
+      return
+   end
+
    local gc = yeCreateArray()
    local b0 = yeCreateArray(gc)
    x = yLovePtrToNumber(x)

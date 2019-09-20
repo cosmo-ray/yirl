@@ -198,7 +198,8 @@ static void refreshAnswer(Entity *wid, Entity *menu, Entity *curent)
 	Entity *answers = drv->getAnswers(menu);
 
 	YE_ARRAY_FOREACH(answers, answer) {
-		Entity *condition = yeGet(answer, "condition");
+		Entity *condition = yeType(answer) == YARRAY ?
+			yeGet(answer, "condition") : NULL;
 
 		if (condition) {
 			yeReCreateInt(!dialogueCondition(menu, condition, answer),
@@ -211,27 +212,29 @@ static void refreshAnswer(Entity *wid, Entity *menu, Entity *curent)
 
 static Entity *getText(Entity *box, Entity *e)
 {
-  if (yeType(e) == YSTRING || (yeType(e) == YARRAY && !yeGetKeyAt(e, 0))) {
-    return e;
-  }
-  Entity *txt = yeGet(e, "text");
+	if (yeType(e) == YSTRING ||
+	    (yeType(e) == YARRAY && !yeGetKeyAt(e, 0))) {
+		return e;
+	}
+	Entity *txt = yeGet(e, "text");
 
-  if (yeType(txt) == YSTRING || yeType(txt) == YARRAY)
-    return txt;
-  if (!txt) {
-    Entity *condition;
-    Entity *txts = yeGet(e, "texts");
+	if (yeType(txt) == YSTRING || yeType(txt) == YARRAY)
+		return txt;
+	if (!txt) {
+		Entity *condition;
+		Entity *txts = yeGet(e, "texts");
 
-    YE_ARRAY_FOREACH(txts, cur_txt) {
-      condition = yeGet(cur_txt, "condition");
+		YE_ARRAY_FOREACH(txts, cur_txt) {
+			condition =  yeType(cur_txt) == YARRAY ?
+				yeGet(cur_txt, "condition") : NULL;
 
-      if (condition && !dialogueCondition(box, condition, NULL))
-	continue;
-      ywidActions(box, cur_txt, NULL);
-      return yeGet(cur_txt, "text");
-    }
-  }
-  return NULL;
+			if (condition && !dialogueCondition(box, condition, NULL))
+				continue;
+			ywidActions(box, cur_txt, NULL);
+			return yeGet(cur_txt, "text");
+		}
+	}
+	return NULL;
 }
 
 static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
@@ -299,7 +302,11 @@ static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
 	yeReCreateInt(1, menu, "isDialogue");
 
 	YE_ARRAY_FOREACH(answers, answer) {
-		Entity *condition = yeGet(answer, "condition");
+		Entity *condition = NULL;
+		int ar_t = yeType(answer);
+
+		if (ar_t == YARRAY)
+			condition = yeGet(answer, "condition");
 
 		if (condition) {
 			yeReCreateInt(!dialogueCondition(menu, condition, answer),
@@ -491,7 +498,8 @@ void *dialogueGotoNext(int nbArgs, void **args)
     yeAddInt(active_dialogue, 1);
     Entity *cur_dialogue = yeGet(yeGet(main, "dialogue"),
 				 yeGetInt(active_dialogue));
-    condition = yeGet(cur_dialogue, "condition");
+    condition = yeType(cur_dialogue) == YARRAY ?
+	    yeGet(cur_dialogue, "condition") : NULL;
     if (condition)
 	    pass = dialogueCondition(box, condition, NULL);
     else
@@ -567,7 +575,9 @@ Entity *defaultActiveDialogue(Entity *main)
 
  again:
   cur_dialogue = yeGet(yeGet(main, "dialogue"), i);
-  condition = yeGet(cur_dialogue, "condition");
+  condition = yeType(cur_dialogue) == YARRAY ?
+	  yeGet(cur_dialogue, "condition") :
+	  NULL;
   if (condition && !yeCheckCondition(condition)) {
     ++i;
     goto again;
@@ -609,8 +619,8 @@ void *dialogueInit(int nbArgs, void **args)
 
 void *dialogueDestroy(int nbArgs, void **args)
 {
-  yeRemoveChild(yeGet(args[0], "box"), args[0]);
-  yeRemoveChild(yeGet(args[0], "name-box"), args[0]);
+	yeRemoveChild(yeGet(args[0], "box"), args[0]);
+	yeRemoveChild(yeGet(args[0], "name-box"), args[0]);
 }
 
 void *dialogueCanvasInit(int nbArgs, void **args)

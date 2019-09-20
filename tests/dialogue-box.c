@@ -92,7 +92,6 @@ void testDialogueBox(void)
   g_assert(wid);
   ywidSetMainWid(wid);
   ygDoLoop();
-  yeDestroy(canvas);
   ygCleanGameConfig(&cfg);
   ygEnd();
 }

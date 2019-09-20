@@ -43,7 +43,6 @@ static void testDialogueMod_(int isCanvas)
   ywidSetMainWid(wid);
   ygDoLoop();
   ygCleanGameConfig(&cfg);
-  yeDestroy(dialogue_example);
   ygEnd();
 }
 
