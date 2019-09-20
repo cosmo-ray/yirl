@@ -118,15 +118,15 @@ void *ygGetTccManager(void)
 
 void ygTerminate(void)
 {
-  ysdl2WindowMode();
-  alive = 0;
+	ysdl2WindowMode();
+	alive = 0;
 }
 
 static void *ygTerminateCallback(va_list va)
 {
-  (void)va;
-  ygTerminate();
-  return (void *)ACTION;
+	(void)va;
+	ygTerminate();
+	return (void *)ACTION;
 }
 
 static void *quitOnKeyDown(va_list ap)
