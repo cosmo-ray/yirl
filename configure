@@ -1,6 +1,10 @@
 #!/bin/bash
 
 LINEHELPER[0]="--with-gamemod		add fersal gamemod support"
+LINEHELPER[1]="--debug			add -g, maybe more latter"
+LINEHELPER[2]="--ndebug			no debug mode, for realease"
+LINEHELPER[3]="--hell-march		optimise for native architecturet"
+LINEHELPER[4]="--asan			compile with adress sanitazer"
 
 source configure-helper.sh
 
@@ -9,7 +13,16 @@ for arg in $@; do
 	COMMON_CFLAGS+="-DGAMEMOD"
     fi
     if [ "--debug" = $arg ]; then
-	COMMON_CFLAGS+="-DNDEBUG -g"
+	COMMON_CFLAGS+="-g"
+    fi
+    if [ "--asan" = $arg ]; then
+	SANITAZERS=1
+    fi
+    if [ "--ndebug" = $arg ]; then
+ 	COMMON_CFLAGS+="-DNDEBUG -03"
+    fi
+    if [ "--hell-march" = $arg ]; then
+ 	COMMON_CFLAGS+="-march-native"
     fi
 done
 
