@@ -143,11 +143,12 @@ void *list_pop(int nbArg, void **args)
   }
 
   yeReplace(prev, elem, next);
-  yeReplace(next, elem, prev);
-  if (ylist_head(elem) == elem) {
+  if (ylist_head(next) == elem) {
     setNewHead(elem, next);
+    yeReplace(next, elem, prev);
     return next;
   }
+  yeReplace(next, elem, prev);
   return ylist_head(next);
 }
 
