@@ -23,9 +23,8 @@ void testsLpcSpritesheet(void)
 {
   yeInitMem();
   GameConfig cfg;
-  Entity *gc = yeCreateArray(NULL, NULL);
-  Entity *canvas = yeCreateArray(gc, NULL);
-  Entity *caracter = yeCreateArray(gc, NULL);
+  Entity *canvas = yeCreateArray(NULL, NULL);
+  Entity *caracter = yeCreateArray(NULL, NULL);
   Entity *clothes;
   Entity *texture = NULL;
   Entity *obj;
@@ -81,7 +80,6 @@ void testsLpcSpritesheet(void)
   ygDoLoop();
 
  exit:
-  yeDestroy(gc);
   yeDestroy(texture);
   ygCleanGameConfig(&cfg);
   ygEnd();

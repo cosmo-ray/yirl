@@ -78,7 +78,6 @@ void testsTiled(void)
   ywPosCreateInts(0, 50, canvas, "cam");
   ywidSetMainWid(wid);
   ygDoLoop();
-  yeDestroy(canvas);
 
   ygCleanGameConfig(&cfg);
   yesCall(ygGet("tiled.deinit"));

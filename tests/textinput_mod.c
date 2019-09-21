@@ -39,7 +39,6 @@ void testTextInputMod(void)
   ywidSetMainWid(wid);
   ygDoLoop();
   yeDestroy(mod);
-  yeDestroy(ti_example);
   ygCleanGameConfig(&cfg);
   ygEnd();
 }
