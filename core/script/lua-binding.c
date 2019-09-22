@@ -311,7 +311,7 @@ int	luaentity_tostring(lua_State *L)
     lua_pushstring(L, yeGetString(ew->e));
     return 1;
   }
-  char *str = yeToCStr(ew->e, 10, 0);
+  char *str = yeToCStr(ew->e, 10, YE_FORMAT_PRETTY);
   lua_pushstring(L, str);
   free(str);
   return 1;

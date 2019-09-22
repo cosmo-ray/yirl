@@ -1340,6 +1340,15 @@ Entity	*yeCopy(Entity* src, Entity* dest)
 	return ret;
 }
 
+static void append_pretty(GString *str, int deep, int origDeep, int flag)
+{
+	if (!(flag & YE_FORMAT_PRETTY))
+		return;
+	g_string_append(str, "\n");
+	for (int i = 0; i < origDeep - deep; ++i)
+		g_string_append_c(str, '\t');
+}
+
 
 static void yeToCStrInternal(Entity *entity, int deep, GString *str,
 			     int flag, int origDeep)
@@ -1373,17 +1382,23 @@ static void yeToCStrInternal(Entity *entity, int deep, GString *str,
 					  tmp, it, ArrayEntry) {
 			if (!(flag & YE_FORMAT_OPT_PRINT_ONLY_VAL_ARRAY)) {
 				if (it) {
-					g_string_append(str, " | ");
+					if (flag & YE_FORMAT_PRETTY) {
+						append_pretty(str, deep,
+							      origDeep, flag);
+					} else {
+						g_string_append(str, " | ");
+					}
 				}
 				if (tmp->name) {
 					g_string_append_printf(str,
-							       "name: \"%s\", ",
+							       "\"%s\"",
 							       tmp->name);
 				}
-				g_string_append_printf(str, "idx: " PRIint64
-						       ", ", it);
-				g_string_append_printf(str, "val: ");
+				g_string_append_printf(str, "[" PRIint64
+						       "] : ", it);
 			}
+			if (yeType(tmp->entity) == YARRAY)
+				append_pretty(str, deep - 1, origDeep, flag);
 			yeToCStrInternal(tmp->entity, deep - 1, str,
 					 flag, origDeep);
 		}
@@ -1404,6 +1419,8 @@ char *yeToCStr(Entity *entity, int deep, int flag)
 {
 	GString *str = g_string_new(NULL);
 
+	if (flag & YE_FORMAT_PRETTY)
+		g_string_append_c(str, '\n');
 	yeToCStrInternal(entity, deep, str, flag, deep);
 	return g_string_free(str, 0);
 }

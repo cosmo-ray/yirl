@@ -64,6 +64,7 @@ typedef enum
 
 #define YE_FORMAT_OPT_BREAK_ARRAY_END 1
 #define YE_FORMAT_OPT_PRINT_ONLY_VAL_ARRAY 2
+#define YE_FORMAT_PRETTY 4
 
 #define	YE_TO_ENTITY(X) ((Entity *)X)
 #define	YE_TO_C_ENTITY(X) ((const Entity *)X)
