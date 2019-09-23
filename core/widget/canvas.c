@@ -255,19 +255,20 @@ Entity *ywCanvasNewCollisionsArrayWithRectangle_(Entity *wid, Entity *objRect,
 	return ret;
 }
 
-  Entity *ywCanvasNewCollisionsArrayExt(Entity *wid, Entity *obj,
-					Entity *colisionFunc,
-					Entity *colisionFuncArg)
-  {
-    Entity *objRect = ywRectCreatePosSize(ywCanvasObjPos(obj),
-					  ywCanvasObjSize(wid, obj), NULL, NULL);
-
-    Entity *ret = ywCanvasNewCollisionsArrayWithRectangle_(wid, objRect, obj,
-							   colisionFunc,
-							   colisionFuncArg);
-    yeDestroy(objRect);
-    return ret;
-  }
+Entity *ywCanvasNewCollisionsArrayExt(Entity *wid, Entity *obj,
+				      Entity *colisionFunc,
+				      Entity *colisionFuncArg)
+{
+	Entity *objRect = ywRectCreatePosSize(ywCanvasObjPos(obj),
+					      ywCanvasObjSize(wid, obj),
+					      NULL, NULL);
+	Entity *ret =
+		ywCanvasNewCollisionsArrayWithRectangle_(wid, objRect, obj,
+							 colisionFunc,
+							 colisionFuncArg);
+	yeDestroy(objRect);
+	return ret;
+}
 
 Entity *ywCanvasNewCollisionsArrayWithRectangle(Entity *wid,
 						Entity *objRect)
