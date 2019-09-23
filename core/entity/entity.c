@@ -1399,8 +1399,12 @@ static void yeToCStrInternal(Entity *entity, int deep, GString *str,
 			}
 			if (yeType(tmp->entity) == YARRAY)
 				append_pretty(str, deep - 1, origDeep, flag);
-			yeToCStrInternal(tmp->entity, deep - 1, str,
-					 flag, origDeep);
+			if (!(deep - 1)) {
+				g_string_append(str, "...");
+			} else {
+				yeToCStrInternal(tmp->entity, deep - 1, str,
+						 flag, origDeep);
+			}
 		}
 
 		g_string_append_c(str, ']');
