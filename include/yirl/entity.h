@@ -1108,7 +1108,7 @@ static inline Entity *yeFindString(Entity *array, const char *str)
  * Convert an Entity to a C String (char *)
  * @param	entity The entity
  * @param	deep If @entity is an array, how deep we should print it
- * @param	flag Aditional falgs
+ * @param	flag Aditional falgs (YE_FORMAT_PRETTY for pretty format)
  * @return	the newly allocated string, need to be free
  */
 char *yeToCStr(Entity *entity, int deep, int flag);

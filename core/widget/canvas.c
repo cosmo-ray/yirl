@@ -229,31 +229,31 @@ int ywCanvasSwapObj(Entity *wid, Entity *obj0, Entity *obj1)
 	return yeSwapElems(yeGet(wid, "objs"), obj0, obj1);
 }
 
-  Entity *ywCanvasNewCollisionsArrayWithRectangle_(Entity *wid, Entity *objRect,
-						   Entity *obj,
-						   Entity *colisionFunc,
-						   Entity *colisionFuncArg)
-  {
-    Entity *ret = yeCreateArray(NULL, NULL);
-    Entity *objs = yeGet(wid, "objs");
+Entity *ywCanvasNewCollisionsArrayWithRectangle_(Entity *wid, Entity *objRect,
+						 Entity *obj,
+						 Entity *colisionFunc,
+						 Entity *colisionFuncArg)
+{
+	Entity *ret = yeCreateArray(NULL, NULL);
+	Entity *objs = yeGet(wid, "objs");
 
-    YE_ARRAY_FOREACH(objs, tmpObj) {
-      if (obj == tmpObj)
-	continue;
+	YE_ARRAY_FOREACH(objs, tmp) {
+		if (unlikely(obj == tmp))
+			continue;
 
-      if (ywRectCollisionWithPos(objRect, ywCanvasObjPos(tmpObj),
-				 ywCanvasObjSize(wid, tmpObj)) &&
-	  (!colisionFunc || yesCall(colisionFunc, wid,
-				    tmpObj, obj, colisionFuncArg))) {
-	yePushBack(ret, tmpObj, NULL);
-      }
-    }
-    if (!yeLen(ret)) {
-      yeDestroy(ret);
-      ret = NULL;
-    }
-    return ret;
-  }
+		if (ywRectCollisionWithPos(objRect, ywCanvasObjPos(tmp),
+					   ywCanvasObjSize(wid, tmp)) &&
+		    (!colisionFunc || yesCall(colisionFunc, wid,
+					      tmp, obj, colisionFuncArg))) {
+			yePushBack(ret, tmp, NULL);
+		}
+	}
+	if (!yeLen(ret)) {
+		yeDestroy(ret);
+		ret = NULL;
+	}
+	return ret;
+}
 
   Entity *ywCanvasNewCollisionsArrayExt(Entity *wid, Entity *obj,
 					Entity *colisionFunc,
