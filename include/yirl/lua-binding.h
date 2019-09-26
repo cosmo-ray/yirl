@@ -121,6 +121,15 @@
 		return 0;					\
 	}
 
+#define BIND_I_ECI(f, u0, u1)						\
+	static inline int lua##f(lua_State *L)				\
+	{								\
+		lua_pushnumber(L, f(luaEntityAt(L, 1),			\
+				    lua_tostring(L, 2)[0],		\
+				    lua_tointeger(L, 3)));		\
+		return 1;						\
+	}
+
 #define LUA_IMPLEMENT_E_E(func)						\
 	static inline int lua##func(lua_State *L)			\
 	{								\
@@ -221,6 +230,7 @@ int	luaYeSwapElems(lua_State *L);
 int	luayeRenameIdxStr(lua_State *L);
 int	luayeGetPush(lua_State *L);
 LUA_IMPLEMENT_B_EE(yeDoesInclude);
+LUA_IMPLEMENT_E_ES(yeTryCreateArray);
 
 /* Entity */
 int	luaCopy(lua_State *L);
@@ -248,6 +258,7 @@ int	luayeStrCaseCmp(lua_State *L);
 int	luayeToLower(lua_State *L);
 LUA_IMPLEMENT_E_ES(yeStringAddNl);
 LUA_IMPLEMENT_E_ES(yeStringAdd);
+BIND_I_ECI(yeCountCharacters, bla, bla);
 
 /* int */
 int	luaGetInt(lua_State *L);
@@ -313,6 +324,7 @@ int	luaywPosY(lua_State *L);
 int	luaywPosAngle(lua_State *L);
 int	luaywPosMoveToward2(lua_State *L);
 LUA_IMPLEMENT_I_EE(ywPosDistance);
+LUA_IMPLEMENT_E_EE(ywPosSub);
 
 /* map */
 int	luaYwMapPosFromInt(lua_State *L);
@@ -628,6 +640,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, yeRenameIdxStr);
   YES_LUA_REGISTRE_CALL(sm, yeGetPush);
   YES_LUA_REGISTRE_CALL(sm, yeDoesInclude);
+  YES_LUA_REGISTRE_CALL(sm, yeTryCreateArray);
 
   /* Entity */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeCopy", luaCopy));
@@ -658,7 +671,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, yeToLower);
   YES_LUA_REGISTRE_CALL(sm, yeStringAddNl);
   YES_LUA_REGISTRE_CALL(sm, yeStringAdd);
-
+  YES_LUA_REGISTRE_CALL(sm, yeCountCharacters);
 
   /* int */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeGetInt", luaGetInt));
@@ -760,6 +773,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, ywPosAngle);
   YES_LUA_REGISTRE_CALL(sm, ywPosMoveToward2);
   YES_LUA_REGISTRE_CALL(sm, ywPosDistance);
+  YES_LUA_REGISTRE_CALL(sm, ywPosSub);
 
   /* Size, they're pos with diferent names */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywSizeW", luaywPosX));
