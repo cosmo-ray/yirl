@@ -1260,6 +1260,9 @@ int	luaRemoveChild(lua_State *L)
   if (lua_isstring(L, 2)) {
 	  lua_pushlightuserdata(L, yeRemoveChildByStr(luaEntityAt(L, 1),
 						      lua_tostring(L, 2)));
+  } else if (lua_isnumber(L, 2)) {
+	  lua_pushlightuserdata(L, yeRemoveChildByIdx(luaEntityAt(L, 1),
+						      lua_tonumber(L, 2)));
   } else {
 	  lua_pushlightuserdata(L, yeRemoveChild(luaEntityAt(L, 1),
 						 luaEntityAt(L, 2)));

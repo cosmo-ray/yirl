@@ -265,6 +265,7 @@ int	luaGetInt(lua_State *L);
 int	luaSetInt(lua_State *L);
 int	luaCreateInt(lua_State *L);
 int	luayeGetIntAt(lua_State *L);
+LUA_IMPLEMENT_I_EI(yeIncrAt);
 
 /* float */
 int	luaGetFloat(lua_State *L);
@@ -678,6 +679,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeSetInt", luaSetInt));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeCreateInt", luaCreateInt));
   YES_LUA_REGISTRE_CALL(sm, yeGetIntAt);
+  YES_LUA_REGISTRE_CALL(sm, yeIncrAt);
 
   /* float */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeGetFloat", luaGetFloat));

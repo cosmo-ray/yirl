@@ -628,10 +628,8 @@ static inline Entity *yeCreateArrayByEntity(Entity *fathers, Entity *name)
 static inline Entity *yeTryCreateArray(Entity *father, const char *name)
 {
 	Entity *ret = yeGet(father, name);
-	if (!ret) {
-		yeCreateArrayByCStr(father, name);
-	}
-	return ret;
+
+	return ret ? ret : yeCreateArrayByCStr(father, name);
 }
 
 Entity *yeCreateArrayAt(Entity *fathers, const char *name, int idx);
