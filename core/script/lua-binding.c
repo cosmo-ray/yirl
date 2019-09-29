@@ -506,18 +506,6 @@ int	luayeGetPush(lua_State *L)
   return 1;
 }
 
-int	luaLen(lua_State *L)
-{
-  DPRINT_INFO("luaGetArrayMenber\n");
-  if (lua_gettop(L) != 1)
-    {
-      luaL_error(L, "argument are incorrect\n");
-      return -1;
-    }
-  lua_pushnumber(L, yeLen(luaEntityAt(L, 1)));
-  return 1;
-}
-
 int	luayeRefCount(lua_State *L)
 {
   lua_pushnumber(L, yeRefCount(luaEntityAt(L, 1)));
@@ -921,13 +909,6 @@ int	luaNewWidget(lua_State *L)
 	return 1;
 }
 
-int	luaCreateArray(lua_State *L)
-{
-	lua_pushlightuserdata(L, yeCreateArray(luaEntityAt(L, 1),
-					       lua_tostring(L, 2)));
-	return 1;
-}
-
 int	luaCreateString(lua_State *L)
 {
 	Entity *ret = yeCreateString(lua_tostring(L, 1),
@@ -1133,12 +1114,6 @@ int	luaywidEveMousePos(lua_State *L)
 int	luaEveKey(lua_State *L)
 {
 	lua_pushnumber(L, ywidEveKey(luaEntityAt(L, 1)));
-	return 1;
-}
-
-int	luaPopBack(lua_State *L)
-{
-	lua_pushlightuserdata(L, yePopBack(luaEntityAt(L, 1)));
 	return 1;
 }
 
@@ -1399,12 +1374,6 @@ int	luaYwPushNewWidget(lua_State *L)
 	lua_pushnumber(L, ywPushNewWidget(luaEntityAt(L, 1),
 					  luaEntityAt(L, 2),
 					  lua_tonumber(L, 3)));
-	return 1;
-}
-
-int	luaYuiAbs(lua_State *L)
-{
-	lua_pushnumber(L, yuiAbs(lua_tonumber(L, 1)));
 	return 1;
 }
 
@@ -1670,19 +1639,6 @@ int	luaYwMapPushNbr(lua_State *L)
 					luaEntityAt(L, 3),
 					lua_tostring(L, 4)));
   return 1;
-}
-
-int	luaRand(lua_State *L)
-{
-  lua_pushnumber(L, yuiRand());
-  return 1;
-}
-
-int	luaRandInit(lua_State *L)
-{
-  (void)L;
-  yuiRandInit();
-  return 0;
 }
 
 int	luaGetMod(lua_State *L)

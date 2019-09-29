@@ -115,11 +115,14 @@
 	}
 
 #define BIND_V_E(f, u0, u1)					\
-	static inline int lua##f(lua_State *L)			\
-	{							\
+	static inline int lua##f(lua_State *L) {		\
 		f(luaEntityAt(L, 1));				\
 		return 0;					\
 	}
+
+#define BIND_V_V(f)						\
+	static inline int lua##f(lua_State *L)			\
+	{ f(); return 0; }
 
 #define BIND_I_ECI(f, u0, u1)						\
 	static inline int lua##f(lua_State *L)				\
@@ -197,6 +200,7 @@ int	luaYAnd(lua_State *L);
 int	luayOr(lua_State *L);
 int     luaStringToPtr(lua_State *l);
 int     luaToPtr(lua_State *l);
+
 /**
  * check nil the way C check NULL, which is the only sain way to do it
  */
@@ -204,18 +208,18 @@ int	luayIsNil(lua_State *l);
 int	luayIsNNil(lua_State *l);
 
 /* util */
-int	luaRand(lua_State *L);
-int	luaRandInit(lua_State *L);
-int	luaYuiAbs(lua_State *L);
+LUA_IMPLEMENT_I_V(yuiRand);
+BIND_V_V(yuiRandInit);
+LUA_IMPLEMENT_I_I(yuiAbs);
 int	luayuiMkdir(lua_State *L);
 int	luayuiUsleep(lua_State *L);
 LUA_IMPLEMENT_I_S(yuiFileExist);
 
 /* Array */
 int	luaGet(lua_State *L);
-int	luaLen(lua_State *L);
-int	luaCreateArray(lua_State *L);
-int	luaPopBack(lua_State *L);
+LUA_IMPLEMENT_I_E(yeLen);
+LUA_IMPLEMENT_E_ES(yeCreateArray);
+LUA_IMPLEMENT_E_E(yePopBack);
 int	luaPushBack(lua_State *L);
 int	luayePushAt(lua_State *L);
 int	luayeInsertAt(lua_State *L);
@@ -607,9 +611,9 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, yIsNNil);
 
   /* utils */
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yuiRand", luaRand));
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yuiRandInit", luaRandInit));
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yuiAbs", luaYuiAbs));
+  YES_LUA_REGISTRE_CALL(sm, yuiRand);
+  YES_LUA_REGISTRE_CALL(sm, yuiRandInit);
+  YES_LUA_REGISTRE_CALL(sm, yuiAbs);
   YES_LUA_REGISTRE_CALL(sm, yuiMkdir);
   YES_LUA_REGISTRE_CALL(sm, yuiUsleep);
   YES_LUA_REGISTRE_CALL(sm, yuiFileExist);
@@ -626,10 +630,10 @@ static inline int	yesLuaRegister(void *sm)
   /*array*/
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeGet", luaGet));
   YES_LUA_REGISTRE_CALL(sm, yeGetKeyAt);
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeLen", luaLen));
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeCreateArray", luaCreateArray));
+  YES_LUA_REGISTRE_CALL(sm, yeLen);
+  YES_LUA_REGISTRE_CALL(sm, yeCreateArray);
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yePushBack", luaPushBack));
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yePopBack", luaPopBack));
+  YES_LUA_REGISTRE_CALL(sm, yePopBack);
   YES_LUA_REGISTRE_CALL(sm, yePushAt);
   YES_LUA_REGISTRE_CALL(sm, yeInsertAt);
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeRemoveChild", luaRemoveChild));
