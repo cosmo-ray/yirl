@@ -1136,18 +1136,6 @@ int	luayeInsertAt(lua_State *L)
 	return 0;
 }
 
-int	luaPushBack(lua_State *L)
-{
-	if (lua_isstring(L, 3)) {
-		yePushBack(luaEntityAt(L, 1), luaEntityAt(L, 2),
-			   lua_tostring(L, 3));
-	} else {
-		yePushBack(luaEntityAt(L, 1), luaEntityAt(L, 2),
-			   NULL);
-	}
-	return 0;
-}
-
 int	luaSetString(lua_State *L)
 {
 	yeSetString(luaEntityAt(L, 1), lua_tostring(L, 2));

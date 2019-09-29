@@ -141,11 +141,12 @@
 		return 1;						\
 	}
 
-#define LUA_IMPLEMENT_E_EE(func)					\
-	static inline int lua##func(lua_State *L)			\
+#define BIND_I_EES(f, u0, u1)						\
+	static inline int lua##f(lua_State *L)				\
 	{								\
-		Entity *ret = func(luaEntityAt(L, 1), luaEntityAt(L, 2)); \
-		if (ret) lua_pushlightuserdata(L, ret); else lua_pushnil(L); \
+		int ret = f(luaEntityAt(L, 1), luaEntityAt(L, 2),	\
+			    lua_tostring(L, 3));			\
+		lua_pushnumber(L, ret);					\
 		return 1;						\
 	}
 
@@ -162,6 +163,14 @@
 	{								\
 		Entity *ret = func(luaEntityAt(L, 1), luaEntityAt(L, 2), \
 				   luaEntityAt(L, 3));			\
+		if (ret) lua_pushlightuserdata(L, ret); else lua_pushnil(L); \
+		return 1;						\
+	}
+
+#define BIND_E_EE(func, ...)						\
+	static inline int lua##func(lua_State *L)			\
+	{								\
+		Entity *ret = func(luaEntityAt(L, 1), luaEntityAt(L, 2)); \
 		if (ret) lua_pushlightuserdata(L, ret); else lua_pushnil(L); \
 		return 1;						\
 	}
@@ -220,7 +229,7 @@ int	luaGet(lua_State *L);
 LUA_IMPLEMENT_I_E(yeLen);
 LUA_IMPLEMENT_E_ES(yeCreateArray);
 LUA_IMPLEMENT_E_E(yePopBack);
-int	luaPushBack(lua_State *L);
+BIND_I_EES(yePushBack, a, b);
 int	luayePushAt(lua_State *L);
 int	luayeInsertAt(lua_State *L);
 int	luayeGetKeyAt(lua_State *L);
@@ -329,7 +338,7 @@ int	luaywPosY(lua_State *L);
 int	luaywPosAngle(lua_State *L);
 int	luaywPosMoveToward2(lua_State *L);
 LUA_IMPLEMENT_I_EE(ywPosDistance);
-LUA_IMPLEMENT_E_EE(ywPosSub);
+BIND_E_EE(ywPosSub);
 
 /* map */
 int	luaYwMapPosFromInt(lua_State *L);
@@ -632,7 +641,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, yeGetKeyAt);
   YES_LUA_REGISTRE_CALL(sm, yeLen);
   YES_LUA_REGISTRE_CALL(sm, yeCreateArray);
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yePushBack", luaPushBack));
+  YES_LUA_REGISTRE_CALL(sm, yePushBack);
   YES_LUA_REGISTRE_CALL(sm, yePopBack);
   YES_LUA_REGISTRE_CALL(sm, yePushAt);
   YES_LUA_REGISTRE_CALL(sm, yeInsertAt);
