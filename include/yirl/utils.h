@@ -35,6 +35,7 @@ typedef unsigned long long uint64_t;
 #else
 #include <assert.h>
 #include <stdint.h>
+#include <unistd.h>
 #endif
 
 #ifndef __INT64_C
@@ -366,5 +367,7 @@ static inline int yuiPercentOf(int value, int percent)
       YUI_SWAP_VALUE(tmp_a, tmp_b);				\
       a = (ptr_type)tmp_a; b = (ptr_type)tmp_b;			\
     })
+
+#define yuiUsleep usleep
 
 #endif

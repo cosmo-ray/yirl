@@ -73,6 +73,29 @@
 		return 1;						\
 	}
 
+#define BIND_V_S(f, ...)						\
+	static inline int lua##f(lua_State *L)				\
+	{ f(lua_tostring(L, 1)); return 0; }
+
+#define BIND_V_I(f, ...)						\
+	static inline int lua##f(lua_State *L)				\
+	{ f(luaNumberAt(L, 1)); return 0; }
+
+
+#define BIND_V_EEI(f, ...)						\
+	static inline int lua##f(lua_State *L)				\
+	{ f(luaEntityAt(L, 1), luaEntityAt(L, 2),			\
+	    luaNumberAt(L, 3)); return 0; }
+
+#define BIND_S_EI(f, ...)						\
+	static inline int lua##f(lua_State *L)				\
+	{								\
+		lua_pushstring(L, f(luaEntityAt(L, 1),			\
+				    luaNumberAt(L, 2)));		\
+		return 1;						\
+	}
+
+
 #define LUA_IMPLEMENT_I_ES(func)					\
 	static inline int lua##func(lua_State *L)			\
 	{								\
@@ -150,6 +173,15 @@
 		return 1;						\
 	}
 
+#define BIND_V_EENS(f, ...)						\
+	static inline int lua##f(lua_State *L)				\
+	{								\
+		int ret = f(luaEntityAt(L, 1), luaEntityAt(L, 2),	\
+			    luaNumberAt(L, 3), lua_tostring(L, 4));	\
+		lua_pushnumber(L, ret);					\
+		return 1;						\
+	}
+
 #define LUA_IMPLEMENT_E_ES(func)					\
 	static inline int lua##func(lua_State *L)			\
 	{								\
@@ -174,6 +206,9 @@
 		if (ret) lua_pushlightuserdata(L, ret); else lua_pushnil(L); \
 		return 1;						\
 	}
+
+/* Lua Utils */
+double luaNumberAt(lua_State *L, int i);
 
 /* Entity objets */
 int	luaentity_tocentity(lua_State *L);
@@ -220,8 +255,8 @@ int	luayIsNNil(lua_State *l);
 LUA_IMPLEMENT_I_V(yuiRand);
 BIND_V_V(yuiRandInit);
 LUA_IMPLEMENT_I_I(yuiAbs);
-int	luayuiMkdir(lua_State *L);
-int	luayuiUsleep(lua_State *L);
+BIND_V_S(yuiMkdir);
+BIND_V_I(yuiUsleep);
 LUA_IMPLEMENT_I_S(yuiFileExist);
 
 /* Array */
@@ -230,9 +265,9 @@ LUA_IMPLEMENT_I_E(yeLen);
 LUA_IMPLEMENT_E_ES(yeCreateArray);
 LUA_IMPLEMENT_E_E(yePopBack);
 BIND_I_EES(yePushBack, a, b);
-int	luayePushAt(lua_State *L);
-int	luayeInsertAt(lua_State *L);
-int	luayeGetKeyAt(lua_State *L);
+BIND_V_EEI(yePushAt);
+BIND_V_EENS(yeInsertAt);
+BIND_S_EI(yeGetKeyAt);
 int	luaRemoveChild(lua_State *L);
 int	luaDestroy(lua_State *L);
 int	luaSetAt(lua_State *L);

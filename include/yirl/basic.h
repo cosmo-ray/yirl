@@ -60,6 +60,11 @@ int strcmp(const char *s1, const char *s2);
 int strncmp(const char *s1, const char *s2, size_t n);
 int fflush(FILE *stream);
 
+/* seems from greping in /usr/include that it should be u32 */
+typedef unsigned int useconds_t;
+
+int usleep(useconds_t usec);
+
 void abort(void);
 
 #ifdef NDEBUG

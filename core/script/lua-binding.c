@@ -77,7 +77,7 @@ static struct entityWrapper *createEntityWrapper(lua_State *L, int fatherPos,
   return ew;
 }
 
-static double luaNumberAt(lua_State *L, int i)
+double luaNumberAt(lua_State *L, int i)
 {
   if (lua_islightuserdata(L, i)) {
     void  *udata = lua_touserdata(L, i);
@@ -1117,25 +1117,6 @@ int	luaEveKey(lua_State *L)
 	return 1;
 }
 
-int	luayeGetKeyAt(lua_State *L)
-{
-  lua_pushstring(L, yeGetKeyAt(luaEntityAt(L, 1), lua_tointeger(L, 2)));
-  return 1;
-}
-
-int	luayePushAt(lua_State *L)
-{
-  yePushAt(luaEntityAt(L, 1), luaEntityAt(L, 2), lua_tonumber(L, 3));
-  return 0;
-}
-
-int	luayeInsertAt(lua_State *L)
-{
-	yeInsertAt(luaEntityAt(L, 1), luaEntityAt(L, 2),
-		   lua_tonumber(L, 3), lua_tostring(L, 4));
-	return 0;
-}
-
 int	luaSetString(lua_State *L)
 {
 	yeSetString(luaEntityAt(L, 1), lua_tostring(L, 2));
@@ -1363,18 +1344,6 @@ int	luaYwPushNewWidget(lua_State *L)
 					  luaEntityAt(L, 2),
 					  lua_tonumber(L, 3)));
 	return 1;
-}
-
-int	luayuiMkdir(lua_State *L)
-{
-	yuiMkdir(lua_tostring(L, 1));
-	return 0;
-}
-
-int	luayuiUsleep(lua_State *L)
-{
-	usleep(luaNumberAt(L, 1));
-	return 0;
 }
 
 int	luaywPosAngle(lua_State *L)
