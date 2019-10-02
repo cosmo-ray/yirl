@@ -1611,29 +1611,31 @@ int	luaGetMod(lua_State *L)
 int	luaGCall(lua_State *L)
 {
 
-  switch (lua_gettop(L)) {
-  case 2:
-    lua_pushlightuserdata(L, ygCall(lua_tostring(L, 1), lua_tostring(L, 2)));
-    return 1;
-  case 3:
-    LUA_YG_CALL(luaEntityAt(L, 3));
-    return 1;
-  case 4:
-    LUA_YG_CALL(luaEntityAt(L, 3), luaEntityAt(L, 4));
-    return 1;
-  case 5:
-    LUA_YG_CALL(luaEntityAt(L, 3),
-		luaEntityAt(L, 4), luaEntityAt(L, 5));
-    return 1;
-  case 6:
-    LUA_YG_CALL(luaEntityAt(L, 3), luaEntityAt(L, 4),
-		luaEntityAt(L, 5), luaEntityAt(L, 6));
-    return 1;
-  default:
-    return -1;
-  }
+	switch (lua_gettop(L)) {
+	case 2:
+		lua_pushlightuserdata(L,
+				      ygCall(lua_tostring(L, 1),
+					     lua_tostring(L, 2)));
+		return 1;
+	case 3:
+		LUA_YG_CALL(luaEntityAt(L, 3));
+		return 1;
+	case 4:
+		LUA_YG_CALL(luaEntityAt(L, 3), luaEntityAt(L, 4));
+		return 1;
+	case 5:
+		LUA_YG_CALL(luaEntityAt(L, 3),
+			    luaEntityAt(L, 4), luaEntityAt(L, 5));
+		return 1;
+	case 6:
+		LUA_YG_CALL(luaEntityAt(L, 3), luaEntityAt(L, 4),
+			    luaEntityAt(L, 5), luaEntityAt(L, 6));
+		return 1;
+	default:
+		return -1;
+	}
 
-  return -1;
+	return -1;
 }
 
 #define LUA_YES_CALL(args...)					\
