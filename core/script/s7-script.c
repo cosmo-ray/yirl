@@ -171,21 +171,80 @@ S7_IMPLE_CREATOR(Int, s7_integer);
 S7_IMPLE_CREATOR(String, s7_string);
 
 
+static s7_pointer make_nothing(s7_scheme *s, ...)
+{
+	/* this should never be call, this is here so _Generic work */
+	abort();
+}
+
+#define S7A2(call, ...)					\
+	_Generic(call,					\
+		 default: make_nothing,			\
+		 char *: s7_make_string,		\
+		 const char *: s7_make_string,		\
+		 int: s7_make_integer,			\
+		 long: s7_make_integer,			\
+		 _Bool: s7_make_boolean,		\
+		 unsigned long: s7_make_integer,	\
+		 unsigned int: s7_make_integer)		\
+		(__VA_ARGS__, call)
+
+#define S7T(call)				\
+	_Generic(call,				\
+		 default: 0,			\
+		 char *: 2,			\
+		 const char *: 2,		\
+		 Entity *: 1,			\
+		 const Entity *: 1,		\
+		 int: 2,			\
+		 long: 2,			\
+		 double: 2,			\
+		 float: 2,			\
+		 unsigned long: 2,		\
+		 unsigned int: 2)
+
+#define VOID_CALL(call)				\
+	_Generic(call,				\
+		 default: NULL,			\
+		 char *: call,			\
+		 const char *: call,		\
+		 Entity *: call,		\
+		 const Entity *: call,		\
+		 int: call,			\
+		 long: call,			\
+		 double: call,			\
+		 float: call,			\
+		 unsigned long: call,		\
+		 unsigned int: call)
+
+
 #define S7ME s7_make_c_object
 #define S7MI s7_make_integer
 #define S7MB s7_make_boolean
 
-#define S7_IMPLEMENT_E_SES(func)					\
-	static s7_pointer s7##func(s7_scheme *s, s7_pointer a)		\
-	{								\
-		return S7ME(s, s7m->et,					\
-			    func(					\
-				    s7_string(s7_list_ref(s, a, 0)),	\
-				    s7_c_object_value(s7_list_ref(s, a, 1)), \
-				    s7_string(s7_list_ref(s, a, 2))	\
-				    ));					\
-	}
+#define BIND_AUTORET(call)						\
+	int t = S7T(call);						\
+	switch (t) {							\
+	case 0:								\
+		call;							\
+		return s7_nil(s);					\
+	case 1:								\
+		return S7ME(s, s7m->et, (void *)VOID_CALL(call));	\
+	case 2:								\
+		return S7A2(VOID_CALL(call), s);			\
+	}								\
+	return s7_nil(s);
 
+#define BIND_SES(f, ...)						\
+	static s7_pointer						\
+	s7##func(s7_scheme *s, s7_pointer a)				\
+	{								\
+		BIND_AUTORET(f(						\
+			s7_string(s7_list_ref(s, a, 0)),		\
+			s7_c_object_value(s7_list_ref(s, a, 1)),	\
+			s7_string(s7_list_ref(s, a, 2))			\
+			));						\
+	}
 
 #define BIND_E_EIIEE(f, u0, u1)						\
 	static s7_pointer s7##f(s7_scheme *s, s7_pointer a) {		\
@@ -219,29 +278,6 @@ S7_IMPLE_CREATOR(String, s7_string);
 				    s7_c_object_value(s7_list_ref(s, a, 1)), \
 				    s7_string(s7_list_ref(s, a, 2))	\
 				    ));					\
-	}
-
-#define S7_IMPLEMENT_I_E(func)						\
-	static s7_pointer s7##func(s7_scheme *s, s7_pointer a)		\
-	{								\
-		return S7MI(s,						\
-			    func(s7_c_object_value(s7_car(a))));	\
-	}
-
-#define BIND_I_EE(f, u0, u1)						\
-	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)		\
-	{								\
-		return S7MI(s,						\
-			    f(s7_c_object_value(s7_car(a)),		\
-			      E_AT(s, a, 1)				\
-				    ));					\
-	}
-
-#define S7_IMPLEMENT_V_E(func)						\
-	static s7_pointer s7##func(s7_scheme *s, s7_pointer a)		\
-	{								\
-		func(s7_c_object_value(s7_car(a)));			\
-		return s7_nil(s);					\
 	}
 
 #define BIND_E_EIIS(func, u0, u1)					\
@@ -293,35 +329,6 @@ S7_IMPLE_CREATOR(String, s7_string);
 		return s7_nil(s);				\
 	}
 
-#define BIND_V_EI(f, useless0, useless01)			\
-	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)	\
-	{							\
-		f(s7_c_object_value(s7_car(a)),			\
-		  s7_integer(s7_list_ref(s, a, 1)));		\
-		return s7_nil(s);				\
-	}
-
-
-#define BIND_I_S(f, u0, u1)						\
-	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)		\
-	{								\
-		return S7MI(s, f(s7_string(s7_car(a))));		\
-	}
-
-#define BIND_I_I(f, u0, u1)						\
-	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)		\
-	{								\
-		return S7MI(s, f(s7_integer(s7_car(a))));		\
-	}
-
-#define BIND_V_EE(f, useless0, useless01)			\
-	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)	\
-	{							\
-		f(E_AT(s, a, 0), E_AT(s, a, 1));		\
-		return s7_nil(s);				\
-	}
-
-
 #define BIND_B_EE(func, useless0, useless01)				\
 	static s7_pointer s7##func(s7_scheme *s, s7_pointer a)		\
 	{								\
@@ -330,12 +337,14 @@ S7_IMPLE_CREATOR(String, s7_string);
 				   s7_c_object_value(s7_list_ref(s, a, 1)))); \
 	}
 
-#define BIND_V_I(func, u0, u1)						\
-	static s7_pointer s7##func(s7_scheme *s, s7_pointer a)		\
+#define BIND_I(f, useless0, usless1)					\
+	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)		\
 	{								\
-		func(s7_integer(s7_car(a)));				\
-		return s7_nil(s);					\
+		BIND_AUTORET(f(s7_integer(s7_list_ref(s, a, 0))));	\
 	}
+
+#define BIND_I_I(...) BIND_I(__VA_ARGS__)
+#define BIND_V_I(...) BIND_I(__VA_ARGS__)
 
 #define BIND_I_V(func)							\
 	static s7_pointer s7##func(s7_scheme *s, s7_pointer a)		\
@@ -367,40 +376,45 @@ S7_IMPLE_CREATOR(String, s7_string);
 		return s7_nil(s);					\
 	}
 
-#define BIND_S_E(f, useless0, usless1)					\
-	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)		\
-	{								\
-		const char *str = f(s7_c_object_value(s7_car(a)));	\
-		s7_pointer r = s7_make_string(s, str);			\
-		return r;						\
+#define BIND_V_EE BIND_EE
+#define BIND_I_EE BIND_EE
+#define BIND_E_EE BIND_EE
+
+#define BIND_EE(f, ...)						\
+	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)	\
+	{							\
+		BIND_AUTORET(f(E_AT(s, a, 0), E_AT(s, a, 1)));	\
 	}
 
 
-#define BIND_E_E(f, useless0, uesless1)					\
+#define BIND_E(f, useless0, usless1)					\
 	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)		\
 	{								\
-		return S7ME(s, s7m->et,					\
-			    f(s7_c_object_value(s7_list_ref(s, a, 0)))); \
+		BIND_AUTORET(f(E_AT(s, a, 0)));				\
 	}
 
-#define BIND_E_S(f, useless0, uesless1)					\
+#define BIND_S_E BIND_E
+#define BIND_E_E BIND_E
+#define BIND_I_E BIND_E
+#define BIND_V_E BIND_E
+
+#define BIND_S(f, useless0, usless1)					\
 	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)		\
 	{								\
-		return S7ME(s, s7m->et,					\
-			    f(s7_string(s7_list_ref(s, a, 0))));	\
+		BIND_AUTORET(f(s7_string(s7_car(a))));			\
 	}
 
-#define BIND_E_EE(f, useless0, uesless1)				\
+#define BIND_I_S BIND_S
+#define BIND_E_S BIND_S
+
+#define BIND_EI(f, ...)				\
 	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)		\
 	{								\
-		return S7ME(s, s7m->et, f(E_AT(s, a, 0), E_AT(s, a, 1))); \
+		BIND_AUTORET(f(E_AT(s, a, 0), I_AT(s, a, 1)));		\
 	}
 
-#define BIND_E_EI(f, useless0, uesless1)				\
-	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)		\
-	{								\
-		return S7ME(s, s7m->et, f(E_AT(s, a, 0), I_AT(s, a, 1))); \
-	}
+#define BIND_E_EI BIND_EI
+#define BIND_V_EI BIND_EI
 
 #define BIND_E_ES(f, useless0, uesless1)				\
 	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)		\
@@ -472,8 +486,6 @@ static s7_pointer s7yevCreateGrp(s7_scheme *s, s7_pointer a)
 	return s7_make_c_object(s, s7m->et, r);
 }
 
-#define BIND_V_E(f, a, b) S7_IMPLEMENT_V_E(f)
-#define BIND_I_E(f, a, b) S7_IMPLEMENT_I_E(f)
 #define BIND_B_EES(f, a, b) S7_IMPLEMENT_B_EES(f)
 #define BIND_E_EIIE(f, a, b) S7_IMPLEMENT_E_EIIE(f)
 #include "binding.c"

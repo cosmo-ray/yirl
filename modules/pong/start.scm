@@ -139,6 +139,8 @@
       (let ((init (yeCreateArray ) ) )
 	(begin
 	  (yeCreateString "pong" mod "name")
+	  (yeCreateString "test" mod "starting widget")
+	  (yeCreateString "pong" (yeCreateArray mod "test") "<type>")
 	  (yeCreateFunction "pong_init" init "callback")
 	  (yeCreateString "pong" init "name")
 	  (ywidAddSubType init)
