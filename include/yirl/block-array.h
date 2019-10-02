@@ -149,15 +149,15 @@ static inline void yBlockArrayFreeBlocks(BlockArray *ba)
 
 static inline void yBlockArrayClear(BlockArray *ba)
 {
-  if (!ba->flag & YBLOCK_ARRAY_BIG_CHUNK) {
-    free(ba->elems);
-    ba->elems = NULL;
-  }
-  yBlockArrayFreeBlocks(ba);
-  ba->blocks = NULL;
-  ba->lastPos = -1;
-  ba->nbBlock = 0;
-  ba->size = 0;
+	if (!(ba->flag & YBLOCK_ARRAY_BIG_CHUNK)) {
+		free(ba->elems);
+		ba->elems = NULL;
+	}
+	yBlockArrayFreeBlocks(ba);
+	ba->blocks = NULL;
+	ba->lastPos = -1;
+	ba->nbBlock = 0;
+	ba->size = 0;
 }
 
 static inline void yBlockArraySet(BlockArray *ba, int32_t pos)
