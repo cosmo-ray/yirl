@@ -21,19 +21,19 @@
 #include "yirl/entity.h"
 #include "yirl/widget.h"
 
-int yevIsKeyDown(Entity *events, int k);
-int yevIsKeyUp(Entity *events, int k);
+_Bool yevIsKeyDown(Entity *events, int k);
+_Bool yevIsKeyUp(Entity *events, int k);
 
 #define yevCreateGrp yeCreateInts
 
 /**
  * @return 1 if a key of grp is press down
  */
-int yevIsGrpDown(Entity *events, Entity *grp);
+_Bool yevIsGrpDown(Entity *events, Entity *grp);
 /**
  * @return 1 if a key of grp is press up
  */
-int yevIsGrpUp(Entity *events, Entity *grp);
+_Bool yevIsGrpUp(Entity *events, Entity *grp);
 
 static inline int yevCheckKeysInt(Entity *events, EventType type, int *keys)
 {

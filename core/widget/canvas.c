@@ -532,7 +532,7 @@ static Entity *rectRotationMod(Entity *obj, Entity *r, Entity *mod)
 int ywidColisionXPresision = 1;
 int ywidColisionYPresision = 1;
 
-int	ywCanvasCheckColisionsRectObj(Entity *r0, Entity *obj1)
+_Bool	ywCanvasCheckColisionsRectObj(Entity *r0, Entity *obj1)
 {
 	Entity *mod1 = ywCanvasObjMod(obj1);
 	yeAutoFree Entity *r1 =
@@ -591,7 +591,7 @@ Entity *ywCanvasProjectedColisionArray(Entity *wid, Entity *obj,
 	return ret;
 }
 
-int	ywCanvasObjectsCheckColisions(Entity *obj0, Entity *obj1)
+_Bool	ywCanvasObjectsCheckColisions(Entity *obj0, Entity *obj1)
 {
 	Entity *mod0 = ywCanvasObjMod(obj0);
 	Entity *mod1 = ywCanvasObjMod(obj1);

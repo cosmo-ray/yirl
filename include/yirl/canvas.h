@@ -157,12 +157,12 @@ YCanvasObjType ywCanvasObjType(Entity *obj);
 /**
  * @return 1 if @obj0 is in colision with @obj1
  */
-int ywCanvasObjectsCheckColisions(Entity *obj0, Entity *obj1);
+_Bool ywCanvasObjectsCheckColisions(Entity *obj0, Entity *obj1);
 
 /**
  * @return 1 if r0 is in colision with obj1
  */
-int ywCanvasCheckColisionsRectObj(Entity *r0, Entity *obj1);
+_Bool ywCanvasCheckColisionsRectObj(Entity *r0, Entity *obj1);
 
 /**
  * @return 1 if @obj colide with any object appart itself in @wid

@@ -18,6 +18,8 @@
 #ifndef YIRL_ENTITY_CPLUSPLUS_H
 #define YIRL_ENTITY_CPLUSPLUS_H
 
+typedef bool _Bool;
+
 Entity *yeGetByIdx(Entity *entity, size_t index);
 Entity *yeGetByStrFast(Entity *entity, const char *name);
 Entity *yeRemoveChildByEntity(Entity *array, Entity *toRemove);

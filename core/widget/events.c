@@ -17,7 +17,7 @@
 
 #include "events.h"
 
-int yevIsKeyDown(Entity *events, int k)
+_Bool yevIsKeyDown(Entity *events, int k)
 {
   Entity *eve = events;
 
@@ -29,7 +29,7 @@ int yevIsKeyDown(Entity *events, int k)
   return 0;
 }
 
-int yevIsKeyUp(Entity *events, int k)
+_Bool yevIsKeyUp(Entity *events, int k)
 {
   Entity *eve = events;
 
@@ -53,7 +53,7 @@ Entity *yevMousePos(Entity *events)
   return NULL;
 }
 
-int yevIsGrpDown(Entity *events, Entity *grp)
+_Bool yevIsGrpDown(Entity *events, Entity *grp)
 {
   Entity *eve = events;
 
@@ -72,7 +72,7 @@ int yevIsGrpDown(Entity *events, Entity *grp)
   return 0;
 }
 
-int yevIsGrpUp(Entity *events, Entity *grp)
+_Bool yevIsGrpUp(Entity *events, Entity *grp)
 {
   Entity *eve = events;
 

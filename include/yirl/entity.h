@@ -1187,7 +1187,7 @@ static inline int yeReplace(Entity *array, Entity *toReplace, Entity *toPush)
  * Check if @array contain @toFind
  * @return 1 if the @toFind is found, 0 otherwise.
  */
-static inline int yeDoesInclude(Entity *array, Entity *toFind)
+static inline _Bool yeDoesInclude(Entity *array, Entity *toFind)
 {
 	if (!array || !toFind)
 		return 0;
