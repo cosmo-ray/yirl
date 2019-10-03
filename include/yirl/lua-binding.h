@@ -29,6 +29,89 @@
 #include <lualib.h>
 #include <lauxlib.h>
 
+#define LUAT(call)				\
+	_Generic(call,				\
+		 default: 0,			\
+		 char *: 2,			\
+		 const char *: 2,		\
+		 Entity *: 1,			\
+		 const Entity *: 1,		\
+		 int: 2,			\
+		 long: 2,			\
+		 double: 2,			\
+		 float: 2,			\
+		 unsigned long: 2,		\
+		 unsigned int: 2)
+
+#define VOID_CALL(call)				\
+	_Generic(call,				\
+		 default: NULL,			\
+		 char *: call,			\
+		 const char *: call,		\
+		 Entity *: call,		\
+		 const Entity *: call,		\
+		 int: call,			\
+		 long: call,			\
+		 double: call,			\
+		 float: call,			\
+		 unsigned long: call,		\
+		 unsigned int: call)
+
+#define BIND_AUTORET(call)						\
+	int t = LUAT(call);						\
+	switch (t) {							\
+	case 0:								\
+		call;							\
+		return 0;						\
+	case 1:								\
+	{								\
+		Entity *ret = (void *)(intptr_t)VOID_CALL(call);	\
+		if (ret) lua_pushlightuserdata(L, ret); else lua_pushnil(L); \
+		break;							\
+	}								\
+	case 2:								\
+		AUTOPUSH(VOID_CALL(call), L);				\
+		break;							\
+	}								\
+	return 1;
+
+static inline int make_abort(lua_State *L, ...)
+{
+	abort();
+	return 0;
+}
+
+#define AUTOPUSH(call, ...)				\
+	_Generic(call,					\
+		 default: make_abort,			\
+		 char *: lua_pushstring,		\
+		 const char *: lua_pushstring,		\
+		 int: lua_pushnumber,			\
+		 long: lua_pushnumber,			\
+		 _Bool: lua_pushboolean,		\
+		 unsigned long: lua_pushnumber,		\
+		 unsigned int: lua_pushnumber)		\
+		(__VA_ARGS__, call)
+
+#define BIND_I(f, ...)							\
+	static inline int lua##f(lua_State *L)				\
+	{								\
+		BIND_AUTORET(f(luaNumberAt(L, 1)));			\
+	}
+
+#define BIND_E_E BIND_E
+#define BIND_V_E BIND_E
+#define BIND_I_E BIND_E
+
+#define BIND_E(f, ...)							\
+	static inline int lua##f(lua_State *L)				\
+	{								\
+		BIND_AUTORET(f(luaEntityAt(L, 1)));			\
+	}
+
+#define BIND_I_I BIND_I
+#define BIND_V_I BIND_I
+
 #define LUA_IMPLEMENT_I_EI(func)					\
 	static inline int lua##func(lua_State *L)			\
 	{								\
@@ -42,20 +125,6 @@
 	{								\
 		lua_pushnumber(L, func());				\
 		return 1;						\
-	}
-
-#define LUA_IMPLEMENT_I_I(func)						\
-	static inline int lua##func(lua_State *L)			\
-	{								\
-		lua_pushnumber(L, func(lua_tointeger(L, 1)));		\
-		return 1;						\
-	}
-
-#define LUA_IMPLEMENT_I_E(func)					\
-	static inline int lua##func(lua_State *L)		\
-	{							\
-		lua_pushnumber(L, func(luaEntityAt(L, 1)));	\
-		return 1;					\
 	}
 
 #define LUA_IMPLEMENT_I_EE(func)				\
@@ -76,10 +145,6 @@
 #define BIND_V_S(f, ...)						\
 	static inline int lua##f(lua_State *L)				\
 	{ f(lua_tostring(L, 1)); return 0; }
-
-#define BIND_V_I(f, ...)						\
-	static inline int lua##f(lua_State *L)				\
-	{ f(luaNumberAt(L, 1)); return 0; }
 
 
 #define BIND_V_EEI(f, ...)						\
@@ -137,12 +202,6 @@
 		return 0;					\
 	}
 
-#define BIND_V_E(f, u0, u1)					\
-	static inline int lua##f(lua_State *L) {		\
-		f(luaEntityAt(L, 1));				\
-		return 0;					\
-	}
-
 #define BIND_V_V(f)						\
 	static inline int lua##f(lua_State *L)			\
 	{ f(); return 0; }
@@ -153,14 +212,6 @@
 		lua_pushnumber(L, f(luaEntityAt(L, 1),			\
 				    lua_tostring(L, 2)[0],		\
 				    lua_tointeger(L, 3)));		\
-		return 1;						\
-	}
-
-#define LUA_IMPLEMENT_E_E(func)						\
-	static inline int lua##func(lua_State *L)			\
-	{								\
-		Entity *ret = func(luaEntityAt(L, 1));			\
-		if (ret) lua_pushlightuserdata(L, ret); else lua_pushnil(L); \
 		return 1;						\
 	}
 
@@ -254,16 +305,16 @@ int	luayIsNNil(lua_State *l);
 /* util */
 LUA_IMPLEMENT_I_V(yuiRand);
 BIND_V_V(yuiRandInit);
-LUA_IMPLEMENT_I_I(yuiAbs);
+BIND_I_I(yuiAbs);
 BIND_V_S(yuiMkdir);
 BIND_V_I(yuiUsleep);
 LUA_IMPLEMENT_I_S(yuiFileExist);
 
 /* Array */
 int	luaGet(lua_State *L);
-LUA_IMPLEMENT_I_E(yeLen);
+BIND_I_E(yeLen);
 LUA_IMPLEMENT_E_ES(yeCreateArray);
-LUA_IMPLEMENT_E_E(yePopBack);
+BIND_E_E(yePopBack);
 BIND_I_EES(yePushBack, a, b);
 BIND_V_EEI(yePushAt);
 BIND_V_EENS(yeInsertAt);
@@ -334,8 +385,8 @@ int	luaWidNext(lua_State *L);
 int	luaAddSubType(lua_State *L);
 int	luaywidAction(lua_State *L);
 int	luaywidTurnTimer(lua_State *L);
-LUA_IMPLEMENT_I_E(ywHeight);
-LUA_IMPLEMENT_I_E(ywWidth);
+BIND_I_E(ywHeight);
+BIND_I_E(ywWidth);
 
 /* event */
 int	luaWidNextEve(lua_State *L);
@@ -346,7 +397,7 @@ int	luaywidEveMousePos(lua_State *L);
 
 LUA_IMPLEMENT_B_EI(yevIsKeyDown);
 LUA_IMPLEMENT_B_EI(yevIsKeyUp);
-LUA_IMPLEMENT_E_E(yevMousePos);
+BIND_E_E(yevMousePos);
 int	luayevMouseDown(lua_State *L);
 int	luayevCheckKeys(lua_State *L);
 int	luayevCreateGrp(lua_State *L);

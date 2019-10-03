@@ -175,6 +175,7 @@ static s7_pointer make_nothing(s7_scheme *s, ...)
 {
 	/* this should never be call, this is here so _Generic work */
 	abort();
+	return s7_nil(s);
 }
 
 #define S7A2(call, ...)					\
