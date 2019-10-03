@@ -121,8 +121,8 @@ Entity *ywCanvasObjFromIdx(Entity *wid, int idx)
 	return yeGet(yeGet(wid, "objs"), idx);
 }
 
-int ywCanvasCheckCollisions(Entity *wid, Entity *obj, Entity *colisionFunc,
-			    Entity *colisionFuncArg)
+_Bool ywCanvasCheckCollisions(Entity *wid, Entity *obj, Entity *colisionFunc,
+			      Entity *colisionFuncArg)
 {
 	Entity *eret = ywCanvasNewCollisionsArrayExt(wid, obj,
 						     colisionFunc,

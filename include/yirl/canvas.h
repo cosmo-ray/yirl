@@ -167,8 +167,8 @@ _Bool ywCanvasCheckColisionsRectObj(Entity *r0, Entity *obj1);
 /**
  * @return 1 if @obj colide with any object appart itself in @wid
  */
-int ywCanvasCheckCollisions(Entity *wid, Entity *obj, Entity *colisionFunc,
-			    Entity *colisionFuncArg);
+_Bool ywCanvasCheckCollisions(Entity *wid, Entity *obj, Entity *colisionFunc,
+			      Entity *colisionFuncArg);
 
 Entity *ywCanvasNewCollisionsArray(Entity *wid, Entity *obj);
 Entity *ywCanvasNewCollisionsArrayExt(Entity *wid, Entity *obj,

@@ -379,6 +379,7 @@ static s7_pointer make_nothing(s7_scheme *s, ...)
 
 
 #define BIND_I_EES BIND_EES
+#define BIND_E_EES BIND_EES
 
 #define BIND_EES(f, ...)					\
 	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)	\
