@@ -481,6 +481,7 @@ DUMB_FUNC(yeAddAt);
 #define BIND_E_ES(a, b, c) DUMB_FUNC(a)
 #define BIND_E_EI(a, b, c) DUMB_FUNC(a)
 #define BIND_B_EE(a, b, c) DUMB_FUNC(a)
+#define BIND_I_EES(a, b, c) DUMB_FUNC(a)
 #define BIND_B_EES(a, b, c) DUMB_FUNC(a)
 #define BIND_B_EEE(a, b, c) DUMB_FUNC(a)
 #define BIND_B_EEEE(a, b, c) DUMB_FUNC(a)

@@ -18,6 +18,7 @@
 #define BIND_E_ES	BIND
 #define BIND_E_EI	BIND
 #define BIND_B_EE	BIND
+#define BIND_I_EES	BIND
 #define BIND_B_EES	BIND
 #define BIND_B_EEE	BIND
 #define BIND_E_SEES	BIND
@@ -38,7 +39,8 @@ BIND_NONE(yeGet, 2, 0);
 BIND_NONE(yeGetIntAt, 2, 0);
 BIND_NONE(yeSetIntAt, 3, 0);
 
-BIND_B_EES(yePushBack, 2, 1);
+BIND_I_EES(yePushBack, 2, 1);
+
 BIND_B_EES(ywCanvasCreateYTexture, 3, 0);
 
 BIND_B_EEEE(ywCanvasCheckCollisions, 2, 2);
@@ -145,6 +147,7 @@ PUSH_I_GLOBAL(Y_REQUEST_ANIMATION_FRAME);
 #undef BIND_B_EEEE
 #undef BIND_E_SEES
 #undef BIND_B_EES
+#undef BIND_I_EES
 #undef BIND_B_EEE
 #undef BIND_V_EII
 #undef BIND_B_EE
