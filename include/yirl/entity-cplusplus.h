@@ -18,7 +18,9 @@
 #ifndef YIRL_ENTITY_CPLUSPLUS_H
 #define YIRL_ENTITY_CPLUSPLUS_H
 
+#ifndef _Bool
 typedef bool _Bool;
+#endif
 
 Entity *yeGetByIdx(Entity *entity, size_t index);
 Entity *yeGetByStrFast(Entity *entity, const char *name);
