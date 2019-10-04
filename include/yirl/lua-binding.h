@@ -86,12 +86,20 @@ static inline int make_abort(lua_State *L, ...)
 		 default: make_abort,			\
 		 char *: lua_pushstring,		\
 		 const char *: lua_pushstring,		\
+		 char: lua_pushnumber,			\
+		 short: lua_pushnumber,			\
 		 int: lua_pushnumber,			\
 		 long: lua_pushnumber,			\
+		 long long: lua_pushnumber,		\
+		 float: lua_pushnumber,			\
+		 double: lua_pushnumber,		\
 		 _Bool: lua_pushboolean,		\
+		 unsigned char: lua_pushnumber,		\
+		 unsigned short: lua_pushnumber,	\
 		 unsigned long: lua_pushnumber,		\
+		 unsigned long long: lua_pushnumber,	\
 		 unsigned int: lua_pushnumber)		\
-		(__VA_ARGS__, call)
+	(__VA_ARGS__, call)
 
 #define BIND_I(f, ...)							\
 	static inline int lua##f(lua_State *L)				\
