@@ -338,6 +338,7 @@ int	luayeRenameIdxStr(lua_State *L);
 int	luayeGetPush(lua_State *L);
 LUA_IMPLEMENT_B_EE(yeDoesInclude);
 LUA_IMPLEMENT_E_ES(yeTryCreateArray);
+BIND_V_E(yeClearArray);
 
 /* Entity */
 int	luaCopy(lua_State *L);
@@ -749,6 +750,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, yeGetPush);
   YES_LUA_REGISTRE_CALL(sm, yeDoesInclude);
   YES_LUA_REGISTRE_CALL(sm, yeTryCreateArray);
+  YES_LUA_REGISTRE_CALL(sm, yeClearArray);
 
   /* Entity */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeCopy", luaCopy));
