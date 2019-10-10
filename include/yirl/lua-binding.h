@@ -101,6 +101,9 @@ static inline int make_abort(lua_State *L, ...)
 		 unsigned int: lua_pushnumber)		\
 	(__VA_ARGS__, call)
 
+#define BIND_NONE(f, ...)			\
+	int lua##f(lua_State *L);
+
 #define BIND_I(f, ...)							\
 	static inline int lua##f(lua_State *L)				\
 	{								\
@@ -327,10 +330,10 @@ BIND_I_EES(yePushBack, a, b);
 BIND_V_EEI(yePushAt);
 BIND_V_EENS(yeInsertAt);
 BIND_S_EI(yeGetKeyAt);
-int	luaRemoveChild(lua_State *L);
-int	luaDestroy(lua_State *L);
-int	luaSetAt(lua_State *L);
-int	luaYeReplace(lua_State *L);
+BIND_NONE(yeRemoveChild);
+BIND_V_E(yeDestroy);
+BIND_NONE(yeSetAt);
+int	luayeReplace(lua_State *L);
 int	luaYeReplaceBack(lua_State *L);
 int	luaYeReplaceAtIdx(lua_State *L);
 int	luaYeSwapElems(lua_State *L);
@@ -341,7 +344,7 @@ LUA_IMPLEMENT_E_ES(yeTryCreateArray);
 BIND_V_E(yeClearArray);
 
 /* Entity */
-int	luaCopy(lua_State *L);
+BIND_E_EE(yeCopy);
 int	luaType(lua_State *L);
 int	luaYeToLuaString(lua_State *L);
 int	luaYeIncrRef(lua_State *L);
@@ -740,9 +743,9 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, yePopBack);
   YES_LUA_REGISTRE_CALL(sm, yePushAt);
   YES_LUA_REGISTRE_CALL(sm, yeInsertAt);
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeRemoveChild", luaRemoveChild));
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeDestroy", luaDestroy));
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeReplace", luaYeReplace));
+  YES_LUA_REGISTRE_CALL(sm, yeRemoveChild);
+  YES_LUA_REGISTRE_CALL(sm, yeDestroy);
+  YES_LUA_REGISTRE_CALL(sm, yeReplace);
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeReplaceAtIdx", luaYeReplaceAtIdx));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeReplaceBack", luaYeReplaceBack));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeSwapElems", luaYeSwapElems));
@@ -753,9 +756,9 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, yeClearArray);
 
   /* Entity */
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeCopy", luaCopy));
+  YES_LUA_REGISTRE_CALL(sm, yeCopy);
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeType", luaType));
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeSetAt", luaSetAt));
+  YES_LUA_REGISTRE_CALL(sm, yeSetAt);
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeToLuaString", luaYeToLuaString));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeIncrRef", luaYeIncrRef));
   YES_LUA_REGISTRE_CALL(sm, yeEntitiesArraySize);

@@ -536,22 +536,6 @@ int	luayeEntitiesArraySize(lua_State *L)
   return 1;
 }
 
-
-int	luaCopy(lua_State *L)
-{
-  DPRINT_INFO("enter luaCopyEntity\n");
-  if (lua_gettop(L) != 2 ||
-      !lua_isuserdata(L, 2))
-    {
-      return luaL_error(L, "function arguments are incorect\n"
-			"prototyre is: yeCopy(Entity src,"
-			"Entity dest)\n");
-    }
-  lua_pushlightuserdata(L, yeCopy(luaEntityAt(L, 1),
-				  luaEntityAt(L, 2)));
-  return 1;
-}
-
 int	luaywCanvasRotate(lua_State *L)
 {
   lua_pushnumber(L, ywCanvasRotate(luaEntityAt(L, 1),
@@ -1193,13 +1177,7 @@ int	luaSetFloat(lua_State *L)
 	return (0);
 }
 
-int	luaDestroy(lua_State *L)
-{
-	yeDestroy(luaEntityAt(L, 1));
-	return 0;
-}
-
-int	luaRemoveChild(lua_State *L)
+int	luayeRemoveChild(lua_State *L)
 {
   if (lua_isstring(L, 2)) {
 	  lua_pushlightuserdata(L, yeRemoveChildByStr(luaEntityAt(L, 1),
@@ -1742,7 +1720,7 @@ int	luaygReCreateInt(lua_State *L)
   return 0;
 }
 
-int	luaSetAt(lua_State *L)
+int	luayeSetAt(lua_State *L)
 {
   Entity *ent = NULL;
   if (lua_gettop(L) != 3)
