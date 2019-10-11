@@ -120,6 +120,27 @@ static inline int make_abort(lua_State *L, ...)
 		BIND_AUTORET(f(luaEntityAt(L, 1)));			\
 	}
 
+#define BIND_EEE(f, ...)						\
+	static inline int lua##f(lua_State *L)				\
+	{								\
+		BIND_AUTORET(f(luaEntityAt(L, 1), luaEntityAt(L, 2),	\
+			       luaEntityAt(L, 3)));			\
+	}
+
+#define BIND_EES(f, ...)						\
+	static inline int lua##f(lua_State *L)				\
+	{								\
+		BIND_AUTORET(f(luaEntityAt(L, 1), luaEntityAt(L, 2),	\
+			       lua_tostring(L, 3)));			\
+	}
+
+#define BIND_EEI(f, ...)						\
+	static inline int lua##f(lua_State *L)				\
+	{								\
+		BIND_AUTORET(f(luaEntityAt(L, 1), luaEntityAt(L, 2),	\
+			       luaNumberAt(L, 3)));			\
+	}
+
 #define BIND_I_I BIND_I
 #define BIND_V_I BIND_I
 
@@ -157,11 +178,6 @@ static inline int make_abort(lua_State *L, ...)
 	static inline int lua##f(lua_State *L)				\
 	{ f(lua_tostring(L, 1)); return 0; }
 
-
-#define BIND_V_EEI(f, ...)						\
-	static inline int lua##f(lua_State *L)				\
-	{ f(luaEntityAt(L, 1), luaEntityAt(L, 2),			\
-	    luaNumberAt(L, 3)); return 0; }
 
 #define BIND_S_EI(f, ...)						\
 	static inline int lua##f(lua_State *L)				\
@@ -226,15 +242,6 @@ static inline int make_abort(lua_State *L, ...)
 		return 1;						\
 	}
 
-#define BIND_I_EES(f, u0, u1)						\
-	static inline int lua##f(lua_State *L)				\
-	{								\
-		int ret = f(luaEntityAt(L, 1), luaEntityAt(L, 2),	\
-			    lua_tostring(L, 3));			\
-		lua_pushnumber(L, ret);					\
-		return 1;						\
-	}
-
 #define BIND_V_EENS(f, ...)						\
 	static inline int lua##f(lua_State *L)				\
 	{								\
@@ -248,15 +255,6 @@ static inline int make_abort(lua_State *L, ...)
 	static inline int lua##func(lua_State *L)			\
 	{								\
 		Entity *ret = func(luaEntityAt(L, 1), lua_tostring(L, 2)); \
-		if (ret) lua_pushlightuserdata(L, ret); else lua_pushnil(L); \
-		return 1;						\
-	}
-
-#define LUA_IMPLEMENT_E_EEE(func)					\
-	static inline int lua##func(lua_State *L)			\
-	{								\
-		Entity *ret = func(luaEntityAt(L, 1), luaEntityAt(L, 2), \
-				   luaEntityAt(L, 3));			\
 		if (ret) lua_pushlightuserdata(L, ret); else lua_pushnil(L); \
 		return 1;						\
 	}
@@ -326,16 +324,16 @@ int	luaGet(lua_State *L);
 BIND_I_E(yeLen);
 LUA_IMPLEMENT_E_ES(yeCreateArray);
 BIND_E_E(yePopBack);
-BIND_I_EES(yePushBack, a, b);
-BIND_V_EEI(yePushAt);
+BIND_EES(yePushBack);
+BIND_EEI(yePushAt);
 BIND_V_EENS(yeInsertAt);
 BIND_S_EI(yeGetKeyAt);
 BIND_NONE(yeRemoveChild);
 BIND_V_E(yeDestroy);
 BIND_NONE(yeSetAt);
-int	luayeReplace(lua_State *L);
-int	luaYeReplaceBack(lua_State *L);
-int	luaYeReplaceAtIdx(lua_State *L);
+BIND_EEE(yeReplace);
+BIND_EES(yeReplaceBack);
+BIND_EEI(yeReplaceAtIdx);
 int	luaYeSwapElems(lua_State *L);
 int	luayeRenameIdxStr(lua_State *L);
 int	luayeGetPush(lua_State *L);
@@ -506,8 +504,8 @@ int	luaywCanvasDoPathfinding(lua_State *L);
 LUA_IMPLEMENT_B_EE(ywCanvasCheckColisionsRectObj);
 LUA_IMPLEMENT_V_EE(ywCanvasStringSet);
 BIND_V_E(ywCanvasClear, 0, 0);
-LUA_IMPLEMENT_E_EEE(ywCanvasProjectedColisionArray);
-LUA_IMPLEMENT_E_EEE(ywCanvasProjectedArColisionArray);
+BIND_EEE(ywCanvasProjectedColisionArray);
+BIND_EEE(ywCanvasProjectedArColisionArray);
 
 /* texture */
 int	luaywTextureNewImg(lua_State *L);
@@ -746,8 +744,8 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, yeRemoveChild);
   YES_LUA_REGISTRE_CALL(sm, yeDestroy);
   YES_LUA_REGISTRE_CALL(sm, yeReplace);
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeReplaceAtIdx", luaYeReplaceAtIdx));
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeReplaceBack", luaYeReplaceBack));
+  YES_LUA_REGISTRE_CALL(sm, yeReplaceAtIdx);
+  YES_LUA_REGISTRE_CALL(sm, yeReplaceBack);
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeSwapElems", luaYeSwapElems));
   YES_LUA_REGISTRE_CALL(sm, yeRenameIdxStr);
   YES_LUA_REGISTRE_CALL(sm, yeGetPush);

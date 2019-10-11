@@ -1742,33 +1742,6 @@ int	luayeSetAt(lua_State *L)
   return 0;
 }
 
-int	luaYeReplace(lua_State *L)
-{
-  if (lua_gettop(L) != 3)
-    return -1;
-  lua_pushnumber(L, yeReplace(luaEntityAt(L, 1),
-			      luaEntityAt(L, 2),
-			      luaEntityAt(L, 3)));
-  return 1;
-}
-
-
-int	luaYeReplaceAtIdx(lua_State *L)
-{
-  lua_pushlightuserdata(L, yeReplaceAtIdx(luaEntityAt(L, 1),
-					  luaEntityAt(L, 2),
-					  lua_tonumber(L, 3)));
-  return 1;
-}
-
-int	luaYeReplaceBack(lua_State *L)
-{
-  lua_pushlightuserdata(L, yeReplaceBack(luaEntityAt(L, 1),
-					 luaEntityAt(L, 2),
-					 lua_tostring(L, 3)));
-  return 1;
-}
-
 int	luayeCheckCondition(lua_State *L)
 {
   lua_pushboolean(L, yeCheckCondition(luaEntityAt(L, 1)));
