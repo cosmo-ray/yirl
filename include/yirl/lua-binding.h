@@ -334,7 +334,7 @@ BIND_NONE(yeSetAt);
 BIND_EEE(yeReplace);
 BIND_EES(yeReplaceBack);
 BIND_EEI(yeReplaceAtIdx);
-int	luaYeSwapElems(lua_State *L);
+BIND_EEE(yeSwapElems);
 int	luayeRenameIdxStr(lua_State *L);
 int	luayeGetPush(lua_State *L);
 LUA_IMPLEMENT_B_EE(yeDoesInclude);
@@ -746,7 +746,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, yeReplace);
   YES_LUA_REGISTRE_CALL(sm, yeReplaceAtIdx);
   YES_LUA_REGISTRE_CALL(sm, yeReplaceBack);
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeSwapElems", luaYeSwapElems));
+  YES_LUA_REGISTRE_CALL(sm, yeSwapElems);
   YES_LUA_REGISTRE_CALL(sm, yeRenameIdxStr);
   YES_LUA_REGISTRE_CALL(sm, yeGetPush);
   YES_LUA_REGISTRE_CALL(sm, yeDoesInclude);

@@ -1266,15 +1266,6 @@ int	luaYwReplaceEntry(lua_State *L)
 	return 1;
 }
 
-int	luaYeSwapElems(lua_State *L)
-{
-	lua_pushnumber(L, yeSwapElems(luaEntityAt(L, 1),
-				      luaEntityAt(L, 2),
-				      luaEntityAt(L, 3))
-		);
-	return 1;
-}
-
 int	luayeRenameIdxStr(lua_State *L)
 {
 	lua_pushnumber(L, yeRenameIdxStr(luaEntityAt(L, 1),
