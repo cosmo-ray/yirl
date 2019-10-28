@@ -97,6 +97,26 @@ double luaNumberAt(lua_State *L, int i)
   return 0;
 }
 
+int luaIntAt(lua_State *L, int i)
+{
+  if (lua_islightuserdata(L, i)) {
+    void  *udata = lua_touserdata(L, i);
+
+    if (yeIsPtrAnEntity(udata))
+      return yeGetInt(udata);
+    return (int_ptr_t)udata;
+  } else if (lua_isuserdata(L, i)) {
+    struct entityWrapper *ew = luaL_checkudata(L, i, "Entity");
+
+    if (unlikely(yeType(ew->e) == YFLOAT))
+	    return yeGetFloat(ew->e);
+    return yeGetInt(ew->e);
+  } else if (lua_isnumber(L, i)) {
+    return lua_tointeger(L, i);
+  }
+  return 0;
+}
+
 int	luaentity_lt(lua_State *L)
 {
   double i0 = luaNumberAt(L, 1);
@@ -498,33 +518,9 @@ int	luaGet(lua_State *L)
 	return 0;
 }
 
-int	luayeRefCount(lua_State *L)
-{
-  lua_pushnumber(L, yeRefCount(luaEntityAt(L, 1)));
-  return 1;
-}
-
 int	luayeConvert(lua_State *L)
 {
   lua_pushlightuserdata(L, yeConvert(luaEntityAt(L, 1), lua_tonumber(L, 2)));
-  return 1;
-}
-
-int	luayeFreeEntitiesInStack(lua_State *L)
-{
-  lua_pushnumber(L, yeFreeEntitiesInStack());
-  return 1;
-}
-
-int	luayeEntitiesUsed(lua_State *L)
-{
-  lua_pushnumber(L, yeEntitiesUsed());
-  return 1;
-}
-
-int	luayeEntitiesArraySize(lua_State *L)
-{
-  lua_pushnumber(L, yeEntitiesArraySize());
   return 1;
 }
 
@@ -843,6 +839,15 @@ int	luaywTextureMerge(lua_State *L)
 	return 1;
 }
 
+int	luayeIncrAt(lua_State *L)
+{
+	  if (lua_isstring(L, 2)) {
+		  yeIncrAt(luaEntityAt(L, 1), lua_tostring(L, 2));
+	  } else  {
+		  yeIncrAt(luaEntityAt(L, 1), luaIntAt(L, 2));
+	  }
+	  return 0;
+}
 
 int	luaYeIncrRef(lua_State *L)
 {

@@ -116,6 +116,13 @@ static inline int make_abort(lua_State *L, ...)
 #define BIND_V_E BIND_E
 #define BIND_I_E BIND_E
 
+#define BIND_V(f)							\
+	static inline int lua##f(lua_State *L)				\
+	{								\
+		BIND_AUTORET(f());					\
+	}
+
+
 #define BIND_E(f, ...)							\
 	static inline int lua##f(lua_State *L)				\
 	{								\
@@ -149,6 +156,12 @@ static inline int make_abort(lua_State *L, ...)
 			       lua_tostring(L, 3)));			\
 	}
 
+#define BIND_EI(f, ...)							\
+	static inline int lua##f(lua_State *L)				\
+	{								\
+		BIND_AUTORET(f(luaEntityAt(L, 1), luaNumberAt(L, 2)));	\
+	}
+
 #define BIND_EEI(f, ...)						\
 	static inline int lua##f(lua_State *L)				\
 	{								\
@@ -158,14 +171,6 @@ static inline int make_abort(lua_State *L, ...)
 
 #define BIND_I_I BIND_I
 #define BIND_V_I BIND_I
-
-#define LUA_IMPLEMENT_I_EI(func)					\
-	static inline int lua##func(lua_State *L)			\
-	{								\
-		lua_pushnumber(L, func(luaEntityAt(L, 1),		\
-				       lua_tointeger(L, 2)));		\
-		return 1;						\
-	}
 
 #define LUA_IMPLEMENT_I_V(func)						\
 	static inline int lua##func(lua_State *L)			\
@@ -186,29 +191,11 @@ static inline int make_abort(lua_State *L, ...)
 	{ f(lua_tostring(L, 1)); return 0; }
 
 
-#define BIND_S_EI(f, ...)						\
-	static inline int lua##f(lua_State *L)				\
-	{								\
-		lua_pushstring(L, f(luaEntityAt(L, 1),			\
-				    luaNumberAt(L, 2)));		\
-		return 1;						\
-	}
-
-
 #define LUA_IMPLEMENT_I_ES(func)					\
 	static inline int lua##func(lua_State *L)			\
 	{								\
 		lua_pushnumber(L, func(luaEntityAt(L, 1),		\
 				       lua_tostring(L, 2)));		\
-		return 1;						\
-	}
-
-
-#define LUA_IMPLEMENT_B_EI(func)					\
-	static inline int lua##func(lua_State *L)			\
-	{								\
-		lua_pushboolean(L, func(luaEntityAt(L, 1),		\
-					lua_tointeger(L, 2)));		\
 		return 1;						\
 	}
 
@@ -254,6 +241,7 @@ static inline int make_abort(lua_State *L, ...)
 
 /* Lua Utils */
 double luaNumberAt(lua_State *L, int i);
+int luaIntAt(lua_State *L, int i);
 
 /* Entity objets */
 int	luaentity_tocentity(lua_State *L);
@@ -312,7 +300,7 @@ BIND_E_E(yePopBack);
 BIND_EES(yePushBack);
 BIND_EEI(yePushAt);
 BIND_V_EENS(yeInsertAt);
-BIND_S_EI(yeGetKeyAt);
+BIND_EI(yeGetKeyAt);
 BIND_NONE(yeRemoveChild);
 BIND_V_E(yeDestroy);
 BIND_NONE(yeSetAt);
@@ -331,10 +319,10 @@ BIND_EE(yeCopy);
 BIND_E(yeType);
 int	luaYeToLuaString(lua_State *L);
 BIND_E(yeIncrRef);
-int	luayeEntitiesArraySize(lua_State *L);
-int	luayeFreeEntitiesInStack(lua_State *L);
-int	luayeEntitiesUsed(lua_State *L);
-int	luayeRefCount(lua_State *L);
+BIND_V(yeEntitiesArraySize);
+BIND_V(yeFreeEntitiesInStack);
+BIND_V(yeEntitiesUsed);
+BIND_E(yeRefCount);
 int	luayeConvert(lua_State *L);
 int	luayePatchCreate(lua_State *L);
 int	luayePatchAply(lua_State *L);
@@ -359,7 +347,7 @@ int	luaGetInt(lua_State *L);
 int	luaSetInt(lua_State *L);
 int	luaCreateInt(lua_State *L);
 int	luayeGetIntAt(lua_State *L);
-LUA_IMPLEMENT_I_EI(yeIncrAt);
+int	luayeIncrAt(lua_State *L);
 
 /* float */
 int	luaGetFloat(lua_State *L);
@@ -390,8 +378,8 @@ int	luaEveType(lua_State *L);
 int	luaEveKey(lua_State *L);
 int	luaywidEveMousePos(lua_State *L);
 
-LUA_IMPLEMENT_B_EI(yevIsKeyDown);
-LUA_IMPLEMENT_B_EI(yevIsKeyUp);
+BIND_EI(yevIsKeyDown);
+BIND_EI(yevIsKeyUp);
 BIND_E_E(yevMousePos);
 int	luayevMouseDown(lua_State *L);
 int	luayevCheckKeys(lua_State *L);
