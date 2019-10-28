@@ -498,14 +498,6 @@ int	luaGet(lua_State *L)
 	return 0;
 }
 
-int	luayeGetPush(lua_State *L)
-{
-  lua_pushlightuserdata(L, yeGetPush(luaEntityAt(L, 1),
-				     luaEntityAt(L, 2),
-				     lua_tostring (L, 3)));
-  return 1;
-}
-
 int	luayeRefCount(lua_State *L)
 {
   lua_pushnumber(L, yeRefCount(luaEntityAt(L, 1)));
@@ -1199,12 +1191,6 @@ int	luaUnsetFunction(lua_State *L)
 	return (0);
 }
 
-int	luaType(lua_State *L)
-{
-	lua_pushnumber(L, yeType(luaEntityAt(L, 1)));
-	return 1;
-}
-
 int	luaYwMapGetIdByElem(lua_State *L)
 {
 	lua_pushnumber(L, ywMapGetIdByElem(luaEntityAt(L, 1)));
@@ -1263,14 +1249,6 @@ int	luaYwReplaceEntry(lua_State *L)
 					 lua_tonumber(L, 2),
 					 luaEntityAt(L, 3))
 		);
-	return 1;
-}
-
-int	luayeRenameIdxStr(lua_State *L)
-{
-	lua_pushnumber(L, yeRenameIdxStr(luaEntityAt(L, 1),
-					 lua_tonumber(L, 2),
-					 lua_tostring(L, 3)));
 	return 1;
 }
 

@@ -38,6 +38,7 @@
 		 const Entity *: 1,		\
 		 int: 2,			\
 		 long: 2,			\
+		 _Bool: 2,			\
 		 double: 2,			\
 		 float: 2,			\
 		 unsigned long: 2,		\
@@ -50,6 +51,7 @@
 		 const char *: call,		\
 		 Entity *: call,		\
 		 const Entity *: call,		\
+		 _Bool : call,			\
 		 int: call,			\
 		 long: call,			\
 		 double: call,			\
@@ -127,10 +129,23 @@ static inline int make_abort(lua_State *L, ...)
 			       luaEntityAt(L, 3)));			\
 	}
 
+#define BIND_EE(f, ...)							\
+	static inline int lua##f(lua_State *L)				\
+	{								\
+		BIND_AUTORET(f(luaEntityAt(L, 1), luaEntityAt(L, 2)));	\
+	}
+
 #define BIND_EES(f, ...)						\
 	static inline int lua##f(lua_State *L)				\
 	{								\
 		BIND_AUTORET(f(luaEntityAt(L, 1), luaEntityAt(L, 2),	\
+			       lua_tostring(L, 3)));			\
+	}
+
+#define BIND_EIS(f, ...)						\
+	static inline int lua##f(lua_State *L)				\
+	{								\
+		BIND_AUTORET(f(luaEntityAt(L, 1), luaNumberAt(L, 2),	\
 			       lua_tostring(L, 3)));			\
 	}
 
@@ -157,14 +172,6 @@ static inline int make_abort(lua_State *L, ...)
 	{								\
 		lua_pushnumber(L, func());				\
 		return 1;						\
-	}
-
-#define LUA_IMPLEMENT_I_EE(func)				\
-	static inline int lua##func(lua_State *L)		\
-	{							\
-		lua_pushnumber(L, func(luaEntityAt(L, 1),	\
-				       luaEntityAt(L, 2)));	\
-		return 1;					\
 	}
 
 #define LUA_IMPLEMENT_I_S(func)						\
@@ -214,21 +221,6 @@ static inline int make_abort(lua_State *L, ...)
 	}
 
 
-#define LUA_IMPLEMENT_B_EE(func)					\
-	static inline int lua##func(lua_State *L)			\
-	{								\
-		lua_pushboolean(L, func(luaEntityAt(L, 1),		\
-					luaEntityAt(L, 2)));		\
-		return 1;						\
-	}
-
-#define LUA_IMPLEMENT_V_EE(func)				\
-	static inline int lua##func(lua_State *L)		\
-	{							\
-		func(luaEntityAt(L, 1), luaEntityAt(L, 2));	\
-		return 0;					\
-	}
-
 #define BIND_V_V(f)						\
 	static inline int lua##f(lua_State *L)			\
 	{ f(); return 0; }
@@ -259,13 +251,6 @@ static inline int make_abort(lua_State *L, ...)
 		return 1;						\
 	}
 
-#define BIND_E_EE(func, ...)						\
-	static inline int lua##func(lua_State *L)			\
-	{								\
-		Entity *ret = func(luaEntityAt(L, 1), luaEntityAt(L, 2)); \
-		if (ret) lua_pushlightuserdata(L, ret); else lua_pushnil(L); \
-		return 1;						\
-	}
 
 /* Lua Utils */
 double luaNumberAt(lua_State *L, int i);
@@ -335,17 +320,17 @@ BIND_EEE(yeReplace);
 BIND_EES(yeReplaceBack);
 BIND_EEI(yeReplaceAtIdx);
 BIND_EEE(yeSwapElems);
-int	luayeRenameIdxStr(lua_State *L);
-int	luayeGetPush(lua_State *L);
-LUA_IMPLEMENT_B_EE(yeDoesInclude);
+BIND_EIS(yeRenameIdxStr);
+BIND_EES(yeGetPush);
+BIND_EE(yeDoesInclude);
 LUA_IMPLEMENT_E_ES(yeTryCreateArray);
 BIND_V_E(yeClearArray);
 
 /* Entity */
-BIND_E_EE(yeCopy);
-int	luaType(lua_State *L);
+BIND_EE(yeCopy);
+BIND_E(yeType);
 int	luaYeToLuaString(lua_State *L);
-int	luaYeIncrRef(lua_State *L);
+BIND_E(yeIncrRef);
 int	luayeEntitiesArraySize(lua_State *L);
 int	luayeFreeEntitiesInStack(lua_State *L);
 int	luayeEntitiesUsed(lua_State *L);
@@ -411,8 +396,8 @@ BIND_E_E(yevMousePos);
 int	luayevMouseDown(lua_State *L);
 int	luayevCheckKeys(lua_State *L);
 int	luayevCreateGrp(lua_State *L);
-LUA_IMPLEMENT_B_EE(yevIsGrpDown);
-LUA_IMPLEMENT_B_EE(yevIsGrpUp);
+BIND_EE(yevIsGrpDown);
+BIND_EE(yevIsGrpUp);
 
 /* rect */
 int	luaYwRectCreate(lua_State *L);
@@ -433,8 +418,8 @@ int	luaywPosX(lua_State *L);
 int	luaywPosY(lua_State *L);
 int	luaywPosAngle(lua_State *L);
 int	luaywPosMoveToward2(lua_State *L);
-LUA_IMPLEMENT_I_EE(ywPosDistance);
-BIND_E_EE(ywPosSub);
+BIND_EE(ywPosDistance);
+BIND_EE(ywPosSub);
 
 /* map */
 int	luaYwMapPosFromInt(lua_State *L);
@@ -462,7 +447,7 @@ int	luaYwCntPopLastEntry(lua_State *L);
 int	luaYwReplaceEntry(lua_State *L);
 int	luaywCntWidgetFather(lua_State *L);
 int	luaywCntConstructChilds(lua_State *L);
-LUA_IMPLEMENT_I_EE(ywContainerUpdate);
+BIND_EE(ywContainerUpdate);
 
 /* canvas */
 int	luaYwCanvasRemoveObj(lua_State *L);
@@ -501,8 +486,8 @@ int	luaywCanvasSetWeight(lua_State *L);
 int	luaywCanvasDisableWeight(lua_State *L);
 int	luaywCanvasEnableWeight(lua_State *L);
 int	luaywCanvasDoPathfinding(lua_State *L);
-LUA_IMPLEMENT_B_EE(ywCanvasCheckColisionsRectObj);
-LUA_IMPLEMENT_V_EE(ywCanvasStringSet);
+BIND_EE(ywCanvasCheckColisionsRectObj);
+BIND_EE(ywCanvasStringSet);
 BIND_V_E(ywCanvasClear, 0, 0);
 BIND_EEE(ywCanvasProjectedColisionArray);
 BIND_EEE(ywCanvasProjectedArColisionArray);
@@ -755,10 +740,10 @@ static inline int	yesLuaRegister(void *sm)
 
   /* Entity */
   YES_LUA_REGISTRE_CALL(sm, yeCopy);
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeType", luaType));
+  YES_LUA_REGISTRE_CALL(sm, yeType);
   YES_LUA_REGISTRE_CALL(sm, yeSetAt);
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeToLuaString", luaYeToLuaString));
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeIncrRef", luaYeIncrRef));
+  YES_LUA_REGISTRE_CALL(sm, yeIncrRef);
   YES_LUA_REGISTRE_CALL(sm, yeEntitiesArraySize);
   YES_LUA_REGISTRE_CALL(sm, yeEntitiesUsed);
   YES_LUA_REGISTRE_CALL(sm, yeFreeEntitiesInStack);
