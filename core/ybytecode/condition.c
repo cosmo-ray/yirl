@@ -114,12 +114,14 @@ int yeCheckCondition(Entity *condition)
 		case 1:
 		case 2:
 			i = 1;
-			if (len == 2 && action[0] == 'S' && action[1] == '=') {
+			if (len == 2 && action[0] == 'S' &&
+			    (action[1] == '=' || action[1] == '!')) {
 				pushStrComVal(yeGet(condition, 1),
 					      instructions, &i);
 				pushStrComVal(yeGet(condition, 2),
 					      instructions, &i);
-				instructions[i] = YB_STR_EQUAL;
+				instructions[i] = action[1] == '=' ?
+					YB_STR_EQUAL : YB_STR_NEQUAL;
 				goto comparaisons_instructions;
 			}
 			pushComVal(yeGet(condition, 1), instructions, &i);

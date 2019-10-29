@@ -51,6 +51,7 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
 	inst_compille(YB_INF, inf_comp, 3);
 	inst_compille(YB_NOT_EQUAL_NBR, yb_not_equal_comp_nbr, 3);
 	inst_compille(YB_STR_EQUAL, yb_str_equal, 3);
+	inst_compille(YB_STR_NEQUAL, yb_str_not_equal, 3);
 	inst_compille(YB_EQUAL_NBR, yb_equal_comp_nbr, 3);
 	inst_compille(YB_EQUAL, qeual_comp, 3);
 	inst_compille(YB_NOT_EQUAL, not_equal_comp, 3);
@@ -185,6 +186,15 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
 	       yeGetString(yeGetByIdxDirect(stack, script[2])))) {
     script = origin + script[3];
     goto *((void *)*script);
+  }
+  script += 4;
+  goto *((void *)*script);
+
+ yb_str_not_equal:
+  if (!!yeStrCmp(yeGetByIdxDirect(stack, script[1]),
+		 yeGetString(yeGetByIdxDirect(stack, script[2])))) {
+	  script = origin + script[3];
+	  goto *((void *)*script);
   }
   script += 4;
   goto *((void *)*script);
