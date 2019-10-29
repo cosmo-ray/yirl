@@ -870,23 +870,6 @@ int	luaNewWidget(lua_State *L)
 	return 1;
 }
 
-int	luaCreateString(lua_State *L)
-{
-	Entity *ret = yeCreateString(lua_tostring(L, 1),
-				     luaEntityAt(L, 2),
-				     lua_tostring(L, 3));
-	lua_pushlightuserdata(L, ret);
-	return 1;
-}
-
-int	luaCreateInt(lua_State *L)
-{
-	lua_pushlightuserdata(L, yeCreateInt((int)lua_tonumber(L, 1),
-					     luaEntityAt(L, 2),
-					     lua_tostring(L, 3)));
-	return 1;
-}
-
 int	luaCreateFloat(lua_State *L)
 {
 	lua_pushlightuserdata(L, yeCreateFloat(lua_tonumber(L, 1),
@@ -1078,20 +1061,6 @@ int	luaEveKey(lua_State *L)
 	return 1;
 }
 
-int	luaSetString(lua_State *L)
-{
-	yeSetString(luaEntityAt(L, 1), lua_tostring(L, 2));
-	return 0;
-}
-
-int	luayeCreateYirlFmtString(lua_State *L)
-{
-	lua_pushlightuserdata(L, yeCreateYirlFmtString(luaEntityAt(L, 1),
-						       luaEntityAt(L, 2),
-						       lua_tostring(L, 3)));
-	return 1;
-}
-
 int	luayeStrCaseCmp(lua_State *L)
 {
 	lua_pushnumber(L, yeStrCaseCmp(luaEntityAt(L, 1), lua_tostring(L, 2)));
@@ -1118,12 +1087,6 @@ int	luayeGetBoolAt(lua_State *L)
 	return 1;
 }
 
-int	luaGetInt(lua_State *L)
-{
-	lua_pushnumber(L, yeGetInt(luaEntityAt(L, 1)));
-	return 1;
-}
-
 int	luaGetFloat(lua_State *L)
 {
 	lua_pushnumber(L, yeGetFloat(luaEntityAt(L, 1)));
@@ -1133,12 +1096,6 @@ int	luaGetFloat(lua_State *L)
 int	luaSetFunction(lua_State *L)
 {
 	yeSetFunction(luaEntityAt(L, 1), lua_tostring(L, 2));
-	return 0;
-}
-
-int	luaSetInt(lua_State *L)
-{
-	yeSetInt(luaEntityAt(L, 1), lua_tonumber(L, 2));
 	return 0;
 }
 

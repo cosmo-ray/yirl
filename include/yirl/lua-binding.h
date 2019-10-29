@@ -182,6 +182,21 @@ static inline int make_abort(lua_State *L, ...)
 			       luaNumberAt(L, 3)));			\
 	}
 
+#define BIND_SES(f, ...)							\
+	static inline int lua##f(lua_State *L)				\
+	{								\
+		BIND_AUTORET(f(lua_tostring(L, 1), luaEntityAt(L, 2),	\
+			       lua_tostring(L, 3)));			\
+	}
+
+#define BIND_NES(f, ...)						\
+	static inline int lua##f(lua_State *L)				\
+	{								\
+		BIND_AUTORET(f(luaNumberAt(L, 1), luaEntityAt(L, 2),	\
+			       lua_tostring(L, 3)));			\
+	}
+
+
 #define BIND_I_I BIND_I
 #define BIND_V_I BIND_I
 
@@ -320,9 +335,9 @@ int	luayeGetBoolAt(lua_State *L);
 
 /* string */
 BIND_E(yeGetString);
-int	luaCreateString(lua_State *L);
-int	luaSetString(lua_State *L);
-int	luayeCreateYirlFmtString(lua_State *L);
+BIND_SES(yeCreateString);
+BIND_ES(yeSetString);
+BIND_EES(yeCreateYirlFmtString);
 int	luayeStrCaseCmp(lua_State *L);
 int	luayeToLower(lua_State *L);
 BIND_ES(yeStringAddNl);
@@ -330,8 +345,9 @@ BIND_ES(yeStringAdd);
 BIND_I_ECI(yeCountCharacters, bla, bla);
 
 /* int */
-int	luaGetInt(lua_State *L);
-int	luaSetInt(lua_State *L);
+BIND_E(yeGetInt);
+BIND_EI(yeSetInt);
+BIND_NES(yeCreateInt);
 int	luaCreateInt(lua_State *L);
 int	luayeGetIntAt(lua_State *L);
 int	luayeIncrAt(lua_State *L);
@@ -735,8 +751,8 @@ static inline int	yesLuaRegister(void *sm)
 
 /* string */
   YES_LUA_REGISTRE_CALL(sm, yeGetString);
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeSetString", luaSetString));
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeCreateString", luaCreateString));
+  YES_LUA_REGISTRE_CALL(sm, yeSetString);
+  YES_LUA_REGISTRE_CALL(sm, yeCreateString);
   YES_LUA_REGISTRE_CALL(sm, yeCreateYirlFmtString);
   YES_LUA_REGISTRE_CALL(sm, yeStrCaseCmp);
   YES_LUA_REGISTRE_CALL(sm, yeToLower);
@@ -745,9 +761,9 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, yeCountCharacters);
 
   /* int */
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeGetInt", luaGetInt));
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeSetInt", luaSetInt));
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeCreateInt", luaCreateInt));
+  YES_LUA_REGISTRE_CALL(sm, yeGetInt);
+  YES_LUA_REGISTRE_CALL(sm, yeSetInt);
+  YES_LUA_REGISTRE_CALL(sm, yeCreateInt);
   YES_LUA_REGISTRE_CALL(sm, yeGetIntAt);
   YES_LUA_REGISTRE_CALL(sm, yeIncrAt);
 
