@@ -142,11 +142,24 @@ static inline int make_abort(lua_State *L, ...)
 		BIND_AUTORET(f(luaEntityAt(L, 1), luaEntityAt(L, 2)));	\
 	}
 
+#define BIND_ES(f, ...)							\
+	static inline int lua##f(lua_State *L)				\
+	{								\
+		BIND_AUTORET(f(luaEntityAt(L, 1), lua_tostring(L, 2)));	\
+	}
+
 #define BIND_EES(f, ...)						\
 	static inline int lua##f(lua_State *L)				\
 	{								\
 		BIND_AUTORET(f(luaEntityAt(L, 1), luaEntityAt(L, 2),	\
 			       lua_tostring(L, 3)));			\
+	}
+
+#define BIND_EEES(f, ...)						\
+	static inline int lua##f(lua_State *L)				\
+	{								\
+		BIND_AUTORET(f(luaEntityAt(L, 1), luaEntityAt(L, 2),	\
+			       luaEntityAt(L, 3), lua_tostring(L, 4)));	\
 	}
 
 #define BIND_EIS(f, ...)						\
@@ -191,23 +204,6 @@ static inline int make_abort(lua_State *L, ...)
 	{ f(lua_tostring(L, 1)); return 0; }
 
 
-#define LUA_IMPLEMENT_I_ES(func)					\
-	static inline int lua##func(lua_State *L)			\
-	{								\
-		lua_pushnumber(L, func(luaEntityAt(L, 1),		\
-				       lua_tostring(L, 2)));		\
-		return 1;						\
-	}
-
-#define LUA_IMPLEMENT_B_ES(func)					\
-	static inline int lua##func(lua_State *L)			\
-	{								\
-		lua_pushboolean(L, func(luaEntityAt(L, 1),		\
-					lua_tostring(L, 2)));		\
-		return 1;						\
-	}
-
-
 #define BIND_V_V(f)						\
 	static inline int lua##f(lua_State *L)			\
 	{ f(); return 0; }
@@ -229,15 +225,6 @@ static inline int make_abort(lua_State *L, ...)
 		lua_pushnumber(L, ret);					\
 		return 1;						\
 	}
-
-#define LUA_IMPLEMENT_E_ES(func)					\
-	static inline int lua##func(lua_State *L)			\
-	{								\
-		Entity *ret = func(luaEntityAt(L, 1), lua_tostring(L, 2)); \
-		if (ret) lua_pushlightuserdata(L, ret); else lua_pushnil(L); \
-		return 1;						\
-	}
-
 
 /* Lua Utils */
 double luaNumberAt(lua_State *L, int i);
@@ -295,7 +282,7 @@ LUA_IMPLEMENT_I_S(yuiFileExist);
 /* Array */
 int	luaGet(lua_State *L);
 BIND_I_E(yeLen);
-LUA_IMPLEMENT_E_ES(yeCreateArray);
+BIND_ES(yeCreateArray);
 BIND_E_E(yePopBack);
 BIND_EES(yePushBack);
 BIND_EEI(yePushAt);
@@ -311,7 +298,7 @@ BIND_EEE(yeSwapElems);
 BIND_EIS(yeRenameIdxStr);
 BIND_EES(yeGetPush);
 BIND_EE(yeDoesInclude);
-LUA_IMPLEMENT_E_ES(yeTryCreateArray);
+BIND_ES(yeTryCreateArray);
 BIND_V_E(yeClearArray);
 
 /* Entity */
@@ -323,23 +310,23 @@ BIND_V(yeEntitiesArraySize);
 BIND_V(yeFreeEntitiesInStack);
 BIND_V(yeEntitiesUsed);
 BIND_E(yeRefCount);
-int	luayeConvert(lua_State *L);
-int	luayePatchCreate(lua_State *L);
-int	luayePatchAply(lua_State *L);
-LUA_IMPLEMENT_E_ES(yeFindString);
+BIND_EI(yeConvert);
+BIND_EEES(yePatchCreate);
+BIND_EE(yePatchAply);
+BIND_ES(yeFindString);
 
 /* bool */
 int	luayeGetBoolAt(lua_State *L);
 
 /* string */
-int	luaGetString(lua_State *L);
+BIND_E(yeGetString);
 int	luaCreateString(lua_State *L);
 int	luaSetString(lua_State *L);
 int	luayeCreateYirlFmtString(lua_State *L);
 int	luayeStrCaseCmp(lua_State *L);
 int	luayeToLower(lua_State *L);
-LUA_IMPLEMENT_E_ES(yeStringAddNl);
-LUA_IMPLEMENT_E_ES(yeStringAdd);
+BIND_ES(yeStringAddNl);
+BIND_ES(yeStringAdd);
 BIND_I_ECI(yeCountCharacters, bla, bla);
 
 /* int */
@@ -747,7 +734,7 @@ static inline int	yesLuaRegister(void *sm)
 
 
 /* string */
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeGetString", luaGetString));
+  YES_LUA_REGISTRE_CALL(sm, yeGetString);
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeSetString", luaSetString));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeCreateString", luaCreateString));
   YES_LUA_REGISTRE_CALL(sm, yeCreateYirlFmtString);

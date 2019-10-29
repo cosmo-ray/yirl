@@ -309,20 +309,6 @@ int	luaentity_wrapp(lua_State *L)
   return 1;
 }
 
-int	luayePatchCreate(lua_State *L)
-{
-  lua_pushlightuserdata(L, yePatchCreate(luaEntityAt(L, 1), luaEntityAt(L, 2),
-					 luaEntityAt(L, 3),
-					 lua_tostring(L, 4)));
-  return 1;
-}
-
-int	luayePatchAply(lua_State *L)
-{
-  yePatchAply(luaEntityAt(L, 1), luaEntityAt(L, 2));
-  return 0;
-}
-
 int	luaentity_tostring(lua_State *L)
 {
   struct entityWrapper *ew = luaL_checkudata(L, 1, "Entity");
@@ -516,12 +502,6 @@ int	luaGet(lua_State *L)
 		return 1;
 	}
 	return 0;
-}
-
-int	luayeConvert(lua_State *L)
-{
-  lua_pushlightuserdata(L, yeConvert(luaEntityAt(L, 1), lua_tonumber(L, 2)));
-  return 1;
 }
 
 int	luaywCanvasRotate(lua_State *L)
@@ -1102,12 +1082,6 @@ int	luaSetString(lua_State *L)
 {
 	yeSetString(luaEntityAt(L, 1), lua_tostring(L, 2));
 	return 0;
-}
-
-int	luaGetString(lua_State *L)
-{
-	lua_pushstring(L, yeGetString(luaEntityAt(L, 1)));
-	return 1;
 }
 
 int	luayeCreateYirlFmtString(lua_State *L)
