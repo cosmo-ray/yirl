@@ -241,9 +241,39 @@ static inline int make_abort(lua_State *L, ...)
 		return 1;						\
 	}
 
+#define BIND_EK(f, ...)							\
+	static inline int lua##f(lua_State *L)				\
+	{								\
+		int t = luaOrEntType(L, 2);				\
+		/* I hate myself for writing this code V */		\
+		if (unlikely(t == YLUA_DONT_KNOW)) {			\
+			intptr_t udata = lua_touserdata(L, i);		\
+			if (udata < 3000)				\
+				t = YLUA_INT;				\
+			else						\
+				t = YLUA_STRING;			\
+		} /* but it might work, just another UB in the world */	\
+		if (t == YLUA_INT) {					\
+			BIND_AUTORET(f(luaEntityAt(L, 1), luaNumberAt(L, 2))); \
+		} else if (t == YLUA_STR) {			\
+			BIND_AUTORET(f(luaEntityAt(L, 1), lua_tostring(L, 2))); \
+		}							\
+		abort(); /*should never be here so abort*/		\
+		return 0;						\
+	}
+
+
+enum ylua_type {
+	YLUA_STR,
+	YLUA_INT,
+	YLUA_FLOAT,
+	YLUA_ENTIY,
+	YLUA_DONT_KNOW
+};
+
 /* Lua Utils */
-double luaNumberAt(lua_State *L, int i);
-int luaIntAt(lua_State *L, int i);
+int luaOrEntType(lua_State *L, int i);
+intptr_t luaNumberAt(lua_State *L, int i);
 
 /* Entity objets */
 int	luaentity_tocentity(lua_State *L);
@@ -348,8 +378,8 @@ BIND_I_ECI(yeCountCharacters, bla, bla);
 BIND_E(yeGetInt);
 BIND_EI(yeSetInt);
 BIND_NES(yeCreateInt);
-int	luaCreateInt(lua_State *L);
-int	luayeGetIntAt(lua_State *L);
+BIND_EK(yeGetIntAt);
+/* int	luayeGetIntAt(lua_State *L); */
 int	luayeIncrAt(lua_State *L);
 
 /* float */

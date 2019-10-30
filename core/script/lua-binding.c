@@ -77,14 +77,45 @@ static struct entityWrapper *createEntityWrapper(lua_State *L, int fatherPos,
   return ew;
 }
 
-double luaNumberAt(lua_State *L, int i)
+int luaOrEntType(lua_State *L, int i)
+{
+	int t;
+	if (lua_islightuserdata(L, i)) {
+		void  *udata = lua_touserdata(L, i);
+
+		if (yeIsPtrAnEntity(udata)) {
+			t = yeType(udata);
+			goto entity_type;
+		}
+		return YLUA_DONT_KNOW;
+	} else if (lua_isuserdata(L, i)) {
+		struct entityWrapper *ew = luaL_checkudata(L, i, "Entity");
+		t = yeType(ew->e);
+
+	entity_type:
+		if (t == YINT)
+			return YLUA_INT;
+		else if (t == YSTRING)
+			return YLUA_STR;
+		else if (t == YFLOAT)
+			return YLUA_FLOAT;
+		return YLUA_ENTIY;
+	} else if (lua_isnumber(L, i)) {
+		return YLUA_INT;
+	} else if (lua_isstring(L, i)) {
+		return YLUA_STR;
+	}
+	return YLUA_DONT_KNOW;
+}
+
+intptr_t luaNumberAt(lua_State *L, int i)
 {
   if (lua_islightuserdata(L, i)) {
     void  *udata = lua_touserdata(L, i);
 
     if (yeIsPtrAnEntity(udata))
       return yeGetInt(udata);
-    return (double)(int_ptr_t)udata;
+    return (intptr_t)udata;
   } else if (lua_isuserdata(L, i)) {
     struct entityWrapper *ew = luaL_checkudata(L, i, "Entity");
 
@@ -93,26 +124,6 @@ double luaNumberAt(lua_State *L, int i)
     return yeGetInt(ew->e);
   } else if (lua_isnumber(L, i)) {
     return lua_tonumber(L, i);
-  }
-  return 0;
-}
-
-int luaIntAt(lua_State *L, int i)
-{
-  if (lua_islightuserdata(L, i)) {
-    void  *udata = lua_touserdata(L, i);
-
-    if (yeIsPtrAnEntity(udata))
-      return yeGetInt(udata);
-    return (int_ptr_t)udata;
-  } else if (lua_isuserdata(L, i)) {
-    struct entityWrapper *ew = luaL_checkudata(L, i, "Entity");
-
-    if (unlikely(yeType(ew->e) == YFLOAT))
-	    return yeGetFloat(ew->e);
-    return yeGetInt(ew->e);
-  } else if (lua_isnumber(L, i)) {
-    return lua_tointeger(L, i);
   }
   return 0;
 }
@@ -824,7 +835,7 @@ int	luayeIncrAt(lua_State *L)
 	  if (lua_isstring(L, 2)) {
 		  yeIncrAt(luaEntityAt(L, 1), lua_tostring(L, 2));
 	  } else  {
-		  yeIncrAt(luaEntityAt(L, 1), luaIntAt(L, 2));
+		  yeIncrAt(luaEntityAt(L, 1), luaNumberAt(L, 2));
 	  }
 	  return 0;
 }
@@ -1070,13 +1081,6 @@ int	luayeStrCaseCmp(lua_State *L)
 int	luayeToLower(lua_State *L)
 {
 	lua_pushlightuserdata(L, yeToLower(luaEntityAt(L, 1)));
-	return 1;
-}
-
-int	luayeGetIntAt(lua_State *L)
-{
-	luaGet(L);
-	lua_pushnumber(L, yeGetInt(lua_touserdata(L, lua_gettop(L))));
 	return 1;
 }
 
