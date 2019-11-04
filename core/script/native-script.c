@@ -49,18 +49,21 @@ static void *nativeGetFastPath(void *sm, const char *name)
   return g_hash_table_lookup(weed, name);
 }
 
-static void *nativeFastCall(void *opacFunc, va_list ap)
+static void *nativeFastCall(void *opacFunc, int nb,
+			    union ycall_arg *args, int *types)
 {
-  return ((void *(*)(va_list))opacFunc)(ap);
+	void *(*f)(int, union ycall_arg *, int *) = opacFunc;
+	return f(nb, args, types);
 }
 
-static void *nativeCall(void *opac, const char *name, va_list ap)
+static void *nativeCall(void *opac, const char *name, int nb,
+			union ycall_arg *args, int *types)
 {
   (void)opac;
-  void *(*func)(va_list) = g_hash_table_lookup(weed, name);
+  void *(*func)(int, union ycall_arg *, int *) = g_hash_table_lookup(weed, name);
   if (unlikely(!func))
     return NULL;
-  return func(ap);
+  return func(nb, args, types);
 }
 
 static void *nativeAllocator(void)

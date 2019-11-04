@@ -488,24 +488,24 @@ DUMB_FUNC(yeAddAt);
 #define BIND_B_EEEE(a, b, c) DUMB_FUNC(a)
 #include "binding.c"
 
-static void *call(void *sm, const char *name, va_list ap)
+static void *call(void *sm, const char *name, int nb, union ycall_arg *args,
+		  int *types)
 {
 	duk_context *ctx = CTX(sm);
-	int i = 0;
 	void *r;
+	int i;
 
 	duk_get_global_string(ctx, name);
-	for (void *tmp = va_arg(ap, void *); tmp != Y_END_VA_LIST;
-	     tmp = va_arg(ap, void *)) {
+	for (i = 0; i < nb; ++i) {
+		void *tmp = args[i].vptr;
 		if (yeIsPtrAnEntity(tmp))
 			PUSH_E(ctx, tmp);
 		else if ((intptr_t)tmp < 65536)
 			duk_push_int(ctx, (intptr_t)tmp);
 		else
 			duk_push_pointer(ctx, tmp);
-		++i;
 	}
-	duk_call(ctx, i);
+	duk_call(ctx, nb);
 	i = duk_get_top(ctx) - 1;
 	if (is_ent(ctx, i))
 		r = GET_E(ctx, i);

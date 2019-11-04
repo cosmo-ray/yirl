@@ -19,10 +19,10 @@
 #include "yirl/entity-script.h"
 #include "tests.h"
 
-static void *moveImg(va_list ap)
+static void *moveImg(int n, union ycall_arg *args, int *types)
 {
-  Entity *wid = va_arg(ap, Entity *);
-  Entity *eve = va_arg(ap, Entity *);
+  Entity *wid = args[0].e;
+  Entity *eve = args[1].e;
   Entity *cam = yeGet(wid, "cam");
 
   if (eve && (ywidEveType(eve) == YKEY_DOWN)) {

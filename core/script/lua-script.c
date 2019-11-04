@@ -64,22 +64,20 @@ static const char *luaGetError(void *sm)
 }
 
 
-static void *luaCall(void *sm, const char *name, va_list ap)
+static void *luaCall(void *sm, const char *name, int nb,
+		     union ycall_arg *args, int *types)
 {
 	lua_State *l = GET_L(sm);
-	int nbArg = 0;
 
 	lua_getglobal(l, name);
 	if (lua_isnil(l, -1)) {
 		return NULL;
 	}
 
-	for (void *tmp = va_arg(ap, void *); tmp != Y_END_VA_LIST;
-	     tmp = va_arg(ap, void *)) {
-		lua_pushlightuserdata(l, tmp);
-		++nbArg;
+	for (int i = 0; i < nb; ++i) {
+		lua_pushlightuserdata(l, args[i].vptr);
 	}
-	lua_call(l, nbArg, 1);
+	lua_call(l, nb, 1);
 	if (lua_isnumber(l, lua_gettop(l)))
 		return (void *)lua_tointeger(l, lua_gettop(l));
 	return (void *)lua_topointer(l, lua_gettop(l));

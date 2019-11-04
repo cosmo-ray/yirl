@@ -71,35 +71,35 @@ static void *nmMenuUp(YWidgetState *wid)
   return tryCallMoveOn(wid);
 }
 
-static void *nmMenuMove(va_list ap)
+static void *nmMenuMove(int nb, union ycall_arg *args, int *types)
 {
-  Entity *wid = va_arg(ap, Entity *);
-  Entity *eve = va_arg(ap, Entity *);
+	Entity *wid = args[0].e;
+	Entity *eve = args[1].e;
 
-  if (ywidEveKey(eve) == Y_DOWN_KEY) {
-    return nmMenuDown(ywidGetState(wid));
-  } else if (ywidEveKey(eve) == Y_UP_KEY) {
-    return nmMenuUp(ywidGetState(wid));
-  }
-  return (void *)NOTHANDLE;
+	if (ywidEveKey(eve) == Y_DOWN_KEY) {
+		return nmMenuDown(ywidGetState(wid));
+	} else if (ywidEveKey(eve) == Y_UP_KEY) {
+		return nmMenuUp(ywidGetState(wid));
+	}
+	return (void *)NOTHANDLE;
 }
 
-static void *nmPanelMove(va_list ap)
+static void *nmPanelMove(int nb, union ycall_arg *args, int *types)
 {
-  YWidgetState *wid = ywidGetState(va_arg(ap, Entity *));
-  Entity *eve = va_arg(ap, Entity *);
+	YWidgetState *wid = ywidGetState(args[0].e);
+	Entity *eve = args[1].e;
 
-  if (ywidEveKey(eve) == Y_RIGHT_KEY) {
-    return nmMenuDown(wid);
-  } else if (ywidEveKey(eve) == Y_LEFT_KEY) {
-    return nmMenuUp(wid);
-  }
-  return (void *)NOTHANDLE;
+	if (ywidEveKey(eve) == Y_RIGHT_KEY) {
+		return nmMenuDown(wid);
+	} else if (ywidEveKey(eve) == Y_LEFT_KEY) {
+		return nmMenuUp(wid);
+	}
+	return (void *)NOTHANDLE;
 }
 
-static void *nmMenuNext(va_list ap)
+static void *nmMenuNext(int nb, union ycall_arg *args, int *types)
 {
-	Entity *e = va_arg(ap, Entity *);
+	Entity *e = args[0].e;
 	YWidgetState *wid = ywidGetState(e);
 	Entity *next = yeGet(e, "entries");
 
@@ -110,10 +110,10 @@ static void *nmMenuNext(va_list ap)
 }
 
 
-static void *mnActions(va_list ap)
+static void *mnActions(int nb, union ycall_arg *args, int *types)
 {
-  Entity *wid = va_arg(ap, Entity *);
-  Entity *eve = va_arg(ap, Entity *);
+  Entity *wid = args[0].e;
+  Entity *eve = args[1].e;
 
   void *ret = (void *)ywidActions(wid, ywMenuGetCurrentEntry(wid), eve);
   return ret;
@@ -131,7 +131,6 @@ void ywMenuDown(Entity *wid)
 
 static int mnInit(YWidgetState *opac, Entity *entity, void *args)
 {
-  (void)args;
   ywidGenericCall(opac, t, init);
 
   yeRemoveChildByStr(entity, "move");

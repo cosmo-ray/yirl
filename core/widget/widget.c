@@ -719,18 +719,19 @@ InputStatue ywidAction(Entity *action, Entity *wid, Entity *eve)
 		return (InputStatue)yesCall(action, wid, eve);
 	} else {
 		Entity *f = yeGet(action, 0);
-		Entity *arg1 = yeLen(action) > 1 ?
-			yeGet(action, 1) : Y_END_VA_LIST;
-		Entity *arg2 = yeLen(action) > 2 ?
-			yeGet(action, 2) : Y_END_VA_LIST;
-		Entity *arg3 = yeLen(action) > 3 ?
-			yeGet(action, 3) : Y_END_VA_LIST;
+		int nb = yeLen(action) - 1;
+		union ycall_arg args[nb + 2];
+
+		args[0].e = wid;
+		args[1].e = eve;
+		args[2].e = yeLen(action) > 1 ? yeGet(action, 1) : NULL;
+		args[3].e = yeLen(action) > 2 ? yeGet(action, 2) : NULL;
+		args[4].e = yeLen(action) > 3 ? yeGet(action, 3) : NULL;
 
 		if (yeType(f) == YSTRING)
 			f = ygGet(yeGetString(f));
 
-		InputStatue r = (InputStatue)yesCall(f, wid, eve, arg1,
-						     arg2, arg3);
+		InputStatue r = (intptr_t)yesCallInt(f, nb, args, NULL);
 
 		if (unlikely(!ygIsInit() && yeType(f) == YSTRING))
 			yeDestroy(f);
@@ -791,7 +792,7 @@ int ywidHandleEvent(YWidgetState *opac, Entity *event)
 
 	if (ygIsAlive() && (postAction = yeGet(opac->entity,
 					       "post-action")) != NULL)
-		ret = (int_ptr_t)yesCall(postAction, ret, opac->entity, event);
+		ret = (intptr_t)yesCall(postAction, ret, opac->entity, event);
 
 	return ret;
 }

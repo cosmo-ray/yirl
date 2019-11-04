@@ -17,30 +17,23 @@
 
 #include "entity-script.h"
 
-void *yesVCall(Entity *func, va_list ap)
+void *yesCallInt(Entity *func, int nb, union ycall_arg *args,
+		 int *types)
 {
-  void *fp;
+	void *fp;
 
-  if (unlikely(!func || (!(fp = yeGetFunctionFastPath(func)) &&
-			 !yeGetFunction(func))))
-    return NULL;
-  if (!fp) {
-    YE_TO_FUNC(func)->fastPath = ysGetFastPath(YE_TO_FUNC(func)->manager,
-					       yeGetFunction(func));
-    fp = yeGetFunctionFastPath(func);
-  }
-  if (fp)
-    return ysFastCall(YE_TO_FUNC(func)->manager, fp, ap);
-  return ysVCall(YE_TO_FUNC(func)->manager, yeGetFunction(func), ap);
-}
-
-void *yesCallInt(Entity *func, ...)
-{
-  void *ret;
-  va_list ap;
-
-  va_start(ap, func);
-  ret = yesVCall(func, ap);
-  va_end(ap);
-  return ret;
+	if (unlikely(!func || (!(fp = yeGetFunctionFastPath(func)) &&
+			       !yeGetFunction(func))))
+		return NULL;
+	if (!fp) {
+		YE_TO_FUNC(func)->fastPath =
+			ysGetFastPath(YE_TO_FUNC(func)->manager,
+				      yeGetFunction(func));
+		fp = yeGetFunctionFastPath(func);
+	}
+	if (fp)
+		return ysFastCall(YE_TO_FUNC(func)->manager, fp, nb,
+				  args, types);
+	return ysCallInt(YE_TO_FUNC(func)->manager, yeGetFunction(func), nb,
+			 args, types);
 }

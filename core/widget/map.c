@@ -140,20 +140,20 @@ int ywMapMoveByEntity(Entity *state, Entity *from,
   return 0;
 }
 
-static void *moveTbl(va_list ap)
+static void *moveTbl(int nb, union ycall_arg *args, int *types)
 {
-  Entity *ent = va_arg(ap, Entity *);
-  Entity *tbl = va_arg(ap, Entity *);
+  Entity *ent = args[0].e;
+  Entity *tbl = args[1].e;
 
   ywMapMoveByEntity(ent, yeGet(tbl, 0), yeGet(tbl, 1), yeGet(tbl, 2));
   return NULL;
 }
 
 
-static void *pushTbl(va_list ap)
+static void *pushTbl(int nb, union ycall_arg *args, int *types)
 {
-  Entity *ent = va_arg(ap, Entity *);
-  Entity *tbl = va_arg(ap, Entity *);
+  Entity *ent = args[0].e;
+  Entity *tbl = args[1].e;
 
   ywMapPushElem(ent, yeGet(tbl, 2), yeGet(tbl, 1), NULL);
   return NULL;

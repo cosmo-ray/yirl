@@ -27,18 +27,6 @@
 #include "yirl/native-script.h"
 #include "container.h"
 
-static void *testMenuEnter(va_list ap)
-{
-  va_arg(ap, Entity *);
-  Entity *eve = va_arg(ap, Entity *);
-
-  if (eve && (ywidEveType(eve) == YKEY_DOWN && ywidEveKey(eve) == '\n')) {
-    ywidEveSetStatus(eve, ACTION);
-    return (void *)ACTION;
-  }
-  return (void *)NOTHANDLE;
-}
-
 void testHorizontalContainerSdl(void)
 {
   GameConfig cfg;
@@ -55,7 +43,6 @@ void testHorizontalContainerSdl(void)
   ret = yeGet(ret0, "ContainerTest");
   g_assert(ret0 && ret);
   yePushToGlobalScope(ret0, "test");
-  ysRegistreNativeFunc("menuTest", testMenuEnter);
 
   wid = ywidNewWidget(ret, NULL);
   g_assert(wid);
@@ -86,7 +73,6 @@ void testVerticalContainerSdl(void)
   ret = yeGet(ret0, "VContainerTest");
   g_assert(ret);
   yePushToGlobalScope(ret0, "test");
-  ysRegistreNativeFunc("menuTest", testMenuEnter);
 
   wid = ywidNewWidget(ret, NULL);
   g_assert(wid);
@@ -117,7 +103,6 @@ void testStackContainerSdl(void)
   ret = yeGet(ret0, "SContainerTest");
   g_assert(ret);
   yePushToGlobalScope(ret0, "test");
-  ysRegistreNativeFunc("menuTest", testMenuEnter);
 
   wid = ywidNewWidget(ret, NULL);
   g_assert(wid);
@@ -156,8 +141,6 @@ void testMixContainerSdl(void)
   yeSetString(yeGet(yeGet(yeGet(ret, "entries"), 1), "name"),
 	      "MenuTest");
   yeCreateString("MenuTest", yeCreateArray(yeGet(ret, "entries"), NULL), "name");
-
-  ysRegistreNativeFunc("menuTest", testMenuEnter);
 
   YE_ARRAY_FOREACH(yeGet(ret, "entries"), entry) {
     yeCreateString(NULL, entry, "copy");
@@ -198,7 +181,7 @@ void testDynamicStackContainerSdl(void)
   yeReCreateString("container", cnt, "<type>");
   yeCreateString("stacking", cnt, "cnt-type");
   yeCreateString("rgba: 255 255 255 255", cnt, "background");
-  g_assert(ysRegistreCreateNativeEntity(testMenuEnter, "menuTest", cnt, "action"));
+  yeCreateString("QuitOnKeyDown", cnt, "action");
   entries = yeCreateArray(cnt, "entries");
 
   curMap = ywMapCreateDefaultEntity(entries, NULL, resources, 0, 20, 20);

@@ -22,7 +22,12 @@
 #include "entity.h"
 #include "utils.h"
 
-#define Y_END_VA_LIST ((void *)0xDEAD0000)
+union ycall_arg {
+	void *vptr;
+	Entity *e;
+	intptr_t i;
+	const char *str;
+};
 
 typedef struct {
 	int (*init)(void *opac, void *args);
@@ -31,8 +36,10 @@ typedef struct {
 	int (* registreFunc)(void *opac, const char *name, void *arg);
 	void (*addFuncSymbole)(void *sm, const char *name, int nbArgs,
 			       Entity *func);
-	void *(*call)(void *opac, const char *name, va_list ap);
-	void *(*fastCall)(void *opacFunction, va_list ap);
+	void *(*call)(void *sm, const char *name, int nb,
+		      union ycall_arg *args, int *types);
+	void *(*fastCall)(void *opacFunction, int nb, union ycall_arg *args,
+		int *types);
 	void *(*getFastPath)(void *scriptManager, const char *name);
 	void (*e_destroy)(void *manager, Entity *e);
 	int (*addDefine)(void *opac, const char *name, const char *val);
@@ -42,17 +49,52 @@ typedef struct {
 
 YManagerAllocator *ysScriptsTab(void);
 
-void *ysCallInt(void *sm, const char *name, ...);
+void *ysCallInt(void *sm, const char *name, int nb, union ycall_arg *args,
+		int *types);
 
-#define ysCall(sm, name, args...) ysCallInt(sm, name,			\
-					    YUI_VA_ARGS_HANDELER(Y_END_VA_LIST,	\
-								 args))
+#define YS_MK(x) {(void *)x}
 
-void *ysFCallInt(void *sm, void *name,  ...);
+#define YS_MK_BRACES_1(a) YS_MK(a)
+#define YS_MK_BRACES_2(a,b) YS_MK(a),YS_MK(b)
+#define YS_MK_BRACES_3(a,b,c) YS_MK(a),YS_MK(b),YS_MK(c)
+#define YS_MK_BRACES_4(a,b,c,d) YS_MK(a),YS_MK(b),YS_MK(c),YS_MK(d)
+#define YS_MK_BRACES_5(a,b,c,d,e) YS_MK(a),YS_MK(b),YS_MK(c),YS_MK(d),YS_MK(e)
+#define YS_MK_BRACES_6(a,b,c,d,e,f) YS_MK(a),YS_MK(b),YS_MK(c),YS_MK(d),\
+		YS_MK(e),YS_MK(f)
+#define YS_MK_BRACES_7(a,b,c,d,e,f,g) YS_MK(a),YS_MK(b),YS_MK(c),YS_MK(d),\
+		YS_MK(e),YS_MK(f),YS_MK(g)
+#define YS_MK_BRACES_8(a,b,c,d,e,f,g,h) YS_MK(a),YS_MK(b),YS_MK(c),YS_MK(d),\
+		YS_MK(e),YS_MK(f),YS_MK(g),YS_MK(h)
+#define YS_MK_BRACES_9(a,b,c,d,e,f,g,h,i) YS_MK(a),YS_MK(b),YS_MK(c),YS_MK(d),\
+		YS_MK(e),YS_MK(f),YS_MK(g),YS_MK(h),YS_MK(i)
 
-#define ysFCall(sm, name, args...) ysFCallInt(sm, name,			\
-					      YUI_VA_ARGS_HANDELER(Y_END_VA_LIST, \
-								   args))
+#define YS_MK_BRACES(nb, ...)				\
+	YUI_CAT(YS_MK_BRACES_, nb) (__VA_ARGS__)
+
+#define YS_ARGS(args...)						\
+	YS_ARGS_(YUI_GET_ARG_COUNT(args), args)
+
+#define YS_ARGS_(nb, args...)					\
+	YUI_IF_ELSE(nb)						\
+		((union ycall_arg []) {YS_MK_BRACES(nb, args)})	\
+		(NULL)
+
+/* #define YS_MK_ARGS(...)							\ */
+/* 	YUI_GET_ARG_COUNT(args),					\ */
+/* 		YS_ARGS(args),						\ */
+/* 		NULL) */
+
+#define ysCall(sm, name, args...)					\
+	ysCallInt(sm, name,						\
+		  YUI_GET_ARG_COUNT(args),				\
+		  YS_ARGS(args),					\
+		  NULL)
+
+#define ysFCall(sm, name, args...)					\
+	ysFastCall(sm, name,						\
+		   YUI_GET_ARG_COUNT(args),				\
+		   YS_ARGS(args),					\
+		   NULL)
 
 
 static inline void ysEDestroy(void *sm, Entity *f)
@@ -65,26 +107,22 @@ static inline void ysEDestroy(void *sm, Entity *f)
 
 static inline int ysAddDefine(void *sm, const char *name, const char *val)
 {
-  if (unlikely(!((YScriptOps *)sm)->addDefine))
-    return -1;
-  return ((YScriptOps *)sm)->addDefine(sm, name, val);
+	if (unlikely(!((YScriptOps *)sm)->addDefine))
+		return -1;
+	return ((YScriptOps *)sm)->addDefine(sm, name, val);
 }
 
 static inline void *ysGetFastPath(void *sm, const char *name)
 {
-  if (!((YScriptOps *)sm)->getFastPath)
-    return NULL;
-  return ((YScriptOps *)sm)->getFastPath(sm, name);
+	if (!((YScriptOps *)sm)->getFastPath)
+		return NULL;
+	return ((YScriptOps *)sm)->getFastPath(sm, name);
 }
 
-static inline void *ysFastCall(void *sm, void *opacFunc, va_list ap)
+static inline void *ysFastCall(void *sm, void *opacFunc, int nb,
+			       union ycall_arg *args, int *types)
 {
-  return ((YScriptOps *)sm)->fastCall(opacFunc, ap);
-}
-
-static inline void *ysVCall(void *sm, const char *name, va_list ap)
-{
-  return ((YScriptOps *)sm)->call(sm, name, ap);
+	return ((YScriptOps *)sm)->fastCall(opacFunc, nb, args, types);
 }
 
 static inline void ysAddFuncSymbole(void *sm, const char *name,
@@ -95,26 +133,26 @@ static inline void ysAddFuncSymbole(void *sm, const char *name,
 
 static inline int ysRegistreFunc(void *sm, const char *name, void *arg)
 {
-  return ((YScriptOps *)sm)->registreFunc(sm, name, arg);
+	return ((YScriptOps *)sm)->registreFunc(sm, name, arg);
 }
 
 static inline int ysLoadFile(void *sm, const char *name)
 {
-  return ((YScriptOps *)sm)->loadFile(sm, name);
+	return ((YScriptOps *)sm)->loadFile(sm, name);
 }
 
 static inline int ysLoadString(void *sm, const char *name)
 {
-  return ((YScriptOps *)sm)->loadString(sm, name);
+	return ((YScriptOps *)sm)->loadString(sm, name);
 }
 
 static inline const char *ysGetError(void *sm)
 {
-  if (!sm)
-    return "script manager is NULL";
-  if (!((YScriptOps *)sm)->getError)
-    return "(nil)";
-  return ((YScriptOps *)sm)->getError(sm);
+	if (!sm)
+		return "script manager is NULL";
+	if (!((YScriptOps *)sm)->getError)
+		return "(nil)";
+	return ((YScriptOps *)sm)->getError(sm);
 }
 
 int ysRegister(void *(*allocator)(void));

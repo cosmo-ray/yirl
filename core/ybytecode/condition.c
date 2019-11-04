@@ -55,14 +55,14 @@ static inline int pushStrComVal(Entity *val, uint64_t *instructions, int *idx)
 int conditionCall(Entity *condition)
 {
 	Entity *f = ygGet(yeGetStringAt(condition, 1));
-	Entity *arg1 = yeLen(condition) > 2 ?
-		yeGet(condition, 2) : Y_END_VA_LIST;
-	Entity *arg2 = yeLen(condition) > 3 ?
-		yeGet(condition, 3) : Y_END_VA_LIST;
-	Entity *arg3 = yeLen(condition) > 4 ?
-		yeGet(condition, 4) : Y_END_VA_LIST;
+	int nb = yeLen(condition) - 2;
+	union ycall_arg args[nb < 0 ? 0 : nb];
+	args[0].e = nb > 0 ? yeGet(condition, 2) : NULL;
+	args[1].e = nb > 1 ? yeGet(condition, 3) : NULL;
+	args[2].e = nb > 2 ? yeGet(condition, 4) : NULL;
+	args[3].e = nb > 3 ? yeGet(condition, 5) : NULL;
 
-	return (uint64_t)yesCall(f, arg1, arg2, arg3);
+	return (intptr_t)yesCallInt(f, nb, args, NULL);
 }
 
 int yeCheckCondition(Entity *condition)

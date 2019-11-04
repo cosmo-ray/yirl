@@ -25,10 +25,9 @@ static const char *testPath = TESTS_PATH"./testMod";
 #define MAP_SIZE_W 5
 #define MAP_SIZE_H 5
 
-static void *shooterAction(va_list ap)
+static void *shooterAction(int nb, union ycall_arg *args, int *types)
 {
-  va_arg(ap, Entity *);
-  Entity *eve = va_arg(ap, Entity *);
+  Entity *eve = args[1].e;
   InputStatue ret = NOTHANDLE;
 
   if (!eve)
@@ -41,10 +40,10 @@ static void *shooterAction(va_list ap)
   return (void *)ret;
 }
 
-static void *shooterInit(va_list ap)
+static void *shooterInit(int nb, union ycall_arg *args, int *types)
 {
-  Entity *wid = va_arg(ap, Entity *);
-  Entity *arg = va_arg(ap, Entity *);
+  Entity *wid = args[0].e;
+  Entity *arg = args[1].e;
 
   ywMapSetW(arg, MAP_SIZE_W);
   arg = yeCreateArray(arg, "map");

@@ -122,41 +122,32 @@ void ygTerminate(void)
 	alive = 0;
 }
 
-static void *ygTerminateCallback(va_list va)
+static void *ygTerminateCallback(int nb, union ycall_arg *args, int *types)
 {
-	(void)va;
 	ygTerminate();
 	return (void *)ACTION;
 }
 
-static void *quitOnKeyDown(va_list ap)
+static void *quitOnKeyDown(int nb, union ycall_arg *args, int *types)
 {
-  va_list tmp_ap;
-  va_copy(tmp_ap, ap);
-  va_arg(tmp_ap, Entity *);
-  Entity *events = va_arg(tmp_ap, Entity *);
+  Entity *events = args[1].e;
   Entity *eve = events;
-  void *ret = (void *)NOTHANDLE;
 
   YEVE_FOREACH(eve, events) {
     if (ywidEveType(eve) == YKEY_DOWN) {
       if (ywidEveKey(eve) == 'q' ||
 	  ywidEveKey(eve) == Y_ESC_KEY) {
 	alive = 0;
-	ret = (void *)ACTION;
-	goto exit;
+	return (void *)ACTION;
       }
     }
   }
- exit:
-  va_end(tmp_ap);
-  return ret;
+  return (void *)NOTHANDLE;
 }
 
-static void *fullScreenOnOff(va_list ap)
+static void *fullScreenOnOff(int nb, union ycall_arg *args, int *types)
 {
   static int fs;
-  (void)ap;
 
   if (fs) {
     ysdl2WindowMode();
@@ -168,13 +159,13 @@ static void *fullScreenOnOff(va_list ap)
   return (void *)NOTHANDLE;
 }
 
-static void *nextWid(va_list ap)
+static void *nextWid(int nb, union ycall_arg *args, int *types)
 {
-  Entity *wid = va_arg(ap, Entity *);
-  Entity *target = va_arg(ap, Entity *);
-  Entity *next = yeGet(wid, "next");
+  Entity *wid = args[0].e;
+  Entity *target = args[1].e;
+  Entity *next = args[2].e;
 
-  if (target == Y_END_VA_LIST || yeType(target) != YSTRING ||
+  if (nb == 2 || yeType(target) != YSTRING ||
       !yeGet(target, "<type>")) {
 	  Entity *te = yeGet(wid, "next_target");
 	  if (te)
@@ -197,57 +188,39 @@ static void *nextWid(va_list ap)
   return (void *)ACTION;
 }
 
-static void *setInt(va_list ap)
+static void *setInt(int nb, union ycall_arg *args, int *types)
 {
-	Entity *wid = va_arg(ap, Entity *);
-	// presently toSet is set here to events
-	Entity *toSet = va_arg(ap, Entity *);
-	Entity *value;
+	// args[0] is the widget and args[1] are the events
+	Entity *toSet = args[2].e;
+	Entity *value = args[3].e;
 
-	// here we really set to it's value
-	toSet = va_arg(ap, Entity *);
-	value = va_arg(ap, Entity *);
-	(void)wid;
 	ygSetInt(yeGetString(toSet), yeGetInt(value));
 	return (void *)NOACTION;
 }
 
-static void *recreateInt(va_list ap)
+static void *recreateInt(int nb, union ycall_arg *args, int *types)
 {
-	Entity *wid = va_arg(ap, Entity *);
-	// presently toSet is set here to events
-	Entity *toSet = va_arg(ap, Entity *);
-	Entity *value;
+	// args[0] is the widget and args[1] are the events
+	Entity *toSet = args[2].e;
+	Entity *value = args[3].e;
 
-	// here we really set to it's value
-	toSet = va_arg(ap, Entity *);
-	value = va_arg(ap, Entity *);
-	(void)wid;
 	ygReCreateInt(yeGetString(toSet), yeGetInt(value));
 	return (void *)NOACTION;
 }
 
-static void *increaseInt(va_list ap)
+static void *increaseInt(int nb, union ycall_arg *args, int *types)
 {
-	Entity *wid = va_arg(ap, Entity *);
-	// presently toSet is set here to events
-	Entity *toSet = va_arg(ap, Entity *);
-	Entity *value;
+	// args[0] is the widget and args[1] are the events
+	Entity *toSet = args[2].e;
+	Entity *value = args[3].e;
 
-	// here we really set to it's value
-	toSet = va_arg(ap, Entity *);
-	value = va_arg(ap, Entity *);
-	(void)wid;
 	ygIncreaseInt(yeGetString(toSet), yeGetInt(value));
 	return (void *)NOACTION;
 }
 
-static void *nextOnKeyDown(va_list ap)
+static void *nextOnKeyDown(int nb, union ycall_arg *args, int *types)
 {
-	va_list tmp_ap;
-	va_copy(tmp_ap, ap);
-	va_arg(tmp_ap, Entity *);
-	Entity *events = va_arg(tmp_ap, Entity *);
+	Entity *events = args[1].e;
 	Entity *eve = events;
 	void *ret = (void *)NOTHANDLE;
 
@@ -256,11 +229,10 @@ static void *nextOnKeyDown(va_list ap)
 			if (ywidEveKey(eve) == ' ' ||
 			    ywidEveKey(eve) == '\n' ||
 			    ywidEveKey(eve) == Y_ESC_KEY) {
-				ret = nextWid(ap);
+				ret = nextWid(nb, args, types);
 			}
 		}
 	}
-	va_end(tmp_ap);
 	return ret;
 }
 
@@ -1061,18 +1033,16 @@ void ygCleanGameConfig(GameConfig *cfg)
   g_list_free_full(cfg->rConf, g_free);
 }
 
-void *ygCallInt(const char *mod, const char *callName, ...)
+void *ygCallInt(const char *mod, const char *callName, int nb,
+		union ycall_arg *args, int *types)
 {
   void *ret;
-  va_list ap;
   Entity *modEntity;
 
   if (!callName)
     return NULL;
   modEntity = ygGetMod(mod);
-  va_start(ap, callName);
-  ret = yesVCall(ygGetFunc(modEntity, callName), ap);
-  va_end(ap);
+  ret = yesCallInt(ygGetFunc(modEntity, callName), nb, args, types);
   return ret;
 
 }

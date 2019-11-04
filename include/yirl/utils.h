@@ -117,12 +117,12 @@ typedef int64_t int_ptr_t;
 					      1, 0)
 
 #define _GET_ARG_COUNT(_0, _1_, _2_, _3_, _4_, _5_, _6_, _7_, _8_, _9_, _10_, \
-		       _11_, _12_, _13_, _14_, _15_, _16_, _17_, _18_, _19_,\
-		       _20_, _21_, _22_, _23_, _24_, _25_, _26_, _27_, _28_,\
-		       _29_, _30_, _31_, _32_, _33_, _34_, _35_, _36, _37,\
-		       _38, _39, _40, _41, _42, _43, _44, _45, _46, _47,\
-		       _48, _49, _50, _51, _52, _53, _54, _55, _56, _57,\
-		       _58, _59, _60, _61, _62, _63, _64, _65, _66, _67,\
+		       _11_, _12_, _13_, _14_, _15_, _16_, _17_, _18_, _19_, \
+		       _20_, _21_, _22_, _23_, _24_, _25_, _26_, _27_, _28_, \
+		       _29_, _30_, _31_, _32_, _33_, _34_, _35_, _36, _37, \
+		       _38, _39, _40, _41, _42, _43, _44, _45, _46, _47, \
+		       _48, _49, _50, _51, _52, _53, _54, _55, _56, _57, \
+		       _58, _59, _60, _61, _62, _63, _64, _65, _66, _67, \
 		       _68, _69, _70, count, ...) count
 
 #define YUI_SECOND(a, b, ...) b
@@ -150,9 +150,35 @@ typedef int64_t int_ptr_t;
 #define _IF_1_ELSE(...)
 #define _IF_0_ELSE(...) __VA_ARGS__
 
-#define YUI_VA_ARGS_HANDELER(end, args...)				\
-	YUI_IF_ELSE(YUI_GET_ARG_COUNT(args)) ( args, end ) (end)
+/* #define YUI_UNROLL_ARGS_1(a) a */
+/* #define YUI_UNROLL_ARGS_2(a,b) a,b */
+/* #define YUI_UNROLL_ARGS_3(a,b,c) a,b,c */
+/* #define YUI_UNROLL_ARGS_4(a,b,c,d) a,b,c,d */
+/* #define YUI_UNROLL_ARGS_5(a,b,c,d,e) a,b,c,d,e */
+/* #define YUI_UNROLL_ARGS_6(a,b,c,d,e,f) a,b,c,d,e,f */
+/* #define YUI_UNROLL_ARGS_7(a,b,c,d,e,f,g) a,b,c,d,e,f,g */
+/* #define YUI_UNROLL_ARGS_8(a,b,c,d,e,f,g,h) a,b,c,d,e,f,g,h */
+/* #define YUI_UNROLL_ARGS_9(a,b,c,d,e,f,g,h,i) a,b,c,d,e,f,g,h,i */
+/* #define YUI_UNROLL_ARGS_10(a,b,c,d,e,f,g,h,i,j) a,b,c,d,e,f,g,h,i,j */
+/* #define YUI_UNROLL_ARGS_11(a,b,c,d,e,f,g,h,i,j,k) a,b,c,d,e,f,g,h,i,j,k */
+/* #define YUI_UNROLL_ARGS_12(a,b,c,d,e,f,g,h,i,j,k,l) a,b,c,d,e,f,g,h,i,j,k,l */
+/* #define YUI_UNROLL_ARGS_13(a,b,c,d,e,f,g,h,i,j,k,l,o) a,b,c,d,e,f,g,h,i,j,k,l,o */
+/* #define YUI_UNROLL_ARGS_14(a,b,c,d,e,f,g,h,i,j,k,l,o,p)		\ */
+/* 	a,b,c,d,e,f,g,h,i,j,k,l,o,p */
+/* #define YUI_UNROLL_ARGS_15(a,b,c,d,e,f,g,h,i,j,k,l,o,p,q)	\ */
+/* 	a,b,c,d,e,f,g,h,i,j,k,l,o,p,q */
+/* #define YUI_UNROLL_ARGS_16(a,b,c,d,e,f,g,h,i,j,k,l,o,p,q,r)	\ */
+/* 	a,b,c,d,e,f,g,h,i,j,k,l,o,p,q,r */
+/* #define YUI_UNROLL_ARGS_17(a,b,c,d,e,f,g,h,i,j,k,l,o,p,q,r,s)	\ */
+/* 	a,b,c,d,e,f,g,h,i,j,k,l,o,p,q,r,s */
+/* #define YUI_UNROLL_ARGS_18(a,b,c,d,e,f,g,h,i,j,k,l,o,p,q,r,s,t)	\ */
+/* 	a,b,c,d,e,f,g,h,i,j,k,l,o,p,q,r,s,t */
 
+/* #define YUI_UNROLL_ARGS_(nb, ...)					\ */
+/* 	YUI_CAT(YUI_UNROLL_ARGS_, nb) (__VA_ARGS__) */
+
+/* #define YUI_UNROLL_ARGS(...)						\ */
+/* 	YUI_UNROLL_ARGS_(AF_GET_ARG_COUNT(__VA_ARGS__), __VA_ARGS__) */
 
 /*
  * yuiPopcount64, yuiClz64, and yuiCtz64 come from

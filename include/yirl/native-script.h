@@ -28,12 +28,15 @@ int ysNativeEnd(void);
 /**
  * Same as ysRegistreFunc but check type and call ysNativeManager
  */
-static inline int ysRegistreNativeFunc(char *name, void *(*value)(va_list))
+static inline int ysRegistreNativeFunc(char *name,
+				       void *(*value)(int, union ycall_arg *,
+						      int *))
 {
   return ysRegistreFunc(ysNativeManager(), name, value);
 }
 
-Entity *ysRegistreCreateNativeEntity(void *(*value)(va_list), const char *name,
+Entity *ysRegistreCreateNativeEntity(void *(*value)(int, union ycall_arg *, int *),
+				     const char *name,
 				     Entity *father, const char *entityName);
 
 #endif

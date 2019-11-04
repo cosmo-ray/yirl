@@ -437,22 +437,18 @@ static s7_pointer make_nothing(s7_scheme *s, ...)
 
 static s7_pointer s7yesCall(s7_scheme *s, s7_pointer a)
 {
-	void *args[17];
+	union ycall_arg args[17];
 	void *r;
+	int i = 1;
 
-	for (int i = 0; i < 16; ++i) {
-		args[i] = E_AT(s, a, i);
-		if (!args[i]) {
-			args[i] = Y_END_VA_LIST;
+	for (; i < 16; ++i) {
+		args[i - 1].e = E_AT(s, a, i);
+		if (!args[i - 1].e) {
 			break;
 		}
-		args[16] = Y_END_VA_LIST;
 	}
 
-	r = yesCallInt(args[0], args[1], args[2], args[3], args[4],
-		       args[5], args[6], args[7], args[8], args[9],
-		       args[10], args[11], args[12], args[13], args[14],
-		       args[15]);
+	r = yesCallInt(E_AT(s, a, 0), i, args, NULL);
 	if (yeIsPtrAnEntity(r))
 		return s7_make_c_object(s, s7m->et, r);
 	return s7_make_integer(s, (intptr_t) r);
@@ -598,35 +594,28 @@ int loadString(void *s, const char *str)
 	return 0;
 }
 
-#define CPTR(idx) yeIsPtrAnEntity(args[idx]) ?				\
-		s7_make_c_object(s, s7m->et, args[idx]) :		\
-		s7_make_c_pointer(s, args[idx])
+#define CPTR(idx) yeIsPtrAnEntity(args[idx].vptr) ?			\
+		s7_make_c_object(s, s7m->et, args[idx].vptr) :		\
+		s7_make_c_pointer(s, args[idx].vptr)
 
 
-static void *call(void *sm, const char *name, va_list ap)
+static void *call(void *sm, const char *name, int nb, union ycall_arg *args,
+		  int *t_array)
 {
 	s7_scheme *s = GET_S7(sm);
 	s7_pointer f = s7_name_to_value(s, name);
 	s7_pointer r;
 	s7_pointer a;
-	int nbArg = 0;
-	static void *args[16];
 
 	if (!f)
 		return NULL;
 
-	for (void *tmp = va_arg(ap, void *); tmp != Y_END_VA_LIST;
-	     tmp = va_arg(ap, void *)) {
-		args[nbArg] = tmp;
-		++nbArg;
-	}
-
-	switch (nbArg) {
+	switch (nb) {
 	case 1:
 		a = s7_cons(s, CPTR(0), s7_nil(s));
 		break;
 	default:
-		a = s7_list(s, nbArg, CPTR(0), CPTR(1), CPTR(2),
+		a = s7_list(s, nb, CPTR(0), CPTR(1), CPTR(2),
 			    CPTR(3), CPTR(4), CPTR(5),
 			    CPTR(6), CPTR(7), CPTR(8),
 			    CPTR(9), CPTR(10), CPTR(11));

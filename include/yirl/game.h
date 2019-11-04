@@ -87,15 +87,17 @@ int ygInitGameConfigByRenderType(GameConfig *cfg,
 int ygInitGameConfigByStr(GameConfig *cfg, const char *path,
 			  const char *render);
 
-void *ygCallInt(const char *mod, const char *callName, ...);
+void *ygCallInt(const char *mod, const char *callName, int nb,
+		union ycall_arg *args, int *types);
 
 /* because tcc bug with 0 args */
-#define ygVCall(mod, callName) ygCallInt(mod, callName, Y_END_VA_LIST)
+#define ygVCall(mod, callName) ygCallInt(mod, callName, 0, NULL, NULL)
 
-#define ygCall(mod, callName, args...)					\
-	ygCallInt(mod, callName,					\
-		  YUI_VA_ARGS_HANDELER(Y_END_VA_LIST,			\
-				       args))
+#define ygCall(mod, callName, args...)			\
+	ygCallInt(mod, callName,			\
+		  YUI_GET_ARG_COUNT(args),		\
+		  YS_ARGS(args),			\
+		  NULL)
 
 int ygRegistreFuncInternal(void *manager, int nbArgs, const char *name,
 			   const char *toRegistre);

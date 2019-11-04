@@ -27,10 +27,9 @@
 #include "text-screen.h"
 #include "native-script.h"
 
-static void *testTXQuitOnQ(va_list ap)
+static void *testTXQuitOnQ(int nb, union ycall_arg *args, int *types)
 {
-  va_arg(ap, Entity *);
-  Entity *eve = va_arg(ap, Entity *);
+  Entity *eve = args[1].e;
 
   if (eve && (ywidEveType(eve) == YKEY_DOWN &&
 	      (ywidEveKey(eve) == '\n' || ywidEveKey(eve) == 'q' )))

@@ -25,10 +25,9 @@
 #include "native-script.h"
 
 
-static void *testMapEnter(va_list ap)
+static void *testMapEnter(int nb, union ycall_arg *args, int *types)
 {
-  va_arg(ap, Entity *);
-  Entity *eve = va_arg(ap, Entity *);
+  Entity *eve = args[1].e;
 
   if (eve && (ywidEveType(eve) == YKEY_DOWN && ywidEveKey(eve) == '\n'))
     return (void *)ACTION;

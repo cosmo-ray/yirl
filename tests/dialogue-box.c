@@ -19,11 +19,11 @@
 #include "yirl/entity-script.h"
 #include "tests.h"
 
-static void *doEvents(va_list ap)
+static void *doEvents(int n, union ycall_arg *args, int *types)
 {
   static int state = 0;
-  Entity *wid = va_arg(ap, Entity *);
-  Entity *eve = va_arg(ap, Entity *);
+  Entity *wid = args[0].e;
+  Entity *eve = args[1].e;
 
   if (eve && (ywidEveType(eve) == YKEY_DOWN)) {
     if (ywidEveKey(eve) == ' ') {

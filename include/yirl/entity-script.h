@@ -21,20 +21,14 @@
 #include "yirl/script.h"
 #include "yirl/entity.h"
 
-#ifndef Y_INSIDE_TCC
+void *yesCallInt(Entity *func, int nb, union ycall_arg *args,
+		 int *types);
 
-#include <stdarg.h>
-
-void *yesVCall(Entity *func, va_list ap);
-
-#endif
-
-void *yesCallInt(Entity *func, ...);
-
-#define yesCall0(func) yesCallInt(func, Y_END_VA_LIST)
+#define yesCall0(func) yesCallInt(func, 0, NULL, NULL)
 
 #define yesCall(func, args...) yesCallInt(func,				\
-					  YUI_VA_ARGS_HANDELER(Y_END_VA_LIST, \
-							       args))
+					  YUI_GET_ARG_COUNT(args),	\
+					  YS_ARGS(args),		\
+					  NULL)
 
 #endif

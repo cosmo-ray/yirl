@@ -496,21 +496,17 @@ static void *tccGetFastCall(void *scriptManager, const char *name)
 	return NULL;
 }
 
-static void *tccFCall(void *sym, va_list ap)
+static void *tccFCall(void *sym, int nb, union ycall_arg *args, int *t_arrray)
 {
-	/* should be declared as thread local */
-	static void *args[16];
-	int nbArg = 0;
-
-	for (void *tmp = va_arg(ap, void *); tmp != Y_END_VA_LIST;
-	     tmp = va_arg(ap, void *)) {
-		args[nbArg] = tmp;
-		++nbArg;
-	}
-	return ((void *(*)(int, void **args))sym)(nbArg, args);
+	/* even using -fstrict-aliasing it's still UB */
+	/* should work anyway assuming that V */
+	_Static_assert(sizeof(union ycall_arg) == sizeof(void *),
+		"sizeof(union ycall_arg) != sizeof(void *)");
+	return ((void *(*)(int, void **args))sym)(nb, (void **)args);
 }
 
-static void *tccCall(void *sm, const char *name, va_list ap)
+static void *tccCall(void *sm, const char *name, int nb,
+		      union ycall_arg *args, int *types)
 {
 	void *sym = tccGetFastCall(sm, name);
 
@@ -518,7 +514,7 @@ static void *tccCall(void *sm, const char *name, va_list ap)
 		DPRINT_ERR("unable to find '%s' symbol", name);
 		return NULL;
 	}
-	return tccFCall(sym, ap);
+	return tccFCall(sym, nb, args, types);
 }
 
 static int tccDestroy(void *sm)

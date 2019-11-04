@@ -81,61 +81,63 @@ static void *ybytecodeGetFastPath(void *sm, const char *name)
   return yeGetData(yeGet(GET_MAP(sm), name));
 }
 
-static void *ybytecodeFastCall(void *opacFunc, va_list ap)
+static void *ybytecodeFastCall(void *opacFunc, int nb, union ycall_arg *args,
+			       int *types)
 {
-  Entity *stack  = yeCreateArrayExt(NULL, NULL,
-				    YBLOCK_ARRAY_NOINIT |
-				    YBLOCK_ARRAY_NOMIDFREE);
-  Entity *ret;
-  int iret;
-  double fret;
-  void *dret;
+	Entity *stack  = yeCreateArrayExt(NULL, NULL,
+					  YBLOCK_ARRAY_NOINIT |
+					  YBLOCK_ARRAY_NOMIDFREE);
+	Entity *ret;
+	int iret;
+	double fret;
+	void *dret;
 
-  for (void *tmp = va_arg(ap, void *);
-       tmp != Y_END_VA_LIST; tmp = va_arg(ap, void *)) {
-    if (yeIsPtrAnEntity(tmp))
-      yePushBack(stack, tmp, NULL);
-    else
-      yeCreateData(tmp, stack, NULL);
-  }
-  ret = ybytecode_exec(stack, opacFunc);
-  yeDestroy(stack);
-  if (!ret) {
-    if (ybytecode_error) {
-      YBYTECODE_ERROR("%s", ybytecode_error);
-      g_free(ybytecode_error);
-      ybytecode_error = NULL;
-    }
-    return NULL;
-  }
-  if (YBytecodeScriptDirectReturn)
-    return ret;
+	for (int i = 0; i < nb; ++i) {
+		void *tmp = args[i].vptr;
+		if (yeIsPtrAnEntity(tmp))
+			yePushBack(stack, tmp, NULL);
+		else
+			yeCreateData(tmp, stack, NULL);
+	}
+	ret = ybytecode_exec(stack, opacFunc);
+	yeDestroy(stack);
+	if (!ret) {
+		if (ybytecode_error) {
+			YBYTECODE_ERROR("%s", ybytecode_error);
+			g_free(ybytecode_error);
+			ybytecode_error = NULL;
+		}
+		return NULL;
+	}
+	if (YBytecodeScriptDirectReturn)
+		return ret;
 
-  switch (yeType(ret)) {
-  case YINT:
-    iret = yeGetInt(ret);
-    yeDestroy(ret);
-    return (void *)(size_t)iret;
-  case YFLOAT:
-    fret = yeGetFloat(ret);
-    yeDestroy(ret);
-    return (void *)(size_t)fret;
-  case YDATA:
-    dret = yeGetData(ret);
-    yeDestroy(ret);
-    return dret;
-  default:
-    break;
-  }
-  return ret;
+	switch (yeType(ret)) {
+	case YINT:
+		iret = yeGetInt(ret);
+		yeDestroy(ret);
+		return (void *)(size_t)iret;
+	case YFLOAT:
+		fret = yeGetFloat(ret);
+		yeDestroy(ret);
+		return (void *)(size_t)fret;
+	case YDATA:
+		dret = yeGetData(ret);
+		yeDestroy(ret);
+		return dret;
+	default:
+		break;
+	}
+	return ret;
 }
 
-static void *ybytecodeCall(void *sm, const char *name, va_list ap)
+static void *ybytecodeCall(void *sm, const char *name, int nb,
+			   union ycall_arg *args, int *types)
 {
   void *data = ybytecodeGetFastPath(sm, name);
   if (unlikely(!data))
     return NULL;
-  return ybytecodeFastCall(data, ap);
+  return ybytecodeFastCall(data, nb, args, types);
 }
 
 static int ybytecodeDestroy(void *sm)

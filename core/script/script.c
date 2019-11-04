@@ -61,25 +61,9 @@ int ysDestroyManager(void *sm)
   return ((YScriptOps *)sm)->destroy(sm);
 }
 
-void *ysFCallInt(void *sm, void *name, ...)
+void *ysCallInt(void *sm, const char *name, int nb, union ycall_arg *args,
+		int *types)
 {
-  void *ret;
-  va_list ap;
-
-  va_start(ap, name);
-  ret = ysFastCall(sm, name, ap);
-  va_end(ap);
-  return ret;
-}
-
-void *ysCallInt(void *sm, const char *name, ...)
-{
-  void *ret;
-  va_list ap;
-
-  va_start(ap, name);
-  ret = ysVCall(sm, name, ap);
-  va_end(ap);
-  return ret;
+  	return ((YScriptOps *)sm)->call(sm, name, nb, args, types);
 }
 

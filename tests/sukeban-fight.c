@@ -18,7 +18,7 @@
 #include "yirl/game.h"
 #include "tests.h"
 
-static void *attack(va_list ap)
+static void *attack(int n, union ycall_arg *args, int *types)
 {
   printf("atack time !\n");
   return NULL;

@@ -29,6 +29,14 @@
 #include <lualib.h>
 #include <lauxlib.h>
 
+enum ylua_type {
+	YLUA_STR,
+	YLUA_INT,
+	YLUA_FLOAT,
+	YLUA_ENTIY,
+	YLUA_DONT_KNOW
+};
+
 #define LUAT(call)				\
 	_Generic(call,				\
 		 default: 0,			\
@@ -247,11 +255,11 @@ static inline int make_abort(lua_State *L, ...)
 		int t = luaOrEntType(L, 2);				\
 		/* I hate myself for writing this code V */		\
 		if (unlikely(t == YLUA_DONT_KNOW)) {			\
-			intptr_t udata = lua_touserdata(L, i);		\
-			if (udata < 3000)				\
+			intptr_t udata = (intptr_t)lua_touserdata(L, 2); \
+			if (udata < 65536)				\
 				t = YLUA_INT;				\
 			else						\
-				t = YLUA_STRING;			\
+				t = YLUA_STR;			\
 		} /* but it might work, just another UB in the world */	\
 		if (t == YLUA_INT) {					\
 			BIND_AUTORET(f(luaEntityAt(L, 1), luaNumberAt(L, 2))); \
@@ -262,14 +270,6 @@ static inline int make_abort(lua_State *L, ...)
 		return 0;						\
 	}
 
-
-enum ylua_type {
-	YLUA_STR,
-	YLUA_INT,
-	YLUA_FLOAT,
-	YLUA_ENTIY,
-	YLUA_DONT_KNOW
-};
 
 /* Lua Utils */
 int luaOrEntType(lua_State *L, int i);
