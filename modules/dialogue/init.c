@@ -404,45 +404,50 @@ void *dialoguePostAction(int nbArgs, void **args)
 
 void *dialogueAction(int nbArgs, void **args)
 {
-  struct mainDrv *drv = getMainDrv(args[0]);
-  Entity *eve;
+	struct mainDrv *drv = getMainDrv(args[0]);
+	Entity *eve;
 
-  if (drv == &boxDialogueMainDrv) {
-    Entity *box = boxGetbox(args[0]);
-    int current = (int64_t)yesCall(ygGet("DialogueBox.pos"), box);
-    int hasMove = 0;
+	if (drv != &boxDialogueMainDrv)
+			return NOTHANDLE;
 
-    YEVE_FOREACH(eve, args[1]) {
-      if (ywidEveType(eve) == YKEY_DOWN) {
-	if (ywidEveKey(eve) == 'q') {
-	  yFinishGame();
-	  return (void *)ACTION;
-	} else if(ywidEveKey(eve) == Y_DOWN_KEY) {
-	  current += 1;
-	  hasMove = 1;
-	} else if(ywidEveKey(eve) == Y_UP_KEY) {
-	  current -= 1;
-	  hasMove = 1;
-	} else if(ywidEveKey(eve) == '\n') {
-	  Entity *answer = boxGetAnswer(box, current);
+	Entity *box = boxGetbox(args[0]);
+	int current = (int64_t)yesCall(ygGet("DialogueBox.pos"), box);
+	int hasMove = 0;
 
-	  if (!yeGet(answer, "action") && !yeGet(answer, "actions")) {
-	    /* so... that's a stupide way to call a tcc entity function */
-	    return dialogueGotoNext(2, (void *[]){box, answer});
-	  } else {
-	    return (void *)ywidActions(box, answer, eve);
-	  }
+	YEVE_FOREACH(eve, args[1]) {
+		if (ywidEveType(eve) == YKEY_DOWN) {
+			if (ywidEveKey(eve) == 'q') {
+				yFinishGame();
+				return (void *)ACTION;
+			} else if(ywidEveKey(eve) == Y_DOWN_KEY) {
+				current += 1;
+				hasMove = 1;
+			} else if(ywidEveKey(eve) == Y_UP_KEY) {
+				current -= 1;
+				hasMove = 1;
+			} else if(ywidEveKey(eve) == '\n') {
+				Entity *answer = boxGetAnswer(box,
+							      current);
+
+				if (!yeGet(answer, "action") &&
+				    !yeGet(answer, "actions")) {
+					/* so... that's a stupide way to call a tcc entity function */
+					return dialogueGotoNext(2, (void *[])
+								{box, answer});
+				} else {
+					return (void *)ywidActions(box, answer,
+								   eve);
+				}
+			}
+		}
 	}
-      }
-    }
-    if (hasMove) {
-      yesCall(ygGet("DialogueBox.moveAnswer"), box, current);
-      current = (int64_t)yesCall(ygGet("DialogueBox.pos"), box);
-      return (void *)ACTION;
-    }
-  }
-  // canvas movement need to be handle here :p
-  return NOTHANDLE;
+	if (hasMove) {
+		yesCall(ygGet("DialogueBox.moveAnswer"), box, current);
+		current = (int64_t)yesCall(ygGet("DialogueBox.pos"), box);
+		return (void *)ACTION;
+	}
+	// canvas movement need to be handle here :p
+	return NOTHANDLE;
 }
 
 static Entity *getAnswer(Entity *mn, int idx)
