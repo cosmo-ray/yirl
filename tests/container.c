@@ -27,6 +27,12 @@
 #include "yirl/native-script.h"
 #include "container.h"
 
+static void *testMenuEnter(va_list ap)
+{
+  (void)ap;
+  return (void *)ACTION;
+}
+
 void testHorizontalContainerSdl(void)
 {
   GameConfig cfg;
@@ -69,6 +75,7 @@ void testVerticalContainerSdl(void)
   g_assert(!ygInit(&cfg));
 
   /* Parsing json */
+  ysRegistreFunc(ysNativeManager(), "menuTest", testMenuEnter);
   ret0 = ygFileToEnt(YJSON, TESTS_PATH"/widget.json", NULL);
   ret = yeGet(ret0, "VContainerTest");
   g_assert(ret);
@@ -99,6 +106,7 @@ void testStackContainerSdl(void)
   g_assert(!ygInit(&cfg));
 
   /* Parsing json */
+  ysRegistreFunc(ysNativeManager(), "menuTest", testMenuEnter);
   ret0 = ygFileToEnt(YJSON, TESTS_PATH"/widget.json", NULL);
   ret = yeGet(ret0, "SContainerTest");
   g_assert(ret);
@@ -134,6 +142,7 @@ void testMixContainerSdl(void)
   cnt = yeGet(fileRet, "VContainerTest");
   g_assert(cnt);
 
+  ysRegistreFunc(ysNativeManager(), "menuTest", testMenuEnter);
   yeSetString(yeGet(yeGet(yeGet(cnt, "entries"), 1), "name"),
 	      "ContainerTest");
   ret = yeGet(fileRet, "ContainerTest");

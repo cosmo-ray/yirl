@@ -594,9 +594,9 @@ int loadString(void *s, const char *str)
 	return 0;
 }
 
-#define CPTR(idx) yeIsPtrAnEntity(args[idx].vptr) ?			\
-		s7_make_c_object(s, s7m->et, args[idx].vptr) :		\
-		s7_make_c_pointer(s, args[idx].vptr)
+#define CPTR(idx) idx < nb ? (yeIsPtrAnEntity(args[idx].vptr) ?		\
+			      s7_make_c_object(s, s7m->et, args[idx].vptr) : \
+			      s7_make_c_pointer(s, args[idx].vptr)) : s7_nil(s)
 
 
 static void *call(void *sm, const char *name, int nb, union ycall_arg *args,

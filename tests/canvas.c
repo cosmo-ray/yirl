@@ -182,7 +182,6 @@ void testCanvasSdl2(void)
   g_assert(wid);
   ywidSetMainWid(wid);
   ygDoLoop();
-  yeDestroy(canvas_example);
   ygEnd();
   ygCleanGameConfig(&cfg);
 }
