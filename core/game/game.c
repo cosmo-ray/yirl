@@ -700,33 +700,34 @@ exit:
 
 Entity *ygGetMod(const char *path)
 {
-  if (!path)
-    return NULL;
-  return yeGet(modList, path);
+	if (!path)
+		return NULL;
+	return yeGet(modList, path);
 }
 
 int ygLoadScript(Entity *mod, void *manager, const char *path)
 {
-  int ret;
-  char *tmp = g_strconcat(yeGetString(yeGet(mod, "$path")), path, NULL);
+	int ret;
+	char *tmp = g_strconcat(yeGetString(yeGet(mod, "$path")), path, NULL);
 
-  ret = ysLoadFile(manager, tmp);
-  g_free(tmp);
-  return ret;
+	ret = ysLoadFile(manager, tmp);
+	g_free(tmp);
+	return ret;
 }
 
 static Entity *ygGetFunc(Entity *mod, const char *funcName)
 {
-  Entity *ret;
+	Entity *ret;
 
-  if (mod)
-    return yeGet(mod, funcName);
+	if (mod)
+		return yeGet(mod, funcName);
 
-  ret = yeGet(globalsFunctions, funcName);
-  if (!ret && ysGetFastPath(ysNativeManager(), funcName)) {
-    ret = yeCreateFunctionSimple(funcName, ysNativeManager(), globalsFunctions);
-  }
-  return ret;
+	ret = yeGet(globalsFunctions, funcName);
+	if (!ret && ysGetFastPath(ysNativeManager(), funcName)) {
+		ret = yeCreateFunctionSimple(funcName, ysNativeManager(),
+					     globalsFunctions);
+	}
+	return ret;
 }
 
 static int isNestedEntity(const char *str, char *modName, const char **entName)
@@ -735,8 +736,8 @@ static int isNestedEntity(const char *str, char *modName, const char **entName)
 
   *entName = g_strrstr(str, ":");
   if (!(*entName)) {
-    *entName = str;
-    return 0;
+	  *entName = str;
+	  return 0;
   }
   *entName = *entName + 1;
 
@@ -748,49 +749,49 @@ static int isNestedEntity(const char *str, char *modName, const char **entName)
 
 Entity *ygGetFuncExt(const char *func)
 {
-  char modName[254];
-  const char *funcName;
-  char *tmp;
-  intptr_t ret;
-  Entity *tmpMod;
+	char modName[254];
+	const char *funcName;
+	char *tmp;
+	intptr_t ret;
+	Entity *tmpMod;
 
-  if (!func)
-    return NULL;
-  ret = isNestedEntity(func, modName, &funcName);
-  if (ret)
-    tmp = modName;
-  else
-    return ygGetFunc(NULL, funcName);
+	if (!func)
+		return NULL;
+	ret = isNestedEntity(func, modName, &funcName);
+	if (ret)
+		tmp = modName;
+	else
+		return ygGetFunc(NULL, funcName);
 
-  tmpMod = ygGetMod(tmp);
-  if (!tmpMod) {
-    DPRINT_WARN("%s module desn't existe", tmp);
-    return NULL;
-  }
-  return ygGetFunc(tmpMod, funcName);
+	tmpMod = ygGetMod(tmp);
+	if (!tmpMod) {
+		DPRINT_WARN("%s module desn't existe", tmp);
+		return NULL;
+	}
+	return ygGetFunc(tmpMod, funcName);
 }
 
 Entity *ygGet(const char *toFind)
 {
-  char modName[254];
-  const char *funcName;
-  char *tmp;
-  int ret;
+	char modName[254];
+	const char *funcName;
+	char *tmp;
+	int ret;
 
-  if (!toFind)
-    return NULL;
-  ret = isNestedEntity(toFind, modName, &funcName);
-  tmp = modName;
+	if (!toFind)
+		return NULL;
+	ret = isNestedEntity(toFind, modName, &funcName);
+	tmp = modName;
 
-  // if no module give in toFind, use modList as base
-  if (!ret) {
-    Entity *retVal = yeGetByStr(modList, funcName);
+	// if no module give in toFind, use modList as base
+	if (!ret) {
+		Entity *retVal = yeGetByStr(modList, funcName);
 
-    if (!retVal)
-      return ygGetFunc(NULL, funcName);
-    return retVal;
-  }
-  return yeGetByStr(ygGetMod(tmp), funcName);
+		if (!retVal)
+			return ygGetFunc(NULL, funcName);
+		return retVal;
+	}
+	return yeGetByStr(ygGetMod(tmp), funcName);
 }
 
 void ygIncreaseInt(const char *toInc, int val)
@@ -804,260 +805,260 @@ void ygIncreaseInt(const char *toInc, int val)
 
 void ygReCreateInt(const char *toSet, int val)
 {
-  Entity *father = modList;
-  char buf[1024];
+	Entity *father = modList;
+	char buf[1024];
 
-  for (uint32_t i = 0, b_len = 0;
-       ({ buf[b_len] = toSet[i]; ++b_len; toSet[i] ;});
-       ++i) {
-    if (unlikely(b_len > 1024))
-      return;
-    if (toSet[i] == '.' || toSet[i] == ':') {
-      Entity *nfather;
-      buf[b_len -1] = 0;
-      nfather = yeGet(father, buf);
-      if (!nfather)
-	nfather = yeCreateArray(father, buf);
-      father = nfather;
-      b_len = 0;
-      continue;
-    }
-  }
+	for (uint32_t i = 0, b_len = 0;
+	     ({ buf[b_len] = toSet[i]; ++b_len; toSet[i] ;});
+	     ++i) {
+		if (unlikely(b_len > 1024))
+			return;
+		if (toSet[i] == '.' || toSet[i] == ':') {
+			Entity *nfather;
+			buf[b_len -1] = 0;
+			nfather = yeGet(father, buf);
+			if (!nfather)
+				nfather = yeCreateArray(father, buf);
+			father = nfather;
+			b_len = 0;
+			continue;
+		}
+	}
 
-  yeReCreateInt(val, father, buf);
+	yeReCreateInt(val, father, buf);
 }
 
 void ygSetInt(const char *toSet, int val)
 {
-  int len = strlen(toSet);
-  Entity *father;
-  Entity *e;
-  const char *end;
+	int len = strlen(toSet);
+	Entity *father;
+	Entity *e;
+	const char *end;
 
-  for (end = toSet + len - 1; end != toSet && *end != '.' &&  *end != ':';
-       --end, --len);
-  if (end == toSet) {
-    father = modList;
-  } else {
-    father = yeNGetByStr(modList, toSet, len - 1);
-    toSet += len;
-  }
+	for (end = toSet + len - 1; end != toSet && *end != '.' &&  *end != ':';
+	     --end, --len);
+	if (end == toSet) {
+		father = modList;
+	} else {
+		father = yeNGetByStr(modList, toSet, len - 1);
+		toSet += len;
+	}
 
-  if ((e = yeGet(father, toSet)) == NULL)
-    yeCreateInt(val, father, toSet);
-  else
-    yeSetInt(e, val);
+	if ((e = yeGet(father, toSet)) == NULL)
+		yeCreateInt(val, father, toSet);
+	else
+		yeSetInt(e, val);
 }
 
 int ygBind(YWidgetState *wid, const char *callback)
 {
-  Entity *callbackEnt = ygGetFuncExt(callback);
-  if (!callbackEnt) {
-    DPRINT_WARN("unable to find '%s'\n", callback);
-  }
-  if (!yeReplaceBack(wid->entity, callbackEnt, "action"))
-    return -1;
-  return 0;
+	Entity *callbackEnt = ygGetFuncExt(callback);
+	if (!callbackEnt) {
+		DPRINT_WARN("unable to find '%s'\n", callback);
+	}
+	if (!yeReplaceBack(wid->entity, callbackEnt, "action"))
+		return -1;
+	return 0;
 }
 
 static int ygParseStartAndGame(GameConfig *config)
 {
-  Entity *starting_widget;
-  Entity *ws;
-  Entity *wn;
+	Entity *starting_widget;
+	Entity *ws;
+	Entity *wn;
 
-  mainMod = ygLoadMod(config->startingMod->path);
-  ws = yeGet(mainMod, "window size");
-  wn = yeGet(mainMod, "window name");
+	mainMod = ygLoadMod(config->startingMod->path);
+	ws = yeGet(mainMod, "window size");
+	wn = yeGet(mainMod, "window name");
 
-  starting_widget = yeGet(mainMod, "$starting widget");
+	starting_widget = yeGet(mainMod, "$starting widget");
 
-  if (starting_widget) {
-    YWidgetState *wid = ywidNewWidget(starting_widget, NULL);
+	if (starting_widget) {
+		YWidgetState *wid = ywidNewWidget(starting_widget, NULL);
 
-    if (!wid) {
-      DPRINT_ERR("Fail to create widget of type '%s'.",
-		 yeGetString(yeGet(starting_widget, "<type>")));
-      return -1;
-    }
-    ywidSetMainWid(wid);
-  }
+		if (!wid) {
+			DPRINT_ERR("Fail to create widget of type '%s'.",
+				   yeGetString(yeGet(starting_widget,
+						     "<type>")));
+			return -1;
+		}
+		ywidSetMainWid(wid);
+	}
 
-  if (!ywidGetMainWid()) {
-      DPRINT_ERR("No main widget has been set.\n"
-		 "see documentation about starting_widget\n"
-		 "or set it manually with \"ywidSetMainWid()\"");
-      return -1;
-  }
+	if (!ywidGetMainWid()) {
+		DPRINT_ERR("No main widget has been set.\n"
+			   "see documentation about starting_widget\n"
+			   "or set it manually with \"ywidSetMainWid()\"");
+		return -1;
+	}
 
-  if (ws)
-    ywidChangeResolution(yeGetIntAt(ws, 0), yeGetIntAt(ws, 1));
-  if (wn)
-    ywidSetWindowName(yeGetString(wn));
-  return ygDoLoop();
+	if (ws)
+		ywidChangeResolution(yeGetIntAt(ws, 0), yeGetIntAt(ws, 1));
+	if (wn)
+		ywidSetWindowName(yeGetString(wn));
+	return ygDoLoop();
 }
 
 int ygStalk(const char *entityPath, Entity *callback, Entity *arg)
 {
-  Entity *stalked = yeReCreateArray(stalked_array, entityPath, NULL);
-  Entity *target = ygGet(entityPath);
+	Entity *stalked = yeReCreateArray(stalked_array, entityPath, NULL);
+	Entity *target = ygGet(entityPath);
 
-  if (unlikely(!target || !callback))
-    goto error;
+	if (unlikely(!target || !callback))
+		goto error;
 
-  yeCreateString(entityPath, stalked, NULL);
-  if (!yeCreateCopy(target, stalked, NULL))
-    goto error;
+	yeCreateString(entityPath, stalked, NULL);
+	if (!yeCreateCopy(target, stalked, NULL))
+		goto error;
 
-  yePushBack(stalked, callback, NULL);
-  yePushBack(stalked, arg, NULL);
-  return 0;
- error:
-  yeRemoveChild(stalked_array, stalked);
-  return -1;
+	yePushBack(stalked, callback, NULL);
+	yePushBack(stalked, arg, NULL);
+	return 0;
+error:
+	yeRemoveChild(stalked_array, stalked);
+	return -1;
 }
 
 int ygUnstalk(const char *entityPath)
 {
-  if (!yeGet(stalked_array, entityPath))
-    return -1;
-  yeRemoveChild(stalked_array, entityPath);
-  return 0;
+	if (!yeGet(stalked_array, entityPath))
+		return -1;
+	yeRemoveChild(stalked_array, entityPath);
+	return 0;
 }
 
 static void checkSlakedEntity(void)
 {
-  YE_ARRAY_FOREACH(stalked_array, elem) {
-    Entity *original = ygGet(yeGetStringAt(elem, 0));
-    Entity *copy = yeGet(elem, 1);
-    if (!yeEqual(original, copy)) {
-      yesCall(yeGet(elem, 2), original, copy, yeGet(elem, 3));
-      yeCopy(original, copy);
-    }
-  }
+	YE_ARRAY_FOREACH(stalked_array, elem) {
+		Entity *original = ygGet(yeGetStringAt(elem, 0));
+		Entity *copy = yeGet(elem, 1);
+		if (!yeEqual(original, copy)) {
+			yesCall(yeGet(elem, 2), original, copy, yeGet(elem, 3));
+			yeCopy(original, copy);
+		}
+	}
 }
 
 int ygDoLoop(void)
 {
-  alive = 1;
+	alive = 1;
 
-  do {
-    YWidgetState *wid = ywidGetMainWid();
+	do {
+		YWidgetState *wid = ywidGetMainWid();
 
-    if (unlikely(!wid)) {
-      return -1;
-    }
-    g_assert(ywidRend(wid) != -1);
-    checkSlakedEntity();
-    ywidDoTurn(wid);
-  } while(alive);
+		if (unlikely(!wid)) {
+			return -1;
+		}
+		g_assert(ywidRend(wid) != -1);
+		checkSlakedEntity();
+		ywidDoTurn(wid);
+	} while(alive);
 
-  return 0;
+	return 0;
 }
 
 int ygStartLoop(GameConfig *config)
 {
-  int ret = -1;
+	int ret = -1;
 
-  if (!init) {
-        DPRINT_ERR("ygInit() should be call before calling ygStartLoop");
-    return -1;
-  }
+	if (!init) {
+		DPRINT_ERR("ygInit() should be call before calling ygStartLoop");
+		return -1;
+	}
 
-  if (!config || !config->rConf || !config->startingMod) {
-    DPRINT_ERR("GameConfig is brocken(some ptr are NULL)");
-    return -1;
-  }
+	if (!config || !config->rConf || !config->startingMod) {
+		DPRINT_ERR("GameConfig is brocken(some ptr are NULL)");
+		return -1;
+	}
 
-  if (!config->startingMod->path) {
-    DPRINT_ERR("!config->startingMod->path is NULL");
-    return -1;
-  }
+	if (!config->startingMod->path) {
+		DPRINT_ERR("!config->startingMod->path is NULL");
+		return -1;
+	}
 
-  ret = ygParseStartAndGame(config);
-  return ret;
+	ret = ygParseStartAndGame(config);
+	return ret;
 }
 
 int ygInitGameConfigByRenderType(GameConfig *cfg, const char *path,
 				 RenderType t)
 {
 
-  cfg->rConf = NULL;
-  cfg->win_name = NULL;
-  cfg->w = ywidWindowWidth;
-  cfg->h = ywidWindowHight;
-  cfg->startingMod = g_new(ModuleConf, 1);
-  cfg->startingMod->path = path;
+	cfg->rConf = NULL;
+	cfg->win_name = NULL;
+	cfg->w = ywidWindowWidth;
+	cfg->h = ywidWindowHight;
+	cfg->startingMod = g_new(ModuleConf, 1);
+	cfg->startingMod->path = path;
 
-  if (!t) {
-    return 0;
-  }
+	if (!t) {
+		return 0;
+	}
 
-  YUI_FOREACH_BITMASK(t, i, tmp) {
-    RenderConf *rConf = g_new(RenderConf, 1);
+	YUI_FOREACH_BITMASK(t, i, tmp) {
+		RenderConf *rConf = g_new(RenderConf, 1);
 
-    if (1LLU << i ==  SDL2)
-      rConf->name = sdl2;
-    else if (1LLU << i == CURSES)
-      rConf->name = curses;
-    else {
-      DPRINT_ERR("garbage Render Type type in ygInitGameConfig");
-      ygCleanGameConfig(cfg);
-      return -1;
-    }
-    cfg->rConf = g_list_append(cfg->rConf, rConf);
-  }
-  return 0;
+		if (1LLU << i ==  SDL2)
+			rConf->name = sdl2;
+		else if (1LLU << i == CURSES)
+			rConf->name = curses;
+		else {
+			DPRINT_ERR("garbage Render Type type in ygInitGameConfig");
+			ygCleanGameConfig(cfg);
+			return -1;
+		}
+		cfg->rConf = g_list_append(cfg->rConf, rConf);
+	}
+	return 0;
 }
 
 int ygInitGameConfigByStr(GameConfig *cfg, const char *path, const char *render)
 {
-  RenderConf *rConf = g_new(RenderConf, 1);
+	RenderConf *rConf = g_new(RenderConf, 1);
 
-  cfg->rConf = NULL;
-  cfg->startingMod = g_new(ModuleConf, 1);
-  cfg->startingMod->path = path;
-  cfg->w = ywidWindowWidth;
-  cfg->h = ywidWindowHight;
-  cfg->win_name = NULL;
+	cfg->rConf = NULL;
+	cfg->startingMod = g_new(ModuleConf, 1);
+	cfg->startingMod->path = path;
+	cfg->w = ywidWindowWidth;
+	cfg->h = ywidWindowHight;
+	cfg->win_name = NULL;
 
 
-  rConf->name = render;
-  cfg->rConf = g_list_append(cfg->rConf,
-			     rConf);
-  return 0;
+	rConf->name = render;
+	cfg->rConf = g_list_append(cfg->rConf,
+				   rConf);
+	return 0;
 }
 
 void ygCleanGameConfig(GameConfig *cfg)
 {
-  g_free(cfg->startingMod);
-  g_list_free_full(cfg->rConf, g_free);
+	g_free(cfg->startingMod);
+	g_list_free_full(cfg->rConf, g_free);
 }
 
 void *ygCallInt(const char *mod, const char *callName, int nb,
 		union ycall_arg *args, int *types)
 {
-  void *ret;
-  Entity *modEntity;
+	void *ret;
+	Entity *modEntity;
 
-  if (!callName)
-    return NULL;
-  modEntity = ygGetMod(mod);
-  ret = yesCallInt(ygGetFunc(modEntity, callName), nb, args, types);
-  return ret;
-
+	if (!callName)
+		return NULL;
+	modEntity = ygGetMod(mod);
+	ret = yesCallInt(ygGetFunc(modEntity, callName), nb, args, types);
+	return ret;
 }
 
 int ygAddDefine(const char *name, char *val)
 {
-  return ysAddDefine(tccManager, name, val);
+	return ysAddDefine(tccManager, name, val);
 }
 
 int yePushToGlobalScope(Entity *entity, const char *name)
 {
-  if (yeGet(modList, name))
-    return -1;
-  return yePushBack(modList, entity, name);
+	if (yeGet(modList, name))
+		return -1;
+	return yePushBack(modList, entity, name);
 }
 
 
