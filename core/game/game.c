@@ -130,33 +130,33 @@ static void *ygTerminateCallback(int nb, union ycall_arg *args, int *types)
 
 static void *quitOnKeyDown(int nb, union ycall_arg *args, int *types)
 {
-  Entity *events = args[1].e;
-  Entity *eve = events;
+	Entity *events = args[1].e;
+	Entity *eve = events;
 
-  YEVE_FOREACH(eve, events) {
-    if (ywidEveType(eve) == YKEY_DOWN) {
-      if (ywidEveKey(eve) == 'q' ||
-	  ywidEveKey(eve) == Y_ESC_KEY) {
-	alive = 0;
-	return (void *)ACTION;
-      }
-    }
-  }
-  return (void *)NOTHANDLE;
+	YEVE_FOREACH(eve, events) {
+		if (ywidEveType(eve) == YKEY_DOWN) {
+			if (ywidEveKey(eve) == 'q' ||
+			    ywidEveKey(eve) == Y_ESC_KEY) {
+				alive = 0;
+				return (void *)ACTION;
+			}
+		}
+	}
+	return (void *)NOTHANDLE;
 }
 
 static void *fullScreenOnOff(int nb, union ycall_arg *args, int *types)
 {
-  static int fs;
+	static int fs;
 
-  if (fs) {
-    ysdl2WindowMode();
-    fs = 0;
-  } else {
-    ysdl2FullScreen();
-    fs = 1;
-  }
-  return (void *)NOTHANDLE;
+	if (fs) {
+		ysdl2WindowMode();
+		fs = 0;
+	} else {
+		ysdl2FullScreen();
+		fs = 1;
+	}
+	return (void *)NOTHANDLE;
 }
 
 static void *nextWid(int nb, union ycall_arg *args, int *types)
