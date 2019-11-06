@@ -214,9 +214,9 @@ next_is_wid:
 	}
 
 	if (yeType(target) == YSTRING) {
-	  if (!yeStrCmp(target, "main")) {
-		  target = ywidGetMainWid()->entity;
-	  }
+		if (!yeStrCmp(target, "main")) {
+			target = ywidGetMainWid()->entity;
+		}
 	}
 
 	if (ywidGetState(target) == mainWid) {
