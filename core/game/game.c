@@ -168,7 +168,7 @@ static void *nextWid(int nb, union ycall_arg *args, int *types)
   if (nb == 1 || yeType(target) != YSTRING ||
       !yeGet(target, "<type>")) {
 	  Entity *te = yeGet(wid, "next_target");
-	  printf("te %d %p - %p\n", nb, te, next);
+
 	  if (te)
 		  target = te;
 	  else
