@@ -721,6 +721,7 @@ InputStatue ywidAction(Entity *action, Entity *wid, Entity *eve)
 		Entity *f = yeGet(action, 0);
 		int nb = yeLen(action);
 		union ycall_arg args[nb + 2];
+		int types[5] = {YS_ENTITY};
 
 		args[0].e = wid;
 		args[1].e = eve;
@@ -731,7 +732,7 @@ InputStatue ywidAction(Entity *action, Entity *wid, Entity *eve)
 		if (yeType(f) == YSTRING)
 			f = ygGet(yeGetString(f));
 
-		InputStatue r = (intptr_t)yesCallInt(f, nb + 2, args, NULL);
+		InputStatue r = (intptr_t)yesCallInt(f, nb + 2, args, types);
 
 		if (unlikely(!ygIsInit() && yeType(f) == YSTRING))
 			yeDestroy(f);
