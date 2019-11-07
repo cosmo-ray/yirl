@@ -438,17 +438,19 @@ static s7_pointer make_nothing(s7_scheme *s, ...)
 static s7_pointer s7yesCall(s7_scheme *s, s7_pointer a)
 {
 	union ycall_arg args[17];
+	int types[17];
 	void *r;
 	int i = 1;
 
 	for (; i < 16; ++i) {
 		args[i - 1].e = E_AT(s, a, i);
+		types[i - 1] = YS_ENTITY;
 		if (!args[i - 1].e) {
 			break;
 		}
 	}
 
-	r = yesCallInt(E_AT(s, a, 0), i, args, NULL);
+	r = yesCallInt(E_AT(s, a, 0), i, args, types);
 	if (yeIsPtrAnEntity(r))
 		return s7_make_c_object(s, s7m->et, r);
 	return s7_make_integer(s, (intptr_t) r);

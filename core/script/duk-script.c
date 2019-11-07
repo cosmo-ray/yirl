@@ -152,34 +152,36 @@ static void *get_arg(duk_context *ctx, int i)
 	return duk_get_pointer(ctx, i);
 }
 
+static inline void call_set_arg(duk_context *L, int i, union ycall_arg *args,
+				int *types, int nb)
+{
+	if (duk_is_number(L, i)) {
+		types[nb] = YS_INT;
+		args[nb].i = duk_get_int(L, i);
+	} else if (duk_is_string(L, i)) {
+		types[nb] = YS_STR;
+		args[nb].str = duk_get_string(L, i);
+	} else if (is_ent(L, i)) {
+		types[nb] = YS_ENTITY;
+		args[nb].e = GET_E(L, i);
+	} else {
+		types[nb] = YS_VPTR;
+		args[nb].vptr = duk_get_pointer(L, i);
+	}
+}
+
 static duk_ret_t dukyesCall(duk_context *ctx)
 {
-	Entity *e = GET_E(ctx, 0);
+	int nb = duk_get_top(ctx);
+	Entity *f = GET_E(ctx, 0);
+	union ycall_arg args[nb];
+	int types[nb];
 
-	switch (duk_get_top(ctx)) {
-	case 1:
-		PUSH_E(ctx, yesCall(e));
-		return 1;
-	case 2:
-		PUSH_E(ctx, yesCall(e, get_arg(ctx, 1)));
-		return 1;
-	case 3:
-		PUSH_E(ctx, yesCall(e, get_arg(ctx, 1), get_arg(ctx, 2)));
-		return 1;
-	case 4:
-		PUSH_E(ctx, yesCall(e, get_arg(ctx, 1),
-				    get_arg(ctx, 2), get_arg(ctx, 3)));
-		return 1;
-	case 5:
-		PUSH_E(ctx, yesCall(e, get_arg(ctx, 1), get_arg(ctx, 2),
-				    get_arg(ctx, 3), get_arg(ctx, 4)));
-		return 1;
-	default:
-		DPRINT_ERR("internal error: too much argument");
-		return -1;
+	for (int i = 0; i < nb; ++i) {
+		call_set_arg(ctx, i + 1, args, types, i);
 	}
-
-	return -1;
+	PUSH_E(ctx, yesCallInt(f, nb, args, types));
+	return 1;
 }
 
 static duk_ret_t dukyeDestroy(duk_context *ctx)
