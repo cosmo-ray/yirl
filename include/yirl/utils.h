@@ -150,36 +150,6 @@ typedef int64_t int_ptr_t;
 #define _IF_1_ELSE(...)
 #define _IF_0_ELSE(...) __VA_ARGS__
 
-/* #define YUI_UNROLL_ARGS_1(a) a */
-/* #define YUI_UNROLL_ARGS_2(a,b) a,b */
-/* #define YUI_UNROLL_ARGS_3(a,b,c) a,b,c */
-/* #define YUI_UNROLL_ARGS_4(a,b,c,d) a,b,c,d */
-/* #define YUI_UNROLL_ARGS_5(a,b,c,d,e) a,b,c,d,e */
-/* #define YUI_UNROLL_ARGS_6(a,b,c,d,e,f) a,b,c,d,e,f */
-/* #define YUI_UNROLL_ARGS_7(a,b,c,d,e,f,g) a,b,c,d,e,f,g */
-/* #define YUI_UNROLL_ARGS_8(a,b,c,d,e,f,g,h) a,b,c,d,e,f,g,h */
-/* #define YUI_UNROLL_ARGS_9(a,b,c,d,e,f,g,h,i) a,b,c,d,e,f,g,h,i */
-/* #define YUI_UNROLL_ARGS_10(a,b,c,d,e,f,g,h,i,j) a,b,c,d,e,f,g,h,i,j */
-/* #define YUI_UNROLL_ARGS_11(a,b,c,d,e,f,g,h,i,j,k) a,b,c,d,e,f,g,h,i,j,k */
-/* #define YUI_UNROLL_ARGS_12(a,b,c,d,e,f,g,h,i,j,k,l) a,b,c,d,e,f,g,h,i,j,k,l */
-/* #define YUI_UNROLL_ARGS_13(a,b,c,d,e,f,g,h,i,j,k,l,o) a,b,c,d,e,f,g,h,i,j,k,l,o */
-/* #define YUI_UNROLL_ARGS_14(a,b,c,d,e,f,g,h,i,j,k,l,o,p)		\ */
-/* 	a,b,c,d,e,f,g,h,i,j,k,l,o,p */
-/* #define YUI_UNROLL_ARGS_15(a,b,c,d,e,f,g,h,i,j,k,l,o,p,q)	\ */
-/* 	a,b,c,d,e,f,g,h,i,j,k,l,o,p,q */
-/* #define YUI_UNROLL_ARGS_16(a,b,c,d,e,f,g,h,i,j,k,l,o,p,q,r)	\ */
-/* 	a,b,c,d,e,f,g,h,i,j,k,l,o,p,q,r */
-/* #define YUI_UNROLL_ARGS_17(a,b,c,d,e,f,g,h,i,j,k,l,o,p,q,r,s)	\ */
-/* 	a,b,c,d,e,f,g,h,i,j,k,l,o,p,q,r,s */
-/* #define YUI_UNROLL_ARGS_18(a,b,c,d,e,f,g,h,i,j,k,l,o,p,q,r,s,t)	\ */
-/* 	a,b,c,d,e,f,g,h,i,j,k,l,o,p,q,r,s,t */
-
-/* #define YUI_UNROLL_ARGS_(nb, ...)					\ */
-/* 	YUI_CAT(YUI_UNROLL_ARGS_, nb) (__VA_ARGS__) */
-
-/* #define YUI_UNROLL_ARGS(...)						\ */
-/* 	YUI_UNROLL_ARGS_(AF_GET_ARG_COUNT(__VA_ARGS__), __VA_ARGS__) */
-
 /*
  * yuiPopcount64, yuiClz64, and yuiCtz64 come from
  * qCountTrailingZeroBits, qPopulationCount and
@@ -238,6 +208,26 @@ static inline unsigned int yuiCtz64(uint64_t v)
     : 32 + yuiCtz32((uint32_t)(v >> 32));
 }
 
+
+/* helper for generic, because there is too much integer types in C */
+/* inly _Bool is missing, but I'm not sure wecan consider it a number */
+#define Y_GENERIC_INT(action)			\
+	signed char : action,			\
+		unsigned char : action,		\
+		short : action,			\
+		unsigned short : action,	\
+		int : action,			\
+		unsigned int : action,		\
+		long : action,			\
+		long long : action,		\
+		unsigned long : action,		\
+		unsigned long long : action
+
+/* helper for generic, because there is too much number types in C */
+#define Y_GENERIC_NUMBER(action)		\
+	Y_GENERIC_INT(action),			\
+		double : action,		\
+		float : action
 
 /*
  * because clang is unable to guess that a 'char[1]' may be cast in 'char *'

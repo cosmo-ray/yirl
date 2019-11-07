@@ -107,7 +107,8 @@ void *ysNativeManager(void)
   return manager;
 }
 
-Entity *ysRegistreCreateNativeEntity(void *(*value)(va_list), const char *name,
+Entity *ysRegistreCreateNativeEntity(void *(*value)(int, union ycall_arg *, int *),
+				     const char *name,
 				     Entity *father, const char *entityName)
 {
   ysRegistreFunc(ysNativeManager(), (char *)name, value);

@@ -75,7 +75,13 @@ static void *luaCall(void *sm, const char *name, int nb,
 	}
 
 	for (int i = 0; i < nb; ++i) {
-		lua_pushlightuserdata(l, args[i].vptr);
+		int t = types[i];
+		if (t == YS_INT)
+			lua_pushnumber(l, args[i].i);
+		else if (t == YS_STR)
+			lua_pushstring(l, args[i].str);
+		else
+			lua_pushlightuserdata(l, args[i].vptr);
 	}
 	lua_call(l, nb, 1);
 	if (lua_isnumber(l, lua_gettop(l)))

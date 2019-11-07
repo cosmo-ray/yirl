@@ -97,7 +97,7 @@ void *ygCallInt(const char *mod, const char *callName, int nb,
 	ygCallInt(mod, callName,			\
 		  YUI_GET_ARG_COUNT(args),		\
 		  YS_ARGS(args),			\
-		  NULL)
+		   YS_ATYPES(args))
 
 int ygRegistreFuncInternal(void *manager, int nbArgs, const char *name,
 			   const char *toRegistre);

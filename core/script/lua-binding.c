@@ -1491,80 +1491,60 @@ int	luaGetMod(lua_State *L)
   return 1;
 }
 
-#define LUA_YG_CALL(args...)					\
-  lua_pushlightuserdata(L, ygCall(lua_tostring(L, 1),		\
-				  lua_tostring(L, 2), args))
+static inline void call_set_arg(lua_State *L, int i, union ycall_arg *args,
+				int *types, int nb)
+{
+	if (lua_isnumber(L, i)) {
+		types[nb] = YS_INT;
+		args[nb].i = lua_tonumber(L, i);
+	} else if (lua_isstring(L, i)) {
+		types[nb] = YS_STR;
+		args[nb].str = lua_tostring(L, i);
+	} else if (lua_isuserdata(L, i) &&
+		   luaL_testudata(L, i, "Entity")) {
+		types[nb] = YS_ENTITY;
+		args[nb].e = luaEntityAt(L, i);
+	} else {
+		types[nb] = YS_VPTR;
+		args[nb].vptr = lua_touserdata(L, i);
+	}
+}
 
 int	luaGCall(lua_State *L)
 {
+	int ltop = lua_gettop(L);
+	int nb = ltop - 2;
+	const char *mod = lua_tostring(L, 1);
+	const char *f = lua_tostring(L, 2);
+	union ycall_arg args[nb];
+	int types[nb];
 
-	switch (lua_gettop(L)) {
-	case 2:
-		lua_pushlightuserdata(L,
-				      ygCall(lua_tostring(L, 1),
-					     lua_tostring(L, 2)));
-		return 1;
-	case 3:
-		LUA_YG_CALL(luaEntityAt(L, 3));
-		return 1;
-	case 4:
-		LUA_YG_CALL(luaEntityAt(L, 3), luaEntityAt(L, 4));
-		return 1;
-	case 5:
-		LUA_YG_CALL(luaEntityAt(L, 3),
-			    luaEntityAt(L, 4), luaEntityAt(L, 5));
-		return 1;
-	case 6:
-		LUA_YG_CALL(luaEntityAt(L, 3), luaEntityAt(L, 4),
-			    luaEntityAt(L, 5), luaEntityAt(L, 6));
-		return 1;
-	default:
-		return -1;
+	if (unlikely(nb < 0)) {
+		DPRINT_ERR("not enough args");
+		return 0;
 	}
 
-	return -1;
-}
+	for (int i = 0; i < nb; ++i) {
+		call_set_arg(L, i + 3, args, types, i);
+	}
 
-#define LUA_YES_CALL(args...)					\
-  lua_pushlightuserdata(L, yesCall(luaEntityAt(L, 1), args))
+	lua_pushlightuserdata(L, ygCallInt(mod, f, nb, args, types));
+	return 1;
+}
 
 int	luaYesCall(lua_State *L)
 {
+	int ltop = lua_gettop(L);
+	int nb = ltop - 1;
+	Entity *f = luaEntityAt(L, 1);
+	union ycall_arg args[nb];
+	int types[nb];
 
-  switch (lua_gettop(L)) {
-  case 1:
-    lua_pushlightuserdata(L, yesCall(luaEntityAt(L, 1)));
-    return 1;
-  case 2:
-    LUA_YES_CALL(luaGetPtr(L, 2));
-    return 1;
-  case 3:
-    LUA_YES_CALL(luaGetPtr(L, 2), luaGetPtr(L, 3));
-    return 1;
-  case 4:
-    LUA_YES_CALL(luaGetPtr(L, 2),
-		 luaGetPtr(L, 3), luaGetPtr(L, 4));
-    return 1;
-  case 5:
-    LUA_YES_CALL(luaGetPtr(L, 2), luaGetPtr(L, 3),
-		 luaGetPtr(L, 4), luaGetPtr(L, 5));
-    return 1;
-  case 6:
-    LUA_YES_CALL(luaGetPtr(L, 2), luaGetPtr(L, 3),
-		 luaGetPtr(L, 4), luaGetPtr(L, 5),
-		 luaGetPtr(L, 6));
-    return 1;
-  case 7:
-    LUA_YES_CALL(luaGetPtr(L, 2), luaGetPtr(L, 3),
-		 luaGetPtr(L, 4), luaGetPtr(L, 5),
-		 luaGetPtr(L, 6), luaGetPtr(L, 7));
-    return 1;
-  default:
-    DPRINT_ERR("internal error: too much argument");
-    return -1;
-  }
-
-  return -1;
+	for (int i = 0; i < nb; ++i) {
+		call_set_arg(L, i + 2, args, types, i);
+	}
+	lua_pushlightuserdata(L, yesCallInt(f, nb, args, types));
+	return 1;
 }
 
 #undef LUA_YES_CALL

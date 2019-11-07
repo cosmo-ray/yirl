@@ -29,6 +29,6 @@ void *yesCallInt(Entity *func, int nb, union ycall_arg *args,
 #define yesCall(func, args...) yesCallInt(func,				\
 					  YUI_GET_ARG_COUNT(args),	\
 					  YS_ARGS(args),		\
-					  NULL)
+					  YS_ATYPES(args))
 
 #endif

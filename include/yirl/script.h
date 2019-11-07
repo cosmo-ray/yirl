@@ -22,6 +22,13 @@
 #include "entity.h"
 #include "utils.h"
 
+enum ys_type {
+	YS_VPTR,
+	YS_ENTITY,
+	YS_STR,
+	YS_INT
+};
+
 union ycall_arg {
 	void *vptr;
 	Entity *e;
@@ -71,7 +78,7 @@ void *ysCallInt(void *sm, const char *name, int nb, union ycall_arg *args,
 #define YS_MK_BRACES(nb, ...)				\
 	YUI_CAT(YS_MK_BRACES_, nb) (__VA_ARGS__)
 
-#define YS_ARGS(args...)						\
+#define YS_ARGS(args...)			\
 	YS_ARGS_(YUI_GET_ARG_COUNT(args), args)
 
 #define YS_ARGS_(nb, args...)					\
@@ -79,22 +86,47 @@ void *ysCallInt(void *sm, const char *name, int nb, union ycall_arg *args,
 		((union ycall_arg []) {YS_MK_BRACES(nb, args)})	\
 		(NULL)
 
-/* #define YS_MK_ARGS(...)							\ */
-/* 	YUI_GET_ARG_COUNT(args),					\ */
-/* 		YS_ARGS(args),						\ */
-/* 		NULL) */
+#define YS_MK_TYPES_1(a)				\
+	_Generic(a, Y_GENERIC_NUMBER(YS_INT),		\
+		 Entity * : YS_ENTITY,			\
+		 char * : YS_STR,			\
+		 Y_GEN_CLANG_ARRAY(char, YS_STR),	\
+		 const char * : YS_STR,			\
+		 default: YS_VPTR			\
+		)
+
+#define YS_MK_TYPES_2(a, b) YS_MK_TYPES_1(a), YS_MK_TYPES_1(b)
+#define YS_MK_TYPES_3(a, b, c) YS_MK_TYPES_2(a, b), YS_MK_TYPES_1(c)
+#define YS_MK_TYPES_4(a, b, c, d) YS_MK_TYPES_3(a, b, c), YS_MK_TYPES_1(d)
+#define YS_MK_TYPES_5(a, b, c, d, e) YS_MK_TYPES_4(a, b, c, d), YS_MK_TYPES_1(e)
+
+#define YS_MK_TYPES_6(a, b, c, d, e, f)			\
+	YS_MK_TYPES_5(a, b, c, d, e), YS_MK_TYPES_1(f)
+
+#define YS_MK_TYPES_7(a, b, c, d, e, f, g)			\
+	YS_MK_TYPES_6(a, b, c, d, e, f), YS_MK_TYPES_1(g)
+
+#define YS_MK_TYPES(nb, ...)			\
+	YUI_CAT(YS_MK_TYPES_, nb) (__VA_ARGS__)
+
+#define YS_ATYPES(args...)			\
+	YS_ATYPES_(YUI_GET_ARG_COUNT(args), args)
+
+#define YS_ATYPES_(nb, args...)				\
+	YUI_IF_ELSE(nb)					\
+		((int []) {YS_MK_TYPES(nb, args)}) (NULL)
 
 #define ysCall(sm, name, args...)					\
 	ysCallInt(sm, name,						\
 		  YUI_GET_ARG_COUNT(args),				\
 		  YS_ARGS(args),					\
-		  NULL)
+		  YS_ATYPES(args))
 
 #define ysFCall(sm, name, args...)					\
 	ysFastCall(sm, name,						\
 		   YUI_GET_ARG_COUNT(args),				\
 		   YS_ARGS(args),					\
-		   NULL)
+		   YS_ATYPES(args))
 
 
 static inline void ysEDestroy(void *sm, Entity *f)
