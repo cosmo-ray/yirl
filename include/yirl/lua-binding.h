@@ -253,15 +253,7 @@ static inline int make_abort(lua_State *L, ...)
 	static inline int lua##f(lua_State *L)				\
 	{								\
 		int t = luaOrEntType(L, 2);				\
-									\
-		if (unlikely(t == YLUA_DONT_KNOW)) {			\
-			intptr_t udata = (intptr_t)lua_touserdata(L, 2); \
-			if (udata < 65536)				\
-				t = YLUA_INT;				\
-			else						\
-				t = YLUA_STR;				\
-		}							\
-		if (t == YLUA_INT) {					\
+		if (t == YLUA_FLOAT || t == YLUA_INT) {			\
 			BIND_AUTORET(f(luaEntityAt(L, 1), luaNumberAt(L, 2))); \
 		} else if (t == YLUA_STR) {			\
 			BIND_AUTORET(f(luaEntityAt(L, 1), lua_tostring(L, 2))); \

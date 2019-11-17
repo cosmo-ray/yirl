@@ -10,7 +10,6 @@ The first version, the one release at the end of my scholarship can be found on 
 
 # for peoples that don't like github:
 https://git.iglou.eu/Matthias/yirl
-I take PR here too :)
 
 # Concept:
 The idea behind YIRL is to give to the user some basic tools and widgets that everyone can reuse or wrap into more complex widgets.
@@ -21,8 +20,7 @@ As an example the [snake module](https://github.com/cosmo-ray/yirl/tree/master/m
 Snake module is written in lua, but as YIRL have a generic script system, we could have written snake in any scripting language.
 Here is an example how Snake module can be use: https://github.com/cosmo-ray/yirl/tree/master/example/modules/snake.
 
-supportted scripting languuages are lua, C(with tinycc), scheme(s7), javascript(duktape) and yb(wirlown asm) feel free to add your language :).
-
+supportted scripting languuages are lua, C(with tinycc), scheme(s7), javascript(duktape) and yb(YIRL own asm) feel free to add your language :).
 
 # License:
 YIRL is licensed under the LGPL license, the idea behind that, is that you can add a modules under the license you want, but if you make a modification to the engine, you need to share it.
@@ -33,7 +31,7 @@ YIRL is licensed under the LGPL license, the idea behind that, is that you can a
   * sys: system header, that can be useful for TCC
     * queue.h: [man 3 queue](https://linux.die.net/man/3/queue)
   * tinycc: tcc libc header
-  * YIRL: YIRL header, use internally and for TCC scripting
+  * YIRL: YIRL header, use internally and for TCC scripting, but so far, the best documentation
     * widget.h: widget base class and common widgets functions
     * map.h: a square map
     * menu.h
@@ -62,17 +60,9 @@ YIRL is licensed under the LGPL license, the idea behind that, is that you can a
     * timer.h
 * core: engine sources
 * test: unit tests
-* modules: set of basic YIRL modules
-* games: Might be playable someday
-  * sukeban: aiming to create a J-RPG
-  * LoGH: for Legend of the Galatic Battle will be a great HOMM-like game with space fleet
-  * vapz: vikings again pinapple pizza: https://uso.itch.io/icelandic-viking-vs-pineapple-pizza
-* example:
-  * shooter: old outdated example usefully for testing purpose
-  * snake: example that show how to modify a map in order to implement a snake, module/snake is a modified version of this file
-  * modules: examples of YIRL modules usage
-    * snake: how to use the snake module
-    * sm-reader: how to use sm-reader
+* modules: set of basic YIRL modules, still used a lot, it contain some games too, tiled map parser, and a character generator that use Liberated Pixel Cup sprites
+* games: old crap, on which I don't work anymore
+* example: all examples are outdated
 
 # Contribution
 
@@ -85,6 +75,8 @@ A good contribution would be to make YIRL compatible with Linux coding style.
 # Projects using YIRL
 * https://uso.itch.io/pre-hangover-simulator
 * https://harald8.itch.io/pre-hangover-quest
+* https://uso.itch.io/warrior-of-asc-ii
+* https://uso.itch.io/jims
 
 # Dependencies
 
@@ -145,7 +137,9 @@ But you can still understand how YIRL work by:
 * add an hex map
 * add any other cool widget
 * use vulkan/gl
+* make a raycasting module
+* 8086 emulator module
+* BASIC emulator module
 * fix all broken stuff in ncurses
-* add lisp or any other script language support
-* add a tetris module or any other cool game template module
-
+* add any language support
+* add any cool game template module
