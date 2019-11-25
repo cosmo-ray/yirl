@@ -99,7 +99,6 @@ static void doKaboum(void)
 	while (kaboumables) {
 		struct Kaboumable *pk = kaboumables->prev;
 
-		printf("kboum !!\n");
 		yeRemoveChildByStr(kaboumables->kwid->entity,
 				   "$father-container");
 		YWidDestroy(kaboumables->kwid);

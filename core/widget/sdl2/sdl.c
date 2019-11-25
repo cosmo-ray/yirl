@@ -672,7 +672,6 @@ static int sdlCacheBigTexture(Entity *e, SDL_Surface *s,
 	SDL_Texture *t;
 	SDL_Surface *tmp_s;
 
-	printf("CACHE BIG TEXTURE !");
 	ywSizeCreateAt(tot_w, tot_h, e, "$size", YCANVAS_SIZE_IDX);
 	for (int y = 0, h, o_tot_w = tot_w ;tot_h; tot_h -= h, y += 2048) {
 		Entity *txts_w = yeCreateArray(txts_h, NULL);
@@ -742,7 +741,6 @@ int sdlCanvasCacheImg2(Entity *elem, Entity *resource, const char *imgPath,
 		if (unlikely(!texture)) {
 			if (!resource &&
 			    (surface->w > 2048 || surface->h  > 2048)) {
-				printf("try store big texture\n");
 				if (sdlCacheBigTexture(elem, surface,
 					    surface->w, surface->h) >= 0)
 					goto store_surface;
@@ -774,6 +772,32 @@ free_surface:
 	if (imgPath)
 		sdlFreeSurface(surface);
 	return -1;
+}
+
+void sdlCanvasCacheBicolorImg(Entity *elem, uint8_t *img, Entity *info)
+{
+	Entity *size = yeGet(info, 0);
+	int w = ywSizeW(size), h = ywSizeH(size);
+	SDL_Surface *surface = SDL_CreateRGBSurface(0, w, h, 32, 0, 0, 0, 0);
+	int end = w * h;
+	uint32_t *pixels = surface->pixels;
+	uint32_t bg = yeGetIntAt(info, 1);
+	uint32_t fg = yeGetIntAt(info, 2);
+	SDL_Texture *texture;
+	Entity *data;
+
+	assert(w);
+	assert(h);
+	for (int i = 0; i < end; ++i) {
+		pixels[i] = img[i] ? fg : bg;
+	}
+	texture = SDL_CreateTextureFromSurface(sg.renderer, surface);
+	data = yeCreateDataAt(texture, elem, "$img", YCANVAS_IMG_IDX);
+	yeSetDestroy(data, sdlFreeTexture);
+	ywSizeCreateAt(w, h, elem, "$size", YCANVAS_SIZE_IDX);
+	data = yeCreateData(surface, elem, "$img-surface");
+	yeSetDestroy(data, sdlFreeSurface);
+	return;
 }
 
 int sdlCanvasCacheImg(Entity *elem, Entity *resource, const char *imgPath,
@@ -997,7 +1021,7 @@ int sdlCanvasRendObj(YWidgetState *state, SDLWid *wid, Entity *obj,
 	if (type == YCanvasBigTexture)
 		return sdlCanvasRendBigImg(state, wid, obj, cam, wid_pix);
 	if (type == YCanvasResource || type == YCanvasImg ||
-	    type == YCanvasTexture)
+	    type == YCanvasTexture || type == YCanvasBicolorImg)
 		return sdlCanvasRendImg(state, wid, obj, cam, wid_pix);
 
 	Entity *p = ywCanvasObjPos(obj);

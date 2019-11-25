@@ -310,9 +310,10 @@ int ywidDoTurn(YWidgetState *opac);
     widgetOptTab[widType].func[ywidGenericCallIt](wid_, ywidGenericCallIt); \
   }
 
-#define ywidGenericRend(wid_, widType, func) do {	\
-    ywidGenericCall(wid_, widType, func);		\
-  } while (0);
+#define ywidGenericRend(wid_, widType, func)		\
+	do {						\
+		ywidGenericCall(wid_, widType, func);	\
+	} while (0);
 
 static inline int ywidType(void *opac)
 {

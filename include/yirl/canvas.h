@@ -27,6 +27,7 @@ typedef enum  {
   YCanvasTexture,
   YCanvasImg,
   YCanvasBigTexture,
+  YCanvasBicolorImg,
   YCnvasEndType
 } YCanvasObjType;
 
@@ -126,6 +127,8 @@ Entity *ywCanvasNewText(Entity *wid, int x, int y, Entity *string);
 Entity *ywCanvasNewTextExt(Entity *wid, int x, int y, Entity *string,
 			   const char *color);
 
+Entity *ywCanvasNewBicolorImg(Entity *wid, int x, int y, uint8_t *map,
+			      Entity *info);
 
 Entity *ywCanvasNewImgByPath(Entity *wid, int x, int y, const char *path);
 Entity *ywCanvasNewImg(Entity *wid, int x, int y, const char *path,

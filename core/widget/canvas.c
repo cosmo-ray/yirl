@@ -156,8 +156,13 @@ void ywCanvasEnableWeight(Entity *w)
 	s->ywCanHasWeight = 1;
 }
 
-int ywCanvasSetWeightInternal(Entity *wid, Entity *obj, int weight,
-			      int newObj)
+/**
+ * this function will always set obj into wid if newObj is true
+ * depending if s->ywCanHasWeight is true or not, it will reoganise every
+ * object of the wid depending of they weight
+ */
+static int ywCanvasSetWeightInternal(Entity *wid, Entity *obj, int weight,
+				     int newObj)
 {
 	YCanvasState *s = ywidCastState(wid, YCanvasState);
 	Entity *objs = getOrCreateObjs(wid);
@@ -401,6 +406,20 @@ Entity *ywCanvasNewTextExt(Entity *wid, int x, int y, Entity *string,
 	return obj;
 }
 
+
+Entity *ywCanvasNewBicolorImg(Entity *c, int x, int y, uint8_t *img, Entity *info)
+{
+	Entity *obj = yeCreateArray(NULL, NULL);
+
+	assert(c);
+	assert(img);
+	assert(info);
+	yeCreateInt(YCanvasBicolorImg, obj, "canvas-type");
+	ywPosCreateInts(x, y, obj, "pos");
+	ywCanvasSetWeightInternal(c, obj, 0, 1);
+	sdlCanvasCacheBicolorImg(obj, img, info);
+	return obj;
+}
 
 void ywCanvasClear(Entity *canvas)
 {
