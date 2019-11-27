@@ -26,11 +26,11 @@
 extern const char *ysTccPath;
 
 typedef struct {
-  YScriptOps ops;
-  TCCState *l;
-  TCCState *states[TCC_MAX_SATES];
-  int nbStates;
-  int needRealloc;
+	YScriptOps ops;
+	TCCState *l;
+	TCCState *states[TCC_MAX_SATES];
+	int nbStates;
+	int needRealloc;
 } YTccScript;
 
 void	tccAddSyms(TCCState *l);

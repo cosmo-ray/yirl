@@ -26,293 +26,304 @@
 
 void *init(int nbArgs, void **args)
 {
-  Entity *mod = args[0];
-  Entity *init;
+	Entity *mod = args[0];
+	Entity *init;
 
-  yeCreateFunction("scoreInit", ygGetManager("tcc"), mod, "scoreInit");
-  init = yeCreateArray(NULL, NULL);
-  yeCreateString("vapz", init, "name");
-  yeCreateFunction("vapzInit", ygGetManager("tcc"), init, "callback");
-  ywidAddSubType(init);
-  return NULL;
+	yeCreateFunction("scoreInit", ygGetManager("tcc"), mod, "scoreInit");
+	init = yeCreateArray(NULL, NULL);
+	yeCreateString("vapz", init, "name");
+	yeCreateFunction("vapzInit", ygGetManager("tcc"), init, "callback");
+	ywidAddSubType(init);
+	return NULL;
 }
 
 static void removePizza(Entity *map, Entity *textScreen, Entity *pos,
 			Entity *bullet, Entity *toRemove)
 {
-  Entity *txt = yeGetByStrFast(textScreen, "text");
-  Entity *score = yeGetByStrFast(map, "score");
-  Entity *bullets = yeGetByStrFast(map, "bullets");
-  Entity *pizzas = yeGetByStrFast(map, "pizzas");
+	Entity *txt = yeGetByStrFast(textScreen, "text");
+	Entity *score = yeGetByStrFast(map, "score");
+	Entity *bullets = yeGetByStrFast(map, "bullets");
+	Entity *pizzas = yeGetByStrFast(map, "pizzas");
 
-  ywMapRemoveByEntity(map, pos, toRemove);
-  ywMapRemoveByEntity(map, pos, bullet);
-  yeRemoveChild(bullets, bullet);
-  yeRemoveChild(pizzas, toRemove);
-  yeSetString(txt, "score: ");
-  yeAddInt(score, 1);
-  yeAddEnt(txt, score);
+	ywMapRemoveByEntity(map, pos, toRemove);
+	ywMapRemoveByEntity(map, pos, bullet);
+	yeRemoveChild(bullets, bullet);
+	yeRemoveChild(pizzas, toRemove);
+	yeSetString(txt, "score: ");
+	yeAddInt(score, 1);
+	yeAddEnt(txt, score);
 }
 
 static int colCheck(Entity *map, Entity *textScreen, Entity *vkPos)
 {
-  Entity *pizzas = yeGetByStr(map, "pizzas");
+	Entity *pizzas = yeGetByStr(map, "pizzas");
 
-  if (!pizzas)
-    return 0;
-  YE_ARRAY_FOREACH(pizzas, pizza) {
-    Entity *pos = yeGetByStrFast(pizza, "pos");
-    Entity *bulletHit = ywMapGetEntityById(map, pos, 3);
+	if (!pizzas)
+		return 0;
+	YE_ARRAY_FOREACH(pizzas, pizza) {
+		Entity *pos = yeGetByStrFast(pizza, "pos");
+		Entity *bulletHit = ywMapGetEntityById(map, pos, 3);
+		int isSamePos = ywPosIsSameEnt(pos, vkPos, 0);
 
-    if (bulletHit)
-      removePizza(map, textScreen, pos, bulletHit, pizza);
-    if (ywPosIsSameEnt(pos, vkPos, 0)) {
-      return 1;
-    }
-  }
-  return 0;
+		if (bulletHit) {
+			removePizza(map, textScreen, pos, bulletHit, pizza);
+		}
+		if (isSamePos) {
+			return 1;
+		}
+	}
+	return 0;
 }
 
 static void pushBullet(Entity *map, Entity *bulletPos, Entity *bulletDir)
 {
-  Entity *bullets = yeGetByStrFast(map, "bullets");
-  Entity *bullet;
+	Entity *bullets = yeGetByStrFast(map, "bullets");
+	Entity *bullet;
 
-  if (!bullets)
-    bullets = yeCreateArray(map, "bullets");
+	if (!bullets)
+		bullets = yeCreateArray(map, "bullets");
 
-  bullet = yeCreateArray(bullets, NULL);
-  yePushBack(bullet, bulletPos, "pos");
-  yePushBack(bullet, bulletDir, "dir");
-  yeCreateInt(3, bullet, "id");
-  ywMapPushElem(map, bullet, bulletPos, "bullet");
+	bullet = yeCreateArray(bullets, NULL);
+	yePushBack(bullet, bulletPos, "pos");
+	yePushBack(bullet, bulletDir, "dir");
+	yeCreateInt(3, bullet, "id");
+	ywMapPushElem(map, bullet, bulletPos, "bullet");
 }
 
 static void bulletsTurn(Entity *map, Entity *textScreen)
 {
-  Entity *bullets = yeGetByStr(map, "bullets");
-  Entity *pizzas = yeGetByStr(map, "pizzas");
+	Entity *bullets = yeGetByStr(map, "bullets");
+	Entity *pizzas = yeGetByStr(map, "pizzas");
 
-  ywMapSetOutBehavior(map, YMAP_OUT_NOTHING);
-  YE_ARRAY_FOREACH(bullets, bullet) {
-    Entity *pos = yeGetByStr(bullet, "pos");
-    Entity *arrayAtPos = ywMapGetCase(map, pos);
-    Entity *toRemove;
-    Entity *pizzaHit;
-    Entity *bulletDir = yeGetByStr(bullet, "dir");
+	ywMapSetOutBehavior(map, YMAP_OUT_NOTHING);
+	YE_ARRAY_FOREACH(bullets, bullet) {
+		Entity *pos = yeGetByStr(bullet, "pos");
+		Entity *arrayAtPos = ywMapGetCase(map, pos);
+		Entity *toRemove;
+		Entity *pizzaHit;
+		Entity *bulletDir = yeGetByStr(bullet, "dir");
 
-    ywMapAdvenceWithEPos(map, pos, bulletDir, bullet);
-    pizzaHit = ywMapGetEntityById(map, pos, 2);
-    if (pizzaHit) {
-      removePizza(map, textScreen, pos, bullet, pizzaHit);
-      ywMapMvTableRemove(map, bullet);
-    }
-    if (!ywMapIsInside(map, pos))
-      yeRemoveChild(bullets, bullet);
-  }
+		ywMapAdvenceWithEPos(map, pos, bulletDir, bullet);
+		pizzaHit = ywMapGetEntityById(map, pos, 2);
+		if (pizzaHit) {
+			removePizza(map, textScreen, pos, bullet, pizzaHit);
+			ywMapMvTableRemove(map, bullet);
+			continue;
+		}
+		if (!ywMapIsInside(map, pos)) {
+			yeRemoveChild(bullets, bullet);
+		}
+	}
 }
 
 static void pizzaMaker(Entity *map, Entity *pizzas)
 {
-  Entity *pos;
-  Entity *pizza;
-  int posPop = yuiRand() & 3;
+	Entity *pos;
+	Entity *pizza;
+	int posPop = yuiRand() & 3;
 
-  pizza = yeCreateArray(pizzas, NULL);
-  yeCreateInt(2, pizza, "id");
+	pizza = yeCreateArray(pizzas, NULL);
+	yeCreateInt(2, pizza, "id");
 
-  switch (posPop) {
-  case 0:
-    pos = ywPosCreateInts(0, yuiRand() % (ywMapH(map) - 1), pizza, "pos");
-    ywPosCreateInts(-1, 0, pizza, "dir");
-    break;
-  case 1:
-    pos = ywPosCreateInts(ywMapW(map) - 1, yuiRand() % (ywMapH(map) - 1),
-			  pizza, "pos");
-    ywPosCreateInts(1, 0, pizza, "dir");
-    break;
-  case 2:
-    pos = ywPosCreateInts(yuiRand() % (ywMapW(map) - 1), 0, pizza, "pos");
-    ywPosCreateInts(0, 1, pizza, "dir");
-    break;
-  case 3:
-    pos = ywPosCreateInts(yuiRand() % (ywMapW(map) - 1), ywMapH(map) - 1,
-			  pizza, "pos");
-    ywPosCreateInts(0, -1, pizza, "dir");
-    break;
-  }
-  ywMapPushElem(map, pizza, pos, "pizza");
+	switch (posPop) {
+	case 0:
+		pos = ywPosCreateInts(0, yuiRand() % (ywMapH(map) - 1),
+				      pizza, "pos");
+		ywPosCreateInts(-1, 0, pizza, "dir");
+		break;
+	case 1:
+		pos = ywPosCreateInts(ywMapW(map) - 1,
+				      yuiRand() % (ywMapH(map) - 1),
+				      pizza, "pos");
+		ywPosCreateInts(1, 0, pizza, "dir");
+		break;
+	case 2:
+		pos = ywPosCreateInts(yuiRand() % (ywMapW(map) - 1), 0,
+				      pizza, "pos");
+		ywPosCreateInts(0, 1, pizza, "dir");
+		break;
+	case 3:
+		pos = ywPosCreateInts(yuiRand() % (ywMapW(map) - 1),
+				      ywMapH(map) - 1,
+				      pizza, "pos");
+		ywPosCreateInts(0, -1, pizza, "dir");
+		break;
+	}
+	ywMapPushElem(map, pizza, pos, "pizza");
 }
 
 static void clean(Entity *wid)
 {
-  yeRemoveChildByStr(wid, "entries");
+	yeRemoveChildByStr(wid, "entries");
 }
 
 static int lose(Entity *wid, int score)
 {
-  if (yeGet(wid, "die")) {
-    yesCall(yeGet(wid, "die"), wid, score);
-    return 1;
-  }
-  Entity *str = yeCreateString("vapz:scenes.lose", NULL, NULL);
-  Entity *txt = ygGet("vapz:scenes.lose.text");
-  yeSetString(txt, "you lose, score: ");
-  yeAddInt(txt, score);
-  ywidNext(str, NULL);
-  yeDestroy(str);
-  return 1;
+	if (yeGet(wid, "die")) {
+		yesCall(yeGet(wid, "die"), wid, score);
+		return 1;
+	}
+	Entity *str = yeCreateString("vapz:scenes.lose", NULL, NULL);
+	Entity *txt = ygGet("vapz:scenes.lose.text");
+	yeSetString(txt, "you lose, score: ");
+	yeAddInt(txt, score);
+	ywidNext(str, NULL);
+	yeDestroy(str);
+	return 1;
 }
 
 static int pizzaTurn(Entity *map)
 {
-  Entity *pizzas = yeGetByStr(map, "pizzas");
+	Entity *pizzas = yeGetByStr(map, "pizzas");
 
-  if (!pizzas)
-    pizzas = yeCreateArray(map, "pizzas");
-  pizzaMaker(map, pizzas);
-  ywMapSetOutBehavior(map, YMAP_OUT_WARP);
-  YE_ARRAY_FOREACH(pizzas, pizza) {
-    Entity *pizDir = yeGetByStrFast(pizza, "dir");
+	if (!pizzas)
+		pizzas = yeCreateArray(map, "pizzas");
+	pizzaMaker(map, pizzas);
+	ywMapSetOutBehavior(map, YMAP_OUT_WARP);
+	YE_ARRAY_FOREACH(pizzas, pizza) {
+		Entity *pizDir = yeGetByStrFast(pizza, "dir");
 
-    ywMapAdvenceWithEPos(map, yeGetByStrFast(pizza, "pos"),
-			 pizDir, pizza);
-    if (!(yuiRand() & 3)) {
-      ywPosSet(pizDir, (yuiRand() % 3 - 1), (yuiRand() % 3 - 1));
-    }
-  }
-  return 0;
+		ywMapAdvenceWithEPos(map, yeGetByStrFast(pizza, "pos"),
+				     pizDir, pizza);
+		if (!(yuiRand() & 3)) {
+			ywPosSet(pizDir, (yuiRand() % 3 - 1),
+				 (yuiRand() % 3 - 1));
+		}
+	}
+	return 0;
 }
 
 void *vapzAction(int nbArgs, void **args)
 {
-  YE_NEW(Array, gc);
-  Entity *wid = args[0];
-  Entity *events = args[1];
-  Entity *vk = yeGetByStrFast(wid, "viking");
-  Entity *vkPos = yeGetByStrFast(vk, "pos");
-  Entity *nextPos = ywPosCreateInts(0, 0, gc, NULL);
-  Entity *bulletDir = NULL;
-  Entity *bulletPos = ywPosCreateEnt(vkPos, 0, gc, NULL);
-  Entity *map = ywCntGetEntry(wid, 0);
-  Entity *textScreen = ywCntGetEntry(wid, 1);
-  Entity *tl = yeGetByStrFast(wid, "turn-length");
-  void *ret = tl ? (void *)ACTION : (void *)NOTHANDLE;
-  int fire = 0;
+	YE_NEW(Array, gc);
+	Entity *wid = args[0];
+	Entity *events = args[1];
+	Entity *vk = yeGetByStrFast(wid, "viking");
+	Entity *vkPos = yeGetByStrFast(vk, "pos");
+	Entity *nextPos = ywPosCreateInts(0, 0, gc, NULL);
+	Entity *bulletDir = NULL;
+	Entity *bulletPos = ywPosCreateEnt(vkPos, 0, gc, NULL);
+	Entity *map = ywCntGetEntry(wid, 0);
+	Entity *textScreen = ywCntGetEntry(wid, 1);
+	Entity *tl = yeGetByStrFast(wid, "turn-length");
+	void *ret = tl ? (void *)ACTION : (void *)NOTHANDLE;
+	int fire = 0;
 
-  if (yevIsKeyDown(events, Y_ESC_KEY)) {
-    if (yeGet(wid, "quit")) {
-      yesCall(yeGet(wid, "quit"), wid);
-    } else {
-      ywidNext(yeCreateString("vapz:scenes.main", gc, NULL), NULL);
-    }
-      clean(wid);
-      return (void *)ACTION;
-  }
-  if (yevIsKeyDown(events, Y_UP_KEY)) {
-    ret = (void *)ACTION;
-    ywPosSetY(nextPos, -1);
-  }
-  if (yevIsKeyDown(events, Y_DOWN_KEY)) {
-    ret = (void *)ACTION;
-    ywPosSetY(nextPos, 1);
-  }
-  if (yevIsKeyDown(events,  Y_LEFT_KEY)) {
-    ret = (void *)ACTION;
-    ywPosSetX(nextPos, -1);
-  }
-  if (yevIsKeyDown(events,  Y_RIGHT_KEY)) {
-    ret = (void *)ACTION;
-    ywPosSetX(nextPos, 1);
-  }
-  if (yevCheckKeys(events, YKEY_DOWN, 'w', 'z')) {
-    fire = 1;
-    bulletDir = ywPosCreateInts(0, -1, gc, NULL);
-    ret = (void *)ACTION;
-  }
-  if (yevCheckKeys(events, YKEY_DOWN, 'a', 'q')) {
-    fire = 1;
-    bulletDir = ywPosCreateInts(-1, 0, gc, NULL);
-    ret = (void *)ACTION;
-  }
-  if (yevIsKeyDown(events,  's')) {
-    fire = 1;
-    bulletDir = ywPosCreateInts(0, 1, gc, NULL);
-    ret = (void *)ACTION;
-  }
-  if (yevIsKeyDown(events,  'd')) {
-    fire = 1;
-    bulletDir = ywPosCreateInts(1, 0, gc, NULL);
-    ret = (void *)ACTION;
-  }
+	if (yevIsKeyDown(events, Y_ESC_KEY)) {
+		if (yeGet(wid, "quit")) {
+			yesCall(yeGet(wid, "quit"), wid);
+		} else {
+			ywidNext(yeCreateString("vapz:scenes.main",
+						gc, NULL), NULL);
+		}
+		clean(wid);
+		return (void *)ACTION;
+	}
+	if (yevIsKeyDown(events, Y_UP_KEY)) {
+		ret = (void *)ACTION;
+		ywPosSetY(nextPos, -1);
+	}
+	if (yevIsKeyDown(events, Y_DOWN_KEY)) {
+		ret = (void *)ACTION;
+		ywPosSetY(nextPos, 1);
+	}
+	if (yevIsKeyDown(events,  Y_LEFT_KEY)) {
+		ret = (void *)ACTION;
+		ywPosSetX(nextPos, -1);
+	}
+	if (yevIsKeyDown(events,  Y_RIGHT_KEY)) {
+		ret = (void *)ACTION;
+		ywPosSetX(nextPos, 1);
+	}
+	if (yevCheckKeys(events, YKEY_DOWN, 'w', 'z')) {
+		fire = 1;
+		bulletDir = ywPosCreateInts(0, -1, gc, NULL);
+		ret = (void *)ACTION;
+	}
+	if (yevCheckKeys(events, YKEY_DOWN, 'a', 'q')) {
+		fire = 1;
+		bulletDir = ywPosCreateInts(-1, 0, gc, NULL);
+		ret = (void *)ACTION;
+	}
+	if (yevIsKeyDown(events,  's')) {
+		fire = 1;
+		bulletDir = ywPosCreateInts(0, 1, gc, NULL);
+		ret = (void *)ACTION;
+	}
+	if (yevIsKeyDown(events,  'd')) {
+		fire = 1;
+		bulletDir = ywPosCreateInts(1, 0, gc, NULL);
+		ret = (void *)ACTION;
+	}
 
-  if (bulletDir)
-    pushBullet(map, bulletPos, bulletDir);
-  Entity *isTouch = ywMapGetEntityById(map, vkPos, 2);
-  if (isTouch) {
-    lose(wid, yeGetInt(yeGetByStrFast(map, "score")));
-    clean(wid);
-    return ret;
-  }
-  if (ret == (void *)ACTION) {
-    if (colCheck(map, textScreen, vkPos)) {
-      lose(wid, yeGetInt(yeGetByStrFast(map, "score")));
-      clean(wid);
-      return ret;
-    }
-    bulletsTurn(map, textScreen);
-    pizzaTurn(map);
-    ywContainerUpdate(wid, map);
-    ywContainerUpdate(wid, textScreen);
-  }
-  ywMapSetOutBehavior(map, YMAP_OUT_BLOCK);
-  ywMapAdvenceWithEPos(map, vkPos, nextPos, ywMapGetEntityById(map, vkPos, 1));
-  Entity *newCamPos = ywPosCreate(vkPos, 0, gc, NULL);
-  Entity *cam = ywMapCam(map);
-  ywPosSubXY(newCamPos, ywRectW(cam) / 2, ywRectH(cam) / 2);
-  ywMapSetCamPos(map, newCamPos);
-  return ret;
+	if (bulletDir)
+		pushBullet(map, bulletPos, bulletDir);
+	Entity *isTouch = ywMapGetEntityById(map, vkPos, 2);
+	if (isTouch) {
+		lose(wid, yeGetInt(yeGetByStrFast(map, "score")));
+		clean(wid);
+		return ret;
+	}
+	if (ret == (void *)ACTION) {
+		if (colCheck(map, textScreen, vkPos)) {
+			lose(wid, yeGetInt(yeGetByStrFast(map, "score")));
+			clean(wid);
+			return ret;
+		}
+		bulletsTurn(map, textScreen);
+		pizzaTurn(map);
+		ywContainerUpdate(wid, map);
+		ywContainerUpdate(wid, textScreen);
+	}
+	ywMapSetOutBehavior(map, YMAP_OUT_BLOCK);
+	ywMapAdvenceWithEPos(map, vkPos, nextPos,
+			     ywMapGetEntityById(map, vkPos, 1));
+	Entity *newCamPos = ywPosCreate(vkPos, 0, gc, NULL);
+	Entity *cam = ywMapCam(map);
+	ywPosSubXY(newCamPos, ywRectW(cam) / 2, ywRectH(cam) / 2);
+	ywMapSetCamPos(map, newCamPos);
+	return ret;
 }
 
 
 void *vapzInit(int nbArgs, void **args)
 {
-  Entity *gc = yeCreateArray(NULL, NULL);
-  Entity *main = args[0];
-  Entity *cur_layer;
-  Entity *resources = yeGet(main, "resources");
-  Entity *layers = yeCreateArray(main, "entries");
-  Entity *viking = yeReCreateArray(main, "viking", NULL);
-  Entity *vkPos = yeGet(viking, "pos") ? :
-    ywPosCreateInts(12, 12, viking, "pos");
-  Entity *textScreen;
+	Entity *gc = yeCreateArray(NULL, NULL);
+	Entity *main = args[0];
+	Entity *cur_layer;
+	Entity *resources = yeGet(main, "resources");
+	Entity *layers = yeCreateArray(main, "entries");
+	Entity *viking = yeReCreateArray(main, "viking", NULL);
+	Entity *vkPos = yeGet(viking, "pos") ? :
+		ywPosCreateInts(12, 12, viking, "pos");
+	Entity *textScreen;
 
-  if (yeType(resources) == YSTRING)
-    resources = ygGet(yeGetString(resources));
-  yuiRandInit();
-  cur_layer = ywMapCreateDefaultEntity(layers, NULL, resources,
-				       0, 25, 25);
-  ywMapPushNbr(cur_layer, 1, vkPos, NULL);
-  yeReCreateString("map", cur_layer, "<type>");
-  yeReCreateString("center", cur_layer, "cam-type");
-  Entity *cam = ywRectCreatePosSize(vkPos, ywSizeCreate(20, 20, gc, NULL),
-				    cur_layer, "cam");
-  ywPosSubXY(cam, 10, 10);
+	if (yeType(resources) == YSTRING)
+		resources = ygGet(yeGetString(resources));
+	yuiRandInit();
+	cur_layer = ywMapCreateDefaultEntity(layers, NULL, resources,
+					     0, 25, 25);
+	ywMapPushNbr(cur_layer, 1, vkPos, NULL);
+	yeReCreateString("map", cur_layer, "<type>");
+	yeReCreateString("center", cur_layer, "cam-type");
+	Entity *cam = ywRectCreatePosSize(vkPos, ywSizeCreate(20, 20, gc, NULL),
+					  cur_layer, "cam");
+	ywPosSubXY(cam, 10, 10);
 
-  yeCreateString("rgba: 255 255 255 255", cur_layer, "background");
-  ywMapSetSmootMovement(cur_layer, 1);
+	yeCreateString("rgba: 255 255 255 255", cur_layer, "background");
+	ywMapSetSmootMovement(cur_layer, 1);
 
-  yeCreateString("stacking", main, "cnt-type");
+	yeCreateString("stacking", main, "cnt-type");
 
-  textScreen = yeCreateArray(layers, NULL);
-  yeCreateString("text-screen", textScreen, "<type>");
-  yeCreateString("score:", textScreen, "text");
+	textScreen = yeCreateArray(layers, NULL);
+	yeCreateString("text-screen", textScreen, "<type>");
+	yeCreateString("score:", textScreen, "text");
 
-  yeCreateInt(0, cur_layer, "score");
-  yeCreateInt(150000, main, "turn-length");
-  yeCreateInt(YRECALL_INIT, main, "recreate-logic");
-  yeCreateFunction("vapzAction", ygGetTccManager(), main, "action");
-  void *ret = ywidNewWidget(main, "container");
-  yeDestroy(gc);
-  return ret;
+	yeCreateInt(0, cur_layer, "score");
+	yeCreateInt(150000, main, "turn-length");
+	yeCreateInt(YRECALL_INIT, main, "recreate-logic");
+	yeCreateFunction("vapzAction", ygGetTccManager(), main, "action");
+	void *ret = ywidNewWidget(main, "container");
+	yeDestroy(gc);
+	return ret;
 }
