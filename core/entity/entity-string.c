@@ -27,6 +27,8 @@
 #include	"script.h"
 #include	"game.h"
 
+static int tryMatchToks(const char *str, Entity *tokInfo, int len, int beg);
+
 int yeStrChrIdx(Entity *str_ent, char c)
 {
 	const char *str = yeGetString(str_ent);
@@ -472,18 +474,54 @@ static int tryMatchReapeater(const char *str, Entity *tok, int len)
 	return 1;
 }
 
-static int tryMatchSepReap(const char *str, Entity *tok, int len, int beg)
+static int tryMatchSepReap(Entity *tokInfo, const char *str,
+			   Entity *tok, int len, int beg)
 {
 	if (!beg)
 		return 0;
-	return tryMatchReapeater(str, tok, len);
+	if (tryMatchReapeater(str, tok, len)) {
+		const char *cstr = tokStr(tok);
+		int tl = strlen(cstr);
+		int m;
+		YE_NEW(string, stre, cstr);
+
+		m = tryMatchToks(str + tl, tokInfo, len - tl, 1);
+		if (m == YTOK_WORD)
+			return 0;
+		yeSetStringAt(tok, 3, yeGetString(stre));
+		/* if (m > YTOK_WORD) { */
+		/* 	int tt = yeGetIntAt(yeGet(tokInfo, m), 0); */
+		/* 	if (tt == YTOK_TYPE_SEPARATE_STR || */
+		/* 	    tt == YTOK_TYPE_SEP_REAP_STR) */
+		/* 		return 0; */
+		/* } */
+		return 1;
+	}
+	return 0;
 }
 
-static int tryMatchSep(const char *str, Entity *tok, int len, int beg)
+static int tryMatchSep(Entity *tokInfo, const char *str, Entity *tok,
+		       int len, int beg)
 {
 	if (!beg)
 		return 0;
-	return tryMatchStr(str, tok, len);
+	if (tryMatchStr(str, tok, len)) {
+		const char *cstr = tokStr(tok);
+		int tl = strlen(cstr);
+		int m;
+
+		m = tryMatchToks(str + tl, tokInfo, len - tl, 1);
+		if (m == YTOK_WORD)
+			return 0;
+		/* if (m > YTOK_WORD) { */
+		/* 	int tt = yeGetIntAt(yeGet(tokInfo, m), 0); */
+		/* 	if (tt == YTOK_TYPE_SEPARATE_STR || */
+		/* 	    tt == YTOK_TYPE_SEP_REAP_STR) */
+		/* 		return 0; */
+		/* } */
+		return 1;
+	}
+	return 0;
 }
 
 static int tryMatchToks(const char *str, Entity *tokInfo, int len, int beg)
@@ -504,11 +542,12 @@ static int tryMatchToks(const char *str, Entity *tokInfo, int len, int beg)
 					return i;
 				break;
 			case YTOK_TYPE_SEP_REAP_STR:
-				if (tryMatchSepReap(str, curTok, len, beg))
+				if (tryMatchSepReap(tokInfo, str, curTok,
+						    len, beg))
 					return i;
 				break;
 			case YTOK_TYPE_SEPARATE_STR:
-				if (tryMatchSep(str, curTok, len, beg))
+				if (tryMatchSep(tokInfo, str, curTok, len, beg))
 					return i;
 				break;
 			case YTOK_TYPE_STR:

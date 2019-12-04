@@ -27,6 +27,22 @@ union mem {
 	};
 };
 
+#define MK_REG(r) union {			\
+		uint16_t r##x;			\
+		struct {			\
+			uint8_t r##h;		\
+			uint8_t r##l;		\
+		};				\
+	}
+
+struct regs {
+	MK_REG(a);
+	MK_REG(b);
+	MK_REG(c);
+	MK_REG(d);
+	uint16_t di;
+	uint16_t si;
+};
 
 struct state_8086 {
 	Entity *e;
@@ -264,6 +280,8 @@ void *call_func(int nbArgs, void **args)
 	return (void *)ACTION;
 }
 
+#include "asm.c"
+
 static void destroy_state(void *arg)
 {
 	struct state_8086 *s = arg;
@@ -282,7 +300,9 @@ void *init_8086(int nbArgs, void **args)
 	ret = ywidNewWidget(emu, "canvas");
 
 	YEntityBlock { emu.background = "rgba: 0 0 0 255"; }
-	if (yeGet(emu, "func")) {
+	if (yeGet(emu, "asm")) {
+		YEntityBlock { emu.action = call_asm; }
+	} else if (yeGet(emu, "func")) {
 		YEntityBlock { emu.action = call_func; }
 	}
 	s = malloc(sizeof(*s));
@@ -302,7 +322,7 @@ void *mod_init(int nbArg, void **args)
 	YEntityBlock {
 		init.name = "8086";
 		init.callback = init_8086;
-		mod.name = "8086_emu";
+		mod.name = "8086-emu";
 		mod.starting_widget = "test_8086";
 		mod.test_8086 = [];
 		mod.test_8086["<type>"] = "8086";

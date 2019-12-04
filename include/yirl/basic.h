@@ -1,4 +1,7 @@
-#define NULL	0
+#  define INT_MIN       (-INT_MAX - 1)
+#  define INT_MAX       2147483647
+
+#define NULL	((void *)0)
 #define O_ACCMODE          0003
 #define O_RDONLY             00
 #define O_WRONLY             01
@@ -43,6 +46,7 @@ extern FILE *stderr;
 
 void	fflushout(void);
 int open(const char *path, int oflag, ...);
+int close(int fildes);
 size_t read(int fd, void *buf, size_t count);
 int printf(const char *format, ...);
 int fprintf(FILE *stream, const char *format, ...);
