@@ -384,6 +384,18 @@ void *call_asm(int nbArgs, void **args)
 			++inst_pos;
 			mk_args(insts, &inst_pos, consts);
 			++inst_pos;
+		} else if (cur_tok == XOR_T) {
+			/* xor le sherif, sherif de l'espace */
+			/* xor son domaine, c'est notre GALAXYYYYYYY */
+			/* Homme ou robot, il change de paux */
+			/* Quand de l'espace, vien la menace... */
+			/* ^ That's Gavan opening in french */
+			/* Gavan name came from the french actor jean Gabin */
+			/* I find it odd than Gavan was rename X-or in france */
+			gen_jum(insts, inst_pos, inst_size, &&xor);
+			++inst_pos;
+			mk_args(insts, &inst_pos, consts);
+			++inst_pos;
 		} else if (cur_tok == INT_T) {
 			gen_jum(insts, inst_pos, inst_size, &&interupt);
 			++inst_pos;
@@ -554,6 +566,19 @@ mov:
 	       insts[inst_pos].info[1].constant);
 	++inst_pos;
 	goto *insts[inst_pos].label;
+xor:
+	++inst_pos;
+#define OTHER_CHECK 1
+#define OPERATION ^=
+#include "asm-inst.h"
+	printf("xor (%d)%x (%d)%x\n",
+	       insts[inst_pos].info[0].reg,
+	       insts[inst_pos].info[0].constant,
+	       insts[inst_pos].info[1].reg,
+	       insts[inst_pos].info[1].constant);
+	++inst_pos;
+	goto *insts[inst_pos].label;
+
 quit:
 	printf("out\n");
 	free(insts);

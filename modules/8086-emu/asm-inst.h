@@ -6,7 +6,7 @@
 #define CHECK_ADD 0
 #endif
 
-#if defined (CHECK_SUB) || defined (CHECK_ADD)
+#if defined (CHECK_SUB) || defined (CHECK_ADD) || defined (OTHER_CHECK)
 #define DO_CHECK 1
 #else
 #define DO_CHECK 0
@@ -103,6 +103,11 @@
 #undef DO_CHECK
 #undef try_indir
 #undef OPERATION
+
+#ifdef OTHER_CHECK
+#undef OTHER_CHECK
+#endif
+
 #ifdef COPY
 #undef COPY
 #endif
