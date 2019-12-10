@@ -1,3 +1,7 @@
+#if defined (CHECK_SUB) || defined (CHECK_ADD)
+#define DO_CHECK
+#endif
+
 
 {
 	int r0 = insts[inst_pos].info[0].reg;
@@ -59,6 +63,9 @@
 			       regs.ds << 4, regs.es);
 			*d OPERATION try_indir(state, f1, c1);
 		}
+#ifdef DO_CHECK
+		result = *d;
+#endif
 #ifndef COPY
 		scan_ptr_mem(state, d, 2);
 #endif

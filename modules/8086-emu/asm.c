@@ -318,12 +318,13 @@ void *call_asm(int nbArgs, void **args)
 	int inst_size = 512;
 	union instructions *insts = malloc(inst_size * (sizeof *insts));
 	int inst_pos = 0;
-	int restult; /* last operation result*/
+	int result; /* last operation result*/
 
 	asm_txt = asm_txt_;
 	tok_info = tok_info_;
 	YE_NEW(Array, consts, NULL);
 	YE_NEW(Array, labels, NULL);
+	YE_NEW(Array, forward_labels, NULL);
 
 #define DEF(a, b, c) YUI_CAT(DEF_, c)(a, b)
 #define DEF_string(a, b) yeCreateString(b, tok_info, NULL);
@@ -397,12 +398,45 @@ void *call_asm(int nbArgs, void **args)
 		} else if (cur_tok == CLD_T) {
 			gen_jum(insts, inst_pos, inst_size, &&cld);
 			++inst_pos;
+		} else if (cur_tok == JZ_T) {
+			gen_jum(insts, inst_pos, inst_size, &&jz);
+			goto create_jmp;
+		} else if (cur_tok == JMP_T) {
+			Entity *jmp_dest;
+			const char *l_name;
+
+			gen_jum(insts, inst_pos, inst_size, &&jmp);
+		create_jmp:
+
+			++inst_pos;
+			next_no_space();
+			l_name = yeTokString(tok_info, cur_tok);
+			jmp_dest = yeGet(labels, l_name);
+			if (yeType(jmp_dest) != YINT) {
+				yeCreateInt(inst_pos, forward_labels, l_name);
+			} else {
+				insts[inst_pos].info[0].constant =
+					yeGetIntDirect(jmp_dest);
+			}
+			++inst_pos;
 		}
 
 		if (cur_tok == RETURN_T) {
 			printf("\n");
 			continue;
 		}
+	}
+	for (int i = 0; i < yeLen(forward_labels); ++i) {
+		const char *l_name = yeGetKeyAt(forward_labels, i);
+		int inst_i = yeGetIntAt(forward_labels, i);
+		Entity *jmp_dest = yeGet(labels, l_name);
+
+		if (yeType(jmp_dest) != YINT) {
+			DPRINT_ERR("can't find label: %s", l_name);
+			abort();
+
+		}
+		insts[inst_i].info[0].constant = yeGetIntDirect(jmp_dest);
 	}
 	printf("hummm ? %d\n", inst_pos);
 	inst_pos = 0;
@@ -446,9 +480,27 @@ cld:
 	regs.flag &= ~DIR_FLAG;
 	++inst_pos;
 	goto *insts[inst_pos].label;
+jnz:
+	printf("jnz\n");
+	if (result)
+		inst_pos = insts[inst_pos + 1].info[0].constant;
+	else
+		inst_pos += 2;
+	goto *insts[inst_pos].label;
+jz:
+	printf("jz\n");
+	if (!result)
+		inst_pos = insts[inst_pos + 1].info[0].constant;
+	else
+		inst_pos += 2;
+	goto *insts[inst_pos].label;
+jmp:
+	inst_pos = insts[inst_pos + 1].info[0].constant;
+	goto *insts[inst_pos].label;
 cmp:
 	++inst_pos;
 #define COPY
+#define CHECK_SUB
 #define OPERATION -=
 #include "asm-inst.h"
 	++inst_pos;
@@ -461,6 +513,7 @@ cmp:
 add:
 	++inst_pos;
 #define OPERATION +=
+#define CHECK_ADD
 #include "asm-inst.h"
 	printf("add (%d)%x (%d)%x\n",
 	       insts[inst_pos].info[0].reg,
