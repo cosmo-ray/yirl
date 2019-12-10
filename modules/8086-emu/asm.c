@@ -25,26 +25,40 @@ static Entity *asm_txt;
 static Entity *tok_info;
 int cur_tok;
 
+struct inst_param {
+	uint8_t flag;
+	uint8_t reg;
+	uint16_t constant;
+};
+
 union instructions {
 	void *label;
-	struct {
-		uint16_t flag;
-		uint16_t constant;
-	} info[2];
+	struct inst_param info[2];
 };
 
 enum {
 	IS_WORD = 1 << 0,
 	IS_BYTE = 1 << 1,
-	IS_REG = 1 << 2,
-	HAVE_INDIR = 1 << 3,
-	IS_NUM = 1 << 4
+	HAVE_INDIR = 1 << 2,
+	IS_NUM = 1 << 3,
+	ADD = 1 << 4,
+	MUL = 1 << 5,
+	DIV = 1 << 6
 };
+
+// sub in informel, because I use add
+#define SUB 1
 
 enum {
-	CARRY_FALG = 1
+	CARRY_FLAG = 1,
+	DIR_FLAG = 2
 };
 
+#define unexpected() do {					\
+		DPRINT_ERR("unexpected token: %s",		\
+			   yeTokString(tok_info, cur_tok));	\
+		abort();					\
+	} while (0);
 
 /* parsers utils */
 static inline int next_no_space(void)
@@ -59,9 +73,7 @@ static inline int next_no_space(void)
 #define skip(what)							\
 	do {								\
 		if (cur_tok != what) {					\
-			DPRINT_ERR("unexpected tok: '%s'\n",		\
-				   yeTokString(tok_info, cur_tok));	\
-			abort();					\
+			unexpected();					\
 		}							\
 		next_no_space();					\
 	} while (0);							\
@@ -92,7 +104,69 @@ static inline int parse_num(void)
 		cur_tok = yeStringNextTok(asm_txt, tok_info);
 		return num;
 	}
-	return INT_MIN;
+	unexpected();
+	return 0;
+}
+
+int skip_next_num()
+{
+	int r;
+
+	next_no_space();
+	r = parse_num();
+	next_no_space();
+	return r;
+}
+
+static int check_math(int base, int *op)
+{
+	if (cur_tok == STAR_T) {
+		int num = skip_next_num();
+		printf("got %d - %s\n", num, yeTokString(tok_info, cur_tok));
+		if (op) {
+			*op = MUL;
+			return num;
+		}
+		return check_math(base * num, NULL);
+	} else if (cur_tok == PLUS_T) {
+		int num = skip_next_num();
+		num = check_math(num, NULL);
+		if (op) {
+			printf("n op\n");
+			*op = ADD;
+			return num;
+		}
+		printf("should do + %d\n", base + num);
+		return base + num;
+	} else if (cur_tok == MINUS_T) {
+		int num = skip_next_num();
+		num = check_math(num, NULL);
+		if (op) {
+			*op = SUB;
+			return num;
+		}
+		printf("should do + %d\n", base + num);
+		return base - num;
+	}
+	return base;
+}
+
+static void do_math(union instructions *inst, int idx)
+{
+	int c = inst->info[idx].constant;
+	int r = inst->info[idx].reg;
+	int f = 0;
+	int *fp = r ? &f : NULL;
+
+	printf("m0 %p %p\n", fp, &f);
+	inst->info[idx].constant = check_math(c, fp);
+	if (f == SUB) {
+		inst->info[idx].constant = -inst->info[idx].constant;
+		f = ADD;
+	}
+	printf("f: %d\n", f);
+	inst->info[idx].flag |= f;
+	printf("math: %d\n", inst->info[idx].constant);
 }
 
 static int assign_dest(union instructions *inst, int idx)
@@ -105,7 +179,9 @@ static int assign_dest(union instructions *inst, int idx)
 	case DX_T:
 	case DI_T:
 	case SI_T:
-		inst->info[idx].constant = cur_tok;
+	case DS_T:
+	case ES_T:
+		inst->info[idx].reg = cur_tok;
 		goto reg_word;
 	case AL_T:
 	case BL_T:
@@ -115,7 +191,7 @@ static int assign_dest(union instructions *inst, int idx)
 	case BH_T:
 	case CH_T:
 	case DH_T:
-		inst->info[idx].constant = cur_tok;
+		inst->info[idx].reg = cur_tok;
 		goto reg_byte;
 	case HEX0_T:
 	case HEX1_T:
@@ -136,15 +212,8 @@ reg_word:
 reg_byte:
 	inst->info[idx].flag |= IS_BYTE;
 reg:
-	inst->info[idx].flag |= IS_REG;
 	return 0;
 }
-
-#define unexpected() do {					\
-		DPRINT_ERR("unexpected token: %s",		\
-			   yeTokString(tok_info, cur_tok));	\
-		abort();					\
-	} while (0);
 
 static void brace_arg(union instructions *inst, Entity *constants,
 		      int sz_set, int idx)
@@ -155,14 +224,15 @@ static void brace_arg(union instructions *inst, Entity *constants,
 		DPRINT_ERR("size require");
 	}
 	printf("%s - %x\n", yeTokString(tok_info, cur_tok),
-	       inst->info[0].flag);
+	       inst->info[idx].flag);
 	next_no_space();
-	ret = assign_dest(inst, 0);
-	printf("%d - %s - %x\n", ret, yeTokString(tok_info, cur_tok),
-	       inst->info[0].flag);
+	ret = assign_dest(inst, idx);
+	printf("++ %d - %s - %x ++\n", ret, yeTokString(tok_info, cur_tok),
+	       inst->info[idx].flag);
 	if (ret < 0) {
 		Entity *const_v;
 
+		printf("ret < 0\n");
 		const_v = yeGet(constants, yeTokString(tok_info, cur_tok));
 		printf("try get %s\n",
 		       yeTokString(tok_info, cur_tok));
@@ -171,19 +241,17 @@ static void brace_arg(union instructions *inst, Entity *constants,
 		printf("store const %d - %x\n",
 		       yeGetIntDirect(const_v),
 		       yeGetIntDirect(const_v));
-		inst->info[0].flag |= IS_NUM;
-		inst->info[0].constant =
+		inst->info[idx].flag |= IS_NUM;
+		inst->info[idx].constant =
 			yeGetIntDirect(const_v);
-	} else if (ret != 2) {
-		DPRINT_ERR("TODO");
-		abort();
 	}
 	next_no_space();
-	// check for +/*- here
+	printf("math time !\n");
+	do_math(inst, idx);
 	skip(CLOSE_BRACKET_T);
-	printf("%d - %s - %x\n", ret, yeTokString(tok_info,
+	printf("- %d - %s - %x -\n", ret, yeTokString(tok_info,
 						  cur_tok),
-	       inst->info[0].flag);
+	       inst->info[idx].flag);
 
 }
 
@@ -194,8 +262,9 @@ static void mk_args(union instructions *insts, int *inst_pos,
 	int sz_set = 0;
 
 	next_no_space();
-	insts[*inst_pos].info[0].flag = 0;
-	insts[*inst_pos].info[1].flag = 0;
+	insts[*inst_pos].info[0] = (struct inst_param){0};
+	insts[*inst_pos].info[1] = (struct inst_param){0};
+	printf("init: %d\n", insts[*inst_pos].info[0].reg);
 	if (cur_tok == BYTE_T || cur_tok == WORD_T) {
 		int what = cur_tok == BYTE_T ? IS_BYTE : IS_WORD;
 
@@ -225,33 +294,31 @@ static void mk_args(union instructions *insts, int *inst_pos,
 		next_no_space();
 
 	printf("end %s\n", yeTokString(tok_info, cur_tok));
-	// check for +/*-
-	*inst_pos += 1;
+	do_math(&insts[*inst_pos], 1);
 	return;
 }
 
-static inline void gen_jum(union instructions *insts, int inst_pos,
-			   int *inst_size, void *next_label)
-{
-	if (inst_pos + 10 > *inst_size) {
-		*inst_size = *inst_size * 2;
-		insts = realloc(insts, *inst_size * sizeof(*insts));
-	}
-	insts[inst_pos].label = next_label;
-}
+#define gen_jum(insts, inst_pos, inst_size, next_label)		\
+	do {							\
+		if (inst_pos + 10 > inst_size) {			\
+			inst_size = inst_size * 2;			\
+			insts = realloc(insts, inst_size * sizeof(*insts)); \
+		}							\
+		insts[inst_pos].label = next_label;			\
+	} while (0)							\
 
 void *call_asm(int nbArgs, void **args)
 {
 	Entity *emu = args[0];
+	struct state_8086 *state = yeGetDataAt(emu, "state");
 	const char *asm_file = yeGetStringAt(emu, "asm");
 	yeAutoFree Entity *asm_txt_ = ygFileToEnt(YRAW_FILE, asm_file, NULL);
 	yeAutoFree Entity *tok_info_ = yeTokInfoCreate(NULL, NULL);
 	struct regs regs;
 	int inst_size = 512;
-	union instructions *insts = malloc(inst_size);
+	union instructions *insts = malloc(inst_size * (sizeof *insts));
 	int inst_pos = 0;
 	int restult; /* last operation result*/
-	uint16_t flags; /* last operation result*/
 
 	asm_txt = asm_txt_;
 	tok_info = tok_info_;
@@ -307,17 +374,29 @@ void *call_asm(int nbArgs, void **args)
 		}
 
 		if (cur_tok == ADD_T) {
-			gen_jum(insts, inst_pos, &inst_size, &&add);
+			gen_jum(insts, inst_pos, inst_size, &&add);
 			++inst_pos;
 			mk_args(insts, &inst_pos, consts);
-			continue;
+			++inst_pos;
+		} else if (cur_tok == MOV_T) {
+			gen_jum(insts, inst_pos, inst_size, &&mov);
+			++inst_pos;
+			mk_args(insts, &inst_pos, consts);
+			++inst_pos;
 		} else if (cur_tok == INT_T) {
-			gen_jum(insts, inst_pos, &inst_size, &&interupt);
+			gen_jum(insts, inst_pos, inst_size, &&interupt);
 			++inst_pos;
 			next_no_space();
 			insts[inst_pos].info[0].constant = parse_num();
 			++inst_pos;
-			continue;
+		} else if (cur_tok == CMP_T) {
+			gen_jum(insts, inst_pos, inst_size, &&cmp);
+			++inst_pos;
+			mk_args(insts, &inst_pos, consts);
+			++inst_pos;
+		} else if (cur_tok == CLD_T) {
+			gen_jum(insts, inst_pos, inst_size, &&cld);
+			++inst_pos;
 		}
 
 		if (cur_tok == RETURN_T) {
@@ -334,8 +413,27 @@ void *call_asm(int nbArgs, void **args)
 interupt:
 	{
 		int int_nb = insts[inst_pos + 1].info[0].constant;
+		Entity *eve;
+		Entity *events;
 
+		printf("int 0x%x\n", int_nb);
 		switch (int_nb) {
+		case 0x10:
+			printf("new video mode %d\n", regs.ax);
+			set_video_mode(state, regs.ax);
+			break;
+		case 0x16:
+			events = ywidGenericPollEvent();
+
+			YEVE_FOREACH(eve, events) {
+				if (ywidEveType(eve) == YKEY_DOWN) {
+					regs.al = ywidEveKey(eve);
+				}
+			}
+			break;
+		case 0x1a:
+			regs.dx = YTimerGet(&state->timer);
+			break;
 		case 0x20:
 			goto quit;
 		default:
@@ -344,13 +442,48 @@ interupt:
 		inst_pos += 2;
 		goto *insts[inst_pos].label;
 	}
+cld:
+	regs.flag &= ~DIR_FLAG;
+	++inst_pos;
+	goto *insts[inst_pos].label;
+cmp:
+	++inst_pos;
+#define COPY
+#define OPERATION -=
+#include "asm-inst.h"
+	++inst_pos;
+	printf("cmp (%d)%x (%d)%x\n",
+	       insts[inst_pos].info[0].reg,
+	       insts[inst_pos].info[0].constant,
+	       insts[inst_pos].info[1].reg,
+	       insts[inst_pos].info[1].constant);
+	goto *insts[inst_pos].label;
 add:
-	printf("add \n");
-	inst_pos += 2;
+	++inst_pos;
+#define OPERATION +=
+#include "asm-inst.h"
+	printf("add (%d)%x (%d)%x\n",
+	       insts[inst_pos].info[0].reg,
+	       insts[inst_pos].info[0].constant,
+	       insts[inst_pos].info[1].reg,
+	       insts[inst_pos].info[1].constant);
+	++inst_pos;
+	goto *insts[inst_pos].label;
+mov:
+	++inst_pos;
+#define OPERATION =
+#include "asm-inst.h"
+	printf("mov (%d)%x (%d)%x\n",
+	       insts[inst_pos].info[0].reg,
+	       insts[inst_pos].info[0].constant,
+	       insts[inst_pos].info[1].reg,
+	       insts[inst_pos].info[1].constant);
+	++inst_pos;
 	goto *insts[inst_pos].label;
 quit:
 	printf("out\n");
 	free(insts);
 	ygTerminate();
+	printf("really out\n");
 	return (void *)ACTION;
 }

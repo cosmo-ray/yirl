@@ -18,6 +18,7 @@
 #include <yirl/canvas.h>
 #include <yirl/entity-script.h>
 #include <yirl/game.h>
+#include <yirl/timer.h>
 
 union mem {
 	uint16_t w;
@@ -36,18 +37,28 @@ union mem {
 	}
 
 struct regs {
-	MK_REG(a);
-	MK_REG(b);
-	MK_REG(c);
-	MK_REG(d);
-	uint16_t di;
-	uint16_t si;
+	union {
+		struct {
+			MK_REG(a);
+			MK_REG(b);
+			MK_REG(c);
+			MK_REG(d);
+			uint16_t di;
+			uint16_t si;
+			uint16_t ds;
+			uint16_t es;
+			uint16_t flag; /* last operation result*/
+		};
+		uint16_t buf_16[16];
+		uint16_t buf_8[32];
+	};
 };
 
 struct state_8086 {
 	Entity *e;
 	void (*set_mem)(struct state_8086 *, int32_t, int16_t);
 	char mem[0xfffff]; /* 2n bits of mems */
+	YTimer timer;
 };
 
 uint32_t to_vga_icolor[0x10] = {
@@ -225,6 +236,16 @@ static inline void set_video_mode(struct state_8086 *s, int16_t m)
 	}
 }
 
+void scan_ptr_mem(struct state_8086 *state, void *dest, int len)
+{
+	char *cdest = dest;
+
+	 /* if true we're not in machine memory, so assuming registre */
+	if (cdest < state->mem || dest > (state->mem + sizeof(state->mem)))
+		return;
+	state->set_mem(state, (intptr_t)(cdest - state->mem), len);
+}
+
 static inline void write_word(struct state_8086 *s, int32_t pos, uint16_t w)
 {
 	char *mem = s->mem;
@@ -251,7 +272,7 @@ void *test_wid(int nbArgs, void **args)
 {
 	Entity *emu = args[0];
 
-	struct state_8086 *s = yeGetDataAt(emu, "mem");
+	struct state_8086 *s = yeGetDataAt(emu, "state");
 	Entity *events;
 
 	printf("8086 tester function %p\n", s);
@@ -308,7 +329,8 @@ void *init_8086(int nbArgs, void **args)
 	s = malloc(sizeof(*s));
 	s->set_mem = empty_video_scan;
 	s->e = emu;
-	data = yeCreateData(s, emu, "mem");
+	YTimerReset(&s->timer);
+	data = yeCreateData(s, emu, "state");
 	yeSetDestroy(data, destroy_state);
 	return ret;
 }
