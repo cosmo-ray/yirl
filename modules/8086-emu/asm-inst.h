@@ -1,6 +1,32 @@
-#if defined (CHECK_SUB) || defined (CHECK_ADD)
-#define DO_CHECK
+#ifndef CHECK_SUB
+#define CHECK_SUB 0
 #endif
+
+#ifndef CHECK_ADD
+#define CHECK_ADD 0
+#endif
+
+#if defined (CHECK_SUB) || defined (CHECK_ADD)
+#define DO_CHECK 1
+#else
+#define DO_CHECK 0
+#endif
+
+#define SET_FLAG_RESULT()					\
+	if (DO_CHECK) {						\
+		result = *d;					\
+		if (CHECK_SUB) {				\
+			if (orig > result)			\
+				regs.flag |= CARRY_FLAG;	\
+			else					\
+				regs.flag &= ~CARRY_FLAG;	\
+		} else if (CHECK_ADD) {				\
+			if (orig < result)			\
+				regs.flag &= ~CARRY_FLAG;	\
+			else					\
+				regs.flag |= CARRY_FLAG;	\
+		}						\
+	}							\
 
 
 {
@@ -23,6 +49,7 @@
 #else
 		uint8_t *d = r0 ? &regs.buf_8[r0] : &c0;
 #endif
+		uint8_t orig = *d;
 
 		printf("8 bit word/registre %x %x\n", regs.ds, regs.es);
 		if (f0 & HAVE_INDIR)
@@ -37,7 +64,7 @@
 #ifndef COPY
 		scan_ptr_mem(state, d, 1);
 #endif
-		// checkcary flag ?
+		SET_FLAG_RESULT()
 	} else {
 		r0 -= AX_T;
 #ifdef COPY
@@ -46,6 +73,7 @@
 #else
 		uint16_t *d = is_0_reg ? &regs.buf_16[r0] : &c0;
 #endif
+		uint8_t orig = *d;
 
 		printf("16 bit %s(%d)\n", is_0_reg ? "registre" : "word", r0);
 		if (f0 & HAVE_INDIR)
@@ -63,15 +91,16 @@
 			       regs.ds << 4, regs.es);
 			*d OPERATION try_indir(state, f1, c1);
 		}
-#ifdef DO_CHECK
-		result = *d;
-#endif
+		SET_FLAG_RESULT()
 #ifndef COPY
 		scan_ptr_mem(state, d, 2);
 #endif
 	}
 }
 
+#undef CHECK_ADD
+#undef CHECK_SUB
+#undef DO_CHECK
 #undef try_indir
 #undef OPERATION
 #ifdef COPY

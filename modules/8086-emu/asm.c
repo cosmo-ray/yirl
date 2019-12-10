@@ -398,6 +398,15 @@ void *call_asm(int nbArgs, void **args)
 		} else if (cur_tok == CLD_T) {
 			gen_jum(insts, inst_pos, inst_size, &&cld);
 			++inst_pos;
+		} else if (cur_tok == JNC_T) {
+			gen_jum(insts, inst_pos, inst_size, &&jnc);
+			goto create_jmp;
+		} else if (cur_tok == JC_T) {
+			gen_jum(insts, inst_pos, inst_size, &&jc);
+			goto create_jmp;
+		} else if (cur_tok == JNZ_T) {
+			gen_jum(insts, inst_pos, inst_size, &&jnz);
+			goto create_jmp;
 		} else if (cur_tok == JZ_T) {
 			gen_jum(insts, inst_pos, inst_size, &&jz);
 			goto create_jmp;
@@ -480,6 +489,18 @@ cld:
 	regs.flag &= ~DIR_FLAG;
 	++inst_pos;
 	goto *insts[inst_pos].label;
+jnc:
+	if (regs.flag & CARRY_FLAG)
+		inst_pos += 2;
+	else
+		inst_pos = insts[inst_pos + 1].info[0].constant;
+	goto *insts[inst_pos].label;
+jc:
+	if (regs.flag & CARRY_FLAG)
+		inst_pos = insts[inst_pos + 1].info[0].constant;
+	else
+		inst_pos += 2;
+	goto *insts[inst_pos].label;
 jnz:
 	printf("jnz\n");
 	if (result)
@@ -500,7 +521,7 @@ jmp:
 cmp:
 	++inst_pos;
 #define COPY
-#define CHECK_SUB
+#define CHECK_SUB 1
 #define OPERATION -=
 #include "asm-inst.h"
 	++inst_pos;
@@ -513,7 +534,7 @@ cmp:
 add:
 	++inst_pos;
 #define OPERATION +=
-#define CHECK_ADD
+#define CHECK_ADD 1
 #include "asm-inst.h"
 	printf("add (%d)%x (%d)%x\n",
 	       insts[inst_pos].info[0].reg,

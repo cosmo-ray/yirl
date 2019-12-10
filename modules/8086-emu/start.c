@@ -217,6 +217,7 @@ static inline void color_txt_video_scan(struct state_8086 *s, int32_t pos,
 		}
 
 	}
+	ywidUpdate(s->e);
 	ywidRend(ywidGetMainWid());
 }
 

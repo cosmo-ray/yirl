@@ -269,6 +269,13 @@ void ywidResize(YWidgetState *wid);
  */
 int ywidDrawScreen(void);
 
+static inline void ywidUpdate(Entity *w)
+{
+	YWidgetState *s = yeGetDataAt(w, "$wid");
+
+	s->hasChange = 1;
+}
+
 static inline void ywidMidRendEnd(YWidgetState *opac)
 {
   if (unlikely(!opac))
