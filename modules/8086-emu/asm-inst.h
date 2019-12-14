@@ -47,7 +47,7 @@
 		uint8_t tmp = is_0_reg ? regs.buf_8[r0] : c0;
 		uint8_t *d = &tmp;
 #else
-		uint8_t *d = r0 ? &regs.buf_8[r0] : &c0;
+		uint8_t *d = r0 ? &regs.buf_8[r0] : (uint8_t *)&c0;
 #endif
 		uint8_t orig = *d;
 
@@ -86,7 +86,7 @@
 			r1 -= AX_T;
 			*d OPERATION try_indir(state, f1, regs.buf_16[r1] + c1);
 		} else {
-			printf("op on const: %x %x %x %x %x\n", f1,
+			printf("op: on const: %x %x %x %x %x\n", f1,
 			       try_indir(state, f1, c1), c1,
 			       regs.ds << 4, regs.es);
 			*d OPERATION try_indir(state, f1, c1);

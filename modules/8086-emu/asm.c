@@ -24,6 +24,7 @@ static enum asm_toks {
 static Entity *asm_txt;
 static Entity *tok_info;
 int cur_tok;
+int line_cnt;
 
 struct inst_param {
 	uint8_t flag;
@@ -60,12 +61,21 @@ enum {
 		abort();					\
 	} while (0);
 
+static inline int next(void)
+{
+	int r = yeStringNextTok(asm_txt, tok_info);
+
+	if (r == RETURN_T)
+		++line_cnt;
+	return r;
+}
+
 /* parsers utils */
 static inline int next_no_space(void)
 {
 	int r;
 
-	do { r = yeStringNextTok(asm_txt, tok_info); } while (r == SPACES_T);
+	do { r = next(); } while (r == SPACES_T);
 	cur_tok = r;
 	return r;
 }
@@ -86,14 +96,14 @@ static inline int parse_num(void)
 	switch (cur_tok) {
 	case HEX0_T:
 	case HEX1_T:
-		cur_tok = yeStringNextTok(asm_txt, tok_info);
+		cur_tok = next();
 		if (cur_tok != YTOK_WORD && cur_tok != NUMBER_T)
 			return INT_MIN;
 		return strtol(yeTokString(tok_info, cur_tok), NULL, 16);
 	case NUMBER_T:
 		return atoi(yeTokString(tok_info, cur_tok));
 	case SIMPLE_QUOTE_T:
-		cur_tok = yeStringNextTok(asm_txt, tok_info);
+		cur_tok = next();
 		str = yeTokString(tok_info, cur_tok);
 		if (strlen(str) != 1) {
 			DPRINT_ERR("tok '%s': char should be 1 letter",
@@ -101,7 +111,7 @@ static inline int parse_num(void)
 			abort();
 		}
 		num = str[0];
-		cur_tok = yeStringNextTok(asm_txt, tok_info);
+		cur_tok = next();
 		return num;
 	}
 	unexpected();
@@ -122,7 +132,6 @@ static int check_math(int base, int *op)
 {
 	if (cur_tok == STAR_T) {
 		int num = skip_next_num();
-		printf("got %d - %s\n", num, yeTokString(tok_info, cur_tok));
 		if (op) {
 			*op = MUL;
 			return num;
@@ -136,7 +145,6 @@ static int check_math(int base, int *op)
 			*op = ADD;
 			return num;
 		}
-		printf("should do + %d\n", base + num);
 		return base + num;
 	} else if (cur_tok == MINUS_T) {
 		int num = skip_next_num();
@@ -145,7 +153,6 @@ static int check_math(int base, int *op)
 			*op = SUB;
 			return num;
 		}
-		printf("should do + %d\n", base + num);
 		return base - num;
 	}
 	return base;
@@ -158,44 +165,27 @@ static void do_math(union instructions *inst, int idx)
 	int f = 0;
 	int *fp = r ? &f : NULL;
 
-	printf("m0 %p %p\n", fp, &f);
 	inst->info[idx].constant = check_math(c, fp);
 	if (f == SUB) {
 		inst->info[idx].constant = -inst->info[idx].constant;
 		f = ADD;
 	}
-	printf("f: %d\n", f);
 	inst->info[idx].flag |= f;
-	printf("math: %d\n", inst->info[idx].constant);
 }
 
 static int assign_dest(union instructions *inst, int idx)
 {
 
 	switch (cur_tok) {
-	case AX_T:
-	case BX_T:
-	case CX_T:
-	case DX_T:
-	case DI_T:
-	case SI_T:
-	case DS_T:
-	case ES_T:
+	case AX_T: case BX_T: case CX_T: case DX_T:
+	case DI_T: case SI_T: case DS_T: case ES_T:
 		inst->info[idx].reg = cur_tok;
 		goto reg_word;
-	case AL_T:
-	case BL_T:
-	case CL_T:
-	case DL_T:
-	case AH_T:
-	case BH_T:
-	case CH_T:
-	case DH_T:
+	case AL_T: case BL_T: case CL_T: case DL_T:
+	case AH_T: case BH_T: case CH_T: case DH_T:
 		inst->info[idx].reg = cur_tok;
 		goto reg_byte;
-	case HEX0_T:
-	case HEX1_T:
-	case NUMBER_T:
+	case HEX0_T: case HEX1_T: case NUMBER_T:
 	case SIMPLE_QUOTE_T:
 		inst->info[idx].flag |= IS_NUM;
 		inst->info[idx].constant = parse_num();
@@ -223,78 +213,64 @@ static void brace_arg(union instructions *inst, Entity *constants,
 	if (!sz_set) {
 		DPRINT_ERR("size require");
 	}
-	printf("%s - %x\n", yeTokString(tok_info, cur_tok),
-	       inst->info[idx].flag);
 	next_no_space();
 	ret = assign_dest(inst, idx);
-	printf("++ %d - %s - %x ++\n", ret, yeTokString(tok_info, cur_tok),
-	       inst->info[idx].flag);
 	if (ret < 0) {
 		Entity *const_v;
 
-		printf("ret < 0\n");
 		const_v = yeGet(constants, yeTokString(tok_info, cur_tok));
-		printf("try get %s\n",
-		       yeTokString(tok_info, cur_tok));
 		if (!const_v)
 			unexpected();
-		printf("store const %d - %x\n",
-		       yeGetIntDirect(const_v),
-		       yeGetIntDirect(const_v));
 		inst->info[idx].flag |= IS_NUM;
 		inst->info[idx].constant =
 			yeGetIntDirect(const_v);
 	}
 	next_no_space();
-	printf("math time !\n");
 	do_math(inst, idx);
 	skip(CLOSE_BRACKET_T);
-	printf("- %d - %s - %x -\n", ret, yeTokString(tok_info,
-						  cur_tok),
-	       inst->info[idx].flag);
 
 }
 
-static void mk_args(union instructions *insts, int *inst_pos,
-		    Entity *constants)
+static void mk_args(union instructions *insts, int inst_pos,
+		    Entity *constants, _Bool single_arg)
 {
 	int ret;
 	int sz_set = 0;
 
 	next_no_space();
-	insts[*inst_pos].info[0] = (struct inst_param){0};
-	insts[*inst_pos].info[1] = (struct inst_param){0};
-	printf("init: %d\n", insts[*inst_pos].info[0].reg);
+	insts[inst_pos].info[0] = (struct inst_param){0};
+	insts[inst_pos].info[1] = (struct inst_param){0};
+	printf("init: %d\n", insts[inst_pos].info[0].reg);
 	if (cur_tok == BYTE_T || cur_tok == WORD_T) {
 		int what = cur_tok == BYTE_T ? IS_BYTE : IS_WORD;
 
 		sz_set = 1;
-		insts[*inst_pos].info[0].flag |= what;
-		insts[*inst_pos].info[1].flag |= what;
+		insts[inst_pos].info[0].flag |= what;
+		insts[inst_pos].info[1].flag |= what;
 		next_no_space();
 	}
-	ret = assign_dest(&insts[*inst_pos], 0);
+	ret = assign_dest(&insts[inst_pos], 0);
 
 	if (ret == 1) {
-		brace_arg(&insts[*inst_pos], constants, sz_set, 0);
+		brace_arg(&insts[inst_pos], constants, sz_set, 0);
 	} else if (ret) {
 		DPRINT_ERR("error or not yet implemeted %d - %s",
-			   *inst_pos,
+			   inst_pos,
 			   yeTokString(tok_info, cur_tok));
 		abort();
 	} else {
 		next_no_space();
 	}
-	printf("wesh %s\n", yeTokString(tok_info, cur_tok));
+	if (single_arg)
+		return;
 	skip(COMMA_T);
-	ret = assign_dest(&insts[*inst_pos], 1);
+	ret = assign_dest(&insts[inst_pos], 1);
 	if (ret == 1)
-		brace_arg(&insts[*inst_pos], constants, sz_set, 1);
+		brace_arg(&insts[inst_pos], constants, sz_set, 1);
 	else
 		next_no_space();
 
-	printf("end %s\n", yeTokString(tok_info, cur_tok));
-	do_math(&insts[*inst_pos], 1);
+	do_math(&insts[inst_pos], 1);
 	return;
 }
 
@@ -319,7 +295,10 @@ void *call_asm(int nbArgs, void **args)
 	union instructions *insts = malloc(inst_size * (sizeof *insts));
 	int inst_pos = 0;
 	int result; /* last operation result*/
+	int ret_stack[128];
+	int ret_idx = 0;
 
+	line_cnt = 1;  /* lines are retarded... SHOULD START AT 0 */
 	asm_txt = asm_txt_;
 	tok_info = tok_info_;
 	YE_NEW(Array, consts, NULL);
@@ -333,14 +312,22 @@ void *call_asm(int nbArgs, void **args)
 #define DEF_separated_repeater(a, b) yeTokInfoAddSepRepStr(b, tok_info);
 #include "asm-tok.h"
 
-	while ((cur_tok = yeStringNextTok(asm_txt, tok_info)) != YTOK_END) {
+	while ((cur_tok = next()) != YTOK_END) {
 		int ret;
 
+	continue_no_next_tok:
 		if (cur_tok == SPACES_T)
 			continue;
 		if (cur_tok == SEMI_COLON_T) {
 			do {
-				cur_tok = yeStringNextTok(asm_txt, tok_info);
+				cur_tok = next();
+				if (cur_tok == YIRL_DEBUG_T) {
+					gen_jum(insts, inst_pos, inst_size, &&yirl_debug);
+					++inst_pos;
+					insts[inst_pos].info[0].constant = line_cnt;
+					++inst_pos;
+
+				}
 			} while (cur_tok != YTOK_END && cur_tok != RETURN_T);
 			continue;
 		}
@@ -377,12 +364,22 @@ void *call_asm(int nbArgs, void **args)
 		if (cur_tok == ADD_T) {
 			gen_jum(insts, inst_pos, inst_size, &&add);
 			++inst_pos;
-			mk_args(insts, &inst_pos, consts);
+			mk_args(insts, inst_pos, consts, 0);
 			++inst_pos;
 		} else if (cur_tok == MOV_T) {
 			gen_jum(insts, inst_pos, inst_size, &&mov);
 			++inst_pos;
-			mk_args(insts, &inst_pos, consts);
+			mk_args(insts, inst_pos, consts, 0);
+			++inst_pos;
+		} else if (cur_tok == INC_T || cur_tok == DEC_T) {
+			if (cur_tok == INC_T)
+				gen_jum(insts, inst_pos, inst_size, &&add);
+			else
+				gen_jum(insts, inst_pos, inst_size, &&sub);
+			++inst_pos;
+			mk_args(insts, inst_pos, consts, 1);
+			insts[inst_pos].info[1].flag |= IS_NUM;
+			insts[inst_pos].info[1].constant = 1;
 			++inst_pos;
 		} else if (cur_tok == XOR_T) {
 			/* xor le sherif, sherif de l'espace */
@@ -394,7 +391,7 @@ void *call_asm(int nbArgs, void **args)
 			/* I find it odd than Gavan was rename X-or in france */
 			gen_jum(insts, inst_pos, inst_size, &&xor);
 			++inst_pos;
-			mk_args(insts, &inst_pos, consts);
+			mk_args(insts, inst_pos, consts, 0);
 			++inst_pos;
 		} else if (cur_tok == INT_T) {
 			gen_jum(insts, inst_pos, inst_size, &&interupt);
@@ -405,11 +402,26 @@ void *call_asm(int nbArgs, void **args)
 		} else if (cur_tok == CMP_T) {
 			gen_jum(insts, inst_pos, inst_size, &&cmp);
 			++inst_pos;
-			mk_args(insts, &inst_pos, consts);
+			mk_args(insts, inst_pos, consts, 0);
 			++inst_pos;
 		} else if (cur_tok == CLD_T) {
 			gen_jum(insts, inst_pos, inst_size, &&cld);
 			++inst_pos;
+		} else if (cur_tok == STOSW_T) {
+			gen_jum(insts, inst_pos, inst_size, &&stosw);
+			++inst_pos;
+		} else if (cur_tok == RET_T) {
+			gen_jum(insts, inst_pos, inst_size, &&ret);
+			++inst_pos;
+		} else if (cur_tok == LOOP_T) {
+			gen_jum(insts, inst_pos, inst_size, &&loop);
+			goto create_jmp;
+		} else if (cur_tok == CALL_T) {
+			gen_jum(insts, inst_pos, inst_size, &&call);
+			goto create_jmp;
+		} else if (cur_tok == JCXZ_T) {
+			gen_jum(insts, inst_pos, inst_size, &&jcxz);
+			goto create_jmp;
 		} else if (cur_tok == JNC_T) {
 			gen_jum(insts, inst_pos, inst_size, &&jnc);
 			goto create_jmp;
@@ -443,7 +455,6 @@ void *call_asm(int nbArgs, void **args)
 		}
 
 		if (cur_tok == RETURN_T) {
-			printf("\n");
 			continue;
 		}
 	}
@@ -485,9 +496,11 @@ interupt:
 					regs.al = ywidEveKey(eve);
 				}
 			}
+			printf("input: %d\n", regs.al);
 			break;
 		case 0x1a:
 			regs.dx = YTimerGet(&state->timer);
+			printf("time %d\n", regs.dx);
 			break;
 		case 0x20:
 			goto quit;
@@ -497,9 +510,47 @@ interupt:
 		inst_pos += 2;
 		goto *insts[inst_pos].label;
 	}
+yirl_debug:
+	printf("YIRL DEBUG line %d\n", insts[inst_pos + 1].info[0].constant);
+	inst_pos += 2;
+	goto *insts[inst_pos].label;
+stosb:
+	state->mem[regs.es + (regs.ds << 4)] = regs.al;
+	if (regs.flag & DIR_FLAG)
+		regs.di += 1;
+	else
+		regs.di -= 1;
+	++inst_pos;
+	goto *insts[inst_pos].label;
+stosw:
+	state->mem[regs.es + (regs.ds << 4)] = regs.ah;
+	state->mem[1 + regs.es + (regs.ds << 4)] = regs.al;
+	if (regs.flag & DIR_FLAG)
+		regs.di += 2;
+	else
+		regs.di -= 2;
+	++inst_pos;
+	goto *insts[inst_pos].label;
 cld:
 	regs.flag &= ~DIR_FLAG;
 	++inst_pos;
+	goto *insts[inst_pos].label;
+loop:
+	if (regs.cx) {
+		inst_pos = insts[inst_pos + 1].info[0].constant;
+		if (regs.flag & DIR_FLAG)
+			++regs.cx;
+		else
+			--regs.cx;
+	} else {
+		inst_pos += 2;
+	}
+	goto *insts[inst_pos].label;
+jcxz:
+	if (!regs.cx)
+		inst_pos = insts[inst_pos + 1].info[0].constant;
+	else
+		inst_pos += 2;
 	goto *insts[inst_pos].label;
 jnc:
 	if (regs.flag & CARRY_FLAG)
@@ -527,6 +578,13 @@ jz:
 	else
 		inst_pos += 2;
 	goto *insts[inst_pos].label;
+ret:
+	inst_pos = ret_stack[--ret_idx];
+	goto *insts[inst_pos].label;
+call:
+	printf("call %d\n", ret_idx);
+	ret_stack[ret_idx++] = inst_pos;
+	/* fallthough */
 jmp:
 	inst_pos = insts[inst_pos + 1].info[0].constant;
 	goto *insts[inst_pos].label;
@@ -542,6 +600,18 @@ cmp:
 	       insts[inst_pos].info[0].constant,
 	       insts[inst_pos].info[1].reg,
 	       insts[inst_pos].info[1].constant);
+	goto *insts[inst_pos].label;
+sub:
+	++inst_pos;
+#define OPERATION -=
+#define CHECK_ADD 1
+#include "asm-inst.h"
+	printf("add (%d)%x (%d)%x\n",
+	       insts[inst_pos].info[0].reg,
+	       insts[inst_pos].info[0].constant,
+	       insts[inst_pos].info[1].reg,
+	       insts[inst_pos].info[1].constant);
+	++inst_pos;
 	goto *insts[inst_pos].label;
 add:
 	++inst_pos;
