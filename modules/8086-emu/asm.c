@@ -579,11 +579,12 @@ jz:
 		inst_pos += 2;
 	goto *insts[inst_pos].label;
 ret:
+	printf("ret to %d\n", ret_stack[ret_idx - 1]);
 	inst_pos = ret_stack[--ret_idx];
 	goto *insts[inst_pos].label;
 call:
 	printf("call %d\n", ret_idx);
-	ret_stack[ret_idx++] = inst_pos;
+	ret_stack[ret_idx++] = inst_pos + 2;
 	/* fallthough */
 jmp:
 	inst_pos = insts[inst_pos + 1].info[0].constant;
