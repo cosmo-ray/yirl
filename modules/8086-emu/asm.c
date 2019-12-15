@@ -366,6 +366,11 @@ void *call_asm(int nbArgs, void **args)
 			++inst_pos;
 			mk_args(insts, inst_pos, consts, 0);
 			++inst_pos;
+		} else if (cur_tok == SUB_T) {
+			gen_jum(insts, inst_pos, inst_size, &&sub);
+			++inst_pos;
+			mk_args(insts, inst_pos, consts, 0);
+			++inst_pos;
 		} else if (cur_tok == MOV_T) {
 			gen_jum(insts, inst_pos, inst_size, &&mov);
 			++inst_pos;
@@ -536,12 +541,13 @@ cld:
 	++inst_pos;
 	goto *insts[inst_pos].label;
 loop:
+	printf("CX %d\n", regs.cx);
+	if (regs.flag & DIR_FLAG)
+		++regs.cx;
+	else
+		--regs.cx;
 	if (regs.cx) {
 		inst_pos = insts[inst_pos + 1].info[0].constant;
-		if (regs.flag & DIR_FLAG)
-			++regs.cx;
-		else
-			--regs.cx;
 	} else {
 		inst_pos += 2;
 	}

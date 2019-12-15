@@ -23,16 +23,16 @@
 union mem {
 	uint16_t w;
 	struct {
-		uint8_t h;
 		uint8_t l;
+		uint8_t h;
 	};
 };
 
 #define MK_REG(r) union {			\
 		uint16_t r##x;			\
 		struct {			\
-			uint8_t r##h;		\
 			uint8_t r##l;		\
+			uint8_t r##h;		\
 		};				\
 	}
 
@@ -58,6 +58,7 @@ struct state_8086 {
 	Entity *e;
 	void (*set_mem)(struct state_8086 *, int32_t, int16_t);
 	char mem[0xfffff]; /* 2n bits of mems */
+	Entity *char_ent_map;
 	YTimer timer;
 };
 
@@ -100,43 +101,7 @@ static inline char *to_vga_strcharset(int c)
 #define ORIG_H (ORIG_CHAR_H * NB_CHAR_H)
 #define ORIG_W (ORIG_CHAR_W * NB_CHAR_W)
 
-static uint8_t head_charset1[ORIG_CHAR_H * ORIG_CHAR_W] = {
-	0,0,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,0,
-	0,1,1,1,1,1,1,1,0,
-	0,1,0,0,0,0,0,1,0,
-	1,0,0,2,0,2,0,0,1,
-	1,0,2,2,0,2,2,0,1,
-	1,0,0,0,0,0,0,0,1,
-	1,0,0,0,2,0,0,0,1,
-	1,0,0,0,2,0,0,0,1,
-	1,0,0,0,0,0,0,0,1,
-	1,0,0,2,2,2,0,0,1,
-	0,1,0,0,2,0,0,1,0,
-	0,1,0,0,0,0,0,1,0,
-	0,1,1,1,1,1,1,1,0,
-	0,0,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,0
-};
-
-static uint8_t head_charset2[ORIG_CHAR_H * ORIG_CHAR_W] = {
-	0,0,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,0,
-	0,1,1,1,1,1,1,1,0,
-	0,1,1,1,1,1,1,1,0,
-	0,1,0,0,1,0,0,1,0,
-	1,1,0,0,1,0,0,1,1,
-	1,1,1,1,1,1,1,1,1,
-	1,1,1,1,0,1,1,1,1,
-	1,1,1,0,0,0,1,1,1,
-	1,1,1,1,1,1,1,1,1,
-	1,1,0,0,0,0,0,1,1,
-	0,1,1,0,0,0,1,1,0,
-	0,1,1,1,1,1,1,1,0,
-	0,1,1,1,1,1,1,1,0,
-	0,0,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,0
-};
+#include "charset.h"
 
 static inline uint8_t *to_vga_imgcharset(int c)
 {
@@ -144,6 +109,8 @@ static inline uint8_t *to_vga_imgcharset(int c)
 		return head_charset2;
 	} else if (c == 1) {
 		return head_charset1;
+	} else if (!c || c == ' ') {
+		return blank;
 	}
 	return NULL;
 }
@@ -151,6 +118,7 @@ static inline uint8_t *to_vga_imgcharset(int c)
 static inline void color_txt_video_scan(struct state_8086 *s, int32_t pos,
 					int16_t l)
 {
+	static int should_refresh;
 	int wid_h;
 	int wid_w;
 	int ch_h;
@@ -171,10 +139,12 @@ static inline void color_txt_video_scan(struct state_8086 *s, int32_t pos,
 	printf("screen: %d %d\nch: %d %d\n", wid_w, wid_h, ch_w, ch_h);
 
 	for (; l > 0; pos += 2, l -= 2) {
-		int x = (pos - 0xb8000) / 2;
+		int r_pos = pos - 0xb8000;
+		int x = r_pos / 2;
 		int y = x / 80;
 		char *mem = s->mem;
 		Entity *elem;
+		Entity *tmp;
 		union mem *di = (union mem *)&mem[pos];
 		const uint8_t *imgchar;
 		int rx, ry;
@@ -184,8 +154,9 @@ static inline void color_txt_video_scan(struct state_8086 *s, int32_t pos,
 		x = x % 80;
 		rx = x * ch_w;
 		ry = y * ch_h;
-		printf("(%d)write %x '%s' to screen at %d %d\n",
-		       l, to_vga_icolor[di->h], to_vga_strcharset(di->l), x, y);
+		printf("(%d)write (%x)%x (%x)'%s' to screen at %d %d\n",
+		       l, di->h, to_vga_icolor[di->h],
+		       di->l, to_vga_strcharset(di->l), x, y);
 
 		if (imgchar = to_vga_imgcharset(di->l)) {
 			YE_NEW(Array, nfo);
@@ -196,11 +167,11 @@ static inline void color_txt_video_scan(struct state_8086 *s, int32_t pos,
 			ywSizeCreate(ORIG_CHAR_W, ORIG_CHAR_H, nfo, NULL);
 			yeCreateInt(bg, nfo, NULL); /* backgroung */
 			yeCreateInt(fg, nfo, NULL); /* forgroung */
-			Entity *el = ywCanvasNewBicolorImg(s->e, rx, ry, imgchar,
-							   nfo);
+			elem = ywCanvasNewBicolorImg(s->e, rx, ry, imgchar,
+						     nfo);
 			yeAutoFree Entity *size = ywSizeCreate(ch_w, ch_h,
 							       NULL, NULL);
-			ywCanvasForceSize(el, size);
+			ywCanvasForceSize(elem, size);
 
 		} else {
 			const char *bg, *fg;
@@ -209,16 +180,41 @@ static inline void color_txt_video_scan(struct state_8086 *s, int32_t pos,
 			fg = to_vga_strcolor[di->h & 0x0f];
 			const char *strchar = to_vga_strcharset(di->l);
 			yeAutoFree Entity *size;
+			Entity *el_txt;
+			Entity *el_r;
 
-			ywCanvasNewRectangle(s->e, rx, ry, ch_w, ch_h, bg);
-			elem = ywCanvasNewTextExt(s->e, rx, ry, str, fg);
+			elem = yeCreateArray(NULL, NULL);
+			el_r = ywCanvasNewRectangle(s->e, rx, ry, ch_w,
+						    ch_h, bg);
+			el_txt = ywCanvasNewTextExt(s->e, rx, ry, str, fg);
 			size = ywSizeCreate(40, 90, NULL, NULL);
-			ywCanvasForceSize(elem, size);
+			yePushBack(elem, el_r, NULL);
+			yePushBack(elem, el_txt, NULL);
+		}
+		if ((tmp = yeGet(s->char_ent_map, r_pos)) != NULL) {
+			printf("before\n");
+			ywidUpdate(s->e);
+			ywidRend(ywidGetMainWid());
+			if (yeLen(tmp) == 2) {
+				ywCanvasRemoveObj(s->e, yeGet(tmp, 0));
+				ywCanvasRemoveObj(s->e, yeGet(tmp, 1));
+			} else {
+				ywCanvasRemoveObj(s->e, tmp);
+			}
+			yeRemoveChild(s->char_ent_map, r_pos);
+		}
+		printf("mid\n");
+		ywidUpdate(s->e);
+		ywidRend(ywidGetMainWid());
+		yePushAt(s->char_ent_map, elem, r_pos);
+		if (yeLen(elem) == 2) {
+			yeDestroy(elem);
 		}
 
 	}
 	ywidUpdate(s->e);
 	ywidRend(ywidGetMainWid());
+	printf("after\n");
 }
 
 static inline void empty_video_scan(struct state_8086 *s, int32_t pos, int16_t l)
@@ -309,6 +305,8 @@ static void destroy_state(void *arg)
 {
 	struct state_8086 *s = arg;
 
+	yeDestroy(s->char_ent_map);
+	s->char_ent_map = NULL;
 	printf("destroy 8086\n");
 	free(s);
 }
@@ -331,6 +329,7 @@ void *init_8086(int nbArgs, void **args)
 	s = malloc(sizeof(*s));
 	s->set_mem = empty_video_scan;
 	s->e = emu;
+	s->char_ent_map = yeCreateArray(NULL, NULL);
 	YTimerReset(&s->timer);
 	data = yeCreateData(s, emu, "state");
 	yeSetDestroy(data, destroy_state);
