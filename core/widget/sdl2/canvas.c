@@ -17,18 +17,15 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
-
-extern "C" {
 #include <glib.h>
 #include "sdl-internal.h"
 #include "yirl/canvas.h"
 #include "yirl/rect.h"
 #include "yirl/entity.h"
-}
 
 static int sdl2Render(YWidgetState *state, int t)
 {
-	SDLWid *wid = reinterpret_cast<SDLWid *>(ywidGetRenderData(state, t));
+	SDLWid *wid = ywidGetRenderData(state, t);
 	Entity *entity = state->entity;
 	Entity *objs = yeGet(entity, "objs");
 	Entity *cam = yeGet(entity, "cam");
@@ -52,11 +49,10 @@ static int sdl2Init(YWidgetState *wid, int t)
 	return 0;
 }
 
-extern "C" {
-	int ysdl2RegistreCanvas(void)
-	{
-		int ret = ywidRegistreTypeRender("canvas", ysdl2Type(),
-						 sdl2Render, sdl2Init, sdlWidDestroy);
-		return ret;
-	}
+int ysdl2RegistreCanvas(void)
+{
+	int ret = ywidRegistreTypeRender("canvas", ysdl2Type(),
+					 sdl2Render, sdl2Init, sdlWidDestroy);
+	return ret;
 }
+

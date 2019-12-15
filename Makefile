@@ -53,6 +53,7 @@ SRC = 	$(SCRIPT_DIR)/lua-script.c \
 	$(SDL_WID_DIR)/map.c \
 	$(SDL_WID_DIR)/menu.c \
 	$(SDL_WID_DIR)/text-screen.c \
+	$(SDL_WID_DIR)/canvas.c
 
 SRC += $(CURSES_SRC)
 
@@ -70,8 +71,7 @@ DUK_OBJ =  $(DUCK_SRC:.c=.o)
 
 DUK_FLAGS =  -fPIC -Os -g -std=c99 -Wall -fstrict-aliasing -fomit-frame-pointer
 
-SRCXX += 	$(ENTITY_DIR)/entity-cplusplus.cpp \
-		$(SDL_WID_DIR)/canvas.cpp
+SRCXX += 	$(ENTITY_DIR)/entity-cplusplus.cpp
 
 CXX = $(CC)
 
