@@ -111,6 +111,12 @@ static inline uint8_t *to_vga_imgcharset(int c)
 		return head_charset1;
 	} else if (!c || c == ' ') {
 		return blank;
+	} else if (c == 0xb0) {
+		return char_b0;
+	} else if (c == 0x1e) {
+		return up_arrow;
+	} else if (c == 0x13) {
+		return double_exclamation_mark;
 	}
 	return NULL;
 }
@@ -192,9 +198,6 @@ static inline void color_txt_video_scan(struct state_8086 *s, int32_t pos,
 			yePushBack(elem, el_txt, NULL);
 		}
 		if ((tmp = yeGet(s->char_ent_map, r_pos)) != NULL) {
-			printf("before\n");
-			ywidUpdate(s->e);
-			ywidRend(ywidGetMainWid());
 			if (yeLen(tmp) == 2) {
 				ywCanvasRemoveObj(s->e, yeGet(tmp, 0));
 				ywCanvasRemoveObj(s->e, yeGet(tmp, 1));
@@ -203,9 +206,6 @@ static inline void color_txt_video_scan(struct state_8086 *s, int32_t pos,
 			}
 			yeRemoveChild(s->char_ent_map, r_pos);
 		}
-		printf("mid\n");
-		ywidUpdate(s->e);
-		ywidRend(ywidGetMainWid());
 		yePushAt(s->char_ent_map, elem, r_pos);
 		if (yeLen(elem) == 2) {
 			yeDestroy(elem);
@@ -214,7 +214,6 @@ static inline void color_txt_video_scan(struct state_8086 *s, int32_t pos,
 	}
 	ywidUpdate(s->e);
 	ywidRend(ywidGetMainWid());
-	printf("after\n");
 }
 
 static inline void empty_video_scan(struct state_8086 *s, int32_t pos, int16_t l)

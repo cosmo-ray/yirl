@@ -354,7 +354,7 @@ void *call_asm(int nbArgs, void **args)
 
 				}
 				yeCreateInt(num, consts, yeGetString(lab_name));
-				printf("push %d at %s\n", num,
+				printf("-------\npush const %d at %s\n-------\n", num,
 				       yeGetString(lab_name));
 			}
 			printf("w: '%s'", yeGetString(lab_name));
@@ -504,7 +504,8 @@ interupt:
 			printf("input: %d\n", regs.al);
 			break;
 		case 0x1a:
-			regs.dx = YTimerGet(&state->timer);
+			/* 18.5 hz is a computer tick, and 18.2 hz == 54945 us */
+			regs.dx = YTimerGet(&state->timer) / 54945;
 			printf("time %d\n", regs.dx);
 			break;
 		case 0x20:
@@ -541,7 +542,6 @@ cld:
 	++inst_pos;
 	goto *insts[inst_pos].label;
 loop:
-	printf("CX %d\n", regs.cx);
 	if (regs.flag & DIR_FLAG)
 		++regs.cx;
 	else
