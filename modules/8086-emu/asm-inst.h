@@ -73,7 +73,7 @@
 #else
 		uint16_t *d = is_0_reg ? &regs.buf_16[r0] : &c0;
 #endif
-		uint8_t orig = *d;
+		uint16_t orig = *d;
 
 		printf("16 bit %s(%d)\n", is_0_reg ? "registre" : "word", r0);
 		if (f0 & HAVE_INDIR)
