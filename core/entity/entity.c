@@ -1084,6 +1084,29 @@ int yePushAt(Entity *array, Entity *toPush, int idx)
 	return yeAttach(array, toPush, idx, NULL, 0);
 }
 
+int yePush(Entity *array, Entity *toPush, char *name)
+{
+	BlockArray *ba = &YE_TO_ARRAY(array)->values;
+	uint64_t m;
+
+	for (int i = 0; i < ba->nbBlock; ++i) {
+		int j;
+		ArrayEntry *e;
+
+		m = ~ba->blocks[i];
+		if (!m)
+			continue;
+		j = ctz64(m);
+		e = yBlockArraySetGetPtr(ba, i * 64 + j, ArrayEntry);
+		e->entity = toPush;
+		yeIncrRef(toPush);
+		e->name = g_strdup(name);
+		e->flags = 0;
+		return 0;
+	}
+	return yePushBack(array, toPush, name);
+}
+
 int yeInsertAt(Entity *array, Entity *toPush, size_t idx, const char *name)
 {
 	uint64_t attachFlag = 0;

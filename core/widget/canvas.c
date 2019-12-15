@@ -212,7 +212,7 @@ static int ywCanvasSetWeightInternal(Entity *wid, Entity *obj, int weight,
 		toPush = c_obj;
 	}
 out:
-	yePushBack(objs, toPush, NULL);
+	yePush(objs, toPush, NULL);
 	yeDestroy(toPush);
 	return 0;
 }

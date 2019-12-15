@@ -136,6 +136,12 @@ Entity *ywCanvasNewImg(Entity *wid, int x, int y, const char *path,
 Entity *ywCanvasNewImgFromTexture(Entity *wid, int x, int y, Entity *yTexture,
 				  Entity *img_src_rect);
 
+static inline int ywCanvasReplace(Entity *wid, Entity *toReplace,
+				  Entity *toPush)
+{
+	return yeReplace(yeGet(wid, "objs"), toReplace, toPush);
+}
+
 void ywCanvasRemoveObj(Entity *wid, Entity *obj);
 
 static inline void ywCanvasPopObj(Entity *wid)
