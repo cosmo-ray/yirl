@@ -31,20 +31,21 @@ YIRL is licensed under the LGPL license, the idea behind that, is that you can a
   * sys: system header, that can be useful for TCC
     * queue.h: [man 3 queue](https://linux.die.net/man/3/queue)
   * tinycc: tcc libc header
-  * YIRL: YIRL header, use internally and for TCC scripting, but so far, the best documentation
+  * YIRL: YIRL header, use internally and for TCC scripting, but so far, the best documentation, most functions have bindings
     * widget.h: widget base class and common widgets functions
+    * events.h; check if a key have been press, windget contain functions to handle events too, but these one are better
     * map.h: a square map
-    * menu.h
+    * menu.h; either a clasique menu or a panel
     * canvas.h: canvas API(for 2D rendering)
     * text-screen.h: a simple text widget.
     * container.h: widget that contain others widgets
     * pos.h: helpers to manipulate everything with a position
     * rect.h: helpers for rectangles
-    * sdl-driver.h
-    * curses-driver.h
+    * sdl-driver.h; internal, look away
+    * curses-driver.h; internal, look away
     * keydef.h: keyboard touches define base on curses key numbers
-    * game.h: the main header, initialize everything and manage yirl's modules
-    * entity.h: the YIRL entity system, use by everything in the engine
+    * game.h: starting point, initializ everything, and handle modules
+    * entity.h: the YIRL entity system, use everywhere in the engine
     * debug.h: some debug functions
     * description.h: generic api for descriptions files(files that describe entities tree)
     * json-desc.h
