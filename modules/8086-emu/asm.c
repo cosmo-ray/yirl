@@ -47,6 +47,12 @@ enum {
 	DIV = 1 << 6
 };
 
+enum {
+	DEBUG_P_RESULT = 1 << 0,
+	DEBUG_P_REGS = 2 << 1, /* not yet implemented, should allow to print each regs */
+	DEBUG_P_ALL_REGS = 2 << 2,
+};
+
 // sub in informel, because I use add
 #define SUB 1
 
@@ -283,6 +289,31 @@ static void mk_args(union instructions *insts, int inst_pos,
 		insts[inst_pos].label = next_label;			\
 	} while (0)							\
 
+#define	NEXT_INST(insts, inst_pos)		\
+	do {					\
+		++rend_cnt;			\
+		goto *insts[inst_pos].label;	\
+	} while (0);
+
+
+static void parse_debug_bracket(union instructions *inst)
+{
+	do {
+		if (cur_tok == YTOK_WORD) {
+			if (!strcmp(yeTokString(tok_info, cur_tok), "result")) {
+				inst->info[0].flag |= DEBUG_P_RESULT;
+				printf("RESULT %d!\n", inst->info[0].flag);
+			} else if (!strcmp(yeTokString(tok_info, cur_tok),
+					 "registers")) {
+				inst->info[0].flag |= DEBUG_P_ALL_REGS;
+				printf("REGS %d!\n", inst->info[0].flag);
+			}
+
+		}
+		cur_tok = next();
+	} while (cur_tok != RETURN_T && cur_tok != CLOSE_BRACKET_T);
+}
+
 void *call_asm(int nbArgs, void **args)
 {
 	Entity *emu = args[0];
@@ -297,6 +328,7 @@ void *call_asm(int nbArgs, void **args)
 	int result; /* last operation result*/
 	int ret_stack[128];
 	int ret_idx = 0;
+	Entity *events = NULL;
 
 	line_cnt = 1;  /* lines are retarded... SHOULD START AT 0 */
 	asm_txt = asm_txt_;
@@ -319,14 +351,23 @@ void *call_asm(int nbArgs, void **args)
 		if (cur_tok == SPACES_T)
 			continue;
 		if (cur_tok == SEMI_COLON_T) {
+			union instructions *d_info = NULL;
 			do {
 				cur_tok = next();
 				if (cur_tok == YIRL_DEBUG_T) {
-					gen_jum(insts, inst_pos, inst_size, &&yirl_debug);
+					gen_jum(insts, inst_pos, inst_size,
+						&&yirl_debug);
 					++inst_pos;
-					insts[inst_pos].info[0].constant = line_cnt;
+					d_info = &insts[inst_pos];
+					d_info->info[0].constant = line_cnt;
+					d_info->info[0].flag = 0;
 					++inst_pos;
 
+				}
+				if (d_info && cur_tok == OPEN_BRACKET_T) {
+					parse_debug_bracket(d_info);
+					printf("OUT %d!\n", d_info->info[0].flag);
+					d_info = NULL;
 				}
 			} while (cur_tok != YTOK_END && cur_tok != RETURN_T);
 			continue;
@@ -354,7 +395,8 @@ void *call_asm(int nbArgs, void **args)
 
 				}
 				yeCreateInt(num, consts, yeGetString(lab_name));
-				printf("-------\npush const %d at %s\n-------\n", num,
+				printf("-------\npush const %d at %s\n-------\n",
+				       num,
 				       yeGetString(lab_name));
 			}
 			printf("w: '%s'", yeGetString(lab_name));
@@ -433,10 +475,10 @@ void *call_asm(int nbArgs, void **args)
 		} else if (cur_tok == JC_T) {
 			gen_jum(insts, inst_pos, inst_size, &&jc);
 			goto create_jmp;
-		} else if (cur_tok == JNZ_T) {
+		} else if (cur_tok == JNZ_T || cur_tok == JNE_T) {
 			gen_jum(insts, inst_pos, inst_size, &&jnz);
 			goto create_jmp;
-		} else if (cur_tok == JZ_T) {
+		} else if (cur_tok == JZ_T || cur_tok == JE_T) {
 			gen_jum(insts, inst_pos, inst_size, &&jz);
 			goto create_jmp;
 		} else if (cur_tok == JMP_T) {
@@ -479,13 +521,11 @@ void *call_asm(int nbArgs, void **args)
 	inst_pos = 0;
 	printf("now time to do real job !!!!!\n%d %p %p\n",
 	       inst_pos, insts[inst_pos].label, &&add);
-	goto *insts[inst_pos].label;
+	NEXT_INST(insts, inst_pos);
 
 interupt:
 	{
 		int int_nb = insts[inst_pos + 1].info[0].constant;
-		Entity *eve;
-		Entity *events;
 
 		printf("int 0x%x\n", int_nb);
 		switch (int_nb) {
@@ -494,13 +534,25 @@ interupt:
 			set_video_mode(state, regs.ax);
 			break;
 		case 0x16:
-			events = ywidGenericPollEvent();
 
-			YEVE_FOREACH(eve, events) {
-				if (ywidEveType(eve) == YKEY_DOWN) {
-					regs.al = ywidEveKey(eve);
+			if (!events)
+				events = ywidGenericPollEvent();
+
+			result = 0;
+			for (;events; events = ywidNextEve(events)) {
+				if (ywidEveType(events) == YKEY_DOWN) {
+					result = ywidEveKey(events);
+					printf("INPUT %d - %d\n", ywidEveKey(events), regs.ah);
+					/* don't consume events if ah unset */
+					/* TODO: I should set a flag too */
+					if (!regs.ah) {
+						printf("consume eve\n");
+						events = ywidNextEve(events);
+					}
+					break;
 				}
 			}
+			regs.al = result;
 			printf("input: %d\n", regs.al);
 			break;
 		case 0x1a:
@@ -514,12 +566,32 @@ interupt:
 			DPRINT_ERR("int '%x' not yet implemented\n", int_nb);
 		}
 		inst_pos += 2;
-		goto *insts[inst_pos].label;
+		NEXT_INST(insts, inst_pos);
 	}
 yirl_debug:
-	printf("YIRL DEBUG line %d\n", insts[inst_pos + 1].info[0].constant);
+	printf("YIRL DEBUG line %d (%x)",
+	       insts[inst_pos + 1].info[0].constant,
+	       insts[inst_pos + 1].info[0].flag);
+	if (insts[inst_pos + 1].info[0].flag) {
+		uint8_t flag = insts[inst_pos + 1].info[0].flag;
+		if (flag & DEBUG_P_RESULT) {
+			printf(" result: %d", result);
+		}
+		if (flag & DEBUG_P_ALL_REGS) {
+			printf(" ax: %x", regs.ax);
+			printf(" bx: %x", regs.bx);
+			printf(" cx: %x", regs.cx);
+			printf(" dx: %x", regs.dx);
+			printf(" di: %x", regs.di);
+			printf(" si: %x", regs.si);
+			printf(" ds: %x", regs.ds);
+			printf(" es: %x", regs.es);
+			printf(" flag: %x", regs.flag);
+		}
+	}
+	printf("\n");
 	inst_pos += 2;
-	goto *insts[inst_pos].label;
+	NEXT_INST(insts, inst_pos);
 stosb:
 	state->mem[regs.es + (regs.ds << 4)] = regs.al;
 	if (regs.flag & DIR_FLAG)
@@ -527,7 +599,7 @@ stosb:
 	else
 		regs.di -= 1;
 	++inst_pos;
-	goto *insts[inst_pos].label;
+	NEXT_INST(insts, inst_pos);
 stosw:
 	state->mem[regs.es + (regs.ds << 4)] = regs.ah;
 	state->mem[1 + regs.es + (regs.ds << 4)] = regs.al;
@@ -536,11 +608,11 @@ stosw:
 	else
 		regs.di -= 2;
 	++inst_pos;
-	goto *insts[inst_pos].label;
+	NEXT_INST(insts, inst_pos);
 cld:
 	regs.flag &= ~DIR_FLAG;
 	++inst_pos;
-	goto *insts[inst_pos].label;
+	NEXT_INST(insts, inst_pos);
 loop:
 	if (regs.flag & DIR_FLAG)
 		++regs.cx;
@@ -551,50 +623,50 @@ loop:
 	} else {
 		inst_pos += 2;
 	}
-	goto *insts[inst_pos].label;
+	NEXT_INST(insts, inst_pos);
 jcxz:
 	if (!regs.cx)
 		inst_pos = insts[inst_pos + 1].info[0].constant;
 	else
 		inst_pos += 2;
-	goto *insts[inst_pos].label;
+	NEXT_INST(insts, inst_pos);
 jnc:
 	if (regs.flag & CARRY_FLAG)
 		inst_pos += 2;
 	else
 		inst_pos = insts[inst_pos + 1].info[0].constant;
-	goto *insts[inst_pos].label;
+	NEXT_INST(insts, inst_pos);
 jc:
 	if (regs.flag & CARRY_FLAG)
 		inst_pos = insts[inst_pos + 1].info[0].constant;
 	else
 		inst_pos += 2;
-	goto *insts[inst_pos].label;
+	NEXT_INST(insts, inst_pos);
 jnz:
-	printf("jnz\n");
+	/* printf("jnz\n"); */
 	if (result)
 		inst_pos = insts[inst_pos + 1].info[0].constant;
 	else
 		inst_pos += 2;
-	goto *insts[inst_pos].label;
+	NEXT_INST(insts, inst_pos);
 jz:
-	printf("jz\n");
+	printf("jz %d\n", result);
 	if (!result)
 		inst_pos = insts[inst_pos + 1].info[0].constant;
 	else
 		inst_pos += 2;
-	goto *insts[inst_pos].label;
+	NEXT_INST(insts, inst_pos);
 ret:
-	printf("ret to %d\n", ret_stack[ret_idx - 1]);
+	/* printf("ret to %d\n", ret_stack[ret_idx - 1]); */
 	inst_pos = ret_stack[--ret_idx];
-	goto *insts[inst_pos].label;
+	NEXT_INST(insts, inst_pos);
 call:
-	printf("call %d\n", ret_idx);
+	/* printf("call %d\n", ret_idx); */
 	ret_stack[ret_idx++] = inst_pos + 2;
 	/* fallthough */
 jmp:
 	inst_pos = insts[inst_pos + 1].info[0].constant;
-	goto *insts[inst_pos].label;
+	NEXT_INST(insts, inst_pos);
 cmp:
 	++inst_pos;
 #define COPY
@@ -602,59 +674,54 @@ cmp:
 #define OPERATION -=
 #include "asm-inst.h"
 	++inst_pos;
-	printf("cmp (%d)%x (%d)%x\n",
-	       insts[inst_pos].info[0].reg,
-	       insts[inst_pos].info[0].constant,
-	       insts[inst_pos].info[1].reg,
-	       insts[inst_pos].info[1].constant);
-	goto *insts[inst_pos].label;
+	NEXT_INST(insts, inst_pos);
 sub:
 	++inst_pos;
 #define OPERATION -=
 #define CHECK_ADD 1
 #include "asm-inst.h"
-	printf("add (%d)%x (%d)%x\n",
-	       insts[inst_pos].info[0].reg,
-	       insts[inst_pos].info[0].constant,
-	       insts[inst_pos].info[1].reg,
-	       insts[inst_pos].info[1].constant);
+	/* printf("add (%d)%x (%d)%x\n", */
+	/*        insts[inst_pos].info[0].reg, */
+	/*        insts[inst_pos].info[0].constant, */
+	/*        insts[inst_pos].info[1].reg, */
+	/*        insts[inst_pos].info[1].constant); */
 	++inst_pos;
-	goto *insts[inst_pos].label;
+	NEXT_INST(insts, inst_pos);
 add:
 	++inst_pos;
 #define OPERATION +=
 #define CHECK_ADD 1
 #include "asm-inst.h"
-	printf("add (%d)%x (%d)%x\n",
-	       insts[inst_pos].info[0].reg,
-	       insts[inst_pos].info[0].constant,
-	       insts[inst_pos].info[1].reg,
-	       insts[inst_pos].info[1].constant);
+	/* printf("add (%d)%x (%d)%x\n", */
+	/*        insts[inst_pos].info[0].reg, */
+	/*        insts[inst_pos].info[0].constant, */
+	/*        insts[inst_pos].info[1].reg, */
+	/*        insts[inst_pos].info[1].constant); */
 	++inst_pos;
-	goto *insts[inst_pos].label;
+	NEXT_INST(insts, inst_pos);
 mov:
 	++inst_pos;
 #define OPERATION =
 #include "asm-inst.h"
-	printf("mov (%d)%x (%d)%x\n",
-	       insts[inst_pos].info[0].reg,
-	       insts[inst_pos].info[0].constant,
-	       insts[inst_pos].info[1].reg,
-	       insts[inst_pos].info[1].constant);
+	/* printf("mov (%d)%x (%d)%x\n", */
+	/*        insts[inst_pos].info[0].reg, */
+	/*        insts[inst_pos].info[0].constant, */
+	/*        insts[inst_pos].info[1].reg, */
+	/*        insts[inst_pos].info[1].constant); */
 	++inst_pos;
-	goto *insts[inst_pos].label;
+	NEXT_INST(insts, inst_pos);
 xor:
 	++inst_pos;
 #define OTHER_CHECK 1
 #define OPERATION ^=
 #include "asm-inst.h"
-	printf("xor (%d)%x (%d)%x\n",
-	       insts[inst_pos].info[0].reg,
-	       insts[inst_pos].info[0].constant,
-	       insts[inst_pos].info[1].reg,
-	       insts[inst_pos].info[1].constant);
+	/* printf("xor (%d)%x (%d)%x\n", */
+	/*        insts[inst_pos].info[0].reg, */
+	/*        insts[inst_pos].info[0].constant, */
+	/*        insts[inst_pos].info[1].reg, */
+	/*        insts[inst_pos].info[1].constant); */
 	++inst_pos;
-	goto *insts[inst_pos].label;
+	NEXT_INST(insts, inst_pos);
 
 quit:
 	printf("out\n");

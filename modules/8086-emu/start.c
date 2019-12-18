@@ -50,7 +50,7 @@ struct regs {
 			uint16_t flag; /* last operation result*/
 		};
 		uint16_t buf_16[16];
-		uint16_t buf_8[32];
+		uint8_t buf_8[32];
 	};
 };
 
@@ -61,6 +61,8 @@ struct state_8086 {
 	Entity *char_ent_map;
 	YTimer timer;
 };
+
+static int rend_cnt;
 
 uint32_t to_vga_icolor[0x10] = {
 	0, 0x0000aa, 0x00aa00, 0x00aaaa ,0xaa0000,
@@ -87,7 +89,7 @@ static inline char *to_vga_strcharset(int c)
 		static char rets[0x7e - 0x20 + 1][2];
 
 		rets[c - 0x20][0] = c;
-		printf("convert %d\n", c);
+		/* printf("convert %d\n", c); */
 		return rets[c - 0x20];
 	}
 	return "?";
@@ -130,7 +132,7 @@ static inline void color_txt_video_scan(struct state_8086 *s, int32_t pos,
 	int ch_h;
 	int ch_w;
 
-	printf("color text scan 0x%x\n", pos);
+	/* printf("color text scan 0x%x\n", pos); */
 	if (!(pos >= 0xb8000 && pos < 0xb8fa0))
 		return;
 
@@ -142,7 +144,7 @@ static inline void color_txt_video_scan(struct state_8086 *s, int32_t pos,
 	wid_h = ywRectH(yeGet(s->e, "wid-pix"));
 	ch_h = wid_h * ORIG_CHAR_H / ORIG_H;
 	ch_w = wid_w * ORIG_CHAR_W / ORIG_W;
-	printf("screen: %d %d\nch: %d %d\n", wid_w, wid_h, ch_w, ch_h);
+	/* printf("screen: %d %d\nch: %d %d\n", wid_w, wid_h, ch_w, ch_h); */
 
 	for (; l > 0; pos += 2, l -= 2) {
 		int r_pos = pos - 0xb8000;
@@ -160,9 +162,9 @@ static inline void color_txt_video_scan(struct state_8086 *s, int32_t pos,
 		x = x % 80;
 		rx = x * ch_w;
 		ry = y * ch_h;
-		printf("(%d)write (%x)%x (%x)'%s' to screen at %d %d\n",
-		       l, di->h, to_vga_icolor[di->h],
-		       di->l, to_vga_strcharset(di->l), x, y);
+		/* printf("(%d)write (%x)%x (%x)'%s' to screen at %d %d\n", */
+		/*        l, di->h, to_vga_icolor[di->h], */
+		/*        di->l, to_vga_strcharset(di->l), x, y); */
 
 		if (imgchar = to_vga_imgcharset(di->l)) {
 			YE_NEW(Array, nfo);
@@ -212,8 +214,11 @@ static inline void color_txt_video_scan(struct state_8086 *s, int32_t pos,
 		}
 
 	}
-	ywidUpdate(s->e);
-	ywidRend(ywidGetMainWid());
+	if (!(rend_cnt & 127)) {
+		ywidUpdate(s->e);
+		ywidRend(ywidGetMainWid());
+		rend_cnt = 0;
+	}
 }
 
 static inline void empty_video_scan(struct state_8086 *s, int32_t pos, int16_t l)
@@ -252,7 +257,7 @@ static inline void write_word(struct state_8086 *s, int32_t pos, uint16_t w)
 	/* if w is 0x1234 we need mem[pos] = 0x12 and mem[pos +1] = 0x34 */
 	di->l = w & 0x00ff;
 	di->h = (w & 0xff00) >> 8;
-	printf("%x - %x\n", ((union mem *)&mem[pos])->w, w);
+	/* printf("%x - %x\n", ((union mem *)&mem[pos])->w, w); */
 	(*s).set_mem(s, pos, 2);
 }
 
@@ -261,7 +266,7 @@ static inline void write_byte(struct state_8086 *s, int32_t pos, uint8_t b)
 	char *mem = s->mem;
 
 	mem[pos] = b;
-	printf("%x - %x\n", mem[pos], b);
+	/* printf("%x - %x\n", mem[pos], b); */
 	(*s).set_mem(s, pos, 1);
 }
 

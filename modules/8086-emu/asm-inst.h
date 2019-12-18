@@ -48,7 +48,7 @@
 	f & HAVE_INDIR ? *((ptype *)&s->mem[(v) | (regs.ds << 4)]) : (v)
 
 	if (f0 & IS_BYTE) {
-		r0 -= AH_T;
+		r0 -= AL_T;
 #ifdef COPY
 		uint8_t tmp = is_0_reg ? regs.buf_8[r0] : c0;
 		uint8_t *d = &tmp;
@@ -57,19 +57,19 @@
 #endif
 		uint8_t orig = *d;
 
-		printf("8 bit word/registre %x %x\n", regs.ds, regs.es);
+		/* printf("8 bit word/registre %x %x\n", regs.ds, regs.es); */
 		if (f0 & HAVE_INDIR) {
 			d = &state->mem[*d | (regs.ds << 4)];
 			if  (is_0_reg)
 				d += c0;
 		}
 		if (r1) {
-			r1 -= AH_T;
-			DPRINT(state, f1, regs.buf_8[r1] + c1);
+			r1 -= AL_T;
+			/* DPRINT(state, f1, regs.buf_8[r1] + c1); */
 			*d OPERATION try_indir(state, f1,
 					       regs.buf_8[r1] + c1, uint8_t);
 		} else {
-			DPRINT(state, f1, c1);
+			/* DPRINT(state, f1, c1); */
 			*d OPERATION try_indir(state, f1, c1, uint8_t);
 		}
 #ifndef COPY
@@ -86,7 +86,7 @@
 #endif
 		uint16_t orig = *d;
 
-		printf("16 bit %s(%d)\n", is_0_reg ? "registre" : "word", r0);
+		/* printf("16 bit %s(%d)\n", is_0_reg ? "registre" : "word", r0); */
 		if (f0 & HAVE_INDIR) {
 			uint8_t *tmpd = d;
 			tmpd = &state->mem[*d | (regs.ds << 4)];
@@ -96,20 +96,20 @@
 		}
 
 		if (r1 > ES_T) {
-			r1 -= AH_T;
-			DPRINT(state, f1, regs.buf_8[r1] + c1);
+			r1 -= AL_T;
+			/* DPRINT(state, f1, regs.buf_8[r1] + c1); */
 			*d OPERATION try_indir(state, f1, regs.buf_8[r1] + c1,
 				uint16_t);
 		} else if (r1 >= AX_T) {
 			r1 -= AX_T;
-			DPRINT(state, f1, regs.buf_16[r1] + c1);
+			/* DPRINT(state, f1, regs.buf_16[r1] + c1); */
 			*d OPERATION try_indir(state, f1, regs.buf_16[r1] + c1,
 					       uint16_t);
 		} else {
-			DPRINT(state, f1, c1);
-			printf("op: on const: %x %x %x %x %x\n", f1,
-			       try_indir(state, f1, c1, uint16_t), c1,
-			       regs.ds << 4, regs.es);
+			/* DPRINT(state, f1, c1); */
+			/* printf("op: on const: %x %x %x %x %x\n", f1, */
+			/*        try_indir(state, f1, c1, uint16_t), c1, */
+			/*        regs.ds << 4, regs.es); */
 			*d OPERATION try_indir(state, f1, c1,
 					       uint16_t);
 		}
