@@ -478,7 +478,6 @@ Entity *ywCanvasNewRect(Entity *wid, int x, int y, Entity *rect)
 {
 	Entity *obj = yeCreateArray(NULL, NULL);
 
-	ywPosPrint(yeGet(rect, 0));
 	yeCreateInt(YCanvasRect, obj, "canvas-type");
 	ywPosCreateInts(x, y, obj, "pos");
 	yePushBack(obj, rect, "rect");
@@ -719,7 +718,6 @@ int ywCanvasForceSize(Entity *obj, Entity *size)
 		return -1;
 	Entity *mod = getOrCreateMod(obj);
 
-	ywSizePrint(size);
 	yePushAt(mod, size, YCanvasForceSize);
 	return 0;
 }
