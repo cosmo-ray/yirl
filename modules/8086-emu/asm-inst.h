@@ -40,7 +40,7 @@
 	       f & HAVE_INDIR ? s->mem[(v) | (regs.ds << 4)] : (v));
 #endif
 
-#define try_indir(s, f, v, ptype)				\
+#define TRY_INDIR(s, f, v, ptype)				\
 	f & HAVE_INDIR ? *((ptype *)&s->mem[(v) | (regs.ds << 4)]) : (v)
 
 {
@@ -66,20 +66,25 @@
 
 		/* printf("8 bit word/registre %x %x\n", regs.ds, regs.es); */
 		if (f0 & HAVE_INDIR) {
+#ifdef COPY
+			tmp = state->mem[*d | (regs.ds << 4)];
+			d = &tmp;
+#lese
 			d = &state->mem[*d | (regs.ds << 4)];
+#endif
 			if  (is_0_reg)
 				d += c0;
 		}
 		if (r1) {
 			r1 -= AL_T;
 			/* DPRINT(state, f1, regs.buf_8[r1] + c1); */
-			*d OPERATION try_indir(state, f1,
-					       regs.buf_8[r1] + c1, uint8_t);
+			*d OPERATION TRY_INDIR(state, f1, regs.buf_8[r1] + c1,
+					       uint8_t);
 		} else if (STACK == 1) {
 			*d OPERATION stack[stack_idx].b;
 		} else {
 			/* DPRINT(state, f1, c1); */
-			*d OPERATION try_indir(state, f1, c1, uint8_t);
+			*d OPERATION TRY_INDIR(state, f1, c1, uint8_t);
 		}
 #ifndef COPY
 		scan_ptr_mem(state, d, 1);
@@ -103,27 +108,29 @@
 			tmpd = &state->mem[*d | (regs.ds << 4)];
 			if (is_0_reg)
 				tmpd += c0;
+#ifdef COPY
+			tmp = *(uint16_t *)tmpd;
+			d = &tmp;
+#else
 			d = tmpd;
+#endif
 		}
 
-		if (r1 > ES_T) {
+		if (r1 >= AL_T) {
 			r1 -= AL_T;
 			/* DPRINT(state, f1, regs.buf_8[r1] + c1); */
-			*d OPERATION try_indir(state, f1, regs.buf_8[r1] + c1,
+			*d OPERATION TRY_INDIR(state, f1, regs.buf_8[r1] + c1,
 				uint16_t);
 		} else if (r1 >= AX_T) {
 			r1 -= AX_T;
 			/* DPRINT(state, f1, regs.buf_16[r1] + c1); */
-			*d OPERATION try_indir(state, f1, regs.buf_16[r1] + c1,
+			*d OPERATION TRY_INDIR(state, f1, regs.buf_16[r1] + c1,
 					       uint16_t);
 		} else if (STACK == 1) {
 			*d OPERATION stack[stack_idx].w;
 		} else {
 			/* DPRINT(state, f1, c1); */
-			/* printf("op: on const: %x %x %x %x %x\n", f1, */
-			/*        try_indir(state, f1, c1, uint16_t), c1, */
-			/*        regs.ds << 4, regs.es); */
-			*d OPERATION try_indir(state, f1, c1,
+			*d OPERATION TRY_INDIR(state, f1, c1,
 					       uint16_t);
 		}
 		SET_FLAG_RESULT()
@@ -136,7 +143,7 @@
 #undef CHECK_ADD
 #undef CHECK_SUB
 #undef DO_CHECK
-#undef try_indir
+#undef TRY_INDIR
 #undef OPERATION
 
 #ifdef OTHER_CHECK

@@ -59,6 +59,7 @@ enum {
 	DEBUG_P_RESULT = 1 << 0,
 	DEBUG_P_REGS = 2 << 1, /* not yet implemented, should allow to print each regs */
 	DEBUG_P_ALL_REGS = 2 << 2,
+	DEBUG_P_ALL_8REGS = 2 << 3,
 };
 
 // sub in informel, because I use add
@@ -292,8 +293,7 @@ static void mk_args(union instructions *insts, int inst_pos,
 #define	NEXT_INST(insts, inst_pos)			\
 	do {						\
 		++rend_cnt;				\
-		if (!(rend_cnt & 1023)) {		\
-			printf("rend\n");		\
+		if (!(rend_cnt &  (1 << 7) -1 )) {	\
 			ywidUpdate(state->e);		\
 			ywidRend(ywidGetMainWid());	\
 			rend_cnt = 0;			\
@@ -312,6 +312,10 @@ static void parse_debug_bracket(union instructions *inst)
 			} else if (!strcmp(yeTokString(tok_info, cur_tok),
 					 "registers")) {
 				inst->info[0].flag |= DEBUG_P_ALL_REGS;
+				printf("REGS %d!\n", inst->info[0].flag);
+			} else if (!strcmp(yeTokString(tok_info, cur_tok),
+					 "8registers")) {
+				inst->info[0].flag |= DEBUG_P_ALL_8REGS;
 				printf("REGS %d!\n", inst->info[0].flag);
 			}
 
@@ -472,6 +476,8 @@ void *call_asm(int nbArgs, void **args)
 			gen_jum(insts, inst_pos, inst_size, &&pop);
 			++inst_pos;
 			next_no_space();
+			insts[inst_pos].info[0] = (struct inst_param){0};
+			insts[inst_pos].info[1] = (struct inst_param){0};
 			if (assign_dest(&insts[inst_pos], 0))
 				fail("pop: only registers are suppoted(%s)",
 				     yeTokString(tok_info, cur_tok));
@@ -480,6 +486,8 @@ void *call_asm(int nbArgs, void **args)
 			gen_jum(insts, inst_pos, inst_size, &&push);
 			++inst_pos;
 			next_no_space();
+			insts[inst_pos].info[0] = (struct inst_param){0};
+			insts[inst_pos].info[1] = (struct inst_param){0};
 			if (assign_dest(&insts[inst_pos], 1))
 				fail("push: only registers are suppoted(%s)",
 				     yeTokString(tok_info, cur_tok));
@@ -580,7 +588,7 @@ interupt:
 		case 0x1a:
 			/* 18.5 hz is a computer tick, and 18.2 hz == 54945 us */
 			regs.dx = YTimerGet(&state->timer) / 54945;
-			printf("time %d\n", regs.dx);
+			/* printf("time %d\n", regs.dx); */
 			break;
 		case 0x20:
 			goto quit;
@@ -609,6 +617,16 @@ yirl_debug:
 			printf(" ds: %x", regs.ds);
 			printf(" es: %x", regs.es);
 			printf(" flag: %x", regs.flag);
+		}
+		if (flag & DEBUG_P_ALL_8REGS) {
+			printf(" al: %x", regs.al);
+			printf(" ah: %x", regs.ah);
+			printf(" dl: %x", regs.dl);
+			printf(" dh: %x", regs.dh);
+			printf(" cl: %x", regs.cl);
+			printf(" ch: %x", regs.ch);
+			printf(" dl: %x", regs.dl);
+			printf(" dh: %x", regs.dh);
 		}
 	}
 	printf("\n");
