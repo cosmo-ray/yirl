@@ -20,11 +20,19 @@ static enum asm_toks {
 #include "asm-tok.h"
 };
 
+/*
+ * We use global out of pure lazyness, and because
+ * YIRL don't supprt multythread anyway
+ * it shouldn't be hard to pass a struct to every function
+ * and push every global in that struct, but why ?
+ */
 
 static Entity *asm_txt;
 static Entity *tok_info;
-int cur_tok;
-int line_cnt;
+static int cur_tok;
+static int line_cnt;
+static int rend_cnt;
+
 
 struct inst_param {
 	uint8_t flag;
@@ -61,10 +69,13 @@ enum {
 	DIR_FLAG = 2
 };
 
+#define fail(args...)							\
+	({ printf("line: %d\n", line_cnt); DPRINT_ERR(args); abort(); }) \
+
+
 #define unexpected() do {					\
-		DPRINT_ERR("unexpected token: %s",		\
+		fail("unexpected token: %s",			\
 			   yeTokString(tok_info, cur_tok));	\
-		abort();					\
 	} while (0);
 
 static inline int next(void)
@@ -111,11 +122,8 @@ static inline int parse_num(void)
 	case SIMPLE_QUOTE_T:
 		cur_tok = next();
 		str = yeTokString(tok_info, cur_tok);
-		if (strlen(str) != 1) {
-			DPRINT_ERR("tok '%s': char should be 1 letter",
-				   str);
-			abort();
-		}
+		if (strlen(str) != 1)
+			fail("tok '%s': char should be 1 letter", str);
 		num = str[0];
 		cur_tok = next();
 		return num;
@@ -211,14 +219,10 @@ reg:
 	return 0;
 }
 
-static void brace_arg(union instructions *inst, Entity *constants,
-		      int sz_set, int idx)
+static void brace_arg(union instructions *inst, Entity *constants, int idx)
 {
 	int ret;
 
-	if (!sz_set) {
-		DPRINT_ERR("size require");
-	}
 	next_no_space();
 	ret = assign_dest(inst, idx);
 	if (ret < 0) {
@@ -241,7 +245,6 @@ static void mk_args(union instructions *insts, int inst_pos,
 		    Entity *constants, _Bool single_arg)
 {
 	int ret;
-	int sz_set = 0;
 
 	next_no_space();
 	insts[inst_pos].info[0] = (struct inst_param){0};
@@ -250,7 +253,6 @@ static void mk_args(union instructions *insts, int inst_pos,
 	if (cur_tok == BYTE_T || cur_tok == WORD_T) {
 		int what = cur_tok == BYTE_T ? IS_BYTE : IS_WORD;
 
-		sz_set = 1;
 		insts[inst_pos].info[0].flag |= what;
 		insts[inst_pos].info[1].flag |= what;
 		next_no_space();
@@ -258,12 +260,10 @@ static void mk_args(union instructions *insts, int inst_pos,
 	ret = assign_dest(&insts[inst_pos], 0);
 
 	if (ret == 1) {
-		brace_arg(&insts[inst_pos], constants, sz_set, 0);
+		brace_arg(&insts[inst_pos], constants, 0);
 	} else if (ret) {
-		DPRINT_ERR("error or not yet implemeted %d - %s",
-			   inst_pos,
-			   yeTokString(tok_info, cur_tok));
-		abort();
+		fail("error or not yet implemeted %d - %s", inst_pos,
+		     yeTokString(tok_info, cur_tok));
 	} else {
 		next_no_space();
 	}
@@ -272,7 +272,7 @@ static void mk_args(union instructions *insts, int inst_pos,
 	skip(COMMA_T);
 	ret = assign_dest(&insts[inst_pos], 1);
 	if (ret == 1)
-		brace_arg(&insts[inst_pos], constants, sz_set, 1);
+		brace_arg(&insts[inst_pos], constants, 1);
 	else
 		next_no_space();
 
@@ -289,10 +289,16 @@ static void mk_args(union instructions *insts, int inst_pos,
 		insts[inst_pos].label = next_label;			\
 	} while (0)							\
 
-#define	NEXT_INST(insts, inst_pos)		\
-	do {					\
-		++rend_cnt;			\
-		goto *insts[inst_pos].label;	\
+#define	NEXT_INST(insts, inst_pos)			\
+	do {						\
+		++rend_cnt;				\
+		if (!(rend_cnt & 1023)) {		\
+			printf("rend\n");		\
+			ywidUpdate(state->e);		\
+			ywidRend(ywidGetMainWid());	\
+			rend_cnt = 0;			\
+		}					\
+		goto *insts[inst_pos].label;		\
 	} while (0);
 
 
@@ -326,6 +332,8 @@ void *call_asm(int nbArgs, void **args)
 	union instructions *insts = malloc(inst_size * (sizeof *insts));
 	int inst_pos = 0;
 	int result; /* last operation result*/
+	union mem stack[512];
+	int stack_idx = 0;
 	int ret_stack[128];
 	int ret_idx = 0;
 	Entity *events = NULL;
@@ -460,6 +468,22 @@ void *call_asm(int nbArgs, void **args)
 		} else if (cur_tok == RET_T) {
 			gen_jum(insts, inst_pos, inst_size, &&ret);
 			++inst_pos;
+		} else if (cur_tok == POP_T) {
+			gen_jum(insts, inst_pos, inst_size, &&pop);
+			++inst_pos;
+			next_no_space();
+			if (assign_dest(&insts[inst_pos], 0))
+				fail("pop: only registers are suppoted(%s)",
+				     yeTokString(tok_info, cur_tok));
+			++inst_pos;
+		} else if (cur_tok == PUSH_T) {
+			gen_jum(insts, inst_pos, inst_size, &&push);
+			++inst_pos;
+			next_no_space();
+			if (assign_dest(&insts[inst_pos], 1))
+				fail("push: only registers are suppoted(%s)",
+				     yeTokString(tok_info, cur_tok));
+			++inst_pos;
 		} else if (cur_tok == LOOP_T) {
 			gen_jum(insts, inst_pos, inst_size, &&loop);
 			goto create_jmp;
@@ -510,11 +534,8 @@ void *call_asm(int nbArgs, void **args)
 		int inst_i = yeGetIntAt(forward_labels, i);
 		Entity *jmp_dest = yeGet(labels, l_name);
 
-		if (yeType(jmp_dest) != YINT) {
-			DPRINT_ERR("can't find label: %s", l_name);
-			abort();
-
-		}
+		if (yeType(jmp_dest) != YINT)
+			fail("can't find label: %s", l_name);
 		insts[inst_i].info[0].constant = yeGetIntDirect(jmp_dest);
 	}
 	printf("hummm ? %d\n", inst_pos);
@@ -542,7 +563,8 @@ interupt:
 			for (;events; events = ywidNextEve(events)) {
 				if (ywidEveType(events) == YKEY_DOWN) {
 					result = ywidEveKey(events);
-					printf("INPUT %d - %d\n", ywidEveKey(events), regs.ah);
+					printf("INPUT %d - %d\n",
+					       ywidEveKey(events), regs.ah);
 					/* don't consume events if ah unset */
 					/* TODO: I should set a flag too */
 					if (!regs.ah) {
@@ -563,7 +585,7 @@ interupt:
 		case 0x20:
 			goto quit;
 		default:
-			DPRINT_ERR("int '%x' not yet implemented\n", int_nb);
+			fail("int '%x' not yet implemented\n", int_nb);
 		}
 		inst_pos += 2;
 		NEXT_INST(insts, inst_pos);
@@ -593,7 +615,7 @@ yirl_debug:
 	inst_pos += 2;
 	NEXT_INST(insts, inst_pos);
 stosb:
-	state->mem[regs.es + (regs.ds << 4)] = regs.al;
+	write_byte(state, regs.di + (regs.ds << 4), regs.al);
 	if (regs.flag & DIR_FLAG)
 		regs.di += 1;
 	else
@@ -601,8 +623,7 @@ stosb:
 	++inst_pos;
 	NEXT_INST(insts, inst_pos);
 stosw:
-	state->mem[regs.es + (regs.ds << 4)] = regs.ah;
-	state->mem[1 + regs.es + (regs.ds << 4)] = regs.al;
+	write_word(state, regs.di + (regs.ds << 4), regs.ax);
 	if (regs.flag & DIR_FLAG)
 		regs.di += 2;
 	else
@@ -643,7 +664,6 @@ jc:
 		inst_pos += 2;
 	NEXT_INST(insts, inst_pos);
 jnz:
-	/* printf("jnz\n"); */
 	if (result)
 		inst_pos = insts[inst_pos + 1].info[0].constant;
 	else
@@ -657,15 +677,32 @@ jz:
 		inst_pos += 2;
 	NEXT_INST(insts, inst_pos);
 ret:
-	/* printf("ret to %d\n", ret_stack[ret_idx - 1]); */
 	inst_pos = ret_stack[--ret_idx];
 	NEXT_INST(insts, inst_pos);
+
 call:
-	/* printf("call %d\n", ret_idx); */
 	ret_stack[ret_idx++] = inst_pos + 2;
 	/* fallthough */
 jmp:
 	inst_pos = insts[inst_pos + 1].info[0].constant;
+	NEXT_INST(insts, inst_pos);
+
+pop:
+	++inst_pos;
+	--stack_idx;
+	#define OPERATION =
+	#define STACK 1
+	#include "asm-inst.h"
+	++inst_pos;
+	NEXT_INST(insts, inst_pos);
+
+push:
+	++inst_pos;
+	#define OPERATION =
+	#define STACK 0
+	#include "asm-inst.h"
+	++stack_idx;
+	++inst_pos;
 	NEXT_INST(insts, inst_pos);
 cmp:
 	++inst_pos;
@@ -680,11 +717,6 @@ sub:
 #define OPERATION -=
 #define CHECK_ADD 1
 #include "asm-inst.h"
-	/* printf("add (%d)%x (%d)%x\n", */
-	/*        insts[inst_pos].info[0].reg, */
-	/*        insts[inst_pos].info[0].constant, */
-	/*        insts[inst_pos].info[1].reg, */
-	/*        insts[inst_pos].info[1].constant); */
 	++inst_pos;
 	NEXT_INST(insts, inst_pos);
 add:
@@ -692,22 +724,12 @@ add:
 #define OPERATION +=
 #define CHECK_ADD 1
 #include "asm-inst.h"
-	/* printf("add (%d)%x (%d)%x\n", */
-	/*        insts[inst_pos].info[0].reg, */
-	/*        insts[inst_pos].info[0].constant, */
-	/*        insts[inst_pos].info[1].reg, */
-	/*        insts[inst_pos].info[1].constant); */
 	++inst_pos;
 	NEXT_INST(insts, inst_pos);
 mov:
 	++inst_pos;
 #define OPERATION =
 #include "asm-inst.h"
-	/* printf("mov (%d)%x (%d)%x\n", */
-	/*        insts[inst_pos].info[0].reg, */
-	/*        insts[inst_pos].info[0].constant, */
-	/*        insts[inst_pos].info[1].reg, */
-	/*        insts[inst_pos].info[1].constant); */
 	++inst_pos;
 	NEXT_INST(insts, inst_pos);
 xor:
@@ -715,11 +737,6 @@ xor:
 #define OTHER_CHECK 1
 #define OPERATION ^=
 #include "asm-inst.h"
-	/* printf("xor (%d)%x (%d)%x\n", */
-	/*        insts[inst_pos].info[0].reg, */
-	/*        insts[inst_pos].info[0].constant, */
-	/*        insts[inst_pos].info[1].reg, */
-	/*        insts[inst_pos].info[1].constant); */
 	++inst_pos;
 	NEXT_INST(insts, inst_pos);
 

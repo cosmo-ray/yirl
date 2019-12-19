@@ -26,6 +26,7 @@ union mem {
 		uint8_t l;
 		uint8_t h;
 	};
+	uint8_t b;
 };
 
 #define MK_REG(r) union {			\
@@ -61,8 +62,6 @@ struct state_8086 {
 	Entity *char_ent_map;
 	YTimer timer;
 };
-
-static int rend_cnt;
 
 uint32_t to_vga_icolor[0x10] = {
 	0, 0x0000aa, 0x00aa00, 0x00aaaa ,0xaa0000,
@@ -214,11 +213,6 @@ static inline void color_txt_video_scan(struct state_8086 *s, int32_t pos,
 		}
 
 	}
-	if (!(rend_cnt & 127)) {
-		ywidUpdate(s->e);
-		ywidRend(ywidGetMainWid());
-		rend_cnt = 0;
-	}
 }
 
 static inline void empty_video_scan(struct state_8086 *s, int32_t pos, int16_t l)
@@ -295,14 +289,12 @@ void *call_func(int nbArgs, void **args)
 {
 	Entity *emu = args[0];
 
-	/* printf("call func %s %p\n", */
-	/*        yeGetStringAt(emu, "func"), */
-	/*        ygGet(yeGetStringAt(emu, "func"))); */
 	yesCall(yeGet(emu, "func"), emu);
 	ygTerminate();
 	return (void *)ACTION;
 }
 
+/* I should not include this file, but the way I handle tcc make it hard to use 2 file like I would by calling gcc */
 #include "asm.c"
 
 static void destroy_state(void *arg)

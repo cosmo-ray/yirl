@@ -12,22 +12,36 @@
 #define DO_CHECK 0
 #endif
 
+#ifndef STACK
+#define STACK -1
+#endif
+
 #define SET_FLAG_RESULT()					\
 	if (DO_CHECK) {						\
 		result = *d;					\
 		if (CHECK_SUB) {				\
-			if (orig > result)			\
+			if (orig < result)			\
 				regs.flag |= CARRY_FLAG;	\
 			else					\
 				regs.flag &= ~CARRY_FLAG;	\
 		} else if (CHECK_ADD) {				\
-			if (orig < result)			\
+			if (orig > result)			\
 				regs.flag &= ~CARRY_FLAG;	\
 			else					\
 				regs.flag |= CARRY_FLAG;	\
 		}						\
 	}							\
 
+
+#if 0
+#define DPRINT(s,f,v)							\
+	printf("indir %d ? %d %x %x\n", !!(f & HAVE_INDIR),		\
+	       (v), (v),						\
+	       f & HAVE_INDIR ? s->mem[(v) | (regs.ds << 4)] : (v));
+#endif
+
+#define try_indir(s, f, v, ptype)				\
+	f & HAVE_INDIR ? *((ptype *)&s->mem[(v) | (regs.ds << 4)]) : (v)
 
 {
 	int r0 = insts[inst_pos].info[0].reg;
@@ -38,20 +52,13 @@
 	int c1 = insts[inst_pos].info[1].constant;
 	int is_0_reg = !!r0;
 
-#define DPRINT(s,f,v)							\
-	printf("indir %d ? %d %x %x\n", !!(f & HAVE_INDIR),		\
-	       (v), (v),						\
-	       f & HAVE_INDIR ? s->mem[(v) | (regs.ds << 4)] : (v));	\
-					\
-
-#define try_indir(s, f, v, ptype)				\
-	f & HAVE_INDIR ? *((ptype *)&s->mem[(v) | (regs.ds << 4)]) : (v)
-
 	if (f0 & IS_BYTE) {
 		r0 -= AL_T;
 #ifdef COPY
 		uint8_t tmp = is_0_reg ? regs.buf_8[r0] : c0;
 		uint8_t *d = &tmp;
+#elif STACK == 0
+		uint8_t *d = &stack[stack_idx].b;
 #else
 		uint8_t *d = r0 ? &regs.buf_8[r0] : (uint8_t *)&c0;
 #endif
@@ -68,6 +75,8 @@
 			/* DPRINT(state, f1, regs.buf_8[r1] + c1); */
 			*d OPERATION try_indir(state, f1,
 					       regs.buf_8[r1] + c1, uint8_t);
+		} else if (STACK == 1) {
+			*d OPERATION stack[stack_idx].b;
 		} else {
 			/* DPRINT(state, f1, c1); */
 			*d OPERATION try_indir(state, f1, c1, uint8_t);
@@ -81,6 +90,8 @@
 #ifdef COPY
 		uint16_t tmp = is_0_reg ? regs.buf_16[r0] : c0;
 		uint16_t *d = &tmp;
+#elif STACK == 0
+		uint16_t *d = &stack[stack_idx].w;
 #else
 		uint16_t *d = is_0_reg ? &regs.buf_16[r0] : &c0;
 #endif
@@ -105,6 +116,8 @@
 			/* DPRINT(state, f1, regs.buf_16[r1] + c1); */
 			*d OPERATION try_indir(state, f1, regs.buf_16[r1] + c1,
 					       uint16_t);
+		} else if (STACK == 1) {
+			*d OPERATION stack[stack_idx].w;
 		} else {
 			/* DPRINT(state, f1, c1); */
 			/* printf("op: on const: %x %x %x %x %x\n", f1, */
@@ -133,3 +146,5 @@
 #ifdef COPY
 #undef COPY
 #endif
+
+#undef STACK
