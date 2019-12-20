@@ -31,8 +31,6 @@ static Entity *asm_txt;
 static Entity *tok_info;
 static int cur_tok;
 static int line_cnt;
-static int rend_cnt;
-
 
 struct inst_param {
 	uint8_t flag;
@@ -292,12 +290,6 @@ static void mk_args(union instructions *insts, int inst_pos,
 
 #define	NEXT_INST(insts, inst_pos)			\
 	do {						\
-		++rend_cnt;				\
-		if (!(rend_cnt &  (1 << 7) -1 )) {	\
-			ywidUpdate(state->e);		\
-			ywidRend(ywidGetMainWid());	\
-			rend_cnt = 0;			\
-		}					\
 		goto *insts[inst_pos].label;		\
 	} while (0);
 
@@ -366,6 +358,12 @@ void *call_asm(int nbArgs, void **args)
 			union instructions *d_info = NULL;
 			do {
 				cur_tok = next();
+				if (cur_tok == YIRL_DEBUG_T) {
+					gen_jum(insts, inst_pos, inst_size,
+						&&yirl_rend);
+					++inst_pos;
+				}
+
 				if (cur_tok == YIRL_DEBUG_T) {
 					gen_jum(insts, inst_pos, inst_size,
 						&&yirl_debug);
@@ -598,6 +596,11 @@ interupt:
 		inst_pos += 2;
 		NEXT_INST(insts, inst_pos);
 	}
+yirl_rend:
+	ywidUpdate(state->e);
+	ywidRend(ywidGetMainWid());
+	inst_pos += 1;
+	NEXT_INST(insts, inst_pos);
 yirl_debug:
 	printf("YIRL DEBUG line %d (%x)",
 	       insts[inst_pos + 1].info[0].constant,
