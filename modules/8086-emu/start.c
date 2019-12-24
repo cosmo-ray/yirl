@@ -337,6 +337,7 @@ void *mod_init(int nbArg, void **args)
 	Entity *mod = args[0];
 	Entity *init;
 
+	yuiRandInit();
 	init = yeCreateArray(NULL, NULL);
 	YEntityBlock {
 		init.name = "8086";

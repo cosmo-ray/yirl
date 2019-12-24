@@ -1,4 +1,3 @@
-
 DEF(ADD, "add", separated_string)
 DEF(SUB, "sub", separated_string)
 DEF(MOV, "mov", separated_string)
@@ -28,12 +27,14 @@ DEF(RET, "ret", separated_string)
 DEF(TEST, "test", separated_string)
 DEF(LOOP, "loop", separated_string)
 DEF(SHR, "shr", separated_string)
+DEF(SHL, "shl", separated_string)
 DEF(OR, "or", separated_string)
 DEF(AND, "and", separated_string)
 DEF(TIMES, "times", separated_string)
 DEF(DB, "db", separated_string)
 
 DEF(YIRL_DEBUG, "YIRL_DEBUG", separated_string)
+DEF(YIRL_REFRESH, "YIRL_REFRESH", separated_string)
 
 DEF(WORD, "word", separated_string)
 DEF(BYTE, "byte", separated_string)
@@ -65,6 +66,8 @@ DEF(DH, "dh", separated_string)
 
 DEF(OPEN_BRACKET, "[", string)
 DEF(CLOSE_BRACKET, "]", string)
+DEF(OPEN_PARENTESIS, "(", string)
+DEF(CLOSE_PARENTESIS, ")", string)
 DEF(COLON, ":", string)
 DEF(SEMI_COLON, ";", string)
 DEF(COMMA, ",", string)

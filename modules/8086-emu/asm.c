@@ -154,7 +154,6 @@ static int check_math(int base, int *op)
 		int num = skip_next_num();
 		num = check_math(num, NULL);
 		if (op) {
-			printf("n op\n");
 			*op = ADD;
 			return num;
 		}
@@ -210,10 +209,12 @@ static int assign_dest(union instructions *inst, int idx)
 		return -1;
 	}
 reg_word:
-	inst->info[idx].flag |= IS_WORD;
+	if (!inst->info[idx].flag)
+		inst->info[idx].flag |= IS_WORD;
 	goto reg;
 reg_byte:
-	inst->info[idx].flag |= IS_BYTE;
+	if (!inst->info[idx].flag)
+		inst->info[idx].flag |= IS_BYTE;
 reg:
 	return 0;
 }
@@ -248,7 +249,6 @@ static void mk_args(union instructions *insts, int inst_pos,
 	next_no_space();
 	insts[inst_pos].info[0] = (struct inst_param){0};
 	insts[inst_pos].info[1] = (struct inst_param){0};
-	printf("init: %d\n", insts[inst_pos].info[0].reg);
 	if (cur_tok == BYTE_T || cur_tok == WORD_T) {
 		int what = cur_tok == BYTE_T ? IS_BYTE : IS_WORD;
 
@@ -358,7 +358,7 @@ void *call_asm(int nbArgs, void **args)
 			union instructions *d_info = NULL;
 			do {
 				cur_tok = next();
-				if (cur_tok == YIRL_DEBUG_T) {
+				if (cur_tok == YIRL_REFRESH_T) {
 					gen_jum(insts, inst_pos, inst_size,
 						&&yirl_rend);
 					++inst_pos;
@@ -376,7 +376,6 @@ void *call_asm(int nbArgs, void **args)
 				}
 				if (d_info && cur_tok == OPEN_BRACKET_T) {
 					parse_debug_bracket(d_info);
-					printf("OUT %d!\n", d_info->info[0].flag);
 					d_info = NULL;
 				}
 			} while (cur_tok != YTOK_END && cur_tok != RETURN_T);
@@ -405,11 +404,7 @@ void *call_asm(int nbArgs, void **args)
 
 				}
 				yeCreateInt(num, consts, yeGetString(lab_name));
-				printf("-------\npush const %d at %s\n-------\n",
-				       num,
-				       yeGetString(lab_name));
 			}
-			printf("w: '%s'", yeGetString(lab_name));
 			continue;
 		}
 
@@ -425,6 +420,16 @@ void *call_asm(int nbArgs, void **args)
 			++inst_pos;
 		} else if (cur_tok == MOV_T) {
 			gen_jum(insts, inst_pos, inst_size, &&mov);
+			++inst_pos;
+			mk_args(insts, inst_pos, consts, 0);
+			++inst_pos;
+		} else if (cur_tok == SHR_T) {
+			gen_jum(insts, inst_pos, inst_size, &&rshift);
+			++inst_pos;
+			mk_args(insts, inst_pos, consts, 0);
+			++inst_pos;
+		} else if (cur_tok == SHL_T) {
+			gen_jum(insts, inst_pos, inst_size, &&lshift);
 			++inst_pos;
 			mk_args(insts, inst_pos, consts, 0);
 			++inst_pos;
@@ -450,11 +455,39 @@ void *call_asm(int nbArgs, void **args)
 			++inst_pos;
 			mk_args(insts, inst_pos, consts, 0);
 			++inst_pos;
+		} else if (cur_tok == OR_T) {
+			gen_jum(insts, inst_pos, inst_size, &&or);
+			++inst_pos;
+			mk_args(insts, inst_pos, consts, 0);
+			++inst_pos;
 		} else if (cur_tok == INT_T) {
 			gen_jum(insts, inst_pos, inst_size, &&interupt);
 			++inst_pos;
 			next_no_space();
 			insts[inst_pos].info[0].constant = parse_num();
+			++inst_pos;
+		} else if (cur_tok == IN_T) {
+			gen_jum(insts, inst_pos, inst_size, &&in);
+			++inst_pos;
+			insts[inst_pos].info[0] = (struct inst_param){0};
+			next_no_space();
+			assign_dest(&insts[inst_pos], 0);
+			next_no_space();
+			skip(COMMA_T);
+			skip(OPEN_PARENTESIS_T);
+			insts[inst_pos].info[1].constant = parse_num();
+			next_no_space();
+			skip(CLOSE_PARENTESIS_T);
+			++inst_pos;
+		} else if (cur_tok == AND_T) {
+			gen_jum(insts, inst_pos, inst_size, &&and);
+			++inst_pos;
+			mk_args(insts, inst_pos, consts, 0);
+			++inst_pos;
+		} else if (cur_tok == TEST_T) {
+			gen_jum(insts, inst_pos, inst_size, &&test);
+			++inst_pos;
+			mk_args(insts, inst_pos, consts, 0);
 			++inst_pos;
 		} else if (cur_tok == CMP_T) {
 			gen_jum(insts, inst_pos, inst_size, &&cmp);
@@ -544,17 +577,32 @@ void *call_asm(int nbArgs, void **args)
 			fail("can't find label: %s", l_name);
 		insts[inst_i].info[0].constant = yeGetIntDirect(jmp_dest);
 	}
-	printf("hummm ? %d\n", inst_pos);
 	inst_pos = 0;
-	printf("now time to do real job !!!!!\n%d %p %p\n",
-	       inst_pos, insts[inst_pos].label, &&add);
 	NEXT_INST(insts, inst_pos);
 
+in:
+	{
+		int port = insts[inst_pos + 1].info[1].constant;
+		if (port == 0x40) {
+			int r0 = insts[inst_pos + 1].info[0].reg;
+
+			if (r0 < AL_T) {
+				uint16_t *d = &regs.buf_16[r0 - AX_T];
+
+				*d = yuiRand();
+			} else {
+				uint8_t *d = &regs.buf_8[r0 - AL_T];
+
+				*d = yuiRand();
+			}
+		}
+		inst_pos += 2;
+		NEXT_INST(insts, inst_pos);
+	}
 interupt:
 	{
 		int int_nb = insts[inst_pos + 1].info[0].constant;
 
-		printf("int 0x%x\n", int_nb);
 		switch (int_nb) {
 		case 0x10:
 			printf("new video mode %d\n", regs.ax);
@@ -569,19 +617,15 @@ interupt:
 			for (;events; events = ywidNextEve(events)) {
 				if (ywidEveType(events) == YKEY_DOWN) {
 					result = ywidEveKey(events);
-					printf("INPUT %d - %d\n",
-					       ywidEveKey(events), regs.ah);
 					/* don't consume events if ah unset */
 					/* TODO: I should set a flag too */
 					if (!regs.ah) {
-						printf("consume eve\n");
 						events = ywidNextEve(events);
 					}
 					break;
 				}
 			}
 			regs.al = result;
-			printf("input: %d\n", regs.al);
 			break;
 		case 0x1a:
 			/* 18.5 hz is a computer tick, and 18.2 hz == 54945 us */
@@ -645,7 +689,7 @@ stosb:
 	NEXT_INST(insts, inst_pos);
 stosw:
 	write_word(state, regs.di + (regs.ds << 4), regs.ax);
-	if (regs.flag & DIR_FLAG)
+	if (!(regs.flag & DIR_FLAG))
 		regs.di += 2;
 	else
 		regs.di -= 2;
@@ -691,7 +735,6 @@ jnz:
 		inst_pos += 2;
 	NEXT_INST(insts, inst_pos);
 jz:
-	printf("jz %d\n", result);
 	if (!result)
 		inst_pos = insts[inst_pos + 1].info[0].constant;
 	else
@@ -725,9 +768,38 @@ push:
 	++stack_idx;
 	++inst_pos;
 	NEXT_INST(insts, inst_pos);
+
+lshift:
+	++inst_pos;
+#define OPERATION = *d <<
+#include "asm-inst.h"
+	++inst_pos;
+	NEXT_INST(insts, inst_pos);
+rshift:
+	++inst_pos;
+#define OPERATION = *d >>
+#include "asm-inst.h"
+	++inst_pos;
+	NEXT_INST(insts, inst_pos);
+
+test:
+	++inst_pos;
+#define COPY 1
+#define OTHER_CHECK 1
+#define OPERATION &=
+#include "asm-inst.h"
+	++inst_pos;
+	NEXT_INST(insts, inst_pos);
+and:
+	++inst_pos;
+#define OTHER_CHECK 1
+#define OPERATION &=
+#include "asm-inst.h"
+	++inst_pos;
+	NEXT_INST(insts, inst_pos);
 cmp:
 	++inst_pos;
-#define COPY
+#define COPY 1
 #define CHECK_SUB 1
 #define OPERATION -=
 #include "asm-inst.h"
@@ -753,6 +825,14 @@ mov:
 #include "asm-inst.h"
 	++inst_pos;
 	NEXT_INST(insts, inst_pos);
+or:
+	++inst_pos;
+#define OTHER_CHECK 1
+#define OPERATION |=
+#include "asm-inst.h"
+	++inst_pos;
+	NEXT_INST(insts, inst_pos);
+
 xor:
 	++inst_pos;
 #define OTHER_CHECK 1
@@ -762,9 +842,7 @@ xor:
 	NEXT_INST(insts, inst_pos);
 
 quit:
-	printf("out\n");
 	free(insts);
 	ygTerminate();
-	printf("really out\n");
 	return (void *)ACTION;
 }
