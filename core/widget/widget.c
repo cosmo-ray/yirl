@@ -445,8 +445,8 @@ YWidgetState *ywidNewWidget(Entity *entity, const char *type)
 			if (yuiStrEqual0(type,
 					 yeGetStringAt(tmpType, "name"))) {
 				YWidgetState *ret =
-					yesCall(yeGet(tmpType,
-						      "callback"), entity);
+					yesCall(yeGet(tmpType, "callback"),
+						entity, tmpType);
 
 				if (!ret) {
 					DPRINT_ERR("init for type '%s' fail",

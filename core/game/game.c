@@ -189,6 +189,21 @@ static void *nextWid(int nb, union ycall_arg *args, int *types)
 	return (void *)ACTION;
 }
 
+
+static void *proto_maker(int nb, union ycall_arg *args, int *types)
+{
+	Entity *e = args[0].e;
+	Entity *init = args[1].e;
+	Entity *prototype = yeGet(init, "proto");
+	yeAutoFree Entity *patch = yePatchCreate(e, prototype, NULL, NULL);
+
+	printf("proto maker %p %p!\n", e, init);
+	printf("copy: %p %s\n", yeGet(init, "proto"), yeGetStringAt(e, "<type>"));
+	yePatchAplyExt(e, patch, YE_PATCH_NO_SUP);
+	/* yeCopy(prototype, e); */
+	printf("t: %s\n", yeGetStringAt(e, "<type>"));
+	printf("t: %s\n", yeGetStringAt(e, "quit"));
+	return ywidNewWidget(e, NULL);
 }
 
 static void *setInt(int nb, union ycall_arg *args, int *types)
@@ -243,21 +258,24 @@ static void *nextOnKeyDown(int nb, union ycall_arg *args, int *types)
 
 static void addNativeFuncToBaseMod(void)
 {
-  ysRegistreCreateNativeEntity(fullScreenOnOff, "FullScreenOnOff",
-			       baseMod, NULL);
-  ysRegistreCreateNativeEntity(ygTerminateCallback, "FinishGame", baseMod, NULL);
-  ysRegistreCreateNativeEntity(quitOnKeyDown, "QuitOnKeyDown", baseMod, NULL);
-  ysRegistreCreateNativeEntity(nextWid, "callNext", baseMod, NULL);
-  ysRegistreCreateNativeEntity(nextOnKeyDown, "nextOnKeyDown",
-			       baseMod, NULL);
-  ysRegistreCreateNativeEntity(setInt, "setInt", baseMod, NULL);
-  ysRegistreCreateNativeEntity(recreateInt, "recreateInt", baseMod, NULL);
-  ysRegistreCreateNativeEntity(increaseInt, "increaseInt", baseMod, NULL);
-  yeCreateFunctionSimple("menuMove", ysNativeManager(), baseMod);
-  yeCreateFunctionSimple("menuNext", ysNativeManager(), baseMod);
-  yeCreateFunctionSimple("menuActions", ysNativeManager(), baseMod);
-  ygRegistreFunc(ysNativeManager(), 0, "FinishGame", "yFinishGame");
-  ygRegistreFunc(ysNativeManager(), 1, "callNext", "yCallNextWidget");
+	ysRegistreNativeFunc("proto_maker", proto_maker);
+	ysRegistreCreateNativeEntity(fullScreenOnOff, "FullScreenOnOff",
+				     baseMod, NULL);
+	ysRegistreCreateNativeEntity(ygTerminateCallback, "FinishGame",
+				     baseMod, NULL);
+	ysRegistreCreateNativeEntity(quitOnKeyDown, "QuitOnKeyDown", baseMod,
+				     NULL);
+	ysRegistreCreateNativeEntity(nextWid, "callNext", baseMod, NULL);
+	ysRegistreCreateNativeEntity(nextOnKeyDown, "nextOnKeyDown",
+				     baseMod, NULL);
+	ysRegistreCreateNativeEntity(setInt, "setInt", baseMod, NULL);
+	ysRegistreCreateNativeEntity(recreateInt, "recreateInt", baseMod, NULL);
+	ysRegistreCreateNativeEntity(increaseInt, "increaseInt", baseMod, NULL);
+	yeCreateFunctionSimple("menuMove", ysNativeManager(), baseMod);
+	yeCreateFunctionSimple("menuNext", ysNativeManager(), baseMod);
+	yeCreateFunctionSimple("menuActions", ysNativeManager(), baseMod);
+	ygRegistreFunc(ysNativeManager(), 0, "FinishGame", "yFinishGame");
+	ygRegistreFunc(ysNativeManager(), 1, "callNext", "yCallNextWidget");
 }
 
 int ygIsAlive(void)
@@ -511,6 +529,7 @@ Entity *ygLoadMod(const char *path)
 	Entity *preLoad;
 	Entity *initScripts;
 	Entity *name;
+	Entity *prototype;
 
 	YE_NEW(string, tmp_name, "");
 	for (int i = 0; i < 4; ++i) {
@@ -689,6 +708,19 @@ Entity *ygLoadMod(const char *path)
 				yeGetByStr(mod, yeGetString(starting_widget));
 		}
 	}
+
+	if ((prototype = yeGet(mod, "make-prototype"))) {
+		Entity *init = yeCreateArray(NULL, NULL);
+		const char *proto_sc = yeGetString(prototype);
+
+		yeCreateFunction("proto_maker", ysNativeManager(), init,
+			"callback");
+
+		yeCreateString(proto_sc, init, "name");
+		yeCreateCopy(yeGet(mod, proto_sc), init, "proto");
+		ywidAddSubType(init);
+	}
+
 	yePushBack(mod, starting_widget, "$starting widget");
 	printf(" === add module: \"%s\" === \n", yeGetString(name));
 
