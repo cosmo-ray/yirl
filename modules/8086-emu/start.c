@@ -251,7 +251,6 @@ static inline void write_word(struct state_8086 *s, int32_t pos, uint16_t w)
 	/* if w is 0x1234 we need mem[pos] = 0x12 and mem[pos +1] = 0x34 */
 	di->l = w & 0x00ff;
 	di->h = (w & 0xff00) >> 8;
-	/* printf("%x - %x\n", ((union mem *)&mem[pos])->w, w); */
 	(*s).set_mem(s, pos, 2);
 }
 
@@ -294,8 +293,16 @@ void *call_func(int nbArgs, void **args)
 	return (void *)ACTION;
 }
 
+static void clear_state(struct state_8086 *s)
+{
+	memset(&s->mem[0xb8000], 0, 0xfa0);
+	ywCanvasClear(s->e);
+	yeClearArray(s->char_ent_map);
+}
+
 /* I should not include this file, but the way I handle tcc make it hard to use 2 file like I would by calling gcc */
 #include "asm.c"
+
 
 static void destroy_state(void *arg)
 {

@@ -270,10 +270,17 @@ static void mk_args(union instructions *insts, int inst_pos,
 		return;
 	skip(COMMA_T);
 	ret = assign_dest(&insts[inst_pos], 1);
-	if (ret == 1)
+	if (ret == 1) {
 		brace_arg(&insts[inst_pos], constants, 1);
-	else
+	} else if (ret < 0) {
+		Entity *const_v = yeGet(constants, yeTokString(tok_info, cur_tok));
+		if (!const_v)
+			unexpected();
+		insts[inst_pos].info[1].flag |= IS_NUM;
+		insts[inst_pos].info[1].constant = yeGetIntDirect(const_v);
+	} else {
 		next_no_space();
+	}
 
 	do_math(&insts[inst_pos], 1);
 	return;
@@ -300,15 +307,12 @@ static void parse_debug_bracket(union instructions *inst)
 		if (cur_tok == YTOK_WORD) {
 			if (!strcmp(yeTokString(tok_info, cur_tok), "result")) {
 				inst->info[0].flag |= DEBUG_P_RESULT;
-				printf("RESULT %d!\n", inst->info[0].flag);
 			} else if (!strcmp(yeTokString(tok_info, cur_tok),
 					 "registers")) {
 				inst->info[0].flag |= DEBUG_P_ALL_REGS;
-				printf("REGS %d!\n", inst->info[0].flag);
 			} else if (!strcmp(yeTokString(tok_info, cur_tok),
 					 "8registers")) {
 				inst->info[0].flag |= DEBUG_P_ALL_8REGS;
-				printf("REGS %d!\n", inst->info[0].flag);
 			}
 
 		}
@@ -341,6 +345,7 @@ void *call_asm(int nbArgs, void **args)
 	YE_NEW(Array, labels, NULL);
 	YE_NEW(Array, forward_labels, NULL);
 
+	clear_state(state);
 #define DEF(a, b, c) YUI_CAT(DEF_, c)(a, b)
 #define DEF_string(a, b) yeCreateString(b, tok_info, NULL);
 #define DEF_repeater(a, b) yeTokInfoAddRepeated(b, tok_info);
@@ -642,6 +647,7 @@ interupt:
 	}
 yirl_rend:
 	ywidUpdate(state->e);
+	ywidUpdate(ywidGetMainWid()->entity);
 	ywidRend(ywidGetMainWid());
 	inst_pos += 1;
 	NEXT_INST(insts, inst_pos);
@@ -681,7 +687,7 @@ yirl_debug:
 	NEXT_INST(insts, inst_pos);
 stosb:
 	write_byte(state, regs.di + (regs.ds << 4), regs.al);
-	if (regs.flag & DIR_FLAG)
+	if (!(regs.flag & DIR_FLAG))
 		regs.di += 1;
 	else
 		regs.di -= 1;
@@ -843,6 +849,12 @@ xor:
 
 quit:
 	free(insts);
-	ygTerminate();
+	if (yeGet(emu, "quit")) {
+		Entity *call = yeGet(emu, "quit");
+
+		yesCall(call, emu);
+	} else {
+		ygTerminate();
+	}
 	return (void *)ACTION;
 }
