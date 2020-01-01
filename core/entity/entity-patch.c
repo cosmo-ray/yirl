@@ -189,15 +189,20 @@ static void doPatch(Entity *orginalEntity, Entity *patchEntity, Entity *patch)
 Entity *yePatchCreate(Entity *orginalEntity, Entity *patchEntity,
 		      Entity *father, const char *name)
 {
-  if (!orginalEntity || !patchEntity)
-    return NULL;
-  Entity *ret = patchCreate(father, name);
+	if (!orginalEntity || !patchEntity)
+		return NULL;
+	Entity *ret = patchCreate(father, name);
 
-  doPatch(orginalEntity, patchEntity, ret);
-  return ret;
+	doPatch(orginalEntity, patchEntity, ret);
+	return ret;
 }
 
 void yePatchAply(Entity *dest, Entity *patch)
+{
+	yePatchAplyExt(dest, patch, 0);
+}
+
+void yePatchAplyExt(Entity *dest, Entity *patch, uint32_t flag)
 {
   if (yeGetIntAt(patch, YEP_OPERATION) != YEP_MOD)
     return;
@@ -217,7 +222,7 @@ void yePatchAply(Entity *dest, Entity *patch)
 
       if (operation == YEP_ADD || operation == YEP_CHANGE_TYPE) {
 	yeReplaceBack(dest, yeGet(sub_el, YEP_ELEM), key);
-      } else if (operation == YEP_SUP) {
+      } else if (operation == YEP_SUP && !(flag & YE_PATCH_NO_SUP)) {
 	yeRemoveChild(dest, key);
       } else if (operation == YEP_MOD) {
 	Entity *sub_dest = yeGet(dest, key);
@@ -229,7 +234,7 @@ void yePatchAply(Entity *dest, Entity *patch)
 
       if (operation == YEP_ADD || operation == YEP_CHANGE_TYPE) {
 	yePushAt(dest, yeGet(sub_el, YEP_ELEM), idx);
-      } else if (operation == YEP_SUP) {
+      } else if (operation == YEP_SUP && !(flag & YE_PATCH_NO_SUP)) {
 	yeRemoveChild(dest, idx);
       } else if (operation == YEP_MOD) {
 	Entity *sub_dest = yeGet(dest, idx);

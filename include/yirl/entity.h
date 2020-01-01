@@ -1266,6 +1266,10 @@ static inline int yeEqual(Entity *a, Entity *b)
 	return 0;
 }
 
+enum {
+	YE_PATCH_NO_SUP = 1 << 0
+};
+
 /**
  * create an entity that contain a representation of the diference between
  * orginalEntity and patchEntity
@@ -1278,5 +1282,10 @@ Entity *yePatchCreate(Entity *orginalEntity, Entity *patchEntity,
 		      Entity *father, const char *name);
 
 void yePatchAply(Entity *dest, Entity *patch);
+
+/**
+ * if flag is set to YE_PATCH_NO_SUP, no supresions are made
+ */
+void yePatchAplyExt(Entity *dest, Entity *patch, uint32_t flag);
 
 #endif
