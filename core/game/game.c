@@ -197,12 +197,7 @@ static void *proto_maker(int nb, union ycall_arg *args, int *types)
 	Entity *prototype = yeGet(init, "proto");
 	yeAutoFree Entity *patch = yePatchCreate(e, prototype, NULL, NULL);
 
-	printf("proto maker %p %p!\n", e, init);
-	printf("copy: %p %s\n", yeGet(init, "proto"), yeGetStringAt(e, "<type>"));
 	yePatchAplyExt(e, patch, YE_PATCH_NO_SUP);
-	/* yeCopy(prototype, e); */
-	printf("t: %s\n", yeGetStringAt(e, "<type>"));
-	printf("t: %s\n", yeGetStringAt(e, "quit"));
 	return ywidNewWidget(e, NULL);
 }
 
