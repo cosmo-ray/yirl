@@ -275,202 +275,210 @@ static void addNativeFuncToBaseMod(void)
 
 int ygIsAlive(void)
 {
-  return alive;
+	return alive;
 }
 
 int ygIsInit(void)
 {
-  return init;
+	return init;
 }
 
 int ygInit(GameConfig *cfg)
 {
-  static int t;
-  char *path;
+	static int t;
+	char *path;
 
-  /* trick use in case of failure in this function to free all */
-  init = 1;
+	/* trick use in case of failure in this function to free all */
+	init = 1;
 
-  yuiDebugInit();
+	yuiDebugInit();
 
-  /* Init parseurs */
-  yeInitMem();
+	/* Init parseurs */
+	yeInitMem();
 
-  /* Init Game mode if GAMEMODE is set */
-  #ifdef GAMEMOD
-  gamemode_request_start();
-  #endif
+	/* Init Game mode if GAMEMODE is set */
+#ifdef GAMEMOD
+	gamemode_request_start();
+#endif
 
-  globalsFunctions = yeCreateArray(NULL, NULL);
-  CHECK_AND_RET(t = ydJsonInit(), -1, -1,
-		    "json init failed");
-  CHECK_AND_GOTO(jsonManager = ydNewManager(t), NULL, error,
-		    "json init failed");
-  CHECK_AND_GOTO(rawfileManager = ydNewManager(ydRawFileInit()), NULL, error,
-		    "raw-file init failed");
+	globalsFunctions = yeCreateArray(NULL, NULL);
+	CHECK_AND_RET(t = ydJsonInit(), -1, -1,
+		      "json init failed");
+	CHECK_AND_GOTO(jsonManager = ydNewManager(t), NULL, error,
+		       "json init failed");
+	CHECK_AND_GOTO(rawfileManager = ydNewManager(ydRawFileInit()),
+		       NULL, error, "raw-file init failed");
 
   /* Init scripting */
   /* TODO init internal lua function */
-  CHECK_AND_GOTO(t = ysLuaInit(), -1, error, "lua init failed");
-  CHECK_AND_GOTO(luaManager = ysNewManager(NULL, t), NULL, error,
-		    "lua init failed");
-  CHECK_AND_GOTO(yesLuaRegister(luaManager), -1, error, "lua init failed");
+	CHECK_AND_GOTO(t = ysLuaInit(), -1, error, "lua init failed");
+	CHECK_AND_GOTO(luaManager = ysNewManager(NULL, t), NULL, error,
+		       "lua init failed");
+	CHECK_AND_GOTO(yesLuaRegister(luaManager), -1, error,
+		       "lua init failed");
 
-  path = g_strdup_printf("%s%s", ygBinaryRootPath, "/scripts-dependancies/object-wrapper.lua");
-  if (ysLoadFile(luaManager, path) < 0) {
-    DPRINT_WARN("can't load %s: %s", path,
-		ysGetError(luaManager));
-  }
-  g_free(path);
-  CHECK_AND_GOTO(t = ysTccInit(), -1, error, "tcc init failed");
-  CHECK_AND_GOTO(tccManager = ysNewManager(NULL, t), NULL, error,
-		    "tcc init failed");
+	path = g_strdup_printf("%s%s", ygBinaryRootPath,
+			       "/scripts-dependancies/object-wrapper.lua");
+	if (ysLoadFile(luaManager, path) < 0) {
+		DPRINT_WARN("can't load %s: %s", path,
+			    ysGetError(luaManager));
+	}
+	g_free(path);
+	CHECK_AND_GOTO(t = ysTccInit(), -1, error, "tcc init failed");
+	CHECK_AND_GOTO(tccManager = ysNewManager(NULL, t), NULL, error,
+		       "tcc init failed");
 
-  CHECK_AND_GOTO(t = ysS7Init(), -1, error, "s7 init failed");
-  CHECK_AND_GOTO(s7Manager = ysNewManager(NULL, t), NULL, error,
-		    "s7 init failed");
+	CHECK_AND_GOTO(t = ysS7Init(), -1, error, "s7 init failed");
+	CHECK_AND_GOTO(s7Manager = ysNewManager(NULL, t), NULL, error,
+		       "s7 init failed");
 
-  CHECK_AND_GOTO(t = ysDukInit(), -1, error, "Duk init failed");
-  CHECK_AND_GOTO(dukManager = ysNewManager(NULL, t), NULL, error,
-		    "Duk init failed");
+	CHECK_AND_GOTO(t = ysDukInit(), -1, error, "Duk init failed");
+	CHECK_AND_GOTO(dukManager = ysNewManager(NULL, t), NULL, error,
+		       "Duk init failed");
 
-  /* Init widgets */
-  baseMod = yeCreateArray(NULL, NULL);
-  addNativeFuncToBaseMod();
+	/* Init widgets */
+	baseMod = yeCreateArray(NULL, NULL);
+	addNativeFuncToBaseMod();
 
-  if (cfg->win_name)
-    ywidSetWindowName(cfg->win_name);
-  ywidChangeResolution(cfg->w, cfg->h);
+	if (cfg->win_name)
+		ywidSetWindowName(cfg->win_name);
+	ywidChangeResolution(cfg->w, cfg->h);
 
-  for (GList *tmp = cfg->rConf; tmp; tmp = tmp->next) {
-    //TODO check which render to use :)
-    if (yuiStrEqual(TO_RC(tmp->data)->name, "curses")) {
+	for (GList *tmp = cfg->rConf; tmp; tmp = tmp->next) {
+		//TODO check which render to use :)
+		if (yuiStrEqual(TO_RC(tmp->data)->name, "curses")) {
 #if WITH_CURSES == 1
-      ycursInit();
+			ycursInit();
 #endif
-    } else if (yuiStrEqual(TO_RC(tmp->data)->name, "sdl2")) {
+		} else if (yuiStrEqual(TO_RC(tmp->data)->name, "sdl2")) {
 #if WITH_SDL == 1
-      ysdl2Init();
-      ysound_init();
+			ysdl2Init();
+			ysound_init();
 #endif
-    }
-  }
+		}
+	}
 
-  CHECK_AND_GOTO(ywMenuInit(), -1, error, "Menu init failed");
-  CHECK_AND_GOTO(ywMapInit(), -1, error, "Map init failed");
-  CHECK_AND_GOTO(ywTextScreenInit(), -1, error, "Text Screen init failed");
-  CHECK_AND_GOTO(ywContainerInit(), -1, error, "Container init failed");
-  CHECK_AND_GOTO(ywCanvasInit(), -1, error, "Canvas init failed");
+	CHECK_AND_GOTO(ywMenuInit(), -1, error, "Menu init failed");
+	CHECK_AND_GOTO(ywMapInit(), -1, error, "Map init failed");
+	CHECK_AND_GOTO(ywTextScreenInit(), -1, error, "Text Screen init failed");
+	CHECK_AND_GOTO(ywContainerInit(), -1, error, "Container init failed");
+	CHECK_AND_GOTO(ywCanvasInit(), -1, error, "Canvas init failed");
 
-  for (GList *tmp = cfg->rConf; tmp; tmp = tmp->next) {
-    //TODO check which render to use :)
-    if (yuiStrEqual(TO_RC(tmp->data)->name, "curses")) {
+	for (GList *tmp = cfg->rConf; tmp; tmp = tmp->next) {
+		//TODO check which render to use :)
+		if (yuiStrEqual(TO_RC(tmp->data)->name, "curses")) {
 #if WITH_CURSES == 1
-      CHECK_AND_GOTO(ycursRegistreMenu(), -1, error, "Menu init failed");
-      CHECK_AND_GOTO(ycursRegistreTextScreen(), -1, error,
-			"Text Screen init failed");
-      CHECK_AND_GOTO(ycursRegistreMap(), -1, error, "Map init failed");
+			CHECK_AND_GOTO(ycursRegistreMenu(), -1, error,
+				       "Menu init failed");
+			CHECK_AND_GOTO(ycursRegistreTextScreen(), -1, error,
+				       "Text Screen init failed");
+			CHECK_AND_GOTO(ycursRegistreMap(), -1, error,
+				       "Map init failed");
 #else
-      DPRINT_ERR("yirl is not compille with curses support");
+			DPRINT_ERR("yirl is not compille with curses support");
 #endif
 
-    } else if (yuiStrEqual(TO_RC(tmp->data)->name, "sdl2")) {
+		} else if (yuiStrEqual(TO_RC(tmp->data)->name, "sdl2")) {
 #ifdef WITH_SDL
-      CHECK_AND_GOTO(ysdl2RegistreTextScreen(), -1, error,
-			"Text Screen init failed");
-      CHECK_AND_GOTO(ysdl2RegistreMenu(), -1, error, "Menu init failed");
-      CHECK_AND_GOTO(ysdl2RegistreMap(), -1, error, "Map init failed");
-      CHECK_AND_GOTO(ysdl2RegistreCanvas(), -1, error, "Canvas SDL2 init failed");
+			CHECK_AND_GOTO(ysdl2RegistreTextScreen(), -1, error,
+				       "Text Screen init failed");
+			CHECK_AND_GOTO(ysdl2RegistreMenu(), -1, error,
+				       "Menu init failed");
+			CHECK_AND_GOTO(ysdl2RegistreMap(), -1, error,
+				       "Map init failed");
+			CHECK_AND_GOTO(ysdl2RegistreCanvas(), -1, error,
+				       "Canvas SDL2 init failed");
 #else
-      DPRINT_ERR("yirl is not compille with SDL2 support");
+			DPRINT_ERR("yirl is not compille with SDL2 support");
 #endif
 
-    }
-  }
-  modList = yeCreateArray(NULL, NULL);
-  stalked_array = yeCreateArray(NULL, NULL);
+		}
+	}
+	modList = yeCreateArray(NULL, NULL);
+	stalked_array = yeCreateArray(NULL, NULL);
 
-  /* Get Current Path, this comment is useless,
-   * but that small function need more visibility */
-  getcwd(main_dir, PATH_MAX);
+	/* Get Current Path, this comment is useless,
+	 * but that small function need more visibility */
+	getcwd(main_dir, PATH_MAX);
 
-  return 0;
+	return 0;
 error:
-  ygEnd();
-  return -1;
+	ygEnd();
+	return -1;
 }
 
 #undef TO_RC
 
 void ygEnd()
 {
-  if (!init)
-    return;
+	if (!init)
+		return;
 
-  ywidFreeWidgets();
-  ydDestroyManager(jsonManager);
-  ydJsonEnd();
-  ydDestroyManager(rawfileManager);
-  ydRawFileEnd();
-  ywTextScreenEnd();
-  ywMapEnd();
-  ywMenuEnd();
-  ywCanvasEnd();
-  ywContainerEnd();
+	ywidFreeWidgets();
+	ydDestroyManager(jsonManager);
+	ydJsonEnd();
+	ydDestroyManager(rawfileManager);
+	ydRawFileEnd();
+	ywTextScreenEnd();
+	ywMapEnd();
+	ywMenuEnd();
+	ywCanvasEnd();
+	ywContainerEnd();
 #if WITH_CURSES == 1
-  ycursDestroy();
+	ycursDestroy();
 #endif
 #ifdef WITH_SDL
-  ysound_end();
-  ysdl2Destroy();
+	ysound_end();
+	ysdl2Destroy();
 #endif
-  yeDestroy(modList);
-  modList = NULL;
-  ysNativeEnd();
-  ysYBytecodeEnd();
-  ysDestroyManager(tccManager);
-  ysTccEnd();
-  ysDestroyManager(luaManager);
-  ysLuaEnd();
-  ysDestroyManager(s7Manager);
-  ysS7End();
-  ysDestroyManager(dukManager);
-  ysDukEnd();
-  yeDestroy(globalsFunctions);
-  globalsFunctions = NULL;
-  yeDestroy(baseMod);
-  baseMod = NULL;
-  yeDestroy(stalked_array);
-  stalked_array = NULL;
-  yeEnd();
-  free(yProgramArg);
-  yProgramArg = NULL;
-  init = 0;
-  #ifdef GAMEMODE
-  gamemode_request_end();
-  #endif
+	yeDestroy(modList);
+	modList = NULL;
+	ysNativeEnd();
+	ysYBytecodeEnd();
+	ysDestroyManager(tccManager);
+	ysTccEnd();
+	ysDestroyManager(luaManager);
+	ysLuaEnd();
+	ysDestroyManager(s7Manager);
+	ysS7End();
+	ysDestroyManager(dukManager);
+	ysDukEnd();
+	yeDestroy(globalsFunctions);
+	globalsFunctions = NULL;
+	yeDestroy(baseMod);
+	baseMod = NULL;
+	yeDestroy(stalked_array);
+	stalked_array = NULL;
+	yeEnd();
+	free(yProgramArg);
+	yProgramArg = NULL;
+	init = 0;
+#ifdef GAMEMODE
+	gamemode_request_end();
+#endif
 }
 
 int ygRegistreFuncInternal(void *manager, int nbArgs, const char *name,
 			   const char *toRegistre)
 {
-  Entity *func = yeGet(globalsFunctions, name);
+	Entity *func = yeGet(globalsFunctions, name);
 
-  if (!func) {
-    func = yeCreateFunctionExt(name, manager, globalsFunctions, name,
-			       YE_FUNC_NO_FASTPATH_INIT);
-  }
+	if (!func) {
+		func = yeCreateFunctionExt(name, manager, globalsFunctions,
+					   name,
+					   YE_FUNC_NO_FASTPATH_INIT);
+	}
 
-  if (!toRegistre || yuiStrEqual0(name, toRegistre)) {
-    if (manager != tccManager)
-      ysAddFuncSymbole(tccManager, NULL, nbArgs, func);
-    if (manager != luaManager)
-      ysAddFuncSymbole(luaManager, NULL, nbArgs, func);
-  } else {
-    ysAddFuncSymbole(tccManager, toRegistre, nbArgs, func);
-    ysAddFuncSymbole(luaManager, toRegistre, nbArgs, func);
-  }
-  return 0;
+	if (!toRegistre || yuiStrEqual0(name, toRegistre)) {
+		if (manager != tccManager)
+			ysAddFuncSymbole(tccManager, NULL, nbArgs, func);
+		if (manager != luaManager)
+			ysAddFuncSymbole(luaManager, NULL, nbArgs, func);
+	} else {
+		ysAddFuncSymbole(tccManager, toRegistre, nbArgs, func);
+		ysAddFuncSymbole(luaManager, toRegistre, nbArgs, func);
+	}
+	return 0;
 }
 
 int ygModDir(const char * restrict const mod)
