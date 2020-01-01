@@ -84,37 +84,37 @@ char *ygBinaryRootPath = "./";
 
 void *ygDukManager(void)
 {
-  return dukManager;
+	return dukManager;
 }
 
 void *ygS7Manager(void)
 {
-  return s7Manager;
+	return s7Manager;
 }
 
 void *ygGetLuaManager(void)
 {
-  return luaManager;
+	return luaManager;
 }
 
 void *ygGetTccManager(void)
 {
-  return tccManager;
+	return tccManager;
 }
 
 #define CHECK_AND_RET(operation, err_val, ret, fmt, args...) do {	\
-    if ((operation) == (err_val)) {					\
-      DPRINT_ERR(fmt, ## args);						\
-      return (ret);							\
-    }									\
-  } while (0)
+		if ((operation) == (err_val)) {				\
+			DPRINT_ERR(fmt, ## args);			\
+			return (ret);					\
+		}							\
+	} while (0)
 
 #define CHECK_AND_GOTO(operation, err_val, label, fmt, args...) do {    \
-    if ((operation) == (err_val)) {					\
-      DPRINT_ERR(fmt, ## args);						\
-      goto label;							\
-    }									\
-  } while (0)
+		if ((operation) == (err_val)) {				\
+			DPRINT_ERR(fmt, ## args);			\
+			goto label;					\
+		}							\
+	} while (0)
 
 void ygTerminate(void)
 {
@@ -161,32 +161,34 @@ static void *fullScreenOnOff(int nb, union ycall_arg *args, int *types)
 
 static void *nextWid(int nb, union ycall_arg *args, int *types)
 {
-  Entity *wid = args[0].e;
-  Entity *target = args[1].e;
-  Entity *next = yeGet(wid, "next");
+	Entity *wid = args[0].e;
+	Entity *target = args[1].e;
+	Entity *next = yeGet(wid, "next");
 
-  if (nb == 1 || yeType(target) != YSTRING ||
-      !yeGet(target, "<type>")) {
-	  Entity *te = yeGet(wid, "next_target");
+	if (nb == 1 || yeType(target) != YSTRING ||
+	    !yeGet(target, "<type>")) {
+		Entity *te = yeGet(wid, "next_target");
 
-	  if (te)
-		  target = te;
-	  else
-		  target = wid;
-  }
+		if (te)
+			target = te;
+		else
+			target = wid;
+	}
 
-  if (!next) {
-	  if (ywidGetState(target) != ywidGetMainWid()) {
-		  ywRemoveEntryByEntity(ywCntWidgetFather(target), target);
-		  return (void *)ACTION;
-	  }
-	  DPRINT_ERR("unable to get next widget");
-	  return (void *)BUG;
-  }
+	if (!next) {
+		if (ywidGetState(target) != ywidGetMainWid()) {
+			ywRemoveEntryByEntity(ywCntWidgetFather(target), target);
+			return (void *)ACTION;
+		}
+		DPRINT_ERR("unable to get next widget");
+		return (void *)BUG;
+	}
 
-  if (ywidNext(next, target) < 0)
-	  return (void *)BUG;
-  return (void *)ACTION;
+	if (ywidNext(next, target) < 0)
+		return (void *)BUG;
+	return (void *)ACTION;
+}
+
 }
 
 static void *setInt(int nb, union ycall_arg *args, int *types)
