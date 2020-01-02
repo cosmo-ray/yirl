@@ -830,16 +830,6 @@ int	luaywTextureMerge(lua_State *L)
 	return 1;
 }
 
-int	luayeIncrAt(lua_State *L)
-{
-	  if (lua_isstring(L, 2)) {
-		  yeIncrAt(luaEntityAt(L, 1), lua_tostring(L, 2));
-	  } else  {
-		  yeIncrAt(luaEntityAt(L, 1), luaNumberAt(L, 2));
-	  }
-	  return 0;
-}
-
 int	luaYeIncrRef(lua_State *L)
 {
 	yeIncrRef(luaEntityAt(L, 1));
@@ -878,14 +868,6 @@ int	luaNewWidget(lua_State *L)
 {
 	lua_pushlightuserdata(L, ywidNewWidget(luaEntityAt(L, 1),
 					       lua_tostring(L, 2)));
-	return 1;
-}
-
-int	luaCreateFloat(lua_State *L)
-{
-	lua_pushlightuserdata(L, yeCreateFloat(lua_tonumber(L, 1),
-					       luaEntityAt(L, 2),
-					       lua_tostring(L, 3)));
 	return 1;
 }
 
@@ -1091,24 +1073,6 @@ int	luayeGetBoolAt(lua_State *L)
 	return 1;
 }
 
-int	luaGetFloat(lua_State *L)
-{
-	lua_pushnumber(L, yeGetFloat(luaEntityAt(L, 1)));
-	return 1;
-}
-
-int	luaSetFunction(lua_State *L)
-{
-	yeSetFunction(luaEntityAt(L, 1), lua_tostring(L, 2));
-	return 0;
-}
-
-int	luaSetFloat(lua_State *L)
-{
-	yeSetFloat(luaEntityAt(L, 1), lua_tonumber(L, 2));
-	return (0);
-}
-
 int	luayeRemoveChild(lua_State *L)
 {
   if (lua_isstring(L, 2)) {
@@ -1122,13 +1086,6 @@ int	luayeRemoveChild(lua_State *L)
 						 luaEntityAt(L, 2)));
   }
   return (1);
-}
-
-
-int	luaUnsetFunction(lua_State *L)
-{
-	yeUnsetFunction(luaEntityAt(L, 1));
-	return (0);
 }
 
 int	luaYwMapGetIdByElem(lua_State *L)

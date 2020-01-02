@@ -137,6 +137,12 @@ static inline int make_abort(lua_State *L, ...)
 		BIND_AUTORET(f(luaEntityAt(L, 1)));			\
 	}
 
+#define BIND_S(f, ...)							\
+	static inline int lua##f(lua_State *L)				\
+	{								\
+		BIND_AUTORET(f(lua_tostring(L, 1)));			\
+	}
+
 #define BIND_EEE(f, ...)						\
 	static inline int lua##f(lua_State *L)				\
 	{								\
@@ -148,6 +154,12 @@ static inline int make_abort(lua_State *L, ...)
 	static inline int lua##f(lua_State *L)				\
 	{								\
 		BIND_AUTORET(f(luaEntityAt(L, 1), luaEntityAt(L, 2)));	\
+	}
+
+#define BIND_EF(f, ...)							\
+	static inline int lua##f(lua_State *L)				\
+	{								\
+		BIND_AUTORET(f(luaEntityAt(L, 1), lua_tonumber(L, 2)));	\
 	}
 
 #define BIND_ES(f, ...)							\
@@ -190,6 +202,13 @@ static inline int make_abort(lua_State *L, ...)
 			       luaNumberAt(L, 3)));			\
 	}
 
+#define BIND_EENS(f, ...)						\
+	static inline int lua##f(lua_State *L)				\
+	{								\
+		BIND_AUTORET(f(luaEntityAt(L, 1), luaEntityAt(L, 2),	\
+			       luaNumberAt(L, 3), lua_tostring(L, 4)));	\
+	}
+
 #define BIND_SES(f, ...)							\
 	static inline int lua##f(lua_State *L)				\
 	{								\
@@ -204,32 +223,13 @@ static inline int make_abort(lua_State *L, ...)
 			       lua_tostring(L, 3)));			\
 	}
 
-
-#define BIND_I_I BIND_I
-#define BIND_V_I BIND_I
-
-#define LUA_IMPLEMENT_I_V(func)						\
-	static inline int lua##func(lua_State *L)			\
-	{								\
-		lua_pushnumber(L, func());				\
-		return 1;						\
-	}
-
-#define LUA_IMPLEMENT_I_S(func)						\
-	static inline int lua##func(lua_State *L)			\
-	{								\
-		lua_pushnumber(L, func(lua_tostring(L, 1)));		\
-		return 1;						\
-	}
-
-#define BIND_V_S(f, ...)						\
+#define BIND_FES(f, ...)						\
 	static inline int lua##f(lua_State *L)				\
-	{ f(lua_tostring(L, 1)); return 0; }
+	{								\
+		BIND_AUTORET(f(lua_tonumber(L, 1), luaEntityAt(L, 2),	\
+			       lua_tostring(L, 3)));			\
+	}
 
-
-#define BIND_V_V(f)						\
-	static inline int lua##f(lua_State *L)			\
-	{ f(); return 0; }
 
 #define BIND_I_ECI(f, u0, u1)						\
 	static inline int lua##f(lua_State *L)				\
@@ -237,15 +237,6 @@ static inline int make_abort(lua_State *L, ...)
 		lua_pushnumber(L, f(luaEntityAt(L, 1),			\
 				    lua_tostring(L, 2)[0],		\
 				    lua_tointeger(L, 3)));		\
-		return 1;						\
-	}
-
-#define BIND_V_EENS(f, ...)						\
-	static inline int lua##f(lua_State *L)				\
-	{								\
-		int ret = f(luaEntityAt(L, 1), luaEntityAt(L, 2),	\
-			    luaNumberAt(L, 3), lua_tostring(L, 4));	\
-		lua_pushnumber(L, ret);					\
 		return 1;						\
 	}
 
@@ -309,21 +300,21 @@ int	luayIsNil(lua_State *l);
 int	luayIsNNil(lua_State *l);
 
 /* util */
-LUA_IMPLEMENT_I_V(yuiRand);
-BIND_V_V(yuiRandInit);
-BIND_I_I(yuiAbs);
-BIND_V_S(yuiMkdir);
-BIND_V_I(yuiUsleep);
-LUA_IMPLEMENT_I_S(yuiFileExist);
+BIND_V(yuiRand);
+BIND_V(yuiRandInit);
+BIND_I(yuiAbs);
+BIND_S(yuiMkdir);
+BIND_I(yuiUsleep);
+BIND_S(yuiFileExist);
 
 /* Array */
 int	luaGet(lua_State *L);
-BIND_I_E(yeLen);
+BIND_E(yeLen);
 BIND_ES(yeCreateArray);
-BIND_E_E(yePopBack);
+BIND_E(yePopBack);
 BIND_EES(yePushBack);
 BIND_EEI(yePushAt);
-BIND_V_EENS(yeInsertAt);
+BIND_EENS(yeInsertAt);
 BIND_EI(yeGetKeyAt);
 BIND_NONE(yeRemoveChild);
 BIND_V_E(yeDestroy);
@@ -371,25 +362,24 @@ BIND_E(yeGetInt);
 BIND_EI(yeSetInt);
 BIND_NES(yeCreateInt);
 BIND_EK(yeGetIntAt);
-/* int	luayeGetIntAt(lua_State *L); */
-int	luayeIncrAt(lua_State *L);
+BIND_EK(yeIncrAt);
 
 /* float */
-int	luaGetFloat(lua_State *L);
-int	luaSetFloat(lua_State *L);
-int	luaCreateFloat(lua_State *L);
+BIND_E(yeGetFloat);
+BIND_EF(yeSetFloat);
+BIND_FES(yeCreateFloat);
 
 /* Function */
 int     luaCreateFunction(lua_State *L);
-int	luaSetFunction(lua_State *L);
-int	luaUnsetFunction(lua_State *L);
+BIND_ES(yeSetFunction);
+BIND_E(yeUnsetFunction);
 int	luaFunctionNumberArgs(lua_State *L);
 int	luaYesCall(lua_State *L);
 
 /* widgets */
 int	luaSetMainWid(lua_State *L);
 int	luaNewWidget(lua_State *L);
-int	luaWidNext(lua_State *L);
+BIND_EE(ywidNext)
 int	luaAddSubType(lua_State *L);
 int	luaywidAction(lua_State *L);
 int	luaywidTurnTimer(lua_State *L);
@@ -528,19 +518,18 @@ int	luaygSetInt(lua_State *L);
 int	luaygStalk(lua_State *L);
 int	luaygUnstalk(lua_State *L);
 int	luaygReCreateInt(lua_State *L);
-LUA_IMPLEMENT_I_V(ygModDirOut);
-LUA_IMPLEMENT_I_S(ygModDir);
+BIND_V(ygModDirOut);
+BIND_S(ygModDir);
 
-LUA_IMPLEMENT_I_V(yWindowWidth);
-LUA_IMPLEMENT_I_V(yWindowHeight);
-
+BIND_V(yWindowWidth);
+BIND_V(yWindowHeight);
 
 /* Audio */
-LUA_IMPLEMENT_I_S(ySoundLoad)
+BIND_S(ySoundLoad)
 int	luaySoundPlay(lua_State *L);
 int	luaySoundPlayLoop(lua_State *L);
 int	luaySoundStop(lua_State *L);
-LUA_IMPLEMENT_I_S(ySoundMusicLoad)
+BIND_S(ySoundMusicLoad)
 
 /* condition */
 int	luayeCheckCondition(lua_State *L);
@@ -556,12 +545,14 @@ static inline int luaYTimerDestroy(lua_State *L)
 	return 0;
 }
 
+#define BIND(name, ...)				\
+	YES_LUA_REGISTRE_CALL(sm, name);
+
 #define YES_RET_IF_FAIL(OPERATION)		\
   if (OPERATION < 0) return -1;
 
 #define YES_LUA_REGISTRE_CALL(manager, name)	\
   YES_RET_IF_FAIL(ysRegistreFunc(manager,#name, lua##name))
-
 
 #define LUA_SET_INT_GLOBAL(manager, value) do {				\
     lua_pushnumber(((YScriptLua *)manager)->l, value);			\
@@ -790,18 +781,20 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, yeIncrAt);
 
   /* float */
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeGetFloat", luaGetFloat));
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeSetFloat", luaSetFloat));
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeCreateFloat", luaCreateFloat));
+  YES_LUA_REGISTRE_CALL(sm, yeGetFloat);
+  YES_LUA_REGISTRE_CALL(sm, yeSetFloat);
+  YES_LUA_REGISTRE_CALL(sm, yeCreateFloat);
 
   /* functions */
+  YES_LUA_REGISTRE_CALL(sm, yeSetFunction);
+  YES_LUA_REGISTRE_CALL(sm, yeUnsetFunction);
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeCreateFunction", luaCreateFunction));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yesCall", luaYesCall));
 
   /* widgets */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidNewWidget", luaNewWidget));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidSetMainWid", luaSetMainWid));
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidNext", luaWidNext));
+  BIND(ywidNext);
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidAddSubType", luaAddSubType));
   YES_LUA_REGISTRE_CALL(sm, ywidAction);
   YES_LUA_REGISTRE_CALL(sm, ywidTurnTimer);
