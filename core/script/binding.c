@@ -1,32 +1,21 @@
 #ifdef IN_CALL
 #define BIND_NONE	BIND
-#define BIND_V_V(a)	BIND(a,0,0)
-#define BIND_I_V(a)	BIND(a,0,0)
-#define BIND_I_I	BIND
-#define BIND_I_S	BIND
-#define BIND_I_E	BIND
-#define BIND_I_EE	BIND
-#define BIND_S_E	BIND
-#define BIND_E_S	BIND
-#define BIND_V_I	BIND
-#define BIND_V_E	BIND
-#define BIND_V_EI	BIND
-#define BIND_V_EE	BIND
-#define BIND_V_EII	BIND
-#define BIND_E_E	BIND
-#define BIND_E_EE	BIND
-#define BIND_E_ES	BIND
-#define BIND_E_EI	BIND
-#define BIND_B_EE	BIND
-#define BIND_I_EES	BIND
-#define BIND_E_EES	BIND
-#define BIND_B_EES	BIND
-#define BIND_B_EEE	BIND
-#define BIND_E_SEES	BIND
-#define BIND_E_EIIE	BIND
-#define BIND_E_EIIS	BIND
-#define BIND_B_EEEE	BIND
-#define BIND_E_EIIEE    BIND
+#define BIND_V(a)	BIND(a,0,0)
+#define BIND_I	BIND
+#define BIND_S	BIND
+#define BIND_E	BIND
+#define BIND_EE	BIND
+#define BIND_ES	BIND
+#define BIND_EI	BIND
+#define BIND_EE	BIND
+#define BIND_EII	BIND
+#define BIND_EES	BIND
+#define BIND_EEE	BIND
+#define BIND_SEES	BIND
+#define BIND_EIIE	BIND
+#define BIND_EIIS	BIND
+#define BIND_EEEE	BIND
+#define BIND_EIIEE    BIND
 #else
 
 #define PUSH_I_GLOBAL(X)
@@ -40,87 +29,87 @@ BIND_NONE(yeGet, 2, 0);
 BIND_NONE(yeGetIntAt, 2, 0);
 BIND_NONE(yeSetIntAt, 3, 0);
 
-BIND_I_EES(yePushBack, 2, 1);
+BIND_EES(yePushBack, 2, 1);
 
-BIND_E_EES(ywCanvasCreateYTexture, 3, 0);
+BIND_EES(ywCanvasCreateYTexture, 3, 0);
 
-BIND_B_EEEE(ywCanvasCheckCollisions, 2, 2);
+BIND_EEEE(ywCanvasCheckCollisions, 2, 2);
 
-BIND_E_EIIEE(ywCanvasNewImgFromTexture, 4, 1);
+BIND_EIIEE(ywCanvasNewImgFromTexture, 4, 1);
 
-BIND_E_EIIE(ywCanvasNewRect, 2, 2);
-BIND_E_EIIE(ywCanvasNewText, 2, 2);
+BIND_EIIE(ywCanvasNewRect, 2, 2);
+BIND_EIIE(ywCanvasNewText, 2, 2);
 
-BIND_E_EIIS(ywCanvasNewTextByStr, 2, 2);
-BIND_E_EIIS(ywCanvasNewImgByPath, 4, 0);
+BIND_EIIS(ywCanvasNewTextByStr, 2, 2);
+BIND_EIIS(ywCanvasNewImgByPath, 4, 0);
 
-BIND_I_S(ySoundLoad, 1, 0);
-BIND_I_S(ySoundMusicLoad, 1, 0);
+BIND_S(ySoundLoad, 1, 0);
+BIND_S(ySoundMusicLoad, 1, 0);
 
-BIND_I_I(ySoundPlay, 1, 0);
-BIND_I_I(ySoundPause, 1, 0);
-BIND_I_I(ySoundStop, 1, 0);
+BIND_I(ySoundPlay, 1, 0);
+BIND_I(ySoundPause, 1, 0);
+BIND_I(ySoundStop, 1, 0);
 
-BIND_B_EE(yevIsGrpUp, 2, 0);
-BIND_B_EE(yevIsGrpDown, 2, 0);
+BIND_EE(yevIsGrpUp, 2, 0);
+BIND_EE(yevIsGrpDown, 2, 0);
 
-BIND_E_ES(yeStringAdd, 2, 0);
-BIND_E_ES(yeSetString, 2, 0);
+BIND_ES(yeStringAdd, 2, 0);
+BIND_ES(yeSetString, 2, 0);
 
-BIND_E_EI(yeStringAddInt, 2, 0);
-BIND_E_EI(yeStringAddLong, 2, 0);
+BIND_EI(yeStringAddInt, 2, 0);
+BIND_EI(yeStringAddLong, 2, 0);
 
-BIND_E_E(ywCanvasObjPos, 1, 0);
-BIND_E_E(ywidNextEve, 1, 0);
-BIND_E_E(yeIncrRef, 1, 0);
+BIND_E(ywCanvasObjPos, 1, 0);
+BIND_E(ywidNextEve, 1, 0);
+BIND_E(yeIncrRef, 1, 0);
 
-BIND_E_S(ygGet, 1, 0);
+BIND_S(ygGet, 1, 0);
 
-BIND_V_E(ywCanvasDisableWeight, 1, 0);
-BIND_V_E(ywCanvasEnableWeight, 1, 0);
+BIND_E(ywCanvasDisableWeight, 1, 0);
+BIND_E(ywCanvasEnableWeight, 1, 0);
 
-BIND_V_I(ywSetTurnLengthOverwrite, 1, 0);
+BIND_I(ywSetTurnLengthOverwrite, 1, 0);
 
-BIND_V_E(ywPosPrint, 1, 0);
-BIND_V_E(ywSizePrint, 1, 0);
-BIND_V_E(ywCanvasClear, 1, 0);
+BIND_E(ywPosPrint, 1, 0);
+BIND_E(ywSizePrint, 1, 0);
+BIND_E(ywCanvasClear, 1, 0);
 
-BIND_V_EE(ywCanvasStringSet, 2, 0);
-BIND_V_EE(yeRemoveChildByEntity, 2, 0);
-BIND_V_EE(ywCanvasRemoveObj, 2, 0);
+BIND_EE(ywCanvasStringSet, 2, 0);
+BIND_EE(yeRemoveChildByEntity, 2, 0);
+BIND_EE(ywCanvasRemoveObj, 2, 0);
 
 BIND_NONE(yeIncrAt, 2, 0);
 BIND_NONE(yeAddAt, 3, 0);
 
-BIND_S_E(ywPosToString, 1, 0);
-BIND_S_E(ywSizeToString, 1, 0);
-BIND_S_E(ywRectToString, 1, 0);
-BIND_S_E(yeGetString, 1, 0);
+BIND_E(ywPosToString, 1, 0);
+BIND_E(ywSizeToString, 1, 0);
+BIND_E(ywRectToString, 1, 0);
+BIND_E(yeGetString, 1, 0);
 
-BIND_I_EE(ywCanvasForceSize, 2, 0);
+BIND_EE(ywCanvasForceSize, 2, 0);
 
-BIND_I_E(yeRefCount, 1, 0);
-BIND_I_E(yeType, 1, 0);
-BIND_I_E(ywPosY, 1, 0);
-BIND_I_E(ywPosX, 1, 0);
-BIND_I_E(ywidAddSubType, 1, 0);
-BIND_I_E(yeGetInt, 1, 0);
-BIND_I_E(yeLen, 1, 0);
-BIND_I_E(ywidEveKey, 1, 0);
-BIND_I_E(ywidEveType, 1, 0);
+BIND_E(yeRefCount, 1, 0);
+BIND_E(yeType, 1, 0);
+BIND_E(ywPosY, 1, 0);
+BIND_E(ywPosX, 1, 0);
+BIND_E(ywidAddSubType, 1, 0);
+BIND_E(yeGetInt, 1, 0);
+BIND_E(yeLen, 1, 0);
+BIND_E(ywidEveKey, 1, 0);
+BIND_E(ywidEveType, 1, 0);
 
-BIND_V_EI(yeSetInt, 2, 0);
+BIND_EI(yeSetInt, 2, 0);
 
-BIND_V_EII(ywCanvasMoveObjXY, 3, 0);
-BIND_V_EII(ywCanvasObjSetPos, 3, 0);
+BIND_EII(ywCanvasMoveObjXY, 3, 0);
+BIND_EII(ywCanvasObjSetPos, 3, 0);
 
-BIND_I_V(ywGetTurnLengthOverwrite);
-BIND_I_V(yWindowWidth);
-BIND_I_V(yWindowHeight);
-BIND_I_V(ywidGetTurnTimer);
-BIND_I_V(yeEntitiesArraySize);
+BIND_V(ywGetTurnLengthOverwrite);
+BIND_V(yWindowWidth);
+BIND_V(yWindowHeight);
+BIND_V(ywidGetTurnTimer);
+BIND_V(yeEntitiesArraySize);
 
-BIND_E_SEES(ywTextureNewImg, 4, 0);
+BIND_SEES(ywTextureNewImg, 4, 0);
 
 BIND_NONE(yevCreateGrp, 1, 9);
 
@@ -142,34 +131,24 @@ PUSH_I_GLOBAL(YKEY_UP);
 
 PUSH_I_GLOBAL(Y_REQUEST_ANIMATION_FRAME);
 
-#undef BIND_E_EIIEE
-#undef BIND_E_EIIS
-#undef BIND_E_EIIE
-#undef BIND_B_EEEE
-#undef BIND_E_SEES
-#undef BIND_B_EES
-#undef BIND_E_EES
-#undef BIND_I_EES
-#undef BIND_B_EEE
-#undef BIND_V_EII
-#undef BIND_B_EE
-#undef BIND_E_EE
-#undef BIND_E_ES
-#undef BIND_E_EI
-#undef BIND_V_EI
-#undef BIND_V_EE
-#undef BIND_I_EE
+#undef BIND_EIIEE
+#undef BIND_EIIS
+#undef BIND_EIIE
+#undef BIND_EEEE
+#undef BIND_SEES
+#undef BIND_EES
+#undef BIND_EES
+#undef BIND_EES
+#undef BIND_EEE
+#undef BIND_EII
+#undef BIND_EE
+#undef BIND_ES
+#undef BIND_EI
 #undef BIND_NONE
-#undef BIND_V_I
-#undef BIND_V_V
-#undef BIND_V_E
-#undef BIND_E_S
-#undef BIND_S_E
-#undef BIND_I_E
-#undef BIND_I_I
-#undef BIND_I_S
-#undef BIND_E_E
-#undef BIND_I_V
+#undef BIND_I
+#undef BIND_V
+#undef BIND_E
+#undef BIND_S
 #undef PUSH_I_GLOBAL
 #undef PUSH_I_GLOBAL_VAL
 #undef IN_CALL

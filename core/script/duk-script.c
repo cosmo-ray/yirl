@@ -334,137 +334,178 @@ static duk_ret_t dukyeReCreateArray(duk_context *ctx)
 	return 1;
 }
 
-#define BIND_E_EIIEE(f, u0, u1)						\
+#define LUAT(call)				\
+	_Generic(call,				\
+		 default: 0,			\
+		 char *: 1,			\
+		 const char *: 1,		\
+		 Entity *: 1,			\
+		 const Entity *: 1,		\
+		 int: 1,			\
+		 long: 1,			\
+		 _Bool: 1,			\
+		 double: 1,			\
+		 float: 1,			\
+		 unsigned long: 1,		\
+		 unsigned int: 1)
+
+#define VOID_CALL(call)				\
+	_Generic(call,				\
+		 default: NULL,			\
+		 char *: call,			\
+		 const char *: call,		\
+		 Entity *: call,		\
+		 const Entity *: call,		\
+		 _Bool : call,			\
+		 int: call,			\
+		 long: call,			\
+		 double: call,			\
+		 float: call,			\
+		 unsigned long: call,		\
+		 unsigned int: call)
+
+#define BIND_AUTORET(call)						\
+	int t = LUAT(call);						\
+	switch (t) {							\
+	case 0:								\
+		call;							\
+		return 0;						\
+	case 1:								\
+		AUTOPUSH(VOID_CALL(call), ctx);				\
+		break;							\
+	}								\
+	return 1;
+
+static inline int make_abort(duk_context *ctx, ...)
+{
+	abort();
+	return 0;
+}
+
+#define AUTOPUSH(call, ...)				\
+	_Generic(call,					\
+		 default: make_abort,			\
+		 char *: duk_push_string,		\
+		 const char *: duk_push_string,		\
+		 char: duk_push_int,			\
+		 short: duk_push_int,			\
+		 int: duk_push_int,			\
+		 long: duk_push_int,			\
+		 long long: duk_push_int,		\
+		 float: duk_push_number,		\
+		 double: duk_push_number,		\
+		 _Bool: duk_push_boolean,		\
+		 unsigned char: duk_push_int,		\
+		 unsigned short: duk_push_int,		\
+		 unsigned long: duk_push_int,		\
+		 unsigned long long: duk_push_int,	\
+		 Entity *: PUSH_E,			\
+		 const Entity *: PUSH_E,		\
+		 unsigned int: duk_push_int)		\
+	(__VA_ARGS__, call)
+
+
+#define BIND_EIIEE(f, u0, u1)						\
 	static duk_ret_t duk##f(duk_context *ctx) {			\
-		PUSH_E(ctx, f(GET_E(ctx, 0),				\
-			      duk_get_int(ctx, 1),			\
-			      duk_get_int(ctx, 2),			\
-			      GET_E(ctx, 3),				\
-			      GET_E(ctx, 4)));				\
-		return 1;						\
+		BIND_AUTORET(f(GET_E(ctx, 0),				\
+			       duk_get_int(ctx, 1),			\
+			       duk_get_int(ctx, 2),			\
+			       GET_E(ctx, 3),				\
+			       GET_E(ctx, 4)));				\
 	}
 
-#define BIND_E_EIIE(f, u0, u1)						\
+#define BIND_EIIE(f, u0, u1)						\
 	static duk_ret_t duk##f(duk_context *ctx) {			\
-		PUSH_E(ctx, f(GET_E(ctx, 0),				\
-			      duk_get_int(ctx, 1),			\
-			      duk_get_int(ctx, 2),			\
-			      GET_E(ctx, 3)));				\
-		return 1;						\
+		BIND_AUTORET(f(GET_E(ctx, 0),				\
+			       duk_get_int(ctx, 1),			\
+			       duk_get_int(ctx, 2),			\
+			       GET_E(ctx, 3)));				\
+	}
+
+#define BIND_EEEE(f, u0, u1)						\
+	static duk_ret_t duk##f(duk_context *ctx) {			\
+		BIND_AUTORET(f(GET_E(ctx, 0),				\
+			       GET_E(ctx, 1),				\
+			       GET_E(ctx, 2),				\
+			       GET_E(ctx, 3)));				\
 	}
 
 
-#define BIND_E_EIIS(f, u0, u1)			\
+#define BIND_EIIS(f, u0, u1)						\
 	static duk_ret_t duk##f(duk_context *ctx) {			\
-		PUSH_E(ctx, f(GET_E(ctx, 0),				\
+		BIND_AUTORET(f(GET_E(ctx, 0),				\
 			      duk_get_int(ctx, 1),			\
 			      duk_get_int(ctx, 2),			\
 			      duk_get_string(ctx, 3)));			\
-		return 1;						\
 	}
 
-#define BIND_E_EIII(f, u0, u1)						\
+#define BIND_EIII(f, u0, u1)						\
 	static duk_ret_t duk##f(duk_context *ctx) {			\
-		PUSH_E(ctx, f(GET_E(ctx, 0),				\
-			      duk_get_int(ctx, 1),			\
-			      duk_get_int(ctx, 2),			\
-			      duk_get_int(ctx, 3)));			\
-		return 1;						\
+		BIND_AUTORET(f(GET_E(ctx, 0),				\
+			       duk_get_int(ctx, 1),			\
+			       duk_get_int(ctx, 2),			\
+			       duk_get_int(ctx, 3)));			\
 	}
 
-#define BIND_E_SEES(f, u0, u1)						\
+#define BIND_SEES(f, u0, u1)						\
 	static duk_ret_t duk##f(duk_context *ctx) {			\
-		PUSH_E(ctx, f(						\
-			       duk_get_string(ctx, 0),			\
-			       GET_E(ctx, 1),				\
-			       GET_E(ctx, 2),				\
-			       duk_get_string(ctx, 3)			\
-			       ));					\
-		return 1;						\
+		BIND_AUTORET(f(						\
+				     duk_get_string(ctx, 0),		\
+				     GET_E(ctx, 1),			\
+				     GET_E(ctx, 2),			\
+				     duk_get_string(ctx, 3)		\
+				     ));				\
 	}
 
-#define BIND_E_S(x, u0, u1)						\
+#define BIND_EES(f, u0, u1)						\
+	static duk_ret_t duk##f(duk_context *ctx) {			\
+		BIND_AUTORET(f(						\
+				     GET_E(ctx, 0),			\
+				     GET_E(ctx, 1),			\
+				     duk_get_string(ctx, 2)		\
+				     ));				\
+	}
+
+#define BIND_ES(f, u0, u1)						\
+	static duk_ret_t duk##f(duk_context *ctx) {			\
+		BIND_AUTORET(f(GET_E(ctx, 0),				\
+			       duk_get_string(ctx, 1)));		\
+	}
+
+#define BIND_S(x, u0, u1)						\
 	static duk_ret_t duk##x(duk_context *ctx) {			\
-		PUSH_E(ctx, x(duk_get_string(ctx, 0)));			\
-		return 1;						\
+		BIND_AUTORET(x(duk_get_string(ctx, 0)));		\
 	}
 
-#define BIND_V_V(x)						\
+#define BIND_V(x)						\
 	static duk_ret_t duk##x(duk_context *ctx) {		\
-		x();						\
-		return 0;					\
+		BIND_AUTORET(x());				\
 	}
 
-#define BIND_V_I(x, u0, u1)					\
+#define BIND_I(x, u0, u1)					\
 	static duk_ret_t duk##x(duk_context *ctx) {		\
-		x(duk_get_int(ctx, 0));				\
-		return 0;					\
+		BIND_AUTORET(x(duk_get_int(ctx, 0)));		\
 	}
 
-#define BIND_I_V(x)						\
+#define BIND_E(x, u0, u1)					\
 	static duk_ret_t duk##x(duk_context *ctx) {		\
-		duk_push_int(ctx, x());				\
-		return 1;					\
+		BIND_AUTORET(x(GET_E(ctx, 0)));			\
 	}
 
-#define BIND_V_E(x, u0, u1)			\
+#define BIND_EE(x, u0, u1)					\
 	static duk_ret_t duk##x(duk_context *ctx) {		\
-		x(GET_E(ctx, 0));				\
-		return 0;					\
+		BIND_AUTORET(x(GET_E(ctx, 0), GET_E(ctx, 1)));	\
 	}
 
-#define BIND_V_EE(x, u0, u1)					\
+#define BIND_EI(x, u0, u1)					\
 	static duk_ret_t duk##x(duk_context *ctx) {		\
-		x(GET_E(ctx, 0), GET_E(ctx, 1));		\
-		return 0;					\
+		BIND_AUTORET(x(GET_E(ctx, 0), duk_get_int(ctx, 1)));	\
 	}
 
-#define BIND_V_EI(x, u0, u1)					\
-	static duk_ret_t duk##x(duk_context *ctx) {		\
-		x(GET_E(ctx, 0), duk_get_int(ctx, 1));		\
-		return 0;					\
-	}
-
-#define BIND_V_EII(x, u0, u1)						\
+#define BIND_EII(x, u0, u1)						\
 	static duk_ret_t duk##x(duk_context *ctx) {			\
-		x(GET_E(ctx, 0), duk_get_int(ctx, 1), duk_get_int(ctx, 2)); \
-		return 0;						\
-	}
-
-#define BIND_I_E(x, u0, u1)					\
-	static duk_ret_t duk##x(duk_context *ctx) {		\
-		duk_push_int(ctx, x(GET_E(ctx, 0)));		\
-		return 1;					\
-	}
-
-#define BIND_I_EE(x, u0, u1)						\
-	static duk_ret_t duk##x(duk_context *ctx) {			\
-		duk_push_int(ctx, x(GET_E(ctx, 0), GET_E(ctx, 1)));	\
-		return 1;						\
-	}
-
-#define BIND_I_I(x, u0, u1)					\
-	static duk_ret_t duk##x(duk_context *ctx) {		\
-		duk_push_int(ctx, x(duk_get_int(ctx, 0)));	\
-		return 1;					\
-	}
-
-#define BIND_I_S(x, u0, u1)					\
-	static duk_ret_t duk##x(duk_context *ctx) {		\
-		duk_push_int(ctx, x(duk_get_string(ctx, 0)));	\
-		return 1;					\
-	}
-
-#define BIND_S_E(x, u0, u1)					\
-	static duk_ret_t duk##x(duk_context *ctx) {		\
-		duk_push_string(ctx, x(GET_E(ctx, 0)));		\
-		return 1;					\
-	}
-
-#define BIND_E_E(x, u0, u1)			\
-	static duk_ret_t duk##x(duk_context *ctx) {	\
-		PUSH_E(ctx, x(GET_E(ctx, 0)));		\
-		return 1;				\
+		BIND_AUTORET(x(GET_E(ctx, 0), duk_get_int(ctx, 1),	\
+			       duk_get_int(ctx, 2)));			\
 	}
 
 #define DUMB_FUNC(x)						\
@@ -479,15 +520,6 @@ DUMB_FUNC(yevCreateGrp);
 DUMB_FUNC(yeIncrAt);
 DUMB_FUNC(yeAddAt);
 
-#define BIND_E_EE(a, b, c) DUMB_FUNC(a)
-#define BIND_E_ES(a, b, c) DUMB_FUNC(a)
-#define BIND_E_EI(a, b, c) DUMB_FUNC(a)
-#define BIND_B_EE(a, b, c) DUMB_FUNC(a)
-#define BIND_I_EES(a, b, c) DUMB_FUNC(a)
-#define BIND_E_EES(a, b, c) DUMB_FUNC(a)
-#define BIND_B_EES(a, b, c) DUMB_FUNC(a)
-#define BIND_B_EEE(a, b, c) DUMB_FUNC(a)
-#define BIND_B_EEEE(a, b, c) DUMB_FUNC(a)
 #include "binding.c"
 
 static void *call(void *sm, const char *name, int nb, union ycall_arg *args,
