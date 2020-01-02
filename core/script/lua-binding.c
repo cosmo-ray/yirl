@@ -501,7 +501,7 @@ int	luayIsNil(lua_State *l)
 	return 1;
 }
 
-int	luaGet(lua_State *L)
+int	luayeGet(lua_State *L)
 {
 	if (lua_isnumber(L, 2)) {
 		lua_pushlightuserdata(L, yeGetByIdx(luaEntityAt(L, 1),
@@ -519,13 +519,6 @@ int	luaywCanvasRotate(lua_State *L)
 {
   lua_pushnumber(L, ywCanvasRotate(luaEntityAt(L, 1),
 				   lua_tonumber(L, 2)));
-  return 1;
-}
-
-int	luaywCanvasForceSize(lua_State *L)
-{
-  lua_pushnumber(L, ywCanvasForceSize(luaEntityAt(L, 1),
-				      luaEntityAt(L, 2)));
   return 1;
 }
 
@@ -607,24 +600,6 @@ int	luaywCanvasNewImg(lua_State *L)
   return 1;
 }
 
-int	luaywCanvasCreateYTexture(lua_State *L)
-{
-  lua_pushlightuserdata(L, ywCanvasCreateYTexture(lua_touserdata(L, 1),
-						  lua_touserdata(L, 2),
-						  lua_tostring(L, 3)));
-  return 1;
-}
-
-int	luaywCanvasNewImgFromTexture(lua_State *L)
-{
-  lua_pushlightuserdata(L, ywCanvasNewImgFromTexture(luaEntityAt(L, 1),
-						     lua_tonumber(L, 2),
-						     lua_tonumber(L, 3),
-						     luaEntityAt(L, 4),
-						     luaEntityAt(L, 5)));
-  return 1;
-}
-
 int	luaywCanvasNewImgFromTexture(lua_State *L);
 
 int	luaYwCanvasNewObj(lua_State *L)
@@ -678,15 +653,6 @@ int	luaYwCanvasRemoveObj(lua_State *L)
 {
   ywCanvasRemoveObj(luaEntityAt(L, 1), luaEntityAt(L, 2));
   return 0;
-}
-
-int	luaywCanvasCheckCollisions(lua_State *L)
-{
-  lua_pushnumber(L, ywCanvasCheckCollisions(luaEntityAt(L, 1),
-					    luaEntityAt(L, 2),
-					    luaEntityAt(L, 3),
-					    luaEntityAt(L, 4)));
-  return 1;
 }
 
 int	luaywCanvasObjectsCheckColisions(lua_State *L)
@@ -761,15 +727,6 @@ int	luaywCanvasNewRectangle(lua_State *L)
 	return 1;
 }
 
-int luaywCanvasNewRect(lua_State *L)
-{
-	lua_pushlightuserdata(L, ywCanvasNewRect(luaEntityAt(L, 1),
-						 lua_tonumber(L, 2),
-						 lua_tonumber(L, 3),
-						 luaEntityAt(L, 4)));
-	return 1;
-}
-
 int	luaywCanvasPopObj(lua_State *L)
 {
 	ywCanvasPopObj(luaEntityAt(L, 1));
@@ -780,18 +737,6 @@ int	luaywTextureNormalize(lua_State *L)
 {
 	lua_pushnumber(L, ywTextureNormalize(luaEntityAt(L, 1)));
 	return 1;
-}
-
-int	luaywCanvasDisableWeight(lua_State *L)
-{
-	ywCanvasDisableWeight(luaEntityAt(L, 1));
-	return 0;
-}
-
-int	luaywCanvasEnableWeight(lua_State *L)
-{
-	ywCanvasEnableWeight(luaEntityAt(L, 1));
-	return 0;
 }
 
 int	luaywCanvasSetWeight(lua_State *L)
@@ -809,15 +754,6 @@ int	luaywCanvasDoPathfinding(lua_State *L)
 						luaEntityAt(L, 3),
 						luaEntityAt(L, 4),
 						luaEntityAt(L, 5)));
-	return 1;
-}
-
-int	luaywTextureNewImg(lua_State *L)
-{
-	lua_pushlightuserdata(L, ywTextureNewImg(lua_tostring(L, 1),
-						 luaEntityAt(L, 2),
-						 luaEntityAt(L, 3),
-						 lua_tostring(L, 4)));
 	return 1;
 }
 
@@ -874,18 +810,6 @@ int	luaNewWidget(lua_State *L)
 int	luaySoundPlayLoop(lua_State *L)
 {
 	lua_pushnumber(L, ySoundPlayLoop(luaNumberAt(L, 1)));
-	return 1;
-}
-
-int	luaySoundPlay(lua_State *L)
-{
-	lua_pushnumber(L, ySoundPlay(luaNumberAt(L, 1)));
-	return 1;
-}
-
-int	luaySoundStop(lua_State *L)
-{
-	lua_pushnumber(L, ySoundStop(luaNumberAt(L, 1)));
 	return 1;
 }
 
@@ -1068,7 +992,7 @@ int	luayeToLower(lua_State *L)
 
 int	luayeGetBoolAt(lua_State *L)
 {
-	luaGet(L);
+	luayeGet(L);
 	lua_pushboolean(L, yeGetInt(lua_touserdata(L, lua_gettop(L))));
 	return 1;
 }
@@ -1197,18 +1121,6 @@ int	luaywPosAngle(lua_State *L)
 	return 1;
 }
 
-int	luaywPosX(lua_State *L)
-{
-	lua_pushnumber(L, ywPosX(luaEntityAt(L, 1)));
-	return 1;
-}
-
-int	luaywPosY(lua_State *L)
-{
-	lua_pushnumber(L, ywPosY(luaEntityAt(L, 1)));
-	return 1;
-}
-
 int	luaywRectW(lua_State *L)
 {
 	lua_pushnumber(L, ywRectW(luaEntityAt(L, 1)));
@@ -1264,18 +1176,6 @@ int	luaywPosCreate(lua_State *L)
 						     0, luaEntityAt(L, 2),
 						     lua_tostring(L, 3)));
 	}
-	return 1;
-}
-
-int	luaywPosPrint(lua_State *L)
-{
-	ywPosPrint(luaEntityAt(L, 1));
-	return 0;
-}
-
-int	luaywPosToString(lua_State *L)
-{
-	lua_pushstring(L, ywPosToString(luaEntityAt(L, 1)));
 	return 1;
 }
 
@@ -1588,10 +1488,15 @@ int	luayeSetAt(lua_State *L)
   return 0;
 }
 
+int	luayeSetIntAt(lua_State *L)
+{
+	return luayeSetAt(L);
+}
+
 int	luayeCheckCondition(lua_State *L)
 {
-  lua_pushboolean(L, yeCheckCondition(luaEntityAt(L, 1)));
-  return 1;
+	lua_pushboolean(L, yeCheckCondition(luaEntityAt(L, 1)));
+	return 1;
 }
 
 int	luaYTimerGet(lua_State *L)

@@ -26,6 +26,7 @@
 #include "game.h"
 #include "container.h"
 #include "canvas.h"
+#include "texture.h"
 #include <lualib.h>
 #include <lauxlib.h>
 
@@ -111,7 +112,7 @@ static inline int make_abort(lua_State *L, ...)
 		 unsigned int: lua_pushnumber)		\
 	(__VA_ARGS__, call)
 
-#define BIND_NONE(f, ...)			\
+#define BIND_FAKE(f, ...)			\
 	int lua##f(lua_State *L);
 
 #define BIND_I(f, ...)							\
@@ -120,9 +121,34 @@ static inline int make_abort(lua_State *L, ...)
 		BIND_AUTORET(f(luaNumberAt(L, 1)));			\
 	}
 
-#define BIND_E_E BIND_E
-#define BIND_V_E BIND_E
-#define BIND_I_E BIND_E
+#define BIND_EIIEE(f, ...)						\
+	static inline int lua##f(lua_State *L)				\
+	{								\
+		BIND_AUTORET(f(luaEntityAt(L, 1), luaNumberAt(L, 2),	\
+			       luaNumberAt(L, 3), luaEntityAt(L, 4),\
+			       luaEntityAt(L, 5)));		    \
+	}
+
+#define BIND_EIIE(f, ...)						\
+	static inline int lua##f(lua_State *L)				\
+	{								\
+		BIND_AUTORET(f(luaEntityAt(L, 1), luaNumberAt(L, 2),	\
+			       luaNumberAt(L, 3), luaEntityAt(L, 4)));	\
+	}
+
+#define BIND_EIIS(f, ...)						\
+	static inline int lua##f(lua_State *L)				\
+	{								\
+		BIND_AUTORET(f(luaEntityAt(L, 1), luaNumberAt(L, 2),	\
+			       luaNumberAt(L, 3), lua_tostring(L, 4)));	\
+	}
+
+#define BIND_EII(f, ...)						\
+	static inline int lua##f(lua_State *L)				\
+	{								\
+		BIND_AUTORET(f(luaEntityAt(L, 1), luaNumberAt(L, 2),	\
+			       luaNumberAt(L, 3)));	\
+	}
 
 #define BIND_V(f)							\
 	static inline int lua##f(lua_State *L)				\
@@ -141,6 +167,13 @@ static inline int make_abort(lua_State *L, ...)
 	static inline int lua##f(lua_State *L)				\
 	{								\
 		BIND_AUTORET(f(lua_tostring(L, 1)));			\
+	}
+
+#define BIND_EEEE(f, ...)						\
+	static inline int lua##f(lua_State *L)				\
+	{								\
+		BIND_AUTORET(f(luaEntityAt(L, 1), luaEntityAt(L, 2),	\
+			       luaEntityAt(L, 3), luaEntityAt(L, 4)));	\
 	}
 
 #define BIND_EEE(f, ...)						\
@@ -202,21 +235,29 @@ static inline int make_abort(lua_State *L, ...)
 			       luaNumberAt(L, 3)));			\
 	}
 
-#define BIND_EENS(f, ...)						\
+#define BIND_EEIS(f, ...)						\
 	static inline int lua##f(lua_State *L)				\
 	{								\
 		BIND_AUTORET(f(luaEntityAt(L, 1), luaEntityAt(L, 2),	\
 			       luaNumberAt(L, 3), lua_tostring(L, 4)));	\
 	}
 
-#define BIND_SES(f, ...)							\
+
+#define BIND_SEES(f, ...)						\
+	static inline int lua##f(lua_State *L)				\
+	{								\
+		BIND_AUTORET(f(lua_tostring(L, 1), luaEntityAt(L, 2),	\
+			       luaEntityAt(L, 3), lua_tostring(L, 4)));	\
+	}
+
+#define BIND_SES(f, ...)						\
 	static inline int lua##f(lua_State *L)				\
 	{								\
 		BIND_AUTORET(f(lua_tostring(L, 1), luaEntityAt(L, 2),	\
 			       lua_tostring(L, 3)));			\
 	}
 
-#define BIND_NES(f, ...)						\
+#define BIND_IES(f, ...)						\
 	static inline int lua##f(lua_State *L)				\
 	{								\
 		BIND_AUTORET(f(luaNumberAt(L, 1), luaEntityAt(L, 2),	\
@@ -253,6 +294,20 @@ static inline int make_abort(lua_State *L, ...)
 		return 0;						\
 	}
 
+#define BIND_EKI(f, ...)						\
+	static inline int lua##f(lua_State *L)				\
+	{								\
+		int t = luaOrEntType(L, 2);				\
+		if (t == YLUA_FLOAT || t == YLUA_INT) {			\
+			BIND_AUTORET(f(luaEntityAt(L, 1), luaNumberAt(L, 2), \
+				       luaNumberAt(L, 3)));		\
+		} else if (t == YLUA_STR) {				\
+			BIND_AUTORET(f(luaEntityAt(L, 1), lua_tostring(L, 2), \
+				       luaNumberAt(L, 3)));		\
+		}							\
+		abort(); /*should never be here so abort*/		\
+		return 0;						\
+	}
 
 /* Lua Utils */
 int luaOrEntType(lua_State *L, int i);
@@ -308,17 +363,15 @@ BIND_I(yuiUsleep);
 BIND_S(yuiFileExist);
 
 /* Array */
-int	luaGet(lua_State *L);
-BIND_E(yeLen);
+int	luayeGet(lua_State *L);
 BIND_ES(yeCreateArray);
 BIND_E(yePopBack);
-BIND_EES(yePushBack);
 BIND_EEI(yePushAt);
-BIND_EENS(yeInsertAt);
+BIND_EEIS(yeInsertAt);
 BIND_EI(yeGetKeyAt);
-BIND_NONE(yeRemoveChild);
-BIND_V_E(yeDestroy);
-BIND_NONE(yeSetAt);
+BIND_FAKE(yeRemoveChild);
+BIND_E(yeDestroy);
+BIND_FAKE(yeSetAt);
 BIND_EEE(yeReplace);
 BIND_EES(yeReplaceBack);
 BIND_EEI(yeReplaceAtIdx);
@@ -327,17 +380,13 @@ BIND_EIS(yeRenameIdxStr);
 BIND_EES(yeGetPush);
 BIND_EE(yeDoesInclude);
 BIND_ES(yeTryCreateArray);
-BIND_V_E(yeClearArray);
+BIND_E(yeClearArray);
 
 /* Entity */
 BIND_EE(yeCopy);
-BIND_E(yeType);
 int	luaYeToLuaString(lua_State *L);
-BIND_E(yeIncrRef);
-BIND_V(yeEntitiesArraySize);
 BIND_V(yeFreeEntitiesInStack);
 BIND_V(yeEntitiesUsed);
-BIND_E(yeRefCount);
 BIND_EI(yeConvert);
 BIND_EEES(yePatchCreate);
 BIND_EE(yePatchAply);
@@ -347,22 +396,19 @@ BIND_ES(yeFindString);
 int	luayeGetBoolAt(lua_State *L);
 
 /* string */
-BIND_E(yeGetString);
 BIND_SES(yeCreateString);
-BIND_ES(yeSetString);
 BIND_EES(yeCreateYirlFmtString);
 int	luayeStrCaseCmp(lua_State *L);
 int	luayeToLower(lua_State *L);
 BIND_ES(yeStringAddNl);
-BIND_ES(yeStringAdd);
 BIND_I_ECI(yeCountCharacters, bla, bla);
 
 /* int */
-BIND_E(yeGetInt);
-BIND_EI(yeSetInt);
-BIND_NES(yeCreateInt);
+int	luayeSetIntAt(lua_State *L);
+BIND_IES(yeCreateInt);
 BIND_EK(yeGetIntAt);
 BIND_EK(yeIncrAt);
+BIND_EKI(yeAddAt);
 
 /* float */
 BIND_E(yeGetFloat);
@@ -383,8 +429,8 @@ BIND_EE(ywidNext)
 int	luaAddSubType(lua_State *L);
 int	luaywidAction(lua_State *L);
 int	luaywidTurnTimer(lua_State *L);
-BIND_I_E(ywHeight);
-BIND_I_E(ywWidth);
+BIND_E(ywHeight);
+BIND_E(ywWidth);
 
 /* event */
 int	luaWidNextEve(lua_State *L);
@@ -395,12 +441,10 @@ int	luaywidEveMousePos(lua_State *L);
 
 BIND_EI(yevIsKeyDown);
 BIND_EI(yevIsKeyUp);
-BIND_E_E(yevMousePos);
+BIND_E(yevMousePos);
 int	luayevMouseDown(lua_State *L);
 int	luayevCheckKeys(lua_State *L);
 int	luayevCreateGrp(lua_State *L);
-BIND_EE(yevIsGrpDown);
-BIND_EE(yevIsGrpUp);
 
 /* rect */
 int	luaYwRectCreate(lua_State *L);
@@ -415,10 +459,6 @@ int	luaywPosIsSameX(lua_State *L);
 int	luaywPosIsSameY(lua_State *L);
 int	luaywPosIsSame(lua_State *L);
 int	luaywPosAdd(lua_State *L);
-int	luaywPosPrint(lua_State *L);
-int	luaywPosToString(lua_State *L);
-int	luaywPosX(lua_State *L);
-int	luaywPosY(lua_State *L);
 int	luaywPosAngle(lua_State *L);
 int	luaywPosMoveToward2(lua_State *L);
 BIND_EE(ywPosDistance);
@@ -468,35 +508,25 @@ int	luaYwCanvasNewText(lua_State *L);
 int	luaywCanvasNewTextExt(lua_State *L);
 int	luaYwCanvasObjSetResourceId(lua_State *L);
 int	luaywCanvasObjClearCache(lua_State *L);
-int	luaywCanvasNewRect(lua_State *L);
 int	luaywCanvasNewRectangle(lua_State *L);
-int	luaywCanvasCheckCollisions(lua_State *L);
 int	luaywCanvasNewCollisionsArrayExt(lua_State *L);
 int	luaywCanvasNewImg(lua_State *L);
 int	luaywCanvasMoveObj(lua_State *L);
 int	luaywCanvasAdvenceObj(lua_State *L);
 int	luaywCanvasSwapObj(lua_State *L);
-int	luaywCanvasForceSize(lua_State *L);
 int	luaywCanvasRotate(lua_State *L);
 int	luaywCanvasObjPointTopTo(lua_State *L);
 int	luaywCanvasObjPointRightTo(lua_State *L);
 int	luaywCanvasObjIsOut(lua_State *L);
 int	luaywCanvasObjectsCheckColisions(lua_State *L);
 int	luaywCanvasPopObj(lua_State *L);
-int	luaywCanvasCreateYTexture(lua_State *L);
-int	luaywCanvasNewImgFromTexture(lua_State *L);
 int	luaywCanvasSetWeight(lua_State *L);
-int	luaywCanvasDisableWeight(lua_State *L);
-int	luaywCanvasEnableWeight(lua_State *L);
 int	luaywCanvasDoPathfinding(lua_State *L);
 BIND_EE(ywCanvasCheckColisionsRectObj);
-BIND_EE(ywCanvasStringSet);
-BIND_V_E(ywCanvasClear, 0, 0);
 BIND_EEE(ywCanvasProjectedColisionArray);
 BIND_EEE(ywCanvasProjectedArColisionArray);
 
 /* texture */
-int	luaywTextureNewImg(lua_State *L);
 int	luaywTextureMerge(lua_State *L);
 int	luaywTextureNormalize(lua_State *L);
 
@@ -521,15 +551,8 @@ int	luaygReCreateInt(lua_State *L);
 BIND_V(ygModDirOut);
 BIND_S(ygModDir);
 
-BIND_V(yWindowWidth);
-BIND_V(yWindowHeight);
-
 /* Audio */
-BIND_S(ySoundLoad)
-int	luaySoundPlay(lua_State *L);
 int	luaySoundPlayLoop(lua_State *L);
-int	luaySoundStop(lua_State *L);
-BIND_S(ySoundMusicLoad)
 
 /* condition */
 int	luayeCheckCondition(lua_State *L);
@@ -545,8 +568,11 @@ static inline int luaYTimerDestroy(lua_State *L)
 	return 0;
 }
 
+/* auto generate call */
+#include "binding.c"
+
 #define BIND(name, ...)				\
-	YES_LUA_REGISTRE_CALL(sm, name);
+	YES_RET_IF_FAIL(ysRegistreFunc(sm, #name, lua##name))
 
 #define YES_RET_IF_FAIL(OPERATION)		\
   if (OPERATION < 0) return -1;
@@ -563,6 +589,12 @@ static inline int luaYTimerDestroy(lua_State *L)
     lua_pushnumber(((YScriptLua *)manager)->l, val);			\
     lua_setglobal(((YScriptLua *)manager)->l, #key);			\
   } while (0)
+
+#define PUSH_I_GLOBAL(glob)			\
+	LUA_SET_INT_GLOBAL(sm, glob)
+
+#define PUSH_I_GLOBAL_VAL(glob, v)		\
+	LUA_SET_INT_GLOBAL_VAL(sm, glob, v)
 
 static inline int	yesLuaRegister(void *sm)
 {
@@ -722,11 +754,8 @@ static inline int	yesLuaRegister(void *sm)
 
 
   /*array*/
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeGet", luaGet));
   YES_LUA_REGISTRE_CALL(sm, yeGetKeyAt);
-  YES_LUA_REGISTRE_CALL(sm, yeLen);
   YES_LUA_REGISTRE_CALL(sm, yeCreateArray);
-  YES_LUA_REGISTRE_CALL(sm, yePushBack);
   YES_LUA_REGISTRE_CALL(sm, yePopBack);
   YES_LUA_REGISTRE_CALL(sm, yePushAt);
   YES_LUA_REGISTRE_CALL(sm, yeInsertAt);
@@ -744,14 +773,10 @@ static inline int	yesLuaRegister(void *sm)
 
   /* Entity */
   YES_LUA_REGISTRE_CALL(sm, yeCopy);
-  YES_LUA_REGISTRE_CALL(sm, yeType);
   YES_LUA_REGISTRE_CALL(sm, yeSetAt);
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeToLuaString", luaYeToLuaString));
-  YES_LUA_REGISTRE_CALL(sm, yeIncrRef);
-  YES_LUA_REGISTRE_CALL(sm, yeEntitiesArraySize);
   YES_LUA_REGISTRE_CALL(sm, yeEntitiesUsed);
   YES_LUA_REGISTRE_CALL(sm, yeFreeEntitiesInStack);
-  YES_LUA_REGISTRE_CALL(sm, yeRefCount);
   YES_LUA_REGISTRE_CALL(sm, yeConvert);
   YES_LUA_REGISTRE_CALL(sm, yePatchCreate);
   YES_LUA_REGISTRE_CALL(sm, yePatchAply);
@@ -763,19 +788,14 @@ static inline int	yesLuaRegister(void *sm)
 
 
 /* string */
-  YES_LUA_REGISTRE_CALL(sm, yeGetString);
-  YES_LUA_REGISTRE_CALL(sm, yeSetString);
   YES_LUA_REGISTRE_CALL(sm, yeCreateString);
   YES_LUA_REGISTRE_CALL(sm, yeCreateYirlFmtString);
   YES_LUA_REGISTRE_CALL(sm, yeStrCaseCmp);
   YES_LUA_REGISTRE_CALL(sm, yeToLower);
   YES_LUA_REGISTRE_CALL(sm, yeStringAddNl);
-  YES_LUA_REGISTRE_CALL(sm, yeStringAdd);
   YES_LUA_REGISTRE_CALL(sm, yeCountCharacters);
 
   /* int */
-  YES_LUA_REGISTRE_CALL(sm, yeGetInt);
-  YES_LUA_REGISTRE_CALL(sm, yeSetInt);
   YES_LUA_REGISTRE_CALL(sm, yeCreateInt);
   YES_LUA_REGISTRE_CALL(sm, yeGetIntAt);
   YES_LUA_REGISTRE_CALL(sm, yeIncrAt);
@@ -812,9 +832,6 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, yevMousePos);
   YES_LUA_REGISTRE_CALL(sm, yevMouseDown);
   YES_LUA_REGISTRE_CALL(sm, yevCheckKeys);
-  YES_LUA_REGISTRE_CALL(sm, yevIsGrpDown);
-  YES_LUA_REGISTRE_CALL(sm, yevIsGrpUp);
-  YES_LUA_REGISTRE_CALL(sm, yevCreateGrp);
 
   /* map */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapPosFromInt", luaYwMapPosFromInt));
@@ -863,16 +880,12 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, ywRectCollision);
 
   /* pos */
-  YES_LUA_REGISTRE_CALL(sm, ywPosX);
-  YES_LUA_REGISTRE_CALL(sm, ywPosY);
   YES_LUA_REGISTRE_CALL(sm, ywPosCreate);
   YES_LUA_REGISTRE_CALL(sm, ywPosSet);
   YES_LUA_REGISTRE_CALL(sm, ywPosIsSame);
   YES_LUA_REGISTRE_CALL(sm, ywPosIsSameX);
   YES_LUA_REGISTRE_CALL(sm, ywPosIsSameY);
   YES_LUA_REGISTRE_CALL(sm, ywPosAdd);
-  YES_LUA_REGISTRE_CALL(sm, ywPosPrint);
-  YES_LUA_REGISTRE_CALL(sm, ywPosToString);
   YES_LUA_REGISTRE_CALL(sm, ywPosAngle);
   YES_LUA_REGISTRE_CALL(sm, ywPosMoveToward2);
   YES_LUA_REGISTRE_CALL(sm, ywPosDistance);
@@ -892,7 +905,6 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasNewObj", luaYwCanvasNewObj));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasNewText", luaYwCanvasNewText));
   YES_LUA_REGISTRE_CALL(sm, ywCanvasNewTextExt);
-  YES_LUA_REGISTRE_CALL(sm, ywCanvasNewRect);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasNewRectangle);
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasObjPos", luaYwCanvasObjPos));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasObjSize", luaYwCanvasObjSize));
@@ -907,31 +919,22 @@ static inline int	yesLuaRegister(void *sm)
 				 luaYwCanvasObjSetResourceId));
   YES_LUA_REGISTRE_CALL(sm, ywCanvasObjClearCache);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasNewCollisionsArrayExt);
-  YES_LUA_REGISTRE_CALL(sm, ywCanvasCheckCollisions);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasNewImg);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasMoveObj);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasSwapObj);
-  YES_LUA_REGISTRE_CALL(sm, ywCanvasForceSize);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasRotate);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasObjPointTopTo);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasObjPointRightTo);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasObjIsOut);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasObjectsCheckColisions);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasPopObj);
-  YES_LUA_REGISTRE_CALL(sm, ywCanvasCreateYTexture);
-  YES_LUA_REGISTRE_CALL(sm, ywCanvasNewImgFromTexture);
-  YES_LUA_REGISTRE_CALL(sm, ywCanvasDisableWeight);
-  YES_LUA_REGISTRE_CALL(sm, ywCanvasEnableWeight);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasSetWeight);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasDoPathfinding);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasCheckColisionsRectObj);
-  YES_LUA_REGISTRE_CALL(sm, ywCanvasStringSet);
-  YES_LUA_REGISTRE_CALL(sm, ywCanvasClear);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasProjectedColisionArray);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasProjectedArColisionArray);
 
   /* texture */
-  YES_LUA_REGISTRE_CALL(sm, ywTextureNewImg);
   YES_LUA_REGISTRE_CALL(sm, ywTextureMerge);
   YES_LUA_REGISTRE_CALL(sm, ywTextureNormalize);
 
@@ -948,15 +951,9 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, ygReCreateInt);
   YES_LUA_REGISTRE_CALL(sm, ygModDir);
   YES_LUA_REGISTRE_CALL(sm, ygModDirOut);
-  YES_LUA_REGISTRE_CALL(sm, yWindowWidth);
-  YES_LUA_REGISTRE_CALL(sm, yWindowHeight);
 
   /* Audio */
-  YES_LUA_REGISTRE_CALL(sm, ySoundLoad);
-  YES_LUA_REGISTRE_CALL(sm, ySoundPlay);
   YES_LUA_REGISTRE_CALL(sm, ySoundPlayLoop);
-  YES_LUA_REGISTRE_CALL(sm, ySoundStop);
-  YES_LUA_REGISTRE_CALL(sm, ySoundMusicLoad);
 
   /* Condition */
   YES_LUA_REGISTRE_CALL(sm, yeCheckCondition);
@@ -966,6 +963,10 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, YTimerReset);
   YES_LUA_REGISTRE_CALL(sm, YTimerCreate);
   YES_LUA_REGISTRE_CALL(sm, YTimerDestroy);
+
+#define IN_CALL 1
+#include "binding.c"
+#undef IN_CALL
 
   return 0;
 }

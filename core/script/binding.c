@@ -20,6 +20,7 @@
 
 #define PUSH_I_GLOBAL(X)
 #define PUSH_I_GLOBAL_VAL(X, V)
+
 #define BIND_NONE(a, b, c)
 
 #endif
@@ -38,7 +39,6 @@ BIND_EEEE(ywCanvasCheckCollisions, 2, 2);
 BIND_EIIEE(ywCanvasNewImgFromTexture, 4, 1);
 
 BIND_EIIE(ywCanvasNewRect, 2, 2);
-BIND_EIIE(ywCanvasNewText, 2, 2);
 
 BIND_EIIS(ywCanvasNewTextByStr, 2, 2);
 BIND_EIIS(ywCanvasNewImgByPath, 4, 0);
@@ -101,7 +101,6 @@ BIND_E(ywidEveType, 1, 0);
 BIND_EI(yeSetInt, 2, 0);
 
 BIND_EII(ywCanvasMoveObjXY, 3, 0);
-BIND_EII(ywCanvasObjSetPos, 3, 0);
 
 BIND_V(ywGetTurnLengthOverwrite);
 BIND_V(yWindowWidth);

@@ -519,6 +519,8 @@ DUMB_FUNC(yeGetIntAt);
 DUMB_FUNC(yevCreateGrp);
 DUMB_FUNC(yeIncrAt);
 DUMB_FUNC(yeAddAt);
+BIND_EII(ywCanvasObjSetPos, 3, 0);
+BIND_EIIE(ywCanvasNewText, 2, 2);
 
 #include "binding.c"
 
@@ -614,6 +616,8 @@ static int init(void *sm, void *args)
 	BIND(yjsCall, 0, 0);
 	BIND(yesCall, 0, 0);
 	BIND(yeDestroy, 1, 0);
+	BIND(ywCanvasObjSetPos, 3, 0);
+	BIND(ywCanvasNewText, 2, 2);
 #define IN_CALL 1
 #include "binding.c"
 #undef IN_CALL

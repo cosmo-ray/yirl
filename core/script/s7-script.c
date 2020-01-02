@@ -471,6 +471,9 @@ static s7_pointer s7yevCreateGrp(s7_scheme *s, s7_pointer a)
 	return s7_make_c_object(s, s7m->et, r);
 }
 
+BIND_EII(ywCanvasObjSetPos, 3, 0);
+BIND_EIIE(ywCanvasNewText, 2, 2);
+
 #include "binding.c"
 
 static s7_pointer s7yeSetIntAt(s7_scheme *s, s7_pointer a)
@@ -537,12 +540,14 @@ static int init(void *sm, void *args)
 #define BIND(name, nargs, optargs)					\
 	s7_define_safe_function(s7, #name, s7##name, nargs, optargs, false, "")
 
+	BIND(ywCanvasObjSetPos, 3, 0);
 	BIND(ywidNewWidget, 2, 0);
 	BIND(yeCreateString, 1, 2);
 	BIND(yeCreateInt, 1, 2);
 	BIND(yeCreateFunction, 1, 2);
 	BIND(yeCreateArray, 0, 2);
 	BIND(yesCall, 1, 15);
+	BIND(ywCanvasNewText, 2, 2);
 #define IN_CALL 1
 #include "binding.c"
 #undef IN_CALL
