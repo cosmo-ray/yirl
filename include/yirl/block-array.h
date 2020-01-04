@@ -208,6 +208,11 @@ static inline int8_t *yBlockArraySetGetPtrInternal(BlockArray *ba, size_t pos)
 #define yBlockArrayGetPtr(ba, pos, type)	\
   ((type *)yBlockArrayGetInternal((ba), (pos)))
 
+#define yBlockArrayTryGetPtr(ba, pos, type)	\
+	(yBlockArrayIsSet((*ba), (pos)) ?		\
+	 (type *)yBlockArrayGetInternal((ba), (pos)) :	\
+	 NULL)
+
 #define yBlockArrayGet(ba, pos, type)		\
   (*((type *)yBlockArrayGetInternal((ba), (pos))))
 

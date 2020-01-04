@@ -322,6 +322,7 @@ function Canvas:new_rect(x, y, r, pos)
       local ret = ywCanvasNewRect(self.ent, x, y, r:cent())
       return CanvasObj.wrapp(ret)
    end
+   print("wololo ", r, x, y)
    local ret = ywCanvasNewRect(self.ent, x, y, r:cent())
    return CanvasObj.wrapp(ret)
 end

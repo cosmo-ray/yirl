@@ -10,7 +10,7 @@ local us_per_frm = 130000
 local good_orig_pos = {1, 1}
 local bad_orig_pos = {1, 3}
 local objects = nil
-local combots = Entity.wrapp(ygGet("jrpg-fight.game.combots"))
+local combots = Entity.wrapp(ygGet("jrpg-fight.game.player.combots"))
 local chooseTargetNone = 0
 local chooseTargetLeft = 100
 local chooseTargetRight = 530
@@ -96,7 +96,7 @@ local function new_handler(main, guy, y)
 
    local life = guy.life
    local max_life = guy.max_life
-   print("l ", life, " - ml ", max_life )
+   --print("l ", life, " - ml ", max_life )
    bg_h.life_b0 = canvas:new_rect(50, y - 25,
 				  "rgba: 255 0 30 255",
 				  Pos.new(50, 10).ent).ent
@@ -116,6 +116,7 @@ end
 local time_acc = 0
 
 local function reset_cmb_bar(main, anim, target, cmb_idx)
+   --print(anim.combots)
    local cur_cmb_anim = anim.combots[cmb_idx].anim
    local cur_cmb = anim.combots[cmb_idx].touch
    local tot_bar_len = BAR_PIX_MULT * cur_cmb:len()
@@ -166,10 +167,10 @@ local function reset_cmb_bar(main, anim, target, cmb_idx)
 	 i = i + 1
       end
    end
-   print("Can print loader:", can_print_loader, main.atk_state:to_int(),
-	 target.char.can_guard:to_int())
+   --print("Can print loader:", can_print_loader, main.atk_state:to_int(),
+   --target.char.can_guard:to_int())
 
-   print(anim.combots)
+   --print(anim.combots)
 
 end
 
@@ -331,12 +332,13 @@ local function attackCallback(main, eve)
    end
 
    if can_print_loader then
-      print("can_print_loader:", can_print_loader)
+      print("can_print_loader:", can_print_loader, tot_bar_len * cur_time / tot_time)
       local cmb_bar = Entity.new_array()
 
       cmb_bar[0] = Pos.new(tot_bar_len * cur_time / tot_time, 15).ent
       cmb_bar[1] = "rgba: 0 255 0 50"
       cur_anim.loader_percent = canvas:new_rect(25, 5, cmb_bar).ent
+      ywCanvasSetWeight(canvas.ent, cur_anim.loader_percent, 10);
    end
 end
 
@@ -845,9 +847,9 @@ function newDefaultGuy(guy, name, isEnemy)
       if guy.attack then
 	 cmb = combots[guy.attack:to_string()]
       else
-	 cmb = combots[0]
+	 cmb = combots
       end
-      print("name:", guy.name, name)
+
       guy._combots = {}
       yeCopy(cmb, guy._combots)
       if isEnemy then
