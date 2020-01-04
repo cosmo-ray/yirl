@@ -1218,6 +1218,38 @@ int yeSetFlagByIdx(Entity *array, int idx, int flag);
 					     const char *: yeSetFlagByStr \
 					     )(array, idx, flag)
 
+static inline int yeSwapByIdx(Entity *array, size_t idx0, size_t idx1)
+{
+	if (idx0 >= yeLen(array) || idx1 >= yeLen(array))
+		return -1;
+	if (idx0 == idx1)
+		return 0;
+
+	BlockArray *ba = &YE_TO_ARRAY(array)->values;
+	ArrayEntry *entry0 = yBlockArrayTryGetPtr(ba, idx0, ArrayEntry);
+	ArrayEntry *entry1 = yBlockArrayTryGetPtr(ba, idx1, ArrayEntry);
+
+	if (!entry1 && ! entry0)
+		return 0;
+	if (entry1 && entry0) {
+		YUI_SWAP_PTR(entry0->entity, entry1->entity, Entity *);
+		YUI_SWAP_PTR(entry0->name, entry1->name, char *);
+		return 0;
+	}
+	if (!entry0) {
+		YUI_SWAP_PTR(entry0, entry1, ArrayEntry *);
+		YUI_SWAP_VALUE(idx0, idx1);
+	}
+	if (!entry1) {
+		entry1 = yBlockArraySetGetPtr(ba, idx0, ArrayEntry);
+		entry1->entity = entry0->entity;
+		entry1->name = entry0->name;
+		yBlockArrayUnset(ba, idx0);
+	}
+	return 0;
+}
+
+
 /**
  * @brief	swap @elem0 with @elem1
  * @return	0 on sucess, -1 on error
