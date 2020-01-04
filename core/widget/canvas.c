@@ -169,8 +169,10 @@ static int ywCanvasSetWeightInternal(Entity *wid, Entity *obj, int weight,
 	uint32_t i = 0;
 	Entity *toPush = obj;
 
-	if (s && !s->ywCanHasWeight)
+	if (s && !s->ywCanHasWeight) {
+		yePush(objs, toPush, NULL);
 		goto out;
+	}
 	if (!newObj) {
 		if (yeGetIntAt(obj, "weight") == weight)
 			return 0;
@@ -185,8 +187,19 @@ static int ywCanvasSetWeightInternal(Entity *wid, Entity *obj, int weight,
 		Entity *c_obj = yeGet(objs, i);
 		int c_w;
 
-		if (!c_obj)
-			continue;
+		if (!c_obj) {
+			uint32_t j = i + 1;
+			for (; j < yeLen(objs); ++j) {
+				c_obj = yeGet(objs, j);
+				c_w = yeGetIntAt(c_obj, "weight");
+
+				if (c_obj && weight < c_w) {
+					yePushAt(objs, toPush, i);
+					goto out;
+				}
+			}
+ 			continue;
+		}
 		c_w = yeGetIntAt(c_obj, "weight");
 
 		if (weight < c_w) {
@@ -205,14 +218,13 @@ static int ywCanvasSetWeightInternal(Entity *wid, Entity *obj, int weight,
 		yeIncrRef(c_obj);
 		yePushAt(objs, toPush, i);
 		if (!c_obj) {
-			yeDestroy(toPush);
-			return 0;
+			goto out;
 		}
 		yeDestroy(toPush);
 		toPush = c_obj;
 	}
+	yePushBack(objs, toPush, NULL);
 out:
-	yePush(objs, toPush, NULL);
 	yeDestroy(toPush);
 	return 0;
 }
