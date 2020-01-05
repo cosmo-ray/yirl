@@ -41,7 +41,6 @@ end
 
 function Event.CreateGrp(a, b, c, d, e)
    local ret = nil
-   print(a, b, c, d, e)
    if b == nil then
       ret = yevCreateGrp(nil, a)
    elseif c == nil then
@@ -51,9 +50,7 @@ function Event.CreateGrp(a, b, c, d, e)
    elseif e == nil then
       ret = yevCreateGrp(nil, a, b, c, d)
    end
-   print(ret, yeLen(ret), yeGetIntAt(ret, 1))
    ret = Entity._wrapp_(ret, true)
-   print(ret)
    return ret
 end
 
@@ -322,7 +319,6 @@ function Canvas:new_rect(x, y, r, pos)
       local ret = ywCanvasNewRect(self.ent, x, y, r:cent())
       return CanvasObj.wrapp(ret)
    end
-   print("wololo ", r, x, y)
    local ret = ywCanvasNewRect(self.ent, x, y, r:cent())
    return CanvasObj.wrapp(ret)
 end
