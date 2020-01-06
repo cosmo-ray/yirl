@@ -285,6 +285,10 @@ function CanvasObj.wrapp(ent)
    return ret
 end
 
+function Canvas:cent()
+   return self.ent:cent()
+end
+
 function Canvas:pop_back()
    ywCanvasPopObj(self.ent:cent())
 end
@@ -368,6 +372,7 @@ function Canvas.wrapp(ent)
    ret.remove=Canvas.remove
    ret.is_out=Canvas.is_out
    ret.pop_back = Canvas.pop_back
+   ret.cent=Canvas.cent
    return ret
 end
 
