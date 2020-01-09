@@ -17,6 +17,8 @@ local chooseTargetRight = 530
 local chooseTargetY = 1
 local chooseTargetFunc = nil
 
+local cur_player = 0
+
 local enemy_idx = 0
 local enemies_not_on_screen = 0
 
@@ -63,9 +65,9 @@ local function  rm_handler(main, h)
    canvas:remove(h.canvas)
 end
 
-local function new_handler(main, guy, y)
+local function new_handler(main, guy, y, x, orig)
    local canvas = getCanvas(main)
-   local guy = newDefaultGuy(guy, "the bad", true)
+   local guy = newDefaultGuy(guy, true)
    local bg_h = nil
 
    if guy.sprite then
@@ -74,7 +76,7 @@ local function new_handler(main, guy, y)
 
       bg_h = Entity.new_array()
       bg_h.type = SPRITES_T
-      bg_h.canvas = canvas:new_img(50, y, sp.path:to_string(),
+      bg_h.canvas = canvas:new_img(x, y, sp.path:to_string(),
 				   Rect.new(yeGetIntAt(sp, "x"),
 					    yeGetIntAt(sp, "y"),
 					    s, s)):cent()
@@ -88,19 +90,19 @@ local function new_handler(main, guy, y)
       end
    else
       bg_h = Entity.wrapp(ylpcsCreateHandler(guy, canvas.ent))
-      ylpcsHandlerSetOrigXY(bg_h, bad_orig_pos[1], bad_orig_pos[2])
+      ylpcsHandlerSetOrigXY(bg_h, orig[1], orig[2])
       ylpcsHandlerRefresh(bg_h)
-      ylpcsHandlerMove(bg_h, Pos.new(50, y).ent)
+      ylpcsHandlerMove(bg_h, Pos.new(x, y).ent)
       bg_h.type = LPCS_T
    end
 
    local life = guy.life
    local max_life = guy.max_life
    --print("l ", life, " - ml ", max_life )
-   bg_h.life_b0 = canvas:new_rect(50, y - 25,
+   bg_h.life_b0 = canvas:new_rect(x, y - 25,
 				  "rgba: 255 0 30 255",
 				  Pos.new(50, 10).ent).ent
-   bg_h.life_b = canvas:new_rect(50, y - 25,
+   bg_h.life_b = canvas:new_rect(x, y - 25,
 				 "rgba: 0 255 30 255",
 				 Pos.new(50 * life / max_life,
 					 10).ent).ent
@@ -177,6 +179,8 @@ end
 local function attackCallback(main, eve)
    local cur_anim = main.attack_info
    local cur_cmb_idx = cur_anim.cur_cmb:to_int()
+   print(cur_cmb_idx)
+   print("cur_cmb.combots:", cur_anim.combots[cur_cmb_idx]:cent(), cur_cmb_idx)
    local cur_cmb = cur_anim.combots[cur_cmb_idx].touch
    local cur_cmb_anim = cur_anim.combots[cur_cmb_idx].anim
    local canvas = getCanvas(main)
@@ -191,6 +195,7 @@ local function attackCallback(main, eve)
       cur_val_pos = cur_cmb:len() - 1
    end
 
+   print(cur_cmb, cur_val_pos)
    local cur_val = cur_cmb[cur_val_pos]:to_int()
    local can_print_loader = true
    local guy = cur_anim.guy
@@ -458,10 +463,13 @@ function endAnimationAttack(main, cur_anim)
    local guy = cur_anim.guy
    local is_enemy_next = false
    local bad_guys = main.bg_handlers
+   local gg_hs = main.gg_handlers
+   local l_gg_h = yeLen(gg_hs)
    local next_guy = cur_anim.target
    local next_target = guy
    local have_win = true
 
+   print("THIS IS THE END")
    obj:set_pos(bpos)
    bpos = Pos.wrapp(bpos)
    ywCanvasObjSetPos(guy.life_b0, bpos:x(), bpos:y() - 25)
@@ -477,10 +485,21 @@ function endAnimationAttack(main, cur_anim)
       end
       cur_anim.loaders = nil
    end
-   if main.player.life <= 0 then
+   local have_lose = true
+   local players = main.player
+   i = 0
+   while i < yeLen(players) do
+      local p = players[i]
+      if p.life > 0 then
+	 have_lose = false
+      end
+      i = i + 1
+   end
+   if have_lose then
       main.atk_state = ENEMY_WIN
       return
    end
+
    local enemies = main.enemy
    local nb_enemies = yeLen(enemies)
 
@@ -499,7 +518,8 @@ function endAnimationAttack(main, cur_anim)
 		  local y = ywPosY(ylpcsHandePos(bad_guys[screen_idx]))
 
 		  rm_handler(main, bad_guys[screen_idx])
-		  bad_guys[screen_idx] = new_handler(main, enemies[j], y)
+		  bad_guys[screen_idx] = new_handler(main, enemies[j], y, 50,
+						     bad_orig_pos)
 		  print(j, " replace ", i, "enemies left:", enemies_not_on_screen)
 		  enemies[j].screen_idx = screen_idx
 		  enemies[j].on_screen = true
@@ -526,9 +546,14 @@ function endAnimationAttack(main, cur_anim)
       return
    end
 
-   if main.atk_state:to_int() == PJ_ATTACK or
+   if main.atk_state:to_int() == PJ_ATTACK and
+   cur_player < l_gg_h - 1 then
+      print('stuff: ', cur_player, l_gg_h)
+      cur_player = cur_player + 1
+   elseif main.atk_state:to_int() == PJ_ATTACK or
    yeLen(bad_guys) > enemy_idx then
       local all_dead = true
+      cur_player = 0
       while (yeLen(bad_guys) > enemy_idx) do
 	 if bad_guys[enemy_idx].char.life > 0 then
 	    all_dead = false
@@ -537,8 +562,9 @@ function endAnimationAttack(main, cur_anim)
 	 enemy_idx = enemy_idx + 1
       end
       if all_dead == false then
+	 local gg_hs = main.gg_handlers
 	 next_guy = bad_guys[enemy_idx]
-	 next_target = main.gg_handler
+	 next_target = gg_hs[yuiRand() % l_gg_h]
 	 enemy_idx = enemy_idx + 1
 	 is_enemy_next = true
       else
@@ -572,7 +598,11 @@ function endAnimationAttack(main, cur_anim)
       --print(cur_anim.guy.name, cur_anim.target.name)
    else
       print("set orig not enemy next")
-      setOrig(guy, bad_orig_pos[1], bad_orig_pos[2])
+      if cur_player == 0 then
+	 setOrig(guy, bad_orig_pos[1], bad_orig_pos[2])
+      else
+	 setOrig(guy, good_orig_pos[1], good_orig_pos[2])
+      end
       main.atk_state = AWAIT_CMD
    end
 end
@@ -619,6 +649,7 @@ end
 function attack(main, attacker, attacked, mod)
    local anim = mk_anim(main, attacker, attacked)
 
+   print("ATTACK ATTACK ATTACK")
    anim.sucess = false
    anim.combots = attacker.char._combots
    anim.cmb_len = attacker.char._combots:len()
@@ -666,7 +697,8 @@ function fightRecover(entity, eve)
    local main = menuGetMain(entity)
 
    main.atk_state = PJ_ATTACK
-   fightRecoverInternal(main, main.gg_handler, main.bg_handlers[0])
+   fightRecoverInternal(main, main.gg_handlers[cur_player],
+			main.bg_handlers[cur_player])
    return YEVE_ACTION
 end
 
@@ -692,7 +724,7 @@ function useItem(main, user, target)
    if dmg then
       combatDmgInternal(main, target, dmg:to_int())
    end
-   local anime = mk_anim(main, user, main.bg_handlers[0])
+   local anime = mk_anim(main, user, main.bg_handlers[cur_player])
 
    endAnimationAttack(main, anime)
    return YEVE_ACTION
@@ -762,9 +794,9 @@ function chooseTarget(main, eve)
 	 if main.chooseTarget:to_int() == chooseTargetLeft then
 	    target = main.bg_handlers[chooseTargetY - 1]
 	 else
-	    target = main.gg_handler
+	    target = main.gg_handlers[0]
 	 end
-	 chooseTargetFunc(main, main.gg_handler, target)
+	 chooseTargetFunc(main, main.gg_handlers[cur_player], target)
 	 main.atk_state = PJ_ATTACK
 	 goto clean
       end
@@ -839,7 +871,7 @@ function fightItems(entity, func)
    ywPushNewWidget(menuCnt, itemsMenu);
 end
 
-function newDefaultGuy(guy, name, isEnemy)
+function newDefaultGuy(guy, isEnemy)
    local ret = guy
 
    if guy._combots == nil then
@@ -876,6 +908,17 @@ function fightKboum(ent)
    chooseTargetY = 1
 end
 
+function try_mk_array_of_guys(guys)
+   if yIsNil(guys.max_life) then
+      -- ifc max_life is not present, we assume it's an array
+      return guys
+   end
+   local ret = Entity.new_array()
+
+   ret[0] = guys
+   return ret
+end
+
 function fightInit(entity)
    entity = Entity.wrapp(entity)
    entity.action = Entity.new_func("fightAction")
@@ -884,7 +927,6 @@ function fightInit(entity)
    entity.current = 1
    entity["turn-length"] = Y_REQUEST_ANIMATION_FRAME
    entity.entries = {}
-   local good_guy = newDefaultGuy(entity.player, "the good", false)
    entity.atk_state = AWAIT_CMD
    ywTextureNewImg(modPath .. "/explosion.png",
 		   Rect.new(512 + 45, 32, 64, 64).ent,
@@ -915,7 +957,7 @@ function fightInit(entity)
    local ret = ywidNewWidget(entity, "container")
    ywCanvasEnableWeight(canvas)
    local wid_pix = canvas["wid-pix"]
-   entity.gg_handler = nil
+   entity.gg_handlers = nil
    entity.bg_handlers = nil
    local wid_h = wid_pix.h
    local y_start = yeGetInt(entity.ychar_start)
@@ -924,27 +966,34 @@ function fightInit(entity)
    end
    local y_carac = wid_h / 2 + y_start
    local locations = mk_location(wid_h, y_start)
-   ylpcsCreateHandler(good_guy, canvas, entity, "gg_handler")
+
    local bg = ywCanvasNewImg(canvas, 0, 0, modPath .. "BG_City.jpg")
    ywCanvasForceSize(bg, Size.new(ywRectW(wid_pix) + 50,
 				  ywRectH(wid_pix) + 50).ent)
-   ylpcsHandlerSetOrigXY(entity.gg_handler, good_orig_pos[1], good_orig_pos[2])
-   ylpcsHandlerRefresh(entity.gg_handler)
-   ylpcsHandlerMove(entity.gg_handler,
-		    Pos.new(wid_pix.w - 100, y_carac).ent)
+
+   local good_guys = try_mk_array_of_guys(entity.player)
+   entity.player = good_guys
+   local gg_handlers = Entity.new_array(entity, "gg_handlers")
+   entity.gg_handlers = gg_handlers
+
+   local i = 0
+   local nb_gg = yeLen(good_guys)
+   while i < nb_gg do
+      local good_guy = newDefaultGuy(good_guys[i], false)
+      local y = locations[nb_gg][i + 1]
+
+      local gg_h = new_handler(entity, good_guy, y, wid_pix.w - 100,
+			       good_orig_pos)
+      gg_handlers[i] = gg_h
+      i = i + 1
+   end
 
    chooseTargetRight = wid_pix.w - 130
 
-   local bad_guys = entity.enemy
+   local bad_guys = try_mk_array_of_guys(entity.enemy)
+   entity.enemy = bad_guys
 
-   if yIsNil(bad_guys.max_life) == false then
-      bad_guys = Entity.new_array()
-
-      bad_guys[0] = entity.enemy
-      entity.enemy = bad_guys
-   end
-
-   local i = 0
+   i = 0
    local nb_bg = yeLen(bad_guys)
    if nb_bg > 3 then
       enemies_not_on_screen = nb_bg - 3
@@ -955,9 +1004,9 @@ function fightInit(entity)
    canvas = Canvas.wrapp(canvas)
    local bg_handlers = Entity.new_array(entity, "bg_handlers")
    while i < nb_bg do
-      local bad_guy = newDefaultGuy(bad_guys[i], "the bad", true)
+      local bad_guy = newDefaultGuy(bad_guys[i], true)
       local y = locations[nb_bg][i + 1]
-      local bg_h = new_handler(entity, bad_guy, y)
+      local bg_h = new_handler(entity, bad_guy, y, 50, bad_orig_pos)
 
       bad_guy.screen_idx = i
       bad_guy.on_screen = true
@@ -965,16 +1014,8 @@ function fightInit(entity)
       i = i + 1
    end
 
-   local life = good_guy.life
-   local max_life = good_guy.max_life
-   entity.gg_handler.life_b0 = canvas:new_rect(wid_pix.w - 100, y_carac - 25,
-					       "rgba: 255 0 30 255",
-					       Pos.new(50, 10).ent).ent
-   entity.gg_handler.life_b = canvas:new_rect(wid_pix.w - 100, y_carac - 25,
-					       "rgba: 0 255 30 255",
-					       Pos.new(50 * life / max_life,
-						       10).ent).ent
-
+   -- if I want to implement initiative, I need to change it here
+   cur_player = 0
    return ret
 end
 
