@@ -1098,6 +1098,10 @@ int yePushToGlobalScope(Entity *entity, const char *name)
 	return yePushBack(modList, entity, name);
 }
 
+void ygRemoveFromGlobalScope(const char *name)
+{
+	yeRemoveChild(modList, name);
+}
 
 #undef CHECK_AND_GOTO
 #undef CHECK_AND_RET

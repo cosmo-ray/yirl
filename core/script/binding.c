@@ -55,6 +55,7 @@ BIND_EE(yevIsGrpDown, 2, 0);
 
 BIND_ES(yeStringAdd, 2, 0);
 BIND_ES(yeSetString, 2, 0);
+BIND_ES(ygPushToGlobalScope, 2, 0);
 
 BIND_EI(yeStringAddInt, 2, 0);
 BIND_EI(yeStringAddLong, 2, 0);
@@ -64,6 +65,7 @@ BIND_E(ywidNextEve, 1, 0);
 BIND_E(yeIncrRef, 1, 0);
 
 BIND_S(ygGet, 1, 0);
+BIND_S(ygRemoveFromGlobalScope, 1, 0);
 
 BIND_E(ywCanvasDisableWeight, 1, 0);
 BIND_E(ywCanvasEnableWeight, 1, 0);

@@ -190,5 +190,11 @@ int ygModDirOut(void);
  * @param   name mandatory name
  */
 int yePushToGlobalScope(Entity *ent, const char *name);
+static inline int ygPushToGlobalScope(Entity *ent, const char *name)
+{
+	return yePushToGlobalScope(ent, name);
+}
+
+void ygRemoveFromGlobalScope(const char *name);
 
 #endif
