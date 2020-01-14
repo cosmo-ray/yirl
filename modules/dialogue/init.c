@@ -222,7 +222,15 @@ static Entity *getText(Entity *box, Entity *e)
 		return txt;
 	if (!txt) {
 		Entity *condition;
+		Entity *rtext = yeGet(e, "rand-texts");
 		Entity *txts = yeGet(e, "texts");
+
+		if (rtext) {
+			Entity *cur_txt;
+
+			cur_txt = yeGet(rtext, yuiRand() % yeLen(rtext));
+			return cur_txt;
+		}
 
 		YE_ARRAY_FOREACH(txts, cur_txt) {
 			condition =  yeType(cur_txt) == YARRAY ?
