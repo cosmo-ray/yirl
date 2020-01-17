@@ -9,6 +9,7 @@
 #define BIND_EI	BIND
 #define BIND_EE	BIND
 #define BIND_EII	BIND
+#define BIND_EEI	BIND
 #define BIND_EES	BIND
 #define BIND_EEE	BIND
 #define BIND_SEES	BIND
@@ -65,6 +66,8 @@ BIND_E(ywidNextEve, 1, 0);
 BIND_E(yeIncrRef, 1, 0);
 
 BIND_S(ygGet, 1, 0);
+BIND_S(ygGetString, 1, 0);
+BIND_S(ygGetInt, 1, 0);
 BIND_S(ygRemoveFromGlobalScope, 1, 0);
 
 BIND_E(ywCanvasDisableWeight, 1, 0);
@@ -104,6 +107,8 @@ BIND_EI(yeSetInt, 2, 0);
 
 BIND_EII(ywCanvasMoveObjXY, 3, 0);
 
+BIND_EEI(yePatchAplyExt, 2, 1);
+
 BIND_V(ywGetTurnLengthOverwrite);
 BIND_V(yWindowWidth);
 BIND_V(yWindowHeight);
@@ -132,15 +137,16 @@ PUSH_I_GLOBAL(YKEY_UP);
 
 PUSH_I_GLOBAL(Y_REQUEST_ANIMATION_FRAME);
 
+PUSH_I_GLOBAL(YE_PATCH_NO_SUP);
+
 #undef BIND_EIIEE
 #undef BIND_EIIS
 #undef BIND_EIIE
 #undef BIND_EEEE
 #undef BIND_SEES
 #undef BIND_EES
-#undef BIND_EES
-#undef BIND_EES
 #undef BIND_EEE
+#undef BIND_EEI
 #undef BIND_EII
 #undef BIND_EE
 #undef BIND_ES

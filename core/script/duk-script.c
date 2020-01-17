@@ -502,6 +502,12 @@ static inline int make_abort(duk_context *ctx, ...)
 		BIND_AUTORET(x(GET_E(ctx, 0), duk_get_int(ctx, 1)));	\
 	}
 
+#define BIND_EEI(x, ...)						\
+	static duk_ret_t duk##x(duk_context *ctx) {			\
+		BIND_AUTORET(x(GET_E(ctx, 0), GET_E(ctx, 1),		\
+			       duk_get_int(ctx, 2)));			\
+	}
+
 #define BIND_EII(x, u0, u1)						\
 	static duk_ret_t duk##x(duk_context *ctx) {			\
 		BIND_AUTORET(x(GET_E(ctx, 0), duk_get_int(ctx, 1),	\

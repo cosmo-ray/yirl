@@ -157,6 +157,7 @@ void ygReCreateInt(const char *toSet, int val);
 void ygIncreaseInt(const char *toInc, int val);
 
 #define ygGetInt(path) yeGetInt(ygGet(path))
+#define ygGetString(path) yeGetString(ygGet(path))
 
 static inline void ygIntAdd(const char *toSet, int toAdd)
 {
