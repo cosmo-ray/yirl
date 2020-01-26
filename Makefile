@@ -36,6 +36,7 @@ SRC = 	$(SCRIPT_DIR)/lua-script.c \
 	$(ENTITY_DIR)/entity-convertions.c \
 	$(ENTITY_DIR)/entity-patch.c \
 	$(GAME_DIR)/game.c \
+	$(UTIL_DIR)/math.c \
 	$(UTIL_DIR)/util.c \
 	$(UTIL_DIR)/block-array.c \
 	$(UTIL_DIR)/debug.c \

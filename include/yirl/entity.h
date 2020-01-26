@@ -950,12 +950,12 @@ static inline int yeArrayContainEntity(Entity *array, const char *str)
 #define yeAddAt(e, at, toAdd)			\
 	yeAdd(yeGet(e, at), toAdd)
 
-#define yeAdd(e, toAdd)							\
-	_Generic(toAdd, int: yeAddInt,					\
-		 long : yeAddLong,					\
-		 const char *: yeAddStr,				\
-		 char *: yeAddStr,					\
-		 Entity *: yeAddEnt)					\
+#define yeAdd(e, toAdd)				\
+	_Generic(toAdd, int: yeAddInt,		\
+		 long : yeAddLong,		\
+		 const char *: yeAddStr,	\
+		 char *: yeAddStr,		\
+		 Entity *: yeAddEnt)		\
 		(e, toAdd)
 
 int yeArrayContainEntitiesInternal(Entity *entity, ...);

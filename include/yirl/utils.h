@@ -386,4 +386,12 @@ static inline int yuiPercentOf(int value, int percent)
 
 #define yuiUsleep usleep
 
+int yuiLinesIntersect(int x1, int y1, int x2, int y2,
+		      int x3, int y3, int x4, int y4,
+		      int *x, int *y);
+
+int yuiLinesRectIntersect(int x1, int y1, int x2, int y2,
+			  int rx, int ry, int rw, int rh,
+			  int *x, int *y);
+
 #endif

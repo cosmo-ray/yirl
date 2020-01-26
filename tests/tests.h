@@ -20,6 +20,8 @@
 
 #include <glib.h>
 
+void testMaths(void);
+
 void testBlockArray(void);
 
 void testLifecycleSimple(void);
