@@ -44,4 +44,24 @@ void testMaths(void)
 	g_assert(x == 20 && y == 10);
 	g_assert(yuiLinesRectIntersect(0, 10, 25, 10, 1, 1, 20, 20, &x, &y));
 	g_assert(x == 1 && y == 10);
+
+	g_assert(yuiLinesRectIntersect(3807, 3780, 4500, 4500,
+				       3000, 3000, 1000, 1000, &x, &y));
+	g_assert(yuiLinesRectIntersect(4500, 4500, 3807, 3780,
+				       3000, 3000, 1000, 1000, &x, &y));
+
+
+	g_assert(yuiLinesIntersect(3807, 3780, 4500, 4500,
+				   3999, 3000, 3999, 3999, &x, &y));
+	g_assert(yuiLinesIntersect(45, 45, 38, 37,
+				   39, 30, 39, 39, &x, &y));
+	g_assert(yuiLinesIntersect(45, 45, 38, 5,
+				   39, 0, 39, 11, &x, &y));
+	g_assert(yuiLinesRectIntersect(45, 45, 30, 19,
+				       30, 10, 10, 10, &x, &y));
+	g_assert(yuiLinesRectIntersect(450, 450, 300, 190,
+				       300, 100, 100, 100, &x, &y));
+	g_assert(yuiLinesRectIntersect(4500, 4500, 3000, 1900,
+				       3000, 1000, 1000, 1000, &x, &y));
+
 }
