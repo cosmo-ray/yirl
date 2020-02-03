@@ -312,10 +312,11 @@ int ywidHandleEvent(YWidgetState *opac, Entity *event);
 int ywidDoTurn(YWidgetState *opac);
 
 #define ywidGenericCall(wid_, widType, func)				\
-  YUI_FOREACH_BITMASK(widgetOptTab[widType].rendersMask,		\
-		      ywidGenericCallIt, useless_tmask) {		\
-    widgetOptTab[widType].func[ywidGenericCallIt](wid_, ywidGenericCallIt); \
-  }
+	YUI_FOREACH_BITMASK(widgetOptTab[widType].rendersMask,		\
+			    ywidGenericCallIt, useless_tmask) {		\
+		widgetOptTab[widType].func[ywidGenericCallIt]		\
+			(wid_, ywidGenericCallIt);			\
+	}
 
 #define ywidGenericRend(wid_, widType, func)		\
 	do {						\
