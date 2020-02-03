@@ -40,62 +40,62 @@ static inline int64_t ywidGetTurnTimer(void)
 }
 
 typedef enum
-  {
-    YRECALL_INIT = 0,
-    YRESET = 1,
-    YNOTHING = 2,
-  } RecreateLogic;
+{
+	YRECALL_INIT = 0,
+	YRESET = 1,
+	YNOTHING = 2,
+} RecreateLogic;
 
 typedef enum
-  {
-    BUG = -1,
-    NOTHANDLE = 0,
-    NOACTION = 1,
-    ACTION = 2,
-  } InputStatue;
+{
+	BUG = -1,
+	NOTHANDLE = 0,
+	NOACTION = 1,
+	ACTION = 2,
+} InputStatue;
 
 static inline const char *ywidInputStatueToString(InputStatue i)
 {
-  const char *ret[] = {"BUG", "NOTHANDLE", "NOACTION", "ACTION"};
+	const char *ret[] = {"BUG", "NOTHANDLE", "NOACTION", "ACTION"};
 
-  return ret[1 + i];
+	return ret[1 + i];
 }
 
 typedef enum
-  {
-    YKEY_DOWN,
-    YKEY_UP,
-    YKEY_MOUSEDOWN,
-    YKEY_MOUSEWHEEL,
-    YKEY_MOUSEMOTION,
-    YKEY_NONE
-  } EventType;
+{
+	YKEY_DOWN,
+	YKEY_UP,
+	YKEY_MOUSEDOWN,
+	YKEY_MOUSEWHEEL,
+	YKEY_MOUSEMOTION,
+	YKEY_NONE
+} EventType;
 
 typedef enum
-  {
-    BG_BUG = -1,
-    BG_IMG,
-    BG_COLOR
-  } BgType;
+{
+	BG_BUG = -1,
+	BG_IMG,
+	BG_COLOR
+} BgType;
 
 typedef struct {
-  BgType type;
+	BgType type;
 
-  union {
-    struct {
-      uint8_t r;
-      uint8_t g;
-      uint8_t b;
-      uint8_t a;
-    };
+	union {
+		struct {
+			uint8_t r;
+			uint8_t g;
+			uint8_t b;
+			uint8_t a;
+		};
 
-    struct {
-      char *path;
-    };
+		struct {
+			char *path;
+		};
 
-    uint32_t rgba;
+		uint32_t rgba;
 
-  };
+	};
 
 } YBgConf;
 
@@ -149,39 +149,39 @@ static inline void ywidEveSetStatus(Entity *eve, InputStatue is)
 }
 
 typedef struct {
-  void *opac;
+	void *opac;
 } YRenderState;
 
 typedef struct WidgetState_ {
-  Entity *entity;
-  YRenderState renderStates[64];
-  int (*render)(struct WidgetState_ *opac);
-  void (*midRendEnd)(struct WidgetState_ *opac);
-  InputStatue (*handleEvent)(struct WidgetState_ *opac, Entity *event);
-  void (*resize)(struct WidgetState_ *opac);
-  int (*init)(struct WidgetState_ *opac, Entity *entity, void *args);
-  int (*destroy)(struct WidgetState_ *opac);
-  /* callback must be in the global structure
-   * but signals must be in this structure */
-  Entity *signals;
-  int type;
-  int actionIdx;
-  unsigned int hasChange;
+	Entity *entity;
+	YRenderState renderStates[64];
+	int (*render)(struct WidgetState_ *opac);
+	void (*midRendEnd)(struct WidgetState_ *opac);
+	InputStatue (*handleEvent)(struct WidgetState_ *opac, Entity *event);
+	void (*resize)(struct WidgetState_ *opac);
+	int (*init)(struct WidgetState_ *opac, Entity *entity, void *args);
+	int (*destroy)(struct WidgetState_ *opac);
+	/* callback must be in the global structure
+	 * but signals must be in this structure */
+	Entity *signals;
+	int type;
+	int actionIdx;
+	unsigned int hasChange;
 } YWidgetState;
 
 /* struct which define what are common to every rendableWidget of the same type */
 struct widgetOpt {
-  char *name;
-  uint64_t rendersMask;
-  int (*render[MAX_NB_MANAGER])(YWidgetState *wid, int renderType);
-  int (*init[MAX_NB_MANAGER])(YWidgetState *opac, int t);
-  void (*destroy[MAX_NB_MANAGER])(YWidgetState *opac, int t);
+	char *name;
+	uint64_t rendersMask;
+	int (*render[MAX_NB_MANAGER])(YWidgetState *wid, int renderType);
+	int (*init[MAX_NB_MANAGER])(YWidgetState *opac, int t);
+	void (*destroy[MAX_NB_MANAGER])(YWidgetState *opac, int t);
 };
 
 extern struct widgetOpt widgetOptTab[MAX_NB_MANAGER];
 
 #define YEVE_FOREACH(curEve, eve)		\
-  for(curEve = eve; curEve; curEve = ywidNextEve(curEve))
+	for(curEve = eve; curEve; curEve = ywidNextEve(curEve))
 
 #define ywidNextEve(eve)			\
 	(yeGet(eve, YEVE_NEXT))
@@ -278,33 +278,33 @@ static inline void ywidUpdate(Entity *w)
 
 static inline void ywidMidRendEnd(YWidgetState *opac)
 {
-  if (unlikely(!opac))
-    return;
-  if (opac->midRendEnd) {
-    opac->midRendEnd(opac);
-  }
+	if (unlikely(!opac))
+		return;
+	if (opac->midRendEnd) {
+		opac->midRendEnd(opac);
+	}
 }
 
 static inline int ywidSubRend(YWidgetState *opac)
 {
-  int ret = 0;
-  if (opac->render && opac->hasChange) {
-    ret = opac->render(opac);
-    opac->hasChange = 0;
-  }
-  return ret;
+	int ret = 0;
+	if (opac->render && opac->hasChange) {
+		ret = opac->render(opac);
+		opac->hasChange = 0;
+	}
+	return ret;
 }
 
 static inline int ywidRend(YWidgetState *opac)
 {
-  int ret = 0;
-  if (opac->render && (opac->hasChange || yeveWindowGetFocus)) {
-    yeveWindowGetFocus = 0;
-    ret = opac->render(opac);
-    opac->hasChange = 0;
-    ywidDrawScreen();
-  }
-  return ret;
+	int ret = 0;
+	if (opac->render && (opac->hasChange || yeveWindowGetFocus)) {
+		yeveWindowGetFocus = 0;
+		ret = opac->render(opac);
+		opac->hasChange = 0;
+		ywidDrawScreen();
+	}
+	return ret;
 }
 
 int ywidHandleEvent(YWidgetState *opac, Entity *event);
