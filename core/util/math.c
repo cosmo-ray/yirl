@@ -105,13 +105,15 @@ int yuiLinesIntersect(int x1, int y1, int x2, int y2,
 
 int yuiLinesRectIntersect(int x1, int y1, int x2, int y2,
 			  int rx, int ry, int rw, int rh,
-			  int *x, int *y)
+			  int *x, int *y, int *type)
 {
 	int r_x;
 	int r_y;
 	int x_h;
 	int y_h;
+	int wrt, hrt;
 
+	if (type) *type = Y_NO_INTERSECT;
 	if (unlikely(!x || !y)) {
 		DPRINT_ERR("need y and x");
 		return 0;
@@ -121,17 +123,21 @@ int yuiLinesRectIntersect(int x1, int y1, int x2, int y2,
 		r_x = yuiLinesIntersect(x1, y1, x2, y2,
 					rx, ry, rx, ry + rh,
 					x, y);
+ 		wrt = Y_LR_LEFT_INTERSECT;
 	} else {
 		r_x = yuiLinesIntersect(x1, y1, x2, y2, rx + rw,
 					ry, rx + rw, ry + rh, x, y);
+ 		wrt = Y_LR_RIGHT_INTERSECT;
 	}
 
 	if (y1 < ry) {
 		r_y = yuiLinesIntersect(x1, y1, x2, y2,
 					rx, ry, rx + rw, ry, &x_h, &y_h);
+		hrt = Y_LR_UP_INTERSECT;
 	} else {
 		r_y = yuiLinesIntersect(x1, y1, x2, y2,
 					rx, ry + rh, rx + rw, ry + rh, &x_h, &y_h);
+		hrt = Y_LR_DOWN_INTERSECT;
 	}
 
 	/* I want to rename r_y to black, so I could have black rx */
@@ -141,14 +147,18 @@ int yuiLinesRectIntersect(int x1, int y1, int x2, int y2,
 		int h_d = yuiPointsDist(x1, y1, x_h, y_h);
 
 		if (w_d < h_d) {
+			if (type) *type = wrt;
 			return w_d;
 		}
+		if (type) *type = hrt;
 		*x = x_h;
 		*y = y_h;
 		return h_d;
 	} else if (r_x) {
+		if (type) *type = wrt;
 		return yuiPointsDist(x1, y1, *x, *y);
 	} else if (r_y) {
+		if (type) *type = hrt;
 		*x = x_h;
 		*y = y_h;
 		return yuiPointsDist(x1, y1, x_h, y_h);

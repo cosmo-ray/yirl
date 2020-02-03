@@ -392,24 +392,31 @@ int yuiLinesIntersect(int x1, int y1, int x2, int y2,
 		      int *x, int *y);
 
 enum yLineRectIntersect {
+	Y_NO_INTERSECT = 0,
 	Y_LR_UP_INTERSECT = 1,
 	Y_LR_LEFT_INTERSECT = 2,
 	Y_LR_DOWN_INTERSECT = 3,
 	Y_LR_RIGHT_INTERSECT = 4,
 };
 
+static const char *yLineRectIntersectStr[] = {
+	"Y_NO_INTERSECT",
+	"Y_LR_UP_INTERSECT",
+	"Y_LR_LEFT_INTERSECT",
+	"Y_LR_DOWN_INTERSECT",
+	"Y_LR_RIGHT_INTERSECT"
+};
+
 /* return Dist or 0 if no intersect */
 int yuiLinesRectIntersect(int x1, int y1, int x2, int y2,
 			  int rx, int ry, int rw, int rh,
-			  int *x, int *y);
+			  int *x, int *y, int *type);
 
 static inline int yuiPointsDist(int x1, int y1, int x2, int y2)
 {
 	int x = x2 - x1;
 	int y = y2 - y1;
 
-	/* printf("%d %d %d %d %d %d %f\n", x1, y1, x2, y2, */
-	/*        x, y, sqrt(x * x + y * y)); */
 	return sqrt(x * x + y * y);
 }
 
