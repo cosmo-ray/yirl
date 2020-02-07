@@ -420,4 +420,14 @@ static inline int yuiPointsDist(int x1, int y1, int x2, int y2)
 	return sqrt(x * x + y * y);
 }
 
+static inline int yuiTurnX(int x, int y, double r)
+{
+	return x * cos(r) - y * sin(r);
+}
+
+static inline int yuiTurnY(int x, int y, double r)
+{
+	return y * cos(r) - x * sin(r);
+}
+
 #endif
