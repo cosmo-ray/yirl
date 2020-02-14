@@ -204,43 +204,48 @@ void yePatchAply(Entity *dest, Entity *patch)
 
 void yePatchAplyExt(Entity *dest, Entity *patch, uint32_t flag)
 {
-  if (yeGetIntAt(patch, YEP_OPERATION) != YEP_MOD)
-    return;
+	if (yeGetIntAt(patch, YEP_OPERATION) != YEP_MOD)
+		return;
 
-  Entity *elem = yeGet(patch, YEP_ELEM);
-  int t = yeType(elem);
+	Entity *elem = yeGet(patch, YEP_ELEM);
+	int t = yeType(elem);
 
-  if (t == YSTRING || t == YINT || t == YFLOAT) {
-    yeCopy(elem, dest);
-    return;
-  }
-  YE_ARRAY_FOREACH(elem, sub_el) {
-    int operation = yeGetIntAt(sub_el, YEP_OPERATION);
+	if (t == YSTRING || t == YINT || t == YFLOAT) {
+		yeCopy(elem, dest);
+		return;
+	}
+	YE_ARRAY_FOREACH(elem, sub_el) {
+		int operation = yeGetIntAt(sub_el, YEP_OPERATION);
 
-    if (yeType(yeGet(sub_el, YEP_NAME_IDX)) == YSTRING) {
-      const char *key = yeGetStringAt(sub_el, YEP_NAME_IDX);
+		if (yeType(yeGet(sub_el, YEP_NAME_IDX)) == YSTRING) {
+			const char *key = yeGetStringAt(sub_el, YEP_NAME_IDX);
 
-      if (operation == YEP_ADD || operation == YEP_CHANGE_TYPE) {
-	yeReplaceBack(dest, yeGet(sub_el, YEP_ELEM), key);
-      } else if (operation == YEP_SUP && !(flag & YE_PATCH_NO_SUP)) {
-	yeRemoveChild(dest, key);
-      } else if (operation == YEP_MOD) {
-	Entity *sub_dest = yeGet(dest, key);
-	yePatchAply(sub_dest, sub_el);
-      }
+			if (operation == YEP_ADD ||
+			    operation == YEP_CHANGE_TYPE) {
+				yeReplaceBack(dest, yeGet(sub_el, YEP_ELEM),
+					      key);
+			} else if (operation == YEP_SUP &&
+				   !(flag & YE_PATCH_NO_SUP)) {
+				yeRemoveChild(dest, key);
+			} else if (operation == YEP_MOD) {
+				Entity *sub_dest = yeGet(dest, key);
+				yePatchAplyExt(sub_dest, sub_el, flag);
+			}
 
-    } else  {
-      int idx = yeGetIntAt(sub_el, YEP_NAME_IDX);
+		} else  {
+			int idx = yeGetIntAt(sub_el, YEP_NAME_IDX);
 
-      if (operation == YEP_ADD || operation == YEP_CHANGE_TYPE) {
-	yePushAt(dest, yeGet(sub_el, YEP_ELEM), idx);
-      } else if (operation == YEP_SUP && !(flag & YE_PATCH_NO_SUP)) {
-	yeRemoveChild(dest, idx);
-      } else if (operation == YEP_MOD) {
-	Entity *sub_dest = yeGet(dest, idx);
-	yePatchAply(sub_dest, sub_el);
-      }
-    }
-  }
+			if (operation == YEP_ADD ||
+			    operation == YEP_CHANGE_TYPE) {
+				yePushAt(dest, yeGet(sub_el, YEP_ELEM), idx);
+			} else if (operation == YEP_SUP &&
+				   !(flag & YE_PATCH_NO_SUP)) {
+				yeRemoveChild(dest, idx);
+			} else if (operation == YEP_MOD) {
+				Entity *sub_dest = yeGet(dest, idx);
+				yePatchAplyExt(sub_dest, sub_el, flag);
+			}
+		}
+	}
 }
 
