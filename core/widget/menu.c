@@ -112,102 +112,109 @@ static void *nmMenuNext(int nb, union ycall_arg *args, int *types)
 
 static void *mnActions(int nb, union ycall_arg *args, int *types)
 {
-  Entity *wid = args[0].e;
-  Entity *eve = args[1].e;
+	Entity *wid = args[0].e;
+	Entity *eve = args[1].e;
 
-  void *ret = (void *)ywidActions(wid, ywMenuGetCurrentEntry(wid), eve);
-  return ret;
+	void *ret = (void *)ywidActions(wid, ywMenuGetCurrentEntry(wid), eve);
+	return ret;
 }
 
 void ywMenuUp(Entity *wid)
 {
-  nmMenuUp(ywidGetState(wid));
+	nmMenuUp(ywidGetState(wid));
 }
 
 void ywMenuDown(Entity *wid)
 {
-  nmMenuDown(ywidGetState(wid));
+	nmMenuDown(ywidGetState(wid));
 }
 
 static int mnInit(YWidgetState *opac, Entity *entity, void *args)
 {
-  ywidGenericCall(opac, t, init);
+	ywidGenericCall(opac, t, init);
 
-  yeRemoveChildByStr(entity, "move");
-  if (!yeStrCmp(yeGet(entity, "mn-type"), "panel")) {
-    yeCreateFunction("panelMove", ysNativeManager(), entity, "move");
-  } else {
-    yeCreateFunction("menuMove", ysNativeManager(), entity, "move");
-  }
-  ((YMenuState *)opac)->current = yeGetInt(yeGet(entity, "current"));
-  return 0;
+	yeRemoveChildByStr(entity, "move");
+	if (!yeStrCmp(yeGet(entity, "mn-type"), "panel")) {
+		yeCreateFunction("panelMove", ysNativeManager(),
+				 entity, "move");
+	} else {
+		yeCreateFunction("menuMove", ysNativeManager(),
+				 entity, "move");
+	}
+	((YMenuState *)opac)->current = yeGetInt(yeGet(entity, "current"));
+	return 0;
 }
 
 static int mnDestroy(YWidgetState *opac)
 {
-  g_free(opac);
-  return 0;
+	g_free(opac);
+	return 0;
 }
 
 static int mnRend(YWidgetState *opac)
 {
-  ywidGenericRend(opac, t, render);
-  opac->hasChange = 0;
-  return 0;
+	ywidGenericRend(opac, t, render);
+	return 0;
 }
 
 InputStatue ywMenuCallActionOnByEntity(Entity *opac, Entity *event,
 				       int idx)
 {
-  return ywMenuCallActionOnByState(ywidGetState(opac), event, idx);
+	return ywMenuCallActionOnByState(ywidGetState(opac), event, idx);
 }
 
 InputStatue ywMenuCallActionOnByState(YWidgetState *opac, Entity *event,
 				      int idx)
 {
-  InputStatue ret;
+	InputStatue ret;
 
-  if (idx < 0)
-    return NOTHANDLE;
-  ((YMenuState *)opac)->current = idx;
+	if (idx < 0)
+		return NOTHANDLE;
+	((YMenuState *)opac)->current = idx;
 
-  ret = ywidActions(opac->entity, ywMenuGetCurrentEntry(opac->entity), event);
-  if (ret == NOTHANDLE)
-    return NOACTION;
-  return ret;
+	ret = ywidActions(opac->entity, ywMenuGetCurrentEntry(opac->entity),
+			  event);
+	if (ret == NOTHANDLE)
+		return NOACTION;
+	return ret;
 }
 
 static InputStatue mnEvent(YWidgetState *opac, Entity *event)
 {
-  InputStatue ret = NOTHANDLE;
+	InputStatue ret = NOTHANDLE;
 
-  (void)opac;
+	(void)opac;
 
-  if (!event)
-    return NOTHANDLE;
+	if (!event)
+		return NOTHANDLE;
 
-  if (ywidEveType(event) == YKEY_DOWN) {
-    if (ywidEveKey(event) == Y_ESC_KEY) {
-      Entity *onEsc = yeGet(opac->entity, "onEsc");
+	if (ywidEveType(event) == YKEY_DOWN) {
+		if (ywidEveKey(event) == Y_ESC_KEY) {
+			Entity *onEsc = yeGet(opac->entity, "onEsc");
 
-      if (onEsc) {
-	return (InputStatue)yesCall(onEsc, opac->entity,
-				    ((YMenuState *)opac)->current,
-				    ywMenuGetCurrentEntry(opac->entity));
-      }
+			if (onEsc) {
+				return (InputStatue)yesCall(
+					onEsc,
+					opac->entity,
+					((YMenuState *)opac)->current,
+					ywMenuGetCurrentEntry(opac->entity));
+			}
 
-    } else if (ywidEveKey(event) == '\n') {
-      ret = ywMenuCallActionOn(opac, event, ((YMenuState *)opac)->current);
-    } else {
-      ret = (InputStatue)yesCall(yeGet(opac->entity, "move"), opac->entity, event);
-    }
-  } else if (ywidEveType(event) == YKEY_MOUSEDOWN) {
-    ret = ywMenuCallActionOn(opac, event,
-			     ywMenuPosFromPix(opac->entity,
-					      ywPosX(ywidEveMousePos(event)),
-					      ywPosY(ywidEveMousePos(event))));
-  }
-  return ret;
+		} else if (ywidEveKey(event) == '\n') {
+			ret = ywMenuCallActionOn(opac, event,
+						 ((YMenuState *)opac)->current);
+		} else {
+			ret = (InputStatue)yesCall(yeGet(opac->entity, "move"),
+						   opac->entity, event);
+		}
+	} else if (ywidEveType(event) == YKEY_MOUSEDOWN) {
+		ret = ywMenuCallActionOn(
+			opac, event,
+			ywMenuPosFromPix(opac->entity,
+					 ywPosX(ywidEveMousePos(event)),
+					 ywPosY(ywidEveMousePos(event))));
+	}
+	return ret;
 }
 
 
