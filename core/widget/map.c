@@ -382,7 +382,7 @@ static void mapMidRendEnd(YWidgetState *wid)
 
 int ywMapHasChange(YWidgetState *state)
 {
-  return state->hasChange;
+  return 1;
 }
 
 static void *alloc(void)

@@ -228,7 +228,7 @@ static void *alloc(void)
 
 int ywMenuHasChange(YWidgetState *opac)
 {
-	return opac->hasChange;
+	return 1;
 }
 
 int ywMenuPosFromPix(Entity *wid, uint32_t x, uint32_t y)

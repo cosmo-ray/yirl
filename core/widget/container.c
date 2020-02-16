@@ -40,9 +40,7 @@ int ywContainerUpdate(Entity *container, Entity *widEnt)
     wid = ywidGetState(tmp);
     if ((tmp == widEnt) ||
 	(wid->type == t && ywContainerUpdate(tmp, widEnt))) {
-      wid->hasChange = 1;
       wid = ywidGetState(container);
-      wid->hasChange = 1;
       return 1;
     }
   }
@@ -354,12 +352,8 @@ static int cntRend(YWidgetState *opac)
   Entity *auto_foreground;
   int32_t idx = 0;
 
-  if (!opac->hasChange)
-    return 0;
-
   if (bg_wid) {
     yeReplaceBack(bg_wid->entity, yeGet(ent, "wid-pos"), "wid-pos");
-    bg_wid->hasChange = 1;
     ywidSubRend(bg_wid);
   }
 
@@ -390,9 +384,7 @@ static int cntRend(YWidgetState *opac)
 	yeReplaceBack(wid->entity, auto_foreground, "foreground");
       ++idx;
     }
-    wid->hasChange = 2;
     ywidSubRend(wid);
-    wid->hasChange = 0;
   }
   return 0;
 }

@@ -175,8 +175,6 @@ static void sdl2MidRender(YWidgetState *state, SDLWid *wid, Entity *ent,
 
   ywMapGetSpriteSize(ent, &sizeSpriteW, &sizeSpriteH, &thresholdX);
   mv_tbl = yeGet(ent, "$mv_tbl");
-  if (yeLen(mv_tbl))
-    state->hasChange = 1;
   YE_ARRAY_FOREACH(mv_tbl, tbl) {
     Entity *from = yeGet(tbl, 0);
     Entity *to = yeGet(tbl, 1);

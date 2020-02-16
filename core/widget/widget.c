@@ -179,7 +179,6 @@ void ywidSetMainWid(YWidgetState *wid)
 		YWidDestroy(oldWid);
 	oldWid = mainWid;
 	mainWid = wid;
-	mainWid->hasChange = 1;
 }
 
 int ywidNext(Entity *next, Entity *target)
@@ -392,8 +391,6 @@ static YWidgetState *ywidNewWidgetInternal(int t,
 		yesCall(initer, ret->entity, entity);
 	}
 
-	ret->hasChange = 1;
-
 	return ret;
 
 error:
@@ -480,7 +477,6 @@ void ywidResize(YWidgetState *wid)
 		  ywRectY(pos) * ywidWindowHight / 1000,
 		  ywRectW(pos) * ywidWindowWidth / 1000,
 		  ywRectH(pos) * ywidWindowHight / 1000);
-	wid->hasChange = 1;
 	if (wid->resize)
 		wid->resize(wid);
 	YUI_FOREACH_BITMASK(rendersMask, i, tmask) {
@@ -662,7 +658,6 @@ int ywidDoTurn(YWidgetState *opac)
 			int newPercent;
 
 			if (ywIsSmootOn) {
-				mainWid->hasChange = 1;
 				ywidRend(mainWid);
 			}
 			do {
@@ -785,10 +780,7 @@ int ywidHandleEvent(YWidgetState *opac, Entity *event)
 	if (opac->handleEvent)
 		ret = opac->handleEvent(opac, event);
 
-	if (!opac->hasChange)
-		opac->hasChange = (ret == NOTHANDLE ? 0 : 1);
-	else
-		ret = (ret == NOTHANDLE ? NOACTION : ret);
+	ret = (ret == NOTHANDLE ? NOACTION : ret);
 
 	if (ygIsAlive() && (postAction = yeGet(opac->entity,
 					       "post-action")) != NULL)

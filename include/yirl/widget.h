@@ -166,7 +166,6 @@ typedef struct WidgetState_ {
 	Entity *signals;
 	int type;
 	int actionIdx;
-	unsigned int hasChange;
 } YWidgetState;
 
 /* struct which define what are common to every rendableWidget of the same type */
@@ -271,9 +270,6 @@ int ywidDrawScreen(void);
 
 static inline void ywidUpdate(Entity *w)
 {
-	YWidgetState *s = yeGetDataAt(w, "$wid");
-
-	s->hasChange = 1;
 }
 
 static inline void ywidMidRendEnd(YWidgetState *opac)
@@ -288,9 +284,8 @@ static inline void ywidMidRendEnd(YWidgetState *opac)
 static inline int ywidSubRend(YWidgetState *opac)
 {
 	int ret = 0;
-	if (opac->render && opac->hasChange) {
+	if (opac->render) {
 		ret = opac->render(opac);
-		opac->hasChange = 0;
 	}
 	return ret;
 }
@@ -298,10 +293,9 @@ static inline int ywidSubRend(YWidgetState *opac)
 static inline int ywidRend(YWidgetState *opac)
 {
 	int ret = 0;
-	if (opac->render && (opac->hasChange || yeveWindowGetFocus)) {
+	if (opac->render) {
 		yeveWindowGetFocus = 0;
 		ret = opac->render(opac);
-		opac->hasChange = 0;
 		ywidDrawScreen();
 	}
 	return ret;
