@@ -147,7 +147,8 @@ static json_object *jsonObjectFromDoubleEntity(Entity *entity)
 
 static json_object *jsonObjectFromStringEntity(Entity *entity)
 {
-  return json_object_new_string(yeGetString(entity));
+	const char *str = yeGetString(entity);
+	return json_object_new_string(str ? str : "(nil)");
 }
 
 static int isArray(Entity *entity)

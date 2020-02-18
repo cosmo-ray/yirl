@@ -183,7 +183,7 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
 
  yb_str_equal:
   if (!yeStrCmp(yeGetByIdxDirect(stack, script[1]),
-	       yeGetString(yeGetByIdxDirect(stack, script[2])))) {
+		yeGetString(yeGetByIdxDirect(stack, script[2])))) {
     script = origin + script[3];
     goto *((void *)*script);
   }

@@ -77,7 +77,6 @@ int yeCheckCondition(Entity *condition)
 	}
 
 	Entity *actionEnt = yeGetByIdx(condition, 0);
-	const char *action = yeGetString(actionEnt);
 	int i = 0;
 
 	if (unlikely(!condition))
@@ -85,21 +84,27 @@ int yeCheckCondition(Entity *condition)
 	if (unlikely(!actionEnt))
 		return 0;
 	/* compille stuff \0/ */
-	if (yeType(actionEnt) == YSTRING) {
-		if (!yeStrCmp(actionEnt, "call")) {
+	if (yeType(actionEnt) == YSTRING ||
+	    yeType(yeGet(actionEnt, 1)) != YFUNCTION) {
+		Entity *func;
+		Entity *estr = yeType(actionEnt) == YSTRING ? actionEnt :
+			yeGet(actionEnt, 0);
+		const char *action = yeGetString(estr);
+
+		if (!yeStrCmp(estr, "call")) {
 			return conditionCall(condition);
-		} else if (!yeStrCmp(actionEnt, "not")) {
+		} else if (!yeStrCmp(estr, "not")) {
 			return !yeCheckCondition(yeGet(condition, 1));
-		} else if (!yeStrCmp(actionEnt, "and")) {
+		} else if (!yeStrCmp(estr, "and")) {
 			return yeCheckCondition(yeGet(condition, 1)) &&
 				yeCheckCondition(yeGet(condition, 2));
-		} else if (!yeStrCmp(actionEnt, "or")) {
+		} else if (!yeStrCmp(estr, "or")) {
 			return yeCheckCondition(yeGet(condition, 1)) ||
 				yeCheckCondition(yeGet(condition, 2));
-		} else if (!yeStrCmp(actionEnt, "exist")) {
+		} else if (!yeStrCmp(estr, "exist")) {
 			return !!ygGet(yeGetStringAt(condition, 1));
 		}
-		int len = yeLen(actionEnt);
+		int len = yeLen(estr);
 		Entity *data = yeCreateDataExt(NULL, NULL, NULL,
 					       YE_DATA_USE_OWN_METADATA);
 		uint64_t *instructions = yeGetData(data);
@@ -107,7 +112,8 @@ int yeCheckCondition(Entity *condition)
 /*       yeMetadataSize(DataEntity) / sizeof(uint64_t); */
 
 		instructions[0] = 0; // not compilled yet
-		actionEnt = yeConvert(actionEnt, YARRAY);
+		if (yeType(actionEnt) == YSTRING)
+			actionEnt = yeConvert(actionEnt, YARRAY);
 
 		if (!action)
 			return 0;
@@ -153,8 +159,10 @@ int yeCheckCondition(Entity *condition)
 		default:
 			return 0;
 		}
-		ysYbytecodeCreateFunc(data, actionEnt, NULL);
+		func = ysYbytecodeCreateFunc(data, NULL, NULL);
+		yePushAt(actionEnt, func, 1);
 		yeDestroy(data);
+		yeDestroy(func);
 	}
 	/* add args */
 	return (int_ptr_t)yesCall(yeGet(actionEnt, 1));
