@@ -129,6 +129,14 @@ static inline int make_abort(lua_State *L, ...)
 			       luaEntityAt(L, 5)));		    \
 	}
 
+#define BIND_EEISI(f, ...)						\
+	static inline int lua##f(lua_State *L)				\
+	{								\
+		BIND_AUTORET(f(luaEntityAt(L, 1), luaEntityAt(L, 2),	\
+			       luaNumberAt(L, 3), lua_tostring(L, 4),	\
+			       luaNumberAt(L, 5)));			\
+	}
+
 #define BIND_EIIE(f, ...)						\
 	static inline int lua##f(lua_State *L)				\
 	{								\
@@ -381,6 +389,7 @@ BIND_EES(yeGetPush);
 BIND_EE(yeDoesInclude);
 BIND_ES(yeTryCreateArray);
 BIND_E(yeClearArray);
+BIND_EEISI(yeAttach);
 
 /* Entity */
 BIND_EE(yeCopy);
@@ -770,6 +779,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, yeDoesInclude);
   YES_LUA_REGISTRE_CALL(sm, yeTryCreateArray);
   YES_LUA_REGISTRE_CALL(sm, yeClearArray);
+  YES_LUA_REGISTRE_CALL(sm, yeAttach);
 
   /* Entity */
   YES_LUA_REGISTRE_CALL(sm, yeCopy);
