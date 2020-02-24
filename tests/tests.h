@@ -22,6 +22,8 @@
 
 void testMaths(void);
 
+void testMisc(void);
+
 void testBlockArray(void);
 
 void testLifecycleSimple(void);

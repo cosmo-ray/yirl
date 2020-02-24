@@ -72,6 +72,8 @@ int main(int argc, char **argv)
   TEST_TRY_ADD("/utils/block-array/lifecycle", testBlockArray, only);
   TEST_TRY_ADD("/utils/maths/all", testMaths, only);
 
+  TEST_TRY_ADD("/misc/all", testMisc, only);
+
   TEST_TRY_ADD("/entity/lifecycle/simple", testLifecycleSimple, only);
   TEST_TRY_ADD("/entity/lifecycle/flow", testLifecycleFlow, only);
   TEST_TRY_ADD("/entity/lifecycle/complex", testLifecycleComplex, only);

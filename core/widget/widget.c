@@ -285,6 +285,17 @@ int ywidColorFromString(char *str, uint8_t *r, uint8_t *g,
 	exit:
 		str -= (limiterPos + 1);
 		str[limiterPos] = tmp;
+	} else if (str[0] == '#') {
+		char *eptr;
+		long c = strtol(str + 1, &eptr, 16);
+
+		if (eptr == str + 1)
+			return -1;
+		*r = (c & 0x00ff0000) >> 16;
+		*g = (c & 0x0000ff00) >> 8;
+		*b = c & 0x000000ff;
+		*a = 0xff;
+		ret = 0;
 	}
 	return ret;
 }
