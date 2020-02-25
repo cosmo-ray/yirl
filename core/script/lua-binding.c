@@ -716,17 +716,6 @@ int luaYwCanvasNewText(lua_State *L)
 	return 1;
 }
 
-int	luaywCanvasNewRectangle(lua_State *L)
-{
-	lua_pushlightuserdata(L, ywCanvasNewRectangle(luaEntityAt(L, 1),
-						      lua_tonumber(L, 2),
-						      lua_tonumber(L, 3),
-						      lua_tonumber(L, 4),
-						      lua_tonumber(L, 5),
-						      lua_tostring(L, 6)));
-	return 1;
-}
-
 int	luaywCanvasPopObj(lua_State *L)
 {
 	ywCanvasPopObj(luaEntityAt(L, 1));

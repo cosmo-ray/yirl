@@ -17,6 +17,7 @@
 #define BIND_EIIS	BIND
 #define BIND_EEEE	BIND
 #define BIND_EIIEE    BIND
+#define BIND_EIIIIS    BIND
 #else
 
 #define PUSH_I_GLOBAL(X)
@@ -117,6 +118,8 @@ BIND_V(yeEntitiesArraySize);
 
 BIND_SEES(ywTextureNewImg, 4, 0);
 
+BIND_EIIIIS(ywCanvasNewRectangle, 6, 0);
+
 BIND_NONE(yevCreateGrp, 1, 9);
 
 PUSH_I_GLOBAL(Y_ESC_KEY);
@@ -139,6 +142,7 @@ PUSH_I_GLOBAL(Y_REQUEST_ANIMATION_FRAME);
 
 PUSH_I_GLOBAL(YE_PATCH_NO_SUP);
 
+#undef BIND_EIIIIS
 #undef BIND_EIIEE
 #undef BIND_EIIS
 #undef BIND_EIIE

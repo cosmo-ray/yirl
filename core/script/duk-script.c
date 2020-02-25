@@ -405,6 +405,16 @@ static inline int make_abort(duk_context *ctx, ...)
 	(__VA_ARGS__, call)
 
 
+#define BIND_EIIIIS(f, u0, u1)						\
+	static duk_ret_t duk##f(duk_context *ctx) {			\
+		BIND_AUTORET(f(GET_E(ctx, 0),				\
+			       duk_get_int(ctx, 1),			\
+			       duk_get_int(ctx, 2),			\
+			       duk_get_int(ctx, 3),			\
+			       duk_get_int(ctx, 4),			\
+			       duk_get_string(ctx, 5)));		\
+	}
+
 #define BIND_EIIEE(f, u0, u1)						\
 	static duk_ret_t duk##f(duk_context *ctx) {			\
 		BIND_AUTORET(f(GET_E(ctx, 0),				\
