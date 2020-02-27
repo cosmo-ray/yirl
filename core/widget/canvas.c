@@ -26,9 +26,14 @@
 
 static int t = -1;
 
+enum {
+	YC_HAS_WEIGHT = 1,
+	YC_MERGE = 1 << 1,
+};
+
 typedef struct {
 	YWidgetState sate;
-	_Bool ywCanHasWeight;
+	int flag;
 } YCanvasState;
 
 static int tsInit(YWidgetState *opac, Entity *entity, void *args)
@@ -144,7 +149,7 @@ void ywCanvasDisableWeight(Entity *w)
 		return;
 	YCanvasState *s = ywidCastState(w, YCanvasState);
 
-	s->ywCanHasWeight = 0;
+	s->flag &= ~YC_HAS_WEIGHT;
 }
 
 void ywCanvasEnableWeight(Entity *w)
@@ -153,12 +158,12 @@ void ywCanvasEnableWeight(Entity *w)
 		return;
 	YCanvasState *s = ywidCastState(w, YCanvasState);
 
-	s->ywCanHasWeight = 1;
+	s->flag |= YC_HAS_WEIGHT;
 }
 
 /**
  * this function will always set obj into wid if newObj is true
- * depending if s->ywCanHasWeight is true or not, it will reoganise every
+ * depending if (s->flag & YC_HAS_WEIGHT) is true or not, it will reoganise every
  * object of the wid depending of they weight
  */
 static int ywCanvasSetWeightInternal(Entity *wid, Entity *obj, int weight,
@@ -169,7 +174,7 @@ static int ywCanvasSetWeightInternal(Entity *wid, Entity *obj, int weight,
 	uint32_t i = 0;
 	Entity *toPush = obj;
 
-	if (s && !s->ywCanHasWeight) {
+	if (s && !(s->flag & YC_HAS_WEIGHT)) {
 		yePush(objs, toPush, NULL);
 		goto out;
 	}
@@ -233,7 +238,7 @@ int ywCanvasSetWeight(Entity *wid, Entity *obj, int weight)
 {
 	YCanvasState *s = ywidCastState(wid, YCanvasState);
 
-	if (unlikely(!s->ywCanHasWeight))
+	if (unlikely(!(s->flag & YC_HAS_WEIGHT)))
 		return -1;
 	return ywCanvasSetWeightInternal(wid, obj, weight, 0);
 }
