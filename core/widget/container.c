@@ -25,68 +25,68 @@ static int t = -1;
 
 static inline Entity *getEntry(Entity *father, Entity *tmp)
 {
-  if (!yeGet(tmp, "<type>"))
-    return ygGet(yeGetString(yeGet(tmp, "path")));
-  return tmp;
+	if (!yeGet(tmp, "<type>"))
+		return ygGet(yeGetString(yeGet(tmp, "path")));
+	return tmp;
 }
 
 int ywContainerUpdate(Entity *container, Entity *widEnt)
 {
-  Entity *entries = yeGet(container, "entries");
+	Entity *entries = yeGet(container, "entries");
 
-  YE_ARRAY_FOREACH(entries, tmp) {
-    YWidgetState *wid;
+	YE_ARRAY_FOREACH(entries, tmp) {
+		YWidgetState *wid;
 
-    wid = ywidGetState(tmp);
-    if ((tmp == widEnt) ||
-	(wid->type == t && ywContainerUpdate(tmp, widEnt))) {
-      wid = ywidGetState(container);
-      return 1;
-    }
-  }
-  return 0;
+		wid = ywidGetState(tmp);
+		if ((tmp == widEnt) ||
+		    (wid->type == t && ywContainerUpdate(tmp, widEnt))) {
+			wid = ywidGetState(container);
+			return 1;
+		}
+	}
+	return 0;
 }
 
 Entity *ywContainerGetWidgetAt(Entity *container, int posX, int posY)
 {
-  Entity *entries = yeGet(container, "entries");
+	Entity *entries = yeGet(container, "entries");
 
-  YE_ARRAY_FOREACH(entries, tmp) {
-    if (ywIsPixsOnWid(tmp, posX, posY))
-      return tmp;
-  }
-  return NULL;
+	YE_ARRAY_FOREACH(entries, tmp) {
+		if (ywIsPixsOnWid(tmp, posX, posY))
+			return tmp;
+	}
+	return NULL;
 }
 
 Entity *ywCntGetLastEntry(Entity *container)
 {
-  return yeGetLast(yeGet(container, "entries"));
+	return yeGetLast(yeGet(container, "entries"));
 }
 
 void ywCntPopLastEntry(Entity *container)
 {
-  Entity *ret = ywCntGetLastEntry(container);
-  Entity *entries;
-  Entity *cur;
+	Entity *ret = ywCntGetLastEntry(container);
+	Entity *entries;
+	Entity *cur;
 
-  if (!ret)
-    return;
-  cur = yeGet(container, "current");
-  entries = yeGet(container, "entries");
-  if (ywidGetState(ret)) {
-    ywidMarkAsDestroyable(ywidGetState(ret));
-    yeCreateInt(1, ret, "need_yedestroy");
-    yeIncrRef(ret);
-  }
-  yePopBack(entries);
-  if (yeGetInt(cur) && yeLen(entries) == yeGetUInt(cur)) {
-    yeSubInt(cur, 1);
-  }
+	if (!ret)
+		return;
+	cur = yeGet(container, "current");
+	entries = yeGet(container, "entries");
+	if (ywidGetState(ret)) {
+		ywidMarkAsDestroyable(ywidGetState(ret));
+		yeCreateInt(1, ret, "need_yedestroy");
+		yeIncrRef(ret);
+	}
+	yePopBack(entries);
+	if (yeGetInt(cur) && yeLen(entries) == yeGetUInt(cur)) {
+		yeSubInt(cur, 1);
+	}
 }
 
 Entity *ywCntGetEntry(Entity *container, int idx)
 {
-  return yeGet(yeGet(container, "entries"), idx);
+	return yeGet(yeGet(container, "entries"), idx);
 }
 
 int ywRemoveEntryByEntity(Entity *container, Entity *target)
@@ -105,44 +105,44 @@ out:
 
 int ywReplaceEntry(Entity *container, int idx, Entity *entry)
 {
-  Entity *entries = yeGet(container, "entries");
-  Entity *old = ywCntGetEntry(container, idx);
-  Entity *new = getEntry(container, entry);
-  int size = yeGetIntAt(old, "size");
+	Entity *entries = yeGet(container, "entries");
+	Entity *old = ywCntGetEntry(container, idx);
+	Entity *new = getEntry(container, entry);
+	int size = yeGetIntAt(old, "size");
 
-  ywidMarkAsDestroyable(ywidGetState(old));
-  yeReCreateInt(size, new, "size");
-  yeReplace(entries, old, new);
-  return 0;
+	ywidMarkAsDestroyable(ywidGetState(old));
+	yeReCreateInt(size, new, "size");
+	yeReplace(entries, old, new);
+	return 0;
 }
 
 static inline CntType cntGetTypeFromEntity(Entity *entity) {
-  const char *cntType = yeGetString(yeGet(entity, "cnt-type"));
+	const char *cntType = yeGetString(yeGet(entity, "cnt-type"));
 
-  if (yuiStrEqual0(cntType, "vertical")) {
-    return CNT_VERTICAL;
-  } else if (yuiStrEqual0(cntType, "stacking"))
-    return CNT_STACK;
-  return CNT_HORIZONTAL;
+	if (yuiStrEqual0(cntType, "vertical")) {
+		return CNT_VERTICAL;
+	} else if (yuiStrEqual0(cntType, "stacking"))
+		return CNT_STACK;
+	return CNT_HORIZONTAL;
 }
 
 Entity *ywCntWidgetFather(Entity *wid)
 {
-  return yeGet(wid, "$father-container");
+	return yeGet(wid, "$father-container");
 }
 
 int ywPushNewWidget(Entity *container, Entity *wid, int dec_ref)
 {
-  Entity *entries = yeGet(container, "entries");
-  int ret = yeLen(entries);
+	Entity *entries = yeGet(container, "entries");
+	int ret = yeLen(entries);
 
-  if (yePushBack(entries, wid, NULL) < 0)
-    return -1;
-  if (dec_ref)
-    yeDestroy(wid);
-  yeSetAt(container, "current", ret);
-  yeReplaceBackExt(wid, container, "$father-container", YE_FLAG_NO_COPY);
-  return ret;
+	if (yePushBack(entries, wid, NULL) < 0)
+		return -1;
+	if (dec_ref)
+		yeDestroy(wid);
+	yeSetAt(container, "current", ret);
+	yeReplaceBackExt(wid, container, "$father-container", YE_FLAG_NO_COPY);
+	return ret;
 }
 
 static void cntResize(YWidgetState *opac)
@@ -299,141 +299,148 @@ static int cntDestroy(YWidgetState *opac)
 
 static InputStatue cntEvent(YWidgetState *opac, Entity *event)
 {
-  InputStatue ret;
-  Entity *entries = yeGet(opac->entity, "entries");
-  YWidgetState *cur;
+	InputStatue ret;
+	Entity *entries = yeGet(opac->entity, "entries");
+	YWidgetState *cur;
 
-  ret = ywidEventCallActionSin(opac, event);
-  if (ret != NOTHANDLE)
-    return ret;
+	ret = ywidEventCallActionSin(opac, event);
+	if (ret != NOTHANDLE)
+		return ret;
 
-  if (((YContainerState *)opac)->fwStyle == Y_CNT_GOTO_CURRENT) {
-    cur = ywidGetState(yeGet(entries, yeGetInt(yeGet(opac->entity, "current"))));
-  } else {
-    cur = ywidGetState(ywContainerGetWidgetAt(opac->entity,
-					      ywidXMouseGlobalPos,
-					      ywidYMouseGlobalPos));
-  }
-  if (cur)
-    ret = ywidHandleEvent(cur, event);
-  return ret;
+	if (((YContainerState *)opac)->fwStyle == Y_CNT_GOTO_CURRENT) {
+		cur = ywidGetState(
+			yeGet(entries,
+			      yeGetInt(yeGet(opac->entity,
+					     "current"))));
+	} else {
+		cur = ywidGetState(
+			ywContainerGetWidgetAt(opac->entity,
+					       ywidXMouseGlobalPos,
+					       ywidYMouseGlobalPos));
+	}
+	if (cur)
+		ret = ywidHandleEvent(cur, event);
+	return ret;
 }
 
 void ywCntConstructChilds(Entity *ent)
 {
-  Entity *entries = yeGet(ent, "entries");
-  YWidgetState *opac = ywidGetState(ent);
+	Entity *entries = yeGet(ent, "entries");
+	YWidgetState *opac = ywidGetState(ent);
 
-  if (unlikely(!opac))
-    return;
+	if (unlikely(!opac))
+		return;
 
-  YE_ARRAY_FOREACH(entries, tmp) {
-    YWidgetState *wid = ywidGetState(tmp);
+	YE_ARRAY_FOREACH(entries, tmp) {
+		YWidgetState *wid = ywidGetState(tmp);
 
-    /* try to create the widget */
-    if (unlikely(!wid)) {
-     Entity *tmp2 = getEntry(ent, tmp);
+		/* try to create the widget */
+		if (unlikely(!wid)) {
+			Entity *tmp2 = getEntry(ent, tmp);
 
-      if (tmp2 != tmp) {
-	yeReplace(entries, tmp, tmp2);
-	tmp = tmp2;
-      }
-      yeReplaceBackExt(tmp, ent, "$father-container", YE_FLAG_NO_COPY);
-      wid = ywidNewWidget(tmp, NULL);
-      if (!wid)
-	continue;
-      if (wid->type == t)
-	ywCntConstructChilds(tmp);
-      cntResize(opac);
-    }
-  }
+			if (tmp2 != tmp) {
+				yeReplace(entries, tmp, tmp2);
+				tmp = tmp2;
+			}
+			yeReplaceBackExt(tmp, ent, "$father-container",
+					 YE_FLAG_NO_COPY);
+			wid = ywidNewWidget(tmp, NULL);
+			if (!wid)
+				continue;
+			if (wid->type == t)
+				ywCntConstructChilds(tmp);
+			cntResize(opac);
+		}
+	}
 }
 
 static int cntRend(YWidgetState *opac)
 {
-  Entity *ent = opac->entity;
-  Entity *entries = yeGet(ent, "entries");
-  YWidgetState *bg_wid = ywidGetState(yeGet(opac->entity, "$bg"));
-  Entity *auto_foreground;
-  int32_t idx = 0;
+	Entity *ent = opac->entity;
+	Entity *entries = yeGet(ent, "entries");
+	YWidgetState *bg_wid = ywidGetState(yeGet(opac->entity, "$bg"));
+	Entity *auto_foreground;
+	int32_t idx = 0;
 
-  if (bg_wid) {
-    yeReplaceBack(bg_wid->entity, yeGet(ent, "wid-pos"), "wid-pos");
-    ywidSubRend(bg_wid);
-  }
+	if (bg_wid) {
+		yeReplaceBack(bg_wid->entity, yeGet(ent, "wid-pos"), "wid-pos");
+		ywidSubRend(bg_wid);
+	}
 
-  auto_foreground = yeGet(ent, "auto_foreground");
-  YE_ARRAY_FOREACH(entries, tmp) {
-    YWidgetState *wid = ywidGetState(tmp);
+	auto_foreground = yeGet(ent, "auto_foreground");
+	YE_ARRAY_FOREACH(entries, tmp) {
+		YWidgetState *wid = ywidGetState(tmp);
 
-    /* try to create the widget */
-    if (unlikely(!wid)) {
-      Entity *tmp2 = getEntry(ent, tmp);
+		/* try to create the widget */
+		if (unlikely(!wid)) {
+			Entity *tmp2 = getEntry(ent, tmp);
 
-      if (tmp2 != tmp) {
-	yeReplace(entries, tmp, tmp2);
-	tmp = tmp2;
-      }
-      yeReplaceBackExt(tmp, ent, "$father-container", YE_FLAG_NO_COPY);
-      wid = ywidNewWidget(tmp, NULL);
-      if (!wid)
-	continue;
-      cntResize(opac);
-    }
-    if (ywCntType(opac) != CNT_STACK && auto_foreground) {
-      int current = yeGetIntAt(opac->entity, "current");
+			if (tmp2 != tmp) {
+				yeReplace(entries, tmp, tmp2);
+				tmp = tmp2;
+			}
+			yeReplaceBackExt(tmp, ent, "$father-container",
+					 YE_FLAG_NO_COPY);
+			wid = ywidNewWidget(tmp, NULL);
+			if (!wid)
+				continue;
+			cntResize(opac);
+		}
+		if (ywCntType(opac) != CNT_STACK && auto_foreground) {
+			int current = yeGetIntAt(opac->entity, "current");
 
-      if (current == idx)
-	yeRemoveChild(wid->entity, "foreground");
-      else
-	yeReplaceBack(wid->entity, auto_foreground, "foreground");
-      ++idx;
-    }
-    ywidSubRend(wid);
-  }
-  return 0;
+			if (current == idx)
+				yeRemoveChild(wid->entity, "foreground");
+			else
+				yeReplaceBack(wid->entity, auto_foreground,
+					      "foreground");
+			++idx;
+		}
+		ywidSubRend(wid);
+	}
+	return 0;
 }
 
 static void midRendEnd(YWidgetState *opac)
 {
-  Entity *entries = yeGet(opac->entity, "entries");
+	Entity *entries = yeGet(opac->entity, "entries");
 
-  YE_ARRAY_FOREACH(entries, tmp) {
-    YWidgetState *wid = ywidGetState(tmp);
-      if (!wid)
-	continue;
-      ywidMidRendEnd(wid);
-  }
+	YE_ARRAY_FOREACH(entries, tmp) {
+		YWidgetState *wid = ywidGetState(tmp);
+		if (!wid)
+			continue;
+		ywidMidRendEnd(wid);
+	}
 }
 
 static void *alloc(void)
 {
-  YContainerState *ret = g_new0(YContainerState, 1);
-  YWidgetState *wstate = (YWidgetState *)ret;
+	YContainerState *ret = g_new0(YContainerState, 1);
+	YWidgetState *wstate = (YWidgetState *)ret;
 
-  wstate->render = cntRend;
-  wstate->init = cntInit;
-  wstate->destroy = cntDestroy;
-  wstate->midRendEnd = midRendEnd;
-  wstate->handleEvent = cntEvent;
-  wstate->resize = cntResize;
-  wstate->type = t;
-  ret->fwStyle = Y_CNT_GOTO_CURRENT;
-  return  ret;
+	wstate->render = cntRend;
+	wstate->init = cntInit;
+	wstate->destroy = cntDestroy;
+	wstate->midRendEnd = midRendEnd;
+	wstate->handleEvent = cntEvent;
+	wstate->resize = cntResize;
+	wstate->type = t;
+	ret->fwStyle = Y_CNT_GOTO_CURRENT;
+	return  ret;
 }
 
 int ywContainerInit(void)
 {
-  if (t != -1)
-    return t;
-  t = ywidRegister(alloc, "container");
-  return t;
+	if (t != -1)
+		return t;
+	t = ywidRegister(alloc, "container");
+	return t;
 }
 
 int ywContainerEnd(void)
 {
-  if (ywidUnregiste(t) < 0)
-    return -1;
-  t = -1;
-  return 0;
+	if (ywidUnregiste(t) < 0)
+		return -1;
+	t = -1;
+	return 0;
 }
