@@ -36,7 +36,7 @@ typedef struct {
 	int flag;
 } YCanvasState;
 
-static int tsInit(YWidgetState *opac, Entity *entity, void *args)
+static int init(YWidgetState *opac, Entity *entity, void *args)
 {
 	(void)entity;
 	(void)args;
@@ -45,13 +45,13 @@ static int tsInit(YWidgetState *opac, Entity *entity, void *args)
 	return 0;
 }
 
-static int tsDestroy(YWidgetState *opac)
+static int destroy(YWidgetState *opac)
 {
 	g_free(opac);
 	return 0;
 }
 
-static int tsRend(YWidgetState *opac)
+static int rend(YWidgetState *opac)
 {
 	ywidGenericRend(opac, t, render);
 	return 0;
@@ -61,9 +61,9 @@ static void *alloc(void)
 {
 	YCanvasState *s = g_new0(YCanvasState, 1);
 	YWidgetState *ret = (YWidgetState *)s;
-	ret->render = tsRend;
-	ret->init = tsInit;
-	ret->destroy = tsDestroy;
+	ret->render = rend;
+	ret->init = init;
+	ret->destroy = destroy;
 	ret->handleEvent = ywidEventCallActionSin;
 	ret->type = t;
 	return ret;
