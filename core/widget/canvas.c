@@ -656,9 +656,6 @@ _Bool	ywCanvasObjectsCheckColisions(Entity *obj0, Entity *obj1)
 		goto exit;
 	}
 
-	// ywRectPrint(yeGet(colisionRects, 0));
-	// ywRectPrint(yeGet(colisionRects, 1));
-
 	for (int i = 0; i < ywRectH(crect0); i += ywidColisionYPresision) {
 		for (int j = 0; j < ywRectW(crect0);
 		     j += ywidColisionXPresision) {
