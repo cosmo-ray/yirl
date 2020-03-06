@@ -147,147 +147,152 @@ int ywPushNewWidget(Entity *container, Entity *wid, int dec_ref)
 
 static void cntResize(YWidgetState *opac)
 {
-  Entity *entity = opac->entity;
-  Entity *entries = yeGet(entity, "entries");
-  YContainerState *cnt = ((YContainerState *)opac);
-  Entity *rect = yeGet(entity, "wid-pos");
-  int i = 0;
-  size_t len = yeLen(entries);
-  int widSize = 0;
-  int usable;
-  int casePos = 0;
-  int caseLen = 0;
-  Entity *bg = yeGet(entity, "$bg");
-  cnt->type = cntGetTypeFromEntity(entity);
+	Entity *entity = opac->entity;
+	Entity *entries = yeGet(entity, "entries");
+	YContainerState *cnt = ((YContainerState *)opac);
+	Entity *rect = yeGet(entity, "wid-pos");
+	int i = 0;
+	size_t len = yeLen(entries);
+	int widSize = 0;
+	int usable;
+	int casePos = 0;
+	int caseLen = 0;
+	Entity *bg = yeGet(entity, "$bg");
+	cnt->type = cntGetTypeFromEntity(entity);
 
-  widSize =  ywCntType(opac) == CNT_HORIZONTAL ?
-    ywRectH(rect) : ywRectW(rect);
-  usable = widSize;
+	widSize =  ywCntType(opac) == CNT_HORIZONTAL ?
+		ywRectH(rect) : ywRectW(rect);
+	usable = widSize;
 
-  if (bg) {
-    yeReplaceBack(bg, rect, "wid-pos");
-    ywidResize(ywidGetState(bg));
-  }
+	if (bg) {
+		yeReplaceBack(bg, rect, "wid-pos");
+		ywidResize(ywidGetState(bg));
+	}
 
-  YE_ARRAY_FOREACH(entries, tmp) {
-    YWidgetState *wid = ywidGetState(tmp);
-    Entity *ptr;
-    Entity *tmpPos;
-    int size;
+	YE_ARRAY_FOREACH(entries, tmp) {
+		YWidgetState *wid = ywidGetState(tmp);
+		Entity *ptr;
+		Entity *tmpPos;
+		int size;
 
-    if (unlikely(!wid))
-      continue;
+		if (unlikely(!wid))
+			continue;
 
-    ptr = wid->entity;
-    tmpPos = ywRectReCreateEnt(rect, ptr, "wid-pos");
-    size = yeGetInt(yeGet(tmp, "size"));
-    if (size <= 0) { /* We equally size the sub-widgets */
-      caseLen = usable * (i + 1) / len;
-    } else {
-      caseLen = widSize * size / 100;
-    }
+		ptr = wid->entity;
+		tmpPos = ywRectReCreateEnt(rect, ptr, "wid-pos");
+		size = yeGetInt(yeGet(tmp, "size"));
+		if (size <= 0) { /* We equally size the sub-widgets */
+			caseLen = usable * (i + 1) / len;
+		} else {
+			caseLen = widSize * size / 100;
+		}
 
-    if (ywCntType(opac) == CNT_HORIZONTAL) {
-      /* modify y and h pos in internal struct */
-      yeSetAt(tmpPos, "y", casePos);
-      yeSetAt(tmpPos, "h", caseLen);
-    } else if (ywCntType(opac) == CNT_VERTICAL) {
-      /* modify x and w pos in internal struct */
-      yeSetAt(tmpPos, "x", casePos);
-      yeSetAt(tmpPos, "w", caseLen);
-    }
+		if (ywCntType(opac) == CNT_HORIZONTAL) {
+			/* modify y and h pos in internal struct */
+			yeSetAt(tmpPos, "y", casePos);
+			yeSetAt(tmpPos, "h", caseLen);
+		} else if (ywCntType(opac) == CNT_VERTICAL) {
+			/* modify x and w pos in internal struct */
+			yeSetAt(tmpPos, "x", casePos);
+			yeSetAt(tmpPos, "w", caseLen);
+		}
 
-    /* else nothing */
-    ywidResize(wid);
-    usable -= caseLen;
-    casePos = widSize - usable;
-    ++i;
-  }
+		/* else nothing */
+		ywidResize(wid);
+		usable -= caseLen;
+		casePos = widSize - usable;
+		++i;
+	}
 }
 
 static int cntInit(YWidgetState *opac, Entity *entity, void *args)
 {
-  Entity *entries = yeGet(entity, "entries");
-  Entity *bg = yeGet(entity, "background");
-  Entity *eve_forwarding = yeGet(entity, "event_forwarding");
-  YWidgetState *wid;
-  YContainerState *cntState = (YContainerState *)opac;
+	Entity *entries = yeGet(entity, "entries");
+	Entity *bg = yeGet(entity, "background");
+	Entity *eve_forwarding = yeGet(entity, "event_forwarding");
+	YWidgetState *wid;
+	YContainerState *cntState = (YContainerState *)opac;
 
-  (void)args;
-  if (!entries) {
-    DPRINT_ERR("no entries");
-    return -1;
-  }
+	(void)args;
+	if (!entries) {
+		DPRINT_ERR("no entries");
+		return -1;
+	}
 
-  if (bg) {
-    Entity *bg_tx = yeCreateArray(entity, "$bg");
+	if (bg) {
+		Entity *bg_tx = yeCreateArray(entity, "$bg");
 
-    yeCreateString("text-screen", bg_tx, "<type>");
-    yeCreateString("", bg_tx, "text");
-    yePushBack(bg_tx, bg, "background");
-    if (!ywidNewWidget(bg_tx, NULL)) {
-      DPRINT_ERR("background init fail");
-      return -1;
-    }
-  }
+		yeCreateString("text-screen", bg_tx, "<type>");
+		yeCreateString("", bg_tx, "text");
+		yePushBack(bg_tx, bg, "background");
+		if (!ywidNewWidget(bg_tx, NULL)) {
+			DPRINT_ERR("background init fail");
+			return -1;
+		}
+	}
 
-  if (eve_forwarding && !yeStrCmp(eve_forwarding, "under mouse")) {
-    cntState->fwStyle = Y_CNT_UNDER_MOUSE;
-  }
-  yeTryCreateInt(0, entity, "current");
-  YE_ARRAY_FOREACH(entries, tmp) {
-    Entity *ptr = getEntry(entity, tmp);
-    Entity *copyTmp = NULL;
+	if (eve_forwarding && !yeStrCmp(eve_forwarding, "under mouse")) {
+		cntState->fwStyle = Y_CNT_UNDER_MOUSE;
+	}
 
-    if (yeGet(tmp, "copy")) {
-      copyTmp = yeCreateArray(NULL, NULL);
-      yeCopy(ptr, copyTmp);
-      ptr = copyTmp;
-    }
-    yeReplaceBackExt(ptr, entity, "$father-container", YE_FLAG_NO_COPY);
-    if (ptr != tmp) {
-      YE_ARRAY_FOREACH_EXT(tmp, entry, it) {
-	const char *n = yBlockArrayIteratorGetPtr(it, ArrayEntry)->name;
-	if (yuiStrEqual0(n, "name"))
-	  continue;
-	yePushBack(ptr, entry, n);
-      }
-      yeReplace(entries, tmp, ptr);
-    }
-    yeDestroy(copyTmp);
-    wid = ywidNewWidget(ptr, NULL);
-    if (!wid) {
-      DPRINT_ERR("fail to create a sub widget");
-      return -1;
-    }
-    if (ptr != tmp)
-      yeReCreateData(wid, ptr, "$wid");
-  }
-  cntResize(opac);
-  return 0;
+	yeTryCreateInt(0, entity, "current");
+	YE_ARRAY_FOREACH(entries, tmp) {
+		Entity *ptr = getEntry(entity, tmp);
+		Entity *copyTmp = NULL;
+
+		if (yeGet(tmp, "copy")) {
+			copyTmp = yeCreateArray(NULL, NULL);
+			yeCopy(ptr, copyTmp);
+			ptr = copyTmp;
+		}
+		yeReplaceBackExt(ptr, entity, "$father-container",
+				 YE_FLAG_NO_COPY);
+		if (ptr != tmp) {
+			YE_ARRAY_FOREACH_EXT(tmp, entry, it) {
+				const char *n =
+					yBlockArrayIteratorGetPtr(
+						it, ArrayEntry)->name;
+
+				if (yuiStrEqual0(n, "name"))
+					continue;
+				yePushBack(ptr, entry, n);
+			}
+			yeReplace(entries, tmp, ptr);
+		}
+		yeDestroy(copyTmp);
+		wid = ywidNewWidget(ptr, NULL);
+		if (!wid) {
+			DPRINT_ERR("fail to create a sub widget");
+			return -1;
+		}
+		if (ptr != tmp)
+			yeReCreateData(wid, ptr, "$wid");
+	}
+	cntResize(opac);
+	return 0;
 }
 
 static int cntDestroy(YWidgetState *opac)
 {
-  Entity *entries = yeGet(opac->entity, "entries");
-  Entity *bg = yeGet(opac->entity, "$bg");
+	Entity *entries = yeGet(opac->entity, "entries");
+	Entity *bg = yeGet(opac->entity, "$bg");
 
-  if (bg) {
-    YWidDestroy(yeGetData(yeGet(bg, "$wid")));
-    yeRemoveChild(opac->entity, bg);
-  }
+	if (bg) {
+		YWidDestroy(yeGetData(yeGet(bg, "$wid")));
+		yeRemoveChild(opac->entity, bg);
+	}
 
-  YE_ARRAY_FOREACH(entries, tmp) {
-    YWidgetState *cur = ywidGetState(tmp);
+	YE_ARRAY_FOREACH(entries, tmp) {
+		YWidgetState *cur = ywidGetState(tmp);
 
-    yeRemoveChildByStr(tmp, "$father-container");
-    YWidDestroy(cur);
-    if (yeGet(tmp, "copy")) {
-      yeDestroy(tmp);
-    }
-  }
-  g_free(opac);
-  return 0;
+		yeRemoveChildByStr(tmp, "$father-container");
+		YWidDestroy(cur);
+		if (yeGet(tmp, "copy")) {
+			yeDestroy(tmp);
+		}
+	}
+	g_free(opac);
+	return 0;
 }
 
 #define yCntIsOverloading(eve) 0
