@@ -28,6 +28,7 @@ typedef enum  {
   YCanvasImg,
   YCanvasBigTexture,
   YCanvasBicolorImg,
+  YCanvasHardTexture,
   YCnvasEndType
 } YCanvasObjType;
 
@@ -41,6 +42,7 @@ typedef enum  {
 #define YCANVAS_DATA_IDX 2
 #define YCANVAS_IMG_IDX 6
 #define YCANVAS_SIZE_IDX 7
+#define YCANVAS_SURFACE_IDX 8
 
 typedef union {
   uint32_t i;

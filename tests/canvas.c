@@ -185,3 +185,35 @@ void testCanvasSdl2(void)
   ygEnd();
   ygCleanGameConfig(&cfg);
 }
+
+void testCanvasMergable(void)
+{
+	yeInitMem();
+	GameConfig cfg;
+	Entity *canvas_example = yeCreateArray(NULL, NULL);
+	Entity *actions;
+	YWidgetState *wid;
+
+	g_assert(!ygInitGameConfig(&cfg, NULL, SDL2));
+	g_assert(!ygInit(&cfg));
+
+	yeCreateString("canvas", canvas_example, "<type>");
+	actions = yeCreateArray(canvas_example, "actions");
+	yeCreateString("QuitOnKeyDown", actions, NULL);
+	yeCreateInt(1, canvas_example, "mergable");
+
+	wid = ywidNewWidget(canvas_example, NULL);
+	g_assert(wid);
+
+	ywCanvasNewImgByPath(canvas_example, 200, 250, "tests/hero.png");
+	ywCanvasNewImgByPath(canvas_example, 10, 20, "tests/hero.png");
+	ywidSetMainWid(wid);
+	printf("hello ?\n");
+	ygDoLoop();
+	printf("wait\n");
+	sleep(3);
+	printf("hello 1?\n");
+	ygDoLoop();
+	ygEnd();
+	ygCleanGameConfig(&cfg);
+}

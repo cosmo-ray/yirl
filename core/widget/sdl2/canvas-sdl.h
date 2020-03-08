@@ -26,6 +26,7 @@ struct SDL_Surface;
 typedef struct SDL_Surface SDL_Surface;
 
 void sdlFreeSurface(void *surface);
+void sdlCanvasCacheVoidTexture(Entity *obj, Entity *size);
 int sdlCanvasCacheTexture(Entity *state, Entity *elem);
 uint32_t sdlCanvasPixInfo(Entity *obj, int x, int y);
 SDL_Surface *sdlCopySurface(SDL_Surface *surface, Entity *rEnt);

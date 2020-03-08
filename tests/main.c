@@ -135,7 +135,8 @@ int main(int argc, char **argv)
   TEST_TRY_ADD("/widget/lifecycle/sdl", testSdlLife, only);
   TEST_TRY_ADD("/widget/textScreen/sdl", testYWTextScreenSdl2, only);
   TEST_TRY_ADD("/widget/textScreen/format/sdl", fmtTxtScreen, only);
-  TEST_TRY_ADD("/widget/canvas/sdl", testCanvasSdl2, only);
+  TEST_TRY_ADD("/widget/canvas/sdl/basic", testCanvasSdl2, only);
+  TEST_TRY_ADD("/widget/canvas/sdl/mergable", testCanvasMergable, only);
   TEST_TRY_ADD("/widget/menu/normal/sdl", testYWMenuSdl2, only);
   TEST_TRY_ADD("/widget/menu/panel/sdl", testPanelMenuSdl2, only);
   TEST_TRY_ADD("/widget/map/resized/sdl", testYWMapSdl2, only);

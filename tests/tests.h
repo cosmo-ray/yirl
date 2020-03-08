@@ -84,6 +84,7 @@ void testYWTextScreenAll(void);
 void fmtTxtScreen(void);
 
 void testCanvasSdl2(void);
+void testCanvasMergable(void);
 
 void testYWMenuCurses(void);
 void testYWMenuSdl2(void);

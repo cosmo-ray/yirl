@@ -760,7 +760,8 @@ int sdlCanvasCacheImg2(Entity *elem, Entity *resource, const char *imgPath,
 		}
 	}
 store_surface:
-	data = yeCreateData(surface, elem, "$img-surface");
+	data = yeCreateDataAt(surface, elem, "$img-surface",
+			      YCANVAS_SURFACE_IDX);
 	/* if no img path a texture was use */
 	if (imgPath) {
 		yeSetDestroy(data, sdlFreeSurface);
@@ -772,6 +773,19 @@ free_surface:
 	if (imgPath)
 		sdlFreeSurface(surface);
 	return -1;
+}
+
+void sdlCanvasCacheVoidTexture(Entity *obj, Entity *size)
+{
+	SDL_Surface *surface;
+	Entity *data;
+
+	surface = SDL_CreateRGBSurface(0, ywSizeW(size), ywSizeH(size),
+				       32, 0, 0, 0, 0);
+	data = yeCreateDataAt(surface, obj, "$img-surface",
+			      YCANVAS_SURFACE_IDX);
+	yeAttach(obj, data, YCANVAS_SIZE_IDX, "$size", 0);
+	yeSetDestroy(data, sdlFreeSurface);
 }
 
 void sdlCanvasCacheBicolorImg(Entity *elem, uint8_t *img, Entity *info)
@@ -795,7 +809,8 @@ void sdlCanvasCacheBicolorImg(Entity *elem, uint8_t *img, Entity *info)
 	data = yeCreateDataAt(texture, elem, "$img", YCANVAS_IMG_IDX);
 	yeSetDestroy(data, sdlFreeTexture);
 	ywSizeCreateAt(w, h, elem, "$size", YCANVAS_SIZE_IDX);
-	data = yeCreateData(surface, elem, "$img-surface");
+	data = yeCreateDataAt(surface, elem, "$img-surface",
+			      YCANVAS_SURFACE_IDX);
 	yeSetDestroy(data, sdlFreeSurface);
 	return;
 }

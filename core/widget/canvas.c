@@ -33,20 +33,48 @@ enum {
 
 typedef struct {
 	YWidgetState sate;
+	Entity *merge_texture;
 	int flag;
 } YCanvasState;
 
+static int ywCanvasSetWeightInternal(Entity *wid, Entity *obj, int weight,
+				     int newObj);
+
+static Entity *newTexture(Entity *wid, Entity *size)
+{
+	Entity *obj = yeCreateArray(NULL, NULL);
+	yeCreateInt(YCanvasHardTexture, obj, "canvas-type");
+	ywPosCreateInts(0, 0, obj, "pos");
+	ywCanvasSetWeightInternal(wid, obj, 0, 1);
+	sdlCanvasCacheVoidTexture(obj, size);
+	return obj;
+}
+
 static int init(YWidgetState *opac, Entity *entity, void *args)
 {
+	YCanvasState *state = (YCanvasState *)opac;
 	(void)entity;
 	(void)args;
 
+	state->flag = 0;
 	ywidGenericCall(opac, t, init);
+	state->flag |= !!yeGetIntAt(entity, "mergable") * YC_MERGE;
+	if (state->flag & YC_MERGE) {
+		yeAutoFree Entity *sz = ywSizeCreate(ywWidth(entity),
+						     ywHeight(entity),
+						     NULL, NULL);
+		state->merge_texture = newTexture(opac->entity, sz);
+	}
 	return 0;
 }
 
 static int destroy(YWidgetState *opac)
 {
+	YCanvasState *state = (YCanvasState *)opac;
+
+	if (state->flag & YC_MERGE) {
+		yeDestroy(state->merge_texture);
+	}
 	g_free(opac);
 	return 0;
 }
@@ -424,7 +452,8 @@ Entity *ywCanvasNewTextExt(Entity *wid, int x, int y, Entity *string,
 }
 
 
-Entity *ywCanvasNewBicolorImg(Entity *c, int x, int y, uint8_t *img, Entity *info)
+Entity *ywCanvasNewBicolorImg(Entity *c, int x, int y, uint8_t *img,
+			      Entity *info)
 {
 	Entity *obj = yeCreateArray(NULL, NULL);
 
@@ -470,7 +499,6 @@ Entity *ywCanvasNewImgFromTexture(Entity *wid, int x, int y, Entity *yTexture,
 	sdlCanvasCacheTexture(wid, obj);
 	return obj;
 }
-
 
 Entity *ywCanvasNewImg(Entity *wid, int x, int y, const char *path,
 		       Entity *img_src_rect)

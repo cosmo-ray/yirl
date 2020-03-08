@@ -76,6 +76,8 @@ int sdlPrintText(SDLWid *wid,
 
 int sdlCanvasCacheTexture(Entity *state, Entity *elem);
 
+void sdlCanvasCacheVoidTexture(Entity *obj, Entity *size);
+
 int sdlCanvasRendObj(YWidgetState *state, SDLWid *wid, Entity *img,
 		     Entity *cam, Entity *widPix);
 
