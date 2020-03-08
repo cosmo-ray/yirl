@@ -129,7 +129,7 @@
     )
 
   (define pong_init
-    (lambda (wid)
+    (lambda (wid unues_type)
       (ywidNewWidget (init_pong wid) "canvas")
       )
     )
