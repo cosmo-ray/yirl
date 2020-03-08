@@ -121,6 +121,9 @@ A widget that implement some game mechanism(like snake), or a full game (like ga
 
 Each modules have a start.json file that will serve as entry file, and will tell YIRL how to load every other files
 
+# start a game from the source
+./yirl-loader.sh  --default-tcc-path --binary-root-path $PWD -d path/to/game/module
+
 # how to start using YIRL
 For now the easier way to use YIRL is to come chat with us and ask for help
 But you can still understand how YIRL work by:
