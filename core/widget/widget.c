@@ -399,7 +399,7 @@ static YWidgetState *ywidNewWidgetInternal(int t,
 
 	/* Init sub widget */
 	if (shouldInit && initer) {
-		yesCall(initer, ret->entity, entity);
+		yesCall(initer, entity);
 	}
 
 	return ret;

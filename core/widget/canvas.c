@@ -26,11 +26,6 @@
 
 static int t = -1;
 
-enum {
-	YC_HAS_WEIGHT = 1,
-	YC_MERGE = 1 << 1,
-};
-
 typedef struct {
 	YWidgetState sate;
 	Entity *merge_texture;

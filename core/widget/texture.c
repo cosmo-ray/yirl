@@ -18,6 +18,9 @@
 #include "texture.h"
 #include "sdl2/canvas-sdl.h"
 
+/**
+ * merge dest into src, srcRect and dstRect are curently unused
+ */
 int ywTextureMerge(Entity *src, Entity *srcRect,
 		   Entity *dest, Entity *dstRect)
 {

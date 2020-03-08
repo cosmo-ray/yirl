@@ -21,21 +21,26 @@
 #include "yirl/widget.h"
 
 typedef enum  {
-  YCanvasResource,
-  YCanvasRect,
-  YCanvasString,
-  YCanvasTexture,
-  YCanvasImg,
-  YCanvasBigTexture,
-  YCanvasBicolorImg,
-  YCanvasHardTexture,
-  YCnvasEndType
+	YCanvasResource,
+	YCanvasRect,
+	YCanvasString,
+	YCanvasTexture,
+	YCanvasImg,
+	YCanvasBigTexture,
+	YCanvasBicolorImg,
+	YCanvasHardTexture,
+	YCnvasEndType
 } YCanvasObjType;
 
 typedef enum  {
-  YCanvasForceSize,
-  YCanvasRotate,
+	YCanvasForceSize,
+	YCanvasRotate,
 } YCanvasModifier;
+
+enum {
+	YC_HAS_WEIGHT = 1,
+	YC_MERGE = 1 << 1,
+};
 
 #define YCANVAS_TYPE_IDX 0
 #define YCANVAS_POS_IDX 1
@@ -45,8 +50,8 @@ typedef enum  {
 #define YCANVAS_SURFACE_IDX 8
 
 typedef union {
-  uint32_t i;
-  uint8_t rgba[4];
+	uint32_t i;
+	uint8_t rgba[4];
 } YCanvasPixiel;
 
 int ywCanvasInit(void);
@@ -148,7 +153,7 @@ void ywCanvasRemoveObj(Entity *wid, Entity *obj);
 
 static inline void ywCanvasPopObj(Entity *wid)
 {
-  yePopBack(yeGet(wid, "objs"));
+	yePopBack(yeGet(wid, "objs"));
 }
 
 void ywCanvasStringSet(Entity *obj, Entity *newStr);
@@ -200,27 +205,27 @@ Entity *ywCanvasProjectedArColisionArray(Entity *wid, Entity *rect,
  */
 static inline void ywCanvasObjPointTopTo(Entity *obj, Entity *point)
 {
-  Entity *pos = ywCanvasObjPos(obj);
-  Entity *s = ywCanvasObjSize(NULL, obj);
+	Entity *pos = ywCanvasObjPos(obj);
+	Entity *s = ywCanvasObjSize(NULL, obj);
 
-  ywPosAddXY(pos, ywSizeW(s) / 2, ywSizeH(s) / 2) ;
-  ywCanvasRotate(obj, ywPosAngle(pos, point) - 90);
-  ywPosSubXY(pos, ywSizeW(s) / 2, ywSizeH(s) / 2) ;
+	ywPosAddXY(pos, ywSizeW(s) / 2, ywSizeH(s) / 2) ;
+	ywCanvasRotate(obj, ywPosAngle(pos, point) - 90);
+	ywPosSubXY(pos, ywSizeW(s) / 2, ywSizeH(s) / 2) ;
 }
 
 static inline void ywCanvasObjPointRightTo(Entity *obj, Entity *point)
 {
-  Entity *pos = ywCanvasObjPos(obj);
-  Entity *s = ywCanvasObjSize(NULL, obj);
+	Entity *pos = ywCanvasObjPos(obj);
+	Entity *s = ywCanvasObjSize(NULL, obj);
 
-  ywPosAddXY(pos, ywSizeW(s) / 2, ywSizeH(s) / 2) ;
-  ywCanvasRotate(obj, ywPosAngle(pos, point));
-  ywPosSubXY(pos, ywSizeW(s) / 2, ywSizeH(s) / 2) ;
+	ywPosAddXY(pos, ywSizeW(s) / 2, ywSizeH(s) / 2) ;
+	ywCanvasRotate(obj, ywPosAngle(pos, point));
+	ywPosSubXY(pos, ywSizeW(s) / 2, ywSizeH(s) / 2) ;
 }
 
 static inline Entity *ywCanvasObjMod(Entity *obj)
 {
-  return yeGet(obj, "$mod");
+	return yeGet(obj, "$mod");
 }
 
 /**
