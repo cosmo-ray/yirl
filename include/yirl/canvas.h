@@ -28,7 +28,6 @@ typedef enum  {
 	YCanvasImg,
 	YCanvasBigTexture,
 	YCanvasBicolorImg,
-	YCanvasHardTexture,
 	YCnvasEndType
 } YCanvasObjType;
 
@@ -54,9 +53,17 @@ typedef union {
 	uint8_t rgba[4];
 } YCanvasPixiel;
 
+typedef struct {
+	YWidgetState sate;
+	Entity *merge_texture;
+	int flag;
+} YCanvasState;
+
 int ywCanvasInit(void);
 int ywCanvasEnd(void);
 int ysdl2RegistreCanvas(void);
+
+Entity *ywCanvasMergeTexture(YWidgetState *opac);
 
 void ywCanvasClear(Entity *canvas);
 

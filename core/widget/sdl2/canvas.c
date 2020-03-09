@@ -19,12 +19,14 @@
 #include <SDL2/SDL_ttf.h>
 #include <glib.h>
 #include "sdl-internal.h"
+#include "yirl/texture.h"
 #include "yirl/canvas.h"
 #include "yirl/rect.h"
 #include "yirl/entity.h"
 
 static int sdl2Render(YWidgetState *state, int t)
 {
+	YCanvasState *s = (void *)state;
 	SDLWid *wid = ywidGetRenderData(state, t);
 	Entity *entity = state->entity;
 	Entity *objs = yeGet(entity, "objs");
@@ -34,9 +36,26 @@ static int sdl2Render(YWidgetState *state, int t)
 
 	if (ywidBgConfFill(yeGet(entity, "background"), &cfg) >= 0)
 		sdlFillBg(wid, &cfg);
+	if (s->flag & YC_MERGE) {
+		Entity *dst = s->merge_texture;
+		char *str;
+
+		YE_ARRAY_FOREACH(objs, obj) {
+			str = yeToCStr(dst, -1, YE_FORMAT_PRETTY);
+			printf("OBJ: %s\n", str);
+			free(str);
+			ywTextureMerge(obj, NULL, dst, NULL);
+		}
+		str = yeToCStr(dst, -1, YE_FORMAT_PRETTY);
+		printf("DST: %s\n", str);
+		free(str);
+		ywCanvasClear(entity);
+		ywCanvasNewImgFromTexture(entity, 0, 0, dst, NULL);
+	}
 	YE_ARRAY_FOREACH(objs, obj) {
 		sdlCanvasRendObj(state, wid, obj, cam, widPix);
 	}
+
 	if (ywidBgConfFill(yeGet(state->entity, "foreground"), &cfg) >= 0)
 		sdlFillBg(wid, &cfg);
 	return 0;

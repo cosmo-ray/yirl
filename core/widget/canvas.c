@@ -26,21 +26,15 @@
 
 static int t = -1;
 
-typedef struct {
-	YWidgetState sate;
-	Entity *merge_texture;
-	int flag;
-} YCanvasState;
-
 static int ywCanvasSetWeightInternal(Entity *wid, Entity *obj, int weight,
 				     int newObj);
 
 static Entity *newTexture(Entity *wid, Entity *size)
 {
 	Entity *obj = yeCreateArray(NULL, NULL);
-	yeCreateInt(YCanvasHardTexture, obj, "canvas-type");
+	yeCreateInt(YCanvasTexture, obj, "canvas-type");
 	ywPosCreateInts(0, 0, obj, "pos");
-	ywCanvasSetWeightInternal(wid, obj, 0, 1);
+	/* ywCanvasSetWeightInternal(wid, obj, 0, 1); */
 	sdlCanvasCacheVoidTexture(obj, size);
 	return obj;
 }

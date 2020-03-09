@@ -784,8 +784,9 @@ void sdlCanvasCacheVoidTexture(Entity *obj, Entity *size)
 				       32, 0, 0, 0, 0);
 	data = yeCreateDataAt(surface, obj, "$img-surface",
 			      YCANVAS_SURFACE_IDX);
-	yeAttach(obj, data, YCANVAS_SIZE_IDX, "$size", 0);
+	yeAttach(obj, size, YCANVAS_SIZE_IDX, "$size", 0);
 	yeSetDestroy(data, sdlFreeSurface);
+	ywSizePrint(ywCanvasObjSize(NULL, obj));
 }
 
 void sdlCanvasCacheBicolorImg(Entity *elem, uint8_t *img, Entity *info)
