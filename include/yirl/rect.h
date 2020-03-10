@@ -50,6 +50,8 @@ static inline int ywRectHDirect(Entity *e)
   return yeGetIntDirect(yeGetByIdxDirect(e, 3));
 }
 
+#define YRECT_MK_INIT(r) {ywRectX(r), ywRectY(r), ywRectW(r), ywRectH(r) }
+
 /**
  * @father the father of the returned entity in which we store the return,
  * can be NULL.

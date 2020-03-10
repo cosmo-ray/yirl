@@ -28,7 +28,7 @@ int ywTextureMerge(Entity *src, Entity *srcRect,
     return -1;
   ywTextureNormalize(src);
   ywTextureNormalize(dest);
-  return sdlMergeSurface(src, NULL, dest, NULL);
+  return sdlMergeSurface(src, srcRect, dest, dstRect);
 }
 
 int	ywTextureNormalize(Entity *text)

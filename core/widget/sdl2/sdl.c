@@ -614,14 +614,14 @@ int sdlMergeSurface(Entity *textSrc, Entity *srcRect,
 {
   SDL_Surface *sSurface = yeGetDataAt(textSrc, "$img-surface");
   SDL_Surface *dSurface = yeGetDataAt(textDest, "$img-surface");
+  struct SDL_Rect sr = YRECT_MK_INIT(srcRect);
+  struct SDL_Rect dr = YRECT_MK_INIT(destRect);
 
-  /* FIXME: TODO */
-  (void)srcRect;
-  (void)destRect;
   if (unlikely(!sSurface || !dSurface)) {
     return -1;
   }
-  return SDL_BlitSurface(sSurface, NULL, dSurface, NULL);
+  return SDL_BlitSurface(sSurface, srcRect ? &sr : NULL,
+			 dSurface, destRect ? &dr : NULL);
 }
 
 SDL_Surface *sdlCopySurface(SDL_Surface *surface, Entity *rEnt)

@@ -38,24 +38,28 @@ static int sdl2Render(YWidgetState *state, int t)
 		sdlFillBg(wid, &cfg);
 	if (s->flag & YC_MERGE) {
 		Entity *dst = s->merge_texture;
-		char *str;
 
 		YE_ARRAY_FOREACH(objs, obj) {
-			str = yeToCStr(dst, -1, YE_FORMAT_PRETTY);
-			printf("OBJ: %s\n", str);
-			free(str);
-			ywTextureMerge(obj, NULL, dst, NULL);
+			yeAutoFree Entity *dst_rect = ywRectCreatePosSize(
+				ywCanvasObjPos(obj),
+				ywCanvasObjSize(entity, obj),
+				NULL, NULL);
+
+			ywTextureMerge(obj, NULL, dst, dst_rect);
 		}
-		str = yeToCStr(dst, -1, YE_FORMAT_PRETTY);
-		printf("DST: %s\n", str);
-		free(str);
 		ywCanvasClear(entity);
-		ywCanvasNewImgFromTexture(entity, 0, 0, dst, NULL);
+		sdlCanvasRendObj(state, wid,
+				 ywCanvasNewImgFromTexture(entity, 0,
+							   0, dst, NULL),
+				 cam, widPix);
+		ywCanvasClear(entity);
+		goto forground;
 	}
 	YE_ARRAY_FOREACH(objs, obj) {
 		sdlCanvasRendObj(state, wid, obj, cam, widPix);
 	}
 
+forground:
 	if (ywidBgConfFill(yeGet(state->entity, "foreground"), &cfg) >= 0)
 		sdlFillBg(wid, &cfg);
 	return 0;
