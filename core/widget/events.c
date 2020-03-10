@@ -19,89 +19,89 @@
 
 _Bool yevIsKeyDown(Entity *events, int k)
 {
-  Entity *eve = events;
+	Entity *eve = events;
 
-  YEVE_FOREACH(eve, events) {
-    if (ywidEveType(eve) == YKEY_DOWN &&
-	ywidEveKey(eve) == k)
-      return 1;
-  }
-  return 0;
+	YEVE_FOREACH(eve, events) {
+		if (ywidEveType(eve) == YKEY_DOWN &&
+		    ywidEveKey(eve) == k)
+			return 1;
+	}
+	return 0;
 }
 
 _Bool yevIsKeyUp(Entity *events, int k)
 {
-  Entity *eve = events;
+	Entity *eve = events;
 
-  YEVE_FOREACH(eve, events) {
-    if (ywidEveType(eve) == YKEY_UP &&
-	ywidEveKey(eve) == k)
-      return 1;
-  }
-  return 0;
+	YEVE_FOREACH(eve, events) {
+		if (ywidEveType(eve) == YKEY_UP &&
+		    ywidEveKey(eve) == k)
+			return 1;
+	}
+	return 0;
 }
 
 Entity *yevMousePos(Entity *events)
 {
-  Entity *eve = events;
+	Entity *eve = events;
 
-  YEVE_FOREACH(eve, events) {
-    int t = ywidEveType(eve);
-    if (t == YKEY_MOUSEDOWN || t == YKEY_MOUSEMOTION)
-      return ywidEveMousePos(eve);
-  }
-  return NULL;
+	YEVE_FOREACH(eve, events) {
+		int t = ywidEveType(eve);
+		if (t == YKEY_MOUSEDOWN || t == YKEY_MOUSEMOTION)
+			return ywidEveMousePos(eve);
+	}
+	return NULL;
 }
 
 _Bool yevIsGrpDown(Entity *events, Entity *grp)
 {
-  Entity *eve = events;
+	Entity *eve = events;
 
-  YEVE_FOREACH(eve, events) {
-    if (ywidEveType(eve) != YKEY_DOWN)
-      continue;
-    int ck = ywidEveKey(eve);
+	YEVE_FOREACH(eve, events) {
+		if (ywidEveType(eve) != YKEY_DOWN)
+			continue;
+		int ck = ywidEveKey(eve);
 
-    YE_FOREACH(grp, key) {
-      int k = yeGetInt(key);
+		YE_FOREACH(grp, key) {
+			int k = yeGetInt(key);
 
-      if (ck == k)
-	return 1;
-    }
-  }
-  return 0;
+			if (ck == k)
+				return 1;
+		}
+	}
+	return 0;
 }
 
 _Bool yevIsGrpUp(Entity *events, Entity *grp)
 {
-  Entity *eve = events;
+	Entity *eve = events;
 
-  YEVE_FOREACH(eve, events) {
-    if (ywidEveType(eve) != YKEY_UP)
-      continue;
-    int ck = ywidEveKey(eve);
+	YEVE_FOREACH(eve, events) {
+		if (ywidEveType(eve) != YKEY_UP)
+			continue;
+		int ck = ywidEveKey(eve);
 
-    YE_FOREACH(grp, key) {
-      int k = yeGetInt(key);
+		YE_FOREACH(grp, key) {
+			int k = yeGetInt(key);
 
-      if (ck == k)
-	return 1;
-    }
-  }
-  return 0;
+			if (ck == k)
+				return 1;
+		}
+	}
+	return 0;
 }
 
 int yevMouseDown(Entity *events, int *button)
 {
-  Entity *eve = events;
+	Entity *eve = events;
 
-  YEVE_FOREACH(eve, events) {
-    int t = ywidEveType(eve);
-    if (t == YKEY_MOUSEDOWN) {
-      *button =  ywidEveKey(eve);
-      return 1;
-    }
-  }
-  return 0;
+	YEVE_FOREACH(eve, events) {
+		int t = ywidEveType(eve);
+		if (t == YKEY_MOUSEDOWN) {
+			*button =  ywidEveKey(eve);
+			return 1;
+		}
+	}
+	return 0;
 }
 
