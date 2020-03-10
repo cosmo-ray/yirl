@@ -208,11 +208,6 @@ void testCanvasMergable(void)
 	ywCanvasNewImgByPath(canvas_example, 200, 250, "tests/hero.png");
 	ywCanvasNewImgByPath(canvas_example, 10, 20, "tests/hero.png");
 	ywidSetMainWid(wid);
-	printf("hello ?\n");
-	ygDoLoop();
-	printf("wait\n");
-	sleep(3);
-	printf("hello 1?\n");
 	ygDoLoop();
 	ygEnd();
 	ygCleanGameConfig(&cfg);
