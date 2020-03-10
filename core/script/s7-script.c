@@ -198,6 +198,7 @@ static s7_pointer make_nothing(s7_scheme *s, ...)
 		 Entity *: 1,			\
 		 const Entity *: 1,		\
 		 int: 2,			\
+		 _Bool: 2,			\
 		 long: 2,			\
 		 double: 2,			\
 		 float: 2,			\
@@ -212,6 +213,7 @@ static s7_pointer make_nothing(s7_scheme *s, ...)
 		 Entity *: call,		\
 		 const Entity *: call,		\
 		 int: call,			\
+		 _Bool: call,			\
 		 long: call,			\
 		 double: call,			\
 		 float: call,			\
