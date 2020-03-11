@@ -620,6 +620,13 @@ int sdlMergeSurface(Entity *textSrc, Entity *srcRect,
   if (unlikely(!sSurface || !dSurface)) {
     return -1;
   }
+  if (unlikely(ywCanvasObjType(textSrc) == YCanvasRect)) {
+	  YBgConf cfg;
+
+	  ywidBgConfFill(yeGet(yeGet(textSrc, 2), 1), &cfg);
+	  return SDL_FillRect(dSurface, &dr, cfg.rgba);
+  }
+
   return SDL_BlitSurface(sSurface, srcRect ? &sr : NULL,
 			 dSurface, destRect ? &dr : NULL);
 }

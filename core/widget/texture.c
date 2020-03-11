@@ -16,6 +16,7 @@
 */
 
 #include "texture.h"
+#include "canvas.h"
 #include "sdl2/canvas-sdl.h"
 
 /**
@@ -26,8 +27,10 @@ int ywTextureMerge(Entity *src, Entity *srcRect,
 {
   if (unlikely(!src || !dest))
     return -1;
-  ywTextureNormalize(src);
-  ywTextureNormalize(dest);
+  if (ywCanvasObjType(src) != YCanvasRect)
+	  ywTextureNormalize(src);
+  if (ywCanvasObjType(dest) != YCanvasRect)
+	  ywTextureNormalize(dest);
   return sdlMergeSurface(src, srcRect, dest, dstRect);
 }
 
