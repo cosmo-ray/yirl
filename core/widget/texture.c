@@ -19,6 +19,12 @@
 #include "canvas.h"
 #include "sdl2/canvas-sdl.h"
 
+int ywTextureFastMerge(Entity *src, Entity *srcRect,
+		       Entity *dest, Entity *dstRect)
+{
+	return sdlMergeSurface(src, srcRect, dest, dstRect);
+}
+
 /**
  * merge dest into src, srcRect and dstRect are curently unused
  */
@@ -26,7 +32,7 @@ int ywTextureMerge(Entity *src, Entity *srcRect,
 		   Entity *dest, Entity *dstRect)
 {
   if (unlikely(!src || !dest))
-    return -1;
+	  return -1;
   if (ywCanvasObjType(src) != YCanvasRect)
 	  ywTextureNormalize(src);
   if (ywCanvasObjType(dest) != YCanvasRect)
@@ -36,13 +42,13 @@ int ywTextureMerge(Entity *src, Entity *srcRect,
 
 int	ywTextureNormalize(Entity *text)
 {
-  void *tmp = sdlCopySurface(yeGetDataAt(text, "$img-surface"), NULL);
+  void *tmp = sdlCopySurface(yeGetDataAt(text, YCANVAS_SURFACE_IDX), NULL);
   Entity *data;
 
   if (!tmp)
     return -1;
-  yeRemoveChild(text, "$img-surface");
-  data = yeCreateData(tmp, text, "$img-surface");
+  yeRemoveChild(text, YCANVAS_SURFACE_IDX);
+  data = yeCreateDataAt(tmp, text, "$img-surface", YCANVAS_SURFACE_IDX);
   yeSetDestroy(data, sdlFreeSurface);
   return 0;
 }
@@ -52,6 +58,7 @@ Entity *ywTextureNewImg(const char *path, Entity *size,
 {
   Entity * ret = yeCreateArray(father, name);
 
+  yeCreateInt(YCanvasTexture, ret, "canvas-type");
   if (sdlCanvasCacheImg2(ret, NULL, path, size,
 			 YSDL_CACHE_IMG_NO_TEXTURE) < 0)
     return NULL;

@@ -23,6 +23,9 @@
 Entity *ywTextureNewImg(const char *path, Entity *size,
 			Entity *father, const char *name);
 
+int ywTextureFastMerge(Entity *src, Entity *srcRect,
+		       Entity *dest, Entity *dstRect);
+
 /**
  * merge @src on @dest
  * @return -1 on error, 0 on sucess

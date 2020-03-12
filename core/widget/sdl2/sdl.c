@@ -459,35 +459,36 @@ int sdlPrintText(SDLWid *wid,
 		 SDL_Rect pos,
 		 int alignementType)
 {
-  if (!str)
-    return 0;
-  char **tmp = g_strsplit(str, "\n", 0);
-  int ret = 0;
-  int aditioner = 0;
-  int end;
+	if (!str)
+		return 0;
+	char **tmp = g_strsplit(str, "\n", 0);
+	int ret = 0;
+	int aditioner = 0;
+	int end;
 
-  for (end = 0; tmp[end]; ++end);
+	for (end = 0; tmp[end]; ++end);
 
-  for (int i = 0; i < end; ++i) {
-    ret = sdlPrintLine(wid, tmp[i], color, pos, i + aditioner, alignementType);
-    if (ret < 0)
-      goto exit;
-    aditioner += ret;
-  }
- exit:
-  g_strfreev(tmp);
-  return 0;
+	for (int i = 0; i < end; ++i) {
+		ret = sdlPrintLine(wid, tmp[i], color, pos,
+				   i + aditioner, alignementType);
+		if (ret < 0)
+			goto exit;
+		aditioner += ret;
+	}
+exit:
+	g_strfreev(tmp);
+	return 0;
 }
 
 void sdlResize(YWidgetState *wid, int renderType)
 {
-  SDLWid *swid = wid->renderStates[renderType].opac;
-  Entity *pos = yeGet(wid->entity, "wid-pix");
+	SDLWid *swid = wid->renderStates[renderType].opac;
+	Entity *pos = yeGet(wid->entity, "wid-pix");
 
-  swid->rect.h = ywRectH(pos);
-  swid->rect.w = ywRectW(pos);
-  swid->rect.x = ywRectX(pos);
-  swid->rect.y = ywRectY(pos);
+	swid->rect.h = ywRectH(pos);
+	swid->rect.w = ywRectW(pos);
+	swid->rect.x = ywRectX(pos);
+	swid->rect.y = ywRectY(pos);
 }
 
 void sdlWidInit(YWidgetState *wid, int t)
@@ -578,97 +579,97 @@ static GError *sdlError;
 
 void sdlConsumeError(void)
 {
-  if (!sdlError)
-    return;
-  fprintf(stderr, "%s\n", sdlError->message);
-  g_error_free(sdlError);
-  sdlError = NULL;
+	if (!sdlError)
+		return;
+	fprintf(stderr, "%s\n", sdlError->message);
+	g_error_free(sdlError);
+	sdlError = NULL;
 }
 
 static int sdlCanvasCacheText(Entity *state, Entity *elem, Entity *resource,
 			      const char *str)
 {
-  SDL_Color color = {0,0,0,255};
-  SDL_Surface *image;
-  SDL_Texture *texture;
-  Entity *data;
-  int w = 0, h = 0;
+	SDL_Color color = {0,0,0,255};
+	SDL_Surface *image;
+	SDL_Texture *texture;
+	Entity *data;
+	int w = 0, h = 0;
 
-  image = TTF_RenderUTF8_Solid(sgDefaultFont(), str, color);
-  texture = SDL_CreateTextureFromSurface(sg.renderer, image);
-  SDL_QueryTexture(texture, NULL, NULL, &w, &h);
-  data = yeCreateDataAt(texture, elem, "$img", YCANVAS_IMG_IDX);
-  yeSetDestroy(data, sdlFreeTexture);
-  ywSizeCreateAt(w, h, elem, "$size", YCANVAS_SIZE_IDX);
-  data = yeCreateData(image, elem, "$img-surface");
-  yeSetDestroy(data, sdlFreeSurface);
+	image = TTF_RenderUTF8_Solid(sgDefaultFont(), str, color);
+	texture = SDL_CreateTextureFromSurface(sg.renderer, image);
+	SDL_QueryTexture(texture, NULL, NULL, &w, &h);
+	data = yeCreateDataAt(texture, elem, "$img", YCANVAS_IMG_IDX);
+	yeSetDestroy(data, sdlFreeTexture);
+	ywSizeCreateAt(w, h, elem, "$size", YCANVAS_SIZE_IDX);
+	data = yeCreateData(image, elem, "$img-surface");
+	yeSetDestroy(data, sdlFreeSurface);
 
-  yeGetPush(elem, resource, "$img");
-  yeGetPush(elem, resource, "$size");
-  yeGetPush(elem, resource, "$img-surface");
-  return 0;
+	yeGetPush(elem, resource, "$img");
+	yeGetPush(elem, resource, "$size");
+	yeGetPush(elem, resource, "$img-surface");
+	return 0;
 }
 
 int sdlMergeSurface(Entity *textSrc, Entity *srcRect,
 		    Entity *textDest, Entity *destRect)
 {
-  SDL_Surface *sSurface = yeGetDataAt(textSrc, "$img-surface");
-  SDL_Surface *dSurface = yeGetDataAt(textDest, "$img-surface");
-  struct SDL_Rect sr = YRECT_MK_INIT(srcRect);
-  struct SDL_Rect dr = YRECT_MK_INIT(destRect);
+	SDL_Surface *sSurface = yeGetDataAt(textSrc, YCANVAS_SURFACE_IDX);
+	SDL_Surface *dSurface = yeGetDataAt(textDest, YCANVAS_SURFACE_IDX);
+	struct SDL_Rect sr = YRECT_MK_INIT(srcRect);
+	struct SDL_Rect dr = YRECT_MK_INIT(destRect);
 
-  if (unlikely(!sSurface || !dSurface)) {
-    return -1;
-  }
-  if (unlikely(ywCanvasObjType(textSrc) == YCanvasRect)) {
-	  YBgConf cfg;
+	if (unlikely(!sSurface || !dSurface)) {
+		return -1;
+	}
+	if (ywCanvasObjType(textSrc) == YCanvasRect) {
+		YBgConf cfg;
 
-	  ywidBgConfFill(yeGet(yeGet(textSrc, 2), 1), &cfg);
-	  return SDL_FillRect(dSurface, &dr, cfg.rgba);
-  }
+		ywidBgConfFill(yeGet(yeGet(textSrc, 2), 1), &cfg);
+		return SDL_FillRect(dSurface, &dr, cfg.rgba);
+	}
 
-  return SDL_BlitSurface(sSurface, srcRect ? &sr : NULL,
-			 dSurface, destRect ? &dr : NULL);
+	return SDL_BlitSurface(sSurface, srcRect ? &sr : NULL,
+			       dSurface, destRect ? &dr : NULL);
 }
 
 SDL_Surface *sdlCopySurface(SDL_Surface *surface, Entity *rEnt)
 {
-  SDL_Rect r;
-  SDL_Rect *rptr = NULL;
-  SDL_Surface *tmpSurface = surface;
-  int w = surface->w, h = surface->h;
+	SDL_Rect r;
+	SDL_Rect *rptr = NULL;
+	SDL_Surface *tmpSurface = surface;
+	int w = surface->w, h = surface->h;
 
-  if (rEnt) {
-    r.x = ywRectX(rEnt);
-    r.y = ywRectY(rEnt);
-    r.w = ywRectW(rEnt);
-    r.h = ywRectH(rEnt);
-    w = r.w;
-    h = r.h;
-    rptr = &r;
-  }
-  if (!w || !h) {
-	  DPRINT_ERR("Surface size can't be 0");
-	  return NULL;
-  }
+	if (rEnt) {
+		r.x = ywRectX(rEnt);
+		r.y = ywRectY(rEnt);
+		r.w = ywRectW(rEnt);
+		r.h = ywRectH(rEnt);
+		w = r.w;
+		h = r.h;
+		rptr = &r;
+	}
+	if (!w || !h) {
+		DPRINT_ERR("Surface size can't be 0");
+		return NULL;
+	}
 
-  surface = SDL_CreateRGBSurface(0, w, h, 32, surface->format->Rmask,
-  				 surface->format->Gmask,
-  				 surface->format->Bmask,
-  				 surface->format->Amask);
-  uint32_t ck0;
-  int ri = SDL_GetColorKey(tmpSurface, &ck0);
-  if (!ri)
-    SDL_SetColorKey(surface, 1, ck0);
+	surface = SDL_CreateRGBSurface(0, w, h, 32, surface->format->Rmask,
+				       surface->format->Gmask,
+				       surface->format->Bmask,
+				       surface->format->Amask);
+	uint32_t ck0;
+	int ri = SDL_GetColorKey(tmpSurface, &ck0);
+	if (!ri)
+		SDL_SetColorKey(surface, 1, ck0);
 
-  if (unlikely(!surface)) {
-    DPRINT_ERR("fail to create surface");
-    SDL_FreeSurface(tmpSurface);
-    return NULL;
-  }
+	if (unlikely(!surface)) {
+		DPRINT_ERR("fail to create surface");
+		SDL_FreeSurface(tmpSurface);
+		return NULL;
+	}
 
-  SDL_BlitSurface(tmpSurface, rptr, surface, NULL);
-  return surface;
+	SDL_BlitSurface(tmpSurface, rptr, surface, NULL);
+	return surface;
 }
 
 
@@ -949,7 +950,7 @@ uint32_t sdlCanvasPixInfo(Entity *obj, int x, int y)
 {
   if (!obj)
     return 0;
-  SDL_Surface *surface = yeGetDataAt(obj, "$img-surface");
+  SDL_Surface *surface = yeGetDataAt(obj, YCANVAS_SURFACE_IDX);
   int type = yeGetIntAt(obj, 0);
 
   if (type == YCanvasRect) {

@@ -40,13 +40,12 @@ static int sdl2Render(YWidgetState *state, int t)
 		Entity *dst = s->merge_texture;
 
 		YE_ARRAY_FOREACH(objs, obj) {
-			/* printf("R %d\n", ywCanvasObjType(obj)); */
 			yeAutoFree Entity *dst_rect = ywRectCreatePosSize(
 				ywCanvasObjPos(obj),
 				ywCanvasObjSize(entity, obj),
 				NULL, NULL);
 
-			ywTextureMerge(obj, NULL, dst, dst_rect);
+			ywTextureFastMerge(obj, NULL, dst, dst_rect);
 		}
 		ywCanvasClear(entity);
 		sdlCanvasRendObj(state, wid,
