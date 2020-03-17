@@ -63,6 +63,12 @@ int ywCanvasInit(void);
 int ywCanvasEnd(void);
 int ysdl2RegistreCanvas(void);
 
+/**
+ * directly write rect of @col into a mergable wid
+ */
+int ywCanvasMergeRectangle(Entity *wid, int x, int y,
+			   int w, int h, const char *col);
+
 Entity *ywCanvasMergeTexture(YWidgetState *opac);
 
 void ywCanvasClear(Entity *canvas);

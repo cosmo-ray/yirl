@@ -508,6 +508,14 @@ Entity *ywCanvasNewImgByPath(Entity *wid, int x, int y, const char *path)
 	return ywCanvasNewImg(wid, x, y, path, NULL);
 }
 
+int ywCanvasMergeRectangle(Entity *wid, int x, int y,
+			   int w, int h, const char * col)
+{
+	YCanvasState *state = (YCanvasState *)ywidGetState(wid);
+
+	return sdlMergeRect(state->merge_texture, x, y, w, h, col);
+}
+
 Entity *ywCanvasNewRect(Entity *wid, int x, int y, Entity *rect)
 {
 	Entity *obj = yeCreateArray(NULL, NULL);

@@ -232,7 +232,7 @@ next_is_wid:
 	return ywReplaceEntryByEntity(ywCntWidgetFather(target), target, next);
 }
 
-int ywidColorFromString(char *str, uint8_t *r, uint8_t *g,
+int ywidColorFromString(const char *str, uint8_t *r, uint8_t *g,
 			uint8_t *b, uint8_t *a)
 {
 	size_t len;
@@ -251,18 +251,24 @@ int ywidColorFromString(char *str, uint8_t *r, uint8_t *g,
 	len = strlen(str);
 	// collor or whatever
 	if (limiterPos) {
+		char str_cpy[len + 1];
 		char tmp;
 
-		tmp = str[limiterPos];
-		str[limiterPos] = '\0';
+		strcpy(str_cpy, str);
+		str = str_cpy;
+		tmp = str_cpy[limiterPos];
+		str_cpy[limiterPos] = '\0';
 
 		if (yuiStrEqual(str, "rgba")) {
 			char **rgba;
 			int i;
 
 			str += (limiterPos + 1);
-			if (len < sizeof("rgba:r,g,b,a"))
-				goto exit;
+			if (len < sizeof("rgba:r,g,b,a")) {
+				DPRINT_ERR("invalide rgba color string: '%s'",
+					   str);
+				return -1;
+			}
 
 			rgba = g_strsplit_set(str, ", :", 5);
 			for (i = 0; i < 4 && rgba[i] != NULL; ++i);
@@ -282,9 +288,6 @@ int ywidColorFromString(char *str, uint8_t *r, uint8_t *g,
 			g_strfreev(rgba);
 		}
 
-	exit:
-		str -= (limiterPos + 1);
-		str[limiterPos] = tmp;
 	} else if (str[0] == '#') {
 		char *eptr;
 		long c = strtol(str + 1, &eptr, 16);

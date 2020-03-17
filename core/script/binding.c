@@ -118,6 +118,8 @@ BIND_V(yeEntitiesArraySize);
 
 BIND_SEES(ywTextureNewImg, 4, 0);
 
+BIND_EIIIIS(ywCanvasMergeRectangle, 6, 0);
+
 BIND_EIIIIS(ywCanvasNewRectangle, 6, 0);
 
 BIND_NONE(yevCreateGrp, 1, 9);

@@ -185,7 +185,7 @@ extern struct widgetOpt widgetOptTab[MAX_NB_MANAGER];
 #define ywidNextEve(eve)			\
 	(yeGet(eve, YEVE_NEXT))
 
-int ywidColorFromString(char *str, uint8_t *r, uint8_t *g,
+int ywidColorFromString(const char *str, uint8_t *r, uint8_t *g,
 			uint8_t *b, uint8_t *a);
 
 void ywidChangeResolution(int w, int h);

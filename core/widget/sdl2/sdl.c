@@ -610,6 +610,16 @@ static int sdlCanvasCacheText(Entity *state, Entity *elem, Entity *resource,
 	return 0;
 }
 
+int sdlMergeRect(Entity *dst, int x, int y, int w, int h, const char *c)
+{
+	SDL_Surface *dSurface = yeGetDataAt(dst, YCANVAS_SURFACE_IDX);
+	YBgConf cfg;
+	struct SDL_Rect dr = {x, y, w, h};
+
+	ywidColorFromString(c, &cfg.r, &cfg.g, &cfg.b, &cfg.a);
+	return SDL_FillRect(dSurface, &dr, cfg.rgba);
+}
+
 int sdlMergeSurface(Entity *textSrc, Entity *srcRect,
 		    Entity *textDest, Entity *destRect)
 {
