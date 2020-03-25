@@ -78,6 +78,7 @@ A good contribution would be to make YIRL compatible with Linux coding style.
 * https://harald8.itch.io/pre-hangover-quest
 * https://uso.itch.io/warrior-of-asc-ii
 * https://uso.itch.io/jims
+* https://uso.itch.io/sukeban
 
 # Dependencies
 
