@@ -34,6 +34,7 @@
 #include "tcc-script.h"
 #include "s7-script.h"
 #include "duk-script.h"
+#include "quickjs-script.h"
 #include "native-script.h"
 #include "ybytecode-script.h"
 
@@ -64,6 +65,7 @@ static void *luaManager;
 static void *tccManager;
 static void *s7Manager;
 static void *dukManager;
+static void *qjsManager;
 
 static Entity *mainMod;
 static Entity *modList;
@@ -85,6 +87,11 @@ char *ygBinaryRootPath = "./";
 void *ygDukManager(void)
 {
 	return dukManager;
+}
+
+void *ygQjsManager(void)
+{
+	return qjsManager;
 }
 
 void *ygS7Manager(void)
@@ -336,6 +343,10 @@ int ygInit(GameConfig *cfg)
 	CHECK_AND_GOTO(dukManager = ysNewManager(NULL, t), NULL, error,
 		       "Duk init failed");
 
+	CHECK_AND_GOTO(t = ysQjsInit(), -1, error, "Qjs init failed");
+	CHECK_AND_GOTO(qjsManager = ysNewManager(NULL, t), NULL, error,
+		       "Qjs init failed");
+
 	/* Init widgets */
 	baseMod = yeCreateArray(NULL, NULL);
 	addNativeFuncToBaseMod();
@@ -443,6 +454,8 @@ void ygEnd()
 	ysS7End();
 	ysDestroyManager(dukManager);
 	ysDukEnd();
+	ysDestroyManager(qjsManager);
+	ysQjsEnd();
 	yeDestroy(globalsFunctions);
 	globalsFunctions = NULL;
 	yeDestroy(baseMod);
@@ -502,6 +515,8 @@ void *ygGetManager(const char *name)
 	else if (yuiStrEqual0(name, "s7"))
 		return s7Manager;
 	else if (yuiStrEqual0(name, "js"))
+		return qjsManager;
+	else if (yuiStrEqual0(name, "duk"))
 		return dukManager;
 	return NULL;
 }
@@ -539,7 +554,7 @@ Entity *ygLoadMod(const char *path)
 		const char * const starts[] = {"/start.c", "/start.lua",
 					       "/start.scm", "/start.js"};
 		void * const managers[] = {tccManager, luaManager,
-					   s7Manager, dukManager};
+					   s7Manager, qjsManager};
 
 		tmp = g_strconcat(path, starts[i], NULL);
 		CHECK_AND_RET(tmp, NULL, NULL,
@@ -644,9 +659,9 @@ Entity *ygLoadMod(const char *path)
 				goto fail_preload;
 			}
 		} else if (yuiStrEqual0(yeGetString(tmpType), "js")) {
-			if (ysLoadFile(dukManager, pathCstr) < 0) {
+			if (ysLoadFile(qjsManager, pathCstr) < 0) {
 				DPRINT_ERR("Error when loading '%s': %s\n",
-					   pathCstr, ysGetError(dukManager));
+					   pathCstr, ysGetError(qjsManager));
 				goto fail_preload;
 			}
 		} else if (yuiStrEqual0(yeGetString(tmpType), "json")) {

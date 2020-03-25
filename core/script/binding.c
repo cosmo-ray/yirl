@@ -7,7 +7,6 @@
 #define BIND_EE	BIND
 #define BIND_ES	BIND
 #define BIND_EI	BIND
-#define BIND_EE	BIND
 #define BIND_EII	BIND
 #define BIND_EEI	BIND
 #define BIND_EES	BIND

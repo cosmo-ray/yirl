@@ -25,6 +25,7 @@ SRC = 	$(SCRIPT_DIR)/lua-script.c \
 	$(SCRIPT_DIR)/ybytecode-script.c \
 	$(SCRIPT_DIR)/s7-script.c \
 	$(SCRIPT_DIR)/duk-script.c \
+	$(SCRIPT_DIR)/quickjs.c \
 	$(SCRIPT_DIR)/script.c \
 	$(BYTECODE_DIR)/ybytecode.c \
 	$(BYTECODE_DIR)/condition.c \
@@ -79,6 +80,11 @@ CXX = $(CC)
 OBJ =   $(SRC:.c=.o)
 OBJXX = $(SRCXX:.cpp=.o)
 
+QUICKJS_V = 2020-03-16
+
+QUICKJS_PATH = quickjs-$(QUICKJS_V)
+QUICKJS_LIB_PATH = $(QUICKJS_PATH)/libquickjs.a
+
 GEN_LOADER_SRC = $(GEN_LOADER_DIR)/main.c
 GEN_LOADER_OBJ = $(GEN_LOADER_SRC:.c=.o)
 
@@ -102,6 +108,7 @@ COMMON_CFLAGS += -I$(YIRL_INCLUDE_PATH2)
 COMMON_CFLAGS += -I$(TCC_LIB_PATH)
 COMMON_CFLAGS += -I./core/script/
 COMMON_CFLAGS += -I./$(DUCK_V)/ -I./$(DUCK_V)/src/ # <--- last one is here so I can compile extras
+COMMON_CFLAGS += -I./$(QUICKJS_PATH)
 COMMON_CFLAGS += -fpic
 COMMON_CFLAGS += $(LUA_CFLAGS)
 COMMON_CFLAGS += -Werror -Wall -Wextra -Wno-unused-function -Wno-unused-parameter -Wno-int-to-pointer-cast
@@ -115,6 +122,15 @@ COMMON_CFLAGS += -fno-strict-aliasing # casting entity doesn't really respect st
 CXXFLAGS = $(COMMON_CFLAGS) -x c++ -Wno-missing-exception-spec -fno-exceptions -fno-rtti
 
 CFLAGS += $(COMMON_CFLAGS) -std=gnu11 -D_GNU_SOURCE
+
+quickjs-$(QUICKJS_V).tar.xz:
+	wget "https://bellard.org/quickjs/quickjs-$(QUICKJS_V).tar.xz"
+
+$(QUICKJS_PATH): quickjs-$(QUICKJS_V).tar.xz
+	tar xvf quickjs-$(QUICKJS_V).tar.xz
+
+$(QUICKJS_LIB_PATH): $(QUICKJS_PATH)
+	CONFIG_FPIC=1 make -C $(QUICKJS_PATH)
 
 DUCK_V = duktape-2.3.0
 
@@ -136,11 +152,11 @@ $(DUCK_V)/extras/print-alert/duk_console.o:
 $(SCRIPT_DIR)/s7.o:
 	$(CC) -c -o $(SCRIPT_DIR)/s7.o $(SCRIPT_DIR)/s7.c -Wno-implicit-fallthrough -fPIC -O0 -g
 
-build-static-lib: $(OBJ) $(O_OBJ) $(OBJXX) $(DUK_OBJ)
-	$(AR)  -r -c -s $(LIBNAME).a $(OBJ) $(O_OBJ) $(OBJXX) $(DUK_OBJ)
+build-static-lib: $(OBJ) $(O_OBJ) $(OBJXX) $(DUK_OBJ) $(QUICKJS_LIB_PATH)
+	$(AR)  -r -c -s $(LIBNAME).a $(OBJ) $(O_OBJ) $(OBJXX) $(DUK_OBJ) $(QUICKJS_LIB_PATH)
 
-build-dynamic-lib: $(OBJ) $(O_OBJ) $(OBJXX) $(DUK_OBJ)
-	$(CC) -shared -o  $(LIBNAME).$(LIBEXTENSION) $(OBJ) $(O_OBJ) $(OBJXX) $(DUK_OBJ) $(LDFLAGS)
+build-dynamic-lib: $(OBJ) $(O_OBJ) $(OBJXX) $(DUK_OBJ) $(QUICKJS_LIB_PATH)
+	$(CC) -shared -o  $(LIBNAME).$(LIBEXTENSION) $(OBJ) $(O_OBJ) $(OBJXX) $(DUK_OBJ) $(LDFLAGS) $(QUICKJS_LIB_PATH)
 
 yirl-loader: $(YIRL_LINKING) $(GEN_LOADER_OBJ)
 	$(CC) -o yirl-loader$(BIN_EXT) $(GEN_LOADER_OBJ) $(BINARY_LINKING) $(LDFLAGS)
@@ -149,4 +165,7 @@ clean:	clean-tests clean-shooter
 	rm -rvf $(OBJ) $(OBJXX) $(GEN_LOADER_OBJ)
 
 fclean: clean
-	rm -rvf $(LIBNAME).a $(O_OBJ) $(DUCK_OBJ) $(LIBNAME).so $(LIBNAME).dll
+	rm -rvf $(LIBNAME).a $(O_OBJ) $(LIBNAME).so $(LIBNAME).dll
+
+clean_all: fclean
+	rm -rvf $(DUCK_OBJ) $(QUICKJS_LIB_PATH)
