@@ -28,6 +28,14 @@
 #include <windows.h>
 #endif
 
+const char *yLineRectIntersectStr[] = {
+	"Y_NO_INTERSECT",
+	"Y_LR_UP_INTERSECT",
+	"Y_LR_LEFT_INTERSECT",
+	"Y_LR_DOWN_INTERSECT",
+	"Y_LR_RIGHT_INTERSECT"
+};
+
 int yuiFileExist(const char *path)
 {
 	return access(path, F_OK);
