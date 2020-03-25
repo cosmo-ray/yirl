@@ -15,8 +15,8 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _CURSES_STATE_H_
-#define _CURSES_STATE_H_
+#ifndef CURSES_STATE_H_
+#define CURSES_STATE_H_
 
 #include <curses.h>
 #include "widget.h"

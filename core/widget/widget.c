@@ -252,11 +252,9 @@ int ywidColorFromString(const char *str, uint8_t *r, uint8_t *g,
 	// collor or whatever
 	if (limiterPos) {
 		char str_cpy[len + 1];
-		char tmp;
 
 		strcpy(str_cpy, str);
 		str = str_cpy;
-		tmp = str_cpy[limiterPos];
 		str_cpy[limiterPos] = '\0';
 
 		if (yuiStrEqual(str, "rgba")) {

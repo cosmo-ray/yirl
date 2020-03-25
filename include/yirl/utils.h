@@ -399,13 +399,7 @@ enum yLineRectIntersect {
 	Y_LR_RIGHT_INTERSECT = 4,
 };
 
-static const char *yLineRectIntersectStr[] = {
-	"Y_NO_INTERSECT",
-	"Y_LR_UP_INTERSECT",
-	"Y_LR_LEFT_INTERSECT",
-	"Y_LR_DOWN_INTERSECT",
-	"Y_LR_RIGHT_INTERSECT"
-};
+extern const char *yLineRectIntersectStr[];
 
 /* return Dist or 0 if no intersect */
 int yuiLinesRectIntersect(int x1, int y1, int x2, int y2,
