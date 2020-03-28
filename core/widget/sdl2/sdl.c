@@ -60,7 +60,7 @@ int ysdl2WindowMode(void)
 
 int ysdl2FullScreen(void)
 {
-  return SDL_SetWindowFullscreen(sg.pWindow, SDL_WINDOW_FULLSCREEN | SDL_WINDOW_BORDERLESS);
+  return SDL_SetWindowFullscreen(sg.pWindow, SDL_WINDOW_FULLSCREEN);
 }
 
 int sgSetDefaultFont(const char *path)
