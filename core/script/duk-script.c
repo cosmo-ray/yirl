@@ -299,7 +299,7 @@ static duk_ret_t dukyeCreateFunction(duk_context *ctx)
 		/* [stack...]  [stash] [function] */
 		duk_put_prop_string(ctx, -2, rname);
 		/* [stack...] [stash] */
-		e = yeCreateFunction(rname, ygGetManager("js"),
+		e = yeCreateFunction(rname, ygGetManager("duk"),
 				     GET_E(ctx, 1), duk_get_string(ctx, 2));
 		YE_TO_FUNC(e)->idata = 0x1;
 		duk_pop(ctx);
@@ -310,7 +310,7 @@ static duk_ret_t dukyeCreateFunction(duk_context *ctx)
 	}
 	str = duk_get_string(ctx, 0);
 	mk_ent(ctx, yeCreateFunction(str,
-				     ygGetManager("js"),
+				     ygGetManager("duk"),
 				     GET_E(ctx, 1),
 				     duk_get_string(ctx, 2)),
 	       !GET_E(ctx, 1));

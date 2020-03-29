@@ -81,7 +81,8 @@ static void *ybytecodeGetFastPath(void *sm, const char *name)
   return yeGetData(yeGet(GET_MAP(sm), name));
 }
 
-static void *ybytecodeFastCall(void *opacFunc, int nb, union ycall_arg *args,
+static void *ybytecodeFastCall(void *sm, void *opacFunc, int nb,
+			       union ycall_arg *args,
 			       int *types)
 {
 	Entity *stack  = yeCreateArrayExt(NULL, NULL,
@@ -137,7 +138,7 @@ static void *ybytecodeCall(void *sm, const char *name, int nb,
   void *data = ybytecodeGetFastPath(sm, name);
   if (unlikely(!data))
     return NULL;
-  return ybytecodeFastCall(data, nb, args, types);
+  return ybytecodeFastCall(sm, data, nb, args, types);
 }
 
 static int ybytecodeDestroy(void *sm)

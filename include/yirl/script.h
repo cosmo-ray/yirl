@@ -45,7 +45,8 @@ typedef struct {
 			       Entity *func);
 	void *(*call)(void *sm, const char *name, int nb,
 		      union ycall_arg *args, int *types);
-	void *(*fastCall)(void *opacFunction, int nb, union ycall_arg *args,
+	void *(*fastCall)(void *opac, void *opacFunction,
+			  int nb, union ycall_arg *args,
 		int *types);
 	void *(*getFastPath)(void *scriptManager, const char *name);
 	void (*e_destroy)(void *manager, Entity *e);
@@ -154,7 +155,7 @@ static inline void *ysGetFastPath(void *sm, const char *name)
 static inline void *ysFastCall(void *sm, void *opacFunc, int nb,
 			       union ycall_arg *args, int *types)
 {
-	return ((YScriptOps *)sm)->fastCall(opacFunc, nb, args, types);
+	return ((YScriptOps *)sm)->fastCall(sm, opacFunc, nb, args, types);
 }
 
 static inline void ysAddFuncSymbole(void *sm, const char *name,

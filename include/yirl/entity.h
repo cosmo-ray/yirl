@@ -871,6 +871,16 @@ static inline Entity *yeTryCreateInt(int value, Entity *father,
 	return ret;
 }
 
+static inline Entity *yeTryCreateString(const char *value, Entity *father,
+					const char *name)
+{
+	Entity *ret = yeGetByStrFast(father, name);
+	if (!ret) {
+		yeCreateString(value, father, name);
+	}
+	return ret;
+}
+
 /**
  * Get the len attribute of an Entity
  * @param entity  The Entity we want to get the len

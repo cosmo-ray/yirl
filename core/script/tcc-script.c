@@ -496,7 +496,8 @@ static void *tccGetFastCall(void *scriptManager, const char *name)
 	return NULL;
 }
 
-static void *tccFCall(void *sym, int nb, union ycall_arg *args, int *t_arrray)
+static void *tccFCall(void *sm, void *sym, int nb,
+		      union ycall_arg *args, int *t_arrray)
 {
 	/* even using -fstrict-aliasing it's still UB */
 	/* should work anyway assuming that V */
@@ -514,7 +515,7 @@ static void *tccCall(void *sm, const char *name, int nb,
 		DPRINT_ERR("unable to find '%s' symbol", name);
 		return NULL;
 	}
-	return tccFCall(sym, nb, args, types);
+	return tccFCall(sm, sym, nb, args, types);
 }
 
 static int tccDestroy(void *sm)

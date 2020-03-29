@@ -49,7 +49,7 @@ static void *nativeGetFastPath(void *sm, const char *name)
 	return g_hash_table_lookup(weed, name);
 }
 
-static void *nativeFastCall(void *opacFunc, int nb,
+static void *nativeFastCall(void *sm, void *opacFunc, int nb,
 			    union ycall_arg *args, int *types)
 {
 	void *(*f)(int, union ycall_arg *, int *) = opacFunc;

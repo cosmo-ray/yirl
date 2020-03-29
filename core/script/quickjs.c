@@ -41,14 +41,43 @@ static int t = -1;
 #define RUNTIME(s) ((YScriptQjs *)s)->runtime
 #define CTX(s) ((YScriptQjs *)s)->ctx
 
-#define GET_E(ctx, idx)					\
-	((struct entity_wrapper *)JS_GetOpaque(argv[idx], entity_class_id))->e
+
+static JSClassID widget_class_id;
+static JSClassID entity_class_id;
+static JSClassID freeable_entity_class_id;
+static JSClassID script_manager_class_id;
+
+
+static void *cur_manager;
+
+static inline Entity *GET_E_(JSValueConst v)
+{
+	Entity *e = JS_GetOpaque(v, entity_class_id);
+	if (e)
+		return e;
+	return JS_GetOpaque(v, freeable_entity_class_id);
+}
+
+#define GET_E(ctx, idx)				\
+	(idx < argc ? GET_E_(argv[idx]) : NULL)
 
 #define GET_S(ctx, idx)							\
-	JS_ToCString(ctx, argv[idx])
+	(idx < argc ? JS_ToCString(ctx, argv[idx]) : NULL)
 
-#define GET_I(ctx, idx)							\
-	({ int64_t res; JS_ToInt64(ctx, &res, argv[idx]);  res; })
+
+#define GET_I(ctx, idx)				\
+	GET_I_(ctx, idx, argc, argv)
+
+static inline int GET_I_(JSContext *ctx, int idx,
+			 int argc, JSValueConst *argv)
+{
+	int64_t res;
+
+	if (idx >= argc)
+		return 0;
+	JS_ToInt64(ctx, &res, argv[idx]);
+	return res;
+}
 
 
 
@@ -102,8 +131,8 @@ static JSValue make_abort(JSContext *ctx, ...)
 #define AUTOPUSH(call, ...)				\
 	_Generic(call,					\
 		 default: make_abort,			\
-		 char *: JS_NewString,			\
-		 const char *: JS_NewString,		\
+		 char *: new_str,			\
+		 const char *: new_str,			\
 		 char: JS_NewInt32,			\
 		 short: JS_NewInt32,			\
 		 int: JS_NewInt32,			\
@@ -257,38 +286,50 @@ typedef struct {
 	JSContext *ctx;
 } YScriptQjs;
 
-struct entity_wrapper {
-	Entity *e;
-	int should_free;
-};
-
-static JSClassID entity_class_id;
-
 static void destroy_entity(JSRuntime *rt, JSValue val)
 {
-	printf("destroy_entity\n");
-	struct entity_wrapper *ew = JS_GetOpaque(val, entity_class_id);
-	if (ew->should_free)
-		yeDestroy(ew->e);
-	free(ew);
+	Entity *e = JS_GetOpaque(val, freeable_entity_class_id);
+	yeDestroy(e);
 }
 
 
 static JSClassDef entity_class = {
 	"Entity",
+	.finalizer = NULL,
+};
+
+static JSClassDef freeable_entity_class = {
+	"F_Entity",
 	.finalizer = destroy_entity,
+};
+
+static JSClassDef sm_class = {
+	"script_manager", .finalizer = NULL
+};
+static JSClassDef widget_class = {
+	"WidgetState", .finalizer = NULL
 };
 
 static inline JSValue mk_ent(JSContext *ctx, Entity *e, int add_destroy)
 {
-	JSValue obj = JS_NewObjectClass(ctx, entity_class_id);
-	struct entity_wrapper *ew = malloc(sizeof(*ew));
+	JSValue obj;
 
-	ew->e = e;
-	ew->should_free = add_destroy;
-	JS_SetOpaque(obj, ew);
-	printf("%p %p\n", ew, e);
+	if (!e)
+		return JS_NULL;
+	if (add_destroy) {
+		obj = JS_NewObjectClass(ctx, freeable_entity_class_id);
+	} else {
+		obj = JS_NewObjectClass(ctx, entity_class_id);
+	}
+	JS_SetOpaque(obj, e);
 	return obj;
+}
+
+static inline JSValue new_str(JSContext *ctx, const char *s)
+{
+	if (!s)
+		return JS_NewString(ctx, "");
+	return JS_NewString(ctx, s);
 }
 
 static inline JSValue new_ent(JSContext *ctx, Entity *e)
@@ -305,6 +346,41 @@ BIND_EIIE(ywCanvasNewText, 2, 2);
 /* make all bindings here */
 #include "binding.c"
 
+JSValue functions[256];
+
+static JSValue qjsyeCreateFunction(JSContext *ctx, JSValueConst this_val,
+				   int argc, JSValueConst *argv)
+{
+	static int glob_cnt;
+
+	if (JS_IsFunction(ctx, argv[0])) {
+		Entity *r;
+		char *rname = NULL;
+
+		if (glob_cnt > 256) {
+			DPRINT_ERR("too much function\n");
+			return JS_NULL;
+		}
+		asprintf(&rname, "_r%d", glob_cnt);
+		r = yeCreateFunctionExt(rname,
+					ygGetManager("js"),
+					GET_E(ctx, 1),
+					GET_S(ctx, 2),
+					YE_FUNC_NO_FASTPATH_INIT);
+		printf("\n\n\n\nmake %s\n\n\n", rname);
+		functions[glob_cnt] = JS_DupValue(ctx, argv[0]);
+		free(rname);
+		YE_TO_FUNC(r)->idata = ++glob_cnt;
+		return mk_ent(ctx, r, !GET_E(ctx, 1));
+	}
+	return mk_ent(ctx, yeCreateFunction(GET_S(ctx, 0),
+					    ygGetManager("js"),
+					    GET_E(ctx, 1),
+					    GET_S(ctx, 2)),
+	       !GET_E(ctx, 1));
+
+}
+
 static JSValue qjsyjsCall(JSContext *ctx, JSValueConst this_val,
 			  int argc, JSValueConst *argv)
 {
@@ -315,12 +391,26 @@ static JSValue qjsyjsCall(JSContext *ctx, JSValueConst this_val,
 
 	printf("in qjsyjsCall\n");
 	if (JS_IsObject(r)) {
-		struct entity_wrapper *ew = JS_GetOpaque(r, entity_class_id);
-		name = yeGetString(ew->e);
+		Entity *er = GET_E_(r);
+
+		name = yeGetString(er);
+		if (yeType(er) == YFUNCTION &&
+		    YE_TO_FUNC(er)->manager == cur_manager) {
+			int fidx = yeIData(er);
+
+			if (fidx) {
+				func = functions[fidx - 1];
+				goto call;
+			}
+		}
 		func = JS_GetPropertyStr(ctx, global_obj, name);
+		if (!JS_IsFunction(ctx, func)) {
+			return JS_NULL;
+		}
 	} else if (JS_IsFunction(ctx, r)) {
 		func = r;
 	}
+call:
 	global_obj = JS_GetGlobalObject(ctx);
 	return JS_Call(ctx, func, global_obj, argc - 1, argv + 1);
 }
@@ -337,7 +427,8 @@ static JSValue qjsyeGet(JSContext *ctx, JSValueConst this_val,
 }
 
 static inline void call_set_arg(JSContext *L, int i, union ycall_arg *yargs,
-				int *types, int nb, JSValueConst *argv)
+				int *types, int nb, JSValueConst *argv,
+				int argc)
 {
 	if (JS_IsNumber(argv[i])) {
 		types[nb] = YS_INT;
@@ -351,6 +442,16 @@ static inline void call_set_arg(JSContext *L, int i, union ycall_arg *yargs,
 	}
 }
 
+/* destroy only work on non freeable entity */
+static JSValue qjsyeDestroy(JSContext *ctx, JSValueConst this_val,
+			    int argc, JSValueConst *argv)
+{
+	Entity *e = JS_GetOpaque(argv[0], entity_class_id);
+
+	yeDestroy(e);
+	return JS_NULL;
+}
+
 static JSValue qjsyesCall(JSContext *ctx, JSValueConst this_val,
 			  int argc, JSValueConst *argv)
 {
@@ -360,9 +461,69 @@ static JSValue qjsyesCall(JSContext *ctx, JSValueConst this_val,
 	int types[nb];
 
 	for (int i = 0; i < nb; ++i) {
-		call_set_arg(ctx, i + 1, yargs, types, i, argv);
+		call_set_arg(ctx, i + 1, yargs, types, i, argv, argc);
 	}
 	return new_ent(ctx, yesCallInt(f, nb, yargs, types));
+}
+
+static JSValue qjsywidNewWidget(JSContext *ctx, JSValueConst this_val,
+				int argc, JSValueConst *argv)
+{
+	YWidgetState *r = ywidNewWidget(GET_E(ctx, 0), GET_S(ctx, 1));
+	JSValue obj = JS_NewObjectClass(ctx, widget_class_id);
+
+	JS_SetOpaque(obj, r);
+	return obj;
+}
+
+static JSValue qjsygGetManager(JSContext *ctx, JSValueConst this_val,
+			       int argc, JSValueConst *argv)
+{
+	void *r = ygGetManager(GET_S(ctx, 0));
+	JSValue obj = JS_NewObjectClass(ctx, script_manager_class_id);
+
+	JS_SetOpaque(obj, r);
+	return obj;
+}
+
+static JSValue qjsygLoadScript(JSContext *ctx, JSValueConst this_val,
+			       int argc, JSValueConst *argv)
+{
+	int r = ygLoadScript(
+		GET_E(ctx, 0),
+		JS_GetOpaque(argv[1], script_manager_class_id),
+		GET_S(ctx, 2));
+
+	return JS_NewInt32(ctx, r);
+}
+
+static JSValue qjsyeReCreateArray(JSContext *ctx, JSValueConst this_val,
+				  int argc, JSValueConst *argv)
+{
+	return mk_ent(ctx, yeReCreateArray(GET_E(ctx, 0), GET_S(ctx, 1),
+					   GET_E(ctx, 2)),
+		      !GET_E(ctx, 0));
+}
+
+static JSValue qjsyeCreateArray(JSContext *ctx, JSValueConst this_val,
+				int argc, JSValueConst *argv)
+{
+	return mk_ent(ctx, yeCreateArray(GET_E(ctx, 0), GET_S(ctx, 1)),
+		      !GET_E(ctx, 0));
+}
+
+static JSValue qjsyeCreateInt(JSContext *ctx, JSValueConst this_val,
+			      int argc, JSValueConst *argv)
+{
+	return mk_ent(ctx, yeCreateInt(GET_I(ctx, 0), GET_E(ctx, 1),
+				       GET_S(ctx, 2)), !GET_E(ctx, 1));
+}
+
+static JSValue qjsyeCreateString(JSContext *ctx, JSValueConst this_val,
+				 int argc, JSValueConst *argv)
+{
+	return mk_ent(ctx, yeCreateString(GET_S(ctx, 0), GET_E(ctx, 1),
+					  GET_S(ctx, 2)), !GET_E(ctx, 1));
 }
 
 static JSValue qjsywRectCreateInts(JSContext *ctx, JSValueConst this_val,
@@ -390,12 +551,42 @@ static JSValue qjsyeGetIntAt(JSContext *ctx, JSValueConst this_val,
 		return JS_NewInt64(ctx, yeGetIntAt(GET_E(ctx, 0), GET_S(ctx, 1)));
 }
 
+static JSValue qjsyeGetStringAt(JSContext *ctx, JSValueConst this_val,
+				int argc, JSValueConst *argv)
+{
+	if (JS_IsNumber(argv[1]))
+		return new_str(ctx, yeGetStringAt(GET_E(ctx, 0), GET_I(ctx, 1)));
+	else
+		return new_str(ctx, yeGetStringAt(GET_E(ctx, 0), GET_S(ctx, 1)));
+}
+
 static JSValue qjsywPosCreate(JSContext *ctx, JSValueConst this_val,
 			      int argc, JSValueConst *argv)
 {
 	return mk_ent(ctx, ywPosCreate(GET_I(ctx, 0), GET_I(ctx, 1),
 				       GET_E(ctx, 2), GET_S(ctx, 3)),
 		      !GET_E(ctx, 2));
+}
+
+static JSValue qjsyeTryCreateInt(JSContext *ctx, JSValueConst this_val,
+				 int argc, JSValueConst *argv)
+{
+	return mk_ent(ctx, yeTryCreateInt(GET_I(ctx, 0), GET_E(ctx, 1),
+					  GET_S(ctx, 2)), !GET_E(ctx, 1));
+}
+
+static JSValue qjsyeTryCreateString(JSContext *ctx, JSValueConst this_val,
+				    int argc, JSValueConst *argv)
+{
+	return mk_ent(ctx, yeTryCreateString(GET_S(ctx, 0), GET_E(ctx, 1),
+					     GET_S(ctx, 2)), !GET_E(ctx, 1));
+}
+
+static JSValue qjsyeTryCreateArray(JSContext *ctx, JSValueConst this_val,
+				 int argc, JSValueConst *argv)
+{
+	return mk_ent(ctx, yeTryCreateArray(GET_E(ctx, 0), GET_S(ctx, 1)),
+		      !GET_E(ctx, 0));
 }
 
 static JSValue qjsto_str(JSContext *ctx, JSValueConst this_val,
@@ -405,6 +596,8 @@ static JSValue qjsto_str(JSContext *ctx, JSValueConst this_val,
 		return JS_NewString(ctx, (void *)GET_I(ctx, 0));
 	return JS_NULL;
 }
+
+static int loadString(void *s, const char *str);
 
 static int init(void *sm, void *args)
 {
@@ -420,6 +613,10 @@ static int init(void *sm, void *args)
 	js_std_add_helpers(ctx, 0, 0);
 
 	JS_NewClass(JS_GetRuntime(ctx), entity_class_id, &entity_class);
+	JS_NewClass(JS_GetRuntime(ctx), freeable_entity_class_id,
+		    &freeable_entity_class);
+	JS_NewClass(JS_GetRuntime(ctx), script_manager_class_id, &sm_class);
+	JS_NewClass(JS_GetRuntime(ctx), widget_class_id, &widget_class);
 
 #define PUSH_I_GLOBAL_VAL(x, val)					\
 	JS_SetPropertyStr(ctx, global_obj, #x,				\
@@ -438,24 +635,42 @@ static int init(void *sm, void *args)
 	PUSH_I_GLOBAL_VAL(YEVE_ACTION, ACTION);
 
 	BIND(ywRectCreateInts, 6, 0);
+	BIND(yeCreateFunction, 1, 2);
+	BIND(yeCreateString, 1, 2);
+	BIND(yeCreateInt, 1, 2);
+	BIND(yeCreateArray, 0, 2);
+	BIND(yeReCreateArray, 2, 1);
+	BIND(yeGetStringAt, 0, 2);
+	BIND(ygLoadScript, 3, 0);
+	BIND(ygGetManager, 1, 0);
+	BIND(ywidNewWidget, 2, 0);
+	BIND(yeTryCreateInt, 1, 2);
+	BIND(yeTryCreateString, 1, 2);
+	BIND(yeTryCreateArray, 0, 2);
+	BIND(yjsCall, 0, 10);
+	BIND(yesCall, 0, 10);
+	BIND(yeDestroy, 1, 0);
 
 #define IN_CALL 1
 	#include "binding.c"
 #undef IN_CALL
+	loadString(sm, "function ywSizeCreate(a,b,c,d) {"
+		   "return ywPosCreate(a,b,c,d)"
+		   "}");
 
 	return 0;
 }
 
-static void *call(void *sm, const char *name, int nb, union ycall_arg *args,
-		  int *types)
+static void *_call(void *sm, int nb, union ycall_arg *args,
+		   int *types, JSValue func)
 {
 	JSContext *ctx = CTX(sm);
 	JSValueConst global_obj = JS_GetGlobalObject(ctx);
-	JSValue func = JS_GetPropertyStr(ctx, global_obj, name);
+
 	JSValue vals[nb];
 	JSValue  r;
 
-	printf("call %s: ", name);
+	cur_manager = sm;
 	for (int i = 0; i < nb; ++i) {
 		printf(" %d(is e %d) - %p", types[i],
 		       types[i] == YS_ENTITY, args[i].vptr);
@@ -479,9 +694,17 @@ static void *call(void *sm, const char *name, int nb, union ycall_arg *args,
 	if (JS_IsException(r)) {
 		printf("EXEPTION !!!:\n");
 		js_std_dump_error(ctx);
-	} else if (JS_IsObject(r))
-		return JS_GetOpaque(r, entity_class_id);
-	else if (JS_IsNumber(r)) {
+	} else if (JS_IsObject(r)) {
+		void *e = GET_E_(r);
+		if (likely(e))
+			return e;
+		e = JS_GetOpaque(r, widget_class_id);
+		if (e)
+			return e;
+		e = JS_GetOpaque(r, script_manager_class_id);
+		if (e)
+			return e;
+	} else if (JS_IsNumber(r)) {
 		int64_t ir;
 
 		JS_ToInt64(ctx, &ir, r);
@@ -489,12 +712,24 @@ static void *call(void *sm, const char *name, int nb, union ycall_arg *args,
 	} else if (JS_IsString(r)) {
 		return (void *)JS_ToCString(ctx, r);
 	}
-	/*
-	  * Basically... yeah this seems broken
-	  * At last as broken as yirl, but it seems they talk in same
-	  * boken dialect
-	  */
-	return JS_VALUE_GET_PTR(r);
+	return NULL;
+}
+
+static void *fCall(void *sm, void *sym, int nb,
+		   union ycall_arg *args, int *t_arrray)
+{
+	return _call(sm, nb, args, t_arrray, *((JSValue *)sym));
+}
+
+static void *call(void *sm, const char *name, int nb, union ycall_arg *args,
+		  int *types)
+{
+	JSContext *ctx = CTX(sm);
+	JSValueConst global_obj = JS_GetGlobalObject(ctx);
+	JSValue func = JS_GetPropertyStr(ctx, global_obj, name);
+
+	printf("call %s: ", name);
+	return _call(sm, nb, args, types, func);
 }
 
 static int destroy(void *sm)
@@ -507,7 +742,14 @@ static int destroy(void *sm)
 static int eval_str_(JSContext *ctx, const char *str, int l,
 		     const char *filename)
 {
-	JS_Eval(ctx, str, l, filename, JS_EVAL_TYPE_GLOBAL);
+	JSValue r = JS_Eval(ctx, str, l, filename, JS_EVAL_TYPE_GLOBAL);
+
+	if (JS_IsException(r)) {
+		/* printf("Eval EXEPTION !!!: %s\n", */
+		/*        JS_ToCString(ctx, JS_GetException(ctx))); */
+		js_std_dump_error(ctx);
+		return -1;
+	}
 	return 0;
 }
 
@@ -549,6 +791,9 @@ int ysQjsInit(void)
 {
 	t = ysRegister(allocator);
 	JS_NewClassID(&entity_class_id);
+	JS_NewClassID(&freeable_entity_class_id);
+	JS_NewClassID(&script_manager_class_id);
+	JS_NewClassID(&widget_class_id);
 	return t;
 }
 
