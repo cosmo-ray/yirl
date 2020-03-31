@@ -69,7 +69,8 @@ int ysdl2RegistreCanvas(void);
 int ywCanvasMergeRectangle(Entity *wid, int x, int y,
 			   int w, int h, const char *col);
 
-Entity *ywCanvasMergeTexture(YWidgetState *opac);
+int ywCanvasMergeTexture(Entity *wid, Entity *yTexture,
+			 Entity *srcRect, Entity *dstRect);
 
 void ywCanvasClear(Entity *canvas);
 

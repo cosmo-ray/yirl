@@ -516,6 +516,15 @@ int ywCanvasMergeRectangle(Entity *wid, int x, int y,
 	return sdlMergeRect(state->merge_texture, x, y, w, h, col);
 }
 
+int ywCanvasMergeTexture(Entity *wid, Entity *yTexture,
+			 Entity *srcRect, Entity *dstRect)
+{
+	YCanvasState *state = (YCanvasState *)ywidGetState(wid);
+
+	return sdlMergeSurface(yTexture, srcRect,
+			       state->merge_texture, dstRect);
+}
+
 Entity *ywCanvasNewRect(Entity *wid, int x, int y, Entity *rect)
 {
 	Entity *obj = yeCreateArray(NULL, NULL);
@@ -610,13 +619,15 @@ _Bool	ywCanvasCheckColisionsRectObj(Entity *r0, Entity *obj1)
 	}
 
 	for (int i = 0; i < ywRectH(crect1); i += ywidColisionYPresision) {
-		for (int j = 0; j < ywRectW(crect1); j += ywidColisionXPresision) {
+		for (int j = 0; j < ywRectW(crect1);
+		     j += ywidColisionXPresision) {
 			YCanvasPixiel pix;
 			int x, y;
 
 			x = ywRectX(crect1) + j;
 			y = ywRectY(crect1) + i;
-			pixMod(obj1, r1, mod1, &x, &y, ywRectW(r1), ywRectH(r1));
+			pixMod(obj1, r1, mod1, &x, &y,
+			       ywRectW(r1), ywRectH(r1));
 			pix.i = sdlCanvasPixInfo(obj1, x, y);
 			if (pix.rgba[3] != 0) {
 				return 1;

@@ -36,6 +36,7 @@ BIND_EES(yePushBack, 2, 1);
 BIND_EES(ywCanvasCreateYTexture, 3, 0);
 
 BIND_EEEE(ywCanvasCheckCollisions, 2, 2);
+BIND_EEEE(ywCanvasMergeTexture, 4, 0);
 
 BIND_EIIEE(ywCanvasNewImgFromTexture, 4, 1);
 
