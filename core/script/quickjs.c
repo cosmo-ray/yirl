@@ -346,31 +346,40 @@ BIND_EIIE(ywCanvasNewText, 2, 2);
 /* make all bindings here */
 #include "binding.c"
 
-JSValue functions[256];
+static JSValue functions[256];
+static uint64_t f_mask[4];
 
 static JSValue qjsyeCreateFunction(JSContext *ctx, JSValueConst this_val,
 				   int argc, JSValueConst *argv)
 {
-	static int glob_cnt;
-
 	if (JS_IsFunction(ctx, argv[0])) {
 		Entity *r;
 		char *rname = NULL;
+		int mask_i = 0;
+		int f_pos = 0;
+		int f_mod;
 
-		if (glob_cnt > 256) {
+	again:
+		if (f_mask[mask_i] == YUI_MASK_FULL) {
+			if (++mask_i < 4) {
+				f_pos += 64;
+				goto again;
+			}
 			DPRINT_ERR("too much function\n");
 			return JS_NULL;
 		}
-		asprintf(&rname, "_r%d", glob_cnt);
+		f_mod = YUI_FIRST_ZERO(f_mask[mask_i]);
+		f_mask[mask_i] |= 1 << f_mod;
+		f_pos += f_mod;
+		asprintf(&rname, "_r%d", f_pos);
 		r = yeCreateFunctionExt(rname,
 					ygGetManager("js"),
 					GET_E(ctx, 1),
 					GET_S(ctx, 2),
 					YE_FUNC_NO_FASTPATH_INIT);
-		printf("\n\n\n\nmake %s\n\n\n", rname);
-		functions[glob_cnt] = JS_DupValue(ctx, argv[0]);
+		functions[f_pos] = JS_DupValue(ctx, argv[0]);
 		free(rname);
-		YE_TO_FUNC(r)->idata = ++glob_cnt;
+		YE_TO_FUNC(r)->idata = f_pos + 1;
 		return mk_ent(ctx, r, !GET_E(ctx, 1));
 	}
 	return mk_ent(ctx, yeCreateFunction(GET_S(ctx, 0),
@@ -415,6 +424,20 @@ call:
 	return JS_Call(ctx, func, global_obj, argc - 1, argv + 1);
 }
 
+
+static void e_destroy(void *manager, Entity *e)
+{
+	int id;
+
+	if (yeType(e) == YFUNCTION && (id = yeIData(e))) {
+		id--;
+		int mi = id / 64;
+		int mm = id & 63;
+
+		JS_FreeValue(CTX(manager), functions[id]);
+		f_mask[mi] &= ~(1LL << mm);
+	}
+}
 
 static JSValue qjsyeGet(JSContext *ctx, JSValueConst this_val,
 			int argc, JSValueConst *argv)
@@ -783,6 +806,7 @@ static void *allocator(void)
 	ret->ops.destroy = destroy;
 	ret->ops.loadFile = loadFile;
 	ret->ops.loadString = loadString;
+	ret->ops.e_destroy = e_destroy;
 	ret->ops.call = call;
 	return (void *)ret;
 }

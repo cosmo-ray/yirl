@@ -275,10 +275,14 @@ int yuiRegister(YManagerAllocator *ma, void *(*allocator)(void));
 int yuiUnregiste(YManagerAllocator *ma, int t);
 
 
+#define YUI_MASK_FULL 0xffffffffffffffff
+
+#define YUI_FIRST_ZERO(m)(m == 0 ? 0 : ctz64(~m))
+
 /*TODO: change this name to YUI_GET_FIRST_MASK_POS*/
 #define YUI_GET_FIRST_BIT(mask)(mask == 0 ? 0 : ctz64(mask))
 
-#define YUI_GET_LAST_MASK_POS(mask, fail_ret) (mask == 0 ? fail_ret : __INT64_C(63) - clz64(mask))
+#define YUI_GET_LAST_MASK_POS(mask, fail_ret) (mask == 0 ? fail_ret : 63LL - clz64(mask))
 
 #define YUI_COUNT_1_BIT(mask) (mask == 0LU ? 0LU : popcount64(mask))
 
