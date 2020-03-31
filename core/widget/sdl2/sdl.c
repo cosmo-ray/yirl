@@ -638,8 +638,8 @@ int sdlMergeSurface(Entity *textSrc, Entity *srcRect,
 		return SDL_FillRect(dSurface, &dr, cfg.rgba);
 	}
 
-	return SDL_BlitSurface(sSurface, srcRect ? &sr : NULL,
-			       dSurface, destRect ? &dr : NULL);
+	return SDL_BlitScaled(sSurface, srcRect ? &sr : NULL,
+			      dSurface, destRect ? &dr : NULL);
 }
 
 SDL_Surface *sdlCopySurface(SDL_Surface *surface, Entity *rEnt)
