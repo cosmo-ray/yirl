@@ -33,7 +33,6 @@
 #include "lua-binding.h"
 #include "tcc-script.h"
 #include "s7-script.h"
-#include "duk-script.h"
 #include "quickjs-script.h"
 #include "native-script.h"
 #include "ybytecode-script.h"
@@ -64,7 +63,6 @@ static void *rawfileManager;
 static void *luaManager;
 static void *tccManager;
 static void *s7Manager;
-static void *dukManager;
 static void *qjsManager;
 
 static Entity *mainMod;
@@ -83,11 +81,6 @@ static char main_dir[PATH_MAX];
 char *yProgramArg;
 
 char *ygBinaryRootPath = "./";
-
-void *ygDukManager(void)
-{
-	return dukManager;
-}
 
 void *ygQjsManager(void)
 {
@@ -339,10 +332,6 @@ int ygInit(GameConfig *cfg)
 	CHECK_AND_GOTO(s7Manager = ysNewManager(NULL, t), NULL, error,
 		       "s7 init failed");
 
-	CHECK_AND_GOTO(t = ysDukInit(), -1, error, "Duk init failed");
-	CHECK_AND_GOTO(dukManager = ysNewManager(NULL, t), NULL, error,
-		       "Duk init failed");
-
 	CHECK_AND_GOTO(t = ysQjsInit(), -1, error, "Qjs init failed");
 	CHECK_AND_GOTO(qjsManager = ysNewManager(NULL, t), NULL, error,
 		       "Qjs init failed");
@@ -452,8 +441,6 @@ void ygEnd()
 	ysLuaEnd();
 	ysDestroyManager(s7Manager);
 	ysS7End();
-	ysDestroyManager(dukManager);
-	ysDukEnd();
 	ysDestroyManager(qjsManager);
 	ysQjsEnd();
 	yeDestroy(globalsFunctions);
@@ -516,8 +503,6 @@ void *ygGetManager(const char *name)
 		return s7Manager;
 	else if (yuiStrEqual0(name, "js"))
 		return qjsManager;
-	else if (yuiStrEqual0(name, "duk"))
-		return dukManager;
 	return NULL;
 }
 

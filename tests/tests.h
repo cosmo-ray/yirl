@@ -60,7 +60,6 @@ void testLuaScritEntityBind(void);
 
 void testS7ScriptCall(void);
 
-void testDukScriptCall(void);
 void testQjsScriptCall(void);
 
 void testTccScritLifecycle(void);

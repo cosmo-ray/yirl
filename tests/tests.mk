@@ -1,7 +1,7 @@
 TESTS_NAME = yirl-tests
 
 TESTS_SRC =  main.c lifecycle.c stringOperations.c test-copy.c setunset.c	\
-		lua-script.c tcc-script.c s7-script.c duk-script.c		\
+		lua-script.c tcc-script.c s7-script.c js.c		\
 		test-json-desc.c test-widgets.c menu.c map.c			\
 		test-game.c block-array.c container.c 				\
 		ybytecode.c script.c raw-file.c list-mod.c dialogue-mod.c	\

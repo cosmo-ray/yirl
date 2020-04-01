@@ -20,7 +20,7 @@ As an example the [snake module](https://github.com/cosmo-ray/yirl/tree/master/m
 Snake module is written in lua, but as YIRL have a generic script system, we could have written snake in any scripting language.
 Here is an example how Snake module can be use: https://github.com/cosmo-ray/yirl/tree/master/example/modules/snake.
 
-supportted scripting languuages are lua, C(with tinycc), scheme(s7), javascript(duktape) and yb(YIRL own asm) feel free to add your language :).
+supportted scripting languuages are lua, C(with tinycc), scheme(s7), javascript(quickjs) and yb(YIRL own asm) feel free to add your language :).
 
 # License:
 YIRL is licensed under the LGPL license, the idea behind that, is that you can add a modules under the license you want, but if you make a modification to the engine, you need to share it.

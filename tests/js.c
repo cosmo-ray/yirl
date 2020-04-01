@@ -18,45 +18,8 @@
 #include <glib.h>
 #include <stdio.h>
 #include "tests.h"
-#include "duk-script.h"
 #include "quickjs-script.h"
 #include "entity-script.h"
-
-void testDukScriptCall(void)
-{
-	void *sm = NULL;
-
-	yeInitMem();
-	g_assert(!ysDukInit());
-	g_assert(!ysDukGetType());
-	sm = ysNewManager(NULL, 0);
-	g_assert(sm);
-
-	Entity *e = yeCreateArray(NULL, NULL);
-	Entity *i = yeCreateInt(1337, e, NULL);
-	 /* I should dup 2 to a file and check the file after */
-	ysLoadString(sm, "alert('HELLO')");
-	ysLoadFile(sm, "./tests/hi.js");
-
-	Entity *f = yeCreateFunction("alert", sm, e, NULL);
-
-	ysCall(sm, "alert", e);
-	printf("ret ent: %ld\n", (intptr_t)ysCall(sm, "display_ent", e));
-
-	g_assert((intptr_t)ysCall(sm, "display_eint", i) == 1337);
-	yesCall(f, i);
-	printf("mk_hi: %s\n", yeGetString(ysCall(sm, "mk_hello", e, "name")));
-	printf("mk_hi 2: %s\n", yeGetStringAt(e, "name"));
-	Entity *s2 = ysCall(sm, "mk_hello2");
-
-	printf("%s\n", yeGetString(s2));
-	printf("%d - %d\n", e->refCount,  s2->refCount);
-	yeMultDestroy(e, s2);
-	g_assert(!ysDestroyManager(sm));
-	g_assert(!ysDukEnd());
-	yeEnd();
-
-}
 
 void testQjsScriptCall(void)
 {
