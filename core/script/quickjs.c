@@ -398,7 +398,6 @@ static JSValue qjsyjsCall(JSContext *ctx, JSValueConst this_val,
 	JSValue func = JS_NULL;
 	JSValue global_obj = JS_GetGlobalObject(ctx);
 
-	printf("in qjsyjsCall\n");
 	if (JS_IsObject(r)) {
 		Entity *er = GET_E_(r);
 
@@ -695,8 +694,6 @@ static void *_call(void *sm, int nb, union ycall_arg *args,
 
 	cur_manager = sm;
 	for (int i = 0; i < nb; ++i) {
-		printf(" %d(is e %d) - %p", types[i],
-		       types[i] == YS_ENTITY, args[i].vptr);
 		if (types[i] == YS_VPTR) {
 			void *ptr = args[i].vptr;
 
@@ -715,7 +712,6 @@ static void *_call(void *sm, int nb, union ycall_arg *args,
 
 	r = JS_Call(ctx, func, global_obj, nb, vals);
 	if (JS_IsException(r)) {
-		printf("EXEPTION !!!:\n");
 		js_std_dump_error(ctx);
 	} else if (JS_IsObject(r)) {
 		void *e = GET_E_(r);
@@ -751,7 +747,6 @@ static void *call(void *sm, const char *name, int nb, union ycall_arg *args,
 	JSValueConst global_obj = JS_GetGlobalObject(ctx);
 	JSValue func = JS_GetPropertyStr(ctx, global_obj, name);
 
-	printf("call %s: ", name);
 	return _call(sm, nb, args, types, func);
 }
 
@@ -768,8 +763,6 @@ static int eval_str_(JSContext *ctx, const char *str, int l,
 	JSValue r = JS_Eval(ctx, str, l, filename, JS_EVAL_TYPE_GLOBAL);
 
 	if (JS_IsException(r)) {
-		/* printf("Eval EXEPTION !!!: %s\n", */
-		/*        JS_ToCString(ctx, JS_GetException(ctx))); */
 		js_std_dump_error(ctx);
 		return -1;
 	}
