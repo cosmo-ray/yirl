@@ -438,7 +438,7 @@ static inline int sdlPrintLine(SDLWid *wid,
 	text_width = textSurface->w;
 	SDL_FreeSurface(textSurface);
 
-	SDL_Rect renderQuad = { pos.x, pos.y, text_width, fontSize};
+	SDL_Rect renderQuad = { pos.x, pos.y, text_width, textSurface->h};
 
 	if (alignementType == YSDL_ALIGN_CENTER)
 	  renderQuad.x = pos.x + ((pos.w / 2) - (text_width / 2));
