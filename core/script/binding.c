@@ -47,6 +47,7 @@ BIND_EIIS(ywCanvasNewImgByPath, 4, 0);
 
 BIND_S(ySoundLoad, 1, 0);
 BIND_S(ySoundMusicLoad, 1, 0);
+BIND_S(ygModDir, 1, 0);
 
 BIND_I(ySoundPlay, 1, 0);
 BIND_I(ySoundPause, 1, 0);
@@ -116,6 +117,7 @@ BIND_V(yWindowWidth);
 BIND_V(yWindowHeight);
 BIND_V(ywidGetTurnTimer);
 BIND_V(yeEntitiesArraySize);
+BIND_V(ygModDirOut);
 
 BIND_SEES(ywTextureNewImg, 4, 0);
 

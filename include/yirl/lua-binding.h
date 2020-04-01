@@ -564,8 +564,6 @@ int	luaygSetInt(lua_State *L);
 int	luaygStalk(lua_State *L);
 int	luaygUnstalk(lua_State *L);
 int	luaygReCreateInt(lua_State *L);
-BIND_V(ygModDirOut);
-BIND_S(ygModDir);
 
 /* Audio */
 int	luaySoundPlayLoop(lua_State *L);

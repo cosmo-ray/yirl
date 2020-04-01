@@ -30,6 +30,7 @@
 #include "canvas.h"
 #include "keydef.h"
 #include "widget.h"
+#include "script.h"
 #include "texture.h"
 #include "pos.h"
 #include "entity-script.h"
@@ -519,6 +520,16 @@ static JSValue qjsygLoadScript(JSContext *ctx, JSValueConst this_val,
 	return JS_NewInt32(ctx, r);
 }
 
+static JSValue qjsysLoadFile(JSContext *ctx, JSValueConst this_val,
+			     int argc, JSValueConst *argv)
+{
+	int r = ysLoadFile(
+		JS_GetOpaque(argv[0], script_manager_class_id),
+		GET_S(ctx, 1));
+
+	return JS_NewInt32(ctx, r);
+}
+
 static JSValue qjsyeReCreateArray(JSContext *ctx, JSValueConst this_val,
 				  int argc, JSValueConst *argv)
 {
@@ -664,6 +675,7 @@ static int init(void *sm, void *args)
 	BIND(yeReCreateArray, 2, 1);
 	BIND(yeGetStringAt, 0, 2);
 	BIND(ygLoadScript, 3, 0);
+	BIND(ysLoadFile, 2, 0);
 	BIND(ygGetManager, 1, 0);
 	BIND(ywidNewWidget, 2, 0);
 	BIND(yeTryCreateInt, 1, 2);
