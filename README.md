@@ -133,8 +133,7 @@ for windows you can use `package-game-mingw.sh` with mingw
 for linux (like Arch Linux that I use BTW): `package-game.sh`
 
 Both script are rarly used because I'm lazy and might require manual inervention to remove some lib
-for linux I know this script don't remove all libc lib, but should be remove if you want you game to work on other distro
-Also you should use an old distro (like centos 6) to package you game, otherwise you old distro might have incompatibility wih glibc
+Also you should use an old distro (like centos 6) to package you game, otherwise old(or stable) distro might have incompatibility wih glibc
 
 # how to start using YIRL
 For now the easier way to use YIRL is to come chat with us and ask for help
