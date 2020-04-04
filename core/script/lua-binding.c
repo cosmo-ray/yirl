@@ -1396,12 +1396,6 @@ int	luaYesCall(lua_State *L)
 #undef LUA_YES_CALL
 #undef LUA_YG_CALL
 
-int	luaygSetInt(lua_State *L)
-{
-  ygSetInt(lua_tostring(L, 1), lua_tonumber(L, 2));
-  return 0;
-}
-
 int	luaYGet(lua_State *L)
 {
   if (lua_isstring(L, 1))

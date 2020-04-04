@@ -244,6 +244,12 @@ static inline int make_abort(lua_State *L, ...)
 		BIND_AUTORET(f(luaEntityAt(L, 1), luaNumberAt(L, 2)));	\
 	}
 
+#define BIND_SI(f, ...)							\
+	static inline int lua##f(lua_State *L)				\
+	{								\
+		BIND_AUTORET(f(lua_tostring(L, 1), luaNumberAt(L, 2)));	\
+	}
+
 #define BIND_EEI(f, ...)						\
 	static inline int lua##f(lua_State *L)				\
 	{								\
@@ -560,7 +566,6 @@ int	luaYgRegistreFunc(lua_State *L);
 int	luaYgFileToEnt(lua_State *L);
 int	luaYgEntToFile(lua_State *L);
 int	luaYGet(lua_State *L);
-int	luaygSetInt(lua_State *L);
 int	luaygStalk(lua_State *L);
 int	luaygUnstalk(lua_State *L);
 int	luaygReCreateInt(lua_State *L);
@@ -964,7 +969,6 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygFileToEnt", luaYgFileToEnt));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygEntToFile", luaYgEntToFile));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygGet", luaYGet));
-  YES_LUA_REGISTRE_CALL(sm, ygSetInt);
   YES_LUA_REGISTRE_CALL(sm, ygStalk);
   YES_LUA_REGISTRE_CALL(sm, ygUnstalk);
   YES_LUA_REGISTRE_CALL(sm, ygReCreateInt);

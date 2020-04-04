@@ -7,6 +7,7 @@
 #define BIND_EE	BIND
 #define BIND_ES	BIND
 #define BIND_EI	BIND
+#define BIND_SI	BIND
 #define BIND_EII	BIND
 #define BIND_EEI	BIND
 #define BIND_EES	BIND
@@ -60,6 +61,9 @@ BIND_EE(yevIsGrpDown, 2, 0);
 BIND_ES(yeStringAdd, 2, 0);
 BIND_ES(yeSetString, 2, 0);
 BIND_ES(ygPushToGlobalScope, 2, 0);
+
+BIND_SI(ygIncreaseInt, 2, 0);
+BIND_SI(ygSetInt, 2, 0);
 
 BIND_EI(yeStringAddInt, 2, 0);
 BIND_EI(yeStringAddLong, 2, 0);
@@ -160,6 +164,7 @@ PUSH_I_GLOBAL(YE_PATCH_NO_SUP);
 #undef BIND_EE
 #undef BIND_ES
 #undef BIND_EI
+#undef BIND_SI
 #undef BIND_NONE
 #undef BIND_I
 #undef BIND_V

@@ -411,6 +411,11 @@ static s7_pointer make_nothing(s7_scheme *s, ...)
 		BIND_AUTORET(f(E_AT(s, a, 0), S_AT(s, a, 1)));	\
 	}
 
+#define BIND_SI(f, ...)						\
+	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)	\
+	{							\
+		BIND_AUTORET(f(S_AT(s, a, 0), I_AT(s, a, 1)));	\
+	}
 
 #define BIND_E(f, useless0, usless1)					\
 	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)		\
@@ -557,6 +562,7 @@ static int init(void *sm, void *args)
 						     s7_make_integer(s7, VAL))
 
 #define PUSH_I_GLOBAL(g) s7_define_variable(s7, #g, s7_make_integer(s7, g))
+
 #define BIND(name, nargs, optargs)					\
 	s7_define_safe_function(s7, #name, s7##name, nargs, optargs, false, "")
 
