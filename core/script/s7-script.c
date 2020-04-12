@@ -20,6 +20,8 @@
 #include "s7.h"
 #include "game.h"
 #include "canvas.h"
+#include "container.h"
+#include "menu.h"
 #include "widget.h"
 #include "pos.h"
 #include "entity-script.h"
@@ -184,7 +186,7 @@ static s7_pointer s7yeForeach(s7_scheme *s, s7_pointer a)
 	YE_FOREACH(array, el) {
 		s7_pointer args = s7_list(s, 2, s7_make_c_object(s, s7m->et, el),
 					  arg);
-		s7_call(s, func, args);
+		arg = s7_call(s, func, args);
 	}
 	return s7ar;
 }
@@ -366,6 +368,13 @@ static s7_pointer make_nothing(s7_scheme *s, ...)
 		return s7_nil(s);					\
 	}
 
+#define BIND_ESE(f, ...)			\
+	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)	\
+	{							\
+		BIND_AUTORET(f(E_AT(s, a, 0), S_AT(s, a, 1),	\
+			       E_AT(s, a, 2)));			\
+	}
+
 
 #define BIND_EES(f, ...)					\
 	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)	\
@@ -393,6 +402,13 @@ static s7_pointer make_nothing(s7_scheme *s, ...)
 	{							\
 		BIND_AUTORET(f(E_AT(s, a, 0), E_AT(s, a, 1),	\
 			       E_AT(s, a, 2), E_AT(s, a, 3)));	\
+	}
+
+#define BIND_EEES(f, ...)					\
+	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)	\
+	{							\
+		BIND_AUTORET(f(E_AT(s, a, 0), E_AT(s, a, 1),	\
+			       E_AT(s, a, 2), S_AT(s, a, 3)));	\
 	}
 
 #define BIND_SEES(f, ...)					\

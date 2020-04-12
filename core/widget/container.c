@@ -134,7 +134,12 @@ Entity *ywCntWidgetFather(Entity *wid)
 int ywPushNewWidget(Entity *container, Entity *wid, int dec_ref)
 {
 	Entity *entries = yeGet(container, "entries");
-	int ret = yeLen(entries);
+	int ret;
+
+	if (unlikely(!entries)) {
+		entries = yeCreateArray(container, "entries");
+	}
+	ret = yeLen(entries);
 
 	if (yePushBack(entries, wid, NULL) < 0)
 		return -1;

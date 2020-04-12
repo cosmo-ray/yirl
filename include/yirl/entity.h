@@ -57,11 +57,13 @@ typedef enum
 
 #define YENTITY_FLAG_LAST = YENTITY_SMALL_SIZE_P3;
 
+/* yeAttach flags */
 #define YE_ATTACH_NO_MEM_FREE (1LLU << 32)
 #define YE_ATTACH_NO_INC_REF (1LLU << 33)
 #define YE_ATTACH_STEAL_NAME (1LLU << 34)
 
 
+/* yeToCStr falgs */
 #define YE_FORMAT_OPT_BREAK_ARRAY_END 1
 #define YE_FORMAT_OPT_PRINT_ONLY_VAL_ARRAY 2
 #define YE_FORMAT_PRETTY 4

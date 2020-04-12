@@ -28,7 +28,9 @@
 #include "quickjs-script.h"
 #include "game.h"
 #include "canvas.h"
+#include "container.h"
 #include "keydef.h"
+#include "menu.h"
 #include "widget.h"
 #include "script.h"
 #include "texture.h"
@@ -218,6 +220,14 @@ static JSValue make_abort(JSContext *ctx, ...)
 			       GET_E(ctx, 1), GET_I(ctx, 2)));		\
 	}
 
+#define BIND_ESE(f, ...)			\
+	static JSValue qjs##f(JSContext *ctx, JSValueConst this_val,	\
+			      int argc, JSValueConst *argv) {		\
+		BIND_AUTORET(f(GET_E(ctx, 0),				\
+			       GET_S(ctx, 1), GET_E(ctx, 2)));		\
+	}
+
+
 #define BIND_EES(f, useless...)						\
 	static JSValue qjs##f(JSContext *ctx, JSValueConst this_val,	\
 			      int argc, JSValueConst *argv) {		\
@@ -238,6 +248,14 @@ static JSValue make_abort(JSContext *ctx, ...)
 		BIND_AUTORET(f(GET_E(ctx, 0),				\
 			       GET_E(ctx, 1), GET_E(ctx, 2),		\
 			       GET_E(ctx, 3)));				\
+	}
+
+#define BIND_EEES(f, useless...)					\
+	static JSValue qjs##f(JSContext *ctx, JSValueConst this_val,	\
+			      int argc, JSValueConst *argv) {		\
+		BIND_AUTORET(f(GET_E(ctx, 0),				\
+			       GET_E(ctx, 1), GET_E(ctx, 2),		\
+			       GET_S(ctx, 3)));				\
 	}
 
 #define BIND_SEES(f, useless...)					\

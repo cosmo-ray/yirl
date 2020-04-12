@@ -10,12 +10,14 @@
 #define BIND_SI	BIND
 #define BIND_EII	BIND
 #define BIND_EEI	BIND
+#define BIND_ESE	BIND
 #define BIND_EES	BIND
 #define BIND_EEE	BIND
 #define BIND_SEES	BIND
 #define BIND_EIIE	BIND
 #define BIND_EIIS	BIND
 #define BIND_EEEE	BIND
+#define BIND_EEES	BIND
 #define BIND_EIIEE    BIND
 #define BIND_EIIIIS    BIND
 #else
@@ -35,6 +37,10 @@ BIND_NONE(yeSetIntAt, 3, 0);
 BIND_EES(yePushBack, 2, 1);
 
 BIND_EES(ywCanvasCreateYTexture, 3, 0);
+
+BIND_ESE(ywMenuPushEntry, 2, 1);
+
+BIND_EEES(ywMapPushElem, 3, 1);
 
 BIND_EEEE(ywCanvasCheckCollisions, 2, 2);
 BIND_EEEE(ywCanvasMergeTexture, 4, 0);
@@ -117,7 +123,11 @@ BIND_EI(yeSetInt, 2, 0);
 
 BIND_EII(ywCanvasMoveObjXY, 3, 0);
 
+BIND_EII(ywPosSetInts, 3, 0);
+
 BIND_EEI(yePatchAplyExt, 2, 1);
+
+BIND_EEI(ywPushNewWidget, 2, 1);
 
 BIND_V(ywGetTurnLengthOverwrite);
 BIND_V(yWindowWidth);
@@ -159,8 +169,10 @@ PUSH_I_GLOBAL(YE_PATCH_NO_SUP);
 #undef BIND_EIIS
 #undef BIND_EIIE
 #undef BIND_EEEE
+#undef BIND_EEES
 #undef BIND_SEES
 #undef BIND_EES
+#undef BIND_ESE
 #undef BIND_EEE
 #undef BIND_EEI
 #undef BIND_EII

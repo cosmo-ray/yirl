@@ -822,14 +822,6 @@ int	luaywMenuGetCurrentEntry(lua_State *L)
 	return 1;
 }
 
-int	luaywMenuPushEntry(lua_State *L)
-{
-	lua_pushlightuserdata(L, ywMenuPushEntry(luaEntityAt(L, 1),
-						 lua_tostring(L, 2),
-						 luaEntityAt(L, 3)));
-	return 1;
-}
-
 int	luaywMenuMove(lua_State *L)
 {
 	lua_pushlightuserdata(L, ywMenuMove(luaEntityAt(L, 1),
@@ -1310,15 +1302,6 @@ int	luaMvTablePush(lua_State *L)
 					    luaEntityAt(L, 3),
 					    luaEntityAt(L, 4),
 					    luaEntityAt(L, 5)));
-  return 1;
-}
-
-int	luaYwMapPushElem(lua_State *L)
-{
-  lua_pushlightuserdata(L,
-			ywMapPushElem(luaEntityAt(L, 1), luaEntityAt(L, 2),
-				      luaEntityAt(L, 3), lua_tostring(L, 4))
-			);
   return 1;
 }
 

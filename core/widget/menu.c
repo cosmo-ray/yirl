@@ -255,7 +255,7 @@ Entity *ywMenuPushEntry(Entity *menu, const char *name, Entity *func)
 {
 	Entity *entries = yeGet(menu, "entries");
 	if (unlikely(!entries))
-		yeCreateArray(menu, "entries");
+		entries = yeCreateArray(menu, "entries");
 	Entity *entry = yeCreateArray(entries, name);
 
 	yeCreateString(name, entry, "text");

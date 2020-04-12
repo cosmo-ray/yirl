@@ -23,6 +23,7 @@
 #include "widget.h"
 #include "keydef.h"
 #include "events.h"
+#include "menu.h"
 #include "game.h"
 #include "container.h"
 #include "canvas.h"
@@ -190,6 +191,20 @@ static inline int make_abort(lua_State *L, ...)
 	{								\
 		BIND_AUTORET(f(luaEntityAt(L, 1), luaEntityAt(L, 2),	\
 			       luaEntityAt(L, 3), luaEntityAt(L, 4)));	\
+	}
+
+#define BIND_EEES(f, ...)						\
+	static inline int lua##f(lua_State *L)				\
+	{								\
+		BIND_AUTORET(f(luaEntityAt(L, 1), luaEntityAt(L, 2),	\
+			       luaEntityAt(L, 3), lua_tostring(L, 4)));	\
+	}
+
+#define BIND_ESE(f, ...)						\
+	static inline int lua##f(lua_State *L)				\
+	{								\
+		BIND_AUTORET(f(luaEntityAt(L, 1), lua_tostring(L, 2),	\
+			       luaEntityAt(L, 3)));			\
 	}
 
 #define BIND_EEE(f, ...)						\
@@ -491,7 +506,6 @@ int	luaYwMapIntFromPos(lua_State *L);
 int	luaYwMapMove(lua_State *L);
 int	luaYwMapSmootMove(lua_State *L);
 int	luaYwMapRemove(lua_State *L);
-int	luaYwMapPushElem(lua_State *L);
 int	luaYwMapPushNbr(lua_State *L);
 int	luaYwMapGetCase(lua_State *L);
 int	luaYwMapW(lua_State *L);
@@ -553,7 +567,6 @@ int	luaywTextureNormalize(lua_State *L);
 /* Menu */
 int	luaywMenuCallActionOn(lua_State *lua);
 int	luaywMenuGetCurrent(lua_State *lua);
-int	luaywMenuPushEntry(lua_State *lua);
 int	luaywMenuGetCurrentEntry(lua_State *lua);
 int	luaywMenuMove(lua_State *lua);
 
@@ -863,7 +876,6 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapMove", luaYwMapMove));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapSmootMove", luaYwMapSmootMove));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapRemove", luaYwMapRemove));
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapPushElem", luaYwMapPushElem));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapPushNbr", luaYwMapPushNbr));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapW", luaYwMapW));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapH", luaYwMapH));
@@ -882,7 +894,6 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, ywMenuCallActionOn);
   YES_LUA_REGISTRE_CALL(sm, ywMenuGetCurrent);
   YES_LUA_REGISTRE_CALL(sm, ywMenuGetCurrentEntry);
-  YES_LUA_REGISTRE_CALL(sm, ywMenuPushEntry);
   YES_LUA_REGISTRE_CALL(sm, ywMenuMove);
 
   /* container */
