@@ -65,6 +65,9 @@ BIND_ES(ygPushToGlobalScope, 2, 0);
 BIND_SI(ygIncreaseInt, 2, 0);
 BIND_SI(ygSetInt, 2, 0);
 
+BIND_EI(yevIsKeyDown, 2, 0);
+BIND_EI(yevIsKeyUp, 2, 0);
+
 BIND_EI(yeStringAddInt, 2, 0);
 BIND_EI(yeStringAddLong, 2, 0);
 

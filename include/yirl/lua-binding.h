@@ -462,8 +462,6 @@ int	luaEveType(lua_State *L);
 int	luaEveKey(lua_State *L);
 int	luaywidEveMousePos(lua_State *L);
 
-BIND_EI(yevIsKeyDown);
-BIND_EI(yevIsKeyUp);
 BIND_E(yevMousePos);
 int	luayevMouseDown(lua_State *L);
 int	luayevCheckKeys(lua_State *L);
