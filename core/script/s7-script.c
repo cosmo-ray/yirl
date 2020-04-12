@@ -145,6 +145,13 @@ static s7_pointer s7yeGetIntAt(s7_scheme *s, s7_pointer a)
 		S7_END_CREATOR(1);					\
 	}
 
+static s7_pointer s7yeCreateCopy(s7_scheme *s, s7_pointer a)
+{
+	Entity *ne = yeCreateCopy(E_AT(s, a, 0), NULL, NULL);
+	S7_END_CREATOR(1);
+}
+
+
 static s7_pointer s7yeCreateFunction(s7_scheme *s, s7_pointer a)
 {
 	Entity *ne = yeCreateFunction(s7_string(s7_list_ref(s, a, 0)),
@@ -165,6 +172,21 @@ static s7_pointer s7ywPosCreate(s7_scheme *s, s7_pointer a)
 	Entity *ne = ywPosCreate(x, y, NULL, NULL);
 
 	S7_END_CREATOR(2);
+}
+
+static s7_pointer s7yeForeach(s7_scheme *s, s7_pointer a)
+{
+	s7_pointer s7ar = s7_list_ref(s, a, 0);
+	Entity *array = E_AT(s, a, 0);
+	s7_pointer func = s7_list_ref(s, a, 1);
+	s7_pointer arg = s7_list_ref(s, a, 2);
+
+	YE_FOREACH(array, el) {
+		s7_pointer args = s7_list(s, 2, s7_make_c_object(s, s7m->et, el),
+					  arg);
+		s7_call(s, func, args);
+	}
+	return s7ar;
 }
 
 S7_IMPLE_CREATOR(Int, s7_integer);
@@ -269,6 +291,15 @@ static s7_pointer make_nothing(s7_scheme *s, ...)
 			       E_AT(s, a, 4)				\
 				     ));				\
 	}
+
+#define BIND_EEIII(f, ...)					    \
+	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)	    \
+	{							    \
+		BIND_AUTORET(f(E_AT(s, a, 0), E_AT(s, a, 1),	    \
+			       I_AT(s, a, 2), I_AT(s, a, 3),	    \
+			       I_AT(s, a, 4)));			    \
+	}
+
 
 #define S7_IMPLEMENT_B_EES(func)					\
 	static s7_pointer s7##func(s7_scheme *s, s7_pointer a)		\
@@ -498,6 +529,7 @@ static s7_pointer s7yevCreateGrp(s7_scheme *s, s7_pointer a)
 
 BIND_EII(ywCanvasObjSetPos, 3, 0);
 BIND_EIIE(ywCanvasNewText, 2, 2);
+BIND_EEIII(ywMapInitEntity, 5, 0);
 
 #include "binding.c"
 
@@ -519,7 +551,7 @@ static s7_pointer stringifier(s7_scheme *s7, s7_pointer args)
 	char *s;
 	s7_pointer r;
 
-	s = yeToCStr(s7_c_object_value(s7_car(args)), 2, 0);
+	s = yeToCStr(s7_c_object_value(s7_car(args)), 2, YE_FORMAT_PRETTY);
 	r = s7_make_string(s7, s);
 	free(s);
 	return r;
@@ -547,6 +579,7 @@ static int init(void *sm, void *args)
 	GET_ET(sm) = et;
 	GET_GET(sm) = get;
 
+	s7_define_safe_function(s7, "yeForeach", s7yeForeach, 2, 1, false, "");
 	s7_define_safe_function(s7, "yeIsChild", s7yeIsChild, 2, 0, false, "");
 	s7_define_safe_function(s7, "int_cast", int_cast, 1, 0, false, "");
 	s7_define_safe_function(s7, "string_cast", string_cast, 1, 0, false, "");
@@ -572,8 +605,10 @@ static int init(void *sm, void *args)
 	BIND(yeCreateInt, 1, 2);
 	BIND(yeCreateFunction, 1, 2);
 	BIND(yeCreateArray, 0, 2);
+	BIND(yeCreateCopy, 1, 2);
 	BIND(yesCall, 1, 15);
 	BIND(ywCanvasNewText, 2, 2);
+	BIND(ywMapInitEntity, 5, 0);
 #define IN_CALL 1
 #include "binding.c"
 #undef IN_CALL
