@@ -1054,12 +1054,6 @@ int	luaYwReplaceEntry(lua_State *L)
 	return 1;
 }
 
-int	luaywCntWidgetFather(lua_State *L)
-{
-	lua_pushlightuserdata(L, ywCntWidgetFather(luaEntityAt(L, 1)));
-	return 1;
-}
-
 int	luaYwCntGetEntry(lua_State *L)
 {
 	lua_pushlightuserdata(L, ywCntGetEntry(luaEntityAt(L, 1),

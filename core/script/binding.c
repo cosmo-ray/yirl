@@ -80,6 +80,7 @@ BIND_EI(yeStringAddLong, 2, 0);
 BIND_E(ywCanvasObjPos, 1, 0);
 BIND_E(ywidNextEve, 1, 0);
 BIND_E(yeIncrRef, 1, 0);
+BIND_E(ywCntWidgetFather, 1, 0);
 
 BIND_S(ygGet, 1, 0);
 BIND_S(ygGetString, 1, 0);

@@ -523,7 +523,6 @@ int	luaYwCntGetEntry(lua_State *L);
 int	luaYwPushNewWidget(lua_State *L);
 int	luaYwCntPopLastEntry(lua_State *L);
 int	luaYwReplaceEntry(lua_State *L);
-int	luaywCntWidgetFather(lua_State *L);
 int	luaywCntConstructChilds(lua_State *L);
 BIND_EE(ywContainerUpdate);
 
@@ -901,7 +900,6 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCntGetEntry", luaYwCntGetEntry));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywPushNewWidget", luaYwPushNewWidget));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCntPopLastEntry", luaYwCntPopLastEntry));
-  YES_LUA_REGISTRE_CALL(sm, ywCntWidgetFather);
   YES_LUA_REGISTRE_CALL(sm, ywCntConstructChilds);
   YES_LUA_REGISTRE_CALL(sm, ywContainerUpdate);
 
