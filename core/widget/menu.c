@@ -36,7 +36,7 @@ static void *tryCallMoveOn(YWidgetState *wid)
   if (moveOn)
     return yesCall(moveOn, wid->entity, ((YMenuState *)wid)->current,
 		   ywMenuGetCurrentEntry(wid->entity));
-  return (void *)NOACTION;
+  return (void *)ACTION;
 }
 
 void *ywMenuMove(Entity *ent, uint32_t at)

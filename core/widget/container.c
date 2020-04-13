@@ -145,7 +145,7 @@ int ywPushNewWidget(Entity *container, Entity *wid, int dec_ref)
 		return -1;
 	if (dec_ref)
 		yeDestroy(wid);
-	yeSetAt(container, "current", ret);
+	yeReCreateInt(ret, container, "current");
 	yeReplaceBackExt(wid, container, "$father-container", YE_FLAG_NO_COPY);
 	return ret;
 }
