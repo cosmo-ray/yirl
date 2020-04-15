@@ -167,6 +167,18 @@ static s7_pointer s7yeCreateArray(s7_scheme *s, s7_pointer a)
 	S7_END_CREATOR(0);
 }
 
+static s7_pointer s7ywRectCreate(s7_scheme *s, s7_pointer a)
+{
+	s7_int x = s7_integer(s7_list_ref(s, a, 0));
+	s7_int y = s7_integer(s7_list_ref(s, a, 1));
+	s7_int w = s7_integer(s7_list_ref(s, a, 2));
+	s7_int h = s7_integer(s7_list_ref(s, a, 3));
+	Entity *ne = ywRectReCreateInts(x, y, w, h, NULL, NULL);
+
+	S7_END_CREATOR(4);
+}
+
+
 static s7_pointer s7ywPosCreate(s7_scheme *s, s7_pointer a)
 {
 	s7_int x = s7_integer(s7_list_ref(s, a, 0));
@@ -615,6 +627,7 @@ static int init(void *sm, void *args)
 #define BIND(name, nargs, optargs)					\
 	s7_define_safe_function(s7, #name, s7##name, nargs, optargs, false, "")
 
+	BIND(ywRectCreate, 4, 2);
 	BIND(ywCanvasObjSetPos, 3, 0);
 	BIND(ywidNewWidget, 2, 0);
 	BIND(yeCreateString, 1, 2);

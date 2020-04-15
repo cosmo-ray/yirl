@@ -131,6 +131,15 @@ Entity *ywMapPushElem(Entity *state, Entity *toPush,
 Entity *ywMapPushNbr(Entity *state, int toPush,
 		     Entity *pos, const char *name);
 
+static inline Entity *ywMapTryPushElem(Entity *state, Entity *toPush,
+				       Entity *pos, const char *name)
+{
+	Entity *map_case = ywMapGetCase(state, pos);
+
+	if ((name && yeGet(map_case, name)) || yeDoesInclude(map_case, toPush))
+		return NULL;
+	return ywMapPushElem(state, toPush, pos, name);
+}
 
 /**
  * @smoot	true to activate smoort movement

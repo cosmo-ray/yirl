@@ -36,10 +36,15 @@ BIND_NONE(yeSetIntAt, 3, 0);
 
 BIND_EES(yePushBack, 2, 1);
 
+BIND_EES(yePush, 2, 1);
+
 BIND_EES(ywCanvasCreateYTexture, 3, 0);
+
+BIND_EES(ywMapRemoveByStr, 3, 0);
 
 BIND_ESE(ywMenuPushEntry, 2, 1);
 
+BIND_EEES(ywMapTryPushElem, 3, 1);
 BIND_EEES(ywMapPushElem, 3, 1);
 
 BIND_EEEE(ywCanvasCheckCollisions, 2, 2);
@@ -157,6 +162,7 @@ PUSH_I_GLOBAL(Y_LCTRL_KEY);
 PUSH_I_GLOBAL(Y_RCTRL_KEY);
 
 PUSH_I_GLOBAL_VAL(Y_SPACE_KEY, ' ');
+PUSH_I_GLOBAL_VAL(Y_ENTER_KEY, '\n');
 
 PUSH_I_GLOBAL(YKEY_DOWN);
 PUSH_I_GLOBAL(YKEY_UP);

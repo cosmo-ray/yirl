@@ -1084,7 +1084,7 @@ int yePushAt(Entity *array, Entity *toPush, int idx)
 	return yeAttach(array, toPush, idx, NULL, 0);
 }
 
-int yePush(Entity *array, Entity *toPush, char *name)
+int yePush(Entity *array, Entity *toPush, const char *name)
 {
 	BlockArray *ba = &YE_TO_ARRAY(array)->values;
 	uint64_t m;

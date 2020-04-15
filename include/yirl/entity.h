@@ -537,7 +537,7 @@ int yePushAt(Entity *array, Entity *toPush, int idx);
  * Push @toPush anywhere in @array
  * it's slower than push back but saffer
  */
-int yePush(Entity *array, Entity *toPush, char *name);
+int yePush(Entity *array, Entity *toPush, const char *name);
 
 /**
  * Insert toPush at idx, might be ways lot eavierst that yePushAt, because it

@@ -520,59 +520,64 @@ void sdlFreeSurface(void *surface)
 
 static SDL_Texture *sdlLoasAndCachTexture(Entity *elem)
 {
-  const char *path = NULL;
-  SDL_Texture *texture = yeGetData(yeGet(elem, "$sdl-img"));
-  Entity *data;
+	const char *path = NULL;
+	SDL_Texture *texture = yeGetData(yeGet(elem, "$sdl-img"));
+	Entity *data;
 
-  if (texture)
-    return texture;
-  SDL_Surface *image;
+	if (texture)
+		return texture;
+	SDL_Surface *image;
 
-  if (yeGet(elem, "map-tild") != NULL) {
-    char *mod_path = g_strdup_printf("%s%s", ygBinaryRootPath, "/modules/");
+	if (yeGet(elem, "map-tild") != NULL) {
+		char *mod_path = g_strdup_printf("%s%s",
+						 ygBinaryRootPath, "/modules/");
 
-    yeStringReplace(yeGet(elem, "map-tild"), "YIRL_MODULES_PATH", mod_path);
-    g_free(mod_path);
-    yeCreateInt(Y_SDL_TILD, elem, "$sdl-type");
-    path = yeGetString(yeGet(elem, "map-tild"));
-  } else if (yeGet(elem, "map-srite") != NULL) {
-    char *mod_path = g_strdup_printf("%s%s", ygBinaryRootPath, "/modules/");
+		yeStringReplace(yeGet(elem, "map-tild"),
+				"YIRL_MODULES_PATH", mod_path);
+		g_free(mod_path);
+		yeCreateInt(Y_SDL_TILD, elem, "$sdl-type");
+		path = yeGetString(yeGet(elem, "map-tild"));
+	} else if (yeGet(elem, "map-sprite") != NULL) {
+		char *mod_path = g_strdup_printf("%s%s", ygBinaryRootPath,
+						 "/modules/");
 
-    yeStringReplace(yeGet(elem, "map-srite"), "YIRL_MODULES_PATH", mod_path);
-    g_free(mod_path);
-    yeCreateInt(Y_SDL_SPRITE, elem, "$sdl-type");
-    path = yeGetString(yeGet(elem, "map-srite"));
-  } else if ((path = yeGetString(yeGet(elem, "map-color"))) != NULL) {
-    SDL_Color *col = g_new(SDL_Color, 1);
+		yeStringReplace(yeGet(elem, "map-sprite"), "YIRL_MODULES_PATH",
+				mod_path);
+		g_free(mod_path);
+		yeCreateInt(Y_SDL_SPRITE, elem, "$sdl-type");
+		path = yeGetString(yeGet(elem, "map-sprite"));
+	} else if ((path = yeGetString(yeGet(elem, "map-color"))) != NULL) {
+		SDL_Color *col = g_new(SDL_Color, 1);
 
-    ywidColorFromString((char *)path, &col->r, &col->g, &col->b, &col->a);
-    yeCreateInt(Y_SDL_COLOR, elem, "$sdl-type");
-    data = yeCreateData(col, elem, "$sdl-img");
-    yeSetDestroy(data, g_free);
-    return (SDL_Texture *)col;
-  }
+		ywidColorFromString((char *)path, &col->r, &col->g, &col->b,
+				    &col->a);
+		yeCreateInt(Y_SDL_COLOR, elem, "$sdl-type");
+		data = yeCreateData(col, elem, "$sdl-img");
+		yeSetDestroy(data, g_free);
+		return (SDL_Texture *)col;
+	}
 
-  if (unlikely(!path || !(image =  IMG_Load(path)))) {
-    if ((path = yeGetString(yeGet(elem, "map-char"))) != NULL) {
-      SDL_Color color = {0,0,0,255};
-      char *str = (char *)path;
-      char tmp;
+	if (unlikely(!path || !(image = IMG_Load(path)))) {
+		if ((path = yeGetString(yeGet(elem, "map-char"))) != NULL) {
+			SDL_Color color = {0,0,0,255};
+			char *str = (char *)path;
+			char tmp;
 
-      tmp = str[1];
-      str[1] = 0;
-      image = TTF_RenderUTF8_Solid(sgDefaultFont(), str, color);
-      yeReCreateInt(Y_SDL_TILD, elem, "$sdl-type");
-      str[1] = tmp;
-    } else {
-      return NULL;
-    }
-  }
+			tmp = str[1];
+			str[1] = 0;
+			image = TTF_RenderUTF8_Solid(sgDefaultFont(), str, color);
+			yeReCreateInt(Y_SDL_TILD, elem, "$sdl-type");
+			str[1] = tmp;
+		} else {
+			return NULL;
+		}
+	}
 
-  texture = SDL_CreateTextureFromSurface(sg.renderer, image);
-  data = yeCreateData(texture, elem, "$sdl-img");
-  yeSetDestroy(data, sdlFreeTexture);
-  SDL_FreeSurface(image);
-  return texture;
+	texture = SDL_CreateTextureFromSurface(sg.renderer, image);
+	data = yeCreateData(texture, elem, "$sdl-img");
+	yeSetDestroy(data, sdlFreeTexture);
+	SDL_FreeSurface(image);
+	return texture;
 }
 
 static GError *sdlError;
@@ -948,8 +953,6 @@ static int sdlCanvasRendImg(YWidgetState *state, SDLWid *wid, Entity *img,
 	rd.x += ywRectX(wid_pix);
 	rd.y += ywRectY(wid_pix);
 	sdlCanvasAplyModifier(img, &rd, &sd, &center, &rotation, &flip);
-	/* printf("rend %p (%d %d %d %d) %f\n", t, */
-	/* 	 rd.x, rd.y, rd.h, rd.w, rotation); */
 	SDL_RenderCopyEx(sg.renderer, t, sd, &rd, rotation, center, flip);
 	free(sd);
 	free(center);
@@ -1095,58 +1098,76 @@ int sdlDisplaySprites(YWidgetState *state, SDLWid *wid,
 		      int w, int h, int thresholdX,
 		      int thresholdY, Entity *mod)
 {
-  SDL_Rect DestR = {x * w + wid->rect.x + thresholdX,
-		    y * h + wid->rect.y + thresholdY,
-		    w, h};
-  SDL_Texture *texture;
-  int id;
-  Entity *elem;
+	SDL_Rect DestR = {x * w + wid->rect.x + thresholdX,
+			  y * h + wid->rect.y + thresholdY,
+			  w, h};
+	SDL_Texture *texture;
+	int id;
+	Entity *elem;
 
-  if (unlikely(!mapElem))
-    return 0;
-  id = ywMapGetIdByElem(mapElem);
-  elem = yeGet(ywMapGetResources(state), id);
+	if (unlikely(!mapElem))
+		return 0;
+	id = ywMapGetIdByElem(mapElem);
+	elem = yeGet(ywMapGetResources(state), id);
 
-  texture = sdlLoasAndCachTexture(elem);
+	texture = sdlLoasAndCachTexture(elem);
 
-  if (texture) {
-    int type = yeGetInt(yeGet(elem, "$sdl-type"));
+	if (texture) {
+		int type = yeGetInt(yeGet(elem, "$sdl-type"));
 
-    if (type == Y_SDL_TILD || type == Y_SDL_COLOR) {
-      SDL_Rect srcR = {0, 0, 0, 0};
-      SDL_Rect *srcRP = NULL;
+		if (type == Y_SDL_TILD || type == Y_SDL_COLOR) {
+			SDL_Rect srcR = {0, 0, 0, 0};
+			SDL_Rect *srcRP = NULL;
 
-      SDL_QueryTexture(texture, NULL, NULL, &srcR.w, &srcR.h);
-      int diff = srcR.w - srcR.h;
-      if (diff > 0) {
-      	int bigger = srcR.w;
-      	DestR.h = DestR.h * bigger / DestR.w;
-	diff = DestR.w - DestR.h;
-	DestR.y += (diff / 2);
-      } else if (diff < 0) {
-      	int bigger = srcR.h;
-	DestR.w = DestR.w * bigger / DestR.h;
-	diff = DestR.h - DestR.w;
-	DestR.x += (diff / 2);
-      }
+			SDL_QueryTexture(texture, NULL, NULL, &srcR.w, &srcR.h);
+			int diff = srcR.w - srcR.h;
+			if (diff > 0) {
+				int bigger = srcR.w;
+				DestR.h = DestR.h * bigger / DestR.w;
+				diff = DestR.w - DestR.h;
+				DestR.y += (diff / 2);
+			} else if (diff < 0) {
+				int bigger = srcR.h;
+				DestR.w = DestR.w * bigger / DestR.h;
+				diff = DestR.h - DestR.w;
+				DestR.x += (diff / 2);
+			}
 
-      if (unlikely(mod) && !yeGetIntAt(mod, 0)) {
-	DestR.x += yeGetIntAt(mod, 1);
-	DestR.w -= yeGetIntAt(mod, 2);
-	srcR.x += yuiPercentOf(srcR.w, yeGetIntAt(mod, 3));
-	srcR.w -= yuiPercentOf(srcR.w, yeGetIntAt(mod, 4));
-	srcRP = &srcR;
-      }
+			if (unlikely(mod) && !yeGetIntAt(mod, 0)) {
+				DestR.x += yeGetIntAt(mod, 1);
+				DestR.w -= yeGetIntAt(mod, 2);
+				srcR.x += yuiPercentOf(srcR.w,
+						       yeGetIntAt(mod, 3));
+				srcR.w -= yuiPercentOf(srcR.w,
+						       yeGetIntAt(mod, 4));
+				srcRP = &srcR;
+			}
 
-      if (type == Y_SDL_COLOR)
-	sdlDrawRect(NULL, DestR, *((SDL_Color *)texture));
-      else
-	SDL_RenderCopy(sg.renderer, texture, srcRP, &DestR);
-    } else {
-      SDL_QueryTexture(texture, NULL, NULL, &DestR.w, &DestR.h);
-      DestR.y = y * h - (DestR.h - h) + wid->rect.y;
-      SDL_RenderCopy(sg.renderer, texture, NULL, &DestR);
-    }
-  }
-  return 0;
+			if (type == Y_SDL_COLOR)
+				sdlDrawRect(NULL, DestR,
+					    *((SDL_Color *)texture));
+			else
+				SDL_RenderCopy(sg.renderer, texture,
+					       srcRP, &DestR);
+		} else {
+			Entity *rinfo = yeGet(mapElem, "rend_info");
+			SDL_Rect srcR = YRECT_MK_INIT(yeGet(rinfo, "src"));
+			SDL_Rect *rp = rinfo ? &srcR : NULL;
+			Entity *pt = yeGet(rinfo, "threshold");
+			int xt = ywPosX(pt);
+			int yt = ywPosY(pt);
+
+			if (!rinfo)
+				SDL_QueryTexture(texture, NULL, NULL,
+						 &DestR.w, &DestR.h);
+			else {
+				DestR.w = srcR.w;
+				DestR.h = srcR.h;
+			}
+			DestR.y = y * h - (DestR.h - h) + wid->rect.y + yt;
+			DestR.x += xt;
+			SDL_RenderCopy(sg.renderer, texture, rp, &DestR);
+		}
+	}
+	return 0;
 }
