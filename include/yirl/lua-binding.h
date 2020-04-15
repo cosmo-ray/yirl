@@ -438,7 +438,6 @@ BIND_SES(yeCreateString);
 BIND_EES(yeCreateYirlFmtString);
 int	luayeStrCaseCmp(lua_State *L);
 int	luayeToLower(lua_State *L);
-BIND_ES(yeStringAddNl);
 BIND_I_ECI(yeCountCharacters, bla, bla);
 
 /* int */
@@ -827,7 +826,6 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, yeCreateYirlFmtString);
   YES_LUA_REGISTRE_CALL(sm, yeStrCaseCmp);
   YES_LUA_REGISTRE_CALL(sm, yeToLower);
-  YES_LUA_REGISTRE_CALL(sm, yeStringAddNl);
   YES_LUA_REGISTRE_CALL(sm, yeCountCharacters);
 
   /* int */

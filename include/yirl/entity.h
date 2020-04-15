@@ -925,6 +925,16 @@ Entity *yeCreateCopy(Entity *src, Entity *father, const char *name);
 Entity	*yeMoveByEntity(Entity* src, Entity* dest, Entity *what,
 			const char *dstName);
 
+/**
+ * Convert an Entity to a C String (char *)
+ * @param	entity The entity
+ * @param	deep If @entity is an array, how deep we should print it
+ * @param	flag Aditional falgs (YE_FORMAT_PRETTY for pretty format)
+ * @return	the newly allocated string, need to be free
+ */
+char *yeToCStr(Entity *entity, int deep, int flag);
+
+
 static inline Entity *yeMoveByStr(Entity* src, Entity* dest, const char *what)
 {
 	return yeMoveByEntity(src, dest, yeGet(src, what), what);
@@ -1035,6 +1045,13 @@ static inline int yeAddStr(Entity *e, const char *str)
 
 static inline int yeAddEnt(Entity *e, Entity *e2)
 {
+	if (yeType(e) == YSTRING) {
+		char *str = yeToCStr(e2, 4, YE_FORMAT_PRETTY);
+
+		yeStringAdd(e, str);
+		free(str);
+		return 0;
+	}
 	switch (yeType(e2)) {
 	case YINT:
 		return yeAddInt(e, yeGetInt(e2));
@@ -1119,15 +1136,6 @@ static inline Entity *yeFindString(Entity *array, const char *str)
 {
 	return yeFind(array, yeStrEqFinder, (void *)str);
 }
-
-/**
- * Convert an Entity to a C String (char *)
- * @param	entity The entity
- * @param	deep If @entity is an array, how deep we should print it
- * @param	flag Aditional falgs (YE_FORMAT_PRETTY for pretty format)
- * @return	the newly allocated string, need to be free
- */
-char *yeToCStr(Entity *entity, int deep, int flag);
 
 /**
  * rename @ptr inside @array with @name if

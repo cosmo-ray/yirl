@@ -26,27 +26,28 @@
 static int t = -1;
 
 typedef struct {
-  YWidgetState sate;
-  unsigned int current;
+	YWidgetState sate;
+	unsigned int current;
 } YMenuState;
 
 static void *tryCallMoveOn(YWidgetState *wid)
 {
-  Entity *moveOn = yeGet(wid->entity, "moveOn");
-  if (moveOn)
-    return yesCall(moveOn, wid->entity, ((YMenuState *)wid)->current,
-		   ywMenuGetCurrentEntry(wid->entity));
-  return (void *)ACTION;
+	Entity *moveOn = yeGet(wid->entity, "moveOn");
+	if (moveOn)
+		return yesCall(moveOn, wid->entity,
+			       ((YMenuState *)wid)->current,
+			       ywMenuGetCurrentEntry(wid->entity));
+	return (void *)ACTION;
 }
 
 void *ywMenuMove(Entity *ent, uint32_t at)
 {
-  YMenuState *s = (YMenuState *)ywidGetState(ent);
+	YMenuState *s = (YMenuState *)ywidGetState(ent);
 
-  if (at > yeLen(yeGet(ent, "entries")))
-    return (void *)NOTHANDLE;
-  s->current = at;
-  return tryCallMoveOn((YWidgetState *)s);
+	if (at > yeLen(yeGet(ent, "entries")))
+		return (void *)NOTHANDLE;
+	s->current = at;
+	return tryCallMoveOn((YWidgetState *)s);
 }
 
 static void *nmMenuDown(YWidgetState *wid)

@@ -69,6 +69,7 @@ BIND_I(ySoundDuration, 1, 0);
 BIND_EE(yevIsGrpUp, 2, 0);
 BIND_EE(yevIsGrpDown, 2, 0);
 
+BIND_ES(yeStringAddNl, 2, 0);
 BIND_ES(yeStringAdd, 2, 0);
 BIND_ES(yeSetString, 2, 0);
 BIND_ES(ygPushToGlobalScope, 2, 0);
@@ -81,6 +82,8 @@ BIND_EI(yevIsKeyUp, 2, 0);
 
 BIND_EI(yeStringAddInt, 2, 0);
 BIND_EI(yeStringAddLong, 2, 0);
+
+BIND_EI(ywCntGetEntry, 2, 0);
 
 BIND_E(ywCanvasObjPos, 1, 0);
 BIND_E(ywidNextEve, 1, 0);
@@ -107,6 +110,7 @@ BIND_EE(ywCanvasRemoveObj, 2, 0);
 
 BIND_NONE(yeIncrAt, 2, 0);
 BIND_NONE(yeAddAt, 3, 0);
+BIND_EE(yeAddEnt, 2, 0);
 
 BIND_E(ywPosToString, 1, 0);
 BIND_E(ywSizeToString, 1, 0);

@@ -121,6 +121,13 @@ static s7_pointer s7yeIsChild(s7_scheme *s, s7_pointer a)
 	return s7_make_boolean(s, !!e);
 }
 
+static s7_pointer s7yeGetStringAt(s7_scheme *s, s7_pointer a)
+{
+	Entity *e = NULL;
+
+	E_YE_GET(e);
+	return s7_make_string(s, yeGetString(e));
+}
 
 static s7_pointer s7yeGetIntAt(s7_scheme *s, s7_pointer a)
 {
@@ -561,6 +568,15 @@ BIND_EEIII(ywMapInitEntity, 5, 0);
 
 #include "binding.c"
 
+static s7_pointer s7yeSetStringAt(s7_scheme *s, s7_pointer a)
+{
+	const char *val = s7_string(s7_list_ref(s, a, 2));
+
+	printf("set %p %s\n", s7yeGet(s, a), val);
+	yeSetString(s7_c_object_value(s7yeGet(s, a)), val);
+	return s7_nil(s);
+}
+
 static s7_pointer s7yeSetIntAt(s7_scheme *s, s7_pointer a)
 {
 	int val = s7_integer(s7_list_ref(s, a, 2));
@@ -627,6 +643,8 @@ static int init(void *sm, void *args)
 #define BIND(name, nargs, optargs)					\
 	s7_define_safe_function(s7, #name, s7##name, nargs, optargs, false, "")
 
+	BIND(yeGetStringAt, 2, 0);
+	BIND(yeSetStringAt, 3, 0);
 	BIND(ywRectCreate, 4, 2);
 	BIND(ywCanvasObjSetPos, 3, 0);
 	BIND(ywidNewWidget, 2, 0);

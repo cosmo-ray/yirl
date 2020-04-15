@@ -69,7 +69,8 @@ static int sdlRend(YWidgetState *state, int t)
     txtR = sdlRectFromRectEntity(destRect);
     yeDestroy(destRect);
     sdlPrintText(wid, yeGetString(pre_text), base_color, txtR, alignementType);
-    pos = 1;
+    if (yeLen(pre_text))
+	    pos = 1 + yeCountCharacters(pre_text, '\n', -1);
   }
 
   YE_ARRAY_FOREACH_EXT(entries, entry, it) {
