@@ -117,60 +117,63 @@ static inline Entity *ywPosCreateEnt(Entity *other, int useless,
 
 static inline Entity *ywPosSetInts(Entity *pos, int posX, int posY)
 {
-  yeSetInt(yeGetByIdx(pos, 0), posX);
-  yeSetInt(yeGetByIdx(pos, 1), posY);
-  return pos;
+	yeSetInt(yeGetByIdx(pos, 0), posX);
+	yeSetInt(yeGetByIdx(pos, 1), posY);
+	return pos;
 }
 
 static inline Entity *ywPosSetEnt(Entity *pos, Entity *other,
 				  int useless)
 {
-  (void)useless;
-  yeSetInt(yeGetByIdx(pos, 0), yeGetInt(yeGetByIdx(other, 0)));
-  yeSetInt(yeGetByIdx(pos, 1), yeGetInt(yeGetByIdx(other, 1)));
-  return pos;
+	(void)useless;
+	yeSetInt(yeGetByIdx(pos, 0), yeGetInt(yeGetByIdx(other, 0)));
+	yeSetInt(yeGetByIdx(pos, 1), yeGetInt(yeGetByIdx(other, 1)));
+	return pos;
 }
 
-#define ywPosSet(pos, x, y)			\
-  _Generic(x, Entity *: ywPosSetEnt,		\
-	   void *: ywPosSetEnt,			\
-	   const Entity *: ywPosSetEnt,		\
-	   double : ywPosSetInts,		\
-	   int : ywPosSetInts) (pos, x, y)
+#define ywPosSet(pos, x, y)				\
+	_Generic(x, Entity *: ywPosSetEnt,		\
+		 void *: ywPosSetEnt,			\
+		 const Entity *: ywPosSetEnt,		\
+		 double : ywPosSetInts,			\
+		 int : ywPosSetInts) (pos, x, y)
 
 
 static inline Entity *ywPosSetX(Entity *pos, int posX)
 {
-  yeSetInt(yeGetByIdx(pos, 0), posX);
-  return pos;
+	yeSetInt(yeGetByIdx(pos, 0), posX);
+	return pos;
 }
 
 static inline Entity *ywPosSetY(Entity *pos, int posY)
 {
-  yeSetInt(yeGetByIdx(pos, 1), posY);
-  return pos;
+	yeSetInt(yeGetByIdx(pos, 1), posY);
+	return pos;
 }
 
-static inline int ywPosIsSameEnt(Entity *pos1, Entity *pos2,
-				 int useless)
+static inline _Bool ywPosIsSameEnt(Entity *pos1, Entity *pos2,
+				   int useless)
 {
-  (void)useless;
-  return ((yeGetInt(yeGetByIdx(pos1, 0)) == yeGetInt(yeGetByIdx(pos2, 0))) &&
-	  (yeGetInt(yeGetByIdx(pos1, 1)) == yeGetInt(yeGetByIdx(pos2, 1))));
+	(void)useless;
+	return ((yeGetInt(yeGetByIdx(pos1, 0)) ==
+		 yeGetInt(yeGetByIdx(pos2, 0))) &&
+		(yeGetInt(yeGetByIdx(pos1, 1)) ==
+		 yeGetInt(yeGetByIdx(pos2, 1))));
 }
 
-static inline int ywPosIsSameInts(Entity *pos1, int x, int y)
+static inline _Bool ywPosIsSameInts(Entity *pos1, int x, int y)
 {
-  return ((yeGetInt(yeGet(pos1, 0)) == x) &&
-	  (yeGetInt(yeGet(pos1, 1)) == y));
+	return ((yeGetInt(yeGet(pos1, 0)) == x) &&
+		(yeGetInt(yeGet(pos1, 1)) == y));
 }
 
-#define ywPosIsSame(pos, x, y)			\
-  _Generic(x, Entity *: ywPosIsSameEnt,		\
-	   void *: ywPosIsSameEnt,			\
-	   const Entity *: ywPosIsSameEnt,		\
-	   double : ywPosIsSameInts,			\
-	   int : ywPosIsSameInts) (pos, x, y)
+#define ywPosIsSame(pos, x, y)				\
+	_Generic(x, Entity *: ywPosIsSameEnt,		\
+		 void *: ywPosIsSameEnt,		\
+		 const Entity *: ywPosIsSameEnt,	\
+		 double : ywPosIsSameInts,		\
+		 long : ywPosIsSameInts,		\
+		 int : ywPosIsSameInts) (pos, x, y)
 
 
 static inline int ywPosIsSameXEnt(Entity *pos1, Entity *pos2)

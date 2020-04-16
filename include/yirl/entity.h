@@ -359,7 +359,17 @@ static inline int yeArrayIdx_ent(Entity *array, Entity *lookup)
 	return -1;
 }
 
+/**
+ * @brief get last elem of array
+ */
 Entity *yeGetLast(Entity *array);
+
+/*
+ * turn out yeLast seems a better name than get last
+ * I men it basically say the same and yeLast is shorter so cuter
+ * KAWAIIIII ne ?
+ */
+#define yeLast yeGetLast
 
 /**
  * @return the entity at the position of @index or NULL

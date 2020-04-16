@@ -154,6 +154,16 @@ static s7_pointer s7yeGetIntAt(s7_scheme *s, s7_pointer a)
 		S7_END_CREATOR(1);					\
 	}
 
+static s7_pointer s7ywPosIsSame(s7_scheme *s, s7_pointer a)
+{
+	if (s7_is_integer(s7_list_ref(s, a, 1)))
+		return s7_make_boolean(s, ywPosIsSame(E_AT(s, a, 0),
+						      I_AT(s, a, 1),
+						      I_AT(s, a, 2)));
+	return s7_make_boolean(s, ywPosIsSame(E_AT(s, a, 0), E_AT(s, a, 1), 0));
+
+}
+
 static s7_pointer s7yeCreateCopy(s7_scheme *s, s7_pointer a)
 {
 	Entity *ne = yeCreateCopy(E_AT(s, a, 0), NULL, NULL);
@@ -562,6 +572,7 @@ static s7_pointer s7yevCreateGrp(s7_scheme *s, s7_pointer a)
 	return s7_make_c_object(s, s7m->et, r);
 }
 
+BIND_ESE(yeReCreateArray, 2, 1);
 BIND_EII(ywCanvasObjSetPos, 3, 0);
 BIND_EIIE(ywCanvasNewText, 2, 2);
 BIND_EEIII(ywMapInitEntity, 5, 0);
@@ -595,7 +606,7 @@ static s7_pointer stringifier(s7_scheme *s7, s7_pointer args)
 	char *s;
 	s7_pointer r;
 
-	s = yeToCStr(s7_c_object_value(s7_car(args)), 2, YE_FORMAT_PRETTY);
+	s = yeToCStr(s7_c_object_value(s7_car(args)), 4, YE_FORMAT_PRETTY);
 	r = s7_make_string(s7, s);
 	free(s);
 	return r;
@@ -656,6 +667,9 @@ static int init(void *sm, void *args)
 	BIND(yesCall, 1, 15);
 	BIND(ywCanvasNewText, 2, 2);
 	BIND(ywMapInitEntity, 5, 0);
+	BIND(ywPosIsSame, 2, 1);
+	BIND(yeReCreateArray, 2, 1);
+
 #define IN_CALL 1
 #include "binding.c"
 #undef IN_CALL

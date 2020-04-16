@@ -85,6 +85,8 @@ BIND_EI(yeStringAddLong, 2, 0);
 
 BIND_EI(ywCntGetEntry, 2, 0);
 
+BIND_E(yeLast, 1, 0);
+
 BIND_E(ywCanvasObjPos, 1, 0);
 BIND_E(ywidNextEve, 1, 0);
 BIND_E(yeIncrRef, 1, 0);
@@ -134,6 +136,8 @@ BIND_EI(yeSetInt, 2, 0);
 BIND_EII(ywCanvasMoveObjXY, 3, 0);
 
 BIND_EII(ywPosSetInts, 3, 0);
+
+BIND_EII(ywPosAddXY, 3, 0);
 
 BIND_EEI(yePatchAplyExt, 2, 1);
 
