@@ -231,6 +231,21 @@ static s7_pointer s7yeForeach(s7_scheme *s, s7_pointer a)
 	return s7ar;
 }
 
+static s7_pointer s7yeRevForeach(s7_scheme *s, s7_pointer a)
+{
+	s7_pointer s7ar = s7_list_ref(s, a, 0);
+	Entity *array = E_AT(s, a, 0);
+	s7_pointer func = s7_list_ref(s, a, 1);
+	s7_pointer arg = s7_list_ref(s, a, 2);
+
+	YE_REVFOREACH(array, el) {
+		s7_pointer args = s7_list(s, 2, s7_make_c_object(s, s7m->et, el),
+					  arg);
+		arg = s7_call(s, func, args);
+	}
+	return s7ar;
+}
+
 S7_IMPLE_CREATOR(Int, s7_integer);
 S7_IMPLE_CREATOR(String, s7_string);
 
@@ -646,6 +661,8 @@ static int init(void *sm, void *args)
 	GET_GET(sm) = get;
 
 	s7_define_safe_function(s7, "yeForeach", s7yeForeach, 2, 1, false, "");
+	s7_define_safe_function(s7, "yeRevForeach", s7yeRevForeach, 2, 1,
+				false, "");
 	s7_define_safe_function(s7, "yeIsChild", s7yeIsChild, 2, 0, false, "");
 	s7_define_safe_function(s7, "int_cast", int_cast, 1, 0, false, "");
 	s7_define_safe_function(s7, "string_cast", string_cast, 1, 0, false, "");
