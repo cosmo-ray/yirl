@@ -49,6 +49,11 @@ void testGetByEntity(void)
   yeSetString(str, "idx");
   g_assert(yeGet(a, str) == idx);
   g_assert(yeGet(a, idx) == str);
+  int i = 1;
+
+  YE_REVFOREACH(a, v)
+	  g_assert(v == yeGet(a, i--));
+  g_assert(i == -1);
   yeDestroy(a);
   yeEnd();
 }

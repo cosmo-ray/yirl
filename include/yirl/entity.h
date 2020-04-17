@@ -433,6 +433,25 @@ Entity *yeGetByStrFast(Entity *entity, const char *name);
 
 #define yeGetIntDirect(entity) (YE_TO_INT(entity)->value)
 
+
+static inline int ye_revforeach_eval_(Entity *a, int *i, Entity **e)
+{
+	if (*i <= 0)
+		return 0;
+	*e = yeGet(a, *i - 1);
+	if (*e)
+		return 1;
+	*i -= 1;
+	return ye_revforeach_eval_(a, i, e);
+}
+
+#define YE_REVFOREACH(array, val)					\
+		Entity *val;						\
+		for (int i_YE_REVFOREACH = yeLen(array);		\
+		     ye_revforeach_eval_(array, &i_YE_REVFOREACH, &val); \
+		     --i_YE_REVFOREACH)
+
+
 /**
  * @return 0 if @entity is NULL
  */
