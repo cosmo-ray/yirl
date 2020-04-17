@@ -164,6 +164,17 @@ static s7_pointer s7ywPosIsSame(s7_scheme *s, s7_pointer a)
 
 }
 
+static s7_pointer s7ywPosSet(s7_scheme *s, s7_pointer a)
+{
+	Entity *e;
+
+	if (s7_is_integer(s7_list_ref(s, a, 1)))
+		e = ywPosSet(E_AT(s, a, 0), I_AT(s, a, 1), I_AT(s, a, 2));
+	else
+		e = ywPosSetEnt(E_AT(s, a, 0), E_AT(s, a, 1), 0);
+	return s7_make_c_object(s, s7m->et, e);
+}
+
 static s7_pointer s7yeCreateCopy(s7_scheme *s, s7_pointer a)
 {
 	Entity *ne = yeCreateCopy(E_AT(s, a, 0), NULL, NULL);
@@ -668,6 +679,7 @@ static int init(void *sm, void *args)
 	BIND(ywCanvasNewText, 2, 2);
 	BIND(ywMapInitEntity, 5, 0);
 	BIND(ywPosIsSame, 2, 1);
+	BIND(ywPosSet, 2, 1);
 	BIND(yeReCreateArray, 2, 1);
 
 #define IN_CALL 1

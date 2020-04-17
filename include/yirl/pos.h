@@ -136,6 +136,7 @@ static inline Entity *ywPosSetEnt(Entity *pos, Entity *other,
 		 void *: ywPosSetEnt,			\
 		 const Entity *: ywPosSetEnt,		\
 		 double : ywPosSetInts,			\
+		 long : ywPosSetInts,			\
 		 int : ywPosSetInts) (pos, x, y)
 
 
