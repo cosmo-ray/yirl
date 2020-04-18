@@ -419,6 +419,19 @@ static inline Entity *yeGetByEntity(Entity *array, Entity *key);
 char *yeGetKeyAt(Entity *entity, int idx);
 
 /**
+ * @return the key string if there is one
+ */
+static inline char *yeFindKey(Entity *entity, Entity *target)
+{
+	int idx = yeArrayIdx(entity, target);
+
+	if (idx >= 0)
+		return yeGetKeyAt(entity, idx);
+	return NULL;
+}
+
+
+/**
  * push array_src[idx] in array_dest, keep the string key if there is one
  * the element is push at the end of array_dest.
  */
@@ -991,7 +1004,7 @@ static inline Entity *yeGetByEntity(Entity *array, Entity *key)
 	return NULL;
 }
 
-static inline int yeArrayContainEntity(Entity *array, const char *str)
+static inline _Bool yeArrayContainEntity(Entity *array, const char *str)
 {
 	return !!yeGet(array, str);
 }

@@ -110,6 +110,14 @@ int ywMapGetIdByElem(Entity *mapElem);
  */
 Entity *ywMapGetCase(Entity *map, Entity *pos);
 
+/**
+ * @brief same as @ywMapGetCase but use x,y instead of pos
+ */
+Entity *ywMapCaseXY(Entity *map, int x, int y);
+
+#define ywMapContainEnt(m,x,y,e) yeDoesInclude(ywMapCaseXY(m, x, y), e)
+#define ywMapContainStr(m,x,y,s) yeArrayContainEntity(ywMapCaseXY(m, x, y), s)
+
 static inline Entity *ywMapGetEntityById(Entity *state, Entity *pos, int id)
 {
   Entity *tmp = ywMapGetCase(state, pos);

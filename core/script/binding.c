@@ -55,6 +55,9 @@ BIND_EIIEE(ywCanvasNewImgFromTexture, 4, 1);
 
 BIND_EIIE(ywCanvasNewRect, 2, 2);
 
+BIND_EIIE(ywMapContainEnt, 4, 0);
+BIND_EIIS(ywMapContainStr, 4, 0);
+
 BIND_EIIS(ywCanvasNewTextByStr, 2, 2);
 BIND_EIIS(ywCanvasNewImgByPath, 4, 0);
 
@@ -70,6 +73,7 @@ BIND_I(yuiUsleep, 1, 0);
 
 BIND_EE(yevIsGrpUp, 2, 0);
 BIND_EE(yevIsGrpDown, 2, 0);
+BIND_EE(yeFindKey, 2, 0);
 
 BIND_ES(yeStringAddNl, 2, 0);
 BIND_ES(yeStringAdd, 2, 0);
@@ -138,6 +142,8 @@ BIND_E(ywidEveKey, 1, 0);
 BIND_E(ywidEveType, 1, 0);
 
 BIND_EI(yeSetInt, 2, 0);
+
+BIND_EII(ywMapCaseXY, 3, 0);
 
 BIND_EII(ywCanvasMoveObjXY, 3, 0);
 
