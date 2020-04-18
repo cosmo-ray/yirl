@@ -402,7 +402,6 @@ BIND_S(yuiFileExist);
 /* Array */
 int	luayeGet(lua_State *L);
 BIND_ES(yeCreateArray);
-BIND_E(yePopBack);
 BIND_EEI(yePushAt);
 BIND_EEIS(yeInsertAt);
 BIND_EI(yeGetKeyAt);
@@ -417,7 +416,6 @@ BIND_EIS(yeRenameIdxStr);
 BIND_EES(yeGetPush);
 BIND_EE(yeDoesInclude);
 BIND_ES(yeTryCreateArray);
-BIND_E(yeClearArray);
 BIND_EEISI(yeAttach);
 
 /* Entity */
@@ -802,7 +800,6 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, yeGetPush);
   YES_LUA_REGISTRE_CALL(sm, yeDoesInclude);
   YES_LUA_REGISTRE_CALL(sm, yeTryCreateArray);
-  YES_LUA_REGISTRE_CALL(sm, yeClearArray);
   YES_LUA_REGISTRE_CALL(sm, yeAttach);
 
   /* Entity */

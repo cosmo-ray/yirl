@@ -632,7 +632,7 @@ static s7_pointer stringifier(s7_scheme *s7, s7_pointer args)
 	char *s;
 	s7_pointer r;
 
-	s = yeToCStr(s7_c_object_value(s7_car(args)), 4, YE_FORMAT_PRETTY);
+	s = yeToCStr(s7_c_object_value(s7_car(args)), 3, YE_FORMAT_PRETTY);
 	r = s7_make_string(s7, s);
 	free(s);
 	return r;

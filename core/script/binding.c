@@ -49,6 +49,7 @@ BIND_EEES(ywMapPushElem, 3, 1);
 
 BIND_EEEE(ywCanvasCheckCollisions, 2, 2);
 BIND_EEEE(ywCanvasMergeTexture, 4, 0);
+BIND_EEEE(ywMapMoveByEntity, 4, 0);
 
 BIND_EIIEE(ywCanvasNewImgFromTexture, 4, 1);
 
@@ -85,7 +86,11 @@ BIND_EI(yeStringAddLong, 2, 0);
 
 BIND_EI(ywCntGetEntry, 2, 0);
 
+BIND_E(yeClearArray, 1, 0);
+
 BIND_E(yeLast, 1, 0);
+
+BIND_E(yePopBack, 1, 0);
 
 BIND_E(ywCanvasObjPos, 1, 0);
 BIND_E(ywidNextEve, 1, 0);
