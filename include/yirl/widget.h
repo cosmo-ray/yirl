@@ -354,4 +354,9 @@ int ywIsPixsOnWid(Entity *widget, int posX, int posY);
 const char *ywidWindowName(void);
 void ywidSetWindowName(const char *str);
 
+static inline void ywidRendMainWid(void)
+{
+	ywidRend(ywidGetMainWid());
+}
+
 #endif

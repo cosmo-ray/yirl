@@ -66,6 +66,7 @@ BIND_I(ySoundPlay, 1, 0);
 BIND_I(ySoundPause, 1, 0);
 BIND_I(ySoundStop, 1, 0);
 BIND_I(ySoundDuration, 1, 0);
+BIND_I(yuiUsleep, 1, 0);
 
 BIND_EE(yevIsGrpUp, 2, 0);
 BIND_EE(yevIsGrpDown, 2, 0);
@@ -154,6 +155,7 @@ BIND_V(yWindowHeight);
 BIND_V(ywidGetTurnTimer);
 BIND_V(yeEntitiesArraySize);
 BIND_V(ygModDirOut);
+BIND_V(ywidRendMainWid);
 
 BIND_SEES(ywTextureNewImg, 4, 0);
 

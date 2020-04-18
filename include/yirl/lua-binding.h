@@ -396,7 +396,6 @@ BIND_V(yuiRand);
 BIND_V(yuiRandInit);
 BIND_I(yuiAbs);
 BIND_S(yuiMkdir);
-BIND_I(yuiUsleep);
 BIND_S(yuiFileExist);
 
 /* Array */
@@ -772,7 +771,6 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, yuiRandInit);
   YES_LUA_REGISTRE_CALL(sm, yuiAbs);
   YES_LUA_REGISTRE_CALL(sm, yuiMkdir);
-  YES_LUA_REGISTRE_CALL(sm, yuiUsleep);
   YES_LUA_REGISTRE_CALL(sm, yuiFileExist);
 
   /* Lua conceptor should love me */
