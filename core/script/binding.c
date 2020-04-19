@@ -74,6 +74,7 @@ BIND_I(yuiUsleep, 1, 0);
 BIND_EE(yevIsGrpUp, 2, 0);
 BIND_EE(yevIsGrpDown, 2, 0);
 BIND_EE(yeFindKey, 2, 0);
+BIND_EE(ywPosDistance, 2 ,0);
 
 BIND_ES(yeStringAddNl, 2, 0);
 BIND_ES(yeStringAdd, 2, 0);
@@ -130,6 +131,8 @@ BIND_E(ywRectToString, 1, 0);
 BIND_E(yeGetString, 1, 0);
 
 BIND_EE(ywCanvasForceSize, 2, 0);
+
+BIND_EE(yeArrayIdx_ent, 2, 0);
 
 BIND_E(yeRefCount, 1, 0);
 BIND_E(yeType, 1, 0);

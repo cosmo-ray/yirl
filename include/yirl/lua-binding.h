@@ -493,7 +493,6 @@ int	luaywPosIsSame(lua_State *L);
 int	luaywPosAdd(lua_State *L);
 int	luaywPosAngle(lua_State *L);
 int	luaywPosMoveToward2(lua_State *L);
-BIND_EE(ywPosDistance);
 BIND_EE(ywPosSub);
 
 /* map */
@@ -913,7 +912,6 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, ywPosAdd);
   YES_LUA_REGISTRE_CALL(sm, ywPosAngle);
   YES_LUA_REGISTRE_CALL(sm, ywPosMoveToward2);
-  YES_LUA_REGISTRE_CALL(sm, ywPosDistance);
   YES_LUA_REGISTRE_CALL(sm, ywPosSub);
 
   /* Size, they're pos with diferent names */
