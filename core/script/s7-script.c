@@ -44,6 +44,8 @@ typedef struct {
 
 YScriptS7 *s7m = NULL;
 
+int loadString(void *s, const char *str);
+
 static s7_pointer int_cast(s7_scheme *sc, s7_pointer args)
 {
 	return s7_make_integer(sc, (intptr_t)s7_c_pointer(s7_car(args)));
@@ -609,7 +611,6 @@ static s7_pointer s7yeSetStringAt(s7_scheme *s, s7_pointer a)
 {
 	const char *val = s7_string(s7_list_ref(s, a, 2));
 
-	printf("set %p %s\n", s7yeGet(s, a), val);
 	yeSetString(s7_c_object_value(s7yeGet(s, a)), val);
 	return s7_nil(s);
 }
@@ -703,6 +704,12 @@ static int init(void *sm, void *args)
 #include "binding.c"
 #undef IN_CALL
 
+	/* ugly bundings here */
+	loadString(sm,
+		   "(define ywMapPushNbr"
+		   "(lambda (map nb pos str)"
+		   "(ywMapPushElem map (yeCreateInt nb) pos str)"
+		   "))");
 	return 0;
 }
 
