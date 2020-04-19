@@ -133,13 +133,16 @@ int ywMapMoveByStr(Entity *state, Entity *from,
 int ywMapMoveByEntity(Entity *state, Entity *from,
 		      Entity *to, Entity *elem)
 {
-	Entity *map = yeGet(state, "map");
-	const char *k;
+	Entity *c = ywMapGetCase(state, from);
+	char *k;
 
 	YE_INCR_REF(elem);
-	k = yeFindKey(map, elem);
+	k = yeFindKey(c, elem);
+	if (k)
+		k = strdup(k);
 	ywMapRemove(state, from, elem);
 	ywMapPushElem(state, elem, to, k);
+	free(k); /* it's a littke freaky(free K) to have a copy here... */
 	YE_DESTROY(elem);
 	return 0;
 }
