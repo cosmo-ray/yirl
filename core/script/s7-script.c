@@ -218,9 +218,13 @@ static s7_pointer s7ywPosCreate(s7_scheme *s, s7_pointer a)
 	S7_END_CREATOR(2);
 }
 
+static s7_pointer s7ywSizeCreate(s7_scheme *s, s7_pointer a)
+{
+	return s7ywPosCreate(s, a);
+}
+
 static s7_pointer s7yeForeach(s7_scheme *s, s7_pointer a)
 {
-	s7_pointer s7ar = s7_list_ref(s, a, 0);
 	Entity *array = E_AT(s, a, 0);
 	s7_pointer func = s7_list_ref(s, a, 1);
 	s7_pointer arg = s7_list_ref(s, a, 2);
@@ -230,12 +234,11 @@ static s7_pointer s7yeForeach(s7_scheme *s, s7_pointer a)
 					  arg);
 		arg = s7_call(s, func, args);
 	}
-	return s7ar;
+	return arg;
 }
 
 static s7_pointer s7yeRevForeach(s7_scheme *s, s7_pointer a)
 {
-	s7_pointer s7ar = s7_list_ref(s, a, 0);
 	Entity *array = E_AT(s, a, 0);
 	s7_pointer func = s7_list_ref(s, a, 1);
 	s7_pointer arg = s7_list_ref(s, a, 2);
@@ -245,7 +248,7 @@ static s7_pointer s7yeRevForeach(s7_scheme *s, s7_pointer a)
 					  arg);
 		arg = s7_call(s, func, args);
 	}
-	return s7ar;
+	return arg;
 }
 
 S7_IMPLE_CREATOR(Int, s7_integer);
@@ -699,12 +702,13 @@ static int init(void *sm, void *args)
 	BIND(ywPosIsSame, 2, 1);
 	BIND(ywPosSet, 2, 1);
 	BIND(yeReCreateArray, 2, 1);
+	BIND(ywSizeCreate, 2, 2);
 
 #define IN_CALL 1
 #include "binding.c"
 #undef IN_CALL
 
-	/* ugly bundings here */
+	/* ugly bindings here */
 	loadString(sm,
 		   "(define ywMapPushNbr"
 		   "(lambda (map nb pos str)"
