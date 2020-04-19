@@ -340,11 +340,11 @@ Entity *yeBrutalCast(Entity *entity, int type);
 #define YE_FOREACH YE_ARRAY_FOREACH
 
 #define yeArrayIdx(a, lookup)					\
-	_Generic(lookup,					\
-		 char *: yeArrayIdx_str,			\
-		 Entity *: yeArrayIdx_ent,			\
-		 const Entity *: yeArrayIdx_ent,		\
-		 const char *: yeArrayIdx_str)(a, lookup)	\
+  _Generic(lookup,						\
+	   char *: yeArrayIdx_str,				\
+	   Entity *: yeArrayIdx_ent,				\
+	   const Entity *: yeArrayIdx_ent,			\
+	   const char *: yeArrayIdx_str)(a, lookup)		\
 
 int	yeArrayIdx_str(Entity *array, const char *lookup);
 
@@ -418,6 +418,10 @@ static inline Entity *yeGetByEntity(Entity *array, Entity *key);
  */
 char *yeGetKeyAt(Entity *entity, int idx);
 
+
+/* crappy ifndef for crappy language */
+#ifndef __cplusplus
+
 /**
  * @return the key string if there is one
  */
@@ -430,6 +434,7 @@ static inline char *yeFindKey(Entity *entity, Entity *target)
 	return NULL;
 }
 
+#endif
 
 /**
  * push array_src[idx] in array_dest, keep the string key if there is one
