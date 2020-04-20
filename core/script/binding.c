@@ -65,6 +65,7 @@ BIND_S(ySoundLoad, 1, 0);
 BIND_S(ySoundMusicLoad, 1, 0);
 BIND_S(ygModDir, 1, 0);
 
+BIND_I(yuiAbs, 1, 0);
 BIND_I(ySoundPlay, 1, 0);
 BIND_I(ySoundPause, 1, 0);
 BIND_I(ySoundStop, 1, 0);
@@ -75,6 +76,8 @@ BIND_EE(yevIsGrpUp, 2, 0);
 BIND_EE(yevIsGrpDown, 2, 0);
 BIND_EE(yeFindKey, 2, 0);
 BIND_EE(ywPosDistance, 2 ,0);
+BIND_EE(ywPosTotCases, 2 ,0);
+BIND_EE(yeCopy, 2 ,0);
 
 BIND_ES(yeStringAddNl, 2, 0);
 BIND_ES(yeStringAdd, 2, 0);

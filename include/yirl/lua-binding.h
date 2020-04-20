@@ -394,7 +394,6 @@ int	luayIsNNil(lua_State *l);
 /* util */
 BIND_V(yuiRand);
 BIND_V(yuiRandInit);
-BIND_I(yuiAbs);
 BIND_S(yuiMkdir);
 BIND_S(yuiFileExist);
 
@@ -418,7 +417,6 @@ BIND_ES(yeTryCreateArray);
 BIND_EEISI(yeAttach);
 
 /* Entity */
-BIND_EE(yeCopy);
 int	luaYeToLuaString(lua_State *L);
 BIND_V(yeFreeEntitiesInStack);
 BIND_V(yeEntitiesUsed);
@@ -768,7 +766,6 @@ static inline int	yesLuaRegister(void *sm)
   /* utils */
   YES_LUA_REGISTRE_CALL(sm, yuiRand);
   YES_LUA_REGISTRE_CALL(sm, yuiRandInit);
-  YES_LUA_REGISTRE_CALL(sm, yuiAbs);
   YES_LUA_REGISTRE_CALL(sm, yuiMkdir);
   YES_LUA_REGISTRE_CALL(sm, yuiFileExist);
 
@@ -800,7 +797,6 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, yeAttach);
 
   /* Entity */
-  YES_LUA_REGISTRE_CALL(sm, yeCopy);
   YES_LUA_REGISTRE_CALL(sm, yeSetAt);
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeToLuaString", luaYeToLuaString));
   YES_LUA_REGISTRE_CALL(sm, yeEntitiesUsed);

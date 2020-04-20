@@ -318,6 +318,17 @@ static inline int ywPosMoveToward(Entity *from, Entity *to)
   return x || y;
 }
 
+/* more usefull for map where rounding errors are expected 
+ * and when you don't allow diagonal movement
+ */
+static inline uint32_t ywPosTotCases(Entity *p0, Entity *p1)
+{
+	uint32_t x = abs(ywPosX(p0) - ywPosX(p1));
+	uint32_t y = abs(ywPosY(p0) - ywPosY(p1));
+
+	return x + y;
+}
+
 static inline uint32_t ywPosDistance(Entity *p0, Entity *p1)
 {
 	uint32_t x = ywPosX(p0) - ywPosX(p1);
