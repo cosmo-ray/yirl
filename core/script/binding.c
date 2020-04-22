@@ -38,7 +38,7 @@ BIND_EES(yePushBack, 2, 1);
 
 BIND_EES(yePush, 2, 1);
 
-BIND_EES(ywCanvasCreateYTexture, 3, 0);
+BIND_EES(ywCanvasCreateYTexture, 1, 2);
 
 BIND_EES(ywMapRemoveByStr, 3, 0);
 
@@ -172,6 +172,7 @@ BIND_V(ywidRendMainWid);
 BIND_SEES(ywTextureNewImg, 4, 0);
 
 BIND_EIIIIS(ywCanvasMergeRectangle, 6, 0);
+BIND_EIIIIS(ywCanvasMergeText, 6, 0);
 
 BIND_EIIIIS(ywCanvasNewRectangle, 6, 0);
 

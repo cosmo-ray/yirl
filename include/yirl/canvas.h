@@ -72,6 +72,10 @@ int ywCanvasMergeRectangle(Entity *wid, int x, int y,
 int ywCanvasMergeTexture(Entity *wid, Entity *yTexture,
 			 Entity *srcRect, Entity *dstRect);
 
+/* w h are curently unused */
+int ywCanvasMergeText(Entity *wid, int x, int y, int w, int h,
+		      const char * txt);
+
 void ywCanvasClear(Entity *canvas);
 
 static Entity *ywCreateCanvasEnt(Entity *father, char *name)

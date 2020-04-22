@@ -508,6 +508,14 @@ Entity *ywCanvasNewImgByPath(Entity *wid, int x, int y, const char *path)
 	return ywCanvasNewImg(wid, x, y, path, NULL);
 }
 
+int ywCanvasMergeText(Entity *wid, int x, int y, int w, int h,
+		      const char * txt)
+{
+	YCanvasState *state = (YCanvasState *)ywidGetState(wid);
+
+	return sdlMergeText(state->merge_texture, x, y, w, h, txt);
+}
+
 int ywCanvasMergeRectangle(Entity *wid, int x, int y,
 			   int w, int h, const char * col)
 {
