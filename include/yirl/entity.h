@@ -1092,7 +1092,8 @@ static inline int yeAddStr(Entity *e, const char *str)
 
 static inline int yeAddEnt(Entity *e, Entity *e2)
 {
-	if (yeType(e) == YSTRING) {
+	/* yeToCStr add a \n and do pretty stuff which can be buggy */
+	if (yeType(e) == YSTRING && yeType(e2) != YSTRING) {
 		char *str = yeToCStr(e2, 4, YE_FORMAT_PRETTY);
 
 		yeStringAdd(e, str);
