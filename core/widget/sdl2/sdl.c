@@ -55,11 +55,13 @@ TTF_Font *sgDefaultFont(void)
 
 int ysdl2WindowMode(void)
 {
+  SDL_SetWindowGrab(sg.pWindow, 0);
   return SDL_SetWindowFullscreen(sg.pWindow, 0);
 }
 
 int ysdl2FullScreen(void)
 {
+  SDL_SetWindowGrab(sg.pWindow, 1);
   return SDL_SetWindowFullscreen(sg.pWindow, SDL_WINDOW_FULLSCREEN);
 }
 
