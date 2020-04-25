@@ -38,6 +38,15 @@ static int type = -1;
 
 static SDL_Global sg;
 
+SDL_GameController *gamepads[128];
+
+static inline void deinit_controllers(void)
+{
+	for (int i = 0; i < 128; ++i)
+		if (gamepads[i])
+			SDL_GameControllerClose(gamepads[i]);
+}
+
 SDL_Rect      getRect(void)
 {
   return (wSurface()->clip_rect);
@@ -177,6 +186,7 @@ void    ysdl2Destroy(void)
   SDL_DestroyWindow(sg.pWindow);
   IMG_Quit();
   TTF_Quit();
+  deinit_controllers();
   SDL_Quit();
   ywidRemoveRender(type);
   type = -1;
@@ -269,6 +279,54 @@ static inline Entity *SDLConvertEvent(SDL_Event* event)
 	yeDestroy(mouse);
       }
       return eve;
+    case SDL_CONTROLLERBUTTONDOWN:
+    case SDL_CONTROLLERBUTTONUP:
+	    yeCreateIntAt(event->type == SDL_CONTROLLERBUTTONDOWN ?
+			  YKEY_CT_DOWN : YKEY_CT_UP, eve, NULL, YEVE_TYPE);
+	    yeCreateIntAt(event->cbutton.button, eve, NULL, YEVE_KEY);
+      return eve;
+    case SDL_CONTROLLERAXISMOTION:
+	    if (abs(event->caxis.value) < 8000)
+		    goto default_case;
+
+	    yeCreateIntAt(YKEY_CT_AXIS, eve, NULL, YEVE_TYPE);
+	    yeCreateIntAt(event->caxis.which, eve, NULL, YEVE_CONTROLLER_ID);
+	    switch (event->caxis.axis) {
+	    case SDL_CONTROLLER_AXIS_LEFTX:
+		    yeCreateIntAt(YEVE_AX_L, eve, NULL, YEVE_AXIS_ID);
+		    yeCreateIntAt(event->caxis.value < 0 ?
+				  Y_LEFT_KEY: Y_RIGHT_KEY,
+				  eve, NULL, YEVE_KEY);
+		    break;
+	    case SDL_CONTROLLER_AXIS_LEFTY:
+		    yeCreateIntAt(YEVE_AX_L, eve, NULL, YEVE_AXIS_ID);
+		    yeCreateIntAt(event->caxis.value < 0 ?
+				  Y_UP_KEY: Y_DOWN_KEY,
+				  eve, NULL, YEVE_KEY);
+		    break;
+	    case SDL_CONTROLLER_AXIS_RIGHTX:
+		    yeCreateIntAt(YEVE_AX_R, eve, NULL, YEVE_AXIS_ID);
+		    yeCreateIntAt(event->caxis.value < 0 ?
+				  Y_LEFT_KEY: Y_RIGHT_KEY,
+				  eve, NULL, YEVE_KEY);
+		    break;
+	    case SDL_CONTROLLER_AXIS_RIGHTY:
+		    yeCreateIntAt(YEVE_AX_R, eve, NULL, YEVE_AXIS_ID);
+		    yeCreateIntAt(event->caxis.value < 0 ?
+				  Y_UP_KEY: Y_DOWN_KEY,
+				  eve, NULL, YEVE_KEY);
+		    break;
+	    case SDL_CONTROLLER_AXIS_TRIGGERLEFT:
+		    yeCreateIntAt(YEVE_TRIGER_L, eve, NULL, YEVE_KEY);
+		    yeCreateIntAt(YEVE_TRIGER_L, eve, NULL, YEVE_AXIS_ID);
+		    break;
+	    case SDL_CONTROLLER_AXIS_TRIGGERRIGHT:
+		    yeCreateIntAt(YEVE_TRIGER_L, eve, NULL, YEVE_KEY);
+		    yeCreateIntAt(YEVE_TRIGER_R, eve, NULL, YEVE_AXIS_ID);
+		    break;
+	    }
+	    return eve;
+    default_case:
     default:
       yeCreateIntAt(YKEY_NONE, eve, NULL, YEVE_TYPE);
       break;
@@ -338,8 +396,21 @@ int    ysdl2Init(void)
 
   /* Initialisation simple */
   if (SDL_Init(SDL_INIT_EVERYTHING) != 0 ) {
-    DPRINT_ERR("SDL initialisation failed: (%s)\n", SDL_GetError());
-    return -1;
+	  DPRINT_ERR("SDL initialisation failed: (%s)\n", SDL_GetError());
+	  return -1;
+  }
+
+  for (int i = 0; i < SDL_NumJoysticks() && i < 128; ++i) {
+	  if (SDL_IsGameController(i)) {
+		  gamepads[i] = SDL_GameControllerOpen(i);
+		  if (gamepads[i] != NULL) {
+			  DPRINT_ERR("Gamepad Found: %s\n",
+				     SDL_GameControllerNameForIndex(i));
+		  } else {
+			  DPRINT_ERR("Could not open gamepad %i: %s\n",
+				     i, SDL_GetError());
+		  }
+	  }
   }
 
   if(TTF_Init()==-1) {
@@ -394,6 +465,7 @@ int    ysdl2Init(void)
  img_fail:
   IMG_Quit();
  ttf_fail:
+  deinit_controllers();
   SDL_Quit();
   return -1;
 }
