@@ -38,11 +38,13 @@ static int type = -1;
 
 static SDL_Global sg;
 
-SDL_GameController *gamepads[128];
+#define MAX_GAMEPAD 128
+
+static SDL_GameController *gamepads[MAX_GAMEPAD];
 
 static inline void deinit_controllers(void)
 {
-	for (int i = 0; i < 128; ++i)
+	for (int i = 0; i < MAX_GAMEPAD; ++i)
 		if (gamepads[i])
 			SDL_GameControllerClose(gamepads[i]);
 }
@@ -284,50 +286,73 @@ static inline Entity *SDLConvertEvent(SDL_Event* event)
 		yeCreateIntAt(event->type == SDL_CONTROLLERBUTTONDOWN ?
 			      YKEY_CT_DOWN : YKEY_CT_UP, eve, NULL, YEVE_TYPE);
 		yeCreateIntAt(event->cbutton.button, eve, NULL, YEVE_KEY);
-		printf("create %d\n", event->cbutton.button);
 		return eve;
 	case SDL_CONTROLLERAXISMOTION:
+	{
+		static _Bool can_up[MAX_GAMEPAD][YEVE_MAX_AXIES][4];
+		int ax_id;
+		int c_id;
+
+		c_id = event->caxis.which;
 		yeCreateIntAt(event->caxis.timestamp, eve, NULL, YEVE_TIMESTAMP);
-		if (abs(event->caxis.value) < 8000)
-			goto default_case;
-		yeCreateIntAt(YKEY_CT_AXIS, eve, NULL, YEVE_TYPE);
-		yeCreateIntAt(event->caxis.which, eve, NULL, YEVE_CONTROLLER_ID);
+		yeCreateIntAt(c_id, eve, NULL, YEVE_CONTROLLER_ID);
+		yeCreateIntAt(abs(event->caxis.value), eve, NULL, YEVE_INTENSITY);
 		switch (event->caxis.axis) {
 		case SDL_CONTROLLER_AXIS_LEFTX:
-			yeCreateIntAt(YEVE_AX_L, eve, NULL, YEVE_AXIS_ID);
+			ax_id = YEVE_AX_L;
+			yeCreateIntAt(ax_id, eve, NULL, YEVE_AXIS_ID);
 			yeCreateIntAt(event->caxis.value < 0 ?
 				      Y_LEFT_KEY: Y_RIGHT_KEY,
 				      eve, NULL, YEVE_KEY);
 			break;
 		case SDL_CONTROLLER_AXIS_LEFTY:
+			ax_id = YEVE_AX_L;
 			yeCreateIntAt(YEVE_AX_L, eve, NULL, YEVE_AXIS_ID);
 			yeCreateIntAt(event->caxis.value < 0 ?
 				      Y_UP_KEY: Y_DOWN_KEY,
 				      eve, NULL, YEVE_KEY);
 			break;
 		case SDL_CONTROLLER_AXIS_RIGHTX:
+			ax_id = YEVE_AX_R;
 			yeCreateIntAt(YEVE_AX_R, eve, NULL, YEVE_AXIS_ID);
 			yeCreateIntAt(event->caxis.value < 0 ?
 				      Y_LEFT_KEY: Y_RIGHT_KEY,
 				      eve, NULL, YEVE_KEY);
 			break;
 		case SDL_CONTROLLER_AXIS_RIGHTY:
+			ax_id = YEVE_AX_R;
 			yeCreateIntAt(YEVE_AX_R, eve, NULL, YEVE_AXIS_ID);
 			yeCreateIntAt(event->caxis.value < 0 ?
 				      Y_UP_KEY: Y_DOWN_KEY,
 				      eve, NULL, YEVE_KEY);
 			break;
 		case SDL_CONTROLLER_AXIS_TRIGGERLEFT:
+			ax_id = YEVE_TRIGER_L;
 			yeCreateIntAt(YEVE_TRIGER_L, eve, NULL, YEVE_KEY);
 			yeCreateIntAt(YEVE_TRIGER_L, eve, NULL, YEVE_AXIS_ID);
 			break;
 		case SDL_CONTROLLER_AXIS_TRIGGERRIGHT:
-			yeCreateIntAt(YEVE_TRIGER_L, eve, NULL, YEVE_KEY);
+			ax_id = YEVE_TRIGER_R;
+			yeCreateIntAt(YEVE_TRIGER_R, eve, NULL, YEVE_KEY);
 			yeCreateIntAt(YEVE_TRIGER_R, eve, NULL, YEVE_AXIS_ID);
 			break;
 		}
+		if (abs(event->caxis.value) < 8000) {
+			if (ax_id < YEVE_TRIGER_L &&
+			    can_up[c_id][ax_id][ywidEveKey(eve) - Y_DOWN_KEY]) {
+				yeCreateIntAt(YKEY_CT_AXIS_UP, eve, NULL,
+					      YEVE_TYPE);
+				can_up[c_id][ax_id][ywidEveKey(eve) -
+						    Y_DOWN_KEY] = 0;
+			} else
+				yeCreateIntAt(YKEY_NONE, eve, NULL, YEVE_TYPE);
+		} else {
+			yeCreateIntAt(YKEY_CT_AXIS_DOWN, eve, NULL, YEVE_TYPE);
+			can_up[c_id][ax_id][ywidEveKey(eve) - Y_DOWN_KEY] = 1;
+		}
+
 		return eve;
-	default_case:
+	};
 	default:
 		yeCreateIntAt(YKEY_NONE, eve, NULL, YEVE_TYPE);
 		return eve;

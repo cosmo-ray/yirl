@@ -545,10 +545,55 @@ int ywidRegistreRender(void (*resizePtr)(YWidgetState *wid, int renderType),
 }
 
 
+static inline void defaultButtonConv(Entity *e)
+{
+	if (!ywidEveKey(e))
+		yeSetIntAt(e, YEVE_KEY, '\n');
+	else if (ywidEveKey(e) == 1)
+		yeSetIntAt(e, YEVE_KEY, Y_ESC_KEY);
+	else if (ywidEveKey(e) == 3)
+		yeSetIntAt(e, YEVE_KEY, ' ');
+	else if (ywidEveKey(e) == 6)
+		yeSetIntAt(e, YEVE_KEY, Y_ESC_KEY);
+	else if (ywidEveKey(e) == 11)
+		yeSetIntAt(e, YEVE_KEY, Y_UP_KEY);
+	else if (ywidEveKey(e) == 12)
+		yeSetIntAt(e, YEVE_KEY, Y_DOWN_KEY);
+	else if (ywidEveKey(e) == 13)
+		yeSetIntAt(e, YEVE_KEY, Y_LEFT_KEY);
+	else if (ywidEveKey(e) == 14)
+		yeSetIntAt(e, YEVE_KEY, Y_RIGHT_KEY);
+	else
+		printf("no convertion for controller key: %d\n",
+		       ywidEveKey(e));
+}
+
+/* should be confiurrable, but for now only convert controller key to keyboard */
+static Entity *keyReBind(Entity *e)
+{
+	if (!e)
+		return NULL;
+	int ekt = ywidEveType(e);
+
+	if (ekt == YKEY_CT_AXIS_DOWN) {
+		yeSetIntAt(e, YEVE_TYPE, YKEY_DOWN);
+	} else if (ekt == YKEY_CT_AXIS_UP) {
+		yeSetIntAt(e, YEVE_TYPE, YKEY_UP);
+	} else if (ekt == YKEY_CT_DOWN) {
+		yeSetIntAt(e, YEVE_TYPE, YKEY_DOWN);
+		defaultButtonConv(e);
+	} else if (ekt == YKEY_CT_UP) {
+		yeSetIntAt(e, YEVE_TYPE, YKEY_UP);
+		defaultButtonConv(e);
+        /* we should recive a non negligable number of none when we use axies*/
+	}
+	return e;
+}
+
 Entity *ywidGenericPollEvent(void)
 {
 	YUI_FOREACH_BITMASK(rendersMask, i, tmask) {
-		Entity *ret = renderOpTab[i].pollEvent();
+		Entity *ret = keyReBind(renderOpTab[i].pollEvent());
 		if (ret)
 			return ret;
 	}
@@ -570,21 +615,35 @@ int ywidDrawScreen(void)
 
 Entity *ywidGenericWaitEvent(void)
 {
+	Entity *ret = NULL;
+	static int ax_timestamp;
+
 	if (!rendersMask)
 		return NULL;
-	if (YUI_COUNT_1_BIT(rendersMask) == 1) {
-		return renderOpTab[YUI_GET_FIRST_BIT(rendersMask)].waitEvent();
-	} else {
-		Entity *ret;
-		while (1) {
-			YUI_FOREACH_BITMASK(rendersMask, i, tmask) {
-				if (renderOpTab[i].pollEvent &&
-				    (ret = renderOpTab[i].pollEvent()))
-					return ret;
+
+again:
+	yeDestroy(ret);
+	ret = NULL;
+	YUI_FOREACH_BITMASK(rendersMask, i, tmask) {
+		if (renderOpTab[i].pollEvent &&
+		    (ret = renderOpTab[i].pollEvent())) {
+			if (ywidEveType(ret) == YKEY_CT_AXIS_DOWN) {
+				if ((yeGetIntAt(ret, YEVE_TIMESTAMP) -
+				     ax_timestamp) < 200)
+					goto again;
+				ax_timestamp =
+					yeGetIntAt(ret, YEVE_TIMESTAMP);
 			}
-			usleep(50);
+
+			if ( ywidEveType(keyReBind(ret)) == YKEY_NONE) {
+				goto again;
+			}
+			return ret;
 		}
 	}
+	usleep(50);
+	goto again;
+
 	return NULL;
 }
 
