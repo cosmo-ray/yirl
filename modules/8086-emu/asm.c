@@ -618,19 +618,15 @@ interupt:
 			if (!events)
 				events = ywidGenericPollEvent();
 
-			result = 0;
-			for (;events; events = ywidNextEve(events)) {
-				if (ywidEveType(events) == YKEY_DOWN) {
-					result = ywidEveKey(events);
-					/* don't consume events if ah unset */
-					/* TODO: I should set a flag too */
-					if (!regs.ah) {
-						events = ywidNextEve(events);
-					}
+			regs.al = 0;
+			if (ywidEveType(events) == YKEY_DOWN) {
+				result = ywidEveKey(events);
+				if (regs.ah) {
 					break;
 				}
 			}
-			regs.al = result;
+			yeDestroy(events);
+			events = NULL;
 			break;
 		case 0x1a:
 			/* 18.5 hz is a computer tick, and 18.2 hz == 54945 us */
@@ -848,6 +844,7 @@ xor:
 	NEXT_INST(insts, inst_pos);
 
 quit:
+	yeDestroy(events);
 	free(insts);
 	if (yeGet(emu, "quit")) {
 		Entity *call = yeGet(emu, "quit");
