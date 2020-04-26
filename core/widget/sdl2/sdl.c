@@ -233,106 +233,107 @@ static int  convertToYKEY(SDL_Keycode key)
 
 static inline Entity *SDLConvertEvent(SDL_Event* event)
 {
-  Entity *eve = yeCreateArray(NULL, NULL);
+	Entity *eve = yeCreateArray(NULL, NULL);
 
-  if (!event || !eve)
-    return NULL;
-  yeCreateIntAt(NOTHANDLE, eve, NULL, YEVE_STATUS);
-  switch(event->type)
-    {
-    case SDL_QUIT:
-    case SDL_APP_TERMINATING:
-      printf("Quit requested by user");
-      if (ygIsInit())
-	ygTerminate();
-      break;
-    case SDL_WINDOWEVENT:
-      yeveWindowGetFocus = 1;
-      break;
-    case SDL_KEYUP:
-      yeCreateIntAt(YKEY_UP, eve, NULL, YEVE_TYPE);
-      break;
-    case SDL_KEYDOWN:
-      yeCreateIntAt(YKEY_DOWN, eve, NULL, YEVE_TYPE);
-      break;
-    case SDL_MOUSEBUTTONDOWN:
-      {
-	Entity *mouse = ywPosCreateInts(event->button.x, event->button.y,
-					NULL, NULL);
-	yeCreateIntAt(YKEY_MOUSEDOWN, eve, NULL, YEVE_TYPE);
-	yeCreateIntAt(event->button.button, eve, NULL, YEVE_KEY);
-	yePushAt(eve, mouse, YEVE_MOUSE);
-	yeDestroy(mouse);
-      }
-      return eve;
-    case SDL_MOUSEWHEEL:
-      yeCreateIntAt(YKEY_MOUSEWHEEL, eve, NULL, YEVE_TYPE);
-      yeCreateIntAt(event->wheel.y, eve, NULL, YEVE_KEY);
-      return eve;
-    case SDL_MOUSEMOTION:
-      {
-	Entity *mouse = ywPosCreateInts(event->button.x, event->button.y,
-					NULL, NULL);
-	yeCreateIntAt(YKEY_MOUSEMOTION, eve, NULL, YEVE_TYPE);
-	yeCreateIntAt(-1, eve, NULL, YEVE_KEY);
-	yePushAt(eve, mouse, YEVE_MOUSE);
-	yeDestroy(mouse);
-      }
-      return eve;
-    case SDL_CONTROLLERBUTTONDOWN:
-    case SDL_CONTROLLERBUTTONUP:
-	    yeCreateIntAt(event->type == SDL_CONTROLLERBUTTONDOWN ?
-			  YKEY_CT_DOWN : YKEY_CT_UP, eve, NULL, YEVE_TYPE);
-	    yeCreateIntAt(event->cbutton.button, eve, NULL, YEVE_KEY);
-      return eve;
-    case SDL_CONTROLLERAXISMOTION:
-	    if (abs(event->caxis.value) < 8000)
-		    goto default_case;
-
-	    yeCreateIntAt(YKEY_CT_AXIS, eve, NULL, YEVE_TYPE);
-	    yeCreateIntAt(event->caxis.which, eve, NULL, YEVE_CONTROLLER_ID);
-	    switch (event->caxis.axis) {
-	    case SDL_CONTROLLER_AXIS_LEFTX:
-		    yeCreateIntAt(YEVE_AX_L, eve, NULL, YEVE_AXIS_ID);
-		    yeCreateIntAt(event->caxis.value < 0 ?
-				  Y_LEFT_KEY: Y_RIGHT_KEY,
-				  eve, NULL, YEVE_KEY);
-		    break;
-	    case SDL_CONTROLLER_AXIS_LEFTY:
-		    yeCreateIntAt(YEVE_AX_L, eve, NULL, YEVE_AXIS_ID);
-		    yeCreateIntAt(event->caxis.value < 0 ?
-				  Y_UP_KEY: Y_DOWN_KEY,
-				  eve, NULL, YEVE_KEY);
-		    break;
-	    case SDL_CONTROLLER_AXIS_RIGHTX:
-		    yeCreateIntAt(YEVE_AX_R, eve, NULL, YEVE_AXIS_ID);
-		    yeCreateIntAt(event->caxis.value < 0 ?
-				  Y_LEFT_KEY: Y_RIGHT_KEY,
-				  eve, NULL, YEVE_KEY);
-		    break;
-	    case SDL_CONTROLLER_AXIS_RIGHTY:
-		    yeCreateIntAt(YEVE_AX_R, eve, NULL, YEVE_AXIS_ID);
-		    yeCreateIntAt(event->caxis.value < 0 ?
-				  Y_UP_KEY: Y_DOWN_KEY,
-				  eve, NULL, YEVE_KEY);
-		    break;
-	    case SDL_CONTROLLER_AXIS_TRIGGERLEFT:
-		    yeCreateIntAt(YEVE_TRIGER_L, eve, NULL, YEVE_KEY);
-		    yeCreateIntAt(YEVE_TRIGER_L, eve, NULL, YEVE_AXIS_ID);
-		    break;
-	    case SDL_CONTROLLER_AXIS_TRIGGERRIGHT:
-		    yeCreateIntAt(YEVE_TRIGER_L, eve, NULL, YEVE_KEY);
-		    yeCreateIntAt(YEVE_TRIGER_R, eve, NULL, YEVE_AXIS_ID);
-		    break;
-	    }
-	    return eve;
-    default_case:
-    default:
-      yeCreateIntAt(YKEY_NONE, eve, NULL, YEVE_TYPE);
-      break;
-    }
-  yeCreateIntAt(convertToYKEY(event->key.keysym.sym), eve, NULL, YEVE_KEY);
-  return eve;
+	if (!event || !eve)
+		return NULL;
+	yeCreateIntAt(NOTHANDLE, eve, NULL, YEVE_STATUS);
+	switch(event->type)
+	{
+	case SDL_QUIT:
+	case SDL_APP_TERMINATING:
+		printf("Quit requested by user");
+		if (ygIsInit())
+			ygTerminate();
+		break;
+	case SDL_WINDOWEVENT:
+		yeveWindowGetFocus = 1;
+		break;
+	case SDL_KEYUP:
+		yeCreateIntAt(YKEY_UP, eve, NULL, YEVE_TYPE);
+		break;
+	case SDL_KEYDOWN:
+		yeCreateIntAt(YKEY_DOWN, eve, NULL, YEVE_TYPE);
+		break;
+	case SDL_MOUSEBUTTONDOWN:
+	{
+		Entity *mouse = ywPosCreateInts(event->button.x, event->button.y,
+						NULL, NULL);
+		yeCreateIntAt(YKEY_MOUSEDOWN, eve, NULL, YEVE_TYPE);
+		yeCreateIntAt(event->button.button, eve, NULL, YEVE_KEY);
+		yePushAt(eve, mouse, YEVE_MOUSE);
+		yeDestroy(mouse);
+	}
+	return eve;
+	case SDL_MOUSEWHEEL:
+		yeCreateIntAt(YKEY_MOUSEWHEEL, eve, NULL, YEVE_TYPE);
+		yeCreateIntAt(event->wheel.y, eve, NULL, YEVE_KEY);
+		return eve;
+	case SDL_MOUSEMOTION:
+	{
+		Entity *mouse = ywPosCreateInts(event->button.x, event->button.y,
+						NULL, NULL);
+		yeCreateIntAt(YKEY_MOUSEMOTION, eve, NULL, YEVE_TYPE);
+		yeCreateIntAt(-1, eve, NULL, YEVE_KEY);
+		yePushAt(eve, mouse, YEVE_MOUSE);
+		yeDestroy(mouse);
+	}
+	return eve;
+	case SDL_CONTROLLERBUTTONDOWN:
+	case SDL_CONTROLLERBUTTONUP:
+		yeCreateIntAt(event->type == SDL_CONTROLLERBUTTONDOWN ?
+			      YKEY_CT_DOWN : YKEY_CT_UP, eve, NULL, YEVE_TYPE);
+		yeCreateIntAt(event->cbutton.button, eve, NULL, YEVE_KEY);
+		printf("create %d\n", event->cbutton.button);
+		return eve;
+	case SDL_CONTROLLERAXISMOTION:
+		yeCreateIntAt(event->caxis.timestamp, eve, NULL, YEVE_TIMESTAMP);
+		if (abs(event->caxis.value) < 8000)
+			goto default_case;
+		yeCreateIntAt(YKEY_CT_AXIS, eve, NULL, YEVE_TYPE);
+		yeCreateIntAt(event->caxis.which, eve, NULL, YEVE_CONTROLLER_ID);
+		switch (event->caxis.axis) {
+		case SDL_CONTROLLER_AXIS_LEFTX:
+			yeCreateIntAt(YEVE_AX_L, eve, NULL, YEVE_AXIS_ID);
+			yeCreateIntAt(event->caxis.value < 0 ?
+				      Y_LEFT_KEY: Y_RIGHT_KEY,
+				      eve, NULL, YEVE_KEY);
+			break;
+		case SDL_CONTROLLER_AXIS_LEFTY:
+			yeCreateIntAt(YEVE_AX_L, eve, NULL, YEVE_AXIS_ID);
+			yeCreateIntAt(event->caxis.value < 0 ?
+				      Y_UP_KEY: Y_DOWN_KEY,
+				      eve, NULL, YEVE_KEY);
+			break;
+		case SDL_CONTROLLER_AXIS_RIGHTX:
+			yeCreateIntAt(YEVE_AX_R, eve, NULL, YEVE_AXIS_ID);
+			yeCreateIntAt(event->caxis.value < 0 ?
+				      Y_LEFT_KEY: Y_RIGHT_KEY,
+				      eve, NULL, YEVE_KEY);
+			break;
+		case SDL_CONTROLLER_AXIS_RIGHTY:
+			yeCreateIntAt(YEVE_AX_R, eve, NULL, YEVE_AXIS_ID);
+			yeCreateIntAt(event->caxis.value < 0 ?
+				      Y_UP_KEY: Y_DOWN_KEY,
+				      eve, NULL, YEVE_KEY);
+			break;
+		case SDL_CONTROLLER_AXIS_TRIGGERLEFT:
+			yeCreateIntAt(YEVE_TRIGER_L, eve, NULL, YEVE_KEY);
+			yeCreateIntAt(YEVE_TRIGER_L, eve, NULL, YEVE_AXIS_ID);
+			break;
+		case SDL_CONTROLLER_AXIS_TRIGGERRIGHT:
+			yeCreateIntAt(YEVE_TRIGER_L, eve, NULL, YEVE_KEY);
+			yeCreateIntAt(YEVE_TRIGER_R, eve, NULL, YEVE_AXIS_ID);
+			break;
+		}
+		return eve;
+	default_case:
+	default:
+		yeCreateIntAt(YKEY_NONE, eve, NULL, YEVE_TYPE);
+		return eve;
+	}
+	yeCreateIntAt(convertToYKEY(event->key.keysym.sym), eve, NULL, YEVE_KEY);
+	return eve;
 }
 
 static Entity *SDLWaitEvent(void)
@@ -340,7 +341,7 @@ static Entity *SDLWaitEvent(void)
   static SDL_Event event;
 
   if (!SDL_WaitEvent(&event))
-    return NULL;
+	  return NULL;
   return SDLConvertEvent(&event);
 }
 
@@ -349,7 +350,7 @@ static Entity *SDLPollEvent(void)
   static SDL_Event event;
 
   if (!SDL_PollEvent(&event))
-    return NULL;
+	  return NULL;
   return SDLConvertEvent(&event);
 }
 

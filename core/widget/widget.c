@@ -611,11 +611,6 @@ void YWidDestroy(YWidgetState *wid)
 		yeDestroy(ent);
 }
 
-static void ywidFreeEvents(Entity *event)
-{
-	yeDestroy(event);
-}
-
 static void trackMouse(Entity *event)
 {
 	if (ywidEveType(event) == YKEY_MOUSEMOTION ||
@@ -704,7 +699,7 @@ int ywidDoTurn(YWidgetState *opac)
 	ywidMidRendEnd(mainWid);
 	ywNeedTextureReload = 0;
 	ret = ywidHandleEvent(opac, head);
-	ywidFreeEvents(head);
+	yeDestroy(head);
 	return ret;
 }
 

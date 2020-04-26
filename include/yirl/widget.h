@@ -116,6 +116,7 @@ enum {
 #define YEVE_INTENSITY YEVE_MOUSE
     YEVE_CONTROLLER_ID = 3,
     YEVE_AXIS_ID = 4,
+    YEVE_TIMESTAMP = 5,
     YEVE_STATUS = 15,
     YEVE_NEXT = 16
 };
@@ -220,7 +221,20 @@ static inline YWidgetState *ywidGetState(Entity *wid)
   return (YWidgetState *)yeGetData(yeGetByStrFast(wid, "$wid"));
 }
 
+
+/**
+ * request renderer for an event
+ * poll return NULL if no events
+ * if non NULL yeDestoy need to be call on returned value
+ */
 Entity *ywidGenericWaitEvent(void);
+
+
+/**
+ * request renderer for an event
+ * Wait for it
+ * if non NULL yeDestoy need to be call on returned value
+ */
 Entity *ywidGenericPollEvent(void);
 
 extern int ywidWindowWidth;
