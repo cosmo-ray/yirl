@@ -117,6 +117,12 @@ static inline int ygRegistreFunc(int nbArgs, const char *name,
 }
 #endif
 
+
+/**
+ * get time in ms since game have init
+ */
+uint32_t ygGetTick(void);
+
 Entity *ygFileToEnt(YFileType t, const char *path, Entity *father);
 int ygEntToFile(YFileType t, const char *path, Entity *ent);
 

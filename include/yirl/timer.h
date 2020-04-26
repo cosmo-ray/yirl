@@ -46,6 +46,9 @@ static inline void YTimerReset(YTimer *cnt)
   cnt->beg = g_get_monotonic_time();
 }
 
+/**
+ * @return time in us
+ */
 static inline uint64_t YTimerGet(YTimer *cnt)
 {
   return g_get_monotonic_time() - cnt->beg;

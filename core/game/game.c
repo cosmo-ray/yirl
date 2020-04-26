@@ -21,6 +21,7 @@
 #include <glib.h>
 
 #include "game.h"
+#include "timer.h"
 
 /* description */
 #include "json-desc.h"
@@ -77,6 +78,8 @@ static const char *sdl2 = "sdl2";
 static const char *curses = "curses";
 
 static char main_dir[PATH_MAX];
+
+static YTimer *game_tick;
 
 char *yProgramArg;
 
@@ -400,6 +403,7 @@ int ygInit(GameConfig *cfg)
 	/* Get Current Path, this comment is useless,
 	 * but that small function need more visibility */
 	getcwd(main_dir, PATH_MAX);
+	game_tick = YTimerCreate();
 
 	return 0;
 error:
@@ -414,6 +418,7 @@ void ygEnd()
 	if (!init)
 		return;
 
+	g_free(game_tick);
 	ywidFreeWidgets();
 	ydDestroyManager(jsonManager);
 	ydJsonEnd();
@@ -456,6 +461,11 @@ void ygEnd()
 #ifdef GAMEMODE
 	gamemode_request_end();
 #endif
+}
+
+uint32_t ygGetTick(void)
+{
+	return YTimerGet(game_tick) / 1000;
 }
 
 int ygRegistreFuncInternal(void *manager, int nbArgs, const char *name,
