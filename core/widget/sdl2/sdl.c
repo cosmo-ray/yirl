@@ -290,7 +290,7 @@ static inline Entity *SDLConvertEvent(SDL_Event* event)
 	case SDL_CONTROLLERAXISMOTION:
 	{
 		static _Bool can_up[MAX_GAMEPAD][YEVE_MAX_AXIES][4];
-		int ax_id;
+		int ax_id = 0;
 		int c_id;
 
 		c_id = event->caxis.which;
