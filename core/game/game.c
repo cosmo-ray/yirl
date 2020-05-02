@@ -446,8 +446,9 @@ void ygEnd()
 	ysLuaEnd();
 	ysDestroyManager(s7Manager);
 	ysS7End();
-	ysDestroyManager(qjsManager);
-	ysQjsEnd();
+	/* it seems V crash :( */
+	/* ysDestroyManager(qjsManager); */
+	/* ysQjsEnd(); */
 	yeDestroy(globalsFunctions);
 	globalsFunctions = NULL;
 	yeDestroy(baseMod);

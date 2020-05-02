@@ -551,6 +551,8 @@ static inline void defaultButtonConv(Entity *e)
 		yeSetIntAt(e, YEVE_KEY, '\n');
 	else if (ywidEveKey(e) == 1)
 		yeSetIntAt(e, YEVE_KEY, Y_ESC_KEY);
+	else if (ywidEveKey(e) == 2)
+		yeSetIntAt(e, YEVE_KEY, 'x');
 	else if (ywidEveKey(e) == 3)
 		yeSetIntAt(e, YEVE_KEY, ' ');
 	else if (ywidEveKey(e) == 6)
