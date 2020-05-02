@@ -678,12 +678,25 @@ void *dialogueCanvasInit(int nbArgs, void **args)
   printfTextAndAnswer(main, boxGetTX(main), box, active_dialogue);
   image = yeGet(main, "image");
   if (image) {
-	    Entity *img_e = ywCanvasNewImg(main, 300, 300,
-					   yeGetString(image), NULL);
-	    int r = yeGetIntAt(main, "image_rotate");
-	    if (r) {
-		    ywCanvasRotate(img_e, r);
-	    }
+	  char *img;
+	  int tx = 0, ty = 0;
+
+	  if (yeType(image) == YSTRING) {
+		  img = yeGetString(image);
+	  } else {
+		  Entity *threshold = yeGet(image, "dst-threshold");
+
+		  img = yeGetStringAt(image, "src");
+		  tx = yeGetIntAt(threshold, 0);
+		  ty = yeGetIntAt(threshold, 1);
+	  }
+
+	  Entity *img_e = ywCanvasNewImg(main, 300 + tx, 300 + ty,
+					 img, NULL);
+	  int r = yeGetIntAt(main, "image_rotate");
+	  if (r) {
+		  ywCanvasRotate(img_e, r);
+	  }
   }
   yesCall(ygGet("DialogueBox.reload"), main, box);
   return ret;
