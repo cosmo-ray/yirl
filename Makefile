@@ -95,7 +95,7 @@ LDFLAGS += $(shell $(PKG_CONFIG) --libs SDL2_image)
 LDFLAGS += $(shell $(PKG_CONFIG) --libs SDL2_ttf)
 LDFLAGS += $(SDL_MIXER_LDFLAGS) #  $(shell $(PKG_CONFIG) --libs SDL2_mixer)
 LDFLAGS += $(LDFLAGS_EXT)
-LDFLAGS += $(LIBS_SAN)
+LDFLAGS += $(LIBS_SAN) -ldl $(QUICKJS_LIB_PATH)
 
 COMMON_CFLAGS += $(shell $(PKG_CONFIG) --cflags glib-2.0)
 COMMON_CFLAGS += -I$(YIRL_INCLUDE_PATH)
@@ -123,7 +123,7 @@ $(QUICKJS_PATH):
 	git clone https://github.com/cosmo-ray/quickjs.git quickjs-$(QUICKJS_V)
 
 $(QUICKJS_LIB_PATH): $(QUICKJS_PATH)
-	CONFIG_FPIC=1 make -C $(QUICKJS_PATH)
+	CONFIG_FPIC=1 make -C $(QUICKJS_PATH) libquickjs.a
 
 $(SCRIPT_DIR)/s7.o:
 	$(CC) -c -o $(SCRIPT_DIR)/s7.o $(SCRIPT_DIR)/s7.c -Wno-implicit-fallthrough -fPIC -O0 -g
@@ -132,7 +132,7 @@ build-static-lib: $(OBJ) $(O_OBJ) $(OBJXX) $(QUICKJS_LIB_PATH)
 	$(AR)  -r -c -s $(LIBNAME).a $(OBJ) $(O_OBJ) $(OBJXX) $(QUICKJS_LIB_PATH)
 
 build-dynamic-lib: $(OBJ) $(O_OBJ) $(OBJXX) $(QUICKJS_LIB_PATH)
-	$(CC) -shared -o  $(LIBNAME).$(LIBEXTENSION) $(OBJ) $(O_OBJ) $(OBJXX) $(LDFLAGS) $(QUICKJS_LIB_PATH)
+	$(CC) -shared -o  $(LIBNAME).$(LIBEXTENSION) $(OBJ) $(O_OBJ) $(OBJXX) $(LDFLAGS)
 
 yirl-loader: $(YIRL_LINKING) $(GEN_LOADER_OBJ)
 	$(CC) -o yirl-loader$(BIN_EXT) $(GEN_LOADER_OBJ) $(BINARY_LINKING) $(LDFLAGS)
