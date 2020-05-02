@@ -112,6 +112,7 @@ static inline Entity *ywPosCreateEnt(Entity *other, int useless,
 	   void *: ywPosCreateEnt,			\
 	   const Entity *: ywPosCreateEnt,		\
 	   double : ywPosCreateInts,			\
+	   long long int : ywPosCreateInts,		\
 	   long int : ywPosCreateInts,			\
 	   int : ywPosCreateInts) (x, y, father, name)
 
@@ -136,6 +137,7 @@ static inline Entity *ywPosSetEnt(Entity *pos, Entity *other,
 		 void *: ywPosSetEnt,			\
 		 const Entity *: ywPosSetEnt,		\
 		 double : ywPosSetInts,			\
+		 long long : ywPosSetInts,			\
 		 long : ywPosSetInts,			\
 		 int : ywPosSetInts) (pos, x, y)
 
@@ -173,6 +175,7 @@ static inline _Bool ywPosIsSameInts(Entity *pos1, int x, int y)
 		 void *: ywPosIsSameEnt,		\
 		 const Entity *: ywPosIsSameEnt,	\
 		 double : ywPosIsSameInts,		\
+		 long long int: ywPosIsSameInts,	\
 		 long : ywPosIsSameInts,		\
 		 int : ywPosIsSameInts) (pos, x, y)
 

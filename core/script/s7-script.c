@@ -269,6 +269,7 @@ static s7_pointer make_nothing(s7_scheme *s, ...)
 		 const char *: s7_make_string,		\
 		 int: s7_make_integer,			\
 		 long: s7_make_integer,			\
+		 long long: s7_make_integer,		\
 		 _Bool: s7_make_boolean,		\
 		 unsigned long: s7_make_integer,	\
 		 unsigned int: s7_make_integer)		\
@@ -284,6 +285,7 @@ static s7_pointer make_nothing(s7_scheme *s, ...)
 		 int: 2,			\
 		 _Bool: 2,			\
 		 long: 2,			\
+		 long long int: 2,			\
 		 double: 2,			\
 		 float: 2,			\
 		 unsigned long: 2,		\
@@ -298,6 +300,7 @@ static s7_pointer make_nothing(s7_scheme *s, ...)
 		 const Entity *: call,		\
 		 int: call,			\
 		 _Bool: call,			\
+		 long long: call,			\
 		 long: call,			\
 		 double: call,			\
 		 float: call,			\

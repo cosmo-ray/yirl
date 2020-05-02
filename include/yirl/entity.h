@@ -1022,6 +1022,7 @@ static inline _Bool yeArrayContainEntity(Entity *array, const char *str)
 #define yeAdd(e, toAdd)				\
 	_Generic(toAdd, int: yeAddInt,		\
 		 long : yeAddLong,		\
+		 long long : yeAddLong,		\
 		 const char *: yeAddStr,	\
 		 char *: yeAddStr,		\
 		 Entity *: yeAddEnt)		\

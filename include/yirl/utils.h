@@ -37,6 +37,21 @@ typedef unsigned long long uint64_t;
 #include <assert.h>
 #include <stdint.h>
 #include <unistd.h>
+
+#ifdef _WIN32
+#include <Windows.h>
+#include <stdio.h>
+
+static inline char *get_current_dir_name(void)
+{
+  char tmp[1024];
+
+  GetCurrentDirectory(1024, tmp);
+  return strdup(tmp);
+}
+
+#endif
+
 #endif
 
 #ifndef __INT64_C

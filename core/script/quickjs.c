@@ -93,6 +93,8 @@ static inline int GET_I_(JSContext *ctx, int idx,
 		 const Entity *: 1,		\
 		 int: 1,			\
 		 long: 1,			\
+		 long long: 1,			\
+		 unsigned long long: 1,		\
 		 _Bool: 1,			\
 		 double: 1,			\
 		 float: 1,			\
@@ -109,20 +111,22 @@ static inline int GET_I_(JSContext *ctx, int idx,
 		 _Bool : call,			\
 		 int: call,			\
 		 long: call,			\
+		 long long: call,		\
+		 unsigned long long: call,	\
 		 double: call,			\
 		 float: call,			\
 		 unsigned long: call,		\
 		 unsigned int: call)
 
-#define BIND_AUTORET(call)						\
-	int t = LUAT(call);						\
-	switch (t) {							\
-	case 0:								\
-		call;							\
-		return JS_NULL;						\
-	case 1:								\
-		return AUTOPUSH(VOID_CALL(call), ctx);			\
-	}								\
+#define BIND_AUTORET(call)				\
+	int t = LUAT(call);				\
+	switch (t) {					\
+	case 0:						\
+		call;					\
+		return JS_NULL;				\
+	case 1:						\
+		return AUTOPUSH(VOID_CALL(call), ctx);	\
+	}						\
 	return JS_NULL;
 
 static JSValue make_abort(JSContext *ctx, ...)

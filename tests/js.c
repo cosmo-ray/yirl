@@ -15,6 +15,10 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef _WIN32
+#define __USE_MINGW_ANSI_STDIO 1
+#endif
+
 #include <glib.h>
 #include <stdio.h>
 #include "tests.h"
@@ -42,7 +46,7 @@ void testQjsScriptCall(void)
 	printf("-----\n");
 	ysCall(sm, "print", "hello !!");
 	printf("=====\n");
-	printf("ret ent: %ld\n", (intptr_t)ysCall(sm, "display_ent", e));
+	printf("ret ent: %zu\n", (intptr_t)ysCall(sm, "display_ent", e));
 
 	printf("i: %p\n", i);
 	g_assert((intptr_t)ysCall(sm, "display_eint", i) == 1337);

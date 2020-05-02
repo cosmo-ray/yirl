@@ -40,34 +40,36 @@ enum ylua_type {
 };
 
 #define LUAT(call)				\
-	_Generic(call,				\
-		 default: 0,			\
-		 char *: 2,			\
-		 const char *: 2,		\
-		 Entity *: 1,			\
-		 const Entity *: 1,		\
-		 int: 2,			\
-		 long: 2,			\
-		 _Bool: 2,			\
-		 double: 2,			\
-		 float: 2,			\
-		 unsigned long: 2,		\
-		 unsigned int: 2)
+  _Generic((call),				\
+	   default: 0,				\
+	   char *: 2,				\
+	   const char *: 2,			\
+	   Entity *: 1,				\
+	   const Entity *: 1,			\
+	   int: 2,				\
+	   long: 2,				\
+	   long long int: 2,			\
+	   _Bool: 2,				\
+	   double: 2,				\
+	   float: 2,				\
+	   unsigned long: 2,			\
+	   unsigned int: 2)
 
 #define VOID_CALL(call)				\
-	_Generic(call,				\
-		 default: NULL,			\
-		 char *: call,			\
-		 const char *: call,		\
-		 Entity *: call,		\
-		 const Entity *: call,		\
-		 _Bool : call,			\
-		 int: call,			\
-		 long: call,			\
-		 double: call,			\
-		 float: call,			\
-		 unsigned long: call,		\
-		 unsigned int: call)
+  _Generic((call),				\
+	   default: NULL,			\
+	   char *: call,			\
+	   const char *: call,			\
+	   Entity *: call,			\
+	   const Entity *: call,		\
+	   _Bool : call,			\
+	   int: call,				\
+	   long: call,				\
+	   long long int: call,			\
+	   double: call,			\
+	   float: call,				\
+	   unsigned long: call,			\
+	   unsigned int: call)
 
 #define BIND_AUTORET(call)						\
 	int t = LUAT(call);						\
@@ -102,7 +104,7 @@ static inline int make_abort(lua_State *L, ...)
 		 short: lua_pushnumber,			\
 		 int: lua_pushnumber,			\
 		 long: lua_pushnumber,			\
-		 long long: lua_pushnumber,		\
+		 long long int: lua_pushnumber,		\
 		 float: lua_pushnumber,			\
 		 double: lua_pushnumber,		\
 		 _Bool: lua_pushboolean,		\
