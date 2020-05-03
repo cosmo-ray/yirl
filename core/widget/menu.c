@@ -190,6 +190,17 @@ static InputStatue mnEvent(YWidgetState *opac, Entity *event)
 		return NOTHANDLE;
 
 	if (ywidEveType(event) == YKEY_DOWN) {
+		Entity *on = yeGet(opac->entity, "on");
+
+		YE_FOREACH(on, on_entry) {
+			if (yeGetIntAt(on_entry, 0) == ywidEveKey(event)) {
+				return (InputStatue)yesCall(
+					yeGet(on_entry, 1), opac->entity,
+					((YMenuState *)opac)->current,
+					ywMenuGetCurrentEntry(opac->entity));
+			}
+		}
+
 		if (ywidEveKey(event) == Y_ESC_KEY) {
 			Entity *onEsc = yeGet(opac->entity, "onEsc");
 
@@ -200,7 +211,6 @@ static InputStatue mnEvent(YWidgetState *opac, Entity *event)
 					((YMenuState *)opac)->current,
 					ywMenuGetCurrentEntry(opac->entity));
 			}
-
 		} else if (ywidEveKey(event) == '\n') {
 			ret = ywMenuCallActionOn(opac, event,
 						 ((YMenuState *)opac)->current);
