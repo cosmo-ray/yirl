@@ -224,6 +224,16 @@ static void *recreateInt(int nb, union ycall_arg *args, int *types)
 	return (void *)NOACTION;
 }
 
+static void *recreateString(int nb, union ycall_arg *args, int *types)
+{
+	// args[0] is the widget and args[1] are the events
+	Entity *toSet = args[2].e;
+	Entity *value = args[3].e;
+
+	ygReCreateString(yeGetString(toSet), yeGetString(value));
+	return NULL;
+}
+
 static void *increaseInt(int nb, union ycall_arg *args, int *types)
 {
 	// args[0] is the widget and args[1] are the events
@@ -267,6 +277,8 @@ static void addNativeFuncToBaseMod(void)
 	ysRegistreCreateNativeEntity(nextOnKeyDown, "nextOnKeyDown",
 				     baseMod, NULL);
 	ysRegistreCreateNativeEntity(setInt, "setInt", baseMod, NULL);
+	ysRegistreCreateNativeEntity(recreateString, "recreateString",
+				     baseMod, NULL);
 	ysRegistreCreateNativeEntity(recreateInt, "recreateInt", baseMod, NULL);
 	ysRegistreCreateNativeEntity(increaseInt, "increaseInt", baseMod, NULL);
 	yeCreateFunctionSimple("menuMove", ysNativeManager(), baseMod);
@@ -874,6 +886,32 @@ void ygReCreateInt(const char *toSet, int val)
 	}
 
 	yeReCreateInt(val, father, buf);
+}
+
+void ygReCreateString(const char *toSet, const char *str)
+{
+	Entity *father = modList;
+	char buf[1024];
+
+	printf("ygReCreateString: %s %s\n", toSet, str);
+	for (uint32_t i = 0, b_len = 0;
+	     ({ buf[b_len] = toSet[i]; ++b_len; toSet[i] ;});
+	     ++i) {
+		if (unlikely(b_len > 1024))
+			return;
+		if (toSet[i] == '.' || toSet[i] == ':') {
+			Entity *nfather;
+			buf[b_len -1] = 0;
+			nfather = yeGet(father, buf);
+			if (!nfather)
+				nfather = yeCreateArray(father, buf);
+			father = nfather;
+			b_len = 0;
+			continue;
+		}
+	}
+
+	yeReCreateString(str, father, buf);
 }
 
 void ygSetInt(const char *toSet, int val)

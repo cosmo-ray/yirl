@@ -52,30 +52,48 @@ void *ywMenuMove(Entity *ent, uint32_t at)
 
 static void *nmMenuDown(YWidgetState *wid)
 {
-  ((YMenuState *)wid)->current += 1;
+	((YMenuState *)wid)->current += 1;
 
-  if (((YMenuState *)wid)->current > yeLen(yeGet(wid->entity, "entries")) - 1)
-    ((YMenuState *)wid)->current = 0;
-  if (yeGetInt(yeGet(ywMenuGetCurrentEntry(wid->entity), "hiden")))
-    return nmMenuDown(wid);
-  return tryCallMoveOn(wid);
+	if (((YMenuState *)wid)->current > yeLen(yeGet(wid->entity,
+						       "entries")) - 1)
+		((YMenuState *)wid)->current = 0;
+	if (yeGetInt(yeGet(ywMenuGetCurrentEntry(wid->entity), "hiden")))
+		return nmMenuDown(wid);
+	return tryCallMoveOn(wid);
 }
 
 static void *nmMenuUp(YWidgetState *wid)
 {
-  ((YMenuState *)wid)->current -= 1;
+	((YMenuState *)wid)->current -= 1;
 
-  if (((YMenuState *)wid)->current > yeLen(yeGet(wid->entity, "entries")))
-    ((YMenuState *)wid)->current = yeLen(yeGet(wid->entity, "entries")) - 1;
-  if (yeGetInt(yeGet(ywMenuGetCurrentEntry(wid->entity), "hiden")))
-    return nmMenuUp(wid);
-  return tryCallMoveOn(wid);
+	if (((YMenuState *)wid)->current > yeLen(yeGet(wid->entity, "entries")))
+		((YMenuState *)wid)->current =
+			yeLen(yeGet(wid->entity, "entries")) - 1;
+	if (yeGetInt(yeGet(ywMenuGetCurrentEntry(wid->entity), "hiden")))
+		return nmMenuUp(wid);
+	return tryCallMoveOn(wid);
 }
 
 static void *nmMenuMove(int nb, union ycall_arg *args, int *types)
 {
 	Entity *wid = args[0].e;
 	Entity *eve = args[1].e;
+	Entity *cu = ywMenuGetCurrentEntry(wid);
+	Entity *s;
+
+	if ((s = yeGet(cu, "slider"))) {
+		Entity *si = yeGet(cu, "slider_idx");
+
+		if (ywidEveKey(eve) == Y_RIGHT_KEY) {
+			yeAdd(si, 1);
+		} else if (ywidEveKey(eve) == Y_LEFT_KEY) {
+			yeAdd(si, -1);
+		}
+		if (yeGetInt(si) < 0)
+			yeSetInt(si, yeLen(s) - 1);
+		else if ((unsigned int)yeGetInt(si) > (yeLen(s) - 1))
+			yeSetInt(si, 0);
+	}
 
 	if (ywidEveKey(eve) == Y_DOWN_KEY) {
 		return nmMenuDown(ywidGetState(wid));
@@ -111,13 +129,25 @@ static void *nmMenuNext(int nb, union ycall_arg *args, int *types)
 }
 
 
+InputStatue mnActions_(Entity *menu, Entity *event, Entity *current_entry)
+{
+	Entity *s;
+
+	if ((s = yeGet(current_entry, "slider"))) {
+		Entity *option =
+			yeGet(s, yeGetIntAt(current_entry, "slider_idx"));
+
+		return ywidActions(menu, option, event);
+	}
+	return ywidActions(menu, current_entry, event);
+}
+
 static void *mnActions(int nb, union ycall_arg *args, int *types)
 {
 	Entity *wid = args[0].e;
 	Entity *eve = args[1].e;
 
-	void *ret = (void *)ywidActions(wid, ywMenuGetCurrentEntry(wid), eve);
-	return ret;
+	return (void *)mnActions_(wid, eve, ywMenuGetCurrentEntry(wid));
 }
 
 void ywMenuUp(Entity *wid)
@@ -173,8 +203,7 @@ InputStatue ywMenuCallActionOnByState(YWidgetState *opac, Entity *event,
 		return NOTHANDLE;
 	((YMenuState *)opac)->current = idx;
 
-	ret = ywidActions(opac->entity, ywMenuGetCurrentEntry(opac->entity),
-			  event);
+	ret = mnActions_(opac->entity, event, ywMenuGetCurrentEntry(opac->entity));
 	if (ret == NOTHANDLE)
 		return NOACTION;
 	return ret;
@@ -272,6 +301,20 @@ Entity *ywMenuPushEntry(Entity *menu, const char *name, Entity *func)
 	yeCreateString(name, entry, "text");
 	yePushBack(entry, func, "action");
 	return entry;
+}
+
+Entity *ywMenuPushSlider(Entity *menu, const char *name, Entity *slider_array)
+{
+	Entity *entries = yeGet(menu, "entries");
+	if (unlikely(!entries))
+		entries = yeCreateArray(menu, "entries");
+	Entity *entry = yeCreateArray(entries, name);
+
+	yeCreateString(name, entry, "text");
+	yePushBack(entry, slider_array, "slider");
+	yeCreateInt(0, entry, "slider_idx");
+	return entry;
+
 }
 
 int ywMenuGetCurrent(YWidgetState *opac)

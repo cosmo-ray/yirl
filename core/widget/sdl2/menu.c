@@ -26,132 +26,146 @@
 
 static int sdlRend(YWidgetState *state, int t)
 {
-  SDLWid *wid = ywidGetRenderData(state, t);
-  Entity *entries = yeGet(state->entity, "entries");
-  unsigned int len = yeLen(entries);
-  YBgConf cfg;
-  int alignementType = YSDL_ALIGN_LEFT;
-  Entity *type = yeGet(state->entity, "mn-type");
-  SDL_Color base_color = {0,0,0,255};
-  int isPane = 0;
-  int pos = 0;
-  int cur = ywMenuGetCurrent(state);
-  Entity *pre_text = yeGet(state->entity, "pre-text");
+	SDLWid *wid = ywidGetRenderData(state, t);
+	Entity *entries = yeGet(state->entity, "entries");
+	unsigned int len = yeLen(entries);
+	YBgConf cfg;
+	int alignementType = YSDL_ALIGN_LEFT;
+	Entity *type = yeGet(state->entity, "mn-type");
+	SDL_Color base_color = {0,0,0,255};
+	int isPane = 0;
+	int pos = 0;
+	int cur = ywMenuGetCurrent(state);
+	Entity *pre_text = yeGet(state->entity, "pre-text");
 
-  if (!yeStrCmp(type, "panel"))
-    isPane = 1;
+	if (!yeStrCmp(type, "panel"))
+		isPane = 1;
 
-  if (!yeStrCmp(yeGet(state->entity, "text-align"), "center"))
-    alignementType = YSDL_ALIGN_CENTER;
+	if (!yeStrCmp(yeGet(state->entity, "text-align"), "center"))
+		alignementType = YSDL_ALIGN_CENTER;
 
-  if (ywidBgConfFill(yeGet(state->entity, "background"), &cfg) >= 0)
-    sdlFillBg(wid, &cfg);
+	if (ywidBgConfFill(yeGet(state->entity, "background"), &cfg) >= 0)
+		sdlFillBg(wid, &cfg);
 
-  ywidColorFromString((char *)yeGetString(yeGet(state->entity, "text-color")),
-		      &base_color.r, &base_color.g, &base_color.b,
-		      &base_color.a);
+	ywidColorFromString((char *)yeGetString(yeGet(state->entity,
+						      "text-color")),
+			    &base_color.r, &base_color.g, &base_color.b,
+			    &base_color.a);
 
-  if (!sgDefaultFont()) {
-    DPRINT_WARN("NO Font Set !");
-  }
+	if (!sgDefaultFont()) {
+		DPRINT_WARN("NO Font Set !");
+	}
 
-  if (pre_text) {
-    Entity *destRect;
-    SDL_Rect txtR;
+	if (pre_text) {
+		Entity *destRect;
+		SDL_Rect txtR;
 
-    if (isPane) {
-      DPRINT_ERR("pre_text not supported with panel yet");
-    }
+		if (isPane) {
+			DPRINT_ERR("pre_text not supported with panel yet");
+		}
 
-    destRect = ywRectReCreateInts(0, pos * sgGetFontSize() + 1,
-				  wid->rect.w, sgGetFontSize() + 1,
-				  NULL, NULL);
-    txtR = sdlRectFromRectEntity(destRect);
-    yeDestroy(destRect);
-    sdlPrintText(wid, yeGetString(pre_text), base_color, txtR, alignementType);
-    if (yeLen(pre_text))
-	    pos = 1 + yeCountCharacters(pre_text, '\n', -1);
-  }
+		destRect = ywRectReCreateInts(0, pos * sgGetFontSize() + 1,
+					      wid->rect.w, sgGetFontSize() + 1,
+					      NULL, NULL);
+		txtR = sdlRectFromRectEntity(destRect);
+		yeDestroy(destRect);
+		sdlPrintText(wid, yeGetString(pre_text), base_color,
+			     txtR, alignementType);
+		if (yeLen(pre_text))
+			pos = 1 + yeCountCharacters(pre_text, '\n', -1);
+	}
 
-  YE_ARRAY_FOREACH_EXT(entries, entry, it) {
-    SDL_Color color = base_color;
-    int hiden = yeGetInt(yeGet(entry, "hiden"));
-    const char *toPrint = yeGetString(yeGet(entry, "text"));
-    Entity *destRect;
-    Entity *type;
-    SDL_Rect txtR;
-    int has_loading_bar;
+	YE_ARRAY_FOREACH_EXT(entries, entry, it) {
+		SDL_Color color = base_color;
+		int hiden = yeGetInt(yeGet(entry, "hiden"));
+		yeAutoFree Entity *complex_txt = NULL;
+		const char *toPrint = yeGetString(yeGet(entry, "text"));
+		Entity *destRect;
+		Entity *type;
+		SDL_Rect txtR;
+		int has_loading_bar;
+		Entity *slider = yeGet(entry, "slider");
 
-    if (hiden)
-      continue;
-    ywidColorFromString((char *)yeGetString(yeGet(entry, "text-color")),
-			&color.r, &color.g, &color.b, &color.a);
+		if (hiden)
+			continue;
+		ywidColorFromString((char *)yeGetString(
+					    yeGet(entry, "text-color")),
+				    &color.r, &color.g, &color.b, &color.a);
 
-    type = yeGet(entry, "type");
-    has_loading_bar = (type && !yeStrCmp(type, "loading-bar"));
+		type = yeGet(entry, "type");
+		has_loading_bar = (type && !yeStrCmp(type, "loading-bar"));
 
-    if (isPane) {
-      destRect = ywRectReCreateInts(wid->rect.w / len * pos, 0,
-				    wid->rect.w / len,
-				    sgGetFontSize() + 1,
-				    entry, "$rect");
-    } else {
-      destRect = ywRectReCreateInts(0, pos * sgGetFontSize() + 1,
-				    wid->rect.w, sgGetFontSize() + 1,
-				    entry, "$rect");
-    }
-    txtR = sdlRectFromRectEntity(destRect);
-    if (has_loading_bar) {
-      char lb[17];
-      int barPercent = yeGetInt(yeGet(entry, "loading-bar-%"));
-      const char *separator = yeGetString(yeGet(entry, "loading-bar-sep"));
-      int barLen;
+		if (isPane) {
+			destRect = ywRectReCreateInts(wid->rect.w / len * pos, 0,
+						      wid->rect.w / len,
+						      sgGetFontSize() + 1,
+						      entry, "$rect");
+		} else {
+			destRect = ywRectReCreateInts(
+				0, pos * sgGetFontSize() + 1, wid->rect.w,
+				sgGetFontSize() + 1, entry, "$rect");
+		}
+		txtR = sdlRectFromRectEntity(destRect);
+		if (slider) {
+			int slider_idx = yeGetIntAt(entry, "slider_idx");
+			Entity *cur_option = yeGet(slider, slider_idx);
 
-      lb[0] = '[';
-      lb[15] = ']';
-      lb[16] = '\0';
-      if (unlikely(barPercent > 100))
-	barPercent = 100;
-      else if (unlikely(barPercent < 0))
-	barPercent = 0;
-      barLen = yuiPercentOf(barPercent, 14);
-      memset(lb + 1, '#', barLen);
-      memset(lb + 1 + barLen, '.', 14 - barLen);
-      if (!separator)
-	separator = "";
-      if (!toPrint)
-	toPrint = "";
-      toPrint = (char *)g_strdup_printf("%s%s%s", toPrint, separator, lb);
-    }
-    sdlPrintText(wid, toPrint, color, txtR, alignementType);
-    if (has_loading_bar)
-      g_free((char *)toPrint);
-    if (cur == it.pos) {
-      color.a = 150;
-      sdlDrawRect(wid, txtR, color);
-      color.a = 255;
-    }
-    ++pos;
-  }
-  if (ywidBgConfFill(yeGet(state->entity, "foreground"), &cfg) >= 0)
-    sdlFillBg(wid, &cfg);
-  return 0;
+			complex_txt = yeCreateString(toPrint, NULL, NULL);
+			yeStringAdd(complex_txt, "<--");
+			yeAdd(complex_txt, yeGet(cur_option, "text"));
+			yeStringAdd(complex_txt, "-->");
+			toPrint = yeGetString(complex_txt);
+		}
+		if (has_loading_bar) {
+			char lb[17] = {[0] = '[', [15] = ']', [16] = 0};
+			int barPercent = yeGetInt(
+				yeGet(entry, "loading-bar-%"));
+			const char *separator = yeGetString(
+				yeGet(entry, "loading-bar-sep"));
+			int barLen;
+
+			if (unlikely(barPercent > 100))
+				barPercent = 100;
+			else if (unlikely(barPercent < 0))
+				barPercent = 0;
+			barLen = yuiPercentOf(barPercent, 14);
+			memset(lb + 1, '#', barLen);
+			memset(lb + 1 + barLen, '.', 14 - barLen);
+			if (!separator)
+				separator = "";
+			if (!toPrint)
+				toPrint = "";
+			toPrint = (char *)g_strdup_printf("%s%s%s", toPrint, separator, lb);
+		}
+		sdlPrintText(wid, toPrint, color, txtR, alignementType);
+		if (has_loading_bar)
+			g_free((char *)toPrint);
+		if (cur == it.pos) {
+			color.a = 150;
+			sdlDrawRect(wid, txtR, color);
+			color.a = 255;
+		}
+		++pos;
+	}
+	if (ywidBgConfFill(yeGet(state->entity, "foreground"), &cfg) >= 0)
+		sdlFillBg(wid, &cfg);
+	return 0;
 }
 
 static int sdlRender(YWidgetState *state, int t)
 {
-  return sdlRend(state, t);
+	return sdlRend(state, t);
 }
 
 static int sdlInit(YWidgetState *wid, int t)
 {
-  wid->renderStates[t].opac = g_new(SDLWid, 1);
-  sdlWidInit(wid, t);
-  return 0;
+	wid->renderStates[t].opac = g_new(SDLWid, 1);
+	sdlWidInit(wid, t);
+	return 0;
 }
 
 int ysdl2RegistreMenu(void)
 {
-  return ywidRegistreTypeRender("menu", ysdl2Type(),
-				sdlRender, sdlInit, sdlWidDestroy);
+	return ywidRegistreTypeRender("menu", ysdl2Type(),
+				      sdlRender, sdlInit, sdlWidDestroy);
 }

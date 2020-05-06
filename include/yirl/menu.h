@@ -40,6 +40,7 @@ void ywMenuUp(Entity *wid);
 void *ywMenuMove(Entity *ent, uint32_t at);
 
 Entity *ywMenuPushEntry(Entity *menu, const char *name, Entity *func);
+Entity *ywMenuPushSlider(Entity *menu, const char *name, Entity *slider_array);
 
 Entity *ywMenuGetEntry(Entity *container, int idx);
 
