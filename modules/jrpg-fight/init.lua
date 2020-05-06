@@ -387,7 +387,7 @@ function fightAction(entity, eve)
 
    if yDoAnimation(entity, txt_anim_field) == Y_TRUE and
    yHasAnimation(entity, txt_anim_field) == Y_FALSE then
-      ret = YEVE_NOACTION
+      ret = YEVE_NOTHANDLE
    end
 
    if entity.atk_state:to_int() == PJ_ATTACK or
@@ -803,8 +803,8 @@ function chooseTarget(main, eve)
       eve = eve:next()
    end
 
-   -- without the if I got an error
-   if true then return YEVE_NOACTION end
+   -- without the if I got an error with the label
+   if true then return YEVE_NOTHANDLE end
 
    :: clean ::
    canvas:remove(main.chooseTargetArrow)

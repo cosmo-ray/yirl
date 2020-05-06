@@ -850,8 +850,6 @@ int ywidHandleEvent(YWidgetState *opac, Entity *event)
 	if (opac->handleEvent)
 		ret = opac->handleEvent(opac, event);
 
-	ret = (ret == NOTHANDLE ? NOACTION : ret);
-
 	if (ygIsAlive() && (postAction = yeGet(opac->entity,
 					       "post-action")) != NULL)
 		ret = (intptr_t)yesCall(postAction, ret, opac->entity, event);

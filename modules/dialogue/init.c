@@ -407,7 +407,7 @@ void *dialoguePostAction(int nbArgs, void **args)
 	struct mainDrv *drv = getMainDrv(e);
 
 	refreshAnswer(e, drv->getMenu(e), yeGet(e, "active_dialogue"));
-	return ((void *)ret_type == ACTION ? ACTION: NOACTION);
+	return ((void *)ret_type == ACTION ? ACTION: NOTHANDLE);
 }
 
 void *dialogueAction(int nbArgs, void **args)
@@ -475,7 +475,7 @@ void *dialogueHide(int nbArgs, void **args)
   yeReCreateInt(1, answer, "hiden");
   if (drv == &cntDialogueMnDrv)
     ywMenuDown(args[0]);
-  return (void *)NOACTION;
+  return 0;
 }
 
 void *dialogueGoto(int nbArgs, void **args)
@@ -491,7 +491,7 @@ void *dialogueGoto(int nbArgs, void **args)
 
   yeReCreateInt(idx, main, "active_dialogue");
   printfTextAndAnswer(main, drv->getTextWidget(main), args[0], args[2]);
-  return (void *)NOACTION;
+  return 0;
 }
 
 void *dialogueGotoNext(int nbArgs, void **args)
@@ -523,7 +523,7 @@ void *dialogueGotoNext(int nbArgs, void **args)
     return (void *)ywidAction(yeGet(main, "endAction"), box, NULL);
   }
   printfTextAndAnswer(main, drv->getTextWidget(main), box, active_dialogue);
-  return (void *)NOACTION;
+  return 0;
 }
 
 void *dialogueBlock(int nbArgs, void **args)
@@ -566,7 +566,7 @@ void *dialogueBlock(int nbArgs, void **args)
     yeReCreateString(yeGetString(block_action), answer, "action");
 
   yeReCreateInt(1, main, "isBlock");
-  return (void *)NOACTION;
+  return 0;
 }
 
 
@@ -577,7 +577,7 @@ void *dialogueChangeText(int nbArgs, void **args)
 
   ywContainerUpdate(main, getTextWidget(main));
   yeReplaceBack(drv->getTextWidget(main), getText(args[0], args[2]), "text");
-  return (void *)NOACTION;
+  return 0;
 }
 
 Entity *defaultActiveDialogue(Entity *main)

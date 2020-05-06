@@ -211,7 +211,7 @@ static void *setInt(int nb, union ycall_arg *args, int *types)
 	Entity *value = args[3].e;
 
 	ygSetInt(yeGetString(toSet), yeGetInt(value));
-	return (void *)NOACTION;
+	return 0;
 }
 
 static void *recreateInt(int nb, union ycall_arg *args, int *types)
@@ -221,7 +221,7 @@ static void *recreateInt(int nb, union ycall_arg *args, int *types)
 	Entity *value = args[3].e;
 
 	ygReCreateInt(yeGetString(toSet), yeGetInt(value));
-	return (void *)NOACTION;
+	return 0;
 }
 
 static void *recreateString(int nb, union ycall_arg *args, int *types)
@@ -241,7 +241,7 @@ static void *increaseInt(int nb, union ycall_arg *args, int *types)
 	Entity *value = args[3].e;
 
 	ygIncreaseInt(yeGetString(toSet), yeGetInt(value));
-	return (void *)NOACTION;
+	return 0;
 }
 
 static void *nextOnKeyDown(int nb, union ycall_arg *args, int *types)

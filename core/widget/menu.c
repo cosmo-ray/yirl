@@ -204,8 +204,6 @@ InputStatue ywMenuCallActionOnByState(YWidgetState *opac, Entity *event,
 	((YMenuState *)opac)->current = idx;
 
 	ret = mnActions_(opac->entity, event, ywMenuGetCurrentEntry(opac->entity));
-	if (ret == NOTHANDLE)
-		return NOACTION;
 	return ret;
 }
 

@@ -54,9 +54,13 @@ typedef enum
 {
 	BUG = -1,
 	NOTHANDLE = 0,
-	NOACTION = 1,
-	ACTION = 2,
+	ACTION = 1,
 } InputStatue;
+
+/* here for retro compat, use to mean, need to refresh screen
+ * but nother else happen, as we now refresh screen every frame,
+ * this option is now useless */
+#define NOACTION NOTHANDLE
 
 static inline const char *ywidInputStatueToString(InputStatue i)
 {
