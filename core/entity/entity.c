@@ -1446,7 +1446,7 @@ char *yeToCStr(Entity *entity, int deep, int flag)
 {
 	GString *str = g_string_new(NULL);
 
-	if (flag & YE_FORMAT_PRETTY)
+	if (flag & YE_FORMAT_PRETTY && !YE_FORMAT_NO_NL)
 		g_string_append_c(str, '\n');
 	yeToCStrInternal(entity, deep, str, flag, deep);
 	return g_string_free(str, 0);

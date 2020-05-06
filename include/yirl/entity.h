@@ -67,6 +67,7 @@ typedef enum
 #define YE_FORMAT_OPT_BREAK_ARRAY_END 1
 #define YE_FORMAT_OPT_PRINT_ONLY_VAL_ARRAY 2
 #define YE_FORMAT_PRETTY 4
+#define YE_FORMAT_NO_NL 8
 
 #define	YE_TO_ENTITY(X) ((Entity *)X)
 #define	YE_TO_C_ENTITY(X) ((const Entity *)X)
@@ -1095,7 +1096,7 @@ static inline int yeAddEnt(Entity *e, Entity *e2)
 {
 	/* yeToCStr add a \n and do pretty stuff which can be buggy */
 	if (yeType(e) == YSTRING && yeType(e2) != YSTRING) {
-		char *str = yeToCStr(e2, 4, YE_FORMAT_PRETTY);
+		char *str = yeToCStr(e2, 4, YE_FORMAT_PRETTY | YE_FORMAT_NO_NL);
 
 		yeStringAdd(e, str);
 		free(str);
