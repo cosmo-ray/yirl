@@ -52,6 +52,7 @@ enum ylua_type {
 	   _Bool: 2,				\
 	   double: 2,				\
 	   float: 2,				\
+	   unsigned long long: 2,		\
 	   unsigned long: 2,			\
 	   unsigned int: 2)
 
@@ -68,6 +69,7 @@ enum ylua_type {
 	   long long int: call,			\
 	   double: call,			\
 	   float: call,				\
+	   unsigned long long: call,		\
 	   unsigned long: call,			\
 	   unsigned int: call)
 

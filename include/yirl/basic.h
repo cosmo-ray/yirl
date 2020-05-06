@@ -91,13 +91,22 @@ int usleep(useconds_t usec);
 
 void abort(void);
 
+/* Because I have no fucking idea of to define
+ * a non function symbole on windows 
+ * I can't define stderr */
+#ifdef _WIN32
+#define fprintf(a, b, args...)			\
+  printf(b, args);
+#endif
+
+
 #ifdef NDEBUG
 #define assert(expr)
 #else
-#define assert(expr) if (!expr) {				\
-		fprintf(stderr, "assertion fail at %s:%d\n",	\
-			__LINE__, __FILE__);			\
-		abort();					\
-	};
-
+#define assert(expr)					\
+  if (!expr) {						\
+    fprintf(stderr, "assertion fail at %s:%d\n",	\
+	    __LINE__, __FILE__);			\
+    abort();						\
+  };
 #endif

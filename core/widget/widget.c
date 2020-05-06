@@ -90,6 +90,17 @@ void ywSetTurnLengthOverwrite(int i)
 	ywTurnLengthOverwrite = i;
 }
 
+int ywidRend(YWidgetState *opac)
+{
+	int ret = 0;
+	if (opac->render) {
+		yeveWindowGetFocus = 0;
+		ret = opac->render(opac);
+		ywidDrawScreen();
+	}
+	return ret;
+}
+
 /**
  * this destroy all widget mark as destroyable in a very american way
  * hence KBOUM ! (BOUM could have been enough, but I like KDE)

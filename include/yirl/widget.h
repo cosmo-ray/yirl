@@ -328,16 +328,7 @@ static inline int ywidSubRend(YWidgetState *opac)
 	return ret;
 }
 
-static inline int ywidRend(YWidgetState *opac)
-{
-	int ret = 0;
-	if (opac->render) {
-		yeveWindowGetFocus = 0;
-		ret = opac->render(opac);
-		ywidDrawScreen();
-	}
-	return ret;
-}
+int ywidRend(YWidgetState *opac);
 
 int ywidHandleEvent(YWidgetState *opac, Entity *event);
 

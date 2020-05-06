@@ -175,6 +175,25 @@ void	tccAddSyms(TCCState *l)
   ADD_SYM(yeCreateInts_);
   ADD_SYM(ywMenuSetCurrentEntry);
   ADD_SYM(ySoundMusicLoad);
+  ADD_SYM(yeToCStr);
+  ADD_SYM(abort);
+  ADD_SYM(ywidGetMainWid);
+  ADD_SYM(ywidGenericPollEvent);
+  ADD_SYM(memset);
+  ADD_SYM(ywCanvasClear);
+  ADD_SYM(yeTokString);
+  ADD_SYM(malloc);
+  ADD_SYM(realloc);
+  ADD_SYM(yeSetDestroy);
+  ADD_SYM(g_get_monotonic_time);
+  ADD_SYM(yeStringNextTok);
+  ADD_SYM(strtol);
+  ADD_SYM(atoi);
+  ADD_SYM(ywCanvasNewBicolorImg);
+  ADD_SYM(ywCanvasForceSize);
+  ADD_SYM(ywCanvasNewTextExt);
+  ADD_SYM(ywidDrawScreen);
+  ADD_SYM(ywidRend);
 #if defined(__unix__) || defined(__APPLE__)
   tcc_add_symbol(l, "yuiDebugPrint", yuiDebugPrint);
 #endif
