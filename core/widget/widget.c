@@ -111,6 +111,8 @@ void ywidMarkAsDestroyable(YWidgetState *kboumable)
 {
 	struct Kaboumable *ck = kaboumables;
 
+	if (!kboumable)
+		return;
 	kaboumables = malloc(sizeof(struct Kaboumable));
 	kaboumables->kwid = kboumable;
 	kaboumables->prev = ck;

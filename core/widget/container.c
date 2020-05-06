@@ -110,6 +110,7 @@ int ywReplaceEntry(Entity *container, int idx, Entity *entry)
 	Entity *new = getEntry(container, entry);
 	int size = yeGetIntAt(old, "size");
 
+	yeIncrRef(old);
 	ywidMarkAsDestroyable(ywidGetState(old));
 	yeReCreateInt(size, new, "size");
 	yeReplace(entries, old, new);
@@ -308,7 +309,7 @@ static InputStatue cntEvent(YWidgetState *opac, Entity *event)
 	Entity *entries = yeGet(opac->entity, "entries");
 	YWidgetState *cur;
 
-	ret = ywidEventCallActionSin(opac, event);
+	ret = ywidActions(opac->entity, opac->entity, event);
 	if (ret != NOTHANDLE)
 		return ret;
 
