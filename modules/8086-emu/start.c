@@ -79,7 +79,7 @@ const char *to_vga_strcolor[0x10] = {
 	"rgba: 255 255 255 255"
 };
 
-static inline char *to_vga_strcharset(int c)
+static inline const char *to_vga_strcharset(int c)
 {
 	if (!c)
 		return " ";
@@ -167,7 +167,7 @@ static inline void color_txt_video_scan(struct state_8086 *s, int32_t pos,
 
 		if (imgchar = to_vga_imgcharset(di->l)) {
 			YE_NEW(Array, nfo);
-			int32_t bg, fg;
+			uint32_t bg, fg;
 
 			bg = to_vga_icolor[(di->h & 0xf0) >> 4];
 			fg = to_vga_icolor[di->h & 0x0f];

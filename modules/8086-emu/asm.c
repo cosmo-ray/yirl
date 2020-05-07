@@ -106,7 +106,7 @@ static inline int next_no_space(void)
 
 static inline int parse_num(void)
 {
-	char *str;
+	const char *str;
 	int num;
 
 	switch (cur_tok) {

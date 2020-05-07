@@ -133,13 +133,13 @@
 #elif STACK == 0
 		uint16_t *d = &stack[stack_idx].w;
 #else
-		uint16_t *d = is_0_reg ? &regs.buf_16[r0] : &c0;
+		uint16_t *d = is_0_reg ? &regs.buf_16[r0] : (uint16_t *)&c0;
 #endif
 		uint16_t orig = *d;
 
 		/* printf("16 bit %s(%d)\n", is_0_reg ? "registre" : "word", r0); */
 		if (f0 & HAVE_INDIR) {
-			uint8_t *tmpd = d;
+			uint8_t *tmpd = (uint8_t *)d;
 			tmpd = &state->mem[*d | (regs.ds << 4)];
 			if (is_0_reg)
 				tmpd += (int16_t)c0;
@@ -147,7 +147,7 @@
 			tmp = *(uint16_t *)tmpd;
 			d = &tmp;
 #else
-			d = tmpd;
+			d = (uint16_t *)tmpd;
 			/* printf("nv: %x %p %p %d %x %p %d %li\n", *d, d, */
 			/*        &state->mem[0xefc | (regs.ds << 4)], */
 			/*        (int16_t)c0, regs.di, */

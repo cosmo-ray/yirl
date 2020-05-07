@@ -78,6 +78,10 @@ int strcmp(const char *s1, const char *s2);
 int strncmp(const char *s1, const char *s2, size_t n);
 int fflush(FILE *stream);
 
+void *memset(void *s, int c, size_t n);
+int atoi(const char *str);
+long strtol(const char *restrict str, char **restrict endptr, int base);
+
 double cos(double);
 double sin(double);
 
