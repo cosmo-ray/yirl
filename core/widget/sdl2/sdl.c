@@ -94,7 +94,7 @@ int sgSetDefaultFont(const char *path)
   sg.txtWidth = w;
 
   sg.font = font;
-  return -0;
+  return 0;
 }
 
 uint32_t sgGetTxtW(void)
@@ -415,6 +415,8 @@ static int sdlChangeResolution(void)
 
 int    ysdl2Init(void)
 {
+  char path_buf[PATH_MAX];
+  char ttf_path2[PATH_MAX + sizeof("/DejaVuSansMono.ttf")];
   if (type != -1)
     return type;
   char ttf_path[strlen(ygBinaryRootPath) + sizeof("/DejaVuSansMono.ttf")];
@@ -466,8 +468,10 @@ int    ysdl2Init(void)
   if (sdlRenderCreate() < 0)
     goto fail;
 
+  sprintf(ttf_path2, "%sDejaVuSansMono.ttf", getwd(path_buf));
+  path_buf[PATH_MAX -1] = 0;
   if (sgSetDefaultFont(ttf_path) < 0 &&
-      sgSetDefaultFont("./DejaVuSansMono.ttf") < 0 &&
+      sgSetDefaultFont(ttf_path2) < 0 &&
       sgSetDefaultFont("/Library/Fonts/Tahoma.ttf") < 0 &&
       sgSetDefaultFont("/usr/share/fonts/liberation/LiberationMono-Regular.ttf") < 0 &&
       sgSetDefaultFont("/usr/share/fonts/TTF/DejaVuSansMono.ttf") < 0 &&

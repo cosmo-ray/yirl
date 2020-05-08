@@ -42,11 +42,17 @@ typedef unsigned long long uint64_t;
 #include <Windows.h>
 #include <stdio.h>
 
+static inline char *getwd(char *b)
+{
+  GetCurrentDirectory(PATH_MAX, b);
+  return b;
+}
+
 static inline char *get_current_dir_name(void)
 {
-  char tmp[1024];
+  char tmp[PATH_MAX];
 
-  GetCurrentDirectory(1024, tmp);
+  GetCurrentDirectory(PATH_MAX, tmp);
   return strdup(tmp);
 }
 

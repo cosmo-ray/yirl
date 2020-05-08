@@ -83,7 +83,8 @@ static YTimer *game_tick;
 
 char *yProgramArg;
 
-char *ygBinaryRootPath = "./";
+char ygBinaryRootPathBuf[PATH_MAX];
+char *ygBinaryRootPath;
 
 void *ygQjsManager(void)
 {
@@ -311,7 +312,9 @@ int ygInit(GameConfig *cfg)
 	/* Init parseurs */
 	yeInitMem();
 
-	/* Init Game mode if GAMEMODE is set */
+	if (!ygBinaryRootPath)
+		ygBinaryRootPath = getwd(ygBinaryRootPathBuf);
+       /* Init Game mode if GAMEMODE is set */
 #ifdef GAMEMOD
 	gamemode_request_start();
 #endif
@@ -450,6 +453,12 @@ void ygEnd()
 #endif
 	yeDestroy(modList);
 	modList = NULL;
+	yeDestroy(baseMod);
+	baseMod = NULL;
+	yeDestroy(stalked_array);
+	stalked_array = NULL;
+	yeDestroy(globalsFunctions);
+	globalsFunctions = NULL;
 	ysNativeEnd();
 	ysYBytecodeEnd();
 	ysDestroyManager(tccManager);
@@ -461,12 +470,6 @@ void ygEnd()
 	/* it seems V crash :( */
 	/* ysDestroyManager(qjsManager); */
 	/* ysQjsEnd(); */
-	yeDestroy(globalsFunctions);
-	globalsFunctions = NULL;
-	yeDestroy(baseMod);
-	baseMod = NULL;
-	yeDestroy(stalked_array);
-	stalked_array = NULL;
 	yeEnd();
 	free(yProgramArg);
 	yProgramArg = NULL;
@@ -753,6 +756,7 @@ Entity *ygLoadMod(const char *path)
 	goto exit;
 failure:
 	yeRemoveChild(modList, mod);
+	mod = NULL;
 exit:
 	g_free(tmp);
 	return mod;
@@ -893,7 +897,6 @@ void ygReCreateString(const char *toSet, const char *str)
 	Entity *father = modList;
 	char buf[1024];
 
-	printf("ygReCreateString: %s %s\n", toSet, str);
 	for (uint32_t i = 0, b_len = 0;
 	     ({ buf[b_len] = toSet[i]; ++b_len; toSet[i] ;});
 	     ++i) {
