@@ -105,3 +105,12 @@ int yevMouseDown(Entity *events, int *button)
 	return 0;
 }
 
+int yeveMouseX(void)
+{
+	return ywidXMouseGlobalPos;
+}
+
+int yeveMouseY(void)
+{
+	return ywidYMouseGlobalPos;
+}

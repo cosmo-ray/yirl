@@ -868,7 +868,7 @@ int ywidHandleEvent(YWidgetState *opac, Entity *event)
 	return ret;
 }
 
-int ywIsPixsOnWid(Entity *widget, int posX, int posY)
+_Bool ywIsPixsOnWid(Entity *widget, int posX, int posY)
 {
 	Entity *pixR = yeGet(widget, "wid-pix");
 

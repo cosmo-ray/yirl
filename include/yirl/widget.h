@@ -374,7 +374,25 @@ InputStatue ywidActions(Entity *wid, Entity *actionWid, Entity *eve);
 InputStatue ywidAction(Entity *func, Entity *wid, Entity *event);
 InputStatue ywidEventCallActionSin(YWidgetState *opac, Entity *event);
 
-int ywIsPixsOnWid(Entity *widget, int posX, int posY);
+_Bool ywIsPixsOnWid(Entity *widget, int posX, int posY);
+
+static inline _Bool ywIsMouseEveOnWid(Entity *w, Entity *eve)
+{
+	return ywIsPixsOnWid(w, ywidXMouse(eve), ywidYMouse(eve));
+}
+
+/*
+ * that's kind of dirty to put that here, but he....
+ * events handling have the problen of having been implemented first in
+ * wdigets then in envents
+ */
+int yeveMouseX(void);
+int yeveMouseY(void);
+
+static inline _Bool ywIsMouseOnWid(Entity *w, Entity *events)
+{
+	return ywIsPixsOnWid(w, yeveMouseX(), yeveMouseY());
+}
 
 const char *ywidWindowName(void);
 void ywidSetWindowName(const char *str);

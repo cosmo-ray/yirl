@@ -251,6 +251,11 @@ static InputStatue mnEvent(YWidgetState *opac, Entity *event)
 			ywMenuPosFromPix(opac->entity,
 					 ywPosX(ywidEveMousePos(event)),
 					 ywPosY(ywidEveMousePos(event))));
+	} else if (ywidEveType(event) == YKEY_MOUSEMOTION) {
+		ywMenuMove(opac->entity,
+			   ywMenuPosFromPix(opac->entity,
+					    ywPosX(ywidEveMousePos(event)),
+					    ywPosY(ywidEveMousePos(event))));
 	}
 	return ret;
 }
