@@ -468,7 +468,7 @@ int    ysdl2Init(void)
   if (sdlRenderCreate() < 0)
     goto fail;
 
-  sprintf(ttf_path2, "%sDejaVuSansMono.ttf", getwd(path_buf));
+  sprintf(ttf_path2, "%sDejaVuSansMono.ttf", getcwd(path_buf, PATH_MAX));
   path_buf[PATH_MAX -1] = 0;
   if (sgSetDefaultFont(ttf_path) < 0 &&
       sgSetDefaultFont(ttf_path2) < 0 &&

@@ -313,7 +313,7 @@ int ygInit(GameConfig *cfg)
 	yeInitMem();
 
 	if (!ygBinaryRootPath)
-		ygBinaryRootPath = getwd(ygBinaryRootPathBuf);
+		ygBinaryRootPath = getcwd(ygBinaryRootPathBuf, PATH_MAX);
        /* Init Game mode if GAMEMODE is set */
 #ifdef GAMEMOD
 	gamemode_request_start();

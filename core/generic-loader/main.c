@@ -32,7 +32,7 @@ int main(int argc, char **argv)
   char *binaryRootPath = NULL;
   const char *start_dir = NULL;
   char buf[PATH_MAX];
-  char *cpath = getwd(buf);
+  char *cpath = getcwd(buf, PATH_MAX);
   const char *tcc_path = cpath;
   int width = -1;
   int height = -1;
@@ -76,7 +76,7 @@ int main(int argc, char **argv)
   if (start_dir) {
     tcc_path = start_dir;
     chdir(start_dir);
-    cpath = getwd(buf);
+    cpath = getcwd(buf, PATH_MAX);
   }
 
   if (!default_tcc_path) {
