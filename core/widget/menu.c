@@ -21,6 +21,7 @@
 #include "rect.h"
 #include "native-script.h"
 #include "entity-script.h"
+#include "sdl2/canvas-sdl.h"
 #include "game.h"
 
 static int t = -1;
@@ -28,15 +29,53 @@ static int t = -1;
 typedef struct {
 	YWidgetState sate;
 	unsigned int current;
+	int threshold;
 } YMenuState;
 
-static void *tryCallMoveOn(YWidgetState *wid)
+static void *MoveOn(YWidgetState *wid, uint32_t at)
 {
+	YMenuState *s = (YMenuState *)wid;
+	Entity *ent = wid->entity;
 	Entity *moveOn = yeGet(wid->entity, "moveOn");
+
+	if (yeStrCmp(yeGet(ent, "mn-type"), "panel")) {
+		int y = 1;
+		Entity *entries = yeGet(ent, "entries");
+		Entity *wid_size = yeGet(ent, "wid-pix");
+		int wid_h = ywRectH(wid_size);
+		Entity *pre_txt = yeGet(ent, "pre-text");
+
+		if (pre_txt) {
+			int txt_cnt = 1 + yeCountCharacters(pre_txt, '\n', -1);
+
+			y += (txt_cnt * sgGetFontSize());
+		}
+
+		for (uint32_t i = 0; i <= at; ++i) {
+			Entity *entry = yeGet(entries, i);
+			/* Entity *e_r = yeGet(entry, "$rect"); */
+			/* int entry_h = ywRectH(e_r); */
+			if (yeGetInt(yeGet(entry, "hiden")))
+				continue;
+			y += sgGetFontSize();
+		}
+
+		if (s->threshold + y > wid_h) {
+			s->threshold = wid_h - y;
+			// I think we need to roung up
+			/* printf("- %d - ", s->threshold % sgGetFontSize()); */
+			/* s->threshold += s->threshold % sgGetFontSize(); */
+		}
+		/* first we check the botom of last entrym then the top */
+		y -= sgGetFontSize() + 1;
+		if (s->threshold + y - sgGetFontSize() + 1 < 0) {
+			s->threshold -= (s->threshold + y);
+		}
+	}
+
 	if (moveOn)
-		return yesCall(moveOn, wid->entity,
-			       ((YMenuState *)wid)->current,
-			       ywMenuGetCurrentEntry(wid->entity));
+		return yesCall(moveOn, ent, at,
+			       ywMenuGetCurrentEntry(ent));
 	return (void *)ACTION;
 }
 
@@ -47,7 +86,7 @@ void *ywMenuMove(Entity *ent, uint32_t at)
 	if (at > yeLen(yeGet(ent, "entries")))
 		return (void *)NOTHANDLE;
 	s->current = at;
-	return tryCallMoveOn((YWidgetState *)s);
+	return MoveOn((YWidgetState *)s, at);
 }
 
 static void *nmMenuDown(YWidgetState *wid)
@@ -59,7 +98,7 @@ static void *nmMenuDown(YWidgetState *wid)
 		((YMenuState *)wid)->current = 0;
 	if (yeGetInt(yeGet(ywMenuGetCurrentEntry(wid->entity), "hiden")))
 		return nmMenuDown(wid);
-	return tryCallMoveOn(wid);
+	return MoveOn(wid, ((YMenuState *)wid)->current);
 }
 
 static void *nmMenuUp(YWidgetState *wid)
@@ -71,7 +110,7 @@ static void *nmMenuUp(YWidgetState *wid)
 			yeLen(yeGet(wid->entity, "entries")) - 1;
 	if (yeGetInt(yeGet(ywMenuGetCurrentEntry(wid->entity), "hiden")))
 		return nmMenuUp(wid);
-	return tryCallMoveOn(wid);
+	return MoveOn(wid, ((YMenuState *)wid)->current);
 }
 
 static void *nmMenuMove(int nb, union ycall_arg *args, int *types)
@@ -173,6 +212,7 @@ static int mnInit(YWidgetState *opac, Entity *entity, void *args)
 				 entity, "move");
 	}
 	((YMenuState *)opac)->current = yeGetInt(yeGet(entity, "current"));
+	((YMenuState *)opac)->threshold = 0;
 	return 0;
 }
 
@@ -288,7 +328,9 @@ int ywMenuPosFromPix(Entity *wid, uint32_t x, uint32_t y)
 
 	YE_ARRAY_FOREACH_EXT(entries, entry, it) {
 		Entity *rect = yeGet(entry, "$rect");
-		if (ywRectContain(rect, x - ywRectX(pos), y - ywRectY(pos), 1))
+		if (ywRectContain(rect, x - ywRectX(pos),
+				  y - ywRectY(pos),
+				  1))
 			return it.pos;
 	}
 	return -1;
@@ -323,6 +365,11 @@ Entity *ywMenuPushSlider(Entity *menu, const char *name, Entity *slider_array)
 int ywMenuGetCurrent(YWidgetState *opac)
 {
 	return ((YMenuState *)opac)->current;
+}
+
+int ywMenuGetThreshold(YWidgetState *opac)
+{
+	return ((YMenuState *)opac)->threshold;
 }
 
 void ywMenuSetCurrentEntry(Entity *entity, Entity *entry)

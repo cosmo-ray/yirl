@@ -36,7 +36,9 @@ static int sdlRend(YWidgetState *state, int t)
 	int isPane = 0;
 	int pos = 0;
 	int cur = ywMenuGetCurrent(state);
+	int threshold = ywMenuGetThreshold(state);
 	Entity *pre_text = yeGet(state->entity, "pre-text");
+	int y0 = threshold;
 
 	if (!yeStrCmp(type, "panel"))
 		isPane = 1;
@@ -64,9 +66,10 @@ static int sdlRend(YWidgetState *state, int t)
 			DPRINT_ERR("pre_text not supported with panel yet");
 		}
 
-		destRect = ywRectReCreateInts(0, pos * sgGetFontSize() + 1,
-					      wid->rect.w, sgGetFontSize() + 1,
-					      NULL, NULL);
+		destRect = ywRectReCreateInts(
+			0, y0 + pos * sgGetFontSize() + 1,
+			wid->rect.w, sgGetFontSize() + 1,
+			NULL, NULL);
 		txtR = sdlRectFromRectEntity(destRect);
 		yeDestroy(destRect);
 		sdlPrintText(wid, yeGetString(pre_text), base_color,
@@ -102,9 +105,10 @@ static int sdlRend(YWidgetState *state, int t)
 						      entry, "$rect");
 		} else {
 			destRect = ywRectReCreateInts(
-				0, pos * sgGetFontSize() + 1, wid->rect.w,
+				0, y0 + pos * sgGetFontSize() + 1, wid->rect.w,
 				sgGetFontSize() + 1, entry, "$rect");
 		}
+		/* ywRectPrint(destRect); */
 		txtR = sdlRectFromRectEntity(destRect);
 		if (slider) {
 			int slider_idx = yeGetIntAt(entry, "slider_idx");
@@ -135,7 +139,8 @@ static int sdlRend(YWidgetState *state, int t)
 				separator = "";
 			if (!toPrint)
 				toPrint = "";
-			toPrint = (char *)g_strdup_printf("%s%s%s", toPrint, separator, lb);
+			toPrint = (char *)g_strdup_printf(
+				"%s%s%s", toPrint, separator, lb);
 		}
 		sdlPrintText(wid, toPrint, color, txtR, alignementType);
 		if (has_loading_bar)
