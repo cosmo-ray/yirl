@@ -288,8 +288,17 @@ int	luaentity_index(lua_State *L)
 		ret = yeGetByIdx(ew->e, lua_tonumber(L, 2));
 	} else if (isString) {
 		ret = yeGet(ew->e, lua_tostring(L, 2));
+	} else if (lua_islightuserdata(L, 2) || lua_isuserdata(L, 2)) {
+		Entity *ek = luaEntityAt(L, 2);
+
+		if (yeType(ek) == YSTRING)
+			ret = yeGet(ew->e, yeGetString(ek));
+		else if (yeType(ek) == YINT)
+			ret = yeGet(ew->e, yeGetInt(ek));
+		else
+			return 0;
 	} else {
-		return -1;
+		return 0;
 	}
 	if (!ret)
 		return 0;
