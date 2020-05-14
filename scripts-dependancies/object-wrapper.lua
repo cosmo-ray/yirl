@@ -9,6 +9,11 @@ Size = Pos
 Rect = {}
 File = {}
 
+-- not related to yirl, but useful lua helper
+function rand_array_elem(array)
+   return array[yuiRand() % #array + 1]
+end
+
 -- Should have a C wrapper, but I'm lazy
 
 function yIsLuaString(str)
