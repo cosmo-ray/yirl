@@ -1439,14 +1439,14 @@ int	luayeSetAt(lua_State *L)
 {
   Entity *ent = NULL;
   if (lua_gettop(L) != 3)
-    return -1;
+    return 0;
 
   if (lua_isnumber(L, 2)) {
     ent = yeGet(luaEntityAt(L, 1), (int64_t)lua_tonumber(L, 2));
   } else if (lua_isstring(L, 2)) {
     ent = yeGet(luaEntityAt(L, 1), lua_tostring(L, 2));
   } else {
-    return -1;
+    return 0;
   }
 
   if (lua_isnumber(L, 3)) {
