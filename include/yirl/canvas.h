@@ -109,6 +109,20 @@ double ywCanvasObjAngle(Entity *obj);
  * resize obj to @size, result can be ugly
  */
 int ywCanvasForceSize(Entity *obj, Entity *size);
+
+/**
+ * reduce @obj of @percent
+ */
+static inline int ywCanvasPercentReduce(Entity *obj, int percent)
+{
+	Entity *s = ywCanvasObjSize(NULL, obj);
+	yeAutoFree Entity *ns = ywSizeCreate(percent * ywSizeW(s) / 100,
+					     percent * ywSizeH(s) / 100,
+					     NULL, NULL);
+
+	return ywCanvasForceSize(obj, ns);
+}
+
 int ywCanvasRotate(Entity *obj, double angle);
 
 int ywCanvasAdvenceObj(Entity *obj, int speed, double direction);

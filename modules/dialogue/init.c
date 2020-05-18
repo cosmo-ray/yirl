@@ -394,6 +394,7 @@ void *init(int nbArg, void **args)
 
   yeCreateFunctionSimple("newDialogue", ygGetTccManager(), mod);
 
+  ygRegistreFunc(2, "showDialogueImage", "yShowDialogueImage");
   ygRegistreFunc(5, "newDialogueEntity", "yNewDialogueEntity");
   ygRegistreFunc(1, "dialogueGetMain", "yDialogueGetMain");
   ygRegistreFunc(1, "dialogueGetCAnswer", "yDialogueCurAnswer");
@@ -636,6 +637,37 @@ void *dialogueDestroy(int nbArgs, void **args)
 	yeRemoveChild(yeGet(args[0], "name-box"), args[0]);
 }
 
+void *showDialogueImage(int n, void **args) {
+	Entity *canvas = args[0], *img_cnt = args[1];
+	Entity *image = yeGet(img_cnt, "image");
+
+	if (image) {
+		char *img;
+		int tx = 0, ty = 0;
+		int p = 0;
+
+		if (yeType(image) == YSTRING) {
+			img = yeGetString(image);
+		} else {
+			Entity *threshold = yeGet(image, "dst-threshold");
+
+			img = yeGetStringAt(image, "src");
+			tx = yeGetIntAt(threshold, 0);
+			ty = yeGetIntAt(threshold, 1);
+			p = yeGetIntAt(image, "reduce");
+		}
+
+		Entity *img_e = ywCanvasNewImg(canvas, 300 + tx, 300 + ty,
+					       img, NULL);
+		if (p)
+			ywCanvasPercentReduce(img_e, p);
+		int r = yeGetIntAt(img_cnt, "image_rotate");
+		if (r) {
+			ywCanvasRotate(img_e, r);
+		}
+	}
+}
+
 void *dialogueCanvasInit(int nbArgs, void **args)
 {
   Entity *main = args[0];
@@ -643,7 +675,6 @@ void *dialogueCanvasInit(int nbArgs, void **args)
   YWidgetState *ret;
   Entity *box;
   Entity *dialogue;
-  Entity *image;
   Entity *data;
   Entity *name = yeGet(main, "name");
   int y = 10;
@@ -676,28 +707,8 @@ void *dialogueCanvasInit(int nbArgs, void **args)
   yePushAt(box, main, boxMainPos);
   yeCreateFunction("dialogueDestroy", ygGetTccManager(), main, "destroy");
   printfTextAndAnswer(main, boxGetTX(main), box, active_dialogue);
-  image = yeGet(main, "image");
-  if (image) {
-	  char *img;
-	  int tx = 0, ty = 0;
+  showDialogueImage(2, (void *[]){main, main});
 
-	  if (yeType(image) == YSTRING) {
-		  img = yeGetString(image);
-	  } else {
-		  Entity *threshold = yeGet(image, "dst-threshold");
-
-		  img = yeGetStringAt(image, "src");
-		  tx = yeGetIntAt(threshold, 0);
-		  ty = yeGetIntAt(threshold, 1);
-	  }
-
-	  Entity *img_e = ywCanvasNewImg(main, 300 + tx, 300 + ty,
-					 img, NULL);
-	  int r = yeGetIntAt(main, "image_rotate");
-	  if (r) {
-		  ywCanvasRotate(img_e, r);
-	  }
-  }
   yesCall(ygGet("DialogueBox.reload"), main, box);
   return ret;
 }
