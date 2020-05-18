@@ -363,54 +363,54 @@ static inline Entity *SDLConvertEvent(SDL_Event* event)
 
 static Entity *SDLWaitEvent(void)
 {
-  static SDL_Event event;
+	static SDL_Event event;
 
-  if (!SDL_WaitEvent(&event))
-	  return NULL;
-  return SDLConvertEvent(&event);
+	if (!SDL_WaitEvent(&event))
+		return NULL;
+	return SDLConvertEvent(&event);
 }
 
 static Entity *SDLPollEvent(void)
 {
-  static SDL_Event event;
+	static SDL_Event event;
 
-  if (!SDL_PollEvent(&event))
-	  return NULL;
-  return SDLConvertEvent(&event);
+	if (!SDL_PollEvent(&event))
+		return NULL;
+	return SDLConvertEvent(&event);
 }
 
 static void changeWindName(const char *name)
 {
-  SDL_SetWindowTitle(sg.pWindow, name);
+	SDL_SetWindowTitle(sg.pWindow, name);
 }
 
 static int sdlRenderCreate(void)
 {
-    sg.renderer = SDL_CreateRenderer(sg.pWindow, -1,
-				   SDL_RENDERER_TARGETTEXTURE);
-  if (!sg.renderer) {
-    DPRINT_ERR("Get render from window: %s\n", SDL_GetError());
-    return -1;
-  }
-  if (SDL_SetRenderDrawBlendMode(sg.renderer, SDL_BLENDMODE_BLEND) < 0) {
-    DPRINT_ERR("failt to set blend mode: %s\n", SDL_GetError());
-    return -1;
-  }
-  return 0;
+	sg.renderer = SDL_CreateRenderer(sg.pWindow, -1,
+					 SDL_RENDERER_TARGETTEXTURE);
+	if (!sg.renderer) {
+		DPRINT_ERR("Get render from window: %s\n", SDL_GetError());
+		return -1;
+	}
+	if (SDL_SetRenderDrawBlendMode(sg.renderer, SDL_BLENDMODE_BLEND) < 0) {
+		DPRINT_ERR("failt to set blend mode: %s\n", SDL_GetError());
+		return -1;
+	}
+	return 0;
 }
 
 static int sdlChangeResolution(void)
 {
-  SDL_SetWindowSize(sg.pWindow, ywidWindowWidth, ywidWindowHight);
-  SDL_DestroyRenderer(sg.renderer);
-  if (sdlRenderCreate() < 0) {
-    DPRINT_ERR("SDL is DEAD");
-    ysdl2Destroy();
-    return -1;
-  }
-  ywNeedTextureReload = 1;
-  SDL_RenderClear(sg.renderer);
-  return 0;
+	SDL_SetWindowSize(sg.pWindow, ywidWindowWidth, ywidWindowHight);
+	SDL_DestroyRenderer(sg.renderer);
+	if (sdlRenderCreate() < 0) {
+		DPRINT_ERR("SDL is DEAD");
+		ysdl2Destroy();
+		return -1;
+	}
+	ywNeedTextureReload = 1;
+	SDL_RenderClear(sg.renderer);
+	return 0;
 }
 
 int    ysdl2Init(void)
