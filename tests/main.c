@@ -159,18 +159,6 @@ int main(int argc, char **argv)
   TEST_TRY_ADD("/modules/lpc-spritesheet", testsLpcSpritesheet, only);
 
 #endif
-#if WITH_CURSES == 1
-  TEST_TRY_ADD("/widget/lifecycle/curses", testCursesLife, only);
-  TEST_TRY_ADD("/widget/textScreen/curses", testYWTextScreenCurses, only);
-  TEST_TRY_ADD("/widget/menu/curses", testYWMenuCurses, only);
-  TEST_TRY_ADD("/widget/map/curses", testYWMapCurses, only);
-#if WITH_SDL == 1
-  TEST_TRY_ADD("/widget/lifecycle/all", testAllLife, only);
-  TEST_TRY_ADD("/widget/textScreen/all", testYWTextScreenAll, only);
-  TEST_TRY_ADD("/widget/map/all", testYWMapAll, only);
-  TEST_TRY_ADD("/game/all/simple", testYGameAllLibBasic, only);
-#endif
-#endif
   TEST_TRY_ADD("/game/lifecycle", testYGameLifecycle, only);
 
  run_test:

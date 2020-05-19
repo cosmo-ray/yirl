@@ -21,7 +21,6 @@
 #include "tests.h"
 #include "entity.h"
 #include "json-desc.h"
-#include "curses-driver.h"
 #include "sdl-driver.h"
 #include "menu.h"
 #include "native-script.h"
@@ -31,52 +30,6 @@ static void *testMenuEnter(va_list ap)
   (void)ap;
   return (void *)ACTION;
 }
-
-#if WITH_CURSES == 1
-void testYWMenuCurses(void)
-{
-  yeInitMem();
-  int t = ydJsonInit();
-  void *jsonManager;
-  Entity *oret, *ret;
-  YWidgetState *wid;
-
-  /* load files */
-  ysRegistreFunc(ysNativeManager(), "menuTest", testMenuEnter);
-
-  g_assert(t != -1);
-  g_assert(ydJsonGetType() == t);
-  jsonManager = ydNewManager(t);
-  g_assert(jsonManager != NULL);
-  oret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
-  ret = yeGet(oret, "MenuTest");
-  g_assert(ret);
-  g_assert(!ydDestroyManager(jsonManager));
-  g_assert(!ydJsonEnd());
-
-  t = ywMenuInit();
-  g_assert(t != -1);
-
-  g_assert(ycursInit() != -1);
-  g_assert(ycursType() == 0);
-
-  g_assert(ycursRegistreMenu() == 0);
-
-  wid = ywidNewWidget(ret, NULL);
-  g_assert(wid);
-
-  do {
-    g_assert(ywidRend(wid) != -1);
-  } while(ywidDoTurn(wid) != ACTION);
-
-  g_assert(!ywMenuEnd());
-  YWidDestroy(wid);
-  ycursDestroy();
-  /* end libs */
-  YE_DESTROY(oret);
-  yeEnd();
-}
-#endif
 
 #if WITH_SDL == 1
 

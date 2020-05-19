@@ -16,7 +16,6 @@
 */
 
 #include <glib.h>
-#include "curses-driver.h"
 #include "sdl-driver.h"
 #include "json-desc.h"
 #include "entity.h"
@@ -34,55 +33,6 @@ static void *testMapEnter(int nb, union ycall_arg *args, int *types)
   return (void *)NOTHANDLE;
 }
 
-#if WITH_CURSES == 1
-
-void testYWMapCurses(void)
-{
-  yeInitMem();
-  int t = ydJsonInit();
-  void *jsonManager;
-  Entity *ret;
-  YWidgetState *wid;
-  Entity *map;
-
-  /* load files */
-  g_assert(t != -1);
-  g_assert(ydJsonGetType() == t);
-  jsonManager = ydNewManager(t);
-  g_assert(jsonManager != NULL);
-  ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
-  map = yeGet(ret, "MapTest");
-  g_assert(map);
-  g_assert(!ydJsonEnd());
-  g_assert(!ydDestroyManager(jsonManager));
-
-  t = ywMapInit();
-  g_assert(t != -1);
-
-  g_assert(ycursInit() != -1);
-  g_assert(ycursType() == 0);
-
-  g_assert(!ycursRegistreMap());
-  ysRegistreFunc(ysNativeManager(), "mapTest", testMapEnter);
-  yeReplaceBack(map, yeGet(ret, "MapTestResources"), "resources");
-
-  wid = ywidNewWidget(map, NULL);
-  g_assert(wid);
-
-
-  do {
-    g_assert(ywidRend(wid) != -1);
-  } while(ywidDoTurn(wid) != ACTION);
-
-  g_assert(!ywMapEnd());
-  YWidDestroy(wid);
-  ycursDestroy();
-  /* end libs */
-  YE_DESTROY(ret);
-  yeEnd();
-}
-
-#endif
 #if WITH_SDL == 1
 
 void testYWMapSdl2(void)
@@ -195,57 +145,5 @@ void testYBigWMapSdl2(void)
   yeEnd();
 }
 
-
-#if WITH_CURSES == 1
-
-void testYWMapAll(void)
-{
-  yeInitMem();
-  int t = ydJsonInit();
-  void *jsonManager;
-  Entity *ret, *map;
-  YWidgetState *wid;
-
-  /* load files */
-  g_assert(t != -1);
-  g_assert(ydJsonGetType() == t);
-  jsonManager = ydNewManager(t);
-  g_assert(jsonManager != NULL);
-  ret = ydFromFile(jsonManager, TESTS_PATH"/widget.json", NULL);
-  map = yeGet(ret, "MapTest++");
-  g_assert(map);
-  g_assert(!ydJsonEnd());
-  g_assert(!ydDestroyManager(jsonManager));
-
-  t = ywMapInit();
-  g_assert(t != -1);
-
-  g_assert(ysdl2Init() != -1);
-  g_assert(ysdl2Type() == 0);
-  g_assert(ycursInit() != -1);
-  g_assert(ycursType() == 1);
-
-  g_assert(!ysdl2RegistreMap());
-  g_assert(!ycursRegistreMap());
-
-  yeReplaceBack(map, yeGet(ret, "MapTestResources"), "resources");
-  ysRegistreNativeFunc("mapTest", testMapEnter);
-  wid = ywidNewWidget(map, NULL);
-  g_assert(wid);
-
-  do {
-    g_assert(ywidRend(wid) != -1);
-  } while(ywidDoTurn(wid) != ACTION);
-
-  g_assert(!ywMapEnd());
-  YWidDestroy(wid);
-  ysdl2Destroy();
-  ycursDestroy();
-  /* end libs */
-  YE_DESTROY(ret);
-  yeEnd();
-}
-
-#endif
 
 #endif

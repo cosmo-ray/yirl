@@ -41,7 +41,6 @@ done
 add_toolchain mingw-i686
 function mingw-i686 {
     export TCC_LIB_NAME="libtcc.a"
-    export WITH_CURSES=0
     export LIBEXTENSION=dll
     export IS_UNIX=0
     export YIRL_LINKING=build-static-lib
@@ -52,7 +51,6 @@ function mingw-i686 {
 add_toolchain mingw-64
 function mingw-64 {
     export TCC_LIB_NAME="libtcc.a"
-    export WITH_CURSES=0
     export LIBEXTENSION=dll.a
     export IS_UNIX=0
     export YIRL_LINKING=build-static-lib
@@ -89,7 +87,6 @@ var_add WID_DIR "core/widget"
 var_add ENTITY_DIR "core/entity"
 var_add GAME_DIR "core/game"
 var_add SDL_WID_DIR "$WID_DIR/sdl2"
-var_add CURSES_DIR "$WID_DIR/curses"
 var_add TESTS_DIR "tests/"
 var_add DESCRIPTION_DIR "core/description"
 var_add BYTECODE_DIR "core/ybytecode"
@@ -128,11 +125,6 @@ var_add LUA_LIB "\"`pkg-config --libs lua`\""
 var_add LUA_CFLAGS "\"`pkg-config --cflags lua`\""
 
 define_add WITH_SDL 1
-define_add WITH_CURSES 1
-if [ $WITH_CURSES -ne 0 ]; then
-    var_add CURSES_LIB "-lcurses"
-    var_add CURSES_SRC "\"$CURSES_DIR/curses.c $CURSES_DIR/text-screen.c $CURSES_DIR/menu.c $CURSES_DIR/map.c\""
-fi
 
 str_define_add YIRL_MODULES_PATH "modules/"
 

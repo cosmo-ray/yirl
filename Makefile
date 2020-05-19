@@ -56,8 +56,6 @@ SRC = 	$(SCRIPT_DIR)/lua-script.c \
 	$(SDL_WID_DIR)/text-screen.c \
 	$(SDL_WID_DIR)/canvas.c
 
-SRC += $(CURSES_SRC)
-
 SRC += $(SOUND_SRC)
 
 O_SRC = $(SCRIPT_DIR)/s7.c
@@ -89,7 +87,6 @@ LDFLAGS += $(shell $(PKG_CONFIG) --libs glib-2.0)
 LDFLAGS += $(LUA_LIB)
 LDFLAGS += $(VLC_LIB)
 LDFLAGS += $(shell $(PKG_CONFIG) --libs json-c)
-LDFLAGS += $(CURSES_LIB)
 LDFLAGS += $(NUMA_LIB)
 LDFLAGS += $(shell $(PKG_CONFIG) --libs SDL2_image)
 LDFLAGS += $(shell $(PKG_CONFIG) --libs SDL2_ttf)

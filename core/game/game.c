@@ -41,9 +41,6 @@
 /* widgets */
 #include "utils.h"
 #include "entity.h"
-#if WITH_CURSES == 1
-#include "curses-driver.h"
-#endif
 #include "sdl-driver.h"
 #include "menu.h"
 #include "map.h"
@@ -75,7 +72,6 @@ static Entity *stalked_array;
 static int alive = 1;
 
 static const char *sdl2 = "sdl2";
-static const char *curses = "curses";
 
 static char main_dir[PATH_MAX];
 
@@ -364,11 +360,7 @@ int ygInit(GameConfig *cfg)
 
 	for (GList *tmp = cfg->rConf; tmp; tmp = tmp->next) {
 		//TODO check which render to use :)
-		if (yuiStrEqual(TO_RC(tmp->data)->name, "curses")) {
-#if WITH_CURSES == 1
-			ycursInit();
-#endif
-		} else if (yuiStrEqual(TO_RC(tmp->data)->name, "sdl2")) {
+		if (yuiStrEqual(TO_RC(tmp->data)->name, "sdl2")) {
 #if WITH_SDL == 1
 			ysdl2Init();
 			ysound_init();
@@ -384,19 +376,8 @@ int ygInit(GameConfig *cfg)
 
 	for (GList *tmp = cfg->rConf; tmp; tmp = tmp->next) {
 		//TODO check which render to use :)
-		if (yuiStrEqual(TO_RC(tmp->data)->name, "curses")) {
-#if WITH_CURSES == 1
-			CHECK_AND_GOTO(ycursRegistreMenu(), -1, error,
-				       "Menu init failed");
-			CHECK_AND_GOTO(ycursRegistreTextScreen(), -1, error,
-				       "Text Screen init failed");
-			CHECK_AND_GOTO(ycursRegistreMap(), -1, error,
-				       "Map init failed");
-#else
-			DPRINT_ERR("yirl is not compille with curses support");
-#endif
 
-		} else if (yuiStrEqual(TO_RC(tmp->data)->name, "sdl2")) {
+		if (yuiStrEqual(TO_RC(tmp->data)->name, "sdl2")) {
 #ifdef WITH_SDL
 			CHECK_AND_GOTO(ysdl2RegistreTextScreen(), -1, error,
 				       "Text Screen init failed");
@@ -444,9 +425,6 @@ void ygEnd()
 	ywMenuEnd();
 	ywCanvasEnd();
 	ywContainerEnd();
-#if WITH_CURSES == 1
-	ycursDestroy();
-#endif
 #ifdef WITH_SDL
 	ysound_end();
 	ysdl2Destroy();
@@ -1089,8 +1067,6 @@ int ygInitGameConfigByRenderType(GameConfig *cfg, const char *path,
 
 		if (1LLU << i ==  SDL2)
 			rConf->name = sdl2;
-		else if (1LLU << i == CURSES)
-			rConf->name = curses;
 		else {
 			DPRINT_ERR("garbage Render Type type in ygInitGameConfig");
 			ygCleanGameConfig(cfg);

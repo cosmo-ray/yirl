@@ -75,24 +75,17 @@ void testJsonToFile(void);
 void testRawFileLoad(void);
 
 void testSdlLife(void);
-void testCursesLife(void);
-void testAllLife(void);
 
-void testYWTextScreenCurses(void);
 void testYWTextScreenSdl2(void);
-void testYWTextScreenAll(void);
 void fmtTxtScreen(void);
 
 void testCanvasSdl2(void);
 void testCanvasMergable(void);
 
-void testYWMenuCurses(void);
 void testYWMenuSdl2(void);
 void testPanelMenuSdl2(void);
 
-void testYWMapCurses(void);
 void testYWMapSdl2(void);
-void testYWMapAll(void);
 
 void testYBigWMapSdl2(void);
 

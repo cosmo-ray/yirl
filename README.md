@@ -42,7 +42,6 @@ YIRL is licensed under the LGPL license, the idea behind that, is that you can a
     * pos.h: helpers to manipulate everything with a position
     * rect.h: helpers for rectangles
     * sdl-driver.h; internal, look away
-    * curses-driver.h; internal, look away
     * keydef.h: keyboard touches define base on curses key numbers
     * game.h: starting point, initializ everything, and handle modules
     * entity.h: the YIRL entity system, use everywhere in the engine
@@ -90,9 +89,6 @@ Development package of these libs:
 * json-c
 * sdl2_mixer with a version >= 2.0.5 (you can use ./configure --clone-sdl-mixer)
 
-Optional:
-* ncurses
-
 # building
 Linux - Mac Os:
 ```
@@ -102,7 +98,6 @@ make
 ```
 
 Due to the way Ubuntu package lua, you need to do `./configure -t ubuntu` instead of `./configure`
-If you don't have ncurses, use `./configure WITH_CURSES=0`
 
 Windows:
 you need to use msys2: http://www.msys2.org/
@@ -155,6 +150,5 @@ But you can still understand how YIRL work by:
 * make a raycasting module
 * 8086 emulator module
 * BASIC emulator module
-* fix all broken stuff in ncurses
 * add any language support
 * add any cool game template module
