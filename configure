@@ -124,8 +124,6 @@ fi
 var_add LUA_LIB "\"`pkg-config --libs lua`\""
 var_add LUA_CFLAGS "\"`pkg-config --cflags lua`\""
 
-define_add WITH_SDL 1
-
 str_define_add YIRL_MODULES_PATH "modules/"
 
 var_add YIRL_INCLUDE_PATH2 $PWD/include/

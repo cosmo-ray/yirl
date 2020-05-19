@@ -31,8 +31,6 @@ static void *testMenuEnter(va_list ap)
   return (void *)ACTION;
 }
 
-#if WITH_SDL == 1
-
 void testPanelMenuSdl2(void)
 {
   yeInitMem();
@@ -122,4 +120,3 @@ void testYWMenuSdl2(void)
   YE_DESTROY(oret);
   yeEnd();
 }
-#endif

@@ -131,7 +131,6 @@ int main(int argc, char **argv)
   if (no_wid)
     goto run_test;
 
-#if WITH_SDL == 1
   TEST_TRY_ADD("/widget/lifecycle/sdl", testSdlLife, only);
   TEST_TRY_ADD("/widget/textScreen/sdl", testYWTextScreenSdl2, only);
   TEST_TRY_ADD("/widget/textScreen/format/sdl", fmtTxtScreen, only);
@@ -158,7 +157,6 @@ int main(int argc, char **argv)
   TEST_TRY_ADD("/modules/tiled", testsTiled, only);
   TEST_TRY_ADD("/modules/lpc-spritesheet", testsLpcSpritesheet, only);
 
-#endif
   TEST_TRY_ADD("/game/lifecycle", testYGameLifecycle, only);
 
  run_test:

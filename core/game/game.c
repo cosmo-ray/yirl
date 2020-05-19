@@ -71,8 +71,6 @@ static Entity *stalked_array;
 
 static int alive = 1;
 
-static const char *sdl2 = "sdl2";
-
 static char main_dir[PATH_MAX];
 
 static YTimer *game_tick;
@@ -358,15 +356,8 @@ int ygInit(GameConfig *cfg)
 		ywidSetWindowName(cfg->win_name);
 	ywidChangeResolution(cfg->w, cfg->h);
 
-	for (GList *tmp = cfg->rConf; tmp; tmp = tmp->next) {
-		//TODO check which render to use :)
-		if (yuiStrEqual(TO_RC(tmp->data)->name, "sdl2")) {
-#if WITH_SDL == 1
-			ysdl2Init();
-			ysound_init();
-#endif
-		}
-	}
+	ysdl2Init();
+	ysound_init();
 
 	CHECK_AND_GOTO(ywMenuInit(), -1, error, "Menu init failed");
 	CHECK_AND_GOTO(ywMapInit(), -1, error, "Map init failed");
@@ -374,25 +365,14 @@ int ygInit(GameConfig *cfg)
 	CHECK_AND_GOTO(ywContainerInit(), -1, error, "Container init failed");
 	CHECK_AND_GOTO(ywCanvasInit(), -1, error, "Canvas init failed");
 
-	for (GList *tmp = cfg->rConf; tmp; tmp = tmp->next) {
-		//TODO check which render to use :)
-
-		if (yuiStrEqual(TO_RC(tmp->data)->name, "sdl2")) {
-#ifdef WITH_SDL
-			CHECK_AND_GOTO(ysdl2RegistreTextScreen(), -1, error,
-				       "Text Screen init failed");
-			CHECK_AND_GOTO(ysdl2RegistreMenu(), -1, error,
-				       "Menu init failed");
-			CHECK_AND_GOTO(ysdl2RegistreMap(), -1, error,
-				       "Map init failed");
-			CHECK_AND_GOTO(ysdl2RegistreCanvas(), -1, error,
-				       "Canvas SDL2 init failed");
-#else
-			DPRINT_ERR("yirl is not compille with SDL2 support");
-#endif
-
-		}
-	}
+	CHECK_AND_GOTO(ysdl2RegistreTextScreen(), -1, error,
+		       "Text Screen init failed");
+	CHECK_AND_GOTO(ysdl2RegistreMenu(), -1, error,
+		       "Menu init failed");
+	CHECK_AND_GOTO(ysdl2RegistreMap(), -1, error,
+		       "Map init failed");
+	CHECK_AND_GOTO(ysdl2RegistreCanvas(), -1, error,
+		       "Canvas SDL2 init failed");
 	modList = yeCreateArray(NULL, NULL);
 	stalked_array = yeCreateArray(NULL, NULL);
 
@@ -425,10 +405,8 @@ void ygEnd()
 	ywMenuEnd();
 	ywCanvasEnd();
 	ywContainerEnd();
-#ifdef WITH_SDL
 	ysound_end();
 	ysdl2Destroy();
-#endif
 	yeDestroy(modList);
 	modList = NULL;
 	yeDestroy(baseMod);
@@ -1057,23 +1035,6 @@ int ygInitGameConfigByRenderType(GameConfig *cfg, const char *path,
 	cfg->h = ywidWindowHight;
 	cfg->startingMod = g_new(ModuleConf, 1);
 	cfg->startingMod->path = path;
-
-	if (!t) {
-		return 0;
-	}
-
-	YUI_FOREACH_BITMASK(t, i, tmp) {
-		RenderConf *rConf = g_new(RenderConf, 1);
-
-		if (1LLU << i ==  SDL2)
-			rConf->name = sdl2;
-		else {
-			DPRINT_ERR("garbage Render Type type in ygInitGameConfig");
-			ygCleanGameConfig(cfg);
-			return -1;
-		}
-		cfg->rConf = g_list_append(cfg->rConf, rConf);
-	}
 	return 0;
 }
 

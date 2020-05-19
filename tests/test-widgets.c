@@ -37,8 +37,6 @@ static void *testTXQuitOnQ(int nb, union ycall_arg *args, int *types)
 }
 
 
-#if WITH_SDL == 1
-
 void fmtTxtScreen(void)
 {
   GameConfig cfg;
@@ -129,4 +127,3 @@ void testSdlLife(void)
   yeEnd();
 }
 
-#endif

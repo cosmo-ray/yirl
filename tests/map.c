@@ -33,8 +33,6 @@ static void *testMapEnter(int nb, union ycall_arg *args, int *types)
   return (void *)NOTHANDLE;
 }
 
-#if WITH_SDL == 1
-
 void testYWMapSdl2(void)
 {
   yeInitMem();
@@ -145,5 +143,3 @@ void testYBigWMapSdl2(void)
   yeEnd();
 }
 
-
-#endif
