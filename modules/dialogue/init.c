@@ -642,9 +642,11 @@ void *showDialogueImage(int n, void **args) {
 	Entity *image = yeGet(img_cnt, "image");
 
 	if (image) {
+		Entity *layers = NULL;
 		char *img;
 		int tx = 0, ty = 0;
 		int p = 0;
+		int layer_p = 0;
 
 		if (yeType(image) == YSTRING) {
 			img = yeGetString(image);
@@ -655,16 +657,21 @@ void *showDialogueImage(int n, void **args) {
 			tx = yeGetIntAt(threshold, 0);
 			ty = yeGetIntAt(threshold, 1);
 			p = yeGetIntAt(image, "reduce");
+			layers = yeGet(image, "layers");
 		}
 
-		Entity *img_e = ywCanvasNewImg(canvas, 300 + tx, 300 + ty,
-					       img, NULL);
-		if (p)
-			ywCanvasPercentReduce(img_e, p);
-		int r = yeGetIntAt(img_cnt, "image_rotate");
-		if (r) {
-			ywCanvasRotate(img_e, r);
-		}
+		do {
+			if (img)
+				printf("%s\n", img);
+			Entity *img_e = ywCanvasNewImg(
+				canvas, 300 + tx, 300 + ty, img, NULL);
+			if (p)
+				ywCanvasPercentReduce(img_e, p);
+			int r = yeGetIntAt(img_cnt, "image_rotate");
+			if (r) {
+				ywCanvasRotate(img_e, r);
+			}
+		} while ((img = yeGetStringAt(layers, layer_p++)) != NULL);
 	}
 }
 
