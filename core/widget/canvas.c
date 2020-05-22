@@ -499,7 +499,10 @@ Entity *ywCanvasNewImg(Entity *wid, int x, int y, const char *path,
 	yeCreateString(path, obj, "img");
 	yePushBack(obj, img_src_rect, "img-src-rect");
 	ywCanvasSetWeightInternal(wid, obj, 0, 1);
-	sdlCanvasCacheTexture(wid, obj);
+	if (sdlCanvasCacheTexture(wid, obj) < 0) {
+		ywCanvasRemoveObj(wid, obj);
+		return NULL;
+	}
 	return obj;
 }
 

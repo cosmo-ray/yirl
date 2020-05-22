@@ -665,6 +665,8 @@ void *showDialogueImage(int n, void **args) {
 				printf("%s\n", img);
 			Entity *img_e = ywCanvasNewImg(
 				canvas, 300 + tx, 300 + ty, img, NULL);
+			if (!img_e)
+				continue;
 			if (p)
 				ywCanvasPercentReduce(img_e, p);
 			int r = yeGetIntAt(img_cnt, "image_rotate");
