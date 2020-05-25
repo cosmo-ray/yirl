@@ -551,7 +551,6 @@ int	luaywCanvasObjIsOut(lua_State *L);
 int	luaywCanvasObjectsCheckColisions(lua_State *L);
 int	luaywCanvasPopObj(lua_State *L);
 int	luaywCanvasSetWeight(lua_State *L);
-int	luaywCanvasDoPathfinding(lua_State *L);
 BIND_EE(ywCanvasCheckColisionsRectObj);
 BIND_EEE(ywCanvasProjectedColisionArray);
 BIND_EEE(ywCanvasProjectedArColisionArray);
@@ -951,7 +950,6 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, ywCanvasObjectsCheckColisions);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasPopObj);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasSetWeight);
-  YES_LUA_REGISTRE_CALL(sm, ywCanvasDoPathfinding);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasCheckColisionsRectObj);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasProjectedColisionArray);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasProjectedArColisionArray);

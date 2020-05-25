@@ -265,12 +265,5 @@ static inline Entity *ywCanvasObjMod(Entity *obj)
  */
 Entity *ywCanvasCreateYTexture(Entity *obj, Entity *father, const char *name);
 
-/**
- * fufill @path_array, with a list of pos, that can be use as movement
- * to move @obj to @to_pos
- * speed is the maximum movement that can be made per iteration
- */
-int ywCanvasDoPathfinding(Entity *canvas, Entity *obj, Entity *to_pos,
-			  Entity *speed, Entity *path_array);
 
 #endif
