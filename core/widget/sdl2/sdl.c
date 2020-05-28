@@ -710,7 +710,7 @@ static int sdlCanvasCacheText(Entity *state, Entity *elem, Entity *resource,
 	data = yeCreateDataAt(texture, elem, "$img", YCANVAS_IMG_IDX);
 	yeSetDestroy(data, sdlFreeTexture);
 	ywSizeCreateAt(w, h, elem, "$size", YCANVAS_SIZE_IDX);
-	data = yeCreateData(image, elem, "$img-surface");
+	data = yeCreateDataAt(image, elem, "$img-surface", YCANVAS_SURFACE_IDX);
 	yeSetDestroy(data, sdlFreeSurface);
 
 	yeGetPush(elem, resource, "$img");
@@ -748,15 +748,35 @@ int sdlMergeSurface(Entity *textSrc, Entity *srcRect,
 	struct SDL_Rect sr = YRECT_MK_INIT(srcRect);
 	struct SDL_Rect dr = YRECT_MK_INIT(destRect);
 
-	if (unlikely(!sSurface || !dSurface)) {
+	if (unlikely(!dSurface))
 		return -1;
+
+	if (ywCanvasObjType(textSrc) == YCanvasString) {
+		SDL_Color c = {0, 0, 0, 255};
+		Entity *col = yeGet(textSrc, 3);
+
+		if (col && yeType(col) == YSTRING) {
+			ywidColorFromString(yeGetStringAt(textSrc, 3),
+					    &c.r, &c.g, &c.b, &c.a);
+		}
+
+		SDL_Surface *txt_surface =
+			TTF_RenderUTF8_Solid(sgDefaultFont(),
+					     yeGetStringAt(textSrc, 2),
+					     c);
+
+		return SDL_BlitSurface(txt_surface, NULL, dSurface, &dr);
 	}
+
 	if (ywCanvasObjType(textSrc) == YCanvasRect) {
 		YBgConf cfg;
 
 		ywidBgConfFill(yeGet(yeGet(textSrc, 2), 1), &cfg);
 		return SDL_FillRect(dSurface, &dr, cfg.rgba);
 	}
+
+	if (unlikely(!sSurface))
+		return -1;
 
 	return SDL_BlitScaled(sSurface, srcRect ? &sr : NULL,
 			      dSurface, destRect ? &dr : NULL);
@@ -1204,6 +1224,7 @@ int sdlCanvasRendObj(YWidgetState *state, SDLWid *wid, Entity *obj,
 		}
 		sdlPrintText(wid, yeGetStringAt(obj, 2), c,
 			     rect, YSDL_ALIGN_LEFT);
+		return 0;
 	}
 	return -1;
 }

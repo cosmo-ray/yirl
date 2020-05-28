@@ -59,7 +59,6 @@ struct state_8086 {
 	Entity *e;
 	void (*set_mem)(struct state_8086 *, int32_t, int16_t);
 	char mem[0xfffff]; /* 2n bits of mems */
-	Entity *char_ent_map;
 	YTimer timer;
 };
 
@@ -198,16 +197,6 @@ static inline void color_txt_video_scan(struct state_8086 *s, int32_t pos,
 			yePushBack(elem, el_r, NULL);
 			yePushBack(elem, el_txt, NULL);
 		}
-		if ((tmp = yeGet(s->char_ent_map, r_pos)) != NULL) {
-			if (yeLen(tmp) == 2) {
-				ywCanvasRemoveObj(s->e, yeGet(tmp, 0));
-				ywCanvasRemoveObj(s->e, yeGet(tmp, 1));
-			} else {
-				ywCanvasRemoveObj(s->e, tmp);
-			}
-			yeRemoveChild(s->char_ent_map, r_pos);
-		}
-		yePushAt(s->char_ent_map, elem, r_pos);
 		if (yeLen(elem) == 2) {
 			yeDestroy(elem);
 		}
@@ -297,7 +286,6 @@ static void clear_state(struct state_8086 *s)
 {
 	memset(&s->mem[0xb8000], 0, 0xfa0);
 	ywCanvasClear(s->e);
-	yeClearArray(s->char_ent_map);
 }
 
 /* I should not include this file, but the way I handle tcc make it hard to use 2 file like I would by calling gcc */
@@ -308,8 +296,6 @@ static void destroy_state(void *arg)
 {
 	struct state_8086 *s = arg;
 
-	yeDestroy(s->char_ent_map);
-	s->char_ent_map = NULL;
 	printf("destroy 8086\n");
 	free(s);
 }
@@ -321,6 +307,7 @@ void *init_8086(int nbArgs, void **args)
 	Entity *data;
 	struct state_8086 *s;
 
+	yeCreateInt(1, emu, "mergable");
 	ret = ywidNewWidget(emu, "canvas");
 
 	YEntityBlock { emu.background = "rgba: 0 0 0 255"; }
@@ -332,7 +319,6 @@ void *init_8086(int nbArgs, void **args)
 	s = malloc(sizeof(*s));
 	s->set_mem = empty_video_scan;
 	s->e = emu;
-	s->char_ent_map = yeCreateArray(NULL, NULL);
 	YTimerReset(&s->timer);
 	data = yeCreateData(s, emu, "state");
 	yeSetDestroy(data, destroy_state);
