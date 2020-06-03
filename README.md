@@ -20,7 +20,7 @@ As an example the [snake module](https://github.com/cosmo-ray/yirl/tree/master/m
 Snake module is written in lua, but as YIRL have a generic script system, we could have written snake in any scripting language.
 Here is an example how Snake module can be use: https://github.com/cosmo-ray/yirl/tree/master/example/modules/snake.
 
-supportted scripting languuages are lua, C(with tinycc), scheme(s7), javascript(quickjs) and yb(YIRL own asm) feel free to add your language :).
+supportted scripting languages are lua, C(with tinycc), scheme(s7), javascript(quickjs) and yb(YIRL own asm) feel free to add your language :).
 
 # License:
 YIRL is licensed under the LGPL license, the idea behind that, is that you can add a modules under the license you want, but if you make a modification to the engine, you need to share it.
@@ -66,7 +66,7 @@ YIRL is licensed under the LGPL license, the idea behind that, is that you can a
 
 # Contribution
 
-Obviously contributions are more than welcome, to contribute you can simply make a Pull Request on GitHub, if something is wrong, I'll tell you :)
+Obviously contributions are very welcome, to contribute you can simply make a Pull Request on GitHub, if something is wrong, I'll tell you :)
 As I didn't have time to write a coding style, in case of contribution, you should just try to imitate code already in place.
 
 I'd like to use Linux coding style, but this would require to change every functions and structures names.
@@ -143,12 +143,12 @@ But you can still understand how YIRL work by:
 * use Linux coding style
 * create a module that allow to use web radio
 * add isometric view in map
-* add canvas widget, with an API base on HTML5 canvas
+* add canvas widget, with an API base on HTML5 canvas [partially done: https://github.com/cosmo-ray/little-space/blob/little-mage/html5-emu.js]
 * add an hex map
 * add any other cool widget
 * use vulkan/gl
 * make a raycasting module
-* 8086 emulator module
+* Improve 8086 emulator module
 * BASIC emulator module
 * add any language support
 * add any cool game template module
