@@ -527,6 +527,20 @@ static s7_pointer make_nothing(s7_scheme *s, ...)
 		BIND_AUTORET(f(S_AT(s, a, 0), I_AT(s, a, 1)));	\
 	}
 
+#define BIND_ISS(f, ...)					\
+	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)	\
+	{							\
+		BIND_AUTORET(f(I_AT(s, a, 0), S_AT(s, a, 1),	\
+			       S_AT(s, a, 2)));			\
+	}
+
+#define BIND_IIS(f, ...)					\
+	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)	\
+	{							\
+		BIND_AUTORET(f(I_AT(s, a, 0), I_AT(s, a, 1),	\
+			       S_AT(s, a, 2)));			\
+	}
+
 #define BIND_E(f, useless0, usless1)					\
 	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)		\
 	{								\
