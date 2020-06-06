@@ -400,6 +400,8 @@ static inline Entity *yeGetByEntity(Entity *array, Entity *key);
 
 #ifndef __cplusplus
 #define yeGet(ENTITY, INDEX) _Generic((INDEX),				\
+				      unsigned short int: yeGetByIdx,		\
+				      short int: yeGetByIdx,			\
 				      unsigned int: yeGetByIdx,		\
 				      int: yeGetByIdx,			\
 				      long : yeGetByIdx,		\

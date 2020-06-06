@@ -10,6 +10,8 @@
 #define BIND_SI	BIND
 #define BIND_EII	BIND
 #define BIND_EEI	BIND
+#define BIND_IIS	BIND
+#define BIND_ISS	BIND
 #define BIND_ESE	BIND
 #define BIND_EES	BIND
 #define BIND_EEE	BIND
@@ -216,6 +218,8 @@ PUSH_I_GLOBAL(YE_PATCH_NO_SUP);
 #undef BIND_EEE
 #undef BIND_EEI
 #undef BIND_EII
+#undef BIND_ISS
+#undef BIND_IIS
 #undef BIND_EE
 #undef BIND_ES
 #undef BIND_EI

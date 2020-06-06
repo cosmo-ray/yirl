@@ -305,6 +305,20 @@ static inline int make_abort(lua_State *L, ...)
 			       lua_tostring(L, 3)));			\
 	}
 
+#define BIND_ISS(f, ...)						\
+	static inline int lua##f(lua_State *L)				\
+	{								\
+		BIND_AUTORET(f(luaNumberAt(L, 1), lua_tostring(L, 2),	\
+			       lua_tostring(L, 3)));			\
+	}
+
+#define BIND_IIS(f, ...)						\
+	static inline int lua##f(lua_State *L)				\
+	{								\
+		BIND_AUTORET(f(luaNumberAt(L, 1), luaNumberAt(L, 2),	\
+			       lua_tostring(L, 3)));			\
+	}
+
 #define BIND_FES(f, ...)						\
 	static inline int lua##f(lua_State *L)				\
 	{								\
