@@ -147,6 +147,7 @@ typedef	struct {
 	uint32_t flags;
 } ArrayEntry;
 
+
 typedef	struct
 {
 	ENTITY_HEADER

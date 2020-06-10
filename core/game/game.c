@@ -19,6 +19,7 @@
 #include <sched.h>
 #include <string.h>
 #include <glib.h>
+#include <fcntl.h>
 
 #include "game.h"
 #include "timer.h"
@@ -74,6 +75,36 @@ static int alive = 1;
 static char main_dir[PATH_MAX];
 
 static YTimer *game_tick;
+
+static int nb_ext_core;
+static int in_child;
+
+#define MAX_CHILD 64
+#define PIPE_MSG_SIZE 2048
+#define PIPE_MSG_DATA_SIZE (2048 - sizeof(uint16_t))
+
+enum {
+	RANDOM_TXT,
+	RANDOM_INT,
+	EXEC_SCRIPT,
+	CALLBACK,
+	ENTITY_START,
+	ENTITY_FAIL,
+	ENTITY_END
+};
+
+static int pipefd_tochild[MAX_CHILD][2];
+static int pipefd_fromchild[MAX_CHILD][2];
+
+static int read_pipefd(void)
+{
+	return pipefd_tochild[nb_ext_core][0];
+}
+
+static int write_pipefd(void)
+{
+	return pipefd_fromchild[nb_ext_core][1];
+}
 
 char *yProgramArg;
 
@@ -464,6 +495,12 @@ void ygEnd()
 	if (!init)
 		return;
 
+	printf("kill all childs !\n");
+	for (int i = 0; i < nb_ext_core; ++i) {
+		close(pipefd_tochild[i][1]);
+		close(pipefd_fromchild[i][0]);
+	}
+	nb_ext_core = 0;
 	free(game_tick);
 	ywidFreeWidgets();
 	ydDestroyManager(jsonManager);
@@ -575,6 +612,216 @@ int ygEntToFile(YFileType t, const char *path, Entity *ent)
 	return -1;
 }
 
+struct msg {
+	uint16_t action;
+	union {
+		char msg[PIPE_MSG_DATA_SIZE];
+		int integer;
+		struct {
+			char manager[4];
+			char path[1024 - sizeof(uint16_t)];
+		};
+		struct {
+			uint16_t callback_id;
+			char arg[PIPE_MSG_SIZE - sizeof(uint16_t) * 2];
+		};
+		struct {
+			uint8_t entity_l;
+			int8_t entity_type;
+			char names[PIPE_MSG_DATA_SIZE - sizeof(uint8_t) * 2];
+		} __attribute__((packed));
+	} __attribute__((packed));
+} __attribute__((packed));
+
+static Entity *callback_array;
+
+void ygChildRegisterCallback(Entity *func_e, int id)
+{
+	if (!in_child)
+		return;
+	yePushAt(callback_array, func_e, id);
+}
+
+int ygChildPushMsgInt(int val)
+{
+	struct msg m;
+	if (!in_child)
+		return -1;
+
+	m.action = RANDOM_INT;
+	m.integer = val;
+	return write(write_pipefd(), &m, sizeof(uint16_t) + sizeof(val));
+}
+
+static int ygPipeFmtWriteEntBody(Entity *e, int fd)
+{
+	switch (yeType(e)) {
+	case YINT:
+		return ygChildPushMsgInt(yeGetInt(e));
+	case YSTRING:
+		return ygChildPushMsgStr(yeGetString(e));
+	default:;
+	}
+	return -1;
+}
+
+int ygChildPushEntity(Entity *e)
+{
+	struct msg m;
+	int t = yeType(e);
+	int fd = write_pipefd();
+
+	if (!in_child)
+		return -1;
+
+	m.action = ENTITY_START;
+	m.entity_type = t;
+	if (t == YARRAY) {
+		char *msg = m.names;
+
+		m.entity_l = yeLen(e);
+		YE_ARRAY_FOREACH_ENTRY(e, entry) {
+			/* I should count, but for now, I will overflow :( */
+			if (entry->name)
+				stpcpy(msg, entry->name);
+			else
+				*msg = 0;
+			++msg;
+		}
+	}
+	if (write(fd, &m, sizeof(m)) < 0)
+		return -1;
+
+	if (t == YARRAY) {
+		YE_FOREACH(e, elem) {
+			if (ygPipeFmtWriteEntBody(e, fd) < 0)
+				goto fail;
+		}
+	} else {
+		if (ygPipeFmtWriteEntBody(e, fd) < 0)
+			goto fail;
+	}
+
+	m.action = ENTITY_END;
+	return write(fd, &m, sizeof(int16_t));
+fail:
+	m.action = ENTITY_FAIL;
+	write(fd, &m, sizeof(int16_t));
+	return -1;
+}
+
+int ygChildPushMsgStr(const char *s)
+{
+	struct msg m;
+	int l = strlen(s);
+
+	if (!in_child)
+		return -1;
+	m.action = RANDOM_TXT;
+	strcpy(m.msg, s);
+	return write(write_pipefd(), &m, l + sizeof(uint16_t));
+}
+
+
+#define CORE_CHK_PARAMS(core) do {		\
+if (in_child)					\
+	return -1;				\
+if (core >= nb_ext_core)			\
+	return -1;				\
+} while (0)
+
+int ygCoreSetNonBlockingReader(int core)
+{
+	CORE_CHK_PARAMS(core);
+	return fcntl(pipefd_fromchild[core][0], F_SETFL, O_NONBLOCK);
+}
+
+Entity *ygCoreGetEntity(int core, Entity *parent, const char *name)
+{
+	struct msg m;
+	int r_ret = read(pipefd_fromchild[core][0], &m, PIPE_MSG_SIZE);
+
+	if (r_ret <= 0)
+		return NULL;
+	if (m.action == RANDOM_TXT)
+		return yeCreateString(m.msg, parent, name);
+	else if (m.action == RANDOM_INT)
+		return yeCreateInt(m.integer, parent, name);
+	else if (m.action == ENTITY_START) {
+		if (m.entity_type != YARRAY) {
+			Entity *r = ygCoreGetEntity(core, parent, name);
+			r_ret = read(pipefd_fromchild[core][0], &m, PIPE_MSG_SIZE);
+			if (r_ret < 0) {
+				DPRINT_ERR("ENTITY_END/FAIL missing");
+				return NULL;
+			}
+			if (m.action != ENTITY_END) {
+				DPRINT_ERR("Something went horribly wrong");
+				return NULL;
+			}
+			return r;
+		} else {
+			Entity *r = yeCreateArray(parent, name);
+			char *names = m.names;
+
+			for (int i = 0; i < m.entity_l; ++i) {
+				char *name = *names == 0 ? NULL : names;
+
+				ygCoreGetEntity(0, r, name);
+				names += strlen(names) + 1;
+			}
+			return r;
+		}
+	}
+	DPRINT_ERR("Unknow message type %d", m.action);
+	return NULL;
+}
+
+int ygCoreLoadScript(int core, const char *manager, const char *path)
+{
+	struct msg m;
+
+	CORE_CHK_PARAMS(core);
+	m.action = EXEC_SCRIPT;
+	strncpy(m.manager, manager, 4);
+	strncpy(m.path, path, 1024);
+	/* 1024 + 4 + sizeof(uint16_t) */
+	return write(pipefd_tochild[core][1], &m, 1030);
+}
+
+int ygCoreDoCallbackStr(int core, int callback_id, const char *arg)
+{
+	struct msg m;
+	CORE_CHK_PARAMS(core);
+
+	m.action = CALLBACK;
+	m.callback_id = callback_id;
+	strncpy(m.arg, arg, PIPE_MSG_SIZE - sizeof(uint16_t) * 2);
+	return write(pipefd_tochild[core][1], &m, PIPE_MSG_SIZE);
+}
+
+static void fork_wait(void)
+{
+	char buf[PIPE_MSG_SIZE];
+	int r_ret;
+	struct msg *m;
+
+	while ((r_ret = read(read_pipefd(), buf, PIPE_MSG_SIZE)) > 0) {
+		/* just in case, we truncat to avoir overflow */
+		buf[PIPE_MSG_SIZE - 1] = 0;
+		m = (void *)buf;
+		if (m->action == EXEC_SCRIPT) {
+			ysLoadFile(ygGetManager(m->manager), m->path);
+		} else if (m->action == CALLBACK) {
+			yesCall(yeGet(callback_array, m->callback_id), m->arg);
+		}
+	}
+	yeDestroy(callback_array);
+	close(read_pipefd());
+	close(write_pipefd());
+	return;
+}
+
 Entity *ygLoadMod(const char *path)
 {
 	char *tmp;
@@ -586,6 +833,7 @@ Entity *ygLoadMod(const char *path)
 	Entity *initScripts;
 	Entity *name;
 	Entity *prototype;
+	int request_core;
 
 	YE_NEW(string, tmp_name, "");
 	for (int i = 0; i < 4; ++i) {
@@ -618,6 +866,40 @@ Entity *ygLoadMod(const char *path)
 
 	if (!mod)
 		goto failure;
+	request_core = yeGetIntAt(mod, "request-ext-core");
+
+	while (request_core >= nb_ext_core) {
+		int pid;
+
+		if (nb_ext_core == MAX_CHILD) {
+			DPRINT_ERR("ext core limit reach");
+			goto failure;
+		}
+
+		if (pipe(pipefd_tochild[nb_ext_core]) == -1 ||
+		    pipe(pipefd_fromchild[nb_ext_core]) == -1) {
+			DPRINT_ERR("pipe fail");
+			goto failure;
+		}
+
+		if ((pid = fork()) < 0) {
+			DPRINT_ERR("fork fail");
+			goto failure;
+		} else if (!pid) {
+			in_child = 1;
+			yeRemoveChild(modList, mod);
+			callback_array = yeCreateArray(NULL, NULL);
+			free(tmp);
+			close(pipefd_tochild[nb_ext_core][1]);
+			close(pipefd_fromchild[nb_ext_core][0]);
+			fork_wait();
+			return NULL;
+		}
+		close(read_pipefd());
+		close(write_pipefd());
+		nb_ext_core++;
+	}
+
 	name = yeGet(mod, "name");
 
 	if (!name) {

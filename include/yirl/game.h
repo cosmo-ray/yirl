@@ -212,4 +212,22 @@ static inline void ygUpdateScreen(void)
 	ywidRend(ywidGetMainWid());
 }
 
+/* multicore scripts: */
+Entity *ygCoreGetEntity(int core, Entity *parent, const char *name);
+
+int ygCoreLoadScript(int core, const char *manager, const char *path);
+
+int ygCoreSetNonBlockingReader(int core);
+
+/* this should be abstract to support int argument, and entity argument */
+#define ygCoreDoCallback(c, cid, a)					\
+	_Generic(a, const char *: ygCoreDoCallbackStr)(c, cid, a)
+
+int ygCoreDoCallbackStr(int core, int callback_id, const char *arg);
+
+void ygChildRegisterCallback(Entity *func_e, int id);
+
+int ygChildPushMsgInt(int val);
+int ygChildPushMsgStr(const char *s);
+
 #endif

@@ -52,6 +52,10 @@ BIND_EES(ywCanvasCreateYTexture, 1, 2);
 
 BIND_EES(ywMapRemoveByStr, 3, 0);
 
+BIND_ISS(ygCoreLoadScript, 3, 0);
+
+BIND_IIS(ygCoreDoCallbackStr, 3, 0);
+
 BIND_ESE(ywMenuPushEntry, 2, 1);
 BIND_ESE(ywMenuPushSlider, 2, 1);
 
@@ -84,6 +88,7 @@ BIND_S(ySoundLoad, 1, 0);
 BIND_S(ySoundMusicLoad, 1, 0);
 BIND_S(ygModDir, 1, 0);
 
+BIND_I(ygChildPushMsgInt, 1, 0);
 BIND_I(yuiAbs, 1, 0);
 BIND_I(ySoundPlay, 1, 0);
 BIND_I(ySoundPause, 1, 0);
@@ -121,6 +126,7 @@ BIND_SI(ygIncreaseInt, 2, 0);
 BIND_SI(ygSetInt, 2, 0);
 
 BIND_EI(ywCanvasPercentReduce, 2, 0);
+BIND_EI(ygChildRegisterCallback, 2, 0);
 
 BIND_EI(yevIsKeyDown, 2, 0);
 BIND_EI(yevIsKeyUp, 2, 0);
@@ -170,6 +176,7 @@ BIND_E(ywidXMouse, 1, 0);
 BIND_E(ywidYMouse, 1, 0);
 BIND_E(ywidEveMousePos, 1, 0);
 
+BIND_S(ygChildPushMsgStr, 1, 0);
 BIND_S(ygGet, 1, 0);
 BIND_S(ygGetString, 1, 0);
 BIND_S(ygGetInt, 1, 0);
@@ -177,6 +184,8 @@ BIND_S(ygRemoveFromGlobalScope, 1, 0);
 
 BIND_E(ywCanvasDisableWeight, 1, 0);
 BIND_E(ywCanvasEnableWeight, 1, 0);
+
+BIND_I(ygCoreSetNonBlockingReader, 1, 0);
 
 BIND_I(ywSetTurnLengthOverwrite, 1, 0);
 
@@ -227,6 +236,8 @@ BIND_EI(yeSetInt, 2, 0);
 
 BIND_EII(ywMapCaseXY, 3, 0);
 
+BIND_IIS(ygCoreDoCallback, 3, 0);
+
 BIND_EII(ywCanvasMoveObjXY, 3, 0);
 
 BIND_EII(ywPosSetInts, 3, 0);
@@ -244,6 +255,8 @@ BIND_EEI(ywCanvasSetWeight, 3, 0);
 BIND_EIII(ywRectContain, 3, 1);
 
 BIND_V(ygUserDir);
+BIND_IES(ygCoreGetEntity, 1, 2);
+
 BIND_V(ywGetTurnLengthOverwrite);
 BIND_V(yWindowWidth);
 BIND_V(yWindowHeight);
