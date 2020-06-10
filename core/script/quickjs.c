@@ -210,6 +210,13 @@ static JSValue make_abort(JSContext *ctx, ...)
 			       GET_S(ctx, 1),GET_S(ctx, 2)));		\
 	}
 
+#define BIND_IES(f, useless...)						\
+	static JSValue qjs##f(JSContext *ctx, JSValueConst this_val,	\
+			      int argc, JSValueConst *argv) {		\
+		BIND_AUTORET(f(GET_I(ctx, 0),				\
+			       GET_E(ctx, 1),GET_S(ctx, 2)));		\
+	}
+
 #define BIND_IIS(f, useless...)						\
 	static JSValue qjs##f(JSContext *ctx, JSValueConst this_val,	\
 			      int argc, JSValueConst *argv) {		\
