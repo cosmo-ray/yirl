@@ -633,7 +633,8 @@ static inline Entity *yeRemoveChildByIdx(Entity *array, int toRemove)
 }
 
 /**
- * function who which an entity and set it to  0, "" or NULL
+ * function that create an entity and set it to  0, "" or NULL
+ * mostly use internally
  */
 Entity *yeCreate(EntityType type, void *val, Entity *fathers, const char *name);
 
