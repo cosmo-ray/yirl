@@ -319,6 +319,26 @@ static inline int make_abort(lua_State *L, ...)
 			       lua_tostring(L, 3)));			\
 	}
 
+#define BIND_IIE(f, ...)						\
+	static inline int lua##f(lua_State *L)				\
+	{								\
+		BIND_AUTORET(f(luaNumberAt(L, 1), luaNumberAt(L, 2),	\
+			       luaEntityAt(L, 3)));			\
+	}
+
+#define BIND_III(f, ...)						\
+	static inline int lua##f(lua_State *L)				\
+	{								\
+		BIND_AUTORET(f(luaNumberAt(L, 1), luaNumberAt(L, 2),	\
+			       luaNumberAt(L, 3)));			\
+	}
+
+#define BIND_II(f, ...)							\
+	static inline int lua##f(lua_State *L)				\
+	{								\
+		BIND_AUTORET(f(luaNumberAt(L, 1), luaNumberAt(L, 2)));	\
+	}
+
 #define BIND_IES(f, ...)						\
 	static inline int lua##f(lua_State *L)				\
 	{								\

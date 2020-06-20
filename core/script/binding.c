@@ -5,12 +5,15 @@
 #define BIND_S	BIND
 #define BIND_E	BIND
 #define BIND_EE	BIND
+#define BIND_II	BIND
 #define BIND_ES	BIND
 #define BIND_EI	BIND
 #define BIND_SI	BIND
 #define BIND_EII	BIND
 #define BIND_EEI	BIND
 #define BIND_IIS	BIND
+#define BIND_IIE	BIND
+#define BIND_III	BIND
 #define BIND_ISS	BIND
 #define BIND_IES	BIND
 #define BIND_ESE	BIND
@@ -222,6 +225,9 @@ PUSH_I_GLOBAL(YE_PATCH_NO_SUP);
 #undef BIND_ISS
 #undef BIND_IES
 #undef BIND_IIS
+#undef BIND_IIE
+#undef BIND_III
+#undef BIND_II
 #undef BIND_EE
 #undef BIND_ES
 #undef BIND_EI
