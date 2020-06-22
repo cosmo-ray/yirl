@@ -224,10 +224,13 @@ int ygCoreSetNonBlockingReader(int core);
 	_Generic(a, const char *: ygCoreDoCallbackStr)(c, cid, a)
 
 int ygCoreDoCallbackStr(int core, int callback_id, const char *arg);
+int ygCoreDoCallbackInt(int core, int callback_id, int val);
+int ygCoreDoCallbackVoid(int core, int callback_id);
 
 void ygChildRegisterCallback(Entity *func_e, int id);
 
 int ygChildPushMsgInt(int val);
 int ygChildPushMsgStr(const char *s);
+int ygChildPushEntity(Entity *e);
 
 #endif

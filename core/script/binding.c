@@ -56,6 +56,9 @@ BIND_ISS(ygCoreLoadScript, 3, 0);
 
 BIND_IIS(ygCoreDoCallbackStr, 3, 0);
 
+BIND_III(ygCoreDoCallbackInt, 3, 0);
+BIND_II(ygCoreDoCallbackVoid, 3, 0);
+
 BIND_ESE(ywMenuPushEntry, 2, 1);
 BIND_ESE(ywMenuPushSlider, 2, 1);
 
@@ -158,6 +161,8 @@ BIND_E(ywMenuClear, 1, 0);
 
 BIND_E(yeSetConst, 1, 0);
 
+BIND_E(ygChildPushEntity, 1, 0);
+
 BIND_E(yeClearArray, 1, 0);
 
 BIND_E(yeLast, 1, 0);
@@ -214,6 +219,7 @@ BIND_EE(ywCanvasForceSize, 2, 0);
 
 BIND_EE(yeArrayIdx_ent, 2, 0);
 
+BIND_E(yeTypeAsString, 1, 0);
 BIND_E(yeRefCount, 1, 0);
 BIND_E(yeType, 1, 0);
 BIND_E(ywPosY, 1, 0);
