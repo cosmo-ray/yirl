@@ -8,7 +8,7 @@ YIRL has been started as an school project at EPITECH
 
 The first version, the one release at the end of my scholarship can be found on bitbucket
 
-# for peoples that don't like github:
+# for peoples who don't like github:
 https://git.iglou.eu/Matthias/yirl
 
 # Concept:
