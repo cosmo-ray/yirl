@@ -38,6 +38,7 @@ SRC = 	$(SCRIPT_DIR)/lua-script.c \
 	$(GAME_DIR)/game.c \
 	$(UTIL_DIR)/math.c \
 	$(UTIL_DIR)/util.c \
+	$(UTIL_DIR)/simple-net.c \
 	$(UTIL_DIR)/block-array.c \
 	$(UTIL_DIR)/debug.c \
 	$(WID_DIR)/widget.c \

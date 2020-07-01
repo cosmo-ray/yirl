@@ -22,6 +22,7 @@
 #include <unistd.h>
 #include <time.h>
 #include <string.h>
+#include <errno.h>
 #include "utils.h"
 
 #if defined(_WIN32)
@@ -101,4 +102,12 @@ void yuiMkdir(const char *dir)
 #else
 	mkdir(dir, 0755);
 #endif
+}
+
+void yuiPrintErrno(const char *s)
+{
+	if (s)
+		DPRINT_ERR("%s%s\n", s, strerror(errno));
+	else
+		DPRINT_ERR("error: %s\n", strerror(errno));
 }

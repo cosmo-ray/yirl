@@ -879,7 +879,7 @@ function newDefaultGuy(guy, isEnemy)
       if guy.attack then
 	 cmb = combots[guy.attack:to_string()]
       else
-	 cmb = combots
+	 cmb = combots[0]
       end
 
       guy._combots = {}

@@ -443,4 +443,6 @@ static inline int yuiTurnY(int x, int y, double r)
 	return y * cos(r) - x * sin(r);
 }
 
+void yuiPrintErrno(const char *);
+
 #endif

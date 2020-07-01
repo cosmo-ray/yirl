@@ -28,6 +28,7 @@
 #include "game.h"
 #include "events.h"
 #include "menu.h"
+#include "simple-net.h"
 
 void	fflushout(void)
 {

@@ -49,10 +49,14 @@
 # define O_ASYNC         020000
 #endif
 
-typedef int_ptr_t size_t;
+typedef int_ptr_t ssize_t;
+
 typedef int_ptr_t intptr_t;
 
+typedef unsigned long size_t;
+
 typedef struct __FILE FILE;
+
 #define EOF (-1)
 extern FILE *stdin;
 extern FILE *stdout;
@@ -61,7 +65,10 @@ extern FILE *stderr;
 void	fflushout(void);
 int open(const char *path, int oflag, ...);
 int close(int fildes);
-size_t read(int fd, void *buf, size_t count);
+
+ssize_t read(int fd, void *buf, size_t count);
+ssize_t write(int fd, const void *buf, size_t count);
+
 int printf(const char *format, ...);
 int fprintf(FILE *stream, const char *format, ...);
 int sprintf(char *str, const char *format, ...);
