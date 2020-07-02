@@ -578,6 +578,15 @@ int yePushBack(Entity *array, Entity *toPush, const char *name);
 int yePushBackExt(Entity *entity, Entity *toPush,
 		  const char *name, uint64_t flag);
 
+
+static inline void yeStoreAll(Entity *dst, Entity *array, const char *key)
+{
+	YE_ARRAY_FOREACH_ENTRY(array, v) {
+		if (v->name && yuiStrEqual(v->name, key))
+			yePushBack(dst, v->entity, NULL);
+	}
+}
+
 /**
  * Push @toPush at @idx
  */

@@ -40,6 +40,8 @@ BIND_NONE(yeGet, 2, 0);
 BIND_NONE(yeGetIntAt, 2, 0);
 BIND_NONE(yeSetIntAt, 3, 0);
 
+BIND_EES(yeStoreAll, 2, 1);
+
 BIND_EES(yePushBack, 2, 1);
 
 BIND_EES(yePush, 2, 1);
