@@ -700,6 +700,18 @@ static JSValue qjsto_str(JSContext *ctx, JSValueConst this_val,
 	return JS_NULL;
 }
 
+static JSValue qjsyent_to_str(JSContext *ctx, JSValueConst this_val,
+			  int argc, JSValueConst *argv)
+{
+	JSValue r;
+	Entity *e = GET_E(ctx, 0);
+	char *s = yeToCStr(e, 6, YE_FORMAT_PRETTY);
+
+	r = JS_NewString(ctx, s);
+	free(s);
+	return r;
+}
+
 static int loadString(void *s, const char *str);
 
 static int init(void *sm, void *args)
@@ -754,6 +766,7 @@ static int init(void *sm, void *args)
 	BIND(yjsCall, 0, 10);
 	BIND(yesCall, 0, 10);
 	BIND(yeDestroy, 1, 0);
+	BIND(yent_to_str, 1, 0);
 
 #define IN_CALL 1
 	#include "binding.c"

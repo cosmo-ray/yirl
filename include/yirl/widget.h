@@ -207,8 +207,10 @@ extern struct widgetOpt widgetOptTab[MAX_NB_MANAGER];
 #define YEVE_FOREACH(curEve, eve)		\
 	for(curEve = eve; curEve; curEve = ywidNextEve(curEve))
 
-#define ywidNextEve(eve)			\
-	(yeGet(eve, YEVE_NEXT))
+static inline Entity *ywidNextEve(Entity *e)
+{
+	return yeGet(e, YEVE_NEXT);
+}
 
 int ywidColorFromString(const char *str, uint8_t *r, uint8_t *g,
 			uint8_t *b, uint8_t *a);
