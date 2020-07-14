@@ -30,61 +30,61 @@ static int t = -1;
 
 static inline unsigned int nbPixInSprites(int spriteSize, int nbOfSprites)
 {
-  return spriteSize * nbOfSprites;
+	return spriteSize * nbOfSprites;
 }
 
 int ywMapType(Entity *map)
 {
-  return yeGetInt(yeGet(map, "map-type"));
+	return yeGetInt(yeGet(map, "map-type"));
 }
 
 void ywMapGetSpriteSize(Entity *map, unsigned int *sizeSpriteW,
 			unsigned int *sizeSpriteH, unsigned int *thresholdX)
 {
-  Entity *widPix = yeGet(map, "wid-pix");
-  int type = ywMapType(map);
+	Entity *widPix = yeGet(map, "wid-pix");
+	int type = ywMapType(map);
 
-  uint32_t winPixWidth = ywRectW(widPix);
-  uint32_t winPixHight = ywRectH(widPix);
-  uint32_t winWidth, winHeight;
+	uint32_t winPixWidth = ywRectW(widPix);
+	uint32_t winPixHight = ywRectH(widPix);
+	uint32_t winWidth, winHeight;
 
-  *thresholdX = 0;
-  if (type == YMAP_PARTIAL) {
-    Entity *cam = yeGet(map, "cam");
+	*thresholdX = 0;
+	if (type == YMAP_PARTIAL) {
+		Entity *cam = yeGet(map, "cam");
 
-    winWidth = ywRectW(cam);
-    winHeight = ywRectH(cam);
-  } else {
-    winWidth = ywMapW(map);
-    winHeight = ywMapH(map);
-  }
-  // TODO: use real SPRITE SIZE
-  // compute proportion:
-  // x - y = diff
-  // bigger = x < y ? x : y;
-  // proportion = diff / bigger + 1.0
+		winWidth = ywRectW(cam);
+		winHeight = ywRectH(cam);
+	} else {
+		winWidth = ywMapW(map);
+		winHeight = ywMapH(map);
+	}
+	// TODO: use real SPRITE SIZE
+	// compute proportion:
+	// x - y = diff
+	// bigger = x < y ? x : y;
+	// proportion = diff / bigger + 1.0
 
-  /* Check if the number of sprites this window can
-   * contain is superior to the actual width of the window */
-  if (nbPixInSprites(YMAP_SIZE_SPRITE_W, winWidth) <  winPixWidth) {
-    *sizeSpriteW = YMAP_SIZE_SPRITE_W;
-    *sizeSpriteH = YMAP_SIZE_SPRITE_H;
+	/* Check if the number of sprites this window can
+	 * contain is superior to the actual width of the window */
+	if (nbPixInSprites(YMAP_SIZE_SPRITE_W, winWidth) <  winPixWidth) {
+		*sizeSpriteW = YMAP_SIZE_SPRITE_W;
+		*sizeSpriteH = YMAP_SIZE_SPRITE_H;
 
-  } else {
-    *sizeSpriteW = YMAP_SIZE_SPRITE_W * winPixWidth /
-      nbPixInSprites(YMAP_SIZE_SPRITE_W, winWidth);
+	} else {
+		*sizeSpriteW = YMAP_SIZE_SPRITE_W * winPixWidth /
+			nbPixInSprites(YMAP_SIZE_SPRITE_W, winWidth);
 
-    *sizeSpriteH = YMAP_SIZE_SPRITE_H * winPixHight /
-      nbPixInSprites(YMAP_SIZE_SPRITE_H, winHeight);
-    if (*sizeSpriteW > *sizeSpriteH) {
-      *thresholdX = (winPixWidth - winPixHight) / 2 ;
-      *sizeSpriteW = *sizeSpriteH;
-    } else {
-      *sizeSpriteH = *sizeSpriteW;
-    }
-  }
-  if (thresholdX)
-    *thresholdX += (winPixWidth % *sizeSpriteW) / 2;
+		*sizeSpriteH = YMAP_SIZE_SPRITE_H * winPixHight /
+			nbPixInSprites(YMAP_SIZE_SPRITE_H, winHeight);
+		if (*sizeSpriteW > *sizeSpriteH) {
+			*thresholdX = (winPixWidth - winPixHight) / 2 ;
+			*sizeSpriteW = *sizeSpriteH;
+		} else {
+			*sizeSpriteH = *sizeSpriteW;
+		}
+	}
+	if (thresholdX)
+		*thresholdX += (winPixWidth % *sizeSpriteW) / 2;
 }
 
 
@@ -149,150 +149,153 @@ int ywMapMoveByEntity(Entity *state, Entity *from,
 
 static void *moveTbl(int nb, union ycall_arg *args, int *types)
 {
-  Entity *ent = args[0].e;
-  Entity *tbl = args[1].e;
+	Entity *ent = args[0].e;
+	Entity *tbl = args[1].e;
 
-  ywMapMoveByEntity(ent, yeGet(tbl, 0), yeGet(tbl, 1), yeGet(tbl, 2));
-  return NULL;
+	ywMapMoveByEntity(ent, yeGet(tbl, 0), yeGet(tbl, 1), yeGet(tbl, 2));
+	return NULL;
 }
 
 
 static void *pushTbl(int nb, union ycall_arg *args, int *types)
 {
-  Entity *ent = args[0].e;
-  Entity *tbl = args[1].e;
+	Entity *ent = args[0].e;
+	Entity *tbl = args[1].e;
 
-  ywMapPushElem(ent, yeGet(tbl, 2), yeGet(tbl, 1), NULL);
-  return NULL;
+	ywMapPushElem(ent, yeGet(tbl, 2), yeGet(tbl, 1), NULL);
+	return NULL;
 }
 
 int ywMapSmootMove(Entity *state, Entity *from,
 		      Entity *to, Entity *elem)
 {
-  if (!ywMapMvTablePush(state, from, to, elem, moveTblCallback))
-    ywMapMoveByEntity(state, from, to, elem);
-  return 0;
+	if (!ywMapMvTablePush(state, from, to, elem, moveTblCallback))
+		ywMapMoveByEntity(state, from, to, elem);
+	return 0;
 }
 
 static int mapInitCheckResources(Entity *resources)
 {
-  Entity *firstELem = yeGet(resources, 0);
+	Entity *firstELem = yeGet(resources, 0);
 
-  if (unlikely(!resources || (yeType(resources) != YARRAY) ||
-	       !yeLen(resources))) {
-    DPRINT_ERR("can retrive ressources");
-    return -1;
-  } else if (unlikely(!firstELem || !yeLen(firstELem) || !yeLen(resources) ||
-		      !(yeGet(firstELem, "map-char") ||
-			yeGet(firstELem, "map-tild") ||
-			yeGet(firstELem, "map-color") ||
-			yeGet(firstELem, "map-sprite")))) {
-    DPRINT_ERR("resource bad format");
-    return -1;
-  }
-  return 0;
+	if (unlikely(!resources || (yeType(resources) != YARRAY) ||
+		     !yeLen(resources))) {
+		DPRINT_ERR("can retrive ressources");
+		return -1;
+	} else if (unlikely(!firstELem || !yeLen(firstELem) ||
+			    !yeLen(resources) ||
+			    !(yeGet(firstELem, "map-char") ||
+			      yeGet(firstELem, "map-tild") ||
+			      yeGet(firstELem, "map-color") ||
+			      yeGet(firstELem, "map-sprite")))) {
+		DPRINT_ERR("resource bad format");
+		return -1;
+	}
+	return 0;
 }
 
 static int mapInit(YWidgetState *opac, Entity *entity, void *args)
 {
-  Entity *resources;
+	Entity *resources;
 
-  ywidGenericCall(opac, t, init);
+	ywidGenericCall(opac, t, init);
 
-  resources = yeGet(entity, "resources");
-  if (yeType(resources) == YSTRING)
-    resources = ygGet(yeGetString(resources));
-  ((YMapState *)opac)->resources = resources;
-  if (mapInitCheckResources(resources) < 0)
-    return -1;
+	resources = yeGet(entity, "resources");
+	if (yeType(resources) == YSTRING)
+		resources = ygGet(yeGetString(resources));
+	((YMapState *)opac)->resources = resources;
+	if (mapInitCheckResources(resources) < 0)
+		return -1;
 
-  if (!yeStrCmp(yeGet(entity, "cam-type"), "center")) {
-    yeReCreateInt(YMAP_PARTIAL, entity, "map-type");
-    if (!yeGet(entity, "cam"))
-      ywRectCreateInts(0, 0, 20, 20, entity, "cam");
-  } else {
-    yeReCreateInt(YMAP_FULL, entity, "map-type");
-    if (yeGet(entity, "width"))
-      ywRectCreateInts(0, 0, ywMapW(entity), ywMapH(entity), entity, "cam");
-  }
+	if (!yeStrCmp(yeGet(entity, "cam-type"), "center")) {
+		yeReCreateInt(YMAP_PARTIAL, entity, "map-type");
+		if (!yeGet(entity, "cam"))
+			ywRectCreateInts(0, 0, 20, 20, entity, "cam");
+	} else {
+		yeReCreateInt(YMAP_FULL, entity, "map-type");
+		if (yeGet(entity, "width")) {
+			ywRectCreateInts(0, 0, ywMapW(entity),
+					 ywMapH(entity), entity, "cam");
+		}
+	}
 
-  yeCreateArray(entity, "$mv_tbl");
-  (void)args;
-  return 0;
+	yeCreateArray(entity, "$mv_tbl");
+	(void)args;
+	return 0;
 }
 
 Entity *ywMapInitEntity(Entity *entity,
 			Entity *resources,
 			int baseId, uint32_t w, uint32_t h)
 {
-  uint32_t len = w * h;
-  Entity *map = yeReCreateArray(entity, "map", NULL);
+	uint32_t len = w * h;
+	Entity *map = yeReCreateArray(entity, "map", NULL);
 
-  if (resources)
-    yeReplaceBack(entity, resources, "resources");
-  yeReCreateInt(w, entity, "width");
-  yeReCreateInt(len, entity, "len");
-  if (baseId > -1) {
-    for (uint32_t i = 0; i < len; ++i) {
-      yeCreateInt(baseId, yeCreateArray(map, NULL), NULL);
-    }
-  }
-  return entity;
+	if (resources)
+		yeReplaceBack(entity, resources, "resources");
+	yeReCreateInt(w, entity, "width");
+	yeReCreateInt(len, entity, "len");
+	if (baseId > -1) {
+		for (uint32_t i = 0; i < len; ++i) {
+			yeCreateInt(baseId, yeCreateArray(map, NULL), NULL);
+		}
+	}
+	return entity;
 }
 
 int ywMapDrawSegment(Entity *map, Entity *start, Entity *end, Entity *elem,
 		     uint32_t flag)
 {
-  while (!ywPosIsSame(start, end, 0)) {
-    if (!(flag & YMAP_DRAW_NO_DOUBLE) ||
-	!ywMapGetEntityById(map, start, ywMapGetIdByElem(elem)))
-    ywMapPushElem(map, elem, start, NULL);
-    ywPosMoveToward(start, end);
-  }
-  ywMapPushElem(map, elem, start, NULL);
-  return 0;
+	while (!ywPosIsSame(start, end, 0)) {
+		if (!(flag & YMAP_DRAW_NO_DOUBLE) ||
+		    !ywMapGetEntityById(map, start, ywMapGetIdByElem(elem)))
+			ywMapPushElem(map, elem, start, NULL);
+		ywPosMoveToward(start, end);
+	}
+	ywMapPushElem(map, elem, start, NULL);
+	return 0;
 }
 
 
 int ywMapDrawRect(Entity *map, Entity *rect, int id)
 {
-  Entity *mapElems = yeGet(map, "map");
-  int x = ywRectX(rect);
-  int y = ywRectY(rect);
-  int w = ywRectW(rect);
-  int h = ywRectH(rect);
-  int mapW = ywMapW(map);
-  int start = x + (y * mapW);
-  int mapLen = ywMapLen(map);
-  int lenX = w + x;
-  int realEnd = start + w + ((h - 1) * mapW);
+	Entity *mapElems = yeGet(map, "map");
+	int x = ywRectX(rect);
+	int y = ywRectY(rect);
+	int w = ywRectW(rect);
+	int h = ywRectH(rect);
+	int mapW = ywMapW(map);
+	int start = x + (y * mapW);
+	int mapLen = ywMapLen(map);
+	int lenX = w + x;
+	int realEnd = start + w + ((h - 1) * mapW);
 
-  if (start > mapLen || x > mapW)
-    return -1;
+	if (start > mapLen || x > mapW)
+		return -1;
 
-  if (lenX > mapW) {
-    w = mapW - w;
-    lenX = mapW;
-  }
+	if (lenX > mapW) {
+		w = mapW - w;
+		lenX = mapW;
+	}
 
-  for (int i = start, curX = x, end = realEnd > mapLen ? mapLen : realEnd;
-       i < end;) {
-    Entity *tmp = yeGet(mapElems, i);
+	for (int i = start, curX = x, end = realEnd > mapLen ? mapLen : realEnd;
+	     i < end;) {
+		Entity *tmp = yeGet(mapElems, i);
 
-    if (!tmp)
-      tmp = yeCreateArrayAt(mapElems, NULL, i);
+		if (!tmp)
+			tmp = yeCreateArrayAt(mapElems, NULL, i);
 
-    yeCreateInt(id, tmp, NULL);
+		yeCreateInt(id, tmp, NULL);
 
-    if (curX + 1 >= lenX) {
-      curX = x;
-      i += (mapW - w) + 1;
-    } else {
-      ++curX;
-      ++i;
-    }
-  }
-  return 0;
+		if (curX + 1 >= lenX) {
+			curX = x;
+			i += (mapW - w) + 1;
+		} else {
+			++curX;
+			++i;
+		}
+	}
+	return 0;
 }
 
 
@@ -300,8 +303,8 @@ Entity *ywMapCreateDefaultEntity(Entity *father, const char *name,
 				 Entity *resources,
 				 int baseId, uint32_t w, uint32_t h)
 {
-  Entity *ret = yeCreateArray(father, name);
-  return ywMapInitEntity(ret, resources, baseId, w, h);
+	Entity *ret = yeCreateArray(father, name);
+	return ywMapInitEntity(ret, resources, baseId, w, h);
 }
 
 Entity *ywMapPosFromInt(Entity *wid, int pos,
@@ -369,197 +372,199 @@ Entity *ywMapGetCase(Entity *state, Entity *pos)
 
 static int mapDestroy(YWidgetState *opac)
 {
-  g_free(opac);
-  return 0;
+	g_free(opac);
+	return 0;
 }
 
 static int mapRend(YWidgetState *opac)
 {
-  ywidGenericRend(opac, t, render);
-  return 0;
+	ywidGenericRend(opac, t, render);
+	return 0;
 }
 
 
 static void mapMidRendEnd(YWidgetState *wid)
 {
-  Entity *ent = wid->entity;
-  Entity *mv_tbl = yeGet(ent, "$mv_tbl");
+	Entity *ent = wid->entity;
+	Entity *mv_tbl = yeGet(ent, "$mv_tbl");
 
-  YE_ARRAY_FOREACH(mv_tbl, tbl) {
-    yesCall(yeGet(tbl, 3), ent, tbl);
-  }
-  yeClearArray(mv_tbl);
+	YE_ARRAY_FOREACH(mv_tbl, tbl) {
+		yesCall(yeGet(tbl, 3), ent, tbl);
+	}
+	yeClearArray(mv_tbl);
 }
 
 int ywMapHasChange(YWidgetState *state)
 {
-  return 1;
+	return 1;
 }
 
 static void *alloc(void)
 {
-  YMapState *ret = g_new0(YMapState, 1);
-  YWidgetState *wstate = (YWidgetState *)ret;
+	YMapState *ret = g_new0(YMapState, 1);
+	YWidgetState *wstate = (YWidgetState *)ret;
 
-  if (!ret)
-    return NULL;
+	if (!ret)
+		return NULL;
 
-  wstate->render = mapRend;
-  wstate->midRendEnd = mapMidRendEnd;
-  wstate->init = mapInit;
-  wstate->destroy = mapDestroy;
-  wstate->handleEvent = ywidEventCallActionSin;
-  wstate->type = t;
-  return  ret;
+	wstate->render = mapRend;
+	wstate->midRendEnd = mapMidRendEnd;
+	wstate->init = mapInit;
+	wstate->destroy = mapDestroy;
+	wstate->handleEvent = ywidEventCallActionSin;
+	wstate->type = t;
+	return  ret;
 }
 
 int ywMapGetIdByElem(Entity *mapElem)
 {
-  if (yeType(mapElem) == YINT)
-    return yeGetInt(mapElem);
-  if (yeType(mapElem) == YARRAY)
-    return yeGetInt(yeGet(mapElem, "id"));
+	if (yeType(mapElem) == YINT)
+		return yeGetInt(mapElem);
+	if (yeType(mapElem) == YARRAY)
+		return yeGetInt(yeGet(mapElem, "id"));
 
-  return -1;
+	return -1;
 }
 
 Entity *ywMapGetResourcesFromEntity(Entity *map)
 {
-  Entity *resources = yeGet(map, "resources");
-  if (yeType(resources) == YSTRING)
-    resources = ygGet(yeGetString(resources));
-  return resources;
+	Entity *resources = yeGet(map, "resources");
+	if (yeType(resources) == YSTRING)
+		resources = ygGet(yeGetString(resources));
+	return resources;
 }
 
 int ywMapGetResourceId(Entity *map, Entity *elem)
 {
-  Entity *resources = ywMapGetResources(ywidGetState(map));
-  const char *map_char = yeGetString(yeGet(elem, "map-char"));
+	Entity *resources = ywMapGetResources(ywidGetState(map));
+	const char *map_char = yeGetString(yeGet(elem, "map-char"));
 
-  if (!resources) {
-    resources = yeGet(map, "resources");
-    if (yeType(resources) == YSTRING)
-      resources = ygGet(yeGetString(resources));
-  }
-  if (!map_char || !yeLen(resources))
-    return -1;
-  YE_ARRAY_FOREACH_EXT(resources, e, it) {
-    const char *tmp_map_char = yeGetString(yeGet(e, "map-char"));
-    if (yuiStrEqual0(map_char, tmp_map_char)) {
-      return it.pos;
-    }
-  }
-  return -1;
+	if (!resources) {
+		resources = yeGet(map, "resources");
+		if (yeType(resources) == YSTRING)
+			resources = ygGet(yeGetString(resources));
+	}
+	if (!map_char || !yeLen(resources))
+		return -1;
+	YE_ARRAY_FOREACH_EXT(resources, e, it) {
+		const char *tmp_map_char = yeGetString(yeGet(e, "map-char"));
+		if (yuiStrEqual0(map_char, tmp_map_char)) {
+			return it.pos;
+		}
+	}
+	return -1;
 }
 
 int ywMapInit(void)
 {
-  if (t != -1)
-    return t;
+	if (t != -1)
+		return t;
 
-  t = ywidRegister(alloc, "map");
-  moveTblCallback = ysRegistreCreateNativeEntity(moveTbl, "moveTbl",
-						 NULL, NULL);
-  pushTblCallback = ysRegistreCreateNativeEntity(pushTbl, "pushTbl",
-						 NULL, NULL);
-  return t;
+	t = ywidRegister(alloc, "map");
+	moveTblCallback = ysRegistreCreateNativeEntity(moveTbl, "moveTbl",
+						       NULL, NULL);
+	pushTblCallback = ysRegistreCreateNativeEntity(pushTbl, "pushTbl",
+						       NULL, NULL);
+	return t;
 }
 
 int ywMapEnd(void)
 {
-  if (ywidUnregiste(t) < 0)
-    return -1;
-  yeDestroy(moveTblCallback);
-  yeDestroy(pushTblCallback);
-  t = -1;
-  return 0;
+	if (ywidUnregiste(t) < 0)
+		return -1;
+	yeDestroy(moveTblCallback);
+	yeDestroy(pushTblCallback);
+	t = -1;
+	return 0;
 }
 
 void ywMapMvTableRemove(Entity *map, Entity *to_rm)
 {
-  Entity *mv_tbl;
+	Entity *mv_tbl;
 
-  mv_tbl = yeGet(map, "$mv_tbl");
-  if (!mv_tbl)
-    return;
-  YE_ARRAY_FOREACH(mv_tbl, tbl) {
-    Entity *movingElem = yeGet(tbl, 2);
+	mv_tbl = yeGet(map, "$mv_tbl");
+	if (!mv_tbl)
+		return;
+	YE_ARRAY_FOREACH(mv_tbl, tbl) {
+		Entity *movingElem = yeGet(tbl, 2);
 
-    if (movingElem == to_rm) {
-      yeRemoveChild(mv_tbl, tbl);
-      return;
-    }
-  }
+		if (movingElem == to_rm) {
+			yeRemoveChild(mv_tbl, tbl);
+			return;
+		}
+	}
 }
 
 Entity *ywMapMvTablePush(Entity *map, Entity *from,
 			 Entity *to, Entity *elem, Entity *callback)
 {
-  Entity *mv_tbl;
-  Entity *ret;
+	Entity *mv_tbl;
+	Entity *ret;
 
-  if (!ywIsSmootOn)
-    return NULL;
-  mv_tbl = yeGet(map, "$mv_tbl");
-  ret = yeCreateArray(mv_tbl, NULL);
-  ywPosCreate(from, 0, ret, NULL);
-  ywPosCreate(to, 0, ret, NULL);
-  yePushBack(ret, elem, NULL);
-  yePushBack(ret, callback, NULL);
-  return ret;
+	if (!ywIsSmootOn)
+		return NULL;
+	mv_tbl = yeGet(map, "$mv_tbl");
+	ret = yeCreateArray(mv_tbl, NULL);
+	ywPosCreate(from, 0, ret, NULL);
+	ywPosCreate(to, 0, ret, NULL);
+	yePushBack(ret, elem, NULL);
+	yePushBack(ret, callback, NULL);
+	return ret;
 }
 
 int ywMapAdvenceWithPos(Entity *map, Entity *pos, int x, int y, Entity *elem)
 {
-  Entity *out_logic_entity;
-  int out_logic;
-  Entity *oldPos;
+	Entity *out_logic_entity;
+	int out_logic;
+	Entity *oldPos;
 
-  if (unlikely(!elem || !map || ! pos)) {
-    if (!map)
-      DPRINT_WARN("map is NULL");
-    else if (!elem)
-      DPRINT_WARN("elem is NULL");
-    else
-      DPRINT_WARN("pos is NULL");
-    return -1;
-  }
-  if (!x && !y) {
-    return 0;
-  }
+	if (unlikely(!elem || !map || ! pos)) {
+		if (!map)
+			DPRINT_WARN("map is NULL");
+		else if (!elem)
+			DPRINT_WARN("elem is NULL");
+		else
+			DPRINT_WARN("pos is NULL");
+		return -1;
+	}
+	if (!x && !y) {
+		return 0;
+	}
 
-  out_logic_entity = yeGet(map, "$out_logic");
-  out_logic = out_logic_entity ? yeGetInt(out_logic_entity) : YMAP_OUT_WARP;
-  YE_INCR_REF(elem);
-  ywMapRemoveByEntity(map, pos, elem);
-  oldPos = yeCreateArray(NULL, NULL);
-  yeCopy(pos, oldPos);
-  ywPosAddXY(pos, x, y);
+	out_logic_entity = yeGet(map, "$out_logic");
+	out_logic = out_logic_entity ?
+		yeGetInt(out_logic_entity) :
+		YMAP_OUT_WARP;
+	YE_INCR_REF(elem);
+	ywMapRemoveByEntity(map, pos, elem);
+	oldPos = yeCreateArray(NULL, NULL);
+	yeCopy(pos, oldPos);
+	ywPosAddXY(pos, x, y);
 
-  if (out_logic == YMAP_OUT_WARP) {
-    if (ywPosX(pos) < 0)
-      ywPosSetX(pos, ywMapW(map) + ywPosX(pos));
-    else if (ywPosX(pos) >= ywMapW(map))
-      ywPosSetX(pos, ywPosX(pos) - ywMapW(map));
-    else if (ywPosY(pos) < 0)
-      ywPosSetY(pos, ywMapH(map) + ywPosY(pos));
-    else if (ywPosY(pos) >= ywMapH(map))
-      ywPosSetY(pos, ywPosY(pos) - ywMapH(map));
-    else
-      goto push;
-    ywMapPushElem(map, elem, pos, NULL);
-    goto clean;
-  } else if (out_logic == YMAP_OUT_BLOCK && !ywMapIsInside(map, pos)) {
-    ywPosAddXY(pos, -x, -y);
-    goto push;
-  } else if (!ywMapIsInside(map, pos)) {
-    goto clean;
-  }
- push:
-  if (!ywMapMvTablePush(map, oldPos, pos, elem, pushTblCallback))
-    ywMapPushElem(map, elem, pos, NULL);
- clean:
-  YE_DESTROY(oldPos);
-  YE_DESTROY(elem);
-  return 0;
+	if (out_logic == YMAP_OUT_WARP) {
+		if (ywPosX(pos) < 0)
+			ywPosSetX(pos, ywMapW(map) + ywPosX(pos));
+		else if (ywPosX(pos) >= ywMapW(map))
+			ywPosSetX(pos, ywPosX(pos) - ywMapW(map));
+		else if (ywPosY(pos) < 0)
+			ywPosSetY(pos, ywMapH(map) + ywPosY(pos));
+		else if (ywPosY(pos) >= ywMapH(map))
+			ywPosSetY(pos, ywPosY(pos) - ywMapH(map));
+		else
+			goto push;
+		ywMapPushElem(map, elem, pos, NULL);
+		goto clean;
+	} else if (out_logic == YMAP_OUT_BLOCK && !ywMapIsInside(map, pos)) {
+		ywPosAddXY(pos, -x, -y);
+		goto push;
+	} else if (!ywMapIsInside(map, pos)) {
+		goto clean;
+	}
+push:
+	if (!ywMapMvTablePush(map, oldPos, pos, elem, pushTblCallback))
+		ywMapPushElem(map, elem, pos, NULL);
+clean:
+	YE_DESTROY(oldPos);
+	YE_DESTROY(elem);
+	return 0;
 }

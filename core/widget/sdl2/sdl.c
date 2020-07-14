@@ -16,9 +16,8 @@
 */
 
 /* You can admirate the beautiful shape of the includes below */
-/*      |     */
-/*      V     */
-
+/*      |      */
+/*      V      */
 #include <glib.h>
 #include <assert.h>
 #include <unistd.h>
