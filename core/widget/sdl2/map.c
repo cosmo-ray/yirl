@@ -108,7 +108,6 @@ static int sdl2FullRender(YWidgetState *state, SDLWid *wid, Entity *entity)
 	YE_ARRAY_FOREACH_EXT(map, mapCase, it) {
 		unsigned int curx = yBlockArrayIteratorIdx(it) % wMap;
 		unsigned int cury = yBlockArrayIteratorIdx(it) / wMap;
-		int i = 0;
 
 		YE_ARRAY_FOREACH(mapCase, mapElem) {
 			if (unlikely(sdlDisplaySprites(state, wid, curx,
