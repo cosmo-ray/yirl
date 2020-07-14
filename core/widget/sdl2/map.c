@@ -97,28 +97,31 @@ static void sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
 /* rend all the map, regardeless if the map is bigger than the screen */
 static int sdl2FullRender(YWidgetState *state, SDLWid *wid, Entity *entity)
 {
-  Entity *map = yeGet(entity, "map");
-  unsigned int wMap = ywMapW(entity);
-  unsigned int sizeSpriteW;
-  unsigned int sizeSpriteH;
-  uint32_t thresholdX;
+	Entity *map = yeGet(entity, "map");
+	unsigned int wMap = ywMapW(entity);
+	unsigned int sizeSpriteW;
+	unsigned int sizeSpriteH;
+	uint32_t thresholdX;
 
-  ywMapGetSpriteSize(entity, &sizeSpriteW, &sizeSpriteH, &thresholdX);
+	ywMapGetSpriteSize(entity, &sizeSpriteW, &sizeSpriteH, &thresholdX);
 
-  YE_ARRAY_FOREACH_EXT(map, mapCase, it) {
-    unsigned int curx = yBlockArrayIteratorIdx(it) % wMap;
-    unsigned int cury = yBlockArrayIteratorIdx(it) / wMap;
+	YE_ARRAY_FOREACH_EXT(map, mapCase, it) {
+		unsigned int curx = yBlockArrayIteratorIdx(it) % wMap;
+		unsigned int cury = yBlockArrayIteratorIdx(it) / wMap;
+		int i = 0;
 
-    YE_ARRAY_FOREACH(mapCase, mapElem) {
-      if (unlikely(sdlDisplaySprites(state, wid, curx, cury, mapElem,
-				     sizeSpriteW, sizeSpriteH, thresholdX,
-				     0, NULL) < 0)) {
-	sdlConsumeError();
-      }
-    }
-  }
+		YE_ARRAY_FOREACH(mapCase, mapElem) {
+			if (unlikely(sdlDisplaySprites(state, wid, curx,
+						       cury, mapElem,
+						       sizeSpriteW,
+						       sizeSpriteH, thresholdX,
+						       0, NULL) < 0)) {
+				sdlConsumeError();
+			}
+		}
+	}
 
-  return 0;
+	return 0;
 }
 
 static void sdl2MidRender(YWidgetState *state, SDLWid *wid, Entity *ent,

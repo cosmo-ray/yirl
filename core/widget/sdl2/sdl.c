@@ -641,6 +641,7 @@ static SDL_Texture *sdlLoasAndCachTexture(Entity *elem)
 		g_free(mod_path);
 		yeCreateInt(Y_SDL_TILD, elem, "$sdl-type");
 		path = yeGetString(yeGet(elem, "map-tild"));
+
 	} else if (yeGet(elem, "map-sprite") != NULL) {
 		char *mod_path = g_strdup_printf("%s%s", ygBinaryRootPath,
 						 "/modules/");
