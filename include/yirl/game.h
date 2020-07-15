@@ -190,7 +190,14 @@ static inline int ygEqual(const char *path, Entity *o)
   return yeEqual(ygGet(path), o);
 }
 
+/**
+ * @brief do a chdir(yeGetStringAt(ygGet(mod), "$path"));
+ */
 int ygModDir(const char * restrict const mod);
+/**
+ * @brief chdir to "main_dir", the one specified by -d or 
+ * where the yirl has been started
+ */
 int ygModDirOut(void);
 
 /**

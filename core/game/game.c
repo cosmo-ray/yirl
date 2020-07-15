@@ -465,7 +465,8 @@ int ygRegistreFuncInternal(void *manager, int nbArgs, const char *name,
 
 int ygModDir(const char * restrict const mod)
 {
-	return chdir(yeGetStringAt(ygGet(mod), "$path"));
+	int r = chdir(yeGetStringAt(ygGet(mod), "$path"));
+	return r;
 }
 
 int ygModDirOut(void)
