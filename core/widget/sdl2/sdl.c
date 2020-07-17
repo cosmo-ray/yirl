@@ -71,8 +71,11 @@ int ysdl2WindowMode(void)
 
 int ysdl2FullScreen(void)
 {
+	int r;
 	SDL_SetWindowGrab(sg.pWindow, 1);
-	return SDL_SetWindowFullscreen(sg.pWindow, SDL_WINDOW_FULLSCREEN);
+	r = SDL_SetWindowFullscreen(sg.pWindow, SDL_WINDOW_FULLSCREEN);
+	SDL_GetWindowSize(sg.pWindow, &ywidWindowWidth, &ywidWindowHight);
+	return r;
 }
 
 int sgSetDefaultFont(const char *path)
@@ -400,6 +403,12 @@ static int sdlRenderCreate(void)
 
 static int sdlChangeResolution(void)
 {
+	if (ywidWindowWidth < 0 || ywidWindowHight < 0) {
+		DPRINT_ERR("%d x %d is not a valide resolution",
+			   ywidWindowWidth, ywidWindowHight);
+		return -1;
+	}
+
 	SDL_SetWindowSize(sg.pWindow, ywidWindowWidth, ywidWindowHight);
 	SDL_DestroyRenderer(sg.renderer);
 	if (sdlRenderCreate() < 0) {
