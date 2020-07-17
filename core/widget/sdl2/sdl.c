@@ -50,85 +50,85 @@ static inline void deinit_controllers(void)
 
 SDL_Rect      getRect(void)
 {
-  return (wSurface()->clip_rect);
+	return (wSurface()->clip_rect);
 }
 
 SDL_Renderer *sgRenderer(void)
 {
-  return sg.renderer;
+	return sg.renderer;
 }
 
 TTF_Font *sgDefaultFont(void)
 {
-  return sg.font;
+	return sg.font;
 }
 
 int ysdl2WindowMode(void)
 {
-  SDL_SetWindowGrab(sg.pWindow, 0);
-  return SDL_SetWindowFullscreen(sg.pWindow, 0);
+	SDL_SetWindowGrab(sg.pWindow, 0);
+	return SDL_SetWindowFullscreen(sg.pWindow, 0);
 }
 
 int ysdl2FullScreen(void)
 {
-  SDL_SetWindowGrab(sg.pWindow, 1);
-  return SDL_SetWindowFullscreen(sg.pWindow, SDL_WINDOW_FULLSCREEN);
+	SDL_SetWindowGrab(sg.pWindow, 1);
+	return SDL_SetWindowFullscreen(sg.pWindow, SDL_WINDOW_FULLSCREEN);
 }
 
 int sgSetDefaultFont(const char *path)
 {
-  TTF_Font *font;
-  int w, h;
+	TTF_Font *font;
+	int w, h;
 
-  if (access(path, F_OK ) < 0) {
-    return -1;
-  }
-  font = TTF_OpenFont(path, 16);
-  if (!font)
-    return -1;
-  sg.fontSize = 16;
-  TTF_SizeText(font, "A", &w, &h);
+	if (access(path, F_OK ) < 0) {
+		return -1;
+	}
+	font = TTF_OpenFont(path, 16);
+	if (!font)
+		return -1;
+	sg.fontSize = 16;
+	TTF_SizeText(font, "A", &w, &h);
 
-  sg.txtHeight = h;
-  sg.txtWidth = w;
+	sg.txtHeight = h;
+	sg.txtWidth = w;
 
-  sg.font = font;
-  return 0;
+	sg.font = font;
+	return 0;
 }
 
 uint32_t sgGetTxtW(void)
 {
-  return sg.txtWidth;
+	return sg.txtWidth;
 }
 
 uint32_t sgGetTxtH(void)
 {
-  return sg.txtHeight;
+	return sg.txtHeight;
 }
 
 int sgGetFontSize(void)
 {
-  return sg.fontSize;
+	return sg.fontSize;
 }
 
 SDL_Surface *wSurface(void)
 {
-  return (SDL_GetWindowSurface(sg.pWindow));
+	return (SDL_GetWindowSurface(sg.pWindow));
 }
 
 static int	sdlDraw(void)
 {
-  SDL_RenderPresent(sg.renderer);
-  SDL_RenderClear(sg.renderer);
-  return 0;
+	SDL_RenderPresent(sg.renderer);
+	SDL_RenderClear(sg.renderer);
+	return 0;
 }
 
 SDL_Rect sdlRectFromRectEntity(Entity *rect)
 {
-  SDL_Rect ret = {ywRectX(rect), ywRectY(rect),
-		  ywRectW(rect), ywRectH(rect)};
+	SDL_Rect ret = {ywRectX(rect), ywRectY(rect),
+			ywRectW(rect), ywRectH(rect)};
 
-  return ret;
+	return ret;
 }
 
 void	sdlDrawRect(SDLWid *swid, SDL_Rect rect, SDL_Color color)
@@ -148,10 +148,10 @@ void	sdlDrawRect(SDLWid *swid, SDL_Rect rect, SDL_Color color)
 
 int   sdlFillColorBg(SDLWid *swid, short r, short g, short b, short a)
 {
-  SDL_Color color = {r, g, b, a};
+	SDL_Color color = {r, g, b, a};
 
-  sdlDrawRect(NULL, swid->rect, color);
-  return 0;
+	sdlDrawRect(NULL, swid->rect, color);
+	return 0;
 }
 
 int    sdlFillImgBg(SDLWid *swid, const char *cimg)
@@ -171,65 +171,65 @@ int    sdlFillImgBg(SDLWid *swid, const char *cimg)
 
 int    sdlFillBg(SDLWid *swid, YBgConf *cfg)
 {
-  if (cfg->type == BG_COLOR)
-    return sdlFillColorBg(swid, cfg->r, cfg->g, cfg->b, cfg->a);
-  else if (cfg->type == BG_IMG)
-    return sdlFillImgBg(swid, cfg->path);
-  return -1;
+	if (cfg->type == BG_COLOR)
+		return sdlFillColorBg(swid, cfg->r, cfg->g, cfg->b, cfg->a);
+	else if (cfg->type == BG_IMG)
+		return sdlFillImgBg(swid, cfg->path);
+	return -1;
 }
 
 void    ysdl2Destroy(void)
 {
-  if (type == -1)
-    return;
-  TTF_CloseFont(sg.font);
-  SDL_DestroyRenderer(sg.renderer);
-  SDL_DestroyWindow(sg.pWindow);
-  IMG_Quit();
-  TTF_Quit();
-  deinit_controllers();
-  SDL_Quit();
-  ywidRemoveRender(type);
-  type = -1;
+	if (type == -1)
+		return;
+	TTF_CloseFont(sg.font);
+	SDL_DestroyRenderer(sg.renderer);
+	SDL_DestroyWindow(sg.pWindow);
+	IMG_Quit();
+	TTF_Quit();
+	deinit_controllers();
+	SDL_Quit();
+	ywidRemoveRender(type);
+	type = -1;
 }
 
 int ysdl2Type(void)
 {
-  return type;
+	return type;
 }
 
 static int  convertToYKEY(SDL_Keycode key)
 {
-  if ((key >= 'a' && key <= 'z') ||
-      (key >= '0' && key <= '9') || key == ' ')
-    return key;
-  switch (key)
-    {
-    case SDLK_LSHIFT:
-      return Y_LSHIFT_KEY;
-    case SDLK_LCTRL:
-      return Y_LCTRL_KEY;
-    case SDLK_RSHIFT:
-      return Y_RSHIFT_KEY;
-    case SDLK_RCTRL:
-      return Y_RCTRL_KEY;
-    case SDLK_UP:
-      return Y_UP_KEY;
-    case SDLK_DOWN:
-      return Y_DOWN_KEY;
-    case SDLK_LEFT:
-      return Y_LEFT_KEY;
-    case SDLK_RIGHT:
-      return Y_RIGHT_KEY;
-    case SDLK_RETURN:
-      return '\n';
-    case SDLK_TAB:
-      return '\t';
-    case SDLK_ESCAPE:
-      return Y_ESC_KEY;
-    default:
-      return -1;
-    }
+	if ((key >= 'a' && key <= 'z') ||
+	    (key >= '0' && key <= '9') || key == ' ')
+		return key;
+	switch (key)
+	{
+	case SDLK_LSHIFT:
+		return Y_LSHIFT_KEY;
+	case SDLK_LCTRL:
+		return Y_LCTRL_KEY;
+	case SDLK_RSHIFT:
+		return Y_RSHIFT_KEY;
+	case SDLK_RCTRL:
+		return Y_RCTRL_KEY;
+	case SDLK_UP:
+		return Y_UP_KEY;
+	case SDLK_DOWN:
+		return Y_DOWN_KEY;
+	case SDLK_LEFT:
+		return Y_LEFT_KEY;
+	case SDLK_RIGHT:
+		return Y_RIGHT_KEY;
+	case SDLK_RETURN:
+		return '\n';
+	case SDLK_TAB:
+		return '\t';
+	case SDLK_ESCAPE:
+		return Y_ESC_KEY;
+	default:
+		return -1;
+	}
 }
 
 static inline Entity *SDLConvertEvent(SDL_Event* event)
@@ -1048,12 +1048,12 @@ static void sdlCanvasAplyModifier(Entity *img, SDL_Rect *dst,
 				  SDL_Rect **src, SDL_Point **center,
 				  double *rotation, SDL_RendererFlip *flip)
 {
-  Entity *mod = ywCanvasObjMod(img);
+	Entity *mod = ywCanvasObjMod(img);
 
-  if (!mod)
-    return;
-  *rotation = yeGetFloat(yeGet(mod, YCanvasRotate));
-  return;
+	if (!mod)
+		return;
+	*rotation = yeGetFloat(yeGet(mod, YCanvasRotate));
+	return;
 }
 
 static int sdlCanvasRendImg(YWidgetState *state, SDLWid *wid, Entity *img,
