@@ -195,7 +195,13 @@ void	tccAddSyms(TCCState *l)
   ADD_SYM(ywCanvasNewTextExt);
   ADD_SYM(ywidDrawScreen);
   ADD_SYM(ywidRend);
+  ADD_SYM(abs);
+  ADD_SYM(yeMultDestroy_);
+  ADD_SYM(sqrt);
+  ADD_SYM(ywCanvasNewCollisionsArrayWithRectangle);
 #if defined(__unix__) || defined(__APPLE__)
   tcc_add_symbol(l, "yuiDebugPrint", yuiDebugPrint);
+  ADD_SYM(fprintf);
+  ADD_SYM(stderr);
 #endif
 }
