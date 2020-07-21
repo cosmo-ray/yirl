@@ -285,4 +285,20 @@ static inline Entity *ywMapGetResource(Entity *map, Entity *elem)
   return yeGet(resources, ywMapGetResourceId(map, elem));
 }
 
+static inline void ywMapResourcePushElem(
+	Entity *resource,
+	const char *character,
+	const char *sprite_path,
+	const char *elem_name)
+{
+	Entity *el = yeCreateArray(resource, NULL);
+
+	if (character)
+		yeCreateString(character, el, "map-char");
+	if (sprite_path)
+		yeCreateString(sprite_path, el, "map-sprite");
+	yeCreateString(elem_name, el, "name");
+}
+
+
 #endif

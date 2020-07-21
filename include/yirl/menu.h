@@ -15,6 +15,20 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+ * Entity description:
+ * {
+ * "<type>": "menu",
+ * "entries": [
+ *  {
+ *    "text": "xxx",
+ *    "action": FUNC
+ *  }
+ *  ],
+ * "mn-type": "panel" // optional
+ * }
+ */
+
 #ifndef	_YIRL_MENU_H_
 #define	_YIRL_MENU_H_ 10
 
