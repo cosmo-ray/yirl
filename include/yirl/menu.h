@@ -23,9 +23,10 @@
  *  {
  *    "text": "xxx",
  *    "action": FUNC
- *  }
+ *  } // ...
  *  ],
- * "mn-type": "panel" // optional
+ * "mn-type": "panel", // optional, use if panel needed
+ * // TODO
  * }
  */
 
