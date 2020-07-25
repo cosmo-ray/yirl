@@ -92,6 +92,7 @@ void yeMapPixielsToPos(Entity *wid, uint32_t pixX, uint32_t pixY,
 		       uint32_t *x, uint32_t *y)
 {
 	uint32_t spriteW, spriteH, thresholdX;
+	Entity *c;
 
 	ywMapGetSpriteSize(wid, &spriteW, &spriteH, &thresholdX);
 	if (pixX < thresholdX)
@@ -99,6 +100,10 @@ void yeMapPixielsToPos(Entity *wid, uint32_t pixX, uint32_t pixY,
 	else
 		*x = (pixX - thresholdX) / spriteW;
 	*y = pixY / spriteH;
+	if ((c = yeGet(wid, "cam"))) {
+		*x += ywPosXDirect(c);
+		*y += ywPosYDirect(c);
+	}
 }
 
 Entity *ywMapPosFromPixs(Entity *wid, uint32_t x, uint32_t y,
@@ -110,7 +115,7 @@ Entity *ywMapPosFromPixs(Entity *wid, uint32_t x, uint32_t y,
 	if (posX >=  (uint32_t)ywMapW(wid))
 		posX = ywMapW(wid) - 1;
 	if (posY >= (uint32_t)ywMapH(wid))
-		posY = ywMapW(wid) - 1;
+		posY = ywMapH(wid) - 1;
 	return ywPosCreateInts(posX, posY, father, name);
 }
 
