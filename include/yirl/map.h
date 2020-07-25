@@ -110,6 +110,11 @@ int ywMapGetIdByElem(Entity *mapElem);
  */
 Entity *ywMapGetCase(Entity *map, Entity *pos);
 
+static inline Entity *ywMapCase(Entity *map, Entity *pos)
+{
+	return ywMapGetCase(map, pos);
+}
+
 /**
  * @brief same as @ywMapGetCase but use x,y instead of pos
  */
@@ -120,13 +125,13 @@ Entity *ywMapCaseXY(Entity *map, int x, int y);
 
 static inline Entity *ywMapGetEntityById(Entity *state, Entity *pos, int id)
 {
-  Entity *tmp = ywMapGetCase(state, pos);
+	Entity *tmp = ywMapGetCase(state, pos);
 
-  YE_ARRAY_FOREACH(tmp, caseTmp) {
-    if (ywMapGetIdByElem(caseTmp) == id)
-      return caseTmp;
-  }
-  return NULL;
+	YE_ARRAY_FOREACH(tmp, caseTmp) {
+		if (ywMapGetIdByElem(caseTmp) == id)
+			return caseTmp;
+	}
+	return NULL;
 }
 
 Entity *ywMapPosFromInt(Entity *wid, int newPos,
@@ -149,6 +154,9 @@ static inline Entity *ywMapTryPushElem(Entity *state, Entity *toPush,
 	return ywMapPushElem(state, toPush, pos, name);
 }
 
+Entity *ywMapPushNbrXY(Entity *state, int toPush,
+		       int x, int y, const char *name);
+
 /**
  * @smoot	true to activate smoort movement
  */
@@ -161,53 +169,64 @@ void ywMapMvTableRemove(Entity *map, Entity *to_rm);
 
 static inline void ywMapSetOutBehavior(Entity *map, YMapOutBehavior ob)
 {
-  Entity *ol = yeGetByStr(map, "$out_logic");
+	Entity *ol = yeGetByStr(map, "$out_logic");
 
-  if (!ol)
-    yeCreateInt(ob, map, "$out_logic");
-  else
-    yeSetInt(ol, ob);
+	if (!ol)
+		yeCreateInt(ob, map, "$out_logic");
+	else
+		yeSetInt(ol, ob);
 }
 
 Entity *ywMapGetResourcesFromEntity(Entity *map);
 
 static inline Entity *ywMapGetResources(YWidgetState *state)
 {
-  if (state)
-    return ((YMapState *)state)->resources;
-  return NULL;
+	if (state)
+		return ((YMapState *)state)->resources;
+	return NULL;
+}
+
+static inline int ywMapPopXY(Entity *map, int x, int y)
+{
+	Entity *cur = ywMapCaseXY(map, x, y);
+
+	if (unlikely(!cur))
+		return -1;
+
+	yePopBack(cur);
+	return 0;
 }
 
 static inline int ywMapRemoveByEntity(Entity *state, Entity *pos,
 				      Entity *elem)
 {
-  Entity *cur = ywMapGetCase(state, pos);
+	Entity *cur = ywMapGetCase(state, pos);
 
-  if (unlikely(!cur)) {
-    return -1;
-  }
-  yeRemoveChild(cur, elem);
-  return 0;
+	if (unlikely(!cur)) {
+		return -1;
+	}
+	yeRemoveChild(cur, elem);
+	return 0;
 }
 
 static inline int ywMapRemoveByStr(Entity *state, Entity *pos,
-				    const char *str)
+				   const char *str)
 {
-  Entity *cur = ywMapGetCase(state, pos);
+	Entity *cur = ywMapGetCase(state, pos);
 
-  if (unlikely(!cur)) {
-    return - 1;
-  }
-  yeRemoveChild(cur, yeGetByStrFast(cur, str));
-  return 0;
+	if (unlikely(!cur)) {
+		return - 1;
+	}
+	yeRemoveChild(cur, yeGetByStrFast(cur, str));
+	return 0;
 }
 
-#define ywMapRemove(sate, pos, elem)					\
-  _Generic(elem,							\
-	  Entity *: ywMapRemoveByEntity,				\
-	  Y_GEN_CLANG_ARRAY(char, ywMapRemoveByStr),			\
-	  const char *: ywMapRemoveByStr,				\
-	  char *: ywMapRemoveByStr) (sate, pos, elem)
+#define ywMapRemove(sate, pos, elem)				\
+	_Generic(elem,						\
+		 Entity *: ywMapRemoveByEntity,			\
+		 Y_GEN_CLANG_ARRAY(char, ywMapRemoveByStr),	\
+		 const char *: ywMapRemoveByStr,		\
+		 char *: ywMapRemoveByStr) (sate, pos, elem)
 
 
 int ywMapSmootMove(Entity *state, Entity *from,
@@ -221,25 +240,44 @@ int ywMapMoveByEntity(Entity *state, Entity *from,
 
 static inline Entity *ywMapCam(Entity *state)
 {
-  return yeGet(state, "cam");
+	return yeGet(state, "cam");
 }
 
 static inline void ywMapSetCamPos(Entity *state, Entity *pos)
 {
-  Entity *cam = ywMapCam(state);
+	Entity *cam = ywMapCam(state);
 
-  ywRectSetPos(cam, pos);
-  if (unlikely(ywRectX(cam) + ywRectW(cam) > ywMapW(state))) {
-    ywPosSetX(cam, ywMapW(state) - ywRectW(cam));
-  } else if (unlikely(ywRectX(cam) < 0)) {
-    ywPosSetX(cam, 0);
-  }
-  if (unlikely(ywRectY(cam) + ywRectH(cam) > ywMapH(state))) {
-    ywPosSetY(cam, ywMapH(state) - ywRectH(cam));
-  } else if (unlikely(ywRectY(cam) < 0)) {
-    ywPosSetY(cam, 0);
-  }
+	ywRectSetPos(cam, pos);
+	if (unlikely(ywRectX(cam) + ywRectW(cam) > ywMapW(state))) {
+		ywPosSetX(cam, ywMapW(state) - ywRectW(cam));
+	} else if (unlikely(ywRectX(cam) < 0)) {
+		ywPosSetX(cam, 0);
+	}
+	if (unlikely(ywRectY(cam) + ywRectH(cam) > ywMapH(state))) {
+		ywPosSetY(cam, ywMapH(state) - ywRectH(cam));
+	} else if (unlikely(ywRectY(cam) < 0)) {
+		ywPosSetY(cam, 0);
+	}
 }
+
+static inline void ywMapCamAddX(Entity *state, int x)
+{
+	Entity *c = ywMapCam(state);
+	yeAutoFree Entity *nc = ywPosCreate(c, 0, NULL, NULL);
+
+	ywPosAddXY(nc, x, 0);
+	ywMapSetCamPos(state, nc);
+}
+
+static inline void ywMapCamAddY(Entity *state, int y)
+{
+	Entity *c = ywMapCam(state);
+	yeAutoFree Entity *nc = ywPosCreate(c, 0, NULL, NULL);
+
+	ywPosAddXY(nc, 0, y);
+	ywMapSetCamPos(state, nc);
+}
+
 
 /**
  * @map	The map to draw on

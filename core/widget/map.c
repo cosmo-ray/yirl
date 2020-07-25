@@ -342,6 +342,12 @@ Entity *ywMapPushNbr(Entity *state, int toPush,
 	return yeCreateInt(toPush, ywMapGetCase(state, pos), name);
 }
 
+Entity *ywMapPushNbrXY(Entity *state, int toPush,
+		       int x, int y, const char *name)
+{
+	return yeCreateInt(toPush, ywMapCaseXY(state, x, y), name);
+}
+
 
 Entity *ywMapCaseXY(Entity *state, int x, int y)
 {

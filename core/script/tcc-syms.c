@@ -201,6 +201,10 @@ void	tccAddSyms(TCCState *l)
   ADD_SYM(ywCanvasNewCollisionsArrayWithRectangle);
   ADD_SYM(ywMapInitEntity);
   ADD_SYM(ywMenuPushEntry);
+  ADD_SYM(yeMapPixielsToPos);
+  ADD_SYM(ywContainerGetWidgetAt);
+  ADD_SYM(ywMapPushNbrXY);
+  ADD_SYM(ywMapCaseXY);
 #if defined(__unix__) || defined(__APPLE__)
   tcc_add_symbol(l, "yuiDebugPrint", yuiDebugPrint);
   ADD_SYM(fprintf);
