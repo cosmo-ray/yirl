@@ -127,7 +127,7 @@ static inline Entity *ywMapGetEntityById(Entity *state, Entity *pos, int id)
 {
 	Entity *tmp = ywMapGetCase(state, pos);
 
-	YE_ARRAY_FOREACH(tmp, caseTmp) {
+	YE_FOREACH(tmp, caseTmp) {
 		if (ywMapGetIdByElem(caseTmp) == id)
 			return caseTmp;
 	}
@@ -228,6 +228,14 @@ static inline int ywMapRemoveByStr(Entity *state, Entity *pos,
 		 const char *: ywMapRemoveByStr,		\
 		 char *: ywMapRemoveByStr) (sate, pos, elem)
 
+static inline void ywMapCLearArrayPos(Entity *map, Entity *pos_array,
+				      const char *str)
+{
+	YE_FOREACH(pos_array, p) {
+		ywMapRemove(map, p, str);
+	}
+	yeClearArray(pos_array);
+}
 
 int ywMapSmootMove(Entity *state, Entity *from,
 		   Entity *to, Entity *elem);
