@@ -198,14 +198,30 @@ static inline int ywMapPopXY(Entity *map, int x, int y)
 }
 
 static inline int ywMapRemoveByEntity(Entity *state, Entity *pos,
+				      Entity *elem);
+
+static inline int ywMapRemoveByInt(Entity *state, Entity *pos, int id)
+{
+	Entity *cur = ywMapGetCase(state, pos);
+
+	if (unlikely(!cur))
+		return -1;
+	YE_FOREACH(cur, el) {
+		if (ywMapGetIdByElem(el) == id)
+			return ywMapRemoveByEntity(state, pos, el);
+	}
+	return -1;
+}
+
+static inline int ywMapRemoveByEntity(Entity *state, Entity *pos,
 				      Entity *elem)
 {
 	Entity *cur = ywMapGetCase(state, pos);
 
-	if (unlikely(!cur)) {
+	if (unlikely(!cur))
 		return -1;
-	}
-	yeRemoveChild(cur, elem);
+	if (!yeRemoveChild(cur, elem) && yeType(elem) == YINT)
+		return ywMapRemoveByInt(state, pos, yeGetInt(elem));
 	return 0;
 }
 
@@ -226,6 +242,7 @@ static inline int ywMapRemoveByStr(Entity *state, Entity *pos,
 		 Entity *: ywMapRemoveByEntity,			\
 		 Y_GEN_CLANG_ARRAY(char, ywMapRemoveByStr),	\
 		 const char *: ywMapRemoveByStr,		\
+		 int : ywMapRemoveByInt,			\
 		 char *: ywMapRemoveByStr) (sate, pos, elem)
 
 static inline void ywMapCLearArrayPos(Entity *map, Entity *pos_array,
@@ -337,7 +354,7 @@ static inline void ywMapResourcePushElem(
 	const char *sprite_path,
 	const char *elem_name)
 {
-	Entity *el = yeCreateArray(resource, NULL);
+	Entity *el = yeCreateArray(resource, elem_name);
 
 	if (character)
 		yeCreateString(character, el, "map-char");

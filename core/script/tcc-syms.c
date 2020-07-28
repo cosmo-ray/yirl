@@ -205,6 +205,8 @@ void	tccAddSyms(TCCState *l)
   ADD_SYM(ywContainerGetWidgetAt);
   ADD_SYM(ywMapPushNbrXY);
   ADD_SYM(ywMapCaseXY);
+  ADD_SYM(yeGetLast);
+  ADD_SYM(ywMapSmootMove);
 #if defined(__unix__) || defined(__APPLE__)
   tcc_add_symbol(l, "yuiDebugPrint", yuiDebugPrint);
   ADD_SYM(fprintf);
