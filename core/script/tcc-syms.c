@@ -200,7 +200,8 @@ void	tccAddSyms(TCCState *l)
   ADD_SYM(sqrt);
   ADD_SYM(ywCanvasNewCollisionsArrayWithRectangle);
   ADD_SYM(ywMapInitEntity);
-  ADD_SYM(ywMenuPushEntry);
+  ADD_SYM(ywMenuPushEntryByEnt);
+  ADD_SYM(yeCreateFunctionExt);
   ADD_SYM(yeMapPixielsToPos);
   ADD_SYM(ywContainerGetWidgetAt);
   ADD_SYM(ywMapPushNbrXY);

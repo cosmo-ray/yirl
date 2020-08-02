@@ -55,7 +55,38 @@ void ywMenuDown(Entity *wid);
 void ywMenuUp(Entity *wid);
 void *ywMenuMove(Entity *ent, uint32_t at);
 
-Entity *ywMenuPushEntry(Entity *menu, const char *name, Entity *func);
+Entity *ywMenuPushEntryByEnt(Entity *menu, const char *name, Entity *func);
+#ifdef Y_INSIDE_TCC
+static inline Entity *
+ywMenuPushEntryByf(Entity *menu, const char *name,
+		   void *(*func)(int, void **))
+{
+	Entity *r;
+	yeAutoFree Entity *f = yeCreateFunctionExt(
+		0, ygGetTccManager(), NULL, NULL, YE_FUNC_NO_FASTPATH_INIT);
+
+	YE_TO_FUNC(f)->fastPath = func;
+	r = ywMenuPushEntryByEnt(menu, name, f);
+	return r;
+}
+
+#define ywMenuPushEntry(m, n, f)				\
+	_Generic(f,						\
+		 Entity *: ywMenuPushEntryByEnt,		\
+		 void * (*) (int, void **): ywMenuPushEntryByf,	\
+		 void *: ywMenuPushEntryByf	\
+		)(m,n,f)
+
+#else
+
+static inline Entity *
+ywMenuPushEntry(Entity *menu, const char *name, Entity *func)
+{
+	return ywMenuPushEntryByEnt(menu, name, func);
+}
+
+#endif
+
 Entity *ywMenuPushSlider(Entity *menu, const char *name, Entity *slider_array);
 
 Entity *ywMenuGetEntry(Entity *container, int idx);

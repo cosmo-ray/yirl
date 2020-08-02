@@ -301,6 +301,7 @@ int ygInit(GameConfig *cfg)
 	/* trick use in case of failure in this function to free all */
 	init = 1;
 
+	yuiRandInit();
 	yuiDebugInit();
 
 	/* Init parseurs */

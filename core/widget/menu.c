@@ -336,7 +336,7 @@ int ywMenuPosFromPix(Entity *wid, uint32_t x, uint32_t y)
 	return -1;
 }
 
-Entity *ywMenuPushEntry(Entity *menu, const char *name, Entity *func)
+Entity *ywMenuPushEntryByEnt(Entity *menu, const char *name, Entity *func)
 {
 	Entity *entries = yeGet(menu, "entries");
 	if (unlikely(!entries))
