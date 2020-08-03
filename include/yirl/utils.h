@@ -37,6 +37,7 @@ typedef unsigned long long uint64_t;
 #include <assert.h>
 #include <stdint.h>
 #include <unistd.h>
+#include <string.h>
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -316,6 +317,13 @@ int yuiUnregiste(YManagerAllocator *ma, int t);
 char *yuistrcpy(char *dest, const char *src);
 char *yuistrncpy(char *dest, const char *src, size_t n);
 size_t yuistrlen(const char *s);
+
+static inline char *yuiStrdup(const char *s)
+{
+	if (!s)
+		return NULL;
+	return strdup(s);
+}
 
 /* This is usefull for macro and constant, otherwise use abs(so if a variable) */
 #define yuiAbs(val) (val > 0 ? val : - val)

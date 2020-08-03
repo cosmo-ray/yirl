@@ -15,7 +15,6 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <glib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -43,7 +42,7 @@ static Entity *fromFile(void *opac, const char *fileName, Entity *father)
 
 static int destroy(void *opac)
 {
-  g_free(opac);
+  free(opac);
   return 0;
 }
 
@@ -51,7 +50,7 @@ static void *rawFileAllocator(void)
 {
   YDescriptionOps *ret;
 
-  ret = g_new(YDescriptionOps, 1);
+  ret = malloc(sizeof *ret);
   if (ret == NULL)
     return NULL;
   ret->name = "raw-file";

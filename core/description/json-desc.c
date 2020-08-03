@@ -231,7 +231,7 @@ static void *jsonAllocator(void)
 {
   YDescriptionOps *ret;
 
-  ret = g_new(YDescriptionOps, 1);
+  ret = malloc(sizeof *ret);
   if (ret == NULL)
     return NULL;
   ret->name = nameType;

@@ -239,7 +239,7 @@ Entity *yeStringAdd(Entity *ent, const char *str)
 		YE_TO_STRING(ent)->value =
 			g_strdup_printf("%s%s", YE_TO_STRING(ent)->value,
 					str);
-		g_free(YE_TO_STRING(ent)->origin);
+		free(YE_TO_STRING(ent)->origin);
 		YE_TO_STRING(ent)->origin = NULL;
 	}
 	YE_TO_STRING(ent)->len = totalLength;
@@ -268,7 +268,7 @@ Entity *yeStringAddInt(Entity *ent, int i)
 	YE_TO_STRING(ent)->value = g_strdup_printf("%s%d", tmp, i);
 	YE_TO_STRING(ent)->len = strlen(YE_TO_STRING(ent)->value);
 	YE_TO_STRING(ent)->origin = NULL;
-	g_free(tmp);
+	free(tmp);
 	return ent;
 }
 
@@ -281,13 +281,13 @@ Entity *yeStringAddLong(Entity *ent, long i)
 	YE_TO_STRING(ent)->value = g_strdup_printf("%s%ld", tmp, i);
 	YE_TO_STRING(ent)->len = strlen(YE_TO_STRING(ent)->value);
 	YE_TO_STRING(ent)->origin = NULL;
-	g_free(tmp);
+	free(tmp);
 	return ent;
 }
 
 Entity *yeAddStrFromFd(Entity *e, int fd, int len)
 {
-	char *tmp = g_new(char, len + 1);
+	char *tmp = malloc(len + 1);
 
 	if (!tmp || read(fd, tmp, len) < 0)
 		goto exit;
@@ -295,7 +295,7 @@ Entity *yeAddStrFromFd(Entity *e, int fd, int len)
 	if (!yeStringAdd(e, tmp))
 		goto exit;
 exit:
-	g_free(tmp);
+	free(tmp);
 	return e;
 }
 
@@ -628,7 +628,7 @@ Entity *yeCreateYirlFmtString(Entity *fmt, Entity *father, const char *name)
 			writable_txt[j] = 0;
 			entity_str = yeToCStr(ygGet(&txt[i + 1]), 1, 0);
 			yeStringAdd(ret, entity_str);
-			g_free(entity_str);
+			free(entity_str);
 			writable_txt[j] = tmp;
 			i = j;
 		} else {

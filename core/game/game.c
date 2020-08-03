@@ -336,7 +336,7 @@ int ygInit(GameConfig *cfg)
 		DPRINT_WARN("can't load %s: %s", path,
 			    ysGetError(luaManager));
 	}
-	g_free(path);
+	free(path);
 	CHECK_AND_GOTO(t = ysTccInit(), -1, error, "tcc init failed");
 	CHECK_AND_GOTO(tccManager = ysNewManager(NULL, t), NULL, error,
 		       "tcc init failed");
@@ -395,7 +395,7 @@ void ygEnd()
 	if (!init)
 		return;
 
-	g_free(game_tick);
+	free(game_tick);
 	ywidFreeWidgets();
 	ydDestroyManager(jsonManager);
 	ydJsonEnd();
@@ -535,7 +535,7 @@ Entity *ygLoadMod(const char *path)
 				break;
 		}
 		yeDestroy(mod);
-		g_free(tmp);
+		free(tmp);
 		tmp = NULL;
 	}
 
@@ -596,7 +596,7 @@ Entity *ygLoadMod(const char *path)
 							 "/modules/");
 
 			yeStringReplace(pathEnt, "YIRL_MODULES_PATH", mod_path);
-			g_free(mod_path);
+			free(mod_path);
 			pathCstr = yeGetString(pathEnt);
 		}
 		if (yuiStrEqual0(yeGetString(tmpType), "lua")) {
@@ -642,11 +642,11 @@ Entity *ygLoadMod(const char *path)
 			if (!ygLoadMod(pathCstr)) {
 				DPRINT_ERR("fail to load module: %s", pathCstr);
 			fail_preload:
-				g_free(fileStr);
+				free(fileStr);
 				goto failure;
 			}
 		}
-		g_free(fileStr);
+		free(fileStr);
 	}
 
 	YE_ARRAY_FOREACH(initScripts, var2) {
@@ -675,7 +675,7 @@ Entity *ygLoadMod(const char *path)
 			fileStr = g_strconcat(path, "/",
 					      yeGetString(file), NULL);
 			file = ydFromFile(jsonManager, fileStr, mod);
-			g_free(fileStr);
+			free(fileStr);
 			if (!file) {
 				goto failure;
 			}
@@ -716,7 +716,7 @@ failure:
 	yeRemoveChild(modList, mod);
 	mod = NULL;
 exit:
-	g_free(tmp);
+	free(tmp);
 	return mod;
 }
 
@@ -733,7 +733,7 @@ int ygLoadScript(Entity *mod, void *manager, const char *path)
 	char *tmp = g_strconcat(yeGetString(yeGet(mod, "$path")), path, NULL);
 
 	ret = ysLoadFile(manager, tmp);
-	g_free(tmp);
+	free(tmp);
 	return ret;
 }
 
@@ -1035,7 +1035,7 @@ int ygInitGameConfigByRenderType(GameConfig *cfg, const char *path,
 	cfg->win_name = NULL;
 	cfg->w = ywidWindowWidth;
 	cfg->h = ywidWindowHight;
-	cfg->startingMod = g_new(ModuleConf, 1);
+	cfg->startingMod = malloc(sizeof(ModuleConf));
 	cfg->startingMod->path = path;
 	return 0;
 }

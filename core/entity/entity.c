@@ -656,7 +656,7 @@ static inline void arrayEntryDestroy(ArrayEntry *ae)
 {
 	if (unlikely(!ae))
 		return;
-	g_free(ae->name);
+	free(ae->name);
 	yeDestroy(ae->entity);
 	arrayEntryInit(ae);
 }
@@ -956,7 +956,7 @@ Entity	*yeSetString(Entity *entity, const char *val)
 			free(YE_TO_STRING(entity)->value);
 	}
 	if (val != NULL) {
-		YE_TO_STRING(entity)->value = strdup(val);
+		YE_TO_STRING(entity)->value = yuiStrdup(val);
 		if (entity->type == YSTRING)
 			YE_TO_STRING(entity)->len = strlen(val);
 	} else {
@@ -983,7 +983,7 @@ static inline void yeAttachChild(Entity *on, Entity *entity,
 	entry = yBlockArraySetGetPtr(&YE_TO_ARRAY(on)->values,
 				     yeLen(on), ArrayEntry);
 	entry->entity = entity;
-	entry->name = g_strdup(name);
+	entry->name = yuiStrdup(name);
 	entry->flags = 0;
 	return;
 }
@@ -1068,13 +1068,13 @@ int yeAttach(Entity *on, Entity *entity,
   if (flag & YE_ATTACH_STEAL_NAME)
 	  entry->name = (char *)name;
   else
-	  entry->name = g_strdup(name);
+	  entry->name = yuiStrdup(name);
   entry->flags = f.entry_flag;
   if (!(flag & YE_ATTACH_NO_INC_REF))
 	  yeIncrRef(entity);
   if (toRemove && !(flag & YE_ATTACH_NO_MEM_FREE)) {
 	  YE_DESTROY(toRemove);
-	  g_free(oldName);
+	  free(oldName);
   }
   return 0;
 }
@@ -1100,7 +1100,7 @@ int yePush(Entity *array, Entity *toPush, const char *name)
 		e = yBlockArraySetGetPtr(ba, i * 64 + j, ArrayEntry);
 		e->entity = toPush;
 		yeIncrRef(toPush);
-		e->name = g_strdup(name);
+		e->name = yuiStrdup(name);
 		e->flags = 0;
 		return 0;
 	}
@@ -1273,7 +1273,7 @@ static ArrayEntity *yeCopyContainer(ArrayEntity* src, ArrayEntity* dest,
 			continue;
 
 		destElem->flags = elem->flags;
-		destElem->name = g_strdup(elem->name);
+		destElem->name = yuiStrdup(elem->name);
 
 		if (elem->flags & YE_FLAG_NO_COPY) {
 			tmp = elem->entity;
@@ -1458,8 +1458,8 @@ int yeRenameIdxStr(Entity *array, int idx, const char *str)
 
 	if (!ae)
 		return -1;
-	g_free(ae->name);
-	ae->name = strdup(str);
+	free(ae->name);
+	ae->name = yuiStrdup(str);
 	return 0;
 }
 

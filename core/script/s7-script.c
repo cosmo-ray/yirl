@@ -15,7 +15,6 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <glib.h>
 #include "s7-script.h"
 #include "s7.h"
 #include "game.h"
@@ -821,7 +820,7 @@ static void *allocator(void)
 {
 	YScriptS7 *ret;
 
-	ret = g_new0(YScriptS7, 1);
+	ret = calloc(1, sizeof *ret);
 	if (ret == NULL)
 		return NULL;
 	ret->s7 = NULL;
