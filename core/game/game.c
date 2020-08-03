@@ -257,8 +257,6 @@ static void *nextOnKeyDown(int nb, union ycall_arg *args, int *types)
 	return ret;
 }
 
-#define TO_RC(X) ((RenderConf *)(X))
-
 static void addNativeFuncToBaseMod(void)
 {
 	ysRegistreNativeFunc("proto_maker", proto_maker);
@@ -387,8 +385,6 @@ error:
 	ygEnd();
 	return -1;
 }
-
-#undef TO_RC
 
 void ygEnd()
 {
@@ -1013,7 +1009,7 @@ int ygStartLoop(GameConfig *config)
 		return -1;
 	}
 
-	if (!config || !config->rConf || !config->startingMod) {
+	if (!config || !config->startingMod) {
 		DPRINT_ERR("GameConfig is brocken(some ptr are NULL)");
 		return -1;
 	}
@@ -1031,7 +1027,6 @@ int ygInitGameConfigByRenderType(GameConfig *cfg, const char *path,
 				 RenderType t)
 {
 
-	cfg->rConf = NULL;
 	cfg->win_name = NULL;
 	cfg->w = ywidWindowWidth;
 	cfg->h = ywidWindowHight;
@@ -1042,26 +1037,17 @@ int ygInitGameConfigByRenderType(GameConfig *cfg, const char *path,
 
 int ygInitGameConfigByStr(GameConfig *cfg, const char *path, const char *render)
 {
-	RenderConf *rConf = g_new(RenderConf, 1);
-
-	cfg->rConf = NULL;
-	cfg->startingMod = g_new(ModuleConf, 1);
+	cfg->startingMod = malloc(sizeof(ModuleConf));
 	cfg->startingMod->path = path;
 	cfg->w = ywidWindowWidth;
 	cfg->h = ywidWindowHight;
 	cfg->win_name = NULL;
-
-
-	rConf->name = render;
-	cfg->rConf = g_list_append(cfg->rConf,
-				   rConf);
 	return 0;
 }
 
 void ygCleanGameConfig(GameConfig *cfg)
 {
-	g_free(cfg->startingMod);
-	g_list_free_full(cfg->rConf, g_free);
+	free(cfg->startingMod);
 }
 
 void *ygCallInt(const char *mod, const char *callName, int nb,

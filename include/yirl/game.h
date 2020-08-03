@@ -45,21 +45,14 @@ typedef enum {
 } YFileType;
 
 typedef struct {
-  const char *path;
+	const char *path;
 } ModuleConf;
 
-typedef struct RenderConf_ {
-  const char *name;
-} RenderConf;
-
-#define GList void
-
 typedef struct {
-  ModuleConf *startingMod;
-  GList *rConf;
-  const char *win_name;
-  int w;
-  int h;
+	ModuleConf *startingMod;
+	const char *win_name;
+	int w;
+	int h;
 } GameConfig;
 
 #undef GList
