@@ -110,7 +110,10 @@ BIND_E(yeLast, 1, 0);
 
 BIND_E(yePopBack, 1, 0);
 
+BIND_E(ywCanvasObjPosX, 1, 0);
+BIND_E(ywCanvasObjPosY, 1, 0);
 BIND_E(ywCanvasObjPos, 1, 0);
+
 BIND_E(ywidNextEve, 1, 0);
 BIND_E(yeIncrRef, 1, 0);
 BIND_E(ywCntWidgetFather, 1, 0);
