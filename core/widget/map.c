@@ -145,8 +145,10 @@ int ywMapMoveByEntity(Entity *state, Entity *from,
 	k = yeFindKey(c, elem);
 	if (k)
 		k = strdup(k);
+	yeIncrRef(elem);
 	ywMapRemove(state, from, elem);
 	ywMapPushElem(state, elem, to, k);
+	yeDestroy(elem);
 	free(k); /* it's a littke freaky(free K) to have a copy here... */
 	YE_DESTROY(elem);
 	return 0;
