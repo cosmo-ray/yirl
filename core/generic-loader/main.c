@@ -20,6 +20,8 @@
 #include "tcc-script.h"
 #include "game.h"
 
+extern char yg_user_dir[PATH_MAX];
+
 int main(int argc, char **argv)
 {
   GameConfig cfg;
@@ -38,7 +40,8 @@ int main(int argc, char **argv)
   int height = -1;
   int render_need_free = 1;
   int start_need_free = 1;
-  const GOptionEntry entries[10] = {
+  int linux_user_path = 0;
+  const GOptionEntry entries[11] = {
     {"render", 'r', 0,  G_OPTION_ARG_STRING, &render,
      "choose render('sdl2' or curses), default: sdl", NULL},
     {"start", 's', 0,  G_OPTION_ARG_STRING, &start,
@@ -47,6 +50,8 @@ int main(int argc, char **argv)
     {"width", 'W', 0,  G_OPTION_ARG_INT, &width, "window width", NULL},
     {"height", 'H', 0,  G_OPTION_ARG_INT, &height, "window height", NULL},
     {"arg", 0, 0,  G_OPTION_ARG_STRING, &yProgramArg, "program argument", NULL},
+    {"linux-user-path", 'L', 0,  G_OPTION_ARG_NONE, &linux_user_path,
+     "store user data in ~/.yirl", NULL},
     {"default-tcc-path", 0, 0,  G_OPTION_ARG_NONE, &default_tcc_path,
      "set this if tcc files are not in start directory", NULL},
     {"binary-root-path", 0, 0,  G_OPTION_ARG_STRING, &binaryRootPath,
@@ -58,6 +63,7 @@ int main(int argc, char **argv)
   };
   GError *error = NULL;
 
+  yuiDebugInit();
   ctx = g_option_context_new(NULL);
   g_option_context_set_help_enabled(ctx, 1);
   g_option_context_add_main_entries(ctx, entries, NULL);
@@ -97,6 +103,18 @@ int main(int argc, char **argv)
 
   if (binaryRootPath) {
     ygBinaryRootPath = binaryRootPath;
+  }
+
+  if (linux_user_path) {
+	  const char *home = getenv("HOME");
+
+	  if (!home) {
+		  DPRINT_ERR("no home found");
+		  goto end;
+	  }
+	  strcpy(yg_user_dir, home);
+	  strcpy(yg_user_dir + strlen(home), "/.yirl/");
+	  yuiMkdir(yg_user_dir);
   }
 
   if (ygInit(&cfg) < 0)

@@ -178,6 +178,8 @@ int ygStalk(const char *entityPath, Entity *callback, Entity *arg);
 
 int ygUnstalk(const char *entityPath);
 
+const char *ygUserDir(void);
+
 static inline int ygEqual(const char *path, Entity *o)
 {
   return yeEqual(ygGet(path), o);
