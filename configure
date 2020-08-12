@@ -10,6 +10,7 @@ LINEHELPER[5]="--clone-sdl-mixer	like it say"
 source configure-helper.sh
 
 for arg in $@; do
+    echo $( echo "$arg" | cut -d '=' -f 1)
     if [ "--with-gamemod" = $arg ]; then
 	COMMON_CFLAGS+="-DGAMEMOD"
     fi
@@ -25,6 +26,10 @@ for arg in $@; do
     fi
     if [ "--hell-march" = $arg ]; then
  	COMMON_CFLAGS+=" -march=native"
+    fi
+    if [ "--prefix" = $( echo "$arg" | cut -d '=' -f 1) ]; then
+ 	PREFIX=$( echo $arg | cut -f 2 -d '=' )
+	echo "PREFIX FOUND IT'S: "$PREFIX
     fi
 
     if [ "--clone-sdl-mixer" = $arg ]; then
@@ -93,6 +98,8 @@ var_add BYTECODE_DIR "core/ybytecode"
 var_add GEN_LOADER_DIR "core/generic-loader"
 var_add LIBEXTENSION so
 var_add LDFLAGS_EXT ""
+
+var_add PREFIX "/usr/"
 
 define_add WITH_SOUND 1
 if [ $WITH_SOUND -ne 0 ]; then

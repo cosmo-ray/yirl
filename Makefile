@@ -117,6 +117,10 @@ CXXFLAGS = $(COMMON_CFLAGS) -x c++ -Wno-missing-exception-spec -fno-exceptions -
 
 CFLAGS += $(COMMON_CFLAGS) -std=gnu11 -D_GNU_SOURCE
 
+INSTALL_MOD=$(PREFIX)/share/yirl/modules/
+#this one is here so my screen don't cur the install line
+ULPCS=Universal-LPC-spritesheet/
+
 $(QUICKJS_PATH):
 	git clone https://github.com/cosmo-ray/quickjs.git quickjs-$(QUICKJS_V)
 
@@ -143,3 +147,66 @@ fclean: clean
 
 clean_all: fclean
 	rm -rvf $(DUCK_OBJ) $(QUICKJS_LIB_PATH)
+
+install: yirl-loader
+	mkdir -p $(PREFIX)/lib
+	mkdir -p $(PREFIX)$(INSTALL_MOD)
+	mkdir -p $(PREFIX)/bin
+	cp yirl-loader $(PREFIX)/bin/
+	cp libyirl.so $(PREFIX)/lib/
+	mkdir -p $(INSTALL_MOD)/8086-emu/
+	cp  modules/8086-emu/asm-inst.h $(INSTALL_MOD)/8086-emu/
+	cp  modules/8086-emu/asm-tok.h $(INSTALL_MOD)/8086-emu/
+	cp  modules/8086-emu/asm.c $(INSTALL_MOD)/8086-emu/
+	cp  modules/8086-emu/start.c $(INSTALL_MOD)/8086-emu/
+	mkdir -p $(INSTALL_MOD)/dialogue/
+	cp  modules/dialogue/init.c $(INSTALL_MOD)/dialogue/
+	cp  modules/dialogue/start.json $(INSTALL_MOD)/dialogue/
+	mkdir -p $(INSTALL_MOD)/dialogue-mod/
+	cp  modules/dialogue-box/arrow_sheet.png $(INSTALL_MOD)/dialogue-mod/
+	cp  modules/dialogue-box/init.lua $(INSTALL_MOD)/dialogue-mod/
+	cp  modules/dialogue-box/start.json $(INSTALL_MOD)/dialogue-mod/
+	echo "Install everything in: "$(PREFIX)
+
+install_extra_modules:
+	mkdir -p $(INSTALL_MOD)
+	mkdir -p $(INSTALL_MOD)/snake
+	cp  modules/snake/snake.lua $(INSTALL_MOD)/snake/snake.lua
+	cp  modules/snake/start.json $(INSTALL_MOD)/snake/start.json
+	cp  modules/snake/bg.png $(INSTALL_MOD)/snake/bg.png
+	mkdir -p $(INSTALL_MOD)/hightscore/
+	cp modules/hightscore/score.lua $(INSTALL_MOD)/hightscore/
+	cp modules/hightscore/start.json $(INSTALL_MOD)/hightscore/
+	mkdir -p $(INSTALL_MOD)/jrpg-fight/
+	cp modules/jrpg-fight/init.lua $(INSTALL_MOD)/jrpg-fight/
+	cp modules/jrpg-fight/animation.lua $(INSTALL_MOD)/jrpg-fight/
+	cp modules/jrpg-fight/start.json $(INSTALL_MOD)/jrpg-fight/
+	cp modules/jrpg-fight/image0007.png $(INSTALL_MOD)/jrpg-fight/
+	cp modules/jrpg-fight/image0009.png $(INSTALL_MOD)/jrpg-fight/
+	cp modules/jrpg-fight/explosion.png $(INSTALL_MOD)/jrpg-fight/
+	cp modules/jrpg-fight/BG_City.jpg $(INSTALL_MOD)/jrpg-fight/
+	cp modules/jrpg-fight/README.md $(INSTALL_MOD)/jrpg-fight/
+	mkdir -p $(INSTALL_MOD)/$(ULPCS)/
+	cp modules/$(ULPCS)/start.json $(INSTALL_MOD)/$(ULPCS)/
+	cp modules/$(ULPCS)/lpcs.lua $(INSTALL_MOD)/$(ULPCS)/
+	cp -rvf modules/$(ULPCS)/spritesheets/ $(INSTALL_MOD)/$(ULPCS)/
+	cp modules/$(ULPCS)/AUTHORS.txt $(INSTALL_MOD)/$(ULPCS)/
+	cp modules/$(ULPCS)/cc-by-sa-3_0.txt $(INSTALL_MOD)/$(ULPCS)/
+	mkdir -p $(INSTALL_MOD)/pong/
+	cp modules/pong/start.scm $(INSTALL_MOD)/pong/
+	mkdir -p $(INSTALL_MOD)/tiled/
+	cp modules/tiled/tiled.c $(INSTALL_MOD)/tiled/
+	cp modules/tiled/start.json $(INSTALL_MOD)/tiled/
+	mkdir -p $(INSTALL_MOD)/vapp/
+	cp 'modules/vapp/New Piskel.png' $(INSTALL_MOD)/vapp/
+	cp modules/vapp/viking.png $(INSTALL_MOD)/vapp/
+	cp modules/vapp/start.json $(INSTALL_MOD)/vapp/
+	cp modules/vapp/pizza.png $(INSTALL_MOD)/vapp/
+	cp modules/vapp/init.c $(INSTALL_MOD)/vapp/
+	cp modules/vapp/resources.json $(INSTALL_MOD)/vapp/
+	mkdir -p $(INSTALL_MOD)/asteroide-shooter
+	cp modules/asteroide-shooter/DurrrSpaceShip.png $(INSTALL_MOD)/asteroide-shooter/
+	cp modules/asteroide-shooter/start.lua $(INSTALL_MOD)/asteroide-shooter/
+	cp -rvf modules/asteroide-shooter/jswars_gfx/ $(INSTALL_MOD)/asteroide-shooter/
+
+.PHONY : install clean_all fclean clean build-static-lib build-dynamic-lib all install_extra_modules
