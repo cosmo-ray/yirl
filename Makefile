@@ -118,6 +118,7 @@ CXXFLAGS = $(COMMON_CFLAGS) -x c++ -Wno-missing-exception-spec -fno-exceptions -
 CFLAGS += $(COMMON_CFLAGS) -std=gnu11 -D_GNU_SOURCE
 
 INSTALL_MOD=$(PREFIX)/share/yirl/modules/
+SCRIPT_DEP=$(PREFIX)/share/yirl/scripts-dependancies/
 #this one is here so my screen don't cur the install line
 ULPCS=Universal-LPC-spritesheet/
 
@@ -159,13 +160,19 @@ install: yirl-loader
 	cp  modules/8086-emu/asm-tok.h $(INSTALL_MOD)/8086-emu/
 	cp  modules/8086-emu/asm.c $(INSTALL_MOD)/8086-emu/
 	cp  modules/8086-emu/start.c $(INSTALL_MOD)/8086-emu/
+	cp  modules/8086-emu/charset.h $(INSTALL_MOD)/8086-emu/
 	mkdir -p $(INSTALL_MOD)/dialogue/
 	cp  modules/dialogue/init.c $(INSTALL_MOD)/dialogue/
 	cp  modules/dialogue/start.json $(INSTALL_MOD)/dialogue/
-	mkdir -p $(INSTALL_MOD)/dialogue-mod/
-	cp  modules/dialogue-box/arrow_sheet.png $(INSTALL_MOD)/dialogue-mod/
-	cp  modules/dialogue-box/init.lua $(INSTALL_MOD)/dialogue-mod/
-	cp  modules/dialogue-box/start.json $(INSTALL_MOD)/dialogue-mod/
+	mkdir -p $(INSTALL_MOD)/dialogue-box/
+	cp  modules/dialogue-box/arrow_sheet.png $(INSTALL_MOD)/dialogue-box/
+	cp  modules/dialogue-box/init.lua $(INSTALL_MOD)/dialogue-box/
+	cp  modules/dialogue-box/start.json $(INSTALL_MOD)/dialogue-box/
+	mkdir -p $(SCRIPT_DEP)
+	cp  scripts-dependancies/object-wrapper.lua $(SCRIPT_DEP)
+	cp -rvf include $(PREFIX)/share/yirl/
+	mkdir -p $(PREFIX)/share/yirl/tinycc/
+	cp tinycc/libtcc1.a $(PREFIX)/share/yirl/tinycc/
 	echo "Install everything in: "$(PREFIX)
 
 install_extra_modules:

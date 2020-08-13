@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <glib.h>
 
+#include "game.h"
 #include "tcc-script.h"
 #include "debug.h"
 
@@ -356,8 +357,19 @@ static TCCState *createTCCState(YTccScript *state)
 		return NULL;
 	tccAddSyms(l);
 	if (!ysTccPath) {
-		tcc_add_sysinclude_path(l, YIRL_INCLUDE_PATH);
-		tcc_set_lib_path(l, TCC_LIB_PATH);
+		char *includePath;
+		char *includePath2;
+		char *libPath;
+
+		asprintf(&includePath, "%s/include/", ygBinaryRootPath);
+		asprintf(&includePath2, "%s/tinycc/", includePath);
+		asprintf(&libPath, "%s/tinycc/", ygBinaryRootPath);
+		tcc_add_sysinclude_path(l, includePath);
+		tcc_add_sysinclude_path(l, includePath2);
+		tcc_set_lib_path(l, libPath);
+		free(includePath);
+		free(includePath2);
+		free(libPath);
 	} else {
 		char *includePath = g_strconcat(ysTccPath, "/include/", NULL);
 		char *includePath2 = g_strconcat(ysTccPath,
