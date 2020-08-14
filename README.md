@@ -147,6 +147,7 @@ But you can still understand how YIRL work by:
 * add an hex map
 * add any other cool widget
 * use vulkan/gl
+* remove glib
 * make a raycasting module
 * Improve 8086 emulator module
 * BASIC emulator module
