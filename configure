@@ -136,6 +136,7 @@ str_define_add YIRL_MODULES_PATH "modules/"
 var_add YIRL_INCLUDE_PATH2 $PWD/include/
 var_add YIRL_INCLUDE_PATH $YIRL_INCLUDE_PATH2/yirl/
 
+var_add TCC_LIB_PATH $PWD/tinycc/
 var_add TCC_LIB_NAME libtcc.a
 
 var_add YIRL_LINKING build-dynamic-lib
