@@ -40,11 +40,12 @@ static int tccLoadString(void *sm, const char *str);
 #define UNSET_REALLOC_NEEDED(sm) (((YTccScript *)(sm))->needRealloc = 0)
 #define NEED_REALLOC(sm) (((YTccScript *)(sm))->needRealloc)
 
-#define eBError(ua, fmt, args...)			\
-	do {						\
-		asprintf(&ua->error, fmt, args);	\
-		ua->should_free = 1;			\
-		return -1;				\
+#define eBError(ua, fmt, args...)				\
+	do {							\
+		if (asprintf(&ua->error, fmt, args) < 0)	\
+			return -1;				\
+		ua->should_free = 1;				\
+		return -1;					\
 	} while (0);
 
 #define eBInvalideNumber(ua, num)				\
@@ -361,9 +362,17 @@ static TCCState *createTCCState(YTccScript *state)
 		char *includePath2;
 		char *libPath;
 
-		asprintf(&includePath, "%s/include/", ygBinaryRootPath);
-		asprintf(&includePath2, "%s/tinycc/", includePath);
-		asprintf(&libPath, "%s/tinycc/", ygBinaryRootPath);
+		if (asprintf(&includePath, "%s/include/", ygBinaryRootPath) < 0)
+			return NULL;
+		if (asprintf(&includePath2, "%s/tinycc/", includePath) < 0) {
+			free(includePath);
+			return NULL;
+		}
+		if (asprintf(&libPath, "%s/tinycc/", ygBinaryRootPath) < 0) {
+			free(includePath);
+			free(includePath2);
+			return NULL;
+		}
 		tcc_add_sysinclude_path(l, includePath);
 		tcc_add_sysinclude_path(l, includePath2);
 		tcc_set_lib_path(l, libPath);

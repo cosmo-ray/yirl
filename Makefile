@@ -104,7 +104,7 @@ COMMON_CFLAGS += -I./$(DUCK_V)/ -I./$(DUCK_V)/src/ # <--- last one is here so I 
 COMMON_CFLAGS += -I./$(QUICKJS_PATH)
 COMMON_CFLAGS += -fpic
 COMMON_CFLAGS += $(LUA_CFLAGS)
-COMMON_CFLAGS += -Werror -Wall -Wextra -Wno-unused-function -Wno-unused-parameter -Wno-int-to-pointer-cast
+COMMON_CFLAGS += $(WERROR) -Wall -Wextra -Wno-unused-function -Wno-unused-parameter -Wno-int-to-pointer-cast
 
 COMMON_CFLAGS += -DYIRL_INCLUDE_PATH=\"$(YIRL_INCLUDE_PATH2)\"
 COMMON_CFLAGS += -DTCC_LIB_PATH=\"$(TCC_LIB_PATH)\"

@@ -23,6 +23,7 @@ for arg in $@; do
     fi
     if [ "--ndebug" = $arg ]; then
  	COMMON_CFLAGS+=" -DNDEBUG -O3"
+	WERROR=""
     fi
     if [ "--hell-march" = $arg ]; then
  	COMMON_CFLAGS+=" -march=native"
@@ -141,3 +142,4 @@ var_add TCC_LIB_NAME libtcc.a
 
 var_add YIRL_LINKING build-dynamic-lib
 var_add BINARY_LINKING "-lyirl"
+var_add WERROR "-Werror"
