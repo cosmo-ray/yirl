@@ -2,14 +2,12 @@ NAME= yirl
 
 LIBNAME= lib$(NAME)
 
-all:	yirl-loader build-tests build-shooter \
+all:	yirl-loader build-tests \
 	build-sm-mod-ex build-snake-ex
 
 include config.mk
 
 include $(TESTS_DIR)/tests.mk
-SHOOTER_DIR=example/shooter/
-include $(SHOOTER_DIR)/shooter.mk
 SM_MOD_EX_DIR=example/modules/smReader
 include $(SM_MOD_EX_DIR)/Makefile
 SNAKE_DIR=example/snake
