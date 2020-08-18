@@ -453,4 +453,11 @@ static inline int yuiTurnY(int x, int y, double r)
 
 void yuiPrintErrno(const char *);
 
+static inline void yuiAutoStr(char **str)
+{
+	free(*str);
+}
+
+#define yuiAutoStr __attribute__ ((cleanup(yuiAutoStr)))
+
 #endif
