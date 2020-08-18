@@ -49,7 +49,7 @@ function mingw-i686 {
     export TCC_LIB_NAME="libtcc.a"
     export LIBEXTENSION=dll
     export IS_UNIX=0
-    export YIRL_LINKING=build-static-lib
+    export YIRL_LINKING="\$(LIBNAME).a"
     export BINARY_LINKING="\$(LIBNAME).a"
     var_add BIN_EXT .exe
 }
@@ -59,7 +59,7 @@ function mingw-64 {
     export TCC_LIB_NAME="libtcc.a"
     export LIBEXTENSION=dll.a
     export IS_UNIX=0
-    export YIRL_LINKING=build-static-lib
+    export YIRL_LINKING="\$(LIBNAME).a"
     export BINARY_LINKING="\$(LIBNAME).a"
     var_add BIN_EXT .exe
 }
@@ -123,7 +123,7 @@ var_add SANITAZERS 0
 if [ $SANITAZERS -eq 1 ]; then
     var_add LIBS_SAN "-lasan -lubsan"
     var_add FLAGS_SAN "-fsanitize=leak -fsanitize=undefined"
-    export YIRL_LINKING=build-static-lib
+    export YIRL_LINKING="\$(LIBNAME).a"
     export BINARY_LINKING="\$(LIBNAME).a"
 
 fi
@@ -139,6 +139,7 @@ var_add YIRL_INCLUDE_PATH $YIRL_INCLUDE_PATH2/yirl/
 var_add TCC_LIB_PATH $PWD/tinycc/
 var_add TCC_LIB_NAME libtcc.a
 
-var_add YIRL_LINKING build-dynamic-lib
+# var_add is a little broken, so I can't output variable
+var_add YIRL_LINKING "libyirl.so"
 var_add BINARY_LINKING "-lyirl"
 var_add WERROR "-Werror"

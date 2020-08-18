@@ -129,16 +129,16 @@ $(QUICKJS_LIB_PATH): $(QUICKJS_PATH)
 $(SCRIPT_DIR)/s7.o:
 	$(CC) -c -o $(SCRIPT_DIR)/s7.o $(SCRIPT_DIR)/s7.c -Wno-implicit-fallthrough -fPIC -O0 -g
 
-build-static-lib: $(OBJ) $(O_OBJ) $(OBJXX) $(QUICKJS_LIB_PATH)
+$(LIBNAME).a: $(OBJ) $(O_OBJ) $(OBJXX) $(QUICKJS_LIB_PATH)
 	$(AR)  -r -c -s $(LIBNAME).a $(OBJ) $(O_OBJ) $(OBJXX) $(QUICKJS_LIB_PATH)
 
-build-dynamic-lib: $(OBJ) $(O_OBJ) $(OBJXX) $(QUICKJS_LIB_PATH)
+$(LIBNAME).$(LIBEXTENSION): $(OBJ) $(O_OBJ) $(OBJXX) $(QUICKJS_LIB_PATH)
 	$(CC) -shared -o  $(LIBNAME).$(LIBEXTENSION) $(OBJ) $(O_OBJ) $(OBJXX) $(LDFLAGS)
 
 yirl-loader: $(YIRL_LINKING) $(GEN_LOADER_OBJ)
 	$(CC) -o yirl-loader$(BIN_EXT) $(GEN_LOADER_OBJ) $(BINARY_LINKING) $(LDFLAGS)
 
-clean:	clean-tests clean-shooter
+clean:	clean-tests
 	rm -rvf $(OBJ) $(OBJXX) $(GEN_LOADER_OBJ)
 
 fclean: clean
@@ -214,4 +214,4 @@ install_extra_modules:
 	cp modules/asteroide-shooter/start.lua $(INSTALL_MOD)/asteroide-shooter/
 	cp -rvf modules/asteroide-shooter/jswars_gfx/ $(INSTALL_MOD)/asteroide-shooter/
 
-.PHONY : install clean_all fclean clean build-static-lib build-dynamic-lib all install_extra_modules
+.PHONY : install clean_all fclean clean  all install_extra_modules
