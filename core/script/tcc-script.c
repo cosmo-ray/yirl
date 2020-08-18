@@ -16,7 +16,6 @@
 */
 
 #include <stdlib.h>
-#include <glib.h>
 
 #include "game.h"
 #include "tcc-script.h"
@@ -349,6 +348,8 @@ static int tccYEntityBlockCallback(TCCUserAction *ua)
 static TCCState *createTCCState(YTccScript *state)
 {
 	TCCState *l;
+	yuiAutoStr char *includePath = NULL;
+	yuiAutoStr char *includePath2 = NULL;
 
 	if (state->nbStates > TCC_MAX_SATES)
 		return NULL;
@@ -358,37 +359,31 @@ static TCCState *createTCCState(YTccScript *state)
 		return NULL;
 	tccAddSyms(l);
 	if (!ysTccPath) {
-		char *includePath;
-		char *includePath2;
 		char *libPath;
 
 		if (asprintf(&includePath, "%s/include/", ygBinaryRootPath) < 0)
 			return NULL;
 		if (asprintf(&includePath2, "%s/tinycc/", includePath) < 0) {
-			free(includePath);
 			return NULL;
 		}
 		if (asprintf(&libPath, "%s/tinycc/", ygBinaryRootPath) < 0) {
-			free(includePath);
-			free(includePath2);
 			return NULL;
 		}
-		tcc_add_sysinclude_path(l, includePath);
-		tcc_add_sysinclude_path(l, includePath2);
 		tcc_set_lib_path(l, libPath);
-		free(includePath);
-		free(includePath2);
 		free(libPath);
 	} else {
-		char *includePath = g_strconcat(ysTccPath, "/include/", NULL);
-		char *includePath2 = g_strconcat(ysTccPath,
-						 "/include/tinycc/", NULL);
-		tcc_add_sysinclude_path(l, includePath);
-		tcc_add_sysinclude_path(l, includePath2);
-		g_free(includePath);
-		g_free(includePath2);
+		yuiAutoStr char *includePath = NULL;
+		yuiAutoStr char *includePath2 = NULL;
+
+		if (asprintf(&includePath, "%s/include/", ysTccPath) < 0)
+			return NULL;
+		if (asprintf(&includePath2, "%s/tinycc/", ysTccPath) < 0) {
+			return NULL;
+		}
 		tcc_set_lib_path(l, ysTccPath);
 	}
+	tcc_add_sysinclude_path(l, includePath);
+	tcc_add_sysinclude_path(l, includePath2);
 	tcc_add_sysinclude_path(l, YIRL_MODULES_PATH);
 	tcc_define_symbol(l, "Y_INSIDE_TCC", NULL);
 	tcc_set_output_type(l, TCC_OUTPUT_MEMORY);
@@ -546,7 +541,7 @@ static int tccDestroy(void *sm)
 	for (int i = 0; i < state->nbStates; ++i) {
 		tcc_delete(state->states[i]);
 	}
-	g_free(sm);
+	free(sm);
 	return 0;
 }
 
@@ -554,7 +549,7 @@ static void *tccAllocator(void)
 {
 	YTccScript *ret;
 
-	ret = g_new0(YTccScript, 1);
+	ret = calloc(1, sizeof(YTccScript));
 	if (ret == NULL)
 		return NULL;
 	ret->l = NULL;
