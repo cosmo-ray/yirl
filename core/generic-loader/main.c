@@ -28,7 +28,6 @@ int main(int argc, char **argv)
   int ret = 1;
   GOptionContext *ctx;
   int default_tcc_path = 0;
-  const char *render = NULL;
   const char *start = NULL;
   const char *name = NULL;
   char *binaryRootPath = NULL;
@@ -38,12 +37,9 @@ int main(int argc, char **argv)
   const char *tcc_path = cpath;
   int width = -1;
   int height = -1;
-  int render_need_free = 1;
   int start_need_free = 1;
   int linux_user_path = 0;
-  const GOptionEntry entries[11] = {
-    {"render", 'r', 0,  G_OPTION_ARG_STRING, &render,
-     "choose render('sdl2' or curses), default: sdl", NULL},
+  const GOptionEntry entries[10] = {
     {"start", 's', 0,  G_OPTION_ARG_STRING, &start,
      "starting module, default: current dit", NULL},
     {"name", 'n', 0,  G_OPTION_ARG_STRING, &name, "window name", NULL},
@@ -74,11 +70,6 @@ int main(int argc, char **argv)
   }
   g_option_context_free(ctx);
 
-  if (!render) {
-    render = "sdl2";
-    render_need_free = 0;
-  }
-
   if (start_dir) {
     tcc_path = start_dir;
     chdir(start_dir);
@@ -94,7 +85,7 @@ int main(int argc, char **argv)
     start_need_free = 0;
   }
 
-  ygInitGameConfig(&cfg, start, render);
+  ygInitGameConfig(&cfg, start, NULL);
   cfg.win_name = name;
   if (width > 0)
     cfg.w = width;
@@ -126,13 +117,11 @@ int main(int argc, char **argv)
   ygEnd();
   ygCleanGameConfig(&cfg);
 
-  if (render_need_free)
-    g_free((char *)render);
   if (start_need_free)
-    g_free((char *)start);
+    free((char *)start);
 
-  g_free((char *)start_dir);
-  g_free((char *)name);
+  free((char *)start_dir);
+  free((char *)name);
   if (binaryRootPath) {
     ygBinaryRootPathFree();
   }

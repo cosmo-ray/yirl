@@ -34,8 +34,7 @@
 typedef enum {
   NONE   = 0,
   SDL2   = 1,
-  CURSES = 2,
-  ALL    = CURSES | SDL2
+  ALL    = SDL2
 } RenderType;
 
 typedef enum {
@@ -71,6 +70,7 @@ static inline void ygBinaryRootPathFree(void)
   _Generic((render),							\
 	   const char *: ygInitGameConfigByStr,				\
 	   char *: ygInitGameConfigByStr,				\
+	   void *: ygInitGameConfigByStr,				\
 	   Y_GEN_CLANG_ARRAY(char, ygInitGameConfigByStr),		\
 	   RenderType : ygInitGameConfigByRenderType,			\
 	   int : ygInitGameConfigByRenderType) (cfg, path, render)
