@@ -410,6 +410,8 @@ static int sdlChangeResolution(void)
 	}
 
 	SDL_SetWindowSize(sg.pWindow, ywidWindowWidth, ywidWindowHight);
+	SDL_SetWindowPosition(sg.pWindow, SDL_WINDOWPOS_CENTERED,
+			      SDL_WINDOWPOS_CENTERED);
 	SDL_DestroyRenderer(sg.renderer);
 	if (sdlRenderCreate() < 0) {
 		DPRINT_ERR("SDL is DEAD");
