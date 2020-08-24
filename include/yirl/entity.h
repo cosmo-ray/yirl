@@ -361,13 +361,30 @@ static inline int yeArrayIdx_ent(Entity *array, Entity *lookup)
 }
 
 /**
+ * @brief get first entity of array
+ */
+static inline Entity *yeFirst(Entity *array)
+{
+	YE_FOREACH(array, el)
+		return el;
+	return NULL;
+}
+
+/**
+ * @brief remove first elem
+ * call it unset to emphasis on the fast that it just
+ * let an empty elem at the begin of the array, but dont move all elems
+ */
+void yeUnsetFirst(Entity *array);
+
+/**
  * @brief get last elem of array
  */
 Entity *yeGetLast(Entity *array);
 
 /*
  * turn out yeLast seems a better name than get last
- * I men it basically say the same and yeLast is shorter so cuter
+ * I mean it basically say the same and yeLast is shorter so cuter
  * KAWAIIIII ne ?
  */
 #define yeLast yeGetLast
@@ -471,7 +488,6 @@ static inline int ye_revforeach_eval_(Entity *a, int *i, Entity **e)
 		for (int i_YE_REVFOREACH = yeLen(array);		\
 		     ye_revforeach_eval_(array, &i_YE_REVFOREACH, &val); \
 		     --i_YE_REVFOREACH)
-
 
 /**
  * @return 0 if @entity is NULL

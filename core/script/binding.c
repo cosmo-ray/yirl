@@ -128,6 +128,9 @@ BIND_E(ywCanvasEnableWeight, 1, 0);
 
 BIND_I(ywSetTurnLengthOverwrite, 1, 0);
 
+BIND_E(yeUnsetFirst, 1, 0);
+BIND_E(yeFirst, 1, 0);
+
 BIND_E(ywPosPrint, 1, 0);
 BIND_E(ywSizePrint, 1, 0);
 BIND_E(ywCanvasClear, 1, 0);
