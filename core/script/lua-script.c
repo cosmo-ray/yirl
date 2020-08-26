@@ -64,6 +64,41 @@ static const char *luaGetError(void *sm)
 }
 
 
+static void e_destroy(void *manager, Entity *e)
+{
+	int ref = yeIData(e);
+
+	if (ref) {
+		lua_State *l = GET_L(manager);
+
+		luaL_unref(l, LUA_REGISTRYINDEX, ref);
+	}
+}
+
+static void *fastCall(void *opac, void *opacFunction,
+	       int nb, union ycall_arg *args,
+	       int *types)
+{
+	lua_State *l = GET_L(opac);
+	int r = (intptr_t)opacFunction;
+
+	lua_rawgeti(l, LUA_REGISTRYINDEX, r);
+	for (int i = 0; i < nb; ++i) {
+		int t = types[i];
+		if (t == YS_INT)
+			lua_pushnumber(l, args[i].i);
+		else if (t == YS_STR)
+			lua_pushstring(l, args[i].str);
+		else
+			lua_pushlightuserdata(l, args[i].vptr);
+	}
+	lua_call(l, nb, 1);
+	if (lua_isnumber(l, lua_gettop(l)))
+		return (void *)lua_tointeger(l, lua_gettop(l));
+	return (void *)lua_topointer(l, lua_gettop(l));
+}
+
+
 static void *luaCall(void *sm, const char *name, int nb,
 		     union ycall_arg *args, int *types)
 {
@@ -143,7 +178,9 @@ static void *luaAllocator(void)
 	ret->ops.destroy = luaDestroy;
 	ret->ops.loadFile = luaLoadFile;
 	ret->ops.loadString = luaLoadString;
+	ret->ops.e_destroy = e_destroy;
 	ret->ops.call = luaCall;
+	ret->ops.fastCall = fastCall;
 	ret->ops.getError = luaGetError;
 	ret->ops.registreFunc = luaRegistreFunc;
 	ret->ops.addFuncSymbole = addFuncSymbole;

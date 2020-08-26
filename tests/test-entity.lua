@@ -63,3 +63,16 @@ function complexFunction()
    print(a.ar);
    return 0
 end
+
+local function sub_func()
+   return 1234
+end
+
+function mk_and_call_sub_func()
+   local f = yeCreateFunction(sub_func)
+   local r = yesCall(f)
+
+   yeDestroy(f)
+   return r
+end
+

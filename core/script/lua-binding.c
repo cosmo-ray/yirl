@@ -837,8 +837,23 @@ int	luaywMenuMove(lua_State *L)
 int     luaCreateFunction(lua_State *L)
 {
 	void *ret;
+	int is_func = lua_isfunction(L, 1);
 
-	if (!lua_tostring(L, 3)) {
+	if (is_func) {
+		Entity *f = luaEntityAt(L, 2);
+		const char *name = lua_tostring(L, 3);
+		int f_ref;
+
+		lua_settop(L, 1);
+		/*lua array starting at 1, for the first time of my whole life*/
+		/* I see an adventage of having array starting at one */
+		f_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+		ret = yeCreateFunctionExt(NULL,
+					  ygGetLuaManager(),
+					  f, name,
+					  YE_FUNC_NO_FASTPATH_INIT);
+		YE_TO_FUNC(ret)->idata = f_ref;
+	} else if (!lua_tostring(L, 3)) {
 		ret = yeCreateFunctionSimple(lua_tostring(L, 1),
 					     ygGetLuaManager(),
 					     luaEntityAt(L, 2));

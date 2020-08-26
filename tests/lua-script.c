@@ -104,6 +104,10 @@ void testLuaScritEntityBind(void)
   g_assert(yeType(ret) == YINT);
   g_assert(yeGetInt(ret));
   yeDestroy(ret);
+
+  ret = ysCall(sm, "mk_and_call_sub_func");
+  g_assert(ret == (void *)1234);
+
   yeDestroy(func);
   ygEnd();
   ygCleanGameConfig(&cfg);
