@@ -1078,7 +1078,6 @@ int yeAttach(Entity *on, Entity *entity,
 
   if (unlikely(!on || !entity || on->type != YARRAY))
 	  return -1;
-  assert(!(entity->flag & YENTITY_CONST));
 
   entry = yBlockArraySetGetPtr(&YE_TO_ARRAY(on)->values,
 			       idx, ArrayEntry);
