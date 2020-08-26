@@ -52,7 +52,8 @@ typedef enum
 	YENTITY_SMALL_SIZE_P0 = 1 << 0,
 	YENTITY_SMALL_SIZE_P1 = 1 << 1,
 	YENTITY_SMALL_SIZE_P2 = 1 << 2,
-	YENTITY_SMALL_SIZE_P3 = 1 << 3
+	YENTITY_SMALL_SIZE_P3 = 1 << 3,
+	YENTITY_CONST = 1 << 4
 } EntityFlag;
 
 #define YENTITY_FLAG_LAST = YENTITY_SMALL_SIZE_P3;
@@ -595,6 +596,13 @@ int yePushBackExt(Entity *entity, Entity *toPush,
 		  const char *name, uint64_t flag);
 
 
+/* only useful if ndebug isn't set */
+#ifndef NDEBUG
+static inline void yeSetConst(Entity *e) {e->flag |= YENTITY_CONST;}
+#else
+static inline void yeSetConst(Entity *e) {(void)e;}
+#endif
+
 static inline void yeStoreAll(Entity *dst, Entity *array, const char *key)
 {
 	YE_ARRAY_FOREACH_ENTRY(array, v) {
@@ -1079,6 +1087,7 @@ static inline int yeStringIndexChar(Entity *entityStr, const char *chars)
 
 static inline int yeIntAddInt(IntEntity *e, int i)
 {
+	assert(!(e->flag & YENTITY_CONST));
 	e->value += i;
 	return 0;
 }

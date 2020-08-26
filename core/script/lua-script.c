@@ -75,14 +75,9 @@ static void e_destroy(void *manager, Entity *e)
 	}
 }
 
-static void *fastCall(void *opac, void *opacFunction,
-	       int nb, union ycall_arg *args,
-	       int *types)
+static inline void *do_call(lua_State *l, int nb, union ycall_arg *args,
+			    int *types)
 {
-	lua_State *l = GET_L(opac);
-	int r = (intptr_t)opacFunction;
-
-	lua_rawgeti(l, LUA_REGISTRYINDEX, r);
 	for (int i = 0; i < nb; ++i) {
 		int t = types[i];
 		if (t == YS_INT)
@@ -98,6 +93,18 @@ static void *fastCall(void *opac, void *opacFunction,
 	return (void *)lua_topointer(l, lua_gettop(l));
 }
 
+static void *fastCall(void *opac, void *opacFunction,
+	       int nb, union ycall_arg *args,
+	       int *types)
+{
+	lua_State *l = GET_L(opac);
+	int r = (intptr_t)opacFunction;
+
+	lua_rawgeti(l, LUA_REGISTRYINDEX, r);
+
+	return do_call(l, nb, args, types);
+}
+
 
 static void *luaCall(void *sm, const char *name, int nb,
 		     union ycall_arg *args, int *types)
@@ -109,19 +116,7 @@ static void *luaCall(void *sm, const char *name, int nb,
 		return NULL;
 	}
 
-	for (int i = 0; i < nb; ++i) {
-		int t = types[i];
-		if (t == YS_INT)
-			lua_pushnumber(l, args[i].i);
-		else if (t == YS_STR)
-			lua_pushstring(l, args[i].str);
-		else
-			lua_pushlightuserdata(l, args[i].vptr);
-	}
-	lua_call(l, nb, 1);
-	if (lua_isnumber(l, lua_gettop(l)))
-		return (void *)lua_tointeger(l, lua_gettop(l));
-	return (void *)lua_topointer(l, lua_gettop(l));
+	return do_call(l, nb, args, types);
 }
 
 static int luaDestroy(void *sm)

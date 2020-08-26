@@ -972,6 +972,7 @@ Entity	*yeSetString(Entity *entity, const char *val)
 {
 	if (unlikely(!entity))
 		return NULL;
+	assert(!(entity->flag & YENTITY_CONST));
 	if (YE_TO_STRING(entity)->value != NULL) {
 		if (entity->type == YSTRING && YE_TO_STRING(entity)->origin)
 			free(YE_TO_STRING(entity)->origin);
@@ -1077,6 +1078,7 @@ int yeAttach(Entity *on, Entity *entity,
 
   if (unlikely(!on || !entity || on->type != YARRAY))
 	  return -1;
+  assert(!(entity->flag & YENTITY_CONST));
 
   entry = yBlockArraySetGetPtr(&YE_TO_ARRAY(on)->values,
 			       idx, ArrayEntry);
@@ -1207,6 +1209,7 @@ void	yeSetInt(Entity *entity, int value)
 	if (unlikely(!entity || (yeType(entity) != YINT &&
 				 yeType(entity) != YFLOAT)))
 		return;
+	assert(!(entity->flag & YENTITY_CONST));
 	((IntEntity *)entity)->value = value;
 }
 
@@ -1214,6 +1217,7 @@ void	yeSetFloat(Entity *entity, double value)
 {
 	if (unlikely(!entity))
 		return;
+	assert(!(entity->flag & YENTITY_CONST));
 	((FloatEntity *)entity)->value = value;
 }
 
