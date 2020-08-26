@@ -297,6 +297,13 @@ static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
 		}
 	}
 	if (drv == &cntDialogueMnDrv) {
+		const char *bg = yeGetStringAt(dialogue, "speaker_background");
+
+		if (bg) {
+			printf("new bg: %s\n", bg);
+			yeReCreateString(bg, textScreen, "background");
+		}
+
 		ywContainerUpdate(wid, textScreen);
 		entries = yeReCreateArray(menu, "entries", NULL);
 	} else {
