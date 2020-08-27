@@ -92,6 +92,7 @@ LDFLAGS += $(shell $(PKG_CONFIG) --libs SDL2_ttf)
 LDFLAGS += $(SDL_MIXER_LDFLAGS) #  $(shell $(PKG_CONFIG) --libs SDL2_mixer)
 LDFLAGS += $(LDFLAGS_EXT)
 LDFLAGS += $(LIBS_SAN) -ldl $(QUICKJS_LIB_PATH)
+LDFLAGS += $(ANALYZER_FLAG)
 
 COMMON_CFLAGS += $(shell $(PKG_CONFIG) --cflags glib-2.0)
 COMMON_CFLAGS += -I$(YIRL_INCLUDE_PATH)
@@ -110,6 +111,7 @@ COMMON_CFLAGS += $(FLAGS_SAN)
 COMMON_CFLAGS += -Wno-unknown-warning-option
 COMMON_CFLAGS += -Wno-cast-function-type
 COMMON_CFLAGS += -fno-strict-aliasing # casting entity doesn't really respect strict aliasing rules
+COMMON_CFLAGS += $(ANALYZER_FLAG)
 
 CXXFLAGS = $(COMMON_CFLAGS) -x c++ -Wno-missing-exception-spec -fno-exceptions -fno-rtti
 
