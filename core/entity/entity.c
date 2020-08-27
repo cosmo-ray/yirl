@@ -33,8 +33,8 @@ static BlockArray entitysArray;
 static Entity *curentFat;
 static Entity *entity0;
 int fatPosition;
-static inline Entity *yeInit(Entity *entity, EntityType type,
-			     Entity *father, const char *name);
+static inline void yeInit(Entity *entity, EntityType type,
+			  Entity *father, const char *name);
 
 uint8_t fatPosToFLag[4] = {YENTITY_SMALL_SIZE_P0, YENTITY_SMALL_SIZE_P1,
 			   YENTITY_SMALL_SIZE_P2, YENTITY_SMALL_SIZE_P3};
@@ -52,38 +52,38 @@ uint8_t fatPosToFLag[4] = {YENTITY_SMALL_SIZE_P0, YENTITY_SMALL_SIZE_P1,
 	stack_push(freedElems, unset);					\
 
 #define YE_DESTROY_ENTITY_SMALL(entity, type)				\
-do {								\
-	YE_DECR_REF(entity);						\
-	if (entity->refCount < 1) {					\
-		int pos = ((intptr_t)((char *)entity - (char *)entity0) % 128) / 32; \
-		Entity *first = YE_TO_ENTITY(((union SmallEntity *)entity - pos)); \
-		first->flag ^= fatPosToFLag[pos];			\
-		if (!first->flag) {					\
-			if (first == curentFat) {			\
-				curentFat = NULL;			\
-				fatPosition = 0;			\
+	do {								\
+		YE_DECR_REF(entity);					\
+		if (entity->refCount < 1) {				\
+			int pos = ((intptr_t)((char *)entity - (char *)entity0) % 128) / 32; \
+			Entity *first = YE_TO_ENTITY(((union SmallEntity *)entity - pos)); \
+			first->flag ^= fatPosToFLag[pos];		\
+			if (!first->flag) {				\
+				if (first == curentFat) {		\
+					curentFat = NULL;		\
+					fatPosition = 0;		\
+				}					\
+				YE_DESTROY_ENTITY__(first);		\
 			}						\
-			YE_DESTROY_ENTITY__(first);			\
 		}							\
-	}								\
-} while (0);
+	} while (0);
 
 #define YE_ALLOC_ENTITY_SMALL(ret, type)				\
-do {								\
-	if (fatPosition == 0) {						\
-		YE_ALLOC_ENTITY_BASE(ret, type);			\
-		curentFat = YE_TO_ENTITY(ret);				\
-		++fatPosition;						\
-	} else {							\
-		ret = (type *)((union SmallEntity *)curentFat + fatPosition); \
-		ret->refCount = 1;					\
-		curentFat->flag |= fatPosToFLag[fatPosition];		\
-		++fatPosition;						\
-		if (fatPosition > 3) {					\
-			fatPosition = 0;				\
-			curentFat = NULL;				\
+	do {								\
+		if (fatPosition == 0) {					\
+			YE_ALLOC_ENTITY_BASE(ret, type);		\
+			curentFat = YE_TO_ENTITY(ret);			\
+			++fatPosition;					\
+		} else {						\
+			ret = (type *)((union SmallEntity *)curentFat + fatPosition); \
+			ret->refCount = 1;				\
+			curentFat->flag |= fatPosToFLag[fatPosition];	\
+			++fatPosition;					\
+			if (fatPosition > 3) {				\
+				fatPosition = 0;			\
+				curentFat = NULL;			\
+			}						\
 		}							\
-	}								\
 } while (0);
 
 #define YE_ALLOC_ENTITY_BASE(ret, type)					\
@@ -92,6 +92,7 @@ do {									\
 				     stack_pop(freedElems,		\
 					       yBlockArrayLastPos(entitysArray) + 1), \
 				     union FatEntity)->type);		\
+	assert(ret);							\
 	ret->flag = YENTITY_SMALL_SIZE_P0;				\
 	ret->refCount = 1;						\
 } while (0);
@@ -1018,16 +1019,13 @@ static inline void yeAttachChild(Entity *on, Entity *entity,
  * @param name     the name to set
  * @param type     the type of the entity
  * @param fathers  the parent entity of <entity>
- * @return the entity <entity>
  */
-static inline Entity *yeInit(Entity *entity, EntityType type,
+static inline void yeInit(Entity *entity, EntityType type,
 			     Entity *father, const char *name)
 {
-	if (unlikely(!entity))
-		return NULL;
+	assert(entity);
 	entity->type = type;
 	yeAttachChild(father, entity, name);
-	return entity;
 }
 
 Entity *yeCreateCopy(Entity *src, Entity *father, const char *name)
