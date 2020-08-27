@@ -418,27 +418,38 @@ int	luaentity_newcopy(lua_State *L)
 
 int	luaentity_newstring(lua_State *L)
 {
-  const char *val = luaL_checkstring(L, 1);
-  const char *name = lua_tostring(L, 3);
-  Entity *father = NULL;
-  struct entityWrapper *ew = createEntityWrapper(L, 2, &father);
+	const char *val = luaL_checkstring(L, 1);
+	const char *name = lua_tostring(L, 3);
+	Entity *father = NULL;
+	struct entityWrapper *ew = createEntityWrapper(L, 2, &father);
 
-  ew->e = yeCreateString(val, father, name);
-  return 1;
+	ew->e = yeCreateString(val, father, name);
+	return 1;
 }
 
 int	luaentity_newfunc(lua_State *L)
 {
-  const char *val = luaL_checkstring(L, 1);
-  const char *name = lua_tostring(L, 3);
-  Entity *father = NULL;
-  struct entityWrapper *ew = createEntityWrapper(L, 2, &father);
+	const char *name = lua_tostring(L, 3);
+	Entity *father = NULL;
+	struct entityWrapper *ew = createEntityWrapper(L, 2, &father);
+	int is_func = lua_isfunction(L, 1);
+	const char *val = is_func ? NULL : luaL_checkstring(L, 1);
+	if (is_func) {
+		int f_ref;
 
-  if (!name)
-    ew->e = yeCreateFunctionSimple(val, ygGetLuaManager(), father);
-  else
-    ew->e = yeCreateFunction(val, ygGetLuaManager(), father, name);
-  return 1;
+		lua_settop(L, 1);
+		f_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+		ew->e = yeCreateFunctionExt(NULL,
+					    ygGetLuaManager(),
+					    father, name,
+					    YE_FUNC_NO_FASTPATH_INIT);
+		YE_TO_FUNC(ew->e)->idata = f_ref;
+	} else if (!name) {
+		ew->e = yeCreateFunctionSimple(val, ygGetLuaManager(), father);
+	} else {
+		ew->e = yeCreateFunction(val, ygGetLuaManager(), father, name);
+	}
+	return 1;
 }
 
 int	luaentity_newint(lua_State *L)
