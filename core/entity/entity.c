@@ -77,6 +77,7 @@ uint8_t fatPosToFLag[4] = {YENTITY_SMALL_SIZE_P0, YENTITY_SMALL_SIZE_P1,
 		} else {						\
 			ret = (type *)((union SmallEntity *)curentFat + fatPosition); \
 			ret->refCount = 1;				\
+			ret->flag = 0;					\
 			curentFat->flag |= fatPosToFLag[fatPosition];	\
 			++fatPosition;					\
 			if (fatPosition > 3) {				\
@@ -1076,6 +1077,7 @@ int yeAttach(Entity *on, Entity *entity,
 
   if (unlikely(!on || !entity || on->type != YARRAY))
 	  return -1;
+  assert(!(entity->flag & YENTITY_CONST));
 
   entry = yBlockArraySetGetPtr(&YE_TO_ARRAY(on)->values,
 			       idx, ArrayEntry);
