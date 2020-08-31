@@ -431,14 +431,20 @@ int	luaentity_newfunc(lua_State *L)
 {
 	const char *name = lua_tostring(L, 3);
 	Entity *father = NULL;
-	struct entityWrapper *ew = createEntityWrapper(L, 2, &father);
 	int is_func = lua_isfunction(L, 1);
+	struct entityWrapper *ew = is_func ? NULL :
+		createEntityWrapper(L, 2, &father);
 	const char *val = is_func ? NULL : luaL_checkstring(L, 1);
 	if (is_func) {
 		int f_ref;
+		father = luaEntityAt(L, 2);
 
 		lua_settop(L, 1);
 		f_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+		ew = lua_newuserdata(L, sizeof(struct entityWrapper));
+		ew->needDestroy = father == NULL ? 1 : 0;
+		luaL_getmetatable(L, "Entity");
+		lua_setmetatable(L, -2);
 		ew->e = yeCreateFunctionExt(NULL,
 					    ygGetLuaManager(),
 					    father, name,

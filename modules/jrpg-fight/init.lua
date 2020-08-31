@@ -953,10 +953,10 @@ function fightInit(entity)
    local menu = Entity.new_array(menuCnt.entries)
    menu["<type>"] = "menu"
    menu.entries = {}
-   ywMenuPushEntry(menu, "attack", Entity.new_func("fightAttack"))
-   ywMenuPushEntry(menu, "strong attack", Entity.new_func("fightStrongAttack"))
-   ywMenuPushEntry(menu, "recover", Entity.new_func("fightRecover"))
-   ywMenuPushEntry(menu, "use_items", Entity.new_func("fightItems"))
+   ywMenuPushEntry(menu, "attack", Entity.new_func(fightAttack))
+   ywMenuPushEntry(menu, "strong attack", Entity.new_func(fightStrongAttack))
+   ywMenuPushEntry(menu, "recover", Entity.new_func(fightRecover))
+   ywMenuPushEntry(menu, "use_items", Entity.new_func(fightItems))
    local ret = ywidNewWidget(entity, "container")
    ywCanvasEnableWeight(canvas)
    local wid_pix = canvas["wid-pix"]
