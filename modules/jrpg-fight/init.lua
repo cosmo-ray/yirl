@@ -351,7 +351,6 @@ end
 function fightAction(entity, eve)
    entity = Entity.wrapp(entity)
    eve = Event.wrapp(eve)
-   local ret = YEVE_NOTHANDLE
 
    --print("Last Turn Length: ", ywidTurnTimer())
    if entity.atk_state:to_int() == PJ_WIN or
@@ -386,10 +385,7 @@ function fightAction(entity, eve)
       return chooseTarget(entity, eve)
    end
 
-   if yDoAnimation(entity, txt_anim_field) == Y_TRUE and
-   yHasAnimation(entity, txt_anim_field) == Y_FALSE then
-      ret = YEVE_NOTHANDLE
-   end
+   yDoAnimation(entity, txt_anim_field)
 
    if entity.atk_state:to_int() == PJ_ATTACK or
    entity.atk_state:to_int() == ENEMY_ATTACK then
@@ -407,7 +403,7 @@ function fightAction(entity, eve)
 	 eve = eve:next()
       end
    end
-   return ret
+   return YEVE_NOTHANDLE
 end
 
 function setOrig(handler, x, y)
