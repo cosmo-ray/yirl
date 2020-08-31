@@ -41,7 +41,7 @@ local function mk_location(wid_h, start_y)
       {y_carac - base_threshold - 10, y_carac, y_carac + base_threshold}}
 end
 
-local function reset_life_b(main, handler)
+local function reset_life_b(main, handler, dmg)
    local canvas = getCanvas(main)
    local new_life = handler.char.life - dmg
    local max_life = handler.char.max_life
@@ -54,6 +54,7 @@ local function reset_life_b(main, handler)
       handler.life_b = canvas:new_rect(x, y, "rgba: 0 255 30 255",
 				       Pos.new(50 * new_life / max_life,
 					       10).ent).ent
+      ywCanvasSetWeight(canvas.ent, handler.life_b, 10);
    end
 end
 
@@ -179,8 +180,8 @@ end
 local function attackCallback(main, eve)
    local cur_anim = main.attack_info
    local cur_cmb_idx = cur_anim.cur_cmb:to_int()
-   print(cur_cmb_idx)
-   print("cur_cmb.combots:", cur_anim.combots[cur_cmb_idx]:cent(), cur_cmb_idx)
+   --print(cur_cmb_idx)
+   --print("cur_cmb.combots:", cur_anim.combots[cur_cmb_idx]:cent(), cur_cmb_idx)
    local cur_cmb = cur_anim.combots[cur_cmb_idx].touch
    local cur_cmb_anim = cur_anim.combots[cur_cmb_idx].anim
    local canvas = getCanvas(main)
@@ -195,7 +196,7 @@ local function attackCallback(main, eve)
       cur_val_pos = cur_cmb:len() - 1
    end
 
-   print(cur_cmb, cur_val_pos)
+   --print(cur_cmb, cur_val_pos)
    local cur_val = cur_cmb[cur_val_pos]:to_int()
    local can_print_loader = true
    local guy = cur_anim.guy
@@ -337,7 +338,7 @@ local function attackCallback(main, eve)
    end
 
    if can_print_loader then
-      print("can_print_loader:", can_print_loader, tot_bar_len * cur_time / tot_time)
+      --print("can_print_loader:", can_print_loader, tot_bar_len * cur_time / tot_time)
       local cmb_bar = Entity.new_array()
 
       cmb_bar[0] = Pos.new(tot_bar_len * cur_time / tot_time, 15).ent
@@ -444,7 +445,7 @@ function combatDmgInternal(main, target, dmg)
       ywCanvasSetWeight(canvas.ent, heart, 10);
    end
    target.char.life = new_life
-   reset_life_b(main, target)
+   reset_life_b(main, target, 0)
 end
 
 function combatDmg(main, cur_anim)
@@ -524,7 +525,7 @@ function endAnimationAttack(main, cur_anim)
 		  enemies[j].screen_idx = screen_idx
 		  enemies[j].on_screen = true
 		  enemies[i].on_screen = false
-		  reset_life_b(main, bad_guys[screen_idx])
+		  reset_life_b(main, bad_guys[screen_idx], 0)
 		  enemies_not_on_screen = enemies_not_on_screen - 1
 		  have_win = false
 		  break
@@ -878,6 +879,8 @@ function newDefaultGuy(guy, isEnemy)
       local cmb = nil
       if guy.attack then
 	 cmb = combots[guy.attack:to_string()]
+      elseif yIsNNil(combots[0].touch) then
+	 cmb = combots
       else
 	 cmb = combots[0]
       end
