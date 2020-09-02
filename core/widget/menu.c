@@ -383,6 +383,16 @@ Entity *ywMenuGetCurrentEntry(Entity *entity)
 		     ywMenuGetCurrent(ywidGetState(entity)));
 }
 
+void ywMenuClear(Entity *menu)
+{
+	YMenuState *m_state = (YMenuState *)ywidGetState(menu);
+	Entity *entries = yeGet(menu, "entries");
+
+	yeClearArray(entries);
+	if (m_state)
+		m_state->current = 0;
+}
+
 int ywMenuInit(void)
 {
 	if (t != -1)

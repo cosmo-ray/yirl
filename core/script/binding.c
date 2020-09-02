@@ -106,6 +106,8 @@ BIND_EI(yeStringAddLong, 2, 0);
 
 BIND_EI(ywCntGetEntry, 2, 0);
 
+BIND_E(ywMenuClear, 1, 0);
+
 BIND_E(yeSetConst, 1, 0);
 
 BIND_E(yeClearArray, 1, 0);

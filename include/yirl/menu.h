@@ -48,6 +48,8 @@ Entity *ywMenuGetCurrentEntry(Entity *entity);
 
 void ywMenuSetCurrentEntry(Entity *entity, Entity *newCur);
 
+void ywMenuClear(Entity *menu);
+
 int ywMenuHasChange(YWidgetState *opac);
 int ywMenuPosFromPix(Entity *wid, uint32_t x, uint32_t y);
 
