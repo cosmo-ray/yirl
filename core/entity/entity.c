@@ -276,8 +276,8 @@ static inline int	findIdxPoint(const char *name)
 
 static inline ArrayEntry *yeGetArrayEntryByStr(Entity *entity, const char *str)
 {
-	Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(entity)->values, elem,
-				  it, ArrayEntry) {
+	Y_BLOCK_ARRAY_SIZED_FOREACH_PTR(YE_TO_ARRAY(entity)->values, elem,
+					it, ArrayEntry, ArrayEntry) {
 		if (elem && yuiStrEqual(str, elem->name))
 			return elem;
 	}
@@ -333,8 +333,8 @@ static Entity *yeGetByIdxFastWithEnd(Entity *entity, const char *name,
 	idx = strtod(name, &isNum);
 	if (isNum != name)
 		return yeGet(entity, idx);
-	Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(entity)->values, tmp,
-				  it, ArrayEntry) {
+	Y_BLOCK_ARRAY_SIZED_FOREACH_PTR(YE_TO_ARRAY(entity)->values, tmp,
+					it, ArrayEntry, ArrayEntry) {
 		if (unlikely(!tmp || !tmp->name))
 			continue;
 		if (strlen(tmp->name) == (unsigned int)end &&
@@ -367,8 +367,8 @@ Entity *yeGetByStrExt(Entity *entity, const char *name, int64_t *idx)
 
 	assert(entity->refCount);
 
-	Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(entity)->values, tmp,
-				  it, ArrayEntry) {
+	Y_BLOCK_ARRAY_SIZED_FOREACH_PTR(YE_TO_ARRAY(entity)->values, tmp,
+					it, ArrayEntry, ArrayEntry) {
 		if (!tmp || !tmp->name)
 			continue;
 		if (yuiStrEqual(tmp->name, name)) {
@@ -457,8 +457,8 @@ int yeArrayIdx_str(Entity *entity, const char *lookup)
 
 	assert(entity->refCount);
 
-	Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(entity)->values, tmp,
-				  it, ArrayEntry) {
+	Y_BLOCK_ARRAY_SIZED_FOREACH_PTR(YE_TO_ARRAY(entity)->values, tmp,
+					it, ArrayEntry, ArrayEntry) {
 		if (unlikely(!tmp))
 			continue;
 		if (yuiStrEqual0(tmp->name, lookup))
@@ -668,7 +668,7 @@ static void destroyChildsNoFree(Entity *entity)
 	BlockArray *ba = &YE_TO_ARRAY(entity)->values;
 	uint16_t flag = ba->flag;
 	ba->flag = YBLOCK_ARRAY_NOMIDFREE;
-	Y_BLOCK_ARRAY_FOREACH_PTR(*ba, ae, i, ArrayEntry) {
+	Y_BLOCK_ARRAY_SIZED_FOREACH_PTR(*ba, ae, i, ArrayEntry, ArrayEntry) {
 		yBlockArrayUnset(ba, i);
 		arrayEntryDestroy(ae);
 	}
