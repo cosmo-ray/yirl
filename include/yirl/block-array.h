@@ -227,12 +227,13 @@ static inline int8_t *yBlockArraySetGetPtrInternal(BlockArray *ba, size_t pos)
        yfi < (ba).nbBlock;						\
        tmpBeg##elem = 0, ++yfi)						\
     for (uint64_t tmpmask =						\
-	   ((ba).blocks[yfi] ^						\
-	    Y_BLOCK_ARRAY_MAKE_SET(tmpBeg##elem & 63LLU)),		\
+	   ((ba).blocks[yfi] &						\
+	    (~Y_BLOCK_ARRAY_MAKE_SET(tmpBeg##elem & 63LLU))),		\
 	   tmp##it, it;							\
 	 tmpmask &&							\
-	   ({ tmp##it = YUI_GET_FIRST_BIT(tmpmask); (void)it;		\
-	   it = yfi * 64 + tmp##it; elem = getter(ba, it, type); 1; });	\
+		 ({ tmp##it = ctz64(tmpmask); (void)it;			\
+			 it = yfi * 64 + tmp##it;			\
+			 elem = getter(ba, it, type); 1; });		\
 	 tmpmask ^= (1LLU << tmp##it))
 
 

@@ -346,7 +346,7 @@ static Entity *yeGetByIdxFastWithEnd(Entity *entity, const char *name,
 
 Entity *yeGetByStrFast(Entity *entity, const char *name)
 {
-	if (unlikely(!entity || !name || yeType(entity) != YARRAY))
+	if (unlikely(!name || yeType(entity) != YARRAY))
 		return NULL;
 	assert(entity->refCount);
 
