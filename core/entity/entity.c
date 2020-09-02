@@ -350,8 +350,8 @@ Entity *yeGetByStrFast(Entity *entity, const char *name)
 		return NULL;
 	assert(entity->refCount);
 
-	Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(entity)->values, tmp,
-				  it, ArrayEntry) {
+	Y_BLOCK_ARRAY_SIZED_FOREACH_PTR(YE_TO_ARRAY(entity)->values, tmp,
+					it, ArrayEntry, ArrayEntry) {
 		if (unlikely(!tmp || !tmp->name))
 			continue;
 		if (yuiStrEqual(tmp->name, name))

@@ -186,6 +186,9 @@ void yBlockArrayCopyElemInternal(BlockArray *ba, size_t pos,
 #define yBlockArrayGetPtrDirect(ba, pos, type)		\
   ((type *)yBlockArrayFastGet((ba), (pos)))
 
+#define yBlockArrayGetSuperDirect(ba, pos, type)	\
+	((ba).elems + (pos) * sizeof(type))
+
 static inline int8_t *yBlockArrayGetInternal(BlockArray *ba, size_t pos)
 {
 	if (unlikely(!yBlockArrayIsBlockAllocated(*ba, yBlockArrayBlockPos(pos)))) {
@@ -233,7 +236,7 @@ static inline int8_t *yBlockArraySetGetPtrInternal(BlockArray *ba, size_t pos)
 	 tmpmask &&							\
 		 ({ tmp##it = ctz64(tmpmask); (void)it;			\
 			 it = yfi * 64 + tmp##it;			\
-			 elem = getter(ba, it, type); 1; });		\
+			 elem = (elemType)getter(ba, it, type); 1; });	\
 	 tmpmask ^= (1LLU << tmp##it))
 
 
@@ -250,6 +253,10 @@ static inline int8_t *yBlockArraySetGetPtrInternal(BlockArray *ba, size_t pos)
 
 #define Y_BLOCK_ARRAY_FOREACH(ba, elem, it, type)	\
   Y_BLOCK_ARRAY_FOREACH_SINCE(ba, 0, elem, it, type)
+
+#define Y_BLOCK_ARRAY_SIZED_FOREACH_PTR(ba, elem, it, ptr_type, elem_type) \
+	Y_BLOCK_ARRAY_FOREACH_INT(ba, 0, elem, it, elem_type, ptr_type *, \
+				  yBlockArrayGetSuperDirect)
 
 static inline int yBlockArrayIteratorIsEnd(BlockArrayIterator *it)
 {
