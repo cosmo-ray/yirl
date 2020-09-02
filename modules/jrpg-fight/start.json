@@ -37,7 +37,7 @@
 	    "sex": "female",
 	    "name": "ikea",
 	    "life": 10,
-	    "atk_mod": "berserk",
+	    "atk_mod": "berserker",
 	    "max_life": 15,
 	    "type": "tanned",
 	    "usable_items": {

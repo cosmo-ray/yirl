@@ -27,8 +27,14 @@ local SPRITES_T = 1
 
 local BAR_PIX_MULT = 30
 
+local is_menu_off = false
+
 local function getCanvas(main)
    return Canvas.wrapp(main.entries[0])
+end
+
+local function getMenu(main)
+   return main.entries[1].entries[0]
 end
 
 local function mk_location(wid_h, start_y)
@@ -403,7 +409,28 @@ function fightAction(entity, eve)
 	 eve = eve:next()
       end
    end
+
+   if yeGetStringAt(entity.gg_handlers[cur_player].char, "atk_mod") ==
+   "berserker" then
+      local t = entity.bg_handlers[yuiRand() % yeLen(entity.bg_handlers)]
+      ywMenuClear(getMenu(entity))
+      ywMenuPushEntry(getMenu(entity), "BERSERKERRR")
+      attack(entity, entity.gg_handlers[cur_player], t, 3)
+      entity.atk_state = PJ_ATTACK
+      is_menu_off = true
+      return YEVE_ACTION
+   end
+   print("atk state: ", entity.atk_state:to_int(),
+	 entity.gg_handlers[cur_player].char.atk_mod)
    return YEVE_NOTHANDLE
+end
+
+local function create_clasic_menu(menu)
+   ywMenuClear(menu)
+   ywMenuPushEntry(menu, "attack", Entity.new_func(fightAttack))
+   ywMenuPushEntry(menu, "strong attack", Entity.new_func(fightStrongAttack))
+   ywMenuPushEntry(menu, "recover", Entity.new_func(fightRecover))
+   ywMenuPushEntry(menu, "use_items", Entity.new_func(fightItems))
 end
 
 function setOrig(handler, x, y)
@@ -601,6 +628,10 @@ function endAnimationAttack(main, cur_anim)
 	 setOrig(guy, good_orig_pos[1], good_orig_pos[2])
       end
       main.atk_state = AWAIT_CMD
+      if is_menu_off then
+	 create_clasic_menu(getMenu(main))
+	 is_menu_off = 0
+      end
    end
 end
 
@@ -948,11 +979,8 @@ function fightInit(entity)
    menuCnt["cnt-type"] = "vertical"
    local menu = Entity.new_array(menuCnt.entries)
    menu["<type>"] = "menu"
-   menu.entries = {}
-   ywMenuPushEntry(menu, "attack", Entity.new_func(fightAttack))
-   ywMenuPushEntry(menu, "strong attack", Entity.new_func(fightStrongAttack))
-   ywMenuPushEntry(menu, "recover", Entity.new_func(fightRecover))
-   ywMenuPushEntry(menu, "use_items", Entity.new_func(fightItems))
+   create_clasic_menu(menu)
+
    local ret = ywidNewWidget(entity, "container")
    ywCanvasEnableWeight(canvas)
    local wid_pix = canvas["wid-pix"]
