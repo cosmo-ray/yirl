@@ -738,7 +738,6 @@ void yeDestroyInt(Entity *entity);
 void yeDestroyFloat(Entity *entity);
 void yeDestroyString(Entity *entity);
 void yeDestroyFunction(Entity *entity);
-void yeDestroyRef(Entity *entity);
 void yeDestroyArray(Entity *entity);
 void yeDestroyData(Entity *entity) ;
 
