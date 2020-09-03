@@ -1,3 +1,8 @@
+#ifndef BASIC_H_
+#define BASIC_H_
+
+#include <stddef.h>
+
 #define INT_MIN       (-INT_MAX - 1)
 #define INT_MAX       2147483647
 
@@ -15,7 +20,6 @@
 #define M_SQRT2        1.41421356237309504880  /* sqrt(2) */
 #define M_SQRT1_2      0.70710678118654752440  /* 1/sqrt(2) */
 
-#define NULL	((void *)0)
 #define O_ACCMODE          0003
 #define O_RDONLY             00
 #define O_WRONLY             01
@@ -48,12 +52,6 @@
 #ifndef O_ASYNC
 # define O_ASYNC         020000
 #endif
-
-typedef int_ptr_t ssize_t;
-
-typedef int_ptr_t intptr_t;
-
-typedef unsigned long size_t;
 
 typedef struct __FILE FILE;
 
@@ -120,4 +118,6 @@ void abort(void);
 	    __LINE__, __FILE__);			\
     abort();						\
   };
+#endif
+
 #endif

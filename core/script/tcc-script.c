@@ -354,7 +354,7 @@ static TCCState *createTCCState(YTccScript *state)
 	if (state->nbStates > TCC_MAX_SATES)
 		return NULL;
 	l = tcc_new();
-	tcc_set_options(l, "-nostdlib");
+	tcc_set_options(l, "-nostdlib -nostdinc");
 	if (l == NULL)
 		return NULL;
 	tccAddSyms(l);
@@ -372,12 +372,9 @@ static TCCState *createTCCState(YTccScript *state)
 		tcc_set_lib_path(l, libPath);
 		free(libPath);
 	} else {
-		yuiAutoStr char *includePath = NULL;
-		yuiAutoStr char *includePath2 = NULL;
-
 		if (asprintf(&includePath, "%s/include/", ysTccPath) < 0)
 			return NULL;
-		if (asprintf(&includePath2, "%s/tinycc/", ysTccPath) < 0) {
+		if (asprintf(&includePath2, "%s/tinycc/", includePath) < 0) {
 			return NULL;
 		}
 		tcc_set_lib_path(l, ysTccPath);

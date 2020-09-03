@@ -18,21 +18,11 @@
 #ifndef _YIRL_UTILS_H_
 #define _YIRL_UTILS_H_
 
-
 #ifndef MAX_NB_MANAGER
 #define MAX_NB_MANAGER 64
 #endif
 
-#ifdef Y_INSIDE_TCC
-typedef char int8_t;
-typedef unsigned char uint8_t;
-typedef short int16_t;
-typedef unsigned short uint16_t;
-typedef int int32_t;
-typedef unsigned int uint32_t;
-typedef long long int64_t;
-typedef unsigned long long uint64_t;
-#else
+#ifndef Y_INSIDE_TCC
 #include <math.h>
 #include <assert.h>
 #include <stdint.h>
