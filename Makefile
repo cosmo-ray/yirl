@@ -173,10 +173,13 @@ install: yirl-loader
 	cp -rvf include $(PREFIX)/share/yirl/
 	mkdir -p $(PREFIX)/share/yirl/tinycc/
 	cp tinycc/libtcc1.a $(PREFIX)/share/yirl/tinycc/
+	cp DejaVuSansMono.ttf $(PREFIX)/share/yirl/
 	echo "Install everything in: "$(PREFIX)
 
 install_extra_modules:
 	mkdir -p $(INSTALL_MOD)
+	mkdir -p $(INSTALL_MOD)/c_app
+	cp  modules/c_app/* $(INSTALL_MOD)/c_app/
 	mkdir -p $(INSTALL_MOD)/snake
 	cp  modules/snake/snake.lua $(INSTALL_MOD)/snake/snake.lua
 	cp  modules/snake/start.json $(INSTALL_MOD)/snake/start.json
