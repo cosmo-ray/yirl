@@ -429,8 +429,13 @@ int    ysdl2Init(void)
   char ttf_path2[PATH_MAX + sizeof("/DejaVuSansMono.ttf")];
   if (type != -1)
     return type;
-  char ttf_path[strlen(ygBinaryRootPath) + sizeof("/DejaVuSansMono.ttf")];
-  sprintf(ttf_path, "%s%s", ygBinaryRootPath, "/DejaVuSansMono.ttf");
+
+  int ttf_path_l = ygBinaryRootPath ?
+	  strlen(ygBinaryRootPath) + sizeof("/DejaVuSansMono.ttf") :
+	  sizeof("/DejaVuSansMono.ttf");
+  char ttf_path[ttf_path_l];
+  sprintf(ttf_path, "%s%s", ygBinaryRootPath ? ygBinaryRootPath : "",
+	  "/DejaVuSansMono.ttf");
 
   /* Initialisation simple */
   if (SDL_Init(SDL_INIT_EVERYTHING) != 0 ) {
