@@ -902,6 +902,11 @@ static inline Entity *yeReCreateFunction(const char *funcName, void *manager,
 
 Entity *yeReCreateData(void *value, Entity *father, const char *name);
 
+/*
+ * I could add cast everywhere to allow c++, but because C++
+ * annoy me, I won't add a line of code for it.
+ */
+#ifndef __cplusplus
 static inline Entity *yeReCreateArray(Entity *father, const char *name,
 				      Entity *child)
 {
@@ -926,6 +931,7 @@ static inline Entity *yeReCreateArray(Entity *father, const char *name,
 	}
 	return yeCreateArray(father, name);
 }
+#endif
 
 static inline Entity *yeReCreateInt(int value, Entity *father,
 				    const char *name)

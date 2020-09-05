@@ -113,7 +113,7 @@ COMMON_CFLAGS += -Wno-cast-function-type
 COMMON_CFLAGS += -fno-strict-aliasing # casting entity doesn't really respect strict aliasing rules
 COMMON_CFLAGS += $(ANALYZER_FLAG)
 
-CXXFLAGS = $(COMMON_CFLAGS) -x c++ -Wno-missing-exception-spec -fno-exceptions -fno-rtti
+CXXFLAGS = $(COMMON_CFLAGS) -x c++ -Wno-missing-exception-spec -fno-exceptions -fno-rtti -fpermissive
 
 CFLAGS += $(COMMON_CFLAGS) -std=gnu11 -D_GNU_SOURCE
 
