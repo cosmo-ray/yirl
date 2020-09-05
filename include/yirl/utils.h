@@ -22,7 +22,9 @@
 #define MAX_NB_MANAGER 64
 #endif
 
-#ifndef Y_INSIDE_TCC
+#ifdef Y_INSIDE_TCC
+#include <stddef.h>
+#else
 #include <math.h>
 #include <assert.h>
 #include <stdint.h>
@@ -270,6 +272,9 @@ typedef struct {
 #include	"debug.h"
 
 /* These functions are helpers to manage "drivers" */
+
+int yuiTryMain(int (*main)(int, char **), int argc, char **argv);
+void yuiLongExit(int jbd, int status);
 
 /**
  * registre a new Type to a Manager.

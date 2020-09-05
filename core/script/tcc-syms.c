@@ -17,6 +17,7 @@
 
 #include <string.h>
 #include <glib.h>
+#include <ctype.h>
 #include "tcc-script.h"
 #include "texture.h"
 #include "canvas.h"
@@ -208,6 +209,17 @@ void	tccAddSyms(TCCState *l)
   ADD_SYM(ywMapCaseXY);
   ADD_SYM(yeGetLast);
   ADD_SYM(ywMapSmootMove);
+  ADD_SYM(strcpy);
+  ADD_SYM(strncpy);
+  ADD_SYM(ysCallInt);
+  ADD_SYM(ysFastCall);
+  ADD_SYM(yuiLongExit);
+  ADD_SYM(yuiTryMain);
+  ADD_SYM(ysTccGetSym);
+  ADD_SYM(ysTccPushSym);
+  ADD_SYM(ysTccPushSysincludePath);
+  ADD_SYM(isdigit);
+  ADD_SYM(usleep);
 #if defined(__unix__) || defined(__APPLE__)
   tcc_add_symbol(l, "yuiDebugPrint", yuiDebugPrint);
   ADD_SYM(fprintf);

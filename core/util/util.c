@@ -23,6 +23,7 @@
 #include <time.h>
 #include <string.h>
 #include <errno.h>
+#include <setjmp.h>
 #include "utils.h"
 
 #if defined(_WIN32)
@@ -36,6 +37,29 @@ const char *yLineRectIntersectStr[] = {
 	"Y_LR_DOWN_INTERSECT",
 	"Y_LR_RIGHT_INTERSECT"
 };
+
+static jmp_buf exit_bufs[64];
+uint16_t jmp_buf_idx;
+
+void yuiLongExit(int jbd, int status)
+{
+	longjmp(exit_bufs[jbd -1], status);
+}
+
+int yuiTryMain(int (*main_f)(int, char **), int argc, char **argv)
+{
+	int ret;
+
+	if (unlikely(!main_f || jmp_buf_idx > 63))
+		return 1;
+	ret = setjmp(exit_bufs[jmp_buf_idx]);
+	if (ret) {
+		--jmp_buf_idx;
+		return ret - 1;
+	}
+	++jmp_buf_idx;
+	return main_f(argc, argv);
+}
 
 int yuiFileExist(const char *path)
 {

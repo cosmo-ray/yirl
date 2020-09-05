@@ -3,6 +3,30 @@
 
 #include <stddef.h>
 
+#ifndef EXIT_FAILURE
+#define EXIT_FAILURE 1
+#endif
+
+#ifndef EXIT_SUCCESS
+#define EXIT_SUCCESS 0
+#endif
+
+#ifndef TRUE
+#define TRUE 1
+#endif
+
+#ifndef FALSE
+#define FALSE 0
+#endif
+
+#ifndef OK
+#define OK 0
+#endif
+
+#ifndef ERR
+#define ERR -1
+#endif
+
 #define INT_MIN       (-INT_MAX - 1)
 #define INT_MAX       2147483647
 
@@ -72,6 +96,7 @@ int fprintf(FILE *stream, const char *format, ...);
 int sprintf(char *str, const char *format, ...);
 int snprintf(char *str, size_t size, const char *format, ...);
 char *strncpy(char *dest, const char *src, size_t n);
+char *strcpy(char *dest, const char *src);
 void free(void *);
 void *malloc(size_t);
 void *realloc(void *, size_t);
@@ -81,6 +106,7 @@ char *strdup(const char *s);
 char *strndup(const char *s, size_t n);
 int strcmp(const char *s1, const char *s2);
 int strncmp(const char *s1, const char *s2, size_t n);
+
 int fflush(FILE *stream);
 
 void *memset(void *s, int c, size_t n);
@@ -96,12 +122,13 @@ double sqrt(double x);
 /* seems from greping in /usr/include that it should be u32 */
 typedef unsigned int useconds_t;
 
-int usleep(useconds_t usec);
+int usleep(useconds_t);
 
 void abort(void);
+int isdigit(int);
 
 /* Because I have no fucking idea of to define
- * a non function symbole on windows 
+ * a non function symbole on windows
  * I can't define stderr */
 #ifdef _WIN32
 #define fprintf(a, b, args...)			\

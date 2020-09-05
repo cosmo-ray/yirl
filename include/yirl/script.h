@@ -202,4 +202,13 @@ void *ysNewManager(void *args, int type);
  */
 int ysDestroyManager(void *sm);
 
+/**
+ * @return symbol of object name
+ */
+void *ysTccGetSym(void *vstate, const char *name);
+
+int ysTccPushSym(void *state, const char *name, void *sym);
+
+int ysTccPushSysincludePath(void *state, const char *path);
+
 #endif

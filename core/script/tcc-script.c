@@ -582,5 +582,22 @@ int ysTccEnd(void)
 	return ysUnregiste(t);
 }
 
+void *ysTccGetSym(void *state, const char *name) {
+	printf("tcc_get_symbol: %p %p %s\n", state,
+	       tccGetFastCall(state, name),
+	       name);
+	return tccGetFastCall(state, name);
+}
+
+int ysTccPushSym(void *state, const char *name, void *sym)
+{
+	return tcc_add_symbol(GET_TCC_S(state), name, sym);
+}
+
+int ysTccPushSysincludePath(void *state, const char *path)
+{
+	return tcc_add_sysinclude_path(GET_TCC_S(state), path);
+}
+
 #undef GET_OPS
 #undef GET_TCC_S
