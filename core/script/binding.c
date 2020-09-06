@@ -53,6 +53,8 @@ BIND_EES(ywMapRemoveByStr, 3, 0);
 BIND_ESE(ywMenuPushEntry, 2, 1);
 BIND_ESE(ywMenuPushSlider, 2, 1);
 
+BIND_EEE(ywidActions, 2, 1);
+
 BIND_EEES(ywMapTryPushElem, 3, 1);
 BIND_EEES(ywMapPushElem, 3, 1);
 

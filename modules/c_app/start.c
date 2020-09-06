@@ -59,7 +59,8 @@ void *capp_action(int nbArg, void **w_args)
 		argv_strs += yeLen(arg) + 1;
 	}
 
-	YE_FOREACH(yeGet(capp, "files"), file) {
+	Entity *files = yeGet(capp, "files");
+	YE_FOREACH(files, file) {
 		ysLoadFile(ygGetManager("tcc"), yeGetString(file));
 	}
 
@@ -88,10 +89,12 @@ void *init_capp(int nbArg, void **args)
 	empty_line[60] = 0;
 	YEntityBlock {
 		capp.action = capp_action;
-		capp.background = "rgba: 255 255 255 255";
 		capp.text = [];
 		capp["text-align"] = "center";
 	}
+
+	if (!yeGet(capp, "background"))
+		yeCreateString("rgba: 255 255 255 255", capp, "background");
 	txt = yeGet(capp, "text");
 	for (int i = 0; i < 25; ++i) {
 		yeCreateString(empty_line, txt, NULL);
@@ -120,7 +123,6 @@ void *mod_init(int nbArg, void **args)
 		mod.sl.args[2] = "-w";
 	}
 	mod_path = yeGetStringAt(mod, "$path");
-	printf("mod path: %s\n", mod_path);
 	ywidAddSubType(init);
 	return mod;
 }
