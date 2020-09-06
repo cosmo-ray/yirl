@@ -404,4 +404,8 @@ static inline void ywidRendMainWid(void)
 	ywidRend(ywidGetMainWid());
 }
 
+int ywidFontSize(void);
+int ywidFontW(void);
+int ywidFontH(void);
+
 #endif

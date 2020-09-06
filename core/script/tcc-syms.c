@@ -220,6 +220,9 @@ void	tccAddSyms(TCCState *l)
   ADD_SYM(ysTccPushSysincludePath);
   ADD_SYM(isdigit);
   ADD_SYM(usleep);
+  ADD_SYM(ywidFontSize);
+  ADD_SYM(ywidFontW);
+  ADD_SYM(ywidFontH);
 #if defined(__unix__) || defined(__APPLE__)
   tcc_add_symbol(l, "yuiDebugPrint", yuiDebugPrint);
   ADD_SYM(fprintf);

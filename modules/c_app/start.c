@@ -79,10 +79,13 @@ void *init_capp(int nbArg, void **args)
 	Entity *capp = args[0];
 	void *ret;
 	Entity *txt;
-	char empty_line[61];
 
-	memset(empty_line, ' ', 60);
-	empty_line[60] = 0;
+	ret = ywidNewWidget(capp, "text-screen");
+
+	int cols = ywWidth(capp) / ywidFontW();
+	char empty_line[cols + 1];
+	memset(empty_line, ' ', cols);
+	empty_line[cols] = 0;
 	YEntityBlock {
 		capp.action = capp_action;
 		capp.text = [];
@@ -96,7 +99,6 @@ void *init_capp(int nbArg, void **args)
 	for (int i = 0; i < 25; ++i) {
 		yeCreateString(empty_line, txt, NULL);
 	}
-	ret = ywidNewWidget(capp, "text-screen");
 	return ret;
 }
 
@@ -114,7 +116,7 @@ void *mod_init(int nbArg, void **args)
 		mod.sl = [];
 		mod.sl["<type>"] = "capp";
 		mod.sl.files = [];
-		mod.sl.files[0] = "sl/sl.c";
+		mod.sl.files[0] = "../../../sl/sl.c";
 		mod.sl.args = [];
 		mod.sl.args[0] = "-G";
 		mod.sl.args[2] = "-w";

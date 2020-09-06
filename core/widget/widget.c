@@ -25,6 +25,7 @@
 #include "rect.h"
 #include "container.h"
 #include "entity-script.h"
+#include "sdl2/canvas-sdl.h"
 
 int ywNeedTextureReload;
 
@@ -99,6 +100,21 @@ int ywidRend(YWidgetState *opac)
 		ywidDrawScreen();
 	}
 	return ret;
+}
+
+int ywidFontSize(void)
+{
+	return sgGetFontSize();
+}
+
+int ywidFontW(void)
+{
+	return sgGetTxtW();
+}
+
+int ywidFontH(void)
+{
+	return sgGetTxtH();
 }
 
 /**

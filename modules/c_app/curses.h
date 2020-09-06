@@ -80,9 +80,10 @@ static int wechochar(WINDOW *win, const chtype ch)
 
 static WINDOW *initscr(void)
 {
-	COLS=60;
-	LINES=25;
-	printf("initscr\n");
+	printf("initscr %d - %d\n", ywWidth(cur_wid()) / ywidFontW(),
+	       ywHeight(cur_wid())/ ywidFontH());
+	COLS = ywWidth(cur_wid()) / ywidFontW();
+	LINES = ywHeight(cur_wid())/ ywidFontH();
 	return NULL;
 }
 

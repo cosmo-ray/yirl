@@ -527,13 +527,13 @@ static inline int sdlPrintLine(SDLWid *wid,
   SDL_Renderer *renderer = sg.renderer;
   int caract_per_line = len;
   int ret = 0;
-  int32_t fontSize = sgGetFontSize();
+  int txth = sgGetTxtH();
 
-  if ((fontSize * len) > pos.w) {
+  if (((int)sgGetTxtW() * len) > pos.w) {
     caract_per_line = pos.w / sg.txtWidth;
   }
 
-  pos.y += wid->rect.y + fontSize * line;
+  pos.y += wid->rect.y + txth * line;
   pos.x += wid->rect.x;
   for (int i = 0; i < len; i += caract_per_line) {
       SDL_Surface *textSurface;
@@ -546,7 +546,7 @@ static inline int sdlPrintLine(SDLWid *wid,
 	ret += 1;
       }
 
-      if (pos.y >= wid->rect.y && pos.y + fontSize <= wid->rect.y + wid->rect.h) {
+      if (pos.y >= wid->rect.y && pos.y + txth <= wid->rect.y + wid->rect.h) {
 	textSurface = TTF_RenderUTF8_Solid(sgDefaultFont(), str + i, color);
 	text = SDL_CreateTextureFromSurface(renderer, textSurface);
 
@@ -565,7 +565,7 @@ static inline int sdlPrintLine(SDLWid *wid,
 	  DPRINT_ERR("sdl fail to rend text\n");
 	SDL_DestroyTexture(text);
       }
-      pos.y += fontSize;
+      pos.y += sgGetTxtH();
       if (tmp)
 	str[i + caract_per_line] = tmp;
     }

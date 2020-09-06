@@ -41,5 +41,7 @@ int sdlMergeRect(Entity *dst, int x, int y, int w, int h, const char *c);
 int sdlMergeText(Entity *dst, int x, int y, int w, int h, const char *str);
 
 int sgGetFontSize(void);
+uint32_t sgGetTxtH(void);
+uint32_t sgGetTxtW(void);
 
 #endif
