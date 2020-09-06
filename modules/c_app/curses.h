@@ -184,11 +184,13 @@ static int mvcur(int oldrow, int oldcol, int newrow, int newcol)
 static int attroff(int attrs)
 {
 	printf("attroff %d\n", attrs);
+	return 0;
 }
 
 static int attron(int attrs)
 {
 	printf("attron %d\n", attrs);
+	return 0;
 }
 
 #endif

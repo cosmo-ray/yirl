@@ -9,8 +9,6 @@
 #include <yirl/all.h>
 
 int exit_env = -1;
-int symboles_add = 0;
-
 const char *mod_path;
 
 Entity *cur_wid_;
@@ -46,11 +44,15 @@ void *capp_action(int nbArg, void **w_args)
 	int cnt = 0;
 	int i = 0;
 
-	if (!symboles_add) {
-		symboles_add = 1;
+	if (!yeGetIntAt(capp, "symboles_add")) {
+		yeSetAt(capp, "symboles_add", 1);
 		ysTccPushSysincludePath(ygGetManager("tcc"), mod_path);
 		ysTccPushSym(ygGetManager("tcc"), "exit", exit);
 		ysTccPushSym(ygGetManager("tcc"), "cur_wid", cur_wid);
+		Entity *files = yeGet(capp, "files");
+		YE_FOREACH(files, file) {
+			ysLoadFile(ygGetManager("tcc"), yeGetString(file));
+		}
 	}
 	argv[i++] = "yirl-app";
  	YE_FOREACH(args, arg) {
@@ -58,12 +60,6 @@ void *capp_action(int nbArg, void **w_args)
 		argv[i++] = argv_strs;
 		argv_strs += yeLen(arg) + 1;
 	}
-
-	Entity *files = yeGet(capp, "files");
-	YE_FOREACH(files, file) {
-		ysLoadFile(ygGetManager("tcc"), yeGetString(file));
-	}
-
 
 	yuiTryMain(ysTccGetSym(ygGetManager("tcc"), "main"), argc, argv);
 
@@ -90,6 +86,7 @@ void *init_capp(int nbArg, void **args)
 	YEntityBlock {
 		capp.action = capp_action;
 		capp.text = [];
+		capp.symboles_add = 0;
 		capp["text-align"] = "center";
 	}
 
