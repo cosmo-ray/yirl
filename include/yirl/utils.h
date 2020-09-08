@@ -274,7 +274,7 @@ typedef struct {
 /* These functions are helpers to manage "drivers" */
 
 int yuiTryMain(int (*main)(int, char **), int argc, char **argv);
-void yuiLongExit(int jbd, int status);
+void yuiLongExit(int status);
 
 /**
  * registre a new Type to a Manager.

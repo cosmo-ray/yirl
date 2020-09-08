@@ -8,7 +8,6 @@
  */
 #include <yirl/all.h>
 
-int exit_env = -1;
 const char *mod_path;
 
 Entity *cur_wid_;
@@ -20,9 +19,7 @@ Entity *cur_wid(void)
 
 void exit(int status)
 {
-	if (!exit_env < 0)
-		return;
-	yuiLongExit(exit_env, status + 1);
+	yuiLongExit(status + 1);
 }
 
 void *capp_action(int nbArg, void **w_args)
@@ -116,7 +113,8 @@ void *mod_init(int nbArg, void **args)
 		mod.sl = [];
 		mod.sl["<type>"] = "capp";
 		mod.sl.files = [];
-		mod.sl.files[0] = "../../../sl/sl.c";
+		mod.sl.files[0] = "../../../CursesBird/main.c";
+		//mod.sl.files[0] = "../../../sl/sl.c";
 		mod.sl.args = [];
 		mod.sl.args[0] = "-G";
 		mod.sl.args[2] = "-w";

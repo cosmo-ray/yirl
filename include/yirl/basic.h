@@ -84,9 +84,17 @@ extern FILE *stdin;
 extern FILE *stdout;
 extern FILE *stderr;
 
+typedef unsigned int time_t;
+
 void	fflushout(void);
 int open(const char *path, int oflag, ...);
 int close(int fildes);
+
+FILE *fopen(const char *pathname, const char *mode);
+int fclose(FILE *stream);
+int fscanf(FILE *stream, const char *format, ...);
+
+time_t time(time_t *tloc);
 
 ssize_t read(int fd, void *buf, size_t count);
 ssize_t write(int fd, const void *buf, size_t count);
@@ -146,5 +154,8 @@ int isdigit(int);
     abort();						\
   };
 #endif
+
+int rand(void);
+void srand(unsigned int seed);
 
 #endif

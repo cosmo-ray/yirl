@@ -18,6 +18,7 @@
 #include <string.h>
 #include <glib.h>
 #include <ctype.h>
+#include <time.h>
 #include "tcc-script.h"
 #include "texture.h"
 #include "canvas.h"
@@ -220,9 +221,16 @@ void	tccAddSyms(TCCState *l)
   ADD_SYM(ysTccPushSysincludePath);
   ADD_SYM(isdigit);
   ADD_SYM(usleep);
+  ADD_SYM(rand);
+  ADD_SYM(srand);
   ADD_SYM(ywidFontSize);
   ADD_SYM(ywidFontW);
   ADD_SYM(ywidFontH);
+  ADD_SYM(fopen);
+  ADD_SYM(fclose);
+  ADD_SYM(fscanf);
+  ADD_SYM(time);
+  ADD_SYM(sprintf);
 #if defined(__unix__) || defined(__APPLE__)
   tcc_add_symbol(l, "yuiDebugPrint", yuiDebugPrint);
   ADD_SYM(fprintf);

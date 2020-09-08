@@ -41,9 +41,9 @@ const char *yLineRectIntersectStr[] = {
 static jmp_buf exit_bufs[64];
 uint16_t jmp_buf_idx;
 
-void yuiLongExit(int jbd, int status)
+void yuiLongExit(int status)
 {
-	longjmp(exit_bufs[jbd -1], status);
+	longjmp(exit_bufs[jmp_buf_idx -1], status);
 }
 
 int yuiTryMain(int (*main_f)(int, char **), int argc, char **argv)

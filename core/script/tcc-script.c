@@ -350,11 +350,12 @@ static TCCState *createTCCState(YTccScript *state)
 	TCCState *l;
 	yuiAutoStr char *includePath = NULL;
 	yuiAutoStr char *includePath2 = NULL;
+	yuiAutoStr char *libtcc1a;
 
 	if (state->nbStates > TCC_MAX_SATES)
 		return NULL;
 	l = tcc_new();
-	tcc_set_options(l, "-nostdlib -nostdinc");
+	tcc_set_options(l, " -nostdinc");
 	if (l == NULL)
 		return NULL;
 	tccAddSyms(l);
@@ -363,20 +364,21 @@ static TCCState *createTCCState(YTccScript *state)
 
 		if (asprintf(&includePath, "%s/include/", ygBinaryRootPath) < 0)
 			return NULL;
-		if (asprintf(&includePath2, "%s/tinycc/", includePath) < 0) {
+		if (asprintf(&includePath2, "%s/tinycc/", includePath) < 0)
 			return NULL;
-		}
-		if (asprintf(&libPath, "%s/tinycc/", ygBinaryRootPath) < 0) {
+		if (asprintf(&libPath, "%s/tinycc/", ygBinaryRootPath) < 0)
 			return NULL;
-		}
+		if (asprintf(&libtcc1a, "%s/libtcc1.a", libPath) < 0)
+			return NULL;
 		tcc_set_lib_path(l, libPath);
 		free(libPath);
 	} else {
 		if (asprintf(&includePath, "%s/include/", ysTccPath) < 0)
 			return NULL;
-		if (asprintf(&includePath2, "%s/tinycc/", includePath) < 0) {
+		if (asprintf(&includePath2, "%s/tinycc/", includePath) < 0)
 			return NULL;
-		}
+		if (asprintf(&libtcc1a, "%s/libtcc1.a", ysTccPath) < 0)
+			return NULL;
 		tcc_set_lib_path(l, ysTccPath);
 	}
 	tcc_add_sysinclude_path(l, includePath);
@@ -385,6 +387,8 @@ static TCCState *createTCCState(YTccScript *state)
 	tcc_define_symbol(l, "Y_INSIDE_TCC", NULL);
 	tcc_set_output_type(l, TCC_OUTPUT_MEMORY);
 	tcc_add_user_token(l, "YEntityBlock", tccYEntityBlockCallback);
+	/* printf("tcc_add_file: %s - %d\n", libtcc1a, */
+	/* 	tcc_add_file(l, libtcc1a)); */
 	return l;
 }
 
