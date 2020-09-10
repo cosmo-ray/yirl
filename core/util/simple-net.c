@@ -16,10 +16,20 @@
 */
 
 
-#include <sys/types.h>          /* See NOTES */
+#include <sys/types.h>
+#ifdef _WIN32
+/*
+ * That is 80 % sure broken on windows, but with that gcc shut up about this
+ * Also I don't really use network yet
+ */
+#include <winsock2.h>
+typedef int socklen_t;
+static int nb_init;
+#else
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#endif
 #include <errno.h>
 #include <string.h>
 
@@ -28,6 +38,17 @@
 
 int ysnTcpOpenConnect(const char *dst_ip, int port)
 {
+#ifdef _WIN32
+	if (!nb_init) {
+		WSADATA wsaData;
+		int iResult = WSAStartup(MAKEWORD(2 ,2), &wsaData);
+		if (iResult != 0) {
+			DPRINT_ERR("error at WSASturtup\n");
+			return -1;
+		}
+		++nb_init;
+	}
+#endif
 	struct sockaddr_in s_nfo  = {0};
 	int fd = socket(AF_INET, SOCK_STREAM, 0);
 	int r;
