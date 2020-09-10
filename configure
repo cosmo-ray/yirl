@@ -6,7 +6,7 @@ LINEHELPER[2]="--ndebug			no debug mode, for realease"
 LINEHELPER[3]="--hell-march		optimise for native architecturet"
 LINEHELPER[4]="--asan			compile with adress sanitazer"
 LINEHELPER[5]="--clone-sdl-mixer	like it say"
-LINEHELPER[5]="--analyzer		Use gcc 10+ --fanalyzer"
+LINEHELPER[6]="--analyzer		Use gcc 10+ --fanalyzer"
 
 source configure-helper.sh
 
