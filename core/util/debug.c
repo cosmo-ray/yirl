@@ -46,12 +46,7 @@ void	debug_print_info(FILE* fd, const char* mode);
 
 static FILE*	get_file(int mode)
 {
-	static FILE * file = NULL;
-
-	(void)mode;
-	if (file == NULL)
-		file = fopen("log.txt", "a");
-	return file;
+	return stderr;
 }
 
 #if defined(__unix__) || defined(__APPLE__)
@@ -78,34 +73,19 @@ void	yuiDebugPrint(int mode, char const* format, ...)
 }
 #endif
 
-void	yuiDebugInit()
+void	yuiDebugInit(void)
 {
 	if (isInit)
 		return;
-	void *tmp;
+	isInit = 1;
 	log_confs[INFO].file = get_file(0);
-	tmp = log_confs[INFO].file;
-	debug_print_info(log_confs[INFO].file, log_confs[INFO].str);
-	fprintf(log_confs[INFO].file, "Initiate log file with %p\n", tmp);
-
 	log_confs[WARNING].file = get_file(0);
-	tmp = log_confs[WARNING].file;
-	debug_print_info(log_confs[WARNING].file, log_confs[WARNING].str);
-	fprintf(log_confs[WARNING].file, "Initiate log file with %p\n", tmp);
-
 	log_confs[D_ERROR].file = get_file(0);
-	tmp = log_confs[D_ERROR].file;
-	debug_print_info(log_confs[D_ERROR].file, log_confs[D_ERROR].str);
-	fprintf(log_confs[D_ERROR].file, "Initiate log file with %p\n", tmp);
 }
 
 void	yuiDebugExit()
 {
-	void *tmp;
 	debug_print_info(log_confs[INFO].file, INFO_STR);
-	tmp = log_confs[INFO].file;
-	fprintf(log_confs[INFO].file, "Closing logging file with %p\n", tmp);
-	fclose(log_confs[INFO].file);
 	isInit = 0;
 }
 
