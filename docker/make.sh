@@ -3,6 +3,10 @@
 #end to remove
 
 cd build/
+git checkout origin/master
+echo -n "current git revision: "
+git log --pretty=oneline -1
+git clean -df
 git submodule update --init --recursive
 ./configure --clone-sdl-mixer --ndebug
 make clean_all #in case copied directry wasn't empty

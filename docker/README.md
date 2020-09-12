@@ -3,6 +3,10 @@
 ```
 docker build -v $PWD:/yirl -t yirl-build ./docker
 ```
+or
+```
+docker build --no-cache -v $PWD:/yirl -t yirl-build ./docker
+```
 
 #Build YIRL
 
