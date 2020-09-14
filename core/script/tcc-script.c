@@ -350,32 +350,33 @@ static TCCState *createTCCState(YTccScript *state)
 	TCCState *l;
 	yuiAutoStr char *includePath = NULL;
 	yuiAutoStr char *includePath2 = NULL;
+	yuiAutoStr char *options = NULL;
 
 	if (state->nbStates > TCC_MAX_SATES)
 		return NULL;
 	l = tcc_new();
-	tcc_set_options(l, " -nostdinc");
 	if (l == NULL)
 		return NULL;
 	tccAddSyms(l);
 	if (!ysTccPath) {
-		char *libPath;
-
 		if (asprintf(&includePath, "%s/include/", ygBinaryRootPath) < 0)
 			return NULL;
 		if (asprintf(&includePath2, "%s/tinycc/", includePath) < 0)
 			return NULL;
-		if (asprintf(&libPath, "%s/tinycc/", ygBinaryRootPath) < 0)
+		if (asprintf(&options, "-nostdinc -B%s/tinycc/ -L%s/tinycc/",
+			     ygBinaryRootPath, ygBinaryRootPath) < 0)
 			return NULL;
- 		tcc_set_lib_path(l, libPath);
-		free(libPath);
 	} else {
 		if (asprintf(&includePath, "%s/include/", ysTccPath) < 0)
 			return NULL;
 		if (asprintf(&includePath2, "%s/tinycc/", includePath) < 0)
 			return NULL;
-		tcc_set_lib_path(l, ysTccPath);
+		if (asprintf(&options, "-nostdinc -B%s/tinycc/ -L%s/tinycc/",
+			     ysTccPath, ysTccPath) < 0)
+			return NULL;
 	}
+	//printf("tcc option: %s\n", options);
+	tcc_set_options(l, options);
 	tcc_add_sysinclude_path(l, includePath);
 	tcc_add_sysinclude_path(l, includePath2);
 	tcc_add_sysinclude_path(l, YIRL_MODULES_PATH);
