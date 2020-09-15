@@ -67,8 +67,8 @@ static int sdlRend(YWidgetState *state, int t)
 		}
 
 		destRect = ywRectReCreateInts(
-			0, y0 + pos * sgGetFontSize() + 1,
-			wid->rect.w, sgGetFontSize() + 1,
+			0, y0 + pos * sgGetTxtH() + 1,
+			wid->rect.w, sgGetTxtH() + 1,
 			NULL, NULL);
 		txtR = sdlRectFromRectEntity(destRect);
 		yeDestroy(destRect);
@@ -101,12 +101,12 @@ static int sdlRend(YWidgetState *state, int t)
 		if (isPane) {
 			destRect = ywRectReCreateInts(wid->rect.w / len * pos, 0,
 						      wid->rect.w / len,
-						      sgGetFontSize() + 1,
+						      sgGetTxtH() + 1,
 						      entry, "$rect");
 		} else {
 			destRect = ywRectReCreateInts(
-				0, y0 + pos * sgGetFontSize() + 1, wid->rect.w,
-				sgGetFontSize() + 1, entry, "$rect");
+				0, y0 + pos * sgGetTxtH() + 1, wid->rect.w,
+				sgGetTxtH() + 1, entry, "$rect");
 		}
 		/* ywRectPrint(destRect); */
 		txtR = sdlRectFromRectEntity(destRect);

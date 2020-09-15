@@ -48,7 +48,7 @@ static void *MoveOn(YWidgetState *wid, uint32_t at)
 		if (pre_txt) {
 			int txt_cnt = 1 + yeCountCharacters(pre_txt, '\n', -1);
 
-			y += (txt_cnt * sgGetFontSize());
+			y += (txt_cnt * sgGetTxtH());
 		}
 
 		for (uint32_t i = 0; i <= at; ++i) {
@@ -57,7 +57,7 @@ static void *MoveOn(YWidgetState *wid, uint32_t at)
 			/* int entry_h = ywRectH(e_r); */
 			if (yeGetInt(yeGet(entry, "hiden")))
 				continue;
-			y += sgGetFontSize();
+			y += sgGetTxtH();
 		}
 
 		if (s->threshold + y > wid_h) {
@@ -67,8 +67,8 @@ static void *MoveOn(YWidgetState *wid, uint32_t at)
 			/* s->threshold += s->threshold % sgGetFontSize(); */
 		}
 		/* first we check the botom of last entrym then the top */
-		y -= sgGetFontSize() + 1;
-		if (s->threshold + y - sgGetFontSize() + 1 < 0) {
+		y -= sgGetTxtH() + 1;
+		if (s->threshold + y - (int)sgGetTxtH() + 1 < 0) {
 			s->threshold -= (s->threshold + y);
 		}
 	}
