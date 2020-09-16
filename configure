@@ -83,7 +83,6 @@ function centos {
 }
 
 
-
 parse_args $@
 
 var_add SDL_MIXER_LDFLAGS "$PWD/SDL_mixer/build/.libs/libSDL2_mixer.a"
