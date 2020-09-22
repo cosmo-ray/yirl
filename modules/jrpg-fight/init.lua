@@ -531,18 +531,27 @@ function endAnimationAttack(main, cur_anim)
       local i = 0
       while i < nb_enemies do
 	 local i_on_screen = yeGetBoolAt(enemies[i], "on_screen")
+	 local screen_idx = 0
+
 	 if enemies[i].life > 0 then
 	    have_win = false
-	 elseif enemies_not_on_screen > 0 and
-	 yeGetBoolAt(enemies[i], "on_screen") then
+	    goto next
+	 end
+	 if i_on_screen == false then
+	    goto next
+	 end
+	 -- he's dead, he ceased to exist, he's no more, he's a late enemy
+	 screen_idx = yeGetIntAt(enemies[i], "screen_idx")
+	 bad_guys[screen_idx].dead = true
+	 rm_handler(main, bad_guys[screen_idx])
+
+	 if enemies_not_on_screen > 0 then
 	    local j = 0
 	    while j < nb_enemies do
 	       local j_on_screen = yeGetBoolAt(enemies[j], "on_screen")
 	       if enemies[j].life > 0 and j_on_screen == false then
-		  local screen_idx = yeGetIntAt(enemies[i], "screen_idx")
 		  local y = ywPosY(ylpcsHandePos(bad_guys[screen_idx]))
 
-		  rm_handler(main, bad_guys[screen_idx])
 		  bad_guys[screen_idx] = new_handler(main, enemies[j], y, 50,
 						     bad_orig_pos)
 		  print(j, " replace ", i, "enemies left:", enemies_not_on_screen)
@@ -558,10 +567,8 @@ function endAnimationAttack(main, cur_anim)
 		     yeGetBoolAt(enemies[j], "on_screen"))
 	       j = j + 1
 	    end
-	 elseif i_on_screen then -- he's dead, he ceased to exist, he's no more
-	    local screen_idx = yeGetIntAt(enemies[i], "screen_idx")
-	    rm_handler(main, bad_guys[screen_idx])
 	 end
+	 :: next ::
 	 i = i + 1
       end
    elseif enemies.life > 0 then

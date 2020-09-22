@@ -278,7 +278,8 @@ static InputStatue mnEvent(YWidgetState *opac, Entity *event)
 					((YMenuState *)opac)->current,
 					ywMenuGetCurrentEntry(opac->entity));
 			}
-		} else if (ywidEveKey(event) == '\n') {
+		} else if (ywidEveKey(event) == '\n' ||
+			   ywidEveKey(event) == ' ') {
 			ret = ywMenuCallActionOn(opac, event,
 						 ((YMenuState *)opac)->current);
 		} else {
