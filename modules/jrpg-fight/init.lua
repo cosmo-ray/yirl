@@ -530,14 +530,15 @@ function endAnimationAttack(main, cur_anim)
    if yIsNil(enemies.max_life) then
       local i = 0
       while i < nb_enemies do
+	 local i_on_screen = yeGetBoolAt(enemies[i], "on_screen")
 	 if enemies[i].life > 0 then
 	    have_win = false
 	 elseif enemies_not_on_screen > 0 and
 	 yeGetBoolAt(enemies[i], "on_screen") then
 	    local j = 0
 	    while j < nb_enemies do
-	       if enemies[j].life > 0 and
-	       yeGetBoolAt(enemies[j], "on_screen") == false then
+	       local j_on_screen = yeGetBoolAt(enemies[j], "on_screen")
+	       if enemies[j].life > 0 and j_on_screen == false then
 		  local screen_idx = yeGetIntAt(enemies[i], "screen_idx")
 		  local y = ywPosY(ylpcsHandePos(bad_guys[screen_idx]))
 
@@ -557,6 +558,9 @@ function endAnimationAttack(main, cur_anim)
 		     yeGetBoolAt(enemies[j], "on_screen"))
 	       j = j + 1
 	    end
+	 elseif i_on_screen then -- he's dead, he ceased to exist, he's no more
+	    local screen_idx = yeGetIntAt(enemies[i], "screen_idx")
+	    rm_handler(main, bad_guys[screen_idx])
 	 end
 	 i = i + 1
       end
