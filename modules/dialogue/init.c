@@ -441,7 +441,8 @@ void *dialogueAction(int nbArgs, void **args)
 			} else if(ywidEveKey(eve) == Y_UP_KEY) {
 				current -= 1;
 				hasMove = 1;
-			} else if(ywidEveKey(eve) == '\n') {
+			} else if(ywidEveKey(eve) == '\n' ||
+				  ywidEveKey(eve) == ' ') {
 				Entity *answer = boxGetAnswer(box,
 							      current);
 
