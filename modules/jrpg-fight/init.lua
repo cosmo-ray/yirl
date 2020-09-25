@@ -348,7 +348,7 @@ local function attackCallback(main, eve)
       local cmb_bar = Entity.new_array()
 
       cmb_bar[0] = Pos.new(tot_bar_len * cur_time / tot_time, 15).ent
-      cmb_bar[1] = "rgba: 0 255 0 50"
+      cmb_bar[1] = "rgba: 57 57 57 100"
       cur_anim.loader_percent = canvas:new_rect(25, 5, cmb_bar).ent
       ywCanvasSetWeight(canvas.ent, cur_anim.loader_percent, 10);
    end
@@ -542,7 +542,7 @@ function endAnimationAttack(main, cur_anim)
 	 end
 	 -- he's dead, he ceased to exist, he's no more, he's a late enemy
 	 screen_idx = yeGetIntAt(enemies[i], "screen_idx")
-	 bad_guys[screen_idx].dead = true
+	 bad_guys[screen_idx].dead = 1
 	 rm_handler(main, bad_guys[screen_idx])
 
 	 if enemies_not_on_screen > 0 then
@@ -769,12 +769,33 @@ function useItem(main, user, target)
    return YEVE_ACTION
 end
 
+function getAvaibleTarget(main, side, y, dir)
+   local nb_enemy = yeLen(main.bg_handlers)
+
+   if side == chooseTargetLeft and
+   yeGetInt(main.bg_handlers[y - 1].dead) > 0 then
+      if y + dir > nb_enemy / 2 then
+	 y = 1
+	 while yeGetInt(main.bg_handlers[y - 1].dead) > 0 do
+	    y = y + 1
+	 end
+      else
+	 y = nb_enemy
+	 while yeGetInt(main.bg_handlers[y - 1].dead) > 0 do
+	    y = y - 1
+	 end
+      end
+   end
+   return y
+end
+
 function chooseTargetLoc(main, side, nb_handles, y)
    local canvas = getCanvas(main)
    local location = mk_location(canvas.ent["wid-pix"].h,
 				yeGetInt(main.ychar_start))
    local arrow = nil
 
+   y = getAvaibleTarget(main, side, y, 0)
    if (main.chooseTargetArrow) then
       canvas:remove(main.chooseTargetArrow)
    end
@@ -802,6 +823,8 @@ function chooseTarget(main, eve)
 				yeGetInt(main.ychar_start))
    local nb_enemy = yeLen(main.bg_handlers)
 
+   chooseTargetY = getAvaibleTarget(main, main.chooseTarget:to_int(),
+				    chooseTargetY, 0)
    while eve:is_end() == false do
       if eve:is_key_left() then
 	 if nb_enemy == 3 then
@@ -818,6 +841,8 @@ function chooseTarget(main, eve)
 	 if chooseTargetY < 1 then
 	    chooseTargetY = nb_enemy
 	 end
+	 chooseTargetY = getAvaibleTarget(main, chooseTargetLeft,
+					  chooseTargetY, 1)
 	 return chooseTargetLoc(main, chooseTargetLeft, nb_enemy, chooseTargetY)
       elseif eve:type() == YKEY_DOWN and eve:is_key_down() and
       checkCanChooseTarget(main, nb_enemy) then
@@ -825,6 +850,7 @@ function chooseTarget(main, eve)
 	 if chooseTargetY > nb_enemy then
 	    chooseTargetY = 1
 	 end
+	 chooseTargetY = getAvaibleTarget(main, chooseTargetLeft, chooseTargetY, -1)
 	 return chooseTargetLoc(main, chooseTargetLeft, nb_enemy, chooseTargetY)
       elseif eve:type() == YKEY_UP and eve:key() == Y_ESC_KEY then
 	 goto clean
