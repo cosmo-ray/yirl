@@ -117,6 +117,17 @@ local function new_handler(main, guy, y, x, orig)
    return bg_h
 end
 
+local function remove_loader(canvas, cur_anim)
+   if yIsNNil(cur_anim.loaders) then
+
+      local i = 0
+      while i < cur_anim.loaders:len() do
+	 canvas:remove(cur_anim.loaders[i])
+	 i = i + 1
+      end
+      cur_anim.loaders = nil
+   end
+end
 
 local function compute_time(frm)
    return frm * us_per_frm
@@ -275,15 +286,7 @@ local function attackCallback(main, eve)
 	 computer_sucess = false
       end
 
-      if yIsNNil(cur_anim.loaders) then
-	 local i = 0
-	 while i < cur_cmb:len() do
-	    --print("rm loader: ", cur_anim.loaders)
-	    canvas:remove(cur_anim.loaders[i])
-	    i = i + 1
-	 end
-	 cur_anim.loaders = nil
-      end
+      remove_loader(canvas, cur_anim)
 
       local txt = guy.char.name:to_string() .. " attack: "
       if main.atk_state:to_int() == ENEMY_ATTACK then
@@ -499,16 +502,8 @@ function endAnimationAttack(main, cur_anim)
    ywCanvasObjSetPos(guy.life_b0, bpos:x(), bpos:y() - 25)
    ywCanvasObjSetPos(guy.life_b, bpos:x(), bpos:y() - 25)
 
-   if yIsNNil(cur_anim.loaders) then
-      local canvas = getCanvas(main)
+   remove_loader(getCanvas(main), cur_anim)
 
-      local i = 0
-      while i < cur_anim.loaders:len() do
-	 canvas:remove(cur_anim.loaders[i])
-	 i = i + 1
-      end
-      cur_anim.loaders = nil
-   end
    local have_lose = true
    local players = main.player
    i = 0
@@ -850,7 +845,8 @@ function chooseTarget(main, eve)
 	 if chooseTargetY > nb_enemy then
 	    chooseTargetY = 1
 	 end
-	 chooseTargetY = getAvaibleTarget(main, chooseTargetLeft, chooseTargetY, -1)
+	 chooseTargetY = getAvaibleTarget(main, chooseTargetLeft,
+					  chooseTargetY, -1)
 	 return chooseTargetLoc(main, chooseTargetLeft, nb_enemy, chooseTargetY)
       elseif eve:type() == YKEY_UP and eve:key() == Y_ESC_KEY then
 	 goto clean
