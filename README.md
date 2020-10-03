@@ -16,7 +16,7 @@ The idea behind YIRL is to give to the user some basic tools and widgets that ev
 We can see YIRL as a CMS for video game:
 Everyone should be able to add module to YIRL, and everyone should be able to wrap modules into more powerful modules.
 
-As an example the [snake module](https://github.com/cosmo-ray/yirl/tree/master/modules/snake) is a map withe more function and a init, it's basically an inheritance of a map, this allow everyone to add a snake easily in his game.
+As an example the [snake module](https://github.com/cosmo-ray/yirl/tree/master/modules/snake) is a map with more function and a init, it's basically an inheritance of a map, this allow everyone to add a snake easily in his game.
 Snake module is written in lua, but as YIRL have a generic script system, we could have written snake in any scripting language.
 Here is an example how Snake module can be use: https://github.com/cosmo-ray/yirl/tree/master/example/modules/snake.
 
@@ -78,6 +78,7 @@ A good contribution would be to make YIRL compatible with Linux coding style.
 * https://uso.itch.io/warrior-of-asc-ii
 * https://uso.itch.io/jims
 * https://uso.itch.io/sukeban
+* https://uso.itch.io/pewpew-pepper
 
 # Dependencies
 
@@ -116,7 +117,8 @@ make
 Modules are a very important part of YIRL, a modules can be a set of functions,
 A widget that implement some game mechanism(like snake), or a full game (like game/vapz)
 
-Each modules have a start.json file that will serve as entry file, and will tell YIRL how to load every other files
+Each modules have a start file that will serve as entry file, and will tell YIRL how to load every other files.
+It can be either a json file (start.json), or a C/lua/scheme/javascript file. how to load every other files
 
 # Start a game from the source
 ./yirl-loader.sh  --default-tcc-path --binary-root-path $PWD -d path/to/game/module
