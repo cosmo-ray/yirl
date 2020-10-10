@@ -17,6 +17,17 @@
 
 /*
  * This file contain the entity API.
+ * API are just some basic type that are used everywhere in the engine
+ * they can be either int/string/float/function/data or array
+ * they're used everywhere inside my engine
+ * father/mother and parent are the same thing, when creating an entity
+ * this entity can be place inside an array directly, in this case the
+ * parent is the array containing it.
+ *
+ * I've first start to use father instead parent because of some bias
+ * I can't explain, it was a mistake, so I'm presently fixig it using this rule:
+ * father should be randmly keep or replace by either mother and parent
+ * Why use 3 difinition for the same thing ? why not ?
  */
 
 #ifndef	_YIRL_ENTITY_H
@@ -669,64 +680,64 @@ static inline Entity *yeRemoveChildByIdx(Entity *array, int toRemove)
  * function that create an entity and set it to  0, "" or NULL
  * mostly use internally
  */
-Entity *yeCreate(EntityType type, void *val, Entity *fathers, const char *name);
+Entity *yeCreate(EntityType type, void *val, Entity *parent, const char *name);
 
 /*
  * Destructor and constructors.
  */
-Entity *yeCreateInt(int value, Entity *fathers, const char *name);
-Entity *yeCreateIntAt(int value, Entity *father, const char *name, int idx);
-Entity *yeCreateFloat(double value, Entity *fathers, const char *name);
-Entity *yeCreateFloatAt(double value, Entity *fathers, const char *name, int idx);
-Entity *yeCreateString(const char *string, Entity *fathers, const char *name);
-Entity *yeCreateStringAt(const char *string, Entity *father,
+Entity *yeCreateInt(int value, Entity *parent, const char *name);
+Entity *yeCreateIntAt(int value, Entity *parent, const char *name, int idx);
+Entity *yeCreateFloat(double value, Entity *parent, const char *name);
+Entity *yeCreateFloatAt(double value, Entity *parent, const char *name, int idx);
+Entity *yeCreateString(const char *string, Entity *parent, const char *name);
+Entity *yeCreateStringAt(const char *string, Entity *parent,
 			 const char *name, int idx);
-Entity *yeCreateNString(const char *string, int l, Entity *fathers,
+Entity *yeCreateNString(const char *string, int l, Entity *parent,
 			const char *name);
 
-Entity *yeCreateInts_(Entity *fathers, int nbVars, ...);
+Entity *yeCreateInts_(Entity *parent, int nbVars, ...);
 
-#define yeCreateInts(father, args...)				\
-	(yeCreateInts_((father), YUI_GET_ARG_COUNT(args), args))
+#define yeCreateInts(parent, args...)				\
+	(yeCreateInts_((parent), YUI_GET_ARG_COUNT(args), args))
 
 
 #define yeCreateFunctionSimple(name, manager, father)	\
   yeCreateFunction(name, manager, father, name)
 
 Entity *yeCreateFunction(const char *funcName, void *manager,
-			 Entity *father, const char *name);
+			 Entity *parent, const char *name);
 
 Entity *yeCreateFunctionExt(const char *funcName, void *manager,
-			    Entity *father, const char *name, uint64_t flags);
+			    Entity *parent, const char *name, uint64_t flags);
 
-Entity *yeCreateArrayByCStr(Entity *fathers, const char *name);
+Entity *yeCreateArrayByCStr(Entity *parent, const char *name);
 
-static inline Entity *yeCreateArrayByEntity(Entity *fathers, Entity *name)
+static inline Entity *yeCreateArrayByEntity(Entity *parent, Entity *name)
 {
-	return yeCreateArrayByCStr(fathers, yeGetString(name));
+	return yeCreateArrayByCStr(parent, yeGetString(name));
 }
 
 #ifndef __cplusplus
-#define yeCreateArray(fathers, name)					\
+#define yeCreateArray(mother, name)					\
   _Generic((name),							\
 	   Entity *: yeCreateArrayByEntity,				\
 	   void *: yeCreateArrayByEntity,				\
 	   int: yeCreateArrayByCStr,					\
 	   Y_GEN_CLANG_ARRAY(char, yeCreateArrayByCStr),		\
 	   const char *: yeCreateArrayByCStr,				\
-	   char *: yeCreateArrayByCStr)((fathers), (name))
+	   char *: yeCreateArrayByCStr)((mother), (name))
 #endif
 
-static inline Entity *yeTryCreateArray(Entity *father, const char *name)
+static inline Entity *yeTryCreateArray(Entity *mother, const char *name)
 {
-	Entity *ret = yeGet(father, name);
+	Entity *ret = yeGet(mother, name);
 
-	return ret ? ret : yeCreateArrayByCStr(father, name);
+	return ret ? ret : yeCreateArrayByCStr(mother, name);
 }
 
-Entity *yeCreateArrayAt(Entity *fathers, const char *name, int idx);
+Entity *yeCreateArrayAt(Entity *father, const char *name, int idx);
 
-Entity *yeCreateArrayExt(Entity *fathers, const char *name, uint32_t flags);
+Entity *yeCreateArrayExt(Entity *father, const char *name, uint32_t flags);
 
 Entity *yeCreateDataAt(void *value, Entity *father, const char *name, int idx);
 Entity *yeCreateData(void *value, Entity *father, const char *name);
@@ -879,28 +890,28 @@ int yeAttach(Entity *on, Entity *entity, unsigned int idx,
 
 #define YE_GET_REAL_TYPE(type) RECREATE_IS_##type
 
-#define YE_IMPL_RECREATE(_type, value, father, name)			\
-	Entity *ret = yeGetByStrFast(father, name);			\
+#define YE_IMPL_RECREATE(_type, value, mother, name)			\
+	Entity *ret = yeGetByStrFast(mother, name);			\
 									\
 	if (ret) {							\
 		if (unlikely(ret->type != YE_GET_REAL_TYPE(_type))) {	\
-			yeRemoveChild(father, ret);			\
+			yeRemoveChild(mother, ret);			\
 		} else {						\
 			yeSet##_type(ret, value);			\
 			return ret;					\
 		}							\
 	}								\
-	return yeCreate##_type(value, father, name);			\
+	return yeCreate##_type(value, mother, name);			\
 
 
 static inline Entity *yeReCreateFunction(const char *funcName, void *manager,
-					 Entity *father, const char *name)
+					 Entity *parent, const char *name)
 {
-	yeRemoveChildByStr(father, name);
-	return yeCreateFunction(funcName, manager, father, name);
+	yeRemoveChildByStr(parent, name);
+	return yeCreateFunction(funcName, manager, parent, name);
 }
 
-Entity *yeReCreateData(void *value, Entity *father, const char *name);
+Entity *yeReCreateData(void *value, Entity *parent, const char *name);
 
 /*
  * I could add cast everywhere to allow c++, but because C++
@@ -933,41 +944,41 @@ static inline Entity *yeReCreateArray(Entity *father, const char *name,
 }
 #endif
 
-static inline Entity *yeReCreateInt(int value, Entity *father,
+static inline Entity *yeReCreateInt(int value, Entity *parent,
 				    const char *name)
 {
-	YE_IMPL_RECREATE(Int, value, father, name);
+	YE_IMPL_RECREATE(Int, value, parent, name);
 }
 
 
-static inline Entity *yeReCreateFloat(double value, Entity *father,
+static inline Entity *yeReCreateFloat(double value, Entity *parent,
 				      const char *name)
 {
-	YE_IMPL_RECREATE(Float, value, father, name);
+	YE_IMPL_RECREATE(Float, value, parent, name);
 }
 
 static inline Entity *yeReCreateString(const char *string,
-				       Entity *father, const char *name)
+				       Entity *parent, const char *name)
 {
-	YE_IMPL_RECREATE(String, string, father, name);
+	YE_IMPL_RECREATE(String, string, parent, name);
 }
 
-static inline Entity *yeTryCreateInt(int value, Entity *father,
+static inline Entity *yeTryCreateInt(int value, Entity *parent,
 				     const char *name)
 {
-	Entity *ret = yeGetByStrFast(father, name);
+	Entity *ret = yeGetByStrFast(parent, name);
 	if (!ret) {
-		yeCreateInt(value, father, name);
+		yeCreateInt(value, parent, name);
 	}
 	return ret;
 }
 
-static inline Entity *yeTryCreateString(const char *value, Entity *father,
+static inline Entity *yeTryCreateString(const char *value, Entity *parent,
 					const char *name)
 {
-	Entity *ret = yeGetByStrFast(father, name);
+	Entity *ret = yeGetByStrFast(parent, name);
 	if (!ret) {
-		yeCreateString(value, father, name);
+		yeCreateString(value, parent, name);
 	}
 	return ret;
 }
