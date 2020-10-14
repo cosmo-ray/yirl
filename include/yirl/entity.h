@@ -17,8 +17,8 @@
 
 /*
  * This file contain the entity API.
- * API are just some basic type that are used everywhere in the engine
- * they can be either int/string/float/function/data or array
+ * Entities are just some basic type that are used everywhere in the engine
+ * they can either be int,string,float,function,data or array
  * they're used everywhere inside my engine
  * father/mother and parent are the same thing, when creating an entity
  * this entity can be place inside an array directly, in this case the
@@ -26,7 +26,7 @@
  *
  * I've first start to use father instead parent because of some bias
  * I can't explain, it was a mistake, so I'm presently fixig it using this rule:
- * father should be randmly keep or replace by either mother and parent
+ * father should be randomly keep or replace by either mother and parent
  * Why use 3 difinition for the same thing ? why not ?
  */
 
@@ -45,7 +45,7 @@ typedef enum
 	YE_FIND_LINK_NO_DEEP = 2
 } YeFindFlag;
 
-/* All entity type, each is defined later inside a struture */
+/* All entity type, each is defined later inside a structure */
 typedef enum
 {
 	BAD_TYPE = -1,
@@ -110,7 +110,6 @@ typedef enum
 
 
 #define YE_INCR_REF(entity) ({YE_TO_ENTITY(entity)->refCount += 1; entity ;})
-
 
 #define YE_NULLIFY(e)				\
 	({ yeDestroy(e); e = NULL; })
@@ -195,9 +194,10 @@ typedef	struct
 	/* A pointer to the coresponding script manager */
 	void	*manager;
 	/*
-	 * A ptr use by the scripts to call a function faster
-	 * than if we was using the name of the function.
-	 * This is initialyse to NULL
+	 * some data use by the script manager to call a function faster
+	 * it can also handle lambda and local functions,
+	 * which can't be call using a global name
+	 * This is initialyse to 0
 	 */
 	union {
 		void	*fastPath;
