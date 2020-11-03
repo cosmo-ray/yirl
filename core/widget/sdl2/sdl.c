@@ -259,6 +259,16 @@ static inline Entity *SDLConvertEvent(SDL_Event* event)
 	case SDL_KEYDOWN:
 		yeCreateIntAt(YKEY_DOWN, eve, NULL, YEVE_TYPE);
 		break;
+	case SDL_MOUSEBUTTONUP:
+	{
+		Entity *mouse = ywPosCreateInts(event->button.x, event->button.y,
+						NULL, NULL);
+		yeCreateIntAt(YKEY_MOUSEUP, eve, NULL, YEVE_TYPE);
+		yeCreateIntAt(event->button.button, eve, NULL, YEVE_KEY);
+		yePushAt(eve, mouse, YEVE_MOUSE);
+		yeDestroy(mouse);
+		return eve;
+	}
 	case SDL_MOUSEBUTTONDOWN:
 	{
 		Entity *mouse = ywPosCreateInts(event->button.x, event->button.y,
