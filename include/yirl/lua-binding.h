@@ -514,7 +514,6 @@ int	luaWidNextEve(lua_State *L);
 int	luaWidEveIsEnd(lua_State *L);
 int	luaEveType(lua_State *L);
 int	luaEveKey(lua_State *L);
-int	luaywidEveMousePos(lua_State *L);
 
 BIND_E(yevMousePos);
 int	luayevMouseDown(lua_State *L);
@@ -893,7 +892,6 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidEveIsEnd", luaWidEveIsEnd));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidEveType", luaEveType));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidEveKey", luaEveKey));
-  YES_LUA_REGISTRE_CALL(sm, ywidEveMousePos);
   YES_LUA_REGISTRE_CALL(sm, yevIsKeyDown);
   YES_LUA_REGISTRE_CALL(sm, yevIsKeyUp);
   YES_LUA_REGISTRE_CALL(sm, yevMousePos);

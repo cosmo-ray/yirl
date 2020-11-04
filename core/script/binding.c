@@ -126,6 +126,10 @@ BIND_E(ywidNextEve, 1, 0);
 BIND_E(yeIncrRef, 1, 0);
 BIND_E(ywCntWidgetFather, 1, 0);
 
+BIND_E(ywidXMouse, 1, 0);
+BIND_E(ywidYMouse, 1, 0);
+BIND_E(ywidEveMousePos, 1, 0);
+
 BIND_S(ygGet, 1, 0);
 BIND_S(ygGetString, 1, 0);
 BIND_S(ygGetInt, 1, 0);

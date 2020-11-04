@@ -978,12 +978,6 @@ int	luaEveType(lua_State *L)
 	return 1;
 }
 
-int	luaywidEveMousePos(lua_State *L)
-{
-	lua_pushlightuserdata(L, ywidEveMousePos(luaEntityAt(L, 1)));
-	return 1;
-}
-
 int	luaEveKey(lua_State *L)
 {
 	lua_pushnumber(L, ywidEveKey(luaEntityAt(L, 1)));
