@@ -2,16 +2,11 @@ NAME= yirl
 
 LIBNAME= lib$(NAME)
 
-all:	yirl-loader build-tests \
-	build-sm-mod-ex build-snake-ex
+all:	yirl-loader build-tests
 
 include config.mk
 
 include $(TESTS_DIR)/tests.mk
-SM_MOD_EX_DIR=example/modules/smReader
-include $(SM_MOD_EX_DIR)/Makefile
-SNAKE_DIR=example/snake
-include $(SNAKE_DIR)/Makefile
 
 SRC = 	$(SCRIPT_DIR)/lua-script.c \
 	$(SCRIPT_DIR)/entity-script.c \
