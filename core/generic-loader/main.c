@@ -72,7 +72,8 @@ int main(int argc, char **argv)
 
   if (start_dir) {
     tcc_path = start_dir;
-    chdir(start_dir);
+    if (chdir(start_dir) < 0)
+	    goto end;
     cpath = getcwd(buf, PATH_MAX);
   }
 
