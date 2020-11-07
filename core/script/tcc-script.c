@@ -363,7 +363,8 @@ static TCCState *createTCCState(YTccScript *state)
 			return NULL;
 		if (asprintf(&includePath2, "%s/tinycc/", includePath) < 0)
 			return NULL;
-		if (asprintf(&options, "-nostdinc -B%s/tinycc/ -L%s/tinycc/",
+		if (asprintf(&options, "-nostdinc -stdbase"
+			     "-B%s/tinycc/ -L%s/tinycc/",
 			     ygBinaryRootPath, ygBinaryRootPath) < 0)
 			return NULL;
 	} else {
@@ -371,7 +372,8 @@ static TCCState *createTCCState(YTccScript *state)
 			return NULL;
 		if (asprintf(&includePath2, "%s/tinycc/", includePath) < 0)
 			return NULL;
-		if (asprintf(&options, "-nostdinc -B%s/tinycc/ -L%s/tinycc/",
+		if (asprintf(&options, "-nostdinc -stdbase "
+			     "-B%s/tinycc/ -L%s/tinycc/",
 			     ysTccPath, ysTccPath) < 0)
 			return NULL;
 	}
