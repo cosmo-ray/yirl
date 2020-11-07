@@ -74,6 +74,9 @@ int sdlPrintText(SDLWid *wid,
 		 SDL_Rect pos,
 		 int alignementType);
 
+int sdlPrintTextExt(SDLWid *wid, const char *str, SDL_Color color,
+		    SDL_Rect pos, int alignementType, int lineSpace);
+
 int sdlCanvasCacheTexture(Entity *state, Entity *elem);
 
 void sdlCanvasCacheVoidTexture(Entity *obj, Entity *size);

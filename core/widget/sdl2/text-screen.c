@@ -49,7 +49,8 @@ static int sdlRender(YWidgetState *state, int t)
   int threshold = yeGetIntAt(state->entity, "text-threshold");
   SDL_Rect txtR = {0, threshold,
 		   wid->rect.w, wid->rect.h};
-  sdlPrintText(wid, toPrint, color, txtR, alignementType);
+  sdlPrintTextExt(wid, toPrint, color, txtR, alignementType,
+		  yeGetIntAt(state->entity, "line-spacing"));
   if (cursor) {
     int c_pos = yeGetInt(cursor);
     int32_t f_sw = sgGetTxtW();

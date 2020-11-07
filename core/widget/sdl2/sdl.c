@@ -525,19 +525,17 @@ int    ysdl2Init(void)
   return -1;
 }
 
-static inline int sdlPrintLine(SDLWid *wid,
-			       char *str,
-			       SDL_Color color,
-			       SDL_Rect pos,
-			       int line,
-			       int alignementType)
+static inline int sdlPrintLine(
+	SDLWid *wid, char *str, SDL_Color color,
+	SDL_Rect pos, int line, int alignementType,
+	int lineSpace)
 {
   int len = strlen(str);
   int text_width;
   SDL_Renderer *renderer = sg.renderer;
   int caract_per_line = len;
   int ret = 0;
-  int txth = sgGetTxtH();
+  int txth = sgGetTxtH() + lineSpace;
 
   if (((int)sgGetTxtW() * len) > pos.w) {
     caract_per_line = pos.w / sg.txtWidth;
@@ -582,14 +580,12 @@ static inline int sdlPrintLine(SDLWid *wid,
   return ret;
 }
 
-int sdlPrintText(SDLWid *wid,
-		 const char *str,
-		 SDL_Color color,
-		 SDL_Rect pos,
-		 int alignementType)
+int sdlPrintTextExt(SDLWid *wid, const char *str, SDL_Color color,
+		    SDL_Rect pos, int alignementType, int lineSpace)
 {
 	if (!str)
 		return 0;
+
 	char **tmp = g_strsplit(str, "\n", 0);
 	int ret = 0;
 	int aditioner = 0;
@@ -599,7 +595,8 @@ int sdlPrintText(SDLWid *wid,
 
 	for (int i = 0; i < end; ++i) {
 		ret = sdlPrintLine(wid, tmp[i], color, pos,
-				   i + aditioner, alignementType);
+				   i + aditioner, alignementType,
+				   lineSpace);
 		if (ret < 0)
 			goto exit;
 		aditioner += ret;
@@ -607,6 +604,15 @@ int sdlPrintText(SDLWid *wid,
 exit:
 	g_strfreev(tmp);
 	return 0;
+}
+
+int sdlPrintText(SDLWid *wid,
+		 const char *str,
+		 SDL_Color color,
+		 SDL_Rect pos,
+		 int alignementType)
+{
+	return sdlPrintTextExt(wid, str, color, pos, alignementType, 0);
 }
 
 void sdlResize(YWidgetState *wid, int renderType)
