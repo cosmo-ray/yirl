@@ -23,7 +23,6 @@
 
 static int t = -1;
 
-const char *ysTccPath;
 static Entity *includeStrs;
 static int tccLoadString(void *sm, const char *str);
 
@@ -358,25 +357,14 @@ static TCCState *createTCCState(YTccScript *state)
 	if (l == NULL)
 		return NULL;
 	tccAddSyms(l);
-	if (!ysTccPath) {
-		if (asprintf(&includePath, "%s/include/", ygBinaryRootPath) < 0)
-			return NULL;
-		if (asprintf(&includePath2, "%s/tinycc/", includePath) < 0)
-			return NULL;
-		if (asprintf(&options, "-nostdinc -stdbase "
-			     "-B%s/tinycc/ -L%s/tinycc/",
-			     ygBinaryRootPath, ygBinaryRootPath) < 0)
-			return NULL;
-	} else {
-		if (asprintf(&includePath, "%s/include/", ysTccPath) < 0)
-			return NULL;
-		if (asprintf(&includePath2, "%s/tinycc/", includePath) < 0)
-			return NULL;
-		if (asprintf(&options, "-nostdinc -stdbase "
-			     "-B%s/tinycc/ -L%s/tinycc/",
-			     ysTccPath, ysTccPath) < 0)
-			return NULL;
-	}
+	if (asprintf(&includePath, "%s/include/", ygBinaryRootPath) < 0)
+		return NULL;
+	if (asprintf(&includePath2, "%s/tinycc/", includePath) < 0)
+		return NULL;
+	if (asprintf(&options, "-nostdinc -stdbase "
+		     "-B%s/tinycc/ -L%s/tinycc/",
+		     ygBinaryRootPath, ygBinaryRootPath) < 0)
+		return NULL;
 	//printf("tcc option: %s\n", options);
 	tcc_set_options(l, options);
 	tcc_add_sysinclude_path(l, includePath);

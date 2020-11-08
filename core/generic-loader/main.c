@@ -27,14 +27,12 @@ int main(int argc, char **argv)
   GameConfig cfg;
   int ret = 1;
   GOptionContext *ctx;
-  int default_tcc_path = 0;
   const char *start = NULL;
   const char *name = NULL;
   char *binaryRootPath = NULL;
   const char *start_dir = NULL;
   char buf[PATH_MAX];
   char *cpath = getcwd(buf, PATH_MAX);
-  const char *tcc_path = cpath;
   int width = -1;
   int height = -1;
   int linux_user_path = 0;
@@ -45,8 +43,6 @@ int main(int argc, char **argv)
     {"arg", 0, 0,  G_OPTION_ARG_STRING, &yProgramArg, "program argument", NULL},
     {"linux-user-path", 'L', 0,  G_OPTION_ARG_NONE, &linux_user_path,
      "store user data in ~/.yirl", NULL},
-    {"default-tcc-path", 0, 0,  G_OPTION_ARG_NONE, &default_tcc_path,
-     "set this if tcc files are not in start directory", NULL},
     {"binary-root-path", 0, 0,  G_OPTION_ARG_STRING, &binaryRootPath,
      "set path to binary directory(which contain, tcc, script-dependancies, and defaults polices)", NULL},
     {"start-dir", 'd', 0,  G_OPTION_ARG_STRING, &start_dir,
@@ -68,14 +64,9 @@ int main(int argc, char **argv)
   g_option_context_free(ctx);
 
   if (start_dir) {
-    tcc_path = start_dir;
     if (chdir(start_dir) < 0)
 	    goto end;
     cpath = getcwd(buf, PATH_MAX);
-  }
-
-  if (!default_tcc_path) {
-      ysTccPath = tcc_path;
   }
 
   start = cpath;
