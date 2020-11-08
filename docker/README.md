@@ -11,6 +11,12 @@ docker build --no-cache -t yirl-build ./docker
 #Build YIRL
 
 ```
-docker run -v $PWD:/yirl yirl-build scl enable devtoolset-9 ./build/docker/make.sh
+docker run -v $PWD:/yirl yirl-build scl enable devtoolset-9 /yirl/docker/make.sh
 ```
-you can choose the gcc version between 8-9 by changing the devtool used
+
+Notes:
+
+- You can choose the gcc version between 8-9 by changing the devtool used
+- I've use Centos7 because it's old enough to be compatible with most recent distributions
+- I'm pretty bad at docker, so thoses files can still be improve greatly
+- Also I've used podman not docker to test this
