@@ -37,11 +37,8 @@ int main(int argc, char **argv)
   const char *tcc_path = cpath;
   int width = -1;
   int height = -1;
-  int start_need_free = 1;
   int linux_user_path = 0;
   const GOptionEntry entries[10] = {
-    {"start", 's', 0,  G_OPTION_ARG_STRING, &start,
-     "starting module, default: current dit", NULL},
     {"name", 'n', 0,  G_OPTION_ARG_STRING, &name, "window name", NULL},
     {"width", 'W', 0,  G_OPTION_ARG_INT, &width, "window width", NULL},
     {"height", 'H', 0,  G_OPTION_ARG_INT, &height, "window height", NULL},
@@ -81,10 +78,7 @@ int main(int argc, char **argv)
       ysTccPath = tcc_path;
   }
 
-  if (!start) {
-    start = cpath;
-    start_need_free = 0;
-  }
+  start = cpath;
 
   ygInitGameConfig(&cfg, start, NULL);
   cfg.win_name = name;
@@ -117,9 +111,6 @@ int main(int argc, char **argv)
  end:
   ygEnd();
   ygCleanGameConfig(&cfg);
-
-  if (start_need_free)
-    free((char *)start);
 
   free((char *)start_dir);
   free((char *)name);
