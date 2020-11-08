@@ -2,6 +2,8 @@
 #to remove:
 #end to remove
 
+RUN git clone yirl ./build
+
 cd build/
 git checkout origin/master
 echo -n "current git revision: "
@@ -24,3 +26,4 @@ ls quickjs-2020-03-16
 make
 rm -rvf /yirl/docker-package/
 ./package-maker.sh ./yirl-loader /yirl/docker-package/
+cp -rvf tinycc/ /yirl/docker-package/

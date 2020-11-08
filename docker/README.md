@@ -1,11 +1,11 @@
 #Make the image:
 
 ```
-docker build -v $PWD:/yirl -t yirl-build ./docker
+docker build  -t yirl-build ./docker
 ```
 or
 ```
-docker build --no-cache -v $PWD:/yirl -t yirl-build ./docker
+docker build --no-cache -t yirl-build ./docker
 ```
 
 #Build YIRL

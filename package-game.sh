@@ -5,7 +5,7 @@ cp -rvf ./include $2/
 cp -rvf ./modules $2/
 cp -rvf ./scripts-dependancies/ $2/
 cp -v ./DejaVuSansMono.ttf $2/
-cp -rvf tinycc/libtcc1.a $2/
+install -D tinycc/libtcc1.a $2/tinycc/libtcc1.a
 
 ./package-maker.sh ./yirl-loader $2/yirl-loader
 DIR_NAME=$( basename $2 )
