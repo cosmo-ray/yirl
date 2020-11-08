@@ -3,7 +3,9 @@
 BUILD_DST=.
 
 if [ $# -eq 3 ]; then
-	BUILD_DST=$3
+    # if it's build from docker, chance are, submodules haven't been pull yet 
+    git submodule update --init --recursive
+    BUILD_DST=$3
 elif [ $# -ne 2 ]; then
     echo "Usage: package-game.sh src dst [docker-build]"
     return 1

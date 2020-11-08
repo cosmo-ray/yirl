@@ -6,6 +6,7 @@ git clone yirl ./build
 
 cd build/
 git checkout origin/master
+
 echo -n "current git revision: "
 git log --pretty=oneline -1
 git clean -df
@@ -14,16 +15,17 @@ git submodule update --init --recursive
 make clean_all #in case copied directry wasn't empty
 cd tinycc
 ./configure --extra-cflags=-fPIC
-make
+make -j$(nproc)
 cd ..
 cd SDL_mixer
 ./autogen.sh
 ./configure CFLAGS="-fPIC"
-make
+make -j$(nproc)
 cd ..
 make quickjs-2020-03-16
 ls quickjs-2020-03-16
-make
+make -j$(nproc)
+make # just in case last one doesn't work
 rm -rvf /yirl/docker-package/
 ./package-maker.sh ./yirl-loader /yirl/docker-package/
 cp -rvf tinycc/ /yirl/docker-package/
