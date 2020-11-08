@@ -2,7 +2,7 @@
 #to remove:
 #end to remove
 
-RUN git clone yirl ./build
+git clone yirl ./build
 
 cd build/
 git checkout origin/master
