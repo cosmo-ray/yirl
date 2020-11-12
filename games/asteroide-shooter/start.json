@@ -2,7 +2,7 @@
     "name" : "ast-shoot",
     "starting widget" : "main",
     "pre-load" : [{
-	    "path" : "YIRL_MODULES_PATH/modules/asteroide-shooter/",
+	    "path" : "YIRL_MODULES_PATH/asteroide-shooter/",
 	    "type" : "module"
     }],
     "main" : {
