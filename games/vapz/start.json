@@ -6,7 +6,7 @@
     "as" : "scenes",
     "pre-load" : [
 	{
-	    "path" : "YIRL_MODULES_PATH/modules/vapp/",
+	    "path" : "YIRL_MODULES_PATH/vapp/",
 	    "type" : "module"
 	}
     ]
