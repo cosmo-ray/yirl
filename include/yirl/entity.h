@@ -815,6 +815,11 @@ void	yeSetFunction(Entity *entity, const char *value);
 
 void  yeSetDestroy(Entity *entity, void (*func)(void *));
 
+static void  yeSetFreeAdDestroy(Entity *entity)
+{
+	yeSetDestroy(entity, free);
+}
+
 #define yeSet(ENTITY, VALUE) _Generic((VALUE),				\
 				      int: yeSetInt,			\
 				      double: yeSetFloat,		\
