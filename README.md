@@ -163,3 +163,4 @@ But you can still understand how YIRL work by:
 * BASIC emulator module
 * add any language support
 * add any cool game template module
+* https://github.com/dulsi/libgamerzilla support that, and add throphy mechanisme in yirl
