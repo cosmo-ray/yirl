@@ -110,6 +110,13 @@ double ywCanvasObjAngle(Entity *obj);
  */
 int ywCanvasForceSize(Entity *obj, Entity *size);
 
+static inline int ywCanvasForceSizeXY(Entity *obj, int x, int y)
+{
+  yeAutoFree Entity *img_size = ywSizeCreate(x, y, NULL, NULL);
+
+  return ywCanvasForceSize(obj, img_size);
+}
+
 /**
  * reduce @obj of @percent
  */
