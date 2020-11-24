@@ -194,7 +194,7 @@ Entity *ywCanvasNewBicolorImg(Entity *wid, int x, int y, uint8_t *map,
 
 Entity *ywCanvasNewImgByPath(Entity *wid, int x, int y, const char *path);
 Entity *ywCanvasNewImg(Entity *wid, int x, int y, const char *path,
-		       Entity *size);
+		       Entity *src_rect);
 Entity *ywCanvasNewImgFromTexture(Entity *wid, int x, int y, Entity *yTexture,
 				  Entity *img_src_rect);
 
