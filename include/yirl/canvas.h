@@ -168,6 +168,22 @@ static inline  Entity *ywCanvasNewRectangle(Entity *wid, int x, int y, int w,
 	return obj;
 }
 
+/**
+ * Create horizontal segments
+ */
+static inline Entity *ywCanvasNewHSegment(Entity *wid, int x, int y, int w, const char *color_str)
+{
+	return ywCanvasNewRectangle(wid, x, y, w, 1, color_str);
+}
+
+/**
+ * Create vertical segments
+ */
+static inline Entity *ywCanvasNewVSegment(Entity *wid, int x, int y, int h, const char *color_str)
+{
+	return ywCanvasNewRectangle(wid, x, y, 1, h, color_str);
+}
+
 Entity *ywCanvasNewTextByStr(Entity *wid, int x, int y, const char *str);
 Entity *ywCanvasNewText(Entity *wid, int x, int y, Entity *string);
 Entity *ywCanvasNewTextExt(Entity *wid, int x, int y, Entity *string,
