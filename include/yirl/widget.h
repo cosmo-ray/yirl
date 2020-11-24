@@ -116,15 +116,15 @@ struct WidgetState_;
 
 
 enum {
-    YEVE_TYPE = 0,
-    YEVE_KEY = 1,
-    YEVE_MOUSE = 2,
+	YEVE_TYPE = 0,
+	YEVE_KEY = 1,
+	YEVE_MOUSE = 2,
 #define YEVE_INTENSITY YEVE_MOUSE
-    YEVE_CONTROLLER_ID = 3,
-    YEVE_AXIS_ID = 4,
-    YEVE_TIMESTAMP = 5,
-    YEVE_STATUS = 15,
-    YEVE_NEXT = 16
+	YEVE_CONTROLLER_ID = 3,
+	YEVE_AXIS_ID = 4,
+	YEVE_TIMESTAMP = 5,
+	YEVE_STATUS = 15,
+	YEVE_NEXT = 16
 };
 
 enum {
