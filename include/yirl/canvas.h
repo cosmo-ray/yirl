@@ -241,10 +241,21 @@ _Bool ywCanvasCheckColisionsRectObj(Entity *r0, Entity *obj1);
 _Bool ywCanvasCheckCollisions(Entity *wid, Entity *obj, Entity *colisionFunc,
 			      Entity *colisionFuncArg);
 
+/**
+ * @return array containing all object that colide with obj, this need to be free
+ */
 Entity *ywCanvasNewCollisionsArray(Entity *wid, Entity *obj);
+
+/**
+ * @return array containing all object that colide with obj, this need to be free
+ */
 Entity *ywCanvasNewCollisionsArrayExt(Entity *wid, Entity *obj,
 				      Entity *colisionFunc,
 				      Entity *colisionFuncArg);
+
+/**
+ * @return array containing all object that colide with rectangle, this need to be free
+ */
 Entity *ywCanvasNewCollisionsArrayWithRectangle(Entity *wid, Entity *rectangle);
 
 /**
@@ -256,7 +267,7 @@ Entity *ywCanvasProjectedArColisionArray(Entity *wid, Entity *rect,
 					 Entity *add_pos);
 
 /**
- * turn @obj so the top of the sprite point in the direction of @point
+ * turn obj so the top of the sprite point in the direction of point
  */
 static inline void ywCanvasObjPointTopTo(Entity *obj, Entity *point)
 {

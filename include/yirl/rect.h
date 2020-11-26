@@ -68,15 +68,15 @@ Entity *ywRectReCreateInts(int x, int y, int w, int h,
 static inline Entity *ywRectCreateEnt(Entity *other, Entity *father,
 				      const char *name)
 {
-  return ywRectCreateInts(ywRectX(other), ywRectY(other), ywRectW(other),
-			  ywRectH(other), father, name);
+	return ywRectCreateInts(ywRectX(other), ywRectY(other), ywRectW(other),
+				ywRectH(other), father, name);
 }
 
 static inline Entity *ywRectReCreateEnt(Entity *other, Entity *father,
 					const char *name)
 {
-  return ywRectReCreateInts(ywRectX(other), ywRectY(other), ywRectW(other),
-			    ywRectH(other), father, name);
+	return ywRectReCreateInts(ywRectX(other), ywRectY(other), ywRectW(other),
+				  ywRectH(other), father, name);
 }
 
 static inline Entity *ywRectCreatePosSize(Entity *pos, Entity *size,
