@@ -146,6 +146,9 @@ static void *quitOnKeyDown(int nb, union ycall_arg *args, int *types)
 				alive = 0;
 				return (void *)ACTION;
 			}
+		} else if (ywidEveType(eve) == YKEY_MOUSEDOWN) {
+			alive = 0;
+			return (void *)ACTION;
 		}
 	}
 	return (void *)NOTHANDLE;
@@ -260,6 +263,8 @@ static void *nextOnKeyDown(int nb, union ycall_arg *args, int *types)
 			    ywidEveKey(eve) == Y_ESC_KEY) {
 				ret = nextWid(nb, args, types);
 			}
+		} else if (ywidEveType(eve) == YKEY_MOUSEDOWN) {
+			ret = nextWid(nb, args, types);
 		}
 	}
 	return ret;
