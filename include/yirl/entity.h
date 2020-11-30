@@ -1058,6 +1058,20 @@ static inline Entity *yeGetPush(Entity *src, Entity *dst, const char *name)
 	return ret;
 }
 
+/**
+ * @briefJust read the code
+ */
+static inline Entity *yeGetPush2(Entity *src, const char *src_name, Entity *dst, const char *dst_name)
+{
+	Entity *ret = yeGet(src, src_name);
+
+	if (!ret)
+		return NULL;
+	yePushBack(dst, ret, dst_name);
+	return ret;
+}
+
+
 static inline Entity *yeGetByEntity(Entity *array, Entity *key)
 {
 	if (yeType(key) == YINT)
