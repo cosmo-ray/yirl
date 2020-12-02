@@ -26,5 +26,6 @@ else
 fi
 DIR_NAME=$( basename $2 )
 EXEC_NAME=$DIR_NAME\_start.sh
-echo yirl-loader/yirl-loader.sh -d ./ -n $DIR_NAME > $2/$EXEC_NAME
+echo '#!/bin/bash' > $2/$EXEC_NAME
+echo yirl-loader/yirl-loader.sh -d ./ -n $DIR_NAME >> $2/$EXEC_NAME
 chmod +x $2/$EXEC_NAME
