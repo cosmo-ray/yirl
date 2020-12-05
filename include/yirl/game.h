@@ -208,4 +208,9 @@ static inline int ygPushToGlobalScope(Entity *ent, const char *name)
 
 void ygRemoveFromGlobalScope(const char *name);
 
+static inline void ygUpdateScreen(void)
+{
+	ywidRend(ywidGetMainWid());
+}
+
 #endif
