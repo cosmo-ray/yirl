@@ -832,7 +832,7 @@ static void *_call(void *sm, int nb, union ycall_arg *args,
 static void *fCall(void *sm, void *sym, int nb,
 		   union ycall_arg *args, int *t_arrray)
 {
-	return _call(sm, nb, args, t_arrray, *((JSValue *)sym));
+	return _call(sm, nb, args, t_arrray, functions[(intptr_t)sym - 1]);
 }
 
 static void *call(void *sm, const char *name, int nb, union ycall_arg *args,
@@ -896,6 +896,7 @@ static void *allocator(void)
 	ret->ops.loadString = loadString;
 	ret->ops.e_destroy = e_destroy;
 	ret->ops.call = call;
+	ret->ops.fastCall = fCall;
 	return (void *)ret;
 }
 
