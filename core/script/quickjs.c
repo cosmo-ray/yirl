@@ -579,6 +579,13 @@ static JSValue qjsygGetManager(JSContext *ctx, JSValueConst this_val,
 	return obj;
 }
 
+static JSValue qjsygFileToEnt(JSContext *ctx, JSValueConst this_val,
+			       int argc, JSValueConst *argv)
+{
+	return mk_ent(ctx, ygFileToEnt(GET_I(ctx, 0), GET_S(ctx, 1), GET_E(ctx, 2)),
+		      !GET_E(ctx, 2));
+}
+
 static JSValue qjsygLoadScript(JSContext *ctx, JSValueConst this_val,
 			       int argc, JSValueConst *argv)
 {
@@ -767,6 +774,7 @@ static int init(void *sm, void *args)
 	BIND(yesCall, 0, 10);
 	BIND(yeDestroy, 1, 0);
 	BIND(yent_to_str, 1, 0);
+	BIND(ygFileToEnt, 2, 1);
 
 #define IN_CALL 1
 	#include "binding.c"
