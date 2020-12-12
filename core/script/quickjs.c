@@ -645,6 +645,14 @@ static JSValue qjsywRectCreateInts(JSContext *ctx, JSValueConst this_val,
 		      !GET_E(ctx, 4));
 }
 
+static JSValue qjsywTextureNew(JSContext *ctx, JSValueConst this_val,
+			       int argc, JSValueConst *argv)
+{
+	return mk_ent(ctx, ywTextureNew(GET_E(ctx, 0), GET_E(ctx, 1),
+					GET_S(ctx, 2)), !GET_E(ctx, 1));
+}
+
+
 static JSValue qjsyeSetIntAt(JSContext *ctx, JSValueConst this_val,
 			     int argc, JSValueConst *argv)
 {
@@ -775,6 +783,7 @@ static int init(void *sm, void *args)
 	BIND(yeDestroy, 1, 0);
 	BIND(yent_to_str, 1, 0);
 	BIND(ygFileToEnt, 2, 1);
+	BIND(ywTextureNew, 1, 2);
 
 #define IN_CALL 1
 	#include "binding.c"
