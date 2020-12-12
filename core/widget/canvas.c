@@ -29,16 +29,6 @@ static int t = -1;
 static int ywCanvasSetWeightInternal(Entity *wid, Entity *obj, int weight,
 				     int newObj);
 
-static Entity *newTexture(Entity *wid, Entity *size)
-{
-	Entity *obj = yeCreateArray(NULL, NULL);
-	yeCreateInt(YCanvasTexture, obj, "canvas-type");
-	ywPosCreateInts(0, 0, obj, "pos");
-	/* ywCanvasSetWeightInternal(wid, obj, 0, 1); */
-	sdlCanvasCacheVoidTexture(obj, size);
-	return obj;
-}
-
 static int init(YWidgetState *opac, Entity *entity, void *args)
 {
 	YCanvasState *state = (YCanvasState *)opac;
@@ -52,7 +42,7 @@ static int init(YWidgetState *opac, Entity *entity, void *args)
 		yeAutoFree Entity *sz = ywSizeCreate(ywWidth(entity),
 						     ywHeight(entity),
 						     NULL, NULL);
-		state->merge_texture = newTexture(opac->entity, sz);
+		state->merge_texture = ywTextureNew(sz, NULL, NULL);
 	}
 	return 0;
 }

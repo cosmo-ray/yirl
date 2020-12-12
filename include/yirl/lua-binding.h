@@ -447,7 +447,6 @@ int	luayeGet(lua_State *L);
 BIND_ES(yeCreateArray);
 BIND_EEI(yePushAt);
 BIND_EEIS(yeInsertAt);
-BIND_EI(yeGetKeyAt);
 BIND_FAKE(yeRemoveChild);
 BIND_E(yeDestroy);
 BIND_FAKE(yeSetAt);
@@ -822,7 +821,6 @@ static inline int	yesLuaRegister(void *sm)
 
 
   /*array*/
-  YES_LUA_REGISTRE_CALL(sm, yeGetKeyAt);
   YES_LUA_REGISTRE_CALL(sm, yeCreateArray);
   YES_LUA_REGISTRE_CALL(sm, yePopBack);
   YES_LUA_REGISTRE_CALL(sm, yePushAt);

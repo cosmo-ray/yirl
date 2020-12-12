@@ -35,4 +35,15 @@ int ywTextureMerge(Entity *src, Entity *srcRect,
 
 int	ywTextureNormalize(Entity *text);
 
+Entity *ywTextureNew(Entity *size, Entity *father, const char *name);
+
+int ywTextureMergeText(Entity *texture, int x, int y, int w, int h,
+		       const char * txt);
+
+int ywTextureMergeRectangle(Entity *texture, int x, int y,
+			    int w, int h, const char * col);
+
+int ywTextureMergeTexture(Entity *Texture, Entity *yTexture,
+			  Entity *srcRect, Entity *dstRect);
+
 #endif

@@ -31,36 +31,64 @@ int ywTextureFastMerge(Entity *src, Entity *srcRect,
 int ywTextureMerge(Entity *src, Entity *srcRect,
 		   Entity *dest, Entity *dstRect)
 {
-  if (unlikely(!src || !dest))
-	  return -1;
-  if (ywCanvasObjType(src) != YCanvasRect)
-	  ywTextureNormalize(src);
-  if (ywCanvasObjType(dest) != YCanvasRect)
-	  ywTextureNormalize(dest);
-  return sdlMergeSurface(src, srcRect, dest, dstRect);
+	if (unlikely(!src || !dest))
+		return -1;
+	if (ywCanvasObjType(src) != YCanvasRect)
+		ywTextureNormalize(src);
+	if (ywCanvasObjType(dest) != YCanvasRect)
+		ywTextureNormalize(dest);
+	return sdlMergeSurface(src, srcRect, dest, dstRect);
 }
 
 int	ywTextureNormalize(Entity *text)
 {
-  void *tmp = sdlCopySurface(yeGetDataAt(text, YCANVAS_SURFACE_IDX), NULL);
-  Entity *data;
+	void *tmp = sdlCopySurface(yeGetDataAt(text, YCANVAS_SURFACE_IDX), NULL);
+	Entity *data;
 
-  if (!tmp)
-    return -1;
-  yeRemoveChild(text, YCANVAS_SURFACE_IDX);
-  data = yeCreateDataAt(tmp, text, "$img-surface", YCANVAS_SURFACE_IDX);
-  yeSetDestroy(data, sdlFreeSurface);
-  return 0;
+	if (!tmp)
+		return -1;
+	yeRemoveChild(text, YCANVAS_SURFACE_IDX);
+	data = yeCreateDataAt(tmp, text, "$img-surface", YCANVAS_SURFACE_IDX);
+	yeSetDestroy(data, sdlFreeSurface);
+	return 0;
 }
 
 Entity *ywTextureNewImg(const char *path, Entity *size,
 			Entity *father, const char *name)
 {
-  Entity * ret = yeCreateArray(father, name);
+	Entity * ret = yeCreateArray(father, name);
 
-  yeCreateInt(YCanvasTexture, ret, "canvas-type");
-  if (sdlCanvasCacheImg2(ret, NULL, path, size,
-			 YSDL_CACHE_IMG_NO_TEXTURE) < 0)
-    return NULL;
-  return ret;
+	yeCreateInt(YCanvasTexture, ret, "canvas-type");
+	if (sdlCanvasCacheImg2(ret, NULL, path, size,
+			       YSDL_CACHE_IMG_NO_TEXTURE) < 0)
+		return NULL;
+	return ret;
+}
+
+Entity *ywTextureNew(Entity *size, Entity *father, const char *name)
+{
+	Entity *obj = yeCreateArray(father, name);
+
+	yeCreateInt(YCanvasTexture, obj, "canvas-type");
+	sdlCanvasCacheVoidTexture(obj, size);
+	return obj;
+}
+
+int ywTextureMergeText(Entity *texture, int x, int y, int w, int h,
+		       const char * txt)
+{
+	return sdlMergeText(texture, x, y, w, h, txt);
+}
+
+int ywTextureMergeRectangle(Entity *texture, int x, int y,
+			    int w, int h, const char * col)
+{
+	return sdlMergeRect(texture, x, y, w, h, col);
+}
+
+int ywTextureMergeTexture(Entity *texture, Entity *yTexture,
+			  Entity *srcRect, Entity *dstRect)
+{
+	return sdlMergeSurface(yTexture, srcRect,
+			       texture, dstRect);
 }
