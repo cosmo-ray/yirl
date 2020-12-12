@@ -89,6 +89,6 @@ int ywTextureMergeRectangle(Entity *texture, int x, int y,
 int ywTextureMergeTexture(Entity *texture, Entity *yTexture,
 			  Entity *srcRect, Entity *dstRect)
 {
-	return sdlMergeSurface(yTexture, srcRect,
-			       texture, dstRect);
+	return sdlMergeSurface(texture, srcRect,
+			       yTexture, dstRect);
 }

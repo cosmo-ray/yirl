@@ -797,14 +797,14 @@ int sdlMergeSurface(Entity *textSrc, Entity *srcRect,
 					     yeGetStringAt(textSrc, 2),
 					     c);
 
-		return SDL_BlitSurface(txt_surface, NULL, dSurface, &dr);
+		return SDL_BlitSurface(txt_surface, NULL, dSurface, destRect ? &dr : NULL);
 	}
 
 	if (ywCanvasObjType(textSrc) == YCanvasRect) {
 		YBgConf cfg;
 
 		ywidBgConfFill(yeGet(yeGet(textSrc, 2), 1), &cfg);
-		return SDL_FillRect(dSurface, &dr, cfg.rgba);
+		return SDL_FillRect(dSurface, destRect ? &dr : NULL, cfg.rgba);
 	}
 
 	if (unlikely(!sSurface))

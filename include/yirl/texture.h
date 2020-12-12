@@ -33,7 +33,7 @@ int ywTextureFastMerge(Entity *src, Entity *srcRect,
 int ywTextureMerge(Entity *src, Entity *srcRect,
 		   Entity *dest, Entity *dstRect);
 
-int	ywTextureNormalize(Entity *text);
+int ywTextureNormalize(Entity *text);
 
 Entity *ywTextureNew(Entity *size, Entity *father, const char *name);
 
@@ -43,7 +43,7 @@ int ywTextureMergeText(Entity *texture, int x, int y, int w, int h,
 int ywTextureMergeRectangle(Entity *texture, int x, int y,
 			    int w, int h, const char * col);
 
-int ywTextureMergeTexture(Entity *Texture, Entity *yTexture,
+int ywTextureMergeTexture(Entity *src, Entity *dst,
 			  Entity *srcRect, Entity *dstRect);
 
 #endif

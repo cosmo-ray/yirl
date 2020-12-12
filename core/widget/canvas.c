@@ -23,6 +23,7 @@
 #include "sdl2/canvas-sdl.h"
 #include "yirl/canvas.h"
 #include "yirl/entity-script.h"
+#include "yirl/texture.h"
 
 static int t = -1;
 
