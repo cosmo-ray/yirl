@@ -82,7 +82,19 @@ static inline int GET_I_(JSContext *ctx, int idx,
 	return res;
 }
 
+#define GET_D(ctx, idx)				\
+	GET_D_(ctx, idx, argc, argv)
 
+static inline double GET_D_(JSContext *ctx, int idx,
+			 int argc, JSValueConst *argv)
+{
+	double res;
+
+	if (idx >= argc)
+		return 0;
+	JS_ToFloat64(ctx, &res, argv[idx]);
+	return res;
+}
 
 #define LUAT(call)				\
 	_Generic(call,				\
@@ -194,6 +206,13 @@ static JSValue make_abort(JSContext *ctx, ...)
 			      int argc, JSValueConst *argv) {		\
 		BIND_AUTORET(f(GET_E(ctx, 0),				\
 			       GET_I(ctx, 1)));				\
+	}
+
+#define BIND_ED(f, useless...)						\
+	static JSValue qjs##f(JSContext *ctx, JSValueConst this_val,	\
+			      int argc, JSValueConst *argv) {		\
+		BIND_AUTORET(f(GET_E(ctx, 0),				\
+			       GET_D(ctx, 1)));				\
 	}
 
 #define BIND_SI(f, useless...)						\
@@ -411,6 +430,7 @@ static inline JSValue new_ent(JSContext *ctx, Entity *e)
 DUMB_FUNC(yevCreateGrp);
 DUMB_FUNC(yeIncrAt);
 DUMB_FUNC(yeAddAt);
+BIND_ED(ywCanvasRotate);
 BIND_EII(ywCanvasObjSetPos, 3, 0);
 BIND_EIIE(ywCanvasNewText, 2, 2);
 
@@ -622,6 +642,15 @@ static JSValue qjsyeCreateArray(JSContext *ctx, JSValueConst this_val,
 		      !GET_E(ctx, 0));
 }
 
+static JSValue qjsyeCreateCopy(JSContext *ctx, JSValueConst this_val,
+			       int argc, JSValueConst *argv)
+{
+	return mk_ent(ctx, yeCreateCopy(GET_E(ctx, 0),
+					GET_E(ctx, 1),
+					GET_S(ctx, 2)),
+		      !GET_E(ctx, 1));
+}
+
 static JSValue qjsyeCreateInt(JSContext *ctx, JSValueConst this_val,
 			      int argc, JSValueConst *argv)
 {
@@ -769,6 +798,7 @@ static int init(void *sm, void *args)
 	BIND(yeCreateString, 1, 2);
 	BIND(yeCreateInt, 1, 2);
 	BIND(yeCreateArray, 0, 2);
+	BIND(yeCreateCopy, 0, 3);
 	BIND(yeReCreateArray, 2, 1);
 	BIND(yeGetStringAt, 0, 2);
 	BIND(ygLoadScript, 3, 0);
@@ -784,6 +814,7 @@ static int init(void *sm, void *args)
 	BIND(yent_to_str, 1, 0);
 	BIND(ygFileToEnt, 2, 1);
 	BIND(ywTextureNew, 1, 2);
+	BIND(ywCanvasRotate, 2, 0);
 
 #define IN_CALL 1
 	#include "binding.c"
