@@ -158,6 +158,7 @@ BIND_EE(ywCanvasRemoveObj, 2, 0);
 BIND_NONE(yeIncrAt, 2, 0);
 BIND_NONE(yeAddAt, 3, 0);
 BIND_EE(yeAddEnt, 2, 0);
+BIND_EI(yeAddInt, 2, 0);
 
 BIND_E(ywPosToString, 1, 0);
 BIND_E(ywSizeToString, 1, 0);
@@ -202,6 +203,8 @@ BIND_V(ywidGetTurnTimer);
 BIND_V(yeEntitiesArraySize);
 BIND_V(ygModDirOut);
 BIND_V(ywidRendMainWid);
+
+BIND_V(yuiRand);
 
 BIND_SEES(ywTextureNewImg, 4, 0);
 

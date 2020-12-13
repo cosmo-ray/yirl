@@ -437,7 +437,6 @@ int	luayIsNil(lua_State *l);
 int	luayIsNNil(lua_State *l);
 
 /* util */
-BIND_V(yuiRand);
 BIND_V(yuiRandInit);
 BIND_S(yuiMkdir);
 BIND_S(yuiFileExist);
@@ -806,7 +805,6 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, yIsNNil);
 
   /* utils */
-  YES_LUA_REGISTRE_CALL(sm, yuiRand);
   YES_LUA_REGISTRE_CALL(sm, yuiRandInit);
   YES_LUA_REGISTRE_CALL(sm, yuiMkdir);
   YES_LUA_REGISTRE_CALL(sm, yuiFileExist);
