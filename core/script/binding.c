@@ -92,6 +92,8 @@ BIND_EE(ywPosDistance, 2 ,0);
 BIND_EE(ywPosTotCases, 2 ,0);
 BIND_EE(yeCopy, 2 ,0);
 
+BIND_EE(ywCanvasCheckColisionsRectObj);
+
 BIND_ES(yeStringAddNl, 2, 0);
 BIND_ES(yeStringAdd, 2, 0);
 BIND_ES(yeSetString, 2, 0);
