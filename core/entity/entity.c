@@ -262,6 +262,16 @@ Entity *yeGetLast(Entity *array)
 	return yeGet(array, l - 1);
 }
 
+char *yeLastKey(Entity *array)
+{
+	size_t l = yeLen(array);
+
+	if (unlikely(!l))
+		return NULL;
+
+	return yeGetKeyAt(array, l - 1);
+}
+
 /**
  * @param name  the name we will search the character '.' into
  * @return the index of the charactere '.' in name

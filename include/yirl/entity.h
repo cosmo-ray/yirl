@@ -450,6 +450,7 @@ static inline Entity *yeGetByEntity(Entity *array, Entity *key);
  */
 char *yeGetKeyAt(Entity *entity, int idx);
 
+char *yeLastKey(Entity *array);
 
 /* crappy ifndef for crappy language */
 #ifndef __cplusplus
