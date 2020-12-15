@@ -521,8 +521,6 @@ int	luayevCreateGrp(lua_State *L);
 /* rect */
 int	luaYwRectCreate(lua_State *L);
 int	luaywRectCollision(lua_State *L);
-int	luaywRectW(lua_State *L);
-int	luaywRectH(lua_State *L);
 
 /* pos */
 int	luaywPosCreate(lua_State *L);
@@ -931,10 +929,6 @@ static inline int	yesLuaRegister(void *sm)
 
   /* rect */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywRectCreate", luaYwRectCreate));
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywRectX", luaywPosX));
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywRectY", luaywPosY));
-  YES_LUA_REGISTRE_CALL(sm, ywRectW);
-  YES_LUA_REGISTRE_CALL(sm, ywRectH);
   YES_LUA_REGISTRE_CALL(sm, ywRectCollision);
 
   /* pos */

@@ -175,6 +175,12 @@ BIND_E(ywPosY, 1, 0);
 BIND_E(ywPosX, 1, 0);
 BIND_E(ywSizeW, 1, 0);
 BIND_E(ywSizeH, 1, 0);
+
+BIND_E(ywRectY, 1, 0);
+BIND_E(ywRectX, 1, 0);
+BIND_E(ywRectW, 1, 0);
+BIND_E(ywRectH, 1, 0);
+
 BIND_E(ywidAddSubType, 1, 0);
 BIND_E(yeGetInt, 1, 0);
 BIND_E(yeLen, 1, 0);
