@@ -579,6 +579,27 @@ static JSValue qjsyesCall(JSContext *ctx, JSValueConst this_val,
 	return new_ent(ctx, yesCallInt(f, nb, yargs, types));
 }
 
+static JSValue qjsyevCheckKeys(JSContext *ctx, JSValueConst this_val,
+			       int argc, JSValueConst *argv)
+{
+	Entity *eves = GET_E(ctx, 0);
+	int type = GET_I(ctx, 1);
+	int k[128];
+	int i;
+
+	if (argc >127) {
+		DPRINT_ERR("too much args");
+		return JS_NULL;
+	}
+
+	for (i = 2; i < argc; ++i) {
+		k[i - 2] = GET_I(ctx, i);
+	}
+
+	k[i - 2] = 0;
+	return JS_NewBool(ctx, yevCheckKeysInt(eves, type, k));
+}
+
 static JSValue qjsywidNewWidget(JSContext *ctx, JSValueConst this_val,
 				int argc, JSValueConst *argv)
 {
@@ -810,6 +831,7 @@ static int init(void *sm, void *args)
 	BIND(yeTryCreateArray, 0, 2);
 	BIND(yjsCall, 0, 10);
 	BIND(yesCall, 0, 10);
+	BIND(yevCheckKeys, 2, 10);
 	BIND(yeDestroy, 1, 0);
 	BIND(yent_to_str, 1, 0);
 	BIND(ygFileToEnt, 2, 1);

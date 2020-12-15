@@ -212,6 +212,9 @@ BIND_V(ywidRendMainWid);
 
 BIND_V(yuiRand);
 
+BIND_V(yeveMouseX);
+BIND_V(yeveMouseY);
+
 BIND_SEES(ywTextureNewImg, 4, 0);
 
 BIND_EIIIIS(ywCanvasMergeRectangle, 6, 0);
