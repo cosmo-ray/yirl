@@ -1073,44 +1073,44 @@ Entity *yeCreateCopy(Entity *src, Entity *father, const char *name)
 int yeAttach(Entity *on, Entity *entity,
 	     unsigned int idx, const char *name, uint64_t flag)
 {
-  ArrayEntry *entry;
-  Entity *toRemove = NULL;
-  char *oldName = NULL;
-  union {
-	  struct {
-		  uint32_t entry_flag;
-		  uint32_t attach_flag;
-	  };
-	  uint64_t f;
-  } f;
-  f.f = flag;
+	ArrayEntry *entry;
+	Entity *toRemove = NULL;
+	char *oldName = NULL;
+	union {
+		struct {
+			uint32_t entry_flag;
+			uint32_t attach_flag;
+		};
+		uint64_t f;
+	} f;
+	f.f = flag;
 
-  if (unlikely(!on || !entity || on->type != YARRAY))
-	  return -1;
-  assert(!(entity->flag & YENTITY_CONST));
+	if (unlikely(!on || !entity || on->type != YARRAY))
+		return -1;
+	assert(!(entity->flag & YENTITY_CONST));
 
-  entry = yBlockArraySetGetPtr(&YE_TO_ARRAY(on)->values,
-			       idx, ArrayEntry);
+	entry = yBlockArraySetGetPtr(&YE_TO_ARRAY(on)->values,
+				     idx, ArrayEntry);
 
-  if (likely(!(YE_TO_ARRAY(on)->values.flag & YBLOCK_ARRAY_NOINIT))) {
-	  if (entry->entity == entity)
-		  return 0;
-	  toRemove = entry->entity;
-	  oldName = entry->name;
-  }
-  entry->entity = entity;
-  if (flag & YE_ATTACH_STEAL_NAME)
-	  entry->name = (char *)name;
-  else
-	  entry->name = yuiStrdup(name);
-  entry->flags = f.entry_flag;
-  if (!(flag & YE_ATTACH_NO_INC_REF))
-	  yeIncrRef(entity);
-  if (toRemove && !(flag & YE_ATTACH_NO_MEM_FREE)) {
-	  YE_DESTROY(toRemove);
-	  free(oldName);
-  }
-  return 0;
+	if (likely(!(YE_TO_ARRAY(on)->values.flag & YBLOCK_ARRAY_NOINIT))) {
+		if (entry->entity == entity)
+			return 0;
+		toRemove = entry->entity;
+		oldName = entry->name;
+	}
+	entry->entity = entity;
+	if (flag & YE_ATTACH_STEAL_NAME)
+		entry->name = (char *)name;
+	else
+		entry->name = yuiStrdup(name);
+	entry->flags = f.entry_flag;
+	if (!(flag & YE_ATTACH_NO_INC_REF))
+		yeIncrRef(entity);
+	if (toRemove && !(flag & YE_ATTACH_NO_MEM_FREE)) {
+		YE_DESTROY(toRemove);
+		free(oldName);
+	}
+	return 0;
 }
 
 int yePushAt(Entity *array, Entity *toPush, int idx)
