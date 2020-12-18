@@ -99,6 +99,8 @@ BIND_ES(yeStringAdd, 2, 0);
 BIND_ES(yeSetString, 2, 0);
 BIND_ES(ygPushToGlobalScope, 2, 0);
 
+BIND_ES(yeRemoveChildByStr, 2, 0);
+
 BIND_SI(ygIncreaseInt, 2, 0);
 BIND_SI(ygSetInt, 2, 0);
 
@@ -225,6 +227,7 @@ BIND_V(ygUpdateScreen);
 
 BIND_SEES(ywTextureNewImg, 4, 0);
 
+BIND_EIIIIS(ywCanvasNewRectangle, 6, 0);
 BIND_EIIIIS(ywCanvasMergeRectangle, 6, 0);
 BIND_EIIIIS(ywCanvasMergeText, 6, 0);
 

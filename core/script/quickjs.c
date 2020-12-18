@@ -656,6 +656,18 @@ static JSValue qjsyeReCreateArray(JSContext *ctx, JSValueConst this_val,
 		      !GET_E(ctx, 0));
 }
 
+
+static JSValue qjsywCanvasNewCollisionsArrayWithRectangle(
+	JSContext *ctx, JSValueConst this_val,
+	int argc, JSValueConst *argv
+	)
+{
+	return mk_ent(ctx,
+		      ywCanvasNewCollisionsArrayWithRectangle(GET_E(ctx, 0),
+							      GET_E(ctx, 1)),
+		      1);
+}
+
 static JSValue qjsyeCreateArray(JSContext *ctx, JSValueConst this_val,
 				int argc, JSValueConst *argv)
 {
@@ -837,6 +849,7 @@ static int init(void *sm, void *args)
 	BIND(ygFileToEnt, 2, 1);
 	BIND(ywTextureNew, 1, 2);
 	BIND(ywCanvasRotate, 2, 0);
+	BIND(ywCanvasNewCollisionsArrayWithRectangle, 2, 0);
 
 #define IN_CALL 1
 	#include "binding.c"
