@@ -201,6 +201,8 @@ BIND_EII(ywPosSetInts, 3, 0);
 
 BIND_EII(ywPosAddXY, 3, 0);
 
+BIND_EII(ywCanvasForceSizeXY, 3, 0);
+
 BIND_EEI(yePatchAplyExt, 2, 1);
 
 BIND_EEI(ywPushNewWidget, 2, 1);
@@ -218,6 +220,8 @@ BIND_V(yuiRand);
 
 BIND_V(yeveMouseX);
 BIND_V(yeveMouseY);
+
+BIND_V(ygUpdateScreen);
 
 BIND_SEES(ywTextureNewImg, 4, 0);
 
