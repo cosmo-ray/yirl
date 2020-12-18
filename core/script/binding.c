@@ -209,6 +209,8 @@ BIND_EEI(yePatchAplyExt, 2, 1);
 
 BIND_EEI(ywPushNewWidget, 2, 1);
 
+BIND_EEI(ywCanvasSetWeight, 3, 0);
+
 BIND_V(ygUserDir);
 BIND_V(ywGetTurnLengthOverwrite);
 BIND_V(yWindowWidth);
