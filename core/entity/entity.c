@@ -1136,9 +1136,11 @@ int yePush(Entity *array, Entity *toPush, const char *name)
 		yeIncrRef(toPush);
 		e->name = yuiStrdup(name);
 		e->flags = 0;
-		return 0;
+		return i * 64 + j;
 	}
-	return yePushBack(array, toPush, name);
+	if (yePushBack(array, toPush, name) < 0)
+		return -1;
+	return yeLen(array) - 1;
 }
 
 int yeInsertAt(Entity *array, Entity *toPush, size_t idx, const char *name)

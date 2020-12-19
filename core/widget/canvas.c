@@ -210,6 +210,7 @@ static int ywCanvasSetWeightInternal(Entity *wid, Entity *obj, int weight,
 					yePushAt(objs, toPush, i);
 					goto out;
 				}
+				i = j;
 			}
  			continue;
 		}
@@ -239,6 +240,12 @@ static int ywCanvasSetWeightInternal(Entity *wid, Entity *obj, int weight,
 	yePushBack(objs, toPush, NULL);
 out:
 	yeDestroy(toPush);
+	/* for (unsigned int i = 0; i < yeLen(objs); ++i) { */
+	/* 	printf("%d ", yeGet(objs, i) ? */
+	/* 	       yeGetIntAt(yeGet(objs, i), "weight") : */
+	/* 		-1); */
+	/* } */
+	/* printf("\n"); */
 	return 0;
 }
 
