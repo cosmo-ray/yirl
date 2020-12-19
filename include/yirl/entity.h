@@ -999,6 +999,17 @@ size_t yeLen(Entity *entity);
 #define yeLenAt(e, at)				\
 	yeLen(yeGet(e, at))
 
+/**
+ * @return the number of non null elems in the array
+ */
+static inline size_t yeNbElems(Entity *array)
+{
+	int i = 0;
+	YE_FOREACH(array, e)
+		++i;
+	return i;
+}
+
 #include "entity-string.h"
 
 

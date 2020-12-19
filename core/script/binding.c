@@ -116,6 +116,8 @@ BIND_EI(ywCntGetEntry, 2, 0);
 
 BIND_EI(yeGetKeyAt, 2, 0);
 
+BIND_E(yeNbElems, 1, 0);
+
 BIND_E(yeLastKey, 1, 0);
 
 BIND_E(ywMenuClear, 1, 0);
