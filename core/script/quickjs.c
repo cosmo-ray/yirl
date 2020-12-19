@@ -718,7 +718,10 @@ static JSValue qjsywTextureNew(JSContext *ctx, JSValueConst this_val,
 static JSValue qjsyeSetIntAt(JSContext *ctx, JSValueConst this_val,
 			     int argc, JSValueConst *argv)
 {
-	yeSetIntAt(GET_E(ctx, 0), GET_I(ctx, 1), GET_I(ctx, 2));
+	if (JS_IsNumber(argv[1]))
+		yeSetIntAt(GET_E(ctx, 0), GET_I(ctx, 1), GET_I(ctx, 2));
+	else
+		yeSetIntAtStrIdx(GET_E(ctx, 0), GET_S(ctx, 1), GET_I(ctx, 2));
 	return JS_NULL;
 }
 
