@@ -204,14 +204,18 @@ static int ywCanvasSetWeightInternal(Entity *wid, Entity *obj, int weight,
 			uint32_t j = i + 1;
 			for (; j < yeLen(objs); ++j) {
 				c_obj = yeGet(objs, j);
-				c_w = yeGetIntAt(c_obj, "weight");
 
-				if (c_obj && weight < c_w) {
-					yePushAt(objs, toPush, i);
-					goto out;
+				if (c_obj) {
+					c_w = yeGetIntAt(c_obj, "weight");
+					break;
 				}
-				i = j;
 			}
+
+			if (c_obj && weight < c_w) {
+				yePushAt(objs, toPush, i);
+				goto out;
+			}
+			i = j;
  			continue;
 		}
 		c_w = yeGetIntAt(c_obj, "weight");
