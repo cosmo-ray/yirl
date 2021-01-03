@@ -154,6 +154,26 @@ static void *quitOnKeyDown(int nb, union ycall_arg *args, int *types)
 	return (void *)NOTHANDLE;
 }
 
+static void *callOnKeyDown(int nb, union ycall_arg *args, int *types)
+{
+	Entity *events = args[1].e;
+	Entity *eve = events;
+
+	YEVE_FOREACH(eve, events) {
+		if (ywidEveType(eve) == YKEY_DOWN) {
+			if (ywidEveKey(eve) == 'q' ||
+			    ywidEveKey(eve) == Y_ESC_KEY) {
+				yesCall(yeGet(args[0].e, "to_call"), args[0].e);
+				return (void *)ACTION;
+			}
+		} else if (ywidEveType(eve) == YKEY_MOUSEDOWN) {
+			yesCall(yeGet(args[0].e, "to_call"), args[0].e);
+			return (void *)ACTION;
+		}
+	}
+	return (void *)NOTHANDLE;
+}
+
 static void *fullScreenOnOff(int nb, union ycall_arg *args, int *types)
 {
 	static int fs;
@@ -278,6 +298,8 @@ static void addNativeFuncToBaseMod(void)
 	ysRegistreCreateNativeEntity(ygTerminateCallback, "FinishGame",
 				     baseMod, NULL);
 	ysRegistreCreateNativeEntity(quitOnKeyDown, "QuitOnKeyDown", baseMod,
+				     NULL);
+	ysRegistreCreateNativeEntity(callOnKeyDown, "CallOnKeyDown", baseMod,
 				     NULL);
 	ysRegistreCreateNativeEntity(nextWid, "callNext", baseMod, NULL);
 	ysRegistreCreateNativeEntity(nextOnKeyDown, "nextOnKeyDown",
