@@ -53,7 +53,7 @@ static int init(YWidgetState *opac, Entity *entity, void *args)
 	state->flag = 0;
 	ywidGenericCall(opac, t, init);
 	state->flag |= !!yeGetIntAt(entity, "mergable") * YC_MERGE;
-	ywCanvasReleadMergeTexture(state);
+	ywCanvasReleadMergeTexture((YWidgetState *)state);
 	return 0;
 }
 
