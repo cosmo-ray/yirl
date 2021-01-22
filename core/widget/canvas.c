@@ -30,6 +30,20 @@ static int t = -1;
 static int ywCanvasSetWeightInternal(Entity *wid, Entity *obj, int weight,
 				     int newObj);
 
+static void ywCanvasReleadMergeTexture(YWidgetState *ostate)
+{
+	YCanvasState *state = (YCanvasState *)ostate;
+
+	if (!(state->flag & YC_MERGE))
+		return;
+	yeAutoFree Entity *sz = ywSizeCreate(ywWidth(ostate->entity),
+					     ywHeight(ostate->entity),
+					     NULL, NULL);
+
+	yeDestroy(state->merge_texture);
+	state->merge_texture = ywTextureNew(sz, NULL, NULL);
+}
+
 static int init(YWidgetState *opac, Entity *entity, void *args)
 {
 	YCanvasState *state = (YCanvasState *)opac;
@@ -39,12 +53,7 @@ static int init(YWidgetState *opac, Entity *entity, void *args)
 	state->flag = 0;
 	ywidGenericCall(opac, t, init);
 	state->flag |= !!yeGetIntAt(entity, "mergable") * YC_MERGE;
-	if (state->flag & YC_MERGE) {
-		yeAutoFree Entity *sz = ywSizeCreate(ywWidth(entity),
-						     ywHeight(entity),
-						     NULL, NULL);
-		state->merge_texture = ywTextureNew(sz, NULL, NULL);
-	}
+	ywCanvasReleadMergeTexture(state);
 	return 0;
 }
 
@@ -71,6 +80,7 @@ static void *alloc(void)
 	YWidgetState *ret = (YWidgetState *)s;
 	ret->render = rend;
 	ret->init = init;
+	ret->resize = ywCanvasReleadMergeTexture;
 	ret->destroy = destroy;
 	ret->handleEvent = ywidEventCallActionSin;
 	ret->type = t;

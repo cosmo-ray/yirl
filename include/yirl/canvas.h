@@ -299,5 +299,4 @@ static inline Entity *ywCanvasObjMod(Entity *obj)
  */
 Entity *ywCanvasCreateYTexture(Entity *obj, Entity *father, const char *name);
 
-
 #endif
