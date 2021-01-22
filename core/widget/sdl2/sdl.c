@@ -40,12 +40,16 @@ static SDL_Global sg;
 #define MAX_GAMEPAD 128
 
 static SDL_GameController *gamepads[MAX_GAMEPAD];
+static SDL_Joystick *joysticks[MAX_GAMEPAD];
 
 static inline void deinit_controllers(void)
 {
-	for (int i = 0; i < MAX_GAMEPAD; ++i)
+	for (int i = 0; i < MAX_GAMEPAD; ++i) {
 		if (gamepads[i])
 			SDL_GameControllerClose(gamepads[i]);
+		if (joysticks[i])
+			SDL_JoystickClose(joysticks[i]);
+	}
 }
 
 SDL_Rect      getRect(void)
@@ -293,12 +297,23 @@ static inline Entity *SDLConvertEvent(SDL_Event* event)
 		yeDestroy(mouse);
 	}
 	return eve;
+	case SDL_JOYBUTTONDOWN:
+	case SDL_JOYBUTTONUP:
+
+		yeCreateIntAt(event->type == SDL_JOYBUTTONDOWN ?
+			      YKEY_CT_DOWN : YKEY_CT_UP, eve, NULL, YEVE_TYPE);
+		/* I resert 10 - 20 for directional arrow */
+		yeCreateIntAt(event->jbutton.button > 10 ?
+			      event->jbutton.button + 10 : event->jbutton.button,
+			      eve, NULL, YEVE_KEY);
+		return eve;
 	case SDL_CONTROLLERBUTTONDOWN:
 	case SDL_CONTROLLERBUTTONUP:
 		yeCreateIntAt(event->type == SDL_CONTROLLERBUTTONDOWN ?
 			      YKEY_CT_DOWN : YKEY_CT_UP, eve, NULL, YEVE_TYPE);
 		yeCreateIntAt(event->cbutton.button, eve, NULL, YEVE_KEY);
 		return eve;
+	case SDL_JOYAXISMOTION:
 	case SDL_CONTROLLERAXISMOTION:
 	{
 		static _Bool can_up[MAX_GAMEPAD][YEVE_MAX_AXIES][4];
@@ -457,12 +472,16 @@ int    ysdl2Init(void)
 	  if (SDL_IsGameController(i)) {
 		  gamepads[i] = SDL_GameControllerOpen(i);
 		  if (gamepads[i] != NULL) {
-			  DPRINT_ERR("Gamepad Found: %s\n",
-				     SDL_GameControllerNameForIndex(i));
+			  printf("Gamepad Found: %s\n",
+				 SDL_GameControllerNameForIndex(i));
 		  } else {
 			  DPRINT_ERR("Could not open gamepad %i: %s\n",
 				     i, SDL_GetError());
 		  }
+	  } else {
+		  joysticks[i] = SDL_JoystickOpen(i);
+		  printf("try open joy %s: %s\n", SDL_JoystickNameForIndex(i),
+			 !!joysticks[i] ? "[SUCESS]" : "[FAILURE]");
 	  }
   }
 

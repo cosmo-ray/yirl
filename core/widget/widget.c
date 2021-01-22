@@ -599,6 +599,21 @@ static inline void defaultButtonConv(Entity *e)
 		       ywidEveKey(e));
 }
 
+static void try_convert_axis_to_wasd(Entity *e)
+{
+	if (yeGetIntAt(e, YEVE_AXIS_ID))
+		return;
+
+	if (ywidEveKey(e) == Y_UP_KEY)
+		yeSetIntAt(e, YEVE_KEY, 'w');
+	else if (ywidEveKey(e) == Y_DOWN_KEY)
+		yeSetIntAt(e, YEVE_KEY, 's');
+	else if (ywidEveKey(e) == Y_LEFT_KEY)
+		yeSetIntAt(e, YEVE_KEY, 'a');
+	else if (ywidEveKey(e) == Y_RIGHT_KEY)
+		yeSetIntAt(e, YEVE_KEY, 'd');
+}
+
 /* should be confiurrable, but for now only convert controller key to keyboard */
 static Entity *keyReBind(Entity *e)
 {
@@ -608,8 +623,10 @@ static Entity *keyReBind(Entity *e)
 
 	if (ekt == YKEY_CT_AXIS_DOWN) {
 		yeSetIntAt(e, YEVE_TYPE, YKEY_DOWN);
+		try_convert_axis_to_wasd(e);
 	} else if (ekt == YKEY_CT_AXIS_UP) {
 		yeSetIntAt(e, YEVE_TYPE, YKEY_UP);
+		try_convert_axis_to_wasd(e);
 	} else if (ekt == YKEY_CT_DOWN) {
 		yeSetIntAt(e, YEVE_TYPE, YKEY_DOWN);
 		defaultButtonConv(e);
@@ -618,6 +635,7 @@ static Entity *keyReBind(Entity *e)
 		defaultButtonConv(e);
         /* we should recive a non negligable number of none when we use axies*/
 	}
+
 	return e;
 }
 
