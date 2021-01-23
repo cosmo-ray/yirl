@@ -231,6 +231,12 @@ void	tccAddSyms(TCCState *l)
   ADD_SYM(fscanf);
   ADD_SYM(time);
   ADD_SYM(sprintf);
+  ADD_SYM(yeveMouseX);
+  ADD_SYM(yeveMouseY);
+  ADD_SYM(ygModDirOut);
+  ADD_SYM(ygModDir);
+  ADD_SYM(yeCreateCopy);
+
 #if defined(__unix__) || defined(__APPLE__)
   tcc_add_symbol(l, "yuiDebugPrint", yuiDebugPrint);
   ADD_SYM(fprintf);
