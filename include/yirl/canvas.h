@@ -15,6 +15,10 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/**
+ *
+ */
+
 #ifndef	_YIRL_CANVAS_H_
 #define	_YIRL_CANVAS_H_
 
@@ -59,25 +63,41 @@ typedef struct {
 	int flag;
 } YCanvasState;
 
+
+/* VVVVVV YIRL Internal VVVVVVV */
 int ywCanvasInit(void);
 int ywCanvasEnd(void);
 int ysdl2RegistreCanvas(void);
+/* ^^^^^^ YIRL Internal ^^^^^^^ */
 
 /**
- * directly write rect of @col into a mergable wid
+ * directly write rect into a mergable wid
+ * @param color the color, format: "rgba: XXX,XXX,XXX,XXX" of "0xffffffff"
  */
 int ywCanvasMergeRectangle(Entity *wid, int x, int y,
-			   int w, int h, const char *col);
+			   int w, int h, const char *color);
 
+/**
+ * directly write yTexture into a mergable wid
+ */
 int ywCanvasMergeTexture(Entity *wid, Entity *yTexture,
 			 Entity *srcRect, Entity *dstRect);
 
-/* w h are curently unused */
+/**
+ * directly write text into a mergable wid
+ * w h are curently unused
+ */
 int ywCanvasMergeText(Entity *wid, int x, int y, int w, int h,
 		      const char * txt);
 
+/**
+ * Clear all object of the canvas
+ */
 void ywCanvasClear(Entity *canvas);
 
+/**
+ * @brief helper to create a canvas widget
+ */
 static Entity *ywCreateCanvasEnt(Entity *father, char *name)
 {
   Entity *ret = yeCreateArray(father, name);
@@ -130,22 +150,38 @@ static inline int ywCanvasPercentReduce(Entity *obj, int percent)
 	return ywCanvasForceSize(obj, ns);
 }
 
+/**
+ * rotate a canvas object
+ */
 int ywCanvasRotate(Entity *obj, double angle);
 
 int ywCanvasAdvenceObj(Entity *obj, int speed, double direction);
 int ywCanvasMoveObj(Entity *obj, Entity *pos);
 int ywCanvasMoveObjXY(Entity *obj, int x, int y);
+
 Entity *ywCanvasObjFromIdx(Entity *wid, int idx);
 int ywCanvasIdxFromObj(Entity *wid, Entity *obj);
 
 void ywCanvasObjSetPos(Entity *obj, int x, int y);
 void ywCanvasObjSetPosByEntity(Entity *obj, Entity *p);
 
+/**
+ * @brief return 1 if object out of screen
+ */
 int ywCanvasObjIsOut(Entity *wid, Entity *obj);
 
+/**
+ * enable/disable weight on canvas object
+ * weight give you better control on which object if above other objects
+ * but can slow down the widgets when they is too much objects
+ */
 void ywCanvasDisableWeight(Entity *w);
 void ywCanvasEnableWeight(Entity *w);
 
+/**
+ * Set card weight if weight is activated
+ * the higter the weight is, the more on top the object will be
+ */
 int ywCanvasSetWeight(Entity *wid, Entity *canvas, int weight);
 
 Entity *ywCanvasNewObj(Entity *wid, int x, int y, int id);
