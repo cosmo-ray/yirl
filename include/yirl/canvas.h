@@ -16,7 +16,20 @@
 */
 
 /**
- *
+ * canvas widget:
+ * a canvas is composed of multiple objects that are rendable.
+ * you have 2 way to use it:
+ * you can store canvas object inside the widget
+ * (using ywCanvasNewObj/Image/Rect....)
+ * Or printing directly inside it using ywCanvasMergeTexture/Rectangle...
+ * if you use onjects the widget will keep in memory each object,
+ * will enable you to set weight to them
+ * (need to be enable using ywCanvasEnableWeight),
+ * move them on screen directly...
+ * If you just want to print and forget something,
+ * you should go with the merge function
+ * (note that this need to be enable at widget
+ *  creation using "mergable" atribute in the widget entity)
  */
 
 #ifndef	_YIRL_CANVAS_H_
