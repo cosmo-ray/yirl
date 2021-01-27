@@ -396,6 +396,8 @@ void *init(int nbArg, void **args)
   yeCreateFunction("dialogueChangeText", ygGetTccManager(), mod, "change-text");
   yeCreateFunction("dialogueHide", ygGetTccManager(), mod, "hide");
   yeCreateFunction("dialogueGoto", ygGetTccManager(), mod, "goto");
+  yeCreateFunction("dialogueConditionGoto", ygGetTccManager(),
+		   mod, "condition_goto");
   yeCreateFunction("dialogueGotoNext", ygGetTccManager(), mod, "gotoNext");
   yeCreateFunction("dialogueBlock", ygGetTccManager(), mod, "block");
 
@@ -443,8 +445,7 @@ void *dialogueAction(int nbArgs, void **args)
 				hasMove = 1;
 			} else if(ywidEveKey(eve) == '\n' ||
 				  ywidEveKey(eve) == ' ') {
-				Entity *answer = boxGetAnswer(box,
-							      current);
+				Entity *answer = boxGetAnswer(box, current);
 
 				if (!yeGet(answer, "action") &&
 				    !yeGet(answer, "actions")) {
@@ -484,6 +485,21 @@ void *dialogueHide(int nbArgs, void **args)
   yeReCreateInt(1, answer, "hiden");
   if (drv == &cntDialogueMnDrv)
     ywMenuDown(args[0]);
+  return 0;
+}
+
+void *dialogueConditionGoto(int nbArgs, void **args)
+{
+  Entity *main = getMenuDrv(args[0])->getMain(args[0]);
+  struct mainDrv *drv = getMainDrv(main);
+
+  for (int i = 2; i < nbArgs; i += 2) {
+	  if (i + 1 < nbArgs && yeCheckCondition(args[i])) {
+		  return dialogueGoto(3, (void *[]){args[0], NULL, args[i + 1]});
+	  } else if (i + 1 == nbArgs) {
+		  return dialogueGoto(3, (void *[]){args[0], NULL, args[i]});
+	  }
+  }
   return 0;
 }
 

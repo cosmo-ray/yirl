@@ -834,14 +834,13 @@ InputStatue ywidAction(Entity *action, Entity *wid, Entity *eve)
 
 		args[0].e = wid;
 		args[1].e = eve;
-		args[2].e = nb > 1 ? yeGet(action, 1) : NULL;
-		args[3].e = nb > 2 ? yeGet(action, 2) : NULL;
-		args[4].e = nb > 3 ? yeGet(action, 3) : NULL;
+		for (int i = 0; i < nb; ++i)
+			args[i + 2].e = yeGet(action, i + 1);
 
 		if (yeType(f) == YSTRING)
 			f = ygGet(yeGetString(f));
 
-		InputStatue r = (intptr_t)yesCallInt(f, nb + 2, args, types);
+		InputStatue r = (intptr_t)yesCallInt(f, nb + 1, args, types);
 
 		if (unlikely(!ygIsInit() && yeType(f) == YSTRING))
 			yeDestroy(f);

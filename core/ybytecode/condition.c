@@ -59,10 +59,8 @@ int conditionCall(Entity *condition)
 	union ycall_arg args[nb < 0 ? 0 : nb];
 	int types[4] = {YS_ENTITY};
 
-	args[0].e = nb > 0 ? yeGet(condition, 2) : NULL;
-	args[1].e = nb > 1 ? yeGet(condition, 3) : NULL;
-	args[2].e = nb > 2 ? yeGet(condition, 4) : NULL;
-	args[3].e = nb > 3 ? yeGet(condition, 5) : NULL;
+	for (int i = 0; i < nb; ++i)
+		args[i].e = yeGet(condition, i + 2);
 
 	return (intptr_t)yesCallInt(f, nb, args, types);
 }
