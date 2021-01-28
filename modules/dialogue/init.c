@@ -266,6 +266,9 @@ static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
 					 yeGetString(curent));
 		}
 	}
+	if (yeGet(dialogue, "pre-action")) {
+		ywidAction(yeGet(dialogue, "pre-action"), wid, NULL);
+	}
 	txt = getText(menu, dialogue);
 	answers = yeGet(dialogue, "answers");
 
