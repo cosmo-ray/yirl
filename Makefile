@@ -194,7 +194,7 @@ install_extra_modules:
 	cp modules/$(ULPCS)/start.json $(INSTALL_MOD)/$(ULPCS)/
 	cp modules/$(ULPCS)/lpcs.lua $(INSTALL_MOD)/$(ULPCS)/
 	cp -rvf modules/$(ULPCS)/spritesheets/ $(INSTALL_MOD)/$(ULPCS)/
-	cp modules/$(ULPCS)/AUTHORS.txt $(INSTALL_MOD)/$(ULPCS)/
+	cp modules/$(ULPCS)/CREDITS.TXT $(INSTALL_MOD)/$(ULPCS)/
 	cp modules/$(ULPCS)/cc-by-sa-3_0.txt $(INSTALL_MOD)/$(ULPCS)/
 	mkdir -p $(INSTALL_MOD)/pong/
 	cp modules/pong/start.scm $(INSTALL_MOD)/pong/
