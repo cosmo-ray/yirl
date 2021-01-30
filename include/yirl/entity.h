@@ -1051,6 +1051,13 @@ Entity	*yeMoveByEntity(Entity* src, Entity* dest, Entity *what,
  */
 char *yeToCStr(Entity *entity, int deep, int flag);
 
+static inline void yePrint(Entity *e)
+{
+	char *r = yeToCStr(e, 3, YE_FORMAT_PRETTY);
+
+	printf("%s\n", r);
+	free(r);
+}
 
 static inline Entity *yeMoveByStr(Entity* src, Entity* dest, const char *what)
 {

@@ -84,7 +84,6 @@ struct mainDrv boxDialogueMainDrv = {
 	boxGetTX, boxGetbox
 };
 
-
 static Entity *boxGetAnswer(Entity *box, int idx)
 {
 	return yesCall(ygGet("DialogueBox.getAnswer"), box, idx);
@@ -134,7 +133,6 @@ static struct mainDrv *getMainDrv(Entity *main)
 {
   return yeGetDataAt(main, "drv");
 }
-
 
 static Entity *getTextWidget(Entity *main)
 {
@@ -245,6 +243,8 @@ static Entity *getText(Entity *box, Entity *e)
 	return NULL;
 }
 
+static int printfTextAndAnswer_earlyret;
+
 static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
 				Entity *menu, Entity *curent)
 {
@@ -267,7 +267,10 @@ static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
 		}
 	}
 	if (yeGet(dialogue, "pre-action")) {
+		printfTextAndAnswer_earlyret = 0;
 		ywidAction(yeGet(dialogue, "pre-action"), wid, NULL);
+		if (printfTextAndAnswer_earlyret)
+			return;
 	}
 	txt = getText(menu, dialogue);
 	answers = yeGet(dialogue, "answers");
@@ -399,6 +402,7 @@ void *init(int nbArg, void **args)
   yeCreateFunction("dialogueChangeText", ygGetTccManager(), mod, "change-text");
   yeCreateFunction("dialogueHide", ygGetTccManager(), mod, "hide");
   yeCreateFunction("dialogueGoto", ygGetTccManager(), mod, "goto");
+  yeCreateFunction("dialogueSwap", ygGetTccManager(), mod, "swap");
   yeCreateFunction("dialogueConditionGoto", ygGetTccManager(),
 		   mod, "condition_goto");
   yeCreateFunction("dialogueGotoNext", ygGetTccManager(), mod, "gotoNext");
@@ -702,6 +706,22 @@ void *showDialogueImage(int n, void **args) {
 			}
 		} while ((img = yeGetStringAt(layers, layer_p++)) != NULL);
 	}
+}
+
+void *dialogueSwap(int nbArgs, void **args)
+{
+	Entity *main = args[0];
+	struct mainDrv *drv = getMainDrv(main);
+	const char *dialogue = yeGetString(args[2]);
+	Entity *active_dialogue = NULL;
+	Entity *new_d = yeGet(ygGet(dialogue), "dialogue");
+
+	yeRemoveChild(main, "dialogue");
+	yePushBack(main, new_d, "dialogue");
+	active_dialogue = defaultActiveDialogue(main);
+	printfTextAndAnswer(main, drv->getTextWidget(main),
+			    drv->getMenu(main), active_dialogue);
+	printfTextAndAnswer_earlyret = 1;
 }
 
 void *dialogueCanvasInit(int nbArgs, void **args)

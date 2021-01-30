@@ -93,6 +93,7 @@ local function getText(dialogue, gc)
       end
    end
    if (yIsNil(yeGetString(tmpText))) then
+      print("BUG: CAN'T RETRIVE \"text\"")
       yeSetString(tmpText, "BUG: CAN'T RETRIVE \"text\"");
       return tmpText
    end
