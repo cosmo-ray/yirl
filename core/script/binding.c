@@ -229,7 +229,12 @@ BIND_V(yeveMouseY);
 
 BIND_V(ygUpdateScreen);
 
+#ifndef NO_ywTextureNewImg
 BIND_SEES(ywTextureNewImg, 4, 0);
+#else
+#undef NO_ywTextureNewImg
+#endif
+
 
 BIND_EIIIIS(ywCanvasNewRectangle, 6, 0);
 BIND_EIIIIS(ywCanvasMergeRectangle, 6, 0);

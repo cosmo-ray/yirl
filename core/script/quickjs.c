@@ -434,6 +434,7 @@ BIND_ED(ywCanvasRotate);
 BIND_EII(ywCanvasObjSetPos, 3, 0);
 BIND_EIIE(ywCanvasNewText, 2, 2);
 
+#define NO_ywTextureNewImg
 /* make all bindings here */
 #include "binding.c"
 
@@ -712,6 +713,14 @@ static JSValue qjsywTextureNew(JSContext *ctx, JSValueConst this_val,
 {
 	return mk_ent(ctx, ywTextureNew(GET_E(ctx, 0), GET_E(ctx, 1),
 					GET_S(ctx, 2)), !GET_E(ctx, 1));
+}
+
+static JSValue qjsywTextureNewImg(JSContext *ctx, JSValueConst this_val,
+				  int argc, JSValueConst *argv)
+{
+	return mk_ent(ctx, ywTextureNewImg(GET_S(ctx, 0), GET_E(ctx, 1),
+					   GET_E(ctx, 2), GET_S(ctx, 3)),
+		      !GET_E(ctx, 1));
 }
 
 
