@@ -40,6 +40,11 @@ function getAnswer(box, idx)
 	    end
 	    j = j + 1
 	 end
+      elseif yeType(answer) == YSTRING  then
+	 if j == idx then
+	    return answer
+	 end
+	 j = j + 1
       end
       i = i + 1
    end

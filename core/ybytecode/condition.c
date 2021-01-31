@@ -110,8 +110,10 @@ int yeCheckCondition(Entity *condition)
 /*       yeMetadataSize(DataEntity) / sizeof(uint64_t); */
 
 		instructions[0] = 0; // not compilled yet
-		if (yeType(actionEnt) == YSTRING)
+		if (yeType(actionEnt) == YSTRING) {
 			actionEnt = yeConvert(actionEnt, YARRAY);
+			action = yeGetStringAt(actionEnt, 0);
+		}
 
 		if (!action)
 			return 0;
@@ -141,8 +143,7 @@ int yeCheckCondition(Entity *condition)
 			} else if (len == 2 && action[0] == '!' &&
 				   action[1] == '=') {
 				instructions[i] = YB_NOT_EQUAL;
-			}
-			else {
+			} else {
 				return 0;
 			}
 		comparaisons_instructions:
@@ -163,5 +164,6 @@ int yeCheckCondition(Entity *condition)
 		yeDestroy(func);
 	}
 	/* add args */
-	return (int_ptr_t)yesCall(yeGet(actionEnt, 1));
+	int_ptr_t ret = (int_ptr_t)yesCall(yeGet(actionEnt, 1));
+	return ret;
 }

@@ -170,7 +170,7 @@ int yeStringReplace(Entity *ent, const char *substr, const char *replacement)
 	int16_t begs[256];
 	int nbFound = 0;
 	char *dest;
-	char *toFree;
+	char *toFree = NULL;
 	int destLen;
 
 	if (!substrlen || !ent)
@@ -187,7 +187,10 @@ int yeStringReplace(Entity *ent, const char *substr, const char *replacement)
 
 	if (!nbFound)
 		return 0;
-	toFree = (char *)entChar;
+
+	if (yeStringIsValueAllocated(ent))
+		toFree = (char *)entChar;
+
 	destLen = entLen - (substrlen * nbFound) + (replacementlen * nbFound);
 	dest = malloc(destLen + 1);
 	YE_TO_STRING(ent)->value = dest;
@@ -229,17 +232,17 @@ Entity *yeStringAdd(Entity *ent, const char *str)
 	strLen = strlen(str);
 	origLen = yeLen(ent);
 	totalLength = origLen + strLen;
-	if (!YE_TO_STRING(ent)->origin) {
+	if ((!YE_TO_STRING(ent)->origin) && yeStringIsValueAllocated(ent)) {
 		YE_TO_STRING(ent)->value = realloc(YE_TO_STRING(ent)->value,
 						   totalLength + 1);
 		char *beg = YE_TO_STRING(ent)->value + origLen;
 		/* as strlen is use, strcpy is as safe as strlcpy */
 		strcpy(beg, str);
 	} else {
+		free(yeStringFreeable(ent));
 		YE_TO_STRING(ent)->value =
 			g_strdup_printf("%s%s", YE_TO_STRING(ent)->value,
 					str);
-		free(YE_TO_STRING(ent)->origin);
 		YE_TO_STRING(ent)->origin = NULL;
 	}
 	YE_TO_STRING(ent)->len = totalLength;
@@ -262,26 +265,28 @@ Entity *yeStringAddNl(Entity *ent, const char *str)
 Entity *yeStringAddInt(Entity *ent, int i)
 {
 	char *tmp = YE_TO_STRING(ent)->value;
+	char *to_free = yeStringFreeable(ent);
 
 	if (unlikely(!tmp))
 		return NULL;
 	YE_TO_STRING(ent)->value = g_strdup_printf("%s%d", tmp, i);
 	YE_TO_STRING(ent)->len = strlen(YE_TO_STRING(ent)->value);
 	YE_TO_STRING(ent)->origin = NULL;
-	free(tmp);
+	free(to_free);
 	return ent;
 }
 
 Entity *yeStringAddLong(Entity *ent, long i)
 {
 	char *tmp = YE_TO_STRING(ent)->value;
+	char *to_free = yeStringFreeable(ent);
 
 	if (unlikely(!tmp))
 		return NULL;
 	YE_TO_STRING(ent)->value = g_strdup_printf("%s%ld", tmp, i);
 	YE_TO_STRING(ent)->len = strlen(YE_TO_STRING(ent)->value);
 	YE_TO_STRING(ent)->origin = NULL;
-	free(tmp);
+	free(to_free);
 	return ent;
 }
 

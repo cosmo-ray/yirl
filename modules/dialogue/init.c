@@ -306,7 +306,6 @@ static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
 		const char *bg = yeGetStringAt(dialogue, "speaker_background");
 
 		if (bg) {
-			printf("new bg: %s\n", bg);
 			yeReCreateString(bg, textScreen, "background");
 		}
 

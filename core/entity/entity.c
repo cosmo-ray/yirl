@@ -114,7 +114,7 @@ do {									\
 #define YE_ALLOC_ENTITY_DataEntity(ret, type) YE_ALLOC_ENTITY_BASE(ret, type)
 #define YE_ALLOC_ENTITY_FloatEntity(ret, type) YE_ALLOC_ENTITY_SMALL(ret, type)
 #define YE_ALLOC_ENTITY_FunctionEntity(ret, type) YE_ALLOC_ENTITY_BASE(ret, type)
-#define YE_ALLOC_ENTITY_StringEntity(ret, type) YE_ALLOC_ENTITY_SMALL(ret, type)
+#define YE_ALLOC_ENTITY_StringEntity(ret, type) YE_ALLOC_ENTITY_BASE(ret, type)
 
 #define YE_ALLOC_ENTITY(ret, type) YUI_CAT(YE_ALLOC_ENTITY_, type)(ret, type)
 #define YE_DESTROY_ENTITY(entity, type) YE_DESTROY_ENTITY_SMALL(entity, type)
@@ -624,11 +624,24 @@ Entity *yeCreateString(const char *string, Entity *father, const char *name)
 {
 	StringEntity *ret;
 
-	YE_ALLOC_ENTITY(ret, StringEntity);
-	yeInit((Entity *)ret, YSTRING, father, name);
-	ret->value = NULL;
-	ret->origin = NULL;
-	yeSetString(YE_TO_ENTITY(ret), string);
+	unsigned int len = string ? strlen(string) : 0;
+
+	if (string && len < yeMetadataSize(StringEntity)) {
+		YE_ALLOC_ENTITY_BASE(ret, StringEntity);
+		yeInit((Entity *)ret, YSTRING, father, name);
+		char *dst = (char *)yeMetadata(ret, StringEntity);
+
+		ret->len = len;
+		ret->origin = NULL;
+		ret->value = dst;
+		strcpy(dst, string);
+	} else {
+		YE_ALLOC_ENTITY(ret, StringEntity);
+		yeInit((Entity *)ret, YSTRING, father, name);
+		ret->value = NULL;
+		ret->origin = NULL;
+		yeSetString(YE_TO_ENTITY(ret), string);
+	}
 	return (YE_TO_ENTITY(ret));
 }
 
@@ -720,10 +733,7 @@ void yeDestroyFunction(Entity *entity)
 void yeDestroyString(Entity *entity)
 {
 	if (entity->refCount == 1) {
-		if (YE_TO_STRING(entity)->origin)
-			free(YE_TO_STRING(entity)->origin);
-		else
-			free(YE_TO_STRING(entity)->value);
+		free(yeStringFreeable(entity));
 		YE_DESTROY_ENTITY(entity, StringEntity);
 	} else {
 		YE_DECR_REF(entity);
@@ -972,12 +982,7 @@ void	yeSetNString(Entity *e, const char *str, size_t n)
 {
 	if (unlikely(!e))
 		return;
-	if (YE_TO_STRING(e)->value != NULL) {
-		if (e->type == YSTRING && YE_TO_STRING(e)->origin != NULL)
-			free(YE_TO_STRING(e)->origin);
-		else
-			free(YE_TO_STRING(e)->value);
-	}
+	free(yeStringFreeable(e));
 	if (str != NULL) {
 		char *tmp_val = g_strndup(str, n);
 		YE_TO_STRING(e)->value = tmp_val;
@@ -991,17 +996,32 @@ void	yeSetNString(Entity *e, const char *str, size_t n)
 	YE_TO_STRING(e)->origin = NULL;
 }
 
+_Bool yeStringIsValueAllocated(Entity *e)
+{
+	if (YE_TO_STRING(e)->origin) {
+		return YE_TO_STRING(e)->origin !=
+			yeMetadata(e, StringEntity);
+	}
+	return YE_TO_STRING(e)->value != yeMetadata(e, StringEntity);
+}
+
+char *yeStringFreeable(Entity *e)
+{
+	if (unlikely(yeType(e) == YFUNCTION))
+		return YE_TO_FUNC(e)->value;
+	if (!yeStringIsValueAllocated(e))
+		return NULL;
+	if (YE_TO_STRING(e)->origin)
+		return YE_TO_STRING(e)->origin;
+	return YE_TO_STRING(e)->value;
+}
+
 Entity	*yeSetString(Entity *entity, const char *val)
 {
 	if (unlikely(!entity))
 		return NULL;
 	assert(!(entity->flag & YENTITY_CONST));
-	if (YE_TO_STRING(entity)->value != NULL) {
-		if (entity->type == YSTRING && YE_TO_STRING(entity)->origin)
-			free(YE_TO_STRING(entity)->origin);
-		else
-			free(YE_TO_STRING(entity)->value);
-	}
+	free(yeStringFreeable(entity));
 	if (val != NULL) {
 		YE_TO_STRING(entity)->value = yuiStrdup(val);
 		if (entity->type == YSTRING)

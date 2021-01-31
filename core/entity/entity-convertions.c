@@ -18,6 +18,9 @@ Entity *yeBrutalCast(Entity *entity, int type)
       YE_TO_DATA(entity)->value = (void *)YE_TO_INT(entity)->value;
       return entity;
     case YSTRING:
+	    entity->type = YSTRING;
+	    YE_TO_STRING(entity)->value = (void *)YE_TO_INT(entity)->value;
+	    return entity;
     case YFUNCTION:
     case BAD_TYPE:
     case YARRAY:
@@ -109,8 +112,6 @@ Entity *yeBrutalCast(Entity *entity, int type)
 
 Entity *yeConvert(Entity *entity, int type)
 {
-  char *c_tmp;
-
   switch (yeType(entity)) {
     /*-- int --*/
   case YINT:
@@ -154,15 +155,16 @@ Entity *yeConvert(Entity *entity, int type)
       return entity;
     case YARRAY:
       {
-	Entity *str;
-	int len = yeLen(entity);
+	const char *c_tmp;
+	char *to_free = yeStringFreeable(entity);
 
-	c_tmp = YE_TO_STRING(entity)->value;
+	c_tmp = yeGetString(entity);
+	Entity *tmp = yeCreateString(c_tmp, NULL, NULL);
 	entity->type = YARRAY;
 	yBlockArrayInit(&YE_TO_ARRAY(entity)->values, ArrayEntry);
-	str = yeCreateString(NULL, entity, NULL);
-	YE_TO_STRING(str)->value = c_tmp;
-	YE_TO_STRING(str)->len = len;
+	yePushBack(entity, tmp, NULL);
+	yeDestroy(tmp);
+	free(to_free);
 	return entity;
       }
     case YINT:

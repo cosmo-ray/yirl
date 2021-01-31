@@ -248,10 +248,13 @@ static inline int yeRefCount(Entity *e)
 }
 
 #define yeMetadata(Entity, EntityType)			\
-	(((uint8_t *)Entity) + sizeof(EntityType))
+	(((char *)Entity) + sizeof(EntityType))
 
 #define yeMetadataSize(EntityType)			\
 	(sizeof(union FatEntity) - sizeof(EntityType))
+
+_Bool yeStringIsValueAllocated(Entity *e);
+char *yeStringFreeable(Entity *e);
 
 void yeInitMem(void);
 
