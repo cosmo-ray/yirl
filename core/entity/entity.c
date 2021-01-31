@@ -51,12 +51,23 @@ uint8_t fatPosToFLag[4] = {YENTITY_SMALL_SIZE_P0, YENTITY_SMALL_SIZE_P1,
 	yBlockArrayUnset(&entitysArray, unset);				\
 	stack_push(freedElems, unset);					\
 
+static inline int yeGetPosInBase(Entity *e)
+{
+	return ((intptr_t)((char *)e - (char *)entity0) % FAT_SIZE) /
+		SMALL_SIZE;
+}
+
+static inline Entity *yeGetBase(Entity *e, int pos)
+{
+	return YE_TO_ENTITY(((union SmallEntity *)e - pos));
+}
+
 #define YE_DESTROY_ENTITY_SMALL(entity, type)				\
 	do {								\
 		YE_DECR_REF(entity);					\
 		if (entity->refCount < 1) {				\
-			int pos = ((intptr_t)((char *)entity - (char *)entity0) % 128) / 32; \
-			Entity *first = YE_TO_ENTITY(((union SmallEntity *)entity - pos)); \
+			int pos = yeGetPosInBase(entity);		\
+			Entity *first = yeGetBase(entity, pos);	\
 			first->flag ^= fatPosToFLag[pos];		\
 			if (!first->flag) {				\
 				if (first == curentFat) {		\
@@ -103,7 +114,7 @@ do {									\
 #define YE_ALLOC_ENTITY_DataEntity(ret, type) YE_ALLOC_ENTITY_BASE(ret, type)
 #define YE_ALLOC_ENTITY_FloatEntity(ret, type) YE_ALLOC_ENTITY_SMALL(ret, type)
 #define YE_ALLOC_ENTITY_FunctionEntity(ret, type) YE_ALLOC_ENTITY_BASE(ret, type)
-#define YE_ALLOC_ENTITY_StringEntity(ret, type) YE_ALLOC_ENTITY_BASE(ret, type)
+#define YE_ALLOC_ENTITY_StringEntity(ret, type) YE_ALLOC_ENTITY_SMALL(ret, type)
 
 #define YE_ALLOC_ENTITY(ret, type) YUI_CAT(YE_ALLOC_ENTITY_, type)(ret, type)
 #define YE_DESTROY_ENTITY(entity, type) YE_DESTROY_ENTITY_SMALL(entity, type)

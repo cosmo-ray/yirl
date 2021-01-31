@@ -213,6 +213,8 @@ union SmallEntity {
 	uint8_t totalSize[32];
 };
 
+#define SMALL_SIZE sizeof(union FatEntity)
+
 union FatEntity {
 	Entity Entity;
 	ArrayEntity ArrayEntity;
@@ -224,6 +226,8 @@ union FatEntity {
 	union SmallEntity SnallEntities[4];
 	uint8_t totalSize[128];
 };
+
+#define FAT_SIZE sizeof(union FatEntity)
 
 #ifdef __cplusplus
 #include "entity-cplusplus.h"
