@@ -32,24 +32,22 @@
 
 extern size_t yBlockArrayDataNextSize0;
 
-typedef struct {
-  uint64_t *blocks;
-  int8_t *elems;
-  size_t size;
-  size_t elemSize;
-  int32_t lastPos;
-  uint16_t nbBlock;
-  uint16_t flag;
+typedef struct {             /* Byte cnt */
+	uint64_t *blocks;    /* 0-7      */
+	int8_t *elems;       /* 8-15     */
+	int32_t block_cnt;   /* 16-19    */
+	uint16_t elem_size;  /* 20-21    */
+	uint16_t flag;       /* 22-23    */
 } BlockArray;
 
 typedef struct {
-  BlockArray *array;
-  uint64_t mask;
-  uint16_t blockPos;
-  uint16_t pos;
+	BlockArray *array;
+	uint64_t mask;
+	uint16_t blockPos;
+	uint16_t pos;
 } BlockArrayIterator;
 
-#define yBlockArrayIsBlockAllocated(ba, bPos) ((bPos) < (ba).nbBlock)
+#define yBlockArrayIsBlockAllocated(ba, bPos) (((int32_t)bPos) < (ba).block_cnt)
 
 #define yBlockArrayGetBlock(ba, bPos)					\
   (yBlockArrayIsBlockAllocated((ba), bPos) ? (ba).blocks[(bPos)] : 0)
@@ -59,11 +57,11 @@ static inline int32_t yBlockArrayComputeLastBlock(BlockArray *ba)
 {
 	int lastBlock;
 
-	for (lastBlock = ba->nbBlock - 1; lastBlock > 0; --lastBlock) {
+	for (lastBlock = ba->block_cnt - 1; lastBlock >= 0; --lastBlock) {
 		if (ba->blocks[lastBlock])
 			return lastBlock;
 	}
-	return 0;
+	return -1;
 }
 
 #define yBlockArrayFastComputeLastPos(ba, blockPos)			\
@@ -73,12 +71,14 @@ static inline int32_t yBlockArrayComputeLastPos(BlockArray *ba)
 {
 	int32_t ret = yBlockArrayComputeLastBlock(ba);
 
+	if (unlikely(ret < 0))
+		return -1;
 	return yBlockArrayFastComputeLastPos(*ba, ret);
 }
 
-#define yBlockArrayLastPos(ba) ((ba).lastPos)
+#define yBlockArrayLastPos(ba) (yBlockArrayComputeLastPos(&ba))
 
-void yBlockArrayInitInternal(BlockArray *ba, size_t elemSize, int flag);
+void yBlockArrayInitInternal(BlockArray *ba, uint32_t elemSize, int flag);
 
 #define yBlockArrayInit(ba, elemType)			\
   (yBlockArrayInitInternal((ba), sizeof(elemType), 0))
@@ -101,9 +101,9 @@ static inline int8_t *yBlockArrayAssureBlock(BlockArray *ba, size_t pos)
 	uint64_t blockPos = yBlockArrayBlockPos(pos);
 
 	if (unlikely(!yBlockArrayIsBlockAllocated(*ba, blockPos))) {
-		yBlockArrayExpandBlocks(ba, blockPos - ba->nbBlock + 1);
+		yBlockArrayExpandBlocks(ba, blockPos - ba->block_cnt + 1);
 	}
-	return ba->elems + (pos * ba->elemSize);
+	return ba->elems + (pos * ba->elem_size);
 }
 
 #define yBlockArrayIsFree(ba, pos)				\
@@ -118,14 +118,12 @@ static inline void yBlockArrayUnset(BlockArray *ba, int32_t pos)
 	uint16_t bPos = yBlockArrayBlockPos(pos);
 
 	ba->blocks[bPos] &= (~yBlockArrayPosMask(pos));
-	if (pos == ba->lastPos) {
-		if (ba->blocks[bPos])
-			ba->lastPos = yBlockArrayFastComputeLastPos(*ba, bPos);
-		else
-			ba->lastPos = yBlockArrayComputeLastPos(ba);
-	}
-	if (likely((bPos != yBlockArrayBlockPos(ba->size)) ||
-		   (ba->flag & YBLOCK_ARRAY_NOMIDFREE))) {
+	if (bPos == (ba->block_cnt - 1) && !ba->blocks[bPos]) {
+		if (ba->flag & YBLOCK_ARRAY_NOMIDFREE) {
+			ba->block_cnt = yBlockArrayComputeLastBlock(ba) + 1;
+			return;
+		}
+	} else {
 		return;
 	}
 
@@ -142,7 +140,7 @@ again:
 static inline void yBlockArrayFreeBlocks(BlockArray *ba)
 {
 	if (!(ba->flag & YBLOCK_ARRAY_NO_BLOCKS_NEXT0) &&
-	    ba->nbBlock * sizeof(uint64_t) >= yBlockArrayDataNextSize0)
+	    ba->block_cnt * sizeof(uint64_t) >= yBlockArrayDataNextSize0)
 		free(ba->blocks);
 }
 
@@ -154,9 +152,7 @@ static inline void yBlockArrayClear(BlockArray *ba)
 	}
 	yBlockArrayFreeBlocks(ba);
 	ba->blocks = NULL;
-	ba->lastPos = -1;
-	ba->nbBlock = 0;
-	ba->size = 0;
+	ba->block_cnt = 0;
 }
 
 static inline void yBlockArraySet(BlockArray *ba, int32_t pos)
@@ -164,11 +160,9 @@ static inline void yBlockArraySet(BlockArray *ba, int32_t pos)
 	uint64_t blockPos = yBlockArrayBlockPos(pos);
 
 	if (unlikely(!yBlockArrayIsBlockAllocated(*ba, blockPos))) {
-		yBlockArrayExpandBlocks(ba, blockPos - ba->nbBlock + 1);
+		yBlockArrayExpandBlocks(ba, blockPos - ba->block_cnt + 1);
 	}
 
-	if (ba->lastPos < pos)
-		ba->lastPos = pos;
 	ba->blocks[blockPos] |= yBlockArrayPosMask(pos);
 }
 
@@ -178,7 +172,7 @@ void yBlockArrayCopyElemInternal(BlockArray *ba, size_t pos,
 #define yBlockArrayCopyElem(ba, pos, elem)	\
   (yBlockArrayCopyElemInternal((ba), (pos), (const void *)&(elem)))
 
-#define yBlockArrayFastGet(ba, pos) ((ba).elems + ((pos) * (ba).elemSize))
+#define yBlockArrayFastGet(ba, pos) ((ba).elems + ((pos) * (ba).elem_size))
 
 #define yBlockArrayGetDirect(ba, pos, type)	\
   (*((type *)yBlockArrayFastGet((ba), (pos))))
@@ -227,7 +221,7 @@ static inline int8_t *yBlockArraySetGetPtrInternal(BlockArray *ba, size_t pos)
   uint64_t tmpBeg##elem = (beg);					\
   (void)elem;								\
   for (uint16_t yfi = yBlockArrayBlockPos(beg);				\
-       yfi < (ba).nbBlock;						\
+       yfi < (ba).block_cnt;						\
        tmpBeg##elem = 0, ++yfi)						\
     for (uint64_t tmpmask =						\
 	   ((ba).blocks[yfi] &						\

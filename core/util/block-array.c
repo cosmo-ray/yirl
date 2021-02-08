@@ -26,19 +26,17 @@
 
 size_t yBlockArrayDataNextSize0;
 
-inline void yBlockArrayInitInternal(BlockArray *ba, size_t elemSize, int flag)
+inline void yBlockArrayInitInternal(BlockArray *ba, uint32_t elemSize, int flag)
 {
-	g_assert(elemSize < YBA_MAX_ELEM_SIZE);
-	ba->elemSize = elemSize;
+	assert(elemSize < YBA_MAX_ELEM_SIZE);
+	ba->elem_size = elemSize;
 	if (flag & YBLOCK_ARRAY_BIG_CHUNK)
 		ba->elems = malloc(ALLOC_SIZE);
 	else
 		ba->elems = NULL;
 	ba->blocks = NULL;
 	ba->flag = flag;
-	ba->lastPos = -1;
-	ba->nbBlock = 0;
-	ba->size = 0;
+	ba->block_cnt = 0;
 }
 
 inline void yBlockArrayFree(BlockArray *ba)
@@ -48,17 +46,19 @@ inline void yBlockArrayFree(BlockArray *ba)
 }
 
 #define BLOCK_REAL_SIZE(ba)			\
-	((ba)->elemSize * 64)
+	((ba)->elem_size * 64)
 
 void yBlockArrayExpandBlocks(BlockArray *ba, int nb)
 {
-	uint64_t oldPos = ba->nbBlock;
+	uint64_t old_cnt = ba->block_cnt;
 
-	if (ba->flag & YBLOCK_ARRAY_BIG_CHUNK)
-		nb += 16;
+	if (ba->flag & YBLOCK_ARRAY_BIG_CHUNK) {
+		nb = nb + abs(nb) % 16;
+	}
+
 	if (ba->flag & YBLOCK_ARRAY_NO_BLOCKS_NEXT0 &&
-	    ba->nbBlock * sizeof(uint64_t) < yBlockArrayDataNextSize0) {
-		int16_t nNb = ba->nbBlock + nb;
+	    ba->block_cnt * sizeof(uint64_t) < yBlockArrayDataNextSize0) {
+		int16_t nNb = ba->block_cnt + nb;
 		char *src = (void *)ba;
 
 		src += sizeof(BlockArray);
@@ -66,27 +66,27 @@ void yBlockArrayExpandBlocks(BlockArray *ba, int nb)
 			ba->blocks = malloc(nNb * sizeof(uint64_t));
 			/* So we can free memory */
 			ba->flag ^= YBLOCK_ARRAY_NO_BLOCKS_NEXT0;
-			memcpy(ba->blocks, src, ba->nbBlock * sizeof(uint64_t));
+			memcpy(ba->blocks, src, ba->block_cnt * sizeof(uint64_t));
 		} else {
 			ba->blocks = (void *)src;
 		}
-		ba->nbBlock = nNb;
+		ba->block_cnt = nNb;
 	} else {
-		ba->nbBlock += nb;
+		ba->block_cnt += nb;
 		ba->blocks = g_realloc(ba->blocks,
-				       ba->nbBlock * sizeof(uint64_t));
+				       ba->block_cnt * sizeof(uint64_t));
 	}
+
 	if (!(ba->flag & YBLOCK_ARRAY_BIG_CHUNK)) {
 		ba->elems = g_realloc(ba->elems,
-				      ba->nbBlock * BLOCK_REAL_SIZE(ba));
+				      ba->block_cnt * BLOCK_REAL_SIZE(ba));
 	}
-	ba->size = ba->nbBlock * 64 - (1 * !!ba->nbBlock);
 
 	if (nb > 0) {
 		if (!(ba->flag & YBLOCK_ARRAY_NOINIT))
-			memset(ba->elems + (oldPos  * BLOCK_REAL_SIZE(ba)), 0,
+			memset(ba->elems + (old_cnt  * BLOCK_REAL_SIZE(ba)), 0,
 			       nb * BLOCK_REAL_SIZE(ba));
-		memset(ba->blocks + oldPos, 0, nb * sizeof(uint64_t));
+		memset(ba->blocks + old_cnt, 0, nb * sizeof(uint64_t));
 	}
 }
 
@@ -97,7 +97,7 @@ inline void yBlockArrayCopyElemInternal(BlockArray *ba, size_t pos,
 					const void *elem)
 {
 	yBlockArraySet(ba, pos);
-	memcpy(ba->elems + (pos * ba->elemSize), elem, ba->elemSize);
+	memcpy(ba->elems + (pos * ba->elem_size), elem, ba->elem_size);
 	return;
 }
 
@@ -106,7 +106,7 @@ inline void yBlockArrayIteratorIncr(BlockArrayIterator *it)
 {
 	if (!it->mask) {
 		uint64_t j = 1;
-		for (uint64_t i = it->blockPos + 1; i < it->array->nbBlock &&
+		for (int i = it->blockPos + 1; i < it->array->block_cnt &&
 			     !yBlockArrayGetBlock(*it->array, i); ++i, ++j);
 		it->blockPos += j;
 		it->mask = yBlockArrayGetBlock(*it->array, it->blockPos);

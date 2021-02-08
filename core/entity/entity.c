@@ -67,7 +67,7 @@ static inline Entity *yeGetBase(Entity *e, int pos)
 		YE_DECR_REF(entity);					\
 		if (entity->refCount < 1) {				\
 			int pos = yeGetPosInBase(entity);		\
-			Entity *first = yeGetBase(entity, pos);	\
+			Entity *first = yeGetBase(entity, pos);		\
 			first->flag ^= fatPosToFLag[pos];		\
 			if (!first->flag) {				\
 				if (first == curentFat) {		\
@@ -1154,7 +1154,7 @@ int yePush(Entity *array, Entity *toPush, const char *name)
 	BlockArray *ba = &YE_TO_ARRAY(array)->values;
 	uint64_t m;
 
-	for (int i = 0; i < ba->nbBlock; ++i) {
+	for (int i = 0; i < ba->block_cnt; ++i) {
 		int j;
 		ArrayEntry *e;
 

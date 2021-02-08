@@ -36,6 +36,7 @@ void testBlockArray(void)
 	yBlockArrayInit(&test.array, uint64_t);
 
 	/* simple setter / unset */
+	g_assert(yBlockArrayLastPos(test.array) == -1);
 	ptr = yBlockArraySetGetPtr(&test.array, 2, void *);
 	g_assert(ptr);
 	g_assert(!yBlockArrayIsSet(test.array, 1));

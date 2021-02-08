@@ -239,11 +239,12 @@ Entity *yeStringAdd(Entity *ent, const char *str)
 		/* as strlen is use, strcpy is as safe as strlcpy */
 		strcpy(beg, str);
 	} else {
-		free(yeStringFreeable(ent));
+		char *to_free = yeStringFreeable(ent);
 		YE_TO_STRING(ent)->value =
 			g_strdup_printf("%s%s", YE_TO_STRING(ent)->value,
 					str);
 		YE_TO_STRING(ent)->origin = NULL;
+		free(to_free);
 	}
 	YE_TO_STRING(ent)->len = totalLength;
 	return ent;

@@ -213,7 +213,7 @@ union SmallEntity {
 	uint8_t totalSize[32];
 };
 
-#define SMALL_SIZE sizeof(union FatEntity)
+#define SMALL_SIZE sizeof(union SmallEntity)
 
 union FatEntity {
 	Entity Entity;
