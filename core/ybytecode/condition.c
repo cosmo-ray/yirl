@@ -82,8 +82,11 @@ int yeCheckCondition(Entity *condition)
 	if (unlikely(!actionEnt))
 		return 0;
 	/* compille stuff \0/ */
-	if (yeType(actionEnt) == YSTRING ||
-	    yeType(yeGet(actionEnt, 1)) != YFUNCTION) {
+	/* if (yeType(actionEnt) == YSTRING || */
+	/*     yeType(yeGet(actionEnt, 1)) != YFUNCTION) { */
+	/* in theory I should keepthe compiled code, */
+	/* problem is that it can be free in some unlucky maner */
+	if (1) {
 		Entity *func;
 		Entity *estr = yeType(actionEnt) == YSTRING ? actionEnt :
 			yeGet(actionEnt, 0);
