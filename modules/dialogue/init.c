@@ -208,6 +208,32 @@ static void refreshAnswer(Entity *wid, Entity *menu, Entity *curent)
 		yesCall(ygGet("DialogueBox.reload"), wid, menu);
 }
 
+static Entity *getText_(Entity *box, Entity *e)
+{
+	Entity *condition;
+	Entity *rtext = yeGet(e, "rand-texts");
+	Entity *txts = yeGet(e, "texts");
+
+	if (rtext) {
+		Entity *cur_txt;
+
+		cur_txt = yeGet(rtext, yuiRand() % yeLen(rtext));
+		return cur_txt;
+	}
+
+	YE_ARRAY_FOREACH(txts, cur_txt) {
+		condition =  yeType(cur_txt) == YARRAY ?
+			yeGet(cur_txt, "condition") : NULL;
+
+		if (condition && !dialogueCondition(box, condition, NULL))
+			continue;
+		ywidActions(box, cur_txt, NULL);
+		printf("find txt: %s\n", yeGetStringAt(cur_txt, "text"));
+		return yeGet(cur_txt, "text");
+	}
+	return NULL;
+}
+
 static Entity *getText(Entity *box, Entity *e)
 {
 	if (yeType(e) == YSTRING ||
@@ -219,26 +245,7 @@ static Entity *getText(Entity *box, Entity *e)
 	if (yeType(txt) == YSTRING || yeType(txt) == YARRAY)
 		return txt;
 	if (!txt) {
-		Entity *condition;
-		Entity *rtext = yeGet(e, "rand-texts");
-		Entity *txts = yeGet(e, "texts");
-
-		if (rtext) {
-			Entity *cur_txt;
-
-			cur_txt = yeGet(rtext, yuiRand() % yeLen(rtext));
-			return cur_txt;
-		}
-
-		YE_ARRAY_FOREACH(txts, cur_txt) {
-			condition =  yeType(cur_txt) == YARRAY ?
-				yeGet(cur_txt, "condition") : NULL;
-
-			if (condition && !dialogueCondition(box, condition, NULL))
-				continue;
-			ywidActions(box, cur_txt, NULL);
-			return yeGet(cur_txt, "text");
-		}
+		return getText_(box, e);
 	}
 	return NULL;
 }
@@ -333,6 +340,9 @@ static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
 				      answer, "hiden");
 		}
 
+		if (yeType(answer) == YARRAY && !yeGet(answer, "text")) {
+			yePushBack(answer, getText_(wid, answer), "text");
+		}
 		if (drv == &cntDialogueMnDrv) {
 			if (yeType(answer) == YSTRING) {
 				Entity *strAnswer = answer;

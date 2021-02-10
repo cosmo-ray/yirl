@@ -114,7 +114,7 @@ do {									\
 #define YE_ALLOC_ENTITY_DataEntity(ret, type) YE_ALLOC_ENTITY_BASE(ret, type)
 #define YE_ALLOC_ENTITY_FloatEntity(ret, type) YE_ALLOC_ENTITY_SMALL(ret, type)
 #define YE_ALLOC_ENTITY_FunctionEntity(ret, type) YE_ALLOC_ENTITY_BASE(ret, type)
-#define YE_ALLOC_ENTITY_StringEntity(ret, type) YE_ALLOC_ENTITY_BASE(ret, type)
+#define YE_ALLOC_ENTITY_StringEntity(ret, type) YE_ALLOC_ENTITY_SMALL(ret, type)
 
 #define YE_ALLOC_ENTITY(ret, type) YUI_CAT(YE_ALLOC_ENTITY_, type)(ret, type)
 #define YE_DESTROY_ENTITY(entity, type) YE_DESTROY_ENTITY_SMALL(entity, type)
