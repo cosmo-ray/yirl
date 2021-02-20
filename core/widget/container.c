@@ -122,7 +122,8 @@ static inline CntType cntGetTypeFromEntity(Entity *entity) {
 
 	if (yuiStrEqual0(cntType, "vertical")) {
 		return CNT_VERTICAL;
-	} else if (yuiStrEqual0(cntType, "stacking"))
+	} else if (yuiStrEqual0(cntType, "stacking") ||
+		   yuiStrEqual0(cntType, "stack"))
 		return CNT_STACK;
 	return CNT_HORIZONTAL;
 }
