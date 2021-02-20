@@ -495,7 +495,7 @@ Entity *ywCanvasNewImgFromTexture(Entity *wid, int x, int y, Entity *yTexture,
 	yeCreateInt(YCanvasTexture, obj, "canvas-type");
 	ywPosCreateInts(x, y, obj, "pos");
 	yePushBack(obj, yTexture, "text");
-	yePushBack(obj, img_src_rect, "img-src-rect");
+	yeCreateCopy(img_src_rect, obj, "img-src-rect");
 	ywCanvasSetWeightInternal(wid, obj, 0, 1);
 	sdlCanvasCacheTexture(wid, obj);
 	return obj;
