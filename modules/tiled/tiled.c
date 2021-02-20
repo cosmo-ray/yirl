@@ -206,7 +206,7 @@ void *fileToCanvas(int nbArg, void **args)
 
 	    if (assetsPath) {
 		int buf_size = strlen(assetsPath) + strlen(img_path) + 2;
-		char buf[1024]; /* VLA */
+		char buf[2048]; /* VLA */
 
 		snprintf(buf, buf_size, "%s/%s", assetsPath, img_path);
 		texture = ywTextureNewImg(buf, NULL, tileset, "_texture");
@@ -221,7 +221,6 @@ void *fileToCanvas(int nbArg, void **args)
 	    YE_ARRAY_FOREACH_EXT(properties, property, it) {
 		int isAyyay = yeType(property) == YARRAY;
 		const char *name;
-
 		name = yBlockArrayIteratorGetPtr(it, ArrayEntry)->name;
 		if (isAyyay) {
 		    name = yeGetStringAt(property, "name");
@@ -265,6 +264,7 @@ void *fileToCanvas(int nbArg, void **args)
 			goto next_tileset;
 		}
 	    }
+
 	    YE_ARRAY_FOREACH(layer_data, tile_id) {
 		uint64_t orig_tid = yeGetInt(tile_id);
 		uint64_t tid;
@@ -300,7 +300,7 @@ void *fileToCanvas(int nbArg, void **args)
 		    if (!resource) {
 			resource = yeCreateArrayAt(resources, NULL, orig_tid);
 			yePushBack(resource, texture, "texture");
-			yePushBack(resource, src_rect, "img-src-rect");
+			yeCreateCopy(src_rect, resource, "img-src-rect");
 		    }
 		    cur_img = ywCanvasNewObj(canvas, x, y, orig_tid);
 		}

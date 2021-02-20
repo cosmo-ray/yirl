@@ -113,7 +113,7 @@ void *mod_init(int nbArg, void **args)
 		mod.sl = [];
 		mod.sl["<type>"] = "capp";
 		mod.sl.files = [];
-		mod.sl.files[0] = "../../../CursesBird/main.c";
+		mod.sl.files[0] = "../../../tui-diagdrawer/src/main.c";
 		//mod.sl.files[0] = "../../../sl/sl.c";
 		mod.sl.args = [];
 		mod.sl.args[0] = "-G";
