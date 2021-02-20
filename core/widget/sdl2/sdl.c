@@ -928,6 +928,7 @@ int sdlCanvasCacheImg2(Entity *elem, Entity *resource, const char *imgPath,
 		}
 		surface = IMG_Load(imgPath);
 	}
+
 	if (unlikely(!surface)) {
 		DPRINT_ERR("fail to load %s", imgPath);
 		return -1;
@@ -1062,8 +1063,9 @@ int sdlCanvasCacheTexture(Entity *state, Entity *elem)
 
 	resource = yeGet(yeGet(state, "resources"),
 			 yeGetIntAt(elem, 2));
+
 	Entity *tmp = yeGet(resource, "$img");
-	if (tmp) {
+	if (tmp && !ywNeedTextureReload) {
 		yePushAt(elem, tmp, YCANVAS_IMG_IDX);
 		yeRenameIdxStr(elem, YCANVAS_IMG_IDX, "$img");
 		yeGetPush(resource, elem, "$size");
@@ -1086,6 +1088,8 @@ int sdlCanvasCacheTexture(Entity *state, Entity *elem)
 		yeDestroy(imgSrcRect);
 		return ret;
 	}
+
+
 	txt = yeGetStringAt(resource, "img");
 	if (txt)
 		return sdlCanvasCacheImg(elem, resource, txt, NULL);
