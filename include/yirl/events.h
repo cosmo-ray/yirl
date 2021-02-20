@@ -24,6 +24,7 @@
 _Bool yevIsKeyDown(Entity *events, int k);
 _Bool yevIsKeyUp(Entity *events, int k);
 
+/* use as yevCreateGrp(parent, keys...) */
 #define yevCreateGrp yeCreateInts
 
 /**
@@ -34,6 +35,38 @@ _Bool yevIsGrpDown(Entity *events, Entity *grp);
  * @return 1 if a key of grp is press up
  */
 _Bool yevIsGrpUp(Entity *events, Entity *grp);
+
+static inline void yeveDirFromDirGrp(Entity *events,
+				     Entity *up_g, Entity *down_g,
+				     Entity *left_g, Entity *right_g,
+				     int *up_down, int *right_left)
+{
+	if (yevIsGrpDown(events, up_g)) {
+		*up_down = -1;
+	}
+	if (yevIsGrpDown(events, down_g)) {
+		*up_down = 1;
+	}
+	if (yevIsGrpDown(events, right_g)) {
+		*right_left = 1;
+	}
+	if (yevIsGrpDown(events, left_g)) {
+		*right_left = -1;
+	}
+
+	if (yevIsGrpUp(events, up_g)) {
+		*up_down = 0;
+	}
+	if (yevIsGrpUp(events, down_g)) {
+		*up_down = 0;
+	}
+	if (yevIsGrpUp(events, right_g)) {
+		*right_left = 0;
+	}
+	if (yevIsGrpUp(events, left_g)) {
+		*right_left = 0;
+	}
+}
 
 static inline int yevCheckKeysInt(Entity *events, EventType type, int *keys)
 {
