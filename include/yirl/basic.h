@@ -126,6 +126,7 @@ double sin(double);
 
 int abs(int);
 double sqrt(double x);
+double floor(double);
 
 /* seems from greping in /usr/include that it should be u32 */
 typedef unsigned int useconds_t;
