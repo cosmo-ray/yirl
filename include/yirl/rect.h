@@ -22,32 +22,32 @@
 
 static inline int ywRectX(Entity *e)
 {
-  return yeGetInt(yeGetByIdx(e, 0));
+	return yeGetInt(yeGetByIdx(e, 0));
 }
 
 static inline int ywRectY(Entity *e)
 {
-  return yeGetInt(yeGetByIdx(e, 1));
+	return yeGetInt(yeGetByIdx(e, 1));
 }
 
 static inline int ywRectW(Entity *e)
 {
-  return yeGetInt(yeGetByIdx(e, 2));
+	return yeGetInt(yeGetByIdx(e, 2));
 }
 
 static inline int ywRectH(Entity *e)
 {
-  return yeGetInt(yeGetByIdx(e, 3));
+	return yeGetInt(yeGetByIdx(e, 3));
 }
 
 static inline int ywRectWDirect(Entity *e)
 {
-  return yeGetIntDirect(yeGetByIdxDirect(e, 2));
+	return yeGetIntDirect(yeGetByIdxDirect(e, 2));
 }
 
 static inline int ywRectHDirect(Entity *e)
 {
-  return yeGetIntDirect(yeGetByIdxDirect(e, 3));
+	return yeGetIntDirect(yeGetByIdxDirect(e, 3));
 }
 
 #define YRECT_MK_INIT(r) {ywRectX(r), ywRectY(r), ywRectW(r), ywRectH(r) }
@@ -82,15 +82,15 @@ static inline Entity *ywRectReCreateEnt(Entity *other, Entity *father,
 static inline Entity *ywRectCreatePosSize(Entity *pos, Entity *size,
 					  Entity *father, const char *name)
 {
-  int x = 0, y = 0;
+	int x = 0, y = 0;
 
-  if (pos) {
-    x = ywPosX(pos);
-    y = ywPosY(pos);
-  }
+	if (pos) {
+		x = ywPosX(pos);
+		y = ywPosY(pos);
+	}
 
-  return ywRectReCreateInts(x, y, ywSizeW(size),
-			    ywSizeH(size), father, name);
+	return ywRectReCreateInts(x, y, ywSizeW(size),
+				  ywSizeH(size), father, name);
 }
 
 
@@ -98,45 +98,45 @@ void ywRectSet(Entity *rect, int x, int y, int w, int h);
 
 static inline void ywRectSetFromRect(Entity *rect, Entity *o)
 {
-  ywRectSet(rect, ywRectX(o), ywRectY(o), ywRectW(o), ywRectH(o));
+	ywRectSet(rect, ywRectX(o), ywRectY(o), ywRectW(o), ywRectH(o));
 }
 
 static inline Entity *ywRectSetX(Entity *pos, int posX)
 {
-  yeSetInt(yeGetByIdx(pos, 0), posX);
-  return pos;
+	yeSetInt(yeGetByIdx(pos, 0), posX);
+	return pos;
 }
 
 static inline Entity *ywRectSetY(Entity *pos, int posY)
 {
-  yeSetInt(yeGetByIdx(pos, 1), posY);
-  return pos;
+	yeSetInt(yeGetByIdx(pos, 1), posY);
+	return pos;
 }
 
 static inline Entity *ywRectSetPos(Entity *rect, Entity *pos)
 {
-  ywRectSetX(rect, ywPosX(pos));
-  ywRectSetY(rect, ywPosY(pos));
-  return rect;
+	ywRectSetX(rect, ywPosX(pos));
+	ywRectSetY(rect, ywPosY(pos));
+	return rect;
 }
 
 static inline Entity *ywRectSetW(Entity *pos, int posW)
 {
-  yeSetInt(yeGetByIdx(pos, 2), posW);
-  return pos;
+	yeSetInt(yeGetByIdx(pos, 2), posW);
+	return pos;
 }
 
 static inline Entity *ywRectSetH(Entity *pos, int posH)
 {
-  yeSetInt(yeGetByIdx(pos, 3), posH);
-  return pos;
+	yeSetInt(yeGetByIdx(pos, 3), posH);
+	return pos;
 }
 
 static inline Entity *ywRectAddWH(Entity *r, int w, int h)
 {
-  yeAddInt(yeGetByIdx(r, 2), w);
-  yeAddInt(yeGetByIdx(r, 3), h);
-  return r;
+	yeAddInt(yeGetByIdx(r, 2), w);
+	yeAddInt(yeGetByIdx(r, 3), h);
+	return r;
 }
 
 /**
@@ -145,15 +145,15 @@ static inline Entity *ywRectAddWH(Entity *r, int w, int h)
  */
 static inline int ywRectContain(Entity *rect, int posx, int posy, int proper)
 {
-  return posx > ywRectX(rect) - !(proper) &&
-    posx < ywRectX(rect) + ywRectW(rect) - !!(proper) &&
-    posy > ywRectY(rect) - !(proper) &&
-    posy < ywRectY(rect) + ywRectH(rect) - !!(proper);
+	return posx > ywRectX(rect) - !(proper) &&
+		posx < ywRectX(rect) + ywRectW(rect) - !!(proper) &&
+		posy > ywRectY(rect) - !(proper) &&
+		posy < ywRectY(rect) + ywRectH(rect) - !!(proper);
 }
 
 static inline int ywRectContainPos(Entity *rect, Entity *pos, int proper)
 {
-  return ywRectContain(rect, ywPosX(pos), ywPosY(pos), proper);
+	return ywRectContain(rect, ywPosX(pos), ywPosY(pos), proper);
 }
 
 Entity *ywRectColisionRect(Entity *rect0, Entity *rect1,
@@ -161,54 +161,54 @@ Entity *ywRectColisionRect(Entity *rect0, Entity *rect1,
 
 static inline int ywRectCollisionWithPos(Entity *rect0, Entity *pos, Entity*size)
 {
-  int bx0 = ywRectX(rect0), ex0 = ywRectX(rect0) + ywRectW(rect0);
-  int by0 = ywRectY(rect0), ey0 = ywRectY(rect0) + ywRectH(rect0);
-  int bx1 = ywPosX(pos), ex1 = ywPosX(pos) + ywSizeW(size);
-  int by1 = ywPosY(pos), ey1 = ywPosY(pos) + ywSizeH(size);
+	int bx0 = ywRectX(rect0), ex0 = ywRectX(rect0) + ywRectW(rect0);
+	int by0 = ywRectY(rect0), ey0 = ywRectY(rect0) + ywRectH(rect0);
+	int bx1 = ywPosX(pos), ex1 = ywPosX(pos) + ywSizeW(size);
+	int by1 = ywPosY(pos), ey1 = ywPosY(pos) + ywSizeH(size);
 
-  if (bx0 > ex1 || bx1 > ex0)
-    return 0;
+	if (bx0 > ex1 || bx1 > ex0)
+		return 0;
 
-  if (by0 > ey1 || by1 > ey0)
-    return 0;
+	if (by0 > ey1 || by1 > ey0)
+		return 0;
 
-  return 1;
+	return 1;
 }
 
 
 static inline int ywRectCollision(Entity *rect0, Entity *rect1)
 {
-  int bx0 = ywRectX(rect0), ex0 = ywRectX(rect0) + ywRectW(rect0);
-  int by0 = ywRectY(rect0), ey0 = ywRectY(rect0) + ywRectH(rect0);
-  int bx1 = ywRectX(rect1), ex1 = ywRectX(rect1) + ywRectW(rect1);
-  int by1 = ywRectY(rect1), ey1 = ywRectY(rect1) + ywRectH(rect1);
+	int bx0 = ywRectX(rect0), ex0 = ywRectX(rect0) + ywRectW(rect0);
+	int by0 = ywRectY(rect0), ey0 = ywRectY(rect0) + ywRectH(rect0);
+	int bx1 = ywRectX(rect1), ex1 = ywRectX(rect1) + ywRectW(rect1);
+	int by1 = ywRectY(rect1), ey1 = ywRectY(rect1) + ywRectH(rect1);
 
-  if (bx0 > ex1 || bx1 > ex0)
-    return 0;
+	if (bx0 > ex1 || bx1 > ex0)
+		return 0;
 
-  if (by0 > ey1 || by1 > ey0)
-    return 0;
+	if (by0 > ey1 || by1 > ey0)
+		return 0;
 
-  return 1;
+	return 1;
 }
 
 static inline char *ywRectToString(Entity *r)
 {
-  static char tmp[4][256];
-  static int i;
+	static char tmp[4][256];
+	static int i;
 
-  ++i;
-  i &= 3;
-  snprintf(tmp[i], 256, "x: %d - y: %d w: %d h: %d",
-	   yeGetInt(yeGetByIdx(r, 0)), yeGetInt(yeGetByIdx(r, 1)),
-	   ywRectW(r), ywRectH(r));
-  return tmp[i];
+	++i;
+	i &= 3;
+	snprintf(tmp[i], 256, "x: %d - y: %d w: %d h: %d",
+		 yeGetInt(yeGetByIdx(r, 0)), yeGetInt(yeGetByIdx(r, 1)),
+		 ywRectW(r), ywRectH(r));
+	return tmp[i];
 }
 
 static inline void ywRectPrint(Entity *r)
 {
-  printf("x: %d - y: %d w: %d h: %d\n",
-	 ywRectX(r), ywRectY(r), ywRectW(r), ywRectH(r));
+	printf("x: %d - y: %d w: %d h: %d\n",
+	       ywRectX(r), ywRectY(r), ywRectW(r), ywRectH(r));
 }
 
 #endif

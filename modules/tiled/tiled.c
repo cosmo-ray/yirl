@@ -21,9 +21,11 @@
 #include <yirl/canvas.h>
 #include <yirl/condition.h>
 
-const unsigned FLIPPED_HORIZONTALLY_FLAG = 0x80000000;
-const unsigned FLIPPED_VERTICALLY_FLAG   = 0x40000000;
-const unsigned FLIPPED_DIAGONALLY_FLAG   = 0x20000000;
+static const unsigned FLIPPED_HORIZONTALLY_FLAG = 0x80000000;
+static const unsigned FLIPPED_VERTICALLY_FLAG   = 0x40000000;
+static const unsigned FLIPPED_DIAGONALLY_FLAG   = 0x20000000;
+
+static const unsigned TILED_MERGE_LAYER_0 = 1;
 
 char *assetsPath;
 
@@ -80,10 +82,12 @@ void *fileToCanvas(int nbArg, void **args)
     const char *path = args[0];
     Entity *canvas = args[1];
     Entity *upCanvas = nbArg > 2 ? args[2] : NULL;
+    int main_flags = nbArg > 3 ? (intptr_t)args[3] : NULL;
     Entity *tiledEnt;
     Entity *tileset_array;
     void *ret = NULL;
     Entity *layers;
+    int layer_cnt = -1;
 
     if (nbArg < 2) {
 	DPRINT_ERR("wrong number of arguments:"
@@ -138,6 +142,7 @@ void *fileToCanvas(int nbArg, void **args)
 	Entity *objects = yeGet(layer, "objects");
 	Entity *proTypes = yeGet(layer, "propertytypes");
 
+	++layer_cnt;
 	if (objects) {
 	    yeTryCreateArray(canvas, "objects");
 
@@ -295,6 +300,13 @@ void *fileToCanvas(int nbArg, void **args)
 		if (isUpLayer) {
 		    cur_img = ywCanvasNewImgFromTexture(upCanvas, x, y,
 							texture, src_rect);
+		} else if (main_flags & TILED_MERGE_LAYER_0 && !layer_cnt) {
+			yeAutoFree Entity *dst_rect =
+				ywRectCreateEnt(src_rect, NULL, NULL);
+
+			ywRectSetX(dst_rect, x);
+			ywRectSetY(dst_rect, y);
+			ywCanvasMergeTexture(canvas, texture, src_rect, dst_rect);
 		} else {
 		    Entity *resource = yeGet(resources, orig_tid);
 		    if (!resource) {

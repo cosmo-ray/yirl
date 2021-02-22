@@ -32,13 +32,18 @@ static int sdl2Render(YWidgetState *state, int t)
 	Entity *objs = yeGet(entity, "objs");
 	Entity *cam = yeGet(entity, "cam");
 	Entity *widPix = yeGet(state->entity, "wid-pix");
+	Entity *dst = s->merge_texture;
 	YBgConf cfg;
 
 	if (ywidBgConfFill(yeGet(entity, "background"), &cfg) >= 0)
 		sdlFillBg(wid, &cfg);
-	if (s->flag & YC_MERGE) {
-		Entity *dst = s->merge_texture;
 
+	if (s->flag & YC_MERGE_NO_MERGE) {
+		Entity *e = ywCanvasNewImgFromTexture(entity, 0,
+						      0, dst, NULL);
+		sdlCanvasRendObj(state, wid, e, cam, widPix);
+		ywCanvasPopObj(entity);
+	} else if (s->flag & YC_MERGE) {
 		YE_ARRAY_FOREACH(objs, obj) {
 			yeAutoFree Entity *dst_rect = ywRectCreatePosSize(
 				ywCanvasObjPos(obj),

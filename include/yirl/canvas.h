@@ -22,7 +22,7 @@
  * you can store canvas object inside the widget
  * (using ywCanvasNewObj/Image/Rect....)
  * Or printing directly inside it using ywCanvasMergeTexture/Rectangle...
- * if you use onjects the widget will keep in memory each object,
+ * if you use objects the widget will keep in memory each object,
  * will enable you to set weight to them
  * (need to be enable using ywCanvasEnableWeight),
  * move them on screen directly...
@@ -56,6 +56,7 @@ typedef enum  {
 enum {
 	YC_HAS_WEIGHT = 1,
 	YC_MERGE = 1 << 1,
+	YC_MERGE_NO_MERGE = 1 << 2,
 };
 
 #define YCANVAS_TYPE_IDX 0
