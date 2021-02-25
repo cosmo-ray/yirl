@@ -47,6 +47,7 @@ void *handlerRefresh(int nargs, void **args)
 
 	assert(size);
 
+
 	if ((c = yeGet(h, "canvas"))) {
 		Entity *tmpp = ywCanvasObjPos(c);
 		x = ywPosX(tmpp);

@@ -39,19 +39,29 @@ _Bool yevIsGrpUp(Entity *events, Entity *grp);
 static inline void yeveDirFromDirGrp(Entity *events,
 				     Entity *up_g, Entity *down_g,
 				     Entity *left_g, Entity *right_g,
-				     int *up_down, int *right_left)
+				     int *up_down, int *right_left,
+				     void (*callbacks[4])(Entity *),
+				     Entity *arg)
 {
 	if (yevIsGrpDown(events, up_g)) {
 		*up_down = -1;
+		if (callbacks && callbacks[0])
+			callbacks[0](arg);
 	}
 	if (yevIsGrpDown(events, down_g)) {
 		*up_down = 1;
+		if (callbacks && callbacks[1])
+			callbacks[1](arg);
 	}
 	if (yevIsGrpDown(events, right_g)) {
 		*right_left = 1;
+		if (callbacks && callbacks[2])
+			callbacks[2](arg);
 	}
 	if (yevIsGrpDown(events, left_g)) {
 		*right_left = -1;
+		if (callbacks && callbacks[3])
+			callbacks[3](arg);
 	}
 
 	if (yevIsGrpUp(events, up_g)) {
