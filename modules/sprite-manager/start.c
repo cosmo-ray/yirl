@@ -31,6 +31,21 @@ void *createHandler(int nbArg, void **args)
 	return ret;
 }
 
+void *handlerAdvance(int nargs, void **args)
+{
+	Entity *h = args[0];
+	Entity *sp = yeGet(h, "sp");
+	int size = yeGetIntAt(sp, "size");
+	int l = yeGetIntAt(sp, "length");
+
+	assert(l);
+	yeAddAt(h, "x", size);
+	if (yeGetIntAt(h, "x") >= size * l) {
+		yeSetAt(h, "x", 0);
+	}
+	return NULL;
+}
+
 void *handlerRefresh(int nargs, void **args)
 {
 	Entity *h = args[0];
@@ -40,9 +55,11 @@ void *handlerRefresh(int nargs, void **args)
 	Entity *ret;
 	Entity *sp = yeGet(h, "sp");
 	int size = yeGetIntAt(sp, "size");
+	int cur_x = yeGetIntAt(h, "x");
 	int sy = yeGetIntAt(sp, "src-pos");
+
 	yeAutoFree Entity *rect =
-		ywRectCreateInts(0, sy + yeGetIntAt(h, "y_offset"),
+		ywRectCreateInts(cur_x, sy + yeGetIntAt(h, "y_offset"),
 				 size, size, NULL, NULL);
 
 	assert(size);
@@ -102,6 +119,7 @@ void *mod_init(int nbArg, void **args)
 		mod.handlerRefresh = handlerRefresh;
 		mod.handlerSetPos = handlerSetPos;
 		mod.handlerNullify = handlerNullify;
+		mod.handlerAdvance = handlerAdvance;
 		mod.handlerPos = handlerPos;
 	}
 	printf("SPRITE MANAGER %p!!!\n", mod);
