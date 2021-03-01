@@ -1228,6 +1228,23 @@ static inline int yeSubInt(Entity *e, int i)
 	case YINT:
 		YE_TO_INT(e)->value -= i;
 		return 0;
+	case YFLOAT:
+		YE_TO_FLOAT(e)->value -= i;
+		return 0;
+	default :
+		return -1;
+	}
+}
+
+static inline int yeSubFloat(Entity *e, float i)
+{
+	switch (yeType(e)) {
+	case YFLOAT:
+		YE_TO_FLOAT(e)->value -= i;
+		return 0;
+	case YINT:
+		YE_TO_INT(e)->value -= i;
+		return 0;
 	default :
 		return -1;
 	}
