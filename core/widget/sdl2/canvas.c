@@ -42,7 +42,7 @@ static int sdl2Render(YWidgetState *state, int t)
 		Entity *e = ywCanvasNewImgFromTexture(entity, 0,
 						      0, dst, NULL);
 		sdlCanvasRendObj(state, wid, e, cam, widPix);
-		ywCanvasPopObj(entity);
+		ywCanvasRemoveObj(entity, e);
 	} else if (s->flag & YC_MERGE) {
 		YE_ARRAY_FOREACH(objs, obj) {
 			yeAutoFree Entity *dst_rect = ywRectCreatePosSize(
