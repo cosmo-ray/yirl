@@ -236,6 +236,9 @@ void	tccAddSyms(TCCState *l)
   ADD_SYM(ygModDirOut);
   ADD_SYM(ygModDir);
   ADD_SYM(yeCreateCopy);
+  ADD_SYM(ywCanvasMergeTexture);
+  ADD_SYM(ywCanvasNewCollisionsArray);
+  ADD_SYM(yeCopy);
 
 #if defined(__unix__) || defined(__APPLE__)
   tcc_add_symbol(l, "yuiDebugPrint", yuiDebugPrint);
