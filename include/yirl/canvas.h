@@ -309,6 +309,14 @@ Entity *ywCanvasNewCollisionsArrayExt(Entity *wid, Entity *obj,
 Entity *ywCanvasNewCollisionsArrayWithRectangle(Entity *wid, Entity *rectangle);
 
 /**
+ * WARNING: this function is untester and very experimental
+ * @return an array of array that represent all collitions with all objRects
+ */
+Entity *ywCanvasNewCollisionsArrayWithRectangles(Entity *wid, Entity *objRects,
+						 Entity *colisionFunc,
+						 Entity *colisionFuncArg);
+
+/**
  * @return colision array of obj where add_pos have been add to obj pos
  */
 Entity *ywCanvasProjectedColisionArray(Entity *wid, Entity *ojb, Entity *add_pos);

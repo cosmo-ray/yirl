@@ -290,6 +290,33 @@ int ywCanvasSwapObj(Entity *wid, Entity *obj0, Entity *obj1)
 	return yeSwapElems(yeGet(wid, "objs"), obj0, obj1);
 }
 
+Entity *ywCanvasNewCollisionsArrayWithRectangles(Entity *wid, Entity *objRects,
+						 Entity *colisionFunc,
+						 Entity *colisionFuncArg)
+{
+	Entity *ret = yeCreateArray(NULL, NULL);
+	Entity *objs = yeGet(wid, "objs");
+
+	YE_FOREACH(objRects, unused) {
+		yeCreateArray(ret, NULL);
+	}
+
+	YE_ARRAY_FOREACH(objs, tmp) {
+		int i = 0;
+
+		YE_FOREACH(objRects, objRect) {
+			if (ywRectCollisionWithPos(objRect, ywCanvasObjPos(tmp),
+						   ywCanvasObjSize(wid, tmp)) &&
+			    (!colisionFunc || yesCall(colisionFunc, wid,
+						      tmp, NULL, colisionFuncArg))) {
+				yePushBack(yeGet(ret, i), tmp, NULL);
+			}
+			++i;
+		}
+	}
+	return ret;
+}
+
 Entity *ywCanvasNewCollisionsArrayWithRectangle_(Entity *wid, Entity *objRect,
 						 Entity *obj,
 						 Entity *colisionFunc,
@@ -315,6 +342,7 @@ Entity *ywCanvasNewCollisionsArrayWithRectangle_(Entity *wid, Entity *objRect,
 	}
 	return ret;
 }
+
 
 Entity *ywCanvasNewCollisionsArrayExt(Entity *wid, Entity *obj,
 				      Entity *colisionFunc,
