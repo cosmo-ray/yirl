@@ -188,11 +188,11 @@ static void *fullScreenOnOff(int nb, union ycall_arg *args, int *types)
 	return (void *)NOTHANDLE;
 }
 
-static void *nextWid(int nb, union ycall_arg *args, int *types)
+static void *nextWid_(int nb, union ycall_arg *args, int *types, const char *dst)
 {
 	Entity *wid = args[0].e;
 	Entity *target = args[1].e;
-	Entity *next = yeGet(wid, "next");
+	Entity *next = yeGet(wid, dst);
 
 	if (nb == 1 || yeType(target) != YSTRING ||
 	    !yeGet(target, "<type>")) {
@@ -216,6 +216,16 @@ static void *nextWid(int nb, union ycall_arg *args, int *types)
 	if (ywidNext(next, target) < 0)
 		return (void *)BUG;
 	return (void *)ACTION;
+}
+
+static void *nextWid(int nb, union ycall_arg *args, int *types)
+{
+	return nextWid_(nb, args, types, "next");
+}
+
+static void *nextWidLose(int nb, union ycall_arg *args, int *types)
+{
+	return nextWid_(nb, args, types, "next-lose");
 }
 
 
@@ -302,6 +312,7 @@ static void addNativeFuncToBaseMod(void)
 	ysRegistreCreateNativeEntity(callOnKeyDown, "CallOnKeyDown", baseMod,
 				     NULL);
 	ysRegistreCreateNativeEntity(nextWid, "callNext", baseMod, NULL);
+	ysRegistreCreateNativeEntity(nextWidLose, "callNextLose", baseMod, NULL);
 	ysRegistreCreateNativeEntity(nextOnKeyDown, "nextOnKeyDown",
 				     baseMod, NULL);
 	ysRegistreCreateNativeEntity(setInt, "setInt", baseMod, NULL);
