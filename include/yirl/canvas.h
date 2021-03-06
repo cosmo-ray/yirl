@@ -349,4 +349,13 @@ static inline Entity *ywCanvasObjMod(Entity *obj)
  */
 Entity *ywCanvasCreateYTexture(Entity *obj, Entity *father, const char *name);
 
+static inline int ywCanvasObjDistanceXY(Entity *obj, int x, int y)
+{
+	Entity *p0 = ywCanvasObjPos(obj);
+	uint32_t w = ywPosX(p0) - x;
+	uint32_t h = ywPosY(p0) - y;
+
+	return sqrt(w * w + h * h);
+}
+
 #endif
