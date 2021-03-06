@@ -24,7 +24,7 @@ extern char yg_user_dir[PATH_MAX];
 
 int main(int argc, char **argv)
 {
-  GameConfig cfg;
+  GameConfig cfg = {0};
   int ret = 1;
   GOptionContext *ctx;
   const char *start = NULL;
