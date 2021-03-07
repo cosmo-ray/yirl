@@ -634,7 +634,7 @@ Entity *yeCreateString(const char *string, Entity *father, const char *name)
 		ret->len = len;
 		ret->origin = NULL;
 		ret->value = dst;
-		strcpy(dst, string);
+		strncpy(dst, string, yeMetadataSize(StringEntity) - 1);
 	} else {
 		YE_ALLOC_ENTITY(ret, StringEntity);
 		yeInit((Entity *)ret, YSTRING, father, name);
