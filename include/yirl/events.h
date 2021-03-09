@@ -40,41 +40,49 @@ static inline void yeveDirFromDirGrp(Entity *events,
 				     Entity *up_g, Entity *down_g,
 				     Entity *left_g, Entity *right_g,
 				     int *up_down, int *right_left,
-				     void (*callbacks[4])(Entity *),
+				     void (*callback)(Entity *, int key, int is_up),
 				     Entity *arg)
 {
 	if (yevIsGrpDown(events, up_g)) {
 		*up_down = -1;
-		if (callbacks && callbacks[0])
-			callbacks[0](arg);
+		if (callback)
+			callback(arg, Y_UP_KEY, 0);
 	}
 	if (yevIsGrpDown(events, down_g)) {
 		*up_down = 1;
-		if (callbacks && callbacks[1])
-			callbacks[1](arg);
+		if (callback)
+			callback(arg, Y_DOWN_KEY, 0);
 	}
 	if (yevIsGrpDown(events, right_g)) {
 		*right_left = 1;
-		if (callbacks && callbacks[2])
-			callbacks[2](arg);
+		if (callback)
+			callback(arg, Y_RIGHT_KEY, 0);
 	}
 	if (yevIsGrpDown(events, left_g)) {
 		*right_left = -1;
-		if (callbacks && callbacks[3])
-			callbacks[3](arg);
+		if (callback)
+			callback(arg, Y_LEFT_KEY, 0);
 	}
 
 	if (yevIsGrpUp(events, up_g)) {
 		*up_down = 0;
+		if (callback)
+			callback(arg, Y_UP_KEY, 1);
 	}
 	if (yevIsGrpUp(events, down_g)) {
 		*up_down = 0;
+		if (callback)
+			callback(arg, Y_DOWN_KEY, 1);
 	}
 	if (yevIsGrpUp(events, right_g)) {
 		*right_left = 0;
+		if (callback)
+			callback(arg, Y_RIGHT_KEY, 1);
 	}
 	if (yevIsGrpUp(events, left_g)) {
 		*right_left = 0;
+		if (callback)
+			callback(arg, Y_LEFT_KEY, 1);
 	}
 }
 
