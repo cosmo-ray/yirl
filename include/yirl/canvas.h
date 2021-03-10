@@ -261,6 +261,11 @@ static inline void ywCanvasPopObj(Entity *wid)
 	yePopBack(yeGet(wid, "objs"));
 }
 
+static inline Entity *ywCanvasLastObj(Entity *wid)
+{
+	return yeLast(yeGet(wid, "objs"));
+}
+
 void ywCanvasStringSet(Entity *obj, Entity *newStr);
 void ywCanvasObjSetResourceId(Entity *obj, int id);
 void ywCanvasObjClearCache(Entity *obj);
