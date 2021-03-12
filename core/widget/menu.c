@@ -118,14 +118,15 @@ static void *nmMenuMove(int nb, union ycall_arg *args, int *types)
 	Entity *wid = args[0].e;
 	Entity *eve = args[1].e;
 	Entity *cu = ywMenuGetCurrentEntry(wid);
+	int cur_k = ywidEveKey(eve);
 	Entity *s;
 
 	if ((s = yeGet(cu, "slider"))) {
 		Entity *si = yeGet(cu, "slider_idx");
 
-		if (ywidEveKey(eve) == Y_RIGHT_KEY) {
+		if (cur_k == Y_RIGHT_KEY || cur_k == 'd') {
 			yeAdd(si, 1);
-		} else if (ywidEveKey(eve) == Y_LEFT_KEY) {
+		} else if (cur_k == Y_LEFT_KEY || cur_k == 'a') {
 			yeAdd(si, -1);
 		}
 		if (yeGetInt(si) < 0)
@@ -134,9 +135,9 @@ static void *nmMenuMove(int nb, union ycall_arg *args, int *types)
 			yeSetInt(si, 0);
 	}
 
-	if (ywidEveKey(eve) == Y_DOWN_KEY) {
+	if (cur_k == Y_DOWN_KEY || cur_k == 's') {
 		return nmMenuDown(ywidGetState(wid));
-	} else if (ywidEveKey(eve) == Y_UP_KEY) {
+	} else if (cur_k == Y_UP_KEY || cur_k == 'w') {
 		return nmMenuUp(ywidGetState(wid));
 	}
 	return (void *)NOTHANDLE;
