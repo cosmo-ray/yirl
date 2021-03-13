@@ -13,21 +13,30 @@ void *createHandler(int nbArg, void **args)
 	const char *name = nbArg > 3 ? args[3] : NULL;
 	Entity *s_info = yeGet(thing, "sprite");
 	Entity *ret;
-	Entity *text;
+	Entity *texts;
+	Entity *paths = yeGet(s_info, "paths");
 
 	if (!s_info) {
 		return NULL;
 	}
 	ret = yeCreateArray(father, name);
 
+	texts = yeCreateArray(ret, "text");
 	yePushBack(ret, thing, "char");
 	yePushBack(ret, s_info, "sp");
-	text = ywTextureNewImg(yeGetStringAt(s_info, "path"), NULL,
-			       ret, "text");
+	if (paths) {
+		YE_FOREACH(paths, p) {
+			ywTextureNewImg(yeGetString(p), NULL, texts, NULL);
+		}
+	} else {
+		ywTextureNewImg(yeGetStringAt(s_info, "path"),
+				NULL, texts, NULL);
+	}
 	yePushBack(ret, canvas_wid, "wid");
 	yeCreateInt(0, ret, "x");
 	yeCreateInt(0, ret, "y");
 	yeCreateInt(0, ret, "y_offset");
+	yeCreateInt(0, ret, "text_idx");
 	return ret;
 }
 
@@ -57,13 +66,13 @@ void *handlerRefresh(int nargs, void **args)
 	int size = yeGetIntAt(sp, "size");
 	int cur_x = yeGetIntAt(h, "x");
 	int sy = yeGetIntAt(sp, "src-pos");
+	int text_idx = 0;
 
 	yeAutoFree Entity *rect =
 		ywRectCreateInts(cur_x, sy + yeGetIntAt(h, "y_offset"),
 				 size, size, NULL, NULL);
 
 	assert(size);
-
 
 	if ((c = yeGet(h, "canvas"))) {
 		Entity *tmpp = ywCanvasObjPos(c);
@@ -72,7 +81,10 @@ void *handlerRefresh(int nargs, void **args)
 		ywCanvasRemoveObj(w, c);
 		yeRemoveChild(h, "canvas");
 	}
-	ret = ywCanvasNewImgFromTexture(w, x, y, yeGet(h, "text"), rect);
+	text_idx = yeGetIntAt(h, "text_idx");
+	ret = ywCanvasNewImgFromTexture(w, x, y,
+					yeGet(yeGet(h, "text"), text_idx),
+					rect);
 	yePushBack(h, ret, "canvas");
 	return h;
 }
