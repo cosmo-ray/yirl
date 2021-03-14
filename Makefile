@@ -76,14 +76,14 @@ GEN_LOADER_OBJ = $(GEN_LOADER_SRC:.c=.o)
 #SDL_MIXER_CFLAGS = "-I../SDL_mixer/"
 
 LDFLAGS += $(TCC_LIB_PATH)$(TCC_LIB_NAME)
-LDFLAGS += $(SDL_MIXER_LDFLAGS) #  $(shell $(PKG_CONFIG) --libs SDL2_mixer)
 LDFLAGS += -L./
 LDFLAGS += $(shell $(PKG_CONFIG) --libs glib-2.0)
 LDFLAGS += $(LUA_LIB)
 LDFLAGS += $(VLC_LIB)
 LDFLAGS += $(shell $(PKG_CONFIG) --libs json-c)
 LDFLAGS += $(NUMA_LIB)
-LDFLAGS += $(shell $(PKG_CONFIG) --libs SDL2_image SDL2_ttf)
+#LDFLAGS += $(shell $(PKG_CONFIG) --libs SDL2_image SDL2_ttf)
+LDFLAGS += $(shell $(PKG_CONFIG) --libs SDL2 SDL2_image SDL2_ttf SDL2_mixer opus)
 LDFLAGS += $(LDFLAGS_EXT)
 LDFLAGS += $(LIBS_SAN) -ldl $(QUICKJS_LIB_PATH)
 LDFLAGS += $(ANALYZER_FLAG)
@@ -126,10 +126,10 @@ $(SCRIPT_DIR)/s7.o:
 	$(CC) -c -o $(SCRIPT_DIR)/s7.o $(SCRIPT_DIR)/s7.c -Wno-implicit-fallthrough -fPIC -O0 -g
 
 $(LIBNAME).a: $(OBJ) $(O_OBJ) $(OBJXX) $(QUICKJS_LIB_PATH)
-	$(AR)  -r -c -s $(LIBNAME).a $(OBJ) $(O_OBJ) $(OBJXX) $(QUICKJS_LIB_PATH)
+	$(AR)  -r -c -s $(LIBNAME).a $(OBJ) $(O_OBJ) $(OBJXX) $(QUICKJS_LIB_PATH) $(SDL_MIXER_LDFLAGS)
 
 $(LIBNAME).$(LIBEXTENSION): $(OBJ) $(O_OBJ) $(OBJXX) $(QUICKJS_LIB_PATH)
-	$(CC) -shared -o  $(LIBNAME).$(LIBEXTENSION) $(OBJ) $(O_OBJ) $(OBJXX) $(LDFLAGS)
+	$(CC) -shared -o  $(LIBNAME).$(LIBEXTENSION) $(OBJ) $(O_OBJ) $(OBJXX) $(LDFLAGS) $(SDL_MIXER_LDFLAGS)
 
 yirl-loader: $(YIRL_LINKING) $(GEN_LOADER_OBJ)
 	$(CC) -o yirl-loader$(BIN_EXT) $(GEN_LOADER_OBJ) $(BINARY_LINKING) $(LDFLAGS)
