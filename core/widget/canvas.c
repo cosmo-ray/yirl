@@ -348,6 +348,10 @@ Entity *ywCanvasNewCollisionsArrayExt(Entity *wid, Entity *obj,
 				      Entity *colisionFunc,
 				      Entity *colisionFuncArg)
 {
+	if (unlikely(!obj)) {
+		return NULL;
+	}
+
 	Entity *objRect = ywRectCreatePosSize(ywCanvasObjPos(obj),
 					      ywCanvasObjSize(wid, obj),
 					      NULL, NULL);

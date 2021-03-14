@@ -168,6 +168,18 @@ static void *nmMenuNext(int nb, union ycall_arg *args, int *types)
 	return ywidNext(next, e) ? (void *)BUG : (void *)ACTION;
 }
 
+static void *nmMenuMainWidNext(int nb, union ycall_arg *args, int *types)
+{
+	Entity *e = args[0].e;
+	YWidgetState *wid = ywidGetState(e);
+	Entity *next = yeGet(e, "entries");
+
+	next = yeGet(next, ((YMenuState *)wid)->current);
+	next = yeGet(next, "next");
+
+	return ywidNext(next, NULL) ? (void *)BUG : (void *)ACTION;
+}
+
 
 InputStatue mnActions_(Entity *menu, Entity *event, Entity *current_entry)
 {
@@ -403,6 +415,7 @@ int ywMenuInit(void)
 	ysRegistreNativeFunc("menuMove", nmMenuMove);
 	ysRegistreNativeFunc("panelMove", nmPanelMove);
 	ysRegistreNativeFunc("menuNext", nmMenuNext);
+	ysRegistreNativeFunc("menuMainWidNext", nmMenuMainWidNext);
 	ysRegistreNativeFunc("menuActions", mnActions);
 	return t;
 }
