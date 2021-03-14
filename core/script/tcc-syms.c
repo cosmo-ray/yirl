@@ -239,6 +239,9 @@ void	tccAddSyms(TCCState *l)
   ADD_SYM(ywCanvasMergeTexture);
   ADD_SYM(ywCanvasNewCollisionsArray);
   ADD_SYM(yeCopy);
+  ADD_SYM(ywCanvasSwapObj);
+  ADD_SYM(ywCntPopLastEntry);
+  ADD_SYM(ywidGetTurnTimer);
 
 #if defined(__unix__) || defined(__APPLE__)
   tcc_add_symbol(l, "yuiDebugPrint", yuiDebugPrint);

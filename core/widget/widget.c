@@ -76,6 +76,7 @@ struct Kaboumable {
 
 int ywTurnLengthOverwrite = -2;
 
+
 unsigned int ywTurnId(void)
 {
 	return ywTurnId_;
@@ -734,6 +735,11 @@ static void trackMouse(Entity *event)
 }
 
 int64_t ywidTurnTimer;
+
+int64_t ywidGetTurnTimer(void)
+{
+	return ywidTurnTimer;
+}
 
 int ywidDoTurn(YWidgetState *opac)
 {

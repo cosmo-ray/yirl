@@ -38,10 +38,7 @@ extern int64_t ywidTurnTimer;
 /**
  * @brief get length in us since last turn (frame ?)
  */
-static inline int64_t ywidGetTurnTimer(void)
-{
-	return ywidTurnTimer;
-}
+int64_t ywidGetTurnTimer(void);
 
 typedef enum
 {
