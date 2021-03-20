@@ -46,8 +46,10 @@ static int sdlRend(YWidgetState *state, int t)
 	if (!yeStrCmp(yeGet(state->entity, "text-align"), "center"))
 		alignementType = YSDL_ALIGN_CENTER;
 
-	if (ywidBgConfFill(yeGet(state->entity, "background"), &cfg) >= 0)
+
+	if (ywidInitBgConf(state->entity, &cfg) >= 0) {
 		sdlFillBg(wid, &cfg);
+	}
 
 	ywidColorFromString((char *)yeGetString(yeGet(state->entity,
 						      "text-color")),

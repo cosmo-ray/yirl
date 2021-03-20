@@ -26,54 +26,57 @@
 
 static int sdlRender(YWidgetState *state, int t)
 {
-  SDLWid *wid = ywidGetRenderData(state, t);
-  const char *toPrint = ywTextScreenText(state->entity);
-  YBgConf cfg;
-  SDL_Color color = {0, 0, 0, 255};
-  int alignementType = YSDL_ALIGN_LEFT;
-  Entity *cursor = yeGet(state->entity, "cursor");
+	SDLWid *wid = ywidGetRenderData(state, t);
+	const char *toPrint = ywTextScreenText(state->entity);
+	YBgConf cfg;
+	SDL_Color color = {0, 0, 0, 255};
+	int alignementType = YSDL_ALIGN_LEFT;
+	Entity *cursor = yeGet(state->entity, "cursor");
 
-  if (ywidBgConfFill(yeGet(state->entity, "background"), &cfg) >= 0)
-    sdlFillBg(wid, &cfg);
-  if (unlikely(!toPrint))
-	  return 0;
-  if (!yeStrCmp(yeGet(state->entity, "text-align"), "center"))
-    alignementType = YSDL_ALIGN_CENTER;
-  ywidColorFromString((char *)yeGetString(yeGet(state->entity, "text-color")),
-		      &color.r, &color.g, &color.b, &color.a);
+	if (ywidInitBgConf(state->entity, &cfg) >= 0) {
+		sdlFillBg(wid, &cfg);
+	}
 
-  if (!sgDefaultFont()) {
-    DPRINT_WARN("NO Font Set !");
-    return 0;
-  }
-  int threshold = yeGetIntAt(state->entity, "text-threshold");
-  SDL_Rect txtR = {0, threshold,
-		   wid->rect.w, wid->rect.h};
-  sdlPrintTextExt(wid, toPrint, color, txtR, alignementType,
-		  yeGetIntAt(state->entity, "line-spacing"));
-  if (cursor) {
-    int c_pos = yeGetInt(cursor);
-    int32_t f_sw = sgGetTxtW();
-    int32_t f_sh = sgGetTxtH();
-    SDL_Rect rect = {f_sw * c_pos, threshold, 2, f_sh};
-    SDL_Color color = {0, 0, 0, 255};
+	if (unlikely(!toPrint))
+		return 0;
+	if (!yeStrCmp(yeGet(state->entity, "text-align"), "center"))
+		alignementType = YSDL_ALIGN_CENTER;
+	ywidColorFromString((char *)yeGetString(yeGet(state->entity,
+						      "text-color")),
+			    &color.r, &color.g, &color.b, &color.a);
 
-    sdlDrawRect(wid, rect, color);
-  }
-  if (ywidBgConfFill(yeGet(state->entity, "foreground"), &cfg) >= 0)
-    sdlFillBg(wid, &cfg);
-  return 0;
+	if (!sgDefaultFont()) {
+		DPRINT_WARN("NO Font Set !");
+		return 0;
+	}
+	int threshold = yeGetIntAt(state->entity, "text-threshold");
+	SDL_Rect txtR = {0, threshold,
+		wid->rect.w, wid->rect.h};
+	sdlPrintTextExt(wid, toPrint, color, txtR, alignementType,
+			yeGetIntAt(state->entity, "line-spacing"));
+	if (cursor) {
+		int c_pos = yeGetInt(cursor);
+		int32_t f_sw = sgGetTxtW();
+		int32_t f_sh = sgGetTxtH();
+		SDL_Rect rect = {f_sw * c_pos, threshold, 2, f_sh};
+		SDL_Color color = {0, 0, 0, 255};
+
+		sdlDrawRect(wid, rect, color);
+	}
+	if (ywidBgConfFill(yeGet(state->entity, "foreground"), &cfg) >= 0)
+		sdlFillBg(wid, &cfg);
+	return 0;
 }
 
 static int sdlInit(YWidgetState *wid, int t)
 {
-  wid->renderStates[t].opac = g_new(SDLWid, 1);
-  sdlWidInit(wid, t);
-  return 0;
+	wid->renderStates[t].opac = g_new(SDLWid, 1);
+	sdlWidInit(wid, t);
+	return 0;
 }
 
 int ysdl2RegistreTextScreen(void)
 {
-  return ywidRegistreTypeRender("text-screen", ysdl2Type(),
-				sdlRender, sdlInit, sdlWidDestroy);
+	return ywidRegistreTypeRender("text-screen", ysdl2Type(),
+				      sdlRender, sdlInit, sdlWidDestroy);
 }

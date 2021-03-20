@@ -336,6 +336,7 @@ int ywidBgConfFill(Entity *entity, YBgConf *cfg)
 	char *str = (char *)yeGetString(entity);
 
 	cfg->type = BG_BUG;
+	cfg->flag = 0;
 	if (!str)
 		return -1;
 

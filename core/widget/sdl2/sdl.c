@@ -161,19 +161,33 @@ int   sdlFillColorBg(SDLWid *swid, short r, short g, short b, short a)
 	return 0;
 }
 
-int    sdlFillImgBg(SDLWid *swid, const char *cimg)
+static int    sdlFillImgBg(SDLWid *swid, YBgConf *cfg)
 {
-  if (cimg) {
-    SDL_Surface *img = IMG_Load(cimg);
-    if (!img)
-      return -1;
-    SDL_Texture *texture = SDL_CreateTextureFromSurface(sg.renderer, img);
-    SDL_FreeSurface(img);
-    SDL_RenderCopy(sg.renderer, texture, NULL, &swid->rect);
-    SDL_DestroyTexture(texture);
-    return 0;
-  }
-  return -1;
+	const char *cimg = cfg->path;
+	if (cimg) {
+		SDL_Surface *img = IMG_Load(cimg);
+		if (!img)
+			return -1;
+		SDL_Texture *texture = SDL_CreateTextureFromSurface(sg.renderer, img);
+		if (cfg->flag & YBG_FIT_TO_SCREEN) {
+			SDL_Rect drect = swid->rect;
+
+			if (cfg->flag & YBG_FIT_TO_SCREEN_H) {
+				drect.w = img->w * drect.h / img->h;
+				drect.x += (swid->rect.w / 2) - drect.w / 2;
+			} else {
+				drect.h = img->h * drect.w / img->w;
+				drect.y += (swid->rect.h / 2) - drect.h / 2;
+			}
+			SDL_RenderCopy(sg.renderer, texture, NULL, &drect);
+		} else {
+			SDL_RenderCopy(sg.renderer, texture, NULL, &swid->rect);
+		}
+		SDL_FreeSurface(img);
+		SDL_DestroyTexture(texture);
+		return 0;
+	}
+	return -1;
 }
 
 int    sdlFillBg(SDLWid *swid, YBgConf *cfg)
@@ -181,7 +195,7 @@ int    sdlFillBg(SDLWid *swid, YBgConf *cfg)
 	if (cfg->type == BG_COLOR)
 		return sdlFillColorBg(swid, cfg->r, cfg->g, cfg->b, cfg->a);
 	else if (cfg->type == BG_IMG)
-		return sdlFillImgBg(swid, cfg->path);
+		return sdlFillImgBg(swid, cfg);
 	return -1;
 }
 

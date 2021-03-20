@@ -49,8 +49,6 @@ void sdlWidInit(YWidgetState *wid, int t);
 
 int sdlFillColorBg(SDLWid *swid, short r, short g, short b, short a);
 
-int sdlFillImgBg(SDLWid *swid, const char *cimg);
-
 int sdlFillBg(SDLWid *swid, YBgConf *cfg);
 
 void sdlDrawRect(SDLWid *swid, SDL_Rect rect, SDL_Color color);

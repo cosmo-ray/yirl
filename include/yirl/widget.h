@@ -81,6 +81,13 @@ typedef enum
 	YKEY_NONE
 } EventType;
 
+enum BACKGOUND_FLAG {
+	YBG_NONE = 0,
+	YBG_FIT_TO_SCREEN_H = 1,
+	YBG_FIT_TO_SCREEN_W = 1 << 2,
+	YBG_FIT_TO_SCREEN = 1 | 2 /* YBG_FIT_TO_SCREEN_H and YBG_FIT_TO_SCREEN_W */
+};
+
 typedef enum
 {
 	BG_BUG = -1,
@@ -106,6 +113,8 @@ typedef struct {
 		uint32_t rgba;
 
 	};
+
+	int flag;
 
 } YBgConf;
 
@@ -218,6 +227,18 @@ void ywidChangeResolution(int w, int h);
 void ywidMarkAsDestroyable(YWidgetState *kboumable);
 
 int ywidBgConfFill(Entity *entity, YBgConf *cfg);
+
+static inline int ywidInitBgConf(Entity *wid, YBgConf *cfg)
+{
+	if (ywidBgConfFill(yeGet(wid, "background"), cfg) >= 0) {
+		if (yeGetIntAt(wid, "background-stretch-height"))
+			cfg->flag |= YBG_FIT_TO_SCREEN_H;
+		else if (yeGetIntAt(wid, "background-stretch-width"))
+			cfg->flag |= YBG_FIT_TO_SCREEN_W;
+		return 1;
+	}
+	return 0;
+}
 
 #define ywidCastState(w, t) ((t *)ywidGetState(w))
 
