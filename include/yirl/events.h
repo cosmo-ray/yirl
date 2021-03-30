@@ -43,43 +43,49 @@ static inline void yeveDirFromDirGrp(Entity *events,
 				     void (*callback)(Entity *, int key, int is_up),
 				     Entity *arg)
 {
+	int ud_push = 0, lr_push = 0;
+
 	if (yevIsGrpDown(events, up_g)) {
 		*up_down = -1;
+		ud_push = 1;
 		if (callback)
 			callback(arg, Y_UP_KEY, 0);
 	}
 	if (yevIsGrpDown(events, down_g)) {
+		ud_push = 1;
 		*up_down = 1;
 		if (callback)
 			callback(arg, Y_DOWN_KEY, 0);
 	}
 	if (yevIsGrpDown(events, right_g)) {
+		lr_push = 1;
 		*right_left = 1;
 		if (callback)
 			callback(arg, Y_RIGHT_KEY, 0);
 	}
 	if (yevIsGrpDown(events, left_g)) {
+		lr_push = 1;
 		*right_left = -1;
 		if (callback)
 			callback(arg, Y_LEFT_KEY, 0);
 	}
 
-	if (yevIsGrpUp(events, up_g)) {
+	if (yevIsGrpUp(events, up_g) && !ud_push) {
 		*up_down = 0;
 		if (callback)
 			callback(arg, Y_UP_KEY, 1);
 	}
-	if (yevIsGrpUp(events, down_g)) {
+	if (yevIsGrpUp(events, down_g) && !ud_push) {
 		*up_down = 0;
 		if (callback)
 			callback(arg, Y_DOWN_KEY, 1);
 	}
-	if (yevIsGrpUp(events, right_g)) {
+	if (yevIsGrpUp(events, right_g) && !lr_push) {
 		*right_left = 0;
 		if (callback)
 			callback(arg, Y_RIGHT_KEY, 1);
 	}
-	if (yevIsGrpUp(events, left_g)) {
+	if (yevIsGrpUp(events, left_g) && !lr_push) {
 		*right_left = 0;
 		if (callback)
 			callback(arg, Y_LEFT_KEY, 1);
