@@ -101,6 +101,8 @@ void *handlerSetPos(int nbArg, void **args)
 {
 	Entity *h = args[0];
 	Entity *p = args[1];
+	if (!h || !p)
+		return NULL;
 
 	if (!yeGet(h, "canvas")) {
 		handlerRefresh(1, (void *[]){h});
@@ -113,6 +115,8 @@ void *handlerSetPos(int nbArg, void **args)
 void *handlerNullify(int nbArg, void **args)
 {
 	Entity *h = args[0];
+	if (!h)
+		return NULL;
 	Entity *w = yeGet(h, "wid");
 
 	ywCanvasRemoveObj(w, yeGet(h, "canvas"));
