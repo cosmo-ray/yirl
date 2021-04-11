@@ -43,7 +43,7 @@ int main(int argc, char **argv)
     {"arg", 0, 0,  G_OPTION_ARG_STRING, &yProgramArg, "program argument", NULL},
     {"linux-user-path", 'L', 0,  G_OPTION_ARG_NONE, &linux_user_path,
      "store user data in ~/.yirl", NULL},
-    {"binary-root-path", 0, 0,  G_OPTION_ARG_STRING, &binaryRootPath,
+    {"binary-root-path", 'P', 0,  G_OPTION_ARG_STRING, &binaryRootPath,
      "set path to binary directory(which contain, tcc, script-dependancies, and defaults polices)", NULL},
     {"start-dir", 'd', 0,  G_OPTION_ARG_STRING, &start_dir,
      "move on the given directorry,"
