@@ -424,7 +424,8 @@ int ygInit(GameConfig *cfg)
 
 	/* Get Current Path, this comment is useless,
 	 * but that small function need more visibility */
-	getcwd(main_dir, PATH_MAX);
+	if (!getcwd(main_dir, PATH_MAX))
+		goto error;
 	game_tick = YTimerCreate();
 
 	return 0;
