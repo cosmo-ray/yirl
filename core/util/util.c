@@ -135,3 +135,4 @@ void yuiPrintErrno(const char *s)
 	else
 		DPRINT_ERR("error: %s\n", strerror(errno));
 }
+

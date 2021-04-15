@@ -87,7 +87,7 @@ typedef int64_t int_ptr_t;
 #endif
 
 // if compiller gcc
-#if defined(__GNUC__) && (__GNUC__ >= 4)
+#if defined(__GNUC__) && (__GNUC__ >= 4) && (! defined(Y_INSIDE_TCC))
 
 # ifndef likely
 # define likely(x)      __builtin_expect(!!(x), 1)
@@ -454,5 +454,22 @@ static inline void yuiAutoStr(char **str)
 }
 
 #define yuiAutoStr __attribute__ ((cleanup(yuiAutoStr)))
+
+# ifndef Y_INSIDE_TCC
+
+#  ifdef __APPLE__
+#include <unistd.h>
+
+static char *get_current_dir_name(void)
+{
+  char *str = (char *)malloc(2048);
+
+  if (str)
+    getcwd(str, 2048);
+  return str;
+}
+
+#  endif
+# endif
 
 #endif

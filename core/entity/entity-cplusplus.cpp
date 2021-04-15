@@ -20,12 +20,12 @@ extern "C" {
 #include <stdlib.h>
 }
 
+
 void *__gxx_personality_v0;
 
 #if defined(__APPLE__)
 void *__cxa_call_unexpected = 0;
 void *__cxa_pure_virtual = 0;
-void *__gxx_personality_v0 = 0;
 
 namespace __cxxabiv1 {
   class __class_type_info {
