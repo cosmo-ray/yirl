@@ -108,7 +108,7 @@ void *fileToCanvas(int nbArg, void **args)
 	if (assetsPath) {
 	    /* strings length + 1 for \0 and +1 for '\' */
 	    int buf_size = strlen(assetsPath) + strlen(tmp_path) + 2;
-	    char buf[1024]; /* VLA */
+	    char buf[1024]; /* should be a VLA, but need fix on windows */
 
 	    snprintf(buf, buf_size, "%s/%s", assetsPath, tmp_path);
 	    tmp = ygFileToEnt(YJSON, buf, NULL);
@@ -125,12 +125,19 @@ void *fileToCanvas(int nbArg, void **args)
     }
 
     layers = yeGet(tiledEnt, "layers");
-    yeReCreateInt(yeGetIntAt(tiledEnt, "width") *
-		  yeGetIntAt(tiledEnt, "tilewidth"),
-		  canvas, "tiled-wpix");
-    yeReCreateInt(yeGetIntAt(tiledEnt, "height") *
-		  yeGetIntAt(tiledEnt, "tileheight"),
-		  canvas, "tiled-hpix");
+    int tiled_wpix = yeGetIntAt(tiledEnt, "width") *
+	    yeGetIntAt(tiledEnt, "tilewidth");
+    int tiled_hpix = yeGetIntAt(tiledEnt, "height") *
+	    yeGetIntAt(tiledEnt, "tileheight");
+
+    yeReCreateInt(tiled_wpix, canvas, "tiled-wpix");
+    yeReCreateInt(tiled_hpix, canvas, "tiled-hpix");
+
+    if (main_flags & TILED_MERGE_LAYER_0) {
+	    if (tiled_wpix > 2024 || tiled_hpix > 2024)
+		    main_flags |= ~TILED_MERGE_LAYER_0;
+    }
+
     Entity *resources = yeReCreateArray(canvas, "resources", NULL);
 
     YE_ARRAY_FOREACH(layers, layer) {
