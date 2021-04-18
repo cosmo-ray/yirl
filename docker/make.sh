@@ -11,7 +11,7 @@ echo -n "current git revision: "
 git log --pretty=oneline -1
 git clean -df
 git submodule update --init --recursive
-./configure --clone-sdl-mixer --ndebug
+./configure --ndebug
 make clean_all #in case copied directry wasn't empty
 cd tinycc
 ./configure --extra-cflags=-fPIC

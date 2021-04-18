@@ -5,8 +5,7 @@ LINEHELPER[1]="--debug			add -g, maybe more latter"
 LINEHELPER[2]="--ndebug			no debug mode, for realease"
 LINEHELPER[3]="--hell-march		optimise for native architecturet"
 LINEHELPER[4]="--asan			compile with adress sanitazer"
-LINEHELPER[5]="--clone-sdl-mixer	like it say"
-LINEHELPER[6]="--analyzer		Use gcc 10+ --fanalyzer"
+LINEHELPER[5]="--analyzer		Use gcc 10+ --fanalyzer"
 
 source configure-helper.sh
 
@@ -38,13 +37,7 @@ for arg in $@; do
     fi
 
     if [ "--clone-sdl-mixer" = $arg ]; then
-	if [ ! -d "./SDL_mixer/" ] ; then
-	    hg clone "http://hg.libsdl.org/SDL_mixer/"
-	fi
-	if [ ! -d "./SDL_mixer/" ] ; then
-	    echo "can't clone SDL_mixer with mercurial"
-	    exit 1
-	fi
+	echo "option remove, use git submodule update --init"
     fi
 done
 
