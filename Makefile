@@ -77,6 +77,7 @@ GEN_LOADER_OBJ = $(GEN_LOADER_SRC:.c=.o)
 
 LDFLAGS += $(TCC_LIB_PATH)$(TCC_LIB_NAME)
 LDFLAGS += $(SDL_MIXER_LDFLAGS) #  $(shell $(PKG_CONFIG) --libs SDL2_mixer)
+LDFLAGS += $(SDL_GPU_LDFLAGS)
 LDFLAGS += -L./
 LDFLAGS += $(shell $(PKG_CONFIG) --libs glib-2.0)
 LDFLAGS += $(LUA_LIB)
@@ -97,6 +98,7 @@ COMMON_CFLAGS += -I./$(DUCK_V)/ -I./$(DUCK_V)/src/ # <--- last one is here so I 
 COMMON_CFLAGS += -I./$(QUICKJS_PATH)
 COMMON_CFLAGS += -fpic
 COMMON_CFLAGS += $(LUA_CFLAGS)
+COMMON_CFLAGS += -I$(SDL_GPU_CFLAGS)
 COMMON_CFLAGS += $(WERROR) -Wall -Wextra -Wno-unused-function -Wno-unused-parameter -Wno-int-to-pointer-cast
 
 COMMON_CFLAGS += -DYIRL_INCLUDE_PATH=\"$(YIRL_INCLUDE_PATH2)\"
@@ -116,6 +118,12 @@ SCRIPT_DEP=$(PREFIX)/share/yirl/scripts-dependancies/
 #this one is here so my screen don't cur the install line
 ULPCS=Universal-LPC-spritesheet/
 
+sdl-gpu-build:
+	cmake -B ./sdl-gpu-build ./sdl-gpu/
+
+$(SDL_GPU_LDFLAGS): sdl-gpu-build
+	make -C sdl-gpu-build
+
 $(QUICKJS_PATH):
 	git clone https://github.com/cosmo-ray/quickjs.git quickjs-$(QUICKJS_V)
 
@@ -125,10 +133,10 @@ $(QUICKJS_LIB_PATH): $(QUICKJS_PATH)
 $(SCRIPT_DIR)/s7.o:
 	$(CC) -c -o $(SCRIPT_DIR)/s7.o $(SCRIPT_DIR)/s7.c -Wno-implicit-fallthrough -fPIC -O0 -g
 
-$(LIBNAME).a: $(OBJ) $(O_OBJ) $(OBJXX) $(QUICKJS_LIB_PATH)
+$(LIBNAME).a: $(OBJ) $(O_OBJ) $(OBJXX) $(QUICKJS_LIB_PATH) $(SDL_GPU_LDFLAGS)
 	$(AR)  -r -c -s $(LIBNAME).a $(OBJ) $(O_OBJ) $(OBJXX) $(QUICKJS_LIB_PATH)
 
-$(LIBNAME).$(LIBEXTENSION): $(OBJ) $(O_OBJ) $(OBJXX) $(QUICKJS_LIB_PATH)
+$(LIBNAME).$(LIBEXTENSION): $(OBJ) $(O_OBJ) $(OBJXX) $(QUICKJS_LIB_PATH) $(SDL_GPU_LDFLAGS)
 	$(CC) -shared -o  $(LIBNAME).$(LIBEXTENSION) $(OBJ) $(O_OBJ) $(OBJXX) $(LDFLAGS)
 
 yirl-loader: $(YIRL_LINKING) $(GEN_LOADER_OBJ)

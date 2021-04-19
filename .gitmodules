@@ -8,3 +8,6 @@
 [submodule "SDL_mixer"]
 	path = SDL_mixer
 	url = https://github.com/libsdl-org/SDL_mixer.git
+[submodule "sdl-gpu"]
+	path = sdl-gpu
+	url = https://github.com/grimfang4/sdl-gpu.git
