@@ -50,7 +50,7 @@ static int sdlRender(YWidgetState *state, int t)
 		return 0;
 	}
 	int threshold = yeGetIntAt(state->entity, "text-threshold");
-	SDL_Rect txtR = {0, threshold,
+	GPU_Rect txtR = {0, threshold,
 		wid->rect.w, wid->rect.h};
 	sdlPrintTextExt(wid, toPrint, color, txtR, alignementType,
 			yeGetIntAt(state->entity, "line-spacing"));
@@ -58,7 +58,7 @@ static int sdlRender(YWidgetState *state, int t)
 		int c_pos = yeGetInt(cursor);
 		int32_t f_sw = sgGetTxtW();
 		int32_t f_sh = sgGetTxtH();
-		SDL_Rect rect = {f_sw * c_pos, threshold, 2, f_sh};
+		GPU_Rect rect = {f_sw * c_pos, threshold, 2, f_sh};
 		SDL_Color color = {0, 0, 0, 255};
 
 		sdlDrawRect(wid, rect, color);

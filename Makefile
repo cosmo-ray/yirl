@@ -88,8 +88,10 @@ LDFLAGS += $(shell $(PKG_CONFIG) --libs SDL2_image SDL2_ttf)
 LDFLAGS += $(LDFLAGS_EXT)
 LDFLAGS += $(LIBS_SAN) -ldl $(QUICKJS_LIB_PATH)
 LDFLAGS += $(ANALYZER_FLAG)
+LDFLAGS += $(shell $(PKG_CONFIG) --libs gl glu)
 
 COMMON_CFLAGS += $(shell $(PKG_CONFIG) --cflags glib-2.0)
+COMMON_CFLAGS += $(shell sdl2-config --cflags)
 COMMON_CFLAGS += -I$(YIRL_INCLUDE_PATH)
 COMMON_CFLAGS += -I$(YIRL_INCLUDE_PATH2)
 COMMON_CFLAGS += -I$(TCC_LIB_PATH)
@@ -119,7 +121,7 @@ SCRIPT_DEP=$(PREFIX)/share/yirl/scripts-dependancies/
 ULPCS=Universal-LPC-spritesheet/
 
 sdl-gpu-build:
-	cmake -B ./sdl-gpu-build ./sdl-gpu/
+	cmake -B ./sdl-gpu-build ./sdl-gpu/  -DCMAKE_C_FLAGS="-fPIC"
 
 $(SDL_GPU_LDFLAGS): sdl-gpu-build
 	make -C sdl-gpu-build

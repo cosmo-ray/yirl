@@ -62,7 +62,7 @@ static int sdlRend(YWidgetState *state, int t)
 
 	if (pre_text) {
 		Entity *destRect;
-		SDL_Rect txtR;
+		GPU_Rect txtR;
 
 		if (isPane) {
 			DPRINT_ERR("pre_text not supported with panel yet");
@@ -87,7 +87,7 @@ static int sdlRend(YWidgetState *state, int t)
 		const char *toPrint = yeGetString(yeGet(entry, "text"));
 		Entity *destRect;
 		Entity *type;
-		SDL_Rect txtR;
+		GPU_Rect txtR;
 		int has_loading_bar;
 		Entity *slider = yeGet(entry, "slider");
 
