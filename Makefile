@@ -121,7 +121,7 @@ SCRIPT_DEP=$(PREFIX)/share/yirl/scripts-dependancies/
 ULPCS=Universal-LPC-spritesheet/
 
 sdl-gpu-build:
-	CFLAGS="" cmake -B ./sdl-gpu-build ./sdl-gpu/  -DCMAKE_C_FLAGS="-fPIC"
+	CXXFLAGS="" CFLAGS="" cmake -B ./sdl-gpu-build ./sdl-gpu/  -DCMAKE_C_FLAGS="-fPIC"
 
 $(SDL_GPU_LDFLAGS): sdl-gpu-build
 	make -C sdl-gpu-build
