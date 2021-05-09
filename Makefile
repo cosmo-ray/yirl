@@ -61,7 +61,7 @@ SRCXX += 	$(ENTITY_DIR)/entity-cplusplus.cpp
 CXX = $(CC)
 
 sdl-gpu-build:
-	cmake -B ./sdl-gpu-build ./sdl-gpu/  -DCMAKE_C_FLAGS="-fPIC" -DCMAKE_CXX_FLAGS="-fPIC"
+	./cmake_sdl_gpu.sh
 
 OBJ =   $(SRC:.c=.o)
 OBJXX = $(SRCXX:.cpp=.o)
