@@ -39,6 +39,12 @@
 	    "life": 10,
 	    "atk_mod": "berserker",
 	    "max_life": 15,
+	    "sprite": {
+		"path": "rat.png",
+		"size": 32,
+		"y": 32,
+		"length": 3
+	    },
 	    "type": "tanned",
 	    "usable_items": {
 		"screw": 3,

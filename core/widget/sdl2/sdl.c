@@ -896,6 +896,14 @@ int sdlCanvasCacheImg2(Entity *elem, Entity *resource, const char *imgPath,
 			return -1;
 		}
 		surface = IMG_Load(imgPath);
+		if (surface->format->BitsPerPixel == 8) {
+			SDL_Surface *tmp = surface;
+			SDL_PixelFormat *f = SDL_AllocFormat(SDL_PIXELFORMAT_RGBA32);
+			surface = SDL_ConvertSurface(surface, f, 0);
+			SDL_FreeFormat(f);
+			SDL_FreeSurface(tmp);
+		}
+
 	}
 
 	if (unlikely(!surface)) {
@@ -916,19 +924,18 @@ int sdlCanvasCacheImg2(Entity *elem, Entity *resource, const char *imgPath,
 		imgPath = "";
 	}
 	if (!(flag & YSDL_CACHE_IMG_NO_TEXTURE)) {
-		texture = GPU_CopyImageFromSurface(surface);
-		if (unlikely(!texture)) {
-			if (!resource &&
-			    (surface->w > 2048 || surface->h  > 2048)) {
-				if (sdlCacheBigTexture(elem, surface,
-					    surface->w, surface->h) >= 0)
-					goto store_surface;
+		if (!resource &&
+		    (surface->w > 2048 || surface->h > 2048)) {
+			if (sdlCacheBigTexture(elem, surface,
+					       surface->w, surface->h) < 0) {
+				DPRINT_ERR("fail to create a texture from surface"
+					   "(size: %d %d): %s",
+					   surface->w, surface->h, SDL_GetError());
+				goto free_surface;
 			}
-			DPRINT_ERR("fail to create a texture from surface"
-				   "(size: %d %d): %s",
-				   surface->w, surface->h, SDL_GetError());
-			goto free_surface;
+			goto store_surface;
 		}
+		texture = GPU_CopyImageFromSurface(surface);
 		w = texture->w;
 		h = texture->h;
 		data = yeCreateDataAt(texture, elem, "$img", YCANVAS_IMG_IDX);

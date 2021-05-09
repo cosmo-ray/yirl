@@ -1002,7 +1002,7 @@ function fightInit(entity)
 
    local canvas = Entity.new_array(entity.entries)
    canvas["<type>"] = "canvas"
-   --canvas.background = "\"" .. modPath .. "BG City.jpg\""
+   --canvas.background = "\"" .. modPath .. "BG_City.jpg"
    canvas.size = 75
    canvas.objs = {}
    local menuCnt = Entity.new_array(entity.entries)
@@ -1027,7 +1027,7 @@ function fightInit(entity)
    local y_carac = wid_h / 2 + y_start
    local locations = mk_location(wid_h, y_start)
 
-   local bg = ywCanvasNewImg(canvas, 0, 0, modPath .. "BG_City.jpg")
+   local bg = ywCanvasNewImg(canvas, 0, 0, modPath .. "/BG_City.jpg")
    ywCanvasForceSize(bg, Size.new(ywRectW(wid_pix) + 50,
 				  ywRectH(wid_pix) + 50).ent)
 
