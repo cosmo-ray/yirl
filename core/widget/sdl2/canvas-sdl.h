@@ -34,6 +34,8 @@ int sdlCanvasCacheImg(Entity *elem, Entity *resource, const char *imgPath,
 		      Entity *rEnt);
 int sdlCanvasCacheImg2(Entity *elem, Entity *resource, const char *imgPath,
 		       Entity *rEnt, int32_t flag);
+int sdlCanvasCacheImg3(Entity *elem, Entity *resource, const char *imgPath,
+		       Entity *rEnt, int32_t flag, Entity *img_dst_rect);
 int sdlMergeSurface(Entity *textSrc, Entity *srcRect,
 		    Entity *textDest, Entity *destRect);
 void sdlCanvasCacheBicolorImg(Entity *elem, uint8_t *img, Entity *info);

@@ -73,6 +73,9 @@ int sdlPrintText(SDLWid *wid,
 int sdlPrintTextExt(SDLWid *wid, const char *str, SDL_Color color,
 		    GPU_Rect pos, int alignementType, int lineSpace);
 
+int sdlCanvasCacheImg3(Entity *elem, Entity *resource, const char *imgPath,
+		       Entity *rEnt, int32_t flag, Entity *img_dst_rect);
+
 int sdlCanvasCacheTexture(Entity *state, Entity *elem);
 
 void sdlCanvasCacheVoidTexture(Entity *obj, Entity *size);

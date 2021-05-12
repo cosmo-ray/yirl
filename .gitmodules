@@ -10,4 +10,4 @@
 	url = https://github.com/libsdl-org/SDL_mixer.git
 [submodule "sdl-gpu"]
 	path = sdl-gpu
-	url = https://github.com/grimfang4/sdl-gpu.git
+	url = https://github.com/cosmo-ray/sdl-gpu.git

@@ -529,7 +529,7 @@ static inline int sdlPrintLine(
   pos.x += wid->rect.x;
   for (int i = 0; i < len; i += caract_per_line) {
       SDL_Surface *textSurface;
-      GPU_Image* text;
+      GPU_Image *text;
       char tmp = 0;
 
       if ((len - i) > caract_per_line) {
@@ -868,10 +868,10 @@ static int sdlCacheBigTexture(Entity *e, SDL_Surface *s,
 	return 0;
 }
 
-int sdlCanvasCacheImg2(Entity *elem, Entity *resource, const char *imgPath,
-		       Entity *rEnt, int32_t flag)
+int sdlCanvasCacheImg3(Entity *elem, Entity *resource, const char *imgPath,
+		       Entity *rEnt, int32_t flag, Entity *img_dst_rect)
 {
-	SDL_Surface *surface;
+		SDL_Surface *surface;
 	GPU_Image *texture;
 	Entity *data;
 	int w, h, isText = 0;
@@ -919,7 +919,19 @@ int sdlCanvasCacheImg2(Entity *elem, Entity *resource, const char *imgPath,
 		/* trick to sdlFreeSurface anyway */
 		imgPath = "";
 	}
+
 	if (!(flag & YSDL_CACHE_IMG_NO_TEXTURE)) {
+		GPU_Rect *surface_rect = NULL;
+		GPU_Rect tmp_surface_rect;
+
+		if (img_dst_rect) {
+			tmp_surface_rect.x = ywRectX(img_dst_rect);
+			tmp_surface_rect.y = ywRectY(img_dst_rect);
+			tmp_surface_rect.w = ywRectW(img_dst_rect);
+			tmp_surface_rect.h = ywRectH(img_dst_rect);
+			surface_rect = &tmp_surface_rect;
+		}
+
 		if (!resource &&
 		    (surface->w > 2048 || surface->h > 2048)) {
 			if (sdlCacheBigTexture(elem, surface,
@@ -931,7 +943,7 @@ int sdlCanvasCacheImg2(Entity *elem, Entity *resource, const char *imgPath,
 			}
 			goto store_surface;
 		}
-		texture = GPU_CopyImageFromSurface(surface);
+		texture = GPU_CopyImageFromSurfaceRect(surface, surface_rect);
 		w = texture->w;
 		h = texture->h;
 		data = yeCreateDataAt(texture, elem, "$img", YCANVAS_IMG_IDX);
@@ -956,6 +968,12 @@ free_surface:
 	if (imgPath)
 		sdlFreeSurface(surface);
 	return -1;
+}
+
+int sdlCanvasCacheImg2(Entity *elem, Entity *resource, const char *imgPath,
+		       Entity *rEnt, int32_t flag)
+{
+	return sdlCanvasCacheImg3(elem, resource, imgPath, rEnt, flag, NULL);
 }
 
 void sdlCanvasCacheVoidTexture(Entity *obj, Entity *size)

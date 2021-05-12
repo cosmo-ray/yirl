@@ -60,9 +60,6 @@ SRCXX += 	$(ENTITY_DIR)/entity-cplusplus.cpp
 
 CXX = $(CC)
 
-sdl-gpu-build:
-	./cmake_sdl_gpu.sh
-
 OBJ =   $(SRC:.c=.o)
 OBJXX = $(SRCXX:.cpp=.o)
 
@@ -122,6 +119,9 @@ INSTALL_MOD=$(PREFIX)/share/yirl/modules/
 SCRIPT_DEP=$(PREFIX)/share/yirl/scripts-dependancies/
 #this one is here so my screen don't cur the install line
 ULPCS=Universal-LPC-spritesheet/
+
+sdl-gpu-build:
+	cmake -B ./sdl-gpu-build ./sdl-gpu/  -DCMAKE_C_FLAGS="-fPIC"
 
 $(SDL_GPU_LDFLAGS): sdl-gpu-build
 	make -C sdl-gpu-build

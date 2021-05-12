@@ -529,8 +529,8 @@ Entity *ywCanvasCreateYTexture(Entity *obj, Entity *father, const char *name)
 	return ret;
 }
 
-Entity *ywCanvasNewImgFromTexture(Entity *wid, int x, int y, Entity *yTexture,
-				  Entity *img_src_rect)
+Entity *ywCanvasNewImgFromTexture2(Entity *wid, int x, int y, Entity *yTexture,
+				   Entity *img_src_rect, Entity *img_dst_rect)
 {
 	Entity *obj = yeCreateArray(NULL, NULL);
 
@@ -539,11 +539,19 @@ Entity *ywCanvasNewImgFromTexture(Entity *wid, int x, int y, Entity *yTexture,
 	yePushBack(obj, yTexture, "text");
 	yeCreateCopy(img_src_rect, obj, "img-src-rect");
 	ywCanvasSetWeightInternal(wid, obj, 0, 1);
-	if (sdlCanvasCacheTexture(wid, obj) < 0) {
+	if (sdlCanvasCacheImg3(obj, yTexture, NULL, NULL,
+			       0, img_dst_rect) < 0) {
 		ywCanvasRemoveObj(wid, obj);
 		return NULL;
 	}
 	return obj;
+}
+
+Entity *ywCanvasNewImgFromTexture(Entity *wid, int x, int y, Entity *yTexture,
+				  Entity *img_src_rect)
+{
+	return ywCanvasNewImgFromTexture2(wid, x, y, yTexture,
+					  img_src_rect, NULL);
 }
 
 Entity *ywCanvasNewImg(Entity *wid, int x, int y, const char *path,

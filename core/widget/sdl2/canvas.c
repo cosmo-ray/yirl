@@ -39,9 +39,15 @@ static int sdl2Render(YWidgetState *state, int t)
 		sdlFillBg(wid, &cfg);
 
 	if (s->flag & YC_MERGE_NO_MERGE) {
-		Entity *e = ywCanvasNewImgFromTexture(entity, 0,
-						      0, dst, NULL);
-		sdlCanvasRendObj(state, wid, e, cam, widPix);
+		yeAutoFree Entity *dst_rect = ywRectCreateInts(
+			ywPosX(cam),
+			ywPosY(cam),
+			ywRectW(widPix),
+			ywRectH(widPix),
+			NULL, NULL);
+		Entity *e = ywCanvasNewImgFromTexture2(entity, 0,
+						       0, dst, NULL, dst_rect);
+		sdlCanvasRendObj(state, wid, e, NULL, widPix);
 		ywCanvasRemoveObj(entity, e);
 	} else if (s->flag & YC_MERGE) {
 		YE_ARRAY_FOREACH(objs, obj) {

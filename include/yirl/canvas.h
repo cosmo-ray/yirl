@@ -245,8 +245,11 @@ Entity *ywCanvasNewBicolorImg(Entity *wid, int x, int y, uint8_t *map,
 Entity *ywCanvasNewImgByPath(Entity *wid, int x, int y, const char *path);
 Entity *ywCanvasNewImg(Entity *wid, int x, int y, const char *path,
 		       Entity *src_rect);
+
 Entity *ywCanvasNewImgFromTexture(Entity *wid, int x, int y, Entity *yTexture,
 				  Entity *img_src_rect);
+Entity *ywCanvasNewImgFromTexture2(Entity *wid, int x, int y, Entity *yTexture,
+				   Entity *img_src_rect, Entity *img_dst_rect);
 
 static inline int ywCanvasReplace(Entity *wid, Entity *toReplace,
 				  Entity *toPush)
