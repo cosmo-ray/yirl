@@ -74,11 +74,7 @@ int ysdl2WindowMode(void)
 int ysdl2FullScreen(void)
 {
 	int r;
-	Uint16 w = 0, h = 0;
 	r = GPU_SetFullscreen(1, 1);
-	GPU_GetVirtualResolution(sg.pWindow, &w, &h);
-	ywidWindowWidth = w;
-	ywidWindowHight = h;
 	return r;
 }
 
