@@ -1116,9 +1116,7 @@ static int sdlCanvasRendImg(YWidgetState *state, SDLWid *wid, Entity *img,
 	rd.y += ywRectY(wid_pix);
 	sdlCanvasAplyModifier(img, &rd, &sd, &rotation, &flip);
 	GPU_BlitRectX(t, sd, sg.pWindow, &rd, rotation,
-		      rd.x + (rd.w / 2),
-		      rd.y + (rd.h / 2),
-		      flip);
+		      rd.w, rd.h, flip);
 	free(sd);
 	return 0;
 }
