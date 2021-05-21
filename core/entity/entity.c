@@ -148,11 +148,11 @@ int yeEntitiesArraySize(void)
 
 int yeIsPtrAnEntity(void *ptr)
 {
-	return ((Entity *)ptr) >= entity0 &&
-		((union FatEntity *)ptr) <=
+	return ptr >= (void *)entity0 &&
+		((union FatEntity *)ptr) <
 		(yBlockArrayGetPtrDirect(entitysArray, 0,
 					 union FatEntity) +
-		 yBlockArrayLastPos(entitysArray));
+		 yBlockArrayLastPos(entitysArray) + 1);
 }
 
 Entity *yeCreateInts_(Entity *fathers, int nbVars, ...)
@@ -260,8 +260,10 @@ Entity *yeGetByIdx(Entity *entity, size_t index)
 	if (unlikely(entity == NULL))
 		return NULL;
 	assert(entity->refCount);
-	return yBlockArrayGet(&YE_TO_ARRAY(entity)->values,
-			      index, ArrayEntry).entity;
+	Entity *r = yBlockArrayGet(&YE_TO_ARRAY(entity)->values,
+				   index, ArrayEntry).entity;
+	assert(!r || yeIsPtrAnEntity(r));
+	return r;
 }
 
 Entity *yeGetLast(Entity *array)
