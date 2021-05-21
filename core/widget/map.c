@@ -362,6 +362,9 @@ Entity *ywMapCaseXY(Entity *state, int x, int y)
 	int w = yeGetInt(yeGet(state, "width"));
 	Entity *ret;
 
+	if (x < 0 || y < 0) {
+		return NULL;
+	}
 	ret = yeGet(map, x + (w * y));
 	if (unlikely(!ret)) {
 		int iPos = x + (w * y);
