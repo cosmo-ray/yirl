@@ -492,6 +492,10 @@ YWidgetState *ywidNewWidget(Entity *entity, const char *type)
 					DPRINT_ERR("init for type '%s' fail",
 						   type);
 				}
+				if (unlikely(yeIsPtrAnEntity(ret))) {
+					DPRINT_ERR("widget init returned and Entity instead of a YWidgetState");
+					ret = NULL;
+				}
 				return ret;
 			}
 		}
