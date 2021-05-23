@@ -21,6 +21,7 @@
 #include <yirl/map.h>
 #include <yirl/game.h>
 #include <yirl/menu.h>
+#include <yirl/texture.h>
 #include <yirl/container.h>
 #include <yirl/canvas.h>
 #include <yirl/text-screen.h>
