@@ -944,6 +944,10 @@ int sdlCanvasCacheImg3(Entity *elem, Entity *resource, const char *imgPath,
 			goto store_surface;
 		}
 		texture = GPU_CopyImageFromSurfaceRect(surface, surface_rect);
+		if (unlikely(!texture)) {
+			DPRINT_ERR("fail to create texture");
+			goto free_surface;
+		}
 		w = texture->w;
 		h = texture->h;
 		data = yeCreateDataAt(texture, elem, "$img", YCANVAS_IMG_IDX);
