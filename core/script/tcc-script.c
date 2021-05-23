@@ -38,6 +38,20 @@ static int tccLoadString(void *sm, const char *str);
 #define UNSET_REALLOC_NEEDED(sm) (((YTccScript *)(sm))->needRealloc = 0)
 #define NEED_REALLOC(sm) (((YTccScript *)(sm))->needRealloc)
 
+static inline int ebIsFunc(TCCSym *s)
+{
+	if (!s)
+		return 0;
+	return tcc_sym_is_function(s);
+}
+
+static inline int ebIsDecimal(TCCSym *s)
+{
+	if (!s)
+		return 0;
+	return tcc_sym_is_decimal(s);
+}
+
 #define eBError(ua, fmt, args...)				\
 	do {							\
 		if (asprintf(&ua->error, fmt, args) < 0)	\
@@ -190,12 +204,12 @@ static int gCreateEnt(TCCUserAction *ua, Entity *str,
 		else if (tcc_tok_is_str(tok))
 			gCreateEntFunc(str, "String", pos);
 		else if (tcc_tok_is_ident(tok)) {
-			if (tcc_sym_is_function(s)) {
+			if (ebIsFunc(s)) {
 				yeStringAdd(str, "yeReCreateFunction(\"");
 				yeStringAdd(str, curTok);
 				yeStringAdd(str, "\",ygGetManager(\"tcc\"),");
 				goto getter;
-			} else if (tcc_sym_is_decimal(s)) {
+			} else if (ebIsDecimal(s)) {
 				gCreateEntFunc(str, "Int", pos);
 			} else {
 				// assuming pointer
@@ -225,7 +239,7 @@ static int gCreateEnt(TCCUserAction *ua, Entity *str,
 		yeStringAddCh(str, ',');
 		gAddEntName(str, tmp_name);
 		if (pos >=0 && !(tcc_tok_is_ident(tok) &&
-				 tcc_sym_is_function(s))) {
+				 ebIsFunc(s))) {
 			yeStringAddCh(str, ',');
 			yeStringAddInt(str, pos);
 		}
