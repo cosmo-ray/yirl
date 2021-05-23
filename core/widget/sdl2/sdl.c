@@ -945,7 +945,10 @@ int sdlCanvasCacheImg3(Entity *elem, Entity *resource, const char *imgPath,
 		}
 		texture = GPU_CopyImageFromSurfaceRect(surface, surface_rect);
 		if (unlikely(!texture)) {
-			DPRINT_ERR("fail to create texture");
+			GPU_ErrorObject e = GPU_PopErrorCode();
+			DPRINT_ERR("fail to create texture %s, %s: %s\n",
+				   GPU_GetErrorString(e.error), e.function,
+				   e.details);
 			goto free_surface;
 		}
 		w = texture->w;
