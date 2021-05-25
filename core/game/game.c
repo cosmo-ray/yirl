@@ -871,6 +871,8 @@ void ygIncreaseInt(const char *toInc, int val)
 
 void ygReCreateInt(const char *toSet, int val)
 {
+	if (!toSet)
+		return;
 	Entity *father = modList;
 	char buf[1024];
 
