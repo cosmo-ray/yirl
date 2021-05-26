@@ -270,6 +270,17 @@ static void *recreateString(int nb, union ycall_arg *args, int *types)
 	return NULL;
 }
 
+static void *randomCall(int nb, union ycall_arg *args, int *types)
+{
+	int nb_rand = nb - 2;
+
+	if (nb_rand <= 0)
+		return NULL;
+	ywidAction(args[2 + yuiRand() % nb_rand].e, args[0].e,
+		   args[1].e);
+	return NULL;
+}
+
 static void *increaseInt(int nb, union ycall_arg *args, int *types)
 {
 	// args[0] is the widget and args[1] are the events
@@ -320,6 +331,7 @@ static void addNativeFuncToBaseMod(void)
 				     baseMod, NULL);
 	ysRegistreCreateNativeEntity(recreateInt, "recreateInt", baseMod, NULL);
 	ysRegistreCreateNativeEntity(increaseInt, "increaseInt", baseMod, NULL);
+	ysRegistreCreateNativeEntity(randomCall, "randomCall", baseMod, NULL);
 	yeCreateFunctionSimple("menuMove", ysNativeManager(), baseMod);
 	yeCreateFunctionSimple("menuNext", ysNativeManager(), baseMod);
 	yeCreateFunctionSimple("menuMainWidNext", ysNativeManager(), baseMod);
