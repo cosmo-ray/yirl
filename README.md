@@ -6,7 +6,8 @@ YIRL is a game engine aiming to be fully configurable, fully scriptable and mod 
 
 YIRL has been started as an school project at EPITECH
 
-The first version, the one release at the end of my scholarship can be found on bitbucket
+The first version, the one release at the end of my scholarship can be found on bitbucket:
+https://bitbucket.org/cosmo_ray/yirl/src
 
 # for peoples who don't like github:
 https://git.iglou.eu/Matthias/yirl
@@ -87,6 +88,7 @@ A good contribution would be to make YIRL compatible with Linux coding style.
 * https://uso.itch.io/jims
 * https://uso.itch.io/sukeban
 * https://uso.itch.io/pewpew-pepper
+* https://github.com/cosmo-ray/polis-at-war 
 
 # Dependencies
 
@@ -156,7 +158,6 @@ But you can still understand how YIRL work by:
 * add canvas widget, with an API base on HTML5 canvas [partially done: https://github.com/cosmo-ray/little-space/blob/little-mage/html5-emu.js]
 * add an hex map
 * add any other cool widget
-* use vulkan/gl
 * remove glib
 * make a raycasting module
 * Improve 8086 emulator module
