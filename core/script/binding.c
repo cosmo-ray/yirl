@@ -101,6 +101,8 @@ BIND_ES(ygPushToGlobalScope, 2, 0);
 
 BIND_ES(yeRemoveChildByStr, 2, 0);
 
+BIND_ES(yeGetByStr, 2, 0);
+
 BIND_SI(ygIncreaseInt, 2, 0);
 BIND_SI(ygSetInt, 2, 0);
 

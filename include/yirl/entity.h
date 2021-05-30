@@ -420,7 +420,7 @@ static inline Entity *yeGetByIdxDirect(Entity *entity, size_t index)
 }
 
 /**
- * @param entity  the entity whe are looking into
+ * @param entity  the entity we are looking into
  * @param name    the entity name whe are looking for
  * @return The found Entity named @name in @entity
  */
