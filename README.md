@@ -119,7 +119,7 @@ make
 ```
 
 # chat with us
-* irc: #yirl on freenode
+* irc: #YIRL on freenode, or #YIRL on irc.libera.chat
 * discord: https://discord.gg/8QrKTtV
 
 
