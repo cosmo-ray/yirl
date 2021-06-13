@@ -414,6 +414,8 @@ void *init(int nbArg, void **args)
   yeCreateFunction("dialogueSwap", ygGetTccManager(), mod, "swap");
   yeCreateFunction("dialogueConditionGoto", ygGetTccManager(),
 		   mod, "condition_goto");
+  yeCreateFunction("dialogueSwitch", ygGetTccManager(),
+		   mod, "condition_switch");
   yeCreateFunction("dialogueGotoNext", ygGetTccManager(), mod, "gotoNext");
   yeCreateFunction("dialogueBlock", ygGetTccManager(), mod, "block");
 
@@ -517,6 +519,20 @@ void *dialogueConditionGoto(int nbArgs, void **args)
 	  }
   }
   return 0;
+}
+
+void *dialogueSwitch(int nbArgs, void **args)
+{
+  Entity *main = getMenuDrv(args[0])->getMain(args[0]);
+  struct mainDrv *drv = getMainDrv(main);
+
+  int c_ret = ywidAction(args[2], main, NULL);
+
+  printf("*dialogueSwitch %d\n", c_ret);
+  if (c_ret + 3 >= nbArgs) {
+	  return 0;
+  }
+  return dialogueGoto(3, (void *[]){args[0], NULL, args[c_ret + 3]});
 }
 
 void *dialogueGoto(int nbArgs, void **args)
