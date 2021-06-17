@@ -881,57 +881,45 @@ void ygIncreaseInt(const char *toInc, int val)
 	yeAdd(e, val);
 }
 
+#define RECREATE_ARRAY()						\
+	for (uint32_t i = 0, b_len = 0;					\
+	     ({ buf[b_len] = toSet[i]; ++b_len; toSet[i] ;});		\
+	     ++i) {							\
+		if (unlikely(b_len > 1024))				\
+			return;						\
+		if (toSet[i] == '.' || toSet[i] == ':') {		\
+			Entity *nfather;				\
+			buf[b_len -1] = 0;				\
+			nfather = yeGet(father, buf);			\
+			if (!nfather)					\
+				nfather = yeCreateArray(father, buf);	\
+			father = nfather;				\
+			b_len = 0;					\
+			continue;					\
+		}							\
+	}								\
+
 void ygReCreateInt(const char *toSet, int val)
 {
 	if (!toSet)
 		return;
 	Entity *father = modList;
-	char buf[1024];
+	char buf[1024];							\
 
-	for (uint32_t i = 0, b_len = 0;
-	     ({ buf[b_len] = toSet[i]; ++b_len; toSet[i] ;});
-	     ++i) {
-		if (unlikely(b_len > 1024))
-			return;
-		if (toSet[i] == '.' || toSet[i] == ':') {
-			Entity *nfather;
-			buf[b_len -1] = 0;
-			nfather = yeGet(father, buf);
-			if (!nfather)
-				nfather = yeCreateArray(father, buf);
-			father = nfather;
-			b_len = 0;
-			continue;
-		}
-	}
-
+	RECREATE_ARRAY();
 	yeReCreateInt(val, father, buf);
 }
 
 void ygReCreateString(const char *toSet, const char *str)
 {
 	Entity *father = modList;
-	char buf[1024];
+	char buf[1024];							\
 
-	for (uint32_t i = 0, b_len = 0;
-	     ({ buf[b_len] = toSet[i]; ++b_len; toSet[i] ;});
-	     ++i) {
-		if (unlikely(b_len > 1024))
-			return;
-		if (toSet[i] == '.' || toSet[i] == ':') {
-			Entity *nfather;
-			buf[b_len -1] = 0;
-			nfather = yeGet(father, buf);
-			if (!nfather)
-				nfather = yeCreateArray(father, buf);
-			father = nfather;
-			b_len = 0;
-			continue;
-		}
-	}
-
+	RECREATE_ARRAY();
 	yeReCreateString(str, father, buf);
 }
+
+#undef RECREATE_ARRAY
 
 void ygSetInt(const char *toSet, int val)
 {

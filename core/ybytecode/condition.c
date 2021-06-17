@@ -96,6 +96,17 @@ int yeCheckCondition(Entity *condition)
 			return conditionCall(condition);
 		} else if (!yeStrCmp(estr, "not")) {
 			return !yeCheckCondition(yeGet(condition, 1));
+		} else if (!yeStrCmp(estr, "contain_string")) {
+			Entity *array = ygGet(yeGetStringAt(condition, 1));
+
+			if (yeType(array) != YARRAY)
+				return 0;
+			YE_FOREACH(array, s) {
+				if (!yeStrCmp(s, yeGetStringAt(condition, 2))) {
+					return 1;
+				}
+			}
+			return 0;
 		} else if (!yeStrCmp(estr, "and")) {
 			return yeCheckCondition(yeGet(condition, 1)) &&
 				yeCheckCondition(yeGet(condition, 2));

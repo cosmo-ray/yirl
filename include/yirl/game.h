@@ -110,7 +110,6 @@ static inline int ygRegistreFunc(int nbArgs, const char *name,
 }
 #endif
 
-
 /**
  * get time in ms since game have init
  */
