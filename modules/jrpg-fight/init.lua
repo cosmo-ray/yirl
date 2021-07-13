@@ -125,6 +125,8 @@ local function remove_loader(canvas, cur_anim)
 	 canvas:remove(cur_anim.loaders[i])
 	 i = i + 1
       end
+      canvas:remove(cur_anim.black_rect)
+      cur_anim.black_rect = nil
       cur_anim.loaders = nil
    end
 end
@@ -168,6 +170,10 @@ local function reset_cmb_bar(main, anim, target, cmb_idx)
 
    anim.isPush = 0
    if can_print_loader then
+      anim.black_rect =
+	 canvas:new_rect(23, 3, "rgba: 0 0 15 225",
+			 Pos.new(cur_cmb:len() * part_len + 4, 19).ent).ent
+      print("pusj: ", anim.black_rect)
       anim.loaders = Entity.new_array()
       local i = 0
       while i < cur_cmb:len() do
