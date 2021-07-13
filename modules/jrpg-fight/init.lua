@@ -908,7 +908,7 @@ end
 
 function fightItems(entity, func)
    local main = menuGetMain(entity)
-   local pc = main.gg_handler.char
+   local pc = main.gg_handlers[cur_player].char
    local menuCnt = ywCntWidgetFather(entity)
    local itemsMenu = Menu.new_entity().ent
 
