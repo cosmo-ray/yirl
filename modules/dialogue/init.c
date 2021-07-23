@@ -739,7 +739,14 @@ void *dialogueSwap(int nbArgs, void **args)
 	struct mainDrv *drv = getMainDrv(main);
 	const char *dialogue = yeGetString(args[2]);
 	Entity *active_dialogue = NULL;
-	Entity *new_d = yeGet(ygGet(dialogue), "dialogue");
+	Entity *target_dialogue = ygGet(dialogue);
+	Entity *new_d = yeGet(target_dialogue, "dialogue");
+
+	if (target_dialogue && !new_d) {
+		new_d = target_dialogue;
+	} else if (!new_d) {
+		DPRINT_ERR("FAILT TO SWAP TO DIALOGUE %s\n", dialogue);
+	}
 
 	yeRemoveChild(main, "dialogue");
 	yePushBack(main, new_d, "dialogue");
