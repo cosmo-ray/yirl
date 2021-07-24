@@ -124,32 +124,32 @@ struct menuDrv boxDialogueMnDrv = {
 
 static struct menuDrv *getMenuDrv(Entity *menu)
 {
-  return yeGetDataAt(menu, "drv");
+	return yeGetDataAt(menu, "drv");
 }
 
 static struct mainDrv *getMainDrv(Entity *main)
 {
-  return yeGetDataAt(main, "drv");
+	return yeGetDataAt(main, "drv");
 }
 
 static Entity *getTextWidget(Entity *main)
 {
-  return ywCntGetEntry(main, 0);
+	return ywCntGetEntry(main, 0);
 }
 
 static Entity *getMenu(Entity *main)
 {
-  return ywCntGetEntry(main, 1);
+	return ywCntGetEntry(main, 1);
 }
 
 static Entity *getAnswers(Entity *mn)
 {
-  return yeGet(mn, "entries");
+	return yeGet(mn, "entries");
 }
 
 static size_t dialogueLen(Entity *main)
 {
-  return yeLen(yeGet(main, "dialogue"));
+	return yeLen(yeGet(main, "dialogue"));
 }
 
 static inline void findReplace__box(Entity *box, Entity *c)
@@ -390,39 +390,41 @@ Entity *getMain(Entity *w)
 
 void *init(int nbArg, void **args)
 {
-  Entity *mod = args[0];
-  Entity *init;
-  Entity *map = yeCreateArray(mod, "game");
+	Entity *mod = args[0];
+	Entity *init;
+	Entity *map = yeCreateArray(mod, "game");
 
-  /* menu dialogue */
-  init = yeCreateArray(NULL, NULL);
-  yeCreateString("dialogue", init, "name");
-  yeCreateFunction("dialogueInit", ygGetManager("tcc"), init, "callback");
-  ywidAddSubType(init);
-  /* canvas dialogue */
-  init = yeCreateArray(NULL, NULL);
-  yeCreateString("dialogue-canvas", init, "name");
-  yeCreateFunction("dialogueCanvasInit", ygGetManager("tcc"), init, "callback");
-  ywidAddSubType(init);
-  /* registre functions */
-  yeCreateFunction("dialogueChangeText", ygGetTccManager(), mod, "change-text");
-  yeCreateFunction("dialogueHide", ygGetTccManager(), mod, "hide");
-  yeCreateFunction("dialogueGoto", ygGetTccManager(), mod, "goto");
-  yeCreateFunction("dialogueSwap", ygGetTccManager(), mod, "swap");
-  yeCreateFunction("dialogueConditionGoto", ygGetTccManager(),
-		   mod, "condition_goto");
-  yeCreateFunction("dialogueSwitch", ygGetTccManager(),
-		   mod, "condition_switch");
-  yeCreateFunction("dialogueGotoNext", ygGetTccManager(), mod, "gotoNext");
-  yeCreateFunction("dialogueBlock", ygGetTccManager(), mod, "block");
+	/* menu dialogue */
+	init = yeCreateArray(NULL, NULL);
+	yeCreateString("dialogue", init, "name");
+	yeCreateFunction("dialogueInit", ygGetManager("tcc"), init, "callback");
+	ywidAddSubType(init);
+	/* canvas dialogue */
+	init = yeCreateArray(NULL, NULL);
+	yeCreateString("dialogue-canvas", init, "name");
+	yeCreateFunction("dialogueCanvasInit", ygGetManager("tcc"),
+			 init, "callback");
+	ywidAddSubType(init);
+	/* registre functions */
+	yeCreateFunction("dialogueChangeText", ygGetTccManager(),
+			 mod, "change-text");
+	yeCreateFunction("dialogueHide", ygGetTccManager(), mod, "hide");
+	yeCreateFunction("dialogueGoto", ygGetTccManager(), mod, "goto");
+	yeCreateFunction("dialogueSwap", ygGetTccManager(), mod, "swap");
+	yeCreateFunction("dialogueConditionGoto", ygGetTccManager(),
+			 mod, "condition_goto");
+	yeCreateFunction("dialogueSwitch", ygGetTccManager(),
+			 mod, "condition_switch");
+	yeCreateFunction("dialogueGotoNext", ygGetTccManager(), mod, "gotoNext");
+	yeCreateFunction("dialogueBlock", ygGetTccManager(), mod, "block");
 
-  yeCreateFunctionSimple("newDialogue", ygGetTccManager(), mod);
+	yeCreateFunctionSimple("newDialogue", ygGetTccManager(), mod);
 
-  ygRegistreFunc(2, "showDialogueImage", "yShowDialogueImage");
-  ygRegistreFunc(5, "newDialogueEntity", "yNewDialogueEntity");
-  ygRegistreFunc(1, "dialogueGetMain", "yDialogueGetMain");
-  ygRegistreFunc(1, "dialogueGetCAnswer", "yDialogueCurAnswer");
-  return NULL;
+	ygRegistreFunc(2, "showDialogueImage", "yShowDialogueImage");
+	ygRegistreFunc(5, "newDialogueEntity", "yNewDialogueEntity");
+	ygRegistreFunc(1, "dialogueGetMain", "yDialogueGetMain");
+	ygRegistreFunc(1, "dialogueGetCAnswer", "yDialogueCurAnswer");
+	return NULL;
 }
 
 void *dialoguePostAction(int nbArgs, void **args)
@@ -485,202 +487,206 @@ void *dialogueAction(int nbArgs, void **args)
 
 static Entity *getAnswer(Entity *mn, int idx)
 {
-  Entity *answers = yeGet(mn, "entries");
-  Entity *answer = yeGetByIdx(answers, idx);
+	Entity *answers = yeGet(mn, "entries");
+	Entity *answer = yeGetByIdx(answers, idx);
 
-  return answer;
+	return answer;
 }
 
 void *dialogueHide(int nbArgs, void **args)
 {
-  struct menuDrv *drv = getMenuDrv(args[0]);
-  Entity *answer = drv->getCurAnswer(args[0]);
+	struct menuDrv *drv = getMenuDrv(args[0]);
+	Entity *answer = drv->getCurAnswer(args[0]);
 
-  yeReCreateInt(1, answer, "hiden");
-  if (drv == &cntDialogueMnDrv)
-    ywMenuDown(args[0]);
-  return 0;
+	yeReCreateInt(1, answer, "hiden");
+	if (drv == &cntDialogueMnDrv)
+		ywMenuDown(args[0]);
+	return 0;
 }
 
 void *dialogueConditionGoto(int nbArgs, void **args)
 {
-  Entity *main = getMenuDrv(args[0])->getMain(args[0]);
-  struct mainDrv *drv = getMainDrv(main);
+	Entity *main = getMenuDrv(args[0])->getMain(args[0]);
+	struct mainDrv *drv = getMainDrv(main);
 
-  for (int i = 2; i < nbArgs; i += 2) {
-	  if (i + 1 < nbArgs && yeCheckCondition(args[i])) {
-		  return dialogueGoto(3, (void *[]){args[0], NULL, args[i + 1]});
-	  } else if (i + 1 == nbArgs) {
-		  return dialogueGoto(3, (void *[]){args[0], NULL, args[i]});
-	  }
-  }
-  return 0;
+	for (int i = 2; i < nbArgs; i += 2) {
+		if (i + 1 < nbArgs && yeCheckCondition(args[i])) {
+			return dialogueGoto(3, (void *[]){args[0],
+					NULL, args[i + 1]});
+		} else if (i + 1 == nbArgs) {
+			return dialogueGoto(3, (void *[]){args[0], NULL,
+					args[i]});
+		}
+	}
+	return 0;
 }
 
 void *dialogueSwitch(int nbArgs, void **args)
 {
-  Entity *main = getMenuDrv(args[0])->getMain(args[0]);
-  struct mainDrv *drv = getMainDrv(main);
+	Entity *main = getMenuDrv(args[0])->getMain(args[0]);
+	struct mainDrv *drv = getMainDrv(main);
 
-  int c_ret = ywidAction(args[2], main, NULL);
+	int c_ret = ywidAction(args[2], main, NULL);
 
-  printf("*dialogueSwitch %d\n", c_ret);
-  if (c_ret + 3 >= nbArgs) {
-	  return 0;
-  }
-  return dialogueGoto(3, (void *[]){args[0], NULL, args[c_ret + 3]});
+	printf("*dialogueSwitch %d\n", c_ret);
+	if (c_ret + 3 >= nbArgs) {
+		return 0;
+	}
+	return dialogueGoto(3, (void *[]){args[0], NULL, args[c_ret + 3]});
 }
 
 void *dialogueGoto(int nbArgs, void **args)
 {
-  Entity *main = getMenuDrv(args[0])->getMain(args[0]);
-  struct mainDrv *drv = getMainDrv(main);
-  int idx;
+	Entity *main = getMenuDrv(args[0])->getMain(args[0]);
+	struct mainDrv *drv = getMainDrv(main);
+	int idx;
 
-  if (yeIsNum(args[2]))
-	  idx = yeGetInt(args[2]);
-  else
-	  idx = yeArrayIdx(yeGet(main, "dialogue"), yeGetString(args[2]));
+	if (yeIsNum(args[2]))
+		idx = yeGetInt(args[2]);
+	else
+		idx = yeArrayIdx(yeGet(main, "dialogue"), yeGetString(args[2]));
 
-  yeReCreateInt(idx, main, "active_dialogue");
-  printfTextAndAnswer(main, drv->getTextWidget(main), args[0], args[2]);
-  return 0;
+	yeReCreateInt(idx, main, "active_dialogue");
+	printfTextAndAnswer(main, drv->getTextWidget(main), args[0], args[2]);
+	return 0;
 }
 
 void *dialogueGotoNext(int nbArgs, void **args)
 {
-  Entity *box = args[0];
-  Entity *main = getMenuDrv(box)->getMain(args[0]);
-  struct mainDrv *drv = getMainDrv(main);
-  Entity *active_dialogue = yeGet(main, "active_dialogue");
-  Entity *condition;
-  int pass;
+	Entity *box = args[0];
+	Entity *main = getMenuDrv(box)->getMain(args[0]);
+	struct mainDrv *drv = getMainDrv(main);
+	Entity *active_dialogue = yeGet(main, "active_dialogue");
+	Entity *condition;
+	int pass;
 
-  if (drv == &cntDialogueMainDrv) {
-    ywtextScreenResetTimer(ywCntGetEntry(main, 0));
-  }
+	if (drv == &cntDialogueMainDrv) {
+		ywtextScreenResetTimer(ywCntGetEntry(main, 0));
+	}
 
-  do {
-    yeAddInt(active_dialogue, 1);
-    Entity *cur_dialogue = yeGet(yeGet(main, "dialogue"),
-				 yeGetInt(active_dialogue));
-    condition = yeType(cur_dialogue) == YARRAY ?
-	    yeGet(cur_dialogue, "condition") : NULL;
-    if (condition)
-	    pass = dialogueCondition(box, condition, NULL);
-    else
-	    pass = 1;
-  } while (!pass);
+	do {
+		yeAddInt(active_dialogue, 1);
+		Entity *cur_dialogue = yeGet(yeGet(main, "dialogue"),
+					     yeGetInt(active_dialogue));
+		condition = yeType(cur_dialogue) == YARRAY ?
+			yeGet(cur_dialogue, "condition") : NULL;
+		if (condition)
+			pass = dialogueCondition(box, condition, NULL);
+		else
+			pass = 1;
+	} while (!pass);
 
-  if (yeGetInt(active_dialogue) >= dialogueLen(main)) {
-    return (void *)ywidAction(yeGet(main, "endAction"), box, NULL);
-  }
-  printfTextAndAnswer(main, drv->getTextWidget(main), box, active_dialogue);
-  return 0;
+	if (yeGetInt(active_dialogue) >= dialogueLen(main)) {
+		return (void *)ywidAction(yeGet(main, "endAction"), box, NULL);
+	}
+	printfTextAndAnswer(main, drv->getTextWidget(main), box, active_dialogue);
+	return 0;
 }
 
 void *dialogueBlock(int nbArgs, void **args)
 {
-  Entity *main = getMenuDrv(args[0])->getMain(args[0]);
-  struct mainDrv *drv = getMainDrv(main);
-  Entity *block = yeGet(main, "block");
-  Entity *answers = yeGet(block, "answers");
-  Entity *answer;
-  char *block_dialogue = NULL;
-  char *block_action = NULL;
-  char *block_answer = NULL;
+	Entity *main = getMenuDrv(args[0])->getMain(args[0]);
+	struct mainDrv *drv = getMainDrv(main);
+	Entity *block = yeGet(main, "block");
+	Entity *answers = yeGet(block, "answers");
+	Entity *answer;
+	char *block_dialogue = NULL;
+	char *block_action = NULL;
+	char *block_answer = NULL;
 
-  if (nbArgs > 2)
-    block_action = args[2];
-  if (nbArgs > 3)
-    block_dialogue = args[3];
-  if (nbArgs > 4)
-    block_answer = args[4];
+	if (nbArgs > 2)
+		block_action = args[2];
+	if (nbArgs > 3)
+		block_dialogue = args[3];
+	if (nbArgs > 4)
+		block_answer = args[4];
 
-  if (!block) {
-    if (!block_action)
-      return NULL;
-    block = yeCreateArray(main, "block");
-    answers = yeCreateArray(block, "answers");
-    yeCreateArray(answers, NULL);
-   }
-  answer = yeGet(answers, 0);
-  if (block_dialogue)
-    yeReCreateString(yeGetString(block_dialogue), block, "text");
-  else if (!yeGet(block, "text"))
-    yeCreateString("this persone don't want to talk to you", block, "text");
+	if (!block) {
+		if (!block_action)
+			return NULL;
+		block = yeCreateArray(main, "block");
+		answers = yeCreateArray(block, "answers");
+		yeCreateArray(answers, NULL);
+	}
+	answer = yeGet(answers, 0);
+	if (block_dialogue)
+		yeReCreateString(yeGetString(block_dialogue), block, "text");
+	else if (!yeGet(block, "text"))
+		yeCreateString("this persone don't want to talk to you",
+			       block, "text");
 
-  if (block_answer)
-    yeReCreateString(yeGetString(block_answer), answer, "text");
-  else if (!yeGet(answer, "text"))
-    yeCreateString("end dialogue", answer, "text");
+	if (block_answer)
+		yeReCreateString(yeGetString(block_answer), answer, "text");
+	else if (!yeGet(answer, "text"))
+		yeCreateString("end dialogue", answer, "text");
 
-  if (block_action)
-    yeReCreateString(yeGetString(block_action), answer, "action");
+	if (block_action)
+		yeReCreateString(yeGetString(block_action), answer, "action");
 
-  yeReCreateInt(1, main, "isBlock");
-  return 0;
+	yeReCreateInt(1, main, "isBlock");
+	return 0;
 }
 
 
 void *dialogueChangeText(int nbArgs, void **args)
 {
-  Entity *main = getMenuDrv(args[0])->getMain(args[0]);
-  struct mainDrv *drv = getMainDrv(main);
+	Entity *main = getMenuDrv(args[0])->getMain(args[0]);
+	struct mainDrv *drv = getMainDrv(main);
 
-  ywContainerUpdate(main, getTextWidget(main));
-  yeReplaceBack(drv->getTextWidget(main), getText(args[0], args[2]), "text");
-  return 0;
+	ywContainerUpdate(main, getTextWidget(main));
+	yeReplaceBack(drv->getTextWidget(main),
+		      getText(args[0], args[2]), "text");
+	return 0;
 }
 
 Entity *defaultActiveDialogue(Entity *main)
 {
-  int i = 0;
-  Entity *cur_dialogue;
-  Entity *condition;
+	int i = 0;
+	Entity *cur_dialogue;
+	Entity *condition;
 
- again:
-  cur_dialogue = yeGet(yeGet(main, "dialogue"), i);
-  condition = yeType(cur_dialogue) == YARRAY ?
-	  yeGet(cur_dialogue, "condition") :
-	  NULL;
-  if (condition && !yeCheckCondition(condition)) {
-    ++i;
-    goto again;
-  }
-  if (yeGetIntAt(main, "keep_dialogue") == 1)
-    return yeTryCreateInt(i, main, "active_dialogue");
-  return yeReCreateInt(i, main, "active_dialogue");
+again:
+	cur_dialogue = yeGet(yeGet(main, "dialogue"), i);
+	condition = yeType(cur_dialogue) == YARRAY ?
+		yeGet(cur_dialogue, "condition") :
+		NULL;
+	if (condition && !yeCheckCondition(condition)) {
+		++i;
+		goto again;
+	}
+	if (yeGetIntAt(main, "keep_dialogue") == 1)
+		return yeTryCreateInt(i, main, "active_dialogue");
+	return yeReCreateInt(i, main, "active_dialogue");
 }
 
 void *dialogueInit(int nbArgs, void **args)
 {
-  Entity *main = args[0];
-  Entity *entries = yeCreateArray(main, "entries");
-  Entity *textScreen = yeCreateArray(entries, NULL);
-  Entity *answers = yeCreateArray(entries, NULL);
-  Entity *active_dialogue = defaultActiveDialogue(main);
-  void *ret;
+	Entity *main = args[0];
+	Entity *entries = yeCreateArray(main, "entries");
+	Entity *textScreen = yeCreateArray(entries, NULL);
+	Entity *answers = yeCreateArray(entries, NULL);
+	Entity *active_dialogue = defaultActiveDialogue(main);
+	void *ret;
 
-  yeCreateData(&cntDialogueMainDrv, main, "drv");
-  yeRemoveChildByStr(main, "action");
-  yeCreateFunction("dialogueAction", ygGetTccManager(), main, "action");
-  yeCreateFunction("dialoguePostAction", ygGetTccManager(),
-		     main, "post-action");
-  yeGetPush(main, textScreen, "text-speed");
-  yeCreateString("text-screen", textScreen, "<type>");
-  yeTryCreateInt(70, textScreen, "size");
-  yePushBack(textScreen, yeGet(main, "speaker_background"),
-	     "background");
-  yeCreateString("menu", answers, "<type>");
-  yeCreateData(&cntDialogueMnDrv, answers, "drv");
-  yePushBack(answers, yeGet(main, "answer_background"),
-	     "background");
+	yeCreateData(&cntDialogueMainDrv, main, "drv");
+	yeRemoveChildByStr(main, "action");
+	yeCreateFunction("dialogueAction", ygGetTccManager(), main, "action");
+	yeCreateFunction("dialoguePostAction", ygGetTccManager(),
+			 main, "post-action");
+	yeGetPush(main, textScreen, "text-speed");
+	yeCreateString("text-screen", textScreen, "<type>");
+	yeTryCreateInt(70, textScreen, "size");
+	yePushBack(textScreen, yeGet(main, "speaker_background"),
+		   "background");
+	yeCreateString("menu", answers, "<type>");
+	yeCreateData(&cntDialogueMnDrv, answers, "drv");
+	yePushBack(answers, yeGet(main, "answer_background"),
+		   "background");
 
-  yeTryCreateInt(1, main, "current");
-  ret = ywidNewWidget(main, "container");
-  printfTextAndAnswer(main, textScreen, answers, active_dialogue);
-  return ret;
+	yeTryCreateInt(1, main, "current");
+	ret = ywidNewWidget(main, "container");
+	printfTextAndAnswer(main, textScreen, answers, active_dialogue);
+	return ret;
 }
 
 void *dialogueDestroy(int nbArgs, void **args)
@@ -754,45 +760,44 @@ void *dialogueSwap(int nbArgs, void **args)
 
 void *dialogueCanvasInit(int nbArgs, void **args)
 {
-  Entity *main = args[0];
-  Entity *active_dialogue = defaultActiveDialogue(main);
-  YWidgetState *ret;
-  Entity *box;
-  Entity *dialogue;
-  Entity *data;
-  Entity *name = yeGet(main, "name");
-  int y = 10;
+	Entity *main = args[0];
+	Entity *active_dialogue = defaultActiveDialogue(main);
+	YWidgetState *ret;
+	Entity *box;
+	Entity *dialogue;
+	Entity *data;
+	Entity *name = yeGet(main, "name");
+	int y = 10;
 
-  if (!ygGetMod("DialogueBox")) {
-    DPRINT_ERR("DialogueBox module need to be load");
-    return NULL;
-  }
-  boxMainPos = yeGetInt(ygGet("DialogueBox.privateDataSize"));
+	if (!ygGetMod("DialogueBox")) {
+		DPRINT_ERR("DialogueBox module need to be load");
+		return NULL;
+	}
+	boxMainPos = yeGetInt(ygGet("DialogueBox.privateDataSize"));
 
-  yeCreateData(&boxDialogueMainDrv, main, "drv");
-  yeRemoveChildByStr(main, "action");
-  yeRemoveChildByStr(main, "post-action");
-  yeCreateFunction("dialogueAction", ygGetTccManager(), main, "action");
-  yeCreateFunction("dialoguePostAction", ygGetTccManager(),
-		     main, "post-action");
-  yeTryCreateInt(1, main, "current");
-  yeCreateArray(main, "objs");
-  ret = ywidNewWidget(main, "canvas");
-  dialogue = yeGet(main, "dialogue");
-  if (name) {
-    yesCall(ygGet("DialogueBox.new_text"), main, 10, y,
-	    yeGetString(name), main, "name-box");
-    y += 30;
-  }
-  box = yesCall(ygGet("DialogueBox.new_empty"), main, 10, y, main, "box");
-  data = yeCreateData(&boxDialogueMnDrv, NULL, NULL);
-  yeAttach(box, data, boxMainPos + 1, "drv", 0);
-  yeDestroy(data);
-  yePushAt(box, main, boxMainPos);
-  yeCreateFunction("dialogueDestroy", ygGetTccManager(), main, "destroy");
-  printfTextAndAnswer(main, boxGetTX(main), box, active_dialogue);
-  showDialogueImage(2, (void *[]){main, main});
+	yeCreateData(&boxDialogueMainDrv, main, "drv");
+	yeRemoveChildByStr(main, "action");
+	yeRemoveChildByStr(main, "post-action");
+	yeCreateFunction("dialogueAction", ygGetTccManager(), main, "action");
+	yeCreateFunction("dialoguePostAction", ygGetTccManager(),
+			 main, "post-action");
+	yeCreateArray(main, "objs");
+	ret = ywidNewWidget(main, "canvas");
+	dialogue = yeGet(main, "dialogue");
+	if (name) {
+		yesCall(ygGet("DialogueBox.new_text"), main, 10, y,
+			yeGetString(name), main, "name-box");
+		y += 30;
+	}
+	box = yesCall(ygGet("DialogueBox.new_empty"), main, 10, y, main, "box");
+	data = yeCreateData(&boxDialogueMnDrv, NULL, NULL);
+	yeAttach(box, data, boxMainPos + 1, "drv", 0);
+	yeDestroy(data);
+	yePushAt(box, main, boxMainPos);
+	yeCreateFunction("dialogueDestroy", ygGetTccManager(), main, "destroy");
+	printfTextAndAnswer(main, boxGetTX(main), box, active_dialogue);
+	showDialogueImage(2, (void *[]){main, main});
 
-  yesCall(ygGet("DialogueBox.reload"), main, box);
-  return ret;
+	yesCall(ygGet("DialogueBox.reload"), main, box);
+	return ret;
 }
