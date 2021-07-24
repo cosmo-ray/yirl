@@ -25,8 +25,6 @@
 
 void *yFinishGame();
 
-static int current_answer;
-
 struct mainDrv {
 	Entity *(*getTextWidget)(Entity *);
 	Entity *(*getMenu)(Entity *);
@@ -228,7 +226,6 @@ static Entity *getText_(Entity *box, Entity *e)
 		if (condition && !dialogueCondition(box, condition, NULL))
 			continue;
 		ywidActions(box, cur_txt, NULL);
-		printf("find txt: %s\n", yeGetStringAt(cur_txt, "text"));
 		return yeGet(cur_txt, "text");
 	}
 	return NULL;
@@ -497,8 +494,7 @@ static Entity *getAnswer(Entity *mn, int idx)
 void *dialogueHide(int nbArgs, void **args)
 {
   struct menuDrv *drv = getMenuDrv(args[0]);
-  Entity *answer = drv->getAnswer(args[0], yeGetIntAt(drv->getMain(args[0]),
-						      "current"));
+  Entity *answer = drv->getCurAnswer(args[0]);
 
   yeReCreateInt(1, answer, "hiden");
   if (drv == &cntDialogueMnDrv)
