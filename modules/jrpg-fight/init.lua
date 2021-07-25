@@ -35,6 +35,20 @@ local BAR_PIX_MULT = 30
 
 local is_menu_off = false
 
+local BATK_MUST_PRESS_OK = 1
+local BATK_MUST_BE_RELEASE = 0
+local BATK_KEEP_PUSHING = 2
+
+local function isPushingOkButton(eve)
+   return eve:type() == YKEY_DOWN and eve:key() == Y_SPACE_KEY or
+      eve:type() == YKEY_DOWN and eve:key() == Y_ENTER_KEY
+end
+
+local function isUnpushingOkButton(eve)
+   return eve:type() == YKEY_UP and eve:key() == Y_SPACE_KEY or
+      eve:type() == YKEY_UP and eve:key() == Y_ENTER_KEY
+end
+
 local function getCanvas(main)
    return Canvas.wrapp(main.entries[0])
 end
@@ -245,25 +259,25 @@ local function attackCallback(main, eve)
    end
 
    while eve:is_end() == false do
-      if eve:type() == YKEY_DOWN and eve:key() == Y_SPACE_KEY or
-      eve:type() == YKEY_DOWN and eve:key() == Y_ENTER_KEY then
-	 if (cur_val == 1) then
+      if isPushingOkButton(eve) then
+	 if (cur_val == BATK_MUST_PRESS_OK) then
 	    cur_anim.sucess = true
 	    cur_anim.isPush = 1
-	 elseif cur_val == 0 then
+	 elseif cur_val == BATK_MUST_BE_RELEASE then
 	    cur_anim.sucess = false
 	 end
-      elseif eve:type() == YKEY_UP and eve:key() == Y_SPACE_KEY then
+      elseif isUnpushingOkButton(eve) then
 	 cur_anim.isPush = 0
       end
       eve = eve:next()
    end
 
-   if (cur_val == 2 and cur_anim.isPush < 1) then
+   if (cur_val == BATK_KEEP_PUSHING and cur_anim.isPush < 1) then
       cur_anim.sucess = false
    end
 
    canvas:remove(cur_anim.loader_percent)
+
    if cur_cmb_anim.to and cur_time <= tot_time then
       local obj = CanvasObj.wrapp(guy.canvas)
       local tpd = cur_anim.to_pos_dis
