@@ -1030,6 +1030,8 @@ function fightInit(entity)
 		   nil,  entity, "wrong_txt")
    ywTextureNewImg(modPath .. "/image0007.png",
 		   nil,  entity, "heart_txt")
+   --local katakana_words = File.jsonToEnt(modPath .. "/katakana-words.json")
+   --entity.katakana_words = katakana_words
    objects = Entity.wrapp(ygGet("jrpg-fight:objects"))
 
    local canvas = Entity.new_array(entity.entries)
@@ -1108,6 +1110,17 @@ function fightInit(entity)
 
    -- if I want to implement initiative, I need to change it here
    cur_player = 0
+   -- katakana test here V
+   --i = 0
+   --for i = 0, yeLen(katakana_words) - 1 do
+   --   local kat = yeGetStringAt(yeGet(katakana_words, i), 0)
+   --   local eng = yeGetStringAt(yeGet(katakana_words, i), 1)
+
+   --   print(kat, " - ", eng, "")
+   --   local str = " - " .. eng
+   --   canvas:new_text(260, i * 20 + 130, kat)
+   --   canvas:new_text(300, i * 20 + 130, str)
+   --end
    return ret
 end
 
