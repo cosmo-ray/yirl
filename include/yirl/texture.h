@@ -33,6 +33,15 @@ int ywTextureFastMerge(Entity *src, Entity *srcRect,
 int ywTextureMerge(Entity *src, Entity *srcRect,
 		   Entity *dest, Entity *dstRect);
 
+/**
+ * Like ywTextureMerge, but don't check NULL
+ * and don't check if src and dst jave the same format, which if not,
+ * can silently fail
+ * you use ywTextureNormalize if you want to have yirl 'standard' texture
+ */
+int ywTextureMergeUnsafe(Entity *src, Entity *srcRect,
+		   Entity *dest, Entity *dstRect);
+
 int ywTextureNormalize(Entity *text);
 
 Entity *ywTextureNew(Entity *size, Entity *father, const char *name);

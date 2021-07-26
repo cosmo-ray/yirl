@@ -40,6 +40,12 @@ int ywTextureMerge(Entity *src, Entity *srcRect,
 	return sdlMergeSurface(src, srcRect, dest, dstRect);
 }
 
+int ywTextureMergeUnsafe(Entity *src, Entity *srcRect,
+		   Entity *dest, Entity *dstRect)
+{
+	return sdlMergeSurface(src, srcRect, dest, dstRect);
+}
+
 int	ywTextureNormalize(Entity *text)
 {
 	void *tmp = sdlCopySurface(yeGetDataAt(text, YCANVAS_SURFACE_IDX), NULL);

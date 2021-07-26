@@ -63,6 +63,8 @@ BIND_EEEE(ywCanvasMergeTexture, 4, 0);
 BIND_EEEE(ywMapMoveByEntity, 4, 0);
 
 BIND_EEEE(ywTextureMergeTexture, 4, 0);
+BIND_EEEE(ywTextureMergeUnsafe, 4, 0);
+
 
 BIND_EIIEE(ywCanvasNewImgFromTexture, 4, 1);
 
