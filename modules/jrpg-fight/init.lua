@@ -157,15 +157,48 @@ end
 
 local time_acc = 0
 
+local function reprint_cmb_bar(canvas, anim, cur_cmb)
+   local last_frm = cur_cmb:len()
+   local tot_bar_len = BAR_PIX_MULT * cur_cmb:len()
+   local part_len = tot_bar_len / cur_cmb:len()
+
+   remove_loader(canvas, anim)
+   anim.black_rect =
+      canvas:new_rect(23, 3, "rgba: 0 0 15 225",
+		      Pos.new(cur_cmb:len() * part_len + 4, 19).ent).ent
+   anim.loaders = Entity.new_array()
+   if  anim.sucess < 2 then
+      local i = 0
+      while i < cur_cmb:len() do
+	 local cmb_bar = Entity.new_array()
+	 -- print block...
+	 cmb_bar[0] = Pos.new(part_len, 15).ent
+	 --print(Pos.new(part_len, 15):tostring(), cmb_bar)
+	 if cur_cmb[i]:to_int() == 1 then
+	    cmb_bar[1] = "rgba: 30 30 255 255"
+	 elseif cur_cmb[i]:to_int() == 2 then
+	    cmb_bar[1] = "rgba: 50 50 127 255"
+	 else
+	    cmb_bar[1] = "rgba: 255 30 30 255"
+	 end
+	 anim.loaders[i] = canvas:new_rect(25 + (i * part_len),
+					   5, cmb_bar).ent
+	 i = i + 1
+      end
+   else
+      anim.loaders[0] = canvas:new_rect(25, 5, "rgba: 120 120 120 255",
+					Pos.new(cur_cmb:len() * part_len,
+						15).ent).ent
+   end
+end
+
 local function reset_cmb_bar(main, anim, target, cmb_idx)
    --print(anim.combots)
    local cur_cmb_anim = anim.combots[cmb_idx].anim
    local cur_cmb = anim.combots[cmb_idx].touch
-   local tot_bar_len = BAR_PIX_MULT * cur_cmb:len()
-   local part_len = tot_bar_len / cur_cmb:len()
-   local last_frm = cur_cmb:len()
    local canvas = getCanvas(main)
    local can_print_loader = true
+   local last_frm = cur_cmb:len()
 
    anim.animation_frame = 0
    if main.atk_state:to_int() == ENEMY_ATTACK and
@@ -190,28 +223,7 @@ local function reset_cmb_bar(main, anim, target, cmb_idx)
 
    anim.isPush = 0
    if can_print_loader then
-      anim.black_rect =
-	 canvas:new_rect(23, 3, "rgba: 0 0 15 225",
-			 Pos.new(cur_cmb:len() * part_len + 4, 19).ent).ent
-      print("pusj: ", anim.black_rect)
-      anim.loaders = Entity.new_array()
-      local i = 0
-      while i < cur_cmb:len() do
-	 local cmb_bar = Entity.new_array()
-	 -- print block...
-	 cmb_bar[0] = Pos.new(part_len, 15).ent
-	 --print(Pos.new(part_len, 15):tostring(), cmb_bar)
-	 if cur_cmb[i]:to_int() == 1 then
-	    cmb_bar[1] = "rgba: 30 30 255 255"
-	 elseif cur_cmb[i]:to_int() == 2 then
-	    cmb_bar[1] = "rgba: 50 50 127 255"
-	 else
-	    cmb_bar[1] = "rgba: 255 30 30 255"
-	 end
-	 anim.loaders[i] = canvas:new_rect(25 + (i * part_len),
-					   5, cmb_bar).ent
-	 i = i + 1
-      end
+      reprint_cmb_bar(canvas, anim, cur_cmb)
    end
    --print("Can print loader:", can_print_loader, main.atk_state:to_int(),
    --target.char.can_guard:to_int())
@@ -261,10 +273,11 @@ local function attackCallback(main, eve)
    while eve:is_end() == false do
       if isPushingOkButton(eve) then
 	 if (cur_val == BATK_MUST_PRESS_OK) then
-	    cur_anim.sucess = true
+	    cur_anim.sucess = 0
 	    cur_anim.isPush = 1
 	 elseif cur_val == BATK_MUST_BE_RELEASE then
-	    cur_anim.sucess = false
+	    cur_anim.sucess = 2
+	    reprint_cmb_bar(canvas, cur_anim, cur_cmb)
 	 end
       elseif isUnpushingOkButton(eve) then
 	 cur_anim.isPush = 0
@@ -273,7 +286,8 @@ local function attackCallback(main, eve)
    end
 
    if (cur_val == BATK_KEEP_PUSHING and cur_anim.isPush < 1) then
-      cur_anim.sucess = false
+      cur_anim.sucess = 2
+      reprint_cmb_bar(canvas, cur_anim, cur_cmb)
    end
 
    canvas:remove(cur_anim.loader_percent)
@@ -316,7 +330,7 @@ local function attackCallback(main, eve)
 
       local txt = guy.char.name:to_string() .. " attack: "
       if main.atk_state:to_int() == ENEMY_ATTACK then
-	 if cur_anim.sucess:to_int() == 1 then
+	 if cur_anim.sucess:to_int() == 0 then
 	    guard_sucess = true
 	 else
 	    guard_sucess = false
@@ -341,7 +355,7 @@ local function attackCallback(main, eve)
 	 main.explosion_time = 5
       end
 
-      if cur_anim.sucess:to_int() == 1 then
+      if cur_anim.sucess:to_int() == 0 then
 	 txt = txt .. "SUCESS, " .. target.char.name:to_string() ..
 	    " guard: "
 	 if target.char.can_guard:to_int() == 0 then
@@ -351,15 +365,13 @@ local function attackCallback(main, eve)
 	 else
 	    txt = txt .. "FAIL"
 	 end
-	 cur_anim.sucess = false
+	 cur_anim.sucess = 1
 	 cur_anim.cur_cmb = cur_anim.cur_cmb + 1
-	 print("NEXT CMB: ", cur_anim.cur_cmb - 1, cur_anim.cur_cmb,
-	       cur_anim.combots:len())
 	 if cur_anim.cur_cmb:to_int() < cur_anim.combots:len() then
 	    reset_cmb_bar(main, cur_anim, target, cur_anim.cur_cmb:to_int())
 	 else
 	    -- deal extra domages if sucess last combot
-	    if cur_anim.sucess:to_int() then
+	    if cur_anim.sucess:to_int() == 0 then
 	       combatDmg(main, cur_anim)
 	    end
 	    endAnimationAttack(main, cur_anim)
@@ -522,7 +534,6 @@ function endAnimationAttack(main, cur_anim)
    local next_target = guy
    local have_win = true
 
-   print("THIS IS THE END")
    obj:set_pos(bpos)
    bpos = Pos.wrapp(bpos)
    ywCanvasObjSetPos(guy.life_b0, bpos:x(), bpos:y() - 25)
@@ -575,7 +586,6 @@ function endAnimationAttack(main, cur_anim)
 
 		  bad_guys[screen_idx] = new_handler(main, enemies[j], y, 50,
 						     bad_orig_pos)
-		  print(j, " replace ", i, "enemies left:", enemies_not_on_screen)
 		  enemies[j].screen_idx = screen_idx
 		  enemies[j].on_screen = true
 		  enemies[i].on_screen = false
@@ -584,8 +594,6 @@ function endAnimationAttack(main, cur_anim)
 		  have_win = false
 		  break
 	       end
-	       print(j, enemies[j].life,
-		     yeGetBoolAt(enemies[j], "on_screen"))
 	       j = j + 1
 	    end
 	 end
@@ -604,7 +612,6 @@ function endAnimationAttack(main, cur_anim)
 
    if main.atk_state:to_int() == PJ_ATTACK and
    cur_player < l_gg_h - 1 then
-      print('stuff: ', cur_player, l_gg_h)
       cur_player = cur_player + 1
    elseif main.atk_state:to_int() == PJ_ATTACK or
    yeLen(bad_guys) > enemy_idx then
@@ -653,7 +660,6 @@ function endAnimationAttack(main, cur_anim)
       end
       --print(cur_anim.guy.name, cur_anim.target.name)
    else
-      print("set orig not enemy next")
       if cur_player == 0 then
 	 setOrig(guy, bad_orig_pos[1], bad_orig_pos[2])
       else
@@ -710,7 +716,7 @@ function attack(main, attacker, attacked, mod)
    local anim = mk_anim(main, attacker, attacked)
 
    print("ATTACK ATTACK ATTACK")
-   anim.sucess = false
+   anim.sucess = 1
    anim.combots = attacker.char._combots
    anim.cmb_len = attacker.char._combots:len()
    anim.cur_cmb = 0
