@@ -9,6 +9,7 @@
 #define BIND_ES	BIND
 #define BIND_EI	BIND
 #define BIND_SI	BIND
+#define BIND_SS	BIND
 #define BIND_EII	BIND
 #define BIND_EEI	BIND
 #define BIND_IIS	BIND
@@ -119,6 +120,8 @@ BIND_EI(yeStringAddLong, 2, 0);
 BIND_EI(ywCntGetEntry, 2, 0);
 
 BIND_EI(yeGetKeyAt, 2, 0);
+
+BIND_SS(ygReCreateString, 2, 0);
 
 BIND_E(ywSizeDistance, 1, 0);
 
@@ -306,6 +309,7 @@ PUSH_I_GLOBAL(YJSON);
 #undef BIND_ES
 #undef BIND_EI
 #undef BIND_SI
+#undef BIND_SS
 #undef BIND_NONE
 #undef BIND_I
 #undef BIND_V

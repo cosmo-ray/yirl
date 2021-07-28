@@ -339,6 +339,12 @@ static inline int make_abort(lua_State *L, ...)
 		BIND_AUTORET(f(luaNumberAt(L, 1), luaNumberAt(L, 2)));	\
 	}
 
+#define BIND_SS(f, ...)							\
+	static inline int lua##f(lua_State *L)				\
+	{								\
+		BIND_AUTORET(f(lua_tostring(L, 1), lua_tostring(L, 2))); \
+	}
+
 #define BIND_IES(f, ...)						\
 	static inline int lua##f(lua_State *L)				\
 	{								\
