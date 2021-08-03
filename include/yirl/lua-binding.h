@@ -521,6 +521,7 @@ int	luaEveKey(lua_State *L);
 
 BIND_E(yevMousePos);
 int	luayevMouseDown(lua_State *L);
+int	luayevMouseUp(lua_State *L);
 int	luayevCheckKeys(lua_State *L);
 int	luayevCreateGrp(lua_State *L);
 
@@ -894,6 +895,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, yevIsKeyUp);
   YES_LUA_REGISTRE_CALL(sm, yevMousePos);
   YES_LUA_REGISTRE_CALL(sm, yevMouseDown);
+  YES_LUA_REGISTRE_CALL(sm, yevMouseUp);
   YES_LUA_REGISTRE_CALL(sm, yevCheckKeys);
 
   /* map */

@@ -105,6 +105,20 @@ int yevMouseDown(Entity *events, int *button)
 	return 0;
 }
 
+int yevMouseUp(Entity *events, int *button)
+{
+	Entity *eve = events;
+
+	YEVE_FOREACH(eve, events) {
+		int t = ywidEveType(eve);
+		if (t == YKEY_MOUSEUP) {
+			*button =  ywidEveKey(eve);
+			return 1;
+		}
+	}
+	return 0;
+}
+
 int yeveMouseX(void)
 {
 	return ywidXMouseGlobalPos;

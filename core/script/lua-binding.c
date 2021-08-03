@@ -471,7 +471,7 @@ int	luaentity_newint(lua_State *L)
 
 int	luaentity_newfloat(lua_State *L)
 {
-  int val = luaL_checknumber(L, 1);
+  double val = luaL_checknumber(L, 1);
   const char *name = lua_tostring(L, 3);
   Entity *father = NULL;
   struct entityWrapper *ew = createEntityWrapper(L, 2, &father);
@@ -892,6 +892,14 @@ int	luayevMouseDown(lua_State *L)
 {
 	int ret2 = 0;
 	lua_pushboolean(L, yevMouseDown(luaEntityAt(L, 1), &ret2));
+	lua_pushnumber(L, ret2);
+	return 2;
+}
+
+int	luayevMouseUp(lua_State *L)
+{
+	int ret2 = 0;
+	lua_pushboolean(L, yevMouseUp(luaEntityAt(L, 1), &ret2));
 	lua_pushnumber(L, ret2);
 	return 2;
 }

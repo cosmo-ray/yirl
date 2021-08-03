@@ -118,5 +118,6 @@ static inline int yevCheckKeysInt(Entity *events, EventType type, int *keys)
 Entity *yevMousePos(Entity *events);
 
 int yevMouseDown(Entity *events, int *button);
+int yevMouseUp(Entity *events, int *button);
 
 #endif
