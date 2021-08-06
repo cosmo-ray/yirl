@@ -131,7 +131,7 @@ Each modules have a start file that will serve as entry file, and will tell YIRL
 It can be either a json file (start.json), or a C/lua/scheme/javascript file. how to load every other files
 
 # Start a game from the source
-./yirl-loader.sh  --default-tcc-path --binary-root-path $PWD -d path/to/game/module
+./yirl-loader.sh -P $PWD -d path/to/game/module
 
 # Package Game
 
