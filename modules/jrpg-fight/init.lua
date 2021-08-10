@@ -882,7 +882,7 @@ function chooseTarget(main, eve)
 	 return chooseTargetLoc(main, chooseTargetLeft, nb_enemy, chooseTargetY)
       elseif eve:type() == YKEY_UP and eve:key() == Y_ESC_KEY then
 	 goto clean
-      elseif eve:type() == YKEY_DOWN and eve:key() == Y_ENTER_KEY then
+      elseif isPushingOkButton(eve) then
 	 local target = nil
 	 if main.chooseTarget:to_int() == chooseTargetLeft then
 	    target = main.bg_handlers[chooseTargetY - 1]
