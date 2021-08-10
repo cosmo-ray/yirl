@@ -871,7 +871,7 @@ static int sdlCacheBigTexture(Entity *e, SDL_Surface *s,
 int sdlCanvasCacheImg3(Entity *elem, Entity *resource, const char *imgPath,
 		       Entity *rEnt, int32_t flag, Entity *img_dst_rect)
 {
-		SDL_Surface *surface;
+	SDL_Surface *surface;
 	GPU_Image *texture;
 	Entity *data;
 	int w, h, isText = 0;
