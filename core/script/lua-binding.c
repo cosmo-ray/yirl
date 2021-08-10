@@ -771,7 +771,8 @@ int	luaYeIncrRef(lua_State *L)
 
 int	luaYeToLuaString(lua_State *L)
 {
-	char *str = yeToCStr(luaEntityAt(L, 1), 4, 0);
+	int deep = lua_gettop(L) > 1 ? (uint64_t)luaNumberAt(L, 2) : 4;
+	char *str = yeToCStr(luaEntityAt(L, 1), deep, YE_FORMAT_PRETTY);
 
 	lua_pushstring(L, str);
 	free(str);
