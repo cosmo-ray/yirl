@@ -626,8 +626,6 @@ int	luaywCanvasNewImg(lua_State *L)
   return 1;
 }
 
-int	luaywCanvasNewImgFromTexture(lua_State *L);
-
 int	luaYwCanvasNewObj(lua_State *L)
 {
   lua_pushlightuserdata(L, ywCanvasNewObj(luaEntityAt(L, 1),
