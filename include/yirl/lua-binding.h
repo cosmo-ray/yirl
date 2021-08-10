@@ -595,6 +595,7 @@ int	luaywCanvasObjectsCheckColisions(lua_State *L);
 int	luaywCanvasPopObj(lua_State *L);
 BIND_EEE(ywCanvasProjectedColisionArray);
 BIND_EEE(ywCanvasProjectedArColisionArray);
+BIND_EES(ywTextureNew);
 
 /* texture */
 int	luaywTextureMerge(lua_State *L);
@@ -986,6 +987,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, ywCanvasPopObj);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasProjectedColisionArray);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasProjectedArColisionArray);
+  YES_LUA_REGISTRE_CALL(sm, ywTextureNew);
 
   /* texture */
   YES_LUA_REGISTRE_CALL(sm, ywTextureMerge);
