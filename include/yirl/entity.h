@@ -1463,6 +1463,32 @@ static inline int yeSwapElems(Entity *array, Entity *elem0, Entity *elem1)
 	return 0;
 }
 
+static inline int yeShuffle(Entity *array)
+{
+	if (!array || yeType(array) != YARRAY)
+		return -1;
+
+	int array_l = yeLen(array);
+	for (int i = 0; i < array_l; ++i) {
+		int b = yuiRand() % array_l;
+
+		if (i == b)
+			continue;
+
+		yeSwapByIdx(array, i, b);
+	}
+
+	for (int i = 0; i < array_l; ++i) {
+		int a = yuiRand() % array_l;
+		int b = yuiRand() % array_l;
+
+		if (a == b)
+			continue;
+		yeSwapByIdx(array, a, b);
+	}
+	return 0;
+}
+
 /**
  * @return 1 if content of a and b is the same, work only for string, int and float
  */
