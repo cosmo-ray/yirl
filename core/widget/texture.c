@@ -75,6 +75,11 @@ Entity *ywTextureNew(Entity *size, Entity *father, const char *name)
 {
 	Entity *obj = yeCreateArray(father, name);
 
+	if (ywSizeH(size) == 0 || ywSizeW(size) == 0) {
+		DPRINT_ERR("Broken size, %d %d is Invalide",
+			   ywSizeW(size), ywSizeH(size));
+		abort();
+	}
 	yeCreateInt(YCanvasTexture, obj, "canvas-type");
 	sdlCanvasCacheVoidTexture(obj, size);
 	return obj;
