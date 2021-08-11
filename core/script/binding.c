@@ -21,6 +21,7 @@
 #define BIND_EES	BIND
 #define BIND_EEE	BIND
 #define BIND_SEES	BIND
+#define BIND_EIII	BIND
 #define BIND_EIIE	BIND
 #define BIND_EIIS	BIND
 #define BIND_EEEE	BIND
@@ -226,6 +227,8 @@ BIND_EEI(ywPushNewWidget, 2, 1);
 
 BIND_EEI(ywCanvasSetWeight, 3, 0);
 
+BIND_EIII(ywRectContain, 3, 1);
+
 BIND_V(ygUserDir);
 BIND_V(ywGetTurnLengthOverwrite);
 BIND_V(yWindowWidth);
@@ -293,6 +296,7 @@ PUSH_I_GLOBAL(YJSON);
 
 #undef BIND_EIIIIS
 #undef BIND_EIIEE
+#undef BIND_EIII
 #undef BIND_EIIS
 #undef BIND_EIIE
 #undef BIND_EEEE
