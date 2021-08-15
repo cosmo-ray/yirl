@@ -100,6 +100,8 @@ BIND_EE(ywCanvasCheckColisionsRectObj, 2, 0);
 
 BIND_EE(ywRemoveEntryByEntity, 2, 0);
 
+BIND_ES(ywCanvasSetStrColor, 2, 0);
+
 BIND_ES(yeStringAddNl, 2, 0);
 BIND_ES(yeStringAdd, 2, 0);
 BIND_ES(yeSetString, 2, 0);
@@ -125,6 +127,8 @@ BIND_EI(ywCntGetEntry, 2, 0);
 BIND_EI(yeGetKeyAt, 2, 0);
 
 BIND_SS(ygReCreateString, 2, 0);
+
+BIND_E(ywCanvasStrColor, 1, 0);
 
 BIND_E(yeShuffle, 1, 0);
 

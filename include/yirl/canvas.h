@@ -269,6 +269,22 @@ static inline Entity *ywCanvasLastObj(Entity *wid)
 	return yeLast(yeGet(wid, "objs"));
 }
 
+/**
+ * @brief Set color of a string object
+ */
+static inline void ywCanvasSetStrColor(Entity *obj, const char *str)
+{
+	yeCreateStringAt(str, obj, "color", 3);
+}
+
+/**
+ * @brief get the color of a string obj
+ */
+static inline const char *ywCanvasStrColor(Entity *obj)
+{
+	return yeGetStringAt(obj, 3);
+}
+
 void ywCanvasStringSet(Entity *obj, Entity *newStr);
 void ywCanvasObjSetResourceId(Entity *obj, int id);
 void ywCanvasObjClearCache(Entity *obj);
