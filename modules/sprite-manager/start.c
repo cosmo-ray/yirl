@@ -97,6 +97,14 @@ void *handlerPos(int nba, void **args)
 	return c ? ywCanvasObjPos(c) : NULL;
 }
 
+void *handlerSize(int nba, void **args)
+{
+	Entity *h = args[0];
+	Entity *c = yeGet(h, "canvas");
+
+	return c ? ywCanvasObjSize(NULL, c) : NULL;
+}
+
 void *handlerSetPos(int nbArg, void **args)
 {
 	Entity *h = args[0];
@@ -137,6 +145,7 @@ void *mod_init(int nbArg, void **args)
 		mod.handlerNullify = handlerNullify;
 		mod.handlerAdvance = handlerAdvance;
 		mod.handlerPos = handlerPos;
+		mod.handlerSize = handlerSize;
 	}
 	printf("SPRITE MANAGER %p!!!\n", mod);
 	return mod;
