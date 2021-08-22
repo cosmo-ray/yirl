@@ -321,6 +321,11 @@ _Bool ywCanvasCheckCollisions(Entity *wid, Entity *obj, Entity *colisionFunc,
 Entity *ywCanvasNewCollisionsArray(Entity *wid, Entity *obj);
 
 /**
+ * @return all objects intersected between pos0 and pos1
+ */
+Entity *ywCanvasNewIntersectArray(Entity *wid, Entity *pos0, Entity *pos1);
+
+/**
  * @return array containing all object that colide with obj, this need to be free
  */
 Entity *ywCanvasNewCollisionsArrayExt(Entity *wid, Entity *obj,

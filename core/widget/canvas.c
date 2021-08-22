@@ -290,6 +290,32 @@ int ywCanvasSwapObj(Entity *wid, Entity *obj0, Entity *obj1)
 	return yeSwapElems(yeGet(wid, "objs"), obj0, obj1);
 }
 
+Entity *ywCanvasNewIntersectArray(Entity *wid, Entity *p0, Entity *p1)
+{
+ 	int x0 = ywPosX(p0);
+ 	int x1 = ywPosX(p1);
+ 	int y0 = ywPosY(p0);
+ 	int y1 = ywPosY(p1);
+	Entity *ret = yeCreateArray(NULL, NULL);
+	Entity *objs = yeGet(wid, "objs");
+
+	YE_FOREACH(objs, o) {
+		Entity *p = ywCanvasObjPos(o);
+		Entity *s = ywCanvasObjSize(wid, o);
+		int x = ywPosX(p);
+		int y = ywPosY(p);
+		int w = ywSizeW(s);
+		int h = ywSizeH(s);
+
+		if (yuiLinesRectIntersect(x0, y0, x1, y1,
+					  x, y, w, h,
+					  NULL, NULL, NULL)) {
+			yePushBack(ret, o, NULL);
+		}
+	}
+	return ret;
+}
+
 Entity *ywCanvasNewCollisionsArrayWithRectangles(Entity *wid, Entity *objRects,
 						 Entity *colisionFunc,
 						 Entity *colisionFuncArg)

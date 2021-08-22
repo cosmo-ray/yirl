@@ -117,11 +117,10 @@ int yuiLinesRectIntersect(int x1, int y1, int x2, int y2,
 
 	if (type) *type = Y_NO_INTERSECT;
 
-	if (unlikely(!x)) {
+	if (!x)
 		x = &tmp_x;
-	}
 
-	if (unlikely(!y))
+	if (!y)
 		y = &tmp_y;
 
 	if (x1 < rx) {
