@@ -145,10 +145,9 @@ Also you should use an old distro (like centos 6) to package you game, otherwise
 # how to start using YIRL
 For now the easier way to use YIRL is to come chat with us and ask for help
 But you can still understand how YIRL work by:
-* using examples
-* reading examples json file, and scripting files (either lua, C or yb)
-* copy past an example and change it to create your own game
-* patch every things that don't work
+* using games using YIRL (https://uso.itch.io)
+* modify some functionality form a game
+* copy one to create your own game/module
 
 # Ideas of Contributions/TODO
 
@@ -162,6 +161,6 @@ But you can still understand how YIRL work by:
 * make a raycasting module
 * Improve 8086 emulator module
 * BASIC emulator module
-* add any language support
+* add any language support (python, perl and ruby would be nice)
 * add any cool game template module
 * https://github.com/dulsi/libgamerzilla support that, and add throphy mechanisme in yirl
