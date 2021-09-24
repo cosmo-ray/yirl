@@ -16,7 +16,7 @@ jobs:
     - uses: snickerbockers/submodules-init@v4
     - name: setup-dependancies
       run: |
-        sudo apt-get install -y libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libsdl2-dev lua5.3-dev
+        sudo apt-get install -y libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libsdl2-dev lua5.3-dev libjson-c-dev
         cd tinycc
         ./configure --extra-cflags=-fPIC
         make -j$(nproc)
