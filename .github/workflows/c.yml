@@ -13,11 +13,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - uses: leafo/gh-actions-lua@v8.0.0
     - uses: snickerbockers/submodules-init@v4
     - name: setup-dependancies
       run: |
-        sudo apt-get install -y libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libsdl2-dev
+        sudo apt-get install -y libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libsdl2-dev lua5.3-dev
         cd tinycc
         ./configure --extra-cflags=-fPIC
         make -j$(nproc)
@@ -28,7 +27,7 @@ jobs:
         make -j$(nproc)
         cd ..
     - name: configure
-      run: ./configure
+      run: ./configure -t ubuntu
     - name: make
       run: |
         make quickjs-2020-03-16
