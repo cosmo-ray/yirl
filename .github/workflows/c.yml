@@ -30,6 +30,7 @@ jobs:
       run: ./configure -t ubuntu
     - name: make
       run: |
+        make sdl-gpu-build
         make quickjs-2020-03-16
         make
 
