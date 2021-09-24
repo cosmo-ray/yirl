@@ -15,12 +15,9 @@ jobs:
     - uses: actions/checkout@v2
     - uses: leafo/gh-actions-lua@v8.0.0
     - uses: snickerbockers/submodules-init@v4
-    - uses: albin-johansson/download-sdl2@v2
-    - uses: albin-johansson/download-sdl2-ttf@v1
-    - uses: albin-johansson/download-sdl2-image@v2
-    - uses: albin-johansson/download-sdl2-mixer@v1
     - name: setup-dependancies
       run: |
+        sudo apt-get install -y sdl2-image sdl2-mixer sdl2-ttf sdl2
         cd tinycc
         ./configure --extra-cflags=-fPIC
         make -j$(nproc)
