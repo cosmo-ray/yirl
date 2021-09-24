@@ -13,8 +13,23 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - uses: leafo/gh-actions-lua@v8.0.0
+    - uses: snickerbockers/submodules-init@v4
+    - name: setup-dependancies
+      run: |
+        cd tinycc
+        ./configure --extra-cflags=-fPIC
+        make -j$(nproc)
+        cd ..
+        cd SDL_mixer
+        ./autogen.sh
+        ./configure CFLAGS="-fPIC"
+        make -j$(nproc)
+        cd ..
     - name: configure
       run: ./configure
     - name: make
-      run: make
+      run: |
+        make quickjs-2020-03-16
+        make
 
