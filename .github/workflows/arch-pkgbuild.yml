@@ -18,6 +18,8 @@ jobs:
       run: |
        pacman -Sy --noconfirm git
        git clone https://aur.archlinux.org/yirl-git.git/
+       ls
+       ls yirl-git/
     - name: build-arch-package
       uses: FFY00/build-arch-package@v1
       with:
