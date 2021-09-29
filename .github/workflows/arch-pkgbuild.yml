@@ -16,7 +16,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: get PKGBUILD
       run: |
-       sudo pacman -Sy git
+       pacman -Sy --noconfirm git
        git clone https://aur.archlinux.org/yirl-git.git/
     - name: build-arch-package
       uses: FFY00/build-arch-package@v1
