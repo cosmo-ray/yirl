@@ -18,6 +18,7 @@ jobs:
       run: |
        pacman -Sy --noconfirm git
        git clone https://aur.archlinux.org/yirl-git.git/
+       cd yirl-git
        makepkg -si
 
         
