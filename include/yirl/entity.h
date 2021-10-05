@@ -684,6 +684,12 @@ static inline Entity *yeRemoveChildByIdx(Entity *array, int toRemove)
 	return yeRemoveChild(array, yeGet(array, toRemove));
 }
 
+/**
+ * @brief remove an element from array, in comparaison to yeRemoveChild, reorder so it don't let blank
+ *
+ * Exampe: let's say you have an array [ 0, 1, 2, 3 ], erase 2, you'll have [0, 1, 3]
+ * with yeRemoveChild, you would have got: [ 0, 1, NULL, 3 ]
+ */
 _Bool yeEraseByE(Entity *array, Entity *target);
 
 /**
