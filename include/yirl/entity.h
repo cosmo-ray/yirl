@@ -684,6 +684,8 @@ static inline Entity *yeRemoveChildByIdx(Entity *array, int toRemove)
 	return yeRemoveChild(array, yeGet(array, toRemove));
 }
 
+_Bool yeEraseByE(Entity *array, Entity *target);
+
 /**
  * function that create an entity and set it to  0, "" or NULL
  * mostly use internally

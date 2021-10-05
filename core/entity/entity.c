@@ -826,9 +826,9 @@ typedef enum
   } ManageArrayFlag;
 
 
-static ArrayEntity	*manageArrayInternal(ArrayEntity *entity,
-					     unsigned int size,
-					     ManageArrayFlag flag)
+static ArrayEntity *manageArrayInternal(ArrayEntity *entity,
+					unsigned int size,
+					ManageArrayFlag flag)
 {
 	unsigned int len = yeLen(YE_TO_ENTITY(entity));
 
@@ -963,6 +963,34 @@ Entity *yeRemoveChildByStr(Entity *array, const char *toRemove)
 exit:
 	ba->flag = flag;
 	return ret;
+}
+
+_Bool yeEraseByE(Entity *array, Entity *t)
+{
+	BlockArray *ba = &YE_TO_ARRAY(array)->values;
+	uint16_t flag = ba->flag;
+	ArrayEntry *old = NULL;
+
+	ba->flag = YBLOCK_ARRAY_NOMIDFREE;
+
+	Y_BLOCK_ARRAY_FOREACH_PTR(*ba, tmp, it, ArrayEntry) {
+		if (old) {
+			old->entity = tmp->entity;
+			old->name = tmp->name;
+			old = tmp;
+		} else if (tmp->entity == t) {
+			arrayEntryDestroy(tmp);
+			old = tmp;
+		}
+	}
+
+	if (old) {
+		arrayEntryInit(old);
+		yBlockArrayUnset(ba, yeLen(array) - 1);
+	}
+	ba->flag = flag;
+	printf("out\n");
+	return !!old;
 }
 
 Entity *yePopBack(Entity *entity)
