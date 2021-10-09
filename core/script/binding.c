@@ -97,6 +97,8 @@ BIND_EE(yevIsGrpUp, 2, 0);
 BIND_EE(yevIsGrpDown, 2, 0);
 BIND_EE(yeFindKey, 2, 0);
 BIND_EE(ywPosDistance, 2 ,0);
+BIND_EE(ywPosYDistance, 2 ,0);
+BIND_EE(ywPosXDistance, 2 ,0);
 BIND_EE(ywPosTotCases, 2 ,0);
 BIND_EE(yeCopy, 2 ,0);
 

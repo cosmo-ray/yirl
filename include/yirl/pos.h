@@ -332,6 +332,16 @@ static inline uint32_t ywPosTotCases(Entity *p0, Entity *p1)
 	return x + y;
 }
 
+static inline int ywPosXDistance(Entity *p0, Entity *p1)
+{
+	return ywPosX(p1) - ywPosX(p0);
+}
+
+static inline int ywPosYDistance(Entity *p0, Entity *p1)
+{
+	return  ywPosY(p1) - ywPosY(p0);
+}
+
 /**
  * @brief compute distance between 2 pos
  */
