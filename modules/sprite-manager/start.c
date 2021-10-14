@@ -63,11 +63,18 @@ void *handlerRefresh(int nargs, void **args)
 	Entity *c;
 	Entity *ret;
 	Entity *sp = yeGet(h, "sp");
+	Entity *src_pos = yeGet(sp, "src-pos");
 	int size = yeGetIntAt(sp, "size");
 	int cur_x = yeGetIntAt(h, "x");
-	int sy = yeGetIntAt(sp, "src-pos");
+	int sy = 0;
 	int text_idx = 0;
 
+	if (yeType(src_pos) == YARRAY) {
+		cur_x += yeGetIntAt(src_pos, 0);
+		sy = yeGetIntAt(src_pos, 1);
+	} else {
+		sy = yeGetInt(src_pos);
+	}
 	yeAutoFree Entity *rect =
 		ywRectCreateInts(cur_x, sy + yeGetIntAt(h, "y_offset"),
 				 size, size, NULL, NULL);
