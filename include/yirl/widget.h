@@ -381,11 +381,13 @@ static inline void *ywidGetRenderData(YWidgetState *state, int t)
 
 int ywidAddSubType(Entity *subType);
 
+YWidgetState *ywidNewWidgetExt(Entity *entity, const char *type, Entity *arg);
 YWidgetState *ywidNewWidget(Entity *entity, const char *type);
 
 void YWidDestroy(YWidgetState *wid);
 
 int ywidNext(Entity *next, Entity *target);
+int ywidNextExt(Entity *next, Entity *target, Entity *arg);
 
 void ywidSetMainWid(YWidgetState *wid);
 YWidgetState *ywidGetMainWid(void);

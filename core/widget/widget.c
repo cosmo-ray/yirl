@@ -211,7 +211,7 @@ void ywidSetMainWid(YWidgetState *wid)
 	mainWid = wid;
 }
 
-int ywidNext(Entity *next, Entity *target)
+int ywidNextExt(Entity *next, Entity *target, Entity *arg)
 {
 	YWidgetState *newWid;
 	const char *str = yeGetString(next);
@@ -251,7 +251,7 @@ next_is_wid:
 
 		YWidDestroy(oldWid);
 		oldWid = NULL;
-		if ((newWid = ywidNewWidget(next, NULL)) == NULL) {
+		if ((newWid = ywidNewWidgetExt(next, NULL, arg)) == NULL) {
 			DPRINT_ERR("fail when creating new widget");
 			return -1;
 		}
@@ -260,6 +260,11 @@ next_is_wid:
 		return 0;
 	}
 	return ywReplaceEntryByEntity(ywCntWidgetFather(target), target, next);
+}
+
+int ywidNext(Entity *next, Entity *target)
+{
+	return ywidNextExt(next, target, NULL);
 }
 
 int ywidColorFromString(const char *str, uint8_t *r, uint8_t *g,
@@ -452,6 +457,11 @@ int ywidAddSubType(Entity *subType)
 
 YWidgetState *ywidNewWidget(Entity *entity, const char *type)
 {
+	return ywidNewWidgetExt(entity, type, NULL);
+}
+
+YWidgetState *ywidNewWidgetExt(Entity *entity, const char *type, Entity *arg)
+{
 	Entity *recreateLogic;
 	int shouldInit = 1;
 
@@ -486,7 +496,7 @@ YWidgetState *ywidNewWidget(Entity *entity, const char *type)
 					 yeGetStringAt(tmpType, "name"))) {
 				YWidgetState *ret =
 					yesCall(yeGet(tmpType, "callback"),
-						entity, tmpType);
+						entity, tmpType, arg);
 
 				if (!ret) {
 					DPRINT_ERR("init for type '%s' fail",

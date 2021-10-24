@@ -161,11 +161,17 @@ static void *nmMenuNext(int nb, union ycall_arg *args, int *types)
 	Entity *e = args[0].e;
 	YWidgetState *wid = ywidGetState(e);
 	Entity *next = yeGet(e, "entries");
+	Entity *arg = NULL;
 
 	next = yeGet(next, ((YMenuState *)wid)->current);
 	next = yeGet(next, "next");
 
-	return ywidNext(next, e) ? (void *)BUG : (void *)ACTION;
+	if (yeType(next) == YARRAY && !yeGet(next, "<type>")) {
+		next = yeGet(next, 0);
+		arg = yeGet(next, 1);
+	}
+
+	return ywidNextExt(next, e, arg) ? (void *)BUG : (void *)ACTION;
 }
 
 static void *nmMenuMainWidNext(int nb, union ycall_arg *args, int *types)
