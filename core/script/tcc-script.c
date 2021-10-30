@@ -213,7 +213,6 @@ static int gCreateEnt(TCCUserAction *ua, Entity *str,
 				gCreateEntFunc(str, "Int", pos);
 			} else {
 				// assuming pointer
-				printf("push maybe ptr '%s'\n", curTok);
 				if (pos >= 0)
 					yeStringAdd(str, "yeAttach(");
 				else
