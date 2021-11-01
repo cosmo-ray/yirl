@@ -134,6 +134,8 @@ BIND_EI(yeGetKeyAt, 2, 0);
 
 BIND_SS(ygReCreateString, 2, 0);
 
+BIND_E(ywidInTree, 1, 0);
+
 BIND_E(ywCanvasStrColor, 1, 0);
 
 BIND_E(yeShuffle, 1, 0);

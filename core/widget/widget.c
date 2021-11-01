@@ -211,6 +211,13 @@ void ywidSetMainWid(YWidgetState *wid)
 	mainWid = wid;
 }
 
+_Bool ywidInTree(Entity *widget)
+{
+	if (widget == mainWid->entity)
+		return 1;
+	return ywCntInTree(mainWid->entity, widget);
+}
+
 int ywidNext(Entity *next, Entity *target)
 {
 	YWidgetState *newWid;
@@ -504,6 +511,7 @@ YWidgetState *ywidNewWidget(Entity *entity, const char *type)
 	for (int i = 0; i < 64; ++i) {
 		if (widgetOptTab[i].name &&
 		    yuiStrEqual(type, widgetOptTab[i].name)) {
+			yeReCreateString(type, entity, "<r_t>");
 			return ywidNewWidgetInternal(i, entity, shouldInit);
 		}
 	}

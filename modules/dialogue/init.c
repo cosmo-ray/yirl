@@ -431,6 +431,9 @@ void *dialoguePostAction(int nbArgs, void **args)
 {
 	uint64_t ret_type = (long)args[0];
 	Entity *e = args[1];
+
+	if (!ywidInTree(e))
+		return NOTHANDLE;
 	struct mainDrv *drv = getMainDrv(e);
 
 	refreshAnswer(e, drv->getMenu(e), yeGet(e, "active_dialogue"));

@@ -43,6 +43,11 @@ int ywContainerInit(void);
 int ywContainerEnd(void);
 
 /**
+ * @return 1 if cnt, or a sub idget of cnt contain widget
+ */
+_Bool ywCntInTree(Entity *cnt, Entity *widget);
+
+/**
  * Create a new widget from @wid and push it
  * @retun the id of the new layer or -1
  */

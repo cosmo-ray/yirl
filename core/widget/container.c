@@ -328,6 +328,24 @@ static InputStatue cntEvent(YWidgetState *opac, Entity *event)
 	if (cur)
 		ret = ywidHandleEvent(cur, event);
 	return ret;
+
+}
+
+_Bool ywCntInTree(Entity *cnt, Entity *widget)
+{
+	if (!yuiStrEqual0(yeGetStringAt(cnt, "<r_t>"), "container"))
+		return 0;
+
+	Entity *entries = yeGet(cnt, "entries");
+	YE_FOREACH(entries, tmp) {
+		int r = 0;
+		if (widget == tmp)
+			return 1;
+		r = ywCntInTree(tmp, widget);
+		if (r)
+			return r;
+	}
+	return 0;
 }
 
 void ywCntConstructChilds(Entity *ent)

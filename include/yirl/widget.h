@@ -311,6 +311,11 @@ int ywidRegistreRender(void (*resizePtr)(YWidgetState *wid, int renderType),
 		       int (*changeResolution)(void),
 		       void (*changeWinName)(const char *));
 
+/**
+ * check if widget is 'active' as main widget or its sub widget
+ */
+_Bool ywidInTree(Entity *widget);
+
 void ywidRemoveRender(int renderType);
 
 int ywidRegistreTypeRender(const char *type, int t,
