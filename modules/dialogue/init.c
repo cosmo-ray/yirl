@@ -531,7 +531,6 @@ void *dialogueSwitch(int nbArgs, void **args)
 
 	int c_ret = ywidAction(args[2], main, NULL);
 
-	printf("*dialogueSwitch %d\n", c_ret);
 	if (c_ret + 3 >= nbArgs) {
 		return 0;
 	}
@@ -682,6 +681,7 @@ void *dialogueInit(int nbArgs, void **args)
 	yePushBack(textScreen, yeGet(main, "speaker_background"),
 		   "background");
 	yeCreateString("menu", answers, "<type>");
+	yeGetPush(main, answers, "next");
 	yeCreateData(&cntDialogueMnDrv, answers, "drv");
 	yePushBack(answers, yeGet(main, "answer_background"),
 		   "background");
