@@ -191,11 +191,14 @@ static void *fullScreenOnOff(int nb, union ycall_arg *args, int *types)
 static void *nextWid_(int nb, union ycall_arg *args, int *types, const char *dst)
 {
 	Entity *wid = args[0].e;
-	Entity *target = args[1].e;
+	Entity *target = nb > 1 ? args[1].e : NULL;
 	Entity *next = yeGet(wid, dst);
 
-	if (nb == 1 || yeType(target) != YSTRING ||
-	    !yeGet(target, "<type>")) {
+	// adjuste for when called with events
+	if (nb > 2)
+		target = args[2].e;
+	if (nb == 1 || (yeType(target) != YSTRING &&
+			!yeGet(target, "<type>"))) {
 		Entity *te = yeGet(wid, "next_target");
 
 		if (te)
