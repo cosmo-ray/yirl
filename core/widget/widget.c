@@ -251,6 +251,8 @@ next_is_wid:
 	if (yeType(target) == YSTRING) {
 		if (!yeStrCmp(target, "main")) {
 			target = ywidGetMainWid()->entity;
+		} else {
+			target = ygGet(yeGetString(target));
 		}
 	}
 
