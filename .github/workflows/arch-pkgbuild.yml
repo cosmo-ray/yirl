@@ -16,14 +16,12 @@ jobs:
     - uses: actions/checkout@v2
     - name: get PKGBUILD
       run: |
-       pacman -Sy --noconfirm git opendoas fakeroot binutils lua sdl2 sdl2_image sdl2_ttf sdl2_mixer autoconf make gcc
+       pacman -Sy --noconfirm git opendoas fakeroot binutils lua sdl2 sdl2_image sdl2_ttf sdl2_mixer autoconf make gcc cmake
        useradd -m -G wheel -s /bin/bash tester
        echo permit nopass :wheel > /etc/doas.conf
        echo permit nopass root as tester >> /etc/doas.conf
        ln -s /bin/doas /bin/sudo
-       set -x
        echo '#!/bin/sh' > ./all.sh
-       echo set -x >> ./all.sh
        echo cd >> ./all.sh
        echo git clone https://aur.archlinux.org/yirl-git.git/ >> ./all.sh
        echo cd yirl-git >> ./all.sh
