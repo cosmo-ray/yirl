@@ -19,7 +19,7 @@ jobs:
        pacman -Sy --noconfirm git opendoas
        useradd -m -G wheel -s /bin/bash tester
        echo permit nopass :wheel > /etc/doas.conf
-       echo permit nopass root as uso >> /etc/doas.conf
+       echo permit nopass root as tester >> /etc/doas.conf
        ln -s /bin/doas /bin/sudo
        set -x
        echo '#!/bin/sh' > ./all.sh
