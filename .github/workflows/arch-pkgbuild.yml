@@ -17,7 +17,7 @@ jobs:
     - name: get PKGBUILD
       run: |
        pacman -Sy --noconfirm git opendoas
-       useradd -m -G wheel -s bash tester
+       useradd -m -G wheel -s /bin/bash tester
        echo permit persist nopass :wheel > /etc/doas.conf
        ln -s /bin/doas /bin/sudo
        su -u tester
