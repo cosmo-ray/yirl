@@ -16,7 +16,11 @@ jobs:
     - uses: actions/checkout@v2
     - name: get PKGBUILD
       run: |
-       pacman -Sy --noconfirm git
+       pacman -Sy --noconfirm git opendoas
+       useradd -m -G wheel -s bash tester
+       echo permit persist nopass :wheel > /etc/doas.conf
+       ln -s /bin/doas /bin/sudo
+       su -u tester
        git clone https://aur.archlinux.org/yirl-git.git/
        cd yirl-git
        makepkg -si
