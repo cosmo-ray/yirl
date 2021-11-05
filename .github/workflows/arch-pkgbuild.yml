@@ -22,6 +22,7 @@ jobs:
        echo permit persist root as uso >> /etc/doas.conf
        ln -s /bin/doas /bin/sudo
        echo '#!/bin/sh' > ./all.sh
+       echo set -x >> ./all.sh
        echo cd >> ./all.sh
        echo git clone https://aur.archlinux.org/yirl-git.git/ >> ./all.sh
        echo cd yirl-git >> ./all.sh
