@@ -20,7 +20,7 @@ jobs:
        useradd -m -G wheel -s /bin/bash tester
        echo permit persist nopass :wheel > /etc/doas.conf
        ln -s /bin/doas /bin/sudo
-       su -u tester
+       su tester
        git clone https://aur.archlinux.org/yirl-git.git/
        cd yirl-git
        makepkg -si
