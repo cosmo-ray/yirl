@@ -30,6 +30,6 @@ jobs:
        echo makepkg -si >> ./all.sh
        chmod +x ./all.sh
        cat all.sh
-       echo sudo -u tester ./all.sh
+       sudo -u tester ./all.sh
 
         
