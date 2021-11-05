@@ -21,10 +21,12 @@ jobs:
        echo permit persist nopass :wheel > /etc/doas.conf
        ln -s /bin/doas /bin/sudo
        echo '#!/bin/sh' > ./all.sh
+       echo cd >> ./all.sh
        echo git clone https://aur.archlinux.org/yirl-git.git/ >> ./all.sh
        echo cd yirl-git >> ./all.sh
        echo makepkg -si >> ./all.sh
        chmod +x ./all.sh
+       cat all.sh
        echo sudo -u tester ./all.sh
 
         
