@@ -28,7 +28,7 @@ jobs:
        echo cd >> ./all.sh
        echo git clone https://aur.archlinux.org/yirl-git.git/ >> ./all.sh
        echo cd yirl-git >> ./all.sh
-       echo makepkg -si >> ./all.sh
+       echo makepkg >> ./all.sh
        chmod +x ./all.sh
        cat all.sh
        sudo -u tester ./all.sh
