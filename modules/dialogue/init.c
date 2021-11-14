@@ -677,6 +677,7 @@ void *dialogueInit(int nbArgs, void **args)
 			 main, "post-action");
 	yeGetPush(main, textScreen, "text-speed");
 	yeCreateString("text-screen", textScreen, "<type>");
+	yeCreateInt(1, textScreen, "fmt");
 	yeTryCreateInt(70, textScreen, "size");
 	yePushBack(textScreen, yeGet(main, "speaker_background"),
 		   "background");
