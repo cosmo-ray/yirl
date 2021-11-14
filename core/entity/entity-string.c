@@ -115,6 +115,8 @@ Entity *yeStringAddTmpEnd(Entity *e, size_t newEndPos,
 			  Entity *father, const char *name)
 {
 	Entity *ret;
+	if (unlikely(!e))
+		return NULL;
 	size_t l = yeLen(e);
 	char *str = YE_TO_STRING(e)->value;
 
