@@ -127,6 +127,18 @@ void *handlerSetPos(int nbArg, void **args)
 	return NULL;
 }
 
+void *handlerRemoveCanva(int nbArg, void **args)
+{
+	Entity *h = args[0];
+	if (!h)
+		return NULL;
+	Entity *w = yeGet(h, "wid");
+
+	ywCanvasRemoveObj(w, yeGet(h, "canvas"));
+	yeRemoveChild(h, "canvas");
+	return NULL;
+}
+
 void *handlerNullify(int nbArg, void **args)
 {
 	Entity *h = args[0];
@@ -150,6 +162,7 @@ void *mod_init(int nbArg, void **args)
 		mod.handlerRefresh = handlerRefresh;
 		mod.handlerSetPos = handlerSetPos;
 		mod.handlerNullify = handlerNullify;
+		mod.handlerRemoveCanva = handlerRemoveCanva;
 		mod.handlerAdvance = handlerAdvance;
 		mod.handlerPos = handlerPos;
 		mod.handlerSize = handlerSize;
