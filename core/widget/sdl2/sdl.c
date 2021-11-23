@@ -1314,12 +1314,12 @@ int sdlDisplaySprites(YWidgetState *state, SDLWid *wid,
 				int diff = srcR.w - srcR.h;
 				if (diff > 0) {
 					int bigger = srcR.w;
-					DestR.h = DestR.h * bigger / srcR.h;
+					DestR.h = DestR.h * srcR.h / bigger;
 					diff = DestR.w - DestR.h;
 					DestR.y += (diff / 2);
 				} else if (diff < 0) {
 					int bigger = srcR.h;
-					DestR.w = DestR.w * bigger / srcR.w;
+					DestR.w = DestR.w * srcR.w / bigger;
 					diff = DestR.h - DestR.w;
 					DestR.x += (diff / 2);
 				}
