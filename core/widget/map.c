@@ -141,6 +141,8 @@ int ywMapMoveByEntity(Entity *state, Entity *from,
 	Entity *c = ywMapGetCase(state, from);
 	char *k;
 
+	if (unlikely(!c || !elem))
+		return -1;
 	YE_INCR_REF(elem);
 	k = yeFindKey(c, elem);
 	if (k)
@@ -383,6 +385,8 @@ Entity *ywMapCaseXY(Entity *state, int x, int y)
 
 Entity *ywMapGetCase(Entity *state, Entity *pos)
 {
+	if (unlikely(!pos || !state))
+		return NULL;
 	return ywMapCaseXY(state, ywPosX(pos), ywPosY(pos));
 }
 
