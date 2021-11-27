@@ -20,3 +20,4 @@ Notes:
 - I've use Centos7 because it's old enough to be compatible with most recent distributions
 - I'm pretty bad at docker, so thoses files can still be improve greatly
 - Also I've used podman not docker to test this
+- the packages will be store in `docker-package/`
