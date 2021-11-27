@@ -306,6 +306,17 @@ static inline const char *yeTypeAsString(Entity *e)
 
 
 /**
+ * Get the len attribute of an Entity
+ * @param entity  The Entity we want to get the len
+ * @return the attribute len of the entity
+ */
+size_t yeLen(Entity *entity);
+
+#define yeLenAt(e, at)				\
+	yeLen(yeGet(e, at))
+
+
+/**
  * @brief convert @entity to @type
  * Will try to be smarter than brutal cast to have javascripts like convertion
  * NOTE: this function isn't complet yet, and support only convertion:
@@ -358,26 +369,6 @@ Entity *yeBrutalCast(Entity *entity, int type);
 	YE_ARRAY_FOREACH_EXT(array, val, it##val)
 
 #define YE_FOREACH YE_ARRAY_FOREACH
-
-#define yeArrayIdx(a, lookup)					\
-  _Generic(lookup,						\
-	   char *: yeArrayIdx_str,				\
-	   Entity *: yeArrayIdx_ent,				\
-	   const Entity *: yeArrayIdx_ent,			\
-	   const char *: yeArrayIdx_str)(a, lookup)		\
-
-int	yeArrayIdx_str(Entity *array, const char *lookup);
-
-static inline int yeArrayIdx_ent(Entity *array, Entity *lookup)
-{
-	int i = 0;
-	YE_FOREACH(array, cc) {
-		if (cc == lookup)
-			return i;
-		++i;
-	}
-	return -1;
-}
 
 /**
  * @brief get first entity of array
@@ -434,6 +425,11 @@ Entity *yeGetByStrExt(Entity *entity, const char *name, int64_t *idx);
 
 static inline Entity *yeGetByEntity(Entity *array, Entity *key);
 
+/**
+ * Like yeGetByStr but dosn't work with sytaxe like this (entity1.entity11)
+ */
+Entity *yeGetByStrFast(Entity *entity, const char *name);
+
 #ifndef __cplusplus
 #define yeGet(ENTITY, INDEX) _Generic((INDEX),				\
 				      unsigned short int: yeGetByIdx,		\
@@ -451,6 +447,23 @@ static inline Entity *yeGetByEntity(Entity *array, Entity *key);
 				      char *: yeGetByStrFast) (ENTITY, INDEX)
 
 #endif
+
+#define yeArrayIdx(a, lookup)					\
+  _Generic(lookup,						\
+	   char *: yeArrayIdx_str,				\
+	   Entity *: yeArrayIdx_ent,				\
+	   const Entity *: yeArrayIdx_ent,			\
+	   const char *: yeArrayIdx_str)(a, lookup)		\
+
+int	yeArrayIdx_str(Entity *array, const char *lookup);
+
+static inline int yeArrayIdx_ent(Entity *array, Entity *lookup)
+{
+	for (size_t i = 0; i < yeLen(array); ++i)
+		if (yeGet(array, i) == lookup)
+			return i;
+	return -1;
+}
 
 /**
  * @return the key string if there is one
@@ -484,10 +497,6 @@ static inline char *yeFindKey(Entity *entity, Entity *target)
 	yePushBack(array_dest, yeGet(array_src, idx),	\
 		   yeGetKeyAt(array_src, idx))
 
-/**
- * Like yeGetByStr but dosn't work with sytaxe like this (entity1.entity11)
- */
-Entity *yeGetByStrFast(Entity *entity, const char *name);
 
 #define yeGetIntDirect(entity) (YE_TO_INT(entity)->value)
 
@@ -1004,15 +1013,6 @@ static inline Entity *yeTryCreateString(const char *value, Entity *parent,
 	return ret;
 }
 
-/**
- * Get the len attribute of an Entity
- * @param entity  The Entity we want to get the len
- * @return the attribute len of the entity
- */
-size_t yeLen(Entity *entity);
-
-#define yeLenAt(e, at)				\
-	yeLen(yeGet(e, at))
 
 /**
  * @return the number of non null elems in the array
