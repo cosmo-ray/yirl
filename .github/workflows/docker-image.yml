@@ -17,5 +17,5 @@ jobs:
     - name: Build the Docker image
       run: |
         docker build  -t yirl-build ./docker
-        docker run -v $PWD:/yirl yirl-build scl enable devtoolset-9 /yirl/docker/make.sh https://github.com/cosmo-ray/yirl.git
+        docker run -v $PWD:/yirl yirl-build scl enable devtoolset-9 "/yirl/docker/make.sh https://github.com/cosmo-ray/yirl.git"
         ./docker-package/yirl-loader.sh -h
