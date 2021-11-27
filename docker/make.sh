@@ -2,7 +2,11 @@
 #to remove:
 #end to remove
 
-git clone yirl ./build
+if [ -n "$1" ]; then
+  git clone $1 ./build
+else
+  git clone yirl ./build
+fi
 
 cd build/
 git checkout origin/master
