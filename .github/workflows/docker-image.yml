@@ -16,6 +16,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: Build the Docker image
       run: |
+        rm .git/shallow
         docker build  -t yirl-build ./docker
         docker run -v $PWD:/yirl yirl-build scl enable devtoolset-9 /yirl/docker/make.sh
         ./docker-package/yirl-loader.sh -h
