@@ -18,8 +18,9 @@ jobs:
         docker run -v $PWD:/yirl yirl-build scl enable devtoolset-9 "/yirl/docker/make.sh https://github.com/cosmo-ray/yirl.git"
         ./docker-package/yirl-loader.sh -h
         mv docker-package/ yirl/
+        mv DejaVuSansMono.ttf yirl/DejaVuSansMono.ttf
+        mv scripts-dependancies yirl/scripts-dependancies
         tar cvfz  yirl.tar.gz ./yirl/
-        
         
     - uses: "marvinpinto/action-automatic-releases@latest"
       with:
