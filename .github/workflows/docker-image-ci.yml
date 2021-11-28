@@ -20,7 +20,8 @@ jobs:
         sudo chown $(whoami) -R ./docker-package/
         ./docker-package/yirl-loader.sh -h
         mv docker-package/ yirl/
-        ls -l
+        mv DejaVuSansMono.ttf yirl/
+        mv scripts-dependancies yirl/
         tar cvfz  yirl.tar.gz ./yirl/
         
     - uses: "marvinpinto/action-automatic-releases@latest"
