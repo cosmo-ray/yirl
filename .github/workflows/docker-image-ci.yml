@@ -19,8 +19,6 @@ jobs:
         ./docker-package/yirl-loader.sh -h
         mv docker-package/ yirl/
         ls -l
-        ls -l /yirl/
-        cp /yirl/DejaVuSansMono.ttf yirl/
         cp -vr scripts-dependancies yirl/
         tar cvfz  yirl.tar.gz ./yirl/
         
