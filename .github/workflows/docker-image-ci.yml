@@ -16,12 +16,8 @@ jobs:
       run: |
         docker build  -t yirl-build ./docker
         docker run -v $PWD:/yirl yirl-build scl enable devtoolset-9 "/yirl/docker/make.sh https://github.com/cosmo-ray/yirl.git"
-        chown -R $(whoami) *
         ./docker-package/yirl-loader.sh -h
         mv docker-package/ yirl/
-        ls -l
-        cp -vr scripts-dependancies yirl/
-        cp DejaVuSansMono.ttf yirl/
         tar cvfz  yirl.tar.gz ./yirl/
         
     - uses: "marvinpinto/action-automatic-releases@latest"
