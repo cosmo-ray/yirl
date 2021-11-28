@@ -27,9 +27,7 @@ cd SDL_mixer
 make -j$(nproc)
 cd ..
 make sdl-gpu-build
-ls sdl-gpu-build
 make quickjs-2020-03-16
-ls quickjs-2020-03-16
 make -j$(nproc)
 make # just in case last one doesn't work
 rm -rvf /yirl/docker-package/
