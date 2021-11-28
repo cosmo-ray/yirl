@@ -1,9 +1,7 @@
-name: Docker
+name: Docker Build Push
 
 on:
   push:
-    branches: [ master ]
-  pull_request:
     branches: [ master ]
 
 jobs:
@@ -18,6 +16,16 @@ jobs:
       run: |
         docker build  -t yirl-build ./docker
         docker run -v $PWD:/yirl yirl-build scl enable devtoolset-9 "/yirl/docker/make.sh https://github.com/cosmo-ray/yirl.git"
-        ls 
-        ls ./docker-package/
         ./docker-package/yirl-loader.sh -h
+        tar cvfz ./docker-package/ yirl.tar.gz
+        
+        
+    - uses: "marvinpinto/action-automatic-releases@latest"
+      with:
+          repo_token: "${{ secrets.TOKEN }}"
+          automatic_release_tag: "latest"
+          prerelease: true
+          title: "Development Build"
+          files: |
+            LICENSE
+            yirl.tar.gz
