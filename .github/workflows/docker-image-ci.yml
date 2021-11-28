@@ -17,7 +17,7 @@ jobs:
         docker build  -t yirl-build ./docker
         docker run -v $PWD:/yirl yirl-build scl enable devtoolset-9 "/yirl/docker/make.sh https://github.com/cosmo-ray/yirl.git"
         ./docker-package/yirl-loader.sh -h
-        tar cvfz ./docker-package/ yirl.tar.gz
+        tar cvfz  yirl.tar.gz ./docker-package/
         
         
     - uses: "marvinpinto/action-automatic-releases@latest"
