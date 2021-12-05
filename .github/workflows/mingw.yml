@@ -16,11 +16,11 @@ jobs:
         install: >-
           git
           base-devel
-          sdl2_mixer
-          sdl2_image
-          sdl2_ttf
+        pacboy:
+          SDL2_mixer
+          SDL2_image
+          SDL2_ttf
           lua
-          glib2
           json-c
     
     - shell: msys2 {0}
