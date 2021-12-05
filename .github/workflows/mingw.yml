@@ -23,6 +23,7 @@ jobs:
           SDL2_image
           SDL2_ttf
           freeglut
+          mesa
           glew
           gcc
           lua
