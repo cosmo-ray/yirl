@@ -28,10 +28,10 @@ jobs:
     
     - shell: msys2 {0}
       run: |
-        ls
         git submodule update --init
-        cd tinycc
         ./configure -t mingw-64
+        cd tinycc
+        ./configure
         make -j$(nproc)
         cd ..
         cd SDL_mixer
