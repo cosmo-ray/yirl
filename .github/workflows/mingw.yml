@@ -22,6 +22,7 @@ jobs:
           SDL2_mixer
           SDL2_image
           SDL2_ttf
+          gcc
           lua
           json-c
     
