@@ -17,7 +17,12 @@ jobs:
           git
           base-devel
         pacboy: >-
-          sdl2-mixer
+          sdl2_mixer:x
+          sdl2_image:x
+          sdl2_ttf:x
+          lua:x
+          glib2:x
+          json-c:x
     
     - shell: msys2 {0}
       run: |
