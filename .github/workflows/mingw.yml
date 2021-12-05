@@ -15,6 +15,7 @@ jobs:
         msystem: MINGW64
         install: >-
           git
+          cmake
           base-devel
         pacboy:
           SDL2_mixer
@@ -25,4 +26,17 @@ jobs:
     
     - shell: msys2 {0}
       run: |
-        uname -a
+        ls
+        git submodule update --init
+        cd tinycc
+        ./configure -t mingw-64
+        make -j$(nproc)
+        cd ..
+        cd SDL_mixer
+        ./autogen.sh
+        ./configure
+        make -j$(nproc)
+        ./configure
+        make sdl-gpu-build
+        make quickjs-2020-03-16
+        make
