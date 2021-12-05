@@ -38,7 +38,7 @@ jobs:
         ./autogen.sh
         ./configure
         make -j$(nproc)
-        ./configure
+        cd ..
         make sdl-gpu-build
         make quickjs-2020-03-16
         make
