@@ -16,6 +16,7 @@ jobs:
         install: >-
           git
           cmake
+          gcc
           base-devel
         pacboy:
           SDL2_mixer
