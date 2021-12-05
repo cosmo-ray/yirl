@@ -22,6 +22,8 @@ jobs:
           SDL2_mixer
           SDL2_image
           SDL2_ttf
+          freeglut
+          glew
           gcc
           lua
           json-c
