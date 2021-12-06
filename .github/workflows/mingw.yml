@@ -43,6 +43,6 @@ jobs:
         make -j$(nproc)
         cd ..
         #MinGW Makefiles
-        cmake -B ./sdl-gpu-build ./sdl-gpu/ -G "MinGW Makefiles"
+        cmake -B ./sdl-gpu-build ./sdl-gpu/ -G "MSYS Makefiles"
         make quickjs-2020-03-16
         make
