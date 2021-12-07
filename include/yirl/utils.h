@@ -68,7 +68,7 @@ typedef int32_t int_ptr_t;
 typedef int64_t int_ptr_t;
 #ifdef _WIN32
 #define PRIint64 "%lli"
-#define PRIiptr	"%I64d"
+#define PRIiptr	"%I64lld"
 #else
 #define PRIiptr	"%li"
 #define PRIint64 "%" PRIi64
