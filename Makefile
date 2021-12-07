@@ -136,10 +136,10 @@ $(SCRIPT_DIR)/s7.o:
 	$(CC) -c -o $(SCRIPT_DIR)/s7.o $(SCRIPT_DIR)/s7.c -Wno-implicit-fallthrough -fPIC -O0 -g
 
 $(LIBNAME).a: $(OBJ) $(O_OBJ) $(OBJXX) $(QUICKJS_LIB_PATH) $(SDL_GPU_LDFLAGS)
-	$(AR)  -r -c -s $(LIBNAME).a $(OBJ) $(O_OBJ) $(OBJXX) $(QUICKJS_LIB_PATH)
+	$(AR)  -r -c -s $(LIBNAME).a $(OBJ) $(O_OBJ) $(OBJXX) $(QUICKJS_LIB_PATH) $(SDL_MIXER_ARFLAGS)
 
 $(LIBNAME).$(LIBEXTENSION): $(OBJ) $(O_OBJ) $(OBJXX) $(QUICKJS_LIB_PATH) $(SDL_GPU_LDFLAGS)
-	$(CC) -shared -o  $(LIBNAME).$(LIBEXTENSION) $(OBJ) $(O_OBJ) $(OBJXX) $(LDFLAGS)
+	$(CC) -shared -o  $(LIBNAME).$(LIBEXTENSION) $(OBJ) $(O_OBJ) $(OBJXX) $(LDFLAGS) $(SDL_MIXER_ARFLAGS)
 
 yirl-loader: $(YIRL_LINKING) $(GEN_LOADER_OBJ)
 	$(CC) -o yirl-loader$(BIN_EXT) $(GEN_LOADER_OBJ) $(BINARY_LINKING) $(LDFLAGS)
