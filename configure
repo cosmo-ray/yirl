@@ -50,7 +50,7 @@ function mingw-i686 {
     export BINARY_LINKING="\$(LIBNAME).a"
     export SDL_MIXER_ADFLAGS "$PWD/SDL_mixer/build/.libs/libSDL2_mixer.a"
     export SDL_MIXER_LDFLAGS ""
-    export WIN_EXTRA="SDL2_mixer opus"
+    export WIN_SDL_EXTRA="SDL2_mixer opus"
     var_add BIN_EXT .exe
 }
 
@@ -63,7 +63,7 @@ function mingw-64 {
     export BINARY_LINKING="\$(LIBNAME).a"
     export SDL_MIXER_ADFLAGS="$PWD/SDL_mixer/build/.libs/libSDL2_mixer.a"
     export SDL_MIXER_LDFLAGS=""
-    export WIN_EXTRA="SDL2_mixer opus"
+    export WIN_SDL_EXTRA="SDL2_mixer opus"
     var_add BIN_EXT .exe
 }
 
@@ -90,7 +90,7 @@ var_add SDL_MIXER_LDFLAGS "$PWD/SDL_mixer/build/.libs/libSDL2_mixer.a"
 var_add SDL_GPU_LDFLAGS "$PWD/sdl-gpu-build/SDL_gpu/lib/libSDL2_gpu.a"
 var_add SDL_GPU_CFLAGS "$PWD/sdl-gpu-build/SDL_gpu/include/"
 
-var_add WIN_EXTRA ""
+var_add WIN_SDL_EXTRA ""
 
 var_add AR ar
 var_add PKG_CONFIG pkg-config
