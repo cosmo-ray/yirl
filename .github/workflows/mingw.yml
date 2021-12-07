@@ -24,6 +24,7 @@ jobs:
           SDL2_ttf
           freeglut
           mesa
+          cmake
           glew
           gcc
           lua
@@ -43,6 +44,6 @@ jobs:
         make -j$(nproc)
         cd ..
         #MinGW Makefiles
-        cmake -B ./sdl-gpu-build ./sdl-gpu/ -G "Unix Makefiles"
+        cmake -B ./sdl-gpu-build ./sdl-gpu/ -G "MSYS Makefiles"
         make quickjs-2020-03-16
         make
