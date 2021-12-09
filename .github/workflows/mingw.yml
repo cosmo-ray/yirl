@@ -50,6 +50,8 @@ jobs:
         ls
         echo -----------
         ls sdl-gpu-build
-        make sdl-gpu-build/SDL_gpu/lib/libSDL2_gpu.a
+        echo -----------
+        pwd
+        make /d/a/yirl/yirl/sdl-gpu-build/SDL_gpu/lib/libSDL2_gpu.a
         make quickjs-2020-03-16
         make
