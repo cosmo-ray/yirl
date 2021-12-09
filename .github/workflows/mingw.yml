@@ -55,4 +55,6 @@ jobs:
         ls /d/a/yirl/yirl/sdl-gpu-build/SDL_gpu-MINGW/include/
         echo -----------
         ls /d/a/yirl/yirl/sdl-gpu-build/SDL_gpu-MINGW/lib/
+        echo -----------
+        cat config.mk
         make
