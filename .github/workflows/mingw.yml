@@ -26,6 +26,7 @@ jobs:
           cmake
           glew
           gcc
+          dlfcn
           lua
           json-c
     
@@ -44,14 +45,6 @@ jobs:
         cd ..
         #MinGW Makefiles
         cmake -B ./sdl-gpu-build ./sdl-gpu/ -G "MSYS Makefiles"
-        echo -----------
-        cat config.mk
-        echo -----------
-        ls
-        echo -----------
-        ls sdl-gpu-build
-        echo -----------
-        pwd
         make /d/a/yirl/yirl/sdl-gpu-build/SDL_gpu-MINGW/lib/libSDL2_gpu.a
         make quickjs-2020-03-16
         echo --- check sdl gpu include -----
