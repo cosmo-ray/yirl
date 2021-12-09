@@ -57,7 +57,7 @@ jobs:
         echo --- check sdl gpu include -----
         ls /d/a/yirl/yirl/sdl-gpu-build/
         echo -----------
-        ls /d/a/yirl/yirl/sdl-gpu-build/SDL_gpu/
+        ls /d/a/yirl/yirl/sdl-gpu-build/SDL_gpu-MINGW/
         echo -----------
-        ls /d/a/yirl/yirl/sdl-gpu-build/SDL_gpu/include/
+        ls /d/a/yirl/yirl/sdl-gpu-build/SDL_gpu-MINGW/include/
         make
