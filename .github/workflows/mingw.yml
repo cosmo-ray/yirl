@@ -35,7 +35,7 @@ jobs:
         git submodule update --init
         ./configure -t mingw-64
         cd tinycc
-        ./configure
+        ./configure --enable-static
         make -j$(nproc)
         cd ..
         cd SDL_mixer
@@ -53,4 +53,6 @@ jobs:
         ls /d/a/yirl/yirl/sdl-gpu-build/SDL_gpu-MINGW/
         echo -----------
         ls /d/a/yirl/yirl/sdl-gpu-build/SDL_gpu-MINGW/include/
+        echo -----------
+        ls /d/a/yirl/yirl/sdl-gpu-build/SDL_gpu-MINGW/lib/
         make
