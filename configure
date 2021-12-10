@@ -52,7 +52,7 @@ function mingw-i686 {
     export SDL_MIXER_LDFLAGS ""
     export SDL_GPU_LDFLAGS="$PWD/sdl-gpu-build/SDL_gpu-MINGW/lib/libSDL2_gpu_s.a"
     export SDL_GPU_CFLAGS="$PWD/sdl-gpu-build/SDL_gpu-MINGW/include/"
-    export WIN_SDL_EXTRA="SDL2_mixer opus osmesa freeglut"
+    export WIN_SDL_EXTRA="opus"
     export WIN_SDL_EXTRA2="-lfreeglut -lopengl32"
     var_add BIN_EXT .exe
 }
@@ -68,7 +68,7 @@ function mingw-64 {
     export SDL_MIXER_LDFLAGS=""
     export SDL_GPU_LDFLAGS="$PWD/sdl-gpu-build/SDL_gpu-MINGW/lib/libSDL2_gpu_s.a"
     export SDL_GPU_CFLAGS="$PWD/sdl-gpu-build/SDL_gpu-MINGW/include/"
-    export WIN_SDL_EXTRA="SDL2_mixer opus"
+    export WIN_SDL_EXTRA="opus"
     export WIN_SDL_EXTRA2="-lfreeglut -lopengl32"
     var_add BIN_EXT .exe
 }
