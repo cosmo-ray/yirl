@@ -231,6 +231,20 @@ static int  convertToYKEY(SDL_Keycode key)
 	}
 }
 
+static inline Entity *mouse_create_pos(int bt_x, int bt_y)
+{
+	if (getRect().w == ywidWindowWidth) {
+		return ywPosCreateInts(bt_x,
+				       bt_y,
+				       NULL, NULL);
+	} else {
+		int w = bt_x * ywidWindowWidth / getRect().w;
+		int h = bt_y * ywidWindowHight / getRect().h;
+		return ywPosCreateInts(w, h, NULL, NULL);
+	}
+	
+}
+
 static inline Entity *SDLConvertEvent(SDL_Event* event)
 {
 	Entity *eve = yeCreateArray(NULL, NULL);
@@ -257,8 +271,8 @@ static inline Entity *SDLConvertEvent(SDL_Event* event)
 		break;
 	case SDL_MOUSEBUTTONUP:
 	{
-		Entity *mouse = ywPosCreateInts(event->button.x, event->button.y,
-						NULL, NULL);
+		Entity *mouse = mouse_create_pos(event->button.x,
+						 event->button.y);
 		yeCreateIntAt(YKEY_MOUSEUP, eve, NULL, YEVE_TYPE);
 		yeCreateIntAt(event->button.button, eve, NULL, YEVE_KEY);
 		yePushAt(eve, mouse, YEVE_MOUSE);
@@ -267,8 +281,8 @@ static inline Entity *SDLConvertEvent(SDL_Event* event)
 	}
 	case SDL_MOUSEBUTTONDOWN:
 	{
-		Entity *mouse = ywPosCreateInts(event->button.x, event->button.y,
-						NULL, NULL);
+		Entity *mouse = mouse_create_pos(event->button.x,
+						 event->button.y);
 		yeCreateIntAt(YKEY_MOUSEDOWN, eve, NULL, YEVE_TYPE);
 		yeCreateIntAt(event->button.button, eve, NULL, YEVE_KEY);
 		yePushAt(eve, mouse, YEVE_MOUSE);
@@ -281,8 +295,9 @@ static inline Entity *SDLConvertEvent(SDL_Event* event)
 		return eve;
 	case SDL_MOUSEMOTION:
 	{
-		Entity *mouse = ywPosCreateInts(event->button.x, event->button.y,
-						NULL, NULL);
+		Entity *mouse = mouse_create_pos(event->button.x,
+						 event->button.y);
+
 		yeCreateIntAt(YKEY_MOUSEMOTION, eve, NULL, YEVE_TYPE);
 		yeCreateIntAt(-1, eve, NULL, YEVE_KEY);
 		yePushAt(eve, mouse, YEVE_MOUSE);
