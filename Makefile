@@ -76,7 +76,7 @@ GEN_LOADER_OBJ = $(GEN_LOADER_SRC:.c=.o)
 #SDL_MIXER_CFLAGS = "-I../SDL_mixer/"
 
 LDFLAGS += $(TCC_LIB_PATH)$(TCC_LIB_NAME)
-LDFLAGS += $(SDL_MIXER_LDFLAGS) #  $(shell $(PKG_CONFIG) --libs SDL2_mixer)
+LDFLAGS += $(SDL_MIXER_LDFLAGS) $(SDL_MIXER_ARFLAGS) #  $(shell $(PKG_CONFIG) --libs SDL2_mixer)
 LDFLAGS += $(SDL_GPU_LDFLAGS)
 LDFLAGS += -L./
 LDFLAGS += $(shell $(PKG_CONFIG) --libs glib-2.0)
@@ -139,7 +139,7 @@ $(LIBNAME).$(LIBEXTENSION): $(OBJ) $(O_OBJ) $(OBJXX) $(QUICKJS_LIB_PATH) $(SDL_G
 	$(CC) -shared -o  $(LIBNAME).$(LIBEXTENSION) $(OBJ) $(O_OBJ) $(OBJXX) $(LDFLAGS)
 
 yirl-loader: $(YIRL_LINKING) $(GEN_LOADER_OBJ)
-	$(CC) -o yirl-loader$(BIN_EXT) $(GEN_LOADER_OBJ) $(BINARY_LINKING) $(SDL_MIXER_ARFLAGS) $(LDFLAGS) 
+	$(CC) -o yirl-loader$(BIN_EXT) $(GEN_LOADER_OBJ) $(BINARY_LINKING) $(LDFLAGS) 
 
 
 clean:	clean-tests
