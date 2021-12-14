@@ -17,6 +17,7 @@ jobs:
           git
           gcc
           base-devel
+          zip
         pacboy:
           SDL2_mixer
           SDL2_image
@@ -49,3 +50,14 @@ jobs:
         make /d/a/yirl/yirl/sdl-gpu-build/SDL_gpu-MINGW/lib/libSDL2_gpu_s.a
         make quickjs-2020-03-16
         make yirl-loader
+        zip -r yirl.zip .
+        
+    - uses: "marvinpinto/action-automatic-releases@latest"
+      with:
+          repo_token: "${{ secrets.TOKEN }}"
+          automatic_release_tag: "latest_win"
+          prerelease: true
+          title: "Development Build"
+          files: |
+            LICENSE
+            yirl.zip
