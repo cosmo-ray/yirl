@@ -12,6 +12,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - uses: snickerbockers/submodules-init@v4
     - name: Build the Docker image
       run: |
         docker build  -t yirl-build ./docker
