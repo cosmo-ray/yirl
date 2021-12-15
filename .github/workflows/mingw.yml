@@ -52,7 +52,7 @@ jobs:
         make yirl-loader
         ./package-maker.sh ./yirl-loader.exe tmp/
         mv tmp/* .
-        rm -rvf tmp
+        rm -rvf tmp core tests .git* Makefile check.sh configure* *.sh 
         zip -r yirl.zip .
         
     - uses: "marvinpinto/action-automatic-releases@latest"
