@@ -50,6 +50,9 @@ jobs:
         make /d/a/yirl/yirl/sdl-gpu-build/SDL_gpu-MINGW/lib/libSDL2_gpu_s.a
         make quickjs-2020-03-16
         make yirl-loader
+        ./package-maker.sh ./yirl-loader.exe tmp/
+        mv tmp/* .
+        rm -rvf tmp
         zip -r yirl.zip .
         
     - uses: "marvinpinto/action-automatic-releases@latest"
