@@ -23,6 +23,8 @@ jobs:
         mv DejaVuSansMono.ttf yirl/
         mv scripts-dependancies yirl/
         tar cvfz  yirl.tar.gz ./yirl/
+        mv modules yirl/
+        tar cvfz yirl-mods.tar.gz ./yirl/
         
     - uses: "marvinpinto/action-automatic-releases@latest"
       with:
@@ -33,3 +35,4 @@ jobs:
           files: |
             LICENSE
             yirl.tar.gz
+            yirl-mods.tar.gz
