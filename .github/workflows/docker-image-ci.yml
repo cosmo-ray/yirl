@@ -33,7 +33,7 @@ jobs:
           repo_token: "${{ secrets.TOKEN }}"
           automatic_release_tag: "latest"
           prerelease: true
-          title: "Development Build"
+          title: "Linux Nightly"
           files: |
             LICENSE
             yirl.tar.gz
