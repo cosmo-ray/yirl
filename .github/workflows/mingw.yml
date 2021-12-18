@@ -54,13 +54,14 @@ jobs:
         mv tmp/* .
         rm -rvf tmp core tests .git* Makefile check.sh configure* *.sh sdl-gpu sdl-gpu-build SDL_mixer tinycc/tests/ quickjs-2020-03-16/ 
         zip -r yirl.zip .
+        ldd yirl-loader.exe
         
     - uses: "marvinpinto/action-automatic-releases@latest"
       with:
           repo_token: "${{ secrets.TOKEN }}"
           automatic_release_tag: "latest_win"
           prerelease: true
-          title: "Development Build"
+          title: "Windows Nightly"
           files: |
             LICENSE
             yirl.zip
