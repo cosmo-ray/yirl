@@ -51,13 +51,15 @@ jobs:
         make quickjs-2020-03-16
         make yirl-loader
         ./package-maker.sh ./yirl-loader.exe tmp/
-        mv tmp/* .
-        rm -rvf tmp core tests .git* Makefile check.sh configure* *.sh sdl-gpu sdl-gpu-build SDL_mixer tinycc/tests/ quickjs-2020-03-16/ 
-        zip -r yirl.zip .
         echo ldd yirl-loader.exe
         ldd yirl-loader.exe
         echo ldd /c/Windows/System32/shcore.dll
         ldd /c/Windows/System32/shcore.dll
+        cp -v $( ldd /c/Windows/System32/shcore.dll | grep '=>' | cut -d ' ' -f 3 ) tmp/
+        mv tmp/* .
+        rm -rvf tmp core tests .git* Makefile check.sh configure* *.sh sdl-gpu sdl-gpu-build SDL_mixer tinycc/tests/ quickjs-2020-03-16/ 
+        zip -r yirl.zip .
+
         
     - uses: "marvinpinto/action-automatic-releases@latest"
       with:
