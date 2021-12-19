@@ -57,6 +57,7 @@ jobs:
         ldd /c/Windows/System32/shcore.dll
         echo find api-ms-win-core-string:
         find /c/Windows/System32/ -name "*api-ms-win-core-string*"
+        cp /c/Windows/System32/downlevel/api-ms-win-core-string* tmp/
         cp -v $( ldd /c/Windows/System32/shcore.dll | grep '=>' | cut -d ' ' -f 3 ) tmp/
         mv tmp/* .
         rm -rvf tmp core tests .git* Makefile check.sh configure* *.sh sdl-gpu sdl-gpu-build SDL_mixer tinycc/tests/ quickjs-2020-03-16/ 
