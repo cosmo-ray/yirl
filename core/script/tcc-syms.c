@@ -242,6 +242,7 @@ void	tccAddSyms(TCCState *l)
   ADD_SYM(ywCanvasSwapObj);
   ADD_SYM(ywCntPopLastEntry);
   ADD_SYM(ywidGetTurnTimer);
+  ADD_SYM(ywidInTree);
 
 #if defined(__unix__) || defined(__APPLE__)
   tcc_add_symbol(l, "yuiDebugPrint", yuiDebugPrint);
