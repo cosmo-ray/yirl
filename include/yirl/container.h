@@ -79,6 +79,9 @@ Entity *ywCntGetLastEntry(Entity *container);
 
 Entity *ywCntWidgetFather(Entity *wid);
 
+#define ywCntMother ywCntWidgetFather
+#define ywCntParent ywCntWidgetFather
+
 /**
  * @brief create widget from child that are just entity
  * it is posible to add child to a container at runtime
