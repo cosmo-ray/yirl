@@ -25,10 +25,15 @@ function ylaPatchCreate(old, new)
    return Entity._wrapp_(yePatchCreate(old, new), true)
 end
 
+--like ywCanvasNewCollisionsArrayWithRectangle with automatic destroy
 function ylaCanvasCollisionsArrayWithRectangle(c, r)
    return Entity._wrapp_(ywCanvasNewCollisionsArrayWithRectangle(c, r), true)
 end
 
+
+function ylaCreateYirlFmtString(fmt)
+   return Entity._wrapp_(yeCreateYirlFmtString(fmt), true)
+end
 
 -- end yla
 
