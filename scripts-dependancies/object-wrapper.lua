@@ -9,6 +9,17 @@ Size = Pos
 Rect = {}
 File = {}
 
+
+-- yla are simple wrapper with memory management
+
+-- like ywCanvasNewIntersectArray, without need for destroy
+function ylaCanvasIntersectArray(canvas, from, to)
+   return Entity._wrapp_(ywCanvasNewIntersectArray(canvas, from, to), true)
+end
+
+
+-- end yla
+
 -- not related to yirl, but useful lua helper
 function rand_array_elem(array)
    return array[yuiRand() % #array + 1]
