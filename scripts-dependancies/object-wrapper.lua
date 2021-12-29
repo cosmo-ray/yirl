@@ -17,6 +17,18 @@ function ylaCanvasIntersectArray(canvas, from, to)
    return Entity._wrapp_(ywCanvasNewIntersectArray(canvas, from, to), true)
 end
 
+function ylaFileToEnt(t, f)
+   return Entity._wrapp_(ygFileToEnt(t, f), true)
+end
+
+function ylaPatchCreate(old, new)
+   return Entity._wrapp_(yePatchCreate(old, new), true)
+end
+
+function ylaCanvasCollisionsArrayWithRectangle(c, r)
+   return Entity._wrapp_(ywCanvasNewCollisionsArrayWithRectangle(c, r), true)
+end
+
 
 -- end yla
 
