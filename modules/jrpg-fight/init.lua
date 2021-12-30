@@ -1,4 +1,5 @@
 local txt_anim_field = Entity.new_string("anim_txt")
+local txt_kana_anim = Entity.new_string("kananim")
 
 local AWAIT_CMD = 0
 local PJ_ATTACK = 1
@@ -433,6 +434,7 @@ function fightAction(entity, eve)
    end
 
    yDoAnimation(entity, txt_anim_field)
+   yDoAnimation(entity, txt_kana_anim)
 
    if entity.atk_state:to_int() == PJ_ATTACK or
    entity.atk_state:to_int() == ENEMY_ATTACK then
@@ -701,6 +703,35 @@ function startTextAnim(main, txt)
 		  txt_anim_field)
 end
 
+function printKanaAnim(main, cur_anim)
+   main = Entity.wrapp(main)
+   cur_anim = Entity.wrapp(cur_anim)
+   local canvas = getCanvas(main)
+
+   if cur_anim.animation_frame:to_int() == 0 then
+      cur_anim.txt_c = canvas:new_text(150, 100, cur_anim.txt).ent
+   end
+
+   if cur_anim.animation_frame >= 20 then
+      canvas:remove(cur_anim.txt_c)
+      yEndAnimation(main, txt_kana_anim)
+      return Y_FALSE
+   end
+   return Y_TRUE
+end
+
+function startKanaAnim(main, txt)
+   local anim = Entity.new_array()
+   if main[txt_kana_anim:to_string()] then
+      local canvas = getCanvas(main)
+      canvas:remove(main[txt_kana_anim:to_string()].txt_c)
+      yEndAnimation(main, txt_kana_anim)
+   end
+   anim.txt = txt
+   yInitAnimation(main, anim, Entity.new_func(printKanaAnim),
+		  txt_kana_anim)
+end
+
 function mk_anim(main, guy, target)
    local anim = Entity.new_array()
    local bp = Pos.new_copy(ylpcsHandePos(guy))
@@ -716,6 +747,7 @@ function attack(main, attacker, attacked, mod)
    local anim = mk_anim(main, attacker, attacked)
 
    print("ATTACK ATTACK ATTACK")
+   startKanaAnim(main, main.katakana_words[0][0])
    anim.sucess = 1
    anim.combots = attacker.char._combots
    anim.cmb_len = attacker.char._combots:len()
@@ -1030,8 +1062,9 @@ function fightInit(entity)
 		   nil,  entity, "wrong_txt")
    ywTextureNewImg(modPath .. "/image0007.png",
 		   nil,  entity, "heart_txt")
-   --local katakana_words = File.jsonToEnt(modPath .. "/katakana-words.json")
-   --entity.katakana_words = katakana_words
+   local katakana_words = File.jsonToEnt(modPath .. "/katakana-words.json")
+   entity.katakana_words = katakana_words:cent()
+
    objects = Entity.wrapp(ygGet("jrpg-fight:objects"))
 
    local canvas = Entity.new_array(entity.entries)
@@ -1118,8 +1151,8 @@ function fightInit(entity)
 
    --   print(kat, " - ", eng, "")
    --   local str = " - " .. eng
-   --   canvas:new_text(260, i * 20 + 130, kat)
-   --   canvas:new_text(300, i * 20 + 130, str)
+   --   canvas:new_text(240, i * 20 + 130, kat)
+   --   canvas:new_text(320, i * 20 + 130, str)
    --end
    return ret
 end
