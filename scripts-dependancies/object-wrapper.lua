@@ -44,6 +44,10 @@ end
 
 -- Should have a C wrapper, but I'm lazy
 
+function yIsLuaNum(str)
+   return type(str) == "number"
+end
+
 function yIsLuaString(str)
    if type(str) == "string" then
       return true
