@@ -121,6 +121,53 @@ static int	sdlDraw(void)
 	return 0;
 }
 
+/**
+ * @return the SDLWid inside the magin
+ */
+SDLWid *sddComputeMargin(YWidgetState *w, SDLWid *swid)
+{
+	Entity *e = w->entity;
+	static SDLWid marged_wid;
+	Entity *m = yeGet(e, "margin");
+	Entity *s_e = yeGet(m, "size");
+	Entity *c_e = yeGet(m, "color");
+	double s;
+	const GPU_Rect *or = &swid->rect;
+	GPU_Rect *dr = &marged_wid.rect;
+	YBgConf cfg;
+
+	if (!m)
+		return swid;
+
+	if (!c_e || !s_e) {
+		DPRINT_ERR("INCOMPLET MARGIN INFO");
+		return swid;
+	}
+
+	s = yeGetInt(s_e);
+
+	if (s * 2 >= or->w || s * 2 >= or->h)
+		return swid;
+
+	if (ywidBgConfFill(c_e, &cfg) < 0)
+		return swid;
+
+	sdlDrawRect(swid, (GPU_Rect){0, 0, or->w, s}, cfg.sdl_color);
+
+	sdlDrawRect(swid, (GPU_Rect){0, 0 + s, s, or->h - s * 2},
+		    cfg.sdl_color);
+	sdlDrawRect(swid, (GPU_Rect){or->w - s, s, s, or->h - s * 2},
+		    cfg.sdl_color);
+	sdlDrawRect(swid, (GPU_Rect){0, or->h - s, or->w, s}, cfg.sdl_color);
+
+	marged_wid.wid = w;
+	dr->x = or->x + s;
+	dr->y = or->y + s;
+	dr->h = or->h - s * 2;
+	dr->w = or->w - s * 2;
+	return &marged_wid;
+}
+
 void	sdlDrawRect(SDLWid *swid, GPU_Rect rect, SDL_Color color)
 {
   if (swid) {

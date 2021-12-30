@@ -43,6 +43,11 @@ typedef struct
   GPU_Rect      rect;
 } SDLWid;
 
+/**
+ * @return the SDLWid inside the magin
+ */
+SDLWid *sddComputeMargin(YWidgetState *w, SDLWid *swid);
+
 void sdlResize(YWidgetState *wid, int renderType);
 
 void sdlWidInit(YWidgetState *wid, int t);

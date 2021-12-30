@@ -33,6 +33,7 @@ static int sdlRender(YWidgetState *state, int t)
 	int alignementType = YSDL_ALIGN_LEFT;
 	Entity *cursor = yeGet(state->entity, "cursor");
 
+	wid = sddComputeMargin(state, wid);
 	if (ywidInitBgConf(state->entity, &cfg) >= 0) {
 		sdlFillBg(wid, &cfg);
 	}
