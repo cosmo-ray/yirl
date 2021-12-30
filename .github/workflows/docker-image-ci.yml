@@ -21,7 +21,7 @@ jobs:
         sudo chown $(whoami) -R ./docker-package/
         ./docker-package/yirl-loader.sh -h
         mv docker-package/ yirl/
-        mv DejaVuSansMono.ttf yirl/
+        mv *.ttf yirl/
         mv scripts-dependancies yirl/
         mv include yirl/
         tar cvfz  yirl.tar.gz ./yirl/
