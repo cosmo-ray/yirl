@@ -34,12 +34,18 @@ typedef struct {
 static int tsInit(YWidgetState *opac, Entity *entity, void *args)
 {
   YTextScreenState *o_txt = (void *)opac;
+  const char *txt_file = yeGetStringAt(entity, "txt-file");
   (void)args;
 
   yeCreateInt(0, entity, "text-threshold");
   yeCreateInt(16, entity, "font-size");
   if (yeGet(entity, "text-speed")) {
     o_txt->timerTxtSpeed = YTimerCreate();
+  }
+  if (txt_file) {
+	  yeAutoFree Entity *f = ygFileToEnt(YRAW_FILE, txt_file, NULL);
+
+	  yeReplaceBack(entity, f, "text");
   }
   ywidGenericCall(opac, t, init);
   return 0;

@@ -1342,6 +1342,7 @@ again:
 	yeDestroy(toPush);
 	return ret;
 }
+
 static inline Entity *yeReplaceBack(Entity *array, Entity *toPush,
 				    const char *name)
 {
