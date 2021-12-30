@@ -6,7 +6,7 @@ The goal of this code of conduct is to be very exclusive and to help anyone reme
 
 As a matter of fact, whatever your gender, ethnicity, religion or text editor is, it's the wrong one, and the reason why you are so bad at programmings.
 
-Except if you're goth, goth are normal peoples, except they listen to cradle of filth.
+Only exeption are the goth, goth are normal peoples, except they listen to cradle of filth.
 
 # Our Standards
 
