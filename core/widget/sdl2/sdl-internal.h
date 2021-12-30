@@ -43,6 +43,9 @@ typedef struct
   GPU_Rect      rect;
 } SDLWid;
 
+#define SDL_COLOR_FROM_YBGCONF(cfg)			\
+	(SDL_Color) {cfg.r, cfg.g, cfg.b, cfg.a}
+
 /**
  * @return the SDLWid inside the magin
  */

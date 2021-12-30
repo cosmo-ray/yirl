@@ -40,6 +40,8 @@ static int sdlRend(YWidgetState *state, int t)
 	Entity *pre_text = yeGet(state->entity, "pre-text");
 	int y0 = threshold;
 
+	wid = sddComputeMargin(state, wid);
+
 	if (!yeStrCmp(type, "panel"))
 		isPane = 1;
 

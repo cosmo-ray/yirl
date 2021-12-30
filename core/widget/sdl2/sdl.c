@@ -152,13 +152,15 @@ SDLWid *sddComputeMargin(YWidgetState *w, SDLWid *swid)
 	if (ywidBgConfFill(c_e, &cfg) < 0)
 		return swid;
 
-	sdlDrawRect(swid, (GPU_Rect){0, 0, or->w, s}, cfg.sdl_color);
+	sdlDrawRect(swid, (GPU_Rect){0, 0, or->w, s},
+		    SDL_COLOR_FROM_YBGCONF(cfg));
 
 	sdlDrawRect(swid, (GPU_Rect){0, 0 + s, s, or->h - s * 2},
-		    cfg.sdl_color);
+		    SDL_COLOR_FROM_YBGCONF(cfg));
 	sdlDrawRect(swid, (GPU_Rect){or->w - s, s, s, or->h - s * 2},
-		    cfg.sdl_color);
-	sdlDrawRect(swid, (GPU_Rect){0, or->h - s, or->w, s}, cfg.sdl_color);
+		    SDL_COLOR_FROM_YBGCONF(cfg));
+	sdlDrawRect(swid, (GPU_Rect){0, or->h - s, or->w, s},
+		SDL_COLOR_FROM_YBGCONF(cfg));
 
 	marged_wid.wid = w;
 	dr->x = or->x + s;

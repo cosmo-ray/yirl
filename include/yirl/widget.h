@@ -111,7 +111,6 @@ typedef struct {
 		};
 
 		uint32_t rgba;
-		SDL_Color sdl_color;
 	};
 
 	int flag;
