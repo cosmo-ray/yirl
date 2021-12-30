@@ -490,19 +490,21 @@ static int sdlChangeResolution(void)
 	return 0;
 }
 
+#define DEFAULTPOLICE "sazanami-mincho.ttf"
+
 int    ysdl2Init(void)
 {
   char path_buf[PATH_MAX];
-  char ttf_path2[PATH_MAX + sizeof("/DejaVuSansMono.ttf")];
+  char ttf_path2[PATH_MAX + sizeof("/" DEFAULTPOLICE)];
   if (type != -1)
     return type;
 
   int ttf_path_l = ygBinaryRootPath ?
-	  strlen(ygBinaryRootPath) + sizeof("/DejaVuSansMono.ttf") :
-	  sizeof("/DejaVuSansMono.ttf");
+	  strlen(ygBinaryRootPath) + sizeof("/" DEFAULTPOLICE) :
+	  sizeof("/" DEFAULTPOLICE);
   char ttf_path[ttf_path_l];
   sprintf(ttf_path, "%s%s", ygBinaryRootPath ? ygBinaryRootPath : "",
-	  "/DejaVuSansMono.ttf");
+	  "/" DEFAULTPOLICE);
 
   /* Initialisation simple */
   if ((sg.pWindow = GPU_Init(ywidWindowWidth, ywidWindowHight,
@@ -541,13 +543,13 @@ int    ysdl2Init(void)
   }
 
 
-  sprintf(ttf_path2, "%sDejaVuSansMono.ttf", getcwd(path_buf, PATH_MAX));
+  sprintf(ttf_path2, "%s" DEFAULTPOLICE, getcwd(path_buf, PATH_MAX));
   path_buf[PATH_MAX -1] = 0;
   if (sgSetDefaultFont(ttf_path) < 0 &&
       sgSetDefaultFont(ttf_path2) < 0 &&
       sgSetDefaultFont("/Library/Fonts/Tahoma.ttf") < 0 &&
       sgSetDefaultFont("/usr/share/fonts/liberation/LiberationMono-Regular.ttf") < 0 &&
-      sgSetDefaultFont("/usr/share/fonts/TTF/DejaVuSansMono.ttf") < 0 &&
+      sgSetDefaultFont("/usr/share/fonts/TTF/" DEFAULTPOLICE) < 0 &&
       sgSetDefaultFont("C:\\Windows\\Fonts\\constanb.ttf")) {
     DPRINT_ERR("Cannot load fonts\n");
     goto fail;
