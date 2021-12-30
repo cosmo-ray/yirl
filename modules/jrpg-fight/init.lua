@@ -976,6 +976,9 @@ function fightItems(entity, func)
    local menuCnt = ywCntWidgetFather(entity)
    local itemsMenu = Menu.new_entity().ent
 
+   itemsMenu.margin = {}
+   itemsMenu.margin.size = 4
+   itemsMenu.margin.color = "rgba: 50 250 40 155"
    yeGetPush(menuCnt, itemsMenu, "background");
    local ui = pc.usable_items
    local i = 0
@@ -1079,6 +1082,9 @@ function fightInit(entity)
    menuCnt["cnt-type"] = "vertical"
    local menu = Entity.new_array(menuCnt.entries)
    menu["<type>"] = "menu"
+   menu.margin = {}
+   menu.margin.size = 4
+   menu.margin.color = "rgba: 50 40 250 155"
    create_clasic_menu(menu)
 
    local ret = ywidNewWidget(entity, "container")
