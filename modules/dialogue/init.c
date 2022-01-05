@@ -308,9 +308,14 @@ static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
 	}
 	if (drv == &cntDialogueMnDrv) {
 		const char *bg = yeGetStringAt(dialogue, "speaker_background");
+		const char *tbg = yeGetStringAt(dialogue, "text_background");
 
 		if (bg) {
 			yeReCreateString(bg, textScreen, "background");
+		}
+
+		if (tbg) {
+			yeReCreateString(tbg, textScreen, "text_background");
 		}
 
 		ywContainerUpdate(wid, textScreen);

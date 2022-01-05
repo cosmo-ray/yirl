@@ -32,6 +32,7 @@ static int sdlRender(YWidgetState *state, int t)
 	SDL_Color color = {0, 0, 0, 255};
 	int alignementType = YSDL_ALIGN_LEFT;
 	Entity *cursor = yeGet(state->entity, "cursor");
+	Entity *text_bg = yeGet(state->entity, "text_background");
 
 	wid = sddComputeMargin(state, wid);
 	if (ywidInitBgConf(state->entity, &cfg) >= 0) {
@@ -50,9 +51,33 @@ static int sdlRender(YWidgetState *state, int t)
 		DPRINT_WARN("NO Font Set !");
 		return 0;
 	}
+
 	int threshold = yeGetIntAt(state->entity, "text-threshold");
 	GPU_Rect txtR = {0, threshold,
 		wid->rect.w, wid->rect.h};
+
+	if (text_bg && ywidBgConfFill(text_bg, &cfg) >= 0) {
+		GPU_Rect r = txtR;
+		int lines = 1, col = 0;
+		const char *tmp = toPrint;
+		int col_cnt = 0;
+
+		for (; *tmp; ++tmp, ++col_cnt) {
+			if (*tmp == '\n') {
+				++lines;
+				if (col_cnt > col)
+					col = col_cnt;
+				col_cnt = -1;
+			}
+		}
+		if (col_cnt > col)
+			col = col_cnt;
+
+		r.h = tmp == toPrint ? 0 : (lines * sgGetTxtH() + 2);
+		r.w = col * sgGetTxtW() + 2;
+		sdlDrawRect(wid, r, SDL_COLOR_FROM_YBGCONF(cfg));
+	}
+
 	sdlPrintTextExt(wid, toPrint, color, txtR, alignementType,
 			yeGetIntAt(state->entity, "line-spacing"));
 	if (cursor) {
