@@ -7,8 +7,17 @@ local arrow_size = 25
 local arrow_threshold = 6
 local arrow_tot = arrow_size + arrow_threshold
 
+local BOX_IDX = 0
+local CAN_RECT_IDX = 1
+local SIZE_IDX = 2
+local ARROW_IDX = 3
+local DIALOG_IDX = 4
+local POS_IDX = 5
+
+
+
 function getDialogue(box)
-   return yeGet(box, 4)
+   return yeGet(box, DIALOG_IDX)
 end
 
 function getAnswers(box)
@@ -52,16 +61,16 @@ function getAnswer(box, idx)
 end
 
 function getPos(box)
-   return yeGetInt(yeGet(box, 5))
+   return yeGetInt(yeGet(box, POS_IDX))
 end
 
 function posArray(box, idx)
    idx = yLovePtrToInt32(idx)
-   local pos = ywCanvasObjPos(yeGet(yeGet(box, 0), idx + 1))
+   local pos = ywCanvasObjPos(yeGet(yeGet(box, BOX_IDX), idx + 1))
 
    if idx < 0 or yLovePtrToNumber(pos) == 0 then
       if idx >= 0  and getAnswer(box, idx) ~= nil then
-	 yeSetInt(yeGet(box, 5), idx);
+	 yeSetInt(yeGet(box, POS_IDX), idx);
       end
       return
    end
@@ -71,8 +80,8 @@ function posArray(box, idx)
    --ywPosPrint(pos)
    ywPosAdd(pos, -arrow_tot, 0)
    --ywPosPrint(pos)
-   ywCanvasObjSetPos(yeGet(box, 3), pos)
-   yeSetInt(yeGet(box, 5), idx);
+   ywCanvasObjSetPos(yeGet(box, ARROW_IDX), pos)
+   yeSetInt(yeGet(box, POS_IDX), idx);
    yeDestroy(pos)
 end
 
@@ -119,6 +128,7 @@ function reloadTextAndAnswerDialogue(canvas, x, y, dialogue, ret)
    local size = nil
    local arrow = nil
 
+   print("in 0")
    if yeType(dialogue) == YSTRING then
       local tmpText = yeCreateYirlFmtString(dialogue, gc)
       tmp0 = ywCanvasNewText(canvas, x + border_threshold,
@@ -178,14 +188,14 @@ function reloadTextAndAnswerDialogue(canvas, x, y, dialogue, ret)
    local tmp1 = ywCanvasNewRect(canvas, x, y, rect);
    ywCanvasSwapObj(canvas, yeGet(b0, 0), tmp1)
 
-   yePushAt(ret, b0, 0)
-   yePushAt(ret, tmp1, 1)
-   yePushAt(ret, size, 2)
-   yePushAt(ret, arrow, 3)
-   yePushAt(ret, dialogue, 4)
-   if yeGetInt(yeGet(ret, 5)) == 0 then
+   yePushAt(ret, b0, BOX_IDX)
+   yePushAt(ret, tmp1, CAN_RECT_IDX)
+   yePushAt(ret, size, SIZE_IDX)
+   yePushAt(ret, arrow, ARROW_IDX)
+   yePushAt(ret, dialogue, DIALOG_IDX)
+   if yeGetInt(yeGet(ret, POS_IDX)) == 0 then
       local i = yeCreateInt(0, gc);
-      yePushAt(ret, i, 5)
+      yePushAt(ret, i, POS_IDX)
    end
    posArray(ret, getPos(ret))
    yeDestroy(gc)
@@ -224,7 +234,7 @@ function getTextDialogue(box)
       return nil
    end
 
-   local txt = yeGet(box, 4)
+   local txt = yeGet(box, DIALOG_IDX)
    if yeType(txt) == YSTRING then
       return txt
    end
@@ -232,7 +242,7 @@ function getTextDialogue(box)
 end
 
 function rmTextDialogue(canvas, box)
-   local b0 = yeGet(box, 0)
+   local b0 = yeGet(box, BOX_IDX)
    local len = yeLen(b0)
    local i = 0
 
@@ -240,13 +250,13 @@ function rmTextDialogue(canvas, box)
       ywCanvasRemoveObj(canvas, yeGet(b0, i))
       i = i + 1
    end
-   ywCanvasRemoveObj(canvas, yeGet(box, 1))
-   ywCanvasRemoveObj(canvas, yeGet(box, 3))
+   ywCanvasRemoveObj(canvas, yeGet(box, CAN_RECT_IDX))
+   ywCanvasRemoveObj(canvas, yeGet(box, ARROW_IDX))
 end
 
 function reload(canvas, box)
    local dialogue = getDialogue(box)
-   local pos = ywCanvasObjPos(yeGet(box, 1))
+   local pos = ywCanvasObjPos(yeGet(box, CAN_RECT_IDX))
    local x = ywPosX(pos)
    local y = ywPosY(pos)
 
@@ -258,7 +268,7 @@ function setPos(box, x, y)
    if yLovePtrToNumber(box) == 0 then
       return
    end
-   local b0 = yeGet(box, 0)
+   local b0 = yeGet(box, BOX_IDX)
    local len = yeLen(b0)
    local i = 0
    x = yLovePtrToNumber(x)
@@ -268,8 +278,8 @@ function setPos(box, x, y)
       ywCanvasObjSetPos(yeGet(b0, i), x, y)
       i = i + 1
    end
-   ywCanvasObjSetPos(yeGet(box, 1), x, y)
-   ywCanvasObjSetPos(yeGet(box, 3), x, y)
+   ywCanvasObjSetPos(yeGet(box, CAN_RECT_IDX), x, y)
+   ywCanvasObjSetPos(yeGet(box, ARROW_IDX), x, y)
 end
 
 function getCurAnswer(box)
