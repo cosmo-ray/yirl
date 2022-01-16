@@ -351,11 +351,11 @@ function Canvas:new_text(x, y, txt)
    return CanvasObj.wrapp(ret)
 end
 
-function Canvas:new_rect(x, y, r, pos)
+function Canvas:new_rect(x, y, r, size)
    if type(r) == "string" then
       local color = r
       local r = Entity.new_array()
-      r[0] = pos
+      r[0] = size
       r[1] = color
       local ret = ywCanvasNewRect(self.ent, x, y, r:cent())
       return CanvasObj.wrapp(ret)

@@ -6,13 +6,15 @@ local txt_threshold = 10
 local arrow_size = 25
 local arrow_threshold = 6
 local arrow_tot = arrow_size + arrow_threshold
+local rect2_threshold = 2
 
 local BOX_IDX = 0
 local CAN_RECT_IDX = 1
 local SIZE_IDX = 2
 local ARROW_IDX = 3
 local DIALOG_IDX = 4
-local POS_IDX = 5
+local CAN_RECT2_IDX = 5
+local POS_IDX = 6
 
 
 
@@ -128,7 +130,6 @@ function reloadTextAndAnswerDialogue(canvas, x, y, dialogue, ret)
    local size = nil
    local arrow = nil
 
-   print("in 0")
    if yeType(dialogue) == YSTRING then
       local tmpText = yeCreateYirlFmtString(dialogue, gc)
       tmp0 = ywCanvasNewText(canvas, x + border_threshold,
@@ -184,15 +185,25 @@ function reloadTextAndAnswerDialogue(canvas, x, y, dialogue, ret)
    local rect = yeCreateArray(gc)
    ywSizeCreate(ywSizeW(size) + border_threshold * 2,
 		ywSizeH(size) + border_threshold * 2, rect);
-   yeCreateString(default_color, rect);
+   yeCreateString("rgba: 0 0 0 255", rect);
    local tmp1 = ywCanvasNewRect(canvas, x, y, rect);
-   ywCanvasSwapObj(canvas, yeGet(b0, 0), tmp1)
+   local c_canvas = Canvas.wrapp(canvas)
+   local r2_threshold = border_threshold * 2 - (rect2_threshold * 2)
+   local r2_s = Size.new(ywSizeW(size) + r2_threshold, ywSizeH(size) + r2_threshold)
+   local rect_inside = c_canvas:new_rect(x + rect2_threshold, y + rect2_threshold,
+					 default_color, r2_s.ent).ent
+   ywCanvasSwapObj(canvas, yeGet(b0, 0), rect_inside)
+   if yIsNNil(yeGet(b0, 1)) then
+      ywCanvasSwapObj(canvas, yeGet(b0, 1), tmp1)
+   end
+   ywCanvasSwapObj(canvas, tmp1, rect_inside)
 
    yePushAt(ret, b0, BOX_IDX)
    yePushAt(ret, tmp1, CAN_RECT_IDX)
    yePushAt(ret, size, SIZE_IDX)
    yePushAt(ret, arrow, ARROW_IDX)
    yePushAt(ret, dialogue, DIALOG_IDX)
+   yePushAt(ret, rect_inside, CAN_RECT2_IDX)
    if yeGetInt(yeGet(ret, POS_IDX)) == 0 then
       local i = yeCreateInt(0, gc);
       yePushAt(ret, i, POS_IDX)
@@ -205,15 +216,17 @@ function newEmptyDialogue(canvas, x, y, father, name)
    local ret = yeCreateArray(father, ylovePtrToString(name))
    local rect = yeCreateArray()
    local dialogue = yeCreateArray()
-   ywSizeCreate(1, 1, rect);
-   yeCreateString(default_color, rect);
+   ywSizeCreate(1, 1, rect)
+   yeCreateString(default_color, rect)
    x = yLovePtrToNumber(x)
    y = yLovePtrToNumber(y)
    local tmp1 = ywCanvasNewRect(canvas, x, y, rect)
-   yePushAt(ret, tmp1, 1)
-   yePushAt(ret, dialogue, 4)
+   local tmp2 = ywCanvasNewRect(canvas, x, y, Entity.new_copy(rect))
+   yePushAt(ret, tmp1, CAN_RECT_IDX)
+   yePushAt(ret, tmp2, CAN_RECT2_IDX)
+   yePushAt(ret, dialogue, DIALOG_IDX)
    local i = yeCreateInt(0)
-   yePushAt(ret, i, 5)
+   yePushAt(ret, i, POS_IDX)
    yeDestroy(dialogue)
    yeDestroy(rect)
    yeDestroy(i)
@@ -251,6 +264,7 @@ function rmTextDialogue(canvas, box)
       i = i + 1
    end
    ywCanvasRemoveObj(canvas, yeGet(box, CAN_RECT_IDX))
+   ywCanvasRemoveObj(canvas, yeGet(box, CAN_RECT2_IDX))
    ywCanvasRemoveObj(canvas, yeGet(box, ARROW_IDX))
 end
 
@@ -279,6 +293,8 @@ function setPos(box, x, y)
       i = i + 1
    end
    ywCanvasObjSetPos(yeGet(box, CAN_RECT_IDX), x, y)
+   ywCanvasObjSetPos(yeGet(box, CAN_RECT2_IDX),
+		     x + rect2_threshold, y + rect2_threshold)
    ywCanvasObjSetPos(yeGet(box, ARROW_IDX), x, y)
 end
 
@@ -302,5 +318,5 @@ function initDialogueBox(mod)
    yeCreateFunction("getPos", mod, "pos")
    yeCreateFunction("setPos", mod, "set_pos")
    yeCreateFunction("pushAnswers", mod, "pushAnswers")
-   yeCreateInt(6, mod, "privateDataSize")
+   yeCreateInt(POS_IDX + 1, mod, "privateDataSize")
 end
