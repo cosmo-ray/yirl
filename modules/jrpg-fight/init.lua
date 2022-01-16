@@ -681,9 +681,13 @@ function printTextAnim(main, cur_anim)
    local canvas = getCanvas(main)
 
    if cur_anim.animation_frame:to_int() == 0 then
-      cur_anim.txt_c = canvas:new_text(50, 50, cur_anim.txt).ent
+      local txt = cur_anim.txt
+      cur_anim.txt_r = canvas:new_rect(48, 48, "rgba: 80 80 80 120",
+				       Size.new(yeLen(txt) * 8 + 4, 18).ent).ent
+      cur_anim.txt_c = canvas:new_text(50, 50, txt).ent
    end
    if cur_anim.animation_frame >= 30 then
+      canvas:remove(cur_anim.txt_r)
       canvas:remove(cur_anim.txt_c)
       yEndAnimation(main, txt_anim_field)
       return Y_FALSE
@@ -696,6 +700,7 @@ function startTextAnim(main, txt)
    if main[txt_anim_field:to_string()] then
       local canvas = getCanvas(main)
       canvas:remove(main[txt_anim_field:to_string()].txt_c)
+      canvas:remove(main[txt_anim_field:to_string()].txt_r)
       yEndAnimation(main, txt_anim_field)
    end
    anim.txt = txt
@@ -709,10 +714,13 @@ function printKanaAnim(main, cur_anim)
    local canvas = getCanvas(main)
 
    if cur_anim.animation_frame:to_int() == 0 then
+      cur_anim.txt_r = canvas:new_rect(148, 98, "rgba: 80 80 80 120",
+				       Size.new(yeLen(cur_anim.txt) * 8 + 4, 18).ent).ent
       cur_anim.txt_c = canvas:new_text(150, 100, cur_anim.txt).ent
    end
 
    if cur_anim.animation_frame >= 20 then
+      canvas:remove(cur_anim.txt_r)
       canvas:remove(cur_anim.txt_c)
       yEndAnimation(main, txt_kana_anim)
       return Y_FALSE
@@ -725,6 +733,7 @@ function startKanaAnim(main, txt)
    if main[txt_kana_anim:to_string()] then
       local canvas = getCanvas(main)
       canvas:remove(main[txt_kana_anim:to_string()].txt_c)
+      canvas:remove(main[txt_kana_anim:to_string()].txt_r)
       yEndAnimation(main, txt_kana_anim)
    end
    anim.txt = txt
@@ -1149,17 +1158,6 @@ function fightInit(entity)
 
    -- if I want to implement initiative, I need to change it here
    cur_player = 0
-   -- katakana test here V
-   --i = 0
-   --for i = 0, yeLen(katakana_words) - 1 do
-   --   local kat = yeGetStringAt(yeGet(katakana_words, i), 0)
-   --   local eng = yeGetStringAt(yeGet(katakana_words, i), 1)
-
-   --   print(kat, " - ", eng, "")
-   --   local str = " - " .. eng
-   --   canvas:new_text(240, i * 20 + 130, kat)
-   --   canvas:new_text(320, i * 20 + 130, str)
-   --end
    return ret
 end
 
