@@ -72,6 +72,15 @@ local function tryPushWidType(ent, t)
    end
 end
 
+function Entity.from_lua_arrray(l_array, father, name)
+   local ret = Entity.new_array(father, name)
+
+   for i = 1, #l_array do
+      ret[i - 1] = l_array[i]
+   end
+   return ret
+end
+
 function File.jsonToEnt(name)
    return Entity._wrapp_(ygFileToEnt(YJSON, name), true)
 end
