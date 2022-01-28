@@ -17,6 +17,8 @@ local axeman_right = 715
 local axeman_up = 780
 local axeman_down = 650
 
+local TURN_LENGTH = 100000
+
 function action(entity, eve)
    local canvas = Canvas.wrapp(entity)
    local move = canvas.ent.move
@@ -224,7 +226,7 @@ function createAstShoot(entity)
       ent.move = {}
    ent.move.up_down = 0
    ent.move.left_right = 0
-   ent["turn-length"] = 100000
+   ent["turn-length"] = TURN_LENGTH
    return canvas:new_wid()
 end
 
