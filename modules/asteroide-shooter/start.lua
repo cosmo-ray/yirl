@@ -4,6 +4,19 @@ local downKeys = nil
 local leftKeys = nil
 local rightKeys = nil
 
+local fire_threshold = 0
+local up_threshold = 0
+
+local ASTEROID_SHOOTER = 0
+local AXEMAN_SHOOTER = 1
+
+local version = ASTEROID_SHOOTER
+
+local axeman_left = 585
+local axeman_right = 715
+local axeman_up = 780
+local axeman_down = 650
+
 function action(entity, eve)
    local canvas = Canvas.wrapp(entity)
    local move = canvas.ent.move
@@ -30,15 +43,39 @@ function action(entity, eve)
    if pos then
       -- I should add an api for that :p
       pos = Pos.wrapp(pos)
-      ship:point_top_to(pos)
+      if version ~= AXEMAN_SHOOTER then
+	 ship:point_top_to(pos)
+      else
+	 canvas:remove(canvas.ent.ship)
+	 local a = ywPosAngle(ship:pos().ent, pos.ent)
+	 local aa = math.abs(a)
+	 local r = Rect.new(0, 0, 70, 60).ent
+	 local sp = ship:pos()
+
+	 if (aa > 45 and aa < 135) then
+	    if a > 0 then
+	       ywRectSetY(r, axeman_up)
+	    else
+	       ywRectSetY(r, axeman_down)
+	    end
+	 else
+	    if (aa > 90) then
+	       ywRectSetY(r, axeman_right)
+	    else
+	       ywRectSetY(r, axeman_left)
+	    end
+	 end
+	 canvas.ent.ship = canvas:new_img(sp:x(), sp:y(), modPath .. "/axeman.png", r).ent
+	 ship = CanvasObj.wrapp(canvas.ent.ship)
+      end
    end
    local ret, button = yevMouseDown(eve, button);
    if ret then
-      local laser = canvas:new_obj(ship:pos():x() + ship:size():x() / 2 - 5,
-				      ship:pos():y() + ship:size():y() / 2  -5, 0)
+      local laser = canvas:new_obj(ship:pos():x() + ship:size():x() / 2 - fire_threshold,
+				      ship:pos():y() + ship:size():y() / 2  - fire_threshold, 0)
 
       local angle = -90
-      if button == 3 then
+      if version == ASTEROID_SHOOTER and button == 3 then
 	 angle = 90
       end
       laser:point_right_to(pos)
@@ -66,7 +103,7 @@ function action(entity, eve)
 		  canvas.ent.score_canvas =
 		     canvas:new_text(10, 10,
 				     Entity.new_string("score: "..
-							  canvas.ent.score:to_int())):cent()
+						       math.floor(canvas.ent.score:to_int()))):cent()
 		  if asteroides[i].life:to_int() == 0 then
 		     removeObj(canvas, asteroides,
 			       CanvasObj.wrapp(asteroides[i]))
@@ -146,16 +183,32 @@ function createAstShoot(entity)
    ent.resources = {}
    ent.resources[0] = {}
    local resource = ent.resources[0]
-   resource["img"] = modPath .. "jswars_gfx/shot.png"
+   if yeGetString(ent.type) == "skull-breaker" then 
+      resource["img"] = modPath .. "axe_10.png"
+      resource["img-src-rect"] = {0, 615, 20, 20}
+      fire_threshold = 20
+      up_threshold = -90
+      version = AXEMAN_SHOOTER
+   else
+      resource["img"] = modPath .. "jswars_gfx/shot.png"
+      fire_threshold = 5
+      up_threshold = 90
+   end
    ent.resources[1] = {}
    resource = ent.resources[1]
    resource["img"] = modPath .. "jswars_gfx/asteroid.png"
 
    Entity.new_func("action", ent, "action")
    canvas.ent.background = "rgba: 255 255 255 255"
-   local ship = canvas:new_img(150, 150, modPath .. "/DurrrSpaceShip.png")
-   local shipSize = Pos.new(40, 40)
-   ship:force_size(shipSize)
+   local ship
+   if version == AXEMAN_SHOOTER then
+      ship = canvas:new_img(150, 150, modPath .. "/axeman.png", Rect.new(0, axeman_left,
+									 70, 60).ent)
+   else
+      ship = canvas:new_img(150, 150, modPath .. "/DurrrSpaceShip.png")
+      local shipSize = Pos.new(40, 40)
+      ship:force_size(shipSize)
+   end
    ent.ship = ship:cent()
    ent.asteroides = {}
    local bigAst = canvas:new_obj(350, 50, 1)
@@ -167,8 +220,7 @@ function createAstShoot(entity)
    ent.lasers = {}
    ent.score = 0
    ent.score_canvas =
-      canvas:new_text(10, 10, Entity.new_string("score: "..
-						ent.score:to_int())):cent()
+      canvas:new_text(10, 10, Entity.new_string("score: 0")):cent()
       ent.move = {}
    ent.move.up_down = 0
    ent.move.left_right = 0
