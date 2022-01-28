@@ -31,8 +31,14 @@ local version = ASTEROID_SHOOTER
 
 local axeman_left = 585
 local axeman_right = 715
-local axeman_up = 780
+local axeman_up = 522
 local axeman_down = 650
+
+local STEP_X_THRESHOLD = 64
+local step_cnt = 0
+local STEP_NB_SPRITE = 9
+
+local sprite_y = axeman_left
 
 local TURN_LENGTH = 50000
 
@@ -59,35 +65,47 @@ function action(entity, eve)
       move.left_right = 0
    end
    local pos = yevMousePos(eve)
+
+   if version == AXEMAN_SHOOTER and (yeGetInt(move.up_down) ~= 0 or yeGetInt(move.left_right) ~= 0) then
+      step_cnt = step_cnt + 1
+      step_cnt = step_cnt % STEP_NB_SPRITE
+   end
+
    if pos then
       -- I should add an api for that :p
       pos = Pos.wrapp(pos)
       if version ~= AXEMAN_SHOOTER then
 	 ship:point_top_to(pos)
       else
-	 canvas:remove(canvas.ent.ship)
 	 local a = ywPosAngle(ship:pos().ent, pos.ent)
 	 local aa = math.abs(a)
-	 local r = Rect.new(0, 0, 70, 60).ent
-	 local sp = ship:pos()
 
 	 if (aa > 45 and aa < 135) then
 	    if a > 0 then
-	       ywRectSetY(r, axeman_up)
+	       sprite_y = axeman_up
 	    else
-	       ywRectSetY(r, axeman_down)
+	       sprite_y = axeman_down
 	    end
 	 else
 	    if (aa > 90) then
-	       ywRectSetY(r, axeman_right)
+	       sprite_y = axeman_right
 	    else
-	       ywRectSetY(r, axeman_left)
+	       sprite_y = axeman_left
 	    end
 	 end
-	 canvas.ent.ship = canvas:new_img(sp:x(), sp:y(), modPath .. "/axeman.png", r).ent
-	 ship = CanvasObj.wrapp(canvas.ent.ship)
       end
    end
+
+   if version == AXEMAN_SHOOTER then
+      local r = Rect.new(step_cnt * STEP_X_THRESHOLD,
+			 sprite_y, STEP_X_THRESHOLD, 60).ent
+
+      canvas:remove(canvas.ent.ship)
+      local sp = ship:pos()
+      canvas.ent.ship = canvas:new_img(sp:x(), sp:y(), modPath .. "/axeman.png", r).ent
+      ship = CanvasObj.wrapp(canvas.ent.ship)
+   end
+
    local ret, button = yevMouseDown(eve, button);
    if ret then
       local laser = canvas:new_obj(ship:pos():x() + ship:size():x() / 2 - fire_threshold,
@@ -221,7 +239,8 @@ function createAstShoot(entity)
    canvas.ent.background = "rgba: 255 255 255 255"
    local ship
    if version == AXEMAN_SHOOTER then
-      ship = canvas:new_img(150, 150, modPath .. "/axeman.png", Rect.new(0, axeman_left,
+      ship = canvas:new_img(150, 150, modPath .. "/axeman.png", Rect.new(step_cnt * STEP_X_THRESHOLD,
+									 axeman_left,
 									 70, 60).ent)
    else
       ship = canvas:new_img(150, 150, modPath .. "/DurrrSpaceShip.png")
