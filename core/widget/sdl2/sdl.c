@@ -1065,7 +1065,7 @@ void sdlCanvasCacheVoidTexture(Entity *obj, Entity *size)
 	ywSizePrint(ywCanvasObjSize(NULL, obj));
 }
 
-void sdlCanvasCacheBicolorImg(Entity *elem, uint8_t *img, Entity *info)
+void sdlCanvasCacheBicolorImg(Entity *elem, const uint8_t *img, Entity *info)
 {
 	Entity *size = yeGet(info, 0);
 	int w = ywSizeW(size), h = ywSizeH(size);

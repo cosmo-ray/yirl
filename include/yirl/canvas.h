@@ -239,8 +239,17 @@ Entity *ywCanvasNewText(Entity *wid, int x, int y, Entity *string);
 Entity *ywCanvasNewTextExt(Entity *wid, int x, int y, Entity *string,
 			   const char *color);
 
+/**
+ * create a image make of 2 colors describe in map, and info.
+ * info mustbe like:
+ * info[0] = size in pixiels (examples ywSizeCreate(4, 2, info, NULL))
+ * info[1] = hex_backgroud_color_number (examples yeCreateInt(0xffffff, info, NULL))
+ * info[2] = hex_forground_color_number (examples yeCreateInt(0x000000, info, NULL))
+ */
 Entity *ywCanvasNewBicolorImg(Entity *wid, int x, int y, uint8_t *map,
 			      Entity *info);
+
+int ywCanvasCacheBicolorImg(Entity *obj, const uint8_t *map, Entity *info);
 
 Entity *ywCanvasNewImgByPath(Entity *wid, int x, int y, const char *path);
 Entity *ywCanvasNewImg(Entity *wid, int x, int y, const char *path,
