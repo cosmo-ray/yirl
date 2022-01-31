@@ -15,6 +15,8 @@
 --along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
+local loading_bar = nil
+
 local modPath = nil
 local upKeys = nil
 local downKeys = nil
@@ -215,6 +217,7 @@ end
 function createAstShoot(entity)
    local canvas = Canvas.wrapp(entity)
    local ent = canvas.ent
+   local enemy_img_path = modPath .. "jswars_gfx/asteroid.png"
 
    yuiRandInit()
    ent.resources = {}
@@ -226,6 +229,7 @@ function createAstShoot(entity)
       fire_threshold = 20
       up_threshold = -90
       version = AXEMAN_SHOOTER
+      enemy_img_path = modPath .. "z-cvck.png"
    else
       resource["img"] = modPath .. "jswars_gfx/shot.png"
       fire_threshold = 5
@@ -233,7 +237,7 @@ function createAstShoot(entity)
    end
    ent.resources[1] = {}
    resource = ent.resources[1]
-   resource["img"] = modPath .. "jswars_gfx/asteroid.png"
+   resource["img"] = enemy_img_path
 
    Entity.new_func("action", ent, "action")
    canvas.ent.background = "rgba: 255 255 255 255"
@@ -262,7 +266,18 @@ function createAstShoot(entity)
       ent.move = {}
    ent.move.up_down = 0
    ent.move.left_right = 0
+
+
    ent["turn-length"] = TURN_LENGTH
+   loading_bar = Entity.wrapp(ygGet("loading-bar"))
+
+   if version == AXEMAN_SHOOTER then
+      local lb = loading_bar.create(canvas.ent, 10, 600);
+      local bar_size = Size.new(200, 30)
+      lb = CanvasObj.wrapp(lb)
+      lb:force_size(bar_size)
+      loading_bar.setPercent(lb.ent, 30)
+   end
    return canvas:new_wid()
 end
 
@@ -273,6 +288,10 @@ function mod_init(entity)
    leftKeys = Event.CreateGrp(Y_LEFT_KEY, Y_A_KEY)
    rightKeys = Event.CreateGrp(Y_RIGHT_KEY, Y_D_KEY)
    modPath = e["$path"]:to_string()
+   e["pre-load"] = {}
+   e["pre-load"][0] = {}
+   e["pre-load"][0]["path"] = "YIRL_MODULES_PATH/loading_bar/"
+   e["pre-load"][0]["type"] = "module"
    Widget.new_subtype("asteroide-shooter", "createAstShoot")
    return Y_TRUE
 end
