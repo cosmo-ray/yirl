@@ -30,6 +30,7 @@ jobs:
           msmpi
           dlfcn
           lua
+          autotools
           json-c
     
     - shell: msys2 {0}
