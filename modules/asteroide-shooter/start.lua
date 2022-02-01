@@ -44,6 +44,9 @@ local sprite_y = axeman_left
 
 local TURN_LENGTH = 50000
 
+local CCK_SIZE_X = 60
+local CCK_SIZE_Y = 100
+
 function action(entity, eve)
    local canvas = Canvas.wrapp(entity)
    local move = canvas.ent.move
@@ -154,6 +157,10 @@ function action(entity, eve)
 		     local p = CanvasObj.wrapp(asteroides[i]):pos()
 		     local bigAst = canvas:new_obj(p:x(), p:y(), 1)
 
+		     if version == AXEMAN_SHOOTER then
+			local s = Pos.new(CCK_SIZE_X, CCK_SIZE_Y)
+			bigAst:force_size(s)
+		     end
 		     --bigAst:force_size(Pos:new(20, 20))
 		     if asteroides[i].life < 0 then
 			bigAst.ent.life = canvas.ent.score:to_int() / 10 + 1
@@ -257,6 +264,10 @@ function createAstShoot(entity)
    bigAst.ent.life = -1
    bigAst.ent.speed = 0
    yeCreateFloat(0, bigAst.ent:cent(), "angle")
+   if version == AXEMAN_SHOOTER then
+      local s = Pos.new(CCK_SIZE_X, CCK_SIZE_Y)
+      bigAst:force_size(s)
+   end
    ent.asteroides:push_back(bigAst:cent())
 
    ent.lasers = {}
