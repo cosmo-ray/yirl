@@ -282,14 +282,15 @@ function createAstShoot(entity)
    ent["turn-length"] = TURN_LENGTH
    loading_bar = Entity.wrapp(ygGet("loading-bar"))
 
+   local ret = canvas:new_wid()
    if version == AXEMAN_SHOOTER then
-      local lb = loading_bar.create(canvas.ent, 10, 600);
+      local lb = loading_bar.create(canvas.ent, 10, canvas.ent['wid-pix'].h - 50);
       local bar_size = Size.new(200, 30)
       lb = CanvasObj.wrapp(lb)
       lb:force_size(bar_size)
       loading_bar.setPercent(lb.ent, 30)
    end
-   return canvas:new_wid()
+   return ret
 end
 
 function mod_init(entity)
