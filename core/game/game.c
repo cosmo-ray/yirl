@@ -979,6 +979,11 @@ static int ygParseStartAndGame(GameConfig *config)
 
 	starting_widget = yeGet(mainMod, "$starting widget");
 
+	if (ws)
+		ywidChangeResolution(yeGetIntAt(ws, 0), yeGetIntAt(ws, 1));
+	if (wn)
+		ywidSetWindowName(yeGetString(wn));
+
 	if (starting_widget) {
 		YWidgetState *wid = ywidNewWidget(starting_widget, NULL);
 
@@ -998,10 +1003,6 @@ static int ygParseStartAndGame(GameConfig *config)
 		return -1;
 	}
 
-	if (ws)
-		ywidChangeResolution(yeGetIntAt(ws, 0), yeGetIntAt(ws, 1));
-	if (wn)
-		ywidSetWindowName(yeGetString(wn));
 	return ygDoLoop();
 }
 
