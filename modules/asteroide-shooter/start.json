@@ -1,0 +1,6 @@
+{
+   "alias" : "shooter",
+   "pre-load" : [
+      { "path" : "YIRL_MODULES_PATH/shooter/", "type" : "module" }
+   ]
+}
