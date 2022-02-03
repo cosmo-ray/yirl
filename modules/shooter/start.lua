@@ -52,11 +52,13 @@ local CCK_SIZE_Y = 100
 local level_gap = 2
 local next_level = 0
 
+local enemy_apparition = 0
+
 local function push_enemy(canvas,x, y, a, speed)
    local ent = canvas.ent
    local bigAst = canvas:new_obj(x, y, 1)
 
-   bigAst.ent.life = -1
+   bigAst.ent.life = 1
    bigAst.ent.speed = speed
    yeCreateFloat(a, bigAst.ent:cent(), "angle")
    if version == AXEMAN_SHOOTER then
@@ -165,9 +167,11 @@ function action(entity, eve)
 	 else
 	    local ast_l = asteroides:len()
 	    for i = 0, ast_l do
+
 	       if (asteroides[i]) and laser:colide_with(asteroides[i]) then
 		  canvas.ent.score = canvas.ent.score + 1
-		  if canvas.ent.score > next_level then
+
+		  if canvas.ent.score > next_level and yIsNNil(canvas.ent.lvlup) then
 		     local ent = canvas.ent
 
 		     level_gap = level_gap + 1
@@ -196,6 +200,7 @@ function action(entity, eve)
 
 		  asteroides[i].life = asteroides[i].life:to_int() - 1
 		  canvas:remove(canvas.ent.score_canvas)
+
 		  canvas.ent.score_canvas =
 		     canvas:new_text(10, 10,
 				     Entity.new_string("score: "..
@@ -203,7 +208,7 @@ function action(entity, eve)
 		  if asteroides[i].life:to_int() == 0 then
 		     removeObj(canvas, asteroides,
 			       CanvasObj.wrapp(asteroides[i]))
-		  else
+		  elseif version == ASTEROID_SHOOTER then
 		     if (asteroides[i].speed < 30) then
 			asteroides[i].speed = asteroides[i].speed:to_int() + 1
 		     end
@@ -229,6 +234,13 @@ function action(entity, eve)
 	 end
       end
    end
+
+   enemy_apparition = enemy_apparition - 1
+   if enemy_apparition < 0 then
+      print("NEW ENEMY !!!!!")
+      enemy_apparition = 100 - canvas.ent.score:to_int()
+   end
+
    for i = 0, asteroides:len() do
       if (asteroides[i]) then
 	 --print(asteroides[i].speed, asteroides[i].angle)
@@ -317,7 +329,11 @@ function createAstShoot(entity)
    end
    ent.ship = ship:cent()
    ent.asteroides = {}
-   push_enemy(canvas, 350, 50, 0, 0)
+   local ast = push_enemy(canvas, 350, 50, 0, 0)
+   if version == ASTEROID_SHOOTER then
+      ast.ent.life = -1
+   end
+
    ent.lasers = {}
    ent.score = 0
    ent.score_canvas =
@@ -327,6 +343,8 @@ function createAstShoot(entity)
    ent.move.left_right = 0
 
    next_level = level_gap
+
+   enemy_apparition = 100
 
    ent["turn-length"] = TURN_LENGTH
    loading_bar = Entity.wrapp(ygGet("loading-bar"))
