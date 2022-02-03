@@ -49,8 +49,13 @@ local TURN_LENGTH = 50000
 local CCK_SIZE_X = 60
 local CCK_SIZE_Y = 100
 
-local level_gap = 5
+local level_gap = 2
 local next_level = 0
+
+function increase_atk_speed()
+   print("increase_atk_speed")
+   loading_atk_per_turn = loading_atk_per_turn + 2
+end
 
 function action(entity, eve)
    local canvas = Canvas.wrapp(entity)
@@ -153,9 +158,25 @@ function action(entity, eve)
 		     level_gap = level_gap + 1
 		     next_level = next_level + level_gap
 
-		     print("============= LVL ===============",
-			   ent.lvlup, yeLen(edsnt.lvlup),
-			   ent.lvlup[yuiRand() % yeLen(ent.lvlup)])
+		     local lvl_event = ent.lvlup[yuiRand() % yeLen(ent.lvlup)]
+		     local lvl_img = yeGetString(lvl_event.img)
+		     local c = nil
+
+		     if yIsNNil(lvl_img) then
+			c = canvas:new_img(0, 0, lvl_img)
+		     end
+		     ywidActions(ent, lvl_event, nil)
+
+		     if yIsNNil(lvl_img) then
+			ygUpdateScreen()
+			local events = ywidGenericPollEvent()
+
+			while yevIsKeyDown(events, Y_ENTER_KEY) == false do
+			   events = ywidGenericPollEvent();
+			end
+
+			canvas:remove(c)
+		     end
 		  end
 
 		  asteroides[i].life = asteroides[i].life:to_int() - 1
@@ -332,6 +353,7 @@ function mod_init(entity)
    e["pre-load"][0] = {}
    e["pre-load"][0]["path"] = "YIRL_MODULES_PATH/loading_bar/"
    e["pre-load"][0]["type"] = "module"
+   e.increase_atk_speed = Entity.new_func("increase_atk_speed")
    Widget.new_subtype("asteroide-shooter", "createAstShoot")
    return Y_TRUE
 end
