@@ -344,6 +344,7 @@ end
 
 function mod_init(entity)
    local e = Entity.wrapp(entity)
+
    upKeys = Event.CreateGrp(Y_UP_KEY, Y_W_KEY)
    downKeys = Event.CreateGrp(Y_DOWN_KEY, Y_S_KEY)
    leftKeys = Event.CreateGrp(Y_LEFT_KEY, Y_A_KEY)

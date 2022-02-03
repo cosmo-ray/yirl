@@ -586,6 +586,7 @@ Entity *ygLoadMod(const char *path)
 	Entity *initScripts;
 	Entity *name;
 	Entity *prototype;
+	const char *alias;
 
 	YE_NEW(string, tmp_name, "");
 	for (int i = 0; i < 4; ++i) {
@@ -641,8 +642,12 @@ Entity *ygLoadMod(const char *path)
 		yeDestroy(mod);
 		goto exit;
 	}
-	yePushBack(modList, mod, yeGetString(name));
-	yeDestroy(mod);
+
+	alias = yeGetStringAt(mod, "alias");
+	if (!alias) {
+		yePushBack(modList, mod, yeGetString(name));
+		yeDestroy(mod);
+	}
 	type = yeGet(mod, "type");
 	file = yeGet(mod, "file");
 	preLoad = yeGet(mod, "pre-load");
@@ -717,6 +722,16 @@ Entity *ygLoadMod(const char *path)
 		}
 		free(fileStr);
 	}
+
+	if (alias) {
+		Entity *aliased = yeGet(modList, alias);
+
+		yePushBack(modList, aliased, yeGetString(name));
+		yePushBack(yeTryCreateArray(aliased, "aliased"), mod, "name");
+		yeDestroy(mod);
+		goto exit;
+	}
+
 
 	YE_ARRAY_FOREACH(initScripts, var2) {
 		if (yeType(var2) == YSTRING) {
