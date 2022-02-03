@@ -259,6 +259,8 @@ BIND_V(yeEntitiesArraySize);
 BIND_V(ygModDirOut);
 BIND_V(ywidRendMainWid);
 
+BIND_V(ywidGenericPollEvent);
+
 BIND_V(yuiRand);
 
 BIND_V(yeveMouseX);
