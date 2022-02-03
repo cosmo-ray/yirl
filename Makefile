@@ -218,9 +218,11 @@ install_extra_modules:
 	cp modules/vapp/pizza.png $(INSTALL_MOD)/vapp/
 	cp modules/vapp/init.c $(INSTALL_MOD)/vapp/
 	cp modules/vapp/resources.json $(INSTALL_MOD)/vapp/
-	mkdir -p $(INSTALL_MOD)/asteroide-shooter
-	cp modules/asteroide-shooter/DurrrSpaceShip.png $(INSTALL_MOD)/asteroide-shooter/
-	cp modules/asteroide-shooter/start.lua $(INSTALL_MOD)/asteroide-shooter/
-	cp -rvf modules/asteroide-shooter/jswars_gfx/ $(INSTALL_MOD)/asteroide-shooter/
+	mkdir -p $(INSTALL_MOD)/shooter/
+	cp modules/shooter/DurrrSpaceShip.png $(INSTALL_MOD)/shooter/
+	cp modules/shooter/start.lua $(INSTALL_MOD)/shooter/
+	cp -rvf modules/shooter/jswars_gfx/ $(INSTALL_MOD)/shooter/
+	mkdir -p $(INSTALL_MOD)/asteroide-shooter/
+	cp modules/asteroide-shooter/start.json $(INSTALL_MOD)/asteroide-shooter/
 
 .PHONY : install clean_all fclean clean all install_extra_modules build-tests clean-tests
