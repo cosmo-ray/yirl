@@ -52,7 +52,22 @@ local CCK_SIZE_Y = 100
 local level_gap = 2
 local next_level = 0
 
-function increase_atk_speed()
+local function push_enemy(canvas,x, y, a, speed)
+   local ent = canvas.ent
+   local bigAst = canvas:new_obj(x, y, 1)
+
+   bigAst.ent.life = -1
+   bigAst.ent.speed = speed
+   yeCreateFloat(a, bigAst.ent:cent(), "angle")
+   if version == AXEMAN_SHOOTER then
+      local s = Pos.new(CCK_SIZE_X, CCK_SIZE_Y)
+      bigAst:force_size(s)
+   end
+   ent.asteroides:push_back(bigAst:cent())
+   return bigAst
+end
+
+local function increase_atk_speed()
    print("increase_atk_speed")
    loading_atk_per_turn = loading_atk_per_turn + 2
 end
@@ -194,12 +209,10 @@ function action(entity, eve)
 		     end
 		     asteroides[i].angle:set_float(laser.ent.angle:to_float())
 		     local p = CanvasObj.wrapp(asteroides[i]):pos()
-		     local bigAst = canvas:new_obj(p:x(), p:y(), 1)
+		     local bigAst = push_enemy(canvas, p:x(), p:y(),
+					       -asteroides[i].angle:to_float(),
+					       asteroides[i].speed)
 
-		     if version == AXEMAN_SHOOTER then
-			local s = Pos.new(CCK_SIZE_X, CCK_SIZE_Y)
-			bigAst:force_size(s)
-		     end
 		     --bigAst:force_size(Pos:new(20, 20))
 		     if asteroides[i].life < 0 then
 			bigAst.ent.life = canvas.ent.score:to_int() / 10 + 1
@@ -208,10 +221,6 @@ function action(entity, eve)
 		     else
 			bigAst.ent.life = 1
 		     end
-		     bigAst.ent.speed = asteroides[i].speed
-		     yeCreateFloat(-asteroides[i].angle:to_float(),
-				   bigAst.ent, "angle")
- 		     asteroides:push_back(bigAst:cent())
 		  end
 		  removeObj(canvas, lasers, laser)
 		  break;
@@ -308,16 +317,7 @@ function createAstShoot(entity)
    end
    ent.ship = ship:cent()
    ent.asteroides = {}
-   local bigAst = canvas:new_obj(350, 50, 1)
-   bigAst.ent.life = -1
-   bigAst.ent.speed = 0
-   yeCreateFloat(0, bigAst.ent:cent(), "angle")
-   if version == AXEMAN_SHOOTER then
-      local s = Pos.new(CCK_SIZE_X, CCK_SIZE_Y)
-      bigAst:force_size(s)
-   end
-   ent.asteroides:push_back(bigAst:cent())
-
+   push_enemy(canvas, 350, 50, 0, 0)
    ent.lasers = {}
    ent.score = 0
    ent.score_canvas =
@@ -354,7 +354,7 @@ function mod_init(entity)
    e["pre-load"][0] = {}
    e["pre-load"][0]["path"] = "YIRL_MODULES_PATH/loading_bar/"
    e["pre-load"][0]["type"] = "module"
-   e.increase_atk_speed = Entity.new_func("increase_atk_speed")
+   e.increase_atk_speed = Entity.new_func(increase_atk_speed)
    Widget.new_subtype("asteroide-shooter", "createAstShoot")
    return Y_TRUE
 end
