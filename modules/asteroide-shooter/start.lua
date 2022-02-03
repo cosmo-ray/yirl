@@ -16,6 +16,8 @@
 --
 
 local loading_bar = nil
+local loading_atk = 0
+local loading_atk_per_turn = 2
 
 local modPath = nil
 local upKeys = nil
@@ -46,6 +48,9 @@ local TURN_LENGTH = 50000
 
 local CCK_SIZE_X = 60
 local CCK_SIZE_Y = 100
+
+local level_gap = 5
+local next_level = 0
 
 function action(entity, eve)
    local canvas = Canvas.wrapp(entity)
@@ -112,13 +117,15 @@ function action(entity, eve)
    end
 
    local ret, button = yevMouseDown(eve, button);
-   if ret then
+   if ret and (version == ASTEROID_SHOOTER or loading_atk > 99 ) then
       local laser = canvas:new_obj(ship:pos():x() + ship:size():x() / 2 - fire_threshold,
 				      ship:pos():y() + ship:size():y() / 2  - fire_threshold, 0)
 
       local angle = -90
       if version == ASTEROID_SHOOTER and button == 3 then
 	 angle = 90
+      else
+	 loading_atk = 0
       end
       laser:point_right_to(pos)
       yeCreateFloat(laser:angle() + angle, laser.ent:cent(), "angle")
@@ -139,8 +146,19 @@ function action(entity, eve)
 	    local ast_l = asteroides:len()
 	    for i = 0, ast_l do
 	       if (asteroides[i]) and laser:colide_with(asteroides[i]) then
-		  asteroides[i].life = asteroides[i].life:to_int() - 1
 		  canvas.ent.score = canvas.ent.score + 1
+		  if canvas.ent.score > next_level then
+		     local ent = canvas.ent
+
+		     level_gap = level_gap + 1
+		     next_level = next_level + level_gap
+
+		     print("============= LVL ===============",
+			   ent.lvlup, yeLen(edsnt.lvlup),
+			   ent.lvlup[yuiRand() % yeLen(ent.lvlup)])
+		  end
+
+		  asteroides[i].life = asteroides[i].life:to_int() - 1
 		  canvas:remove(canvas.ent.score_canvas)
 		  canvas.ent.score_canvas =
 		     canvas:new_text(10, 10,
@@ -213,6 +231,15 @@ function action(entity, eve)
        or sp:y() < 0 or sp:y() + size:y() > canvas.ent['wid-pix'].h) then
       ship:move(Pos.new(-pos:x(), -pos:y()))
    end
+
+   if version == AXEMAN_SHOOTER then
+      loading_bar.setPercent(canvas.ent.lb, loading_atk)
+      loading_atk = loading_atk + loading_atk_per_turn
+      if loading_atk > 100 then
+	 loading_atk = 100
+      end
+      
+   end
    return YEVE_ACTION
 end
 
@@ -278,6 +305,7 @@ function createAstShoot(entity)
    ent.move.up_down = 0
    ent.move.left_right = 0
 
+   next_level = level_gap
 
    ent["turn-length"] = TURN_LENGTH
    loading_bar = Entity.wrapp(ygGet("loading-bar"))
@@ -286,9 +314,9 @@ function createAstShoot(entity)
    if version == AXEMAN_SHOOTER then
       local lb = loading_bar.create(canvas.ent, 10, canvas.ent['wid-pix'].h - 50);
       local bar_size = Size.new(200, 30)
+      ent.lb = lb
       lb = CanvasObj.wrapp(lb)
       lb:force_size(bar_size)
-      loading_bar.setPercent(lb.ent, 30)
    end
    return ret
 end
