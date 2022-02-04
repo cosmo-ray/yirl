@@ -249,6 +249,9 @@ function action(entity, eve)
       for i = 0, yeLen(ent.explosion) - 1 do
 	 local exp = ent.explosion[i]
 	 local expip = nil
+	 local img_path = nil
+	 local exp_c = nil
+	 local s = nil
 	 if yIsNil(exp) then
 	    goto next_
 	 end
@@ -260,18 +263,18 @@ function action(entity, eve)
 	    ent.explosion:remove(exp)
 	    goto next_
 	 elseif exp[0] > 3 and exp[0] < 5 then
-	    local exp_c = canvas:new_img(expip:x(), expip:y(), modPath .. "/boum_1.png")
-	    canvas:remove(exp[1])
-	    local s = Size.new(CCK_SIZE_X, CCK_SIZE_Y)
-	    exp_c:force_size(s)
-	    exp[1] = exp_c.ent
+	    img_path = modPath .. "/boum_1.png"
 	 elseif exp[0] > 6 and exp[0] < 8 then
-	    local exp_c = canvas:new_img(expip:x(), expip:y(), modPath .. "/boum_2.png")
-	    canvas:remove(exp[1])
-	    local s = Size.new(CCK_SIZE_X, CCK_SIZE_Y)
-	    exp_c:force_size(s)
-	    exp[1] = exp_c.ent
+	    img_path = modPath .. "/boum_2.png"
+	 else
+	    goto incr
 	 end
+	 exp_c = canvas:new_img(expip:x(), expip:y(), img_path)
+	 canvas:remove(exp[1])
+	 s = Size.new(CCK_SIZE_X, CCK_SIZE_Y)
+	 exp_c:force_size(s)
+	 exp[1] = exp_c.ent
+	 :: incr ::
 	 exp[0] = exp[0] + 1
 	 :: next_ ::
       end
