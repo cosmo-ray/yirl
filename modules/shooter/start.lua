@@ -281,13 +281,27 @@ function action(entity, eve)
 end
    enemy_apparition = enemy_apparition - 1
    if version == AXEMAN_SHOOTER and enemy_apparition < 0 then
+      local screen_side = yuiRand() % 4
       enemy_apparition = 100 - canvas.ent.score:to_int()
 
-      local x = yuiRand() % canvas.ent['wid-pix'].w:to_int()
+
+      local x = 0
       local y = 0
+      if screen_side < 2 then
+	 x = yuiRand() % canvas.ent['wid-pix'].w:to_int()
+	 if screen_side == 0 then
+	    y = canvas.ent['wid-pix'].h - 20
+	 end
+      else
+	 y = yuiRand() % canvas.ent['wid-pix'].h:to_int()
+	 if screen_side == 3 then
+	    x = canvas.ent['wid-pix'].w - 20
+	 end
+      end
+
       local p = Pos.new(x, y)
       print('NEW ENEMY !:', x, y, p, ywPosAngle(ship:pos().ent, p.ent))
-      push_enemy(canvas, x, 0, ywPosAngle(p.ent, ship:pos().ent), 6)
+      push_enemy(canvas, x, y, ywPosAngle(p.ent, ship:pos().ent), 6)
    end
 
    for i = 0, asteroides:len() do
