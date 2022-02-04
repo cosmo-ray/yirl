@@ -54,7 +54,7 @@ local next_level = 0
 
 local enemy_apparition = 0
 
-local function push_enemy(canvas,x, y, a, speed)
+local function push_enemy(canvas, x, y, a, speed)
    local ent = canvas.ent
    local bigAst = canvas:new_obj(x, y, 1)
 
@@ -62,7 +62,7 @@ local function push_enemy(canvas,x, y, a, speed)
    bigAst.ent.speed = speed
    yeCreateFloat(a, bigAst.ent:cent(), "angle")
    if version == AXEMAN_SHOOTER then
-      local s = Pos.new(CCK_SIZE_X, CCK_SIZE_Y)
+      local s = Size.new(CCK_SIZE_X, CCK_SIZE_Y)
       bigAst:force_size(s)
    end
    ent.asteroides:push_back(bigAst:cent())
@@ -76,12 +76,13 @@ end
 
 function action(entity, eve)
    local canvas = Canvas.wrapp(entity)
-   local move = canvas.ent.move
-   local ship = CanvasObj.wrapp(canvas.ent.ship)
+   local ent = canvas.ent
+   local move = ent.move
+   local ship = CanvasObj.wrapp(ent.ship)
 
    if yevIsKeyDown(eve, Y_ESC_KEY) then
-      if canvas.ent.quit then
-	 canvas.ent.quit(canvas.ent)
+      if ent.quit then
+	 ent.quit(ent)
 	 return YEVE_ACTION
       end
       yFinishGame()
@@ -132,10 +133,10 @@ function action(entity, eve)
       local r = Rect.new(step_cnt * STEP_X_THRESHOLD,
 			 sprite_y, STEP_X_THRESHOLD, 60).ent
 
-      canvas:remove(canvas.ent.ship)
+      canvas:remove(ent.ship)
       local sp = ship:pos()
-      canvas.ent.ship = canvas:new_img(sp:x(), sp:y(), modPath .. "/axeman.png", r).ent
-      ship = CanvasObj.wrapp(canvas.ent.ship)
+      ent.ship = canvas:new_img(sp:x(), sp:y(), modPath .. "/axeman.png", r).ent
+      ship = CanvasObj.wrapp(ent.ship)
    end
 
    local ret, button = yevMouseDown(eve, button);
@@ -151,11 +152,11 @@ function action(entity, eve)
       end
       laser:point_right_to(pos)
       yeCreateFloat(laser:angle() + angle, laser.ent:cent(), "angle")
-      canvas.ent.lasers:push_back(laser:cent())
+      ent.lasers:push_back(laser:cent())
    end
 
-   local lasers = canvas.ent.lasers
-   local asteroides = canvas.ent.asteroides
+   local lasers = ent.lasers
+   local asteroides = ent.asteroides
    for i = 0, lasers:len() do
       if lasers[i] then
 	 local laser = CanvasObj.wrapp(lasers[i])
@@ -169,10 +170,9 @@ function action(entity, eve)
 	    for i = 0, ast_l do
 
 	       if (asteroides[i]) and laser:colide_with(asteroides[i]) then
-		  canvas.ent.score = canvas.ent.score + 1
+		  ent.score = canvas.ent.score + 1
 
-		  if canvas.ent.score > next_level and yIsNNil(canvas.ent.lvlup) then
-		     local ent = canvas.ent
+		  if ent.score > next_level and yIsNNil(ent.lvlup) then
 
 		     level_gap = level_gap + 1
 		     next_level = next_level + level_gap
@@ -199,15 +199,25 @@ function action(entity, eve)
 		  end
 
 		  asteroides[i].life = asteroides[i].life:to_int() - 1
-		  canvas:remove(canvas.ent.score_canvas)
+		  canvas:remove(ent.score_canvas)
 
-		  canvas.ent.score_canvas =
+		  ent.score_canvas =
 		     canvas:new_text(10, 10,
 				     Entity.new_string("score: "..
-						       math.floor(canvas.ent.score:to_int()))):cent()
+						       math.floor(ent.score:to_int()))):cent()
 		  if asteroides[i].life:to_int() == 0 then
-		     removeObj(canvas, asteroides,
-			       CanvasObj.wrapp(asteroides[i]))
+		     local ast_i = CanvasObj.wrapp(asteroides[i])
+		     if version == AXEMAN_SHOOTER then
+			local astip = ast_i:pos()
+			local exp = Entity.new_array(ent.explosion)
+			local exp_c = canvas:new_img(astip:x(), astip:y(), modPath .. "/boum_0.png")
+
+			exp[0] = 0
+			exp[1] = exp_c.ent
+			local s = Size.new(CCK_SIZE_X, CCK_SIZE_Y)
+			exp_c:force_size(s)
+		     end
+		     removeObj(canvas, asteroides, ast_i)
 		  elseif version == ASTEROID_SHOOTER then
 		     if (asteroides[i].speed < 30) then
 			asteroides[i].speed = asteroides[i].speed:to_int() + 1
@@ -220,7 +230,7 @@ function action(entity, eve)
 
 		     --bigAst:force_size(Pos:new(20, 20))
 		     if asteroides[i].life < 0 then
-			bigAst.ent.life = canvas.ent.score:to_int() / 10 + 1
+			bigAst.ent.life = ent.score:to_int() / 10 + 1
 		     elseif asteroides[i].life > 1 then
 			bigAst.ent.life = asteroides[i].life - 1
 		     else
@@ -229,16 +239,52 @@ function action(entity, eve)
 		  end
 		  removeObj(canvas, lasers, laser)
 		  break;
-	       end
-	    end
-	 end
-      end
-   end
+	       end -- laser colide with enemy
+	    end -- foreach enemies
+	 end -- laser not out
+      end -- lasers[i]
+   end -- for laser ?
 
+   if version == AXEMAN_SHOOTER then
+      for i = 0, yeLen(ent.explosion) - 1 do
+	 local exp = ent.explosion[i]
+	 local expip = nil
+	 if yIsNil(exp) then
+	    goto next_
+	 end
+
+	 expip = CanvasObj.wrapp(exp[1]):pos()
+
+	 if exp[0] > 10 then
+	    canvas:remove(exp[1])
+	    ent.explosion:remove(exp)
+	    goto next_
+	 elseif exp[0] > 3 and exp[0] < 5 then
+	    local exp_c = canvas:new_img(expip:x(), expip:y(), modPath .. "/boum_1.png")
+	    canvas:remove(exp[1])
+	    local s = Size.new(CCK_SIZE_X, CCK_SIZE_Y)
+	    exp_c:force_size(s)
+	    exp[1] = exp_c.ent
+	 elseif exp[0] > 6 and exp[0] < 8 then
+	    local exp_c = canvas:new_img(expip:x(), expip:y(), modPath .. "/boum_2.png")
+	    canvas:remove(exp[1])
+	    local s = Size.new(CCK_SIZE_X, CCK_SIZE_Y)
+	    exp_c:force_size(s)
+	    exp[1] = exp_c.ent
+	 end
+	 exp[0] = exp[0] + 1
+	 :: next_ ::
+      end
+end
    enemy_apparition = enemy_apparition - 1
-   if enemy_apparition < 0 then
-      print("NEW ENEMY !!!!!")
+   if version == AXEMAN_SHOOTER and enemy_apparition < 0 then
       enemy_apparition = 100 - canvas.ent.score:to_int()
+
+      local x = yuiRand() % canvas.ent['wid-pix'].w:to_int()
+      local y = 0
+      local p = Pos.new(x, y)
+      print('NEW ENEMY !:', x, y, p, ywPosAngle(ship:pos().ent, p.ent))
+      push_enemy(canvas, x, 0, ywPosAngle(p.ent, ship:pos().ent), 6)
    end
 
    for i = 0, asteroides:len() do
@@ -341,6 +387,8 @@ function createAstShoot(entity)
       ent.move = {}
    ent.move.up_down = 0
    ent.move.left_right = 0
+
+   ent.explosion = {}
 
    next_level = level_gap
 
