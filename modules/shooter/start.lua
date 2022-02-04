@@ -100,14 +100,17 @@ function action(entity, eve)
       end
       yFinishGame()
       return YEVE_ACTION
-   elseif yevIsGrpDown(eve, upKeys) then move.up_down = -1
+   end
+   if yevIsGrpDown(eve, upKeys) then move.up_down = -1
    elseif yevIsGrpDown(eve, downKeys) then move.up_down = 1
-   elseif yevIsGrpDown(eve, leftKeys) then move.left_right = -1
+   end
+   if yevIsGrpDown(eve, leftKeys) then move.left_right = -1
    elseif yevIsGrpDown(eve, rightKeys) then move.left_right = 1
    end
    if yevIsGrpUp(eve, upKeys) or yevIsGrpUp(eve, downKeys) then
       move.up_down = 0
-   elseif yevIsGrpUp(eve, leftKeys) or yevIsGrpUp(eve, rightKeys) then
+   end
+   if yevIsGrpUp(eve, leftKeys) or yevIsGrpUp(eve, rightKeys) then
       move.left_right = 0
    end
    local pos = yevMousePos(eve)
@@ -220,9 +223,12 @@ function action(entity, eve)
 		     if yIsNNil(lvl_img) then
 			ygUpdateScreen()
 			local events = ywidGenericPollEvent()
+			local mouse_down = false
 
-			while yevIsKeyDown(events, Y_ENTER_KEY) == false do
-			   events = ywidGenericPollEvent();
+			while yevIsKeyDown(events, Y_ENTER_KEY) == false and
+			   mouse_down == false do
+			   events = ywidGenericPollEvent()
+			   mouse_down, button = yevMouseDown(events, button)
 			end
 
 			canvas:remove(c)
@@ -329,15 +335,15 @@ end
       local speed = 6
 
       if score_sub > 295 then
-	 score_sub = score_sub - 295
+	 score_sub = score_sub - 302
 	 life = 4
 	 speed = 20
       elseif score_sub > 195 then
-	 score_sub = score_sub - 195
+	 score_sub = score_sub - 205
 	 life = 3
 	 speed = 12
       elseif score_sub > 100 then
-	 score_sub = score_sub - 95
+	 score_sub = score_sub - 110
 	 life = 3
 	 speed = 7
       end
