@@ -54,9 +54,17 @@ local next_level = 0
 
 local enemy_apparition = 0
 
-local function push_enemy(canvas, x, y, a, speed)
+local shojou_attack = 0
+local shojou_lvl = 0
+
+local function push_enemy(canvas, x, y, a, speed, img)
    local ent = canvas.ent
-   local bigAst = canvas:new_obj(x, y, 1)
+   local bigAst = nil
+   if img == nil then
+      bigAst = canvas:new_obj(x, y, 1)
+   else
+      bigAst = canvas:new_img(x, y, img)
+   end
 
    bigAst.ent.life = 1
    bigAst.ent.speed = speed
@@ -72,6 +80,11 @@ end
 local function increase_atk_speed()
    print("increase_atk_speed")
    loading_atk_per_turn = loading_atk_per_turn + 2
+end
+
+local function attack_nb_1()
+   print("recive toss, spike")
+   shojou_lvl = shojou_lvl + 1
 end
 
 function action(entity, eve)
@@ -137,6 +150,24 @@ function action(entity, eve)
       local sp = ship:pos()
       ent.ship = canvas:new_img(sp:x(), sp:y(), modPath .. "/axeman.png", r).ent
       ship = CanvasObj.wrapp(ent.ship)
+   end
+
+   shojou_attack = shojou_attack - 1
+   if shojou_lvl > 0 and shojou_attack < 1 then
+      local time_sub = shojou_lvl
+      if time_sub > 40 then
+	 time_sub = 40
+      end
+      local nb_atk = 1 + shojou_lvl / 4
+      for i = 1, nb_atk do
+	 local laser = canvas:new_obj(ship:pos():x() + ship:size():x() / 2 - fire_threshold,
+				      ship:pos():y() + ship:size():y() / 2  - fire_threshold, 2)
+
+	 local angle = yuiRand() % 360 - 180 
+	 yeCreateFloat(laser:angle() + angle, laser.ent:cent(), "angle")
+	 ent.lasers:push_back(laser:cent())
+      end
+      shojou_attack = 45 - shojou_lvl
    end
 
    local ret, button = yevMouseDown(eve, button);
@@ -236,6 +267,17 @@ function action(entity, eve)
 		     else
 			bigAst.ent.life = 1
 		     end
+		  else
+		     local ast_i = CanvasObj.wrapp(asteroides[i])
+		     local astip = ast_i:pos()
+		     local life = asteroides[i].life
+		     local ne = push_enemy(canvas, astip:x(), astip:y(), ywPosAngle(astip.ent,
+										    ship:pos().ent),
+					   
+					   ast_i.ent.speed + 1,
+					   modPath .. "z-cvck-hurt.png")
+		     ne.ent.life = life
+		     removeObj(canvas, asteroides, ast_i)
 		  end
 		  removeObj(canvas, lasers, laser)
 		  break;
@@ -282,8 +324,24 @@ end
    enemy_apparition = enemy_apparition - 1
    if version == AXEMAN_SHOOTER and enemy_apparition < 0 then
       local screen_side = yuiRand() % 4
-      enemy_apparition = 100 - canvas.ent.score:to_int()
+      local score_sub = canvas.ent.score:to_int()
+      local life = 2
+      local speed = 6
 
+      if score_sub > 295 then
+	 score_sub = score_sub - 295
+	 life = 4
+	 speed = 20
+      elseif score_sub > 195 then
+	 score_sub = score_sub - 195
+	 life = 3
+	 speed = 12
+      elseif score_sub > 100 then
+	 score_sub = score_sub - 95
+	 life = 3
+	 speed = 7
+      end
+      enemy_apparition = 100 - score_sub
 
       local x = 0
       local y = 0
@@ -300,8 +358,8 @@ end
       end
 
       local p = Pos.new(x, y)
-      print('NEW ENEMY !:', x, y, p, ywPosAngle(ship:pos().ent, p.ent))
-      push_enemy(canvas, x, y, ywPosAngle(p.ent, ship:pos().ent), 6)
+      local en = push_enemy(canvas, x, y, ywPosAngle(p.ent, ship:pos().ent), speed)
+      en.ent.life = life
    end
 
    for i = 0, asteroides:len() do
@@ -378,6 +436,10 @@ function createAstShoot(entity)
    resource = ent.resources[1]
    resource["img"] = enemy_img_path
 
+   ent.resources[2] = {}
+   resource = ent.resources[2]
+   resource["img"] = modPath .. "Tennisball.png"
+
    Entity.new_func("action", ent, "action")
    canvas.ent.background = "rgba: 255 255 255 255"
    local ship
@@ -411,6 +473,9 @@ function createAstShoot(entity)
 
    enemy_apparition = 100
 
+   shojou_attack = 0
+   shojou_lvl = 0
+
    ent["turn-length"] = TURN_LENGTH
    loading_bar = Entity.wrapp(ygGet("loading-bar"))
 
@@ -438,6 +503,7 @@ function mod_init(entity)
    e["pre-load"][0]["path"] = "YIRL_MODULES_PATH/loading_bar/"
    e["pre-load"][0]["type"] = "module"
    e.increase_atk_speed = Entity.new_func(increase_atk_speed)
+   e.attack_nb_1 = Entity.new_func(attack_nb_1)
    Widget.new_subtype("asteroide-shooter", "createAstShoot")
    return Y_TRUE
 end
