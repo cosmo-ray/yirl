@@ -278,7 +278,7 @@ function action(entity, eve)
 		     local astip = ast_i:pos()
 		     local life = asteroides[i].life
 		     local ne = push_enemy(canvas, astip:x(), astip:y(), ywPosAngle(astip.ent,
-										    ship:pos().ent),
+										    ship:pos().ent) - 90,
 					   
 					   ast_i.ent.speed + 1,
 					   modPath .. "z-cvck-hurt.png")
@@ -364,7 +364,7 @@ end
       end
 
       local p = Pos.new(x, y)
-      local en = push_enemy(canvas, x, y, ywPosAngle(p.ent, ship:pos().ent), speed)
+      local en = push_enemy(canvas, x, y, ywPosAngle(p.ent, ship:pos().ent) - 90, speed)
       en.ent.life = life
    end
 
