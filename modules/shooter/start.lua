@@ -223,11 +223,15 @@ function action(entity, eve)
 		     if yIsNNil(bmp) then
 			base_path = yeGetStringAt(ygGet(yeGetString(bmp)), "$path")
 		     end
-		     local lvl_img = base_path .. yeGetString(lvl_event.img)
+		     local lvl_img = base_path .. "/" .. yeGetString(lvl_event.img)
 		     local c = nil
 
 		     if yIsNNil(lvl_img) then
+			local w = ent['wid-pix'].w:to_int()
+			local h = ent['wid-pix'].h:to_int()
 			c = canvas:new_img(0, 0, lvl_img)
+			c:force_size(Size.new(w, h))
+			print("pos, size: ", 0, 0, w, h)
 		     end
 		     ywidActions(ent, lvl_event, nil)
 
@@ -240,6 +244,7 @@ function action(entity, eve)
 			   mouse_down == false do
 			   events = ywidGenericPollEvent()
 			   mouse_down, button = yevMouseDown(events, button)
+			   ygUpdateScreen()
 			end
 
 			canvas:remove(c)
