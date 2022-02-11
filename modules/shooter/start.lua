@@ -57,6 +57,12 @@ local enemy_apparition = 0
 local shojou_attack = 0
 local shojou_lvl = 0
 
+local old_tl = 0
+
+local function destroy()
+   ywSetTurnLengthOverwrite(old_tl);
+end
+
 local function push_enemy(canvas, x, y, a, speed, img)
    local ent = canvas.ent
    local bigAst = nil
@@ -212,7 +218,12 @@ function action(entity, eve)
 		     next_level = next_level + level_gap
 
 		     local lvl_event = ent.lvlup[yuiRand() % yeLen(ent.lvlup)]
-		     local lvl_img = yeGetString(lvl_event.img)
+		     local base_path = ""
+		     local bmp = lvl_event["base-mod-path"]
+		     if yIsNNil(bmp) then
+			base_path = yeGetStringAt(ygGet(yeGetString(bmp)), "$path")
+		     end
+		     local lvl_img = base_path .. yeGetString(lvl_event.img)
 		     local c = nil
 
 		     if yIsNNil(lvl_img) then
@@ -447,6 +458,7 @@ function createAstShoot(entity)
    resource["img"] = modPath .. "Tennisball.png"
 
    Entity.new_func("action", ent, "action")
+   Entity.new_func(destroy, ent, "destroy")
    canvas.ent.background = "rgba: 255 255 255 255"
    local ship
    if version == AXEMAN_SHOOTER then
@@ -483,6 +495,8 @@ function createAstShoot(entity)
    shojou_lvl = 0
 
    ent["turn-length"] = TURN_LENGTH
+   old_tl = ywGetTurnLengthOverwrite();
+   ywSetTurnLengthOverwrite(TURN_LENGTH);
    loading_bar = Entity.wrapp(ygGet("loading-bar"))
 
    local ret = canvas:new_wid()
