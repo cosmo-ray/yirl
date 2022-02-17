@@ -1057,7 +1057,8 @@ void sdlCanvasCacheVoidTexture(Entity *obj, Entity *size)
 	Entity *data;
 
 	surface = SDL_CreateRGBSurface(0, ywSizeW(size), ywSizeH(size),
-				       32, 0, 0, 0, 0);
+				       32, 0xFF000000, 0x00FF0000,
+				       0x0000FF00, 0x000000FF);
 	data = yeCreateDataAt(surface, obj, "$img-surface",
 			      YCANVAS_SURFACE_IDX);
 	yeAttach(obj, size, YCANVAS_SIZE_IDX, "$size", 0);
@@ -1069,18 +1070,24 @@ void sdlCanvasCacheBicolorImg(Entity *elem, const uint8_t *img, Entity *info)
 {
 	Entity *size = yeGet(info, 0);
 	int w = ywSizeW(size), h = ywSizeH(size);
-	SDL_Surface *surface = SDL_CreateRGBSurface(0, w, h, 32, 0, 0, 0, 0);
 	int end = w * h;
-	uint32_t *pixels = surface->pixels;
 	uint32_t bg = yeGetIntAt(info, 1);
 	uint32_t fg = yeGetIntAt(info, 2);
+	uint32_t flags = yeGetIntAt(info, 3);
+	SDL_Surface *surface = SDL_CreateRGBSurface(0, w, h, 32,
+						    flags & 1 ? 0xFF000000 : 0,
+						    flags & 1 ? 0x00FF0000 : 0,
+						    flags & 1 ? 0x0000FF00 : 0,
+						    flags & 1 ? 0x000000FF : 0);
+	uint32_t *pixels = surface->pixels;
 	GPU_Image *texture;
 	Entity *data;
 
 	assert(w);
 	assert(h);
 	for (int i = 0; i < end; ++i) {
-		pixels[i] = img[i] ? fg : bg;
+		if (!(flags & 1 && img[i] == (uint8_t)-1))
+			pixels[i] = img[i] ? fg : bg;
 	}
 	texture = GPU_CopyImageFromSurface(surface);
 	data = yeCreateDataAt(texture, elem, "$img", YCANVAS_IMG_IDX);
