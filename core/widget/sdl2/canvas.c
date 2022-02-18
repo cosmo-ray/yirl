@@ -31,10 +31,12 @@ static int sdl2Render(YWidgetState *state, int t)
 	Entity *entity = state->entity;
 	Entity *objs = yeGet(entity, "objs");
 	Entity *cam = yeGet(entity, "cam");
-	Entity *widPix = yeGet(state->entity, "wid-pix");
+	Entity *widPix;
 	Entity *dst = s->merge_texture;
 	YBgConf cfg;
 
+	wid = sddComputeMargin(state, wid);
+	widPix = yeGet(state->entity, "wid-pix");
 	if (ywidBgConfFill(yeGet(entity, "background"), &cfg) >= 0)
 		sdlFillBg(wid, &cfg);
 
