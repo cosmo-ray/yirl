@@ -1251,7 +1251,7 @@ uint32_t sdlCanvasPixInfo(Entity *obj, int x, int y)
 	((uint32_t *)surface->pixels)[x + surface->w * y]) {
 	YCanvasPixiel ret;
 	ret.i = ((uint32_t *)surface->pixels)[x + surface->w * y];
-/* I guess if Alpha is store at the begin, we're fuck */
+	/* I guess if Alpha is store at the begin, we're fuck */
 	ret.rgba[3] = 255;
 
 	return ret.i;

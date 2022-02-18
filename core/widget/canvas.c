@@ -793,6 +793,7 @@ _Bool	ywCanvasObjectsCheckColisions(Entity *obj0, Entity *obj1)
 	if (!colisionRects) {
 		goto exit;
 	}
+
 	if (yeGetIntAt(obj0, 0) == YCanvasString ||
 	    yeGetIntAt(obj1, 0) == YCanvasString) {
 		ret = 1;
