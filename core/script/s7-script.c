@@ -1,3 +1,4 @@
+
 /*
 **Copyright (C) 2019 Matthias Gatto
 **
@@ -43,7 +44,7 @@ typedef struct {
 
 YScriptS7 *s7m = NULL;
 
-int loadString(void *s, const char *str);
+static int loadString(void *s, const char *str);
 
 static s7_pointer int_cast(s7_scheme *sc, s7_pointer args)
 {
@@ -324,16 +325,6 @@ static s7_pointer make_nothing(s7_scheme *s, ...)
 	}								\
 	return s7_nil(s);
 
-#define BIND_SES(f, ...)						\
-	static s7_pointer						\
-	s7##func(s7_scheme *s, s7_pointer a)				\
-	{								\
-		BIND_AUTORET(f(						\
-			s7_string(s7_list_ref(s, a, 0)),		\
-			s7_c_object_value(s7_list_ref(s, a, 1)),	\
-			s7_string(s7_list_ref(s, a, 2))			\
-			));						\
-	}
 
 #define BIND_EIIIIS(f, u0, u1)						\
 	static s7_pointer s7##f(s7_scheme *s, s7_pointer a) {		\
@@ -782,13 +773,13 @@ static int destroy(void *sm)
 	return 0;
 }
 
-int loadFile(void *s, const char *file)
+static int loadFile(void *s, const char *file)
 {
 	s7_load(GET_S7(s), file);
 	return 0;
 }
 
-int loadString(void *s, const char *str)
+static int loadString(void *s, const char *str)
 {
 	s7_eval_c_string(GET_S7(s), str);
 	return 0;

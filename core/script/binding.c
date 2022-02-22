@@ -1,15 +1,15 @@
 #ifdef IN_CALL
 #define BIND_NONE	BIND
 #define BIND_V(a)	BIND(a,0,0)
-#define BIND_I	BIND
-#define BIND_S	BIND
-#define BIND_E	BIND
-#define BIND_EE	BIND
-#define BIND_II	BIND
-#define BIND_ES	BIND
-#define BIND_EI	BIND
-#define BIND_SI	BIND
-#define BIND_SS	BIND
+#define BIND_I		BIND
+#define BIND_S		BIND
+#define BIND_E		BIND
+#define BIND_EE		BIND
+#define BIND_II		BIND
+#define BIND_ES		BIND
+#define BIND_EI		BIND
+#define BIND_SI		BIND
+#define BIND_SS		BIND
 #define BIND_EII	BIND
 #define BIND_EEI	BIND
 #define BIND_IIS	BIND
@@ -26,8 +26,8 @@
 #define BIND_EIIS	BIND
 #define BIND_EEEE	BIND
 #define BIND_EEES	BIND
-#define BIND_EIIEE    BIND
-#define BIND_EIIIIS    BIND
+#define BIND_EIIEE	BIND
+#define BIND_EIIIIS	BIND
 #else
 
 #define PUSH_I_GLOBAL(X)
@@ -68,7 +68,6 @@ BIND_EEEE(ywMapMoveByEntity, 4, 0);
 
 BIND_EEEE(ywTextureMergeTexture, 4, 0);
 BIND_EEEE(ywTextureMergeUnsafe, 4, 0);
-
 
 BIND_EIIEE(ywCanvasNewImgFromTexture, 4, 1);
 

@@ -491,8 +491,7 @@ YWidgetState *ywidNewWidget(Entity *entity, const char *type)
 
 	if (shouldInit) {
 		YE_ARRAY_FOREACH(subTypes, tmpType) {
-			if (yuiStrEqual0(type,
-					 yeGetStringAt(tmpType, "name"))) {
+			if (yuiStrEqual0(type, yeGetStringAt(tmpType, "name"))) {
 				YWidgetState *ret =
 					yesCall(yeGet(tmpType, "callback"),
 						entity, tmpType);
