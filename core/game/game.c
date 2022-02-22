@@ -37,6 +37,7 @@
 #include "quickjs-script.h"
 #include "native-script.h"
 #include "ybytecode-script.h"
+#include "ph7-script.h"
 
 /* widgets */
 #include "utils.h"
@@ -61,6 +62,7 @@ static void *rawfileManager;
 static void *luaManager;
 static void *tccManager;
 static void *s7Manager;
+static void *ph7Manager;
 static void *qjsManager;
 
 static Entity *mainMod;
@@ -97,6 +99,12 @@ void *ygS7Manager(void)
 {
 	return s7Manager;
 }
+
+void *ygPH7Manager(void)
+{
+	return ph7Manager;
+}
+
 
 void *ygGetLuaManager(void)
 {
@@ -415,6 +423,10 @@ int ygInit(GameConfig *cfg)
 	CHECK_AND_GOTO(s7Manager = ysNewManager(NULL, t), NULL, error,
 		       "s7 init failed");
 
+	CHECK_AND_GOTO(t = ysPH7Init(), -1, error, "ph7 init failed");
+	CHECK_AND_GOTO(ph7Manager = ysNewManager(NULL, t), NULL, error,
+		       "ph7 init failed");
+
 	CHECK_AND_GOTO(t = ysQjsInit(), -1, error, "Qjs init failed");
 	CHECK_AND_GOTO(qjsManager = ysNewManager(NULL, t), NULL, error,
 		       "Qjs init failed");
@@ -493,6 +505,8 @@ void ygEnd()
 	ysLuaEnd();
 	ysDestroyManager(s7Manager);
 	ysS7End();
+	ysDestroyManager(ph7Manager);
+	ysPH7End();
 	/* it seems V crash :( */
 	/* ysDestroyManager(qjsManager); */
 	/* ysQjsEnd(); */
@@ -554,6 +568,8 @@ void *ygGetManager(const char *name)
 		return ysYBytecodeManager();
 	else if (yuiStrEqual0(name, "s7"))
 		return s7Manager;
+	else if (yuiStrEqual0(name, "ph7"))
+		return ph7Manager;
 	else if (yuiStrEqual0(name, "js"))
 		return qjsManager;
 	return NULL;
@@ -589,11 +605,11 @@ Entity *ygLoadMod(const char *path)
 	const char *alias;
 
 	YE_NEW(string, tmp_name, "");
-	for (int i = 0; i < 4; ++i) {
+	for (int i = 0; i < 5; ++i) {
 		const char * const starts[] = {"/start.c", "/start.lua",
-					       "/start.scm", "/start.js"};
+			"/start.scm", "/start.js", "/start.php"};
 		void * const managers[] = {tccManager, luaManager,
-					   s7Manager, qjsManager};
+			s7Manager, qjsManager, ph7Manager};
 
 		tmp = g_strconcat(path, starts[i], NULL);
 		CHECK_AND_RET(tmp, NULL, NULL,
@@ -691,6 +707,13 @@ Entity *ygLoadMod(const char *path)
 			if (ysLoadFile(s7Manager, pathCstr) < 0) {
 				DPRINT_ERR("Error when loading '%s': %s\n",
 					   pathCstr, ysGetError(s7Manager));
+				goto fail_preload;
+			}
+
+		} else if (yuiStrEqual0(yeGetString(tmpType), "ph7")) {
+			if (ysLoadFile(ph7Manager, pathCstr) < 0) {
+				DPRINT_ERR("Error when loading '%s': %s\n",
+					   pathCstr, ysGetError(ph7Manager));
 				goto fail_preload;
 			}
 

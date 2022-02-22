@@ -17,6 +17,7 @@ SRC = 	$(SCRIPT_DIR)/lua-script.c \
 	$(SCRIPT_DIR)/native-script.c \
 	$(SCRIPT_DIR)/ybytecode-script.c \
 	$(SCRIPT_DIR)/s7-script.c \
+	$(SCRIPT_DIR)/ph7-script.c \
 	$(SCRIPT_DIR)/quickjs.c \
 	$(SCRIPT_DIR)/script.c \
 	$(BYTECODE_DIR)/ybytecode.c \
@@ -52,7 +53,7 @@ SRC = 	$(SCRIPT_DIR)/lua-script.c \
 
 SRC += $(SOUND_SRC)
 
-O_SRC = $(SCRIPT_DIR)/s7.c
+O_SRC = $(SCRIPT_DIR)/s7.c ph7/ph7.c
 
 O_OBJ = $(O_SRC:.c=.o)
 
@@ -108,6 +109,7 @@ COMMON_CFLAGS += -Wno-unknown-warning-option
 COMMON_CFLAGS += -Wno-cast-function-type
 COMMON_CFLAGS += -fno-strict-aliasing # casting entity doesn't really respect strict aliasing rules
 COMMON_CFLAGS += $(ANALYZER_FLAG)
+COMMON_CFLAGS += -I./ph7/
 
 CXXFLAGS = $(COMMON_CFLAGS) -x c++ -Wno-missing-exception-spec -fno-exceptions -fno-rtti -fpermissive
 
@@ -129,6 +131,9 @@ $(QUICKJS_PATH):
 
 $(QUICKJS_LIB_PATH): $(QUICKJS_PATH)
 	CONFIG_FPIC=1 make -C $(QUICKJS_PATH) libquickjs.a
+
+ph7/ph7.o:
+	$(CC) -c -o ph7/ph7.o ph7/ph7.c -I./ph7/ -O0 -g
 
 $(SCRIPT_DIR)/s7.o:
 	$(CC) -c -o $(SCRIPT_DIR)/s7.o $(SCRIPT_DIR)/s7.c -Wno-implicit-fallthrough -fPIC -O0 -g
