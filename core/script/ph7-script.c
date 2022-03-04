@@ -466,6 +466,36 @@ int ph7yeCreateFunction(ph7_context *pCtx, int argc, ph7_value **argv)
 	return PH7_OK;
 }
 
+static int ph7yesCall(ph7_context *pCtx, int argc, ph7_value **a)
+{
+	union ycall_arg args[argc - 1];
+	int types[argc - 1];
+	void *r;
+	int i = 1;
+
+	for (; i < argc; ++i) {
+		if (ph7_value_is_int(a[i])) {
+			args[i - 1].i = I_AT(a, i);
+			types[i - 1] = YS_INT;
+		} else if (ph7_value_is_string(a[i])) {
+			args[i - 1].str = S_AT(a, i);
+			types[i - 1] = YS_STR;
+		} else {
+			args[i - 1].e = E_AT(a, i);
+			types[i - 1] = YS_ENTITY;
+			if (!args[i - 1].e) {
+				break;
+			}
+		}
+	}
+	r = yesCallInt(E_AT(a, 0), i, args, types);
+	if (yeIsPtrAnEntity(r))
+		ph7_result_resource(pCtx, r);
+	else
+		ph7_result_int64(pCtx, (intptr_t) r);
+	return 0;
+}
+
 static int Output_Consumer(const void *pOutput,unsigned int nOutputLen,void *pUserData /* Unused */)
 {
 #ifdef __WINNT__
@@ -561,6 +591,7 @@ static int loadString(void *sm, const char *str)
 	BIND(yeCreateInt, 0);
 	BIND(yeCreateFunction, 0);
 	BIND(yeCreateArray, 0);
+	BIND(yesCall);
 
 	rc = ph7_create_function(vm, "yirl_return", yirl_return, 0);
 	if( rc != PH7_OK ) {
