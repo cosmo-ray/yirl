@@ -250,6 +250,8 @@ BIND_EEI(ywCanvasSetWeight, 3, 0);
 
 BIND_EIII(ywRectContain, 3, 1);
 
+BIND_V(ygTerminate);
+
 BIND_V(ygUserDir);
 BIND_V(ywGetTurnLengthOverwrite);
 BIND_V(yWindowWidth);
