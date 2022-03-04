@@ -138,7 +138,6 @@ typedef enum {
 typedef struct Entity_
 {
 	ENTITY_HEADER
-
 } Entity;
 
 typedef	struct {
