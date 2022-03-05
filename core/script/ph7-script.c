@@ -496,6 +496,18 @@ static int ph7yesCall(ph7_context *pCtx, int argc, ph7_value **a)
 	return 0;
 }
 
+static int ph7ygFileToEnt(ph7_context *pCtx, int argc, ph7_value **argv)
+{
+	Entity *father = argc > 2 ? ph7_value_to_resource(argv[2]) :
+		gc_stack[gc_stack_i - 2];
+	const char *str = ph7_value_to_string(argv[1], NULL);
+	Entity *r = ygFileToEnt(ph7_value_to_int(argv[0]), str, father);
+	printf("ph7ygFileToEnt %d %s %p\n", ph7_value_to_int(argv[0]), str, r);
+
+	ph7_result_resource(pCtx, r);	
+	return 0;
+}
+
 static int Output_Consumer(const void *pOutput,unsigned int nOutputLen,void *pUserData /* Unused */)
 {
 #ifdef __WINNT__
@@ -587,11 +599,12 @@ static int loadString(void *sm, const char *str)
 
 #include "binding.c"
 
-	BIND(yeCreateString, 0);
-	BIND(yeCreateInt, 0);
-	BIND(yeCreateFunction, 0);
-	BIND(yeCreateArray, 0);
+	BIND(yeCreateString);
+	BIND(yeCreateInt);
+	BIND(yeCreateFunction);
+	BIND(yeCreateArray);
 	BIND(yesCall);
+	BIND(ygFileToEnt);
 
 	rc = ph7_create_function(vm, "yirl_return", yirl_return, 0);
 	if( rc != PH7_OK ) {
