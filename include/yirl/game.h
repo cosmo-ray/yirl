@@ -135,8 +135,6 @@ Entity *ygLoadMod(const char *path);
 Entity *ygGetMod(const char *path);
 Entity *ygGetFuncExt(const char *func);
 
-int ygLoadScript(Entity *mod, void *manager, const char *path);
-
 void *ygGetManager(const char *name);
 
 void ygTerminate(void);
@@ -147,6 +145,28 @@ void *ygPH7Manager(void);
 void *ygS7Manager(void);
 void *ygGetLuaManager(void);
 void *ygGetTccManager(void);
+
+/* When I'll have time I should make a _Generic function */
+int ygLoadScript(Entity *mod, void *manager, const char *path);
+
+enum {
+	YLUA,
+	YS7,
+	YTCC,
+	YPH7
+};
+
+static inline int ygLoadScript2(int manager, Entity *mod, const char *path) {
+	if (manager == YLUA)
+		return ygLoadScript(mod, ygGetLuaManager(), path);
+	else if (manager == YS7)
+		return ygLoadScript(mod, ygS7Manager(), path);
+	else if (manager == YPH7)
+		return ygLoadScript(mod, ygPH7Manager(), path);
+	else if (manager == YTCC)
+		return ygLoadScript(mod, ygGetTccManager(), path);
+	return -1;
+}
 
 int ygBind(YWidgetState *wid, const char *callback);
 
