@@ -139,6 +139,8 @@ BIND_EI(yeGetKeyAt, 2, 0);
 
 BIND_SS(ygReCreateString, 2, 0);
 
+BIND_E(yePrint, 1, 0);
+
 BIND_E(ywidInTree, 1, 0);
 
 BIND_E(ywCntParent, 1, 0);
