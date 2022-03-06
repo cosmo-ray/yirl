@@ -497,7 +497,37 @@ static int ph7yesCall(ph7_context *pCtx, int argc, ph7_value **a)
 			}
 		}
 	}
-	r = yesCallInt(E_AT(a, 0), i, args, types);
+	r = yesCallInt(E_AT(a, 0), i - 1, args, types);
+	if (yeIsPtrAnEntity(r))
+		ph7_result_resource(pCtx, r);
+	else
+		ph7_result_int64(pCtx, (intptr_t) r);
+	return 0;
+}
+
+static int ph7ygScriptCall(ph7_context *pCtx, int argc, ph7_value **a)
+{
+	union ycall_arg args[argc - 2];
+	int types[argc - 2];
+	void *r;
+	int i = 2;
+
+	for (; i < argc; ++i) {
+		if (ph7_value_is_int(a[i])) {
+			args[i - 2].i = I_AT(a, i);
+			types[i - 2] = YS_INT;
+		} else if (ph7_value_is_string(a[i])) {
+			args[i - 2].str = S_AT(a, i);
+			types[i - 2] = YS_STR;
+		} else {
+			args[i - 2].e = E_AT(a, i);
+			types[i - 2] = YS_ENTITY;
+			if (!args[i - 2].e) {
+				break;
+			}
+		}
+	}
+	r = ysCallInt(ygScriptManager(I_AT(a, 0)), S_AT(a, 1), i - 2, args, types);
 	if (yeIsPtrAnEntity(r))
 		ph7_result_resource(pCtx, r);
 	else
@@ -617,6 +647,7 @@ static int loadString(void *sm, const char *str)
 	BIND(yeCreateArray);
 	BIND(yesCall);
 	BIND(ygFileToEnt);
+	BIND(ygScriptCall);
 
 	rc = ph7_create_function(vm, "yclose_output", yclose_output, 0);
 	if( rc != PH7_OK ) {
