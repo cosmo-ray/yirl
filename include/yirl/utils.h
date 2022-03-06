@@ -112,6 +112,12 @@ typedef int64_t int_ptr_t;
 
 #endif
 
+enum {
+	YLUA,
+	YS7,
+	YTCC,
+	YPH7
+};
 /* Code from http://jhnet.co.uk/articles/cpp_magic */
 
 #define YUI_GET_ARG_COUNT(...) _GET_ARG_COUNT(0, ## __VA_ARGS__, 70, 69, 68, \

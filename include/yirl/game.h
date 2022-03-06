@@ -149,23 +149,23 @@ void *ygGetTccManager(void);
 /* When I'll have time I should make a _Generic function */
 int ygLoadScript(Entity *mod, void *manager, const char *path);
 
-enum {
-	YLUA,
-	YS7,
-	YTCC,
-	YPH7
-};
+static inline void *ygScriptManager(int manager) {
+	if (manager == YLUA)
+		return ygGetLuaManager();
+	else if (manager == YS7)
+		return ygS7Manager();
+	else if (manager == YPH7)
+		return ygPH7Manager();
+	else if (manager == YTCC)
+		return ygGetTccManager();
+	return NULL;
+}
+
+#define ygScriptCall(manager, func, args...)		\
+	ysCall(ygScriptManager(manager), (func), args)
 
 static inline int ygLoadScript2(int manager, Entity *mod, const char *path) {
-	if (manager == YLUA)
-		return ygLoadScript(mod, ygGetLuaManager(), path);
-	else if (manager == YS7)
-		return ygLoadScript(mod, ygS7Manager(), path);
-	else if (manager == YPH7)
-		return ygLoadScript(mod, ygPH7Manager(), path);
-	else if (manager == YTCC)
-		return ygLoadScript(mod, ygGetTccManager(), path);
-	return -1;
+	return ygLoadScript(mod, ygScriptManager(manager), path);
 }
 
 int ygBind(YWidgetState *wid, const char *callback);
