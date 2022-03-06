@@ -381,7 +381,16 @@ static int init(void *sm, void *args)
 	"else if ($nb_args == 5) "					\
 	"call_user_func($function_to_call, $arg_00, $arg_01, $arg_02,"	\
 	"$arg_03, $arg_04);"						\
+	"yclose_output();"						\
 	"\n?>\n"							\
+
+_Bool output_ok;
+
+int yclose_output(ph7_context *pCtx, int argc, ph7_value **argv)
+{
+	output_ok = 0;
+	return PH7_OK;
+}
 
 int yirl_return_wid(ph7_context *pCtx, int argc, ph7_value **argv)
 {
@@ -508,11 +517,14 @@ static int ph7ygFileToEnt(ph7_context *pCtx, int argc, ph7_value **argv)
 	return 0;
 }
 
-static int Output_Consumer(const void *pOutput,unsigned int nOutputLen,void *pUserData /* Unused */)
+static int Output_Consumer(const void *pOutput, unsigned int nOutputLen,
+			   void *pUserData /* Unused */)
 {
+	if (!output_ok)
+		return PH7_OK;
 #ifdef __WINNT__
 	BOOL rc;
-	rc = WriteFile(GetStdHandle(STD_OUTPUT_HANDLE),pOutput,(DWORD)nOutputLen,0,0);
+	rc = WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), pOutput, (DWORD)nOutputLen,0,0);
 	if( !rc ){
 		/* Abort processing */
 		return PH7_ABORT;
@@ -606,6 +618,11 @@ static int loadString(void *sm, const char *str)
 	BIND(yesCall);
 	BIND(ygFileToEnt);
 
+	rc = ph7_create_function(vm, "yclose_output", yclose_output, 0);
+	if( rc != PH7_OK ) {
+		Fatali("Error while registering foreign functions 'yirl_return'");
+	}
+
 	rc = ph7_create_function(vm, "yirl_return", yirl_return, 0);
 	if( rc != PH7_OK ) {
 		Fatali("Error while registering foreign functions 'yirl_return'");
@@ -691,6 +708,7 @@ static void *call(void *sm, const char *name, int nb, union ycall_arg *args,
 	}
 
 	gc_stack[gc_stack_i++] = yeCreateArray(NULL, NULL);
+	output_ok = 1;
 
 	rc = ph7_vm_exec(vm, 0);
 	if (rc != PH7_OK) {
