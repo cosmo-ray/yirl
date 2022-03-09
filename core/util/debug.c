@@ -57,16 +57,6 @@ void	yuiDebugPrint(int mode, char const* format, ...)
 		va_list	vl;
 
 		va_start(vl, format);
-#ifndef NO_PRINT_ON_CERR
-		if (mode > 0)
-		{
-			va_list	vl2;
-
-			va_copy(vl2, vl);
-			y_vprintf(2, format, vl2);
-			va_end(vl2);
-		}
-#endif
 		debug_print_(log_confs[mode].str, format, vl);
 		va_end(vl);
 	}
