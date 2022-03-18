@@ -21,19 +21,26 @@ void *yesCallInt(Entity *func, int nb, union ycall_arg *args,
 		 int *types)
 {
 	void *fp;
+	void *manager;
 
-	if (unlikely(!func || (!(fp = yeGetFunctionFastPath(func)) &&
-			       !yeGetFunction(func))))
+	if (unlikely(!func))
 		return NULL;
+
+	manager = YE_TO_FUNC(func)->manager;
+	if (ysHasEntityCall(manager))
+		return ysEntityCall(manager, func, nb, args, types);
+
+	if (unlikely(!(fp = yeGetFunctionFastPath(func)) &&
+		     !yeGetFunction(func)))
+		return NULL;
+
 	if (!fp) {
 		YE_TO_FUNC(func)->fastPath =
-			ysGetFastPath(YE_TO_FUNC(func)->manager,
-				      yeGetFunction(func));
+			ysGetFastPath(manager, yeGetFunction(func));
 		fp = yeGetFunctionFastPath(func);
 	}
+
 	if (fp)
-		return ysFastCall(YE_TO_FUNC(func)->manager, fp, nb,
-				  args, types);
-	return ysCallInt(YE_TO_FUNC(func)->manager, yeGetFunction(func), nb,
-			 args, types);
+		return ysFastCall(manager, fp, nb, args, types);
+	return ysCallInt(manager, yeGetFunction(func), nb, args, types);
 }

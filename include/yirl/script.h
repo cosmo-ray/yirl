@@ -1,3 +1,4 @@
+
 /*
 **Copyright (C) 2015 Matthias Gatto
 **
@@ -44,6 +45,8 @@ typedef struct {
 	void (*addFuncSymbole)(void *sm, const char *name, int nbArgs,
 			       Entity *func);
 	void *(*call)(void *sm, const char *name, int nb,
+		      union ycall_arg *args, int *types);
+	void *(*e_call)(void *sm, Entity *e, int nb,
 		      union ycall_arg *args, int *types);
 	void *(*fastCall)(void *opac, void *opacFunction,
 			  int nb, union ycall_arg *args,
@@ -150,6 +153,17 @@ static inline void *ysGetFastPath(void *sm, const char *name)
 	if (!((YScriptOps *)sm)->getFastPath)
 		return NULL;
 	return ((YScriptOps *)sm)->getFastPath(sm, name);
+}
+
+static inline _Bool ysHasEntityCall(void *sm)
+{
+	return !!((YScriptOps *)sm)->e_call;
+}
+
+static inline void *ysEntityCall(void *sm, Entity *e, int nb,
+				 union ycall_arg *args, int *types)
+{
+	return ((YScriptOps *)sm)->e_call(sm, e, nb, args, types);
 }
 
 static inline void *ysFastCall(void *sm, void *opacFunc, int nb,

@@ -18,6 +18,7 @@
 #include "ph7-script.h"
 #include <yirl/all.h>
 #include "game.h"
+/* #include <zlib.h> */
 #include <stdlib.h>
 #include <string.h>
 
@@ -31,8 +32,9 @@ static int t = -1;
 #define RETURN_TYPE_WIDPTR 3
 
 #define GC_STACK_LEN 64
-int gc_stack_i;
-Entity *gc_stack[GC_STACK_LEN];
+
+static int gc_stack_i;
+static Entity *gc_stack[GC_STACK_LEN];
 
 static struct {
 	int t;
@@ -43,12 +45,20 @@ static struct {
 	};
 } call_ret = {};
 
+struct vm_info {
+	ph7_vm *pVm;
+	/* uLong file_hash; */
+};
+
 typedef struct {
 	YScriptOps ops;
 	ph7 *pEngine; /* PH7 engine */
-	ph7_vm *pVm[PH7_MAX_VMS];  /* Compiled PHP program */
+	struct vm_info vms[PH7_MAX_VMS]; /* Compiled PHP program */
 	int nb_vms;
+	int cur_vm;
 } YScriptPH7;
+
+static YScriptPH7 *manager;
 
 static int yph7_result_string(ph7_context *pCtx, const char *zString)
 {
@@ -370,17 +380,17 @@ static int init(void *sm, void *args)
 }
 
 #define CALL_STRING "\n"						\
-	"if ($nb_args == 0) call_user_func($function_to_call);"		\
-	"else if ($nb_args == 1) call_user_func($function_to_call, $arg_00);" \
-	"else if ($nb_args == 2) "					\
-	"call_user_func($function_to_call, $arg_00, $arg_01);"		\
-	"else if ($nb_args == 3) "					\
-	"call_user_func($function_to_call, $arg_00, $arg_01, $arg_02);"	\
-	"else if ($nb_args == 4) "					\
-	"call_user_func($function_to_call, $arg_00, $arg_01, $arg_02, $arg_03);" \
-	"else if ($nb_args == 5) "					\
-	"call_user_func($function_to_call, $arg_00, $arg_01, $arg_02,"	\
-	"$arg_03, $arg_04);"						\
+	"if ($nb_args == 0)\n\tcall_user_func($function_to_call);\n"		\
+	"else if ($nb_args == 1)\n\tcall_user_func($function_to_call, $arg_00);\n" \
+	"else if ($nb_args == 2)\n"					\
+	"\tcall_user_func($function_to_call, $arg_00, $arg_01);\n"		\
+	"else if ($nb_args == 3)\n"					\
+	"\tcall_user_func($function_to_call, $arg_00, $arg_01, $arg_02);\n"	\
+	"else if ($nb_args == 4)\n"					\
+	"\tcall_user_func($function_to_call, $arg_00, $arg_01, $arg_02, $arg_03);\n" \
+	"else if ($nb_args == 5)\n"					\
+	"\tcall_user_func($function_to_call, $arg_00, $arg_01, $arg_02,\n"	\
+	"\t$arg_03, $arg_04);\n"						\
 	"yclose_output();"						\
 	"\n?>\n"							\
 
@@ -571,13 +581,14 @@ static int Output_Consumer(const void *pOutput, unsigned int nOutputLen,
 	return PH7_OK;
 }
 
-static int loadString(void *sm, const char *str)
+static int loadString_(void *sm, const char *str, _Bool do_crc)
 {
 	int rc;
 	YScriptPH7 *ph7sm = sm;
 	int len = strlen(str);
 	char *prog = malloc(len + sizeof CALL_STRING);
 	char *end = NULL;
+	char *error_str = NULL;
 
 	if (!prog)
 		Fatali("malloc fail");
@@ -592,21 +603,27 @@ static int loadString(void *sm, const char *str)
 		Fatali("'?>' not found");
 	memcpy(end, CALL_STRING, sizeof CALL_STRING);
 
-	
+	/* Extract error log */
+	ph7_config(ph7sm->pEngine,
+		   PH7_CONFIG_ERR_LOG,
+		   &error_str,
+		   NULL
+		);
+
         /* Compile the PHP test program defined above */
 	rc = ph7_compile_v2(
 		ph7sm->pEngine,  /* PH7 engine */
 		prog, /* PHP test program */
 		-1    /* Compute input length automatically*/, 
-		&ph7sm->pVm[ph7sm->nb_vms],     /* OUT: Compiled PHP program */
+		&ph7sm->vms[ph7sm->nb_vms].pVm,     /* OUT: Compiled PHP program */
 		0     /* IN: Compile flags */
 		);
 	if(rc != PH7_OK) {
-		DPRINT_ERR("Can't compile PH7(PHP) code");
+		DPRINT_ERR("Can't compile PH7(PHP) code: %s\n", error_str);
 		return -1;
 	}
 
-	ph7_vm *vm = ph7sm->pVm[ph7sm->nb_vms];
+	ph7_vm *vm = ph7sm->vms[ph7sm->nb_vms].pVm;
 
 	rc = ph7_vm_config(vm,
 			   PH7_VM_CONFIG_OUTPUT, 
@@ -617,6 +634,7 @@ static int loadString(void *sm, const char *str)
 		Fatali("Error while installing the VM output consumer callback");
 	}
 
+	
 #define BIND(name, other...) do {					\
 		rc = ph7_create_function(vm, #name, ph7##name, 0);	\
 	} while (0)
@@ -664,27 +682,54 @@ static int loadString(void *sm, const char *str)
 		Fatali("Error while registering foreign functions 'yirl_return_wid'");
 	}
 
+	ph7sm->cur_vm = ph7sm->nb_vms;
+	/* if (do_crc) { */
+	/* 	ph7sm->vms[ph7sm->cur_vm].file_hash = */
+	/* 		crc32(0, (const Bytef *)prog, strlen(prog)); */
+	/* } */
+	/* printf("PROG: %s - %ld\n", prog, crc32(0, (const Bytef *)prog, strlen(prog))); */
+
 	ph7sm->nb_vms++;
+	free(prog);
 	return 0;
+}
+
+static int loadString(void *sm, const char *str)
+{
+	return loadString_(sm, str, 1);
 }
 
 static int loadFile(void *s, const char *file)
 {
+	int ret;
+	printf("loaf file: %s\n", file);
 	yeAutoFree Entity *f = ygFileToEnt(YRAW_FILE, file, NULL);
-	return loadString(s, yeGetString(f));
+	ret = loadString_(s, yeGetString(f), 0);
+	/* if (!ret) { */
+	/* 	manager->vms[manager->cur_vm].file_hash = */
+	/* 		crc32(0, (const Bytef *)file, strlen(file)); */
+	/* } */
+	return ret;
 }
 
 static int destroy(void *sm)
 {
+	manager = NULL;
 	free((YScriptPH7 *)sm);
 	return 0;
 }
 
-static void *call(void *sm, const char *name, int nb, union ycall_arg *args,
-		  int *t_array)
+static void *getFastPath(void *scriptManager, const char *name)
+{
+	return (void *)manager->cur_vm;
+}
+
+
+static void *call_(void *sm, const char *name, int nb, union ycall_arg *args,
+		   int *t_array)
 {
 	YScriptPH7 *ph7sm = sm;
-	ph7_vm *vm = ph7sm->pVm[ph7sm->nb_vms - 1];
+	ph7_vm *vm = ph7sm->vms[ph7sm->cur_vm].pVm;
 	int rc;
 
 	ph7_value *pv = ph7_new_scalar(vm);
@@ -752,9 +797,33 @@ static void *call(void *sm, const char *name, int nb, union ycall_arg *args,
 	return call_ret.vptr;
 }
 
+static void *call(void *sm, const char *name, int nb, union ycall_arg *args,
+		  int *t_array)
+{
+	if (!strcmp(name, "mod_init") || !strcmp(name, "file_init"))
+		return call_(sm, name, nb, args, t_array);
+	Fatal("Ph7 handle call only from entity, and for file/mod init\n");
+	return NULL;
+}
+
+static void *e_call(void *sm, Entity *fe, int nb, union ycall_arg *args,
+		    int *t_array)
+{
+	FunctionEntity *f = (void *)fe;
+
+	manager->cur_vm = f->idata;
+	return call_(sm, yeGetFunction(fe), nb, args, t_array);
+}
+
+
 static void *allocator(void)
 {
 	YScriptPH7 *ret;
+
+	if (manager) {
+		DPRINT_ERR("Can''t create more than 1 ph7 manager\n");
+		return NULL;
+	}
 
 	ret = calloc(1, sizeof *ret);
 	if (ret == NULL)
@@ -764,9 +833,12 @@ static void *allocator(void)
 	ret->ops.loadFile = loadFile;
 	ret->ops.loadString = loadString;
 	ret->ops.call = call;
+	ret->ops.e_call = e_call;
+	ret->ops.getFastPath = getFastPath;
 	ret->ops.getError = NULL;
 	ret->ops.registreFunc = NULL;
 	ret->ops.addFuncSymbole = NULL;
+	manager = ret;
 	return (void *)ret;
 }
 
