@@ -200,6 +200,8 @@ install_extra_modules:
 	cp modules/jrpg-fight/README.md $(INSTALL_MOD)/jrpg-fight/
 	mkdir -p $(INSTALL_MOD)/sprite-manager/
 	cp modules/sprite-manager/start.c $(INSTALL_MOD)/sprite-manager/
+	mkdir -p $(INSTALL_MOD)/loading_bar/
+	cp modules/loading_bar/start.c $(INSTALL_MOD)/loading_bar/
 	mkdir -p $(INSTALL_MOD)/$(ULPCS)/
 	cp modules/$(ULPCS)/start.json $(INSTALL_MOD)/$(ULPCS)/
 	cp modules/$(ULPCS)/lpcs.lua $(INSTALL_MOD)/$(ULPCS)/
