@@ -133,10 +133,10 @@ $(QUICKJS_LIB_PATH): $(QUICKJS_PATH)
 	CONFIG_FPIC=1 make -C $(QUICKJS_PATH) libquickjs.a
 
 ph7/ph7.o:
-	$(CC) -c -o ph7/ph7.o ph7/ph7.c -I./ph7/ -O0 -g
+	$(CC) -c -o ph7/ph7.o ph7/ph7.c -I./ph7/ -O2 -g -fPIC
 
 $(SCRIPT_DIR)/s7.o:
-	$(CC) -c -o $(SCRIPT_DIR)/s7.o $(SCRIPT_DIR)/s7.c -Wno-implicit-fallthrough -fPIC -O0 -g
+	$(CC) -c -o $(SCRIPT_DIR)/s7.o $(SCRIPT_DIR)/s7.c -Wno-implicit-fallthrough -fPIC -O2 -g
 
 $(LIBNAME).a: $(OBJ) $(O_OBJ) $(OBJXX) $(QUICKJS_LIB_PATH) $(SDL_GPU_LDFLAGS)
 	$(AR)  -r -c -s $(LIBNAME).a $(OBJ) $(O_OBJ) $(OBJXX) $(QUICKJS_LIB_PATH)
