@@ -258,6 +258,7 @@ static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
 	Entity *txt;
 	Entity *entries;
 	int destroyable_answers = 0;
+	Entity *gen_callback;
 
 	if (yeGetIntAt(wid, "isBlock") == 1) {
 		dialogue = yeGet(wid, "block");
@@ -270,6 +271,13 @@ static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
 					 yeGetString(curent));
 		}
 	}
+
+	if ((gen_callback = yeGet(dialogue, "gen-callback"))) {
+		Entity *c = ygGet(yeGetString(gen_callback));
+
+		yesCall(c, wid, dialogue);
+	}
+
 	if (yeGet(dialogue, "pre-action")) {
 		printfTextAndAnswer_earlyret = 0;
 		ywidAction(yeGet(dialogue, "pre-action"), wid, NULL);
