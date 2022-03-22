@@ -29,7 +29,7 @@ you can then call play function, that will start and run the desired game.
 quit and exit callback are used in most game widget to tell the game what to do when you quit the game.
 It need to be implemented in the module and generally quit the engine by default.
 
-supportted scripting languages are lua, C(with tinycc), scheme(s7), javascript(quickjs) and yb(YIRL own asm) feel free to add your language :).
+supportted scripting languages are lua, C(with tinycc), scheme(s7), javascript(quickjs), php 5.3 (ph7) and yb(YIRL own asm) feel free to add your language :).
 
 # License:
 YIRL is licensed under the LGPL license, the idea behind that, is that you can add a modules under the license you want, but if you make a modification to the engine, you need to share it.
