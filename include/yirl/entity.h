@@ -1048,6 +1048,17 @@ static inline intptr_t yeIData(Entity *e)
  */
 Entity *yeCopy(Entity* src, Entity* dest);
 
+/**
+ * a more C-style copy
+ * this is here because C-style function are in fact easier to
+ * use then "logical" function.
+ * sure, in english you generally say, copy this into that,
+ * so src, dest make more sence than dest, src
+ * but in C you do src = dest; so dest, src make more sence in this case.
+ */
+#define yecpy(dest, src)			\
+	yeCopy(src, dest)
+
 Entity *yeCreateCopy(Entity *src, Entity *father, const char *name);
 
 /**
