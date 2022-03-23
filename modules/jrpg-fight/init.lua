@@ -9,7 +9,6 @@ local PJ_WIN = 4
 
 local lpcs = Entity.wrapp(ygGet("lpcs"))
 local modPath = Entity.wrapp(ygGet("jrpg-fight.$path")):to_string()
-local combots = Entity.wrapp(ygGet("jrpg-fight.game.player.combots"))
 
 local us_per_frm = 130000
 
@@ -95,7 +94,7 @@ end
 
 local function new_handler(main, guy, y, x, orig)
    local canvas = getCanvas(main)
-   local guy = newDefaultGuy(guy, true)
+   local guy = initCombos(guy, true)
    local bg_h = nil
 
    if guy.sprite then
@@ -463,8 +462,6 @@ function fightAction(entity, eve)
       is_menu_off = true
       return YEVE_ACTION
    end
-   print("atk state: ", entity.atk_state:to_int(),
-	 entity.gg_handlers[cur_player].char.atk_mod)
    return YEVE_NOTHANDLE
 end
 
@@ -478,6 +475,7 @@ end
 
 function setOrig(handler, x, y)
    if yeGetIntAt(handler, "type") == LPCS_T then
+      print("set handler x, y:", x, y)
       ylpcsHandlerSetOrigXY(handler, x, y)
       ylpcsHandlerRefresh(handler)
    end
@@ -755,7 +753,6 @@ end
 function attack(main, attacker, attacked, mod)
    local anim = mk_anim(main, attacker, attacked)
 
-   print("ATTACK ATTACK ATTACK")
    startKanaAnim(main, main.katakana_words[0][0])
    anim.sucess = 1
    anim.combots = attacker.char._combots
@@ -1008,33 +1005,63 @@ function fightItems(entity, func)
    ywPushNewWidget(menuCnt, itemsMenu);
 end
 
-function newDefaultGuy(guy, isEnemy)
+function initCombos(guy, isEnemy)
    local ret = guy
+   local nb_cmb = 2
+   local cmb_len = 3 + (yuiRand() % 3)
 
-   if guy._combots == nil then
-      local cmb = nil
-      if guy.attack then
-	 cmb = combots[guy.attack:to_string()]
-      elseif yIsNNil(combots[0].touch) then
-	 cmb = combots
-      else
-	 cmb = combots[0]
+   guy._combots = {}
+
+   for i = 0, nb_cmb - 1 do
+      guy._combots[i] = {}
+      local cmb = guy._combots[i]
+      cmb.touch = {}
+      cmb.anim = {}
+
+      if i == 0 then
+	 cmb.anim.to = "target"
       end
 
-      guy._combots = {}
-      yeCopy(cmb, guy._combots)
-      if isEnemy then
-	 local j = 0
-	 while j < yeLen(guy._combots[j]) do
-	    cmb = guy._combots[j]
-	    local i = 0
-	    local poses = cmb.anim.poses
-	    while i < yeLen(poses) do
-	       local c_pos = poses[i]
-	       poses[i][1] = poses[i][1] + 2
-	       i = i + 1
-	    end
-	    j = j + 1
+      cmb.anim.poses = {}
+      local poses = cmb.anim.poses
+      local touch = cmb.touch
+      local touch_len = 1 + yuiRand() % 3
+      local next_touch = cmb_len - yuiRand() % cmb_len
+      local in_touch = 0
+
+      if next_touch == cmb_len then
+	 next_touch = cmb_len - 1
+      end
+
+      for j = 0, cmb_len - 1 do
+	 poses[j] = {}
+
+	 if next_touch == j then
+	    in_touch = touch_len
+	 end
+
+	 if in_touch > 0 then
+	    poses[j][0] = 4
+	    touch[j] = 1
+	    in_touch = in_touch - 1
+	 else
+	    poses[j][0] = 1
+	    touch[j] = 0
+	 end
+	 poses[j][1] = 5
+
+      end
+   end
+
+   if isEnemy == true then
+      for j = 0, yeLen(guy._combots) - 1 do
+	 cmb = guy._combots[j]
+	 local poses = cmb.anim.poses
+	 for i = 0, yeLen(poses) -  1 do
+	    local c_pos = poses[i]
+	    print("reset pos from ", poses[i][1])
+	    poses[i][1] = poses[i][1] + 2
+	    print("to ", poses[i][1])
 	 end
       end
    end
@@ -1121,7 +1148,7 @@ function fightInit(entity)
    local i = 0
    local nb_gg = yeLen(good_guys)
    while i < nb_gg do
-      local good_guy = newDefaultGuy(good_guys[i], false)
+      local good_guy = good_guys[i]
       local y = locations[nb_gg][i + 1]
 
       local gg_h = new_handler(entity, good_guy, y, wid_pix.w - 100,
@@ -1146,7 +1173,7 @@ function fightInit(entity)
    canvas = Canvas.wrapp(canvas)
    local bg_handlers = Entity.new_array(entity, "bg_handlers")
    while i < nb_bg do
-      local bad_guy = newDefaultGuy(bad_guys[i], true)
+      local bad_guy = bad_guys[i]
       local y = locations[nb_bg][i + 1]
       local bg_h = new_handler(entity, bad_guy, y, 50, bad_orig_pos)
 
@@ -1162,7 +1189,7 @@ function fightInit(entity)
 end
 
 function setCombots(path)
-   combots = Entity.wrapp(ygGet(ylovePtrToString(path)))
+   print("COMBO ARE NOW AUTO GENERATED, THIS FUNCTION IS NOW UNUSED")
 end
 
 function getWinner(wid, id)
