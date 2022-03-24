@@ -92,9 +92,9 @@ local function  rm_handler(main, h)
    canvas:remove(h.canvas)
 end
 
-local function new_handler(main, guy, y, x, orig)
+local function new_handler(main, guy, y, x, orig, is_enemy)
    local canvas = getCanvas(main)
-   local guy = initCombos(guy, true)
+   local guy = initCombos(guy, is_enemy)
    local bg_h = nil
 
    if guy.sprite then
@@ -585,7 +585,7 @@ function endAnimationAttack(main, cur_anim)
 		  local y = ywPosY(ylpcsHandePos(bad_guys[screen_idx]))
 
 		  bad_guys[screen_idx] = new_handler(main, enemies[j], y, 50,
-						     bad_orig_pos)
+						     bad_orig_pos, true)
 		  enemies[j].screen_idx = screen_idx
 		  enemies[j].on_screen = true
 		  enemies[i].on_screen = false
@@ -1152,7 +1152,7 @@ function fightInit(entity)
       local y = locations[nb_gg][i + 1]
 
       local gg_h = new_handler(entity, good_guy, y, wid_pix.w - 100,
-			       good_orig_pos)
+			       good_orig_pos, false)
       gg_handlers[i] = gg_h
       i = i + 1
    end
@@ -1175,7 +1175,7 @@ function fightInit(entity)
    while i < nb_bg do
       local bad_guy = bad_guys[i]
       local y = locations[nb_bg][i + 1]
-      local bg_h = new_handler(entity, bad_guy, y, 50, bad_orig_pos)
+      local bg_h = new_handler(entity, bad_guy, y, 50, bad_orig_pos, true)
 
       bad_guy.screen_idx = i
       bad_guy.on_screen = true
