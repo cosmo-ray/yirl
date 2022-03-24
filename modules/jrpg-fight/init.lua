@@ -157,6 +157,14 @@ end
 
 local time_acc = 0
 
+function get_stats(g, stat)
+   local g_st = g.stats
+   if yIsNil(g_st) then
+      return 0
+   end
+   return yeGetIntAt(g_st, stat)
+end
+
 local function reprint_cmb_bar(canvas, anim, cur_cmb)
    local last_frm = cur_cmb:len()
    local tot_bar_len = BAR_PIX_MULT * cur_cmb:len()
@@ -755,22 +763,34 @@ function mk_anim(main, guy, target)
    return anim
 end
 
-function attack(main, attacker, attacked, mod)
+function action_anim(main, attacker, attacked)
    local anim = mk_anim(main, attacker, attacked)
 
-   startKanaAnim(main, main.katakana_words[0][0])
    anim.sucess = 1
    anim.combots = attacker.char._combots
    anim.cmb_len = attacker.char._combots:len()
    anim.cur_cmb = 0
-   anim.mod = mod
+   main.attack_info = anim
+   reset_cmb_bar(main, anim, attacked, 0)
+   return anim
+end
+
+function attack(main, attacker, attacked, mod)
+   if mod == nil then
+      mod = 1
+   end
+   local anim = action_anim(main, attacker, attacked)
+   local weapon_power = yeGetIntAt(attacker.weapon, "power")
+   local str = get_stats(attacker, "strength")
+   local atk_str = mod * (1 + yui0Min((weapon_power + str) / 2))
+
+   startKanaAnim(main, main.katakana_words[0][0])
+   anim.mod = atk_str
    if mod and mod > 1 then
       attacker.char.can_guard = false
    else
       attacker.char.can_guard = true
    end
-   main.attack_info = anim
-   reset_cmb_bar(main, anim, attacked, 0)
    return anim
 end
 
@@ -795,7 +815,7 @@ function fightStrongAttack(entity, eve)
 end
 
 function fightRecoverInternal(main, guy, target)
-   local anime = attack(main, guy, target)
+   local anime = action_anim(main, guy, target)
    local heal = 1 + yeGetInt(guy.char.recover_level)
 
    combatDmgInternal(main, guy, -heal)
@@ -1012,9 +1032,22 @@ end
 
 function initCombos(guy, isEnemy)
    local ret = guy
-   local nb_cmb = 2
-   local cmb_len = 3 + (yuiRand() % 3)
+   local g_str = get_stats(guy, "strength")
+   local g_agy = get_stats(guy, "agility")
+   local weapon_maniability = yeGetIntAt(guy.weapon, "maniability")
+   local weapon_range = yeGetIntAt(guy.weapon, "range")
+   local weapon_agility = yui0Min(g_agy - weapon_maniability)
+   local base_push_l = 1
+   -- BIG TODO: this should be recomputed at every atk, and change depending on target stats
+   local cmb_len = 10 - weapon_maniability + g_agy / 2
+   local nb_cmb = 1 + yui0Min((g_str / 3 + weapon_agility) / 2)
 
+   if weapon_agility > 0 then
+      base_push_l = 2
+   end
+
+   print("all weapons, stats info !:\n", weapon_agility, g_str, g_agy,
+	 nb_cmb)
    guy._combots = {}
 
    for i = 0, nb_cmb - 1 do
@@ -1030,7 +1063,7 @@ function initCombos(guy, isEnemy)
       cmb.anim.poses = {}
       local poses = cmb.anim.poses
       local touch = cmb.touch
-      local touch_len = 1 + yuiRand() % 3
+      local touch_len = base_push_l + weapon_agility / 5
       local next_touch = cmb_len - yuiRand() % cmb_len
       local in_touch = 0
 

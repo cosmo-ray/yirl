@@ -39,10 +39,14 @@
 	    "life": 10,
 	    "max_life": 15,
 	    "type": "tanned",
+	    "stats": {
+		"strength": 3,
+		"agility": 4
+	    },
 	    "weapon": {
-		"str": 1,
+		"power": 1,
 		"range": 0,
-		"maniability": 1
+		"maniability": 3
 	    },
 	    "usable_items": {
 		"screw": 3,
@@ -56,9 +60,9 @@
 	    "max_life": 10,
 	    "agility": 2,
 	    "weapon": {
-		"str": 1,
+		"power": 1,
 		"range": 0,
-		"maniability": 1
+		"maniability": 3
 	    },
 	    "type": "darkelf2"
 	},
