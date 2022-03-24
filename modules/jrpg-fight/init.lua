@@ -167,7 +167,7 @@ local function reprint_cmb_bar(canvas, anim, cur_cmb)
       canvas:new_rect(23, 3, "rgba: 0 0 15 225",
 		      Pos.new(cur_cmb:len() * part_len + 4, 19).ent).ent
    anim.loaders = Entity.new_array()
-   if  anim.sucess < 2 then
+   if  anim.sucess:to_int() == 1 then
       local i = 0
       while i < cur_cmb:len() do
 	 local cmb_bar = Entity.new_array()
@@ -185,6 +185,11 @@ local function reprint_cmb_bar(canvas, anim, cur_cmb)
 					   5, cmb_bar).ent
 	 i = i + 1
       end
+   elseif anim.sucess:to_int() == 0 then
+      anim.loaders[0] = canvas:new_rect(25, 5, "rgba: 20 255 20 255",
+					Pos.new(cur_cmb:len() * part_len,
+						15).ent).ent
+
    else
       anim.loaders[0] = canvas:new_rect(25, 5, "rgba: 120 120 120 255",
 					Pos.new(cur_cmb:len() * part_len,
@@ -275,6 +280,7 @@ local function attackCallback(main, eve)
 	 if (cur_val == BATK_MUST_PRESS_OK) then
 	    cur_anim.sucess = 0
 	    cur_anim.isPush = 1
+	    reprint_cmb_bar(canvas, cur_anim, cur_cmb)
 	 elseif cur_val == BATK_MUST_BE_RELEASE then
 	    cur_anim.sucess = 2
 	    reprint_cmb_bar(canvas, cur_anim, cur_cmb)
