@@ -188,6 +188,8 @@ BIND_S(ygRemoveFromGlobalScope, 1, 0);
 BIND_E(ywCanvasDisableWeight, 1, 0);
 BIND_E(ywCanvasEnableWeight, 1, 0);
 
+BIND_I(yui0Min, 1, 0);
+
 BIND_I(ywSetTurnLengthOverwrite, 1, 0);
 
 BIND_E(yeUnsetFirst, 1, 0);

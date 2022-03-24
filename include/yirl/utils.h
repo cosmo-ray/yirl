@@ -326,8 +326,10 @@ static inline char *yuiStrdup(const char *s)
 	return strdup(s);
 }
 
+#define yui0Min(val) ((val) < 0 ? 0 : (val))
+
 /* This is usefull for macro and constant, otherwise use abs(so if a variable) */
-#define yuiAbs(val) (val > 0 ? val : - val)
+#define yuiAbs(val) ((val) > 0 ? (val) : - (val))
 
 static inline int yuiStrEqual(const char *str1, const char *str2)
 {
