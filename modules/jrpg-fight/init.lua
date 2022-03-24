@@ -475,7 +475,6 @@ end
 
 function setOrig(handler, x, y)
    if yeGetIntAt(handler, "type") == LPCS_T then
-      print("set handler x, y:", x, y)
       ylpcsHandlerSetOrigXY(handler, x, y)
       ylpcsHandlerRefresh(handler)
    end
@@ -1059,9 +1058,7 @@ function initCombos(guy, isEnemy)
 	 local poses = cmb.anim.poses
 	 for i = 0, yeLen(poses) -  1 do
 	    local c_pos = poses[i]
-	    print("reset pos from ", poses[i][1])
 	    poses[i][1] = poses[i][1] + 2
-	    print("to ", poses[i][1])
 	 end
       end
    end
