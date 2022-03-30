@@ -140,10 +140,8 @@ end
 local function remove_loader(canvas, cur_anim)
    if yIsNNil(cur_anim.loaders) then
 
-      local i = 0
-      while i < cur_anim.loaders:len() do
+      for i = 0, cur_anim.loaders:len() - 1 do
 	 canvas:remove(cur_anim.loaders[i])
-	 i = i + 1
       end
       canvas:remove(cur_anim.black_rect)
       cur_anim.black_rect = nil
@@ -176,8 +174,7 @@ local function reprint_cmb_bar(canvas, anim, cur_cmb)
 		      Pos.new(cur_cmb:len() * part_len + 4, 19).ent).ent
    anim.loaders = Entity.new_array()
    if  anim.sucess:to_int() == 1 then
-      local i = 0
-      while i < cur_cmb:len() do
+      for i = 0, cur_cmb:len() - 1 do
 	 local cmb_bar = Entity.new_array()
 	 -- print block...
 	 cmb_bar[0] = Pos.new(part_len, 15).ent
@@ -191,7 +188,6 @@ local function reprint_cmb_bar(canvas, anim, cur_cmb)
 	 end
 	 anim.loaders[i] = canvas:new_rect(25 + (i * part_len),
 					   5, cmb_bar).ent
-	 i = i + 1
       end
    elseif anim.sucess:to_int() == 0 then
       anim.loaders[0] = canvas:new_rect(25, 5, "rgba: 20 255 20 255",
@@ -556,13 +552,11 @@ function endAnimationAttack(main, cur_anim)
 
    local have_lose = true
    local players = main.player
-   i = 0
-   while i < yeLen(players) do
+   for i = 0, yeLen(players) - 1 do
       local p = players[i]
       if p.life > 0 then
 	 have_lose = false
       end
-      i = i + 1
    end
    if have_lose then
       main.atk_state = ENEMY_WIN
@@ -573,8 +567,7 @@ function endAnimationAttack(main, cur_anim)
    local nb_enemies = yeLen(enemies)
 
    if yIsNil(enemies.max_life) then
-      local i = 0
-      while i < nb_enemies do
+      for i = 0, nb_enemies - 1 do
 	 local i_on_screen = yeGetBoolAt(enemies[i], "on_screen")
 	 local screen_idx = 0
 
@@ -591,8 +584,7 @@ function endAnimationAttack(main, cur_anim)
 	 rm_handler(main, bad_guys[screen_idx])
 
 	 if enemies_not_on_screen > 0 then
-	    local j = 0
-	    while j < nb_enemies do
+	    for j = 0, nb_enemies - 1 do
 	       local j_on_screen = yeGetBoolAt(enemies[j], "on_screen")
 	       if enemies[j].life > 0 and j_on_screen == false then
 		  local y = ywPosY(ylpcsHandePos(bad_guys[screen_idx]))
@@ -607,11 +599,9 @@ function endAnimationAttack(main, cur_anim)
 		  have_win = false
 		  break
 	       end
-	       j = j + 1
 	    end
 	 end
 	 :: next ::
-	 i = i + 1
       end
    elseif enemies.life > 0 then
       have_win = false
@@ -841,12 +831,10 @@ function useItem(main, user, target)
    yeSetInt(cin, cin:to_int() - 1)
 
    if stPlus then
-      local i = 0
-      while i < yeLen(stPlus) do
+      for i = 0, yeLen(stPlus) - 1 do
 	 if yeGetKeyAt(stPlus, i) == "life" then
 	    combatDmgInternal(main, target, -stPlus[i]:to_int())
 	 end
-	 i = i + 1
       end
       hasAction = true
    end
@@ -1012,10 +1000,9 @@ function fightItems(entity, func)
    itemsMenu.margin.color = "rgba: 50 250 40 155"
    yeGetPush(menuCnt, itemsMenu, "background");
    local ui = pc.usable_items
-   local i = 0
    ywMenuPushEntry(itemsMenu, "<-- back", Entity.new_func("useItemBack"))
 
-   while i < yeLen(ui) do
+   for i = 0, yeLen(ui) - 1 do
       local nb_i_ent = ui[i]
       local nb_i = math.floor(yeGetInt(nb_i_ent))
       local item = objects[yeGetKeyAt(ui, i)]
@@ -1025,7 +1012,6 @@ function fightItems(entity, func)
       entry = Entity.wrapp(entry)
       entry.it_name = yeGetKeyAt(ui, i)
       yePushBack(entry, nb_i_ent, "it_nb")
-      i = i + 1
    end
    ywPushNewWidget(menuCnt, itemsMenu);
 end
@@ -1181,16 +1167,14 @@ function fightInit(entity)
    local gg_handlers = Entity.new_array(entity, "gg_handlers")
    entity.gg_handlers = gg_handlers
 
-   local i = 0
    local nb_gg = yeLen(good_guys)
-   while i < nb_gg do
+   for i = 0, nb_gg - 1 do
       local good_guy = good_guys[i]
       local y = locations[nb_gg][i + 1]
 
       local gg_h = new_handler(entity, good_guy, y, wid_pix.w - 100,
 			       good_orig_pos, false)
       gg_handlers[i] = gg_h
-      i = i + 1
    end
 
    chooseTargetRight = wid_pix.w - 130
@@ -1198,7 +1182,6 @@ function fightInit(entity)
    local bad_guys = try_mk_array_of_guys(entity.enemy)
    entity.enemy = bad_guys
 
-   i = 0
    local nb_bg = yeLen(bad_guys)
    if nb_bg > 3 then
       enemies_not_on_screen = nb_bg - 3
@@ -1208,7 +1191,7 @@ function fightInit(entity)
    end
    canvas = Canvas.wrapp(canvas)
    local bg_handlers = Entity.new_array(entity, "bg_handlers")
-   while i < nb_bg do
+   for i = 0, nb_bg - 1 do
       local bad_guy = bad_guys[i]
       local y = locations[nb_bg][i + 1]
       local bg_h = new_handler(entity, bad_guy, y, 50, bad_orig_pos, true)
@@ -1216,7 +1199,6 @@ function fightInit(entity)
       bad_guy.screen_idx = i
       bad_guy.on_screen = true
       bg_handlers[i] = bg_h
-      i = i + 1
    end
 
    -- if I want to implement initiative, I need to change it here
