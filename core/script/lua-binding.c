@@ -285,7 +285,14 @@ int	luaentity_index(lua_State *L)
 	}
 
 	if (isNumber) {
-		ret = yeGetByIdx(ew->e, lua_tonumber(L, 2));
+		uint64_t i = lua_tonumber(L, 2);
+
+		if (i >= INT_MAX) {
+			luaL_traceback(L, L, "Array Entity must be small than INT_MAX", 1);
+			printf("%s\n", lua_tostring(L, -1));
+			abort();
+		}
+		ret = yeGetByIdx(ew->e, i);
 	} else if (isString) {
 		ret = yeGet(ew->e, lua_tostring(L, 2));
 	} else if (lua_islightuserdata(L, 2) || lua_isuserdata(L, 2)) {
