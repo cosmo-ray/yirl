@@ -203,20 +203,27 @@ end
 
 local function reset_cmb_bar(main, anim, target, cmb_idx)
    --print(anim.combots)
-   local cur_cmb_anim = anim.combots[cmb_idx].anim
-   local cur_cmb = anim.combots[cmb_idx].touch
+   local guy = anim.guy
+   local cur_cmb = anim.combots[cmb_idx]
+   local canim = cur_cmb.anim
+   local poses = canim.poses
+   local touch = cur_cmb.touch
    local canvas = getCanvas(main)
    local can_print_loader = true
-   local last_frm = cur_cmb:len()
+   local g_str = get_stats(guy, "strength")
+   local g_agy = get_stats(guy, "agility")
+   local weapon_maniability = yeGetIntAt(guy.weapon, "maniability")
+   local weapon_range = yeGetIntAt(guy.weapon, "range")
+   local weapon_agility = yui0Min(g_agy - weapon_maniability)
+
 
    anim.animation_frame = 0
    if main.atk_state:to_int() == ENEMY_ATTACK and
    target.char.can_guard:to_int() == 0 then
       can_print_loader = false
    end
-   anim.last_mv_time = compute_time(last_frm)
 
-   if cur_cmb_anim.to then
+   if canim.to then
       local bp = Pos.wrapp(anim.base_pos)
       local tp = Pos.new_copy(ylpcsHandePos(target))
       if (tp:x() < bp:x()) then
@@ -231,21 +238,57 @@ local function reset_cmb_bar(main, anim, target, cmb_idx)
    end
 
    anim.isPush = 0
-   if can_print_loader then
-      reprint_cmb_bar(canvas, anim, cur_cmb)
+
+   --
+   -- Recompute combots bar
+   --
+   local base_push_l = 1
+   local cmb_len = 10 - weapon_maniability + g_agy / 2
+   local touch_len = base_push_l + weapon_agility / 5
+   local next_touch = cmb_len - yuiRand() % cmb_len
+   local in_touch = 0
+   local touch_y_add = 0
+
+   if main.atk_state:to_int() == ENEMY_ATTACK then
+      touch_y_add = 2
    end
-   --print("Can print loader:", can_print_loader, main.atk_state:to_int(),
-   --target.char.can_guard:to_int())
 
-   --print(anim.combots)
 
+   if weapon_agility > 0 then
+      base_push_l = 2
+   end
+
+   if next_touch == cmb_len then
+      next_touch = cmb_len - 1
+   end
+
+   for j = 0, cmb_len - 1 do
+      poses[j] = {}
+
+      if next_touch == j then
+	 in_touch = touch_len
+      end
+
+      if in_touch > 0 then
+	 poses[j][0] = 4
+	 touch[j] = 1
+	 in_touch = in_touch - 1
+      else
+	 poses[j][0] = 1
+	 touch[j] = 0
+      end
+      poses[j][1] = 5 + touch_y_add
+   end
+   if can_print_loader then
+      reprint_cmb_bar(canvas, anim, touch)
+   end
+   local last_frm = touch:len()
+   anim.last_mv_time = compute_time(last_frm)
 end
 
 local function attackCallback(main, eve)
    local cur_anim = main.attack_info
    local cur_cmb_idx = cur_anim.cur_cmb:to_int()
-   --print(cur_cmb_idx)
-   --print("cur_cmb.combots:", cur_anim.combots[cur_cmb_idx]:cent(), cur_cmb_idx)
    local cur_cmb = cur_anim.combots[cur_cmb_idx].touch
    local cur_cmb_anim = cur_anim.combots[cur_cmb_idx].anim
    local canvas = getCanvas(main)
@@ -260,7 +303,6 @@ local function attackCallback(main, eve)
       cur_val_pos = cur_cmb:len() - 1
    end
 
-   --print(cur_cmb, cur_val_pos)
    local cur_val = cur_cmb[cur_val_pos]:to_int()
    local can_print_loader = true
    local guy = cur_anim.guy
@@ -1023,14 +1065,7 @@ function initCombos(guy, isEnemy)
    local weapon_maniability = yeGetIntAt(guy.weapon, "maniability")
    local weapon_range = yeGetIntAt(guy.weapon, "range")
    local weapon_agility = yui0Min(g_agy - weapon_maniability)
-   local base_push_l = 1
-   -- BIG TODO: this should be recomputed at every atk, and change depending on target stats
-   local cmb_len = 10 - weapon_maniability + g_agy / 2
    local nb_cmb = 1 + yui0Min((g_str / 3 + weapon_agility) / 2)
-
-   if weapon_agility > 0 then
-      base_push_l = 2
-   end
 
    print("all weapons, stats info !:\n", weapon_agility, g_str, g_agy,
 	 nb_cmb)
@@ -1045,48 +1080,9 @@ function initCombos(guy, isEnemy)
       if i == 0 then
 	 cmb.anim.to = "target"
       end
-
       cmb.anim.poses = {}
-      local poses = cmb.anim.poses
-      local touch = cmb.touch
-      local touch_len = base_push_l + weapon_agility / 5
-      local next_touch = cmb_len - yuiRand() % cmb_len
-      local in_touch = 0
-
-      if next_touch == cmb_len then
-	 next_touch = cmb_len - 1
-      end
-
-      for j = 0, cmb_len - 1 do
-	 poses[j] = {}
-
-	 if next_touch == j then
-	    in_touch = touch_len
-	 end
-
-	 if in_touch > 0 then
-	    poses[j][0] = 4
-	    touch[j] = 1
-	    in_touch = in_touch - 1
-	 else
-	    poses[j][0] = 1
-	    touch[j] = 0
-	 end
-	 poses[j][1] = 5
-
-      end
    end
 
-   if isEnemy == true then
-      for j = 0, yeLen(guy._combots) - 1 do
-	 cmb = guy._combots[j]
-	 local poses = cmb.anim.poses
-	 for i = 0, yeLen(poses) -  1 do
-	    local c_pos = poses[i]
-	    poses[i][1] = poses[i][1] + 2
-	 end
-      end
-   end
    ret.can_guard = true
    return ret
 end
