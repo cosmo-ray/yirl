@@ -235,6 +235,8 @@ BIND_E(yeLen, 1, 0);
 BIND_E(ywidEveKey, 1, 0);
 BIND_E(ywidEveType, 1, 0);
 
+BIND_II(yuiMin, 2, 0);
+
 BIND_II(yuiPercentOf, 2, 0);
 
 BIND_EI(yeSetInt, 2, 0);

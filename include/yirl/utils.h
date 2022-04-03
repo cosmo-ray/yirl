@@ -328,6 +328,8 @@ static inline char *yuiStrdup(const char *s)
 
 #define yui0Min(val) ((val) < 0 ? 0 : (val))
 
+#define yuiMin(val, minimum) ((val) < minimum ? minimum : (val))
+
 /* This is usefull for macro and constant, otherwise use abs(so if a variable) */
 #define yuiAbs(val) ((val) > 0 ? (val) : - (val))
 

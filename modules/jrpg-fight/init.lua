@@ -203,6 +203,7 @@ end
 
 local function reset_cmb_bar(main, anim, target, cmb_idx)
    --print(anim.combots)
+   local t_g = target.char
    local guy = anim.guy
    local cur_cmb = anim.combots[cmb_idx]
    local canim = cur_cmb.anim
@@ -212,9 +213,11 @@ local function reset_cmb_bar(main, anim, target, cmb_idx)
    local can_print_loader = true
    local g_str = get_stats(guy, "strength")
    local g_agy = get_stats(guy, "agility")
+   local t_agy = get_stats(t_g, "agility")
    local weapon_maniability = yeGetIntAt(guy.weapon, "maniability")
    local weapon_range = yeGetIntAt(guy.weapon, "range")
    local weapon_agility = yui0Min(g_agy - weapon_maniability)
+   local t_wp_agy = t_agy - yeGetIntAt(target.weapon, "maniability")
 
 
    anim.animation_frame = 0
@@ -243,7 +246,7 @@ local function reset_cmb_bar(main, anim, target, cmb_idx)
    -- Recompute combots bar
    --
    local base_push_l = 1
-   local cmb_len = 10 - weapon_maniability + g_agy / 2
+   local cmb_len = yuiMin(10 - weapon_maniability + g_agy / 2 - t_wp_agy, 3)
    local touch_len = base_push_l + weapon_agility / 5
    local next_touch = cmb_len - yuiRand() % cmb_len
    local in_touch = 0
@@ -251,6 +254,7 @@ local function reset_cmb_bar(main, anim, target, cmb_idx)
 
    if main.atk_state:to_int() == ENEMY_ATTACK then
       touch_y_add = 2
+      cmb_len = yuiMin(10 + weapon_maniability - g_agy / 2 + t_wp_agy, 3)
    end
 
 
