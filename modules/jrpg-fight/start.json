@@ -44,9 +44,9 @@
 		"agility": 4
 	    },
 	    "weapon": {
-		"power": 1,
+		"power": 2,
 		"range": 0,
-		"maniability": 3
+		"maniability": 2
 	    },
 	    "usable_items": {
 		"screw": 3,
@@ -58,7 +58,9 @@
 	    "name": "danemark",
 	    "life": 10,
 	    "max_life": 10,
-	    "agility": 2,
+	    "stats": {
+		"agility": 2
+	    },
 	    "weapon": {
 		"power": 1,
 		"range": 0,

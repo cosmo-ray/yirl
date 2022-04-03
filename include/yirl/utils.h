@@ -330,6 +330,10 @@ static inline char *yuiStrdup(const char *s)
 
 #define yuiMin(val, minimum) ((val) < minimum ? minimum : (val))
 
+#define yuiMax(val, max) ((val) > max ? max : (val))
+
+#define yuiMinMax(val, min, max) yuiMax(yuiMin(val, min), max)
+
 /* This is usefull for macro and constant, otherwise use abs(so if a variable) */
 #define yuiAbs(val) ((val) > 0 ? (val) : - (val))
 

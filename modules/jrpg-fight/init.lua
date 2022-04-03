@@ -163,6 +163,13 @@ function get_stats(g, stat)
    return yeGetIntAt(g_st, stat)
 end
 
+function weapon_agy(g)
+   local g_agy = get_stats(g, "agility")
+   local weapon_maniability = yeGetIntAt(g.weapon, "maniability")
+
+   return yui0Min(g_agy - weapon_maniability)
+end
+
 local function reprint_cmb_bar(canvas, anim, cur_cmb)
    local last_frm = cur_cmb:len()
    local tot_bar_len = BAR_PIX_MULT * cur_cmb:len()
@@ -217,12 +224,12 @@ local function reset_cmb_bar(main, anim, target, cmb_idx)
    local weapon_maniability = yeGetIntAt(guy.weapon, "maniability")
    local weapon_range = yeGetIntAt(guy.weapon, "range")
    local weapon_agility = yui0Min(g_agy - weapon_maniability)
-   local t_wp_agy = t_agy - yeGetIntAt(target.weapon, "maniability")
+   local t_wp_agy = t_agy - yeGetIntAt(t_g.weapon, "maniability")
 
 
    anim.animation_frame = 0
    if main.atk_state:to_int() == ENEMY_ATTACK and
-   target.char.can_guard:to_int() == 0 then
+      t_g.can_guard:to_int() == 0 then
       can_print_loader = false
    end
 
@@ -246,16 +253,18 @@ local function reset_cmb_bar(main, anim, target, cmb_idx)
    -- Recompute combots bar
    --
    local base_push_l = 1
-   local cmb_len = yuiMin(10 - weapon_maniability + g_agy / 2 - t_wp_agy, 3)
+   print("cmb_len turn player: ", weapon_maniability, g_agy, t_wp_agy)
+   local cmb_len = yuiMinMax(10 - weapon_maniability + g_agy / 2 - t_wp_agy, 3, 15)
    local touch_len = base_push_l + weapon_agility / 5
-   local next_touch = cmb_len - yuiRand() % cmb_len
    local in_touch = 0
    local touch_y_add = 0
 
    if main.atk_state:to_int() == ENEMY_ATTACK then
       touch_y_add = 2
-      cmb_len = yuiMin(10 + weapon_maniability - g_agy / 2 + t_wp_agy, 3)
+      cmb_len = yuiMinMax(10 + weapon_maniability - g_agy / 2 + t_wp_agy, 3, 15)
+      touch_len = yuiMin(7 - weapon_maniability, 1)
    end
+   local next_touch = cmb_len - yuiRand() % cmb_len
 
 
    if weapon_agility > 0 then
@@ -375,8 +384,19 @@ local function attackCallback(main, eve)
 
    if cur_anim.animation_frame >= last_frm then
 
+      local sucess_goal = 49
+
+      if main.atk_state:to_int() == ENEMY_ATTACK then
+	 sucess_goal = sucess_goal + (weapon_agy(target.char) - weapon_agy(guy)) * 2;
+      else
+	 sucess_goal = sucess_goal + (weapon_agy(guy.char) - weapon_agy(target.char)) * 2;
+      end
+      sucess_goal = yuiMinMax(sucess_goal, 5, 95);
+      print("sucess goal ! ", sucess_goal)
+
+      local g_agy = get_stats(guy, "agility")
       local computer_sucess
-      if (yuiRand() % 2) == 0 then
+      if (yuiRand() % 100) > sucess_goal then
 	 computer_sucess = true
       else
 	 computer_sucess = false
