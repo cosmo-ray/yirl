@@ -496,6 +496,18 @@ int ph7yeCreateFunction(ph7_context *pCtx, int argc, ph7_value **argv)
 	return PH7_OK;
 }
 
+int ph7yeCreateCopy(ph7_context *pCtx, int argc, ph7_value **argv)
+{
+	Entity *ret;
+	Entity *father = argc > 1 ? ph7_value_to_resource(argv[1]) :
+		gc_stack[gc_stack_i - 1];
+	const char *str = argc > 2 ? ph7_value_to_string(argv[2], NULL) : NULL;
+
+	ret = yeCreateCopy(ph7_value_to_resource(argv[0]), father, str);
+	ph7_result_resource(pCtx, ret);
+	return PH7_OK;
+}
+
 static int ph7yesCall(ph7_context *pCtx, int argc, ph7_value **a)
 {
 	union ycall_arg args[argc - 1];
@@ -674,6 +686,7 @@ static int loadString_(void *sm, const char *str, _Bool do_crc)
 	BIND(yeCreateInt);
 	BIND(yeCreateFunction);
 	BIND(yeCreateArray);
+	BIND(yeCreateCopy);
 	BIND(yesCall);
 	BIND(ygFileToEnt);
 	BIND(ygScriptCall);
