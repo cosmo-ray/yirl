@@ -357,9 +357,20 @@ static int ph7yeGet(ph7_context *pCtx, int argc, ph7_value **argv)
 
 static int ph7yeGetIntAt(ph7_context *pCtx, int argc, ph7_value **argv)
 {
-	printf("NOT YET IMPLEMENTED");
-	return -1;
-	
+	Entity *a = ph7_value_to_resource(argv[0]);
+	ph7_value *k = argv[1];
+	Entity *ret;
+
+	if (ph7_value_is_int(k)) {
+		ret = yeGet(a, ph7_value_to_int(k));
+	} else if (ph7_value_is_string(k)) {
+		ret = yeGet(a, ph7_value_to_string(k, NULL));
+	} else {
+		Fatali("Wrong type !");
+	}
+	ph7_result_int64(pCtx, yeGetInt(ret));
+	return 0;
+		
 }
 
 static int init(void *sm, void *args)
