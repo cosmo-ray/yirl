@@ -441,8 +441,12 @@ int yirl_return(ph7_context *pCtx, int argc, ph7_value **argv)
 	} else if (ph7_value_is_resource(a)) {
 		call_ret.t = RETURN_TYPE_ENTITY;
 		call_ret.e = ph7_value_to_resource(a);
+	} else if (ph7_value_is_null(a)) {
+		call_ret.t = RETURN_TYPE_INT;
+		call_ret.vptr = 0;
+	} else {
+		DPRINT_ERR("UNKNOW RETURN TYPE !");
 	}
-
 	return PH7_OK;
 }
 
