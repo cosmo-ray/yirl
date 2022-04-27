@@ -584,6 +584,22 @@ static int ph7ygFileToEnt(ph7_context *pCtx, int argc, ph7_value **argv)
 	return 0;
 }
 
+static int ph7ywRectCreateInts(ph7_context *pCtx, int argc, ph7_value **argv)
+{
+	Entity *ret;
+	Entity *father = argc > 4 ? ph7_value_to_resource(argv[4]) :
+		gc_stack[gc_stack_i - 1];
+	const char *str = argc > 5 ? ph7_value_to_string(argv[5], NULL) : NULL;
+
+	ret = ywRectCreateInts(ph7_value_to_int(argv[0]),
+			       ph7_value_to_int(argv[1]),
+			       ph7_value_to_int(argv[2]),
+			       ph7_value_to_int(argv[3]),
+			       father, str);
+	ph7_result_resource(pCtx, ret);
+	return PH7_OK;
+}
+
 static int Output_Consumer(const void *pOutput, unsigned int nOutputLen,
 			   void *pUserData /* Unused */)
 {
@@ -694,10 +710,11 @@ static int loadString_(void *sm, const char *str, _Bool do_crc)
 	BIND(yesCall);
 	BIND(ygFileToEnt);
 	BIND(ygScriptCall);
+	BIND(ywRectCreateInts);
 
 	rc = ph7_create_function(vm, "yclose_output", yclose_output, 0);
 	if( rc != PH7_OK ) {
-		Fatali("Error while registering foreign functions 'yirl_return'");
+		Fatali("Error while registering foreign functions 'yclose_output'");
 	}
 
 	rc = ph7_create_function(vm, "yirl_return", yirl_return, 0);
