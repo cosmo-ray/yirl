@@ -600,6 +600,19 @@ static int ph7ywRectCreateInts(ph7_context *pCtx, int argc, ph7_value **argv)
 	return PH7_OK;
 }
 
+static int ph7ywCanvasNewImg(ph7_context *pCtx, int argc, ph7_value **argv)
+{
+	Entity *ret;
+
+	ret = ywCanvasNewImg(ph7_value_to_resource(argv[0]),
+			     ph7_value_to_int(argv[1]),
+			     ph7_value_to_int(argv[2]),
+			     ph7_value_to_string(argv[3], NULL),
+			     ph7_value_to_resource(argv[4]));
+	ph7_result_resource(pCtx, ret);
+	return PH7_OK;
+}
+
 static int Output_Consumer(const void *pOutput, unsigned int nOutputLen,
 			   void *pUserData /* Unused */)
 {
@@ -711,6 +724,7 @@ static int loadString_(void *sm, const char *str, _Bool do_crc)
 	BIND(ygFileToEnt);
 	BIND(ygScriptCall);
 	BIND(ywRectCreateInts);
+	BIND(ywCanvasNewImg);
 
 	rc = ph7_create_function(vm, "yclose_output", yclose_output, 0);
 	if( rc != PH7_OK ) {
