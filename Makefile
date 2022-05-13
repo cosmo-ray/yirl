@@ -181,6 +181,7 @@ install: yirl-loader
 	mkdir -p $(PREFIX)/share/yirl/tinycc/
 	cp tinycc/libtcc1.a $(PREFIX)/share/yirl/tinycc/
 	cp DejaVuSansMono.ttf $(PREFIX)/share/yirl/
+	install -D ./yirl-completion.bash $(PREFIX)/usr/share/bash-completion/yirl-completion.bash
 	echo "Install everything in: "$(PREFIX)
 
 install_extra_modules:
