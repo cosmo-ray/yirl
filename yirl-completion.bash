@@ -1,4 +1,3 @@
-
 _yirl()
 {
     prev=${COMP_WORDS[COMP_CWORD-1]}
