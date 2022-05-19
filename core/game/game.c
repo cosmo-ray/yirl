@@ -543,6 +543,7 @@ int ygRegistreFuncInternal(void *manager, int nbArgs, const char *name,
 	} else {
 		ysAddFuncSymbole(tccManager, toRegistre, nbArgs, func);
 		ysAddFuncSymbole(luaManager, toRegistre, nbArgs, func);
+		ysAddFuncSymbole(ph7Manager, toRegistre, nbArgs, func);
 	}
 	return 0;
 }
@@ -767,7 +768,7 @@ Entity *ygLoadMod(const char *path)
 				ysCall(luaManager, yeGetString(var2), mod);
 		} else if (yeType(var2) == YARRAY) {
 			ysCall(ygGetManager(yeGetString(yeGet(var2, 0))),
-			       yeGetString(yeGet(var2, 1)), mod);
+			       yeGetStringAt(var2, 1), mod);
 		}
 	}
 

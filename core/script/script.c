@@ -64,6 +64,7 @@ int ysDestroyManager(void *sm)
 void *ysCallInt(void *sm, const char *name, int nb, union ycall_arg *args,
 		int *types)
 {
+	assert(sm);
   	return ((YScriptOps *)sm)->call(sm, name, nb, args, types);
 }
 

@@ -55,6 +55,7 @@ typedef struct {
 	ph7 *pEngine; /* PH7 engine */
 	struct vm_info vms[PH7_MAX_VMS]; /* Compiled PHP program */
 	int nb_vms;
+	Entity *preload_string;
 	int cur_vm;
 } YScriptPH7;
 
@@ -387,6 +388,7 @@ static int init(void *sm, void *args)
 		DPRINT_ERR("Error while allocating a new PH7 engine instance");
 		return -1;
 	}
+	ph7sm->preload_string = NULL;
 	return 0;
 }
 
@@ -459,6 +461,13 @@ int ph7yeCreateArray(ph7_context *pCtx, int argc, ph7_value **argv)
 
 	ret = yeCreateArray(father, str);
 	ph7_result_resource(pCtx, ret);
+	return PH7_OK;
+}
+
+int int_to_entity(ph7_context *pCtx, int argc, ph7_value **argv)
+{
+	Entity *e = (void *)(intptr_t)ph7_value_to_int64(argv[0]);
+	ph7_result_resource(pCtx, e);
 	return PH7_OK;
 }
 
@@ -642,7 +651,9 @@ static int loadString_(void *sm, const char *str, _Bool do_crc)
 	int rc;
 	YScriptPH7 *ph7sm = sm;
 	int len = strlen(str);
-	char *prog = malloc(len + sizeof CALL_STRING);
+	Entity *preload_string = ph7sm->preload_string;
+	int preload_string_l = preload_string ? yeLen(preload_string) : 0;
+	char *prog = malloc(len + sizeof CALL_STRING + preload_string_l);
 	char *end = NULL;
 	char *error_str = NULL;
 
@@ -657,8 +668,11 @@ static int loadString_(void *sm, const char *str, _Bool do_crc)
 	}
 	if (!end)
 		Fatali("'?>' not found");
+	if (preload_string)
+		end = stpcpy(end, yeGetString(preload_string));
 	memcpy(end, CALL_STRING, sizeof CALL_STRING);
 
+	/* printf("%s\n", prog); */
 	/* Extract error log */
 	ph7_config(ph7sm->pEngine,
 		   PH7_CONFIG_ERR_LOG,
@@ -726,6 +740,11 @@ static int loadString_(void *sm, const char *str, _Bool do_crc)
 	BIND(ywRectCreateInts);
 	BIND(ywCanvasNewImg);
 
+	rc = ph7_create_function(vm, "int_to_entity", int_to_entity, 0);
+	if( rc != PH7_OK ) {
+		Fatali("Error while registering foreign functions 'int_to_entity'");
+	}
+
 	rc = ph7_create_function(vm, "yclose_output", yclose_output, 0);
 	if( rc != PH7_OK ) {
 		Fatali("Error while registering foreign functions 'yclose_output'");
@@ -761,7 +780,6 @@ static int loadString(void *sm, const char *str)
 static int loadFile(void *s, const char *file)
 {
 	int ret;
-	printf("loaf file: %s\n", file);
 	yeAutoFree Entity *f = ygFileToEnt(YRAW_FILE, file, NULL);
 	ret = loadString_(s, yeGetString(f), 0);
 	/* if (!ret) { */
@@ -783,6 +801,36 @@ static void *getFastPath(void *scriptManager, const char *name)
 	return (void *)manager->cur_vm;
 }
 
+
+static void addFuncSymbole(void *sm, const char *name, int nbArgs, Entity *func)
+{
+	YScriptPH7 *ph7sm = sm;
+	Entity *e = ph7sm->preload_string;
+
+	if (!e) {
+		ph7sm->preload_string = yeCreateString("", NULL, NULL);
+		e = ph7sm->preload_string;
+	}
+	yeAdd(e, "\nfunction ");
+	yeAdd(e, name);
+	yeAdd(e, "(");
+	for (int  i = 0; i < nbArgs; ++i) {
+		char a[] = {'$', 'a', '0' + i / 10, '0' + i % 10, 0};
+
+		if (i)
+			yeAdd(e, ", ");
+		yeAdd(e, a);
+	}
+	yeAdd(e, ") {\n    return yesCall(int_to_entity(");
+	yeAddLong(e, (int_ptr_t)func);
+	for (int i = 0; i < nbArgs; ++i) {
+		char a[] = {'$', 'a', '0' + i / 10, '0' + i % 10, 0};
+
+		yeAdd(e, ", ");
+		yeAdd(e, a);
+	}
+	yeAdd(e, "));\n}\n");
+}
 
 static void *call_(void *sm, const char *name, int nb, union ycall_arg *args,
 		   int *t_array)
@@ -896,7 +944,7 @@ static void *allocator(void)
 	ret->ops.getFastPath = getFastPath;
 	ret->ops.getError = NULL;
 	ret->ops.registreFunc = NULL;
-	ret->ops.addFuncSymbole = NULL;
+	ret->ops.addFuncSymbole = addFuncSymbole;
 	manager = ret;
 	return (void *)ret;
 }
