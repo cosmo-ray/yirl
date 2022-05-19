@@ -821,15 +821,18 @@ static void addFuncSymbole(void *sm, const char *name, int nbArgs, Entity *func)
 			yeAdd(e, ", ");
 		yeAdd(e, a);
 	}
-	yeAdd(e, ") {\n    return yesCall(int_to_entity(");
+	yeAdd(e, ") {\n");
+	yeAdd(e, "    return yesCall(int_to_entity(");
 	yeAddLong(e, (int_ptr_t)func);
+	yeAdd(e, ")");
+	
 	for (int i = 0; i < nbArgs; ++i) {
 		char a[] = {'$', 'a', '0' + i / 10, '0' + i % 10, 0};
 
 		yeAdd(e, ", ");
 		yeAdd(e, a);
 	}
-	yeAdd(e, "));\n}\n");
+	yeAdd(e, ");\n}\n");
 }
 
 static void *call_(void *sm, const char *name, int nb, union ycall_arg *args,
