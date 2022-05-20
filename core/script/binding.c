@@ -123,6 +123,8 @@ BIND_ES(yeGetByStr, 2, 0);
 BIND_SI(ygIncreaseInt, 2, 0);
 BIND_SI(ygSetInt, 2, 0);
 
+BIND_EI(ywCanvasMultiplySize, 2, 0);
+
 BIND_EI(ywRectSetX, 2, 0);
 BIND_EI(ywRectSetY, 2, 0);
 BIND_EI(ywRectSetW, 2, 0);

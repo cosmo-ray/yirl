@@ -146,9 +146,19 @@ int ywCanvasForceSize(Entity *obj, Entity *size);
 
 static inline int ywCanvasForceSizeXY(Entity *obj, int x, int y)
 {
-  yeAutoFree Entity *img_size = ywSizeCreate(x, y, NULL, NULL);
+	yeAutoFree Entity *img_size = ywSizeCreate(x, y, NULL, NULL);
 
-  return ywCanvasForceSize(obj, img_size);
+	return ywCanvasForceSize(obj, img_size);
+}
+
+static inline int ywCanvasMultiplySize(Entity *obj, double multiplier)
+{
+	Entity *sz = ywCanvasObjSize(NULL, obj);
+	yeAutoFree Entity *img_size = ywSizeCreate(ywSizeW(sz) * multiplier,
+						   ywSizeH(sz) * multiplier,
+						   NULL, NULL);
+
+	return ywCanvasForceSize(obj, img_size);
 }
 
 /**
