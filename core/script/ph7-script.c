@@ -305,9 +305,20 @@ static int make_nothing(ph7_context *pCtx,  ...)
 
 static int ph7ywPosCreate(ph7_context *pCtx, int argc, ph7_value **argv)
 {
-	printf("NOT YET IMPLEMENTED");
-	return -1;
-	
+	Entity *ret;
+	Entity *father = argc > 2 ? ph7_value_to_resource(argv[0]) :
+		gc_stack[gc_stack_i - 1];
+	const char *str = argc > 3 ? ph7_value_to_string(argv[1], NULL) : NULL;
+
+	ret = ywPosCreate(ph7_value_to_int(argv[0]),
+			  ph7_value_to_int(argv[1]), father, str);
+	ph7_result_resource(pCtx, ret);
+	return PH7_OK;
+}
+
+static int ph7ywSizeCreate(ph7_context *pCtx, int argc, ph7_value **argv)
+{
+	return ph7ywPosCreate(pCtx, argc, argv);
 }
 
 static int ph7yevCreateGrp(ph7_context *pCtx, int argc, ph7_value **argv)
@@ -739,6 +750,7 @@ static int loadString_(void *sm, const char *str, _Bool do_crc)
 	BIND(ygScriptCall);
 	BIND(ywRectCreateInts);
 	BIND(ywCanvasNewImg);
+	BIND(ywSizeCreate);
 
 	rc = ph7_create_function(vm, "int_to_entity", int_to_entity, 0);
 	if( rc != PH7_OK ) {
