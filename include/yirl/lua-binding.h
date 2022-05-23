@@ -670,6 +670,14 @@ static inline int luaYTimerDestroy(lua_State *L)
 #define PUSH_I_GLOBAL_VAL(glob, v)		\
 	LUA_SET_INT_GLOBAL_VAL(sm, glob, v)
 
+static inline int	luaexplosion(lua_State *L)
+{
+	const char *s = lua_tostring(L, 1);
+	luaL_traceback(L, L, s, 1);
+	puts(lua_tostring(L, -1));
+	abort();
+}
+
 static inline int	yesLuaRegister(void *sm)
 {
   lua_State *L = ((YScriptLua *)sm)->l;
@@ -867,6 +875,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, yeStrCaseCmp);
   YES_LUA_REGISTRE_CALL(sm, yeToLower);
   YES_LUA_REGISTRE_CALL(sm, yeCountCharacters);
+  YES_LUA_REGISTRE_CALL(sm, explosion);
 
   /* int */
   YES_LUA_REGISTRE_CALL(sm, yeCreateInt);
