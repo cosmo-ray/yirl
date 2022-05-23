@@ -74,9 +74,9 @@ static int make_nothing(ph7_context *pCtx,  ...)
 #define Fatal(x...) do { printf(x); return NULL; } while (0);
 #define Fatali(x...) do { printf(x); return -1; } while (0);
 
-#define E_AT(a, idx) ph7_value_to_resource(a[idx])
-#define I_AT(a, idx) ph7_value_to_int(a[idx])
-#define S_AT(a, idx) ph7_value_to_string(a[idx], NULL)
+#define E_AT(a, idx) (argc > idx ? ph7_value_to_resource(a[idx]) : NULL)
+#define I_AT(a, idx) (argc > idx ? ph7_value_to_int(a[idx]) : 0)
+#define S_AT(a, idx) (argc > idx ? ph7_value_to_string(a[idx], NULL) : NULL)
 
 #define PH7T(call)				\
 	_Generic(call,				\
@@ -132,7 +132,7 @@ static int make_nothing(ph7_context *pCtx,  ...)
 		(__VA_ARGS__, call)
 
 #define BIND_EIIIIS(f, ...)						\
-	static int ph7##f(ph7_context *pCtx, int l, ph7_value **a) {	\
+	static int ph7##f(ph7_context *pCtx, int argc, ph7_value **a) {	\
 		PH7_RET(f(E_AT(a, 0), I_AT(a, 1), I_AT(a, 2), I_AT(a, 3), \
 			  I_AT(a, 4), S_AT(a, 5)), pCtx);		\
 		return 0;						\
@@ -306,9 +306,9 @@ static int make_nothing(ph7_context *pCtx,  ...)
 static int ph7ywPosCreate(ph7_context *pCtx, int argc, ph7_value **argv)
 {
 	Entity *ret;
-	Entity *father = argc > 2 ? ph7_value_to_resource(argv[0]) :
+	Entity *father = argc > 2 ? ph7_value_to_resource(argv[2]) :
 		gc_stack[gc_stack_i - 1];
-	const char *str = argc > 3 ? ph7_value_to_string(argv[1], NULL) : NULL;
+	const char *str = argc > 3 ? ph7_value_to_string(argv[3], NULL) : NULL;
 
 	ret = ywPosCreate(ph7_value_to_int(argv[0]),
 			  ph7_value_to_int(argv[1]), father, str);
