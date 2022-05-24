@@ -18,7 +18,6 @@
 #include "ph7-script.h"
 #include <yirl/all.h>
 #include "game.h"
-/* #include <zlib.h> */
 #include <stdlib.h>
 #include <string.h>
 
@@ -734,6 +733,9 @@ static int loadString_(void *sm, const char *str, _Bool do_crc)
 			   #g, pv);				\
 	ph7_release_value(vm, pv);				\
 	} while (0);
+
+	PUSH_I_GLOBAL_VAL(YEVE_ACTION, ACTION);
+	PUSH_I_GLOBAL_VAL(YEVE_NOTHANDLE, NOTHANDLE);
 
 #define IN_CALL
 

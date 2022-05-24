@@ -836,12 +836,6 @@ int	luaywMenuGetCurrentEntry(lua_State *L)
 	return 1;
 }
 
-int	luaywMenuMove(lua_State *L)
-{
-	lua_pushlightuserdata(L, ywMenuMove(luaEntityAt(L, 1),
-					    lua_tonumber(L, 2)));
-	return 1;
-}
 
 /**
  * This is not a strict binding of the original yeCreateFunction,
