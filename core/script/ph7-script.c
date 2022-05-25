@@ -346,9 +346,19 @@ static int ph7yeIncrAt(ph7_context *pCtx, int argc, ph7_value **argv)
 
 static int ph7yeSetIntAt(ph7_context *pCtx, int argc, ph7_value **argv)
 {
-	printf("NOT YET IMPLEMENTED");
-	return -1;
-	
+	Entity *a = ph7_value_to_resource(argv[0]);
+	ph7_value *k = argv[1];
+	Entity *ent;
+
+	if (ph7_value_is_int(k)) {
+		ent = yeGet(a, ph7_value_to_int(k));
+	} else if (ph7_value_is_string(k)) {
+		ent = yeGet(a, ph7_value_to_string(k, NULL));
+	} else {
+		Fatali("Wrong type !");
+	}
+	yeSetInt(ent, I_AT(argv, 2));
+	return 0;	
 }
 
 static int ph7yeGet(ph7_context *pCtx, int argc, ph7_value **argv)
@@ -383,6 +393,23 @@ static int ph7yeGetIntAt(ph7_context *pCtx, int argc, ph7_value **argv)
 		Fatali("Wrong type !");
 	}
 	ph7_result_int64(pCtx, yeGetInt(ret));
+	return 0;
+}
+
+static int ph7yeGetStringAt(ph7_context *pCtx, int argc, ph7_value **argv)
+{
+	Entity *a = ph7_value_to_resource(argv[0]);
+	ph7_value *k = argv[1];
+	Entity *ret;
+
+	if (ph7_value_is_int(k)) {
+		ret = yeGet(a, ph7_value_to_int(k));
+	} else if (ph7_value_is_string(k)) {
+		ret = yeGet(a, ph7_value_to_string(k, NULL));
+	} else {
+		Fatali("Wrong type !");
+	}
+	yph7_result_string(pCtx, yeGetString(ret));
 	return 0;
 }
 
@@ -760,6 +787,7 @@ static int loadString_(void *sm, const char *str, _Bool do_crc)
 
 #include "binding.c"
 
+	BIND(yeGetStringAt);
 	BIND(yeCreateString);
 	BIND(yeCreateInt);
 	BIND(yeCreateFunction);
@@ -930,7 +958,7 @@ static void *call_(void *sm, const char *name, int nb, union ycall_arg *args,
 
 	rc = ph7_vm_exec(vm, 0);
 	if (rc != PH7_OK) {
-		Fatal("Error trying to exec ph7\n");
+		Fatal("Error trying to exec ph7 %d\n", rc);
 	}
 	ph7_vm_reset(vm);
 
