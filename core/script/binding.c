@@ -146,6 +146,8 @@ BIND_EI(yeGetKeyAt, 2, 0);
 
 BIND_SS(ygReCreateString, 2, 0);
 
+BIND_E(ywMenuNbEntries, 1, 0);
+
 BIND_E(yePrint, 1, 0);
 
 BIND_E(ywidInTree, 1, 0);
@@ -261,6 +263,8 @@ BIND_EII(ywPosSetInts, 3, 0);
 BIND_EII(ywPosAddXY, 3, 0);
 
 BIND_EII(ywCanvasForceSizeXY, 3, 0);
+
+BIND_EEI(ywMenuCallActionOnByEntity, 3, 0);
 
 BIND_EEI(yePatchAplyExt, 2, 1);
 

@@ -41,7 +41,7 @@ int ywMenuGetCurrent(YWidgetState *opac);
 int ywMenuGetThreshold(YWidgetState *state);
 
 static inline int ywMenuGetCurrentByEntity(Entity *entity) {
-  return ywMenuGetCurrent(ywidGetState(entity));
+	return ywMenuGetCurrent(ywidGetState(entity));
 }
 
 Entity *ywMenuGetCurrentEntry(Entity *entity);
@@ -91,16 +91,22 @@ ywMenuPushEntry(Entity *menu, const char *name, Entity *func)
 
 Entity *ywMenuPushSlider(Entity *menu, const char *name, Entity *slider_array);
 
-Entity *ywMenuGetEntry(Entity *container, int idx);
+Entity *ywMenuGetEntry(Entity *menu, int idx);
+
+static inline int ywMenuNbEntries(Entity *mn)
+{
+	return yeLenAt(mn, "entries");
+}
+
 
 static inline Entity *ywMenuLoaderPercent(Entity *loader)
 {
-  return yeGet(loader, "loading-bar-%");
+	return yeGet(loader, "loading-bar-%");
 }
 
 static inline void ywMenuSetLoaderPercent(Entity *loader, int val)
 {
-  yeSetAt(loader, "loading-bar-%", val);
+	yeSetAt(loader, "loading-bar-%", val);
 }
 
 InputStatue ywMenuCallActionOnByEntity(Entity *opac, Entity *event, int idx);
@@ -109,11 +115,11 @@ InputStatue ywMenuCallActionOnByState(YWidgetState *opac, Entity *event,
 
 #ifndef Y_INSIDE_TCC
 
-#define ywMenuCallActionOn(wid, eve, idx)		\
-  _Generic((wid),					\
-	   Entity * : ywMenuCallActionOnByEntity,	\
-	   YWidgetState * : ywMenuCallActionOnByState	\
-	   )(wid, eve, idx)
+#define ywMenuCallActionOn(wid, eve, idx)			\
+	_Generic((wid),						\
+		 Entity * : ywMenuCallActionOnByEntity,		\
+		 YWidgetState * : ywMenuCallActionOnByState	\
+		)(wid, eve, idx)
 
 #else
 

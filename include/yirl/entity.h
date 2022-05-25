@@ -303,7 +303,6 @@ static inline const char *yeTypeAsString(Entity *e)
 	return yeTypeToString(yeType(e));
 }
 
-
 /**
  * Get the len attribute of an Entity
  * @param entity  The Entity we want to get the len
@@ -312,8 +311,7 @@ static inline const char *yeTypeAsString(Entity *e)
 size_t yeLen(Entity *entity);
 
 #define yeLenAt(e, at)				\
-	yeLen(yeGet(e, at))
-
+	yeLen(yeGet(e, (at)))
 
 /**
  * @brief convert @entity to @type
