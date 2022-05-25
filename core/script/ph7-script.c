@@ -327,18 +327,21 @@ static int ph7yevCreateGrp(ph7_context *pCtx, int argc, ph7_value **argv)
 	
 }
 
-static int ph7yeAddAt(ph7_context *pCtx, int argc, ph7_value **argv)
-{
-	printf("NOT YET IMPLEMENTED");
-	return -1;
-	
-}
-
 static int ph7yeIncrAt(ph7_context *pCtx, int argc, ph7_value **argv)
 {
-	printf("NOT YET IMPLEMENTED");
-	return -1;
-	
+	Entity *a = ph7_value_to_resource(argv[0]);
+	ph7_value *k = argv[1];
+	Entity *ent;
+
+	if (ph7_value_is_int(k)) {
+		ent = yeGet(a, ph7_value_to_int(k));
+	} else if (ph7_value_is_string(k)) {
+		ent = yeGet(a, ph7_value_to_string(k, NULL));
+	} else {
+		Fatali("Wrong type !");
+	}
+	yeAdd(ent, 1);
+	return 0;
 }
 
 static int ph7yeSetIntAt(ph7_context *pCtx, int argc, ph7_value **argv)
@@ -381,7 +384,23 @@ static int ph7yeGetIntAt(ph7_context *pCtx, int argc, ph7_value **argv)
 	}
 	ph7_result_int64(pCtx, yeGetInt(ret));
 	return 0;
-		
+}
+
+static int ph7yeAddAt(ph7_context *pCtx, int argc, ph7_value **argv)
+{
+	Entity *a = ph7_value_to_resource(argv[0]);
+	ph7_value *k = argv[1];
+	Entity *ent;
+
+	if (ph7_value_is_int(k)) {
+		ent = yeGet(a, ph7_value_to_int(k));
+	} else if (ph7_value_is_string(k)) {
+		ent = yeGet(a, ph7_value_to_string(k, NULL));
+	} else {
+		Fatali("Wrong type !");
+	}
+	yeAdd(ent, I_AT(argv, 2));
+	return 0;
 }
 
 static int init(void *sm, void *args)
