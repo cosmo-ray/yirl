@@ -1130,6 +1130,19 @@ static inline _Bool yeArrayContainEntity(Entity *array, const char *str)
 	return !!yeGet(array, str);
 }
 
+/**
+ * Assure that and int entity value is not lower/higher tna min/max
+ * if not, set the value to min/max
+ */
+static inline void yeIntForceBound(Entity *e, int min, int max) {
+	int v = yeGetInt(e);
+
+	if (v < min)
+		yeSetInt(e, min);
+	if (v > max)
+		yeSetInt(e, max);
+}
+
 #define yeIncrAt(e, at) yeAdd(yeGet(e, at), 1)
 
 #define yeAddAt(e, at, toAdd)			\
