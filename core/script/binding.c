@@ -248,6 +248,8 @@ BIND_III(yuiMinMax, 3, 0);
 
 BIND_EI(yeSetInt, 2, 0);
 
+BIND_EII(yeIntRoundBound, 3, 0);
+
 BIND_EII(yeIntForceBound, 3, 0);
 
 BIND_EII(ywMapCaseXY, 3, 0);

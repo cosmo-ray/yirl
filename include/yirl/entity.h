@@ -1131,7 +1131,7 @@ static inline _Bool yeArrayContainEntity(Entity *array, const char *str)
 }
 
 /**
- * Assure that and int entity value is not lower/higher tna min/max
+ * Assure that and int entity value is not lower/higher than min/max
  * if not, set the value to min/max
  */
 static inline void yeIntForceBound(Entity *e, int min, int max) {
@@ -1141,6 +1141,21 @@ static inline void yeIntForceBound(Entity *e, int min, int max) {
 		yeSetInt(e, min);
 	if (v > max)
 		yeSetInt(e, max);
+}
+
+/**
+ * Assure that and int entity value is not lower/higher than min/max
+ * if not, set the value to the oposite value:
+ * example: min is 0, max is 4, e value is -1, this function
+ * will set e value to 4
+ */
+static inline void yeIntRoundBound(Entity *e, int min, int max) {
+	int v = yeGetInt(e);
+
+	if (v < min)
+		yeSetInt(e, max);
+	if (v > max)
+		yeSetInt(e, min);
 }
 
 #define yeIncrAt(e, at) yeAdd(yeGet(e, at), 1)
