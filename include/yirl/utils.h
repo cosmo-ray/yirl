@@ -48,7 +48,8 @@ static inline char *stpcpy(char *restrict dest, const char *restrict src)
 	for (; *src; ++src) {
 		*dest++ = *src;
 	}
-	*dest++ = 0;
+	*dest = 0;
+	return dest;
 }
 
 #endif
