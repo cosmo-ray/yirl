@@ -43,7 +43,7 @@ static inline char *get_current_dir_name(void)
   return strdup(tmp);
 }
 
-static inline char *stpcpy(char *restrict dest, const char *restrict src)
+static inline char* stpcpy(char *dest, const char *src)
 {
 	for (; *src; ++src) {
 		*dest++ = *src;
