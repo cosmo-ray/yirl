@@ -41,40 +41,40 @@ struct entityWrapper {
 
 Entity *luaEntityAt(lua_State *L, int pos)
 {
-  if (lua_islightuserdata(L, pos)) {
-      void  *udata = lua_touserdata(L, pos);
-      if (yeIsPtrAnEntity(udata))
-	return udata;
-      return NULL;
-    }
+	if (lua_islightuserdata(L, pos)) {
+		void  *udata = lua_touserdata(L, pos);
+		if (yeIsPtrAnEntity(udata))
+			return udata;
+		return NULL;
+	}
 
-  if (!lua_isuserdata(L, pos))
-    return NULL;
-  struct entityWrapper *ew = luaL_checkudata(L, pos, "Entity");
-  return ew->e;
+	if (!lua_isuserdata(L, pos))
+		return NULL;
+	struct entityWrapper *ew = luaL_checkudata(L, pos, "Entity");
+	return ew->e;
 }
 
 static struct entityWrapper *createEntityWrapper(lua_State *L, int fatherPos,
 						 Entity **father)
 {
-  struct entityWrapper *ew;
-  int needDestroy = !lua_isuserdata(L, fatherPos);
+	struct entityWrapper *ew;
+	int needDestroy = !lua_isuserdata(L, fatherPos);
 
-  if (*father == YLUA_NO_DESTROY_ORPHAN) {
-    needDestroy = 0;
-    goto finish_init;
-  }
-  if (needDestroy)
-    *father = NULL;
-  else
-    *father = luaEntityAt(L, fatherPos);
+	if (*father == YLUA_NO_DESTROY_ORPHAN) {
+		needDestroy = 0;
+		goto finish_init;
+	}
+	if (needDestroy)
+		*father = NULL;
+	else
+		*father = luaEntityAt(L, fatherPos);
 
- finish_init:
-  ew = lua_newuserdata(L, sizeof(struct entityWrapper));
-  ew->needDestroy = needDestroy;
-  luaL_getmetatable(L, "Entity");
-  lua_setmetatable(L, -2);
-  return ew;
+finish_init:
+	ew = lua_newuserdata(L, sizeof(struct entityWrapper));
+	ew->needDestroy = needDestroy;
+	luaL_getmetatable(L, "Entity");
+	lua_setmetatable(L, -2);
+	return ew;
 }
 
 int luaOrEntType(lua_State *L, int i)
@@ -110,94 +110,94 @@ int luaOrEntType(lua_State *L, int i)
 
 intptr_t luaNumberAt(lua_State *L, int i)
 {
-  if (lua_islightuserdata(L, i)) {
-    void  *udata = lua_touserdata(L, i);
+	if (lua_islightuserdata(L, i)) {
+		void  *udata = lua_touserdata(L, i);
 
-    if (yeIsPtrAnEntity(udata))
-      return yeGetInt(udata);
-    return (intptr_t)udata;
-  } else if (lua_isuserdata(L, i)) {
-    struct entityWrapper *ew = luaL_checkudata(L, i, "Entity");
+		if (yeIsPtrAnEntity(udata))
+			return yeGetInt(udata);
+		return (intptr_t)udata;
+	} else if (lua_isuserdata(L, i)) {
+		struct entityWrapper *ew = luaL_checkudata(L, i, "Entity");
 
-    if (unlikely(yeType(ew->e) == YFLOAT))
-	    return yeGetFloat(ew->e);
-    return yeGetInt(ew->e);
-  } else if (lua_isnumber(L, i)) {
-    return lua_tonumber(L, i);
-  }
-  return 0;
+		if (unlikely(yeType(ew->e) == YFLOAT))
+			return yeGetFloat(ew->e);
+		return yeGetInt(ew->e);
+	} else if (lua_isnumber(L, i)) {
+		return lua_tonumber(L, i);
+	}
+	return 0;
 }
 
 int	luaentity_lt(lua_State *L)
 {
-  double i0 = luaNumberAt(L, 1);
-  double i1 = luaNumberAt(L, 2);
+	double i0 = luaNumberAt(L, 1);
+	double i1 = luaNumberAt(L, 2);
 
-  lua_pushboolean(L, i0 < i1);
-  return 1;
+	lua_pushboolean(L, i0 < i1);
+	return 1;
 }
 
 int	luaentity_eq(lua_State *L)
 {
-  double i0 = luaNumberAt(L, 1);
-  double i1 = luaNumberAt(L, 2);
+	double i0 = luaNumberAt(L, 1);
+	double i1 = luaNumberAt(L, 2);
 
-  lua_pushboolean(L, i0 == i1);
-  return 1;
+	lua_pushboolean(L, i0 == i1);
+	return 1;
 }
 
 int	luaentity_sub(lua_State *L)
 {
-  double i0 = luaNumberAt(L, 1);
-  double i1 = luaNumberAt(L, 2);
+	double i0 = luaNumberAt(L, 1);
+	double i1 = luaNumberAt(L, 2);
 
-  lua_pushnumber(L, i0 - i1);
-  return 1;
+	lua_pushnumber(L, i0 - i1);
+	return 1;
 }
 
 int	luaentity_add(lua_State *L)
 {
-  double i0 = luaNumberAt(L, 1);
-  double i1 = luaNumberAt(L, 2);
+	double i0 = luaNumberAt(L, 1);
+	double i1 = luaNumberAt(L, 2);
 
-  lua_pushnumber(L, i0 + i1);
-  return 1;
+	lua_pushnumber(L, i0 + i1);
+	return 1;
 }
 
 int	luaentity_div(lua_State *L)
 {
-  double i0 = luaNumberAt(L, 1);
-  double i1 = luaNumberAt(L, 2);
+	double i0 = luaNumberAt(L, 1);
+	double i1 = luaNumberAt(L, 2);
 
-  lua_pushnumber(L, i0 / i1);
-  return 1;
+	lua_pushnumber(L, i0 / i1);
+	return 1;
 }
 
 int	luaentity_mul(lua_State *L)
 {
-  double i0 = luaNumberAt(L, 1);
-  double i1 = luaNumberAt(L, 2);
+	double i0 = luaNumberAt(L, 1);
+	double i1 = luaNumberAt(L, 2);
 
-  lua_pushnumber(L, i0 * i1);
-  return 1;
+	lua_pushnumber(L, i0 * i1);
+	return 1;
 }
 
 int	luaentity_call(lua_State *L)
 {
-  struct entityWrapper *ew = luaL_checkudata(L, 1, "Entity");
+	struct entityWrapper *ew = luaL_checkudata(L, 1, "Entity");
 
-  lua_pushlightuserdata(L, ew->e);
-  lua_replace(L, 1);
-  return luaYesCall(L);
+	lua_pushlightuserdata(L, ew->e);
+	lua_replace(L, 1);
+	return luaYesCall(L);
 }
 
 int	luaentity_remove(lua_State *L)
 {
-  Entity *ae = luaEntityAt(L, 1);
-  Entity *e = luaEntityAt(L, 2);
+	Entity *ae = luaEntityAt(L, 1);
+	Entity *e = luaEntityAt(L, 2);
 
-  lua_pushlightuserdata(L, yeRemoveChild(ae, e));
-  return 1;
+	lua_pushlightuserdata(L, yeRemoveChild(ae, e));
+	return 1;
 }
 
 int	luaentity_newindex(lua_State *L)
@@ -316,24 +316,24 @@ int	luaentity_index(lua_State *L)
 
 int	luaentity__wrapp_(lua_State *L)
 {
-  struct entityWrapper *ret;
-  Entity *e = luaEntityAt(L, 1);
-  int needDestroy = lua_toboolean(L, 2);
-  Entity *father = needDestroy ? NULL : YLUA_NO_DESTROY_ORPHAN;
+	struct entityWrapper *ret;
+	Entity *e = luaEntityAt(L, 1);
+	int needDestroy = lua_toboolean(L, 2);
+	Entity *father = needDestroy ? NULL : YLUA_NO_DESTROY_ORPHAN;
 
-  ret = createEntityWrapper(L, 2, &father);
-  ret->e = e;
-  return 1;
+	ret = createEntityWrapper(L, 2, &father);
+	ret->e = e;
+	return 1;
 }
 
 int	luaentity_wrapp(lua_State *L)
 {
-  struct entityWrapper *ret;
-  Entity *e = luaEntityAt(L, 1);
+	struct entityWrapper *ret;
+	Entity *e = luaEntityAt(L, 1);
 
-  ret = createEntityWrapper(L, 0, &YLUA_NO_DESTROY_ORPHAN);
-  ret->e = e;
-  return 1;
+	ret = createEntityWrapper(L, 0, &YLUA_NO_DESTROY_ORPHAN);
+	ret->e = e;
+	return 1;
 }
 
 int	luaentity_tostring(lua_State *L)
@@ -341,8 +341,8 @@ int	luaentity_tostring(lua_State *L)
   struct entityWrapper *ew = luaL_checkudata(L, 1, "Entity");
 
   if (yeType(ew->e) == YSTRING) {
-    lua_pushstring(L, yeGetString(ew->e));
-    return 1;
+	  lua_pushstring(L, yeGetString(ew->e));
+	  return 1;
   }
   char *str = yeToCStr(ew->e, 4, YE_FORMAT_PRETTY);
   lua_pushstring(L, str);
@@ -352,63 +352,63 @@ int	luaentity_tostring(lua_State *L)
 
 int	luaentity_tocentity(lua_State *L)
 {
-  struct entityWrapper *ew = luaL_checkudata(L, 1, "Entity");
+	struct entityWrapper *ew = luaL_checkudata(L, 1, "Entity");
 
-  lua_pushlightuserdata(L, ew->e);
-  return 1;
+	lua_pushlightuserdata(L, ew->e);
+	return 1;
 }
 
 int	luaentity_len(lua_State *L)
 {
-  lua_pushnumber(L, yeLen(luaEntityAt(L, 1)));
-  return 1;
+	lua_pushnumber(L, yeLen(luaEntityAt(L, 1)));
+	return 1;
 }
 
 int	luaentity_tofloat(lua_State *L)
 {
-  lua_pushnumber(L, yeGetFloat(luaEntityAt(L, 1)));
-  return 1;
+	lua_pushnumber(L, yeGetFloat(luaEntityAt(L, 1)));
+	return 1;
 }
 
 int	luaentity_setfloat(lua_State *L)
 {
-  yeSetFloat(luaEntityAt(L, 1), lua_tonumber(L, 2));
-  return 0;
+	yeSetFloat(luaEntityAt(L, 1), lua_tonumber(L, 2));
+	return 0;
 }
 
 int	luaentity_toint(lua_State *L)
 {
-  lua_pushnumber(L, yeGetInt(luaEntityAt(L, 1)));
-  return 1;
+	lua_pushnumber(L, yeGetInt(luaEntityAt(L, 1)));
+	return 1;
 }
 
 int	luaentity_pushback(lua_State *L)
 {
-  lua_pushnumber(L, yePushBack(luaEntityAt(L, 1), luaEntityAt(L, 2),
-			       lua_tostring(L, 3)));
-  return 1;
+	lua_pushnumber(L, yePushBack(luaEntityAt(L, 1), luaEntityAt(L, 2),
+				     lua_tostring(L, 3)));
+	return 1;
 }
 
 int	luaentity_destroy(lua_State *L)
 {
-  struct entityWrapper *ew = luaL_checkudata(L, 1, "Entity");
+	struct entityWrapper *ew = luaL_checkudata(L, 1, "Entity");
 
-  if (ew->needDestroy) {
-    yeDestroy(ew->e);
-    ew->needDestroy = 0;
-    ew->e = NULL;
-  }
-  return 0;
+	if (ew->needDestroy) {
+		yeDestroy(ew->e);
+		ew->needDestroy = 0;
+		ew->e = NULL;
+	}
+	return 0;
 }
 
 int	luaentity_newarray(lua_State *L)
 {
-  const char *name = lua_tostring(L, 2);
-  Entity *father = NULL;
-  struct entityWrapper *ew = createEntityWrapper(L, 1, &father);
+	const char *name = lua_tostring(L, 2);
+	Entity *father = NULL;
+	struct entityWrapper *ew = createEntityWrapper(L, 1, &father);
 
-  ew->e = yeCreateArray(father, name);
-  return 1;
+	ew->e = yeCreateArray(father, name);
+	return 1;
 }
 
 
@@ -467,44 +467,44 @@ int	luaentity_newfunc(lua_State *L)
 
 int	luaentity_newint(lua_State *L)
 {
-  int val = luaL_checknumber(L, 1);
-  const char *name = lua_tostring(L, 3);
-  Entity *father = NULL;
-  struct entityWrapper *ew = createEntityWrapper(L, 2, &father);
+	int val = luaL_checknumber(L, 1);
+	const char *name = lua_tostring(L, 3);
+	Entity *father = NULL;
+	struct entityWrapper *ew = createEntityWrapper(L, 2, &father);
 
-  ew->e = yeCreateInt(val, father, name);
-  return 1;
+	ew->e = yeCreateInt(val, father, name);
+	return 1;
 }
 
 int	luaentity_newfloat(lua_State *L)
 {
-  double val = luaL_checknumber(L, 1);
-  const char *name = lua_tostring(L, 3);
-  Entity *father = NULL;
-  struct entityWrapper *ew = createEntityWrapper(L, 2, &father);
+	double val = luaL_checknumber(L, 1);
+	const char *name = lua_tostring(L, 3);
+	Entity *father = NULL;
+	struct entityWrapper *ew = createEntityWrapper(L, 2, &father);
 
-  ew->e = yeCreateFloat(val, father, name);
-  return 1;
+	ew->e = yeCreateFloat(val, father, name);
+	return 1;
 }
 
 int	luayIsLightUserData(lua_State *L)
 {
-  lua_pushboolean(L, lua_islightuserdata(L, 1));
-  return 1;
+	lua_pushboolean(L, lua_islightuserdata(L, 1));
+	return 1;
 }
 
 int	luayOr(lua_State *L)
 {
-  lua_pushnumber(L,
-		 (int_ptr_t)luaNumberAt(L, 1) | (int_ptr_t)luaNumberAt(L, 2));
-  return (1);
+	lua_pushnumber(L,
+		       (int_ptr_t)luaNumberAt(L, 1) | (int_ptr_t)luaNumberAt(L, 2));
+	return (1);
 }
 
 int	luaYAnd(lua_State *L)
 {
-  lua_pushnumber(L,
-		 (int_ptr_t)luaNumberAt(L, 1) & (int_ptr_t)luaNumberAt(L, 2));
-  return (1);
+	lua_pushnumber(L,
+		       (int_ptr_t)luaNumberAt(L, 1) & (int_ptr_t)luaNumberAt(L, 2));
+	return (1);
 }
 
 #define luaIsNil_()				\
@@ -550,181 +550,181 @@ int	luayeGet(lua_State *L)
 
 int	luaywCanvasRotate(lua_State *L)
 {
-  lua_pushnumber(L, ywCanvasRotate(luaEntityAt(L, 1),
-				   lua_tonumber(L, 2)));
-  return 1;
+	lua_pushnumber(L, ywCanvasRotate(luaEntityAt(L, 1),
+					 lua_tonumber(L, 2)));
+	return 1;
 }
 
 int	luaywCanvasSwapObj(lua_State *L)
 {
-  lua_pushnumber(L, ywCanvasSwapObj(luaEntityAt(L, 1),
-				    luaEntityAt(L, 2),
-				    luaEntityAt(L, 3)));
-  return 1;
+	lua_pushnumber(L, ywCanvasSwapObj(luaEntityAt(L, 1),
+					  luaEntityAt(L, 2),
+					  luaEntityAt(L, 3)));
+	return 1;
 }
 
 int	luaywCanvasObjIsOut(lua_State *L)
 {
-  lua_pushnumber(L, ywCanvasObjIsOut(luaEntityAt(L, 1),
-				     luaEntityAt(L, 2)));
-  return 1;
+	lua_pushnumber(L, ywCanvasObjIsOut(luaEntityAt(L, 1),
+					   luaEntityAt(L, 2)));
+	return 1;
 }
 
 int	luaywCanvasObjPointTopTo(lua_State *L)
 {
-  ywCanvasObjPointTopTo(luaEntityAt(L, 1), luaEntityAt(L, 2));
-  return 0;
+	ywCanvasObjPointTopTo(luaEntityAt(L, 1), luaEntityAt(L, 2));
+	return 0;
 }
 
 int	luaywCanvasObjPointRightTo(lua_State *L)
 {
-  ywCanvasObjPointRightTo(luaEntityAt(L, 1), luaEntityAt(L, 2));
-  return 0;
+	ywCanvasObjPointRightTo(luaEntityAt(L, 1), luaEntityAt(L, 2));
+	return 0;
 }
 
 int	luaYwCanvasMoveObjByIdx(lua_State *L)
 {
-  lua_pushnumber(L, ywCanvasMoveObjByIdx(luaEntityAt(L, 1),
-					 lua_tonumber(L, 2),
-					 luaEntityAt(L, 3)));
-  return 1;
+	lua_pushnumber(L, ywCanvasMoveObjByIdx(luaEntityAt(L, 1),
+					       lua_tonumber(L, 2),
+					       luaEntityAt(L, 3)));
+	return 1;
 }
 
 int	luaywCanvasObjAngle(lua_State *L)
 {
-  lua_pushnumber(L, ywCanvasObjAngle(luaEntityAt(L, 1)));
-  return 1;
+	lua_pushnumber(L, ywCanvasObjAngle(luaEntityAt(L, 1)));
+	return 1;
 }
 
 int	luaywCanvasAdvenceObj(lua_State *L)
 {
-  lua_pushnumber(L, ywCanvasAdvenceObj(luaEntityAt(L, 1),
-				       lua_tonumber(L, 2),
-				       lua_tonumber(L, 3)));
-  return 1;
+	lua_pushnumber(L, ywCanvasAdvenceObj(luaEntityAt(L, 1),
+					     lua_tonumber(L, 2),
+					     lua_tonumber(L, 3)));
+	return 1;
 }
 
 int	luaywCanvasMoveObj(lua_State *L)
 {
-  lua_pushnumber(L, ywCanvasMoveObj(luaEntityAt(L, 1),
-				    luaEntityAt(L, 2)));
-  return 1;
+	lua_pushnumber(L, ywCanvasMoveObj(luaEntityAt(L, 1),
+					  luaEntityAt(L, 2)));
+	return 1;
 }
 
 int	luaYwCanvasObjSetResourceId(lua_State *L)
 {
-  ywCanvasObjSetResourceId(luaEntityAt(L, 1), lua_tonumber(L, 2));
-  return 0;
+	ywCanvasObjSetResourceId(luaEntityAt(L, 1), lua_tonumber(L, 2));
+	return 0;
 }
 
 int	luaywCanvasObjClearCache(lua_State *L)
 {
-  ywCanvasObjClearCache(luaEntityAt(L, 1));
-  return 0;
+	ywCanvasObjClearCache(luaEntityAt(L, 1));
+	return 0;
 }
 
 int	luaywCanvasNewImg(lua_State *L)
 {
-  lua_pushlightuserdata(L, ywCanvasNewImg(luaEntityAt(L, 1),
-					  lua_tonumber(L, 2),
-					  lua_tonumber(L, 3),
-					  lua_tostring(L, 4),
-					  luaEntityAt(L, 5)));
-  return 1;
+	lua_pushlightuserdata(L, ywCanvasNewImg(luaEntityAt(L, 1),
+						lua_tonumber(L, 2),
+						lua_tonumber(L, 3),
+						lua_tostring(L, 4),
+						luaEntityAt(L, 5)));
+	return 1;
 }
 
 int	luaYwCanvasNewObj(lua_State *L)
 {
-  lua_pushlightuserdata(L, ywCanvasNewObj(luaEntityAt(L, 1),
-					  lua_tonumber(L, 2),
-					  lua_tonumber(L, 3),
-					  lua_tonumber(L, 4)));
-  return 1;
+	lua_pushlightuserdata(L, ywCanvasNewObj(luaEntityAt(L, 1),
+						lua_tonumber(L, 2),
+						lua_tonumber(L, 3),
+						lua_tonumber(L, 4)));
+	return 1;
 }
 
 int	luaYwCanvasObjSize(lua_State *L)
 {
-  lua_pushlightuserdata(L, ywCanvasObjSize(luaEntityAt(L, 1),
-					   luaEntityAt(L, 2)));
-  return 1;
+	lua_pushlightuserdata(L, ywCanvasObjSize(luaEntityAt(L, 1),
+						 luaEntityAt(L, 2)));
+	return 1;
 }
 
 int	luaYwCanvasObjPos(lua_State *L)
 {
-  lua_pushlightuserdata(L, ywCanvasObjPos(luaEntityAt(L, 1)));
-  return 1;
+	lua_pushlightuserdata(L, ywCanvasObjPos(luaEntityAt(L, 1)));
+	return 1;
 }
 
 int luaYwCanvasObjFromIdx(lua_State *L)
 {
-  lua_pushlightuserdata(L, ywCanvasObjFromIdx(luaEntityAt(L, 1),
-					      lua_tonumber(L, 2)));
-  return 1;
+	lua_pushlightuserdata(L, ywCanvasObjFromIdx(luaEntityAt(L, 1),
+						    lua_tonumber(L, 2)));
+	return 1;
 }
 
 int luaYwCanvasIdxFromObj(lua_State *L)
 {
-  lua_pushnumber(L, ywCanvasIdxFromObj(luaEntityAt(L, 1),
-				       luaEntityAt(L, 2)));
-  return 1;
+	lua_pushnumber(L, ywCanvasIdxFromObj(luaEntityAt(L, 1),
+					     luaEntityAt(L, 2)));
+	return 1;
 }
 
 int luaYwCanvasObjSetPos(lua_State *L)
 {
-  if (lua_isuserdata(L, 2)) {
-    ywCanvasObjSetPosByEntity(luaEntityAt(L, 1), lua_touserdata(L, 2));
-  } else {
-    ywCanvasObjSetPos(luaEntityAt(L, 1), lua_tonumber(L, 2),
-		      lua_tonumber(L, 3));
-  }
-  return 0;
+	if (lua_isuserdata(L, 2)) {
+		ywCanvasObjSetPosByEntity(luaEntityAt(L, 1), lua_touserdata(L, 2));
+	} else {
+		ywCanvasObjSetPos(luaEntityAt(L, 1), lua_tonumber(L, 2),
+				  lua_tonumber(L, 3));
+	}
+	return 0;
 }
 
 int	luaYwCanvasRemoveObj(lua_State *L)
 {
-  ywCanvasRemoveObj(luaEntityAt(L, 1), luaEntityAt(L, 2));
-  return 0;
+	ywCanvasRemoveObj(luaEntityAt(L, 1), luaEntityAt(L, 2));
+	return 0;
 }
 
 int	luaywCanvasObjectsCheckColisions(lua_State *L)
 {
-  lua_pushboolean(L, ywCanvasObjectsCheckColisions(luaEntityAt(L, 1),
-						   luaEntityAt(L, 2)));
-  return 1;
+	lua_pushboolean(L, ywCanvasObjectsCheckColisions(luaEntityAt(L, 1),
+							 luaEntityAt(L, 2)));
+	return 1;
 }
 
 int	luaywCanvasNewCollisionsArrayExt(lua_State *L)
 {
-  lua_pushlightuserdata(L, ywCanvasNewCollisionsArrayExt(luaEntityAt(L, 1),
-							 luaEntityAt(L, 2),
-							 luaEntityAt(L, 3),
-							 luaEntityAt(L, 4)));
-  return 1;
+	lua_pushlightuserdata(L, ywCanvasNewCollisionsArrayExt(luaEntityAt(L, 1),
+							       luaEntityAt(L, 2),
+							       luaEntityAt(L, 3),
+							       luaEntityAt(L, 4)));
+	return 1;
 
 }
 
 int luaYwCanvasNewCollisionsArray(lua_State *L)
 {
-  lua_pushlightuserdata(L, ywCanvasNewCollisionsArray(luaEntityAt(L, 1),
-						     luaEntityAt(L, 2)));
-  return 1;
+	lua_pushlightuserdata(L, ywCanvasNewCollisionsArray(luaEntityAt(L, 1),
+							    luaEntityAt(L, 2)));
+	return 1;
 }
 
 int luaYwCanvasNewCollisionsArrayWithRectangle(lua_State *L)
 {
-  lua_pushlightuserdata(L, ywCanvasNewCollisionsArrayWithRectangle(luaEntityAt(L, 1),
-						     luaEntityAt(L, 2)));
-  return 1;
+	lua_pushlightuserdata(L, ywCanvasNewCollisionsArrayWithRectangle(luaEntityAt(L, 1),
+									 luaEntityAt(L, 2)));
+	return 1;
 }
 
 int	luaywCanvasNewTextExt(lua_State *L)
 {
-  lua_pushlightuserdata(L, ywCanvasNewTextExt(luaEntityAt(L, 1),
-					      lua_tonumber(L, 2),
-					      lua_tonumber(L, 3),
-					      luaEntityAt(L, 4),
-					      lua_tostring(L, 5)));
-  return 1;
+	lua_pushlightuserdata(L, ywCanvasNewTextExt(luaEntityAt(L, 1),
+						    lua_tonumber(L, 2),
+						    lua_tonumber(L, 3),
+						    luaEntityAt(L, 4),
+						    lua_tostring(L, 5)));
+	return 1;
 }
 
 
@@ -906,27 +906,27 @@ int	luayevMouseUp(lua_State *L)
 
 int	luayevCreateGrp(lua_State *L)
 {
-  switch (lua_gettop(L)) {
-  case 2:
-    lua_pushlightuserdata(L, yevCreateGrp(luaEntityAt(L, 1),
-					  (uint64_t)luaNumberAt(L, 2)));
-    break;
-  case 3:
-    lua_pushlightuserdata(L, yevCreateGrp(luaEntityAt(L, 1),
-					  (uint64_t)luaNumberAt(L, 2),
-					  (uint64_t)luaNumberAt(L, 3)));
-    break;
-  case 4:
-    lua_pushlightuserdata(L, yevCreateGrp(luaEntityAt(L, 1),
-					  (uint64_t)luaNumberAt(L, 2),
-					  (uint64_t)luaNumberAt(L, 3),
-					  (uint64_t)luaNumberAt(L, 4)));
-    break;
-default:
-    DPRINT_ERR("internal error: wrong number of argument");
-    return 0;
-  }
-  return 1;
+	switch (lua_gettop(L)) {
+	case 2:
+		lua_pushlightuserdata(L, yevCreateGrp(luaEntityAt(L, 1),
+						      (uint64_t)luaNumberAt(L, 2)));
+		break;
+	case 3:
+		lua_pushlightuserdata(L, yevCreateGrp(luaEntityAt(L, 1),
+						      (uint64_t)luaNumberAt(L, 2),
+						      (uint64_t)luaNumberAt(L, 3)));
+		break;
+	case 4:
+		lua_pushlightuserdata(L, yevCreateGrp(luaEntityAt(L, 1),
+						      (uint64_t)luaNumberAt(L, 2),
+						      (uint64_t)luaNumberAt(L, 3),
+						      (uint64_t)luaNumberAt(L, 4)));
+		break;
+	default:
+		DPRINT_ERR("internal error: wrong number of argument");
+		return 0;
+	}
+	return 1;
 }
 
 int	luayevCheckKeys(lua_State *L)
@@ -1170,162 +1170,162 @@ int	luaywPosCreate(lua_State *L)
 
 int	luaywPosSet(lua_State *L)
 {
-  if (lua_isnumber(L, 2)) {
-    lua_pushlightuserdata(L, ywPosSet(luaEntityAt(L, 1), lua_tonumber(L, 2),
-				      lua_tonumber(L, 3)));
-  } else {
-    lua_pushlightuserdata(L, ywPosSet(luaEntityAt(L, 1),
-				      luaEntityAt(L, 2), 0));
-  }
-  return 1;
+	if (lua_isnumber(L, 2)) {
+		lua_pushlightuserdata(L, ywPosSet(luaEntityAt(L, 1), lua_tonumber(L, 2),
+						  lua_tonumber(L, 3)));
+	} else {
+		lua_pushlightuserdata(L, ywPosSet(luaEntityAt(L, 1),
+						  luaEntityAt(L, 2), 0));
+	}
+	return 1;
 }
 
 int	luaywPosIsSame(lua_State *L)
 {
-  if (lua_isnumber(L, 2))
-    lua_pushboolean(L, ywPosIsSame(luaEntityAt(L, 1),
-				      lua_tonumber(L, 2), lua_tonumber(L, 3)));
-  else
-    lua_pushboolean(L, ywPosIsSame(luaEntityAt(L, 1),
-				      luaEntityAt(L, 2), 0));
-  return 1;
+	if (lua_isnumber(L, 2))
+		lua_pushboolean(L, ywPosIsSame(luaEntityAt(L, 1),
+					       lua_tonumber(L, 2), lua_tonumber(L, 3)));
+	else
+		lua_pushboolean(L, ywPosIsSame(luaEntityAt(L, 1),
+					       luaEntityAt(L, 2), 0));
+	return 1;
 }
 
 int	luaywPosIsSameX(lua_State *L)
 {
-  if (lua_isnumber(L, 2))
-    lua_pushboolean(L, ywPosIsSameX(luaEntityAt(L, 1),
-				       lua_tonumber(L, 2)));
-  else
-    lua_pushboolean(L, ywPosIsSameX(luaEntityAt(L, 1),
-				       luaEntityAt(L, 2)));
-  return 1;
+	if (lua_isnumber(L, 2))
+		lua_pushboolean(L, ywPosIsSameX(luaEntityAt(L, 1),
+						lua_tonumber(L, 2)));
+	else
+		lua_pushboolean(L, ywPosIsSameX(luaEntityAt(L, 1),
+						luaEntityAt(L, 2)));
+	return 1;
 }
 
 int	luaywPosIsSameY(lua_State *L)
 {
-  if (lua_isnumber(L, 2))
-    lua_pushboolean(L, ywPosIsSameY(luaEntityAt(L, 1),
-				       lua_tonumber(L, 2)));
-  else
-    lua_pushboolean(L, ywPosIsSameY(luaEntityAt(L, 1),
-				       luaEntityAt(L, 2)));
-  return 1;
+	if (lua_isnumber(L, 2))
+		lua_pushboolean(L, ywPosIsSameY(luaEntityAt(L, 1),
+						lua_tonumber(L, 2)));
+	else
+		lua_pushboolean(L, ywPosIsSameY(luaEntityAt(L, 1),
+						luaEntityAt(L, 2)));
+	return 1;
 }
 
 int	luaywPosAdd(lua_State *L)
 {
-  if (lua_isnumber(L, 2)) {
-    lua_pushlightuserdata(L, ywPosAddXY(luaEntityAt(L, 1),
-					lua_tonumber(L, 2),
-					lua_tonumber(L, 3)));
-  } else {
-    lua_pushlightuserdata(L, ywPosAdd(luaEntityAt(L, 1),
-				      luaEntityAt(L, 2)));
-  }
-  return 1;
+	if (lua_isnumber(L, 2)) {
+		lua_pushlightuserdata(L, ywPosAddXY(luaEntityAt(L, 1),
+						    lua_tonumber(L, 2),
+						    lua_tonumber(L, 3)));
+	} else {
+		lua_pushlightuserdata(L, ywPosAdd(luaEntityAt(L, 1),
+						  luaEntityAt(L, 2)));
+	}
+	return 1;
 }
 
 int	luaywPosMoveToward2(lua_State *L)
 {
-  lua_pushboolean(L, ywPosMoveToward2(luaEntityAt(L, 1),
-				      luaEntityAt(L, 2),
-				      lua_tonumber(L, 3),
-				      lua_tonumber(L, 4)));
-  return 1;
+	lua_pushboolean(L, ywPosMoveToward2(luaEntityAt(L, 1),
+					    luaEntityAt(L, 2),
+					    lua_tonumber(L, 3),
+					    lua_tonumber(L, 4)));
+	return 1;
 }
 
 int	luaYwMapMove(lua_State *L)
 {
-  if (lua_isstring(L, 4))
-    lua_pushnumber(L, ywMapMoveByStr(luaEntityAt(L, 1),
-				     luaEntityAt(L, 2),
-				     luaEntityAt(L, 3),
-				     lua_tostring(L, 4)));
-  else
-    lua_pushnumber(L, ywMapMoveByEntity(luaEntityAt(L, 1),
-					luaEntityAt(L, 2),
-					luaEntityAt(L, 3),
-					luaEntityAt(L, 4)));
-  return 1;
+	if (lua_isstring(L, 4))
+		lua_pushnumber(L, ywMapMoveByStr(luaEntityAt(L, 1),
+						 luaEntityAt(L, 2),
+						 luaEntityAt(L, 3),
+						 lua_tostring(L, 4)));
+	else
+		lua_pushnumber(L, ywMapMoveByEntity(luaEntityAt(L, 1),
+						    luaEntityAt(L, 2),
+						    luaEntityAt(L, 3),
+						    luaEntityAt(L, 4)));
+	return 1;
 }
 
 int	luaYwMapSmootMove(lua_State *L)
 {
-  lua_pushnumber(L, ywMapSmootMove(luaEntityAt(L, 1),
-				   luaEntityAt(L, 2),
-				   luaEntityAt(L, 3),
-				   luaEntityAt(L, 4)));
-  return 1;
+	lua_pushnumber(L, ywMapSmootMove(luaEntityAt(L, 1),
+					 luaEntityAt(L, 2),
+					 luaEntityAt(L, 3),
+					 luaEntityAt(L, 4)));
+	return 1;
 }
 
 int	luaYwMapIntFromPos(lua_State *L)
 {
-  lua_pushnumber(L, ywMapIntFromPos(luaEntityAt(L, 1),
-				    luaEntityAt(L, 2)));
-  return 1;
+	lua_pushnumber(L, ywMapIntFromPos(luaEntityAt(L, 1),
+					  luaEntityAt(L, 2)));
+	return 1;
 }
 
 int	luaYwMapPosFromInt(lua_State *L)
 {
-  lua_pushlightuserdata(L, ywMapPosFromInt(luaEntityAt(L, 1),
-					   lua_tonumber(L, 2),
-					   luaEntityAt(L, 3),
-					   lua_tostring(L, 4)));
-  return 1;
+	lua_pushlightuserdata(L, ywMapPosFromInt(luaEntityAt(L, 1),
+						 lua_tonumber(L, 2),
+						 luaEntityAt(L, 3),
+						 lua_tostring(L, 4)));
+	return 1;
 }
 
 int	luaYwMapRemove(lua_State *L)
 {
-  if (lua_isstring(L, 3))
-    ywMapRemove(luaEntityAt(L, 1), luaEntityAt(L, 2), lua_tostring(L, 3));
-  else
-    ywMapRemove(luaEntityAt(L, 1), luaEntityAt(L, 2),
-		YE_TO_ENTITY(luaEntityAt(L, 3)));
-  return 0;
+	if (lua_isstring(L, 3))
+		ywMapRemove(luaEntityAt(L, 1), luaEntityAt(L, 2), lua_tostring(L, 3));
+	else
+		ywMapRemove(luaEntityAt(L, 1), luaEntityAt(L, 2),
+			    YE_TO_ENTITY(luaEntityAt(L, 3)));
+	return 0;
 }
 
 int	luaYwMapW(lua_State *L)
 {
-  lua_pushnumber(L, ywMapW(luaEntityAt(L, 1)));
-  return 1;
+	lua_pushnumber(L, ywMapW(luaEntityAt(L, 1)));
+	return 1;
 }
 
 int	luaYwMapH(lua_State *L)
 {
-  lua_pushnumber(L, ywMapH(luaEntityAt(L, 1)));
-  return 1;
+	lua_pushnumber(L, ywMapH(luaEntityAt(L, 1)));
+	return 1;
 }
 
 int	luaYwMapSetSmootMovement(lua_State *L)
 {
-  ywMapSetSmootMovement(luaEntityAt(L, 1), lua_tonumber(L, 2));
-  return 0;
+	ywMapSetSmootMovement(luaEntityAt(L, 1), lua_tonumber(L, 2));
+	return 0;
 }
 
 int	luaMvTablePush(lua_State *L)
 {
-  lua_pushlightuserdata(L, ywMapMvTablePush(luaEntityAt(L, 1),
-					    luaEntityAt(L, 2),
-					    luaEntityAt(L, 3),
-					    luaEntityAt(L, 4),
-					    luaEntityAt(L, 5)));
-  return 1;
+	lua_pushlightuserdata(L, ywMapMvTablePush(luaEntityAt(L, 1),
+						  luaEntityAt(L, 2),
+						  luaEntityAt(L, 3),
+						  luaEntityAt(L, 4),
+						  luaEntityAt(L, 5)));
+	return 1;
 }
 
 int	luaYwMapPushNbr(lua_State *L)
 {
-  lua_pushlightuserdata(L, ywMapPushNbr(luaEntityAt(L, 1),
-					lua_tonumber(L, 2),
-					luaEntityAt(L, 3),
-					lua_tostring(L, 4)));
-  return 1;
+	lua_pushlightuserdata(L, ywMapPushNbr(luaEntityAt(L, 1),
+					      lua_tonumber(L, 2),
+					      luaEntityAt(L, 3),
+					      lua_tostring(L, 4)));
+	return 1;
 }
 
 int	luaGetMod(lua_State *L)
 {
-  lua_pushlightuserdata(L, ygGetMod(lua_tostring(L, 1)));
-  return 1;
+	lua_pushlightuserdata(L, ygGetMod(lua_tostring(L, 1)));
+	return 1;
 }
 
 static inline void call_set_arg(lua_State *L, int i, union ycall_arg *args,
@@ -1390,77 +1390,77 @@ int	luaYesCall(lua_State *L)
 
 int	luaYGet(lua_State *L)
 {
-  if (lua_isstring(L, 1))
-    lua_pushlightuserdata(L, ygGet(lua_tostring(L, 1)));
-  else if (lua_islightuserdata(L, 1))
-    lua_pushlightuserdata(L, ygGet(yeGetString(luaEntityAt(L, 1))));
-  return 1;
+	if (lua_isstring(L, 1))
+		lua_pushlightuserdata(L, ygGet(lua_tostring(L, 1)));
+	else if (lua_islightuserdata(L, 1))
+		lua_pushlightuserdata(L, ygGet(yeGetString(luaEntityAt(L, 1))));
+	return 1;
 }
 
 int	luaYgRegistreFunc(lua_State *L)
 {
-  lua_pushnumber(L, ygRegistreFuncInternal(ygGetLuaManager(),
-					   lua_tonumber(L, 1),
-					   lua_tostring(L, 2),
-					   lua_tostring(L, 3)));
-  return 1;
+	lua_pushnumber(L, ygRegistreFuncInternal(ygGetLuaManager(),
+						 lua_tonumber(L, 1),
+						 lua_tostring(L, 2),
+						 lua_tostring(L, 3)));
+	return 1;
 }
 
 int	luaYgFileToEnt(lua_State *L)
 {
-  lua_pushlightuserdata(L, ygFileToEnt(lua_tonumber(L, 1),
-				       lua_tostring(L, 2),
-				       luaEntityAt(L, 3)));
-  return 1;
+	lua_pushlightuserdata(L, ygFileToEnt(lua_tonumber(L, 1),
+					     lua_tostring(L, 2),
+					     luaEntityAt(L, 3)));
+	return 1;
 }
 
 int	luaYgEntToFile(lua_State *L)
 {
-  lua_pushnumber(L, ygEntToFile(lua_tonumber(L, 1),
-				lua_tostring(L, 2),
-				luaEntityAt(L, 3)));
-  return 1;
+	lua_pushnumber(L, ygEntToFile(lua_tonumber(L, 1),
+				      lua_tostring(L, 2),
+				      luaEntityAt(L, 3)));
+	return 1;
 }
 
 int	luaygStalk(lua_State *L)
 {
-  lua_pushboolean(L, !ygStalk(lua_tostring(L, 1), luaEntityAt(L, 2),
-			      luaEntityAt(L, 3)));
-  return 1;
+	lua_pushboolean(L, !ygStalk(lua_tostring(L, 1), luaEntityAt(L, 2),
+				    luaEntityAt(L, 3)));
+	return 1;
 }
 
 int	luaygUnstalk(lua_State *L)
 {
-  lua_pushboolean(L, !ygUnstalk(lua_tostring(L, 1)));
-  return 1;
+	lua_pushboolean(L, !ygUnstalk(lua_tostring(L, 1)));
+	return 1;
 }
 
 int	luaygReCreateInt(lua_State *L)
 {
-  ygReCreateInt(lua_tostring(L, 1), lua_tonumber(L, 2));
-  return 0;
+	ygReCreateInt(lua_tostring(L, 1), lua_tonumber(L, 2));
+	return 0;
 }
 
 int	luayeSetAt(lua_State *L)
 {
-  Entity *ent = NULL;
-  if (lua_gettop(L) != 3)
-    return 0;
+	Entity *ent = NULL;
+	if (lua_gettop(L) != 3)
+		return 0;
 
-  if (lua_isnumber(L, 2)) {
-    ent = yeGet(luaEntityAt(L, 1), (int64_t)lua_tonumber(L, 2));
-  } else if (lua_isstring(L, 2)) {
-    ent = yeGet(luaEntityAt(L, 1), lua_tostring(L, 2));
-  } else {
-    return 0;
-  }
+	if (lua_isnumber(L, 2)) {
+		ent = yeGet(luaEntityAt(L, 1), (int64_t)lua_tonumber(L, 2));
+	} else if (lua_isstring(L, 2)) {
+		ent = yeGet(luaEntityAt(L, 1), lua_tostring(L, 2));
+	} else {
+		return 0;
+	}
 
-  if (lua_isnumber(L, 3)) {
-    yeSetInt(ent, lua_tonumber(L, 3));
-  } else if (lua_isstring(L, 3)) {
-    yeSetString(ent, lua_tostring(L, 3));
-  }
-  return 0;
+	if (lua_isnumber(L, 3)) {
+		yeSetInt(ent, lua_tonumber(L, 3));
+	} else if (lua_isstring(L, 3)) {
+		yeSetString(ent, lua_tostring(L, 3));
+	}
+	return 0;
 }
 
 int	luayeSetIntAt(lua_State *L)
