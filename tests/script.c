@@ -23,7 +23,7 @@ void testScriptAddFunction(void)
 {
   GameConfig cfg;
 
-  g_assert(!ygInitGameConfig(&cfg, NULL, NONE));
+  g_assert(!ygInitGameConfig(&cfg, NULL, YNONE));
   g_assert(!ygInit(&cfg));
   ygCleanGameConfig(&cfg);
   g_assert(!ysLoadString(ygGetTccManager(),

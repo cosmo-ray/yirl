@@ -32,7 +32,7 @@ void testsLpcSpritesheet(void)
   YWidgetState *wid;
   Entity *actions;
 
-  g_assert(!ygInitGameConfig(&cfg, NULL, SDL2));
+  g_assert(!ygInitGameConfig(&cfg, NULL, YSDL2));
   g_assert(!ygInit(&cfg));
   mod = ygLoadMod(TESTS_PATH"../modules/Universal-LPC-spritesheet/");
   if (!mod) {

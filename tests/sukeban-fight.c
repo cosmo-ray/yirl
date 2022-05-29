@@ -32,7 +32,7 @@ void testSukeFightMod(void)
   Entity *mod;
   YWidgetState *wid;
 
-  g_assert(!ygInitGameConfig(&cfg, NULL, SDL2));
+  g_assert(!ygInitGameConfig(&cfg, NULL, YSDL2));
   g_assert(!ygInit(&cfg));
   mod = ygLoadMod(TESTS_PATH"../modules/sukeban-fight/");
   g_assert(mod);

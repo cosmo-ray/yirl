@@ -71,7 +71,7 @@ void testLuaScritEntityBind(void)
   void *sm;
   Entity *func;
 
-  ygInit( ({ ygInitGameConfig(&cfg, "./", NONE); &cfg; }) );
+  ygInit( ({ ygInitGameConfig(&cfg, "./", YNONE); &cfg; }) );
 
   sm = ygGetLuaManager();
   func = yeCreateFunction("createInt", sm, NULL, NULL);

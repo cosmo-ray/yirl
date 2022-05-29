@@ -28,7 +28,7 @@ void testMazeGenMod(void)
 
   GameConfig cfg;
 
-  g_assert(!ygInitGameConfig(&cfg, NULL, NONE));
+  g_assert(!ygInitGameConfig(&cfg, NULL, YNONE));
   g_assert(!ygInit(&cfg));
   g_assert(ygLoadMod(TESTS_PATH"../modules/maze/"));
   yuiRandInit();

@@ -60,7 +60,7 @@ void testYGameSdlLibBasic(void)
   GameConfig cfg;
 
   ysRegistreNativeFunc("shooterInit", shooterInit);
-  g_assert(!ygInitGameConfig(&cfg, testPath, SDL2));
+  g_assert(!ygInitGameConfig(&cfg, testPath, YSDL2));
   g_assert(!ygInit(&cfg));
   g_assert(!ygStartLoop(&cfg));
 
@@ -72,7 +72,7 @@ void testYGameLifecycle(void)
 {
   GameConfig cfg;
 
-  g_assert(!ygInitGameConfig(&cfg, testPath, NONE));
+  g_assert(!ygInitGameConfig(&cfg, testPath, YNONE));
   g_assert(!ygInit(&cfg));
   ygEnd();
   for (int i = 0; i < 100; ++i) {
@@ -87,7 +87,7 @@ void testYGameAllLibBasic(void)
 {
   GameConfig cfg;
 
-  g_assert(!ygInitGameConfig(&cfg, testPath, ALL));
+  g_assert(!ygInitGameConfig(&cfg, testPath, YALL));
   g_assert(!ygInit(&cfg));
   ysRegistreNativeFunc("shooterInit", shooterInit);
   g_assert(!ygStartLoop(&cfg));

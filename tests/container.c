@@ -41,7 +41,7 @@ void testHorizontalContainerSdl(void)
   YWidgetState *wid;
 
   /* Init libs */
-  g_assert(!ygInitGameConfig(&cfg, NULL, SDL2));
+  g_assert(!ygInitGameConfig(&cfg, NULL, YSDL2));
   g_assert(!ygInit(&cfg));
 
   /* Parsing json */
@@ -71,7 +71,7 @@ void testVerticalContainerSdl(void)
   YWidgetState *wid;
 
   /* Init libs */
-  g_assert(!ygInitGameConfig(&cfg, NULL, SDL2));
+  g_assert(!ygInitGameConfig(&cfg, NULL, YSDL2));
   g_assert(!ygInit(&cfg));
 
   /* Parsing json */
@@ -102,7 +102,7 @@ void testStackContainerSdl(void)
   Entity *ret0;
 
   /* Init libs */
-  g_assert(!ygInitGameConfig(&cfg, NULL, SDL2));
+  g_assert(!ygInitGameConfig(&cfg, NULL, YSDL2));
   g_assert(!ygInit(&cfg));
 
   /* Parsing json */
@@ -134,7 +134,7 @@ void testMixContainerSdl(void)
   YWidgetState *wid;
 
   /* Init libs */
-  g_assert(!ygInitGameConfig(&cfg, NULL, SDL2));
+  g_assert(!ygInitGameConfig(&cfg, NULL, YSDL2));
   g_assert(!ygInit(&cfg));
 
   /* Parsing json */
@@ -176,7 +176,7 @@ void testDynamicStackContainerSdl(void)
   YWidgetState *wid;
 
   /* Init libs */
-  g_assert(!ygInitGameConfig(&cfg, NULL, SDL2));
+  g_assert(!ygInitGameConfig(&cfg, NULL, YSDL2));
   g_assert(!ygInit(&cfg));
 
   gc = yeCreateArray(NULL, NULL);

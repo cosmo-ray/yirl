@@ -25,6 +25,7 @@
 #include	"utils.h"
 #include	"stack.h"
 #include	"script.h"
+#include	"game.h"
 
 /* Globale array that store every entitys */
 static STACK_CREATE(freedElems, int64);
@@ -940,6 +941,7 @@ Entity *yeRemoveChildByStr(Entity *array, const char *toRemove)
 	if (!checkType(array, YARRAY)) {
 		DPRINT_ERR("bad argument 1 of type '%s', should be array\n",
 			   yeTypeToString(yeType(array)));
+		ygDgbAbort();
 		return NULL;
 	}
 

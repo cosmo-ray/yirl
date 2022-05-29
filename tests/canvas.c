@@ -83,7 +83,7 @@ void testCanvasSdl2(void)
   Entity *obj;
   YWidgetState *wid;
 
-  g_assert(!ygInitGameConfig(&cfg, NULL, SDL2));
+  g_assert(!ygInitGameConfig(&cfg, NULL, YSDL2));
   g_assert(!ygInit(&cfg));
 
   ysRegistreNativeFunc("moveImg", moveImg);
@@ -194,7 +194,7 @@ void testCanvasMergable(void)
 	Entity *actions;
 	YWidgetState *wid;
 
-	g_assert(!ygInitGameConfig(&cfg, NULL, SDL2));
+	g_assert(!ygInitGameConfig(&cfg, NULL, YSDL2));
 	g_assert(!ygInit(&cfg));
 
 	yeCreateString("canvas", canvas_example, "<type>");

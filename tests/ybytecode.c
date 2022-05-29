@@ -228,7 +228,7 @@ void ybytecodeReadFile(void)
   Entity *num;
   Entity *func;
 
-  ygInit( ({ ygInitGameConfig(&cfg, "./", NONE); &cfg; }) );
+  ygInit( ({ ygInitGameConfig(&cfg, "./", YNONE); &cfg; }) );
   sm = ysYBytecodeManager();
   g_assert(sm);
 

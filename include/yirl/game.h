@@ -32,9 +32,9 @@
 #endif
 
 typedef enum {
-  NONE   = 0,
-  SDL2   = 1,
-  ALL    = SDL2
+  YNONE   = 0,
+  YSDL2   = 1,
+  YALL    = YSDL2
 } RenderType;
 
 typedef enum {

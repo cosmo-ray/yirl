@@ -126,6 +126,7 @@ static Entity *jsonFromFile(void *opac, const char *fileName, Entity *father)
 	  if (!g_file_test(fileName, G_FILE_TEST_EXISTS)) {
 		  DPRINT_ERR("can not open %s, no sure file", fileName ?
 			     fileName : "(nil)");
+		  ygDgbAbort();
 	  } else {
 		  DPRINT_ERR("Error in json of %s", fileName);
 	  }

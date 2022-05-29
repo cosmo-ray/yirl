@@ -31,7 +31,7 @@ void testListMod(void)
   Entity *l2;
   Entity *l3;
 
-  g_assert(!ygInitGameConfig(&cfg, NULL, NONE));
+  g_assert(!ygInitGameConfig(&cfg, NULL, YNONE));
   g_assert(!ygInit(&cfg));
   ygLoadMod(TESTS_PATH"../modules/list/");
 

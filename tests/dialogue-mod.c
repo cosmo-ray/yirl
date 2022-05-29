@@ -25,7 +25,7 @@ static void testDialogueMod_(int isCanvas)
   Entity *dialogue_example;
   YWidgetState *wid;
 
-  g_assert(!ygInitGameConfig(&cfg, NULL, SDL2));
+  g_assert(!ygInitGameConfig(&cfg, NULL, YSDL2));
   g_assert(!ygInit(&cfg));
   if (isCanvas)
     g_assert(ygLoadMod(TESTS_PATH"../modules/dialogue-box/"));

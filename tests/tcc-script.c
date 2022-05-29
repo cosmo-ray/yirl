@@ -73,7 +73,7 @@ void testTccAddDefine(void)
 {
   GameConfig cfg;
 
-  g_assert(!ygInitGameConfig(&cfg, NULL, NONE));
+  g_assert(!ygInitGameConfig(&cfg, NULL, YNONE));
   g_assert(!ygInit(&cfg));
   ygCleanGameConfig(&cfg);
 

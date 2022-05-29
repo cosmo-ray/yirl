@@ -45,7 +45,7 @@ void fmtTxtScreen(void)
   YWidgetState *wid;
   Entity *stuff;
 
-  g_assert(!ygInitGameConfig(&cfg, NULL, SDL2));
+  g_assert(!ygInitGameConfig(&cfg, NULL, YSDL2));
   g_assert(!ygInit(&cfg));
 
   ret0 = ygFileToEnt(YJSON, TESTS_PATH"/widget.json", NULL);

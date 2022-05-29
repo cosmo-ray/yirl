@@ -27,7 +27,7 @@ void testYSoundLib(void)
 
   GameConfig cfg;
 
-  g_assert(!ygInitGameConfig(&cfg, NULL, SDL2));
+  g_assert(!ygInitGameConfig(&cfg, NULL, YSDL2));
   g_assert(!ygInit(&cfg));
 
   /* Working check */
