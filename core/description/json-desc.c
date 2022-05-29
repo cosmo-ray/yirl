@@ -19,6 +19,7 @@
 #include <json-c/json.h>
 
 #include "json-desc.h"
+#include "game.h"
 
 
 static int t = -1;
@@ -122,11 +123,13 @@ static Entity *jsonFromFile(void *opac, const char *fileName, Entity *father)
 
   (void)opac;
   if (!file) {
-    if (!g_file_test(fileName, G_FILE_TEST_EXISTS))
-      DPRINT_ERR("can not open %s, no sure file", fileName);
-    else
-      DPRINT_ERR("Error in json of %s", fileName);
-    return NULL;
+	  if (!g_file_test(fileName, G_FILE_TEST_EXISTS)) {
+		  DPRINT_ERR("can not open %s, no sure file", fileName ?
+			     fileName : "(nil)");
+	  } else {
+		  DPRINT_ERR("Error in json of %s", fileName);
+	  }
+	  return NULL;
   }
   ret = parseGen(file, NULL, father);
   json_object_put(file);

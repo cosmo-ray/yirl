@@ -1187,5 +1187,11 @@ void ygRemoveFromGlobalScope(const char *name)
 	yeRemoveChild(modList, name);
 }
 
+void ygDgbAbort(void)
+{
+	ysTraceCurrentScript();
+	abort();
+}
+
 #undef CHECK_AND_GOTO
 #undef CHECK_AND_RET

@@ -555,6 +555,7 @@ static void *tccAllocator(void)
 	ret->ops.init = tccInit;
 	ret->ops.destroy = tccDestroy;
 	ret->ops.loadFile = tccLoadFile;
+	ret->ops.trace = NULL;
 	ret->ops.loadString = tccLoadString;
 	ret->ops.call = tccCall;
 	ret->ops.fastCall = tccFCall;

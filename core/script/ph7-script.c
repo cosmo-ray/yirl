@@ -1006,6 +1006,7 @@ static void *allocator(void)
 	ret->ops.e_call = e_call;
 	ret->ops.getFastPath = getFastPath;
 	ret->ops.getError = NULL;
+	ret->ops.trace = NULL;
 	ret->ops.registreFunc = NULL;
 	ret->ops.addFuncSymbole = addFuncSymbole;
 	manager = ret;

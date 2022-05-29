@@ -835,6 +835,7 @@ static void *allocator(void)
 	ret->ops.loadFile = loadFile;
 	ret->ops.loadString = loadString;
 	ret->ops.call = call;
+	ret->ops.trace = NULL;
 	ret->ops.getError = NULL;
 	ret->ops.registreFunc = NULL;
 	ret->ops.addFuncSymbole = NULL;

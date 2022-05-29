@@ -56,6 +56,7 @@ typedef struct {
 	int (*addDefine)(void *opac, const char *name, const char *val);
 	const char *(*getError)(void *opac);
 	int (*destroy)(void *opac);
+	void (*trace)(void *);
 } YScriptOps;
 
 YManagerAllocator *ysScriptsTab(void);
@@ -215,6 +216,8 @@ void *ysNewManager(void *args, int type);
  * @scr the opaque scriptionManager object 
  */
 int ysDestroyManager(void *sm);
+
+void ysTraceCurrentScript(void);
 
 /**
  * @return symbol of object name

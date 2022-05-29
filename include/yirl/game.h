@@ -233,4 +233,10 @@ static inline void ygUpdateScreen(void)
 	ywidRend(ywidGetMainWid());
 }
 
+#ifdef NDEBUG
+#define ygDgbAbort() do {} while (0)
+#else
+void ygDgbAbort(void);
+#endif
+
 #endif

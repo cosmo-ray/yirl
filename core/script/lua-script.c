@@ -161,6 +161,15 @@ static void addFuncSymbole(void *sm, const char *name, int nbArgs, Entity *func)
 	yeDestroy(str);
 }
 
+static void trace(void *sm)
+{
+	lua_State *L = ((YScriptLua *)sm)->l;
+
+	luaL_traceback(L, L, "lua trace function:", 1);
+	printf("%s\n", lua_tostring(L, -1));
+
+}
+
 static void *luaAllocator(void)
 {
 	YScriptLua *ret;
@@ -176,6 +185,7 @@ static void *luaAllocator(void)
 	ret->ops.e_destroy = e_destroy;
 	ret->ops.call = luaCall;
 	ret->ops.fastCall = fastCall;
+	ret->ops.trace = trace;
 	ret->ops.getError = luaGetError;
 	ret->ops.registreFunc = luaRegistreFunc;
 	ret->ops.addFuncSymbole = addFuncSymbole;

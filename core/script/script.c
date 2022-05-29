@@ -23,6 +23,14 @@ static YManagerAllocator scriptsTab = {
   0
 };
 
+void *cur_manager;
+
+void ysTraceCurrentScript(void)
+{
+	if (cur_manager && ((YScriptOps *)cur_manager)->trace)
+		((YScriptOps *)cur_manager)->trace(cur_manager);
+}
+
 int ysRegister(void *(*allocator)(void))
 {
   return yuiRegister(&scriptsTab, allocator);
@@ -64,7 +72,14 @@ int ysDestroyManager(void *sm)
 void *ysCallInt(void *sm, const char *name, int nb, union ycall_arg *args,
 		int *types)
 {
+	void *ret;
+	void *old_manager;
+
 	assert(sm);
-  	return ((YScriptOps *)sm)->call(sm, name, nb, args, types);
+	old_manager = cur_manager;
+	cur_manager = sm;
+  	ret = ((YScriptOps *)sm)->call(sm, name, nb, args, types);
+	cur_manager = old_manager;
+	return ret;
 }
 

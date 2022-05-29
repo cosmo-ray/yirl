@@ -1005,6 +1005,7 @@ static void *allocator(void)
 	ret->ops.loadString = loadString;
 	ret->ops.e_destroy = e_destroy;
 	ret->ops.call = call;
+	ret->ops.trace = NULL;
 	ret->ops.fastCall = fCall;
 	return (void *)ret;
 }
