@@ -46,6 +46,9 @@ static struct {
 
 struct vm_info {
 	ph7_vm *pVm;
+	int in_use;
+	char *prog;
+	unsigned int slowpath;
 	/* uLong file_hash; */
 };
 
@@ -701,54 +704,22 @@ static int Output_Consumer(const void *pOutput, unsigned int nOutputLen,
 	return PH7_OK;
 }
 
-static int loadString_(void *sm, const char *str, _Bool do_crc)
+static ph7_vm *loadProg(YScriptPH7 *ph7sm, char *prog, ph7_vm *vm)
 {
 	int rc;
-	YScriptPH7 *ph7sm = sm;
-	int len = strlen(str);
-	Entity *preload_string = ph7sm->preload_string;
-	int preload_string_l = preload_string ? yeLen(preload_string) : 0;
-	char *prog = malloc(len + sizeof CALL_STRING + preload_string_l);
-	char *end = NULL;
 	char *error_str = NULL;
 
-	if (!prog)
-		Fatali("malloc fail");
-	strcpy(prog, str);
-	for (int i = len - 3; i > 0; --i) {
-		if (!strncmp(&prog[i], "?>", 2)) {
-			end = &prog[i];
-			break;
-		}
-	}
-	if (!end)
-		Fatali("'?>' not found");
-	if (preload_string)
-		end = stpcpy(end, yeGetString(preload_string));
-	memcpy(end, CALL_STRING, sizeof CALL_STRING);
-
-	/* printf("%s\n", prog); */
-	/* Extract error log */
-	ph7_config(ph7sm->pEngine,
-		   PH7_CONFIG_ERR_LOG,
-		   &error_str,
-		   NULL
-		);
-
-        /* Compile the PHP test program defined above */
 	rc = ph7_compile_v2(
 		ph7sm->pEngine,  /* PH7 engine */
 		prog, /* PHP test program */
 		-1    /* Compute input length automatically*/, 
-		&ph7sm->vms[ph7sm->nb_vms].pVm,     /* OUT: Compiled PHP program */
+		&vm,  /* OUT: Compiled PHP program */
 		0     /* IN: Compile flags */
 		);
 	if(rc != PH7_OK) {
 		DPRINT_ERR("Can't compile PH7(PHP) code: %s\n", error_str);
-		return -1;
+		return NULL;
 	}
-
-	ph7_vm *vm = ph7sm->vms[ph7sm->nb_vms].pVm;
 
 	rc = ph7_vm_config(vm,
 			   PH7_VM_CONFIG_OUTPUT, 
@@ -756,7 +727,7 @@ static int loadString_(void *sm, const char *str, _Bool do_crc)
 			   0                   /* Callback private data */
 		);
 	if (rc != PH7_OK ) {
-		Fatali("Error while installing the VM output consumer callback");
+		Fatal("Error while installing the VM output consumer callback");
 	}
 
 	
@@ -802,25 +773,71 @@ static int loadString_(void *sm, const char *str, _Bool do_crc)
 
 	rc = ph7_create_function(vm, "int_to_entity", int_to_entity, 0);
 	if( rc != PH7_OK ) {
-		Fatali("Error while registering foreign functions 'int_to_entity'");
+		Fatal("Error while registering foreign functions 'int_to_entity'");
 	}
 
 	rc = ph7_create_function(vm, "yclose_output", yclose_output, 0);
 	if( rc != PH7_OK ) {
-		Fatali("Error while registering foreign functions 'yclose_output'");
+		Fatal("Error while registering foreign functions 'yclose_output'");
 	}
 
 	rc = ph7_create_function(vm, "yirl_return", yirl_return, 0);
 	if( rc != PH7_OK ) {
-		Fatali("Error while registering foreign functions 'yirl_return'");
+		Fatal("Error while registering foreign functions 'yirl_return'");
 	}
 
 	rc = ph7_create_function(vm, "yirl_return_wid", yirl_return_wid, 0);
 	if( rc != PH7_OK ) {
-		Fatali("Error while registering foreign functions 'yirl_return_wid'");
+		Fatal("Error while registering foreign functions 'yirl_return_wid'");
+	}
+	return vm;
+}
+
+static int loadString_(void *sm, const char *str, _Bool do_crc)
+{
+	YScriptPH7 *ph7sm = sm;
+	int len = strlen(str);
+	Entity *preload_string = ph7sm->preload_string;
+	int preload_string_l = preload_string ? yeLen(preload_string) : 0;
+	char *prog = malloc(len + sizeof CALL_STRING + preload_string_l);
+	char *end = NULL;
+	char *error_str = NULL;
+
+	if (!prog)
+		Fatali("malloc fail");
+	strcpy(prog, str);
+	for (int i = len - 3; i > 0; --i) {
+		if (!strncmp(&prog[i], "?>", 2)) {
+			end = &prog[i];
+			break;
+		}
+	}
+	if (!end)
+		Fatali("'?>' not found");
+	if (preload_string)
+		end = stpcpy(end, yeGetString(preload_string));
+	memcpy(end, CALL_STRING, sizeof CALL_STRING);
+
+	/* printf("%s\n", prog); */
+	/* Extract error log */
+	ph7_config(ph7sm->pEngine,
+		   PH7_CONFIG_ERR_LOG,
+		   &error_str,
+		   NULL
+		);
+
+	ph7sm->vms[ph7sm->nb_vms].in_use = 0;
+        /* Compile the PHP test program defined above */
+	ph7sm->vms[ph7sm->nb_vms].pVm = loadProg(ph7sm, prog,
+						 ph7sm->vms[ph7sm->nb_vms].pVm);
+	if (!loadProg(ph7sm, prog, ph7sm->vms[ph7sm->nb_vms].pVm)) {
+		return -1;
 	}
 
+	
 	ph7sm->cur_vm = ph7sm->nb_vms;
+	ph7sm->vms[ph7sm->nb_vms].slowpath = 0;
+	ph7sm->vms[ph7sm->nb_vms].prog = prog;
 	/* if (do_crc) { */
 	/* 	ph7sm->vms[ph7sm->cur_vm].file_hash = */
 	/* 		crc32(0, (const Bytef *)prog, strlen(prog)); */
@@ -828,7 +845,6 @@ static int loadString_(void *sm, const char *str, _Bool do_crc)
 	/* printf("PROG: %s - %ld\n", prog, crc32(0, (const Bytef *)prog, strlen(prog))); */
 
 	ph7sm->nb_vms++;
-	free(prog);
 	return 0;
 }
 
@@ -851,7 +867,12 @@ static int loadFile(void *s, const char *file)
 
 static int destroy(void *sm)
 {
+	YScriptPH7 *ph7sm = sm;
+
 	manager = NULL;
+	for (int i = 0; i < ph7sm->nb_vms; ++i) {
+		free(ph7sm->vms[i].prog);
+	}
 	free((YScriptPH7 *)sm);
 	return 0;
 }
@@ -900,7 +921,16 @@ static void *call_(void *sm, const char *name, int nb, union ycall_arg *args,
 {
 	YScriptPH7 *ph7sm = sm;
 	ph7_vm *vm = ph7sm->vms[ph7sm->cur_vm].pVm;
+	int in_use = ph7sm->vms[ph7sm->cur_vm].in_use;
+	ph7_vm *tmp = NULL;
 	int rc;
+
+	if (in_use) {
+		vm = loadProg(ph7sm, ph7sm->vms[ph7sm->cur_vm].prog, tmp);
+		ph7sm->vms[ph7sm->cur_vm].slowpath++;
+	} else {
+		ph7sm->vms[ph7sm->cur_vm].in_use = 1;
+	}
 
 	ph7_value *pv = ph7_new_scalar(vm);
 	ph7_value_string(pv, name, -1);
@@ -958,9 +988,15 @@ static void *call_(void *sm, const char *name, int nb, union ycall_arg *args,
 
 	rc = ph7_vm_exec(vm, 0);
 	if (rc != PH7_OK) {
-		Fatal("Error trying to exec ph7 %d\n", rc);
+		Fatal("Error trying to exec ph7 %d (stack id %d)\n", rc, gc_stack_i--);
 	}
-	ph7_vm_reset(vm);
+
+	if (!in_use) {
+		ph7_vm_reset(vm);
+		ph7sm->vms[ph7sm->cur_vm].in_use = 0;
+	} else {
+		ph7_vm_release(vm);
+	}
 
 	yeDestroy(gc_stack[--gc_stack_i]);
 	
