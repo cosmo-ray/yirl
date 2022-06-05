@@ -611,7 +611,6 @@ int	luaywTextureNormalize(lua_State *L);
 /* Menu */
 int	luaywMenuCallActionOn(lua_State *lua);
 int	luaywMenuGetCurrent(lua_State *lua);
-int	luaywMenuGetCurrentEntry(lua_State *lua);
 
 /* Game and Module */
 int	luaGetMod(lua_State *L);
@@ -938,7 +937,6 @@ static inline int	yesLuaRegister(void *sm)
   /* menu */
   YES_LUA_REGISTRE_CALL(sm, ywMenuCallActionOn);
   YES_LUA_REGISTRE_CALL(sm, ywMenuGetCurrent);
-  YES_LUA_REGISTRE_CALL(sm, ywMenuGetCurrentEntry);
 
   /* container */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywReplaceEntry", luaYwReplaceEntry));

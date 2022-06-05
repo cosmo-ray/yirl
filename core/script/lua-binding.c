@@ -830,12 +830,6 @@ int	luaywMenuGetCurrent(lua_State *L)
 	return 1;
 }
 
-int	luaywMenuGetCurrentEntry(lua_State *L)
-{
-	lua_pushlightuserdata(L, ywMenuGetCurrentEntry(luaEntityAt(L, 1)));
-	return 1;
-}
-
 
 /**
  * This is not a strict binding of the original yeCreateFunction,

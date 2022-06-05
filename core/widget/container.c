@@ -311,6 +311,7 @@ static InputStatue cntEvent(YWidgetState *opac, Entity *event)
 	YWidgetState *cur;
 
 	ret = ywidActions(opac->entity, opac->entity, event);
+
 	if (ret != NOTHANDLE)
 		return ret;
 
