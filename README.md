@@ -22,9 +22,9 @@ Snake module is written in lua, but as YIRL have a generic script system, we cou
 Here is an example how Snake module can be use: https://github.com/cosmo-ray/yirl/tree/master/example/modules/snake.
 Another example would be how I integrate most games widgets into my RPG Sukeban:
 I first load the games modules in sukeban start.json: 
-https://github.com/ArthurRobein/Pre-Hangover-Quest/blob/master/start.json#L10
+https://github.com/cosmo-ray/Sukeban/blob/master/start.json#L10
 An then create a lua in widget that is of the type of the desired game that is then push in the container widget:
-https://github.com/ArthurRobein/Pre-Hangover-Quest/blob/master/actions.lua#L904
+https://github.com/cosmo-ray/Sukeban/blob/master/actions.lua#L966
 you can then call play function, that will start and run the desired game.
 quit and exit callback are used in most game widget to tell the game what to do when you quit the game.
 It need to be implemented in the module and generally quit the engine by default.
