@@ -79,6 +79,7 @@ void testYWTextScreenSdl2(void)
   void *jsonManager;
   Entity *ret, *map;
   YWidgetState *wid;
+  Entity *txt;
 
   /* load files */
   g_assert(t != -1);
@@ -105,8 +106,16 @@ void testYWTextScreenSdl2(void)
   wid = ywidNewWidget(map, NULL);
   g_assert(wid);
 
+  // replace the set with an add, once eature add :)
+  txt = ywTextScreenTextEnt(map);
+
+  /* yeAdd(txt, "fffffffffffffffffffffffffffffffffffffffffffffff\n"); */
+  yeAdd(txt, "--\33[32m Color Test \33[31m red here \33[0m now unset :)\n");
+
+  printf("go \n%s\n !!!!\n", yeGetString(txt));
   do {
     g_assert(ywidRend(wid) != -1);
+    ywidDoTurn(wid);
   } while(ywidDoTurn(wid) != ACTION);
 
   g_assert(!ywTextScreenEnd());

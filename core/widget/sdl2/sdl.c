@@ -577,58 +577,117 @@ int    ysdl2Init(void)
   return -1;
 }
 
-static inline int sdlPrintLine(
-	SDLWid *wid, char *str, SDL_Color color,
-	GPU_Rect pos, int line, int alignementType,
-	int lineSpace)
+static int do_print(char *str, SDL_Color color, GPU_Rect pos,
+		    int modifier_x, int alignementType, GPU_Target *renderer)
 {
-  int len = strlen(str);
-  int text_width;
-  GPU_Target *renderer = sg.pWindow;
-  int caract_per_line = len;
-  int ret = 0;
-  int txth = sgGetTxtH() + lineSpace;
-
-  if (((int)sgGetTxtW() * len) > pos.w) {
-    caract_per_line = pos.w / sg.txtWidth;
-  }
-
-  pos.y += wid->rect.y + txth * line;
-  pos.x += wid->rect.x;
-  for (int i = 0; i < len; i += caract_per_line) {
-      SDL_Surface *textSurface;
-      GPU_Image *text;
-      char tmp = 0;
-
-      if ((len - i) > caract_per_line) {
-	tmp = str[i + caract_per_line];
-	str[i + caract_per_line] = 0;
-	ret += 1;
-      }
-
-      if (pos.y >= wid->rect.y && pos.y + txth <= wid->rect.y + wid->rect.h) {
-	textSurface = TTF_RenderUTF8_Solid(sgDefaultFont(), str + i, color);
-	text = GPU_CopyImageFromSurface(textSurface);
+	if (!*str)
+		return 0;
+	int text_width;
+	SDL_Surface *textSurface = TTF_RenderUTF8_Solid(sgDefaultFont(), str, color);
+	GPU_Image *text = GPU_CopyImageFromSurface(textSurface);
 
 	if (!text) {
-	  SDL_FreeSurface(textSurface);
-	  return -1;
+		SDL_FreeSurface(textSurface);
+		return -1;
 	}
 	text_width = textSurface->w;
-	GPU_Rect renderQuad = { pos.x, pos.y, text_width, textSurface->h};
+	GPU_Rect renderQuad = { pos.x + modifier_x, pos.y, text_width, textSurface->h};
 	SDL_FreeSurface(textSurface);
 
 	if (alignementType == YSDL_ALIGN_CENTER)
 		renderQuad.x = pos.x + ((pos.w / 2) - (text_width / 2));
 	GPU_BlitRect(text, NULL, renderer,
-		      &renderQuad);
+		     &renderQuad);
 	GPU_FreeImage(text);
-      }
-      pos.y += sgGetTxtH();
-      if (tmp)
-	str[i + caract_per_line] = tmp;
-    }
-  return ret;
+	return text_width;
+}
+
+static int sdlPrintLine(
+	SDLWid *wid, char *str, SDL_Color color,
+	GPU_Rect pos, int line, int alignementType,
+	int lineSpace)
+{
+	int len = strlen(str);
+	GPU_Target *renderer = sg.pWindow;
+	int caract_per_line = len;
+	int ret = 0;
+	int txth = sgGetTxtH() + lineSpace;
+	SDL_Color orig_color = color;
+
+	if (((int)sgGetTxtW() * len) > pos.w) {
+		caract_per_line = pos.w / sg.txtWidth;
+	}
+
+	pos.y += wid->rect.y + txth * line;
+	pos.x += wid->rect.x;
+	for (int i = 0, mod_i = 0; i < len; i += (caract_per_line - mod_i)) {
+		char *str_tmp;
+		char tmp = 0;
+		int modifier_x = 0;
+
+		mod_i = 0;
+		if ((len - i) > caract_per_line) {
+			tmp = str[i + caract_per_line];
+			str[i + caract_per_line] = 0;
+			ret += 1;
+		}
+
+	find_mod:
+		str_tmp = strchr(str + i, '\33');
+		if (str_tmp) {
+			*str_tmp = 0;
+		}
+
+		if (pos.y >= wid->rect.y && pos.y + txth <= wid->rect.y + wid->rect.h) {
+			int ret = do_print(str + i, color, pos, modifier_x,
+					       alignementType, renderer);
+			if (ret < 0)
+				return -1;
+			modifier_x += ret;
+		}
+
+		if (str_tmp) {
+			int mod_len;
+
+			*str_tmp = '\33';
+			++str_tmp;
+			if (*str_tmp == '[') {
+
+				++str_tmp;
+				if (*str_tmp == '0' && str_tmp[1] == 'm') {
+					color = orig_color;
+					str_tmp += 2;
+				} else if (*str_tmp == '3' && isdigit(str_tmp[1])) {
+					int as_int;
+
+					++str_tmp; // skip 3
+
+					as_int = *str_tmp - '0';
+					color.r = 255 * !!(as_int & 1);
+					color.g = 255 * !!(as_int & 2);
+					color.b = 255 * !!(as_int & 4);
+					color.a = 255;
+					++str_tmp; // skipp next digit
+					if (*str_tmp == 'm')
+						++str_tmp;
+				} else {
+					while (isdigit(*str_tmp))
+						str_tmp++;
+					if (*str_tmp == 'm')
+						++str_tmp;			      
+				}
+			}
+			mod_len = (str_tmp - (str + i));
+			i += mod_len;
+			mod_i += mod_len;
+			goto find_mod;
+		}
+
+		pos.y += sgGetTxtH();
+		if (tmp)
+			str[i + caract_per_line] = tmp;
+	}
+	return ret;
 }
 
 int sdlPrintTextExt(SDLWid *wid, const char *str, SDL_Color color,
