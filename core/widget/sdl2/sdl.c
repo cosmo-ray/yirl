@@ -620,12 +620,13 @@ static int sdlPrintLine(
 
 	pos.y += wid->rect.y + txth * line;
 	pos.x += wid->rect.x;
-	for (int i = 0, mod_i = 0; i < len; i += (caract_per_line - mod_i)) {
+	for (int i = 0, minus_cpl; i < len;
+	     i += caract_per_line - minus_cpl) {
 		char *str_tmp;
 		char tmp = 0;
 		int modifier_x = 0;
 
-		mod_i = 0;
+		minus_cpl = 0;
 		if ((len - i) > caract_per_line) {
 			tmp = str[i + caract_per_line];
 			str[i + caract_per_line] = 0;
@@ -649,6 +650,9 @@ static int sdlPrintLine(
 		if (str_tmp) {
 			int mod_len;
 
+			if (tmp)
+				str[i + caract_per_line - minus_cpl] = tmp;
+			minus_cpl += str_tmp - (str + i);
 			*str_tmp = '\33';
 			++str_tmp;
 			if (*str_tmp == '[') {
@@ -668,24 +672,32 @@ static int sdlPrintLine(
 					color.b = 255 * !!(as_int & 4);
 					color.a = 255;
 					++str_tmp; // skipp next digit
-					if (*str_tmp == 'm')
+					if (*str_tmp == 'm') {
 						++str_tmp;
+					}
 				} else {
-					while (isdigit(*str_tmp))
-						str_tmp++;
-					if (*str_tmp == 'm')
-						++str_tmp;			      
+					while (isdigit(*str_tmp)) {
+						++str_tmp;
+					}
+					if (*str_tmp == 'm') {
+						++str_tmp;
+					}
 				}
 			}
 			mod_len = (str_tmp - (str + i));
 			i += mod_len;
-			mod_i += mod_len;
+			if (len > i + caract_per_line) {
+				tmp = str[i + caract_per_line - minus_cpl];
+				str[i + caract_per_line  - minus_cpl] = 0;
+			} else {
+				tmp = 0;
+			}
 			goto find_mod;
 		}
 
 		pos.y += sgGetTxtH();
 		if (tmp)
-			str[i + caract_per_line] = tmp;
+			str[i + caract_per_line  - minus_cpl] = tmp;
 	}
 	return ret;
 }
