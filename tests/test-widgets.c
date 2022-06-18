@@ -111,7 +111,7 @@ void testYWTextScreenSdl2(void)
 
 	/* yeAdd(txt, "fffffffffffffffffffffffffffffffffffffffffffffff\n"); */
 	yeAdd(txt, "00\33[32m Color Test \33[31m red here \33[0m now unset :)\n");
-	yeAdd(txt, "11\33[32m Color Test \33[31m red here \33[0m now unset :)");
+	yeAdd(txt, "11\33[32m Color Test \33[31m red here \33[");
 	yeAdd(txt, "22\33[32m Color Test \33[31m red here \33[0m now unset :)");
 	yeAdd(txt, "33\33[32m Color Test \33[31m red here \33[0m now unset :)");
 	yeAdd(txt, "44\33[32m Color Test \33[31m red here \33[0m now unset :)\n");

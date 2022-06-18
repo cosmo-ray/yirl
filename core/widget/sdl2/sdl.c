@@ -659,7 +659,9 @@ static int sdlPrintLine(
 			*str_tmp = 0;
 		}
 
-		if (pos.y >= wid->rect.y && pos.y + txth <= wid->rect.y + wid->rect.h) {
+		if (pos.y >= wid->rect.y &&
+		    pos.y + txth <= wid->rect.y + wid->rect.h
+		    && strlen(str + i)) {
 			SDL_Surface *s = mk_print_surface(str + i, color);
 			if (!s)
 				return -1;
