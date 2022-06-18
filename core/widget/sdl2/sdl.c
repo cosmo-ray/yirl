@@ -577,29 +577,49 @@ int    ysdl2Init(void)
   return -1;
 }
 
-static int do_print(char *str, SDL_Color color, GPU_Rect pos,
-		    int modifier_x, int alignementType, GPU_Target *renderer)
+static SDL_Surface *mk_print_surface(char *str, SDL_Color color)
 {
 	if (!*str)
 		return 0;
-	int text_width;
 	SDL_Surface *textSurface = TTF_RenderUTF8_Solid(sgDefaultFont(), str, color);
-	GPU_Image *text = GPU_CopyImageFromSurface(textSurface);
 
-	if (!text) {
-		SDL_FreeSurface(textSurface);
-		return -1;
+	return textSurface;
+}
+
+static int do_print(SDL_Surface **surfaces, int surfaces_cnt, GPU_Rect pos,
+		    int alignementType, GPU_Target *renderer)
+{
+	int ret = 0;
+	int mod_x = 0;
+	GPU_Rect renderQuad = { pos.x + mod_x, pos.y, 0, 0};
+
+	if (alignementType == YSDL_ALIGN_CENTER) {
+		int tot_w = 0;
+
+		for (int i = 0; i < surfaces_cnt; ++i) {
+			tot_w += surfaces[i]->w;
+		}
+		renderQuad.x = pos.x + ((pos.w / 2) - (tot_w / 2));
 	}
-	text_width = textSurface->w;
-	GPU_Rect renderQuad = { pos.x + modifier_x, pos.y, text_width, textSurface->h};
-	SDL_FreeSurface(textSurface);
+	for (int i = 0; i < surfaces_cnt; ++i) {
+		GPU_Image *text = GPU_CopyImageFromSurface(surfaces[i]);
 
-	if (alignementType == YSDL_ALIGN_CENTER)
-		renderQuad.x = pos.x + ((pos.w / 2) - (text_width / 2));
-	GPU_BlitRect(text, NULL, renderer,
-		     &renderQuad);
-	GPU_FreeImage(text);
-	return text_width;
+		if (!text) {
+			ret = -1; 
+			goto out;
+		}
+
+		renderQuad.w = surfaces[i]->w;
+		renderQuad.h = surfaces[i]->h;
+		GPU_BlitRect(text, NULL, renderer,
+			     &renderQuad);
+		GPU_FreeImage(text);
+		renderQuad.x += surfaces[i]->w;
+	}
+out:
+	for (int i = 0; i < surfaces_cnt; ++i)
+		SDL_FreeSurface(surfaces[i]);
+	return ret;
 }
 
 static int sdlPrintLine(
@@ -613,7 +633,7 @@ static int sdlPrintLine(
 	int ret = 0;
 	int txth = sgGetTxtH() + lineSpace;
 	SDL_Color orig_color = color;
-
+	SDL_Surface *surfaces_array[128];
 	if (((int)sgGetTxtW() * len) > pos.w) {
 		caract_per_line = pos.w / sg.txtWidth;
 	}
@@ -624,7 +644,7 @@ static int sdlPrintLine(
 	     i += caract_per_line - minus_cpl) {
 		char *str_tmp;
 		char tmp = 0;
-		int modifier_x = 0;
+		int surfaces_cnt  = 0;
 
 		minus_cpl = 0;
 		if ((len - i) > caract_per_line) {
@@ -640,11 +660,10 @@ static int sdlPrintLine(
 		}
 
 		if (pos.y >= wid->rect.y && pos.y + txth <= wid->rect.y + wid->rect.h) {
-			int ret = do_print(str + i, color, pos, modifier_x,
-					       alignementType, renderer);
-			if (ret < 0)
+			SDL_Surface *s = mk_print_surface(str + i, color);
+			if (!s)
 				return -1;
-			modifier_x += ret;
+			surfaces_array[surfaces_cnt++] = s;
 		}
 
 		if (str_tmp) {
@@ -694,6 +713,11 @@ static int sdlPrintLine(
 			}
 			goto find_mod;
 		}
+		int ret = do_print(surfaces_array, surfaces_cnt, pos,
+				   alignementType, renderer);
+		if (ret < 0)
+			return -1;
+
 
 		pos.y += sgGetTxtH();
 		if (tmp)
