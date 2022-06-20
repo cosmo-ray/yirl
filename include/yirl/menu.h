@@ -93,6 +93,18 @@ Entity *ywMenuPushSlider(Entity *menu, const char *name, Entity *slider_array);
 
 Entity *ywMenuGetEntry(Entity *menu, int idx);
 
+static inline Entity *ywMenuGetCurSliderSlide(Entity *menu)
+{
+	Entity *entry = ywMenuGetCurrentEntry(menu);
+	Entity *slider = yeGet(entry, "slider");
+	int slider_idx;
+
+	if (!slider)
+		return NULL;
+	slider_idx = yeGetIntAt(entry, "slider_idx");
+	return yeGet(slider, slider_idx);
+}
+
 static inline int ywMenuNbEntries(Entity *mn)
 {
 	return yeLenAt(mn, "entries");

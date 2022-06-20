@@ -147,6 +147,8 @@ BIND_EI(yeGetKeyAt, 2, 0);
 
 BIND_SS(ygReCreateString, 2, 0);
 
+BIND_E(ywMenuGetCurSliderSlide, 1, 0);
+
 BIND_E(ywMenuGetCurrentEntry, 1, 0);
 
 BIND_E(ywMenuNbEntries, 1, 0);
