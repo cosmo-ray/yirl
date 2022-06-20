@@ -45,6 +45,7 @@ BIND_NONE(yeSetIntAt, 3, 0);
 BIND_EES(yeStoreAll, 2, 1);
 
 BIND_EES(yePushBack, 2, 1);
+BIND_EES(yeReplaceBack, 3, 0);
 
 BIND_EES(yePush, 2, 1);
 

@@ -463,7 +463,6 @@ BIND_FAKE(yeRemoveChild);
 BIND_E(yeDestroy);
 BIND_FAKE(yeSetAt);
 BIND_EEE(yeReplace);
-BIND_EES(yeReplaceBack);
 BIND_EEI(yeReplaceAtIdx);
 BIND_EEE(yeSwapElems);
 BIND_EIS(yeRenameIdxStr);
