@@ -83,6 +83,11 @@ char ygBinaryRootPathBuf[PATH_MAX];
 char *ygBinaryRootPath;
 char yg_user_dir[PATH_MAX];
 
+const char *ygGetBinaryRootPath(void)
+{
+	return ygBinaryRootPath;
+}
+
 const char *ygUserDir(void)
 {
 	if (yg_user_dir[0])

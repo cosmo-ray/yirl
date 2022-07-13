@@ -60,6 +60,8 @@ extern char *yProgramArg;
 
 extern char *ygBinaryRootPath;
 
+const char *ygGetBinaryRootPath(void);
+
 static inline void ygBinaryRootPathFree(void)
 {
   free(ygBinaryRootPath);

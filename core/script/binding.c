@@ -280,6 +280,8 @@ BIND_EEI(ywCanvasSetWeight, 3, 0);
 
 BIND_EIII(ywRectContain, 3, 1);
 
+BIND_V(ygGetBinaryRootPath);
+
 BIND_V(ygTerminate);
 
 BIND_V(ygUserDir);
