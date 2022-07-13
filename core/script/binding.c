@@ -61,6 +61,7 @@ BIND_EEE(ywidActions, 2, 1);
 BIND_EEE(ywCanvasNewIntersectArray, 3, 0);
 
 BIND_IES(ygLoadScript2, 3, 0);
+BIND_IES(ygEntToFile2, 3, 0);
 
 BIND_EEES(ywMapTryPushElem, 3, 1);
 BIND_EEES(ywMapPushElem, 3, 1);
