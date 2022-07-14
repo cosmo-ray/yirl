@@ -364,6 +364,23 @@ static int ph7yeSetIntAt(ph7_context *pCtx, int argc, ph7_value **argv)
 	return 0;	
 }
 
+static int ph7yeSetStringAt(ph7_context *pCtx, int argc, ph7_value **argv)
+{
+	Entity *a = ph7_value_to_resource(argv[0]);
+	ph7_value *k = argv[1];
+	Entity *ent;
+
+	if (ph7_value_is_int(k)) {
+		ent = yeGet(a, ph7_value_to_int(k));
+	} else if (ph7_value_is_string(k)) {
+		ent = yeGet(a, ph7_value_to_string(k, NULL));
+	} else {
+		Fatali("Wrong type !");
+	}
+	yeSetString(ent, S_AT(argv, 2));
+	return 0;	
+}
+
 static int ph7yeGet(ph7_context *pCtx, int argc, ph7_value **argv)
 {
 	Entity *a = ph7_value_to_resource(argv[0]);
@@ -770,6 +787,7 @@ static ph7_vm *loadProg(YScriptPH7 *ph7sm, char *prog, ph7_vm *vm)
 	BIND(ywRectCreateInts);
 	BIND(ywCanvasNewImg);
 	BIND(ywSizeCreate);
+	BIND(yeSetStringAt);
 
 	rc = ph7_create_function(vm, "int_to_entity", int_to_entity, 0);
 	if( rc != PH7_OK ) {
