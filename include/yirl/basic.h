@@ -151,7 +151,7 @@ int isdigit(int);
 #define assert(expr)					\
   if (!expr) {						\
     fprintf(stderr, "assertion fail at %s:%d\n",	\
-	    __LINE__, __FILE__);			\
+	    __FILE__, __LINE__);			\
     abort();						\
   };
 #endif
