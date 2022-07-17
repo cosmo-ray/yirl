@@ -303,6 +303,8 @@ static int make_nothing(ph7_context *pCtx,  ...)
 		return 0;						\
 	}
 
+BIND_E(yeDestroy);
+
 #include "binding.c"
 
 static int ph7ywPosCreate(ph7_context *pCtx, int argc, ph7_value **argv)
@@ -788,6 +790,7 @@ static ph7_vm *loadProg(YScriptPH7 *ph7sm, char *prog, ph7_vm *vm)
 	BIND(ywCanvasNewImg);
 	BIND(ywSizeCreate);
 	BIND(yeSetStringAt);
+	BIND(yeDestroy);
 
 	rc = ph7_create_function(vm, "int_to_entity", int_to_entity, 0);
 	if( rc != PH7_OK ) {
