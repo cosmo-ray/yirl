@@ -105,7 +105,7 @@ do {									\
 				     stack_pop(freedElems,		\
 					       yBlockArrayLastPos(entitysArray) + 1), \
 				     union FatEntity)->type);		\
-	assert(ret);							\
+	ygAssert(ret);							\
 	ret->flag = YENTITY_SMALL_SIZE_P0;				\
 	ret->refCount = 1;						\
 } while (0);
@@ -131,6 +131,16 @@ void yeInitMem(void)
 		yBlockArrayDataNextSize0 = yeMetadataSize(ArrayEntity);
 	}
 }
+
+EntityType yeType(const Entity * const entity)
+{
+	if (likely(entity != NULL)) {
+		ygAssert(entity->refCount);
+		return (EntityType)entity->type;
+	}
+	return (EntityType)BAD_TYPE;
+}
+
 
 int yeFreeEntitiesInStack(void)
 {
@@ -260,10 +270,10 @@ Entity *yeGetByIdx(Entity *entity, size_t index)
 {
 	if (unlikely(entity == NULL))
 		return NULL;
-	assert(entity->refCount);
+	ygAssert(entity->refCount);
 	Entity *r = yBlockArrayGet(&YE_TO_ARRAY(entity)->values,
 				   index, ArrayEntry).entity;
-	assert(!r || yeIsPtrAnEntity(r));
+	ygAssert(!r || yeIsPtrAnEntity(r));
 	return r;
 }
 
@@ -372,7 +382,7 @@ Entity *yeGetByStrFast(Entity *entity, const char *name)
 {
 	if (unlikely(!name || yeType(entity) != YARRAY))
 		return NULL;
-	assert(entity->refCount);
+	ygAssert(entity->refCount);
 
 	Y_BLOCK_ARRAY_SIZED_FOREACH_PTR(YE_TO_ARRAY(entity)->values, tmp,
 					it, ArrayEntry, ArrayEntry) {
@@ -389,7 +399,7 @@ Entity *yeGetByStrExt(Entity *entity, const char *name, int64_t *idx)
 	if (unlikely(!entity || !name || yeType(entity) != YARRAY))
 		return NULL;
 
-	assert(entity->refCount);
+	ygAssert(entity->refCount);
 
 	Y_BLOCK_ARRAY_SIZED_FOREACH_PTR(YE_TO_ARRAY(entity)->values, tmp,
 					it, ArrayEntry, ArrayEntry) {
@@ -413,7 +423,7 @@ Entity *yeNGetByStr(Entity *entity, const char *name, int len)
 		DPRINT_INFO("can not find entity for %s\n", name);
 		return NULL;
 	}
-	assert(entity->refCount);
+	ygAssert(entity->refCount);
 
 	while (cur < len) {
 		int i;
@@ -439,7 +449,7 @@ Entity *yeGetByStr(Entity *entity, const char *name)
 		DPRINT_INFO("can not find entity for %s\n", name);
 		return NULL;
 	}
-	assert(entity->refCount);
+	ygAssert(entity->refCount);
 
 	i = findIdxPoint(name);
 	if (i == -1) {
@@ -479,7 +489,7 @@ int yeArrayIdx_str(Entity *entity, const char *lookup)
 	if (unlikely(!entity || !lookup || yeType(entity) != YARRAY))
 		return -1;
 
-	assert(entity->refCount);
+	ygAssert(entity->refCount);
 
 	Y_BLOCK_ARRAY_SIZED_FOREACH_PTR(YE_TO_ARRAY(entity)->values, tmp,
 					it, ArrayEntry, ArrayEntry) {
@@ -1052,7 +1062,7 @@ Entity	*yeSetString(Entity *entity, const char *val)
 {
 	if (unlikely(!entity))
 		return NULL;
-	assert(!(entity->flag & YENTITY_CONST));
+	ygAssert(!(entity->flag & YENTITY_CONST));
 	free(yeStringFreeable(entity));
 	if (val != NULL) {
 		YE_TO_STRING(entity)->value = yuiStrdup(val);
@@ -1097,7 +1107,7 @@ static inline void yeAttachChild(Entity *on, Entity *entity,
 static inline void yeInit(Entity *entity, EntityType type,
 			     Entity *father, const char *name)
 {
-	assert(entity);
+	ygAssert(entity);
 	entity->type = type;
 	yeAttachChild(father, entity, name);
 }
@@ -1150,7 +1160,7 @@ int yeAttach(Entity *on, Entity *entity,
 
 	if (unlikely(!on || !entity || on->type != YARRAY))
 		return -1;
-	assert(!(on->flag & YENTITY_CONST));
+	ygAssert(!(on->flag & YENTITY_CONST));
 
 	entry = yBlockArraySetGetPtr(&YE_TO_ARRAY(on)->values,
 				     idx, ArrayEntry);
@@ -1283,7 +1293,7 @@ void	yeSetInt(Entity *entity, int value)
 	if (unlikely(!entity || (yeType(entity) != YINT &&
 				 yeType(entity) != YFLOAT)))
 		return;
-	assert(!(entity->flag & YENTITY_CONST));
+	ygAssert(!(entity->flag & YENTITY_CONST));
 	((IntEntity *)entity)->value = value;
 }
 
@@ -1291,7 +1301,7 @@ void	yeSetFloat(Entity *entity, double value)
 {
 	if (unlikely(!entity))
 		return;
-	assert(!(entity->flag & YENTITY_CONST));
+	ygAssert(!(entity->flag & YENTITY_CONST));
 	((FloatEntity *)entity)->value = value;
 }
 
