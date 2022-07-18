@@ -240,6 +240,17 @@ static inline void ygUpdateScreen(void)
 }
 
 #ifdef NDEBUG
+#define ygAssert(expr)
+#else
+#define ygAssert(expr)							\
+	if (!(expr)) {							\
+		fprintf(stderr, "'" #expr "' assertion fail at %s:%d\n", \
+			__FILE__, __LINE__);				\
+		ygDgbAbort();						\
+	};
+#endif
+
+#ifdef NDEBUG
 #define ygDgbAbort() do {} while (0)
 #else
 void ygDgbAbort(void);
