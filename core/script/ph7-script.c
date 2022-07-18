@@ -35,6 +35,8 @@ static int t = -1;
 static int gc_stack_i;
 static Entity *gc_stack[GC_STACK_LEN];
 
+static ph7_context *last_ctx;
+
 static struct {
 	int t;
 	union {
@@ -98,10 +100,12 @@ static int make_nothing(ph7_context *pCtx,  ...)
 
 #define PH7_RET(call, ...)				\
 	int t = PH7T(call);				\
+	last_ctx = pCtx;				\
 	if (!t)						\
 		call;					\
 	else						\
-		S7A2(VOID_CALL(call), __VA_ARGS__);
+		S7A2(VOID_CALL(call), __VA_ARGS__);	\
+	last_ctx = NULL;
 
 #define VOID_CALL(call)				\
 	_Generic(call,				\
@@ -1042,6 +1046,14 @@ static void *e_call(void *sm, Entity *fe, int nb, union ycall_arg *args,
 	return call_(sm, yeGetFunction(fe), nb, args, t_array);
 }
 
+static void trace(void *sm)
+{
+	printf("ph7 TRACE !!!!!!!!!\n");
+	if (last_ctx)
+		ph7_context_print_backtrace(last_ctx);
+	else
+		fprintf(stderr, "ph7 trow: NO CONTEXT !!!!\n");
+}
 
 static void *allocator(void)
 {
@@ -1063,7 +1075,7 @@ static void *allocator(void)
 	ret->ops.e_call = e_call;
 	ret->ops.getFastPath = getFastPath;
 	ret->ops.getError = NULL;
-	ret->ops.trace = NULL;
+	ret->ops.trace = trace;
 	ret->ops.registreFunc = NULL;
 	ret->ops.addFuncSymbole = addFuncSymbole;
 	manager = ret;

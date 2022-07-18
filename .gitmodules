@@ -13,4 +13,4 @@
 	url = https://github.com/cosmo-ray/sdl-gpu.git
 [submodule "ph7"]
 	path = ph7
-	url = https://github.com/symisc/PH7.git
+	url = https://github.com/cosmo-ray/PH7.git

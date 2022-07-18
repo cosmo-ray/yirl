@@ -17,17 +17,18 @@
 
 #include <stdlib.h>
 #include "script.h"
+#include "game.h"
 
 static YManagerAllocator scriptsTab = {
   {NULL },
   0
 };
 
-void *cur_manager;
+YScriptOps *cur_manager;
 
 void ysTraceCurrentScript(void)
 {
-	if (cur_manager && ((YScriptOps *)cur_manager)->trace)
+	if (cur_manager)
 		((YScriptOps *)cur_manager)->trace(cur_manager);
 }
 
@@ -69,17 +70,54 @@ int ysDestroyManager(void *sm)
   return ((YScriptOps *)sm)->destroy(sm);
 }
 
+static void try_set_cur_mananger(YScriptOps *sm, void **old_manager)
+{
+	ygAssert(sm);
+	if (sm->trace) {
+		*old_manager = cur_manager;
+		cur_manager = sm;
+	}
+}
+
+static void try_deset_cur_mananger(YScriptOps *sm, void *old_manager)
+{
+	if (sm->trace)
+		cur_manager = old_manager;
+}
+
+void *ysEntityCall(void *sm, Entity *e, int nb,
+				 union ycall_arg *args, int *types)
+{
+	void *ret;
+	void *old_manager;
+
+	try_set_cur_mananger(sm, &old_manager);
+	ret = ((YScriptOps *)sm)->e_call(sm, e, nb, args, types);
+	try_deset_cur_mananger(sm, old_manager);
+	return ret;
+}
+
+void *ysFastCall(void *sm, void *opacFunc, int nb,
+			       union ycall_arg *args, int *types)
+{
+	void *ret;
+	void *old_manager;
+
+	try_set_cur_mananger(sm, &old_manager);
+	ret = ((YScriptOps *)sm)->fastCall(sm, opacFunc, nb, args, types);
+	try_deset_cur_mananger(sm, old_manager);
+	return ret;
+}
+
 void *ysCallInt(void *sm, const char *name, int nb, union ycall_arg *args,
 		int *types)
 {
 	void *ret;
 	void *old_manager;
 
-	assert(sm);
-	old_manager = cur_manager;
-	cur_manager = sm;
+	try_set_cur_mananger(sm, &old_manager);
   	ret = ((YScriptOps *)sm)->call(sm, name, nb, args, types);
-	cur_manager = old_manager;
+	try_deset_cur_mananger(sm, old_manager);
 	return ret;
 }
 
