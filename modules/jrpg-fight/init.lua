@@ -224,7 +224,7 @@ local function reset_cmb_bar(main, anim, target, cmb_idx)
    local weapon_maniability = yeGetIntAt(guy.weapon, "maniability")
    local weapon_range = yeGetIntAt(guy.weapon, "range")
    local weapon_agility = yui0Min(g_agy - weapon_maniability)
-   local t_wp_agy = t_agy - yeGetIntAt(t_g.weapon, "maniability")
+   local t_wp_agy = yui0Min(t_agy - yeGetIntAt(t_g.weapon, "maniability"))
 
 
    anim.animation_frame = 0
