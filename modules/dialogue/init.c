@@ -192,6 +192,7 @@ static void refreshAnswer(Entity *wid, Entity *menu, Entity *curent)
 {
 	struct menuDrv *drv = getMenuDrv(menu);
 	Entity *answers = drv->getAnswers(menu);
+	Entity *c_answer = drv->getCurAnswer(menu);
 
 	YE_ARRAY_FOREACH(answers, answer) {
 		Entity *condition = yeType(answer) == YARRAY ?
@@ -204,6 +205,9 @@ static void refreshAnswer(Entity *wid, Entity *menu, Entity *curent)
 	}
 	if (drv == &boxDialogueMnDrv)
 		yesCall(ygGet("DialogueBox.reload"), wid, menu);
+	else if (yeGetIntAt(c_answer, "hiden")) {
+		ywMenuDown(menu);
+	}
 }
 
 static Entity *getText_(Entity *box, Entity *e)
@@ -513,10 +517,11 @@ void *dialogueHide(int nbArgs, void **args)
 {
 	struct menuDrv *drv = getMenuDrv(args[0]);
 	Entity *answer = drv->getCurAnswer(args[0]);
+	Entity *mwid = drv->getMain(args[0]);
 
 	yeReCreateInt(1, answer, "hiden");
-	if (drv == &cntDialogueMnDrv)
-		ywMenuDown(args[0]);
+	refreshAnswer(drv->getMain(args[0]), args[0],
+		      yeGet(mwid, "active_dialogue"));
 	return 0;
 }
 
