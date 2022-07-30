@@ -44,8 +44,8 @@ end
 
 -- Should have a C wrapper, but I'm lazy
 
-function yIsLuaNum(str)
-   return type(str) == "number"
+function yIsLuaNum(n)
+   return type(n) == "number"
 end
 
 function yIsLuaString(str)

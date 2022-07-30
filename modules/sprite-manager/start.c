@@ -83,6 +83,7 @@ void *handlerRefresh(int nargs, void **args)
 
 	if ((c = yeGet(h, "canvas"))) {
 		Entity *tmpp = ywCanvasObjPos(c);
+
 		x = ywPosX(tmpp);
 		y = ywPosY(tmpp);
 		ywCanvasRemoveObj(w, c);
