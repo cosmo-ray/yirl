@@ -164,18 +164,3 @@ But you can still understand how YIRL work by:
 * modify some functionality form a game
 * copy one to create your own game/module
 
-# Ideas of Contributions/TODO
-
-* use Linux coding style
-* create a module that allow to use web radio
-* add isometric view in map
-* add canvas widget, with an API base on HTML5 canvas [partially done: https://github.com/cosmo-ray/little-space/blob/little-mage/html5-emu.js]
-* add an hex map
-* add any other cool widget
-* remove glib
-* make a raycasting module
-* Improve 8086 emulator module
-* BASIC emulator module
-* add any language support (python, perl and ruby would be nice)
-* add any cool game template module
-* https://github.com/dulsi/libgamerzilla support that, and add throphy mechanisme in yirl
