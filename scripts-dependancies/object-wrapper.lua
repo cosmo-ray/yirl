@@ -243,6 +243,18 @@ function Rect._init_(ent)
    return ent
 end
 
+function Rect.new_ps(pos, size, father, name)
+   local ent = ywRectCreatePosSize(pos, size, father, name)
+   local needDestroy = false
+
+   if father == nil then
+      needDestroy = true
+   end
+   ent = Entity._wrapp_(ent, needDestroy)
+   local ret = {ent = ent}
+   return Rect._init_(ret)
+end
+
 function Rect.new(x, y, w, h, father, name)
    local ent = ywRectCreate(x, y, w, h, father, name)
    local needDestroy = false
