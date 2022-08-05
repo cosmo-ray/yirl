@@ -89,6 +89,7 @@ LDFLAGS += $(LIBS_SAN) -ldl $(QUICKJS_LIB_PATH)
 LDFLAGS += $(ANALYZER_FLAG)
 LDFLAGS += $(shell $(PKG_CONFIG) --libs gl glu)
 
+COMMON_CFLAGS += $(SDL_MIXER_CFLAGS)
 COMMON_CFLAGS += $(shell $(PKG_CONFIG) --cflags glib-2.0)
 COMMON_CFLAGS += $(shell sdl2-config --cflags)
 COMMON_CFLAGS += -I$(YIRL_INCLUDE_PATH)
