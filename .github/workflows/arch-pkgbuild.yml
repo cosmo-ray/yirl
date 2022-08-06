@@ -16,6 +16,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: get PKGBUILD
       run: |
+       pacman -Syu --noconfirm
        pacman -Sy --noconfirm git opendoas fakeroot binutils lua sdl2 sdl2_image sdl2_ttf sdl2_mixer autoconf make gcc cmake which pkgconf glib2 glu
        useradd -m -G wheel -s /bin/bash tester
        echo permit nopass :wheel > /etc/doas.conf
