@@ -6,6 +6,7 @@ LINEHELPER[2]="--ndebug			no debug mode, for realease"
 LINEHELPER[3]="--hell-march		optimise for native architecturet"
 LINEHELPER[4]="--asan			compile with adress sanitazer"
 LINEHELPER[5]="--analyzer		Use gcc 10+ --fanalyzer"
+LINEHELPER[6]="--disable-tcc		disable tcc scripting"
 
 source configure-helper.sh
 
@@ -38,6 +39,12 @@ for arg in $@; do
 
     if [ "--clone-sdl-mixer" = $arg ]; then
 	echo "option remove, use git submodule update --init"
+    fi
+
+    if [ "--disable-tcc" = $arg ]; then
+	TCC_LIB_NAME=""
+	TCC_LIB_PATH=""
+	TCC_CFLAGS="-DTCC_ENABLE=0"
     fi
 done
 
@@ -156,6 +163,10 @@ var_add YIRL_INCLUDE_PATH $YIRL_INCLUDE_PATH2/yirl/
 
 var_add TCC_LIB_PATH $PWD/tinycc/
 var_add TCC_LIB_NAME libtcc.a
+if [ -z "$TCC_CFLAGS" ]; then
+    TCC_CFLAGS="-I${TCC_LIB_PATH} -DTCC_ENABLE=1"
+fi
+echo TCC_CFLAGS=${TCC_CFLAGS} >> config.mk
 
 # var_add is a little broken, so I can't output variable
 var_add YIRL_LINKING "libyirl.so"

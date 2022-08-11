@@ -476,6 +476,11 @@ static inline void yuiAutoStr(char **str)
 	free(*str);
 }
 
+#define fatal(...) do {				\
+		fprintf(stderr, __VA_ARGS__);	\
+		abort();			\
+	} while (0)
+
 #define yuiAutoStr __attribute__ ((cleanup(yuiAutoStr)))
 
 # ifndef Y_INSIDE_TCC

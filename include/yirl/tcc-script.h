@@ -18,6 +18,8 @@
 #ifndef _YIRL_TCC_SCRIPT_H_
 #define _YIRL_TCC_SCRIPT_H_
 
+#if TCC_ENABLE > 0
+
 #include "libtcc.h"
 #include "script.h"
 
@@ -38,5 +40,36 @@ void	tccAddSyms(TCCState *l);
 int ysTccInit(void);
 int ysTccEnd(void);
 int ysTccGetType(void);
+
+#else /* tcc is disable */
+
+#include "utils.h"
+
+typedef void TCCState;
+
+static void tccAddSyms(TCCState *l)
+{
+	fatal("TCC DISABLE\n");
+}
+
+static int ysTccInit(void)
+{
+	fatal("TCC DISABLE\n");
+	return 0;
+}
+
+static int ysTccEnd(void)
+{
+	fatal("TCC DISABLE\n");
+	return 0;	
+}
+
+static int ysTccGetType(void)
+{
+	fatal("TCC DISABLE\n");
+	return 0;
+}
+
+#endif
 
 #endif

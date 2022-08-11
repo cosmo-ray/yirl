@@ -15,6 +15,8 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#if TCC_ENABLE > 0
+
 #include <stdlib.h>
 
 #include "game.h"
@@ -603,3 +605,5 @@ int ysTccPushSysincludePath(void *state, const char *path)
 
 #undef GET_OPS
 #undef GET_TCC_S
+
+#endif /* TCC_ENABLE > 0 */

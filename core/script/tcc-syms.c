@@ -15,6 +15,8 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#if TCC_ENABLE > 0
+
 #include <string.h>
 #include <glib.h>
 #include <ctype.h>
@@ -251,3 +253,5 @@ void	tccAddSyms(TCCState *l)
   ADD_SYM(stderr);
 #endif
 }
+
+#endif /* TCC_ENABLE > 0 */

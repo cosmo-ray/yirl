@@ -118,6 +118,9 @@ void *ygGetLuaManager(void)
 
 void *ygGetTccManager(void)
 {
+#if TCC_ENABLE < 1
+	fatal("TCC IS DISABLE !");
+#endif
 	return tccManager;
 }
 
@@ -420,9 +423,11 @@ int ygInit(GameConfig *cfg)
 			    ysGetError(luaManager));
 	}
 	free(path);
+#if TCC_ENABLE > 0
 	CHECK_AND_GOTO(t = ysTccInit(), -1, error, "tcc init failed");
 	CHECK_AND_GOTO(tccManager = ysNewManager(NULL, t), NULL, error,
 		       "tcc init failed");
+#endif
 
 	CHECK_AND_GOTO(t = ysS7Init(), -1, error, "s7 init failed");
 	CHECK_AND_GOTO(s7Manager = ysNewManager(NULL, t), NULL, error,
@@ -504,8 +509,10 @@ void ygEnd()
 	globalsFunctions = NULL;
 	ysNativeEnd();
 	ysYBytecodeEnd();
+#if TCC_ENABLE > 0
 	ysDestroyManager(tccManager);
 	ysTccEnd();
+#endif
 	ysDestroyManager(luaManager);
 	ysLuaEnd();
 	ysDestroyManager(s7Manager);
@@ -541,12 +548,16 @@ int ygRegistreFuncInternal(void *manager, int nbArgs, const char *name,
 	}
 
 	if (!toRegistre || yuiStrEqual0(name, toRegistre)) {
+#if TCC_ENABLE > 0
 		if (manager != tccManager)
 			ysAddFuncSymbole(tccManager, NULL, nbArgs, func);
+#endif
 		if (manager != luaManager)
 			ysAddFuncSymbole(luaManager, NULL, nbArgs, func);
 	} else {
+#if TCC_ENABLE > 0
 		ysAddFuncSymbole(tccManager, toRegistre, nbArgs, func);
+#endif
 		ysAddFuncSymbole(luaManager, toRegistre, nbArgs, func);
 		ysAddFuncSymbole(ph7Manager, toRegistre, nbArgs, func);
 	}
@@ -566,8 +577,13 @@ int ygModDirOut(void)
 
 void *ygGetManager(const char *name)
 {
+#if TCC_ENABLE > 0
 	if (yuiStrEqual0(name, "tcc"))
 		return tccManager;
+#else
+	if (yuiStrEqual0(name, "tcc"))
+		fatal("TCC IS DISABLE !!!");
+#endif
 	else if (yuiStrEqual0(name, "lua"))
 		return luaManager;
 	else if (yuiStrEqual0(name, "yb"))
@@ -703,11 +719,15 @@ Entity *ygLoadMod(const char *path)
 			}
 
 		} else if (yuiStrEqual0(yeGetString(tmpType), "tcc")) {
+#if TCC_ENABLE > 0
 			if (ysLoadFile(tccManager, pathCstr) < 0) {
 				DPRINT_ERR("Error when loading '%s': %s\n",
 					   pathCstr, ysGetError(tccManager));
 				goto fail_preload;
 			}
+#else
+			fatal("TCC IS DISABLE !");
+#endif
 
 		} else if (yuiStrEqual0(yeGetString(tmpType), "s7")) {
 			if (ysLoadFile(s7Manager, pathCstr) < 0) {
@@ -767,10 +787,15 @@ Entity *ygLoadMod(const char *path)
 			void *fastPath = ysGetFastPath(tccManager,
 						       yeGetString(var2));
 
-			if (fastPath)
+			if (fastPath) {
+#if TCC_ENABLE > 0
 				ysFCall(tccManager, fastPath, mod);
-			else
+#else
+			fatal("TCC DISABLE");
+#endif
+			} else {
 				ysCall(luaManager, yeGetString(var2), mod);
+			}
 		} else if (yeType(var2) == YARRAY) {
 			ysCall(ygGetManager(yeGetString(yeGet(var2, 0))),
 			       yeGetStringAt(var2, 1), mod);
@@ -1177,7 +1202,11 @@ void *ygCallInt(const char *mod, const char *callName, int nb,
 
 int ygAddDefine(const char *name, char *val)
 {
+#if TCC_ENABLE > 0
 	return ysAddDefine(tccManager, name, val);
+#else
+	return 0;
+#endif
 }
 
 int yePushToGlobalScope(Entity *entity, const char *name)
