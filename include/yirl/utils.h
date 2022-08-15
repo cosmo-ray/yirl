@@ -476,6 +476,18 @@ static inline void yuiAutoStr(char **str)
 	free(*str);
 }
 
+#define y_strdup_printf(...) ({				\
+g	char *reta = NULL;				\
+	char *ret = NULL;				\
+							\
+	if (asprintf(&ret, __VA_ARGS__) > 0)		\
+		ret = *reta;				\
+	ret;						\
+		})
+
+#define y_new0(struct_t, nb)			\
+	calloc(nb, sizeof(struct_t))
+
 #define fatal(...) do {				\
 		fprintf(stderr, __VA_ARGS__);	\
 		abort();			\

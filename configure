@@ -10,12 +10,18 @@ LINEHELPER[6]="--disable-tcc		disable tcc scripting"
 
 source configure-helper.sh
 
+env | grep EMSCRIPTEN_TOOLS  >> /dev/null 2>&1
+if [ $? == 0 ]; then
+    arg="--disable-tcc"
+    EMCMAKE=emcmake
+    EMMAKE=emmake
+fi
+
 for arg in $@; do
     echo $( echo "$arg" | cut -d '=' -f 1)
     if [ "--with-gamemod" = $arg ]; then
 	COMMON_CFLAGS+="-DGAMEMOD"
     fi
-
     if [ "--debug" = $arg ]; then
 	COMMON_CFLAGS+="-g"
     fi
@@ -172,3 +178,6 @@ echo TCC_CFLAGS=${TCC_CFLAGS} >> config.mk
 var_add YIRL_LINKING "libyirl.so"
 var_add BINARY_LINKING "-lyirl"
 var_add WERROR "-Werror"
+
+var_add EMCMAKE ""
+var_add EMMAKE ""
