@@ -16,7 +16,6 @@
 */
 
 #include <stdlib.h>
-#include <glib.h>
 #include <lualib.h>
 #include <lauxlib.h>
 
@@ -122,7 +121,7 @@ static void *luaCall(void *sm, const char *name, int nb,
 static int luaDestroy(void *sm)
 {
 	lua_close(GET_L(sm));
-	g_free((YScriptLua *)sm);
+	free((YScriptLua *)sm);
 	return 0;
 }
 
@@ -133,7 +132,7 @@ static void addFuncSymbole(void *sm, const char *name, int nbArgs, Entity *func)
 
 	if (!name)
 		name = yeGetString(func);
-	tmp_name = g_strdup_printf("%sGlobal", name);
+	tmp_name = y_strdup_printf("%sGlobal", name);
 
 	lua_pushlightuserdata(((YScriptLua *)sm)->l, func);
 	lua_setglobal(((YScriptLua *)sm)->l, tmp_name);
@@ -157,7 +156,7 @@ static void addFuncSymbole(void *sm, const char *name, int nbArgs, Entity *func)
 	}
 	yeStringAdd(str, ") end");
 	luaLoadString(sm, yeGetString(str));
-	g_free(tmp_name);
+	free(tmp_name);
 	yeDestroy(str);
 }
 
@@ -174,7 +173,7 @@ static void *luaAllocator(void)
 {
 	YScriptLua *ret;
 
-	ret = g_new0(YScriptLua, 1);
+	ret = y_new0(YScriptLua, 1);
 	if (ret == NULL)
 		return NULL;
 	ret->l = NULL;

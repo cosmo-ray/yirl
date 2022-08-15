@@ -122,10 +122,10 @@ SCRIPT_DEP=$(PREFIX)/share/yirl/scripts-dependancies/
 ULPCS=Universal-LPC-spritesheet/
 
 sdl-gpu-build:
-	cmake -B ./sdl-gpu-build ./sdl-gpu/  -DCMAKE_C_FLAGS="-fPIC"
+	$(EMCMAKE) cmake -B ./sdl-gpu-build ./sdl-gpu/  -DCMAKE_C_FLAGS="-fPIC"
 
 $(SDL_GPU_LDFLAGS): sdl-gpu-build
-	make -C sdl-gpu-build
+	$(EMMAKE) make -C sdl-gpu-build
 
 $(QUICKJS_PATH):
 	git clone https://github.com/cosmo-ray/quickjs.git quickjs-$(QUICKJS_V)
