@@ -484,7 +484,7 @@ static inline void yuiAutoStr(char **str)
 	char *reta = NULL;				\
 	char *ret = NULL;				\
 							\
-	if (asprintf(&ret, __VA_ARGS__) > 0)		\
+	if (asprintf(&reta, __VA_ARGS__) >= 0)		\
 		ret = reta;				\
 	ret;						\
 		})

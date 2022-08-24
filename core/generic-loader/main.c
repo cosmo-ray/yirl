@@ -21,11 +21,15 @@
 
 extern char yg_user_dir[PATH_MAX];
 
+#define FAIL(...) do {				\
+		fprintf(stderr, __VA_ARGS__);	\
+		return -1;			\
+	} while (0);
+
 int main(int argc, char **argv)
 {
   GameConfig cfg = {0};
   int ret = 1;
-  GOptionContext *ctx;
   const char *start = NULL;
   const char *name = NULL;
   char *binaryRootPath = NULL;
@@ -35,6 +39,8 @@ int main(int argc, char **argv)
   int width = -1;
   int height = -1;
   int linux_user_path = 0;
+
+#if 0
   const GOptionEntry entries[10] = {
     {"name", 'n', 0,  G_OPTION_ARG_STRING, &name, "window name", NULL},
     {"width", 'W', 0,  G_OPTION_ARG_INT, &width, "window width", NULL},
@@ -50,8 +56,57 @@ int main(int argc, char **argv)
     {NULL, 0, 0, 0, NULL, NULL, NULL}
   };
   GError *error = NULL;
+#endif
 
   yuiDebugInit();
+
+  for (int i = 1; i < argc; ++i) {
+	  if (!strcmp(argv[i], "--name") || !strcmp(argv[i], "-n")) {
+		  if (i + 1 == argc)
+			  FAIL("name require a name\n");
+		  ++i;
+		  name = argv[i];
+	  } else if (!strcmp(argv[i], "--width") || !strcmp(argv[i], "-W")) {
+		  if (i + 1 == argc)
+			  FAIL("width require a width\n");
+		  ++i;
+		  width = atoi(argv[i]);
+	  } else if (!strcmp(argv[i], "--height") || !strcmp(argv[i], "-H")) {
+		  if (i + 1 == argc)
+			  FAIL("height require a height\n");
+		  ++i;
+		  height = atoi(argv[i]);
+	  } else if (!strcmp(argv[i], "--arg")) {
+		  if (i + 1 == argc)
+			  FAIL("arg require an argument\n");
+		  ++i;
+		  yProgramArg = argv[i];
+	  } else if (!strcmp(argv[i], "--linux-user-path") || !strcmp(argv[i], "-L")) {
+		  linux_user_path = 1;
+	  } else if (!strcmp(argv[i], "--binary-root-path") || !strcmp(argv[i], "-P")) {
+		  if (i + 1 == argc)
+			  FAIL("binary-root-path require a path\n");
+		  ++i;
+		  binaryRootPath = argv[i];
+	  } else if (!strcmp(argv[i], "--start-dir") || !strcmp(argv[i], "-d")) {
+		  if (i + 1 == argc)
+			  FAIL("start-dir reuire a path\n");
+		  ++i;
+		  start_dir = argv[i];
+	  } else if (!strcmp(argv[i], "--help") || !strcmp(argv[i], "-h")) {
+		  printf("Usage: %s [options...]\n"
+			 "-n, --name <name>		Window Name\n"
+			 "-W, --width <width>		Window Width\n"
+			 "-H, --height <height>		Window Height\n"
+			 "--arg	<arg>			main module argument\n"
+			 "-L, --linux-user-path		store user data in ~/.yirl\n"
+			 "-P, --binary-root-path <path>	set path to binary directory(which contain, tcc, script-dependancies, and defaults polices)\n"
+			 "-d, --start-dir <path>	move on the given directorry, use as starting module\n",
+			 argv[0]);
+		  return 0;
+	  }
+  }
+#if 0
   ctx = g_option_context_new(NULL);
   g_option_context_set_help_enabled(ctx, 1);
   g_option_context_add_main_entries(ctx, entries, NULL);
@@ -61,6 +116,7 @@ int main(int argc, char **argv)
     return 1;
   }
   g_option_context_free(ctx);
+#endif
 
   if (start_dir) {
     if (chdir(start_dir) < 0)
@@ -102,10 +158,5 @@ int main(int argc, char **argv)
   ygEnd();
   ygCleanGameConfig(&cfg);
 
-  free((char *)start_dir);
-  free((char *)name);
-  if (binaryRootPath) {
-    ygBinaryRootPathFree();
-  }
   return ret;
 }
