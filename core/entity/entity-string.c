@@ -17,7 +17,6 @@
 #include	<stdlib.h>
 #include	<stdio.h>
 #include	<string.h>
-#include	<glib.h>
 #include	<inttypes.h>
 #include	<unistd.h>
 #include	<ctype.h>
@@ -243,7 +242,7 @@ Entity *yeStringAdd(Entity *ent, const char *str)
 	} else {
 		char *to_free = yeStringFreeable(ent);
 		YE_TO_STRING(ent)->value =
-			g_strdup_printf("%s%s", YE_TO_STRING(ent)->value,
+			y_strdup_printf("%s%s", YE_TO_STRING(ent)->value,
 					str);
 		YE_TO_STRING(ent)->origin = NULL;
 		free(to_free);
@@ -272,7 +271,7 @@ Entity *yeStringAddInt(Entity *ent, int i)
 
 	if (unlikely(!tmp))
 		return NULL;
-	YE_TO_STRING(ent)->value = g_strdup_printf("%s%d", tmp, i);
+	YE_TO_STRING(ent)->value = y_strdup_printf("%s%d", tmp, i);
 	YE_TO_STRING(ent)->len = strlen(YE_TO_STRING(ent)->value);
 	YE_TO_STRING(ent)->origin = NULL;
 	free(to_free);
@@ -286,7 +285,7 @@ Entity *yeStringAddLong(Entity *ent, long i)
 
 	if (unlikely(!tmp))
 		return NULL;
-	YE_TO_STRING(ent)->value = g_strdup_printf("%s%ld", tmp, i);
+	YE_TO_STRING(ent)->value = y_strdup_printf("%s%ld", tmp, i);
 	YE_TO_STRING(ent)->len = strlen(YE_TO_STRING(ent)->value);
 	YE_TO_STRING(ent)->origin = NULL;
 	free(to_free);

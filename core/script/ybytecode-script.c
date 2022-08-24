@@ -15,7 +15,6 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <glib.h>
 #include <stdlib.h>
 #include <string.h>
 #include <setjmp.h>
@@ -105,7 +104,7 @@ static void *ybytecodeFastCall(void *sm, void *opacFunc, int nb,
 	if (!ret) {
 		if (ybytecode_error) {
 			YBYTECODE_ERROR("%s", ybytecode_error);
-			g_free(ybytecode_error);
+			free(ybytecode_error);
 			ybytecode_error = NULL;
 		}
 		return NULL;
@@ -146,7 +145,7 @@ static int ybytecodeDestroy(void *sm)
   if (!sm)
     return -1;
   yeDestroy(GET_MAP(sm));
-  g_free(sm);
+  free(sm);
   return 0;
 }
 
@@ -663,7 +662,7 @@ static int loadFile(void *opac, const char *fileName)
 
 static void *ybytecodeAllocator(void)
 {
-  struct YBytecodeScript *ybRet = g_new0(struct YBytecodeScript, 1);
+  struct YBytecodeScript *ybRet = y_new0(struct YBytecodeScript, 1);
   YScriptOps *ret = &ybRet->ops;
 
   if (ret == NULL)

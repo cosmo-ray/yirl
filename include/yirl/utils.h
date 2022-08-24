@@ -286,6 +286,10 @@ typedef struct {
 
 #include	"debug.h"
 
+#ifndef PATH_MAX
+#define PATH_MAX        4096
+#endif
+
 /* These functions are helpers to manage "drivers" */
 
 int yuiTryMain(int (*main)(int, char **), int argc, char **argv);
@@ -477,13 +481,16 @@ static inline void yuiAutoStr(char **str)
 }
 
 #define y_strdup_printf(...) ({				\
-g	char *reta = NULL;				\
+	char *reta = NULL;				\
 	char *ret = NULL;				\
 							\
 	if (asprintf(&ret, __VA_ARGS__) > 0)		\
-		ret = *reta;				\
+		ret = reta;				\
 	ret;						\
 		})
+
+#define y_new(struct_t, nb)			\
+	malloc(sizeof(struct_t) * nb)
 
 #define y_new0(struct_t, nb)			\
 	calloc(nb, sizeof(struct_t))

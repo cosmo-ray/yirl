@@ -15,7 +15,6 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <glib.h>
 #include "menu.h"
 #include "container.h"
 #include "rect.h"
@@ -231,7 +230,7 @@ static int mnInit(YWidgetState *opac, Entity *entity, void *args)
 
 static int mnDestroy(YWidgetState *opac)
 {
-	g_free(opac);
+	free(opac);
 	return 0;
 }
 
@@ -317,7 +316,7 @@ static InputStatue mnEvent(YWidgetState *opac, Entity *event)
 
 static void *alloc(void)
 {
-	YMenuState *ret = g_new0(YMenuState, 1);
+	YMenuState *ret = y_new0(YMenuState, 1);
 	YWidgetState *wstate = (YWidgetState *)ret;
 
 	if (!ret)

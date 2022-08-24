@@ -18,16 +18,25 @@
 #ifndef _YIRL_COUNTER_H_
 #define _YIRL_COUNTER_H_
 
+#include <sys/time.h>
+
 #include "utils.h"
 
 typedef struct {
   uint64_t beg;
 } YTimer;
 
+
+static inline uint64_t y_get_time(void)
+{
+	struct timeval tv;
+
+	gettimeofday(&tv, NULL);
+	return 1000000 * tv.tv_sec + tv.tv_usec;
+}
+
 #ifdef Y_INSIDE_TCC
-uint64_t g_get_monotonic_time(void);
-#else
-#include <glib.h>
+#define g_get_monotonic_time y_get_time
 #endif
 
 /**
@@ -35,15 +44,15 @@ uint64_t g_get_monotonic_time(void);
  */
 static inline YTimer *YTimerCreate(void)
 {
-  YTimer *ret = g_new(YTimer, 1);
+  YTimer *ret = y_new(YTimer, 1);
 
-  ret->beg = g_get_monotonic_time();
+  ret->beg = y_get_time();
   return ret;
 }
 
 static inline void YTimerReset(YTimer *cnt)
 {
-  cnt->beg = g_get_monotonic_time();
+  cnt->beg = y_get_time();
 }
 
 /**
@@ -51,7 +60,7 @@ static inline void YTimerReset(YTimer *cnt)
  */
 static inline uint64_t YTimerGet(YTimer *cnt)
 {
-  return g_get_monotonic_time() - cnt->beg;
+  return y_get_time() - cnt->beg;
 }
 
 #endif

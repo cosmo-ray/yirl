@@ -15,7 +15,6 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <glib.h>
 #include <json-c/json.h>
 
 #include "json-desc.h"
@@ -123,7 +122,7 @@ static Entity *jsonFromFile(void *opac, const char *fileName, Entity *father)
 
   (void)opac;
   if (!file) {
-	  if (!g_file_test(fileName, G_FILE_TEST_EXISTS)) {
+	  if (access(fileName, F_OK) < 0) {
 		  DPRINT_ERR("can not open %s, no sure file", fileName ?
 			     fileName : "(nil)");
 		  ygDgbAbort();

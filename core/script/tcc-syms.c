@@ -18,7 +18,6 @@
 #if TCC_ENABLE > 0
 
 #include <string.h>
-#include <glib.h>
 #include <ctype.h>
 #include <time.h>
 #include "tcc-script.h"
@@ -190,7 +189,6 @@ void	tccAddSyms(TCCState *l)
   ADD_SYM(malloc);
   ADD_SYM(realloc);
   ADD_SYM(yeSetDestroy);
-  ADD_SYM(g_get_monotonic_time);
   ADD_SYM(yeStringNextTok);
   ADD_SYM(strtol);
   ADD_SYM(atoi);

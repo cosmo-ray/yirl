@@ -15,7 +15,6 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <glib.h>
 #include "rect.h"
 #include "game.h"
 #include "timer.h"
@@ -54,8 +53,8 @@ static int tsInit(YWidgetState *opac, Entity *entity, void *args)
 static int tsDestroy(YWidgetState *opac)
 {
   YTextScreenState *o_txt = (void *)opac;
-  g_free(o_txt->timerTxtSpeed);
-  g_free(opac);
+  free(o_txt->timerTxtSpeed);
+  free(opac);
   return 0;
 }
 
@@ -83,7 +82,7 @@ static int tsRend(YWidgetState *opac)
 
 static void *alloc(void)
 {
-  YTextScreenState *ret = g_new0(YTextScreenState, 1);
+  YTextScreenState *ret = y_new0(YTextScreenState, 1);
   YWidgetState *wstate = (YWidgetState *)ret;
 
   wstate->render = tsRend;

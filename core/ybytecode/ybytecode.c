@@ -15,7 +15,6 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <glib.h>
 #include <ctype.h>
 #include <inttypes.h>
 #include "entity-script.h"
@@ -102,16 +101,16 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
 
       default:
 	if (ybytecode_error) {
-	  g_free(ybytecode_error);
+	  free(ybytecode_error);
 	  ybytecode_error = NULL;
 	}
 	if (isprint(script[i])) {
 	  ybytecode_error =
-	    g_strdup_printf("instruction '%c' at %d is not valide",
+	    y_strdup_printf("instruction '%c' at %d is not valide",
 			    (char)script[i], i);
 	} else {
 	  ybytecode_error =
-	    g_strdup_printf("instruction '" PRIint64 "' at %d is not valide",
+	    y_strdup_printf("instruction '" PRIint64 "' at %d is not valide",
 			    script[i], i);
 	}
 	return NULL;
@@ -424,7 +423,7 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
     char *ctmp = yeToCStr(yeGetByIdxDirect(stack, script[1]), 1, 0);
 
     printf("%s\n", ctmp);
-    g_free(ctmp);
+    free(ctmp);
     script += 2;
   }
   goto *((void *)*script);

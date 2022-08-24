@@ -18,7 +18,6 @@
 #include <unistd.h>
 #include <sched.h>
 #include <string.h>
-#include <glib.h>
 
 #include "game.h"
 #include "timer.h"
@@ -109,7 +108,6 @@ void *ygPH7Manager(void)
 {
 	return ph7Manager;
 }
-
 
 void *ygGetLuaManager(void)
 {
@@ -416,7 +414,7 @@ int ygInit(GameConfig *cfg)
 	CHECK_AND_GOTO(yesLuaRegister(luaManager), -1, error,
 		       "lua init failed");
 
-	path = g_strdup_printf("%s%s", ygBinaryRootPath,
+	path = y_strdup_printf("%s%s", ygBinaryRootPath,
 			       "/scripts-dependancies/object-wrapper.lua");
 	if (ysLoadFile(luaManager, path) < 0) {
 		DPRINT_WARN("can't load %s: %s", path,
@@ -633,7 +631,7 @@ Entity *ygLoadMod(const char *path)
 		void * const managers[] = {tccManager, luaManager,
 			s7Manager, qjsManager, ph7Manager};
 
-		tmp = g_strconcat(path, starts[i], NULL);
+		tmp = y_strdup_printf("%s%s", path, starts[i]);
 		CHECK_AND_RET(tmp, NULL, NULL,
 			      "cannot allocated path(like something went really wrong)");
 		if (!access(tmp, F_OK) && !ysLoadFile(managers[i], tmp)) {
@@ -648,7 +646,7 @@ Entity *ygLoadMod(const char *path)
 	}
 
 	if (!mod) {
-		tmp = g_strconcat(path, "/start.json", NULL);
+		tmp = y_strdup_printf("%s%s", path, "/start.json");
 		CHECK_AND_RET(tmp, NULL, NULL,
 			      "cannot allocated path(like something went really wrong)");
 		mod = ydFromFile(jsonManager, tmp, NULL);
@@ -695,15 +693,15 @@ Entity *ygLoadMod(const char *path)
 		Entity *tmpType = yeGet(var, "type");
 		Entity *tmpFile = yeGet(var, "file");
 		Entity *pathEnt = yeGet(var, "path");
-		char *fileStr = g_strconcat(path, "/",
-					    yeGetString(tmpFile), NULL);
+		char *fileStr = y_strdup_printf("%s/%s", path,
+						yeGetString(tmpFile));
 		const char *pathCstr = "no path set";
 
 
 		if (tmpFile) {
 			pathCstr = fileStr;
 		} else if (pathEnt) {
-			char *mod_path = g_strdup_printf("%s%s",
+			char *mod_path = y_strdup_printf("%s%s",
 							 ygBinaryRootPath,
 							 "/modules/");
 
@@ -810,8 +808,8 @@ Entity *ygLoadMod(const char *path)
 			char *fileStr;
 			const char *mod_name = "$main file";
 
-			fileStr = g_strconcat(path, "/",
-					      yeGetString(file), NULL);
+			fileStr = y_strdup_printf("%s/%s", path,
+						  yeGetString(file));
 			file = ydFromFile(jsonManager, fileStr, mod);
 			free(fileStr);
 			if (!file) {
@@ -872,7 +870,8 @@ int ygLoadScript(Entity *mod, void *manager, const char *path)
 	if (!mod)
 		return ysLoadFile(manager, path);
 	int ret;
-	char *tmp = g_strconcat(yeGetString(yeGet(mod, "$path")), path, NULL);
+	char *tmp = y_strdup_printf("%s%s", yeGetString(yeGet(mod, "$path")),
+				    path);
 
 	ret = ysLoadFile(manager, tmp);
 	free(tmp);
@@ -898,7 +897,7 @@ static int isNestedEntity(const char *str, char *modName, const char **entName)
 {
   uint32_t cpLen;
 
-  *entName = g_strrstr(str, ":");
+  *entName = strrchr(str, ':');
   if (!(*entName)) {
 	  *entName = str;
 	  return 0;
@@ -1129,7 +1128,7 @@ int ygDoLoop(void)
 		if (unlikely(!wid)) {
 			return -1;
 		}
-		g_assert(ywidRend(wid) != -1);
+		assert(ywidRend(wid) != -1);
 		checkSlakedEntity();
 		ywidDoTurn(wid);
 	} while(alive);

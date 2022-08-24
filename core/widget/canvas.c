@@ -15,7 +15,6 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <glib.h>
 #include <math.h>
 #include "rect.h"
 #include "text-screen.h"
@@ -74,7 +73,7 @@ static int destroy(YWidgetState *opac)
 	if (state->flag & YC_MERGE) {
 		yeDestroy(state->merge_texture);
 	}
-	g_free(opac);
+	free(opac);
 	return 0;
 }
 
@@ -86,7 +85,7 @@ static int rend(YWidgetState *opac)
 
 static void *alloc(void)
 {
-	YCanvasState *s = g_new0(YCanvasState, 1);
+	YCanvasState *s = y_new0(YCanvasState, 1);
 	YWidgetState *ret = (YWidgetState *)s;
 	ret->render = rend;
 	ret->init = init;

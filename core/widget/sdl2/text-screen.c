@@ -18,7 +18,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <string.h>
-#include <glib.h>
 #include "sdl-internal.h"
 #include "widget.h"
 #include "text-screen.h"
@@ -96,7 +95,7 @@ static int sdlRender(YWidgetState *state, int t)
 
 static int sdlInit(YWidgetState *wid, int t)
 {
-	wid->renderStates[t].opac = g_new(SDLWid, 1);
+	wid->renderStates[t].opac = y_new(SDLWid, 1);
 	sdlWidInit(wid, t);
 	return 0;
 }

@@ -15,13 +15,15 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <glib.h>
+#include <search.h>
+
 #include "native-script.h"
 #include "entity.h"
 
 static int t = -1;
 static void *manager;
-GHashTable *weed;
+
+struct hsearch_data weed;
 
 static int nativeInit(void *opac, void *args)
 {
@@ -32,21 +34,31 @@ static int nativeInit(void *opac, void *args)
 
 static int nativeDestroy(void *opac)
 {
-	g_free(opac);
+	free(opac);
 	return 0;
 }
 
 static int nativeRegistreFunc(void *opac, const char *name, void *arg)
 {
+	ENTRY *ep;
+
 	(void)opac;
-	g_hash_table_replace(weed, (char *)name, arg);
+	hsearch_r((ENTRY){.key = (char *)name}, FIND, &ep, &weed);
+	if (!ep) {
+		hsearch_r((ENTRY){.key = (char *)name, .data = arg},
+			  ENTER, NULL, &weed);
+	}
 	return 0;
 }
 
 static void *nativeGetFastPath(void *sm, const char *name)
 {
+	ENTRY *ep;
+
 	(void)sm;
-	return g_hash_table_lookup(weed, name);
+	hsearch_r((ENTRY){.key = (char *)name}, FIND, &ep, &weed);
+	return ep->data;
+
 }
 
 static void *nativeFastCall(void *sm, void *opacFunc, int nb,
@@ -61,7 +73,7 @@ static void *nativeCall(void *opac, const char *name, int nb,
 {
 	(void)opac;
 	void *(*func)(int, union ycall_arg *, int *) =
-		g_hash_table_lookup(weed, name);
+		nativeGetFastPath(NULL, name);
 	if (unlikely(!func))
 		return NULL;
 	return func(nb, args, types);
@@ -71,7 +83,7 @@ static void *nativeAllocator(void)
 {
 	YScriptOps *ret;
 
-	ret = g_new0(YScriptOps, 1);
+	ret = y_new0(YScriptOps, 1);
 	if (ret == NULL)
 		return NULL;
 	ret->init = nativeInit;
@@ -86,14 +98,13 @@ static void *nativeAllocator(void)
 static int ysNativeInit(void)
 {
 	t = ysRegister(nativeAllocator);
-	weed = g_hash_table_new(g_str_hash, g_str_equal);
+	hcreate_r(1024, &weed);
 	return t;
 }
 
 int ysNativeEnd(void)
 {
-	g_hash_table_destroy(weed);
-	weed = NULL;
+	hdestroy_r(&weed);
 	ysDestroyManager(manager);
 	manager = NULL;
 	return ysUnregiste(t);

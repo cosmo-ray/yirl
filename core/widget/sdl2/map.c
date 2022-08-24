@@ -19,11 +19,11 @@
 #include <SDL2/SDL_ttf.h>
 #include <SDL_gpu.h>
 #include <string.h>
-#include <glib.h>
 #include "sdl-internal.h"
 #include "yirl/map.h"
 #include "yirl/rect.h"
 #include "yirl/entity.h"
+
 
 #define PRINT_BG_AT(pos_at)						\
   if (likely(ywRectContainPos(cam, pos_at, 0))) {			\
@@ -32,13 +32,11 @@
       if (yeFind(mv_tbl, findEnt, mapElem##pos_at)) {			\
 	continue;							\
       }									\
-      if (unlikely(sdlDisplaySprites(state, wid, ywPosX(pos_at) - begX,	\
-				     ywPosY(pos_at) - begY,		\
-				     mapElem##pos_at, sizeSpriteW,	\
-				     sizeSpriteH,			\
-				     thresholdX, 0, NULL) < 0)) {	\
-	sdlConsumeError();						\
-      }									\
+      sdlDisplaySprites(state, wid, ywPosX(pos_at) - begX,		\
+			ywPosY(pos_at) - begY,				\
+			mapElem##pos_at, sizeSpriteW,			\
+			sizeSpriteH,					\
+			thresholdX, 0, NULL);				\
     }									\
   }									\
 
@@ -111,13 +109,11 @@ static int sdl2FullRender(YWidgetState *state, SDLWid *wid, Entity *entity)
 		unsigned int cury = yBlockArrayIteratorIdx(it) / wMap;
 
 		YE_ARRAY_FOREACH(mapCase, mapElem) {
-			if (unlikely(sdlDisplaySprites(state, wid, curx,
-						       cury, mapElem,
-						       sizeSpriteW,
-						       sizeSpriteH, thresholdX,
-						       0, NULL) < 0)) {
-				sdlConsumeError();
-			}
+			sdlDisplaySprites(state, wid, curx,
+					  cury, mapElem,
+					  sizeSpriteW,
+					  sizeSpriteH, thresholdX,
+					  0, NULL);
 		}
 	}
 
@@ -246,13 +242,11 @@ static void sdl2MidRender(YWidgetState *state, SDLWid *wid, Entity *ent,
       }
     }
 
-    if (unlikely(sdlDisplaySprites(state, wid, ywPosX(from) - begX,
-				   ywPosY(from) - begY,
-				   movingElem, sizeSpriteW, sizeSpriteH,
-				   thresholdX + ywPosX(seg),
-				   ywPosY(seg), modifier) < 0)) {
-      sdlConsumeError();
-    }
+    sdlDisplaySprites(state, wid, ywPosX(from) - begX,
+		      ywPosY(from) - begY,
+		      movingElem, sizeSpriteW, sizeSpriteH,
+		      thresholdX + ywPosX(seg),
+		      ywPosY(seg), modifier);
 
     yeClearArray(gc);
   }
@@ -274,7 +268,7 @@ static int sdl2Render(YWidgetState *state, int t)
 
 static int sdl2Init(YWidgetState *wid, int t)
 {
-  wid->renderStates[t].opac = g_new(SDLWid, 1);
+  wid->renderStates[t].opac = y_new(SDLWid, 1);
   sdlWidInit(wid, t);
   return 0;
 }
