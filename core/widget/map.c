@@ -16,7 +16,6 @@
 */
 
 #include <unistd.h>
-#include <glib.h>
 #include "rect.h"
 #include "map.h"
 #include "game.h"
@@ -392,7 +391,7 @@ Entity *ywMapGetCase(Entity *state, Entity *pos)
 
 static int mapDestroy(YWidgetState *opac)
 {
-	g_free(opac);
+	free(opac);
 	return 0;
 }
 
@@ -421,7 +420,7 @@ int ywMapHasChange(YWidgetState *state)
 
 static void *alloc(void)
 {
-	YMapState *ret = g_new0(YMapState, 1);
+	YMapState *ret = y_new0(YMapState, 1);
 	YWidgetState *wstate = (YWidgetState *)ret;
 
 	if (!ret)

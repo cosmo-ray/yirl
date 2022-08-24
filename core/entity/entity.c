@@ -17,7 +17,6 @@
 #include	<stdlib.h>
 #include	<stdio.h>
 #include	<string.h>
-#include	<glib.h>
 #include	<inttypes.h>
 #include	<unistd.h>
 
@@ -1026,7 +1025,7 @@ void	yeSetNString(Entity *e, const char *str, size_t n)
 		return;
 	free(yeStringFreeable(e));
 	if (str != NULL) {
-		char *tmp_val = g_strndup(str, n);
+		char *tmp_val = strndup(str, n);
 		YE_TO_STRING(e)->value = tmp_val;
 		if (e->type == YSTRING)
 			YE_TO_STRING(e)->len = strlen(tmp_val);
@@ -1474,17 +1473,17 @@ Entity	*yeCopy(Entity* src, Entity* dest)
 	return ret;
 }
 
-static void append_pretty(GString *str, int deep, int origDeep, int flag)
+static void append_pretty(Entity *str, int deep, int origDeep, int flag)
 {
 	if (!(flag & YE_FORMAT_PRETTY))
 		return;
-	g_string_append(str, "\n");
+	yeStringAdd(str, "\n");
 	for (int i = 0; i < origDeep - deep; ++i)
-		g_string_append_c(str, '\t');
+		yeStringAddCh(str, '\t');
 }
 
 
-static void yeToCStrInternal(Entity *entity, int deep, GString *str,
+static void yeToCStrInternal(Entity *entity, int deep, Entity *str,
 			     int flag, int origDeep)
 {
 	if (!deep)
@@ -1492,24 +1491,24 @@ static void yeToCStrInternal(Entity *entity, int deep, GString *str,
 	switch (yeType(entity)) {
 	case YSTRING :
 		if (deep == origDeep) {
-			g_string_append_printf(str, "%s", yeGetString(entity));
+			yeStringAdd(str, yeGetString(entity));
 		} else {
-			g_string_append_printf(str, "\"%s\"",
-					       yeGetString(entity));
+			yeStringAppendPrintf(str, "\"%s\"",
+					     yeGetString(entity));
 		}
 		break;
 	case YINT :
-		g_string_append_printf(str, "'%d'",
-				       (uint32_t)yeGetIntDirect(entity));
+		yeStringAppendPrintf(str, "'%d'",
+				     (uint32_t)yeGetIntDirect(entity));
 		break;
 	case YFLOAT :
-		g_string_append_printf(str, "'%f'", yeGetFloatDirect(entity));
+		yeStringAppendPrintf(str, "'%f'", yeGetFloatDirect(entity));
 		break;
 	case YFUNCTION :
-		g_string_append_printf(str, "(%s)", yeGetFunction(entity));
+		yeStringAppendPrintf(str, "(%s)", yeGetFunction(entity));
 		break;
 	case YARRAY :
-		g_string_append_c(str, '[');
+		yeStringAddCh(str, '[');
 		if (yeLen(entity) > 20)
 			flag |= YE_FORMAT_OPT_PRINT_ONLY_VAL_ARRAY;
 		Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(entity)->values,
@@ -1520,33 +1519,33 @@ static void yeToCStrInternal(Entity *entity, int deep, GString *str,
 						append_pretty(str, deep,
 							      origDeep, flag);
 					} else {
-						g_string_append(str, " | ");
+						yeStringAdd(str, " | ");
 					}
 				}
 				if (tmp->name) {
-					g_string_append_printf(str,
-							       "\"%s\"",
-							       tmp->name);
+					yeStringAppendPrintf(str,
+							     "\"%s\"",
+							     tmp->name);
 				}
-				g_string_append_printf(str, "[" PRIint64
-						       "] : ", it);
+				yeStringAppendPrintf(str, "[" PRIint64
+						     "] : ", it);
 			}
 			if (yeType(tmp->entity) == YARRAY)
 				append_pretty(str, deep - 1, origDeep, flag);
 			if (!(deep - 1)) {
-				g_string_append(str, "...");
+				yeStringAdd(str, "...");
 			} else {
 				yeToCStrInternal(tmp->entity, deep - 1, str,
 						 flag, origDeep);
 			}
 		}
 
-		g_string_append_c(str, ']');
+		yeStringAddCh(str, ']');
 		if (flag & YE_FORMAT_OPT_BREAK_ARRAY_END)
-			g_string_append_c(str, '\n');
+			yeStringAddCh(str, '\n');
 		break;
 	case YDATA :
-		g_string_append_printf(str, "'%p'", yeGetData(entity));
+		yeStringAppendPrintf(str, "'%p'", yeGetData(entity));
 		break;
 	default :
 		break;
@@ -1555,12 +1554,14 @@ static void yeToCStrInternal(Entity *entity, int deep, GString *str,
 
 char *yeToCStr(Entity *entity, int deep, int flag)
 {
-	GString *str = g_string_new(NULL);
+	YE_NEW(String, str, NULL);
+	char *ret;
 
 	if (flag & YE_FORMAT_PRETTY && !YE_FORMAT_NO_NL)
-		g_string_append_c(str, '\n');
+		yeStringAddCh(str, '\n');
 	yeToCStrInternal(entity, deep, str, flag, deep);
-	return g_string_free(str, 0);
+	ret = strdup(yeGetString(str));
+	return ret;
 }
 
 int yeRenameIdxStr(Entity *array, int idx, const char *str)

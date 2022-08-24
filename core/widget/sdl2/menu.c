@@ -18,7 +18,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <string.h>
-#include <glib.h>
 #include "sdl-internal.h"
 #include "menu.h"
 #include "rect.h"
@@ -143,12 +142,12 @@ static int sdlRend(YWidgetState *state, int t)
 				separator = "";
 			if (!toPrint)
 				toPrint = "";
-			toPrint = (char *)g_strdup_printf(
+			toPrint = (char *)y_strdup_printf(
 				"%s%s%s", toPrint, separator, lb);
 		}
 		sdlPrintText(wid, toPrint, color, txtR, alignementType);
 		if (has_loading_bar)
-			g_free((char *)toPrint);
+			free((char *)toPrint);
 		if (cur == it.pos) {
 			color.a = 150;
 			sdlDrawRect(wid, txtR, color);
@@ -168,7 +167,7 @@ static int sdlRender(YWidgetState *state, int t)
 
 static int sdlInit(YWidgetState *wid, int t)
 {
-	wid->renderStates[t].opac = g_new(SDLWid, 1);
+	wid->renderStates[t].opac = y_new(SDLWid, 1);
 	sdlWidInit(wid, t);
 	return 0;
 }

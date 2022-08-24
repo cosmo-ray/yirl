@@ -32,6 +32,15 @@ static inline int yeStrEq(Entity *e, const char *s)
 #define yeStrCmpAt(e, str, at)			\
   (yeStrCmp(yeGet(e, at), str))
 
+#define yeStringAppendPrintf(entity, ...)			\
+({							        \
+	char *tmp_ = y_strdup_printf(__VA_ARGS__);		\
+	yeStringAdd(entity, tmp_);				\
+	free(tmp_);						\
+	entity;							\
+})
+	
+
 int yeStrCaseCmp(Entity *ent, const char *str);
 
 /**

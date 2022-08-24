@@ -18,7 +18,6 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
-#include <glib.h>
 #include "utils.h"
 #include "block-array.h"
 
@@ -73,13 +72,13 @@ void yBlockArrayExpandBlocks(BlockArray *ba, int nb)
 		ba->block_cnt = nNb;
 	} else {
 		ba->block_cnt += nb;
-		ba->blocks = g_realloc(ba->blocks,
-				       ba->block_cnt * sizeof(uint64_t));
+		ba->blocks = realloc(ba->blocks,
+				     ba->block_cnt * sizeof(uint64_t));
 	}
 
 	if (!(ba->flag & YBLOCK_ARRAY_BIG_CHUNK)) {
-		ba->elems = g_realloc(ba->elems,
-				      ba->block_cnt * BLOCK_REAL_SIZE(ba));
+		ba->elems = realloc(ba->elems,
+				    ba->block_cnt * BLOCK_REAL_SIZE(ba));
 	}
 
 	if (nb > 0) {

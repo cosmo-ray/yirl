@@ -15,7 +15,6 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <glib.h>
 #include "container.h"
 #include "game.h"
 #include "yirl/pos.h"
@@ -298,7 +297,7 @@ static int cntDestroy(YWidgetState *opac)
 			yeDestroy(tmp);
 		}
 	}
-	g_free(opac);
+	free(opac);
 	return 0;
 }
 
@@ -441,7 +440,7 @@ static void midRendEnd(YWidgetState *opac)
 
 static void *alloc(void)
 {
-	YContainerState *ret = g_new0(YContainerState, 1);
+	YContainerState *ret = y_new0(YContainerState, 1);
 	YWidgetState *wstate = (YWidgetState *)ret;
 
 	wstate->render = cntRend;

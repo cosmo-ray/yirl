@@ -17,7 +17,6 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
-#include <glib.h>
 #include "sdl-internal.h"
 #include "yirl/texture.h"
 #include "yirl/canvas.h"
@@ -80,7 +79,7 @@ forground:
 
 static int sdl2Init(YWidgetState *wid, int t)
 {
-	wid->renderStates[t].opac = g_new(SDLWid, 1);
+	wid->renderStates[t].opac = y_new(SDLWid, 1);
 	sdlWidInit(wid, t);
 	return 0;
 }

@@ -17,7 +17,6 @@
 
 #include <unistd.h>
 #include <string.h>
-#include <glib.h>
 #include <stdlib.h>
 #include "game.h"
 #include "timer.h"
@@ -297,32 +296,37 @@ int ywidColorFromString(const char *str, uint8_t *r, uint8_t *g,
 		str_cpy[limiterPos] = '\0';
 
 		if (yuiStrEqual(str, "rgba")) {
-			char **rgba;
-			int i;
+			char *rgba;
 
 			str += (limiterPos + 1);
-			if (len < sizeof("rgba:r,g,b,a")) {
+			if (len < sizeof("rgba:r,g,b")) {
 				DPRINT_ERR("invalide rgba color string: '%s'",
 					   str);
 				return -1;
 			}
 
-			rgba = g_strsplit_set(str, ", :", 5);
-			for (i = 0; i < 4 && rgba[i] != NULL; ++i);
+#define CHECK_RGBA(rgba, str)						\
+			if (!rgba)					\
+			{						\
+				DPRINT_ERR("invalide rgba color string: %s", \
+					   str);			\
+				return -1;				\
+			}						\
 
-			if (i >= 4) {
-				/* rgba[0] contain "rgba:" */
-				*r = atoi(rgba[1]);
-				*g = atoi(rgba[2]);
-				*b = atoi(rgba[3]);
-				*a = atoi(rgba[4]);
-				ret = 0;
-			} else {
-				DPRINT_ERR("invalide rgba color string: %s",
-					   str);
-			}
+			rgba = strpbrk(str, ", :");
+			CHECK_RGBA(rgba, str);
+			*r = atoi(rgba);
+			rgba = strpbrk(rgba, ", :");
+			CHECK_RGBA(rgba, str);
+			*g = atoi(rgba);
+			rgba = strpbrk(rgba, ", :");
+			CHECK_RGBA(rgba, str);
+			*b = atoi(rgba);
+			rgba = strpbrk(rgba, ", :");
+			if (rgba)
+				*a = atoi(rgba);
+		ret = 0;
 
-			g_strfreev(rgba);
 		}
 
 	} else if (str[0] == '#') {
@@ -351,7 +355,7 @@ int ywidBgConfFill(Entity *entity, YBgConf *cfg)
 
 	if (!ywidColorFromString(str, &cfg->r, &cfg->g, &cfg->b, &cfg->a))
 		cfg->type = BG_COLOR;
-	else if ((cfg->path = g_strdup(str)) != NULL)
+	else if ((cfg->path = strdup(str)) != NULL)
 		cfg->type = BG_IMG;
 	else
 		return -1;
@@ -376,7 +380,7 @@ int ywidRegister(void *(*allocator)(void), const char *name)
 	if (ret < 0)
 		return -1;
 
-	widgetOptTab[ret].name = g_strdup(name);
+	widgetOptTab[ret].name = strdup(name);
 	if (!widgetOptTab[ret].name)
 		return -1;
 
@@ -389,7 +393,7 @@ int ywidRegister(void *(*allocator)(void), const char *name)
 
 int ywidUnregiste(int t)
 {
-	g_free(widgetOptTab[t].name);
+	free(widgetOptTab[t].name);
 	widgetOptTab[t].name = NULL;
 	return yuiUnregiste(&widgetTab, t);
 }
@@ -556,7 +560,7 @@ int ywidRegistreTypeRender(const char *type, int renderType,
 	}
 	for (int i = 0; i < 64; ++i) {
 		if (widgetOptTab[i].name &&
-		    g_str_equal(type, widgetOptTab[i].name)) {
+		    yuiStrEqual(type, widgetOptTab[i].name)) {
 			widgetOptTab[i].rendersMask |= ONE64 << renderType;
 			widgetOptTab[i].render[renderType] = render;
 			widgetOptTab[i].init[renderType] = init;
@@ -728,7 +732,7 @@ void YWidDestroy(YWidgetState *wid)
 	if (wid->destroy)
 		wid->destroy(wid);
 	else
-		g_free(wid);
+		free(wid);
 	yeRemoveChild(ent, "$wid");
 	if (yeGetIntAt(ent, "need_yedestroy"))
 		yeDestroy(ent);

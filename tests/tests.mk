@@ -9,14 +9,14 @@ TESTS_SRC =  main.c lifecycle.c stringOperations.c test-copy.c setunset.c	\
 		test-sound.c dialogue-box.c tiled.c lpp-spritesheet.c		\
 		entity-patch.c math.c misc.c					\
 
-TESTS_CFLAGS += -DTESTS_PATH=\"$(TESTS_DIR)\"
+TESTS_CFLAGS += -DTESTS_PATH=\"$(TESTS_DIR)\" $(GLIB_COMMON_CFLAGS)
 
 TESTS_OBJ=$(call c_to_o_dir,$(TESTS_DIR),$(TESTS_SRC))
 
 $(TESTS_OBJ): CFLAGS += $(TESTS_CFLAGS) -Wno-pointer-to-int-cast
 
 build-tests: $(TESTS_OBJ) $(YIRL_LINKING)
-	$(CC)  -o  $(TESTS_NAME) $(TESTS_OBJ) $(BINARY_LINKING) $(LDFLAGS) -l$(NAME)
+	$(CC)  -o  $(TESTS_NAME) $(TESTS_OBJ) $(BINARY_LINKING) $(LDFLAGS) -l$(NAME) $(GLIB_LDFLAGS)
 
 clean-tests:
 	rm -rvf $(TESTS_OBJ)

@@ -18,7 +18,6 @@
 /* You can admirate the beautiful shape of the includes below */
 /*      |      */
 /*      V      */
-#include <glib.h>
 #include <assert.h>
 #include <unistd.h>
 #include <SDL_gpu.h>
@@ -734,23 +733,32 @@ int sdlPrintTextExt(SDLWid *wid, const char *str, SDL_Color color,
 	if (!str)
 		return 0;
 
-	char **tmp = g_strsplit(str, "\n", 0);
+	char *tmp = strdup(str);
 	int ret = 0;
-	int aditioner = 0;
-	int end;
+	int line_cnt = 0;
 
-	for (end = 0; tmp[end]; ++end);
 
-	for (int i = 0; i < end; ++i) {
-		ret = sdlPrintLine(wid, tmp[i], color, pos,
-				   i + aditioner, alignementType,
+again:
+	{
+		char *next = strchr(tmp, '\n');
+
+		if (next)
+			*next = 0;
+		ret = sdlPrintLine(wid, tmp, color, pos,
+				   line_cnt, alignementType,
 				   lineSpace);
 		if (ret < 0)
 			goto exit;
-		aditioner += ret;
+		line_cnt += ret;
+
+		if (next) {
+			tmp = next + 1;
+			++line_cnt;
+			goto again;
+		}
 	}
 exit:
-	g_strfreev(tmp);
+	free(tmp);
 	return 0;
 }
 
@@ -783,7 +791,7 @@ void sdlWidDestroy(YWidgetState *wid, int t)
 {
 	SDLWid *swid = wid->renderStates[t].opac;
 
-	g_free(swid);
+	free(swid);
 }
 
 /* Wrapper for DataEntity destroy */
@@ -812,32 +820,32 @@ static GPU_Image *sdlLoasAndCachTexture(Entity *elem)
 	SDL_Surface *image;
 
 	if (yeGet(elem, "map-tild") != NULL) {
-		char *mod_path = g_strdup_printf("%s%s",
+		char *mod_path = y_strdup_printf("%s%s",
 						 ygBinaryRootPath, "/modules/");
 
 		yeStringReplace(yeGet(elem, "map-tild"),
 				"YIRL_MODULES_PATH", mod_path);
-		g_free(mod_path);
+		free(mod_path);
 		yeCreateInt(Y_SDL_TILD, elem, "$sdl-type");
 		path = yeGetString(yeGet(elem, "map-tild"));
 
 	} else if (yeGet(elem, "map-sprite") != NULL) {
-		char *mod_path = g_strdup_printf("%s%s", ygBinaryRootPath,
+		char *mod_path = y_strdup_printf("%s%s", ygBinaryRootPath,
 						 "/modules/");
 
 		yeStringReplace(yeGet(elem, "map-sprite"), "YIRL_MODULES_PATH",
 				mod_path);
-		g_free(mod_path);
+		free(mod_path);
 		yeCreateInt(Y_SDL_SPRITE, elem, "$sdl-type");
 		path = yeGetString(yeGet(elem, "map-sprite"));
 	} else if ((path = yeGetString(yeGet(elem, "map-color"))) != NULL) {
-		SDL_Color *col = g_new(SDL_Color, 1);
+		SDL_Color *col = y_new(SDL_Color, 1);
 
 		ywidColorFromString((char *)path, &col->r, &col->g, &col->b,
 				    &col->a);
 		yeCreateInt(Y_SDL_COLOR, elem, "$sdl-type");
 		data = yeCreateData(col, elem, "$sdl-img");
-		yeSetDestroy(data, g_free);
+		yeSetDestroy(data, free);
 		return (GPU_Image *)col;
 	}
 
@@ -862,17 +870,6 @@ static GPU_Image *sdlLoasAndCachTexture(Entity *elem)
 	yeSetDestroy(data, sdlFreeTexture);
 	SDL_FreeSurface(image);
 	return texture;
-}
-
-static GError *sdlError;
-
-void sdlConsumeError(void)
-{
-	if (!sdlError)
-		return;
-	fprintf(stderr, "%s\n", sdlError->message);
-	g_error_free(sdlError);
-	sdlError = NULL;
 }
 
 static int sdlCanvasCacheText(Entity *state, Entity *elem, Entity *resource,
@@ -1048,7 +1045,7 @@ int sdlCanvasCacheImg3(Entity *elem, Entity *resource, const char *imgPath,
 		surface = yeGetData(yeGet(resource, "$img-surface"));
 		isText = 1;
 	} else {
-		if (!g_file_test(imgPath, G_FILE_TEST_EXISTS)) {
+		if (access(imgPath, F_OK) < 0) {
 			char *cd = get_current_dir_name();
 
 			DPRINT_ERR("no sure file %s(current dir: %s)", imgPath,

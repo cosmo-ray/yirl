@@ -16,7 +16,6 @@
 */
 
 
-#include <glib.h>
 #include "SDL_mixer.h"
 
 #include "utils.h"
@@ -100,7 +99,7 @@ static int music_set_elem_path_check(const char *path, int *el)
 		return -1;
 	}
 
-	if (g_file_test(path, G_FILE_TEST_EXISTS) == 0) {
+	if (access(path, F_OK) < 0) {
 		DPRINT_ERR("%s doesn't exist", path);
 		return -1;
 	}
