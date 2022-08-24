@@ -136,3 +136,10 @@ void yuiPrintErrno(const char *s)
 		DPRINT_ERR("error: %s\n", strerror(errno));
 }
 
+uint64_t y_get_time(void)
+{
+	struct timeval tv;
+
+	gettimeofday(&tv, NULL);
+	return 1000000 * tv.tv_sec + tv.tv_usec;
+}

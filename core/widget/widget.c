@@ -296,7 +296,7 @@ int ywidColorFromString(const char *str, uint8_t *r, uint8_t *g,
 		str_cpy[limiterPos] = '\0';
 
 		if (yuiStrEqual(str, "rgba")) {
-			char *rgba;
+			const char *rgba;
 
 			str += (limiterPos + 1);
 			if (len < sizeof("rgba:r,g,b")) {
@@ -313,16 +313,15 @@ int ywidColorFromString(const char *str, uint8_t *r, uint8_t *g,
 				return -1;				\
 			}						\
 
-			rgba = strpbrk(str, ", :");
-			CHECK_RGBA(rgba, str);
+			rgba = str;
 			*r = atoi(rgba);
-			rgba = strpbrk(rgba, ", :");
+			rgba = strpbrk(rgba+1, ", :");
 			CHECK_RGBA(rgba, str);
 			*g = atoi(rgba);
-			rgba = strpbrk(rgba, ", :");
+			rgba = strpbrk(rgba+1, ", :");
 			CHECK_RGBA(rgba, str);
 			*b = atoi(rgba);
-			rgba = strpbrk(rgba, ", :");
+			rgba = strpbrk(rgba+1, ", :");
 			if (rgba)
 				*a = atoi(rgba);
 		ret = 0;
