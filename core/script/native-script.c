@@ -40,23 +40,31 @@ static int nativeDestroy(void *opac)
 
 static int nativeRegistreFunc(void *opac, const char *name, void *arg)
 {
-	ENTRY *ep;
+	ENTRY *ep = NULL;
 
+	printf("register %s\n", name);
 	(void)opac;
-	hsearch_r((ENTRY){.key = (char *)name}, FIND, &ep, &weed);
+	hsearch_r((ENTRY){.key = (char *)name, .data = 0}, FIND, &ep, &weed);
 	if (!ep) {
 		hsearch_r((ENTRY){.key = (char *)name, .data = arg},
-			  ENTER, NULL, &weed);
+			  ENTER, &ep, &weed);
+		if (!ep) {
+			DPRINT_ERR("could not registre %s\n", name);
+			return -1;
+		}
 	}
 	return 0;
 }
 
 static void *nativeGetFastPath(void *sm, const char *name)
 {
-	ENTRY *ep;
+	ENTRY *ep = NULL;
 
 	(void)sm;
 	hsearch_r((ENTRY){.key = (char *)name}, FIND, &ep, &weed);
+	if (!ep) {
+		return NULL;
+	}
 	return ep->data;
 
 }
