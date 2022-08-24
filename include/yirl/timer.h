@@ -18,22 +18,13 @@
 #ifndef _YIRL_COUNTER_H_
 #define _YIRL_COUNTER_H_
 
-#include <sys/time.h>
-
 #include "utils.h"
 
 typedef struct {
   uint64_t beg;
 } YTimer;
 
-
-static inline uint64_t y_get_time(void)
-{
-	struct timeval tv;
-
-	gettimeofday(&tv, NULL);
-	return 1000000 * tv.tv_sec + tv.tv_usec;
-}
+uint64_t y_get_time(void);
 
 #ifdef Y_INSIDE_TCC
 #define g_get_monotonic_time y_get_time

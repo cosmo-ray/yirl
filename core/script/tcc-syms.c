@@ -23,6 +23,7 @@
 #include "tcc-script.h"
 #include "texture.h"
 #include "canvas.h"
+#include "timer.h"
 
 #include "text-screen.h"
 #include "condition.h"
@@ -244,6 +245,7 @@ void	tccAddSyms(TCCState *l)
   ADD_SYM(ywidGetTurnTimer);
   ADD_SYM(ywidInTree);
   ADD_SYM(ywCanvasCacheBicolorImg);
+  ADD_SYM(y_get_time);
 
 #if defined(__unix__) || defined(__APPLE__)
   tcc_add_symbol(l, "yuiDebugPrint", yuiDebugPrint);

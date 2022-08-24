@@ -734,6 +734,7 @@ int sdlPrintTextExt(SDLWid *wid, const char *str, SDL_Color color,
 		return 0;
 
 	char *tmp = strdup(str);
+	char *otmp = tmp;
 	int ret = 0;
 	int line_cnt = 0;
 
@@ -758,7 +759,7 @@ again:
 		}
 	}
 exit:
-	free(tmp);
+	free(otmp);
 	return 0;
 }
 
