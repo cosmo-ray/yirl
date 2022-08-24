@@ -42,7 +42,6 @@ static int nativeRegistreFunc(void *opac, const char *name, void *arg)
 {
 	ENTRY *ep = NULL;
 
-	printf("register %s\n", name);
 	(void)opac;
 	hsearch_r((ENTRY){.key = (char *)name, .data = 0}, FIND, &ep, &weed);
 	if (!ep) {
