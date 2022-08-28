@@ -49,7 +49,7 @@ SRC = 	$(SCRIPT_DIR)/lua-script.c \
 	$(SDL_WID_DIR)/map.c \
 	$(SDL_WID_DIR)/menu.c \
 	$(SDL_WID_DIR)/text-screen.c \
-	$(SDL_WID_DIR)/canvas.c
+	$(SDL_WID_DIR)/canvas.c $(HSEARCH_SRC)
 
 SRC += $(SOUND_SRC)
 
@@ -89,7 +89,7 @@ LDFLAGS += $(ANALYZER_FLAG)
 LDFLAGS += $(shell $(PKG_CONFIG) --libs gl glu)
 GLIB_LDFLAGS += $(shell $(PKG_CONFIG) --libs glib-2.0)
 
-COMMON_CFLAGS += $(SDL_MIXER_CFLAGS)
+COMMON_CFLAGS += $(SDL_MIXER_CFLAGS) $(HSEARCH_CFLAGS)
 GLIB_COMMON_CFLAGS += $(shell $(PKG_CONFIG) --cflags glib-2.0)
 COMMON_CFLAGS += $(shell sdl2-config --cflags)
 COMMON_CFLAGS += -I$(YIRL_INCLUDE_PATH)
@@ -120,6 +120,9 @@ INSTALL_MOD=$(PREFIX)/share/yirl/modules/
 SCRIPT_DEP=$(PREFIX)/share/yirl/scripts-dependancies/
 #this one is here so my screen don't cur the install line
 ULPCS=Universal-LPC-spritesheet/
+
+libc_hsearch_r/search_hsearch_r.c:
+	git clone https://github.com/mikhail-j/libc_hsearch_r.git
 
 sdl-gpu-build:
 	$(EMCMAKE) cmake -B ./sdl-gpu-build ./sdl-gpu/  -DCMAKE_C_FLAGS="-fPIC"
