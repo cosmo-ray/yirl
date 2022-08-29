@@ -8,7 +8,8 @@ include config.mk
 
 include $(TESTS_DIR)/tests.mk
 
-SRC = 	$(SCRIPT_DIR)/lua-script.c \
+SRC = 	$(HSEARCH_SRC) \
+	$(SCRIPT_DIR)/lua-script.c \
 	$(SCRIPT_DIR)/entity-script.c \
 	$(SCRIPT_DIR)/lua-binding.c \
 	$(SCRIPT_DIR)/lua-convert.c \
@@ -49,7 +50,7 @@ SRC = 	$(SCRIPT_DIR)/lua-script.c \
 	$(SDL_WID_DIR)/map.c \
 	$(SDL_WID_DIR)/menu.c \
 	$(SDL_WID_DIR)/text-screen.c \
-	$(SDL_WID_DIR)/canvas.c $(HSEARCH_SRC)
+	$(SDL_WID_DIR)/canvas.c
 
 SRC += $(SOUND_SRC)
 
