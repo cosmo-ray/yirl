@@ -182,7 +182,7 @@ var_add WERROR "-Werror"
 uname -a | grep -i linux >> /dev/null 2>&1
 if [ $? -ne 0 ]; then
     var_add HSEARCH_SRC libc_hsearch_r/search_hsearch_r.c
-    var_add HSEARCH_CFLAGS -Ilibc_hsearch_r/include/
+    var_add HSEARCH_CFLAGS -I./libc_hsearch_r/include/
 fi
 
 var_add EMCMAKE ""
