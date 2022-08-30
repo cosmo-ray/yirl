@@ -15,7 +15,11 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef INCLUDE_HSEARCH
+#include <search_hsearch_r.h>
+#else
 #include <search.h>
+#endif
 
 #include "native-script.h"
 #include "entity.h"
