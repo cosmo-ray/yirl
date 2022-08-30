@@ -55,7 +55,7 @@ static inline char* stpcpy(char *dest, const char *src)
 static char *strndup(const char *str, size_t chars)
 {
     char *buffer;
-    int n;
+    size_t n;
 
     buffer = (char *) malloc(chars +1);
     if (buffer)
