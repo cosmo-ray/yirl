@@ -113,6 +113,7 @@ COMMON_CFLAGS += -Wno-cast-function-type
 COMMON_CFLAGS += -fno-strict-aliasing # casting entity doesn't really respect strict aliasing rules
 COMMON_CFLAGS += $(ANALYZER_FLAG)
 COMMON_CFLAGS += -I./ph7/
+COMMON_CFLAGS += $(EMPORT)
 
 CXXFLAGS = $(COMMON_CFLAGS) -x c++ -Wno-missing-exception-spec -fno-exceptions -fno-rtti -fpermissive
 
@@ -146,7 +147,7 @@ lua-git/liblua.a: ./lua-git/
 	cd lua-git && $(EMMAKE) make
 
 sdl-gpu-build:
-	$(EMCMAKE) cmake -B ./sdl-gpu-build ./sdl-gpu/  -DCMAKE_C_FLAGS="-fPIC"
+	$(EMCMAKE) cmake -B ./sdl-gpu-build ./sdl-gpu/ -DDISABLE_GLES=1 -DCMAKE_C_FLAGS="-fPIC"
 
 $(SDL_GPU_LDFLAGS): sdl-gpu-build
 	$(EMMAKE) make -C sdl-gpu-build

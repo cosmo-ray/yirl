@@ -22,6 +22,7 @@ if [ $? == 0 ]; then
     JSON_C_LD="-L./json-c-build"
     JSON_C_CFLAGS='-I./json-c -I./json-c-build'
     JSON_C_RULE=json-c-build/libjson-c.a
+    EMPORT="-sUSE_SDL_TTF=2 -sUSE_SDL_IMAGE=2"
 fi
 
 for arg in $@; do
@@ -172,8 +173,11 @@ var_add LUA_RULE ""
 var_add LUA_GIT "https://github.com/lua/lua.git"
 
 var_add JSON_C_LD "\"`pkg-config --libs json-c`\""
-var_add JSON_C_CFLAGS ""
+var_add JSON_C_CFLAGS "-DJSON_C_FULL_INCLUDE_PATH=1"
 var_add JSON_C_GIT "https://github.com/json-c/json-c.git"
+var_add JSON_C_RULE ""
+
+# emconfigure ./configure CFLAGS="-fPIC -sUSE_MPG123=1 -sUSE_OGG=1 -sUSE_VORBIS=1"
 
 str_define_add YIRL_MODULES_PATH "modules/"
 
@@ -202,3 +206,4 @@ fi
 
 var_add EMCMAKE ""
 var_add EMMAKE ""
+var_add EMPORT ""

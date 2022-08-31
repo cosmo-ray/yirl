@@ -15,7 +15,12 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifdef JSON_C_FULL_INCLUDE_PATH
 #include <json-c/json.h>
+#else
+#include <json.h>
+#endif
+
 
 #include "json-desc.h"
 #include "game.h"
