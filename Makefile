@@ -82,7 +82,7 @@ LDFLAGS += $(SDL_MIXER_LDFLAGS) $(SDL_MIXER_ARFLAGS) #  $(shell $(PKG_CONFIG) --
 LDFLAGS += $(SDL_GPU_LDFLAGS)
 LDFLAGS += -L./
 LDFLAGS += $(LUA_LIB)
-LDFLAGS += $(shell $(PKG_CONFIG) --libs json-c)
+LDFLAGS += $(JSON_C_LD)
 LDFLAGS += $(shell $(PKG_CONFIG) --libs SDL2_image SDL2_ttf $(WIN_SDL_EXTRA)) $(WIN_SDL_EXTRA2)
 LDFLAGS += $(LDFLAGS_EXT)
 LDFLAGS += $(LIBS_SAN) -ldl $(QUICKJS_LIB_PATH)
@@ -98,6 +98,7 @@ COMMON_CFLAGS += -I$(YIRL_INCLUDE_PATH2)
 COMMON_CFLAGS += $(TCC_CFLAGS)
 COMMON_CFLAGS += -I./core/script/
 COMMON_CFLAGS += -I./$(DUCK_V)/ -I./$(DUCK_V)/src/ # <--- last one is here so I can compile extras
+COMMON_CFLAGS += $(JSON_C_CFLAGS)
 COMMON_CFLAGS += -I./$(QUICKJS_PATH)
 COMMON_CFLAGS += -fpic
 COMMON_CFLAGS += $(LUA_CFLAGS)
@@ -125,10 +126,19 @@ ULPCS=Universal-LPC-spritesheet/
 libc_hsearch_r/search_hsearch_r.c:
 	git clone https://github.com/mikhail-j/libc_hsearch_r.git
 
-./lua-git/:
-	git clone /home/uso/lua/ lua-git
+json-c-git/:
+	git clone $(JSON_C_GIT) json-c-git
 
-./lua-git/liblua.a: ./lua-git/
+json-c-build/: json-c-git/
+	$(EMCMAKE) cmake -B json-c-build json-c-git/
+
+json-c-build/libjson-c.a: json-c-build/
+	cd json-c-build && $(EMMAKE) make
+
+lua-git/:
+	git clone $(LUA_GIT) lua-git
+
+lua-git/liblua.a: ./lua-git/
 	cd lua-git && pwd && git fetch origin
 	cd lua-git && pwd && git checkout -f v5.4.0
 	cd lua-git && cat makefile | sed 's/CC= gcc/#CC variable remove/' | sed 's/-DLUA_USE_READLINE//' | sed 's/-lreadline//' > makefile_tmp
@@ -153,7 +163,9 @@ ph7/ph7.o:
 $(SCRIPT_DIR)/s7.o:
 	$(CC) -c -o $(SCRIPT_DIR)/s7.o $(SCRIPT_DIR)/s7.c -Wno-implicit-fallthrough -fPIC -O2 -g
 
-$(LIBNAME).a: $(OBJ) $(O_OBJ) $(OBJXX) $(QUICKJS_LIB_PATH) $(SDL_GPU_LDFLAGS)
+$(OBJ): $(LUA_RULE) $(JSON_C_RULE) $(QUICKJS_LIB_PATH)
+
+$(LIBNAME).a: $(OBJ) $(O_OBJ) $(OBJXX) $(SDL_GPU_LDFLAGS)
 	$(AR)  -r -c -s $(LIBNAME).a $(OBJ) $(O_OBJ) $(OBJXX) $(QUICKJS_LIB_PATH)
 $(LIBNAME).$(LIBEXTENSION): $(OBJ) $(O_OBJ) $(OBJXX) $(QUICKJS_LIB_PATH) $(SDL_GPU_LDFLAGS)
 	$(CC) -shared -o  $(LIBNAME).$(LIBEXTENSION) $(OBJ) $(O_OBJ) $(OBJXX) $(LDFLAGS)

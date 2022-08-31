@@ -17,8 +17,11 @@ if [ $? == 0 ]; then
     EMMAKE=emmake
     LUA_LIB=./lua-git/liblua.a
     LUA_CFLAGS=-I./lua-git/
-    LUA_RULE=./lua-git/liblua.a
+    LUA_RULE=lua-git/liblua.a
     WERROR="-Wno-unreachable-code-generic-assoc"
+    JSON_C_LD="-L./json-c-build"
+    JSON_C_CFLAGS='-I./json-c -I./json-c-build'
+    JSON_C_RULE=json-c-build/libjson-c.a
 fi
 
 for arg in $@; do
@@ -166,6 +169,11 @@ var_add ANALYZER_FLAG ""
 var_add LUA_LIB "\"`pkg-config --libs lua`\""
 var_add LUA_CFLAGS "\"`pkg-config --cflags lua`\""
 var_add LUA_RULE ""
+var_add LUA_GIT "https://github.com/lua/lua.git"
+
+var_add JSON_C_LD "\"`pkg-config --libs json-c`\""
+var_add JSON_C_CFLAGS ""
+var_add JSON_C_GIT "https://github.com/json-c/json-c.git"
 
 str_define_add YIRL_MODULES_PATH "modules/"
 
