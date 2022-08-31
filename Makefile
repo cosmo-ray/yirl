@@ -164,7 +164,14 @@ ph7/ph7.o:
 $(SCRIPT_DIR)/s7.o:
 	$(CC) -c -o $(SCRIPT_DIR)/s7.o $(SCRIPT_DIR)/s7.c -Wno-implicit-fallthrough -fPIC -O2 -g
 
-$(OBJ): $(LUA_RULE) $(JSON_C_RULE) $(QUICKJS_LIB_PATH)
+SDL_mixer/:
+	git submodule update --init
+
+$(SDL_MIXER_ARFLAGS): SDL_mixer/
+	cd SDL_mixer/ && $(EMCONFIGURE) ./configure CFLAGS=$(SDL_MIXER_BUILD_CFLAGS)
+	cd SDL_mixer/ && $(EMMAKE) make
+
+$(OBJ): $(LUA_RULE) $(JSON_C_RULE) $(QUICKJS_LIB_PATH) $(SDL_MIXER_ARFLAGS)
 
 $(LIBNAME).a: $(OBJ) $(O_OBJ) $(OBJXX) $(SDL_GPU_LDFLAGS)
 	$(AR)  -r -c -s $(LIBNAME).a $(OBJ) $(O_OBJ) $(OBJXX) $(QUICKJS_LIB_PATH)
