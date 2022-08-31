@@ -125,6 +125,16 @@ ULPCS=Universal-LPC-spritesheet/
 libc_hsearch_r/search_hsearch_r.c:
 	git clone https://github.com/mikhail-j/libc_hsearch_r.git
 
+./lua-git/:
+	git clone /home/uso/lua/ lua-git
+
+./lua-git/liblua.a: ./lua-git/
+	cd lua-git && pwd && git fetch origin
+	cd lua-git && pwd && git checkout -f v5.4.0
+	cd lua-git && cat makefile | sed 's/CC= gcc/#CC variable remove/' | sed 's/-DLUA_USE_READLINE//' | sed 's/-lreadline//' > makefile_tmp
+	mv lua-git/makefile_tmp lua-git/makefile
+	cd lua-git && $(EMMAKE) make
+
 sdl-gpu-build:
 	$(EMCMAKE) cmake -B ./sdl-gpu-build ./sdl-gpu/  -DCMAKE_C_FLAGS="-fPIC"
 
