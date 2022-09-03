@@ -1,4 +1,3 @@
-
 /*
 **Copyright (C) 2019 Matthias Gatto
 **
@@ -15,6 +14,8 @@
 **You should have received a copy of the GNU Lesser General Public License
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+#if S7_ENABLE > 0
 
 #include "s7-script.h"
 #include "s7.h"
@@ -858,3 +859,4 @@ int ysS7GetType(void)
 	return t;
 }
 
+#endif /* S7_ENABLE */

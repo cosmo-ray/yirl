@@ -7,12 +7,15 @@ LINEHELPER[3]="--hell-march		optimise for native architecturet"
 LINEHELPER[4]="--asan			compile with adress sanitazer"
 LINEHELPER[5]="--analyzer		Use gcc 10+ --fanalyzer"
 LINEHELPER[6]="--disable-tcc		disable tcc scripting"
+LINEHELPER[7]="--disable-s7		disable s7 scripting"
 
 source configure-helper.sh
 
+args=$@
+
 env | grep EMSCRIPTEN_TOOLS  >> /dev/null 2>&1
 if [ $? == 0 ]; then
-    arg="--disable-tcc"
+    args="--disable-tcc --disable-s7"
     EMCMAKE=emcmake
     EMMAKE=emmake
     EMCONFIGURE=emconfigure
@@ -27,7 +30,7 @@ if [ $? == 0 ]; then
     SDL_MIXER_BUILD_CFLAGS="-fPIC -sUSE_MPG123=1 -sUSE_OGG=1 -sUSE_VORBIS=1"
 fi
 
-for arg in $@; do
+for arg in $args; do
     echo $( echo "$arg" | cut -d '=' -f 1)
     if [ "--with-gamemod" = $arg ]; then
 	COMMON_CFLAGS+="-DGAMEMOD"
@@ -61,6 +64,11 @@ for arg in $@; do
 	TCC_LIB_NAME=""
 	TCC_LIB_PATH=""
 	TCC_CFLAGS="-DTCC_ENABLE=0"
+    fi
+
+    if [ "--disable-s7" = $arg ]; then
+	S7_SOURCE=""
+	S7_CFLAGS="-DS7_ENABLE=0"
     fi
 done
 
@@ -193,6 +201,9 @@ if [ -z "$TCC_CFLAGS" ]; then
     TCC_CFLAGS="-I${TCC_LIB_PATH} -DTCC_ENABLE=1"
 fi
 echo TCC_CFLAGS=${TCC_CFLAGS} >> config.mk
+
+var_add S7_SOURCE "${SCRIPT_DIR}/s7.c"
+var_add S7_CFLAGS "-DS7_ENABLE=1"
 
 # var_add is a little broken, so I can't output variable
 var_add YIRL_LINKING "libyirl.so"

@@ -54,7 +54,7 @@ SRC = 	$(HSEARCH_SRC) \
 
 SRC += $(SOUND_SRC)
 
-O_SRC = $(SCRIPT_DIR)/s7.c ph7/ph7.c
+O_SRC = $(S7_SOURCE) ph7/ph7.c
 
 O_OBJ = $(O_SRC:.c=.o)
 
@@ -95,7 +95,7 @@ GLIB_COMMON_CFLAGS += $(shell $(PKG_CONFIG) --cflags glib-2.0)
 COMMON_CFLAGS += $(shell sdl2-config --cflags)
 COMMON_CFLAGS += -I$(YIRL_INCLUDE_PATH)
 COMMON_CFLAGS += -I$(YIRL_INCLUDE_PATH2)
-COMMON_CFLAGS += $(TCC_CFLAGS)
+COMMON_CFLAGS += $(TCC_CFLAGS) $(S7_CFLAGS)
 COMMON_CFLAGS += -I./core/script/
 COMMON_CFLAGS += -I./$(DUCK_V)/ -I./$(DUCK_V)/src/ # <--- last one is here so I can compile extras
 COMMON_CFLAGS += $(JSON_C_CFLAGS)
@@ -156,10 +156,10 @@ $(QUICKJS_PATH):
 	git clone https://github.com/cosmo-ray/quickjs.git quickjs-$(QUICKJS_V)
 
 $(QUICKJS_LIB_PATH): $(QUICKJS_PATH)
-	CONFIG_FPIC=1 make -C $(QUICKJS_PATH) libquickjs.a
+	CONFIG_FPIC=1 $(EMMAKE) make -C $(QUICKJS_PATH) libquickjs.a
 
 ph7/ph7.o:
-	$(CC) -c -o ph7/ph7.o ph7/ph7.c -I./ph7/ -O2 -g -fPIC
+	$(CC) -c -o ph7/ph7.o ph7/ph7.c -I./ph7/ -O0 -g -fPIC
 
 $(SCRIPT_DIR)/s7.o:
 	$(CC) -c -o $(SCRIPT_DIR)/s7.o $(SCRIPT_DIR)/s7.c -Wno-implicit-fallthrough -fPIC -O2 -g
@@ -171,11 +171,11 @@ $(SDL_MIXER_ARFLAGS): SDL_mixer/
 	cd SDL_mixer/ && $(EMCONFIGURE) ./configure CFLAGS=$(SDL_MIXER_BUILD_CFLAGS)
 	cd SDL_mixer/ && $(EMMAKE) make
 
-$(OBJ): $(LUA_RULE) $(JSON_C_RULE) $(QUICKJS_LIB_PATH) $(SDL_MIXER_ARFLAGS)
+$(OBJ): $(LUA_RULE) $(JSON_C_RULE) $(QUICKJS_LIB_PATH) $(SDL_MIXER_ARFLAGS) $(SDL_GPU_LDFLAGS)
 
-$(LIBNAME).a: $(OBJ) $(O_OBJ) $(OBJXX) $(SDL_GPU_LDFLAGS)
-	$(AR)  -r -c -s $(LIBNAME).a $(OBJ) $(O_OBJ) $(OBJXX) $(QUICKJS_LIB_PATH)
-$(LIBNAME).$(LIBEXTENSION): $(OBJ) $(O_OBJ) $(OBJXX) $(QUICKJS_LIB_PATH) $(SDL_GPU_LDFLAGS)
+$(LIBNAME).a: $(OBJ) $(O_OBJ) $(OBJXX)
+	$(AR)  -r -c -s $(LIBNAME).a $(OBJ) $(O_OBJ) $(OBJXX)
+$(LIBNAME).$(LIBEXTENSION): $(OBJ) $(O_OBJ) $(OBJXX)
 	$(CC) -shared -o  $(LIBNAME).$(LIBEXTENSION) $(OBJ) $(O_OBJ) $(OBJXX) $(LDFLAGS)
 
 yirl-loader: $(YIRL_LINKING) $(GEN_LOADER_OBJ)
@@ -189,7 +189,7 @@ fclean: clean
 	rm -rvf $(LIBNAME).a $(O_OBJ) $(LIBNAME).so $(LIBNAME).dll
 
 clean_all: fclean
-	rm -rvf $(DUCK_OBJ) $(QUICKJS_LIB_PATH)
+	rm -rvf $(DUCK_OBJ) $(QUICKJS_LIB_PATH) sdl-gpu-build $(QUICKJS_PATH)/.obj
 
 install: yirl-loader
 	mkdir -p $(PREFIX)/lib

@@ -21,8 +21,32 @@
 #include <s7.h>
 #include "script.h"
 
+#if TCC_ENABLE > 0
+
 int ysS7Init(void);
 int ysS7End(void);
 int ysS7GetType(void);
+
+#esle
+
+static int ysS7Init(void)
+{
+	fatal("S7 DISABLE\n");
+	return 0;
+}
+
+static int ysS7End(void)
+{
+	fatal("S7 DISABLE\n");
+	return 0;	
+}
+
+static int ysS7GetType(void)
+{
+	fatal("S7 DISABLE\n");
+	return 0;
+}
+
+#endif
 
 #endif

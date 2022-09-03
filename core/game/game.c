@@ -101,6 +101,9 @@ void *ygQjsManager(void)
 
 void *ygS7Manager(void)
 {
+#if S7_ENABLE < 1
+	fatal("S7 IS DISABLE !");
+#endif
 	return s7Manager;
 }
 
@@ -427,9 +430,11 @@ int ygInit(GameConfig *cfg)
 		       "tcc init failed");
 #endif
 
+#if S7_ENABLE > 0
 	CHECK_AND_GOTO(t = ysS7Init(), -1, error, "s7 init failed");
 	CHECK_AND_GOTO(s7Manager = ysNewManager(NULL, t), NULL, error,
 		       "s7 init failed");
+#endif
 
 	CHECK_AND_GOTO(t = ysPH7Init(), -1, error, "ph7 init failed");
 	CHECK_AND_GOTO(ph7Manager = ysNewManager(NULL, t), NULL, error,
@@ -513,8 +518,10 @@ void ygEnd()
 #endif
 	ysDestroyManager(luaManager);
 	ysLuaEnd();
+#if S7_ENABLE > 0
 	ysDestroyManager(s7Manager);
 	ysS7End();
+#endif
 	ysDestroyManager(ph7Manager);
 	ysPH7End();
 	/* it seems V crash :( */
@@ -586,8 +593,13 @@ void *ygGetManager(const char *name)
 		return luaManager;
 	else if (yuiStrEqual0(name, "yb"))
 		return ysYBytecodeManager();
+#if S7_ENABLE > 0
 	else if (yuiStrEqual0(name, "s7"))
 		return s7Manager;
+#else
+	else if (yuiStrEqual0(name, "s7"))
+		fatal("S7 IS DISABLE !!!");
+#endif
 	else if (yuiStrEqual0(name, "ph7"))
 		return ph7Manager;
 	else if (yuiStrEqual0(name, "js"))
@@ -728,11 +740,15 @@ Entity *ygLoadMod(const char *path)
 #endif
 
 		} else if (yuiStrEqual0(yeGetString(tmpType), "s7")) {
+#if S7_ENABLE > 0
 			if (ysLoadFile(s7Manager, pathCstr) < 0) {
 				DPRINT_ERR("Error when loading '%s': %s\n",
 					   pathCstr, ysGetError(s7Manager));
 				goto fail_preload;
 			}
+#else
+			fatal("S7 IS DISABLE !");
+#endif
 
 		} else if (yuiStrEqual0(yeGetString(tmpType), "ph7")) {
 			if (ysLoadFile(ph7Manager, pathCstr) < 0) {
