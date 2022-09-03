@@ -27,7 +27,7 @@ int ysS7Init(void);
 int ysS7End(void);
 int ysS7GetType(void);
 
-#esle
+#else
 
 static int ysS7Init(void)
 {
