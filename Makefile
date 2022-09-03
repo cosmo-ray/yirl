@@ -87,6 +87,7 @@ LDFLAGS += $(shell $(PKG_CONFIG) --libs SDL2_image SDL2_ttf $(WIN_SDL_EXTRA)) $(
 LDFLAGS += $(LDFLAGS_EXT)
 LDFLAGS += $(LIBS_SAN) -ldl $(QUICKJS_LIB_PATH)
 LDFLAGS += $(ANALYZER_FLAG)
+LDFLAGS += $(EMPORT)
 LDFLAGS += $(shell $(PKG_CONFIG) --libs gl glu)
 GLIB_LDFLAGS += $(shell $(PKG_CONFIG) --libs glib-2.0)
 

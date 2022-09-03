@@ -23,7 +23,7 @@ if [ $? == 0 ]; then
     LUA_CFLAGS=-I./lua-git/
     LUA_RULE=lua-git/liblua.a
     WERROR="-Wno-unreachable-code-generic-assoc"
-    JSON_C_LD="-L./json-c-build"
+    JSON_C_LD=json-c-build/libjson-c.a
     JSON_C_CFLAGS='-I./json-c -I./json-c-build'
     JSON_C_RULE=json-c-build/libjson-c.a
     EMPORT="-sUSE_SDL_TTF=2 -sUSE_SDL_IMAGE=2"
