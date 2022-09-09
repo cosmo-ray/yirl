@@ -58,12 +58,7 @@ O_SRC = $(S7_SOURCE) ph7/ph7.c
 
 O_OBJ = $(O_SRC:.c=.o)
 
-SRCXX += 	$(ENTITY_DIR)/entity-cplusplus.cpp
-
-CXX = $(CC)
-
 OBJ =   $(SRC:.c=.o)
-OBJXX = $(SRCXX:.cpp=.o)
 
 QUICKJS_V = 2020-03-16
 
@@ -116,8 +111,6 @@ COMMON_CFLAGS += $(ANALYZER_FLAG)
 COMMON_CFLAGS += -I./ph7/
 COMMON_CFLAGS += $(EMPORT)
 
-CXXFLAGS = $(COMMON_CFLAGS) -x c++ -Wno-missing-exception-spec -fno-exceptions -fno-rtti -fpermissive
-
 CFLAGS += $(COMMON_CFLAGS) -std=gnu11 -D_GNU_SOURCE
 
 INSTALL_MOD=$(PREFIX)/share/yirl/modules/
@@ -168,19 +161,25 @@ $(SCRIPT_DIR)/s7.o:
 SDL_mixer/:
 	git submodule update --init
 
-$(SDL_MIXER_ARFLAGS): SDL_mixer/
-	cd SDL_mixer/ && $(EMCONFIGURE) ./configure CFLAGS=$(SDL_MIXER_BUILD_CFLAGS)
+SDL_mixer/build/.libs/libSDL2_mixer.a: SDL_mixer/
+	cd SDL_mixer/ && $(EMCONFIGURE) ./configure CFLAGS="$(SDL_MIXER_BUILD_CFLAGS)"
 	cd SDL_mixer/ && $(EMMAKE) make
 
-$(OBJ): $(LUA_RULE) $(JSON_C_RULE) $(QUICKJS_LIB_PATH) $(SDL_MIXER_ARFLAGS) $(SDL_GPU_LDFLAGS)
+clean_sdl_mixer:
+	make -C SDL_mixer/ clean
 
-$(LIBNAME).a: $(OBJ) $(O_OBJ) $(OBJXX)
-	$(AR)  -r -c -s $(LIBNAME).a $(OBJ) $(O_OBJ) $(OBJXX)
-$(LIBNAME).$(LIBEXTENSION): $(OBJ) $(O_OBJ) $(OBJXX)
+$(OBJ): $(LUA_RULE) $(JSON_C_RULE) $(QUICKJS_LIB_PATH) SDL_mixer/build/.libs/libSDL2_mixer.a $(SDL_GPU_LDFLAGS)
+
+$(LIBNAME).a: $(OBJ) $(O_OBJ) SDL_mixer/build/.libs/libSDL2_mixer.a
+	$(AR)  -r -c -s $(LIBNAME).a $(OBJ) $(O_OBJ)
+$(LIBNAME).$(LIBEXTENSION): $(OBJ) $(O_OBJ) $(OBJXX) SDL_mixer/build/.libs/libSDL2_mixer.a
 	$(CC) -shared -o  $(LIBNAME).$(LIBEXTENSION) $(OBJ) $(O_OBJ) $(OBJXX) $(LDFLAGS)
 
 yirl-loader: $(YIRL_LINKING) $(GEN_LOADER_OBJ)
 	$(CC) -o yirl-loader$(BIN_EXT) $(GEN_LOADER_OBJ) $(BINARY_LINKING) $(LDFLAGS) 
+
+webstart.html: $(YIRL_LINKING) $(GEN_LOADER_OBJ) $(LIBNAME).a
+	$(CC) -o webstart.html $(GEN_LOADER_OBJ) $(LIBNAME).a $(LDFLAGS) --preload-file . -sALLOW_MEMORY_GROWTH -s LINKABLE=1
 
 
 clean:	clean-tests
@@ -189,8 +188,8 @@ clean:	clean-tests
 fclean: clean
 	rm -rvf $(LIBNAME).a $(O_OBJ) $(LIBNAME).so $(LIBNAME).dll
 
-clean_all: fclean
-	rm -rvf $(DUCK_OBJ) $(QUICKJS_LIB_PATH) sdl-gpu-build $(QUICKJS_PATH)/.obj
+clean_all: fclean clean_sdl_mixer
+	rm -rvf $(DUCK_OBJ) $(QUICKJS_LIB_PATH) sdl-gpu-build $(QUICKJS_PATH)/.obj lua-git/liblua.a
 
 install: yirl-loader
 	mkdir -p $(PREFIX)/lib
@@ -270,4 +269,4 @@ install_extra_modules:
 	mkdir -p $(INSTALL_MOD)/asteroide-shooter/
 	cp modules/asteroide-shooter/start.json $(INSTALL_MOD)/asteroide-shooter/
 
-.PHONY : install clean_all fclean clean all install_extra_modules build-tests clean-tests
+.PHONY : install clean_all fclean clean all install_extra_modules build-tests clean-tests clean_sdl_mixer
