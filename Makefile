@@ -111,7 +111,7 @@ COMMON_CFLAGS += $(ANALYZER_FLAG)
 COMMON_CFLAGS += -I./ph7/
 COMMON_CFLAGS += $(EMPORT)
 
-CFLAGS += $(COMMON_CFLAGS) -std=gnu11 -D_GNU_SOURCE
+CFLAGS += $(COMMON_CFLAGS) -std=gnu11 -D_GNU_SOURCE $(EMCFLAGS)
 
 INSTALL_MOD=$(PREFIX)/share/yirl/modules/
 SCRIPT_DEP=$(PREFIX)/share/yirl/scripts-dependancies/
@@ -136,15 +136,15 @@ lua-git/:
 lua-git/liblua.a: ./lua-git/
 	cd lua-git && pwd && git fetch origin
 	cd lua-git && pwd && git checkout -f v5.4.0
-	cd lua-git && cat makefile | sed 's/CC= gcc/#CC variable remove/' | sed 's/-DLUA_USE_READLINE//' | sed 's/-lreadline//' > makefile_tmp
+	cd lua-git && cat makefile | sed 's/CC= gcc/#CC variable remove/' | sed 's/-DLUA_USE_READLINE//' | sed 's/-lreadline//' | sed 's/-O2/-O2 -fPIC/g'  > makefile_tmp
 	mv lua-git/makefile_tmp lua-git/makefile
 	cd lua-git && $(EMMAKE) make
 
 sdl-gpu-build:
-	$(EMCMAKE) cmake -B ./sdl-gpu-build ./sdl-gpu/ -DDISABLE_GLES=1 -DCMAKE_C_FLAGS="-fPIC"
+	$(EMCMAKE) cmake -B ./sdl-gpu-build ./sdl-gpu/ $(CMAKE_ARGS)
 
 $(SDL_GPU_LDFLAGS): sdl-gpu-build
-	$(EMMAKE) make -C sdl-gpu-build
+	$(EMMAKE) make -C sdl-gpu-build 
 
 $(QUICKJS_PATH):
 	git clone https://github.com/cosmo-ray/quickjs.git quickjs-$(QUICKJS_V)
@@ -162,7 +162,7 @@ SDL_mixer/:
 	git submodule update --init
 
 SDL_mixer/build/.libs/libSDL2_mixer.a: SDL_mixer/
-	cd SDL_mixer/ && $(EMCONFIGURE) ./configure CFLAGS="$(SDL_MIXER_BUILD_CFLAGS)"
+	cd SDL_mixer/ && $(EMCONFIGURE) ./configure $(SDL_MIXER_CFG) CFLAGS="$(SDL_MIXER_BUILD_CFLAGS)"
 	cd SDL_mixer/ && $(EMMAKE) make
 
 clean_sdl_mixer:
@@ -178,15 +178,26 @@ $(LIBNAME).$(LIBEXTENSION): $(OBJ) $(O_OBJ) $(OBJXX) SDL_mixer/build/.libs/libSD
 yirl-loader: $(YIRL_LINKING) $(GEN_LOADER_OBJ)
 	$(CC) -o yirl-loader$(BIN_EXT) $(GEN_LOADER_OBJ) $(BINARY_LINKING) $(LDFLAGS) 
 
-webstart.html: $(YIRL_LINKING) $(GEN_LOADER_OBJ) $(LIBNAME).a
-	$(CC) -o webstart.html $(GEN_LOADER_OBJ) $(LIBNAME).a $(LDFLAGS) --preload-file . -sALLOW_MEMORY_GROWTH -s LINKABLE=1
+PRELOAD_EMCC_FILES = --preload-file ./ \
+	--preload-file ./sazanami-mincho.ttf \
+	--preload-file ./polis-at-war/ \
+	--preload-file ./modules/
 
+
+WEB_ARG=arguments: ["-d", "/polis-at-war/", "-P", "/"],
+#	arguments: ['-d', './games/asteroide-shooter/', '-P', "/home/uso/yirl/"],
+
+webstart.html: $(YIRL_LINKING) $(GEN_LOADER_OBJ) $(LIBNAME).a
+	$(CC) -o webstart.html $(GEN_LOADER_OBJ) $(LIBNAME).a $(LDFLAGS) $(PRELOAD_EMCC_FILES) -sALLOW_MEMORY_GROWTH -sMAIN_MODULE=1
+
+start.html: webstart.html
+	cat webstart.html | sed 's|var Module = {|var Module = {\n\t$(WEB_ARG)|g' > start.html
 
 clean:	clean-tests
 	rm -rvf $(OBJ) $(OBJXX) $(GEN_LOADER_OBJ)
 
 fclean: clean
-	rm -rvf $(LIBNAME).a $(O_OBJ) $(LIBNAME).so $(LIBNAME).dll
+	rm -rvf $(LIBNAME).a $(O_OBJ) $(LIBNAME).so $(LIBNAME).dll webstart.* start.html
 
 clean_all: fclean clean_sdl_mixer
 	rm -rvf $(DUCK_OBJ) $(QUICKJS_LIB_PATH) sdl-gpu-build $(QUICKJS_PATH)/.obj lua-git/liblua.a

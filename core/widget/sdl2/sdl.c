@@ -536,14 +536,22 @@ int    ysdl2Init(void)
     goto ttf_fail;
   }
 
+#ifdef USING_EMCC
+#define SDL_INIT_FLAGS
+#else
+#define SDL_INIT_FLAGS IMG_INIT_PNG | IMG_INIT_JPG | IMG_INIT_TIF
   // Simple check of the Flags
-  if(!IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG | IMG_INIT_TIF)) {
-    DPRINT_ERR("SDL_image could not initialize! SDL_image Error: %s\n",
-	       IMG_GetError());
-    goto img_fail;
+  if(!IMG_Init(SDL_INIT_FLAGS)) {
+	  DPRINT_ERR("SDL_image could not initialize! SDL_image Error: %s\n",
+		     IMG_GetError());
+	  goto img_fail;
   }
+#endif
+#undef SDL_INIT_FLAGS
 
 
+#ifdef USING_EMCC
+#else
   sprintf(ttf_path2, "%s" DEFAULTPOLICE, getcwd(path_buf, PATH_MAX));
   path_buf[PATH_MAX -1] = 0;
   if (sgSetDefaultFont(ttf_path) < 0 &&
@@ -555,7 +563,9 @@ int    ysdl2Init(void)
     DPRINT_ERR("Cannot load fonts\n");
     goto fail;
   }
-  // fill the window with a black rectangle
+#endif
+
+// fill the window with a black rectangle
   // SDL_Rect   rect = sg.getRect();
 
   /* GPU_SetBlendMode(sg.pWindow, GPU_BLEND_NORMAL); */

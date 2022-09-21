@@ -26,8 +26,10 @@ if [ $? == 0 ]; then
     JSON_C_LD=json-c-build/libjson-c.a
     JSON_C_CFLAGS='-I./json-c -I./json-c-build'
     JSON_C_RULE=json-c-build/libjson-c.a
-    EMPORT="-sUSE_SDL_TTF=2 -sUSE_SDL_IMAGE=2"
+    EMPORT="-sUSE_SDL_TTF=2 -sUSE_SDL_IMAGE=2 -sUSE_WEBGL2=1"
     SDL_MIXER_BUILD_CFLAGS="-fPIC -sUSE_MPG123=1 -sUSE_OGG=1 -sUSE_VORBIS=1"
+    CMAKE_ARGS="-DEMSCRIPTEN=1 -DDISABLE_GLES_1=1 -DCMAKE_C_FLAGS=\"-fPIC\""
+    EMCFLAGS="-DUSING_EMCC=1"
 fi
 
 for arg in $args; do
@@ -222,3 +224,8 @@ var_add EMCMAKE ""
 var_add EMCONFIGURE ""
 var_add EMMAKE ""
 var_add EMPORT ""
+var_add EMCFLAGS ""
+
+var_add CMAKE_ARGS "-DCMAKE_C_FLAGS=\"-fPIC\""
+
+var_add SDL_MIXER_CFG ""
