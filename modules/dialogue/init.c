@@ -238,7 +238,16 @@ static Entity *getText_(Entity *box, Entity *e)
 	if (rtext) {
 		Entity *cur_txt;
 
+	again:
 		cur_txt = yeGet(rtext, yuiRand() % yeLen(rtext));
+		condition = yeGet(cur_txt, "condition");
+		if (condition) {
+			if (!dialogueCondition(box, condition, NULL))
+				goto again;
+			else
+				return yeGet(cur_txt, "text");
+		}
+
 		return cur_txt;
 	}
 
