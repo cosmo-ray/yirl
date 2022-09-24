@@ -221,7 +221,6 @@ static Entity *getText_(Entity *box, Entity *e)
 		Entity *cur_txt;
 		int i  = yeGetInt(ygGet(yeGetStringAt(stext, 0)));
 
-		printf("stext: %d\n", i);
 		cur_txt = yeGet(stext, (i % (yeLen(stext) -1)) + 1);
 		return cur_txt;
 	}
