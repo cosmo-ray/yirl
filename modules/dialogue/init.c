@@ -219,9 +219,20 @@ static Entity *getText_(Entity *box, Entity *e)
 
 	if (stext) {
 		Entity *cur_txt;
-		int i  = yeGetInt(ygGet(yeGetStringAt(stext, 0)));
+		int i = yeType(yeGet(stext, 0)) == YINT ? yeGetIntAt(stext, 0) :
+			yeGetInt(ygGet(yeGetStringAt(stext, 0)));
+	again:
 
 		cur_txt = yeGet(stext, (i % (yeLen(stext) -1)) + 1);
+		condition = yeGet(cur_txt, "condition");
+		if (condition) {
+			if (!dialogueCondition(box, condition, NULL)) {
+				++i;
+				goto again;
+			} else {
+				return yeGet(cur_txt, "text");
+			}
+		}
 		return cur_txt;
 	}
 	if (rtext) {
