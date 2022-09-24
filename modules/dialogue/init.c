@@ -213,9 +213,18 @@ static void refreshAnswer(Entity *wid, Entity *menu, Entity *curent)
 static Entity *getText_(Entity *box, Entity *e)
 {
 	Entity *condition;
+	Entity *stext = yeGet(e, "switch-texts");
 	Entity *rtext = yeGet(e, "rand-texts");
 	Entity *txts = yeGet(e, "texts");
 
+	if (stext) {
+		Entity *cur_txt;
+		int i  = yeGetInt(ygGet(yeGetStringAt(stext, 0)));
+
+		printf("stext: %d\n", i);
+		cur_txt = yeGet(stext, (i % (yeLen(stext) -1)) + 1);
+		return cur_txt;
+	}
 	if (rtext) {
 		Entity *cur_txt;
 

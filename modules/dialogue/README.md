@@ -24,3 +24,8 @@ dialogue heavilly rely on callback, you can either use:
 ## create you own callback
 
 When creating a dialogue callback, the callback will have the widget/box as first argument, and the current answer as second.
+
+## some stuff:
+
+you can use `rand-texts`, instead of text, this need to have a list of text, which are randmly choose.
+you can use `switch-texts` instead of text, to choose a text depending of the first element of the arrays
