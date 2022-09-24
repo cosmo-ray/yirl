@@ -221,29 +221,31 @@ static Entity *getText_(Entity *box, Entity *e)
 		Entity *cur_txt;
 		int i = yeType(yeGet(stext, 0)) == YINT ? yeGetIntAt(stext, 0) :
 			yeGetInt(ygGet(yeGetStringAt(stext, 0)));
-	again:
+	again_s:
 
 		cur_txt = yeGet(stext, (i % (yeLen(stext) -1)) + 1);
 		condition = yeGet(cur_txt, "condition");
 		if (condition) {
 			if (!dialogueCondition(box, condition, NULL)) {
 				++i;
-				goto again;
-			} else {
-				return yeGet(cur_txt, "text");
+				goto again_s;
 			}
 		}
+
+		ywidActions(box, cur_txt, NULL);
+		if (yeGet(cur_txt, "text"))
+			cur_txt = yeGet(cur_txt, "text");
 		return cur_txt;
 	}
 	if (rtext) {
 		Entity *cur_txt;
 
-	again:
+	again_r:
 		cur_txt = yeGet(rtext, yuiRand() % yeLen(rtext));
 		condition = yeGet(cur_txt, "condition");
 		if (condition) {
 			if (!dialogueCondition(box, condition, NULL))
-				goto again;
+				goto again_r;
 			else
 				return yeGet(cur_txt, "text");
 		}
