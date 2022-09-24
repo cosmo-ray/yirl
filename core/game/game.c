@@ -1149,12 +1149,12 @@ static void checkSlakedEntity(void)
 #include <emscripten/emscripten.h>
 
 static void main_tick() {
+	printf("in main tick !!\n");
 #else
 static int main_tick() {
 #endif
 	YWidgetState *wid = ywidGetMainWid();
 
-	printf("in main tick !!\n");
 	if (unlikely(!wid)) {
 #ifdef USING_EMCC
 		return;
