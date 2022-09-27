@@ -493,6 +493,13 @@ static s7_pointer make_nothing(s7_scheme *s, ...)
 			       E_AT(s, a, 2)));			\
 	}
 
+#define BIND_ESS(f, ...)					\
+	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)	\
+	{							\
+		BIND_AUTORET(f(E_AT(s, a, 0), S_AT(s, a, 1),	\
+			       S_AT(s, a, 2)));			\
+	}
+
 #define BIND_EII(f, ...)					\
 	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)	\
 	{							\

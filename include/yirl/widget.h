@@ -383,6 +383,14 @@ static inline void *ywidGetRenderData(YWidgetState *state, int t)
  return state->renderStates[t].opac;
 }
 
+/**
+ * ywidAddSubType, but doesn't free subType
+ */
+int ywidAddSubTypeNF(Entity *subType);
+
+/**
+ * Register a new widget type, yeDestroy subType
+ */
 int ywidAddSubType(Entity *subType);
 
 YWidgetState *ywidNewWidget(Entity *entity, const char *type);

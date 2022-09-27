@@ -60,6 +60,24 @@ extern char *yProgramArg;
 
 extern char *ygBinaryRootPath;
 
+static inline Entity *ygInitWidgetModule(Entity *mod, const char *name, Entity *call)
+{
+	Entity *wid_type = yeCreateArray(NULL, NULL);
+
+	yeCreateString(name, wid_type, "name");
+	yePushBack(wid_type, call, "callback");
+
+	Entity *start = yeCreateArray(mod, "test_wid");
+	yeCreateString(name, start, "<type>");
+
+	yeCreateString("test_wid", mod, "starting widget");
+
+	yePrint(wid_type);
+	ywidAddSubType(wid_type);
+
+	return start;
+}
+
 const char *ygGetBinaryRootPath(void);
 
 static inline void ygBinaryRootPathFree(void)

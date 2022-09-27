@@ -453,11 +453,17 @@ error:
 	return NULL;
 }
 
-int ywidAddSubType(Entity *subType)
+int ywidAddSubTypeNF(Entity *subType)
 {
 	if (!subTypes)
 		subTypes = yeCreateArray(NULL, NULL);
 	yePushBack(subTypes, subType, NULL);
+	return 0;
+}
+
+int ywidAddSubType(Entity *subType)
+{
+	ywidAddSubTypeNF(subType);
 	yeDestroy(subType);
 	return 0;
 }

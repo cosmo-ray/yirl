@@ -11,6 +11,7 @@
 #define BIND_SI		BIND
 #define BIND_SS		BIND
 #define BIND_EII	BIND
+#define BIND_ESS	BIND
 #define BIND_EEI	BIND
 #define BIND_IIS	BIND
 #define BIND_IIE	BIND
@@ -248,6 +249,7 @@ BIND_E(ywRectW, 1, 0);
 BIND_E(ywRectH, 1, 0);
 
 BIND_E(ywidAddSubType, 1, 0);
+BIND_E(ywidAddSubTypeNF, 1, 0);
 BIND_E(yeGetInt, 1, 0);
 BIND_E(yeLen, 1, 0);
 BIND_E(ywidEveKey, 1, 0);
@@ -261,6 +263,8 @@ BIND_II(yuiPercentOf, 2, 0);
 BIND_III(yuiMinMax, 3, 0);
 
 BIND_EI(yeSetInt, 2, 0);
+
+BIND_ESE(ygInitWidgetModule, 3, 0);
 
 BIND_EII(yeIntRoundBound, 3, 0);
 
@@ -376,6 +380,7 @@ PUSH_I_GLOBAL(YPH7);
 #undef BIND_EEE
 #undef BIND_EEI
 #undef BIND_EII
+#undef BIND_ESS
 #undef BIND_ISS
 #undef BIND_IES
 #undef BIND_IIS
