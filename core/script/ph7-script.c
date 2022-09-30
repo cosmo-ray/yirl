@@ -137,6 +137,13 @@ static int make_nothing(ph7_context *pCtx,  ...)
 		 unsigned int: ph7_result_int64)	\
 		(__VA_ARGS__, call)
 
+#define BIND_EEIII(f, ...)						\
+	static int ph7##f(ph7_context *pCtx, int argc, ph7_value **a) { \
+		PH7_RET(f(E_AT(a, 0), E_AT(a, 1), I_AT(a, 2),		\
+			  I_AT(a, 3), I_AT(a, 4)), pCtx);		\
+		return 0;						\
+	}
+
 #define BIND_EIIIIS(f, ...)						\
 	static int ph7##f(ph7_context *pCtx, int argc, ph7_value **a) {	\
 		PH7_RET(f(E_AT(a, 0), I_AT(a, 1), I_AT(a, 2), I_AT(a, 3), \
@@ -314,6 +321,7 @@ static int make_nothing(ph7_context *pCtx,  ...)
 	}
 
 BIND_E(yeDestroy);
+BIND_EEIII(ywMapInitEntity);
 
 #include "binding.c"
 
@@ -801,6 +809,7 @@ static ph7_vm *loadProg(YScriptPH7 *ph7sm, char *prog, ph7_vm *vm)
 	BIND(ywSizeCreate);
 	BIND(yeSetStringAt);
 	BIND(yeDestroy);
+	BIND(ywMapInitEntity);
 
 	rc = ph7_create_function(vm, "int_to_entity", int_to_entity, 0);
 	if( rc != PH7_OK ) {
