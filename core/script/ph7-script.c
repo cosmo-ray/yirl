@@ -560,6 +560,19 @@ int ph7yeCreateArray(ph7_context *pCtx, int argc, ph7_value **argv)
 	return PH7_OK;
 }
 
+int ph7yeReCreateArray(ph7_context *pCtx, int argc, ph7_value **argv)
+{
+	Entity *ret;
+	Entity *father = argc > 0 ? ph7_value_to_resource(argv[0]) :
+		gc_stack[gc_stack_i - 1];
+	const char *str = argc > 1 ? ph7_value_to_string(argv[1], NULL) : NULL;
+	Entity *child = argc > 2 ? ph7_value_to_resource(argv[2]) : NULL;
+
+	ret = yeReCreateArray(father, str, child);
+	ph7_result_resource(pCtx, ret);
+	return PH7_OK;
+}
+
 int int_to_entity(ph7_context *pCtx, int argc, ph7_value **argv)
 {
 	Entity *e = (void *)(intptr_t)ph7_value_to_int64(argv[0]);
@@ -826,6 +839,7 @@ static ph7_vm *loadProg(YScriptPH7 *ph7sm, char *prog, ph7_vm *vm)
 	BIND(yeCreateInt);
 	BIND(yeCreateFunction);
 	BIND(yeCreateArray);
+	BIND(yeReCreateArray);
 	BIND(yeCreateCopy);
 	BIND(yesCall);
 	BIND(ygFileToEnt);

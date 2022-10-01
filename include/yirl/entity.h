@@ -938,6 +938,10 @@ Entity *yeReCreateData(void *value, Entity *parent, const char *name);
  * annoy me, I won't add a line of code for it.
  */
 #ifndef __cplusplus
+
+/**
+ * child is the newly created array
+ */
 static inline Entity *yeReCreateArray(Entity *father, const char *name,
 				      Entity *child)
 {
