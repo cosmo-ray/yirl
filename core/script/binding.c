@@ -27,6 +27,7 @@
 #define BIND_EIIS	BIND
 #define BIND_EEEE	BIND
 #define BIND_EEES	BIND
+#define BIND_EEEEI	BIND
 #define BIND_EIIEE	BIND
 #define BIND_EIIIIS	BIND
 #else
@@ -75,6 +76,8 @@ BIND_EEEE(ywMapMoveByEntity, 4, 0);
 
 BIND_EEEE(ywTextureMergeTexture, 4, 0);
 BIND_EEEE(ywTextureMergeUnsafe, 4, 0);
+
+BIND_EEEEI(ywMapDrawSegment, 4, 1);
 
 BIND_EIIEE(ywCanvasNewImgFromTexture, 4, 1);
 
@@ -369,6 +372,7 @@ PUSH_I_GLOBAL(YPH7);
 
 #undef BIND_EIIIIS
 #undef BIND_EIIEE
+#undef BIND_EEEEI
 #undef BIND_EIII
 #undef BIND_EIIS
 #undef BIND_EIIE
