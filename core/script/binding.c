@@ -133,6 +133,9 @@ BIND_ES(yeGetByStr, 2, 0);
 BIND_SI(ygIncreaseInt, 2, 0);
 BIND_SI(ygSetInt, 2, 0);
 
+BIND_EI(ywMapCamAddX, 2, 0);
+BIND_EI(ywMapCamAddY, 2, 0);
+
 BIND_EI(ywMenuMove, 2, 0);
 
 BIND_EI(ywCanvasMultiplySize, 2, 0);
@@ -155,6 +158,8 @@ BIND_EI(ywCntGetEntry, 2, 0);
 BIND_EI(yeGetKeyAt, 2, 0);
 
 BIND_SS(ygReCreateString, 2, 0);
+
+BIND_E(ywMapCam, 1, 0);
 
 BIND_E(ywMenuGetCurrentByEntity, 1, 0);
 
