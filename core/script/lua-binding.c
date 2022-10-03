@@ -1307,15 +1307,6 @@ int	luaMvTablePush(lua_State *L)
 	return 1;
 }
 
-int	luaYwMapPushNbr(lua_State *L)
-{
-	lua_pushlightuserdata(L, ywMapPushNbr(luaEntityAt(L, 1),
-					      lua_tonumber(L, 2),
-					      luaEntityAt(L, 3),
-					      lua_tostring(L, 4)));
-	return 1;
-}
-
 int	luaGetMod(lua_State *L)
 {
 	lua_pushlightuserdata(L, ygGetMod(lua_tostring(L, 1)));

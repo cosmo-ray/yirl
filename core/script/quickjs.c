@@ -351,6 +351,22 @@ static JSValue make_abort(JSContext *ctx, ...)
 			       GET_S(ctx, 3)));				\
 	}
 
+#define BIND_EEIS(f, useless...)					\
+	static JSValue qjs##f(JSContext *ctx, JSValueConst this_val,	\
+			      int argc, JSValueConst *argv) {		\
+		BIND_AUTORET(f(GET_E(ctx, 0),				\
+			       GET_E(ctx, 1), GET_I(ctx, 2),		\
+			       GET_S(ctx, 3)));				\
+	}
+
+#define BIND_EIES(f, useless...)					\
+	static JSValue qjs##f(JSContext *ctx, JSValueConst this_val,	\
+			      int argc, JSValueConst *argv) {		\
+		BIND_AUTORET(f(GET_E(ctx, 0),				\
+			       GET_I(ctx, 1), GET_E(ctx, 2),		\
+			       GET_S(ctx, 3)));				\
+	}
+
 #define BIND_SEES(f, useless...)					\
 	static JSValue qjs##f(JSContext *ctx, JSValueConst this_val,	\
 			      int argc, JSValueConst *argv) {		\

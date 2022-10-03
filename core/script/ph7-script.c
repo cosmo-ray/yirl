@@ -164,6 +164,18 @@ static int make_nothing(ph7_context *pCtx,  ...)
 		return 0;						\
 	}
 
+#define BIND_EEIS(f, ...)						\
+	static int ph7##f(ph7_context *pCtx, int argc, ph7_value **a) { \
+		PH7_RET(f(E_AT(a, 0), E_AT(a, 1), I_AT(a, 2), S_AT(a, 3)), pCtx); \
+		return 0;						\
+	}
+
+#define BIND_EIES(f, ...)						\
+	static int ph7##f(ph7_context *pCtx, int argc, ph7_value **a) { \
+		PH7_RET(f(E_AT(a, 0), I_AT(a, 1), E_AT(a, 2), S_AT(a, 3)), pCtx); \
+		return 0;						\
+	}
+
 
 #define BIND_EEEE(f, ...)			\
 	static int ph7##f(ph7_context *pCtx, int argc, ph7_value **a) { \

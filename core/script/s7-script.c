@@ -488,6 +488,20 @@ static s7_pointer make_nothing(s7_scheme *s, ...)
 			       E_AT(s, a, 2), S_AT(s, a, 3)));	\
 	}
 
+#define BIND_EEIS(f, ...)					\
+	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)	\
+	{							\
+		BIND_AUTORET(f(E_AT(s, a, 0), E_AT(s, a, 1),	\
+			       I_AT(s, a, 2), S_AT(s, a, 3)));	\
+	}
+
+#define BIND_EIES(f, ...)					\
+	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)	\
+	{							\
+		BIND_AUTORET(f(E_AT(s, a, 0), I_AT(s, a, 1),	\
+			       E_AT(s, a, 2), S_AT(s, a, 3)));	\
+	}
+
 #define BIND_SEES(f, ...)					\
 	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)	\
 	{							\
@@ -781,12 +795,6 @@ static int init(void *sm, void *args)
 #include "binding.c"
 #undef IN_CALL
 
-	/* ugly bindings here */
-	loadString(sm,
-		   "(define ywMapPushNbr"
-		   "(lambda (map nb pos str)"
-		   "(ywMapPushElem map (yeCreateInt nb) pos str)"
-		   "))");
 	return 0;
 }
 

@@ -234,6 +234,13 @@ static inline int make_abort(lua_State *L, ...)
 			       luaEntityAt(L, 3), lua_tostring(L, 4)));	\
 	}
 
+#define BIND_EEIS(f, ...)						\
+	static inline int lua##f(lua_State *L)				\
+	{								\
+		BIND_AUTORET(f(luaEntityAt(L, 1), luaEntityAt(L, 2),	\
+			       luaNumberAt(L, 3), lua_tostring(L, 4)));	\
+	}
+
 #define BIND_ESE(f, ...)						\
 	static inline int lua##f(lua_State *L)				\
 	{								\
@@ -306,11 +313,11 @@ static inline int make_abort(lua_State *L, ...)
 			       luaNumberAt(L, 3)));			\
 	}
 
-#define BIND_EEIS(f, ...)						\
+#define BIND_EIES(f, ...)						\
 	static inline int lua##f(lua_State *L)				\
 	{								\
-		BIND_AUTORET(f(luaEntityAt(L, 1), luaEntityAt(L, 2),	\
-			       luaNumberAt(L, 3), lua_tostring(L, 4)));	\
+		BIND_AUTORET(f(luaEntityAt(L, 1), luaNumberAt(L, 2),	\
+			       luaEntityAt(L, 3), lua_tostring(L, 4)));	\
 	}
 
 
@@ -574,7 +581,6 @@ int	luaYwMapIntFromPos(lua_State *L);
 int	luaYwMapMove(lua_State *L);
 int	luaYwMapSmootMove(lua_State *L);
 int	luaYwMapRemove(lua_State *L);
-int	luaYwMapPushNbr(lua_State *L);
 int	luaYwMapGetCase(lua_State *L);
 int	luaYwMapW(lua_State *L);
 int	luaYwMapH(lua_State *L);
@@ -940,7 +946,6 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapMove", luaYwMapMove));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapSmootMove", luaYwMapSmootMove));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapRemove", luaYwMapRemove));
-  YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapPushNbr", luaYwMapPushNbr));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapW", luaYwMapW));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapH", luaYwMapH));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywMapSetSmootMovement",

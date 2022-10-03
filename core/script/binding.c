@@ -26,6 +26,8 @@
 #define BIND_EIIE	BIND
 #define BIND_EIIS	BIND
 #define BIND_EEEE	BIND
+#define BIND_EEIS	BIND
+#define BIND_EIES	BIND
 #define BIND_EEES	BIND
 #define BIND_EEEEI	BIND
 #define BIND_EEESI	BIND
@@ -65,6 +67,8 @@ BIND_EEE(ywCanvasNewIntersectArray, 3, 0);
 
 BIND_IES(ygLoadScript2, 3, 0);
 BIND_IES(ygEntToFile2, 3, 0);
+
+BIND_EIES(ywMapPushNbr, 3, 1);
 
 BIND_EEES(ywRectCreatePosSize, 2, 2);
 
@@ -391,6 +395,8 @@ PUSH_I_GLOBAL(YPH7);
 #undef BIND_EIIE
 #undef BIND_EEEE
 #undef BIND_EEES
+#undef BIND_EEIS
+#undef BIND_EIES
 #undef BIND_SEES
 #undef BIND_EES
 #undef BIND_ESE
