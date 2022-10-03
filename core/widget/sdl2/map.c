@@ -56,14 +56,15 @@ static void sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
 {
   Entity *map = yeGet(entity, "map");
   Entity *cam = yeGet(entity, "cam");
+  Entity *cam_threshold = yeGet(entity, "cam-threshold");
   int wMap = ywMapW(entity);
   int hMap = ywMapH(entity);
   int wCam = ywRectW(cam);
   int hCam = ywRectH(cam);
   unsigned int sizeSpriteW;
   unsigned int sizeSpriteH;
-  int32_t begX = ywRectX(cam);
-  int32_t begY = ywRectY(cam);
+  int32_t begX = ywRectX(cam) + ywPosX(cam_threshold);
+  int32_t begY = ywRectY(cam) + ywPosY(cam_threshold);
   uint32_t thresholdX;
 
   ywMapGetSpriteSize(entity, &sizeSpriteW, &sizeSpriteH, &thresholdX);
@@ -131,10 +132,12 @@ static void sdl2MidRender(YWidgetState *state, SDLWid *wid, Entity *ent,
   int wMap = ywMapW(ent);
   int hMap = ywMapH(ent);
   Entity *cam = yeGet(ent, "cam");
+  // THIS IS MOST LIKELY BUGGY FOR MID RENDER
+  Entity *cam_threshold = yeGet(ent, "cam-threshold");
   int wCam = ywRectW(cam);
   int hCam = ywRectH(cam);
-  int32_t begX = ywRectX(cam);
-  int32_t begY = ywRectY(cam);
+  int32_t begX = ywRectX(cam) + ywPosX(cam_threshold);
+  int32_t begY = ywRectY(cam) + ywPosY(cam_threshold);
   int32_t endX = begX + wCam;
   int32_t endY = begY + hCam;
   YBgConf cfg;
