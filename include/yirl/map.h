@@ -49,7 +49,8 @@ typedef struct {
 
 typedef enum {
   YMAP_DRAW_NO_DOUBLE = 1 << 0,
-  YMAP_DRAW_COPY_ELEM = 1 << 1
+  YMAP_DRAW_COPY_ELEM = 1 << 1,
+  YMAP_DRAW_REPLACE_FIRST = 1 << 2
 } YMapDrawFlag;
 
 /**
@@ -146,6 +147,9 @@ int ywMapIntFromPos(Entity *wid, Entity *pos);
 
 Entity *ywMapPushElem(Entity *state, Entity *toPush,
 		      Entity *pos, const char *name);
+
+Entity *ywMapPushElemAt(Entity *state, Entity *toPush,
+			Entity *pos, const char *name, int at);
 
 Entity *ywMapPushNbr(Entity *state, int toPush,
 		     Entity *pos, const char *name);

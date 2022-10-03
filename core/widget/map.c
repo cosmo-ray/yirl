@@ -256,11 +256,18 @@ int ywMapDrawSegment(Entity *map, Entity *start, Entity *end, Entity *elem,
 {
 	while (!ywPosIsSame(start, end, 0)) {
 		if (!(flag & YMAP_DRAW_NO_DOUBLE) ||
-		    !ywMapGetEntityById(map, start, ywMapGetIdByElem(elem)))
-			ywMapPushElem(map, elem, start, NULL);
+		    !ywMapGetEntityById(map, start, ywMapGetIdByElem(elem))) {
+			if (flag & YMAP_DRAW_REPLACE_FIRST)
+				ywMapPushElemAt(map, elem, start, NULL, 0);
+			else
+				ywMapPushElem(map, elem, start, NULL);
+		}
 		ywPosMoveToward(start, end);
 	}
-	ywMapPushElem(map, elem, start, NULL);
+	if (flag & YMAP_DRAW_REPLACE_FIRST)
+		ywMapPushElemAt(map, elem, start, NULL, 0);
+	else
+		ywMapPushElem(map, elem, start, NULL);
 	return 0;
 }
 
@@ -332,6 +339,17 @@ int ywMapIntFromPos(Entity *wid, Entity *pos)
 	return x + y * w;
 }
 
+Entity *ywMapPushElemAt(Entity *state, Entity *toPush,
+			Entity *pos, const char *name, int at)
+{
+	if (unlikely(!pos)) {
+		pos = yeGet(toPush, "pos");
+	}
+
+	if (yeAttach(ywMapGetCase(state, pos), toPush, at, name, 0) < 0)
+		return NULL;
+	return toPush;
+}
 
 Entity *ywMapPushElem(Entity *state, Entity *toPush,
 		      Entity *pos, const char *name)
