@@ -292,11 +292,6 @@ static inline void ywMapSetCamPos(Entity *state, Entity *pos)
 		ywPosSetX(cam, 0);
 	}
 	if (unlikely(ywRectY(cam) + ywRectH(cam) + ty > ywMapH(state))) {
-		printf("gnu ! t:%d +:%d -:%d mh:%d \n",
-		       ywRectY(cam) + ywRectH(cam),
-		       ywRectY(cam) + ywRectH(cam) + ty,
-		       ywRectY(cam) + ywRectH(cam) - ty,
-		       ywMapH(state));
 		ywPosSetY(cam, ywMapH(state) - ywRectH(cam) - ty);
 	} else if (unlikely(ywRectY(cam) < 0)) {
 		ywPosSetY(cam, 0);
