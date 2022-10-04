@@ -164,6 +164,8 @@ BIND_EI(ywCntGetEntry, 2, 0);
 
 BIND_EI(yeGetKeyAt, 2, 0);
 
+BIND_EI(ywMapCamPointedContainId, 2, 0);
+
 BIND_SS(ygReCreateString, 2, 0);
 
 BIND_E(ywMapCamPointedCase, 1, 0);

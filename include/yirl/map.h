@@ -140,6 +140,16 @@ static inline Entity *ywMapCamPointedCase(Entity *map)
 	return ywMapCaseXY(map, begX, begY);
 }
 
+static inline _Bool ywMapCamPointedContainId(Entity *map, int id) {
+	Entity *tmp = ywMapCamPointedCase(map);
+
+	YE_FOREACH(tmp, caseTmp) {
+		if (ywMapGetIdByElem(caseTmp) == id)
+			return 1;
+	}
+	return 0;
+}
+
 #define ywMapContainEnt(m,x,y,e) yeDoesInclude(ywMapCaseXY(m, x, y), e)
 #define ywMapContainStr(m,x,y,s) yeArrayContainEntity(ywMapCaseXY(m, x, y), s)
 
