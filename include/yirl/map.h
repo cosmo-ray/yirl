@@ -281,15 +281,23 @@ static inline Entity *ywMapCam(Entity *state)
 static inline void ywMapSetCamPos(Entity *state, Entity *pos)
 {
 	Entity *cam = ywMapCam(state);
+	Entity *cam_threshold = yeGet(state, "cam-threshold");
+	int tx = ywPosX(cam_threshold);
+	int ty = ywPosY(cam_threshold);
 
 	ywRectSetPos(cam, pos);
-	if (unlikely(ywRectX(cam) + ywRectW(cam) > ywMapW(state))) {
-		ywPosSetX(cam, ywMapW(state) - ywRectW(cam));
+	if (unlikely(ywRectX(cam) + ywRectW(cam) + tx > ywMapW(state))) {
+		ywPosSetX(cam, ywMapW(state) - ywRectW(cam) - tx);
 	} else if (unlikely(ywRectX(cam) < 0)) {
 		ywPosSetX(cam, 0);
 	}
-	if (unlikely(ywRectY(cam) + ywRectH(cam) > ywMapH(state))) {
-		ywPosSetY(cam, ywMapH(state) - ywRectH(cam));
+	if (unlikely(ywRectY(cam) + ywRectH(cam) + ty > ywMapH(state))) {
+		printf("gnu ! t:%d +:%d -:%d mh:%d \n",
+		       ywRectY(cam) + ywRectH(cam),
+		       ywRectY(cam) + ywRectH(cam) + ty,
+		       ywRectY(cam) + ywRectH(cam) - ty,
+		       ywMapH(state));
+		ywPosSetY(cam, ywMapH(state) - ywRectH(cam) - ty);
 	} else if (unlikely(ywRectY(cam) < 0)) {
 		ywPosSetY(cam, 0);
 	}

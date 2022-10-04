@@ -57,27 +57,37 @@ static void sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
   Entity *map = yeGet(entity, "map");
   Entity *cam = yeGet(entity, "cam");
   Entity *cam_threshold = yeGet(entity, "cam-threshold");
+  Entity *cam_ptr = yeGet(entity, "cam-pointer");
   int wMap = ywMapW(entity);
   int hMap = ywMapH(entity);
   int wCam = ywRectW(cam);
   int hCam = ywRectH(cam);
   unsigned int sizeSpriteW;
   unsigned int sizeSpriteH;
+  int cptr_x = 0, cptr_y = 0;
   int32_t begX = ywRectX(cam) + ywPosX(cam_threshold);
   int32_t begY = ywRectY(cam) + ywPosY(cam_threshold);
   uint32_t thresholdX;
 
   ywMapGetSpriteSize(entity, &sizeSpriteW, &sizeSpriteH, &thresholdX);
 
-  if (begX < 0)
-    begX = 0;
-  else if (begX > (wMap - wCam))
-    begX = wMap - wCam;
+  if (begX < 0) {
+	  cptr_x = begX;
+	  begX = 0;
+  } else if (begX > (wMap - wCam)) {
+	  cptr_x = begX - (wMap - wCam);
+	  begX = wMap - wCam;
+  }
 
-  if (begY < 0)
-    begY = 0;
-  else if (begY > hMap - hCam)
-    begY = hMap - hCam;
+  if (begY < 0) {
+	  cptr_y = begY;
+	  printf("cptry: %d\n", cptr_y);
+	  begY = 0;
+  } else if (begY > hMap - hCam) {
+	  cptr_y = begY - (hMap - hCam);
+	  printf("cptry: %d\n", cptr_y);
+	  begY = hMap - hCam;
+  }
 
   for(int i = 0, curx = 0, cury = 0; i < wCam * hCam; ++i) {
     Entity *mapCase = yeGet(map, begX + curx + ((cury + begY) * wMap));
@@ -92,6 +102,12 @@ static void sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
       ++cury;
     }
   }
+  if (cam_ptr)
+	  sdlDisplaySprites(state, wid,
+			    -ywPosX(cam_threshold) + cptr_x,
+			    -ywPosY(cam_threshold) + cptr_y,
+			    cam_ptr, sizeSpriteW, sizeSpriteH,
+			    thresholdX, 0, NULL);
 }
 
 /* rend all the map, regardeless if the map is bigger than the screen */
