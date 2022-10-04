@@ -166,6 +166,8 @@ BIND_EI(yeGetKeyAt, 2, 0);
 
 BIND_SS(ygReCreateString, 2, 0);
 
+BIND_E(ywMapCamPointedCase, 1, 0);
+
 BIND_E(ywMapCam, 1, 0);
 
 BIND_E(ywMenuGetCurrentByEntity, 1, 0);

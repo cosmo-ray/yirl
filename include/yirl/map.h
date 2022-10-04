@@ -127,6 +127,19 @@ static inline Entity *ywMapCase(Entity *map, Entity *pos)
  */
 Entity *ywMapCaseXY(Entity *map, int x, int y);
 
+/**
+ * return the case under the cam pointer.
+ * useful only if you have a "cam_pointer"
+ */
+static inline Entity *ywMapCamPointedCase(Entity *map)
+{
+	Entity *cam = yeGet(map, "cam");
+	int32_t begX = ywRectX(cam);
+	int32_t begY = ywRectY(cam);
+
+	return ywMapCaseXY(map, begX, begY);
+}
+
 #define ywMapContainEnt(m,x,y,e) yeDoesInclude(ywMapCaseXY(m, x, y), e)
 #define ywMapContainStr(m,x,y,s) yeArrayContainEntity(ywMapCaseXY(m, x, y), s)
 
