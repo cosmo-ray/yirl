@@ -81,11 +81,9 @@ static void sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
 
   if (begY < 0) {
 	  cptr_y = begY;
-	  printf("cptry: %d\n", cptr_y);
 	  begY = 0;
   } else if (begY > hMap - hCam) {
 	  cptr_y = begY - (hMap - hCam);
-	  printf("cptry: %d\n", cptr_y);
 	  begY = hMap - hCam;
   }
 
