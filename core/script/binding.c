@@ -142,6 +142,8 @@ BIND_ES(yeGetByStr, 2, 0);
 BIND_SI(ygIncreaseInt, 2, 0);
 BIND_SI(ygSetInt, 2, 0);
 
+BIND_EI(ywMapIdAt, 2, 0);
+
 BIND_EI(ywMapCamAddX, 2, 0);
 BIND_EI(ywMapCamAddY, 2, 0);
 

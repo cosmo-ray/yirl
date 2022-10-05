@@ -463,6 +463,11 @@ int ywMapGetIdByElem(Entity *mapElem)
 	return -1;
 }
 
+int ywMapIdAt(Entity *caseElems, int idx)
+{
+	return ywMapGetIdByElem(yeGet(caseElems, idx));
+}
+
 Entity *ywMapGetResourcesFromEntity(Entity *map)
 {
 	Entity *resources = yeGet(map, "resources");

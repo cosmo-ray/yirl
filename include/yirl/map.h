@@ -113,6 +113,12 @@ static inline int ywMapIsInside(Entity *map, Entity *pos)
 int ywMapGetIdByElem(Entity *mapElem);
 
 /**
+ * get the int id, from a case, as a case can contain multiple elems,
+ * idx is use to get the elem position
+ */
+int ywMapIdAt(Entity *caseElems, int idx);
+
+/**
  * @return the elements array of @map at @pos
  */
 Entity *ywMapGetCase(Entity *map, Entity *pos);
