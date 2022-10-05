@@ -230,6 +230,17 @@ static inline int ywMapPopXY(Entity *map, int x, int y)
 	return 0;
 }
 
+static inline int ywMapPop(Entity *map, Entity *pos)
+{
+	Entity *cur = ywMapCase(map, pos);
+
+	if (unlikely(!cur))
+		return -1;
+
+	yePopBack(cur);
+	return 0;
+}
+
 static inline int ywMapRemoveByEntity(Entity *state, Entity *pos,
 				      Entity *elem);
 
