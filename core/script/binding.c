@@ -68,6 +68,8 @@ BIND_EEE(ywCanvasNewIntersectArray, 3, 0);
 BIND_IES(ygLoadScript2, 3, 0);
 BIND_IES(ygEntToFile2, 3, 0);
 
+BIND_EEIS(yeInsertAt, 3, 0);
+
 BIND_EIES(ywMapPushNbr, 3, 1);
 
 BIND_EEES(ywRectCreatePosSize, 2, 2);

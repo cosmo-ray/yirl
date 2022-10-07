@@ -488,7 +488,6 @@ BIND_S(yuiFileExist);
 int	luayeGet(lua_State *L);
 BIND_ES(yeCreateArray);
 BIND_EEI(yePushAt);
-BIND_EEIS(yeInsertAt);
 BIND_FAKE(yeRemoveChild);
 BIND_E(yeDestroy);
 BIND_FAKE(yeSetAt);
