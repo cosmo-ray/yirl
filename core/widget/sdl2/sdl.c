@@ -823,11 +823,15 @@ void sdlFreeSurface(void *surface)
 static GPU_Image *sdlLoasAndCachTexture(Entity *elem)
 {
 	const char *path = NULL;
-	GPU_Image *texture = yeGetData(yeGet(elem, "$sdl-img"));
-	Entity *data;
+	Entity *data = yeGet(elem, "$sdl-img");
+	GPU_Image *texture = yeGetData(data);
 
 	if (texture)
 		return texture;
+	if (unlikely(data)) {
+		yeRemoveChild(elem, data);
+		data = NULL;
+	}
 	SDL_Surface *image;
 
 	if (yeGet(elem, "map-tild") != NULL) {
@@ -849,6 +853,48 @@ static GPU_Image *sdlLoasAndCachTexture(Entity *elem)
 		free(mod_path);
 		yeCreateInt(Y_SDL_SPRITE, elem, "$sdl-type");
 		path = yeGetString(yeGet(elem, "map-sprite"));
+	} else if (yeGet(elem, "map-pixels") != NULL) {
+		/* need to be made into a subfunction usable by canvas */
+		yePrint(elem);
+		const char *map_pixiels = yeGetStringAt(elem, "map-pixels");
+		Entity *info = yeGet(elem, "map-pixels-info");
+		Entity *pix_per_char = yeGet(info, "pix_per_char");
+		Entity *size = yeGet(info, "size");
+		Entity *pix_mapping = yeGet(info, "mapping");
+		int char_map[127] = {0}; // ascii table
+
+		yeReCreateInt(Y_SDL_TILD, elem, "$sdl-type");
+		image = SDL_CreateRGBSurface(
+			0, ywSizeW(pix_per_char) * ywSizeW(size),
+			ywSizeH(pix_per_char) * ywSizeH(size), 32,
+			0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
+		uint32_t *pixels = image->pixels;
+
+		for (size_t i = 0; i < yeLen(pix_mapping); ++i) {
+			int k = *yeGetKeyAt(pix_mapping, i);
+
+			char_map[k] = yeGetIntAt(pix_mapping, i);
+		}
+
+		for (int iy = 0, dy = 0; iy < ywSizeH(size);
+		     iy += 1, dy += ywSizeH(pix_per_char)) {
+			for (int ix = 0, dx = 0; ix < ywSizeW(size);
+			     ix += 1, dx += ywSizeW(pix_per_char)) {
+				int pix_pos = dx + dy *
+					ywSizeW(pix_per_char) *
+					ywSizeW(size);
+				int pix = map_pixiels[ix + iy * ywSizeW(size)];
+				for (int  i = 0; i < ywSizeH(pix_per_char); ++i) {
+					for (int  i = 0; i < ywSizeW(pix_per_char); ++i)
+						pixels[pix_pos++] = char_map[pix];
+					pix_pos += ywSizeW(pix_per_char) *
+						ywSizeW(size) - ywSizeW(pix_per_char);
+
+				}
+			}
+		}
+
+		goto finish;
 	} else if ((path = yeGetString(yeGet(elem, "map-color"))) != NULL) {
 		SDL_Color *col = y_new(SDL_Color, 1);
 
@@ -875,6 +921,8 @@ static GPU_Image *sdlLoasAndCachTexture(Entity *elem)
 			return NULL;
 		}
 	}
+
+finish:
 
 	texture = GPU_CopyImageFromSurface(image);
 	data = yeCreateData(texture, elem, "$sdl-img");
