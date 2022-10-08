@@ -58,6 +58,7 @@ static void sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
   Entity *cam = yeGet(entity, "cam");
   Entity *cam_threshold = yeGet(entity, "cam-threshold");
   Entity *cam_ptr = yeGet(entity, "cam-pointer");
+  Entity *cam_getter = yeGet(entity, "cam-getter");
   int wMap = ywMapW(entity);
   int hMap = ywMapH(entity);
   int wCam = ywRectW(cam);
@@ -68,7 +69,10 @@ static void sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
   int32_t begX = ywRectX(cam) + ywPosX(cam_threshold);
   int32_t begY = ywRectY(cam) + ywPosY(cam_threshold);
   uint32_t thresholdX;
+  Entity *elem_get = NULL;
 
+  if (cam_getter)
+	  elem_get = yeReCreateArray(entity, "elem-get", NULL);
   ywMapGetSpriteSize(entity, &sizeSpriteW, &sizeSpriteH, &thresholdX);
 
   if (begX < 0) {
@@ -91,8 +95,12 @@ static void sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
     Entity *mapCase = yeGet(map, begX + curx + ((cury + begY) * wMap));
 
     YE_ARRAY_FOREACH(mapCase, mapElem) {
-      sdlDisplaySprites(state, wid, curx, cury, mapElem,
-			sizeSpriteW, sizeSpriteH, thresholdX, 0, NULL);
+	    if (cam_getter &&
+		yeGetInt(cam_getter) == ywMapGetIdByElem(mapElem)) {
+		    yePushBack(elem_get, mapElem, NULL);
+	    }
+	    sdlDisplaySprites(state, wid, curx, cury, mapElem,
+			      sizeSpriteW, sizeSpriteH, thresholdX, 0, NULL);
     }
     ++curx;
     if (curx >= wCam) {
