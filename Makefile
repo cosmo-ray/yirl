@@ -141,7 +141,7 @@ lua-git/liblua.a: ./lua-git/
 	cd lua-git && $(EMMAKE) make
 
 sdl-gpu-build:
-	$(EMCMAKE) cmake -B ./sdl-gpu-build ./sdl-gpu/ $(CMAKE_ARGS)
+	bash -c "$(EMCMAKE) cmake -B ./sdl-gpu-build ./sdl-gpu/ $(CMAKE_ARGS)"
 
 $(SDL_GPU_LDFLAGS): sdl-gpu-build
 	$(EMMAKE) make -C sdl-gpu-build 
