@@ -246,6 +246,7 @@ void	tccAddSyms(TCCState *l)
   ADD_SYM(ywidInTree);
   ADD_SYM(ywCanvasCacheBicolorImg);
   ADD_SYM(y_get_time);
+  ADD_SYM(yeType);
 
 #if defined(__unix__) || defined(__APPLE__)
   tcc_add_symbol(l, "yuiDebugPrint", yuiDebugPrint);
