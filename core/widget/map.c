@@ -195,6 +195,7 @@ static int mapInitCheckResources(Entity *resources)
 			    !(yeGet(firstELem, "map-char") ||
 			      yeGet(firstELem, "map-tild") ||
 			      yeGet(firstELem, "map-color") ||
+			      yeGet(firstELem, "map-pixels") ||
 			      yeGet(firstELem, "map-sprite")))) {
 		DPRINT_ERR("resource bad format");
 		return -1;
@@ -229,6 +230,17 @@ static int mapInit(YWidgetState *opac, Entity *entity, void *args)
 
 	yeCreateArray(entity, "$mv_tbl");
 	(void)args;
+	return 0;
+}
+
+int ywMapReset(Entity *entity, int id)
+{
+	uint32_t len = ywMapW(entity) * ywMapH(entity);
+	Entity *map = yeReCreateArray(entity, "map", NULL);
+
+	for (uint32_t i = 0; i < len; ++i) {
+		yeCreateInt(id, yeCreateArray(map, NULL), NULL);
+	}
 	return 0;
 }
 

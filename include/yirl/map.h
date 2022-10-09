@@ -367,6 +367,8 @@ int ywMapDrawRect(Entity *map, Entity *rect, int id);
 int ywMapDrawSegment(Entity *map, Entity *start, Entity *end, Entity *elem,
 		     uint32_t flag);
 
+int ywMapReset(Entity *map, int id);
+
 /**
  * @brief add @x and @y to @pos then move @elem at @pos
  * @pos initial position, modified durring operation

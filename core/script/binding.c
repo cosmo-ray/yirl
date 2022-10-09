@@ -109,8 +109,8 @@ BIND_I(ySoundStop, 1, 0);
 BIND_I(ySoundDuration, 1, 0);
 BIND_I(yuiUsleep, 1, 0);
 
+BIND_EE(ywMapSetCamPos, 2, 0);
 BIND_EE(ywMapCase, 2, 0);
-
 BIND_EE(ywMapPop, 2, 0);
 
 BIND_EE(yecpy, 2, 0);
@@ -177,7 +177,6 @@ BIND_EI(ywMapCamPointedContainId, 2, 0);
 BIND_SS(ygReCreateString, 2, 0);
 
 BIND_E(ywMapCamPointedCase, 1, 0);
-
 BIND_E(ywMapCam, 1, 0);
 
 BIND_E(ywMenuGetCurrentByEntity, 1, 0);
@@ -288,6 +287,8 @@ BIND_II(yuiMax, 2, 0);
 BIND_II(yuiPercentOf, 2, 0);
 
 BIND_III(yuiMinMax, 3, 0);
+
+BIND_EI(ywMapReset, 1, 1);
 
 BIND_EI(yeSetInt, 2, 0);
 

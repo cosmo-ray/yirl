@@ -522,7 +522,7 @@ Entity *ywCanvasNewTextExt(Entity *wid, int x, int y, Entity *string,
 int ywCanvasCacheBicolorImg(Entity *obj, const uint8_t *map, Entity *info)
 {
 	sdlCanvasCacheBicolorImg(obj, map, info);
-	return 0;	
+	return 0;
 }
 
 Entity *ywCanvasNewBicolorImg(Entity *c, int x, int y, uint8_t *img,
