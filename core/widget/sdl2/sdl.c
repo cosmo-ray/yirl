@@ -116,7 +116,6 @@ int sgGetFontSize(void)
 static int	sdlDraw(void)
 {
 	GPU_Flip(sg.pWindow);
-	GPU_Clear(sg.pWindow);
 	return 0;
 }
 
@@ -508,7 +507,7 @@ int    ysdl2Init(void)
 	  "/" DEFAULTPOLICE);
 
   /* Initialisation simple */
-  if ((sg.pWindow = GPU_InitRenderer(GPU_RENDERER_OPENGL_1_BASE,
+  if ((sg.pWindow = GPU_InitRenderer(GPU_RENDERER_OPENGL_1,
 				     ywidWindowWidth, ywidWindowHight,
 				     GPU_DEFAULT_INIT_FLAGS)) == NULL) {
 	  DPRINT_ERR("SDL GPU initialisation failed: (%s)\n", SDL_GetError());
