@@ -109,6 +109,8 @@ BIND_I(ySoundStop, 1, 0);
 BIND_I(ySoundDuration, 1, 0);
 BIND_I(yuiUsleep, 1, 0);
 
+BIND_EE(ywMapCase, 2, 0);
+
 BIND_EE(ywMapPop, 2, 0);
 
 BIND_EE(yecpy, 2, 0);
@@ -304,6 +306,8 @@ BIND_EII(ywPosSetInts, 3, 0);
 BIND_EII(ywPosAddXY, 3, 0);
 
 BIND_EII(ywCanvasForceSizeXY, 3, 0);
+
+BIND_EEI(ywPosIsSameEnt, 2, 1);
 
 BIND_EEI(ywMenuCallActionOnByEntity, 3, 0);
 
