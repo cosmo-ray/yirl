@@ -115,7 +115,6 @@ int sgGetFontSize(void)
 
 static int	sdlDraw(void)
 {
-	printf("sdlDraw on %p\n", sg.pWindow);
 	GPU_Flip(sg.pWindow);
 	return 0;
 }
