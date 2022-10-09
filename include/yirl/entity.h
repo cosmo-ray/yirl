@@ -1073,6 +1073,10 @@ char *yeToCStr(Entity *entity, int deep, int flag);
 
 static inline void yePrint(Entity *e)
 {
+	if (!e) {
+		puts("(nil)");
+		return;
+	}
 	char *r = yeToCStr(e, 3, YE_FORMAT_PRETTY);
 
 	printf("%s\n", r);
