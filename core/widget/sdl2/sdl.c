@@ -508,8 +508,9 @@ int    ysdl2Init(void)
 	  "/" DEFAULTPOLICE);
 
   /* Initialisation simple */
-  if ((sg.pWindow = GPU_Init(ywidWindowWidth, ywidWindowHight,
-			     GPU_DEFAULT_INIT_FLAGS)) == NULL) {
+  if ((sg.pWindow = GPU_InitRenderer(GPU_RENDERER_OPENGL_1_BASE,
+				     ywidWindowWidth, ywidWindowHight,
+				     GPU_DEFAULT_INIT_FLAGS)) == NULL) {
 	  DPRINT_ERR("SDL GPU initialisation failed: (%s)\n", SDL_GetError());
 	  return -1;
   }

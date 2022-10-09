@@ -180,11 +180,11 @@ yirl-loader: $(YIRL_LINKING) $(GEN_LOADER_OBJ)
 
 PRELOAD_EMCC_FILES = --preload-file ./ \
 	--preload-file ./sazanami-mincho.ttf \
-	--preload-file ./polis-at-war/ \
+	--preload-file ./nyanarchiste/ \
 	--preload-file ./modules/
 
 
-WEB_ARG=arguments: ["-d", "/polis-at-war/", "-P", "/"],
+WEB_ARG=arguments: ["-d", "/nyanarchiste/", "-P", "/"],
 #	arguments: ['-d', './games/asteroide-shooter/', '-P', "/home/uso/yirl/"],
 
 webstart.html: $(YIRL_LINKING) $(GEN_LOADER_OBJ) $(LIBNAME).a
