@@ -66,15 +66,23 @@ TTF_Font *sgDefaultFont(void)
 
 int ysdl2WindowMode(void)
 {
+#ifdef USING_EMCC
+	return 0;
+#else
 	/* SDL_SetWindowGrab(sg.pWindow, 0); */
 	return GPU_SetFullscreen(0, 1);
+#endif
 }
 
 int ysdl2FullScreen(void)
 {
+#ifdef USING_EMCC
+	return 0;
+#else
 	int r;
 	r = GPU_SetFullscreen(1, 1);
 	return r;
+#endif
 }
 
 int sgSetDefaultFont(const char *path)
@@ -470,6 +478,10 @@ static void changeWindName(const char *name)
 
 static int sdlChangeResolution(void)
 {
+#ifdef USING_EMCC
+	return 0;
+#else
+
 	if (ywidWindowWidth < 0 || ywidWindowHight < 0) {
 		DPRINT_ERR("%d x %d is not a valide resolution",
 			   ywidWindowWidth, ywidWindowHight);
@@ -488,8 +500,10 @@ static int sdlChangeResolution(void)
 	ywNeedTextureReload = 1;
 	/* SDL_RenderClear(sg.pWindow); */
 	return 0;
+#endif
 }
 
+//DejaVuSansMono.ttf
 #define DEFAULTPOLICE "sazanami-mincho.ttf"
 
 int    ysdl2Init(void)
@@ -507,12 +521,21 @@ int    ysdl2Init(void)
 	  "/" DEFAULTPOLICE);
 
   /* Initialisation simple */
+#ifdef USING_EMCC
+  if ((sg.pWindow = GPU_Init(ywidWindowWidth, ywidWindowHight,
+			     GPU_DEFAULT_INIT_FLAGS)) == NULL) {
+	  DPRINT_ERR("SDL GPU initialisation failed: (%s)\n", SDL_GetError());
+	  return -1;
+  }
+
+#else
   if ((sg.pWindow = GPU_InitRenderer(GPU_RENDERER_OPENGL_1,
 				     ywidWindowWidth, ywidWindowHight,
 				     GPU_DEFAULT_INIT_FLAGS)) == NULL) {
 	  DPRINT_ERR("SDL GPU initialisation failed: (%s)\n", SDL_GetError());
 	  return -1;
   }
+#endif
 
   for (int i = 0; i < SDL_NumJoysticks() && i < 128; ++i) {
 	  if (SDL_IsGameController(i)) {
@@ -550,8 +573,6 @@ int    ysdl2Init(void)
 #undef SDL_INIT_FLAGS
 
 
-#ifdef USING_EMCC
-#else
   sprintf(ttf_path2, "%s" DEFAULTPOLICE, getcwd(path_buf, PATH_MAX));
   path_buf[PATH_MAX -1] = 0;
   if (sgSetDefaultFont(ttf_path) < 0 &&
@@ -563,7 +584,6 @@ int    ysdl2Init(void)
     DPRINT_ERR("Cannot load fonts\n");
     goto fail;
   }
-#endif
 
 // fill the window with a black rectangle
   // SDL_Rect   rect = sg.getRect();
@@ -855,7 +875,6 @@ static GPU_Image *sdlLoasAndCachTexture(Entity *elem)
 		path = yeGetString(yeGet(elem, "map-sprite"));
 	} else if (yeGet(elem, "map-pixels") != NULL) {
 		/* need to be made into a subfunction usable by canvas */
-		yePrint(elem);
 		const char *map_pixiels = yeGetStringAt(elem, "map-pixels");
 		Entity *info = yeGet(elem, "map-pixels-info");
 		Entity *pix_per_char = yeGet(info, "pix_per_char");

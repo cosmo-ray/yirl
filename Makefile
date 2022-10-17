@@ -133,7 +133,7 @@ json-c-build/libjson-c.a: json-c-build/
 lua-git/:
 	git clone $(LUA_GIT) lua-git
 
-lua-git/liblua.a: ./lua-git/
+lua-git/liblua.a:
 	cd lua-git && pwd && git fetch origin
 	cd lua-git && pwd && git checkout -f v5.4.0
 	cd lua-git && cat makefile | sed 's/CC= gcc/#CC variable remove/' | sed 's/-DLUA_USE_READLINE//' | sed 's/-lreadline//' | sed 's/-O2/-O2 -fPIC/g'  > makefile_tmp
@@ -153,7 +153,7 @@ $(QUICKJS_LIB_PATH): $(QUICKJS_PATH)
 	CONFIG_FPIC=1 $(EMMAKE) make -C $(QUICKJS_PATH) libquickjs.a
 
 ph7/ph7.o:
-	$(CC) -c -o ph7/ph7.o ph7/ph7.c -I./ph7/ -O0 -g -fPIC -DPH7_ENABLE_MATH_FUNC=1
+	$(CC) -c -o ph7/ph7.o ph7/ph7.c -I./ph7/ -O2 -g -fPIC -DPH7_ENABLE_MATH_FUNC=1
 
 $(SCRIPT_DIR)/s7.o:
 	$(CC) -c -o $(SCRIPT_DIR)/s7.o $(SCRIPT_DIR)/s7.c -Wno-implicit-fallthrough -fPIC -O2 -g
@@ -178,17 +178,16 @@ $(LIBNAME).$(LIBEXTENSION): $(OBJ) $(O_OBJ) $(OBJXX) SDL_mixer/build/.libs/libSD
 yirl-loader: $(YIRL_LINKING) $(GEN_LOADER_OBJ)
 	$(CC) -o yirl-loader$(BIN_EXT) $(GEN_LOADER_OBJ) $(BINARY_LINKING) $(LDFLAGS) 
 
-PRELOAD_EMCC_FILES = --preload-file ./ \
+PRELOAD_EMCC_FILES = \
 	--preload-file ./sazanami-mincho.ttf \
-	--preload-file ./nyanarchiste/ \
-	--preload-file ./modules/
+	--preload-file ./nyanarchiste/
 
 
 WEB_ARG=arguments: ["-d", "/nyanarchiste/", "-P", "/"],
 #	arguments: ['-d', './games/asteroide-shooter/', '-P', "/home/uso/yirl/"],
 
 webstart.html: $(YIRL_LINKING) $(GEN_LOADER_OBJ) $(LIBNAME).a
-	$(CC) -o webstart.html $(GEN_LOADER_OBJ) $(LIBNAME).a $(LDFLAGS) $(PRELOAD_EMCC_FILES) -sALLOW_MEMORY_GROWTH -sMAIN_MODULE=1
+	$(CC) -o webstart.html $(GEN_LOADER_OBJ) $(LIBNAME).a $(LDFLAGS) $(PRELOAD_EMCC_FILES) -sMAIN_MODULE=1 -sTOTAL_MEMORY=600MB
 
 start.html: webstart.html
 	cat webstart.html | sed 's|var Module = {|var Module = {\n\t$(WEB_ARG)|g' > start.html

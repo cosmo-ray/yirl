@@ -21,8 +21,11 @@
 #include "utils.h"
 #include "block-array.h"
 
+#ifdef USING_EMCC
+#define ALLOC_SIZE 0x3ffffff
+#else
 #define ALLOC_SIZE 0xfffffff
-
+#endif
 size_t yBlockArrayDataNextSize0;
 
 inline void yBlockArrayInitInternal(BlockArray *ba, uint32_t elemSize, int flag)

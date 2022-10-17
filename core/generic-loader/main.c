@@ -40,24 +40,6 @@ int main(int argc, char **argv)
   int height = -1;
   int linux_user_path = 0;
 
-#if 0
-  const GOptionEntry entries[10] = {
-    {"name", 'n', 0,  G_OPTION_ARG_STRING, &name, "window name", NULL},
-    {"width", 'W', 0,  G_OPTION_ARG_INT, &width, "window width", NULL},
-    {"height", 'H', 0,  G_OPTION_ARG_INT, &height, "window height", NULL},
-    {"arg", 0, 0,  G_OPTION_ARG_STRING, &yProgramArg, "program argument", NULL},
-    {"linux-user-path", 'L', 0,  G_OPTION_ARG_NONE, &linux_user_path,
-     "store user data in ~/.yirl", NULL},
-    {"binary-root-path", 'P', 0,  G_OPTION_ARG_STRING, &binaryRootPath,
-     "set path to binary directory(which contain, tcc, script-dependancies, and defaults polices)", NULL},
-    {"start-dir", 'd', 0,  G_OPTION_ARG_STRING, &start_dir,
-     "move on the given directorry,"
-     " use as starting module if --start not set", NULL},
-    {NULL, 0, 0, 0, NULL, NULL, NULL}
-  };
-  GError *error = NULL;
-#endif
-
   yuiDebugInit();
 
   for (int i = 1; i < argc; ++i) {
@@ -90,7 +72,7 @@ int main(int argc, char **argv)
 		  binaryRootPath = argv[i];
 	  } else if (!strcmp(argv[i], "--start-dir") || !strcmp(argv[i], "-d")) {
 		  if (i + 1 == argc)
-			  FAIL("start-dir reuire a path\n");
+			  FAIL("start-dir require a path\n");
 		  ++i;
 		  start_dir = argv[i];
 	  } else if (!strcmp(argv[i], "--help") || !strcmp(argv[i], "-h")) {
@@ -106,17 +88,6 @@ int main(int argc, char **argv)
 		  return 0;
 	  }
   }
-#if 0
-  ctx = g_option_context_new(NULL);
-  g_option_context_set_help_enabled(ctx, 1);
-  g_option_context_add_main_entries(ctx, entries, NULL);
-  if (!g_option_context_parse(ctx, &argc, &argv, &error)) {
-    printf("option parsing failed: %s\n", error->message);
-    g_option_context_free(ctx);
-    return 1;
-  }
-  g_option_context_free(ctx);
-#endif
 
   if (start_dir) {
     if (chdir(start_dir) < 0)

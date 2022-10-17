@@ -385,25 +385,21 @@ int ygInit(GameConfig *cfg)
 	static int t;
 	char *path;
 
-	printf("INIT YG 00 !!\n");
 	/* trick use in case of failure in this function to free all */
 	init = 1;
 
 	yuiRandInit();
 	yuiDebugInit();
-	printf("INIT YG rand and debug !!\n");
 
 	/* Init parseurs */
 	yeInitMem();
 
-	printf("INIT mem done !!\n");
 	if (!ygBinaryRootPath)
 		ygBinaryRootPath = getcwd(ygBinaryRootPathBuf, PATH_MAX);
        /* Init Game mode if GAMEMODE is set */
 #ifdef GAMEMOD
 	gamemode_request_start();
 #endif
-	printf("INIT game mode if !!\n");
 
 	globalsFunctions = yeCreateArray(NULL, NULL);
 	CHECK_AND_RET(t = ydJsonInit(), -1, -1,
@@ -412,7 +408,6 @@ int ygInit(GameConfig *cfg)
 		       "json init failed");
 	CHECK_AND_GOTO(rawfileManager = ydNewManager(ydRawFileInit()),
 		       NULL, error, "raw-file init failed");
-	printf("INIT descrition modes done !!\n");
 
   /* Init scripting */
   /* TODO init internal lua function */
@@ -449,7 +444,6 @@ int ygInit(GameConfig *cfg)
 	CHECK_AND_GOTO(qjsManager = ysNewManager(NULL, t), NULL, error,
 		       "Qjs init failed");
 
-	printf("INIT scriptes done !!\n");
 	/* Init widgets */
 	baseMod = yeCreateArray(NULL, NULL);
 	addNativeFuncToBaseMod();
@@ -458,11 +452,8 @@ int ygInit(GameConfig *cfg)
 		ywidSetWindowName(cfg->win_name);
 	ywidChangeResolution(cfg->w, cfg->h);
 
-	printf("before init SDL !!\n");
 	ysdl2Init();
-	printf("init SDL done!!\n");
 	ysound_init();
-	printf("init sound done!!\n");
 
 	CHECK_AND_GOTO(ywMenuInit(), -1, error, "Menu init failed");
 	CHECK_AND_GOTO(ywMapInit(), -1, error, "Map init failed");
@@ -490,7 +481,6 @@ int ygInit(GameConfig *cfg)
 	return 0;
 error:
 	ygEnd();
-	printf("INIT YG OUT !!\n");
 	return -1;
 }
 
@@ -1075,6 +1065,7 @@ static int ygParseStartAndGame(GameConfig *config)
 	ws = yeGet(mainMod, "window size");
 	wn = yeGet(mainMod, "window name");
 
+
 	starting_widget = yeGet(mainMod, "$starting widget");
 
 	if (ws)
@@ -1149,7 +1140,6 @@ static void checkSlakedEntity(void)
 #include <emscripten/emscripten.h>
 
 static void main_tick() {
-	printf("in main tick !!\n");
 #else
 static int main_tick() {
 #endif
@@ -1165,9 +1155,8 @@ static int main_tick() {
 	assert(ywidRend(wid) != -1);
 	checkSlakedEntity();
 	ywidDoTurn(wid);
-
 #ifndef USING_EMCC
-    return 0;
+	return 0;
 #endif
 }
 
@@ -1176,7 +1165,7 @@ int ygDoLoop(void)
 	alive = 1;
 
 #ifdef USING_EMCC
-	emscripten_set_main_loop(main_tick, -1, 1);
+	emscripten_set_main_loop(main_tick, 0, 1);
 #else
 	do {
 		if (main_tick() < 0)

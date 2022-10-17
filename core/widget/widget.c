@@ -694,28 +694,30 @@ Entity *ywidGenericWaitEvent(void)
 	if (!rendersMask)
 		return NULL;
 
-again:
-	yeDestroy(ret);
-	ret = NULL;
-	YUI_FOREACH_BITMASK(rendersMask, i, tmask) {
-		if (renderOpTab[i].pollEvent &&
-		    (ret = renderOpTab[i].pollEvent())) {
-			if (ywidEveType(ret) == YKEY_CT_AXIS_DOWN) {
-				if ((yeGetIntAt(ret, YEVE_TIMESTAMP) -
-				     ax_timestamp) < 200)
-					goto again;
-				ax_timestamp =
-					yeGetIntAt(ret, YEVE_TIMESTAMP);
-			}
+	while (1) {
+		yeDestroy(ret);
+		ret = NULL;
+		YUI_FOREACH_BITMASK(rendersMask, i, tmask) {
+			if (renderOpTab[i].pollEvent &&
+			    (ret = renderOpTab[i].pollEvent())) {
+				if (ywidEveType(ret) == YKEY_CT_AXIS_DOWN) {
+					if ((yeGetIntAt(ret, YEVE_TIMESTAMP) -
+					     ax_timestamp) < 200)
+						continue;
+					ax_timestamp =
+						yeGetIntAt(ret, YEVE_TIMESTAMP);
+				}
 
-			if ( ywidEveType(keyReBind(ret)) == YKEY_NONE) {
-				goto again;
+				if ( ywidEveType(keyReBind(ret)) == YKEY_NONE) {
+					continue;
+				}
+				return ret;
 			}
-			return ret;
 		}
+#ifndef USING_EMCC
+		usleep(50);
+#endif
 	}
-	usleep(50);
-	goto again;
 
 	return NULL;
 }
