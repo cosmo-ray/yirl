@@ -24,7 +24,7 @@ if [ $? == 0 ]; then
     LUA_RULE=lua-git/liblua.a
     WERROR="-Wno-unreachable-code-generic-assoc"
     JSON_C_LD=json-c-build/libjson-c.a
-    JSON_C_CFLAGS='-I./json-c -I./json-c-build'
+    JSON_C_CFLAGS='-I./json-c -I./json-c-build  -I./json-c-git'
     JSON_C_RULE=json-c-build/libjson-c.a
     EMPORT="-sUSE_SDL_TTF=2 -sUSE_SDL_IMAGE=2 -sUSE_WEBGL2=1"
     SDL_MIXER_BUILD_CFLAGS="-fPIC -sUSE_MPG123=1 -sUSE_OGG=1 -sUSE_VORBIS=1"
