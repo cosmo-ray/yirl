@@ -1554,6 +1554,8 @@ static void yeToCStrInternal(Entity *entity, int deep, Entity *str,
 
 char *yeToCStr(Entity *entity, int deep, int flag)
 {
+	if (!entity)
+		return NULL;
 	YE_NEW(String, str, NULL);
 	char *ret;
 
