@@ -49,6 +49,7 @@ void yuiLongExit(int status)
 int yuiTryMain(int (*main_f)(int, char **), int argc, char **argv)
 {
 	int ret;
+	int main_ret;
 
 	if (unlikely(!main_f || jmp_buf_idx > 63))
 		return 1;
@@ -58,7 +59,9 @@ int yuiTryMain(int (*main_f)(int, char **), int argc, char **argv)
 		return ret - 1;
 	}
 	++jmp_buf_idx;
-	return main_f(argc, argv);
+	main_ret = main_f(argc, argv);
+	--jmp_buf_idx;
+	return main_ret;
 }
 
 int yuiFileExist(const char *path)
