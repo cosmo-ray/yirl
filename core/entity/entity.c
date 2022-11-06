@@ -1545,9 +1545,11 @@ static void yeToCStrInternal(Entity *entity, int deep, Entity *str,
 			yeStringAddCh(str, '\n');
 		break;
 	case YDATA :
-		void *d = yeGetData(entity);
-		yeStringAppendPrintf(str, "'%p'", d);
-		break;
+		{
+			void *d = yeGetData(entity);
+			yeStringAppendPrintf(str, "'%p'", d);
+			break;
+		}
 	default :
 		break;
 	}
