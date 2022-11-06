@@ -59,8 +59,6 @@ void *capp_action(int nbArg, void **w_args)
 	}
 
 	yuiTryMain(ysTccGetSym(ygGetManager("tcc"), "main"), argc, argv);
-
-out:
 	if (yeGet(capp, "quit")) {
 		Entity *call = yeGet(capp, "quit");
 
