@@ -1506,7 +1506,7 @@ static void yeToCStrInternal(Entity *entity, int deep, Entity *str,
 		yeStringAppendPrintf(str, "'%f'", yeGetFloatDirect(entity));
 		break;
 	case YFUNCTION :
-		yeStringAppendPrintf(str, "(%s - %p/%ld)()",
+		yeStringAppendPrintf(str, "(%s - %p/%"PRIxPTR")()",
 				     yeGetFunction(entity),
 				     yeGetFunctionFastPath(entity),
 				     yeIData(entity)
