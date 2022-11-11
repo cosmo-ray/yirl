@@ -1072,7 +1072,8 @@ Entity	*yeSetString(Entity *entity, const char *val)
 		if (entity->type == YSTRING)
 			YE_TO_STRING(entity)->len = 0;
 	}
-	YE_TO_STRING(entity)->origin = NULL;
+	if (entity->type == YSTRING)
+		YE_TO_STRING(entity)->origin = NULL;
 	return entity;
 }
 
@@ -1505,7 +1506,11 @@ static void yeToCStrInternal(Entity *entity, int deep, Entity *str,
 		yeStringAppendPrintf(str, "'%f'", yeGetFloatDirect(entity));
 		break;
 	case YFUNCTION :
-		yeStringAppendPrintf(str, "(%s)", yeGetFunction(entity));
+		yeStringAppendPrintf(str, "(%s - %p/%ld)()",
+				     yeGetFunction(entity),
+				     yeGetFunctionFastPath(entity),
+				     yeIData(entity)
+			);
 		break;
 	case YARRAY :
 		yeStringAddCh(str, '[');

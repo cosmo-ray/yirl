@@ -723,7 +723,6 @@ static int ph7ygFileToEnt(ph7_context *pCtx, int argc, ph7_value **argv)
 		gc_stack[gc_stack_i - 1];
 	const char *str = ph7_value_to_string(argv[1], NULL);
 	Entity *r = ygFileToEnt(ph7_value_to_int(argv[0]), str, father);
-	printf("ph7ygFileToEnt %d %s %p\n", ph7_value_to_int(argv[0]), str, r);
 	ph7_result_resource(pCtx, r);	
 	return 0;
 }
