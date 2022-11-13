@@ -85,7 +85,10 @@ void ywCntPopLastEntry(Entity *container)
 
 Entity *ywCntGetEntry(Entity *container, int idx)
 {
-	return yeGet(yeGet(container, "entries"), idx);
+	Entity *entries = yeGet(container, "entries");
+	if (idx < 0)
+		return yeGet(entries, yeLen(entries) + idx);
+	return yeGet(entries, idx);
 }
 
 int ywRemoveEntryByEntity(Entity *container, Entity *target)

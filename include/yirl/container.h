@@ -57,6 +57,11 @@ int ywContainerUpdate(Entity *container, Entity *widEnt);
 
 Entity *ywContainerGetWidgetAt(Entity *container, int posX, int posY);
 
+/**
+ * @return entry at idx
+ *	if idx < 0, then return entry at len(entries) + idx
+ *	(so entries at the end).
+ */
 Entity *ywCntGetEntry(Entity *container, int idx);
 
 int ywRemoveEntryByEntity(Entity *container, Entity *target);
