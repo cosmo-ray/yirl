@@ -457,6 +457,7 @@ void *init(int nbArg, void **args)
 			 mod, "change-text");
 	yeCreateFunction("dialogueHide", ygGetTccManager(), mod, "hide");
 	yeCreateFunction("dialogueGoto", ygGetTccManager(), mod, "goto");
+	yeCreateFunction("dialogueGetMenu", ygGetTccManager(), mod, "get_menu");
 	yeCreateFunction("dialogueSwap", ygGetTccManager(), mod, "swap");
 	yeCreateFunction("dialogueConditionGoto", ygGetTccManager(),
 			 mod, "condition_goto");
@@ -472,6 +473,14 @@ void *init(int nbArg, void **args)
 	ygRegistreFunc(1, "dialogueGetMain", "yDialogueGetMain");
 	ygRegistreFunc(1, "dialogueGetCAnswer", "yDialogueCurAnswer");
 	return NULL;
+}
+
+void *dialogueGetMenu(int nbArgs, void **args)
+{
+	Entity *e = args[0];
+	struct mainDrv *drv = getMainDrv(e);
+
+	return drv->getMenu(e);
 }
 
 void *dialoguePostAction(int nbArgs, void **args)
