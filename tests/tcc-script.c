@@ -22,6 +22,8 @@
 #include "tcc-script.h"
 #include "game.h"
 
+static char path_buf[PATH_MAX];
+
 static void *addPtr(int nbArg, void **args)
 {
   void *arg1 = args[0];
@@ -35,6 +37,8 @@ void testTccScritLifecycle(void)
 {
   void *sm = NULL;
   yeInitMem();
+
+  ygBinaryRootPath = getcwd(path_buf, PATH_MAX);
 
   g_assert(!ysTccInit());
   g_assert(!ysTccGetType());
@@ -58,6 +62,8 @@ void testTccTestsMacros(void)
   void *sm = NULL;
   yeInitMem();
 
+  ygBinaryRootPath = getcwd(path_buf, PATH_MAX);
+
   g_assert(!ysTccInit());
   g_assert(!ysTccGetType());
   sm = ysNewManager(NULL, 0);
@@ -77,7 +83,7 @@ void testTccAddDefine(void)
   g_assert(!ygInit(&cfg));
   ygCleanGameConfig(&cfg);
 
- g_assert(!ysLoadString(ygGetTccManager(),
+  g_assert(!ysLoadString(ygGetTccManager(),
 			 "#include <yirl/game.h>"
 			 "void *test(){"
 			 "return (void *)ygAddDefine(\"TEST\", \"28\");"

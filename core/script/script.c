@@ -34,12 +34,12 @@ void ysTraceCurrentScript(void)
 
 int ysRegister(void *(*allocator)(void))
 {
-  return yuiRegister(&scriptsTab, allocator);
+	return yuiRegister(&scriptsTab, allocator);
 }
 
 int ysUnregiste(int t)
 {
-  return yuiUnregiste(&scriptsTab, t);
+	return yuiUnregiste(&scriptsTab, t);
 }
 
 YManagerAllocator *ysScriptsTab(void)

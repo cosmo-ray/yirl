@@ -526,7 +526,7 @@ void ygEnd()
 	ysPH7End();
 	/* it seems V crash :( */
 	/* ysDestroyManager(qjsManager); */
-	/* ysQjsEnd(); */
+	ysQjsEnd();
 	yeEnd();
 	free(yProgramArg);
 	yProgramArg = NULL;
