@@ -50,6 +50,7 @@ typedef struct {
 typedef struct {
 	ModuleConf *startingMod;
 	const char *win_name;
+	RenderType render_type;
 	int w;
 	int h;
 } GameConfig;

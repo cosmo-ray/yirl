@@ -82,6 +82,8 @@ char ygBinaryRootPathBuf[PATH_MAX];
 char *ygBinaryRootPath;
 char yg_user_dir[PATH_MAX];
 
+RenderType current_render_type;
+
 const char *ygGetBinaryRootPath(void)
 {
 	return ygBinaryRootPath;
@@ -448,27 +450,35 @@ int ygInit(GameConfig *cfg)
 	baseMod = yeCreateArray(NULL, NULL);
 	addNativeFuncToBaseMod();
 
-	if (cfg->win_name)
-		ywidSetWindowName(cfg->win_name);
-	ywidChangeResolution(cfg->w, cfg->h);
 
-	ysdl2Init();
-	ysound_init();
+	current_render_type = cfg->render_type;
+	if (cfg->render_type != YNONE) {
+		if (cfg->win_name)
+			ywidSetWindowName(cfg->win_name);
+		ywidChangeResolution(cfg->w, cfg->h);
 
-	CHECK_AND_GOTO(ywMenuInit(), -1, error, "Menu init failed");
-	CHECK_AND_GOTO(ywMapInit(), -1, error, "Map init failed");
-	CHECK_AND_GOTO(ywTextScreenInit(), -1, error, "Text Screen init failed");
-	CHECK_AND_GOTO(ywContainerInit(), -1, error, "Container init failed");
-	CHECK_AND_GOTO(ywCanvasInit(), -1, error, "Canvas init failed");
+		ysdl2Init();
+		ysound_init();
 
-	CHECK_AND_GOTO(ysdl2RegistreTextScreen(), -1, error,
-		       "Text Screen init failed");
-	CHECK_AND_GOTO(ysdl2RegistreMenu(), -1, error,
-		       "Menu init failed");
-	CHECK_AND_GOTO(ysdl2RegistreMap(), -1, error,
-		       "Map init failed");
-	CHECK_AND_GOTO(ysdl2RegistreCanvas(), -1, error,
-		       "Canvas SDL2 init failed");
+		CHECK_AND_GOTO(ywMenuInit(), -1, error, "Menu init failed");
+		CHECK_AND_GOTO(ywMapInit(), -1, error, "Map init failed");
+		CHECK_AND_GOTO(ywTextScreenInit(), -1, error,
+			       "Text Screen init failed");
+		CHECK_AND_GOTO(ywContainerInit(), -1, error,
+			       "Container init failed");
+		CHECK_AND_GOTO(ywCanvasInit(), -1, error, "Canvas init failed");
+
+		CHECK_AND_GOTO(ysdl2RegistreTextScreen(), -1, error,
+			       "Text Screen init failed");
+		CHECK_AND_GOTO(ysdl2RegistreMenu(), -1, error,
+			       "Menu init failed");
+		CHECK_AND_GOTO(ysdl2RegistreMap(), -1, error,
+			       "Map init failed");
+		CHECK_AND_GOTO(ysdl2RegistreCanvas(), -1, error,
+			       "Canvas SDL2 init failed");
+	}
+
+
 	modList = yeCreateArray(NULL, NULL);
 	stalked_array = yeCreateArray(NULL, NULL);
 
@@ -490,18 +500,22 @@ void ygEnd()
 		return;
 
 	free(game_tick);
-	ywidFreeWidgets();
+	if (current_render_type != YNONE) {
+		ywidFreeWidgets();
+	}
 	ydDestroyManager(jsonManager);
 	ydJsonEnd();
 	ydDestroyManager(rawfileManager);
 	ydRawFileEnd();
-	ywTextScreenEnd();
-	ywMapEnd();
-	ywMenuEnd();
-	ywCanvasEnd();
-	ywContainerEnd();
-	ysound_end();
-	ysdl2Destroy();
+	if (current_render_type != YNONE) {
+		ywTextScreenEnd();
+		ywMapEnd();
+		ywMenuEnd();
+		ywCanvasEnd();
+		ywContainerEnd();
+		ysound_end();
+		ysdl2Destroy();
+	}
 	yeDestroy(modList);
 	modList = NULL;
 	yeDestroy(baseMod);
@@ -1208,6 +1222,7 @@ int ygInitGameConfigByRenderType(GameConfig *cfg, const char *path,
 	cfg->h = ywidWindowHight;
 	cfg->startingMod = malloc(sizeof(ModuleConf));
 	cfg->startingMod->path = path;
+	cfg->render_type = t;
 	return 0;
 }
 
@@ -1218,6 +1233,7 @@ int ygInitGameConfigByStr(GameConfig *cfg, const char *path, const char *render)
 	cfg->w = ywidWindowWidth;
 	cfg->h = ywidWindowHight;
 	cfg->win_name = NULL;
+	cfg->render_type = YSDL2;
 	return 0;
 }
 
