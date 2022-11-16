@@ -282,6 +282,16 @@ static void *recreateInt(int nb, union ycall_arg *args, int *types)
 	return 0;
 }
 
+static void *trySetInt(int nb, union ycall_arg *args, int *types)
+{
+	// args[0] is the widget and args[1] are the events
+	Entity *toSet = args[2].e;
+
+	if (!ygGet(yeGetString(toSet)))
+		return recreateInt(nb, args, types);
+	return 0;
+}
+
 static void *recreateString(int nb, union ycall_arg *args, int *types)
 {
 	// args[0] is the widget and args[1] are the events
@@ -357,6 +367,7 @@ static void addNativeFuncToBaseMod(void)
 	ysRegistreCreateNativeEntity(nextOnKeyDown, "nextOnKeyDown",
 				     baseMod, NULL);
 	ysRegistreCreateNativeEntity(setInt, "setInt", baseMod, NULL);
+	ysRegistreCreateNativeEntity(trySetInt, "trySetInt", baseMod, NULL);
 	ysRegistreCreateNativeEntity(recreateString, "recreateString",
 				     baseMod, NULL);
 	ysRegistreCreateNativeEntity(recreateInt, "recreateInt", baseMod, NULL);
