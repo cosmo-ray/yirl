@@ -507,6 +507,7 @@ BIND_V(yeEntitiesUsed);
 BIND_EI(yeConvert);
 BIND_EEES(yePatchCreate);
 BIND_EE(yePatchAply);
+BIND_EK(yeLenAt);
 
 /* bool */
 int	luayeGetBoolAt(lua_State *L);
@@ -886,7 +887,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, yeConvert);
   YES_LUA_REGISTRE_CALL(sm, yePatchCreate);
   YES_LUA_REGISTRE_CALL(sm, yePatchAply);
-
+  YES_LUA_REGISTRE_CALL(sm, yeLenAt);
 
 /* bool */
   YES_LUA_REGISTRE_CALL(sm, yeGetBoolAt);
