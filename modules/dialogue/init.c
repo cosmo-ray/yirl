@@ -273,12 +273,31 @@ static Entity *getText(Entity *box, Entity *e)
 	}
 	Entity *txt = yeGet(e, "text");
 
-	if (yeType(txt) == YSTRING || yeType(txt) == YARRAY)
-		return txt;
-	if (!txt) {
-		return getText_(box, e);
+	if (yeType(txt) != YSTRING && yeType(txt) != YARRAY) {
+		txt = getText_(box, e);
 	}
-	return NULL;
+	Entity *cnd_txt_append = yeGet(e, "conditional-texts-append");
+	if (cnd_txt_append) {
+		Entity *r;
+		if (yeType(txt) == YARRAY) {
+			if (yeGet(e, "_tmp_txt"))
+				yeRemoveChildByStr(e, "_tmp_txt");
+			r = yeCreateCopy(txt, e, "_tmp_txt");
+		} else {
+			r = yeReCreateArray(e, "_tmp_txt", NULL);
+			yePushBack(r, txt, NULL);
+		}
+		YE_FOREACH(cnd_txt_append, cnd_txt) {
+			Entity *condition = yeGet(cnd_txt, 0);
+			if (!condition)
+				continue;
+			if (dialogueCondition(box, condition, NULL)) {
+				yePushBack(r, yeGet(cnd_txt, 1), NULL);
+			}
+		}
+		txt = r;
+	}
+	return txt;
 }
 
 static int printfTextAndAnswer_earlyret;
