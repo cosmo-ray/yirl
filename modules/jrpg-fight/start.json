@@ -56,8 +56,8 @@
 	"enemy" : {
 	    "sex": "female",
 	    "name": "danemark",
-	    "life": 10,
-	    "max_life": 10,
+	    "life": 1,
+	    "max_life": 1,
 	    "stats": {
 		"agility": 2
 	    },

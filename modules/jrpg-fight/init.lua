@@ -6,6 +6,15 @@ local PJ_ATTACK = 1
 local ENEMY_ATTACK = 2
 local ENEMY_WIN = 3
 local PJ_WIN = 4
+local DEAD_ANIM = 5
+
+local ANIM_DEAD_SPRITE_TIME = 100000
+local ANIM_DEAD_CNT_L = 100000 * 5
+
+local dead_anim_old_state
+local dead_anim_main
+local dead_anim_anime
+local dead_anim_deaths = nil
 
 local lpcs = Entity.wrapp(ygGet("lpcs"))
 local modPath = Entity.wrapp(ygGet("jrpg-fight.$path")):to_string()
@@ -447,14 +456,15 @@ local function attackCallback(main, eve)
 	    reset_cmb_bar(main, cur_anim, target, cur_anim.cur_cmb:to_int())
 	 else
 	    -- deal extra domages if sucess last combot
+	    -- should start extra dmg anim
 	    if cur_anim.sucess:to_int() == 0 then
 	       combatDmg(main, cur_anim)
 	    end
-	    endAnimationAttack(main, cur_anim)
+	    checkDead(main, cur_anim)
 	 end
       else
 	 txt = txt .. "FAIL"
-	 endAnimationAttack(main, cur_anim)
+	 checkDead(main, cur_anim)
       end
       startTextAnim(main, txt)
       return
@@ -500,6 +510,30 @@ function fightAction(entity, eve)
 	 entity.wrong = nil
 	 canvas:remove(entity.heart)
 	 entity.heart = nil
+      end
+      return YEVE_ACTION
+   elseif entity.atk_state:to_int() == DEAD_ANIM then
+      print("do dead anim", ywidTurnTimer())
+      if yIsNil(entity.dead_anim_cnt) or entity.dead_anim_cnt:to_int() == 0 then
+	 entity.dead_anim_cnt = 0
+      end
+      
+      if entity.dead_anim_cnt > ANIM_DEAD_CNT_L then
+	 entity.dead_anim_cnt = 0
+	 entity.atk_state = dead_anim_old_state
+	 endAnimationAttack(dead_anim_main, dead_anim_anime)
+      else
+	 local bad_guys = entity.bg_handlers
+
+	 entity.dead_anim_cnt = entity.dead_anim_cnt + ywidTurnTimer()
+
+	 for i = 0, yeLen(dead_anim_deaths) - 1 do
+	    local screen_idx = yeGetIntAt(dead_anim_deaths[i], "screen_idx")
+	    local handler = bad_guys[screen_idx]
+
+	    setOrig(handler,
+		    math.floor(entity.dead_anim_cnt / ANIM_DEAD_SPRITE_TIME), 20)
+	 end
       end
       return YEVE_ACTION
    end
@@ -637,6 +671,7 @@ function endAnimationAttack(main, cur_anim)
 	 local i_on_screen = yeGetBoolAt(enemies[i], "on_screen")
 	 local screen_idx = 0
 
+	 -- he's alive, he still exist, they're still futur, he's early
 	 if enemies[i].life > 0 then
 	    have_win = false
 	    goto next
@@ -645,7 +680,7 @@ function endAnimationAttack(main, cur_anim)
 	    goto next
 	 end
 	 -- he's dead, he ceased to exist, he's no more, he's a late enemy
-	 screen_idx = yeGetIntAt(enemies[i], "screen_idx")
+ 	 screen_idx = yeGetIntAt(enemies[i], "screen_idx")
 	 bad_guys[screen_idx].dead = 1
 	 rm_handler(main, bad_guys[screen_idx])
 
@@ -739,6 +774,48 @@ function endAnimationAttack(main, cur_anim)
 	 create_clasic_menu(getMenu(main))
 	 is_menu_off = 0
       end
+   end
+end
+
+function checkDead(main, cur_anim)
+   -- check enemy dead
+
+   local enemies = main.enemy
+   local nb_enemies = yeLen(enemies)
+   if yIsNNil(dead_anim_deaths) then
+      yeClearArray(dead_anim_deaths)
+   end
+   dead_anim_deaths = Entity.new_array()
+
+   if yIsNil(enemies.max_life) then
+      for i = 0, nb_enemies - 1 do
+	 local i_on_screen = yeGetBoolAt(enemies[i], "on_screen")
+	 local screen_idx = 0
+
+	 -- he's alive, he still exist, they're still futur, he's early
+	 if enemies[i].life > 0 then
+	    goto next
+	 end
+	 if i_on_screen == false then
+	    goto next
+	 end
+	 -- he's dead, he ceased to exist, he's no more, he's a late enemy
+	 yePushBack(dead_anim_deaths, enemies[i])
+
+	 :: next ::
+      end
+   elseif enemies.life <= 0 then
+      yePushBack(dead_anim_deaths, enemies[i])      
+   end
+
+   if yeLen(dead_anim_deaths) > 0 then
+      main.dead_anim_cnt = 0
+      dead_anim_old_state = main.atk_state:to_int()
+      dead_anim_main = main
+      dead_anim_anime = cur_anim
+      main.atk_state = DEAD_ANIM
+   else
+      endAnimationAttack(main, cur_anim)
    end
 end
 
@@ -1114,6 +1191,7 @@ end
 function fightKboum(ent)
    enemy_idx = 0
    chooseTargetY = 1
+   dead_anim_deaths = nil
 end
 
 function try_mk_array_of_guys(guys)
