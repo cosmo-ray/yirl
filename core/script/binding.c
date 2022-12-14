@@ -318,6 +318,8 @@ BIND_EEI(ywPushNewWidget, 2, 1);
 
 BIND_EEI(ywCanvasSetWeight, 3, 0);
 
+BIND_EIII(ywPosAddXYAbsMax, 4, 0);
+
 BIND_EIII(ywRectContain, 3, 1);
 
 BIND_V(ysTraceCurrentScript);

@@ -263,6 +263,19 @@ static inline Entity *ywPosAddXY(Entity *pos, int x, int y)
   return pos;
 }
 
+static inline Entity *ywPosAddXYAbsMaxXY(Entity *pos, int x, int y, int xmax, int ymax)
+{
+	ywPosAddXY(pos, x, y);
+	yeIntForceBound(yeGetByIdx(pos, 0), -xmax, xmax);
+	yeIntForceBound(yeGetByIdx(pos, 1), -ymax, ymax);
+	return pos;
+}
+
+static inline Entity *ywPosAddXYAbsMax(Entity *pos, int x, int y, int max)
+{
+	return ywPosAddXYAbsMaxXY(pos, x, y, max, max);
+}
+
 static inline Entity *ywSegmentFromPos(Entity *posA, Entity *posB,
 				       Entity *father, const char *name)
 {
