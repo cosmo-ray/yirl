@@ -1509,6 +1509,17 @@ static inline int yeSwapElems(Entity *array, Entity *elem0, Entity *elem1)
 	return 0;
 }
 
+static inline Entity *yeGetRandomElem(Entity *array)
+{
+	if (!array || yeType(array) != YARRAY)
+		return NULL;
+	
+	int array_l = yeLen(array);
+	if (!array_l)
+		return NULL;
+	return yeGet(array, yuiRand() % array_l);
+}
+
 static inline int yeShuffle(Entity *array)
 {
 	if (!array || yeType(array) != YARRAY)
