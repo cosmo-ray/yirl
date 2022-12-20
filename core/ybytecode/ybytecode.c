@@ -224,8 +224,8 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
   goto *((void *)*script);
 
  qeual_comp:
-  if (yeGetIntDirect(yeGetByIdxDirect(stack, script[1])) ==
-      yeGetIntDirect(yeGetByIdxDirect(stack, script[2]))) {
+  if (yeEqual(yeGetByIdxDirect(stack, script[1]),
+	      yeGetByIdxDirect(stack, script[2]))) {
     script = origin + script[3];
     goto *((void *)*script);
   }
@@ -391,11 +391,18 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
     goto *((void *)*script);
   }
  yg_get_push:
-  ++script;
-  iret = yePushBack(stack, ygGet((const char *)*script), NULL);
-  ++script;
-  goto *((void *)*script);
-
+  {
+	  ++script;
+	  Entity *tmp = ygGet((const char *)*script);
+	  ++script;
+	  if (!tmp) {
+		  yeCreateInt(0, stack, NULL);
+		  iret = -1;
+		  goto *((void *)*script);
+	  }
+	  iret = yePushBack(stack, tmp, NULL);
+	  goto *((void *)*script);
+  }
  new_widget:
   yeCreateData(ywidNewWidget(yeGetByIdxDirect(stack, script[1]),
 			     (const char *)script[2]),

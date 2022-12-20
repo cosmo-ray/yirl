@@ -491,6 +491,8 @@ void *init(int nbArg, void **args)
 	ygRegistreFunc(5, "newDialogueEntity", "yNewDialogueEntity");
 	ygRegistreFunc(1, "dialogueGetMain", "yDialogueGetMain");
 	ygRegistreFunc(1, "dialogueGetCAnswer", "yDialogueCurAnswer");
+	/* return current actie dialogue in the dialogue wid, take full dialogue as param */
+	ygRegistreFunc(1, "dialogueCurDialogue", "yDialogueCur");
 	return NULL;
 }
 
@@ -500,6 +502,14 @@ void *dialogueGetMenu(int nbArgs, void **args)
 	struct mainDrv *drv = getMainDrv(e);
 
 	return drv->getMenu(e);
+}
+
+void *dialogueCurDialogue(int nbArgs, void **args)
+{
+	Entity *e = args[0];
+	int c = yeGetIntAt(e, "active_dialogue");
+
+	return yeGet(yeGet(e, "dialogue"), c);
 }
 
 void *dialoguePostAction(int nbArgs, void **args)
