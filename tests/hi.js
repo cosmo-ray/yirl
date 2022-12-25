@@ -15,7 +15,6 @@ function display_eint(e)
 
 function mk_hello(e, name)
 {
-    name = to_str(name)
     return yeCreateString("hello world !", e, name)
 }
 

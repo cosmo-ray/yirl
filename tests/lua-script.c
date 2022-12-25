@@ -25,15 +25,15 @@
 
 static void *addPtr(const void *arg1, const void *arg2)
 {
-  return (void *)((long)arg1 + (long)arg2);
+	return (void *)((long)arg1 + (long)arg2);
 }
 
 static int     luaAddPtr(lua_State *l)
 {
-  void *ret = addPtr(lua_topointer(l, 1), lua_topointer(l, 2));
+	void *ret = addPtr(lua_topointer(l, 1), lua_topointer(l, 2));
 
-  lua_pushlightuserdata(l, ret);
-  return (1);
+	lua_pushlightuserdata(l, ret);
+	return 1;
 }
 
 void testLuaScritLifecycle(void)
@@ -47,7 +47,7 @@ void testLuaScritLifecycle(void)
   g_assert(sm);
 
   g_assert(!ysRegistreFunc(sm, "addPtr", luaAddPtr));
-  g_assert((long)ysCall(sm, "addPtr", 1, 2) == 3);
+  g_assert((long)ysCall(sm, "addPtr", (void *)1, (void *)2) == 3);
 
   g_assert(!ysRegistreFunc(sm, "toNbr", luaPtrToNumber));
   g_assert(!ysRegistreFunc(sm, "toPtr", luaNbrToPtr));
