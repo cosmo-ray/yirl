@@ -48,6 +48,9 @@ local BATK_MUST_PRESS_OK = 1
 local BATK_MUST_BE_RELEASE = 0
 local BATK_KEEP_PUSHING = 2
 
+-- Note that explosion is like a magic word for any stuff that are show on a character after an action
+local EXPLOSION_TOT_TIME = 500000
+
 local function isPushingOkButton(eve)
    return eve:type() == YKEY_DOWN and eve:key() == Y_SPACE_KEY or
       eve:type() == YKEY_DOWN and eve:key() == Y_ENTER_KEY
@@ -433,11 +436,7 @@ local function attackCallback(main, eve)
       if guard_sucess == false then
 	 combatDmg(main, cur_anim)
       else
-	 local p = ylpcsHandePos(target)
-	 canvas:remove(main.wrong)
-	 main.wrong = canvas:new_texture(ywPosX(p) -5, ywPosY(p),
-					 main.wrong_txt).ent
-	 main.explosion_time = 5
+	 startExplosionTime(main, target, main.wrong_txt, 10)
       end
 
       if cur_anim.sucess:to_int() == 0 then
@@ -499,17 +498,30 @@ function fightAction(entity, eve)
       return YEVE_ACTION
    end
 
-   if entity.explosion_time then
-      entity.explosion_time = entity.explosion_time - 1
-      if entity.explosion_time:to_int() == 0 then
+   if yeGetInt(entity.explosion_time)  > 0 then
+      local explosion_time = yeGetInt(entity.explosion_time)
+      local mrot = entity.explosion_rotate_val
+      local rot
+      if yIsNNil(mrot) then
+	 mrot = yeGetInt(mrot)
+	 if (explosion_time < EXPLOSION_TOT_TIME / 2) then
+	    rot = mrot * explosion_time / (EXPLOSION_TOT_TIME / 2)
+	    print("go")
+	 else
+	    explosion_time = explosion_time - (EXPLOSION_TOT_TIME / 2)
+	    rot = mrot - (mrot * explosion_time / (EXPLOSION_TOT_TIME / 2))
+	    print("back")
+	 end
+	 print(rot)
+	 ywCanvasRotate(entity.explosion_target, rot)
+      end
+      entity.explosion_time = entity.explosion_time - ywidTurnTimer()
+      if entity.explosion_time:to_int() <= 0 then
 	 local canvas = getCanvas(entity)
 	 entity.explosion_time = nil
-	 canvas:remove(entity.explosion)
-	 entity.explosion = nil
-	 canvas:remove(entity.wrong)
-	 entity.wrong = nil
-	 canvas:remove(entity.heart)
-	 entity.heart = nil
+	 canvas:remove(entity.explosion_canvas)
+	 entity.explosion_canvas = nil
+	 ywCanvasRotate(entity.explosion_target, 0)
       end
       return YEVE_ACTION
    elseif entity.atk_state:to_int() == DEAD_ANIM then
@@ -594,6 +606,27 @@ function menuGetMain(menu)
    return Entity.wrapp(ywCntWidgetFather(ywCntWidgetFather(menu)))
 end
 
+function startExplosionTime(main, target, explosion_type, rot)
+   local canvas = getCanvas(main)
+   local p = ylpcsHandePos(target)
+
+   canvas:remove(main.explosion_canvas)
+   if yIsNNil(rot) then
+      if main.atk_state:to_int() ~= ENEMY_ATTACK then
+	 rot = -rot
+      end
+      main.explosion_rotate_val = rot
+   else
+      main.explosion_rotate_val = nil
+   end
+
+   canvas:remove(main.wrong)
+   main.explosion_canvas = canvas:new_texture(ywPosX(p) -5, ywPosY(p),
+					      explosion_type).ent
+   ywCanvasSetWeight(canvas.ent, main.explosion_canvas, 10)
+   main.explosion_target = target.canvas
+   main.explosion_time = EXPLOSION_TOT_TIME
+end
 
 function combatDmgInternal(main, target, dmg)
    local canvas = getCanvas(main)
@@ -605,17 +638,9 @@ function combatDmgInternal(main, target, dmg)
       new_life = max_life:to_int()
    end
    if dmg > 0 then
-      canvas:remove(main.explosion)
-      main.explosion = canvas:new_texture(ywPosX(p),
-					  ywPosY(p), main.explosion_txt).ent
-      main.explosion_time = 5
+      startExplosionTime(main, target, main.explosion_txt, 30)
    elseif dmg < 0 then
-      canvas:remove(main.heart)
-      local heart = canvas:new_texture(ywPosX(p) -5, ywPosY(p),
-				      main.heart_txt).ent
-      main.heart = heart
-      main.explosion_time = 5
-      ywCanvasSetWeight(canvas.ent, heart, 10);
+      startExplosionTime(main, target, main.heart_txt)
    end
    target.char.life = new_life
    reset_life_b(main, target, 0)
