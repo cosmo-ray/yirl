@@ -21,7 +21,7 @@
 #include <s7.h>
 #include "script.h"
 
-#if TCC_ENABLE > 0
+#if S7_ENABLE > 0
 
 int ysS7Init(void);
 int ysS7End(void);
