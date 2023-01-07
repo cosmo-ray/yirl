@@ -140,7 +140,8 @@ enum {
 	YLUA,
 	YS7,
 	YTCC,
-	YPH7
+	YPH7,
+	YPERL
 };
 /* Code from http://jhnet.co.uk/articles/cpp_magic */
 

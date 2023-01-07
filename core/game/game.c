@@ -37,6 +37,7 @@
 #include "native-script.h"
 #include "ybytecode-script.h"
 #include "ph7-script.h"
+#include "perl-script.h"
 
 /* widgets */
 #include "utils.h"
@@ -60,6 +61,7 @@ static void *rawfileManager;
 
 static void *luaManager;
 static void *tccManager;
+static void *perlManager;
 static void *s7Manager;
 static void *ph7Manager;
 static void *qjsManager;
@@ -117,6 +119,14 @@ void *ygPH7Manager(void)
 void *ygGetLuaManager(void)
 {
 	return luaManager;
+}
+
+void *ygPerlManager(void)
+{
+#if PERL_ENABLE < 1
+	fatal("PERL IS DISABLE !");
+#endif
+	return perlManager;
 }
 
 void *ygGetTccManager(void)
@@ -443,6 +453,12 @@ int ygInit(GameConfig *cfg)
 		       "tcc init failed");
 #endif
 
+#if PERL_ENABLE > 0
+	CHECK_AND_GOTO(t = ysPerlInit(), -1, error, "perl init failed");
+	CHECK_AND_GOTO(perlManager = ysNewManager(NULL, t), NULL, error,
+		       "perl init failed");
+#endif
+
 #if S7_ENABLE > 0
 	CHECK_AND_GOTO(t = ysS7Init(), -1, error, "s7 init failed");
 	CHECK_AND_GOTO(s7Manager = ysNewManager(NULL, t), NULL, error,
@@ -541,6 +557,12 @@ void ygEnd()
 	ysDestroyManager(tccManager);
 	ysTccEnd();
 #endif
+
+#if PERL_ENABLE > 0
+	ysDestroyManager(perlManager);
+	ysPerlEnd();
+#endif
+
 	ysDestroyManager(luaManager);
 	ysLuaEnd();
 #if S7_ENABLE > 0
@@ -613,6 +635,13 @@ void *ygGetManager(const char *name)
 #else
 	if (yuiStrEqual0(name, "tcc"))
 		fatal("TCC IS DISABLE !!!");
+#endif
+#if PERL_ENABLE > 0
+	else if (yuiStrEqual0(name, "perl"))
+		return perlManager;
+#else
+	else if (yuiStrEqual0(name, "perl"))
+		fatal("PERL IS DISABLE !!!");
 #endif
 	else if (yuiStrEqual0(name, "lua"))
 		return luaManager;
@@ -762,6 +791,17 @@ Entity *ygLoadMod(const char *path)
 			}
 #else
 			fatal("TCC IS DISABLE !");
+#endif
+
+		} else if (yuiStrEqual0(yeGetString(tmpType), "perl")) {
+#if PERL_ENABLE > 0
+			if (ysLoadFile(perlManager, pathCstr) < 0) {
+				DPRINT_ERR("Error when loading '%s': %s\n",
+					   pathCstr, ysGetError(perlManager));
+				goto fail_preload;
+			}
+#else
+			fatal("PERL IS DISABLE !");
 #endif
 
 		} else if (yuiStrEqual0(yeGetString(tmpType), "s7")) {
