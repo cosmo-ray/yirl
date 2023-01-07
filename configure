@@ -74,6 +74,12 @@ for arg in $args; do
 	S7_SOURCE=""
 	S7_CFLAGS="-DS7_ENABLE=0"
     fi
+
+    if [ "--disable-perl" = $arg ]; then
+	PERL_LD=""
+	PERL_SRC=""
+	PERL_CFLAGS="-DPERL_ENABLE=0"
+    fi
 done
 
 add_toolchain mingw-i686
@@ -205,6 +211,13 @@ echo TCC_CFLAGS=${TCC_CFLAGS} >> config.mk
 
 var_add S7_SOURCE "${SCRIPT_DIR}/s7.c"
 var_add S7_CFLAGS "-DS7_ENABLE=1"
+
+if [ -z "$PERL_LD" ]; then
+    PERL_LD="$(perl -MExtUtils::Embed -e ldopts)"
+fi
+echo PERL_LD=${PERL_LD} >> config.mk
+var_add PERL_SRC "${SCRIPT_DIR}/perl.c"
+var_add PERL_CFLAGS "-DPERL_ENABLE=1"
 
 # var_add is a little broken, so I can't output variable
 var_add YIRL_LINKING "libyirl.so"

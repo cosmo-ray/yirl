@@ -54,7 +54,7 @@ SRC = 	$(HSEARCH_SRC) \
 
 SRC += $(SOUND_SRC)
 
-O_SRC = $(S7_SOURCE) ph7/ph7.c
+O_SRC = $(S7_SOURCE) ph7/ph7.c $(PERL_SRC)
 
 O_OBJ = $(O_SRC:.c=.o)
 
@@ -84,6 +84,7 @@ LDFLAGS += $(LIBS_SAN) -ldl $(QUICKJS_LIB_PATH)
 LDFLAGS += $(ANALYZER_FLAG)
 LDFLAGS += $(EMPORT)
 LDFLAGS += $(shell $(PKG_CONFIG) --libs gl glu)
+LDFLAGS += $(PERL_LD)
 GLIB_LDFLAGS += $(shell $(PKG_CONFIG) --libs glib-2.0)
 
 COMMON_CFLAGS += $(SDL_MIXER_CFLAGS) $(HSEARCH_CFLAGS)
@@ -91,7 +92,7 @@ GLIB_COMMON_CFLAGS += $(shell $(PKG_CONFIG) --cflags glib-2.0)
 COMMON_CFLAGS += $(shell sdl2-config --cflags)
 COMMON_CFLAGS += -I$(YIRL_INCLUDE_PATH)
 COMMON_CFLAGS += -I$(YIRL_INCLUDE_PATH2)
-COMMON_CFLAGS += $(TCC_CFLAGS) $(S7_CFLAGS)
+COMMON_CFLAGS += $(TCC_CFLAGS) $(S7_CFLAGS) $(PERL_CFLAGS)
 COMMON_CFLAGS += -I./core/script/
 COMMON_CFLAGS += -I./$(DUCK_V)/ -I./$(DUCK_V)/src/ # <--- last one is here so I can compile extras
 COMMON_CFLAGS += $(JSON_C_CFLAGS)
@@ -158,6 +159,9 @@ ph7/ph7.o:
 $(SCRIPT_DIR)/s7.o:
 	$(CC) -c -o $(SCRIPT_DIR)/s7.o $(SCRIPT_DIR)/s7.c -Wno-implicit-fallthrough -fPIC -O2 -g
 
+$(SCRIPT_DIR)/perl.o:
+	$(CC) -c -o $(SCRIPT_DIR)/perl.o $(SCRIPT_DIR)/perl.c $(shell perl -MExtUtils::Embed -e ccopts) $(PERL_CFLAGS) -I$(YIRL_INCLUDE_PATH2)
+
 SDL_mixer/:
 	git submodule update --init
 
@@ -193,7 +197,7 @@ start.html: webstart.html
 	cat webstart.html | sed 's|var Module = {|var Module = {\n\t$(WEB_ARG)|g' > start.html
 
 clean:	clean-tests
-	rm -rvf $(OBJ) $(OBJXX) $(GEN_LOADER_OBJ)
+	rm -rvf $(OBJ) $(OBJXX) $(GEN_LOADER_OBJ) $(PERL_SRC)
 
 fclean: clean
 	rm -rvf $(LIBNAME).a $(O_OBJ) $(LIBNAME).so $(LIBNAME).dll webstart.* start.html

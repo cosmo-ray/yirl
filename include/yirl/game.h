@@ -168,6 +168,7 @@ void ygEnd(void);
 /* scrits managers */
 void *ygPH7Manager(void);
 void *ygS7Manager(void);
+void *ygPerlManager(void);
 void *ygGetLuaManager(void);
 void *ygGetTccManager(void);
 
@@ -183,6 +184,8 @@ static inline void *ygScriptManager(int manager) {
 		return ygPH7Manager();
 	else if (manager == YTCC)
 		return ygGetTccManager();
+	else if (manager == YPERL)
+		return ygPerlManager();
 	return NULL;
 }
 
