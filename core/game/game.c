@@ -691,11 +691,15 @@ Entity *ygLoadMod(const char *path)
 	const char *alias;
 
 	YE_NEW(string, tmp_name, "");
-	for (int i = 0; i < 5; ++i) {
-		const char * const starts[] = {"/start.c", "/start.lua",
-			"/start.scm", "/start.js", "/start.php"};
-		void * const managers[] = {tccManager, luaManager,
-			s7Manager, qjsManager, ph7Manager};
+
+#define NB_STARTABLE_SCRIPT 6
+	for (int i = 0; i < NB_STARTABLE_SCRIPT; ++i) {
+		const char * const starts[NB_STARTABLE_SCRIPT] = {
+			"/start.c", "/start.lua",
+			"/start.scm", "/start.js", "/start.php", "/start.pl"};
+		void * const managers[NB_STARTABLE_SCRIPT] = {
+			tccManager, luaManager,
+			s7Manager, qjsManager, ph7Manager, perlManager};
 
 		tmp = y_strdup_printf("%s%s", path, starts[i]);
 		CHECK_AND_RET(tmp, NULL, NULL,
