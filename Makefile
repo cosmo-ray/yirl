@@ -21,6 +21,7 @@ SRC = 	$(HSEARCH_SRC) \
 	$(SCRIPT_DIR)/ph7-script.c \
 	$(SCRIPT_DIR)/quickjs.c \
 	$(SCRIPT_DIR)/script.c \
+	$(PERL_SRC) \
 	$(BYTECODE_DIR)/ybytecode.c \
 	$(BYTECODE_DIR)/condition.c \
 	$(DESCRIPTION_DIR)/description.c \
@@ -54,7 +55,7 @@ SRC = 	$(HSEARCH_SRC) \
 
 SRC += $(SOUND_SRC)
 
-O_SRC = $(S7_SOURCE) ph7/ph7.c $(PERL_SRC)
+O_SRC = $(S7_SOURCE) ph7/ph7.c
 
 O_OBJ = $(O_SRC:.c=.o)
 
@@ -197,7 +198,7 @@ start.html: webstart.html
 	cat webstart.html | sed 's|var Module = {|var Module = {\n\t$(WEB_ARG)|g' > start.html
 
 clean:	clean-tests
-	rm -rvf $(OBJ) $(OBJXX) $(GEN_LOADER_OBJ) $(PERL_SRC)
+	rm -rvf $(OBJ) $(OBJXX) $(GEN_LOADER_OBJ)
 
 fclean: clean
 	rm -rvf $(LIBNAME).a $(O_OBJ) $(LIBNAME).so $(LIBNAME).dll webstart.* start.html
