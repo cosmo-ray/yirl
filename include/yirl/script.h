@@ -222,4 +222,27 @@ int ysTccPushSym(void *state, const char *name, void *sym);
 
 int ysTccPushSysincludePath(void *state, const char *path);
 
+enum {
+	YSCRIPT_RET_VOID,
+	YSCRIPT_RET_ENTITY,
+	YSCRIPT_RET_OTHER
+};
+
+#define YSCRIPT_RET_TYPE(call)			\
+	_Generic(call,				\
+		 default: 0,			\
+		 char *: 2,			\
+		 const char *: 2,		\
+		 Entity *: 1,			\
+		 const Entity *: 1,		\
+		 int: 2,			\
+		 _Bool: 2,			\
+		 long: 2,			\
+		 long long int: 2,		\
+		 double: 2,			\
+		 float: 2,			\
+		 unsigned long: 2,		\
+		 unsigned int: 2)
+
+
 #endif

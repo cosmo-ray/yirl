@@ -19,6 +19,7 @@
 
 #include <EXTERN.h> 
 #include <perl.h>
+#include <XSUB.h>
 #include <yirl/all.h>
 
 static int t = -1;
@@ -27,6 +28,86 @@ struct YPerlScript {
 	YScriptOps ops;
 	PerlInterpreter *my_perl;
 };
+
+XS(XS_yevCreateGrp)
+{
+	Entity *r = NULL;
+	dXSARGS;
+	switch (items) {
+	case 0:
+	case 1:
+		croak("Usage: yevCreateGrp(parent, Keys...)");
+		break;
+	case 2:
+		r = yevCreateGrp((void *)SvIV(ST(0)), (int)SvIV(ST(1)));
+		break;
+	case 3:
+		r = yevCreateGrp((void *)SvIV(ST(0)), (int)SvIV(ST(1)),
+				 (int)SvIV(ST(2)));
+		break;
+	case 4:
+		printf("call creategrp: %p %d %d %d", (void *)SvIV(ST(0)),
+		       (int)SvIV(ST(1)),
+		       (int)SvIV(ST(2)), (int)SvIV(ST(3)));
+		r = yevCreateGrp((void *)SvIV(ST(0)), (int)SvIV(ST(1)),
+				 (int)SvIV(ST(2)), (int)SvIV(ST(3)));
+		break;
+	}
+
+
+	yePrint(r);
+	SV *ret = newSV(0);
+	sv_setref_pv(ret, "Yirl::Entity", r);
+	XSRETURN(1);	
+}
+
+#define BIND_AUTORET(call)			\
+	int t = YSCRIPT_RET_TYPE(call);		\
+	switch (t) {				\
+	case YSCRIPT_RET_VOID:			\
+		call;				\
+		XSRETURN(0);			\
+		break;				\
+	case YSCRIPT_RET_ENTITY:		\
+	case YSCRIPT_RET_OTHER:			\
+		croak("return non implemented");	\
+		break;				\
+	}					\
+
+#define BIND_E(name, ...)					\
+	XS(XS_##name)						\
+	{							\
+		dXSARGS;					\
+		printf("in XS_"#name"\n");			\
+		BIND_AUTORET(name((void *)SvIV(ST(0))));	\
+	}
+
+#define BIND_EE(name, ...)					\
+	XS(XS_##name)						\
+	{							\
+		dXSARGS;					\
+		BIND_AUTORET(name((void *)SvIV(ST(0)),		\
+				  (void *)SvIV(ST(1))));	\
+	}
+
+BIND_E(yePrint)
+
+EXTERN_C void xs_init(pTHX)
+{
+	char *file = __FILE__;
+	dXSUB_SYS;
+#define BIND(name, ...)				\
+	newXS("Yirl::"#name, XS_##name, file);	\
+	printf("binding Yirl::"#name"\n");
+#define PUSH_I_GLOBAL_VAL(...)
+#define PUSH_I_GLOBAL(...)
+#define IN_CALL 1
+/* #include "binding.c" */
+	BIND(yePrint);
+	BIND(yevCreateGrp);
+#undef IN_CALL
+
+}
 
 static int init(void *sm, void *args)
 {
@@ -71,9 +152,12 @@ static void *call(void *sm, const char *name, int nb, union ycall_arg *args,
 	PUTBACK;
 	res = call_pv(name, G_EVAL | G_SCALAR);
 	if (SvTRUE(ERRSV)) {
-		// an error occurred
-		// handle the error
+		DPRINT_ERR("perl '%s' call fail: %s\n",
+			   name,
+			   SvPV_nolen(ERRSV));
+		ygDgbAbort();
 	}
+	printf("res: %p\n", res);
 	SPAGAIN;
 	PUTBACK;
 	FREETMPS;
@@ -98,7 +182,7 @@ static int loadString(void *sm, const char *str)
 static int loadFile(void *sm, const char *file)
 {
 	struct YPerlScript *yperl = sm;
-	perl_parse(yperl->my_perl, NULL,  2,
+	perl_parse(yperl->my_perl, xs_init,  2,
 		   (char *[]){"", (char *)file, NULL}, NULL);
 }
 

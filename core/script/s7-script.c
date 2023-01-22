@@ -363,43 +363,6 @@ static s7_pointer make_nothing(s7_scheme *s, ...)
 			       I_AT(s, a, 4)));			    \
 	}
 
-
-#define S7_IMPLEMENT_B_EES(func)					\
-	static s7_pointer s7##func(s7_scheme *s, s7_pointer a)		\
-	{								\
-		return S7MB(s,						\
-			    !!func(					\
-				    s7_c_object_value(s7_list_ref(s, a, 0)), \
-				    s7_c_object_value(s7_list_ref(s, a, 1)), \
-				    s7_string(s7_list_ref(s, a, 2))	\
-				    ));					\
-	}
-
-#define BIND_E_EIIS(func, u0, u1)					\
-	static s7_pointer s7##func(s7_scheme *s, s7_pointer a)		\
-	{								\
-		return S7ME(s, s7m->et,					\
-			    func(					\
-				    s7_c_object_value(s7_list_ref(s, a, 0)), \
-				    s7_integer(s7_list_ref(s, a, 1)),	\
-				    s7_integer(s7_list_ref(s, a, 2)),	\
-				    s7_string(s7_list_ref(s, a, 3))	\
-				    ));					\
-	}
-
-#define BIND_E_SEES(func, u0, u1)					\
-	static s7_pointer s7##func(s7_scheme *s, s7_pointer a)		\
-	{								\
-		return S7ME(s, s7m->et,					\
-			    func(					\
-				    s7_string(s7_list_ref(s, a, 0)),	\
-				    E_AT(s, a, 1),			\
-				    E_AT(s, a, 2),			\
-				    s7_string(s7_list_ref(s, a, 3))	\
-				    ));					\
-	}
-
-
 #define BIND_I(f, useless0, usless1)					\
 	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)		\
 	{								\
@@ -410,23 +373,6 @@ static s7_pointer make_nothing(s7_scheme *s, ...)
 	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)		\
 	{								\
 		BIND_AUTORET(f());					\
-	}
-
-#define BIND_V_vaE(f, useless0)						\
-	static s7_pointer s7##func(s7_scheme *s, s7_pointer a)		\
-	{								\
-		(void)a;						\
-		f(s7_c_object_value(s7_list_ref(s, a, 0)),		\
-		  s7_c_object_value(s7_list_ref(s, a, 1)),		\
-		  s7_c_object_value(s7_list_ref(s, a, 2)),		\
-		  s7_c_object_value(s7_list_ref(s, a, 3)),		\
-		  s7_c_object_value(s7_list_ref(s, a, 4)),		\
-		  s7_c_object_value(s7_list_ref(s, a, 5)),		\
-		  s7_c_object_value(s7_list_ref(s, a, 6)),		\
-		  s7_c_object_value(s7_list_ref(s, a, 7)),		\
-		  s7_c_object_value(s7_list_ref(s, a, 8)),		\
-		  s7_c_object_value(s7_list_ref(s, a, 9)));		\
-		return s7_nil(s);					\
 	}
 
 #define BIND_ESE(f, ...)			\
