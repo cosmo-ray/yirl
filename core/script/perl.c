@@ -101,6 +101,28 @@ XS(XS_yevCreateGrp)
 		BIND_AUTORET(name(SvIV(ST(0))));		\
 	}
 
+#define BIND_S(name, ...)						\
+	XS(XS_##name)							\
+	{								\
+		dXSARGS;						\
+		BIND_AUTORET(name(SvPVbyte_nolen(ST(0))));		\
+	}
+
+#define BIND_SS(name, ...)						\
+	XS(XS_##name)							\
+	{								\
+		dXSARGS;						\
+		BIND_AUTORET(name(SvPVbyte_nolen(ST(0)),		\
+				  SvPVbyte_nolen(ST(1))));		\
+	}
+
+#define BIND_SI(name, ...)						\
+	XS(XS_##name)							\
+	{								\
+		dXSARGS;						\
+		BIND_AUTORET(name(SvPVbyte_nolen(ST(0)), SvIV(ST(1))));	\
+	}
+
 #define BIND_EE(name, ...)					\
 	XS(XS_##name)						\
 	{							\
@@ -109,6 +131,10 @@ XS(XS_yevCreateGrp)
 				  (void *)SvIV(ST(1))));	\
 	}
 
+
+BIND_SI(ygSetInt)
+BIND_SS(ygReCreateString)
+BIND_S(ygGet)
 BIND_I(yuiAbs)
 BIND_E(yeGetInt)
 BIND_E(yePrint)
@@ -130,6 +156,9 @@ EXTERN_C void xs_init(pTHX)
 	BIND(yeGetRandomElem)
 	BIND(yevCreateGrp);
 	BIND(yuiAbs);
+	BIND(ygSetInt);
+	BIND(ygReCreateString);
+	BIND(ygGet);
 #undef IN_CALL
 
 }
