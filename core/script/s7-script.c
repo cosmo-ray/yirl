@@ -276,53 +276,21 @@ static s7_pointer make_nothing(s7_scheme *s, ...)
 		 unsigned int: s7_make_integer)		\
 		(__VA_ARGS__, call)
 
-#define S7T(call)				\
-	_Generic(call,				\
-		 default: 0,			\
-		 char *: 2,			\
-		 const char *: 2,		\
-		 Entity *: 1,			\
-		 const Entity *: 1,		\
-		 int: 2,			\
-		 _Bool: 2,			\
-		 long: 2,			\
-		 long long int: 2,		\
-		 double: 2,			\
-		 float: 2,			\
-		 unsigned long: 2,		\
-		 unsigned int: 2)
-
-#define VOID_CALL(call)				\
-	_Generic(call,				\
-		 default: NULL,			\
-		 char *: call,			\
-		 const char *: call,		\
-		 Entity *: call,		\
-		 const Entity *: call,		\
-		 int: call,			\
-		 _Bool: call,			\
-		 long long: call,		\
-		 long: call,			\
-		 double: call,			\
-		 float: call,			\
-		 unsigned long: call,		\
-		 unsigned int: call)
-
 
 #define S7ME s7_make_c_object
 #define S7MI s7_make_integer
 #define S7MB s7_make_boolean
 
 #define BIND_AUTORET(call)						\
-	int t = S7T(call);						\
+	int t = YSCRIPT_RET_TYPE(call, 0);				\
 	switch (t) {							\
 	case 0:								\
 		call;							\
 		return s7_nil(s);					\
 	case 1:								\
-		return S7ME(s, s7m->et, (void *)VOID_CALL(call));	\
+		return S7ME(s, s7m->et, (void *)YSCRIPT_VOID_CALL(call)); \
 	case 2:								\
-		return S7A2(VOID_CALL(call), s);			\
+		return S7A2(YSCRIPT_VOID_CALL(call), s);		\
 	}								\
 	return s7_nil(s);
 

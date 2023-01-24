@@ -54,32 +54,51 @@ XS(XS_yevCreateGrp)
 		break;
 	}
 
-
-	yePrint(r);
-	SV *ret = newSV(0);
-	sv_setref_pv(ret, "Yirl::Entity", r);
-	XSRETURN(1);	
+	XSRETURN_IV(PTR2IV(r));
 }
 
-#define BIND_AUTORET(call)			\
-	int t = YSCRIPT_RET_TYPE(call);		\
-	switch (t) {				\
-	case YSCRIPT_RET_VOID:			\
-		call;				\
-		XSRETURN(0);			\
-		break;				\
-	case YSCRIPT_RET_ENTITY:		\
-	case YSCRIPT_RET_OTHER:			\
-		croak("return non implemented");	\
-		break;				\
-	}					\
+#define BIND_AUTORET(call)						\
+	int t = YSCRIPT_RET_TYPE(call, 1);				\
+	switch (t) {							\
+	case YSCRIPT_RET_VOID:						\
+		call;							\
+		XSRETURN(0);						\
+		break;							\
+	case YSCRIPT_RET_ENTITY:					\
+	{								\
+		IV miv = PTR2IV(YSCRIPT_VOID_CALL(call));		\
+		XSRETURN_IV(miv);					\
+		break;							\
+	}								\
+	case YSCRIPT_RET_STR:						\
+		XSRETURN_PV((char *)(intptr_t)YSCRIPT_VOID_CALL(call));	\
+		break;							\
+	case YSCRIPT_RET_INT:						\
+		XSRETURN_IV((intptr_t)YSCRIPT_VOID_CALL(call));		\
+		break;							\
+	case YSCRIPT_RET_UINT:						\
+		XSRETURN_UV((uintptr_t)YSCRIPT_VOID_CALL(call));	\
+		break;							\
+	case YSCRIPT_RET_BOOL:						\
+		if (YSCRIPT_VOID_CALL(call))				\
+			XSRETURN_YES;					\
+		else							\
+			XSRETURN_NO;					\
+		break;							\
+	}								\
 
 #define BIND_E(name, ...)					\
 	XS(XS_##name)						\
 	{							\
 		dXSARGS;					\
-		printf("in XS_"#name"\n");			\
 		BIND_AUTORET(name((void *)SvIV(ST(0))));	\
+	}
+
+#define BIND_I(name, ...)					\
+	XS(XS_##name)						\
+	{							\
+		dXSARGS;					\
+		BIND_AUTORET(name(SvIV(ST(0))));		\
 	}
 
 #define BIND_EE(name, ...)					\
@@ -90,7 +109,10 @@ XS(XS_yevCreateGrp)
 				  (void *)SvIV(ST(1))));	\
 	}
 
+BIND_I(yuiAbs)
+BIND_E(yeGetInt)
 BIND_E(yePrint)
+BIND_E(yeGetRandomElem)
 
 EXTERN_C void xs_init(pTHX)
 {
@@ -104,7 +126,10 @@ EXTERN_C void xs_init(pTHX)
 #define IN_CALL 1
 /* #include "binding.c" */
 	BIND(yePrint);
+	BIND(yeGetInt);
+	BIND(yeGetRandomElem)
 	BIND(yevCreateGrp);
+	BIND(yuiAbs);
 #undef IN_CALL
 
 }
@@ -146,7 +171,7 @@ static void *call(void *sm, const char *name, int nb, union ycall_arg *args,
 			if (t_array[i] == YS_STR)
 				XPUSHs(sv_2mortal(newSVpv(args->str, 0)));
 			else
-				XPUSHs(sv_2mortal(newSViv((IV)args->vptr)));
+				XPUSHs(sv_2mortal(newSViv(PTR2IV(args->vptr))));
 		}
 	}
 	PUTBACK;
@@ -157,7 +182,6 @@ static void *call(void *sm, const char *name, int nb, union ycall_arg *args,
 			   SvPV_nolen(ERRSV));
 		ygDgbAbort();
 	}
-	printf("res: %p\n", res);
 	SPAGAIN;
 	PUTBACK;
 	FREETMPS;
