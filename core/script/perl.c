@@ -87,6 +87,19 @@ XS(XS_yevCreateGrp)
 		break;							\
 	}								\
 
+#define UNIMPLEMENTED(name)					\
+	XS(XS_##name)						\
+	{							\
+		croak("Usage: "#name"() not implemented");	\
+	}
+
+#define BIND_V(name, ...)					\
+	XS(XS_##name)						\
+	{							\
+		dXSARGS;					\
+		BIND_AUTORET(name());				\
+	}
+
 #define BIND_E(name, ...)					\
 	XS(XS_##name)						\
 	{							\
@@ -116,6 +129,30 @@ XS(XS_yevCreateGrp)
 				  SvPVbyte_nolen(ST(1))));		\
 	}
 
+#define BIND_ES(name, ...)						\
+	XS(XS_##name)							\
+	{								\
+		dXSARGS;						\
+		BIND_AUTORET(name((void *)SvIV(ST(0)),			\
+				  SvPVbyte_nolen(ST(1))));		\
+	}
+
+#define BIND_ESS(name, ...)						\
+	XS(XS_##name)							\
+	{								\
+		dXSARGS;						\
+		BIND_AUTORET(name((void *)SvIV(ST(0)),			\
+				  SvPVbyte_nolen(ST(1)),		\
+				  SvPVbyte_nolen(ST(2))));		\
+	}
+
+#define BIND_II(name, ...)						\
+	XS(XS_##name)							\
+	{								\
+		dXSARGS;						\
+		BIND_AUTORET(name(SvIV(ST(0)), SvIV(ST(1))));		\
+	}
+
 #define BIND_SI(name, ...)						\
 	XS(XS_##name)							\
 	{								\
@@ -131,14 +168,226 @@ XS(XS_yevCreateGrp)
 				  (void *)SvIV(ST(1))));	\
 	}
 
+#define BIND_EI(name, ...)					\
+	XS(XS_##name)						\
+	{							\
+		dXSARGS;					\
+		BIND_AUTORET(name((void *)SvIV(ST(0)),		\
+				  SvIV(ST(1))));		\
+	}
 
-BIND_SI(ygSetInt)
-BIND_SS(ygReCreateString)
-BIND_S(ygGet)
-BIND_I(yuiAbs)
-BIND_E(yeGetInt)
-BIND_E(yePrint)
-BIND_E(yeGetRandomElem)
+#define BIND_IIE(name, ...)						\
+	XS(XS_##name)							\
+	{								\
+		dXSARGS;						\
+		BIND_AUTORET(name(SvIV(ST(0)), SvIV(ST(1)),		\
+				  (void *)SvIV(ST(2))));		\
+	}
+
+#define BIND_III(name, ...)						\
+	XS(XS_##name)							\
+	{								\
+		dXSARGS;						\
+		BIND_AUTORET(name(SvIV(ST(0)), SvIV(ST(1)),		\
+				  SvIV(ST(2))));			\
+	}
+
+#define BIND_ISS(name, ...)						\
+	XS(XS_##name)							\
+	{								\
+		dXSARGS;						\
+		BIND_AUTORET(name(SvIV(ST(0)), SvPVbyte_nolen(ST(1)),	\
+				  SvPVbyte_nolen(ST(2))));		\
+	}
+
+#define BIND_IES(name, ...)						\
+	XS(XS_##name)							\
+	{								\
+		dXSARGS;						\
+		BIND_AUTORET(name(SvIV(ST(0)), (void *)SvIV(ST(1)),	\
+				  SvPVbyte_nolen(ST(2))));		\
+	}
+
+#define BIND_ESE(name, ...)						\
+	XS(XS_##name)							\
+	{								\
+		dXSARGS;						\
+		BIND_AUTORET(name((void *)SvIV(ST(0)),			\
+				  SvPVbyte_nolen(ST(1)),		\
+				  (void *)SvIV(ST(2))));		\
+	}
+
+#define BIND_IIS(name, ...)						\
+	XS(XS_##name)							\
+	{								\
+		dXSARGS;						\
+		BIND_AUTORET(name(SvIV(ST(0)), SvIV(ST(1)),		\
+				  SvPVbyte_nolen(ST(2))));		\
+	}
+
+#define BIND_EES(name, ...)						\
+	XS(XS_##name)							\
+	{								\
+		dXSARGS;						\
+		BIND_AUTORET(name((void *)SvIV(ST(0)), (void *)SvIV(ST(1)), \
+				  SvPVbyte_nolen(ST(2))));		\
+	}
+
+
+#define BIND_EEI(name, ...)						\
+	XS(XS_##name)							\
+	{								\
+		dXSARGS;						\
+		BIND_AUTORET(name((void *)SvIV(ST(0)),			\
+				  (void *)SvIV(ST(1)), SvIV(ST(2))));	\
+	}
+
+#define BIND_EII(name, ...)					\
+	XS(XS_##name)						\
+	{							\
+		dXSARGS;					\
+		BIND_AUTORET(name((void *)SvIV(ST(0)),		\
+				  SvIV(ST(1)), SvIV(ST(2))));	\
+	}
+
+#define BIND_EEE(name, ...)						\
+	XS(XS_##name)							\
+	{								\
+		dXSARGS;						\
+		BIND_AUTORET(name((void *)SvIV(ST(0)), (void *)SvIV(ST(1)), \
+				  (void *)SvIV(ST(2))));		\
+	}
+
+#define BIND_SEES(name, ...)						\
+	XS(XS_##name)							\
+	{								\
+		dXSARGS;						\
+		BIND_AUTORET(name(SvPVbyte_nolen(ST(3)),		\
+				  (void *)SvIV(ST(1)),			\
+				  (void *)SvIV(ST(2)),			\
+				  SvPVbyte_nolen(ST(3))));		\
+	}
+
+#define BIND_EIII(name, ...)					\
+	XS(XS_##name)						\
+	{							\
+		dXSARGS;					\
+		BIND_AUTORET(name((void *)SvIV(ST(0)),		\
+				  SvIV(ST(1)), SvIV(ST(2)),	\
+				  SvIV(ST(3))));		\
+	}
+
+#define BIND_EIIE(name, ...)					\
+	XS(XS_##name)						\
+	{							\
+		dXSARGS;					\
+		BIND_AUTORET(name((void *)SvIV(ST(0)),		\
+				  SvIV(ST(1)), SvIV(ST(2)),	\
+				  (void *)SvIV(ST(3))));	\
+	}
+
+#define BIND_EIIS(name, ...)					\
+	XS(XS_##name)						\
+	{							\
+		dXSARGS;					\
+		BIND_AUTORET(name((void *)SvIV(ST(0)),		\
+				  SvIV(ST(1)), SvIV(ST(2)),	\
+				  SvPVbyte_nolen(ST(3))));	\
+	}
+
+#define BIND_EEEE(name, ...)					\
+	XS(XS_##name)						\
+	{							\
+		dXSARGS;					\
+		BIND_AUTORET(name((void *)SvIV(ST(0)),		\
+				  (void *)SvIV(ST(1)),		\
+				  (void *)SvIV(ST(2)),		\
+				  (void *)SvIV(ST(3))));	\
+	}
+
+#define BIND_EEIS(name, ...)					\
+	XS(XS_##name)						\
+	{							\
+		dXSARGS;					\
+		BIND_AUTORET(name((void *)SvIV(ST(0)),		\
+				  (void *)SvIV(ST(1)),		\
+				  SvIV(ST(2)),			\
+				  SvPVbyte_nolen(ST(3))));	\
+	}
+
+#define BIND_EIES(name, ...)					\
+	XS(XS_##name)						\
+	{							\
+		dXSARGS;					\
+		BIND_AUTORET(name((void *)SvIV(ST(0)),		\
+				  SvIV(ST(1)),			\
+				  (void *)SvIV(ST(2)),		\
+				  SvPVbyte_nolen(ST(3))));	\
+	}
+
+#define BIND_EEES(name, ...)					\
+	XS(XS_##name)						\
+	{							\
+		dXSARGS;					\
+		BIND_AUTORET(name((void *)SvIV(ST(0)),		\
+				  (void *)SvIV(ST(1)),		\
+				  (void *)SvIV(ST(2)),		\
+				  SvPVbyte_nolen(ST(3))));	\
+	}
+
+#define BIND_EEEEI(name, ...)					\
+	XS(XS_##name)						\
+	{							\
+		dXSARGS;					\
+		BIND_AUTORET(name((void *)SvIV(ST(0)),		\
+				  (void *)SvIV(ST(1)),		\
+				  (void *)SvIV(ST(2)),		\
+				  (void *)SvIV(ST(3)),		\
+				  SvIV(ST(4))));		\
+	}
+
+#define BIND_EEESI(name, ...)					\
+	XS(XS_##name)						\
+	{							\
+		dXSARGS;					\
+		BIND_AUTORET(name((void *)SvIV(ST(0)),		\
+				  (void *)SvIV(ST(1)),		\
+				  (void *)SvIV(ST(2)),		\
+				  SvPVbyte_nolen(ST(3)),	\
+				  SvIV(ST(4))));		\
+	}
+
+#define BIND_EIIEE(name, ...)					\
+	XS(XS_##name)						\
+	{							\
+		dXSARGS;					\
+		BIND_AUTORET(name((void *)SvIV(ST(0)),		\
+				  SvIV(ST(1)),			\
+				  SvIV(ST(2)),			\
+				  (void *)SvIV(ST(3)),		\
+				  (void *)SvIV(ST(4))));	\
+	}
+
+#define BIND_EIIIIS(name, ...)					\
+	XS(XS_##name)						\
+	{							\
+		dXSARGS;					\
+		BIND_AUTORET(name((void *)SvIV(ST(0)),		\
+				  SvIV(ST(1)),			\
+				  SvIV(ST(2)),			\
+				  SvIV(ST(3)),			\
+				  SvIV(ST(4)),			\
+				  SvPVbyte_nolen(ST(5))));	\
+	}
+
+#include "binding.c"
+
+UNIMPLEMENTED(yeAddAt)
+UNIMPLEMENTED(yeIncrAt)
+UNIMPLEMENTED(yeSetIntAt)
+UNIMPLEMENTED(yeGetIntAt)
+UNIMPLEMENTED(yeGet)
+UNIMPLEMENTED(ywPosCreate)
 
 EXTERN_C void xs_init(pTHX)
 {
@@ -150,15 +399,7 @@ EXTERN_C void xs_init(pTHX)
 #define PUSH_I_GLOBAL_VAL(...)
 #define PUSH_I_GLOBAL(...)
 #define IN_CALL 1
-/* #include "binding.c" */
-	BIND(yePrint);
-	BIND(yeGetInt);
-	BIND(yeGetRandomElem)
-	BIND(yevCreateGrp);
-	BIND(yuiAbs);
-	BIND(ygSetInt);
-	BIND(ygReCreateString);
-	BIND(ygGet);
+#include "binding.c"
 #undef IN_CALL
 
 }
