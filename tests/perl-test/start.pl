@@ -18,6 +18,10 @@ sub mod_init
     print Yirl::yeGetInt(Yirl::yeGetRandomElem($grp)), "\n";
     print Yirl::yeGetInt(Yirl::yeGetRandomElem($grp)), "\n";
     print Yirl::yuiAbs(-30), "\n";
+    Yirl::ygReCreateString("ah.str", "helLO");
+    Yirl::ygSetInt("ah.test", 123);
+    Yirl::yePrint(Yirl::ygGet("ah.test"));
+    Yirl::yePrint(Yirl::ygGet("ah.str"));
     print "------------\n";
     return $mod;
 }
