@@ -222,27 +222,48 @@ int ysTccPushSym(void *state, const char *name, void *sym);
 
 int ysTccPushSysincludePath(void *state, const char *path);
 
+#define YSCRIPT_RET_OTHER YSCRIPT_RET_STR
 enum {
 	YSCRIPT_RET_VOID,
 	YSCRIPT_RET_ENTITY,
-	YSCRIPT_RET_OTHER
+	YSCRIPT_RET_STR,
+	YSCRIPT_RET_INT,
+	YSCRIPT_RET_UINT,
+	YSCRIPT_RET_BOOL
 };
 
-#define YSCRIPT_RET_TYPE(call)			\
+#define YSCRIPT_RET_TYPE(call, multy)			\
+	_Generic(call,					\
+		 default: 0,				\
+		 char *: 2,				\
+		 const char *: 2,			\
+		 Entity *: 1,				\
+		 const Entity *: 1,			\
+		 int: 2 + 1 * multy,			\
+		 _Bool: 2 + 4 * multy,			\
+		 long: 2 + 1 * multy,			\
+		 long long int: 2 + 1 * multy,		\
+		 double: 2 + 2 * multy,			\
+		 float: 2 + 2 * multy,			\
+		 unsigned long: 2 + 3 * multy,		\
+		 unsigned int: 2 + 3 * multy)
+
+#define YSCRIPT_VOID_CALL(call)			\
 	_Generic(call,				\
-		 default: 0,			\
-		 char *: 2,			\
-		 const char *: 2,		\
-		 Entity *: 1,			\
-		 const Entity *: 1,		\
-		 int: 2,			\
-		 _Bool: 2,			\
-		 long: 2,			\
-		 long long int: 2,		\
-		 double: 2,			\
-		 float: 2,			\
-		 unsigned long: 2,		\
-		 unsigned int: 2)
+		 default: NULL,			\
+		 char *: call,			\
+		 const char *: call,		\
+		 Entity *: call,		\
+		 const Entity *: call,		\
+		 int: call,			\
+		 _Bool: call,			\
+		 long long: call,		\
+		 long: call,			\
+		 double: call,			\
+		 float: call,			\
+		 unsigned long: call,		\
+		 unsigned int: call)
+
 
 
 #endif
