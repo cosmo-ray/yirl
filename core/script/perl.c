@@ -29,27 +29,45 @@ struct YPerlScript {
 	PerlInterpreter *my_perl;
 };
 
+Entity *toFree;
+
+XS(XS_yeCreateFunction)
+{
+	Entity *parent;
+	dXSARGS;
+
+	parent = (void *)SvIV(ST(1));
+	if (!parent)
+		parent = toFree;
+	Entity *r = yeCreateFunction(SvPVbyte_nolen(ST(0)),
+				      ygPerlManager(), parent,
+				      SvPVbyte_nolen(ST(2)));
+	XSRETURN_IV(PTR2IV(r));
+}
+
 XS(XS_yevCreateGrp)
 {
 	Entity *r = NULL;
+	Entity *parent;
 	dXSARGS;
+
+	parent = (void *)SvIV(ST(0));
+	if (!parent)
+		parent = toFree;
 	switch (items) {
 	case 0:
 	case 1:
 		croak("Usage: yevCreateGrp(parent, Keys...)");
 		break;
 	case 2:
-		r = yevCreateGrp((void *)SvIV(ST(0)), (int)SvIV(ST(1)));
+		r = yevCreateGrp(parent, (int)SvIV(ST(1)));
 		break;
 	case 3:
-		r = yevCreateGrp((void *)SvIV(ST(0)), (int)SvIV(ST(1)),
+		r = yevCreateGrp(parent, (int)SvIV(ST(1)),
 				 (int)SvIV(ST(2)));
 		break;
 	case 4:
-		printf("call creategrp: %p %d %d %d", (void *)SvIV(ST(0)),
-		       (int)SvIV(ST(1)),
-		       (int)SvIV(ST(2)), (int)SvIV(ST(3)));
-		r = yevCreateGrp((void *)SvIV(ST(0)), (int)SvIV(ST(1)),
+		r = yevCreateGrp(parent, (int)SvIV(ST(1)),
 				 (int)SvIV(ST(2)), (int)SvIV(ST(3)));
 		break;
 	}
@@ -385,21 +403,51 @@ XS(XS_yevCreateGrp)
 UNIMPLEMENTED(yeAddAt)
 UNIMPLEMENTED(yeIncrAt)
 UNIMPLEMENTED(yeSetIntAt)
-UNIMPLEMENTED(yeGetIntAt)
-UNIMPLEMENTED(yeGet)
 UNIMPLEMENTED(ywPosCreate)
+
+XS(XS_yeGet)
+{
+	Entity *ret;
+	dXSARGS;
+	if (SvTYPE(ST(1)) == SVt_IV) {
+		ret = yeGet((void *)SvIV(ST(0)), SvIV(ST(1)));
+	} else if (SvTYPE(ST(1)) == SVt_PV) {
+		ret = yeGet((void *)SvIV(ST(0)), SvPVbyte_nolen(ST(1)));
+	} else {
+		croak("invalide inputetype");
+		return;
+	}
+	XSRETURN_IV(PTR2IV(ret));
+}
+
+XS(XS_yeGetIntAt)
+{
+	int ret;
+	dXSARGS;
+	if (SvTYPE(ST(1)) == SVt_IV) {
+		ret = yeGetIntAt((void *)SvIV(ST(0)), SvIV(ST(1)));
+	} else if (SvTYPE(ST(1)) == SVt_PV) {
+		ret = yeGetIntAt((void *)SvIV(ST(0)), SvPVbyte_nolen(ST(1)));
+	} else {
+		croak("invalide inputetype");
+		return;
+	}
+	XSRETURN_IV(ret);
+}
+
 
 EXTERN_C void xs_init(pTHX)
 {
 	char *file = __FILE__;
 	dXSUB_SYS;
 #define BIND(name, ...)				\
-	newXS("Yirl::"#name, XS_##name, file);	\
-	printf("binding Yirl::"#name"\n");
+	newXS("Yirl::"#name, XS_##name, file);
+
 #define PUSH_I_GLOBAL_VAL(...)
 #define PUSH_I_GLOBAL(...)
 #define IN_CALL 1
 #include "binding.c"
+	BIND(yeCreateFunction);
 #undef IN_CALL
 
 }
@@ -430,8 +478,10 @@ static void *call(void *sm, const char *name, int nb, union ycall_arg *args,
 	struct YPerlScript *yperl = sm;
 	PerlInterpreter *my_perl = yperl->my_perl;
 	int res = 0;
+	Entity *oldParent = toFree;
 	// add boil plate
 
+	toFree = yeCreateArray(NULL, NULL);
 	dSP;
 	ENTER;
 	SAVETMPS;
@@ -457,6 +507,8 @@ static void *call(void *sm, const char *name, int nb, union ycall_arg *args,
 	FREETMPS;
 	LEAVE;
 	/* perl run */
+	yeDestroy(toFree);
+	toFree = oldParent;
 	return (void *)(intptr_t)res;
 }
 
