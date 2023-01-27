@@ -767,6 +767,11 @@ void yeDestroyFunction(Entity *entity);
 void yeDestroyArray(Entity *entity);
 void yeDestroyData(Entity *entity) ;
 
+static void yeDestroy_VoidPtr(void *e)
+{
+	yeDestroy(e);
+}
+
 /**
  * utility for YE_NEW
  */

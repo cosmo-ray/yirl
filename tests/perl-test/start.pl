@@ -1,11 +1,22 @@
 #!/usr/bin/perl
 
+sub widget_init
+{
+    $wid = $_[0];
+    print "widget_init !!!!!!\n";
+    print "widget_init !!!!!!\n";
+    print "widget_init !!!!!!\n";
+    print "widget_init !!!!!!\n";
+    print "widget_init !!!!!!\n";
+    return $wid
+}
+
 sub mod_init
 {
     print "in mod_init !!!\n";
     $mod = $_[0];
     Yirl::yePrint($mod);
-    $grp = Yirl::yevCreateGrp(0, 1,2,3);
+    $grp = Yirl::yevCreateGrp(0, 0,1,2,3);
     print "============\n";
     print $grp, "\n";
     Yirl::yePrint($grp);
@@ -23,6 +34,9 @@ sub mod_init
     Yirl::yePrint(Yirl::ygGet("ah.test"));
     Yirl::yePrint(Yirl::ygGet("ah.str"));
     print "------------\n";
+    $callback = Yirl::yeCreateFunction("widget_init");
+    Yirl::ygInitWidgetModule($mod, "perl-test !", widget_init);
+
     return $mod;
 }
 
