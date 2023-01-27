@@ -45,6 +45,66 @@ XS(XS_yeCreateFunction)
 	XSRETURN_IV(PTR2IV(r));
 }
 
+XS(XS_yeCreateArray)
+{
+	Entity *parent;
+	dXSARGS;
+
+	parent = (void *)SvIV(ST(0));
+	if (!parent)
+		parent = toFree;
+	Entity *r = yeCreateArray(parent, SvPVbyte_nolen(ST(1)));
+	XSRETURN_IV(PTR2IV(r));
+}
+
+XS(XS_yeCreateInt)
+{
+	Entity *parent;
+	char *key;
+	dXSARGS;
+
+	parent = (void *)SvIV(ST(1));
+	if (!parent) {
+		parent = toFree;
+		key = NULL;
+	} else {
+		key = SvPVbyte_nolen(ST(2));
+	}
+
+	Entity *r = yeCreateInt(SvIV(ST(0)), parent, key);
+	XSRETURN_IV(PTR2IV(r));
+}
+
+XS(XS_yeCreateFloat)
+{
+	Entity *parent;
+	const char *key;
+	dXSARGS;
+
+	parent = (void *)SvIV(ST(1));
+	if (!parent) {
+		parent = toFree;
+		key = NULL;
+	} else {
+		key = SvPVbyte_nolen(ST(2));
+	}
+	Entity *r = yeCreateFloat(SvNV(ST(0)), parent, key);
+	XSRETURN_IV(PTR2IV(r));
+}
+
+XS(XS_yeCreateString)
+{
+	Entity *parent;
+	dXSARGS;
+
+	parent = (void *)SvIV(ST(1));
+	if (!parent)
+		parent = toFree;
+	Entity *r = yeCreateString(SvPVbyte_nolen(ST(0)),
+				   parent, SvPVbyte_nolen(ST(2)));
+	XSRETURN_IV(PTR2IV(r));
+}
+
 XS(XS_yevCreateGrp)
 {
 	Entity *r = NULL;
@@ -448,6 +508,10 @@ EXTERN_C void xs_init(pTHX)
 #define IN_CALL 1
 #include "binding.c"
 	BIND(yeCreateFunction);
+	BIND(yeCreateArray);
+	BIND(yeCreateString);
+	BIND(yeCreateInt);
+	BIND(yeCreateFloat);
 #undef IN_CALL
 
 }

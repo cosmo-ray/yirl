@@ -37,6 +37,11 @@ sub mod_init
     $callback = Yirl::yeCreateFunction("widget_init");
     Yirl::ygInitWidgetModule($mod, "perl-test !", widget_init);
 
+    $tmparr = Yirl::yeCreateArray();
+    Yirl::yeCreateFloat(2.3, $tmparr);
+    Yirl::yeCreateInt(23, $tmparr);    
+    Yirl::yeCreateString("vin troie", $tmparr, 'nam_e');
+    Yirl::yePrint($tmparr);
     return $mod;
 }
 
