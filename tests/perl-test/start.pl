@@ -4,11 +4,11 @@ sub widget_init
 {
     $wid = $_[0];
     print "widget_init !!!!!!\n";
-    print "widget_init !!!!!!\n";
-    print "widget_init !!!!!!\n";
-    print "widget_init !!!!!!\n";
-    print "widget_init !!!!!!\n";
-    return $wid
+    Yirl::yeCreateString("Usless text widget that test perl :)", $wid, "text");
+    Yirl::yeCreateString("rgba: 255 255 255 255", $wid, "background");
+    #Yirl::yePrint($wid);
+    $ret = Yirl::ywidNewWidget($wid, "text-screen");
+    return ($ret);
 }
 
 sub mod_init
@@ -35,7 +35,7 @@ sub mod_init
     Yirl::yePrint(Yirl::ygGet("ah.str"));
     print "------------\n";
     $callback = Yirl::yeCreateFunction("widget_init");
-    Yirl::ygInitWidgetModule($mod, "perl-test !", widget_init);
+    Yirl::ygInitWidgetModule($mod, "perl-test !", $callback);
 
     $tmparr = Yirl::yeCreateArray();
     Yirl::yeCreateFloat(2.3, $tmparr);

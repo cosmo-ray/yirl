@@ -75,6 +75,14 @@ XS(XS_yeCreateInt)
 	XSRETURN_IV(PTR2IV(r));
 }
 
+XS(XS_ywidNewWidget)
+{
+	dXSARGS;
+	void *r = ywidNewWidget((void *)SvIV(ST(0)), SvPVbyte_nolen(ST(1)));
+	XSRETURN_IV(PTR2IV(r));
+}
+
+
 XS(XS_yeCreateFloat)
 {
 	Entity *parent;
@@ -512,6 +520,7 @@ EXTERN_C void xs_init(pTHX)
 	BIND(yeCreateString);
 	BIND(yeCreateInt);
 	BIND(yeCreateFloat);
+	BIND(ywidNewWidget);
 #undef IN_CALL
 
 }
@@ -541,9 +550,9 @@ static void *call(void *sm, const char *name, int nb, union ycall_arg *args,
 {
 	struct YPerlScript *yperl = sm;
 	PerlInterpreter *my_perl = yperl->my_perl;
-	int res = 0;
+	int count;
 	Entity *oldParent = toFree;
-	// add boil plate
+	void *res = NULL;
 
 	toFree = yeCreateArray(NULL, NULL);
 	dSP;
@@ -559,7 +568,7 @@ static void *call(void *sm, const char *name, int nb, union ycall_arg *args,
 		}
 	}
 	PUTBACK;
-	res = call_pv(name, G_EVAL | G_SCALAR);
+	count = call_pv(name, G_EVAL | G_LIST);
 	if (SvTRUE(ERRSV)) {
 		DPRINT_ERR("perl '%s' call fail: %s\n",
 			   name,
@@ -567,10 +576,12 @@ static void *call(void *sm, const char *name, int nb, union ycall_arg *args,
 		ygDgbAbort();
 	}
 	SPAGAIN;
+
+	if (count == 1)
+		res = (void *)POPi;
 	PUTBACK;
 	FREETMPS;
 	LEAVE;
-	/* perl run */
 	yeDestroy(toFree);
 	toFree = oldParent;
 	return (void *)(intptr_t)res;
