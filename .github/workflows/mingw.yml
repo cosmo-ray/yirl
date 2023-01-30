@@ -32,6 +32,7 @@ jobs:
           lua
           autotools
           json-c
+          perl
     
     - shell: msys2 {0}
       run: |
