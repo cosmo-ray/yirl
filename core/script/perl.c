@@ -568,7 +568,7 @@ static void *call(void *sm, const char *name, int nb, union ycall_arg *args,
 		}
 	}
 	PUTBACK;
-	count = call_pv(name, G_EVAL | G_LIST);
+	count = call_pv(name, G_EVAL | G_SCALAR);
 	if (SvTRUE(ERRSV)) {
 		DPRINT_ERR("perl '%s' call fail: %s\n",
 			   name,
