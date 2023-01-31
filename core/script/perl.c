@@ -17,10 +17,11 @@
 
 #if PERL_ENABLE > 0
 
+#include <yirl/all.h>
 #include <EXTERN.h> 
 #include <perl.h>
 #include <XSUB.h>
-#include <yirl/all.h>
+
 
 static int t = -1;
 
