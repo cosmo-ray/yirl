@@ -6,6 +6,7 @@ sub widget_init
     print "widget_init !!!!!!\n";
     Yirl::yeCreateString("Usless text widget that test perl :)", $wid, "text");
     Yirl::yeCreateString("rgba: 255 255 255 255", $wid, "background");
+    Yirl::yeCreateString("QuitOnKeyDown", $wid, "action");
     #Yirl::yePrint($wid);
     $ret = Yirl::ywidNewWidget($wid, "text-screen");
     return ($ret);
