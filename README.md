@@ -49,6 +49,8 @@ supportted scripting languages are lua, C(with tinycc), scheme(s7), javascript(q
 # License:
 YIRL is licensed under the LGPL license, the idea behind that, is that you can add a modules under the license you want, but if you make a modification to the engine, you need to share it.
 
+
+Note that libperl is under GPL, so if you use yirl with libperl, I guess YIRL became GPLed.
 # Tree:
 
 * include: headers
