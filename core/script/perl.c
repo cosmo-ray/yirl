@@ -110,7 +110,6 @@ XS(XS_yeCreateString)
 	const char *key = NULL;
 	dXSARGS;
 
-	printf("itsms %d\n", items);
 	if (items < 2) {
 		parent = toFree;
 	} else {
