@@ -47,10 +47,11 @@ like in [action.lua](https://github.com/cosmo-ray/Sukeban/blob/master/actions.lu
 supportted scripting languages are lua, C(with tinycc), scheme(s7), javascript(quickjs), php 5.3 (ph7) and yb(YIRL own asm) feel free to add your language :).
 
 # License:
+Dual-lisence GPL/LGPL
 YIRL is licensed under the LGPL license, the idea behind that, is that you can add a modules under the license you want, but if you make a modification to the engine, you need to share it.
+but libperl is under GPL, so if you use yirl with libperl, I guess YIRL became GPLed.
+You can use `--disable-perl` when `./configure`
 
-
-Note that libperl is under GPL, so if you use yirl with libperl, I guess YIRL became GPLed.
 # Tree:
 
 * include: headers
