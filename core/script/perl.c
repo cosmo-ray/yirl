@@ -37,12 +37,13 @@ XS(XS_yeCreateFunction)
 	Entity *parent;
 	dXSARGS;
 
-	parent = (void *)SvIV(ST(1));
-	if (!parent)
+	if (items > 1)
+		parent = (void *)SvIV(ST(1));
+	else
 		parent = toFree;
 	Entity *r = yeCreateFunction(SvPVbyte_nolen(ST(0)),
 				      ygPerlManager(), parent,
-				      SvPVbyte_nolen(ST(2)));
+				     items > 2 ? SvPVbyte_nolen(ST(2)) : NULL);
 	XSRETURN_IV(PTR2IV(r));
 }
 
@@ -51,10 +52,11 @@ XS(XS_yeCreateArray)
 	Entity *parent;
 	dXSARGS;
 
-	parent = (void *)SvIV(ST(0));
-	if (!parent)
+	if (items > 1)
+		parent = (void *)SvIV(ST(1));
+	else
 		parent = toFree;
-	Entity *r = yeCreateArray(parent, SvPVbyte_nolen(ST(1)));
+	Entity *r = yeCreateArray(parent, items > 1 ? SvPVbyte_nolen(ST(1)) : NULL);
 	XSRETURN_IV(PTR2IV(r));
 }
 
@@ -64,12 +66,12 @@ XS(XS_yeCreateInt)
 	char *key;
 	dXSARGS;
 
-	parent = (void *)SvIV(ST(1));
-	if (!parent) {
+	if (items < 2) {
 		parent = toFree;
 		key = NULL;
 	} else {
-		key = SvPVbyte_nolen(ST(2));
+		parent = (void *)SvIV(ST(1));
+		key = items > 2 ? SvPVbyte_nolen(ST(2)) : NULL;
 	}
 
 	Entity *r = yeCreateInt(SvIV(ST(0)), parent, key);
@@ -90,13 +92,14 @@ XS(XS_yeCreateFloat)
 	const char *key;
 	dXSARGS;
 
-	parent = (void *)SvIV(ST(1));
-	if (!parent) {
+	if (items < 2) {
 		parent = toFree;
 		key = NULL;
 	} else {
-		key = SvPVbyte_nolen(ST(2));
+		parent = (void *)SvIV(ST(1));
+		key = items > 2 ? SvPVbyte_nolen(ST(2)) : NULL;
 	}
+
 	Entity *r = yeCreateFloat(SvNV(ST(0)), parent, key);
 	XSRETURN_IV(PTR2IV(r));
 }
@@ -104,13 +107,18 @@ XS(XS_yeCreateFloat)
 XS(XS_yeCreateString)
 {
 	Entity *parent;
+	const char *key = NULL;
 	dXSARGS;
 
-	parent = (void *)SvIV(ST(1));
-	if (!parent)
+	printf("itsms %d\n", items);
+	if (items < 2) {
 		parent = toFree;
+	} else {
+		parent = (void *)SvIV(ST(1));
+		key = items > 2 ? SvPVbyte_nolen(ST(2)) : NULL;
+	}
 	Entity *r = yeCreateString(SvPVbyte_nolen(ST(0)),
-				   parent, SvPVbyte_nolen(ST(2)));
+				   parent, key);
 	XSRETURN_IV(PTR2IV(r));
 }
 
