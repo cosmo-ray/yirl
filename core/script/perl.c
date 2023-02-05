@@ -52,8 +52,8 @@ XS(XS_yeCreateArray)
 	Entity *parent;
 	dXSARGS;
 
-	if (items > 1)
-		parent = (void *)SvIV(ST(1));
+	if (items > 0)
+		parent = (void *)SvIV(ST(0));
 	else
 		parent = toFree;
 	Entity *r = yeCreateArray(parent, items > 1 ? SvPVbyte_nolen(ST(1)) : NULL);
