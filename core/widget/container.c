@@ -198,11 +198,11 @@ static void cntResize(YWidgetState *opac)
 
 		if (ywCntType(opac) == CNT_HORIZONTAL) {
 			/* modify y and h pos in internal struct */
-			yeSetAt(tmpPos, "y", casePos);
+			ywPosAddXY(tmpPos, 0, casePos);
 			yeSetAt(tmpPos, "h", caseLen);
 		} else if (ywCntType(opac) == CNT_VERTICAL) {
 			/* modify x and w pos in internal struct */
-			yeSetAt(tmpPos, "x", casePos);
+			ywPosAddXY(tmpPos, casePos, 0);
 			yeSetAt(tmpPos, "w", caseLen);
 		}
 
