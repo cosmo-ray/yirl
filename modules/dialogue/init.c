@@ -754,6 +754,7 @@ void *dialogueInit(int nbArgs, void **args)
 	Entity *textScreen = yeCreateArray(entries, NULL);
 	Entity *answers = yeCreateArray(entries, NULL);
 	Entity *active_dialogue = defaultActiveDialogue(main);
+	Entity *txt_size = yeGet(main, "txt-size");
 	void *ret;
 
 	yeCreateData(&cntDialogueMainDrv, main, "drv");
@@ -764,7 +765,10 @@ void *dialogueInit(int nbArgs, void **args)
 	yeGetPush(main, textScreen, "text-speed");
 	yeCreateString("text-screen", textScreen, "<type>");
 	yeCreateInt(1, textScreen, "fmt");
-	yeTryCreateInt(70, textScreen, "size");
+	if (txt_size)
+		yeReplaceBack(textScreen, txt_size, "size");
+	else
+		yeTryCreateInt(70, textScreen, "size");
 	yePushBack(textScreen, yeGet(main, "speaker_background"),
 		   "background");
 	yeCreateString("menu", answers, "<type>");
