@@ -15,6 +15,24 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+ * As of the 11/02/2023 I have 5 years of documentation of this module to do...
+ * let's do it :)
+ * in order to see dialogue callback, go to: void *init(int nbArg, void **args)
+ * there is 2 way to use this modules:
+ *	as dialogue-canvas: which will use dialogue-box module, and add stuff as canvas widget
+ *	as dialogue: which will create a text-screen, with a menu widget
+ *
+ * the former is if you want a dialogue more like what you add in snes FF
+ * the dialogue, is if you want a more VN-like dialogue
+ * in order to choose betweeb then, you need to create either a
+ * 'dialogue' or a 'dialogue-canvas' widget
+ * (using <type> elemen of the widget description)
+ *
+ * widget description:
+ *	txt-size(dialogue only): the size of the text-screen in comparaison to the menu, default, 70.
+ */
+
 #include <yirl/game.h>
 #include <yirl/menu.h>
 #include <yirl/canvas.h>
