@@ -30,7 +30,8 @@
  * (using <type> elemen of the widget description)
  *
  * widget description:
- *	txt-size(dialogue only): the size of the text-screen in comparaison to the menu, default, 70.
+ *	txt-size - int - DIALOGUE ONLY: the size of the text-screen in comparaison to the menu, default, 70.
+ *	is_looner_dialogue - 0/1 - BOTH: set to one, if dialogue elem, is the dialogue and an an array of dialogue
  */
 
 #include <yirl/game.h>
@@ -765,6 +766,16 @@ again:
 	return yeReCreateInt(i, main, "active_dialogue");
 }
 
+static void handler_looner_dialogue(Entity *wid)
+{
+	if (yeGetIntAt(wid, "is_looner_dialogue") == 1) {
+		YE_NEW(array, dialogue);
+
+		yePushBack(dialogue, yeGet(wid, "dialogue"), NULL);
+		yeReplaceBack(wid, dialogue, "dialogue");
+	}
+}
+
 void *dialogueInit(int nbArgs, void **args)
 {
 	Entity *main = args[0];
@@ -775,6 +786,7 @@ void *dialogueInit(int nbArgs, void **args)
 	Entity *txt_size = yeGet(main, "txt-size");
 	void *ret;
 
+	handler_looner_dialogue(main);
 	yeCreateData(&cntDialogueMainDrv, main, "drv");
 	yeRemoveChildByStr(main, "action");
 	yeCreateFunction("dialogueAction", ygGetTccManager(), main, "action");
@@ -797,6 +809,7 @@ void *dialogueInit(int nbArgs, void **args)
 
 	yeTryCreateInt(1, main, "current");
 	ret = ywidNewWidget(main, "container");
+	yePrint(main);
 	printfTextAndAnswer(main, textScreen, answers, active_dialogue);
 	return ret;
 }
@@ -887,6 +900,7 @@ void *dialogueCanvasInit(int nbArgs, void **args)
 	}
 	boxMainPos = yeGetInt(ygGet("DialogueBox.privateDataSize"));
 
+	handler_looner_dialogue(main);
 	yeCreateData(&boxDialogueMainDrv, main, "drv");
 	yeRemoveChildByStr(main, "action");
 	yeRemoveChildByStr(main, "post-action");
