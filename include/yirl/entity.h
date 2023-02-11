@@ -610,6 +610,12 @@ Entity *yeExpandArray(Entity *entity, unsigned int size);
  * @return	0 or -1
  */
 int yePushBack(Entity *array, Entity *toPush, const char *name);
+
+/**
+ * like yePushBack
+ * @param	flag yeAttach flag
+ * @return	0 or -1
+ */
 int yePushBackExt(Entity *entity, Entity *toPush,
 		  const char *name, uint64_t flag);
 
