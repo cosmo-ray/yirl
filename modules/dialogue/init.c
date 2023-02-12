@@ -422,9 +422,16 @@ static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
 				      answer, "hiden");
 		}
 
-		if (yeType(answer) == YARRAY && !yeGet(answer, "text")) {
-			yePushBack(answer, getText_(wid, answer), "text");
+		Entity *atxt = getText(wid, answer);
+		if (ar_t == YARRAY && !yeGet(answer, "text") ||
+		    (atxt != answer && yeGet(answer, "text") != atxt)) {
+			if (yeType(atxt) == YARRAY)
+				yeReplaceBack(answer, atxt, "text");
+			else {
+				yeReCreateString(yeGetString(atxt), answer, "text");
+			}
 		}
+
 		if (drv == &cntDialogueMnDrv) {
 			if (yeType(answer) == YSTRING) {
 				Entity *strAnswer = answer;
