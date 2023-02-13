@@ -310,6 +310,8 @@ BIND_EII(ywPosAddXY, 3, 0);
 
 BIND_EII(ywCanvasForceSizeXY, 3, 0);
 
+BIND_EEI(ywReplaceEntry2, 3, 0);
+
 BIND_EEI(ywPosIsSameEnt, 2, 1);
 
 BIND_EEI(ywMenuCallActionOnByEntity, 3, 0);

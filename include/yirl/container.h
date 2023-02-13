@@ -68,6 +68,14 @@ int ywRemoveEntryByEntity(Entity *container, Entity *target);
 
 int ywReplaceEntry(Entity *container, int idx, Entity *entry);
 
+/**
+ * fucntion made because I don't have BIND_EIE, but have BIND_EEI
+ */
+static inline int ywReplaceEntry2(Entity *container, Entity *entry, int idx)
+{
+	return ywReplaceEntry(container, idx, entry);
+}
+
 static inline int
 ywReplaceEntryByEntity(Entity *container, Entity *target, Entity *entry)
 {
