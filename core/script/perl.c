@@ -42,7 +42,7 @@ XS(XS_yeCreateFunction)
 	else
 		parent = toFree;
 	Entity *r = yeCreateFunction(SvPVbyte_nolen(ST(0)),
-				      ygPerlManager(), parent,
+				     ygPerlManager(), parent,
 				     items > 2 ? SvPVbyte_nolen(ST(2)) : NULL);
 	XSRETURN_IV(PTR2IV(r));
 }
@@ -570,9 +570,9 @@ static void *call(void *sm, const char *name, int nb, union ycall_arg *args,
 	if (nb) {
 		for (int i = 0; i < nb; ++i) {
 			if (t_array[i] == YS_STR)
-				XPUSHs(sv_2mortal(newSVpv(args->str, 0)));
+				XPUSHs(sv_2mortal(newSVpv(args[i].str, 0)));
 			else
-				XPUSHs(sv_2mortal(newSViv(PTR2IV(args->vptr))));
+				XPUSHs(sv_2mortal(newSViv(PTR2IV(args[i].vptr))));
 		}
 	}
 	PUTBACK;
