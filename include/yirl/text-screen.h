@@ -23,6 +23,16 @@
 int ywTextScreenInit(void);
 int ywTextScreenEnd(void);
 
+static inline Entity *ywTextScreenNew(const char *str)
+{
+	Entity *ret = yeCreateArray(NULL, NULL);
+
+	yeCreateString("text-screen", ret, "<type>");
+	yeCreateString(str, ret, "text");
+	return ret;
+
+}
+
 void ywtextScreenResetTimer(Entity *wid);
 int ywTextScreenPosAtEndOfText(Entity *wid);
 const char *ywTextScreenText(Entity *wid);

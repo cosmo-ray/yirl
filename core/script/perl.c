@@ -104,6 +104,17 @@ XS(XS_yeCreateFloat)
 	XSRETURN_IV(PTR2IV(r));
 }
 
+XS(XS_ywTextScreenNew)
+{
+	dXSARGS;
+	Entity *r = ywTextScreenNew(SvPVbyte_nolen(ST(0)));
+
+	yePushBack(toFree, r, NULL);
+	yeDestroy(r);
+	XSRETURN_IV(PTR2IV(r));
+}
+
+
 XS(XS_yeCreateString)
 {
 	Entity *parent;
@@ -117,6 +128,23 @@ XS(XS_yeCreateString)
 		key = items > 2 ? SvPVbyte_nolen(ST(2)) : NULL;
 	}
 	Entity *r = yeCreateString(SvPVbyte_nolen(ST(0)),
+				   parent, key);
+	XSRETURN_IV(PTR2IV(r));
+}
+
+XS(XS_yeReCreateString)
+{
+	Entity *parent;
+	const char *key = NULL;
+	dXSARGS;
+
+	if (items < 2) {
+		parent = toFree;
+	} else {
+		parent = (void *)SvIV(ST(1));
+		key = items > 2 ? SvPVbyte_nolen(ST(2)) : NULL;
+	}
+	Entity *r = yeReCreateString(SvPVbyte_nolen(ST(0)),
 				   parent, key);
 	XSRETURN_IV(PTR2IV(r));
 }
@@ -526,9 +554,11 @@ EXTERN_C void xs_init(pTHX)
 	BIND(yeCreateFunction);
 	BIND(yeCreateArray);
 	BIND(yeCreateString);
+	BIND(yeReCreateString);
 	BIND(yeCreateInt);
 	BIND(yeCreateFloat);
 	BIND(ywidNewWidget);
+	BIND(ywTextScreenNew);
 #undef IN_CALL
 
 }
