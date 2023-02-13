@@ -268,6 +268,15 @@ XS(XS_yevCreateGrp)
 				  SvPVbyte_nolen(ST(2))));		\
 	}
 
+#define BIND_SES(name, ...)					\
+	XS(XS_##name)						\
+	{							\
+		dXSARGS;					\
+		BIND_AUTORET(name(SvPVbyte_nolen(ST(0)),	\
+				  (void *)SvIV(ST(1)),		\
+				  SvPVbyte_nolen(ST(2))));	\
+	}
+
 #define BIND_II(name, ...)						\
 	XS(XS_##name)							\
 	{								\

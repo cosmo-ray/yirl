@@ -27,6 +27,7 @@
 #include "game.h"
 #include "container.h"
 #include "canvas.h"
+#include "entity-array.h"
 #include "texture.h"
 #include <lualib.h>
 #include <lauxlib.h>

@@ -36,6 +36,7 @@
 #include "texture.h"
 #include "pos.h"
 #include "entity-script.h"
+#include "entity-array.h"
 #include "events.h"
 
 static int t = -1;
@@ -309,6 +310,13 @@ static JSValue make_abort(JSContext *ctx, ...)
 	static JSValue qjs##f(JSContext *ctx, JSValueConst this_val,	\
 			      int argc, JSValueConst *argv) {		\
 		BIND_AUTORET(f(GET_E(ctx, 0),				\
+			       GET_E(ctx, 1), GET_S(ctx, 2)));		\
+	}
+
+#define BIND_SES(f, useless...)						\
+	static JSValue qjs##f(JSContext *ctx, JSValueConst this_val,	\
+			      int argc, JSValueConst *argv) {		\
+		BIND_AUTORET(f(GET_S(ctx, 0),				\
 			       GET_E(ctx, 1), GET_S(ctx, 2)));		\
 	}
 

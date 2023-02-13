@@ -1,5 +1,5 @@
 /*
-**Copyright (C) 2020 Matthias Gatto
+**Copyright (C) 2023 Matthias Gatto
 **
 **This program is free software: you can redistribute it and/or modify
 **it under the terms of the GNU Lesser General Public License as published by
@@ -15,14 +15,30 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <yirl/entity.h>
-#include <yirl/events.h>
-#include <yirl/entity-script.h>
-#include <yirl/map.h>
-#include <yirl/game.h>
-#include <yirl/menu.h>
-#include <yirl/texture.h>
-#include <yirl/container.h>
-#include <yirl/canvas.h>
-#include <yirl/entity-array.h>
-#include <yirl/text-screen.h>
+#ifndef	_YIRL_ENTITY_ARRAY_H
+#define	_YIRL_ENTITY_ARRAY_H
+
+#include "game.h"
+
+static inline Entity *yaeInt(int value, Entity *parent, const char *key)
+{
+	ygAssert(parent);
+	ygAssert(yeCreateInt(value, parent, key));
+	return parent;
+}
+
+static inline Entity *yaeString(const char *str, Entity *parent, const char *key)
+{
+	ygAssert(parent);
+	ygAssert(yeCreateString(str, parent, key));
+	return parent;
+}
+
+static inline Entity *yaeFloat(double value, Entity *parent, const char *key)
+{
+	ygAssert(parent);
+	ygAssert(yeCreateFloat(value, parent, key));
+	return parent;
+}
+
+#endif

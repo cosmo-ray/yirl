@@ -10,6 +10,7 @@
 #define BIND_EI		BIND
 #define BIND_SI		BIND
 #define BIND_SS		BIND
+#define BIND_SES	BIND
 #define BIND_EII	BIND
 #define BIND_ESS	BIND
 #define BIND_EEI	BIND
@@ -64,6 +65,8 @@ BIND_ESE(ywMenuPushSlider, 2, 1);
 BIND_EEE(ywidActions, 2, 1);
 
 BIND_EEE(ywCanvasNewIntersectArray, 3, 0);
+
+BIND_IES(yaeInt, 2, 1);
 
 BIND_IES(ygLoadScript2, 3, 0);
 BIND_IES(ygEntToFile2, 3, 0);
@@ -294,6 +297,8 @@ BIND_EI(ywMapReset, 1, 1);
 
 BIND_EI(yeSetInt, 2, 0);
 
+BIND_SES(yaeString, 2, 1);
+
 BIND_ESE(ygInitWidgetModule, 3, 0);
 
 BIND_EII(yeIntRoundBound, 3, 0);
@@ -423,6 +428,7 @@ PUSH_I_GLOBAL(YPERL);
 #undef BIND_EIES
 #undef BIND_SEES
 #undef BIND_EES
+#undef BIND_SES
 #undef BIND_ESE
 #undef BIND_EEE
 #undef BIND_EEI
