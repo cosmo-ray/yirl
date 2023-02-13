@@ -1,5 +1,5 @@
 /*
-**Copyright (C) 2013 Matthias Gatto
+**Copyright (C) 2013-2023 Matthias Gatto
 **
 **This program is free software: you can redistribute it and/or modify
 **it under the terms of the GNU Lesser General Public License as published by
@@ -715,6 +715,7 @@ Entity *yeCreateStringAt(const char *string, Entity *parent,
 			 const char *name, int idx);
 Entity *yeCreateNString(const char *string, int l, Entity *parent,
 			const char *name);
+
 
 Entity *yeCreateInts_(Entity *parent, int nbVars, ...);
 
