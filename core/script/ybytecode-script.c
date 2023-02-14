@@ -266,7 +266,7 @@ static Entity *tryStoreStringCurTok(Entity *funcData, Entity *str,
 		    yeTokString(tokInfo, tok));
     longjmp(error_env, 1);
   }
-  ret = yeCreateString(NULL, funcData, NULL);
+  ret = yeCreateString("", funcData, NULL);
   while ((tok = yeStringNextTok(str, tokInfo)) != DOUBLE_QUOTE_TOK) {
     if (tok == YTOK_END) {
       YBYTECODE_ERROR("\" is missing to close the string");
@@ -410,7 +410,7 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
   case YB_NEW_WIDGET_TOK:
     {
       script[script_len] = tok;
-      tryStoreNumber(&script[script_len + 1], str, tokInfo);
+      tryGetIdentifier(&script[script_len + 1], str, tokInfo, &idents);
       tok = nextNonSeparatorTok(str, tokInfo);
       if (tok == NIL_TOK) {
 	script[script_len + 2] = 0;
@@ -425,8 +425,8 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
   case YB_PUSH_BACK_TOK:
     {
       script[script_len] = tok;
-      tryStoreNumber(&script[script_len + 1], str, tokInfo);
-      tryStoreNumber(&script[script_len + 2], str, tokInfo);
+      tryGetIdentifier(&script[script_len + 1], str, tokInfo, &idents);
+      tryGetIdentifier(&script[script_len + 2], str, tokInfo, &idents);
       tok = nextNonSeparatorTok(str, tokInfo);
       if (tok == NIL_TOK) {
 	script[script_len + 3] = 0;
@@ -510,6 +510,7 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
   case YB_CREATE_ARRAY_TOK:
   case YB_PRINT_IRET_TOK:
   case YB_PRINT_POS_TOK:
+  case YB_NEXT_TOK:
     script[script_len] = tok;
     script_len += 1;
     if (tok == YB_STACK_POP_TOK)

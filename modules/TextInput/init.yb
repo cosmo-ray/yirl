@@ -1,3 +1,4 @@
+
 init 1 {
 	string "text-input"
 	yg_get_push "text_input_init"
@@ -5,6 +6,7 @@ init 1 {
 	push_back 3 1 "name"
 	push_back 3 2 "callback"
 	registre_widget_subtype 3
+        return 0
 }
 
 global text_input_is_printable 1 {
@@ -29,6 +31,7 @@ global text_input_action 2 {
 	call_entity finishGame_
 	stack_pop
 not_enter:
+	next
 	call_entity isPrintable eve_key
 	stack_pop
 	print_iret
@@ -46,13 +49,13 @@ not_printable:
 	return ret
 }
 
-global text_input_init 1 {
+global text_input_init 2 {
         string "" => txt
-	push_back 0 1 "text"
+	push_back 0 txt "text"
 	yg_get_push "text_input_action" => action
-	push_back 0 2 "action"
+	push_back 0 action "action"
         int 0 => cursor
-        push_back 0 3 "cursor"
+        push_back 0 cursor "cursor"
 	new_widget 0 "text-screen" => wid
 	print_entity wid
 	return wid

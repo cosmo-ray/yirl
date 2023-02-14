@@ -74,6 +74,7 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
 	inst_compille(YB_PRINT_IRET, print_iret, 0);
 	inst_compille(YB_PRINT_ENTITY, print_entity, 1);
 	inst_compille(YB_STACK_POP, stack_pop, 0);
+	inst_compille(YB_NEXT, next, 0);
 	inst_compille(YB_LEAVE, end, 0);
 	inst_compille(YB_RETURN, end_ret, 1);
 	inst_compille(YB_RETURN_IVAL, end_ret_ival, 1);
@@ -344,6 +345,10 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
   *tmp = script - tmp + 2;
   goto *((void *)*script);
 
+next:
+  ++script;
+  goto *((void *)*script);
+  
  stack_pop:
   yePopBack(stack);
   ++script;
