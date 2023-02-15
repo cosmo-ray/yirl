@@ -59,6 +59,7 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
 	inst_compille(YB_SUP_COMP_NBR, yb_sup_comp_nbr, 3);
 	inst_compille(YB_SUP, sup_comp, 3);
 	inst_compille(YB_JMP, jmp, 1);
+	inst_compille(YB_LEN, len, 1);
 	inst_compille(YB_JMP_IF_0, jmp_if_0, 1);
 	inst_compille(YB_CREATE_STRING, create_string, 1);
 	inst_compille(YB_CREATE_INT, create_int, 1);
@@ -443,6 +444,11 @@ next:
  print_stack:
   yePrint(stack);
   ++script;
+  goto *((void *)*script);
+
+ len:
+  yeCreateInt(yeLen(yeGetByIdxDirect(stack, script[1])), stack, 0);
+  script += 2;
   goto *((void *)*script);
   
  print_pos:

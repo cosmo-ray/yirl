@@ -501,11 +501,12 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
   case YB_PRINT_NBR:
   case YB_CREATE_INT_TOK:
   case YB_PRINT_ENTITY_TOK:
+  case YB_LEN_TOK:
   case YB_REGISTRE_WIDGET_SUBTYPE_TOK:
     script[script_len] = tok;
     tryGetIdentifier(&script[script_len + 1], str, tokInfo, &idents);
     script_len += 2;
-    if (tok == YB_CREATE_INT_TOK)
+    if (tok == YB_CREATE_INT_TOK || tok == YB_LEN_TOK)
       INCREMENT_IDENTIFIER();
     goto still_in_func;
   case YB_LEAVE_TOK:

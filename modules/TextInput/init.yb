@@ -50,15 +50,15 @@ not_printable:
 	stack_pop
 	stack_pop
 trunc:
-	print_stack
 	get_at_str 0 "cursor" => cursor2
 	get_at_str 0 "text" => txt2
+	len txt2 => txt_l
+	is_nbr_inf txt_l 1 out:
 	decr cursor2
-	print_stack
-	print_nbr txt2
-	print_entity txt2
 	truncate txt2 1
 	set_int ret 1
+out:
+	print_stack
 	return ret
 }
 
