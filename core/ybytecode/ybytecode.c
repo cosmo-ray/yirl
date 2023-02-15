@@ -44,6 +44,7 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
       switch (script[i]) {
 	inst_compille(YB_ADD, add, 3);
 	inst_compille(YB_INCR, yb_incr, 1);
+	inst_compille(YB_DECR, yb_decr, 1);
 	inst_compille(YB_SUB, sub, 3);
 	inst_compille(YB_DIV, div, 3);
 	inst_compille(YB_MULT, mult, 3);
@@ -65,6 +66,7 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
 	inst_compille(YB_CREATE_FUNC, create_func, 2);
 	inst_compille(YB_SET_INT, set_int, 2);
 	inst_compille(YB_STRING_ADD_CH, string_add_ch, 2);
+	inst_compille(YB_TRUNCATE, truncate, 2);
 	inst_compille(YB_STRING_ADD_CH_ENT, string_add_ch_ent, 2);
 	inst_compille(YB_NEW_WIDGET, new_widget, 2);
 	inst_compille(YB_REGISTRE_WIDGET_SUBTYPE, wid_add_subtype, 1);
@@ -72,7 +74,9 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
 	inst_compille(YB_BRUTAL_CAST, brutal_cast, 2);
 	inst_compille(YB_PRINT_POS, print_pos, 0);
 	inst_compille(YB_PRINT_IRET, print_iret, 0);
+	inst_compille(YB_PRINT_STACK, print_stack, 0);
 	inst_compille(YB_PRINT_ENTITY, print_entity, 1);
+	inst_compille(YB_PRINT_NBR, print_nbr, 1);
 	inst_compille(YB_STACK_POP, stack_pop, 0);
 	inst_compille(YB_NEXT, next, 0);
 	inst_compille(YB_LEAVE, end, 0);
@@ -145,11 +149,22 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
   script += 3;
   goto *((void *)*script);
 
+ truncate:
+  yeStringTruncate(yeGetByIdxDirect(stack, script[1]), script[2]);
+  script += 3;
+  goto *((void *)*script);
+
  yb_incr:
   yeIncrementIntDirect(yeGetByIdxDirect(stack, script[1]));
   script +=2;
   goto *((void *)*script);
- add:
+
+yb_decr:
+  yeAdd(yeGetByIdxDirect(stack, script[1]), -1);
+  script +=2;
+  goto *((void *)*script);
+
+add:
   yeSetIntDirect(yeGetByIdxDirect(stack, script[3]),
 		 yeGetIntDirect(yeGetByIdxDirect(stack, script[1])) +
 		 yeGetIntDirect(yeGetByIdxDirect(stack, script[2]))
@@ -425,21 +440,26 @@ next:
   ++script;
   goto *((void *)*script);
 
+ print_stack:
+  yePrint(stack);
+  ++script;
+  goto *((void *)*script);
+  
  print_pos:
   printf("script instruction pos: "PRIiptr"\n",
 	 script - origin);
   ++script;
   goto *((void *)*script);
  print_entity:
-  {
-    char *ctmp = yeToCStr(yeGetByIdxDirect(stack, script[1]), 1, 0);
-
-    printf("%s\n", ctmp);
-    free(ctmp);
-    script += 2;
-  }
+  yePrint(yeGetByIdxDirect(stack, script[1]));
+  script += 2;
   goto *((void *)*script);
 
+print_nbr:
+  printf(PRIiptr"\n", script[1]);
+  script += 2;
+  goto *((void *)*script);
+  
  push_back:
   yePushBack(yeGetByIdxDirect(stack, script[1]),
 	     yeGetByIdxDirect(stack, script[2]),

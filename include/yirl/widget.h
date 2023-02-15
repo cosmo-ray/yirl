@@ -1,5 +1,5 @@
 /*
-**Copyright (C) 2015 Matthias Gatto
+**Copyright (C) 2015-2023 Matthias Gatto
 **
 **This program is free software: you can redistribute it and/or modify
 **it under the terms of the GNU Lesser General Public License as published by

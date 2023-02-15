@@ -283,6 +283,8 @@ static int  convertToYKEY(SDL_Keycode key)
 		return '\t';
 	case SDLK_ESCAPE:
 		return Y_ESC_KEY;
+	case SDLK_BACKSPACE:
+		return '\b';
 	default:
 		return -1;
 	}
