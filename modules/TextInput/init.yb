@@ -32,20 +32,33 @@ global text_input_action 2 {
 	stack_pop
 not_enter:
 	next
+	equal_nbr eve_key 8 trunc:
 	call_entity isPrintable eve_key
 	stack_pop
 	print_iret
 	is_iret_0 not_printable:
 	get_at_str 0 "cursor" => cursor
 	incr cursor
-	print_entity cursor
 	get_at_str 0 "text" => txt
-	print_entity txt
+	print_stack
 	string_add_ch_ent txt eve_key
 	set_int ret 1
 	return ret
 not_printable:
 	print_entity ret
+	return ret
+	stack_pop
+	stack_pop
+trunc:
+	print_stack
+	get_at_str 0 "cursor" => cursor2
+	get_at_str 0 "text" => txt2
+	decr cursor2
+	print_stack
+	print_nbr txt2
+	print_entity txt2
+	truncate txt2 1
+	set_int ret 1
 	return ret
 }
 
