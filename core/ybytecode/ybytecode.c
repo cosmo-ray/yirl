@@ -61,6 +61,7 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
 	inst_compille(YB_JMP, jmp, 1);
 	inst_compille(YB_LEN, len, 1);
 	inst_compille(YB_JMP_IF_0, jmp_if_0, 1);
+	inst_compille(YB_IRET_INF, iret_inf, 2);
 	inst_compille(YB_CREATE_STRING, create_string, 1);
 	inst_compille(YB_CREATE_INT, create_int, 1);
 	inst_compille(YB_CREATE_ARRAY, create_array, 0);
@@ -284,7 +285,17 @@ add:
   script += 4;
   goto *((void *)*script);
 
- jmp_if_0:
+iret_inf:
+  if (iret < script[1]) {
+	  script = origin + script[2];
+	  iret = 0;
+	  goto *((void *)*script);
+  }
+  script += 3;
+  iret = 0;
+  goto *((void *)*script);
+
+jmp_if_0:
   if (iret) {
     iret = 0;
     script += 2;

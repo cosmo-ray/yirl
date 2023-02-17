@@ -543,6 +543,13 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
     tryStoreLabels(script_len + 3, str, tokInfo, &labels_needed, -1);
     script_len += 4;
     goto still_in_func;
+  case YB_IRET_INF_TOK:
+    script[script_len] = tok;
+    tryStoreNumber(&script[script_len + 1], str, tokInfo);
+    tryStoreLabels(script_len + 2, str,
+		   tokInfo, &labels_needed, -1);
+    script_len += 3;
+    goto still_in_func;
   case YB_JMP_TOK:
   case YB_JMP_IF_0_TOK:
     script[script_len] = tok;
