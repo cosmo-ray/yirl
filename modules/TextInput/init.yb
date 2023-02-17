@@ -25,40 +25,42 @@ global text_input_action 2 {
 	get_at_idx 1 15 => eve_status
 	get_at_idx 1 0  => eve_type
 	get_at_idx 1 1  => eve_key
+	get_at_str 0 "text" => txt
 	yg_get_push "text_input_is_printable" => isPrintable
 	not_equal_nbr eve_type 0 not_printable:
 	not_equal_nbr eve_key 10 not_enter:
+	try_get_at_str 0 "on-enter" => on_enter
+	iret_inf 0 finish_game:
+	get_at_str 0 "$father-container" => parent
+	call_entity on_enter parent txt => unused
+	return ret
+	stack_pop
+	stack_pop
+	stack_pop
+finish_game:
 	call_entity finishGame_
 	stack_pop
 not_enter:
-	next
 	equal_nbr eve_key 8 trunc:
 	call_entity isPrintable eve_key
 	stack_pop
-	print_iret
 	is_iret_0 not_printable:
 	get_at_str 0 "cursor" => cursor
 	incr cursor
-	get_at_str 0 "text" => txt
-	print_stack
 	string_add_ch_ent txt eve_key
 	set_int ret 1
 	return ret
 not_printable:
-	print_entity ret
 	return ret
-	stack_pop
 	stack_pop
 trunc:
 	get_at_str 0 "cursor" => cursor2
-	get_at_str 0 "text" => txt2
-	len txt2 => txt_l
+	len txt => txt_l
 	is_nbr_inf txt_l 1 out:
 	decr cursor2
-	truncate txt2 1
+	truncate txt 1
 	set_int ret 1
 out:
-	print_stack
 	return ret
 }
 
