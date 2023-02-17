@@ -88,6 +88,7 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
 	inst_compille(YB_YG_GET_PUSH_INT, yg_get_push_int, 1);
 	inst_compille(YB_GET_AT_IDX, get_at_idx, 2);
 	inst_compille(YB_GET_AT_STR, get_at_str, 2);
+	inst_compille(YB_TRY_GET_AT_STR, try_get_at_str, 2);
       case YB_CALL:
 	script[i] = (int_ptr_t) &&call_entity;
 	i += (script[i + 1] + 3);
@@ -397,6 +398,20 @@ next:
 			  (const char *)script[2]), NULL);
   script += 3;
   goto *((void *)*script);
+
+try_get_at_str:
+  {
+	  Entity *to_get = yeGet(yeGetByIdxDirect(stack, script[1]),
+				 (const char *)script[2]);
+	  if (!to_get) {
+		  yeCreateInt(0, stack, NULL);
+		  iret = -1;
+	  } else {
+		  iret = yePushBack(stack, to_get, NULL);
+	  }
+	  script += 3;
+	  goto *((void *)*script);
+  }
 
  yg_get_push_int:
   {

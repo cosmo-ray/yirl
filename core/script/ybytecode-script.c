@@ -398,6 +398,7 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
   }
   switch (tok) {
   case YB_GET_AT_STR_TOK:
+  case YB_TRY_GET_AT_STR_TOK:
     {
       script[script_len] = tok;
       tryStoreNumber(&script[script_len + 1], str, tokInfo);
