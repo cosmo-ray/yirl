@@ -68,12 +68,8 @@ global text_input_reset 1 {
 	int 0 => ret
 	get_at_str 0 "text" => txt
 	get_at_str 0 "cursor" => cursor
-	print_stack
-	print_entity txt
-	print_nbr txt
 	set_int cursor 0
 	set_string txt ""
-	print_stack
 	return ret
 }
 

@@ -139,7 +139,6 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
   goto *((void *)*script);
 
  set_string:
-  yePrint(yeGetByIdxDirect(stack, script[1]));
   yeSetString(yeGetByIdxDirect(stack, script[1]), (const char *)script[2]);
   script += 3;
   goto *((void *)*script);
