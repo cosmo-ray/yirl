@@ -32,7 +32,7 @@ global text_input_action 2 {
 	try_get_at_str 0 "on-enter" => on_enter
 	iret_inf 0 finish_game:
 	get_at_str 0 "$father-container" => parent
-	call_entity on_enter parent txt => unused
+	call_entity on_enter 0 txt parent  => unused
 	return ret
 	stack_pop
 	stack_pop
@@ -61,6 +61,19 @@ trunc:
 	truncate txt 1
 	set_int ret 1
 out:
+	return ret
+}
+
+global text_input_reset 1 {
+	int 0 => ret
+	get_at_str 0 "text" => txt
+	get_at_str 0 "cursor" => cursor
+	print_stack
+	print_entity txt
+	print_nbr txt
+	set_int cursor 0
+	set_string txt ""
+	print_stack
 	return ret
 }
 
