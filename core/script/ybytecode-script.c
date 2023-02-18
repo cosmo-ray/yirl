@@ -438,6 +438,17 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
       script_len += 4;
     }
     goto still_in_func;
+  case YB_SET_STRING:
+	  script[script_len] = tok;
+
+	  tryGetIdentifier(&script[script_len + 1], str, tokInfo, &idents);
+	  {
+		  Entity *tmpStr = tryStoreString(funcData, str, tokInfo);
+		  script[script_len + 2] = (uintptr_t)yeGetString(tmpStr);
+	  }
+	  script_len += 3;
+	  goto still_in_func;
+
   case YB_YG_GET_PUSH_TOK: /* literal string argument */
   case YB_CREATE_STRING_TOK:
     {

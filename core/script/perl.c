@@ -149,6 +149,26 @@ XS(XS_yeReCreateString)
 	XSRETURN_IV(PTR2IV(r));
 }
 
+XS(XS_yesCall)
+{
+	union ycall_arg args[17];
+	int types[17];
+	void *r;
+	int i = 1;
+	dXSARGS;
+
+	for (; i < items; ++i) {
+		args[i - 1].e = (void *)SvIV(ST(i));
+		types[i - 1] = YS_ENTITY;
+		if (!args[i - 1].e) {
+			break;
+		}
+	}
+
+	r = yesCallInt((void *)SvIV(ST(0)), i - 1, args, types);
+	XSRETURN_IV(PTR2IV(r));
+}
+
 XS(XS_yevCreateGrp)
 {
 	Entity *r = NULL;
@@ -567,7 +587,8 @@ EXTERN_C void xs_init(pTHX)
 	BIND(yeCreateInt);
 	BIND(yeCreateFloat);
 	BIND(ywidNewWidget);
-	BIND(ywTextScreenNew);
+ 	BIND(ywTextScreenNew);
+ 	BIND(yesCall);
 #undef IN_CALL
 
 }
