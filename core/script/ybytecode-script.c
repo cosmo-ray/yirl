@@ -451,16 +451,16 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
 
   case YB_YG_GET_PUSH_TOK: /* literal string argument */
   case YB_CREATE_STRING_TOK:
-    {
-      script[script_len] = tok;
+  {
+	  script[script_len] = tok;
 
-      Entity *tmpStr = tryStoreString(funcData, str, tokInfo);
+	  Entity *tmpStr = tryStoreString(funcData, str, tokInfo);
 
-      script[script_len + 1] = (uintptr_t)yeGetString(tmpStr);
-      script_len += 2;
-    }
-    INCREMENT_IDENTIFIER();
-    goto still_in_func;
+	  script[script_len + 1] = (uintptr_t)yeGetString(tmpStr);
+	  script_len += 2;
+  }
+  INCREMENT_IDENTIFIER();
+  goto still_in_func;
 
   case YB_CALL_TOK: /* variadic arguments */
     script[script_len] = tok;
