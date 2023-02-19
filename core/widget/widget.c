@@ -833,6 +833,7 @@ int ywidDoTurn(YWidgetState *opac)
 		if (!head)
 			return NOTHANDLE;
 		trackMouse(head);
+		YTimerReset(cnt);
 	}
 	ywTurnPecent = 0;
 	ywidMidRendEnd(mainWid);
