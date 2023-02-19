@@ -136,6 +136,8 @@ int usleep(useconds_t);
 void abort(void);
 int isdigit(int);
 
+int puts(const char *s);
+
 /* Because I have no fucking idea of to define
  * a non function symbole on windows
  * I can't define stderr */
