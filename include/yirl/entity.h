@@ -19,15 +19,15 @@
  * This file contain the entity API.
  * Entities are just some basic type that are used everywhere in the engine
  * they can either be int,string,float,function,data or array
- * they're used everywhere inside my engine
+ *
  * father/mother and parent are the same thing, when creating an entity
  * this entity can be place inside an array directly, in this case the
  * parent is the array containing it.
  *
- * I've first start to use father instead parent because of some bias
+ * I've first start to use father instead of parent because of some bias
  * I can't explain, it was a mistake, so I'm presently fixig it using this rule:
  * father should be randomly keep or replace by either mother and parent
- * Why use 3 difinition for the same thing ? why not ?
+ * Why use 3 definition for the same thing ? why not ?
  */
 
 #ifndef	_YIRL_ENTITY_H
