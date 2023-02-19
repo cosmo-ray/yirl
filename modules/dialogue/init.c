@@ -816,7 +816,6 @@ void *dialogueInit(int nbArgs, void **args)
 
 	yeTryCreateInt(1, main, "current");
 	ret = ywidNewWidget(main, "container");
-	yePrint(main);
 	printfTextAndAnswer(main, textScreen, answers, active_dialogue);
 	return ret;
 }

@@ -18,7 +18,7 @@
 #if PERL_ENABLE > 0
 
 #include <yirl/all.h>
-#include <EXTERN.h> 
+#include <EXTERN.h>
 #include <perl.h>
 #include <XSUB.h>
 
@@ -31,6 +31,19 @@ struct YPerlScript {
 };
 
 Entity *toFree;
+
+XS(XS_ygFileToEnt)
+{
+	Entity *parent;
+	dXSARGS;
+	if (items > 2)
+		parent = (void *)SvIV(ST(2));
+	else
+		parent = toFree;
+	Entity *r = ygFileToEnt(SvIV(ST(0)), SvPVbyte_nolen(ST(1)), parent);
+
+	XSRETURN_IV(PTR2IV(r));
+}
 
 XS(XS_yeCreateFunction)
 {
@@ -568,7 +581,6 @@ XS(XS_yeGetIntAt)
 	XSRETURN_IV(ret);
 }
 
-
 EXTERN_C void xs_init(pTHX)
 {
 	char *file = __FILE__;
@@ -589,6 +601,7 @@ EXTERN_C void xs_init(pTHX)
 	BIND(ywidNewWidget);
  	BIND(ywTextScreenNew);
  	BIND(yesCall);
+	BIND(ygFileToEnt);
 #undef IN_CALL
 
 }
