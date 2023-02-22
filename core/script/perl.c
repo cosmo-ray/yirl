@@ -162,6 +162,22 @@ XS(XS_yeReCreateString)
 	XSRETURN_IV(PTR2IV(r));
 }
 
+XS(XS_yeReCreateArray)
+{
+	Entity *parent;
+	const char *key = NULL;
+	dXSARGS;
+
+	if (items < 1) {
+		parent = toFree;
+	} else {
+		parent = (void *)SvIV(ST(1));
+		key = items > 1 ? SvPVbyte_nolen(ST(1)) : NULL;
+	}
+	Entity *r = yeReCreateArray(parent, key, NULL);
+	XSRETURN_IV(PTR2IV(r));
+}
+
 XS(XS_yesCall)
 {
 	union ycall_arg args[17];
@@ -596,6 +612,7 @@ EXTERN_C void xs_init(pTHX)
 	BIND(yeCreateArray);
 	BIND(yeCreateString);
 	BIND(yeReCreateString);
+	BIND(yeReCreateArray);
 	BIND(yeCreateInt);
 	BIND(yeCreateFloat);
 	BIND(ywidNewWidget);
