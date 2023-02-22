@@ -19,6 +19,7 @@
  * Entity description:
  * {
  * "<type>": "menu",
+ * "pre-text": "OPTIONAL TEXT BEFORE MENU",
  * "entries": [
  *  {
  *    "text": "xxx",
