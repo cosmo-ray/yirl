@@ -636,7 +636,7 @@ static int do_print(SDL_Surface **surfaces, int surfaces_cnt, GPU_Rect pos,
 		GPU_Image *text = GPU_CopyImageFromSurface(surfaces[i]);
 
 		if (!text) {
-			ret = -1; 
+			ret = -1;
 			goto out;
 		}
 
@@ -654,16 +654,15 @@ out:
 }
 
 static int sdlPrintLine(
-	SDLWid *wid, char *str, SDL_Color color,
+	SDLWid *wid, char *str, SDL_Color *color,
 	GPU_Rect pos, int line, int alignementType,
-	int lineSpace)
+	int lineSpace, SDL_Color orig_color)
 {
 	int len = strlen(str);
 	GPU_Target *renderer = sg.pWindow;
 	int caract_per_line = len;
 	int ret = 0;
 	int txth = sgGetTxtH() + lineSpace;
-	SDL_Color orig_color = color;
 	SDL_Surface *surfaces_array[128];
 	if (((int)sgGetTxtW() * len) > pos.w) {
 		caract_per_line = pos.w / sg.txtWidth;
@@ -693,7 +692,7 @@ static int sdlPrintLine(
 		if (pos.y >= wid->rect.y &&
 		    pos.y + txth <= wid->rect.y + wid->rect.h
 		    && strlen(str + i)) {
-			SDL_Surface *s = mk_print_surface(str + i, color);
+			SDL_Surface *s = mk_print_surface(str + i, *color);
 			if (!s)
 				return -1;
 			surfaces_array[surfaces_cnt++] = s;
@@ -711,7 +710,7 @@ static int sdlPrintLine(
 
 				++str_tmp;
 				if (*str_tmp == '0' && str_tmp[1] == 'm') {
-					color = orig_color;
+					*color = orig_color;
 					str_tmp += 2;
 				} else if (*str_tmp == '3' && isdigit(str_tmp[1])) {
 					int as_int;
@@ -719,10 +718,10 @@ static int sdlPrintLine(
 					++str_tmp; // skip 3
 
 					as_int = *str_tmp - '0';
-					color.r = 255 * !!(as_int & 1);
-					color.g = 255 * !!(as_int & 2);
-					color.b = 255 * !!(as_int & 4);
-					color.a = 255;
+					color->r = 255 * !!(as_int & 1);
+					color->g = 255 * !!(as_int & 2);
+					color->b = 255 * !!(as_int & 4);
+					color->a = 255;
 					++str_tmp; // skipp next digit
 					if (*str_tmp == 'm') {
 						++str_tmp;
@@ -769,6 +768,7 @@ int sdlPrintTextExt(SDLWid *wid, const char *str, SDL_Color color,
 	char *otmp = tmp;
 	int ret = 0;
 	int line_cnt = 0;
+	SDL_Color ocolor = color;
 
 
 again:
@@ -777,9 +777,9 @@ again:
 
 		if (next)
 			*next = 0;
-		ret = sdlPrintLine(wid, tmp, color, pos,
+		ret = sdlPrintLine(wid, tmp, &color, pos,
 				   line_cnt, alignementType,
-				   lineSpace);
+				   lineSpace, ocolor);
 		if (ret < 0)
 			goto exit;
 		line_cnt += ret;

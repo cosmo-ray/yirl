@@ -39,7 +39,6 @@ static inline int yeStrEq(Entity *e, const char *s)
 	free(tmp_);						\
 	entity;							\
 })
-	
 
 int yeStrCaseCmp(Entity *ent, const char *str);
 
