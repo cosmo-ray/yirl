@@ -262,6 +262,7 @@ XS(XS_yevCreateGrp)
 		XSRETURN_PV((char *)(intptr_t)YSCRIPT_VOID_CALL(call));	\
 		break;							\
 	case YSCRIPT_RET_INT:						\
+	case YSCRIPT_RET_LONG:						\
 		XSRETURN_IV((intptr_t)YSCRIPT_VOID_CALL(call));		\
 		break;							\
 	case YSCRIPT_RET_UINT:						\

@@ -224,12 +224,13 @@ int ysTccPushSysincludePath(void *state, const char *path);
 
 #define YSCRIPT_RET_OTHER YSCRIPT_RET_STR
 enum {
-	YSCRIPT_RET_VOID,
-	YSCRIPT_RET_ENTITY,
-	YSCRIPT_RET_STR,
-	YSCRIPT_RET_INT,
-	YSCRIPT_RET_UINT,
-	YSCRIPT_RET_BOOL
+	YSCRIPT_RET_VOID,   /* 0 */
+	YSCRIPT_RET_ENTITY, /* 1 */
+	YSCRIPT_RET_STR,    /* 2 */
+	YSCRIPT_RET_INT,    /* 3 */
+	YSCRIPT_RET_UINT,   /* 4 */
+	YSCRIPT_RET_LONG,   /* 5 */
+	YSCRIPT_RET_BOOL    /* 6 */
 };
 
 #define YSCRIPT_RET_TYPE(call, multy)			\
