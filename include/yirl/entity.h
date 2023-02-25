@@ -1525,7 +1525,7 @@ static inline Entity *yeGetRandomElem(Entity *array)
 {
 	if (!array || yeType(array) != YARRAY)
 		return NULL;
-	
+
 	int array_l = yeLen(array);
 	if (!array_l)
 		return NULL;
