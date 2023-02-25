@@ -1578,6 +1578,23 @@ static inline int yeEqual(Entity *a, Entity *b)
 	return 0;
 }
 
+/**
+ * check if an int is superior or inferior to e
+ */
+static inline _Bool yeIntInfTo(Entity *e, int o)
+{
+	if (yeType(e) != YINT)
+		return 0;
+	return yeGetIntDirect(e) < o;
+}
+
+static inline _Bool yeIntSupTo(Entity *e, int o)
+{
+	if (yeType(e) != YINT)
+		return 0;
+	return yeGetIntDirect(e) > o;
+}
+
 enum {
 	YE_PATCH_NO_SUP = 1 << 0
 };

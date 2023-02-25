@@ -366,12 +366,12 @@ XS(XS_yevCreateGrp)
 				  (void *)SvIV(ST(1))));	\
 	}
 
-#define BIND_EI(name, ...)					\
-	XS(XS_##name)						\
-	{							\
-		dXSARGS;					\
-		BIND_AUTORET(name((void *)SvIV(ST(0)),		\
-				  SvIV(ST(1))));		\
+#define BIND_EI(name, ...)				\
+	XS(XS_##name)					\
+	{						\
+		dXSARGS;				\
+		BIND_AUTORET(name((void *)SvIV(ST(0)),	\
+				  SvIV(ST(1))));	\
 	}
 
 #define BIND_IIE(name, ...)						\
