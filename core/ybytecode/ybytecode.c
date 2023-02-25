@@ -113,7 +113,7 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
 	  free(ybytecode_error);
 	  ybytecode_error = NULL;
 	}
-	if (isprint(script[i])) {
+	if (script[i] < 126 && isprint(script[i])) {
 	  ybytecode_error =
 	    y_strdup_printf("instruction '%c' at %d is not valide",
 			    (char)script[i], i);
