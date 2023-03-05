@@ -156,6 +156,8 @@ int yeCheckCondition(Entity *condition)
 				instructions[i] = YB_INF;
 			} else if (action[0] == '=') {
 				instructions[i] = YB_EQUAL;
+			} else if (action[0] == '&') {
+				instructions[i] = YB_CHECK_B_AND;
 			} else if (len == 2 && action[0] == '!' &&
 				   action[1] == '=') {
 				instructions[i] = YB_NOT_EQUAL;

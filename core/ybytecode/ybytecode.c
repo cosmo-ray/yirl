@@ -54,6 +54,7 @@ Entity *ybytecode_exec(Entity *stack, int64_t *script)
 	inst_compille(YB_STR_NEQUAL, yb_str_not_equal, 3);
 	inst_compille(YB_EQUAL_NBR, yb_equal_comp_nbr, 3);
 	inst_compille(YB_EQUAL, qeual_comp, 3);
+	inst_compille(YB_CHECK_B_AND, check_b_and_comp, 3);
 	inst_compille(YB_NOT_EQUAL, not_equal_comp, 3);
 	inst_compille(YB_INF_COMP_NBR, yb_inf_comp_nbr, 3);
 	inst_compille(YB_SUP_COMP_NBR, yb_sup_comp_nbr, 3);
@@ -253,6 +254,15 @@ add:
 	      yeGetByIdxDirect(stack, script[2]))) {
     script = origin + script[3];
     goto *((void *)*script);
+  }
+  script += 4;
+  goto *((void *)*script);
+
+ check_b_and_comp:
+  if (yeIntCheckBAnd(yeGetByIdxDirect(stack, script[1]),
+		     yeGetIntAt(stack, script[2]))) {
+	  script = origin + script[3];
+	  goto *((void *)*script);
   }
   script += 4;
   goto *((void *)*script);

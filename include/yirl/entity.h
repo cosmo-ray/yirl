@@ -1595,6 +1595,18 @@ static inline _Bool yeIntSupTo(Entity *e, int o)
 	return yeGetIntDirect(e) > o;
 }
 
+static inline int yeIntBAnd(Entity *e, int o)
+{
+	if (yeType(e) != YINT)
+		return 0;
+	return yeGetIntDirect(e) & o;
+}
+
+static inline _Bool yeIntCheckBAnd(Entity *e, int o)
+{
+	return !!yeIntBAnd(e, o);
+}
+
 enum {
 	YE_PATCH_NO_SUP = 1 << 0
 };

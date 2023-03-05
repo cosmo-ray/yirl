@@ -544,6 +544,7 @@ static int parseFunction(Entity *map, Entity *str, Entity *tokInfo)
     ret = 0;
     break;
   case YB_EQUAL_TOK:
+  case YB_CHECK_B_AND_TOK:
   case YB_NOT_EQUAL_NBR_TOK:
   case YB_EQUAL_NBR_TOK:
   case YB_INF_COMP_NBR_TOK:
