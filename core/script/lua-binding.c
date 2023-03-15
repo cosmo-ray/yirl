@@ -539,13 +539,13 @@ int	luayeGet(lua_State *L)
 	if (lua_isnumber(L, 2)) {
 		lua_pushlightuserdata(L, yeGetByIdx(luaEntityAt(L, 1),
 						    lua_tonumber (L, 2)));
-		return 1;
 	} else if (lua_isstring(L, 2)) {
 		lua_pushlightuserdata(L, yeGetByStrFast(luaEntityAt(L, 1),
 							lua_tostring (L, 2)));
-		return 1;
+	} else {
+		lua_pushnil(L);
 	}
-	return 0;
+	return 1;
 }
 
 int	luaywCanvasRotate(lua_State *L)
