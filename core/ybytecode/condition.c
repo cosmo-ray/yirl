@@ -115,6 +115,8 @@ int yeCheckCondition(Entity *condition)
 				yeCheckCondition(yeGet(condition, 2));
 		} else if (!yeStrCmp(estr, "exist")) {
 			return !!ygGet(yeGetStringAt(condition, 1));
+		} else if (!yeStrCmp(estr, "d100_inf")) {
+			return ((yuiRand() % 100) < yeGetIntAt(condition, 1));
 		} else if (!yeStrCmp(estr, "!exist")) {
 			return !ygGet(yeGetStringAt(condition, 1));
 		}
