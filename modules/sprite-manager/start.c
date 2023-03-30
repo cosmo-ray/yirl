@@ -55,6 +55,23 @@ void *handlerAdvance(int nargs, void **args)
 	return NULL;
 }
 
+void *handlerSetAdvancement(int nargs, void **args)
+{
+	Entity *h = args[0];
+	int where = args[1];
+	Entity *sp = yeGet(h, "sp");
+	int size = yeGetIntAt(sp, "size");
+	int l = yeGetIntAt(sp, "length");
+
+	assert(l);
+	yeSetAt(h, "x", where * size);
+	printf("set at %d - %d\n", where * size, size * l);
+	if (yeGetIntAt(h, "x") >= size * l) {
+		yeSetAt(h, "x", 0);
+	}
+	return NULL;
+}
+
 void *handlerRefresh(int nargs, void **args)
 {
 	Entity *h = args[0];
@@ -165,6 +182,7 @@ void *mod_init(int nbArg, void **args)
 		mod.handlerNullify = handlerNullify;
 		mod.handlerRemoveCanva = handlerRemoveCanva;
 		mod.handlerAdvance = handlerAdvance;
+		mod.handlerSetAdvancement = handlerSetAdvancement;
 		mod.handlerPos = handlerPos;
 		mod.handlerSize = handlerSize;
 	}
