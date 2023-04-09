@@ -415,6 +415,15 @@ static JSValue make_abort(JSContext *ctx, ...)
 			       GET_E(ctx, 3), GET_E(ctx, 4)));		\
 	}
 
+#define BIND_EIIIS(f, useless...)					\
+	static JSValue qjs##f(JSContext *ctx, JSValueConst this_val,	\
+			      int argc, JSValueConst *argv) {		\
+		BIND_AUTORET(f(GET_E(ctx, 0),				\
+			       GET_I(ctx, 1), GET_I(ctx, 2),		\
+			       GET_I(ctx, 3),				\
+			       GET_S(ctx, 4)));				\
+	}
+
 #define BIND_EIIIIS(f, useless...)					\
 	static JSValue qjs##f(JSContext *ctx, JSValueConst this_val,	\
 			      int argc, JSValueConst *argv) {		\

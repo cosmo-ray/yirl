@@ -566,6 +566,18 @@ XS(XS_yevCreateGrp)
 				  (void *)SvIV(ST(4))));	\
 	}
 
+#define BIND_EIIIS(name, ...)					\
+	XS(XS_##name)						\
+	{							\
+		dXSARGS;					\
+		BIND_AUTORET(name((void *)SvIV(ST(0)),		\
+				  SvIV(ST(1)),			\
+				  SvIV(ST(2)),			\
+				  SvIV(ST(3)),			\
+				  SvPVbyte_nolen(ST(4))));	\
+	}
+
+
 #define BIND_EIIIIS(name, ...)					\
 	XS(XS_##name)						\
 	{							\

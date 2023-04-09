@@ -33,6 +33,7 @@
 #define BIND_EEEEI	BIND
 #define BIND_EEESI	BIND
 #define BIND_EIIEE	BIND
+#define BIND_EIIIS	BIND
 #define BIND_EIIIIS	BIND
 #else
 
@@ -367,6 +368,8 @@ BIND_SEES(ywTextureNewImg, 4, 0);
 #undef NO_ywTextureNewImg
 #endif
 
+BIND_EIIIS(ywCanvasNewHSegment, 5, 0);
+BIND_EIIIS(ywCanvasNewVSegment, 5, 0);
 
 BIND_EIIIIS(ywCanvasNewRectangle, 6, 0);
 BIND_EIIIIS(ywCanvasMergeRectangle, 6, 0);
@@ -422,6 +425,7 @@ PUSH_I_GLOBAL(YPH7);
 PUSH_I_GLOBAL(YPERL);
 
 #undef BIND_EIIIIS
+#undef BIND_EIIIS
 #undef BIND_EIIEE
 #undef BIND_EEEEI
 #undef BIND_EEESI
