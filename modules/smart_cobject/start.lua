@@ -1,0 +1,268 @@
+
+local lpcs = nil
+local sprite_man = nil
+
+local LPCS_LEFT = nil
+local LPCS_DOWN = nil
+local LPCS_RIGHT = nil
+local LPCS_UP = nil
+local LPCS_DEAD = nil
+
+function distanceToDir(x, y)
+   if math.abs(x) > math.abs(y) then
+      if x > 0 then
+	 return LPCS_RIGHT
+      else
+	 return LPCS_LEFT
+      end
+   else
+      if y > 0 then
+	 return LPCS_DOWN
+      else
+	 return LPCS_UP
+      end
+   end
+end
+
+function lpcsDirToXY(dir)
+   if yIsLuaNum(dir) == false then
+      dir = yeGetInt(dir)
+   end
+
+   if dir == LPCS_LEFT then
+      return -1,0
+   elseif dir == LPCS_RIGHT then
+      return 1,0
+   elseif dir == LPCS_UP then
+      return 0,-1
+   end
+   return 0,1
+end
+function lpcsStrToDir(sdir)
+   if sdir == "left" then
+      return LPCS_LEFT
+   elseif sdir == "right" then
+      return LPCS_RIGHT
+   elseif sdir == "down" then
+      return LPCS_DOWN
+   end
+   return LPCS_UP
+end
+
+function lpcsDirToStr(sdir)
+   if sdir == LPCS_LEFT then
+      return "left"
+   elseif sdir == LPCS_RIGHT then
+      return "right"
+   elseif sdir == LPCS_DOWN then
+      return "down"
+   elseif sdir == LPCS_UP then
+      return "up"
+   end
+   return "unknow"
+end
+
+function yGenericHandlerRmCanva(npc)
+   npc = Entity.wrapp(npc)
+   if yeGetString(npc.char.type) == "sprite" then
+      sprite_man.handlerRemoveCanva(npc)
+   else
+      lpcs.handlerRemoveCanva(npc)
+   end
+end
+
+function sprite_getdir(npc)
+   local sdispo = yeGetString(npc.sp.disposition)
+   local x_off_idx = yeGetIntAt(npc, "y_offset");
+
+   if yeGetString(npc.sp.disposition) == "uldr" then
+      if x_off_idx == 32 then
+	 return LPCS_LEFT
+      elseif x_off_idx == 96 then
+	 return LPCS_RIGHT
+      elseif x_off_idx == 64 then
+	 return LPCS_DOWN
+      end
+      return LPCS_UP
+   elseif yeGetString(npc.sp.disposition) == "urdl" then
+      if x_off_idx == 96 then
+	 return LPCS_LEFT
+      elseif x_off_idx == 32 then
+	 return LPCS_RIGHT
+      elseif x_off_idx == 64 then
+	 return LPCS_DOWN
+      end
+      return LPCS_UP
+   else
+      if x_off_idx == 32 then
+	 return LPCS_LEFT
+      elseif x_off_idx == 64 then
+	 return LPCS_RIGHT
+      elseif x_off_idx == 96 then
+	 return LPCS_UP
+      end
+      return LPCS_DOWN
+   end
+end
+
+function yGenericHandlerShowDead(npc)
+   npc = Entity.wrapp(npc)
+   local npc_char = npc.char
+   if yeGetString(npc_char.type) == "sprite" then
+      local npc_c_sprite = npc_char.sprite
+      local dead_idx = yeGetInt(npc_c_sprite['dead-txt-idx'])
+      if dead_idx < 1 then
+	 return false
+      end
+      local x_off_idx = yeGetIntAt(npc, "y_offset") / 32;
+
+      npc.text_idx = dead_idx
+      sprite_man.handlerSetAdvancement(npc, yeGetIntAt(npc_c_sprite['dead-pos'], x_off_idx))
+      sprite_man.handlerRefresh(npc)
+      return true
+   end
+   npc.y = LPCS_DEAD
+   npc.x = 5
+   lpcs.handlerRefresh(npc)
+   return true
+end
+
+function yGenericHandlerRefresh(npc)
+   npc = Entity.wrapp(npc)
+   if yeGetString(npc.char.type) == "sprite" then
+      sprite_man.handlerRefresh(npc)
+   else
+      lpcs.handlerRefresh(npc)
+   end
+end
+
+function yGenericHandlerNullify(npc)
+   npc = Entity.wrapp(npc)
+   if yeGetString(npc.char.type) == "sprite" then
+      sprite_man.handlerNullify(npc)
+   else
+      lpcs.handlerNullify(npc)
+   end
+end
+
+function yGenericHandlerPos(npc)
+   npc = Entity.wrapp(npc)
+   if yIsNil(npc) or npc.char == nil then
+      return
+   end
+   if yeGetString(npc.char.type) == "sprite" then
+      return sprite_man.handlerPos(npc)
+   else
+      return ylpcsHandlerPos(npc)
+   end
+end
+
+function yGenericHandlerSize(npc)
+   npc = Entity.wrapp(npc)
+   if yIsNil(npc) or npc.char == nil then
+      return
+   end
+   if yeGetString(npc.char.type) == "sprite" then
+      return sprite_man.handlerSize(npc)
+   else
+      return ylpcsHandlerSize(npc)
+   end
+end
+
+function yGenericSetDir(npc, dir)
+   npc = Entity.wrapp(npc)
+   if yIsLuaString(dir) then
+      dir = lpcsStrToDir(dir)
+   end
+
+   if yeGetString(npc.char.type) == "sprite" then
+
+      if (yIsLuaNum(dir) == false) then
+	 dir = yeGetInt(dir)
+      end
+
+      -- uldr = up left down right
+      if yeGetString(npc.sp.disposition) == "uldr" then
+	 if dir == LPCS_LEFT then
+	    yeSetAt(npc, "y_offset", 32)
+	 elseif dir == LPCS_RIGHT then
+	    yeSetAt(npc, "y_offset", 96)
+	 elseif dir == LPCS_DOWN then
+	    yeSetAt(npc, "y_offset", 64)
+	 else
+	    yeSetAt(npc, "y_offset", 0)
+	 end
+      -- urdl = up right down left
+      elseif yeGetString(npc.sp.disposition) == "urdl" then
+	 if dir == LPCS_LEFT then
+	    yeSetAt(npc, "y_offset", 96)
+	 elseif dir == LPCS_RIGHT then
+	    yeSetAt(npc, "y_offset", 32)
+	 elseif dir == LPCS_DOWN then
+	    yeSetAt(npc, "y_offset", 64)
+	 else
+	    yeSetAt(npc, "y_offset", 0)
+	 end
+      else
+	 if dir == LPCS_LEFT then
+	    yeSetAt(npc, "y_offset", 32)
+	 elseif dir == LPCS_RIGHT then
+	    yeSetAt(npc, "y_offset", 64)
+	 elseif dir == LPCS_UP then
+	    yeSetAt(npc, "y_offset", 96)
+	 else
+	    yeSetAt(npc, "y_offset", 0)
+	 end
+	 print("set offset: ", dir, npc.y_offset);
+      end
+   else
+      lpcs.handlerSetOrigXY(npc, 0, dir)
+      yGenericHandlerRefresh(npc)
+   end
+end
+
+function yGenericSetPos(npc, pos)
+   npc = Entity.wrapp(npc)
+   if yeGetString(npc.char.type) == "sprite" then
+      sprite_man.handlerSetPos(npc, pos)
+   else
+      ylpcsHandlerSetPos(npc, pos)
+   end
+end
+
+function yGenericHandlerMove(npc, add)
+   ywPosAdd(yGenericHandlerPos(npc), add)
+end
+
+function yGenericHandlerMoveXY(npc, x, y)
+   ywPosAddXY(yGenericHandlerPos(npc), x, y)
+end
+
+function modinit_post(mod)
+   lpcs = Entity.wrapp(ygGet("lpcs"))
+   sprite_man = Entity.wrapp(ygGet("sprite-man"))
+
+   LPCS_LEFT = ygGetInt("lpcs.LEFT")
+   LPCS_DOWN = ygGetInt("lpcs.DOWN")
+   LPCS_RIGHT = ygGetInt("lpcs.RIGHT")
+   LPCS_UP = ygGetInt("lpcs.UP")
+   LPCS_DEAD = ygGetInt("lpcs.DEAD")
+end
+
+function mod_init(mod)
+   mod = Entity.wrapp(mod)
+
+   mod.name = "smart_cobject"
+   ygAddModule(Y_MOD_YIRL, mod, "sprite-manager")
+   ygAddModule(Y_MOD_YIRL, mod, "Universal-LPC-spritesheet")
+   ygRegistreFunc(1, "yGenericHandlerRmCanva", "yGenericHandlerRmCanva");
+   ygRegistreFunc(1, "yGenericHandlerShowDead", "yGenericHandlerShowDead");
+   ygRegistreFunc(1, "yGenericHandlerRefresh", "yGenericHandlerRefresh");
+   ygRegistreFunc(1, "yGenericHandlerNullify", "yGenericHandlerNullify");
+   ygRegistreFunc(1, "yGenericHandlerPos", "yGenericHandlerPos");
+   ygRegistreFunc(1, "yGenericHandlerSize", "yGenericHandlerSize");
+   ygRegistreFunc(2, "yGenericSetDir", "yGenericSetDir");
+   ygRegistreFunc(2, "yGenericSetPos", "yGenericSetPos");
+   yeCreateFunction("modinit_post", mod, "init-post-action");
+   return mod
+end
