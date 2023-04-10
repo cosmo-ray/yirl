@@ -79,6 +79,33 @@ static inline Entity *ygInitWidgetModule(Entity *mod, const char *name, Entity *
 	return start;
 }
 
+enum {
+	Y_MOD_LOCAL,
+	Y_MOD_YIRL
+};
+
+/**
+ * Must be call in mod init
+ * @param type either Y_MOD_YIRL or Y_MOD_LOCAL
+ * @param mod the mod
+ * @param path entity path
+ */
+static inline void ygAddModule(int type, Entity *mod, const char *path)
+{
+	Entity *pre_load = yeTryCreateArray(mod, "pre-load");
+	Entity *mod_to_load = yeCreateArray(pre_load, 0);
+
+	if (type == Y_MOD_YIRL) {
+		Entity *path_ent;
+
+		path_ent = yeCreateString("YIRL_MODULES_PATH/", mod_to_load, "path");
+		yeAddStr(path_ent, path);
+	} else {
+		yeCreateString(path, mod_to_load, "file");
+	}
+	yeCreateString("module", mod_to_load, "type");
+}
+
 const char *ygGetBinaryRootPath(void);
 
 static inline void ygBinaryRootPathFree(void)

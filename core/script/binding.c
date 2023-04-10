@@ -67,6 +67,8 @@ BIND_EEE(ywidActions, 2, 1);
 
 BIND_EEE(ywCanvasNewIntersectArray, 3, 0);
 
+BIND_IES(ygAddModule, 2, 1);
+
 BIND_IES(yaeInt, 2, 1);
 
 BIND_IES(ygLoadScript2, 3, 0);
@@ -380,6 +382,9 @@ BIND_EIIIIS(ywTextureMergeText, 6, 0);
 BIND_EIIIIS(ywTextureMergeRectangle, 6, 0);
 
 BIND_NONE(yevCreateGrp, 1, 9);
+
+PUSH_I_GLOBAL(Y_MOD_LOCAL);
+PUSH_I_GLOBAL(Y_MOD_YIRL);
 
 PUSH_I_GLOBAL(YSTRING);
 PUSH_I_GLOBAL(YARRAY);
