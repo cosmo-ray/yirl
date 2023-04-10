@@ -939,6 +939,10 @@ Entity *ygLoadMod(const char *path)
 	yePushBack(mod, starting_widget, "$starting widget");
 	printf(" === add module: \"%s\" === \n", yeGetString(name));
 
+	Entity *init_post_action = yeGet(mod, "init-post-action");
+	if (init_post_action) {
+		yesCall(init_post_action, mod);
+	}
 	goto exit;
 failure:
 	yeRemoveChild(modList, mod);
