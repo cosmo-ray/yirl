@@ -815,7 +815,6 @@ static void addFuncSymbole(void *sm, const char *name, int nbArgs, Entity *func)
 	yeAddStr(str, ")");
 	yeStringAdd(str, ")))");
 	loadString(sm, yeGetString(str));
-	printf("s7 load: %s\n", yeGetString(str));
 	free(tmp_name);
 	yeDestroy(str);
 }
