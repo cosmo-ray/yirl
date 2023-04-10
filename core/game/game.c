@@ -606,12 +606,19 @@ int ygRegistreFuncInternal(void *manager, int nbArgs, const char *name,
 #endif
 		if (manager != luaManager)
 			ysAddFuncSymbole(luaManager, NULL, nbArgs, func);
+#if S7_ENABLE
+		if (manager != s7Manager)
+			ysAddFuncSymbole(s7Manager, NULL, nbArgs, func);
+#endif
 	} else {
 #if TCC_ENABLE > 0
 		ysAddFuncSymbole(tccManager, toRegistre, nbArgs, func);
 #endif
 		ysAddFuncSymbole(luaManager, toRegistre, nbArgs, func);
 		ysAddFuncSymbole(ph7Manager, toRegistre, nbArgs, func);
+#if S7_ENABLE
+		ysAddFuncSymbole(s7Manager, toRegistre, nbArgs, func);
+#endif
 	}
 	return 0;
 }

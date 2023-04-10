@@ -786,6 +786,40 @@ static void *call(void *sm, const char *name, int nb, union ycall_arg *args,
 	return NULL;
 }
 
+static void addFuncSymbole(void *sm, const char *name, int nbArgs, Entity *func)
+{
+	Entity *str = yeCreateString("(begin (define ", NULL, NULL);
+	char *tmp_name;
+
+	if (!name)
+		name = yeGetString(func);
+	tmp_name = y_strdup_printf("%sGlobal", name);
+	s7_define_variable(GET_S7(sm), tmp_name, s7_make_c_object(GET_S7(sm), s7m->et, func));
+
+	yeAddStr(str, name);
+	yeAddStr(str, "(lambda (");
+	for (int i = 0; i < nbArgs; ++i) {
+		if (i)
+			yeAddStr(str, " ");
+		yeAddStr(str, "var");
+		yeAddInt(str, i);
+	}
+
+	yeStringAdd(str, ") (yesCall ");
+	yeStringAdd(str, tmp_name);
+
+	for (int i = 0; i < nbArgs; ++i) {
+		yeAddStr(str, " var");
+		yeAddInt(str, i);
+	}
+	yeAddStr(str, ")");
+	yeStringAdd(str, ")))");
+	loadString(sm, yeGetString(str));
+	printf("s7 load: %s\n", yeGetString(str));
+	free(tmp_name);
+	yeDestroy(str);
+}
+
 static void *allocator(void)
 {
 	YScriptS7 *ret;
@@ -802,7 +836,7 @@ static void *allocator(void)
 	ret->ops.trace = NULL;
 	ret->ops.getError = NULL;
 	ret->ops.registreFunc = NULL;
-	ret->ops.addFuncSymbole = NULL;
+	ret->ops.addFuncSymbole = addFuncSymbole;
 	return (void *)ret;
 }
 
