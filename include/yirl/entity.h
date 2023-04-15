@@ -641,6 +641,12 @@ static inline void yeStoreAll(Entity *dst, Entity *array, const char *key)
 int yePushAt(Entity *array, Entity *toPush, int idx);
 
 /**
+ * Push @toPush at @idx, with @name
+ */
+int yePushAt2(Entity *array, Entity *toPush, int idx, const char *name);
+
+
+/**
  * Push @toPush anywhere in @array
  * it's slower than push back but saffer
  */
