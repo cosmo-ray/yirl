@@ -139,6 +139,8 @@ BIND_EE(ywCanvasCheckColisionsRectObj, 2, 0);
 
 BIND_EE(ywRemoveEntryByEntity, 2, 0);
 
+BIND_EE(ywCanvasObjSetPosByEntity, 2, 0);
+
 BIND_ES(yeFindString, 2, 0);
 
 BIND_ES(ywCanvasSetStrColor, 2, 0);
