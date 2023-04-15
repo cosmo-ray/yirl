@@ -115,7 +115,11 @@ local function new_handler(main, guy, y, x, orig, is_enemy)
 
       bg_h = Entity.new_array()
       bg_h.type = SPRITES_T
-      bg_h.canvas = canvas:new_img(x, y, sp.path:to_string(),
+      local path = sp.path
+      if yIsNil(path) then
+	 path = sp.paths[0]
+      end
+      bg_h.canvas = canvas:new_img(x, y, path:to_string(),
 				   Rect.new(yeGetIntAt(sp, "x"),
 					    yeGetIntAt(sp, "y"),
 					    s, s)):cent()
