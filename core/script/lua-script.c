@@ -20,6 +20,7 @@
 #include <lauxlib.h>
 
 #include "lua-script.h"
+#include "lua-binding.h"
 #include "debug.h"
 #include "entity.h"
 
@@ -89,6 +90,11 @@ static inline void *do_call(lua_State *l, int nb, union ycall_arg *args,
 	lua_call(l, nb, 1);
 	if (lua_isnumber(l, lua_gettop(l)))
 		return (void *)lua_tointeger(l, lua_gettop(l));
+	if (lua_isuserdata(l, lua_gettop(l))) {
+		void *ret = luaEntityAt(l, lua_gettop(l));
+		if (ret)
+			return ret;
+	}
 	return (void *)lua_topointer(l, lua_gettop(l));
 }
 

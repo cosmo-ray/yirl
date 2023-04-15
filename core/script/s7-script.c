@@ -569,10 +569,18 @@ static s7_pointer s7yesCall(s7_scheme *s, s7_pointer a)
 	int i = 1;
 
 	for (; i < 16; ++i) {
-		args[i - 1].e = E_AT(s, a, i);
-		types[i - 1] = YS_ENTITY;
-		if (!args[i - 1].e) {
-			break;
+		if (s7_is_integer(s7_list_ref(s, a, i))) {
+			args[i - 1].i = I_AT(s, a, i);
+			types[i - 1] = YS_INT;
+		} else if (s7_is_string(s7_list_ref(s, a, i))) {
+			args[i - 1].str = S_AT(s, a, i);
+			types[i - 1] = YS_STR;
+		} else {
+			args[i - 1].e = E_AT(s, a, i);
+			types[i - 1] = YS_ENTITY;
+			if (!args[i - 1].e) {
+				break;
+			}
 		}
 	}
 
