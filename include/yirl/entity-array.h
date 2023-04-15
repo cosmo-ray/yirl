@@ -20,6 +20,13 @@
 
 #include "game.h"
 
+static inline Entity *yaePushBack(Entity *array, Entity *toPush, const char *name)
+{
+	if (yePushBack(array, toPush, name) < 0)
+		return NULL;
+	return array;
+}
+
 static inline Entity *yaeInt(int value, Entity *parent, const char *key)
 {
 	ygAssert(parent);
