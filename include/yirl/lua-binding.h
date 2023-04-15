@@ -786,6 +786,8 @@ static inline int	yesLuaRegister(void *sm)
   LUA_SET_INT_GLOBAL(sm, YKEY_MOUSEWHEEL);
   LUA_SET_INT_GLOBAL(sm, YKEY_MOUSEMOTION);
 
+  LUA_SET_INT_GLOBAL(sm, YCANVAS_POS_IDX);
+
   lua_pushstring(L, YIRL_MODULES_PATH);
   lua_setglobal(L, "YIRL_MODULES_PATH");
 
