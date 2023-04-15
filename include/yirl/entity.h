@@ -1089,6 +1089,11 @@ Entity	*yeMoveByEntity(Entity* src, Entity* dest, Entity *what,
  */
 char *yeToCStr(Entity *entity, int deep, int flag);
 
+static inline void yePrintAddr(Entity *e)
+{
+	printf("%p\n", e);
+}
+
 static inline void yePrint(Entity *e)
 {
 	if (!e) {

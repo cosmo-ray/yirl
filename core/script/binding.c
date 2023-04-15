@@ -207,6 +207,7 @@ BIND_E(ywMenuGetCurrentEntry, 1, 0);
 BIND_E(ywMenuNbEntries, 1, 0);
 
 BIND_E(yePrint, 1, 0);
+BIND_E(yePrintAddr, 1, 0);
 
 BIND_E(ywidInTree, 1, 0);
 
