@@ -195,7 +195,7 @@ static s7_pointer s7yeCreateFunction(s7_scheme *s, s7_pointer a)
 
 static s7_pointer s7yeCreateArray(s7_scheme *s, s7_pointer a)
 {
-	Entity *ne = yeCreateArray (NULL, NULL);
+	Entity *ne = yeCreateArray(NULL, NULL);
 	S7_END_CREATOR(0);
 }
 

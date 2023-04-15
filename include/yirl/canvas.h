@@ -77,7 +77,6 @@ typedef struct {
 	int flag;
 } YCanvasState;
 
-
 /* VVVVVV YIRL Internal VVVVVVV */
 int ywCanvasInit(void);
 int ywCanvasEnd(void);
