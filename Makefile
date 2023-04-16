@@ -155,7 +155,7 @@ $(QUICKJS_LIB_PATH): $(QUICKJS_PATH)
 	CONFIG_FPIC=1 $(EMMAKE) make -C $(QUICKJS_PATH) libquickjs.a
 
 ph7/ph7.o:
-	$(CC) -c -o ph7/ph7.o ph7/ph7.c -I./ph7/ -O2 -g -fPIC -DPH7_ENABLE_MATH_FUNC=1
+	$(CC) -c -o ph7/ph7.o ph7/ph7.c -I./ph7/ -O2 -g -fPIC -DPH7_ENABLE_MATH_FUNC=1 -DPH7_ENABLE_THREADS=1
 
 $(SCRIPT_DIR)/s7.o:
 	$(CC) -c -o $(SCRIPT_DIR)/s7.o $(SCRIPT_DIR)/s7.c -Wno-implicit-fallthrough -fPIC -O2 -g
