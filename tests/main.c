@@ -169,6 +169,7 @@ int main(int argc, char **argv)
   }
   yuiDebugExit();
   g_free(only);
+  return 0; /* seems msys2 fail without that */
 }
 
 #undef TEST_TRY_ADD
