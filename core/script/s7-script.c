@@ -637,6 +637,18 @@ BIND_EEIII(ywMapInitEntity, 5, 0);
 
 #include "binding.c"
 
+static s7_pointer s7ywCanvasNewImg(s7_scheme *s, s7_pointer a)
+{
+  Entity *wid = E_AT(s, a, 0);
+	s7_int x = s7_integer(s7_list_ref(s, a, 1));
+	s7_int y = s7_integer(s7_list_ref(s, a, 2));
+	const char *path = S_AT(s, a, 3);
+  Entity *rect = E_AT(s, a, 4);
+	Entity *ret = ywCanvasNewImg(wid, x, y, path, rect);
+
+  return s7_make_c_object(s, s7m->et, ret);
+}
+
 static s7_pointer s7yeSetStringAt(s7_scheme *s, s7_pointer a)
 {
 	const char *val = s7_string(s7_list_ref(s, a, 2));
@@ -725,6 +737,7 @@ static int init(void *sm, void *args)
 	BIND(yeCreateCopy, 1, 2);
 	BIND(yesCall, 1, 15);
 	BIND(ywCanvasNewText, 2, 2);
+  BIND(ywCanvasNewImg, 5, 0);
 	BIND(ywMapInitEntity, 5, 0);
 	BIND(ywPosIsSame, 2, 1);
 	BIND(ywPosSet, 2, 1);
