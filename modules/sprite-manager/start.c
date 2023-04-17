@@ -58,7 +58,7 @@ void *handlerAdvance(int nargs, void **args)
 void *handlerSetAdvancement(int nargs, void **args)
 {
 	Entity *h = args[0];
-	int where = args[1];
+	int where = (intptr_t)args[1];
 	Entity *sp = yeGet(h, "sp");
 	int size = yeGetIntAt(sp, "size");
 	int l = yeGetIntAt(sp, "length");
