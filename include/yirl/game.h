@@ -163,7 +163,7 @@ static inline int ygRegistreFunc(int nbArgs, const char *name,
  */
 uint32_t ygGetTick(void);
 
-Entity *ygFileToEnt(YFileType t, const char *path, Entity *father);
+Entity *ygFileToEnt(YFileType t, const char *path, Entity *ent);
 int ygEntToFile(YFileType t, const char *path, Entity *ent);
 static inline int ygEntToFile2(YFileType t, Entity *ent, const char *path)
 {
