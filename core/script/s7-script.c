@@ -117,6 +117,11 @@ static s7_pointer s7yeGet(s7_scheme *s, s7_pointer a)
 	return s7_make_c_object(s, s7m->et, e);
 }
 
+static s7_pointer s7ygRegistreFunc(s7_scheme *s, s7_pointer a)
+{
+	return s7_nil(s);
+}
+
 static s7_pointer s7ygFileToEnt(s7_scheme *s, s7_pointer a)
 {
 	return s7_make_c_object(s, s7m->et, ygFileToEnt(I_AT(s, a, 0),
@@ -751,6 +756,7 @@ static int init(void *sm, void *args)
 	BIND(yeReCreateArray, 2, 1);
 	BIND(ywSizeCreate, 2, 2);
 	BIND(ygFileToEnt, 2, 1);
+	BIND(ygRegistreFunc, 3, 0);
 
 #define IN_CALL 1
 #include "binding.c"
