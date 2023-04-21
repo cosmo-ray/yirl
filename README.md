@@ -16,6 +16,8 @@
   </a>
 </div>
 
+*irc server: libera chanel: #yirl*
+
 - YIRL is a WIP,
 - YIRL is a game engine aiming to be fully configurable, fully scriptable and mod friendly.
 - YIRL has been started as an school project at EPITECH
