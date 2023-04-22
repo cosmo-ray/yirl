@@ -143,7 +143,7 @@ static inline Entity *ywRectAddWH(Entity *r, int w, int h)
  * @return true if the point at @posx, @posy is inside @rect if @proper is true
  * doen't return true when on the edge
  */
-static inline int ywRectContain(Entity *rect, int posx, int posy, int proper)
+static inline _Bool ywRectContain(Entity *rect, int posx, int posy, int proper)
 {
 	return posx > ywRectX(rect) - !(proper) &&
 		posx < ywRectX(rect) + ywRectW(rect) - !!(proper) &&

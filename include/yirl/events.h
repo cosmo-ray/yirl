@@ -120,4 +120,11 @@ Entity *yevMousePos(Entity *events);
 int yevMouseDown(Entity *events, int *button);
 int yevMouseUp(Entity *events, int *button);
 
+static inline _Bool yevAnyMouseDown(Entity *events)
+{
+	int unued;
+
+	return yevMouseDown(events, &unued);
+}
+
 #endif

@@ -193,6 +193,8 @@ BIND_EI(ywMapCamPointedContainId, 2, 0);
 
 BIND_SS(ygReCreateString, 2, 0);
 
+BIND_E(yevAnyMouseDown, 1, 0);
+
 BIND_E(yeGetRandomElem, 1, 0);
 
 BIND_E(ywMapCamPointedCase, 1, 0);
