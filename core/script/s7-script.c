@@ -748,7 +748,7 @@ static int init(void *sm, void *args)
 	BIND(yeCreateCopy, 1, 2);
 	BIND(yesCall, 1, 15);
 	BIND(ywCanvasNewText, 2, 2);
-  BIND(ywCanvasNewImg, 5, 0);
+	BIND(ywCanvasNewImg, 5, 0);
 	BIND(ywMapInitEntity, 5, 0);
 	BIND(ywPosIsSame, 2, 1);
 	BIND(ywPosSet, 2, 1);
