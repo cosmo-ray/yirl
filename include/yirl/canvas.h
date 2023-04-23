@@ -240,6 +240,11 @@ static inline  Entity *ywCanvasNewRectangle(Entity *wid, int x, int y, int w,
 	return obj;
 }
 
+static inline  Entity *ywCanvasNewRectangleByRect(Entity *wid, Entity *orect, const char *str)
+{
+	return ywCanvasNewRectangle(wid, ywRectX(orect), ywRectY(orect), ywRectW(orect), ywRectH(orect), str);
+}
+
 /**
  * Create horizontal segments
  */
