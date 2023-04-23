@@ -183,17 +183,21 @@ $(LIBNAME).$(LIBEXTENSION): $(OBJ) $(O_OBJ) $(OBJXX) SDL_mixer/build/.libs/libSD
 yirl-loader: $(YIRL_LINKING) $(GEN_LOADER_OBJ)
 	$(CC) -o yirl-loader$(BIN_EXT) $(GEN_LOADER_OBJ) $(BINARY_LINKING) $(LDFLAGS)
 
-PRELOAD_EMCC_FILES = \
+WEB_MOD_DST ?= "./low_enforcement_agents/"
+
+PRELOAD_EMCC_FILES ?= \
+	--preload-file $(WEB_MOD_DST)
+
+WEB_CFLAG = \
 	--preload-file ./sazanami-mincho.ttf \
-	--preload-file ./low_enforcement_agents/ \
 	--use-preload-plugins
 
 
-WEB_ARG=arguments: ["-d", "/low_enforcement_agents/", "-P", "/"],
+WEB_ARG=arguments: ["-d", "$(WEB_MOD_DST)", "-P", "/", "-W", "1000", "-H", "800"],
 #	arguments: ['-d', './games/asteroide-shooter/', '-P', "/home/uso/yirl/"],
 
 webstart.html: $(YIRL_LINKING) $(GEN_LOADER_OBJ) $(LIBNAME).a
-	$(CC) -o webstart.html $(GEN_LOADER_OBJ) $(LIBNAME).a $(LDFLAGS) $(PRELOAD_EMCC_FILES) -sMAIN_MODULE=1 -sTOTAL_MEMORY=600MB
+	$(CC) -o webstart.html $(GEN_LOADER_OBJ) $(LIBNAME).a $(LDFLAGS) $(PRELOAD_EMCC_FILES) $(WEB_CFLAG) -sMAIN_MODULE=1 -sTOTAL_MEMORY=600MB
 
 start.html: webstart.html
 	cat webstart.html | sed 's|var Module = {|var Module = {\n\t$(WEB_ARG)|g' > start.html
