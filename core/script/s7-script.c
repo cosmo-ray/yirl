@@ -646,6 +646,7 @@ BIND_EII(ywCanvasObjSetPos, 3, 0);
 BIND_EIIE(ywCanvasNewText, 2, 2);
 BIND_EEIII(ywMapInitEntity, 5, 0);
 BIND_IES(yeReCreateInt, 2, 1);
+BIND_SES(yeReCreateString, 2, 1);
 #include "binding.c"
 
 static s7_pointer s7ywCanvasNewImg(s7_scheme *s, s7_pointer a)
@@ -757,6 +758,7 @@ static int init(void *sm, void *args)
 	BIND(ygFileToEnt, 2, 1);
 	BIND(ygRegistreFunc, 3, 0);
 	BIND(yeReCreateInt, 2, 1);
+	BIND(yeReCreateString, 2, 1);
 
 #define IN_CALL 1
 #include "binding.c"
