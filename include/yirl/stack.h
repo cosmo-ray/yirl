@@ -79,25 +79,25 @@ typedef struct ptr_stack {
 
 static inline int8_t int8_stack_pop(int8_stack *stack, int8_t fail_ret)
 {
-	if (!stack->len)			\
-		return fail_ret;		\
-	stack->len -= 1;			\
+	if (!stack->len)
+		return fail_ret;
+	stack->len -= 1;
 	return stack->values[stack->len];
 }
 
 static inline int16_t int16_stack_pop(int16_stack *stack, int16_t fail_ret)
 {
-	if (!stack->len)			\
-		return fail_ret;		\
-	stack->len -= 1;			\
+	if (!stack->len)
+		return fail_ret;
+	stack->len -= 1;
 	return stack->values[stack->len];
 }
 
 static inline int32_t int32_stack_pop(int32_stack *stack, int32_t fail_ret)
 {
-	if (!stack->len)			\
-		return fail_ret;		\
-	stack->len -= 1;			\
+	if (!stack->len)
+		return fail_ret;
+	stack->len -= 1;
 	return stack->values[stack->len];
 }
 
@@ -111,9 +111,9 @@ static inline int64_t int64_stack_pop(int64_stack *stack, int64_t fail_ret)
 
 static inline void *ptr_stack_pop(ptr_stack *stack, void *fail_ret)
 {
-	if (!stack->len)			\
-		return fail_ret;		\
-	stack->len -= 1;			\
+	if (!stack->len)
+		return fail_ret;
+	stack->len -= 1;
 	return stack->values[stack->len];
 }
 
