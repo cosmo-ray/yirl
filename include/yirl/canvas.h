@@ -24,7 +24,8 @@
  * Or printing directly inside it using ywCanvasMergeTexture/Rectangle...
  * if you use objects the widget will keep in memory each object,
  * will enable you to set weight to them
- * (need to be enable using ywCanvasEnableWeight),
+ * need to be enable using ywCanvasEnableWeight after widget creation,
+ * or with have_weight int entity inside widget
  * move them on screen directly...
  * If you just want to print and forget something,
  * you should go with the merge function
@@ -200,6 +201,18 @@ int ywCanvasObjIsOut(Entity *wid, Entity *obj);
  */
 void ywCanvasDisableWeight(Entity *w);
 void ywCanvasEnableWeight(Entity *w);
+
+static inline YWidgetState *ywCanvasDisableWeight2(Entity *w)
+{
+	ywCanvasDisableWeight(w);
+	return ywidGetState(w);
+}
+
+static inline YWidgetState *ywCanvasEnableWeight2(Entity *w)
+{
+	ywCanvasEnableWeight(w);
+	return ywidGetState(w);
+}
 
 /**
  * Set card weight if weight is activated

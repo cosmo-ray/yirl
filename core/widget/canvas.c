@@ -53,12 +53,14 @@ static int init(YWidgetState *opac, Entity *entity, void *args)
 {
 	YCanvasState *state = (YCanvasState *)opac;
 	int mergable = yeGetIntAt(entity, "mergable");
+	int have_weight = yeGetIntAt(entity, "have_weight");
 	(void)entity;
 	(void)args;
 
 	state->flag = 0;
 	ywidGenericCall(opac, t, init);
 	state->flag |= !!mergable * YC_MERGE;
+	state->flag |= !!have_weight * YC_HAS_WEIGHT;
 	if (mergable == 2) {
 		state->flag |= YC_MERGE_NO_MERGE;
 	}

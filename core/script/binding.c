@@ -66,6 +66,8 @@ BIND_ESE(ywMenuPushSlider, 2, 1);
 
 BIND_EEE(ywidActions, 2, 1);
 
+BIND_EEE(ywCanvasSwapObj, 3, 0);
+
 BIND_EEE(ywCanvasNewIntersectArray, 3, 0);
 
 BIND_IES(ygAddModule, 2, 1);
@@ -254,6 +256,9 @@ BIND_S(ygRemoveFromGlobalScope, 1, 0);
 
 BIND_E(ywCanvasDisableWeight, 1, 0);
 BIND_E(ywCanvasEnableWeight, 1, 0);
+
+BIND_E(ywCanvasDisableWeight2, 1, 0);
+BIND_E(ywCanvasEnableWeight2, 1, 0);
 
 BIND_I(yui0Min, 1, 0);
 

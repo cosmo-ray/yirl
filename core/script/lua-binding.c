@@ -555,14 +555,6 @@ int	luaywCanvasRotate(lua_State *L)
 	return 1;
 }
 
-int	luaywCanvasSwapObj(lua_State *L)
-{
-	lua_pushnumber(L, ywCanvasSwapObj(luaEntityAt(L, 1),
-					  luaEntityAt(L, 2),
-					  luaEntityAt(L, 3)));
-	return 1;
-}
-
 int	luaywCanvasObjIsOut(lua_State *L)
 {
 	lua_pushnumber(L, ywCanvasObjIsOut(luaEntityAt(L, 1),
