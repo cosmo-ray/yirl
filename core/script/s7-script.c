@@ -788,7 +788,8 @@ static int loadString(void *s, const char *str)
 
 #define CPTR(idx) idx < nb ? (yeIsPtrAnEntity(args[idx].vptr) ?		\
 			      s7_make_c_object(s, s7m->et, args[idx].vptr) : \
-			      s7_make_c_pointer(s, args[idx].vptr)) : s7_nil(s)
+			      (args[idx].vptr == NULL ?	s7_nil(s) :	\
+			       s7_make_c_pointer(s, args[idx].vptr))) : s7_nil(s)
 
 
 static void *call(void *sm, const char *name, int nb, union ycall_arg *args,
