@@ -625,6 +625,7 @@ static inline Entity *yePushArrayBack(Entity *dst, Entity *src)
 	YE_ARRAY_FOREACH_ENTRY(src, v) {
 		yePushBack(dst, v->entity, v->name);
 	}
+	return dst;
 }
 
 /* only useful if ndebug isn't set */
