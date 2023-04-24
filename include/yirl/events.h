@@ -36,6 +36,21 @@ _Bool yevIsGrpDown(Entity *events, Entity *grp);
  */
 _Bool yevIsGrpUp(Entity *events, Entity *grp);
 
+static inline Entity *yeveCopyBack(Entity *dst, Entity *src)
+{
+	Entity *last = NULL;
+	Entity *tmp = NULL;
+
+	YEVE_FOREACH(tmp, dst)
+		last = tmp;
+
+	if (!last) {
+		return src;
+	}
+	yePushAt(last, src, YEVE_NEXT);
+	return dst;
+}
+
 static inline void yeveDirFromDirGrp(Entity *events,
 				     Entity *up_g, Entity *down_g,
 				     Entity *left_g, Entity *right_g,

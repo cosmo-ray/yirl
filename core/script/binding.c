@@ -123,6 +123,7 @@ BIND_I(ySoundDuration, 1, 0);
 BIND_I(yuiUsleep, 1, 0);
 
 BIND_EE(yePushArrayBack, 2, 0);
+BIND_EE(yeveCopyBack, 2, 0);
 
 BIND_EE(ywMapSetCamPos, 2, 0);
 BIND_EE(ywMapCase, 2, 0);
