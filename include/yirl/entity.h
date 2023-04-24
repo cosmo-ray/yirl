@@ -620,6 +620,13 @@ int yePushBackExt(Entity *entity, Entity *toPush,
 		  const char *name, uint64_t flag);
 
 
+static inline Entity *yePushArrayBack(Entity *dst, Entity *src)
+{
+	YE_ARRAY_FOREACH_ENTRY(src, v) {
+		yePushBack(dst, v->entity, v->name);
+	}
+}
+
 /* only useful if ndebug isn't set */
 #ifndef NDEBUG
 static inline void yeSetConst(Entity *e) {e->flag |= YENTITY_CONST;}
