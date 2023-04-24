@@ -1569,7 +1569,7 @@ char *yeToCStr(Entity *entity, int deep, int flag)
 {
 	if (!entity)
 		return NULL;
-	YE_NEW(String, str, NULL);
+	YE_NEW(String, str, "");
 	char *ret;
 
 	if (flag & YE_FORMAT_PRETTY && !YE_FORMAT_NO_NL)
