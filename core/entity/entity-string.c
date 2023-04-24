@@ -247,6 +247,7 @@ Entity *yeStringAdd(Entity *ent, const char *str)
 		YE_TO_STRING(ent)->origin = NULL;
 		free(to_free);
 	}
+	ygAssert(YE_TO_STRING(ent)->value);
 	YE_TO_STRING(ent)->len = totalLength;
 	return ent;
 }
@@ -274,6 +275,7 @@ Entity *yeStringAddInt(Entity *ent, int i)
 	YE_TO_STRING(ent)->value = y_strdup_printf("%s%d", tmp, i);
 	YE_TO_STRING(ent)->len = strlen(YE_TO_STRING(ent)->value);
 	YE_TO_STRING(ent)->origin = NULL;
+	ygAssert(YE_TO_STRING(ent)->value);
 	free(to_free);
 	return ent;
 }
@@ -288,6 +290,7 @@ Entity *yeStringAddLong(Entity *ent, long i)
 	YE_TO_STRING(ent)->value = y_strdup_printf("%s%ld", tmp, i);
 	YE_TO_STRING(ent)->len = strlen(YE_TO_STRING(ent)->value);
 	YE_TO_STRING(ent)->origin = NULL;
+	ygAssert(YE_TO_STRING(ent)->value);
 	free(to_free);
 	return ent;
 }
