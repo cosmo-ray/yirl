@@ -1355,6 +1355,8 @@ static void sdlCanvasAplyModifier(Entity *img, GPU_Rect *dst,
 	if (!mod)
 		return;
 	*rotation = yeGetFloat(yeGet(mod, YCanvasRotate));
+	*flip |= (GPU_FLIP_VERTICAL * yeGetIntAt(mod, YCanvasVFlip));
+	*flip |= (GPU_FLIP_HORIZONTAL * yeGetIntAt(mod, YCanvasHFlip));
 	return;
 }
 

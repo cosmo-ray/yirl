@@ -52,6 +52,8 @@ typedef enum  {
 typedef enum  {
 	YCanvasForceSize,
 	YCanvasRotate,
+	YCanvasVFlip,
+	YCanvasHFlip,
 } YCanvasModifier;
 
 enum {
@@ -178,6 +180,12 @@ static inline int ywCanvasPercentReduce(Entity *obj, int percent)
  * rotate a canvas object
  */
 int ywCanvasRotate(Entity *obj, double angle);
+
+/**
+ * @brief flip an object vertically or horizontally
+ */
+int ywCanvasVFlip(Entity *obj);
+int ywCanvasHFlip(Entity *obj);
 
 int ywCanvasAdvenceObj(Entity *obj, int speed, double direction);
 int ywCanvasMoveObj(Entity *obj, Entity *pos);

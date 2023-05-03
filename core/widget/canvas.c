@@ -881,6 +881,22 @@ int ywCanvasForceSize(Entity *obj, Entity *size)
 	return 0;
 }
 
+int ywCanvasVFlip(Entity *obj)
+{
+	Entity *mod = getOrCreateMod(obj);
+
+	yeCreateIntAt(1, mod, NULL, YCanvasVFlip);
+	return 0;
+}
+
+int ywCanvasHFlip(Entity *obj)
+{
+	Entity *mod = getOrCreateMod(obj);
+
+	yeCreateIntAt(1, mod, NULL, YCanvasHFlip);
+	return 0;
+}
+
 int ywCanvasObjIsOut(Entity *wid, Entity *obj)
 {
 	Entity *wid_r = yeGet(wid, "wid-pix");
