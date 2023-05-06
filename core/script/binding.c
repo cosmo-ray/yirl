@@ -63,6 +63,7 @@ BIND_EES(ywCanvasCreateYTexture, 1, 2);
 
 BIND_EES(ywMapRemoveByStr, 3, 0);
 
+BIND_ESE(ycoRepushObj, 3, 0);
 BIND_ESE(ywMenuPushEntry, 2, 1);
 BIND_ESE(ywMenuPushSlider, 2, 1);
 
@@ -147,6 +148,8 @@ BIND_EE(ywCanvasCheckColisionsRectObj, 2, 0);
 BIND_EE(ywRemoveEntryByEntity, 2, 0);
 
 BIND_EE(ywCanvasObjSetPosByEntity, 2, 0);
+
+BIND_ES(ycoRmObj, 2, 0);
 
 BIND_ES(yeFindString, 2, 0);
 

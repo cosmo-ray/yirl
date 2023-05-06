@@ -439,4 +439,21 @@ static inline int ywCanvasObjDistanceXY(Entity *obj, int x, int y)
 	return sqrt(w * w + h * h);
 }
 
+
+/**
+ * small function to ease objects manipulation
+ */
+static inline Entity *ycoRepushObj(Entity *parent, const char *key, Entity *obj)
+{
+	ywCanvasRemoveObj(parent, yeGet(parent, key));
+	yeReplaceBack(parent, obj, key);
+	return obj;
+}
+
+static inline void ycoRmObj(Entity *parent, const char *key)
+{
+	ywCanvasRemoveObj(parent, yeGet(parent, key));
+	yeRemoveChildByStr(parent, key);
+}
+
 #endif
