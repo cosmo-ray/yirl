@@ -140,7 +140,7 @@ static inline int make_abort(lua_State *L, ...)
 	{								\
 		BIND_AUTORET(f(luaEntityAt(L, 1), luaNumberAt(L, 2),	\
 			       luaNumberAt(L, 3),			\
-			       luaNumberAt(L, 4), lua_tostring(L, 6)));	\
+			       luaNumberAt(L, 4), lua_tostring(L, 5)));	\
 	}
 
 #define BIND_EIIEE(f, ...)						\
