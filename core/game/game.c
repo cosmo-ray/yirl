@@ -163,6 +163,20 @@ static void *ygTerminateCallback(int nb, union ycall_arg *args, int *types)
 	return (void *)ACTION;
 }
 
+void *ygCallFuncOrQuit(Entity *wid, const char *callback_name)
+{
+	Entity *callback = yeGet(wid, callback_name);
+
+	if (!callback) {
+		ygTerminate();
+		return (void *)ACTION;
+	}
+	if (yeType(callback) == YFUNCTION) {
+		return yesCall(callback, wid);
+	}
+	return yesCall(ygGet(yeGetString(callback)), wid);
+}
+
 static void *quitOnKeyDown(int nb, union ycall_arg *args, int *types)
 {
 	Entity *events = args[1].e;

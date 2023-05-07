@@ -149,6 +149,8 @@ BIND_EE(ywRemoveEntryByEntity, 2, 0);
 
 BIND_EE(ywCanvasObjSetPosByEntity, 2, 0);
 
+BIND_ES(ygCallFuncOrQuit, 2. 0);
+
 BIND_ES(ycoRmObj, 2, 0);
 
 BIND_ES(yeFindString, 2, 0);

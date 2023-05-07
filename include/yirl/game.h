@@ -189,6 +189,11 @@ Entity *ygGetFuncExt(const char *func);
 
 void *ygGetManager(const char *name);
 
+/**
+ * try to call wid[callback_key] is it exist, or exit game
+ */
+void *ygCallFuncOrQuit(Entity *wid, const char *callback_key);
+
 void ygTerminate(void);
 void ygEnd(void);
 
@@ -265,7 +270,7 @@ static inline int ygEqual(const char *path, Entity *o)
  */
 int ygModDir(const char * restrict const mod);
 /**
- * @brief chdir to "main_dir", the one specified by -d or 
+ * @brief chdir to "main_dir", the one specified by -d or
  * where the yirl has been started
  */
 int ygModDirOut(void);
