@@ -542,6 +542,26 @@ Entity *ywCanvasNewBicolorImg(Entity *c, int x, int y, uint8_t *img,
 	return obj;
 }
 
+int ywCanvasCacheHeadacheImg(Entity *obj, Entity *map, Entity *info)
+{
+	sdlCanvasCacheHeadacheImg(obj, map, info);
+	return 0;
+}
+
+Entity *ywCanvasNewHeadacheImg(Entity *c, int x, int y, Entity *map, Entity *info)
+{
+	Entity *obj = yeCreateArray(NULL, NULL);
+
+	assert(c);
+	assert(map);
+	assert(info);
+	yeCreateInt(YCanvasHeadacheImg, obj, "canvas-type");
+	ywPosCreateInts(x, y, obj, "pos");
+	ywCanvasSetWeightInternal(c, obj, 0, 1);
+	sdlCanvasCacheHeadacheImg(obj, map, info);
+	return obj;
+}
+
 void ywCanvasClear(Entity *canvas)
 {
 	yeClearArray(yeGet(canvas, "objs"));

@@ -103,6 +103,7 @@ BIND_EEEEI(ywMapDrawSegment, 4, 1);
 BIND_EEESI(ywMapPushElemAt, 5, 0);
 
 BIND_EIIEE(ywCanvasNewImgFromTexture, 4, 1);
+BIND_EIIEE(ywCanvasNewHeadacheImg, 5, 0);
 
 BIND_EIIE(ywCanvasNewRect, 2, 2);
 
