@@ -608,6 +608,45 @@ int    ysdl2Init(void)
   return -1;
 }
 
+static SDL_Surface *makeHeadacheSurface(Entity *map, Entity *info)
+{
+	const char *map_pixiels = yeGetString(map);
+	Entity *pix_mapping = yeGet(info, "mapping");
+	Entity *pix_per_char = yeGet(info, "pix_per_char");
+	Entity *size = yeGet(info, "size");
+	int char_map[127] = {0}; // ascii table
+	SDL_Surface *surface = SDL_CreateRGBSurface(
+		0, ywSizeW(pix_per_char) * ywSizeW(size),
+		ywSizeH(pix_per_char) * ywSizeH(size), 32,
+		0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
+	uint32_t *pixels = surface->pixels;
+
+	for (size_t i = 0; i < yeLen(pix_mapping); ++i) {
+		int k = *yeGetKeyAt(pix_mapping, i);
+
+		char_map[k] = yeGetIntAt(pix_mapping, i);
+	}
+
+	for (int iy = 0, dy = 0; iy < ywSizeH(size);
+	     iy += 1, dy += ywSizeH(pix_per_char)) {
+		for (int ix = 0, dx = 0; ix < ywSizeW(size);
+		     ix += 1, dx += ywSizeW(pix_per_char)) {
+			int pix_pos = dx + dy *
+				ywSizeW(pix_per_char) *
+				ywSizeW(size);
+			int pix = map_pixiels[ix + iy * ywSizeW(size)];
+			for (int  i = 0; i < ywSizeH(pix_per_char); ++i) {
+				for (int  i = 0; i < ywSizeW(pix_per_char); ++i)
+					pixels[pix_pos++] = char_map[pix];
+				pix_pos += ywSizeW(pix_per_char) *
+					ywSizeW(size) - ywSizeW(pix_per_char);
+
+			}
+		}
+	}
+	return surface;
+}
+
 static SDL_Surface *mk_print_surface(char *str, SDL_Color color)
 {
 	if (!*str)
@@ -877,43 +916,11 @@ static GPU_Image *sdlLoasAndCachTexture(Entity *elem)
 		path = yeGetString(yeGet(elem, "map-sprite"));
 	} else if (yeGet(elem, "map-pixels") != NULL) {
 		/* need to be made into a subfunction usable by canvas */
-		const char *map_pixiels = yeGetStringAt(elem, "map-pixels");
+		Entity *map_pixiels = yeGet(elem, "map-pixels");
 		Entity *info = yeGet(elem, "map-pixels-info");
-		Entity *pix_per_char = yeGet(info, "pix_per_char");
-		Entity *size = yeGet(info, "size");
-		Entity *pix_mapping = yeGet(info, "mapping");
-		int char_map[127] = {0}; // ascii table
 
 		yeReCreateInt(Y_SDL_TILD, elem, "$sdl-type");
-		image = SDL_CreateRGBSurface(
-			0, ywSizeW(pix_per_char) * ywSizeW(size),
-			ywSizeH(pix_per_char) * ywSizeH(size), 32,
-			0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
-		uint32_t *pixels = image->pixels;
-
-		for (size_t i = 0; i < yeLen(pix_mapping); ++i) {
-			int k = *yeGetKeyAt(pix_mapping, i);
-
-			char_map[k] = yeGetIntAt(pix_mapping, i);
-		}
-
-		for (int iy = 0, dy = 0; iy < ywSizeH(size);
-		     iy += 1, dy += ywSizeH(pix_per_char)) {
-			for (int ix = 0, dx = 0; ix < ywSizeW(size);
-			     ix += 1, dx += ywSizeW(pix_per_char)) {
-				int pix_pos = dx + dy *
-					ywSizeW(pix_per_char) *
-					ywSizeW(size);
-				int pix = map_pixiels[ix + iy * ywSizeW(size)];
-				for (int  i = 0; i < ywSizeH(pix_per_char); ++i) {
-					for (int  i = 0; i < ywSizeW(pix_per_char); ++i)
-						pixels[pix_pos++] = char_map[pix];
-					pix_pos += ywSizeW(pix_per_char) *
-						ywSizeW(size) - ywSizeW(pix_per_char);
-
-				}
-			}
-		}
+		image = makeHeadacheSurface(map_pixiels, info);
 
 		goto finish;
 	} else if ((path = yeGetString(yeGet(elem, "map-color"))) != NULL) {
@@ -1275,47 +1282,12 @@ void sdlCanvasCacheBicolorImg(Entity *elem, const uint8_t *img, Entity *info)
 
 void sdlCanvasCacheHeadacheImg(Entity *elem, Entity *map, Entity *info)
 {
-	SDL_Surface *surface;
-	const char *map_pixiels = yeGetString(map);
 	Entity *pix_per_char = yeGet(info, "pix_per_char");
 	Entity *size = yeGet(info, "size");
-	Entity *pix_mapping = yeGet(info, "mapping");
-	int char_map[127] = {0}; // ascii table
-	GPU_Image *texture;
-
-	surface = SDL_CreateRGBSurface(
-		0, ywSizeW(pix_per_char) * ywSizeW(size),
-		ywSizeH(pix_per_char) * ywSizeH(size), 32,
-		0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
-	uint32_t *pixels = surface->pixels;
-
-	for (size_t i = 0; i < yeLen(pix_mapping); ++i) {
-		int k = *yeGetKeyAt(pix_mapping, i);
-
-		char_map[k] = yeGetIntAt(pix_mapping, i);
-	}
-
-	for (int iy = 0, dy = 0; iy < ywSizeH(size);
-	     iy += 1, dy += ywSizeH(pix_per_char)) {
-		for (int ix = 0, dx = 0; ix < ywSizeW(size);
-		     ix += 1, dx += ywSizeW(pix_per_char)) {
-			int pix_pos = dx + dy *
-				ywSizeW(pix_per_char) *
-				ywSizeW(size);
-			int pix = map_pixiels[ix + iy * ywSizeW(size)];
-			for (int  i = 0; i < ywSizeH(pix_per_char); ++i) {
-				for (int  i = 0; i < ywSizeW(pix_per_char); ++i)
-					pixels[pix_pos++] = char_map[pix];
-				pix_pos += ywSizeW(pix_per_char) *
-					ywSizeW(size) - ywSizeW(pix_per_char);
-
-			}
-		}
-	}
-
-	/* finalize */
-	texture = GPU_CopyImageFromSurface(surface);
+	SDL_Surface *surface = makeHeadacheSurface(map, info);
+	GPU_Image *texture = GPU_CopyImageFromSurface(surface);
 	Entity *data = yeCreateDataAt(texture, elem, "$img", YCANVAS_IMG_IDX);
+
 	yeSetDestroy(data, sdlFreeTexture);
 	ywSizeCreateAt(ywSizeW(pix_per_char) * ywSizeW(size),
 		       ywSizeH(pix_per_char) * ywSizeH(size),
