@@ -1579,6 +1579,19 @@ char *yeToCStr(Entity *entity, int deep, int flag)
 	return ret;
 }
 
+int yeRenameStrStr(Entity *array, const char *old_name, const char *new_name)
+{
+	YE_ARRAY_FOREACH_ENTRY(array, ae) {
+		if (!ae)
+			continue;
+		if (yuiStrEqual0(ae->name, old_name)) {
+			free(ae->name);
+			ae->name = yuiStrdup(new_name);
+		}
+	}
+	return 0;
+}
+
 int yeRenameIdxStr(Entity *array, int idx, const char *str)
 {
 	ArrayEntry *ae = yeGetArrayEntryByIdx(array, idx);

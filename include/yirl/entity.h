@@ -1384,6 +1384,8 @@ static inline Entity *yeFindString(Entity *array, const char *str)
  */
 int yeRenamePtrStr(Entity *array, Entity *ptr, const char *str);
 int yeRenameIdxStr(Entity *array, int idx, const char *str);
+int yeRenameStrStr(Entity *array, const char *old_name, const char *new_name);
+
 
 /**
  * @brief remove all entity name @name inside @array and push @toPush
@@ -1415,6 +1417,19 @@ static inline Entity *yeReplaceBack(Entity *array, Entity *toPush,
 				    const char *name)
 {
 	return yeReplaceBackExt(array, toPush, name, 0);
+}
+
+/**
+ * @brief get @name in @src and replace_back it in @dst
+ */
+static inline Entity *yeGetReplace(Entity *src, Entity *dst, const char *name)
+{
+	Entity *ret = yeGet(src, name);
+
+	if (!ret)
+		return NULL;
+	yeReplaceBack(dst, ret, name);
+	return ret;
 }
 
 static inline Entity *yeReplaceAtIdx(Entity *array, Entity *toPush, int idx)
