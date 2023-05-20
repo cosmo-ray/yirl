@@ -940,6 +940,7 @@ static int init(void *sm, void *args)
 	BIND(ywCanvasRotate, 2, 0);
 	BIND(ywCanvasNewCollisionsArrayWithRectangle, 2, 0);
 	BIND(ygRegistreFunc, 3, 0);
+	BIND(ywCanvasNewText, 2, 2);
 
 #define IN_CALL 1
 	#include "binding.c"
