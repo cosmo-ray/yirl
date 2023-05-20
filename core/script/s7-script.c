@@ -119,6 +119,7 @@ static s7_pointer s7yeGet(s7_scheme *s, s7_pointer a)
 
 static s7_pointer s7ygRegistreFunc(s7_scheme *s, s7_pointer a)
 {
+	ygRegistreFuncInternal(s7m, I_AT(s, a, 0), S_AT(s, a, 1), S_AT(s, a, 2));
 	return s7_nil(s);
 }
 

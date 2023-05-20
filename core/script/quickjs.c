@@ -871,6 +871,13 @@ static JSValue qjsyent_to_str(JSContext *ctx, JSValueConst this_val,
 	return r;
 }
 
+static JSValue qjsygRegistreFunc(JSContext *ctx, JSValueConst this_val,
+				 int argc, JSValueConst *argv)
+{
+	ygRegistreFuncInternal(cur_manager, GET_I(ctx, 0), GET_S(ctx, 1), GET_S(ctx, 2));
+	return JS_NULL;
+}
+
 static int loadString(void *s, const char *str);
 
 static int init(void *sm, void *args)
@@ -932,6 +939,7 @@ static int init(void *sm, void *args)
 	BIND(ywTextureNew, 1, 2);
 	BIND(ywCanvasRotate, 2, 0);
 	BIND(ywCanvasNewCollisionsArrayWithRectangle, 2, 0);
+	BIND(ygRegistreFunc, 3, 0);
 
 #define IN_CALL 1
 	#include "binding.c"
