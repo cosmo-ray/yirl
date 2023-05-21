@@ -16,6 +16,15 @@
 */
 
 /**
+ * TODO !!!!!!!!
+ * CanvasObj is a super ugly name, so I should rename that to 'canel' (for canvas element)
+ * we need to do that in a retrocompatible way, like this V:
+ * ywCanvasObjAngle -> ywCanelAngle
+ * #define ywCanvasObjAngle ywCanelAngle
+ * TODO !!!!!!!!
+ */
+
+/**
  * canvas widget:
  * a canvas is composed of multiple objects that are rendable.
  * you have 2 way to use it:
