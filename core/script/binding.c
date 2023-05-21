@@ -210,6 +210,8 @@ BIND_EI(ywMapCamPointedContainId, 2, 0);
 
 BIND_SS(ygReCreateString, 2, 0);
 
+BIND_E(yeCountLines, 1, 0);
+
 BIND_E(ywCanvasVFlip, 1, 0);
 BIND_E(ywCanvasHFlip, 1, 0);
 

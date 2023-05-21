@@ -91,6 +91,11 @@ Entity *yeStringAddNl(Entity *ent, const char *str);
  */
 int yeCountCharacters(Entity *ent, char carac, int lineLimit);
 
+static inline int yeCountLines(Entity *ent)
+{
+	return yeCountCharacters(ent, '\n', -1);
+}
+
 Entity *yeAddStrFromFd(Entity *e, int fd, int len);
 Entity *yeStringAddInt(Entity *ent, int i);
 Entity *yeStringAddLong(Entity *ent, long i);
