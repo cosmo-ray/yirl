@@ -825,9 +825,18 @@ static JSValue qjsyeGetStringAt(JSContext *ctx, JSValueConst this_val,
 static JSValue qjsywPosCreate(JSContext *ctx, JSValueConst this_val,
 			      int argc, JSValueConst *argv)
 {
-	return mk_ent(ctx, ywPosCreate(GET_I(ctx, 0), GET_I(ctx, 1),
-				       GET_E(ctx, 2), GET_S(ctx, 3)),
-		      !GET_E(ctx, 2));
+	if (JS_IsNumber(argv[0])) {
+		return mk_ent(ctx, ywPosCreate(GET_I(ctx, 0), GET_I(ctx, 1),
+					       GET_E(ctx, 2), GET_S(ctx, 3)),
+			      !GET_E(ctx, 2));
+	} else {
+		if (JS_IsNumber(argv[1]))
+			return mk_ent(ctx, ywPosCreate(GET_E(ctx, 0), 0,
+						       GET_E(ctx, 2), GET_S(ctx, 3)),
+				      !GET_E(ctx, 2));
+		return mk_ent(ctx, ywPosCreate(GET_E(ctx, 0), 0, GET_E(ctx, 1), GET_S(ctx, 2)),
+			      !GET_E(ctx, 1));
+	}
 }
 
 static JSValue qjsyeTryCreateInt(JSContext *ctx, JSValueConst this_val,

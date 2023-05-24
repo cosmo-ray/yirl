@@ -30,9 +30,15 @@ static int sdl2Render(YWidgetState *state, int t)
 	Entity *entity = state->entity;
 	Entity *objs = yeGet(entity, "objs");
 	Entity *cam = yeGet(entity, "cam");
+	Entity *cam_threshold = yeGet(entity, "cam-threshold");
 	Entity *widPix;
 	Entity *dst = s->merge_texture;
 	YBgConf cfg;
+
+	if (cam_threshold) {
+		cam = ywPosCreate(cam, 0, NULL, NULL);
+		ywPosAdd(cam, cam_threshold);
+	}
 
 	wid = sddComputeMargin(state, wid);
 	widPix = yeGet(state->entity, "wid-pix");
@@ -74,6 +80,8 @@ static int sdl2Render(YWidgetState *state, int t)
 forground:
 	if (ywidBgConfFill(yeGet(state->entity, "foreground"), &cfg) >= 0)
 		sdlFillBg(wid, &cfg);
+	if (cam_threshold)
+		yeDestroy(cam);
 	return 0;
 }
 

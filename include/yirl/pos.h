@@ -375,7 +375,7 @@ static inline uint32_t ywSizeDistance(Entity *size)
   uint32_t w = ywSizeW(size);
   uint32_t h = ywSizeH(size);
 
-  return sqrt(w * w + h * h);  
+  return sqrt(w * w + h * h);
 }
 
 #endif

@@ -174,6 +174,8 @@ BIND_ES(yeGetByStr, 2, 0);
 BIND_SI(ygIncreaseInt, 2, 0);
 BIND_SI(ygSetInt, 2, 0);
 
+BIND_EI(ywPosDoPercent, 2, 0);
+
 BIND_EI(yeIntBAnd, 2, 0);
 BIND_EI(yeIntCheckBAnd, 2, 0);
 
@@ -354,6 +356,7 @@ BIND_EII(ywCanvasMoveObjXY, 3, 0);
 BIND_EII(ywPosSetInts, 3, 0);
 
 BIND_EII(ywPosAddXY, 3, 0);
+BIND_EII(ywPosMultXY, 3, 0);
 
 BIND_EII(ywCanvasForceSizeXY, 3, 0);
 
