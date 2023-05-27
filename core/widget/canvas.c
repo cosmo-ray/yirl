@@ -433,6 +433,11 @@ void ywCanvasObjSetResourceId(Entity *obj, int id)
 	ywCanvasObjClearCache(obj);
 }
 
+void ywCanvasObjReplacePos(Entity *obj, Entity *p)
+{
+	yePushAt2(obj, p, YCANVAS_POS_IDX, "pos");
+}
+
 void ywCanvasObjSetPos(Entity *obj, int x, int y)
 {
 	ywPosSetInts(yeGet(obj, YCANVAS_POS_IDX), x, y);

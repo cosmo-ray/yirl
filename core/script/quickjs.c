@@ -798,7 +798,7 @@ static JSValue qjsywTextureNewImg(JSContext *ctx, JSValueConst this_val,
 {
 	return mk_ent(ctx, ywTextureNewImg(GET_S(ctx, 0), GET_E(ctx, 1),
 					   GET_E(ctx, 2), GET_S(ctx, 3)),
-		      !GET_E(ctx, 1));
+		      !GET_E(ctx, 2));
 }
 
 

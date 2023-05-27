@@ -205,6 +205,12 @@ int ywCanvasMoveObjXY(Entity *obj, int x, int y);
 Entity *ywCanvasObjFromIdx(Entity *wid, int idx);
 int ywCanvasIdxFromObj(Entity *wid, Entity *obj);
 
+/**
+ * ywCanvasObjReplacePos replace the object pos to a reference to p, which might my useful,
+ * if for example you want your cam and pos to be the same thing
+ */
+void ywCanvasObjReplacePos(Entity *obj, Entity *p);
+
 void ywCanvasObjSetPos(Entity *obj, int x, int y);
 void ywCanvasObjSetPosByEntity(Entity *obj, Entity *p);
 

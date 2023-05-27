@@ -20,7 +20,7 @@
 
 #include "yirl/entity.h"
 
-Entity *ywTextureNewImg(const char *path, Entity *size,
+Entity *ywTextureNewImg(const char *path, Entity *srcRect,
 			Entity *father, const char *name);
 
 int ywTextureFastMerge(Entity *src, Entity *srcRect,
