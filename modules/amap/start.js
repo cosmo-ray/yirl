@@ -17,11 +17,22 @@ const SPRITE_SIZE = 32;
 
 const PC_POS_IDX = 0;
 const PC_MOVER_IDX = 1
-
+const PC_DROPSPEED_IDX = 2
+const PC_TURN_CNT_IDX = 3
 
 function y_move_undo(pos, minfo)
 {
     ywPosAddXY(pos, -yeGetIntAt(minfo, 4), -yeGetIntAt(minfo, 5))
+}
+
+function y_move_undo_x(pos, minfo)
+{
+    ywPosAddXY(pos, -yeGetIntAt(minfo, 4), 0)
+}
+
+function y_move_undo_y(pos, minfo)
+{
+    ywPosAddXY(pos, 0, -yeGetIntAt(minfo, 5))
 }
 
 function y_move_pos(pos, minfo, turn_timer)
@@ -36,19 +47,15 @@ function y_move_pos(pos, minfo, turn_timer)
     if (hms) {
 	// mv = hms * turn_timer / 10000
 	mvx = hms * turn_timer / 100000
-	print(mvx)
 	yeSetIntAt(minfo, 2, mvx % 100)
 	mvx = mvx / 100
     }
 
     if (vms) {
-	mvy = vms * turn_timer / 1000000
-	yeSetIntAt(minfo, 3, mv / 100)
+	mvy = vms * turn_timer / 100000
+	yeSetIntAt(minfo, 3, mvy % 100)
 	mvy = mvy / 100
     }
-    print("VVVV")
-    yePrint(minfo)
-    print("^^^^")
     yeSetIntAt(minfo, 4, mvx)
     yeSetIntAt(minfo, 5, mvy)
     ywPosAddXY(pos, mvx, mvy)
@@ -72,7 +79,7 @@ function y_move_set_xspeed(minfo, xspeed)
 
 function y_move_set_yspeed(minfo, yspeed)
 {
-    yeSetIntAt(minfo, 0, yspeed)
+    yeSetIntAt(minfo, 1, yspeed)
 }
 
 function y_mover_new(father, name)
@@ -115,13 +122,16 @@ function print_all(wid)
 	}
     }
     let pc_pos = yeGet(pc_canel, PC_POS_IDX)
-    ywCanvasNewTextByStr(wid, ywPosX(pc_pos), ywPosY(pc_pos), " @ \n---")
+    let pc_canvasobj = ywCanvasNewTextByStr(wid, ywPosX(pc_pos), ywPosY(pc_pos), " @ \n---")
+
+    yeCreateIntAt(1, pc_canvasobj, "amap-t", YCANVAS_UDATA_IDX)
 }
 
 function amap_action(wid, events)
 {
     let pc_canel = yeGet(wid, "_pc")
     let pc_pos = yeGet(pc_canel, PC_POS_IDX)
+    let old_pos = yeCreateCopy(pc_pos)
     let pc_minfo = yeGet(pc_canel, PC_MOVER_IDX)
     let turn_timer = ywidGetTurnTimer()
 
@@ -133,13 +143,41 @@ function amap_action(wid, events)
 	y_move_set_xspeed(pc_minfo, -14)
     } else if (yevIsKeyDown(events, Y_RIGHT_KEY)) {
 	y_move_set_xspeed(pc_minfo, 14)
+    } else if (yevIsKeyDown(events, Y_SPACE_KEY)) {
+	yeSetIntAt(pc_canel, PC_DROPSPEED_IDX, -25);
     }
-    print("action !\n")
-    y_move_pos(pc_pos, pc_minfo, turn_timer)
+
+    if (yeGetIntAt(pc_canel, PC_TURN_CNT_IDX) > 10000) {
+	yeAddAt(pc_canel, PC_DROPSPEED_IDX, 2);
+	yeSetIntAt(pc_canel, PC_TURN_CNT_IDX, 0);
+    } else {
+	yeAddAt(pc_canel, PC_TURN_CNT_IDX, turn_timer);
+    }
+    y_move_set_yspeed(pc_minfo, yeGetIntAt(pc_canel, PC_DROPSPEED_IDX));
+    y_move_pos(pc_pos, pc_minfo, turn_timer);
     map_pixs_l = yeGet(wid, "map-pixs-l");
-    yePrint(map_pixs_l)
+    var stop_fall = false;
+    var stop_x = false;
     if (ywPosX(pc_pos) < 0 || ywPosX(pc_pos) + SPRITE_SIZE > ywSizeW(map_pixs_l))
-	y_move_undo(pc_pos, pc_minfo)
+	stop_x = true;
+    var pj_size = ywSizeCreate(SPRITE_SIZE, SPRITE_SIZE)
+    var rect = ywRectCreatePosSize(pc_pos, pj_size)
+    ywCanvasNewCollisionsArrayWithRectangle(wid, rect).forEach(function(c) {
+	if (yeGetIntAt(c, YCANVAS_UDATA_IDX) != 1) {
+	    if ( (ywPosY(old_pos) + SPRITE_SIZE) <= ywPosY(ywCanvasObjPos(c))) {
+		stop_fall = true
+		return true
+	    } else {
+		stop_x = true
+	    }
+	}
+    })
+
+    if (stop_x)
+	y_move_undo_x(pc_pos, pc_minfo)
+    if (stop_fall) {
+	y_move_undo_y(pc_pos, pc_minfo)
+    }
     print_all(wid)
 }
 
@@ -187,6 +225,8 @@ function amap_init(wid)
 	}
     }
     y_mover_new(pc_canel) // create at PC_MOVER_IDX(1)
+    yeCreateInt(0, pc_canel) // PC_DROPSPEED_IDX (2)
+    yeCreateInt(0, pc_canel) // PC_TURN_CNT_IDX (3)
 
     ret = ywidNewWidget(wid, "canvas")
 

@@ -507,8 +507,6 @@ static inline JSValue new_ent(JSContext *ctx, Entity *e)
 }
 
 DUMB_FUNC(yevCreateGrp);
-DUMB_FUNC(yeIncrAt);
-DUMB_FUNC(yeAddAt);
 BIND_ED(ywCanvasRotate);
 BIND_EII(ywCanvasObjSetPos, 3, 0);
 BIND_EIIE(ywCanvasNewText, 2, 2);
@@ -856,6 +854,32 @@ static JSValue qjsyeTryCreateInt(JSContext *ctx, JSValueConst this_val,
 					  GET_S(ctx, 2)), !GET_E(ctx, 1));
 }
 
+static JSValue qjsyeIncrAt(JSContext *ctx, JSValueConst this_val,
+				 int argc, JSValueConst *argv)
+{
+	Entity *e = GET_E(ctx, 0);
+
+	if (JS_IsNumber(argv[1])) {
+		yeIncrAt(e, GET_I(ctx, 1));
+	} else {
+		yeIncrAt(e, GET_S(ctx, 1));
+	}
+	return JS_NULL;
+}
+
+static JSValue qjsyeAddAt(JSContext *ctx, JSValueConst this_val,
+				 int argc, JSValueConst *argv)
+{
+	Entity *e = GET_E(ctx, 0);
+
+	if (JS_IsNumber(argv[1])) {
+		yeAddAt(e, GET_I(ctx, 1), GET_I(ctx, 2));
+	} else {
+		yeAddAt(e, GET_S(ctx, 1), GET_I(ctx, 2));
+	}
+	return JS_NULL;
+}
+
 static JSValue qjsyeTryCreateString(JSContext *ctx, JSValueConst this_val,
 				    int argc, JSValueConst *argv)
 {
@@ -905,16 +929,20 @@ static JSValue array_forEach(JSContext *ctx, JSValueConst this_val,
 	Entity *e = GET_E_(this_val);
 	JSValue callback = argv[0];
 	JSValue arg = argv[1];
+	JSValue r;
 
 	for (int l = yeLen(e), i = 0; i < l; ++i) {
 		JSValue jse = new_ent(ctx, yeGet(e, i));
 		JSValue jsidx = JS_NewInt32(ctx, i);
-		JS_Call(ctx, callback, JS_GetGlobalObject(ctx), 4, (JSValueConst []){
+		r = JS_Call(ctx, callback, JS_GetGlobalObject(ctx), 4, (JSValueConst []){
 				jse,
 				jsidx,
 				this_val,
 				arg
 			});
+		if (JS_IsBool(r) && JS_ToBool(ctx, r)) {
+			break;
+		}
 	}
 	return JS_NULL;
 }
