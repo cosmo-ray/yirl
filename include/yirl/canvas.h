@@ -78,6 +78,7 @@ enum {
 #define YCANVAS_IMG_IDX 6
 #define YCANVAS_SIZE_IDX 7
 #define YCANVAS_SURFACE_IDX 8
+#define YCANVAS_UDATA_IDX 10
 
 typedef union {
 	uint32_t i;

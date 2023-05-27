@@ -237,6 +237,14 @@ static JSValue make_abort(JSContext *ctx, ...)
 			       GET_E(ctx, 1),GET_S(ctx, 2)));		\
 	}
 
+#define BIND_IESI(f, useless...)						\
+	static JSValue qjs##f(JSContext *ctx, JSValueConst this_val,	\
+			      int argc, JSValueConst *argv) {		\
+		BIND_AUTORET(f(GET_I(ctx, 0),				\
+			       GET_E(ctx, 1),GET_S(ctx, 2),		\
+			       GET_I(ctx, 3)));				\
+	}
+
 #define BIND_IIS(f, useless...)						\
 	static JSValue qjs##f(JSContext *ctx, JSValueConst this_val,	\
 			      int argc, JSValueConst *argv) {		\
@@ -481,6 +489,7 @@ static inline JSValue mk_ent(JSContext *ctx, Entity *e, int add_destroy)
 	} else {
 		obj = JS_NewObjectClass(ctx, entity_class_id);
 	}
+
 	JS_SetOpaque(obj, e);
 	return obj;
 }
@@ -503,6 +512,7 @@ DUMB_FUNC(yeAddAt);
 BIND_ED(ywCanvasRotate);
 BIND_EII(ywCanvasObjSetPos, 3, 0);
 BIND_EIIE(ywCanvasNewText, 2, 2);
+BIND_IESI(yeCreateIntAt, 4, 0);
 
 #define NO_ywTextureNewImg
 /* make all bindings here */
@@ -889,6 +899,32 @@ static JSValue qjsygRegistreFunc(JSContext *ctx, JSValueConst this_val,
 
 static int loadString(void *s, const char *str);
 
+static JSValue array_forEach(JSContext *ctx, JSValueConst this_val,
+			     int argc, JSValueConst *argv)
+{
+	Entity *e = GET_E_(this_val);
+	JSValue callback = argv[0];
+	JSValue arg = argv[1];
+
+	for (int l = yeLen(e), i = 0; i < l; ++i) {
+		JSValue jse = new_ent(ctx, yeGet(e, i));
+		JSValue jsidx = JS_NewInt32(ctx, i);
+		JS_Call(ctx, callback, JS_GetGlobalObject(ctx), 4, (JSValueConst []){
+				jse,
+				jsidx,
+				this_val,
+				arg
+			});
+	}
+	return JS_NULL;
+}
+
+static const JSCFunctionListEntry js_ent_proto_funcs[] = {
+    JS_CFUNC_DEF("forEach", 0, array_forEach),
+};
+
+#define countof(x) (sizeof(x) / sizeof((x)[0]))
+
 static int init(void *sm, void *args)
 {
 	JSRuntime *rn = JS_NewRuntime();
@@ -905,6 +941,11 @@ static int init(void *sm, void *args)
 	JS_NewClass(JS_GetRuntime(ctx), entity_class_id, &entity_class);
 	JS_NewClass(JS_GetRuntime(ctx), freeable_entity_class_id,
 		    &freeable_entity_class);
+	JSValue ent_proto = JS_NewObject(ctx);
+	JS_SetPropertyFunctionList(ctx, ent_proto, js_ent_proto_funcs, countof(js_ent_proto_funcs));
+	JS_SetClassProto(ctx, entity_class_id, ent_proto);
+	JS_SetClassProto(ctx, freeable_entity_class_id, ent_proto);
+
 	JS_NewClass(JS_GetRuntime(ctx), script_manager_class_id, &sm_class);
 	JS_NewClass(JS_GetRuntime(ctx), widget_class_id, &widget_class);
 
@@ -950,6 +991,7 @@ static int init(void *sm, void *args)
 	BIND(ywCanvasNewCollisionsArrayWithRectangle, 2, 0);
 	BIND(ygRegistreFunc, 3, 0);
 	BIND(ywCanvasNewText, 2, 2);
+	BIND(yeCreateIntAt, 4, 0);
 
 #define IN_CALL 1
 	#include "binding.c"
