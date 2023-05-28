@@ -2,6 +2,6 @@
     "size": [42, 13],
     "#": "rgba: 127 127 127 255",
     "objs": [
-	"amap.next"
+	["door", "amap.next"]
     ]
 }

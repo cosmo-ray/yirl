@@ -19,6 +19,15 @@ const PC_POS_IDX = 0;
 const PC_MOVER_IDX = 1
 const PC_DROPSPEED_IDX = 2
 const PC_TURN_CNT_IDX = 3
+const PC_CANVAS_OBJ = 4
+const PC_JMP_NUMBER = 5
+
+const BASE_SPEED = 16
+
+const TYPE_WALL = 0
+const TYPE_PC = 1
+const TYPE_PIKE = 2
+const TYPE_ANIMATION = 3
 
 function y_move_undo(pos, minfo)
 {
@@ -100,31 +109,54 @@ function print_all(wid)
     let map_a = yeGet(wid, "_m")
     let mi = yeGet(wid, "_mi")
     let pc_canel = yeGet(wid, "_pc")
+    var sharp_str = yeGet(mi, "#")
+    var objs = yeGet(mi, "objs")
+    let textures = yeGet(wid, "textures");
+    var map_real_size = yeGet(mi, "size")
 
+    var backgound = ywCanvasNewRectangle(wid, 0, 0, ywSizeW(map_real_size) * SPRITE_SIZE,
+			 ywSizeW(map_real_size) * SPRITE_SIZE,
+			 "rgba: 120 120 120 155")
+    yeCreateIntAt(TYPE_ANIMATION, backgound, "amap-t", YCANVAS_UDATA_IDX)
     for (let i = 0; i < yeLen(map_a); ++i) {
 	let s = yeGetStringAt(map_a, i)
 
 	for (let j = 0; j < s.length; ++j) {
-	    c = s[j]
+	    var c = s[j]
 	    if (c == '#') {
-		var sharp_str = yeGet(mi, "#")
 		if (sharp_str)
 		    ywCanvasNewRectangle(wid, j * SPRITE_SIZE, i * SPRITE_SIZE,
 					 SPRITE_SIZE, SPRITE_SIZE, yeGetString(sharp_str))
 		else
 		    ywCanvasNewRectangle(wid, j * SPRITE_SIZE, i * SPRITE_SIZE,
 					 SPRITE_SIZE, SPRITE_SIZE, "rgba: 0 0 0 255")
+		continue;
 		//print(i, j, c)
 	    } else if (c == "^") {
-		ywCanvasNewRectangle(wid, j * SPRITE_SIZE, i * SPRITE_SIZE,
-				     SPRITE_SIZE, SPRITE_SIZE, "rgba: 127 0 0 255")
+		pike = ywCanvasNewImgFromTexture(wid, j * SPRITE_SIZE, i * SPRITE_SIZE,
+						 yeGet(textures, "pike"))
+		yeCreateIntAt(TYPE_PIKE, pike, "amap-t", YCANVAS_UDATA_IDX)
+
+		continue;
+	    }
+	    var ic = parseInt(c)
+	    if (!isNaN(ic)) {
+		var object = yeGet(objs, ic)
+		if (!object)
+		    continue;
+		ywCanvasNewImgFromTexture(wid, j * SPRITE_SIZE, i * SPRITE_SIZE,
+					  yeGet(textures, yeGetStringAt(object, 0)))
+		//yePrint(object)
 	    }
 	}
     }
     let pc_pos = yeGet(pc_canel, PC_POS_IDX)
-    let pc_canvasobj = ywCanvasNewTextByStr(wid, ywPosX(pc_pos), ywPosY(pc_pos), " @ \n---")
-
-    yeCreateIntAt(1, pc_canvasobj, "amap-t", YCANVAS_UDATA_IDX)
+    let pc_canvasobj = ywCanvasNewImgFromTexture(wid, ywPosX(pc_pos), ywPosY(pc_pos),
+						 yeGet(textures, "guy-0"))
+    // ywCanvasNewTextByStr(wid, ywPosX(pc_pos), ywPosY(pc_pos), " @ \n---")
+    yeCreateIntAt(TYPE_PC, pc_canvasobj, "amap-t", YCANVAS_UDATA_IDX)
+    ywCanvasObjReplacePos(pc_canvasobj, pc_pos)
+    yePushAt2(pc_canel, pc_canvasobj, PC_CANVAS_OBJ)
 }
 
 function amap_action(wid, events)
@@ -140,11 +172,13 @@ function amap_action(wid, events)
     }
 
     if (yevIsKeyDown(events, Y_LEFT_KEY)) {
-	y_move_set_xspeed(pc_minfo, -14)
+	y_move_set_xspeed(pc_minfo, -BASE_SPEED)
     } else if (yevIsKeyDown(events, Y_RIGHT_KEY)) {
-	y_move_set_xspeed(pc_minfo, 14)
-    } else if (yevIsKeyDown(events, Y_SPACE_KEY)) {
+	y_move_set_xspeed(pc_minfo, BASE_SPEED)
+    } else if (yevIsKeyDown(events, Y_SPACE_KEY) &&
+	       yeGetIntAt(pc_canel, PC_JMP_NUMBER) < 2) {
 	yeSetIntAt(pc_canel, PC_DROPSPEED_IDX, -25);
+	yeAddAt(pc_canel, PC_JMP_NUMBER, 1);
     }
 
     if (yeGetIntAt(pc_canel, PC_TURN_CNT_IDX) > 10000) {
@@ -155,30 +189,41 @@ function amap_action(wid, events)
     }
     y_move_set_yspeed(pc_minfo, yeGetIntAt(pc_canel, PC_DROPSPEED_IDX));
     y_move_pos(pc_pos, pc_minfo, turn_timer);
+
     map_pixs_l = yeGet(wid, "map-pixs-l");
     var stop_fall = false;
     var stop_x = false;
     if (ywPosX(pc_pos) < 0 || ywPosX(pc_pos) + SPRITE_SIZE > ywSizeW(map_pixs_l))
 	stop_x = true;
-    var pj_size = ywSizeCreate(SPRITE_SIZE, SPRITE_SIZE)
-    var rect = ywRectCreatePosSize(pc_pos, pj_size)
-    ywCanvasNewCollisionsArrayWithRectangle(wid, rect).forEach(function(c) {
-	if (yeGetIntAt(c, YCANVAS_UDATA_IDX) != 1) {
-	    if ( (ywPosY(old_pos) + SPRITE_SIZE) <= ywPosY(ywCanvasObjPos(c))) {
-		stop_fall = true
-		return true
-	    } else {
-		stop_x = true
+    var ps_canvas_obj = yeGet(pc_canel, PC_CANVAS_OBJ)
+    var cols = ywCanvasNewCollisionsArray(wid, ps_canvas_obj)
+    //yePrint(cols)
+    if (cols)
+	cols.forEach(function(c) {
+	    let ctype = yeGetIntAt(c, YCANVAS_UDATA_IDX)
+	    print(ctype, TYPE_ANIMATION)
+	    if (ctype != TYPE_ANIMATION) {
+		if (ywCanvasObjectsCheckColisions(c, ps_canvas_obj)) {
+		    if (ywPosY(old_pos) < ywPosY(ywCanvasObjPos(c))) {
+			stop_fall = true
+			return true
+		    } else {
+			print("WESH")
+			print(ywPosY(old_pos), ywPosY(ywCanvasObjPos(c)))
+			stop_x = true
+		    }
+		}
 	    }
-	}
-    })
+	})
 
     if (stop_x)
 	y_move_undo_x(pc_pos, pc_minfo)
     if (stop_fall) {
 	y_move_undo_y(pc_pos, pc_minfo)
+	yeSetIntAt(pc_canel, PC_JMP_NUMBER, 0);
+	yeSetIntAt(pc_canel, PC_DROPSPEED_IDX, 0);
     }
-    print_all(wid)
+    //print_all(wid)
 }
 
 function amap_init(wid)
@@ -204,12 +249,11 @@ function amap_init(wid)
 	yeCreateInt(4, stats, "agility");
 	yeCreateInt(4, stats, "strength");
     }
-    yePrint(pc)
+    //yePrint(pc)
     // canel for canvas element, it's the info about the screen position and stuff
     var pc_canel = yeCreateArray(wid, "_pc")
 
     var map = yeGetStringAt(wid, "map")
-    print(map + ".json")
     yePushBack(wid, ygFileToEnt(YJSON, map + ".json"), "_mi")
     let mi = yeGet(wid, "_mi")
     var map_str = ygFileToEnt(YRAW_FILE, map)
@@ -231,21 +275,22 @@ function amap_init(wid)
     ret = ywidNewWidget(wid, "canvas")
 
     let wid_pix = yeGet(wid, "wid-pix");
-    print("---------------VVVVV--------------------")
     let cam_t = ywPosCreate(ywRectW(wid_pix), ywRectH(wid_pix), wid, "cam-threshold")
-    yePrint(cam_t)
     ywPosDoPercent(cam_t, 50);
-    yePrint(cam_t)
     ywPosMultXY(cam_t, -1, -1);
-    yePrint(cam_t)
     ywPosAddXY(cam_t, SPRITE_SIZE, 0);
-    yePrint(cam_t)
-    yePrint(map_a)
-    yePrint(mi)
-    print("--------------^^^^^^--------------------")
-    let size = yeGet(mi, "size")
+    var size = yeGet(mi, "size")
     ywSizeCreate(ywSizeW(size) * SPRITE_SIZE, ywSizeW(size) * SPRITE_SIZE, wid, "map-pixs-l")
 
+    size = ywSizeCreate(SPRITE_SIZE, SPRITE_SIZE);
+    let textures = yeCreateArray(wid, "textures");
+    yePrint(size)
+    ywTextureNewImg("./door.png", null, textures, "door");
+    ywTextureNewImg("./pike.png", null, textures, "pike");
+    ywTextureNewImg("./gut-0.png", null, textures, "guy-0");
+    ywTextureNewImg("./gut-1.png", null, textures, "guy-1");
+
+    yeCreateIntAt(0, pc_canel, "jmp-n", PC_JMP_NUMBER)
     print_all(wid)
     return ret
 }
