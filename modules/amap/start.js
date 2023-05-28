@@ -21,6 +21,7 @@ const PC_DROPSPEED_IDX = 2
 const PC_TURN_CNT_IDX = 3
 const PC_CANVAS_OBJ = 4
 const PC_JMP_NUMBER = 5
+const PC_HURT = 6
 
 const BASE_SPEED = 16
 
@@ -184,12 +185,17 @@ function amap_action(wid, events)
     if (yeGetIntAt(pc_canel, PC_TURN_CNT_IDX) > 10000) {
 	yeAddAt(pc_canel, PC_DROPSPEED_IDX, 2);
 	yeSetIntAt(pc_canel, PC_TURN_CNT_IDX, 0);
+	if (yeGetIntAt(pc_canel, PC_HURT)) {
+	    yeAddAt(pc_canel, PC_HURT, -1);
+	}
     } else {
 	yeAddAt(pc_canel, PC_TURN_CNT_IDX, turn_timer);
     }
+
     y_move_set_yspeed(pc_minfo, yeGetIntAt(pc_canel, PC_DROPSPEED_IDX));
     y_move_pos(pc_pos, pc_minfo, turn_timer);
-
+    if (yeGetIntAt(pc_canel, PC_HURT) > 0)
+	return
     map_pixs_l = yeGet(wid, "map-pixs-l");
     var stop_fall = false;
     var stop_x = false;
@@ -204,7 +210,11 @@ function amap_action(wid, events)
 	    print(ctype, TYPE_ANIMATION)
 	    if (ctype != TYPE_ANIMATION) {
 		if (ywCanvasObjectsCheckColisions(c, ps_canvas_obj)) {
-		    if (ywPosY(old_pos) < ywPosY(ywCanvasObjPos(c))) {
+		    if (ctype == TYPE_PIKE) {
+			yeSetIntAt(pc_canel, PC_HURT, 7);
+			yeSetIntAt(pc_canel, PC_DROPSPEED_IDX, -25);
+			return true
+		    } else if (ywPosY(old_pos) < ywPosY(ywCanvasObjPos(c))) {
 			stop_fall = true
 			return true
 		    } else {
@@ -291,6 +301,7 @@ function amap_init(wid)
     ywTextureNewImg("./gut-1.png", null, textures, "guy-1");
 
     yeCreateIntAt(0, pc_canel, "jmp-n", PC_JMP_NUMBER)
+    yeCreateIntAt(0, pc_canel, "hurt", PC_HURT)
     print_all(wid)
     return ret
 }
