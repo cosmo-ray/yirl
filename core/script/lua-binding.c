@@ -678,13 +678,6 @@ int	luaYwCanvasRemoveObj(lua_State *L)
 	return 0;
 }
 
-int	luaywCanvasObjectsCheckColisions(lua_State *L)
-{
-	lua_pushboolean(L, ywCanvasObjectsCheckColisions(luaEntityAt(L, 1),
-							 luaEntityAt(L, 2)));
-	return 1;
-}
-
 int	luaywCanvasNewCollisionsArrayExt(lua_State *L)
 {
 	lua_pushlightuserdata(L, ywCanvasNewCollisionsArrayExt(luaEntityAt(L, 1),
@@ -693,13 +686,6 @@ int	luaywCanvasNewCollisionsArrayExt(lua_State *L)
 							       luaEntityAt(L, 4)));
 	return 1;
 
-}
-
-int luaYwCanvasNewCollisionsArray(lua_State *L)
-{
-	lua_pushlightuserdata(L, ywCanvasNewCollisionsArray(luaEntityAt(L, 1),
-							    luaEntityAt(L, 2)));
-	return 1;
 }
 
 int luaYwCanvasNewCollisionsArrayWithRectangle(lua_State *L)

@@ -128,7 +128,11 @@ BIND_I(ySoundStop, 1, 0);
 BIND_I(ySoundDuration, 1, 0);
 BIND_I(yuiUsleep, 1, 0);
 
+BIND_EE(ywCanvasObjectsCheckColisions, 2, 0);
+
 BIND_EE(ywCanvasObjReplacePos, 2, 0);
+
+BIND_EE(ywCanvasNewCollisionsArray, 2, 0);
 
 BIND_EE(yePushArrayBack, 2, 0);
 BIND_EE(yeveCopyBack, 2, 0);
