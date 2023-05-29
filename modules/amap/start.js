@@ -22,6 +22,7 @@ const PC_TURN_CNT_IDX = 3
 const PC_CANVAS_OBJ = 4
 const PC_JMP_NUMBER = 5
 const PC_HURT = 6
+const PC_LIFE_ARRAY = 7
 
 const BASE_SPEED = 16
 
@@ -104,11 +105,31 @@ function y_mover_new(father, name)
     return ret
 }
 
+function print_life(wid, pc, pc_canel)
+{
+    var j = 0;
+    let textures = yeGet(wid, "textures");
+    let pj_pos = yeGet(pc_canel, PC_POS_IDX)
+    let start_x = ywPosX(pj_pos) - 200
+    let start_y = ywPosY(pj_pos) - 240
+    let life_array = yeGet(pc_canel, PC_LIFE_ARRAY)
+
+    ywCanvasClearArray(wid, life_array);
+    for (var i = yeGetIntAt(pc, "life"); i > 0; i -= 5) {
+	yePushBack(life_array,
+		   ywCanvasNewImgFromTexture(wid, j * SPRITE_SIZE + start_x,
+					     start_y,
+					     yeGet(textures, "motivation")));
+	++j;
+    }
+}
+
 function print_all(wid)
 {
     ywCanvasClear(wid);
     let map_a = yeGet(wid, "_m")
     let mi = yeGet(wid, "_mi")
+    let pc = yeGet(wid, "pc")
     let pc_canel = yeGet(wid, "_pc")
     var sharp_str = yeGet(mi, "#")
     var objs = yeGet(mi, "objs")
@@ -158,10 +179,13 @@ function print_all(wid)
     yeCreateIntAt(TYPE_PC, pc_canvasobj, "amap-t", YCANVAS_UDATA_IDX)
     ywCanvasObjReplacePos(pc_canvasobj, pc_pos)
     yePushAt2(pc_canel, pc_canvasobj, PC_CANVAS_OBJ)
+
+    print_life(wid, pc, pc_canel)
 }
 
 function amap_action(wid, events)
 {
+    let pc = yeGet(wid, "pc");
     let pc_canel = yeGet(wid, "_pc")
     let pc_pos = yeGet(pc_canel, PC_POS_IDX)
     let old_pos = yeCreateCopy(pc_pos)
@@ -194,8 +218,10 @@ function amap_action(wid, events)
 
     y_move_set_yspeed(pc_minfo, yeGetIntAt(pc_canel, PC_DROPSPEED_IDX));
     y_move_pos(pc_pos, pc_minfo, turn_timer);
-    if (yeGetIntAt(pc_canel, PC_HURT) > 0)
+    if (yeGetIntAt(pc_canel, PC_HURT) > 0) {
+	print_life(wid, pc, pc_canel)
 	return
+    }
     map_pixs_l = yeGet(wid, "map-pixs-l");
     var stop_fall = false;
     var stop_x = false;
@@ -203,6 +229,9 @@ function amap_action(wid, events)
 	stop_x = true;
     if (ywPosY(pc_pos) > ywSizeH(map_pixs_l)) {
 	print("you fall, wou lose !");
+	ygCallFuncOrQuit(wid, "lose");
+    } else if (yeGetIntAt(pc, "life") < 1) {
+	print("no life left, wou lose !");
 	ygCallFuncOrQuit(wid, "lose");
     }
     var ps_canvas_obj = yeGet(pc_canel, PC_CANVAS_OBJ)
@@ -217,9 +246,12 @@ function amap_action(wid, events)
 		    if (ctype == TYPE_PIKE) {
 			yeSetIntAt(pc_canel, PC_HURT, 7);
 			yeSetIntAt(pc_canel, PC_DROPSPEED_IDX, -25);
+			yeAddAt(pc, "life", -5)
+			print_life(wid, pc, pc_canel)
 			return true
 		    } else if (ywPosY(old_pos) < ywPosY(ywCanvasObjPos(c))) {
 			stop_fall = true
+			print_life(wid, pc, pc_canel)
 			return true
 		    } else {
 			print("WESH")
@@ -237,6 +269,7 @@ function amap_action(wid, events)
 	yeSetIntAt(pc_canel, PC_JMP_NUMBER, 0);
 	yeSetIntAt(pc_canel, PC_DROPSPEED_IDX, 0);
     }
+    print_life(wid, pc, pc_canel)
     //print_all(wid)
 }
 
@@ -251,15 +284,13 @@ function amap_init(wid)
 	pc = yeCreateArray(wid, "pc")
 	yaeInt(
 	    0, yaeInt(
-		13, yaeInt(
-		    13, pc,
+		15, yaeInt(
+		    15, pc,
 		    "life"),
 		"max_life"),
 	    "xp")
 	yeCreateString("Joe", pc, "name");
 	var stats = yeCreateArray(pc, "stats");
-	yeCreateInt(0, stats, "charm");
-	yeCreateInt(4, stats, "smart");
 	yeCreateInt(4, stats, "agility");
 	yeCreateInt(4, stats, "strength");
     }
@@ -303,9 +334,14 @@ function amap_init(wid)
     ywTextureNewImg("./pike.png", null, textures, "pike");
     ywTextureNewImg("./gut-0.png", null, textures, "guy-0");
     ywTextureNewImg("./gut-1.png", null, textures, "guy-1");
+    ywTextureNewImg("./motivation.png", null, textures, "motivation");
+    ywTextureNewImg("./uwu-head.png", null, textures, "uwu-head");
+    ywTextureNewImg("./gamu.png", null, textures, "gamu");
+    ywTextureNewImg("./vodeo-monster.png", null, textures, "vodeo-monster");
 
     yeCreateIntAt(0, pc_canel, "jmp-n", PC_JMP_NUMBER)
     yeCreateIntAt(0, pc_canel, "hurt", PC_HURT)
+    yeCreateArrayAt(pc_canel, "life-array", PC_LIFE_ARRAY)
     print_all(wid)
     return ret
 }

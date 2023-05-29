@@ -322,6 +322,14 @@ static inline int ywCanvasReplace(Entity *wid, Entity *toReplace,
 
 void ywCanvasRemoveObj(Entity *wid, Entity *obj);
 
+static inline void ywCanvasClearArray(Entity *wid, Entity *array_to_clear)
+{
+	YE_FOREACH(array_to_clear, el) {
+		ywCanvasRemoveObj(wid, el);
+	}
+	yeClearArray(array_to_clear);
+}
+
 static inline void ywCanvasPopObj(Entity *wid)
 {
 	yePopBack(yeGet(wid, "objs"));

@@ -306,6 +306,13 @@ static JSValue make_abort(JSContext *ctx, ...)
 			       GET_E(ctx, 1), GET_I(ctx, 2)));		\
 	}
 
+#define BIND_ESI(f, useless...)						\
+	static JSValue qjs##f(JSContext *ctx, JSValueConst this_val,	\
+			      int argc, JSValueConst *argv) {		\
+		BIND_AUTORET(f(GET_E(ctx, 0),				\
+			       GET_S(ctx, 1), GET_I(ctx, 2)));		\
+	}
+
 #define BIND_ESE(f, ...)			\
 	static JSValue qjs##f(JSContext *ctx, JSValueConst this_val,	\
 			      int argc, JSValueConst *argv) {		\
@@ -511,6 +518,8 @@ BIND_ED(ywCanvasRotate);
 BIND_EII(ywCanvasObjSetPos, 3, 0);
 BIND_EIIE(ywCanvasNewText, 2, 2);
 BIND_IESI(yeCreateIntAt, 4, 0);
+BIND_ESI(yeCreateArrayAt, 3, 0);
+
 
 #define NO_ywTextureNewImg
 /* make all bindings here */
@@ -1020,6 +1029,7 @@ static int init(void *sm, void *args)
 	BIND(ygRegistreFunc, 3, 0);
 	BIND(ywCanvasNewText, 2, 2);
 	BIND(yeCreateIntAt, 4, 0);
+	BIND(yeCreateArrayAt, 3, 0);
 
 #define IN_CALL 1
 	#include "binding.c"
