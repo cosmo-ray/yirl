@@ -201,6 +201,10 @@ function amap_action(wid, events)
     var stop_x = false;
     if (ywPosX(pc_pos) < 0 || ywPosX(pc_pos) + SPRITE_SIZE > ywSizeW(map_pixs_l))
 	stop_x = true;
+    if (ywPosY(pc_pos) > ywSizeH(map_pixs_l)) {
+	print("you fall, wou lose !");
+	ygCallFuncOrQuit(wid, "lose");
+    }
     var ps_canvas_obj = yeGet(pc_canel, PC_CANVAS_OBJ)
     var cols = ywCanvasNewCollisionsArray(wid, ps_canvas_obj)
     //yePrint(cols)
