@@ -15,6 +15,9 @@
 
 const SPRITE_SIZE = 32;
 
+const DIR_RIGHT = 0
+const DIR_LEFT = 1
+
 const PC_POS_IDX = 0;
 const PC_MOVER_IDX = 1
 const PC_DROPSPEED_IDX = 2
@@ -23,6 +26,10 @@ const PC_CANVAS_OBJ = 4
 const PC_JMP_NUMBER = 5
 const PC_HURT = 6
 const PC_LIFE_ARRAY = 7
+const PC_PUNCH_LIFE = 8
+const PC_DIR = 9
+const PC_PUNCH_OBJ = 10
+const PC_PUNCH_MINFO = 11
 
 const BASE_SPEED = 16
 
@@ -30,6 +37,7 @@ const TYPE_WALL = 0
 const TYPE_PC = 1
 const TYPE_PIKE = 2
 const TYPE_ANIMATION = 3
+const TYPE_PUNCH = 4
 
 function y_move_undo(pos, minfo)
 {
@@ -72,6 +80,21 @@ function y_move_pos(pos, minfo, turn_timer)
     ywPosAddXY(pos, mvx, mvy)
 }
 
+function y_move_obj(o, minfo, turn_timer)
+{
+    y_move_pos(ywCanvasObjPos(o), minfo, turn_timer)
+}
+
+function y_move_x_speed(minfo)
+{
+    return yeGetIntAt(minfo, 0)
+}
+
+function y_move_y_speed(minfo)
+{
+    return yeGetIntAt(minfo, 1)
+}
+
 function y_move_last_y(minfo)
 {
     return yeGetIntAt(minfo, 5)
@@ -81,7 +104,6 @@ function y_move_last_x(minfo)
 {
     return yeGetIntAt(minfo, 4)
 }
-
 
 function y_move_set_xspeed(minfo, xspeed)
 {
@@ -93,16 +115,27 @@ function y_move_set_yspeed(minfo, yspeed)
     yeSetIntAt(minfo, 1, yspeed)
 }
 
+function y_mover_init(minfo)
+{
+    yeReCreateInt(0, minfo, "horizontal_speed");
+    yeReCreateInt(0, minfo, "vertical_speed");
+    yeReCreateInt(0, minfo, "horizontal_remain");
+    yeReCreateInt(0, minfo, "vertical_remain");
+    yeReCreateInt(0, minfo, "last_x");
+    yeReCreateInt(0, minfo, "last_y");
+    return minfo
+}
+
 function y_mover_new(father, name)
 {
     let ret = yeCreateArray(father, name)
-    yeCreateInt(0, ret, "horizontal_speed");
-    yeCreateInt(0, ret, "vertical_speed");
-    yeCreateInt(0, ret, "horizontal_remain");
-    yeCreateInt(0, ret, "vertical_remain");
-    yeCreateInt(0, ret, "last_x");
-    yeCreateInt(0, ret, "last_y");
-    return ret
+    return y_mover_init(ret)
+}
+
+function y_mover_new_at(father, name, at)
+{
+    let ret = yeCreateArrayAt(father, name, at)
+    return y_mover_init(ret)
 }
 
 function print_life(wid, pc, pc_canel)
@@ -122,6 +155,21 @@ function print_life(wid, pc, pc_canel)
 					     yeGet(textures, "motivation")));
 	++j;
     }
+}
+
+function move_punch(wid, pc_canel, turn_timer)
+{
+    var x_add = 0
+    let pl = yeGetIntAt(pc_canel, PC_PUNCH_LIFE)
+
+
+    if (pl != 0) {
+	print("move punch")
+	yePrint(yeGet(pc_canel, PC_PUNCH_MINFO))
+	y_move_obj(yeGet(pc_canel, PC_PUNCH_OBJ),
+		   yeGet(pc_canel, PC_PUNCH_MINFO), turn_timer)
+    }
+
 }
 
 function print_all(wid)
@@ -197,9 +245,29 @@ function amap_action(wid, events)
     }
 
     if (yevIsKeyDown(events, Y_LEFT_KEY)) {
+	yeSetIntAt(pc_canel, PC_DIR, DIR_LEFT)
 	y_move_set_xspeed(pc_minfo, -BASE_SPEED)
     } else if (yevIsKeyDown(events, Y_RIGHT_KEY)) {
+	yeSetIntAt(pc_canel, PC_DIR, DIR_RIGHT)
 	y_move_set_xspeed(pc_minfo, BASE_SPEED)
+    } else if (yevIsKeyDown(events, Y_X_KEY) && yeGetIntAt(pc_canel, PC_PUNCH_LIFE) == 0) {
+	print("atk !")
+	yeSetIntAt(pc_canel, PC_PUNCH_LIFE, 10)
+	if (yeGetIntAt(pc_canel, PC_DIR) == DIR_RIGHT) {
+	    y_move_set_xspeed(yeGet(pc_canel, PC_PUNCH_MINFO), 25)
+	} else {
+	    y_move_set_xspeed(yeGet(pc_canel, PC_PUNCH_MINFO), -25)
+	}
+
+	let textures = yeGet(wid, "textures");
+	let canvasobj = ywCanvasNewImgFromTexture(wid, ywPosX(pc_pos), ywPosY(pc_pos),
+						  yeGet(textures, "punch"))
+	// ywCanvasNewTextByStr(wid, ywPosX(pc_pos), ywPosY(pc_pos), " @ \n---")
+	print("atk !!")
+	yePushAt2(pc_canel, canvasobj, PC_PUNCH_OBJ)
+	yeCreateIntAt(TYPE_PUNCH, canvasobj, "amap-t", YCANVAS_UDATA_IDX)
+
+	print("atk !!!")
     } else if (yevIsKeyDown(events, Y_SPACE_KEY) &&
 	       yeGetIntAt(pc_canel, PC_JMP_NUMBER) < 2) {
 	yeSetIntAt(pc_canel, PC_DROPSPEED_IDX, -25);
@@ -207,6 +275,12 @@ function amap_action(wid, events)
     }
 
     if (yeGetIntAt(pc_canel, PC_TURN_CNT_IDX) > 10000) {
+	if (yeGetIntAt(pc_canel, PC_PUNCH_LIFE) > 0) {
+	    yeAddAt(pc_canel, PC_PUNCH_LIFE, -1)
+	    if (yeGetIntAt(pc_canel, PC_PUNCH_LIFE) == 0) {
+		ywCanvasRemoveObj(wid, yeGet(pc_canel, PC_PUNCH_OBJ))
+	    }
+	}
 	yeAddAt(pc_canel, PC_DROPSPEED_IDX, 2);
 	yeSetIntAt(pc_canel, PC_TURN_CNT_IDX, 0);
 	if (yeGetIntAt(pc_canel, PC_HURT)) {
@@ -240,8 +314,8 @@ function amap_action(wid, events)
     if (cols)
 	cols.forEach(function(c) {
 	    let ctype = yeGetIntAt(c, YCANVAS_UDATA_IDX)
-	    print(ctype, TYPE_ANIMATION)
-	    if (ctype != TYPE_ANIMATION) {
+
+	    if (ctype != TYPE_ANIMATION && ctype != TYPE_PUNCH) {
 		if (ywCanvasObjectsCheckColisions(c, ps_canvas_obj)) {
 		    if (ctype == TYPE_PIKE) {
 			yeSetIntAt(pc_canel, PC_HURT, 7);
@@ -270,6 +344,7 @@ function amap_action(wid, events)
 	yeSetIntAt(pc_canel, PC_DROPSPEED_IDX, 0);
     }
     print_life(wid, pc, pc_canel)
+    move_punch(wid, pc_canel, turn_timer)
     //print_all(wid)
 }
 
@@ -334,6 +409,7 @@ function amap_init(wid)
     ywTextureNewImg("./pike.png", null, textures, "pike");
     ywTextureNewImg("./gut-0.png", null, textures, "guy-0");
     ywTextureNewImg("./gut-1.png", null, textures, "guy-1");
+    ywTextureNewImg("./punch.png", null, textures, "punch");
     ywTextureNewImg("./motivation.png", null, textures, "motivation");
     ywTextureNewImg("./uwu-head.png", null, textures, "uwu-head");
     ywTextureNewImg("./gamu.png", null, textures, "gamu");
@@ -342,6 +418,9 @@ function amap_init(wid)
     yeCreateIntAt(0, pc_canel, "jmp-n", PC_JMP_NUMBER)
     yeCreateIntAt(0, pc_canel, "hurt", PC_HURT)
     yeCreateArrayAt(pc_canel, "life-array", PC_LIFE_ARRAY)
+    yeCreateIntAt(0, pc_canel, "pl", PC_PUNCH_LIFE)
+    yeCreateIntAt(DIR_RIGHT, pc_canel, "dir", PC_DIR)
+    y_mover_new_at(pc_canel, "p_minfo", PC_PUNCH_MINFO)
     print_all(wid)
     return ret
 }

@@ -519,7 +519,7 @@ BIND_EII(ywCanvasObjSetPos, 3, 0);
 BIND_EIIE(ywCanvasNewText, 2, 2);
 BIND_IESI(yeCreateIntAt, 4, 0);
 BIND_ESI(yeCreateArrayAt, 3, 0);
-
+BIND_IES(yeReCreateInt, 3, 0);
 
 #define NO_ywTextureNewImg
 /* make all bindings here */
@@ -1030,6 +1030,7 @@ static int init(void *sm, void *args)
 	BIND(ywCanvasNewText, 2, 2);
 	BIND(yeCreateIntAt, 4, 0);
 	BIND(yeCreateArrayAt, 3, 0);
+	BIND(yeReCreateInt, 3, 0);
 
 #define IN_CALL 1
 	#include "binding.c"
