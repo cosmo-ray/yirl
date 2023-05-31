@@ -38,6 +38,7 @@ const TYPE_PC = 1
 const TYPE_PIKE = 2
 const TYPE_ANIMATION = 3
 const TYPE_PUNCH = 4
+const TYPE_MONSTER = 5
 
 function y_move_undo(pos, minfo)
 {
@@ -164,8 +165,6 @@ function move_punch(wid, pc_canel, turn_timer)
 
 
     if (pl != 0) {
-	print("move punch")
-	yePrint(yeGet(pc_canel, PC_PUNCH_MINFO))
 	y_move_obj(yeGet(pc_canel, PC_PUNCH_OBJ),
 		   yeGet(pc_canel, PC_PUNCH_MINFO), turn_timer)
     }
@@ -183,6 +182,8 @@ function print_all(wid)
     var objs = yeGet(mi, "objs")
     let textures = yeGet(wid, "textures");
     var map_real_size = yeGet(mi, "size")
+    let monsters_info = yeGet(mi, "monsters")
+    let monsters = yeGet(wid, "_monsters")
 
     var backgound = ywCanvasNewRectangle(wid, 0, 0, ywSizeW(map_real_size) * SPRITE_SIZE,
 			 ywSizeW(map_real_size) * SPRITE_SIZE,
@@ -192,7 +193,8 @@ function print_all(wid)
 	let s = yeGetStringAt(map_a, i)
 
 	for (let j = 0; j < s.length; ++j) {
-	    var c = s[j]
+	    var c = s[j];
+
 	    if (c == '#') {
 		if (sharp_str)
 		    ywCanvasNewRectangle(wid, j * SPRITE_SIZE, i * SPRITE_SIZE,
@@ -228,6 +230,17 @@ function print_all(wid)
     ywCanvasObjReplacePos(pc_canvasobj, pc_pos)
     yePushAt2(pc_canel, pc_canvasobj, PC_CANVAS_OBJ)
 
+    monsters.forEach(function(mon) {
+	let mon_key = yeGetStringAt(mon, 0)
+	let mon_info = yeGet(monsters_info, mon_key)
+	let mon_pos = yeGet(mon, 1)
+	let canvasobj = ywCanvasNewImgFromTexture(wid, ywPosX(mon_pos), ywPosY(mon_pos),
+						  yeGet(textures, yeGetStringAt(mon_info, "img")))
+	// ywCanvasNewTextByStr(wid, ywPosX(pos), ywPosY(pos), " @ \n---")
+	yeCreateIntAt(TYPE_MONSTER, canvasobj, "amap-t", YCANVAS_UDATA_IDX)
+	ywCanvasObjReplacePos(canvasobj, mon_pos)
+	yePushAt2(mon, canvasobj, 3)
+    })
     print_life(wid, pc, pc_canel)
 }
 
@@ -251,7 +264,6 @@ function amap_action(wid, events)
 	yeSetIntAt(pc_canel, PC_DIR, DIR_RIGHT)
 	y_move_set_xspeed(pc_minfo, BASE_SPEED)
     } else if (yevIsKeyDown(events, Y_X_KEY) && yeGetIntAt(pc_canel, PC_PUNCH_LIFE) == 0) {
-	print("atk !")
 	yeSetIntAt(pc_canel, PC_PUNCH_LIFE, 10)
 	if (yeGetIntAt(pc_canel, PC_DIR) == DIR_RIGHT) {
 	    y_move_set_xspeed(yeGet(pc_canel, PC_PUNCH_MINFO), 25)
@@ -263,11 +275,8 @@ function amap_action(wid, events)
 	let canvasobj = ywCanvasNewImgFromTexture(wid, ywPosX(pc_pos), ywPosY(pc_pos),
 						  yeGet(textures, "punch"))
 	// ywCanvasNewTextByStr(wid, ywPosX(pc_pos), ywPosY(pc_pos), " @ \n---")
-	print("atk !!")
 	yePushAt2(pc_canel, canvasobj, PC_PUNCH_OBJ)
 	yeCreateIntAt(TYPE_PUNCH, canvasobj, "amap-t", YCANVAS_UDATA_IDX)
-
-	print("atk !!!")
     } else if (yevIsKeyDown(events, Y_SPACE_KEY) &&
 	       yeGetIntAt(pc_canel, PC_JMP_NUMBER) < 2) {
 	yeSetIntAt(pc_canel, PC_DROPSPEED_IDX, -25);
@@ -376,6 +385,8 @@ function amap_init(wid)
     var map = yeGetStringAt(wid, "map")
     yePushBack(wid, ygFileToEnt(YJSON, map + ".json"), "_mi")
     let mi = yeGet(wid, "_mi")
+    let monsters = yeReCreateArray(wid, "_monsters")
+
     var map_str = ygFileToEnt(YRAW_FILE, map)
     var map_str_a = yeGetString(map_str).split('\n')
     var map_a = yeCreateArray(wid, "_m")
@@ -404,7 +415,6 @@ function amap_init(wid)
 
     size = ywSizeCreate(SPRITE_SIZE, SPRITE_SIZE);
     let textures = yeCreateArray(wid, "textures");
-    yePrint(size)
     ywTextureNewImg("./door.png", null, textures, "door");
     ywTextureNewImg("./pike.png", null, textures, "pike");
     ywTextureNewImg("./gut-0.png", null, textures, "guy-0");
@@ -421,6 +431,21 @@ function amap_init(wid)
     yeCreateIntAt(0, pc_canel, "pl", PC_PUNCH_LIFE)
     yeCreateIntAt(DIR_RIGHT, pc_canel, "dir", PC_DIR)
     y_mover_new_at(pc_canel, "p_minfo", PC_PUNCH_MINFO)
+    map_a.forEach(function(s, i) {
+	s = yeGetString(s)
+	for (let j = 0; j < s.length; ++j) {
+	    var c = s[j];
+	    c_char_code = c.charCodeAt(0);
+	    if (c_char_code >= "a".charCodeAt(0) && c_char_code <= "z".charCodeAt(0)) {
+		var mon = yeCreateArray(monsters, c)
+		yeCreateString(c, mon) // 0
+		ywPosCreate(j * SPRITE_SIZE, i * SPRITE_SIZE, mon) // 1
+		y_mover_new(mon) // 2
+		yePrint(mon)
+	    }
+	}
+
+    })
     print_all(wid)
     return ret
 }
@@ -430,6 +455,5 @@ function mod_init(mod)
     ygInitWidgetModule(mod, "amap", yeCreateFunction("amap_init"))
     yeCreateString("lvl-test", yeGet(mod, "test_wid"), "map")
     yeCreateString("rgba: 255 255 255 255", yeGet(mod, "test_wid"), "background")
-    yePrint(mod)
     return mod
 }

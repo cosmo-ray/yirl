@@ -1,6 +1,12 @@
 {
     "size": [42, 13],
     "#": "rgba: 127 127 127 255",
+    "monsters": {
+	"v": {
+	    "life": 5,
+	    "img": "vodeo-monster"
+	}
+    },
     "objs": [
 	["door", "amap.next"]
     ]
