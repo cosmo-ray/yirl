@@ -365,14 +365,10 @@ function amap_action(wid, events)
 			yeAddAt(pc, "life", -5)
 			print_life(wid, pc, pc_canel)
 			return true
-		    } else if (ywPosY(old_pos) < ywPosY(ywCanvasObjPos(c))) {
+		    } else if ((ywPosY(old_pos) + SPRITE_SIZE - 5) <= ywPosY(ywCanvasObjPos(c))) {
 			stop_fall = true
 			print_life(wid, pc, pc_canel)
 			return true
-		    } else {
-			print("WESH")
-			print(ywPosY(old_pos), ywPosY(ywCanvasObjPos(c)))
-			stop_x = true
 		    }
 		}
 	    }
