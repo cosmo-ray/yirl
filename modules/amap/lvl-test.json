@@ -7,6 +7,7 @@
 	    "img": "vodeo-monster"
 	}
     },
+    "next": "lvl2-test",
     "objs": [
 	["door", "amap.next"]
     ]

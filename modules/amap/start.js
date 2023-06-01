@@ -39,6 +39,9 @@ const TYPE_PIKE = 2
 const TYPE_ANIMATION = 3
 const TYPE_PUNCH = 4
 const TYPE_MONSTER = 5
+const TYPE_OBJ = 6
+
+const CANVAS_OBJ_IDX = YCANVAS_UDATA_IDX + 1
 
 function y_move_undo(pos, minfo)
 {
@@ -216,8 +219,10 @@ function print_all(wid)
 		var object = yeGet(objs, ic)
 		if (!object)
 		    continue;
-		ywCanvasNewImgFromTexture(wid, j * SPRITE_SIZE, i * SPRITE_SIZE,
-					  yeGet(textures, yeGetStringAt(object, 0)))
+		var o = ywCanvasNewImgFromTexture(wid, j * SPRITE_SIZE, i * SPRITE_SIZE,
+						  yeGet(textures, yeGetStringAt(object, 0)))
+		yeCreateIntAt(TYPE_OBJ, o, "amap-t", YCANVAS_UDATA_IDX)
+		yeCreateIntAt(ic, o, "objidx", CANVAS_OBJ_IDX)
 		//yePrint(object)
 	    }
 	}
@@ -247,6 +252,7 @@ function print_all(wid)
 function amap_action(wid, events)
 {
     let pc = yeGet(wid, "pc");
+    let mi = yeGet(wid, "_mi")
     let pc_canel = yeGet(wid, "_pc")
     let pc_pos = yeGet(pc_canel, PC_POS_IDX)
     let old_pos = yeCreateCopy(pc_pos)
@@ -324,7 +330,12 @@ function amap_action(wid, events)
 	cols.forEach(function(c) {
 	    let ctype = yeGetIntAt(c, YCANVAS_UDATA_IDX)
 
-	    if (ctype != TYPE_ANIMATION && ctype != TYPE_PUNCH) {
+	    if (ctype == TYPE_OBJ) {
+		var objs = yeGet(mi, "objs");
+		var action = yeGet(yeGet(objs, yeGetIntAt(c, CANVAS_OBJ_IDX)), 1);
+		ywidAction(action, wid);
+		return true
+	    } else if (ctype != TYPE_ANIMATION && ctype != TYPE_PUNCH) {
 		if (ywCanvasObjectsCheckColisions(c, ps_canvas_obj)) {
 		    if (ctype == TYPE_PIKE) {
 			yeSetIntAt(pc_canel, PC_HURT, 7);
@@ -357,6 +368,47 @@ function amap_action(wid, events)
     //print_all(wid)
 }
 
+function init_map(wid, map_str)
+{
+    var pc = yeGet(wid, "pc")
+    let pc_canel = yeGet(wid, "_pc")
+    yeReplaceBack(wid, ygFileToEnt(YJSON, map_str + ".json"), "_mi")
+    let mi = yeGet(wid, "_mi")
+    var map_str = ygFileToEnt(YRAW_FILE, map_str)
+    var map_str_a = yeGetString(map_str).split('\n')
+    var map_a = yeReCreateArray(wid, "_m")
+    for (var l in map_str_a) {
+	yeCreateString(map_str_a[l], map_a)
+	let guy_index = map_str_a[l].indexOf('@')
+	if (guy_index > -1) {
+	    var pc_cam = yeGet(pc_canel, PC_POS_IDX)
+	    ywPosSetInts(pc_cam, guy_index * SPRITE_SIZE, l * SPRITE_SIZE)
+	    yeReplaceBack(wid, pc_cam, "cam")
+	}
+    }
+    var size = yeGet(mi, "size")
+    let map_pixs_l = ywSizeCreate(ywSizeW(size) * SPRITE_SIZE, ywSizeW(size) * SPRITE_SIZE)
+    yeReplaceBack(wid, map_pixs_l, "map-pixs-l")
+    let monsters = yeReCreateArray(wid, "_monsters")
+
+    map_a.forEach(function(s, i) {
+	s = yeGetString(s)
+	for (let j = 0; j < s.length; ++j) {
+	    var c = s[j];
+	    c_char_code = c.charCodeAt(0);
+	    if (c_char_code >= "a".charCodeAt(0) && c_char_code <= "z".charCodeAt(0)) {
+		var mon = yeCreateArray(monsters, c)
+		yeCreateString(c, mon) // 0
+		ywPosCreate(j * SPRITE_SIZE, i * SPRITE_SIZE, mon) // 1
+		y_mover_new(mon) // 2
+		yePrint(mon)
+	    }
+	}
+
+    })
+    print_all(wid)
+}
+
 function amap_init(wid)
 {
     //yePrint(wid)
@@ -382,23 +434,10 @@ function amap_init(wid)
     // canel for canvas element, it's the info about the screen position and stuff
     var pc_canel = yeCreateArray(wid, "_pc")
 
-    var map = yeGetStringAt(wid, "map")
-    yePushBack(wid, ygFileToEnt(YJSON, map + ".json"), "_mi")
-    let mi = yeGet(wid, "_mi")
-    let monsters = yeReCreateArray(wid, "_monsters")
+    let map = yeGetStringAt(wid, "map")
 
-    var map_str = ygFileToEnt(YRAW_FILE, map)
-    var map_str_a = yeGetString(map_str).split('\n')
-    var map_a = yeCreateArray(wid, "_m")
-    for (var l in map_str_a) {
-	yeCreateString(map_str_a[l], map_a)
-	let guy_index = map_str_a[l].indexOf('@')
-	if (guy_index > -1) {
-	    // push at PC_POS_IDX (0) in pc_canel
-	    var pc_cam = ywPosCreate(guy_index * SPRITE_SIZE, l * SPRITE_SIZE, pc_canel)
-	    yeReplaceBack(wid, pc_cam, "cam")
-	}
-    }
+    // push at PC_POS_IDX (0) in pc_canel
+    ywPosCreate(0, 0, pc_canel)
     y_mover_new(pc_canel) // create at PC_MOVER_IDX(1)
     yeCreateInt(0, pc_canel) // PC_DROPSPEED_IDX (2)
     yeCreateInt(0, pc_canel) // PC_TURN_CNT_IDX (3)
@@ -410,10 +449,8 @@ function amap_init(wid)
     ywPosDoPercent(cam_t, 50);
     ywPosMultXY(cam_t, -1, -1);
     ywPosAddXY(cam_t, SPRITE_SIZE, 0);
-    var size = yeGet(mi, "size")
-    ywSizeCreate(ywSizeW(size) * SPRITE_SIZE, ywSizeW(size) * SPRITE_SIZE, wid, "map-pixs-l")
 
-    size = ywSizeCreate(SPRITE_SIZE, SPRITE_SIZE);
+    let size = ywSizeCreate(SPRITE_SIZE, SPRITE_SIZE);
     let textures = yeCreateArray(wid, "textures");
     ywTextureNewImg("./door.png", null, textures, "door");
     ywTextureNewImg("./pike.png", null, textures, "pike");
@@ -431,23 +468,16 @@ function amap_init(wid)
     yeCreateIntAt(0, pc_canel, "pl", PC_PUNCH_LIFE)
     yeCreateIntAt(DIR_RIGHT, pc_canel, "dir", PC_DIR)
     y_mover_new_at(pc_canel, "p_minfo", PC_PUNCH_MINFO)
-    map_a.forEach(function(s, i) {
-	s = yeGetString(s)
-	for (let j = 0; j < s.length; ++j) {
-	    var c = s[j];
-	    c_char_code = c.charCodeAt(0);
-	    if (c_char_code >= "a".charCodeAt(0) && c_char_code <= "z".charCodeAt(0)) {
-		var mon = yeCreateArray(monsters, c)
-		yeCreateString(c, mon) // 0
-		ywPosCreate(j * SPRITE_SIZE, i * SPRITE_SIZE, mon) // 1
-		y_mover_new(mon) // 2
-		yePrint(mon)
-	    }
-	}
-
-    })
-    print_all(wid)
+    init_map(wid, map)
     return ret
+}
+
+function next(wid)
+{
+    print("ACTION !!!!!")
+    let mi = yeGet(wid, "_mi")
+    yePrint(yeGet(mi, "next"))
+    init_map(wid, yeGetStringAt(mi, "next"))
 }
 
 function mod_init(mod)
@@ -455,5 +485,6 @@ function mod_init(mod)
     ygInitWidgetModule(mod, "amap", yeCreateFunction("amap_init"))
     yeCreateString("lvl-test", yeGet(mod, "test_wid"), "map")
     yeCreateString("rgba: 255 255 255 255", yeGet(mod, "test_wid"), "background")
+    yeCreateFunction("next", mod, "next")
     return mod
 }
