@@ -30,6 +30,7 @@ const PC_PUNCH_LIFE = 8
 const PC_DIR = 9
 const PC_PUNCH_OBJ = 10
 const PC_PUNCH_MINFO = 11
+const PC_DASH = 12
 
 const BASE_SPEED = 16
 
@@ -258,23 +259,35 @@ function amap_action(wid, events)
     let old_pos = yeCreateCopy(pc_pos)
     let pc_minfo = yeGet(pc_canel, PC_MOVER_IDX)
     let turn_timer = ywidGetTurnTimer()
+    var have_upkey = -1
 
-    if (yevIsKeyUp(events, Y_LEFT_KEY) || yevIsKeyUp(events, Y_RIGHT_KEY)) {
+    if (yevIsKeyUp(events, Y_LEFT_KEY)) {
 	y_move_set_xspeed(pc_minfo, 0)
+	have_upkey = DIR_LEFT
+    } else if (yevIsKeyUp(events, Y_RIGHT_KEY)) {
+	y_move_set_xspeed(pc_minfo, 0)
+	have_upkey = DIR_RIGHT
     }
 
-    if (yevIsKeyDown(events, Y_LEFT_KEY)) {
+    if (yevIsKeyDown(events, Y_LEFT_KEY) && have_upkey != DIR_LEFT) {
 	yeSetIntAt(pc_canel, PC_DIR, DIR_LEFT)
 	y_move_set_xspeed(pc_minfo, -BASE_SPEED)
-    } else if (yevIsKeyDown(events, Y_RIGHT_KEY)) {
+    } else if (yevIsKeyDown(events, Y_RIGHT_KEY) && have_upkey != DIR_RIGHT) {
 	yeSetIntAt(pc_canel, PC_DIR, DIR_RIGHT)
 	y_move_set_xspeed(pc_minfo, BASE_SPEED)
+    } else if (yevIsKeyDown(events, Y_C_KEY) && yeGetIntAt(pc_canel, PC_DASH) == 0) {
+	if (yeGetIntAt(pc_canel, PC_DIR) == DIR_RIGHT) {
+	    y_move_set_xspeed(pc_minfo, 40)
+	} else {
+	    y_move_set_xspeed(pc_minfo, -40)
+	}
+	yeSetIntAt(pc_canel, PC_DASH, 10)
     } else if (yevIsKeyDown(events, Y_X_KEY) && yeGetIntAt(pc_canel, PC_PUNCH_LIFE) == 0) {
 	yeSetIntAt(pc_canel, PC_PUNCH_LIFE, 10)
 	if (yeGetIntAt(pc_canel, PC_DIR) == DIR_RIGHT) {
-	    y_move_set_xspeed(yeGet(pc_canel, PC_PUNCH_MINFO), 25)
+	    y_move_set_xspeed(yeGet(pc_canel, PC_PUNCH_MINFO), 30)
 	} else {
-	    y_move_set_xspeed(yeGet(pc_canel, PC_PUNCH_MINFO), -25)
+	    y_move_set_xspeed(yeGet(pc_canel, PC_PUNCH_MINFO), -30)
 	}
 
 	let textures = yeGet(wid, "textures");
@@ -290,13 +303,22 @@ function amap_action(wid, events)
     }
 
     if (yeGetIntAt(pc_canel, PC_TURN_CNT_IDX) > 10000) {
+	if (yeGetIntAt(pc_canel, PC_DASH) > 0) {
+	    yeAddAt(pc_canel, PC_DASH, -1)
+	    if (yeGetIntAt(pc_canel, PC_DASH) == 0) {
+		y_move_set_xspeed(pc_minfo, 0)
+	    }
+	}
+
 	if (yeGetIntAt(pc_canel, PC_PUNCH_LIFE) > 0) {
 	    yeAddAt(pc_canel, PC_PUNCH_LIFE, -1)
 	    if (yeGetIntAt(pc_canel, PC_PUNCH_LIFE) == 0) {
 		ywCanvasRemoveObj(wid, yeGet(pc_canel, PC_PUNCH_OBJ))
 	    }
 	}
-	yeAddAt(pc_canel, PC_DROPSPEED_IDX, 2);
+	if (yeGetIntAt(pc_canel, PC_DASH) == 0) {
+	    yeAddAt(pc_canel, PC_DROPSPEED_IDX, 2);
+	}
 	yeSetIntAt(pc_canel, PC_TURN_CNT_IDX, 0);
 	if (yeGetIntAt(pc_canel, PC_HURT)) {
 	    yeAddAt(pc_canel, PC_HURT, -1);
@@ -472,6 +494,7 @@ function amap_init(wid)
     yeCreateIntAt(0, pc_canel, "hurt", PC_HURT)
     yeCreateArrayAt(pc_canel, "life-array", PC_LIFE_ARRAY)
     yeCreateIntAt(0, pc_canel, "pl", PC_PUNCH_LIFE)
+    yeCreateIntAt(0, pc_canel, "dash", PC_DASH)
     yeCreateIntAt(DIR_RIGHT, pc_canel, "dir", PC_DIR)
     y_mover_new_at(pc_canel, "p_minfo", PC_PUNCH_MINFO)
     init_map(wid, map)
