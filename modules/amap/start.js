@@ -374,6 +374,12 @@ function init_map(wid, map_str)
     let pc_canel = yeGet(wid, "_pc")
     yeReplaceBack(wid, ygFileToEnt(YJSON, map_str + ".json"), "_mi")
     let mi = yeGet(wid, "_mi")
+    let parent_str = yeGet(mi, "parent")
+    if (parent_str) {
+	var parent = ygFileToEnt(YJSON, yeGetString(parent_str) + ".json");
+	yePrint(parent);
+	yeMergeInto(mi, parent, 0);
+    }
     var map_str = ygFileToEnt(YRAW_FILE, map_str)
     var map_str_a = yeGetString(map_str).split('\n')
     var map_a = yeReCreateArray(wid, "_m")
@@ -472,6 +478,12 @@ function amap_init(wid)
     return ret
 }
 
+function win(wid)
+{
+    print("YOU WIN !!!");
+    ygCallFuncOrQuit(wid, "win");
+}
+
 function next(wid)
 {
     print("ACTION !!!!!")
@@ -485,6 +497,7 @@ function mod_init(mod)
     ygInitWidgetModule(mod, "amap", yeCreateFunction("amap_init"))
     yeCreateString("lvl-test", yeGet(mod, "test_wid"), "map")
     yeCreateString("rgba: 255 255 255 255", yeGet(mod, "test_wid"), "background")
-    yeCreateFunction("next", mod, "next")
+    yeCreateFunction(next, mod, "next")
+    yeCreateFunction("win", mod, "win")
     return mod
 }

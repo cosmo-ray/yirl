@@ -1663,4 +1663,23 @@ void yePatchAply(Entity *dest, Entity *patch);
  */
 void yePatchAplyExt(Entity *dest, Entity *patch, uint32_t flag);
 
+/**
+ * merge src into dst, if strength > 0,
+ * then what is in both dst and src, are replace by src in dst. otherwise they are ignore
+ */
+static inline void yeMergeInto(Entity *dst, Entity *src, int strength)
+{
+	if (!strength) {
+		YE_ARRAY_FOREACH_ENTRY(src, entry) {
+			if (entry->name && !yeGet(dst, entry->name))
+				yePushBack(dst, entry->entity, entry->name);
+		}
+	} else {
+		YE_ARRAY_FOREACH_ENTRY(src, entry) {
+			yeReplaceBack(dst, entry->entity, entry->name);
+		}
+
+	}
+}
+
 #endif
