@@ -72,6 +72,7 @@ BIND_ESE(ywMenuPushEntry, 2, 1);
 BIND_ESE(ywMenuPushSlider, 2, 1);
 
 BIND_EEE(ywidActions, 2, 1);
+BIND_EEE(ywidAction, 2, 1);
 
 BIND_EEE(ywCanvasSwapObj, 3, 0);
 

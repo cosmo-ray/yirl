@@ -404,6 +404,10 @@ YWidgetState *ywidGetMainWid(void);
 void ywidFreeWidgets(void);
 
 InputStatue ywidActions(Entity *wid, Entity *actionWid, Entity *eve);
+/*
+ * func, can be a string, a function or an array
+ * containing the func(as strign or func) + arguments
+ */
 InputStatue ywidAction(Entity *func, Entity *wid, Entity *event);
 InputStatue ywidEventCallActionSin(YWidgetState *opac, Entity *event);
 

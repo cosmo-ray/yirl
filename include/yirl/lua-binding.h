@@ -552,7 +552,6 @@ int	luaSetMainWid(lua_State *L);
 int	luaNewWidget(lua_State *L);
 BIND_EE(ywidNext)
 int	luaAddSubType(lua_State *L);
-int	luaywidAction(lua_State *L);
 int	luaywidTurnTimer(lua_State *L);
 BIND_E(ywHeight);
 BIND_E(ywWidth);
@@ -930,7 +929,6 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidSetMainWid", luaSetMainWid));
   BIND(ywidNext);
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywidAddSubType", luaAddSubType));
-  YES_LUA_REGISTRE_CALL(sm, ywidAction);
   YES_LUA_REGISTRE_CALL(sm, ywidTurnTimer);
   YES_LUA_REGISTRE_CALL(sm, ywWidth);
   YES_LUA_REGISTRE_CALL(sm, ywHeight);
