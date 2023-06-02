@@ -6,7 +6,13 @@
 	    "life": 5,
 	    "action": ["amap.mons_mv.left_right", 200],
 	    "img": "vodeo-monster"
+	},
+	"u": {
+	    "life": 5,
+	    "action": "amap.mons_mv.rand",
+	    "img": "uwu-head"
 	}
+
     },
     "next": "lvl2-test",
     "objs": [

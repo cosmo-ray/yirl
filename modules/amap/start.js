@@ -122,6 +122,16 @@ function y_move_y_speed(minfo)
     return yeGetIntAt(minfo, Y_MVER_Y)
 }
 
+function y_move_add_x_speed(minfo, to_Add)
+{
+    return yeAddAt(minfo, Y_MVER_X, to_Add)
+}
+
+function y_move_add_y_speed(minfo, to_Add)
+{
+    return yeAddAt(minfo, Y_MVER_Y, to_Add)
+}
+
 function y_move_last_x(minfo)
 {
     return yeGetIntAt(minfo, Y_MVER_LAST_X)
@@ -212,7 +222,7 @@ function print_all(wid)
     let monsters = yeGet(wid, "_monsters")
 
     var backgound = ywCanvasNewRectangle(wid, 0, 0, ywSizeW(map_real_size) * SPRITE_SIZE,
-			 ywSizeW(map_real_size) * SPRITE_SIZE,
+			 ywSizeH(map_real_size) * SPRITE_SIZE,
 			 "rgba: 120 120 120 155")
     yeCreateIntAt(TYPE_ANIMATION, backgound, "amap-t", YCANVAS_UDATA_IDX)
     for (let i = 0; i < yeLen(map_a); ++i) {
@@ -364,9 +374,10 @@ function amap_action(wid, events)
 	print_life(wid, pc, pc_canel)
 	return
     }
-    map_pixs_l = yeGet(wid, "map-pixs-l");
+    let map_pixs_l = yeGet(wid, "map-pixs-l");
     var stop_fall = false;
     var stop_x = false;
+
     if (ywPosX(pc_pos) < 0 || ywPosX(pc_pos) + SPRITE_SIZE > ywSizeW(map_pixs_l))
 	stop_x = true;
     if (ywPosY(pc_pos) > ywSizeH(map_pixs_l)) {
@@ -376,7 +387,6 @@ function amap_action(wid, events)
 	print("no life left, wou lose !");
 	ygCallFuncOrQuit(wid, "lose");
     }
-
 
     if (yeGetIntAt(pc_canel, PC_PUNCH_LIFE) > 0) {
 	var punch_obj = yeGet(pc_canel, PC_PUNCH_OBJ)
@@ -476,7 +486,7 @@ function init_map(wid, map_str)
 	}
     }
     var size = yeGet(mi, "size")
-    let map_pixs_l = ywSizeCreate(ywSizeW(size) * SPRITE_SIZE, ywSizeW(size) * SPRITE_SIZE)
+    let map_pixs_l = ywSizeCreate(ywSizeW(size) * SPRITE_SIZE, ywSizeH(size) * SPRITE_SIZE)
     yeReplaceBack(wid, map_pixs_l, "map-pixs-l")
     let monsters = yeReCreateArray(wid, "_monsters")
 
@@ -575,6 +585,55 @@ function next(wid)
     init_map(wid, yeGetStringAt(mi, "next"))
 }
 
+function monster_rand(wid, tuple)
+{
+    let mon = yeGet(tuple, 0)
+    let turn_timer = yeGetIntAt(tuple, 1)
+    let map_pixs_l = yeGet(wid, "map-pixs-l");
+    let minfo = yeGet(mon, MONSTER_MOVER)
+
+    if (!yeGet(mon, MONSTER_ACC)) {
+	yeCreateIntAt(0, mon, "acc", MONSTER_ACC)
+    }
+
+    if (yeGetIntAt(mon, MONSTER_ACC) > 10000) {
+	let rand = yuiRand() & 3
+	let add_rand = 1 + (yuiRand() & 5)
+
+	print("rand: ", rand)
+	yeSetIntAt(mon, MONSTER_ACC, 0)
+
+	if (rand == 0)
+	    y_move_add_x_speed(minfo, add_rand)
+	else if (rand == 1)
+	    y_move_add_x_speed(minfo, -add_rand)
+	else if (rand == 2)
+	    y_move_add_y_speed(minfo, add_rand)
+	else if (rand == 3)
+	    y_move_add_y_speed(minfo, -add_rand)
+    } else {
+	yeAddAt(mon, MONSTER_ACC, turn_timer)
+    }
+
+    y_move_obj(yeGet(mon, MONSTER_OBJ), yeGet(mon, MONSTER_MOVER), turn_timer)
+    let mon_pos = yeGet(mon, MONSTER_POS)
+    print("VVVVVVVVVVVVVVVVv")
+    yePrint(mon_pos)
+    yePrint(map_pixs_l)
+    if (ywPosX(mon_pos) < 0 || ywPosX(mon_pos) + SPRITE_SIZE > ywSizeW(map_pixs_l)) {
+	y_move_undo_x(mon_pos, minfo)
+	y_move_set_xspeed(minfo, -y_move_x_speed(minfo))
+    }
+    if (ywPosY(mon_pos) < 0 || ywPosY(mon_pos) + SPRITE_SIZE > ywSizeH(map_pixs_l)) {
+	y_move_undo_y(mon_pos, minfo)
+	y_move_set_yspeed(minfo, -y_move_y_speed(minfo))
+    }
+    yePrint(mon_pos)
+    print("^^^^^^^^^^^^^^^^^^^^")
+
+
+}
+
 function monster_left_right(wid, tuple, distance)
 {
     let mon = yeGet(tuple, 0)
@@ -616,5 +675,6 @@ function mod_init(mod)
     yeCreateFunction("win", mod, "win")
     let mons_mv = yeCreateArray(mod, "mons_mv")
     yeCreateFunction(monster_left_right, mons_mv, "left_right")
+    yeCreateFunction(monster_rand, mons_mv, "rand")
     return mod
 }
