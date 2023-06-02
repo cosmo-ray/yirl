@@ -221,6 +221,13 @@ function print_all(wid)
 	for (let j = 0; j < s.length; ++j) {
 	    var c = s[j];
 
+	    if (c == "'") {
+		if (sharp_str)
+		    ywCanvasNewRectangle(wid, j * SPRITE_SIZE, i * SPRITE_SIZE,
+					 SPRITE_SIZE, SPRITE_SIZE / 3, "rgba: 0 0 0 255")
+
+	    }
+
 	    if (c == '#') {
 		if (sharp_str)
 		    ywCanvasNewRectangle(wid, j * SPRITE_SIZE, i * SPRITE_SIZE,
@@ -411,7 +418,7 @@ function amap_action(wid, events)
 			yeAddAt(pc, "life", -5)
 			print_life(wid, pc, pc_canel)
 			return true
-		    } else if ((ywPosY(old_pos) + SPRITE_SIZE - 5) <= ywPosY(ywCanvasObjPos(c))) {
+		    } else if ((ywPosY(old_pos) + SPRITE_SIZE - 1) <= ywPosY(ywCanvasObjPos(c))) {
 			stop_fall = true
 			print_life(wid, pc, pc_canel)
 			return true
