@@ -405,7 +405,7 @@ function amap_action(wid, events)
 		return true
 	    } else if (ctype != TYPE_ANIMATION && ctype != TYPE_PUNCH) {
 		if (ywCanvasObjectsCheckColisions(c, ps_canvas_obj)) {
-		    if (ctype == TYPE_PIKE) {
+		    if (ctype == TYPE_PIKE || ctype == TYPE_MONSTER) {
 			yeSetIntAt(pc_canel, PC_HURT, 7);
 			yeSetIntAt(pc_canel, PC_DROPSPEED_IDX, -25);
 			yeAddAt(pc, "life", -5)
