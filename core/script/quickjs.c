@@ -237,10 +237,18 @@ static JSValue make_abort(JSContext *ctx, ...)
 			       GET_E(ctx, 1),GET_S(ctx, 2)));		\
 	}
 
-#define BIND_IESI(f, useless...)						\
+#define BIND_IESI(f, useless...)					\
 	static JSValue qjs##f(JSContext *ctx, JSValueConst this_val,	\
 			      int argc, JSValueConst *argv) {		\
 		BIND_AUTORET(f(GET_I(ctx, 0),				\
+			       GET_E(ctx, 1),GET_S(ctx, 2),		\
+			       GET_I(ctx, 3)));				\
+	}
+
+#define BIND_DESI(f, useless...)					\
+	static JSValue qjs##f(JSContext *ctx, JSValueConst this_val,	\
+			      int argc, JSValueConst *argv) {		\
+		BIND_AUTORET(f(GET_D(ctx, 0),				\
 			       GET_E(ctx, 1),GET_S(ctx, 2),		\
 			       GET_I(ctx, 3)));				\
 	}
@@ -283,6 +291,13 @@ static JSValue make_abort(JSContext *ctx, ...)
 			      int argc, JSValueConst *argv) {		\
 		BIND_AUTORET(f(GET_E(ctx, 0),				\
 			       GET_S(ctx, 1)));				\
+	}
+
+#define BIND_EID(f, useless...)						\
+	static JSValue qjs##f(JSContext *ctx, JSValueConst this_val,	\
+			      int argc, JSValueConst *argv) {		\
+		BIND_AUTORET(f(GET_E(ctx, 0),				\
+			       GET_I(ctx, 1), GET_D(ctx, 2)));		\
 	}
 
 #define BIND_EII(f, useless...)						\
@@ -520,6 +535,8 @@ BIND_EIIE(ywCanvasNewText, 2, 2);
 BIND_IESI(yeCreateIntAt, 4, 0);
 BIND_ESI(yeCreateArrayAt, 3, 0);
 BIND_IES(yeReCreateInt, 3, 0);
+BIND_EID(yeSetFloatAt, 3, 0);
+BIND_DESI(yeCreateFloatAt, 4, 0);
 
 #define NO_ywTextureNewImg
 /* make all bindings here */
@@ -770,6 +787,13 @@ static JSValue qjsyeCreateCopy(JSContext *ctx, JSValueConst this_val,
 					GET_E(ctx, 1),
 					GET_S(ctx, 2)),
 		      !GET_E(ctx, 1));
+}
+
+static JSValue qjsyeCreateFloat(JSContext *ctx, JSValueConst this_val,
+			      int argc, JSValueConst *argv)
+{
+	return mk_ent(ctx, yeCreateFloat(GET_D(ctx, 0), GET_E(ctx, 1),
+					 GET_S(ctx, 2)), !GET_E(ctx, 1));
 }
 
 static JSValue qjsyeCreateInt(JSContext *ctx, JSValueConst this_val,
@@ -1031,6 +1055,8 @@ static int init(void *sm, void *args)
 	BIND(yeCreateIntAt, 4, 0);
 	BIND(yeCreateArrayAt, 3, 0);
 	BIND(yeReCreateInt, 3, 0);
+	BIND(yeCreateFloatAt, 4, 0);
+	BIND(yeSetFloatAt, 3, 0);
 
 #define IN_CALL 1
 	#include "binding.c"

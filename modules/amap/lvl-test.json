@@ -4,6 +4,7 @@
     "monsters": {
 	"v": {
 	    "life": 5,
+	    "action": ["amap.mons_mv.left_right", 200],
 	    "img": "vodeo-monster"
 	}
     },

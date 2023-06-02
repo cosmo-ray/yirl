@@ -32,6 +32,13 @@ const PC_PUNCH_OBJ = 10
 const PC_PUNCH_MINFO = 11
 const PC_DASH = 12
 
+const MONSTER_STR_KEY = 0
+const MONSTER_POS = 1
+const MONSTER_MOVER = 2
+const MONSTER_OBJ = 3
+const MONSTER_ACC = 4
+const MONSTER_DIR = 5
+
 const BASE_SPEED = 16
 
 const TYPE_WALL = 0
@@ -44,44 +51,59 @@ const TYPE_OBJ = 6
 
 const CANVAS_OBJ_IDX = YCANVAS_UDATA_IDX + 1
 
+const CANVAS_MONSTER_IDX = YCANVAS_UDATA_IDX + 1
+
+
+const Y_MVER_X = 0
+const Y_MVER_Y = 1
+const Y_MVER_REST_X = 2
+const Y_MVER_REST_Y = 3
+const Y_MVER_LAST_X = 4
+const Y_MVER_LAST_Y = 5
+const Y_MVER_SPEEDUP = 6
+
 function y_move_undo(pos, minfo)
 {
-    ywPosAddXY(pos, -yeGetIntAt(minfo, 4), -yeGetIntAt(minfo, 5))
+    ywPosAddXY(pos, -yeGetIntAt(minfo, Y_MVER_LAST_X),
+	       -yeGetIntAt(minfo, Y_MVER_LAST_Y))
 }
 
 function y_move_undo_x(pos, minfo)
 {
-    ywPosAddXY(pos, -yeGetIntAt(minfo, 4), 0)
+    ywPosAddXY(pos, -yeGetIntAt(minfo, Y_MVER_LAST_X), 0)
 }
 
 function y_move_undo_y(pos, minfo)
 {
-    ywPosAddXY(pos, 0, -yeGetIntAt(minfo, 5))
+    ywPosAddXY(pos, 0, -yeGetIntAt(minfo, Y_MVER_LAST_Y))
 }
 
 function y_move_pos(pos, minfo, turn_timer)
 {
-    let hremain = yeGetIntAt(minfo, 2);
-    let vremain = yeGetIntAt(minfo, 3);
-    let hms = yeGetIntAt(minfo, 0) * 100 + hremain;
-    let vms = yeGetIntAt(minfo, 1) * 100 + vremain;
+    let hremain = yeGetIntAt(minfo, Y_MVER_REST_X);
+    let vremain = yeGetIntAt(minfo, Y_MVER_REST_Y);
+    let speedup = yeGetFloatAtByIdx(minfo, Y_MVER_SPEEDUP)
+    if (speedup == 0)
+	speedup = 1
+    let hms = yeGetIntAt(minfo, Y_MVER_X) * 100 * speedup + hremain;
+    let vms = yeGetIntAt(minfo, Y_MVER_Y) * 100 * speedup + vremain;
     var mvx = 0;
     var mvy = 0;
 
     if (hms) {
 	// mv = hms * turn_timer / 10000
 	mvx = hms * turn_timer / 100000
-	yeSetIntAt(minfo, 2, mvx % 100)
+	yeSetIntAt(minfo, Y_MVER_REST_X, mvx % 100)
 	mvx = mvx / 100
     }
 
     if (vms) {
 	mvy = vms * turn_timer / 100000
-	yeSetIntAt(minfo, 3, mvy % 100)
+	yeSetIntAt(minfo, Y_MVER_REST_Y, mvy % 100)
 	mvy = mvy / 100
     }
-    yeSetIntAt(minfo, 4, mvx)
-    yeSetIntAt(minfo, 5, mvy)
+    yeSetIntAt(minfo, Y_MVER_LAST_X, mvx)
+    yeSetIntAt(minfo, Y_MVER_LAST_Y, mvy)
     ywPosAddXY(pos, mvx, mvy)
 }
 
@@ -92,32 +114,32 @@ function y_move_obj(o, minfo, turn_timer)
 
 function y_move_x_speed(minfo)
 {
-    return yeGetIntAt(minfo, 0)
+    return yeGetIntAt(minfo, Y_MVER_X)
 }
 
 function y_move_y_speed(minfo)
 {
-    return yeGetIntAt(minfo, 1)
-}
-
-function y_move_last_y(minfo)
-{
-    return yeGetIntAt(minfo, 5)
+    return yeGetIntAt(minfo, Y_MVER_Y)
 }
 
 function y_move_last_x(minfo)
 {
-    return yeGetIntAt(minfo, 4)
+    return yeGetIntAt(minfo, Y_MVER_LAST_X)
+}
+
+function y_move_last_y(minfo)
+{
+    return yeGetIntAt(minfo, Y_MVER_LAST_Y)
 }
 
 function y_move_set_xspeed(minfo, xspeed)
 {
-    yeSetIntAt(minfo, 0, xspeed)
+    yeSetIntAt(minfo, Y_MVER_X, xspeed)
 }
 
 function y_move_set_yspeed(minfo, yspeed)
 {
-    yeSetIntAt(minfo, 1, yspeed)
+    yeSetIntAt(minfo, Y_MVER_Y, yspeed)
 }
 
 function y_mover_init(minfo)
@@ -236,7 +258,7 @@ function print_all(wid)
     ywCanvasObjReplacePos(pc_canvasobj, pc_pos)
     yePushAt2(pc_canel, pc_canvasobj, PC_CANVAS_OBJ)
 
-    monsters.forEach(function(mon) {
+    monsters.forEach(function(mon, idx) {
 	let mon_key = yeGetStringAt(mon, 0)
 	let mon_info = yeGet(monsters_info, mon_key)
 	let mon_pos = yeGet(mon, 1)
@@ -244,8 +266,9 @@ function print_all(wid)
 						  yeGet(textures, yeGetStringAt(mon_info, "img")))
 	// ywCanvasNewTextByStr(wid, ywPosX(pos), ywPosY(pos), " @ \n---")
 	yeCreateIntAt(TYPE_MONSTER, canvasobj, "amap-t", YCANVAS_UDATA_IDX)
+	yeCreateIntAt(idx, canvasobj, "mon_idx", CANVAS_MONSTER_IDX)
 	ywCanvasObjReplacePos(canvasobj, mon_pos)
-	yePushAt2(mon, canvasobj, 3)
+	yePushAt2(mon, canvasobj, MONSTER_OBJ)
     })
     print_life(wid, pc, pc_canel)
 }
@@ -259,6 +282,8 @@ function amap_action(wid, events)
     let old_pos = yeCreateCopy(pc_pos)
     let pc_minfo = yeGet(pc_canel, PC_MOVER_IDX)
     let turn_timer = ywidGetTurnTimer()
+    let monsters = yeGet(wid, "_monsters")
+    let monsters_info = yeGet(mi, "monsters")
     var have_upkey = -1
 
     if (yevIsKeyUp(events, Y_LEFT_KEY)) {
@@ -276,11 +301,7 @@ function amap_action(wid, events)
 	yeSetIntAt(pc_canel, PC_DIR, DIR_RIGHT)
 	y_move_set_xspeed(pc_minfo, BASE_SPEED)
     } else if (yevIsKeyDown(events, Y_C_KEY) && yeGetIntAt(pc_canel, PC_DASH) == 0) {
-	if (yeGetIntAt(pc_canel, PC_DIR) == DIR_RIGHT) {
-	    y_move_set_xspeed(pc_minfo, 40)
-	} else {
-	    y_move_set_xspeed(pc_minfo, -40)
-	}
+	yeCreateFloatAt(2.5, pc_minfo, null, Y_MVER_SPEEDUP)
 	yeSetIntAt(pc_canel, PC_DASH, 10)
     } else if (yevIsKeyDown(events, Y_X_KEY) && yeGetIntAt(pc_canel, PC_PUNCH_LIFE) == 0) {
 	yeSetIntAt(pc_canel, PC_PUNCH_LIFE, 10)
@@ -306,8 +327,11 @@ function amap_action(wid, events)
 	if (yeGetIntAt(pc_canel, PC_DASH) > 0) {
 	    yeAddAt(pc_canel, PC_DASH, -1)
 	    if (yeGetIntAt(pc_canel, PC_DASH) == 0) {
-		y_move_set_xspeed(pc_minfo, 0)
+		yeSetFloatAt(pc_minfo, Y_MVER_SPEEDUP, 1)
+		yeSetIntAt(pc_canel, PC_DASH, -20)
 	    }
+	} else if (yeGetIntAt(pc_canel, PC_DASH) < 0) {
+	    yeAddAt(pc_canel, PC_DASH, 1)
 	}
 
 	if (yeGetIntAt(pc_canel, PC_PUNCH_LIFE) > 0) {
@@ -316,7 +340,7 @@ function amap_action(wid, events)
 		ywCanvasRemoveObj(wid, yeGet(pc_canel, PC_PUNCH_OBJ))
 	    }
 	}
-	if (yeGetIntAt(pc_canel, PC_DASH) == 0) {
+	if (yeGetIntAt(pc_canel, PC_DASH) < 1) {
 	    yeAddAt(pc_canel, PC_DROPSPEED_IDX, 2);
 	}
 	yeSetIntAt(pc_canel, PC_TURN_CNT_IDX, 0);
@@ -357,7 +381,9 @@ function amap_action(wid, events)
 		if (ctype == TYPE_MONSTER) {
 		    if (ywCanvasObjectsCheckColisions(c, punch_obj)) {
 			ywCanvasRemoveObj(wid, punch_obj)
+			var mon_idx = yeGetIntAt(c, CANVAS_MONSTER_IDX)
 			ywCanvasRemoveObj(wid, c)
+			yeRemoveChildByIdx(monsters, mon_idx)
 		    }
 		}
 	    })
@@ -365,6 +391,7 @@ function amap_action(wid, events)
 
     var ps_canvas_obj = yeGet(pc_canel, PC_CANVAS_OBJ)
     var cols = ywCanvasNewCollisionsArray(wid, ps_canvas_obj)
+    var direct_ret = false
     //yePrint(cols)
     if (cols)
 	cols.forEach(function(c) {
@@ -374,6 +401,7 @@ function amap_action(wid, events)
 		var objs = yeGet(mi, "objs");
 		var action = yeGet(yeGet(objs, yeGetIntAt(c, CANVAS_OBJ_IDX)), 1);
 		ywidAction(action, wid);
+		direct_ret = true
 		return true
 	    } else if (ctype != TYPE_ANIMATION && ctype != TYPE_PUNCH) {
 		if (ywCanvasObjectsCheckColisions(c, ps_canvas_obj)) {
@@ -391,6 +419,8 @@ function amap_action(wid, events)
 		}
 	    }
 	})
+    if (direct_ret)
+	return
 
     if (stop_x)
 	y_move_undo_x(pc_pos, pc_minfo)
@@ -401,7 +431,17 @@ function amap_action(wid, events)
     }
     print_life(wid, pc, pc_canel)
     move_punch(wid, pc_canel, turn_timer)
-    //print_all(wid)
+    monsters.forEach(function(c, idx) {
+	if (!c)
+	    return;
+	let tuple = yeCreateArray()
+	let mon_key = yeGetStringAt(c, 0)
+	let mon_info = yeGet(monsters_info, mon_key)
+
+	yePushBack(tuple, c)
+	yeCreateInt(turn_timer, tuple)
+	ywidActions(wid, mon_info, tuple)
+    })
 }
 
 function init_map(wid, map_str)
@@ -440,10 +480,9 @@ function init_map(wid, map_str)
 	    c_char_code = c.charCodeAt(0);
 	    if (c_char_code >= "a".charCodeAt(0) && c_char_code <= "z".charCodeAt(0)) {
 		var mon = yeCreateArray(monsters, c)
-		yeCreateString(c, mon) // 0
-		ywPosCreate(j * SPRITE_SIZE, i * SPRITE_SIZE, mon) // 1
-		y_mover_new(mon) // 2
-		yePrint(mon)
+		yeCreateString(c, mon) // MONSTER_STR_KEY 0
+		ywPosCreate(j * SPRITE_SIZE, i * SPRITE_SIZE, mon) // MONSTER_POS 1
+		y_mover_new(mon) // MONSTER_MOVER 2
 	    }
 	}
 
@@ -529,6 +568,38 @@ function next(wid)
     init_map(wid, yeGetStringAt(mi, "next"))
 }
 
+function monster_left_right(wid, tuple, distance)
+{
+    let mon = yeGet(tuple, 0)
+    let turn_timer = yeGetIntAt(tuple, 1)
+
+    //yePrint(mon)
+    //yePrint(yeGet(mon, MONSTER_OBJ))
+    //print("monster_left_right !", turn_timer)
+    if (!yeGet(mon, MONSTER_ACC)) {
+	y_move_set_xspeed(yeGet(mon, MONSTER_MOVER), -25)
+	yeCreateIntAt(0, mon, "acc", MONSTER_ACC)
+	yeCreateIntAt(DIR_LEFT, mon, "dir", MONSTER_DIR)
+    }
+
+    y_move_obj(yeGet(mon, MONSTER_OBJ), yeGet(mon, MONSTER_MOVER), turn_timer)
+
+    if (yeGetIntAt(mon, MONSTER_ACC) > 200) {
+	yeSetIntAt(mon, MONSTER_ACC, 0)
+	if (yeGetIntAt(mon, MONSTER_DIR) == DIR_LEFT) {
+	    y_move_set_xspeed(yeGet(mon, MONSTER_MOVER), 25)
+	    yeSetIntAt(mon, MONSTER_DIR, DIR_RIGHT)
+	} else {
+	    y_move_set_xspeed(yeGet(mon, MONSTER_MOVER), -25)
+	    yeSetIntAt(mon, MONSTER_DIR, DIR_LEFT)
+	}
+    } else {
+	yeAddAt(mon, MONSTER_ACC, Math.abs(y_move_last_x(yeGet(mon, MONSTER_MOVER))))
+    }
+    //yePrint(mon)
+    //yePrint(distance)
+}
+
 function mod_init(mod)
 {
     ygInitWidgetModule(mod, "amap", yeCreateFunction("amap_init"))
@@ -536,5 +607,7 @@ function mod_init(mod)
     yeCreateString("rgba: 255 255 255 255", yeGet(mod, "test_wid"), "background")
     yeCreateFunction(next, mod, "next")
     yeCreateFunction("win", mod, "win")
+    let mons_mv = yeCreateArray(mod, "mons_mv")
+    yeCreateFunction(monster_left_right, mons_mv, "left_right")
     return mod
 }

@@ -185,6 +185,10 @@ BIND_SI(ygSetInt, 2, 0);
 
 BIND_EI(ywPosDoPercent, 2, 0);
 
+BIND_EI(yeRemoveChildByIdx, 2, 0);
+
+BIND_EI(yeGetFloatAtByIdx, 2, 0);
+
 BIND_EI(yeIntBAnd, 2, 0);
 BIND_EI(yeIntCheckBAnd, 2, 0);
 
