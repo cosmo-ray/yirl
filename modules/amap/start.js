@@ -345,6 +345,24 @@ function amap_action(wid, events)
 	print("no life left, wou lose !");
 	ygCallFuncOrQuit(wid, "lose");
     }
+
+
+    if (yeGetIntAt(pc_canel, PC_PUNCH_LIFE) > 0) {
+	var punch_obj = yeGet(pc_canel, PC_PUNCH_OBJ)
+	var cols = ywCanvasNewCollisionsArray(wid, punch_obj)
+
+	if (cols)
+	    cols.forEach(function(c) {
+		let ctype = yeGetIntAt(c, YCANVAS_UDATA_IDX)
+		if (ctype == TYPE_MONSTER) {
+		    if (ywCanvasObjectsCheckColisions(c, punch_obj)) {
+			ywCanvasRemoveObj(wid, punch_obj)
+			ywCanvasRemoveObj(wid, c)
+		    }
+		}
+	    })
+    }
+
     var ps_canvas_obj = yeGet(pc_canel, PC_CANVAS_OBJ)
     var cols = ywCanvasNewCollisionsArray(wid, ps_canvas_obj)
     //yePrint(cols)
