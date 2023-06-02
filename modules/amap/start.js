@@ -293,6 +293,8 @@ function print_all(wid)
 function amap_action(wid, events)
 {
     let pc = yeGet(wid, "pc");
+    let pc_stats = yeGet(pc, "stats")
+    let pc_agility = yeGetIntAt(pc_stats, "agility")
     let mi = yeGet(wid, "_mi")
     let pc_canel = yeGet(wid, "_pc")
     let pc_pos = yeGet(pc_canel, PC_POS_IDX)
@@ -321,7 +323,7 @@ function amap_action(wid, events)
 	yeCreateFloatAt(2.5, pc_minfo, null, Y_MVER_SPEEDUP)
 	yeSetIntAt(pc_canel, PC_DASH, 10)
     } else if (yevIsKeyDown(events, Y_X_KEY) && yeGetIntAt(pc_canel, PC_PUNCH_LIFE) == 0) {
-	yeSetIntAt(pc_canel, PC_PUNCH_LIFE, 10)
+	yeSetIntAt(pc_canel, PC_PUNCH_LIFE, 4 + pc_agility)
 	if (yeGetIntAt(pc_canel, PC_DIR) == DIR_RIGHT) {
 	    y_move_set_xspeed(yeGet(pc_canel, PC_PUNCH_MINFO), 30)
 	} else {
@@ -525,7 +527,7 @@ function amap_init(wid)
 	    "xp")
 	yeCreateString("Joe", pc, "name");
 	var stats = yeCreateArray(pc, "stats");
-	yeCreateInt(4, stats, "agility");
+	yeCreateInt(6, stats, "agility");
 	yeCreateInt(4, stats, "strength");
     }
     //yePrint(pc)
@@ -600,7 +602,6 @@ function monster_rand(wid, tuple)
 	let rand = yuiRand() & 3
 	let add_rand = 1 + (yuiRand() & 5)
 
-	print("rand: ", rand)
 	yeSetIntAt(mon, MONSTER_ACC, 0)
 
 	if (rand == 0)
@@ -617,9 +618,6 @@ function monster_rand(wid, tuple)
 
     y_move_obj(yeGet(mon, MONSTER_OBJ), yeGet(mon, MONSTER_MOVER), turn_timer)
     let mon_pos = yeGet(mon, MONSTER_POS)
-    print("VVVVVVVVVVVVVVVVv")
-    yePrint(mon_pos)
-    yePrint(map_pixs_l)
     if (ywPosX(mon_pos) < 0 || ywPosX(mon_pos) + SPRITE_SIZE > ywSizeW(map_pixs_l)) {
 	y_move_undo_x(mon_pos, minfo)
 	y_move_set_xspeed(minfo, -y_move_x_speed(minfo))
@@ -628,10 +626,6 @@ function monster_rand(wid, tuple)
 	y_move_undo_y(mon_pos, minfo)
 	y_move_set_yspeed(minfo, -y_move_y_speed(minfo))
     }
-    yePrint(mon_pos)
-    print("^^^^^^^^^^^^^^^^^^^^")
-
-
 }
 
 function monster_left_right(wid, tuple, distance)
