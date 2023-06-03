@@ -349,29 +349,31 @@ function amap_action(wid, events)
 	yeAddAt(pc_canel, PC_JMP_NUMBER, 1);
     }
 
-    if (yeGetIntAt(pc_canel, PC_TURN_CNT_IDX) > 10000) {
+    if (yeGetIntAt(pc_canel, PC_TURN_CNT_IDX) > 20000) {
+	var mult = yeGetIntAt(pc_canel, PC_TURN_CNT_IDX) / 20000
+
 	if (yeGetIntAt(pc_canel, PC_DASH) > 0) {
-	    yeAddAt(pc_canel, PC_DASH, -1)
+	    yeAddAt(pc_canel, PC_DASH, -1 * mult)
 	    if (yeGetIntAt(pc_canel, PC_DASH) == 0) {
 		yeSetFloatAt(pc_minfo, Y_MVER_SPEEDUP, 1)
 		yeSetIntAt(pc_canel, PC_DASH, -20)
 	    }
 	} else if (yeGetIntAt(pc_canel, PC_DASH) < 0) {
-	    yeAddAt(pc_canel, PC_DASH, 1)
+	    yeAddAt(pc_canel, PC_DASH, 1 * mult)
 	}
 
 	if (yeGetIntAt(pc_canel, PC_PUNCH_LIFE) > 0) {
-	    yeAddAt(pc_canel, PC_PUNCH_LIFE, -1)
+	    yeAddAt(pc_canel, PC_PUNCH_LIFE, -1 * mult)
 	    if (yeGetIntAt(pc_canel, PC_PUNCH_LIFE) == 0) {
 		ywCanvasRemoveObj(wid, yeGet(pc_canel, PC_PUNCH_OBJ))
 	    }
 	}
 	if (yeGetIntAt(pc_canel, PC_DASH) < 1) {
-	    yeAddAt(pc_canel, PC_DROPSPEED_IDX, 2);
+	    yeAddAt(pc_canel, PC_DROPSPEED_IDX, 2 * mult);
 	}
 	yeSetIntAt(pc_canel, PC_TURN_CNT_IDX, 0);
 	if (yeGetIntAt(pc_canel, PC_HURT)) {
-	    yeAddAt(pc_canel, PC_HURT, -1);
+	    yeAddAt(pc_canel, PC_HURT, -1 * mult);
 	}
     } else {
 	yeAddAt(pc_canel, PC_TURN_CNT_IDX, turn_timer);
