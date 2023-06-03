@@ -394,6 +394,8 @@ BIND_EIII(ywPosAddXYAbsMax, 4, 0);
 
 BIND_EIII(ywRectContain, 3, 1);
 
+BIND_V(yeEntitiesUsed);
+
 BIND_V(ysTraceCurrentScript);
 
 BIND_V(ygGetBinaryRootPath);

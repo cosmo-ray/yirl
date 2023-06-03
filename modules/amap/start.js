@@ -403,7 +403,7 @@ function amap_action(wid, events)
 	var punch_obj = yeGet(pc_canel, PC_PUNCH_OBJ)
 	var cols = ywCanvasNewCollisionsArray(wid, punch_obj)
 
-	if (cols)
+	if (cols) {
 	    cols.forEach(function(c) {
 		let ctype = yeGetIntAt(c, YCANVAS_UDATA_IDX)
 		if (ctype == TYPE_MONSTER) {
@@ -415,12 +415,14 @@ function amap_action(wid, events)
 		    }
 		}
 	    })
+	    yeDestroy(cols)
+	}
     }
 
     var cols = ywCanvasNewCollisionsArray(wid, ps_canvas_obj)
     var direct_ret = false
     //yePrint(cols)
-    if (cols)
+    if (cols) {
 	cols.forEach(function(c) {
 	    let ctype = yeGetIntAt(c, YCANVAS_UDATA_IDX)
 
@@ -446,6 +448,8 @@ function amap_action(wid, events)
 		}
 	    }
 	})
+	yeDestroy(cols)
+    }
     if (direct_ret)
 	return
 
