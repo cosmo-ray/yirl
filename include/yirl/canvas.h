@@ -394,6 +394,8 @@ _Bool ywCanvasCheckCollisions(Entity *wid, Entity *obj, Entity *colisionFunc,
 			      Entity *colisionFuncArg);
 
 /**
+ * ATTENTION !!!!!! USING THIS IN SCRIPT,
+ * YOU WILL HAVE TO CALL yeDestroy MANUALLY
  * @return array containing all object that colide with obj, this need to be free
  */
 Entity *ywCanvasNewCollisionsArray(Entity *wid, Entity *obj);
