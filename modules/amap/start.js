@@ -564,6 +564,7 @@ function amap_init(wid)
 
     let size = ywSizeCreate(SPRITE_SIZE, SPRITE_SIZE);
     let textures = yeCreateArray(wid, "textures");
+    ygModDir("amap");
     ywTextureNewImg("./door.png", null, textures, "door");
     ywTextureNewImg("./pike.png", null, textures, "pike");
     ywTextureNewImg("./gut-0.png", null, textures, "guy-0");
@@ -573,6 +574,7 @@ function amap_init(wid)
     ywTextureNewImg("./uwu-head.png", null, textures, "uwu-head");
     ywTextureNewImg("./gamu.png", null, textures, "gamu");
     ywTextureNewImg("./vodeo-monster.png", null, textures, "vodeo-monster");
+    ygModDirOut();
 
     yeCreateIntAt(0, pc_canel, "jmp-n", PC_JMP_NUMBER)
     yeCreateIntAt(0, pc_canel, "hurt", PC_HURT)
