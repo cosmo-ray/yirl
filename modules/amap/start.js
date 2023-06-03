@@ -17,6 +17,8 @@ const SPRITE_SIZE = 32;
 
 const DIR_RIGHT = 0
 const DIR_LEFT = 1
+const DIR_UP = 2
+const DIR_DOWN = 3
 
 const PC_POS_IDX = 0;
 const PC_MOVER_IDX = 1
@@ -636,10 +638,8 @@ function monster_left_right(wid, tuple, distance)
 {
     let mon = yeGet(tuple, 0)
     let turn_timer = yeGetIntAt(tuple, 1)
+    let dist = yeGetInt(distance)
 
-    //yePrint(mon)
-    //yePrint(yeGet(mon, MONSTER_OBJ))
-    //print("monster_left_right !", turn_timer)
     if (!yeGet(mon, MONSTER_ACC)) {
 	y_move_set_xspeed(yeGet(mon, MONSTER_MOVER), -25)
 	yeCreateIntAt(0, mon, "acc", MONSTER_ACC)
@@ -648,7 +648,7 @@ function monster_left_right(wid, tuple, distance)
 
     y_move_obj(yeGet(mon, MONSTER_OBJ), yeGet(mon, MONSTER_MOVER), turn_timer)
 
-    if (yeGetIntAt(mon, MONSTER_ACC) > 200) {
+    if (yeGetIntAt(mon, MONSTER_ACC) >= dist) {
 	yeSetIntAt(mon, MONSTER_ACC, 0)
 	if (yeGetIntAt(mon, MONSTER_DIR) == DIR_LEFT) {
 	    y_move_set_xspeed(yeGet(mon, MONSTER_MOVER), 25)
@@ -664,6 +664,56 @@ function monster_left_right(wid, tuple, distance)
     //yePrint(distance)
 }
 
+function monster_round(wid, tuple, distance)
+{
+    let mon = yeGet(tuple, 0)
+    let turn_timer = yeGetIntAt(tuple, 1)
+    let dist_x = yeGetIntAt(distance, 0)
+    let dist_y = yeGetIntAt(distance, 1)
+
+    if (!yeGet(mon, MONSTER_ACC)) {
+	y_move_set_xspeed(yeGet(mon, MONSTER_MOVER), -25)
+	yeCreateIntAt(0, mon, "acc", MONSTER_ACC)
+	yeCreateIntAt(DIR_LEFT, mon, "dir", MONSTER_DIR)
+    }
+
+    y_move_obj(yeGet(mon, MONSTER_OBJ), yeGet(mon, MONSTER_MOVER), turn_timer)
+
+    if (yeGetIntAt(mon, MONSTER_DIR) < DIR_UP) {
+	if (yeGetIntAt(mon, MONSTER_ACC) >= dist_x) {
+	    yeSetIntAt(mon, MONSTER_ACC, 0)
+	    if (yeGetIntAt(mon, MONSTER_DIR) == DIR_LEFT) {
+		y_move_set_xspeed(yeGet(mon, MONSTER_MOVER), 0)
+		y_move_set_yspeed(yeGet(mon, MONSTER_MOVER), 25)
+		yeSetIntAt(mon, MONSTER_DIR, DIR_DOWN)
+	    } else {
+		y_move_set_xspeed(yeGet(mon, MONSTER_MOVER), 0)
+		y_move_set_yspeed(yeGet(mon, MONSTER_MOVER), -25)
+		yeSetIntAt(mon, MONSTER_DIR, DIR_UP)
+	    }
+	} else {
+	    yeAddAt(mon, MONSTER_ACC, Math.abs(y_move_last_x(yeGet(mon, MONSTER_MOVER))))
+	}
+    } else {
+	if (yeGetIntAt(mon, MONSTER_ACC) >= dist_y) {
+	    yeSetIntAt(mon, MONSTER_ACC, 0)
+	    if (yeGetIntAt(mon, MONSTER_DIR) == DIR_DOWN) {
+		y_move_set_yspeed(yeGet(mon, MONSTER_MOVER), 0)
+		y_move_set_xspeed(yeGet(mon, MONSTER_MOVER), 25)
+		yeSetIntAt(mon, MONSTER_DIR, DIR_RIGHT)
+	    } else {
+		y_move_set_yspeed(yeGet(mon, MONSTER_MOVER), 0)
+		y_move_set_xspeed(yeGet(mon, MONSTER_MOVER), -25)
+		yeSetIntAt(mon, MONSTER_DIR, DIR_LEFT)
+	    }
+	} else {
+	    yeAddAt(mon, MONSTER_ACC, Math.abs(y_move_last_y(yeGet(mon, MONSTER_MOVER))))
+	}
+    }
+    print("monster_round")
+    yePrint(distance)
+}
+
 function mod_init(mod)
 {
     ygInitWidgetModule(mod, "amap", yeCreateFunction("amap_init"))
@@ -674,5 +724,6 @@ function mod_init(mod)
     let mons_mv = yeCreateArray(mod, "mons_mv")
     yeCreateFunction(monster_left_right, mons_mv, "left_right")
     yeCreateFunction(monster_rand, mons_mv, "rand")
+    yeCreateFunction(monster_round, mons_mv, "round")
     return mod
 }

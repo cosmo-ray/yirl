@@ -11,7 +11,13 @@
 	    "life": 5,
 	    "action": "amap.mons_mv.rand",
 	    "img": "uwu-head"
+	},
+	"c": {
+	    "life": 5,
+	    "action": ["amap.mons_mv.round", [480, 100]],
+	    "img": "gamu"
 	}
+
 
     },
     "next": "lvl2-test",
