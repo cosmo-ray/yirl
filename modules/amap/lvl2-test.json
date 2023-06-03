@@ -1,0 +1,7 @@
+{
+    "size": [50, 7],
+    "parent": "lvl-test",
+    "objs": [
+	["door", "amap.win"]
+    ]
+}
