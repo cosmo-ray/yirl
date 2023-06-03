@@ -906,6 +906,22 @@ int ywCanvasForceSize(Entity *obj, Entity *size)
 	return 0;
 }
 
+int ywCanvasObjUnsetVFlip(Entity *obj)
+{
+	Entity *mod = getOrCreateMod(obj);
+
+	yeCreateIntAt(0, mod, NULL, YCanvasVFlip);
+	return 0;
+}
+
+int ywCanvasObjUnsetHFlip(Entity *obj)
+{
+	Entity *mod = getOrCreateMod(obj);
+
+	yeCreateIntAt(0, mod, NULL, YCanvasHFlip);
+	return 0;
+}
+
 int ywCanvasVFlip(Entity *obj)
 {
 	Entity *mod = getOrCreateMod(obj);

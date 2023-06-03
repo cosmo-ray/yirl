@@ -192,6 +192,9 @@ static inline int ywCanvasPercentReduce(Entity *obj, int percent)
  */
 int ywCanvasRotate(Entity *obj, double angle);
 
+int ywCanvasObjUnsetHFlip(Entity *obj);
+int ywCanvasObjUnsetVFlip(Entity *obj);
+
 /**
  * @brief flip an object vertically or horizontally
  */

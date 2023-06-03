@@ -304,6 +304,7 @@ function amap_action(wid, events)
     let monsters = yeGet(wid, "_monsters")
     let monsters_info = yeGet(mi, "monsters")
     var have_upkey = -1
+    var ps_canvas_obj = yeGet(pc_canel, PC_CANVAS_OBJ)
 
     if (yevIsKeyUp(events, Y_LEFT_KEY)) {
 	y_move_set_xspeed(pc_minfo, 0)
@@ -316,23 +317,27 @@ function amap_action(wid, events)
     if (yevIsKeyDown(events, Y_LEFT_KEY) && have_upkey != DIR_LEFT) {
 	yeSetIntAt(pc_canel, PC_DIR, DIR_LEFT)
 	y_move_set_xspeed(pc_minfo, -BASE_SPEED)
+	ywCanvasHFlip(ps_canvas_obj);
     } else if (yevIsKeyDown(events, Y_RIGHT_KEY) && have_upkey != DIR_RIGHT) {
 	yeSetIntAt(pc_canel, PC_DIR, DIR_RIGHT)
 	y_move_set_xspeed(pc_minfo, BASE_SPEED)
+	ywCanvasObjUnsetHFlip(ps_canvas_obj);
     } else if (yevIsKeyDown(events, Y_C_KEY) && yeGetIntAt(pc_canel, PC_DASH) == 0) {
 	yeCreateFloatAt(2.5, pc_minfo, null, Y_MVER_SPEEDUP)
 	yeSetIntAt(pc_canel, PC_DASH, 10)
     } else if (yevIsKeyDown(events, Y_X_KEY) && yeGetIntAt(pc_canel, PC_PUNCH_LIFE) == 0) {
 	yeSetIntAt(pc_canel, PC_PUNCH_LIFE, 4 + pc_agility)
-	if (yeGetIntAt(pc_canel, PC_DIR) == DIR_RIGHT) {
-	    y_move_set_xspeed(yeGet(pc_canel, PC_PUNCH_MINFO), 30)
-	} else {
-	    y_move_set_xspeed(yeGet(pc_canel, PC_PUNCH_MINFO), -30)
-	}
-
 	let textures = yeGet(wid, "textures");
 	let canvasobj = ywCanvasNewImgFromTexture(wid, ywPosX(pc_pos), ywPosY(pc_pos),
 						  yeGet(textures, "punch"))
+
+	if (yeGetIntAt(pc_canel, PC_DIR) == DIR_RIGHT) {
+	    y_move_set_xspeed(yeGet(pc_canel, PC_PUNCH_MINFO), 30)
+	} else {
+	    ywCanvasHFlip(canvasobj);
+	    y_move_set_xspeed(yeGet(pc_canel, PC_PUNCH_MINFO), -30)
+	}
+
 	// ywCanvasNewTextByStr(wid, ywPosX(pc_pos), ywPosY(pc_pos), " @ \n---")
 	yePushAt2(pc_canel, canvasobj, PC_PUNCH_OBJ)
 	yeCreateIntAt(TYPE_PUNCH, canvasobj, "amap-t", YCANVAS_UDATA_IDX)
@@ -408,7 +413,6 @@ function amap_action(wid, events)
 	    })
     }
 
-    var ps_canvas_obj = yeGet(pc_canel, PC_CANVAS_OBJ)
     var cols = ywCanvasNewCollisionsArray(wid, ps_canvas_obj)
     var direct_ret = false
     //yePrint(cols)
