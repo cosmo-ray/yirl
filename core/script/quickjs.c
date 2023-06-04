@@ -1057,6 +1057,8 @@ static int init(void *sm, void *args)
 	BIND(yeReCreateInt, 3, 0);
 	BIND(yeCreateFloatAt, 4, 0);
 	BIND(yeSetFloatAt, 3, 0);
+	BIND(ywCanvasObjSetPos, 3, 0);
+
 
 #define IN_CALL 1
 	#include "binding.c"

@@ -51,6 +51,12 @@ const TYPE_ANIMATION = 3
 const TYPE_PUNCH = 4
 const TYPE_MONSTER = 5
 const TYPE_OBJ = 6
+const TYPE_BOSS = 7
+
+const BOSS_OBJ = 0
+const BOSS_MOVER = 1
+const BOSS_TXT_LIVE = 2
+
 
 const CANVAS_OBJ_IDX = YCANVAS_UDATA_IDX + 1
 
@@ -300,6 +306,7 @@ function amap_action(wid, events)
     let pc_agility = yeGetIntAt(pc_stats, "agility")
     let mi = yeGet(wid, "_mi")
     let pc_canel = yeGet(wid, "_pc")
+    let boss = yeGet(wid, "_boss")
 
     let hooks = yeGet(mi, "hooks")
     if (hooks) {
@@ -422,6 +429,29 @@ function amap_action(wid, events)
 	ygCallFuncOrQuit(wid, "lose");
     }
 
+
+    if (boss) {
+	let boss_i = yeGet(mi, "boss")
+	let tuple = yeCreateArray()
+	let txt_start_x = ywPosX(old_pos) - 200
+	var txt_start_y = ywPosY(old_pos) - 200
+
+	yePushBack(tuple, boss)
+	yeCreateInt(turn_timer, tuple)
+	ywidActions(wid, boss_i, tuple)
+
+	let txt_obj = yeGet(boss, BOSS_TXT_LIVE)
+	ywCanvasObjSetPos(txt_obj, txt_start_x, txt_start_y)
+	var base_txt = "BOSS life: |"
+	for (var life = yeGetIntAt(boss_i, "life"); life > 0; life -= 5) {
+	    base_txt = base_txt + "="
+	}
+	base_txt = base_txt + "|"
+	print("print: ", base_txt, txt_start_x, txt_start_y)
+	ywCanvasStringSet(txt_obj, yeCreateString(base_txt))
+
+    }
+
     if (yeGetIntAt(pc_canel, PC_PUNCH_LIFE) > 0) {
 	var punch_obj = yeGet(pc_canel, PC_PUNCH_OBJ)
 	var cols = ywCanvasNewCollisionsArray(wid, punch_obj)
@@ -514,9 +544,18 @@ function init_map(wid, map_str)
 	yePrint(parent);
 	yeMergeInto(mi, parent, 0);
     }
-    var map_str = ygFileToEnt(YRAW_FILE, map_str)
-    var map_str_a = yeGetString(map_str).split('\n')
-    var map_a = yeReCreateArray(wid, "_m")
+    var map_str = ygFileToEnt(YRAW_FILE, map_str);
+    var map_str_a = yeGetString(map_str).split('\n');
+    var map_a = yeReCreateArray(wid, "_m");
+    var boss_i = yeGet(mi, "boss");
+    var boss = null;
+
+    if (!mi) {
+	yeRemoveChildByStr(wid, "_boss")
+    } else {
+	boss = yeReCreateArray(wid, "_boss")
+    }
+
     for (var l in map_str_a) {
 	yeCreateString(map_str_a[l], map_a)
 	let guy_index = map_str_a[l].indexOf('@')
@@ -547,7 +586,28 @@ function init_map(wid, map_str)
     })
 
     yeSetIntAt(pc_canel, PC_NB_TURN_IDX, 0)
+
     print_all(wid)
+    if (boss_i) {
+	let bpos = yeGet(boss_i, "pos");
+
+	print(" === ===")
+	yePrint(boss_i)
+	yePrint(bpos)
+	print(" === ===----")
+
+	let canvasobj = ywCanvasNewImgByPath(wid, ywPosX(bpos), ywPosY(bpos),
+					     yeGetStringAt(boss_i, "path"))
+	yePushBack(boss, canvasobj);
+	y_mover_new(boss)
+	var base_txt = "BOSS life: |"
+	for (var life = yeGetIntAt(boss_i, "life"); life > 0; life -= 5) {
+	    base_txt = base_txt + "="
+	}
+	base_txt = base_txt + "|"
+	yePushBack(boss, ywCanvasNewTextByStr(wid, 0, 0, base_txt))
+    }
+
     let hooks = yeGet(mi, "hooks")
     if (hooks) {
 	hooks.forEach(function (h, idx) {
