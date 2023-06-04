@@ -33,6 +33,7 @@ const PC_DIR = 9
 const PC_PUNCH_OBJ = 10
 const PC_PUNCH_MINFO = 11
 const PC_DASH = 12
+const PC_NB_TURN_IDX = 13
 
 const MONSTER_STR_KEY = 0
 const MONSTER_POS = 1
@@ -299,6 +300,26 @@ function amap_action(wid, events)
     let pc_agility = yeGetIntAt(pc_stats, "agility")
     let mi = yeGet(wid, "_mi")
     let pc_canel = yeGet(wid, "_pc")
+
+    let hooks = yeGet(mi, "hooks")
+    if (hooks) {
+	let hooks_ret = false;
+
+	hooks.forEach(function (h, idx) {
+	    if (!h)
+		return false
+	    let at = yeGet(h, "at")
+	    if (yeGetInt(at) == yeGetIntAt(pc_canel, PC_NB_TURN_IDX)) {
+		ywidActions(wid, h)
+		hooks_ret = true;
+		yeRemoveChildByIdx(hooks, idx)
+		return true
+	    }
+	})
+	if (hooks_ret)
+	    return;
+    }
+
     let pc_pos = yeGet(pc_canel, PC_POS_IDX)
     let old_pos = yeCreateCopy(pc_pos)
     let pc_minfo = yeGet(pc_canel, PC_MOVER_IDX)
@@ -352,6 +373,7 @@ function amap_action(wid, events)
     if (yeGetIntAt(pc_canel, PC_TURN_CNT_IDX) > 20000) {
 	var mult = yeGetIntAt(pc_canel, PC_TURN_CNT_IDX) / 20000
 
+	yeAddAt(pc_canel, PC_NB_TURN_IDX, 1)
 	if (yeGetIntAt(pc_canel, PC_DASH) > 0) {
 	    yeAddAt(pc_canel, PC_DASH, -1 * mult)
 	    if (yeGetIntAt(pc_canel, PC_DASH) == 0) {
@@ -366,6 +388,7 @@ function amap_action(wid, events)
 	    yeAddAt(pc_canel, PC_PUNCH_LIFE, -1 * mult)
 	    if (yeGetIntAt(pc_canel, PC_PUNCH_LIFE) <= 0) {
 		ywCanvasRemoveObj(wid, yeGet(pc_canel, PC_PUNCH_OBJ))
+		yeSetIntAt(pc_canel, PC_PUNCH_LIFE, 0)
 	    }
 	}
 	if (yeGetIntAt(pc_canel, PC_DASH) < 1) {
@@ -522,7 +545,18 @@ function init_map(wid, map_str)
 	}
 
     })
+
+    yeSetIntAt(pc_canel, PC_NB_TURN_IDX, 0)
     print_all(wid)
+    let hooks = yeGet(mi, "hooks")
+    if (hooks) {
+	hooks.forEach(function (h, idx) {
+	    if (!yeGet(h, "at")) {
+		ywidActions(wid, h)
+		yeRemoveChildByIdx(hooks, idx)
+	    }
+	})
+    }
 }
 
 function amap_init(wid)
@@ -586,6 +620,7 @@ function amap_init(wid)
     yeCreateIntAt(0, pc_canel, "pl", PC_PUNCH_LIFE)
     yeCreateIntAt(0, pc_canel, "dash", PC_DASH)
     yeCreateIntAt(DIR_RIGHT, pc_canel, "dir", PC_DIR)
+    yeCreateIntAt(0, pc_canel, "nb_turn", PC_NB_TURN_IDX)
     y_mover_new_at(pc_canel, "p_minfo", PC_PUNCH_MINFO)
     init_map(wid, map)
     return ret
@@ -746,5 +781,6 @@ function mod_init(mod)
     yeCreateFunction(monster_left_right, mons_mv, "left_right")
     yeCreateFunction(monster_rand, mons_mv, "rand")
     yeCreateFunction(monster_round, mons_mv, "round")
+    ygAddModule(Y_MOD_YIRL, mod, "stop-screen")
     return mod
 }
