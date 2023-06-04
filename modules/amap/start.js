@@ -432,6 +432,12 @@ function amap_action(wid, events)
 
     if (boss) {
 	let boss_i = yeGet(mi, "boss")
+	var life = yeGetIntAt(boss_i, "life")
+
+	if (life < 1) {
+	    ywidAction(yeGet(boss_i, "win"), wid)
+	    return
+	}
 	let tuple = yeCreateArray()
 	let txt_start_x = ywPosX(old_pos) - 200
 	var txt_start_y = ywPosY(old_pos) - 200
@@ -443,7 +449,7 @@ function amap_action(wid, events)
 	let txt_obj = yeGet(boss, BOSS_TXT_LIVE)
 	ywCanvasObjSetPos(txt_obj, txt_start_x, txt_start_y)
 	var base_txt = "BOSS life: |"
-	for (var life = yeGetIntAt(boss_i, "life"); life > 0; life -= 5) {
+	for (; life > 0; life -= 5) {
 	    base_txt = base_txt + "="
 	}
 	base_txt = base_txt + "|"
@@ -465,9 +471,20 @@ function amap_action(wid, events)
 			ywCanvasRemoveObj(wid, c)
 			yeRemoveChildByIdx(monsters, mon_idx)
 			yeAddAt(pc_canel, PC_PUNCH_LIFE, -2)
-			return true
 		    }
+		} else if (ctype == TYPE_BOSS) {
+		    let boss_i = yeGet(mi, "boss")
+
+		    yeAddAt(boss_i, "life", -5)
+		    yeAddAt(pc_canel, PC_PUNCH_LIFE, -25)
 		}
+
+		if (yeGetIntAt(pc_canel, PC_PUNCH_LIFE) <= 0) {
+		    ywCanvasRemoveObj(wid, yeGet(pc_canel, PC_PUNCH_OBJ))
+		    yeSetIntAt(pc_canel, PC_PUNCH_LIFE, 0)
+		    return true
+		}
+
 	    })
 	    yeDestroy(cols)
 	}
@@ -488,10 +505,11 @@ function amap_action(wid, events)
 		return true
 	    } else if (ctype != TYPE_ANIMATION && ctype != TYPE_PUNCH) {
 		if (ywCanvasObjectsCheckColisions(c, ps_canvas_obj)) {
-		    if (ctype == TYPE_PIKE || ctype == TYPE_MONSTER) {
+		    if (ctype == TYPE_PIKE || ctype == TYPE_MONSTER || ctype == TYPE_BOSS) {
+			if (yeGetIntAt(pc_canel, PC_HURT) == 0)
+			    yeAddAt(pc, "life", -5)
 			yeSetIntAt(pc_canel, PC_HURT, 7);
 			yeSetIntAt(pc_canel, PC_DROPSPEED_IDX, -25);
-			yeAddAt(pc, "life", -5)
 			print_life(wid, pc, pc_canel)
 			return true
 		    } else if ((ywPosY(old_pos) + SPRITE_SIZE - 1) <= ywPosY(ywCanvasObjPos(c))) {
@@ -598,6 +616,8 @@ function init_map(wid, map_str)
 
 	let canvasobj = ywCanvasNewImgByPath(wid, ywPosX(bpos), ywPosY(bpos),
 					     yeGetStringAt(boss_i, "path"))
+	yeCreateIntAt(TYPE_BOSS, canvasobj, "amap-t", YCANVAS_UDATA_IDX)
+
 	yePushBack(boss, canvasobj);
 	y_mover_new(boss)
 	var base_txt = "BOSS life: |"
