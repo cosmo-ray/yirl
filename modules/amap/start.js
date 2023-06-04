@@ -364,7 +364,7 @@ function amap_action(wid, events)
 
 	if (yeGetIntAt(pc_canel, PC_PUNCH_LIFE) > 0) {
 	    yeAddAt(pc_canel, PC_PUNCH_LIFE, -1 * mult)
-	    if (yeGetIntAt(pc_canel, PC_PUNCH_LIFE) == 0) {
+	    if (yeGetIntAt(pc_canel, PC_PUNCH_LIFE) <= 0) {
 		ywCanvasRemoveObj(wid, yeGet(pc_canel, PC_PUNCH_OBJ))
 	    }
 	}
@@ -408,10 +408,11 @@ function amap_action(wid, events)
 		let ctype = yeGetIntAt(c, YCANVAS_UDATA_IDX)
 		if (ctype == TYPE_MONSTER) {
 		    if (ywCanvasObjectsCheckColisions(c, punch_obj)) {
-			ywCanvasRemoveObj(wid, punch_obj)
 			var mon_idx = yeGetIntAt(c, CANVAS_MONSTER_IDX)
 			ywCanvasRemoveObj(wid, c)
 			yeRemoveChildByIdx(monsters, mon_idx)
+			yeAddAt(pc_canel, PC_PUNCH_LIFE, -2)
+			return true
 		    }
 		}
 	    })
@@ -443,7 +444,10 @@ function amap_action(wid, events)
 		    } else if ((ywPosY(old_pos) + SPRITE_SIZE - 1) <= ywPosY(ywCanvasObjPos(c))) {
 			stop_fall = true
 			print_life(wid, pc, pc_canel)
-			return true
+		    } else if (yeGetIntAt(pc_canel, PC_DROPSPEED_IDX) >= 0 &&
+			       (ywPosY(old_pos) + SPRITE_SIZE - 1) >
+			       ywPosY(ywCanvasObjPos(c)) + 10) {
+			stop_x = true
 		    }
 		}
 	    }
@@ -601,6 +605,14 @@ function next(wid)
     init_map(wid, yeGetStringAt(mi, "next"))
 }
 
+function next1(wid)
+{
+    print("ACTION !!!!!")
+    let mi = yeGet(wid, "_mi")
+    yePrint(yeGet(mi, "next1"))
+    init_map(wid, yeGetStringAt(mi, "next1"))
+}
+
 function monster_rand(wid, tuple)
 {
     let mon = yeGet(tuple, 0)
@@ -728,6 +740,7 @@ function mod_init(mod)
     yeCreateString("lvl-test", yeGet(mod, "test_wid"), "map")
     yeCreateString("rgba: 255 255 255 255", yeGet(mod, "test_wid"), "background")
     yeCreateFunction(next, mod, "next")
+    yeCreateFunction(next1, mod, "next1")
     yeCreateFunction("win", mod, "win")
     let mons_mv = yeCreateArray(mod, "mons_mv")
     yeCreateFunction(monster_left_right, mons_mv, "left_right")
