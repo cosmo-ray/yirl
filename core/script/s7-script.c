@@ -562,6 +562,13 @@ static s7_pointer make_nothing(s7_scheme *s, ...)
 			       S_AT(s, a, 2), I_AT(s, a, 3)));	\
 	}
 
+#define BIND_ESI(f, ...)					\
+	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)	\
+	{							\
+		BIND_AUTORET(f(E_AT(s, a, 0),			\
+			       S_AT(s, a, 1), I_AT(s, a, 2)));	\
+	}
+
 #define BIND_E(f, useless0, usless1)					\
 	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)		\
 	{								\
@@ -656,6 +663,7 @@ BIND_EEIII(ywMapInitEntity, 5, 0);
 BIND_IES(yeReCreateInt, 2, 1);
 BIND_SES(yeReCreateString, 2, 1);
 BIND_IESI(yeCreateIntAt, 4, 0);
+BIND_ESI(yeCreateArrayAt, 3, 0);
 #include "binding.c"
 
 static s7_pointer s7ywCanvasNewImg(s7_scheme *s, s7_pointer a)
@@ -769,6 +777,7 @@ static int init(void *sm, void *args)
 	BIND(yeReCreateInt, 2, 1);
 	BIND(yeReCreateString, 2, 1);
 	BIND(yeCreateIntAt, 4, 0);
+	BIND(yeCreateArrayAt, 3, 0);
 
 #define IN_CALL 1
 #include "binding.c"

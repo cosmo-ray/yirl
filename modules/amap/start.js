@@ -95,6 +95,21 @@ function move_punch(wid, pc_canel, turn_timer)
 
 }
 
+function yamap_generate_monster_canvasobj(wid, textures,
+					  mon, monsters_info, idx)
+{
+    let mon_key = yeGetStringAt(mon, 0)
+    let mon_info = yeGet(monsters_info, mon_key)
+    let mon_pos = yeGet(mon, 1)
+    let canvasobj = ywCanvasNewImgFromTexture(wid, ywPosX(mon_pos), ywPosY(mon_pos),
+					      yeGet(textures, yeGetStringAt(mon_info, "img")))
+
+    yeCreateIntAt(TYPE_MONSTER, canvasobj, "amap-t", YCANVAS_UDATA_IDX)
+    yeCreateIntAt(idx, canvasobj, "mon_idx", CANVAS_MONSTER_IDX)
+    ywCanvasObjReplacePos(canvasobj, mon_pos)
+    yePushAt2(mon, canvasobj, MONSTER_OBJ)
+}
+
 function print_all(wid)
 {
     ywCanvasClear(wid);
@@ -164,16 +179,7 @@ function print_all(wid)
     yePushAt2(pc_canel, pc_canvasobj, PC_CANVAS_OBJ)
 
     monsters.forEach(function(mon, idx) {
-	let mon_key = yeGetStringAt(mon, 0)
-	let mon_info = yeGet(monsters_info, mon_key)
-	let mon_pos = yeGet(mon, 1)
-	let canvasobj = ywCanvasNewImgFromTexture(wid, ywPosX(mon_pos), ywPosY(mon_pos),
-						  yeGet(textures, yeGetStringAt(mon_info, "img")))
-	// ywCanvasNewTextByStr(wid, ywPosX(pos), ywPosY(pos), " @ \n---")
-	yeCreateIntAt(TYPE_MONSTER, canvasobj, "amap-t", YCANVAS_UDATA_IDX)
-	yeCreateIntAt(idx, canvasobj, "mon_idx", CANVAS_MONSTER_IDX)
-	ywCanvasObjReplacePos(canvasobj, mon_pos)
-	yePushAt2(mon, canvasobj, MONSTER_OBJ)
+	yamap_generate_monster_canvasobj(wid, textures, mon, monsters_info, idx)
     })
     print_life(wid, pc, pc_canel)
 }
@@ -447,7 +453,7 @@ function init_map(wid, map_str)
     var boss_i = yeGet(mi, "boss");
     var boss = null;
 
-    if (!mi) {
+    if (!boss_i) {
 	yeRemoveChildByStr(wid, "_boss")
     } else {
 	boss = yeReCreateArray(wid, "_boss")
@@ -570,6 +576,7 @@ function amap_init(wid)
     ywTextureNewImg("./motivation.png", null, textures, "motivation");
     ywTextureNewImg("./uwu-head.png", null, textures, "uwu-head");
     ywTextureNewImg("./gamu.png", null, textures, "gamu");
+    ywTextureNewImg("./pillow.png", null, textures, "pillow");
     ywTextureNewImg("./vodeo-monster.png", null, textures, "vodeo-monster");
     ygModDirOut();
 
@@ -740,6 +747,8 @@ function mod_init(mod)
     yeCreateFunction(monster_left_right, mons_mv, "left_right")
     yeCreateFunction(monster_rand, mons_mv, "rand")
     yeCreateFunction(monster_round, mons_mv, "round")
+    ygRegistreFunc(5, "yamap_generate_monster_canvasobj",
+		   "yamap_generate_monster_canvasobj")
     ygAddModule(Y_MOD_YIRL, mod, "stop-screen")
     ygAddModule(Y_MOD_YIRL, mod, "y_move")
     return mod
