@@ -511,7 +511,6 @@ BIND_EEISI(yeAttach);
 
 /* Entity */
 int	luaYeToLuaString(lua_State *L);
-BIND_V(yeFreeEntitiesInStack);
 BIND_EI(yeConvert);
 BIND_EEES(yePatchCreate);
 BIND_EE(yePatchAply);
@@ -888,7 +887,6 @@ static inline int	yesLuaRegister(void *sm)
   /* Entity */
   YES_LUA_REGISTRE_CALL(sm, yeSetAt);
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yeToLuaString", luaYeToLuaString));
-  YES_LUA_REGISTRE_CALL(sm, yeFreeEntitiesInStack);
   YES_LUA_REGISTRE_CALL(sm, yeConvert);
   YES_LUA_REGISTRE_CALL(sm, yePatchCreate);
   YES_LUA_REGISTRE_CALL(sm, yePatchAply);

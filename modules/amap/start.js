@@ -192,7 +192,6 @@ function amap_action(wid, events)
     let mi = yeGet(wid, "_mi")
     let pc_canel = yeGet(wid, "_pc")
     let boss = yeGet(wid, "_boss")
-
     let hooks = yeGet(mi, "hooks")
     if (hooks) {
 	let hooks_ret = false;
@@ -385,6 +384,7 @@ function amap_action(wid, events)
 	    if (ctype == TYPE_OBJ) {
 		var objs = yeGet(mi, "objs");
 		var action = yeGet(yeGet(objs, yeGetIntAt(c, CANVAS_OBJ_IDX)), 1);
+
 		ywidAction(action, wid);
 		direct_ret = true
 		return true
@@ -512,6 +512,12 @@ function init_map(wid, map_str)
 	base_txt = base_txt + "|"
 	yePushBack(boss, ywCanvasNewTextByStr(wid, 0, 0, base_txt))
     }
+
+    yeSetIntAt(pc_canel, PC_DROPSPEED_IDX, 0);
+    y_move_set_xspeed(yeGet(pc_canel, PC_PUNCH_MINFO), 0)
+    y_move_set_yspeed(yeGet(pc_canel, PC_PUNCH_MINFO), 0)
+    y_move_set_xspeed(yeGet(pc_canel, PC_MOVER_IDX), 0)
+    y_move_set_yspeed(yeGet(pc_canel, PC_MOVER_IDX), 0)
 
     let hooks = yeGet(mi, "hooks")
     if (hooks) {
@@ -731,8 +737,6 @@ function monster_round(wid, tuple, distance)
 	    yeAddAt(mon, MONSTER_ACC, Math.abs(y_move_last_y(yeGet(mon, MONSTER_MOVER))))
 	}
     }
-    print("monster_round")
-    yePrint(distance)
 }
 
 function mod_init(mod)
