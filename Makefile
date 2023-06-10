@@ -193,11 +193,11 @@ WEB_CFLAG = \
 	--use-preload-plugins
 
 
-WEB_ARG=arguments: ["-d", "$(WEB_MOD_DST)", "-P", "/", "-W", "1000", "-H", "800"],
+WEB_ARG=arguments: ["-d", "$(WEB_MOD_DST)", "-P", "/", "-W", "800", "-H", "600"],
 #	arguments: ['-d', './games/asteroide-shooter/', '-P', "/home/uso/yirl/"],
 
 webstart.html: $(YIRL_LINKING) $(GEN_LOADER_OBJ) $(LIBNAME).a
-	$(CC) -o webstart.html $(GEN_LOADER_OBJ) $(LIBNAME).a $(LDFLAGS) $(PRELOAD_EMCC_FILES) $(WEB_CFLAG) -sMAIN_MODULE=1 -sTOTAL_MEMORY=600MB
+	$(CC) -o webstart.html $(GEN_LOADER_OBJ) $(LIBNAME).a $(LDFLAGS) $(PRELOAD_EMCC_FILES) $(WEB_CFLAG) -sMAIN_MODULE=1 -sTOTAL_MEMORY=1024MB --closure 1
 
 start.html: webstart.html
 	cat webstart.html | sed 's|var Module = {|var Module = {\n\t$(WEB_ARG)|g' > start.html
