@@ -391,13 +391,6 @@ static inline int make_abort(lua_State *L, ...)
 		BIND_AUTORET(f(lua_tostring(L, 1), lua_tostring(L, 2))); \
 	}
 
-#define BIND_IES(f, ...)						\
-	static inline int lua##f(lua_State *L)				\
-	{								\
-		BIND_AUTORET(f(luaNumberAt(L, 1), luaEntityAt(L, 2),	\
-			       lua_tostring(L, 3)));			\
-	}
-
 #define BIND_FES(f, ...)						\
 	static inline int lua##f(lua_State *L)				\
 	{								\
@@ -528,6 +521,7 @@ BIND_I_ECI(yeCountCharacters, bla, bla);
 
 /* int */
 int	luayeSetIntAt(lua_State *L);
+BIND_IES(yeTryCreateInt);
 BIND_IES(yeCreateInt);
 BIND_EK(yeGetIntAt);
 BIND_EK(yeIncrAt);
@@ -905,6 +899,7 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, explosion);
 
   /* int */
+  BIND(yeTryCreateInt);
   YES_LUA_REGISTRE_CALL(sm, yeCreateInt);
   YES_LUA_REGISTRE_CALL(sm, yeGetIntAt);
   YES_LUA_REGISTRE_CALL(sm, yeIncrAt);

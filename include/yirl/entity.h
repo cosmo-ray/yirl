@@ -1018,7 +1018,7 @@ static inline Entity *yeTryCreateInt(int value, Entity *parent,
 {
 	Entity *ret = yeGetByStrFast(parent, name);
 	if (!ret) {
-		yeCreateInt(value, parent, name);
+		ret = yeCreateInt(value, parent, name);
 	}
 	return ret;
 }
@@ -1028,7 +1028,7 @@ static inline Entity *yeTryCreateString(const char *value, Entity *parent,
 {
 	Entity *ret = yeGetByStrFast(parent, name);
 	if (!ret) {
-		yeCreateString(value, parent, name);
+		ret = yeCreateString(value, parent, name);
 	}
 	return ret;
 }
