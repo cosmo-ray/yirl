@@ -297,22 +297,32 @@ function yGenericHandlerMoveXY(npc, x, y)
 end
 
 function modinit_post(mod)
-   lpcs = Entity.wrapp(ygGet("lpcs"))
-   sprite_man = Entity.wrapp(ygGet("sprite-man"))
+   if yeGetInt(ygGet("mods_config.smart_cobject.no_submodule")) < 1 then
+      lpcs = Entity.wrapp(ygGet("lpcs"))
+      sprite_man = Entity.wrapp(ygGet("sprite-man"))
 
-   LPCS_LEFT = ygGetInt("lpcs.LEFT")
-   LPCS_DOWN = ygGetInt("lpcs.DOWN")
-   LPCS_RIGHT = ygGetInt("lpcs.RIGHT")
-   LPCS_UP = ygGetInt("lpcs.UP")
-   LPCS_DEAD = ygGetInt("lpcs.DEAD")
+      LPCS_LEFT = ygGetInt("lpcs.LEFT")
+      LPCS_DOWN = ygGetInt("lpcs.DOWN")
+      LPCS_RIGHT = ygGetInt("lpcs.RIGHT")
+      LPCS_UP = ygGetInt("lpcs.UP")
+      LPCS_DEAD = ygGetInt("lpcs.DEAD")
+   else
+      LPCS_LEFT = 0
+      LPCS_DOWN = 1
+      LPCS_RIGHT = 2
+      LPCS_UP = 3
+      LPCS_DEAD = 4
+   end
 end
 
 function mod_init(mod)
    mod = Entity.wrapp(mod)
 
    mod.name = "smart_cobject"
-   ygAddModule(Y_MOD_YIRL, mod, "sprite-manager")
-   ygAddModule(Y_MOD_YIRL, mod, "Universal-LPC-spritesheet")
+   if yeGetInt(ygGet("mods_config.smart_cobject.no_submodule")) < 1 then
+      ygAddModule(Y_MOD_YIRL, mod, "sprite-manager")
+      ygAddModule(Y_MOD_YIRL, mod, "Universal-LPC-spritesheet")
+   end
    ygRegistreFunc(1, "yGenericHandlerRmCanva", "yGenericHandlerRmCanva");
    ygRegistreFunc(1, "yGenericHandlerShowDead", "yGenericHandlerShowDead");
    ygRegistreFunc(1, "yGenericHandlerRefresh", "yGenericHandlerRefresh");
