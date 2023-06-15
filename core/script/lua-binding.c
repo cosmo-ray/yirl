@@ -1390,12 +1390,6 @@ int	luaygUnstalk(lua_State *L)
 	return 1;
 }
 
-int	luaygReCreateInt(lua_State *L)
-{
-	ygReCreateInt(lua_tostring(L, 1), lua_tonumber(L, 2));
-	return 0;
-}
-
 int	luayeSetAt(lua_State *L)
 {
 	Entity *ent = NULL;

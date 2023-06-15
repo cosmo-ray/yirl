@@ -315,6 +315,12 @@ static inline int make_abort(lua_State *L, ...)
 		BIND_AUTORET(f(lua_tostring(L, 1), luaNumberAt(L, 2)));	\
 	}
 
+#define BIND_SE(f, ...)							\
+	static inline int lua##f(lua_State *L)				\
+	{								\
+		BIND_AUTORET(f(lua_tostring(L, 1), luaEntityAt(L, 2)));	\
+	}
+
 #define BIND_EEI(f, ...)						\
 	static inline int lua##f(lua_State *L)				\
 	{								\
@@ -645,7 +651,6 @@ int	luaYgEntToFile(lua_State *L);
 int	luaYGet(lua_State *L);
 int	luaygStalk(lua_State *L);
 int	luaygUnstalk(lua_State *L);
-int	luaygReCreateInt(lua_State *L);
 
 /* Audio */
 int	luaySoundPlayLoop(lua_State *L);

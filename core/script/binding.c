@@ -9,6 +9,7 @@
 #define BIND_ES		BIND
 #define BIND_EI		BIND
 #define BIND_SI		BIND
+#define BIND_SE		BIND
 #define BIND_SS		BIND
 #define BIND_SES	BIND
 #define BIND_EII	BIND
@@ -179,6 +180,8 @@ BIND_ES(ygPushToGlobalScope, 2, 0);
 BIND_ES(yeRemoveChildByStr, 2, 0);
 
 BIND_ES(yeGetByStr, 2, 0);
+
+BIND_SI(ygReCreateInt, 2, 0);
 
 BIND_SI(ygIncreaseInt, 2, 0);
 BIND_SI(ygSetInt, 2, 0);
@@ -559,6 +562,7 @@ PUSH_I_GLOBAL(YPERL);
 #undef BIND_EE
 #undef BIND_ES
 #undef BIND_EI
+#undef BIND_SE
 #undef BIND_SI
 #undef BIND_SS
 #undef BIND_NONE

@@ -350,6 +350,12 @@ static JSValue make_abort(JSContext *ctx, ...)
 			       GET_E(ctx, 1), GET_S(ctx, 2)));		\
 	}
 
+#define BIND_SE(f, useless...)						\
+	static JSValue qjs##f(JSContext *ctx, JSValueConst this_val,	\
+			      int argc, JSValueConst *argv) {		\
+		BIND_AUTORET(f(GET_S(ctx, 0), GET_E(ctx, 1)));		\
+	}
+
 #define BIND_EEE(f, useless...)						\
 	static JSValue qjs##f(JSContext *ctx, JSValueConst this_val,	\
 			      int argc, JSValueConst *argv) {		\
