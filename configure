@@ -30,7 +30,7 @@ if [ $? == 0 ]; then
     SDL_MIXER_BUILD_CFLAGS="-fPIC -sUSE_MPG123=1 -sUSE_OGG=1 -sUSE_VORBIS=1"
     CMAKE_ARGS="-DEMSCRIPTEN=1 -DDISABLE_GLES_1=1 -DCMAKE_C_FLAGS=\"-fPIC\""
     EMCFLAGS="-DUSING_EMCC=1"
-    WITH_SOUND=0
+    WITH_SOUND=2
     COMMON_CFLAGS+="-O2"
 fi
 
@@ -160,9 +160,12 @@ var_add PREFIX "/usr/"
 
 SOUND_DIR="core/sound"
 define_add WITH_SOUND 1
-if [ $WITH_SOUND -ne 0 ]; then
+if [ $WITH_SOUND -eq 1 ]; then
     var_add SOUND_SRC "\"$SOUND_DIR/sdl.c $SOUND_DIR/sound.c\""
     define_add defaultSoundDriver sdlDriver
+elif  [ $WITH_SOUND -eq 2 ]; then
+    var_add SOUND_SRC "\"$SOUND_DIR/js.c $SOUND_DIR/sound.c\""
+    define_add defaultSoundDriver jsDriver
 else
     var_add SOUND_SRC "\"$SOUND_DIR/sound.c\""
     define_add defaultSoundDriver noSound
