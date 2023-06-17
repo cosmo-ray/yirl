@@ -166,18 +166,18 @@ $(SCRIPT_DIR)/perl.o: $(PERL_SRC)
 SDL_mixer/:
 	git submodule update --init
 
-SDL_mixer/build/.libs/libSDL2_mixer.a: SDL_mixer/
+$(SDL_MIXER_DEP): SDL_mixer/
 	cd SDL_mixer/ && $(EMCONFIGURE) ./configure $(SDL_MIXER_CFG) CFLAGS="$(SDL_MIXER_BUILD_CFLAGS)"
 	cd SDL_mixer/ && $(EMMAKE) make
 
 clean_sdl_mixer:
 	make -C SDL_mixer/ clean
 
-$(OBJ): $(LUA_RULE) $(JSON_C_RULE) $(QUICKJS_LIB_PATH) SDL_mixer/build/.libs/libSDL2_mixer.a $(SDL_GPU_LDFLAGS)
+$(OBJ): $(LUA_RULE) $(JSON_C_RULE) $(QUICKJS_LIB_PATH) $(SDL_MIXER_DEP) $(SDL_GPU_LDFLAGS)
 
-$(LIBNAME).a: $(OBJ) $(O_OBJ) SDL_mixer/build/.libs/libSDL2_mixer.a
+$(LIBNAME).a: $(OBJ) $(O_OBJ) $(SDL_MIXER_DEP)
 	$(AR)  -r -c -s $(LIBNAME).a $(OBJ) $(O_OBJ)
-$(LIBNAME).$(LIBEXTENSION): $(OBJ) $(O_OBJ) $(OBJXX) SDL_mixer/build/.libs/libSDL2_mixer.a
+$(LIBNAME).$(LIBEXTENSION): $(OBJ) $(O_OBJ) $(OBJXX) $(SDL_MIXER_DEP)
 	$(CC) -shared -o  $(LIBNAME).$(LIBEXTENSION) $(OBJ) $(O_OBJ) $(OBJXX) $(LDFLAGS)
 
 yirl-loader: $(YIRL_LINKING) $(GEN_LOADER_OBJ)
