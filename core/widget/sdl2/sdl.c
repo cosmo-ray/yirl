@@ -522,6 +522,12 @@ int    ysdl2Init(void)
   sprintf(ttf_path, "%s%s", ygBinaryRootPath ? ygBinaryRootPath : "",
 	  "/" DEFAULTPOLICE);
 
+  /* Initialize the SDL library */
+  if (SDL_InitSubSystem(SDL_INIT_EVERYTHING) < 0) {
+	  DPRINT_ERR("Couldn't initialize SDL: %s\n", SDL_GetError());
+	  return -1;
+  }
+
   /* Initialisation simple */
 #ifdef USING_EMCC
   if ((sg.pWindow = GPU_Init(ywidWindowWidth, ywidWindowHight,

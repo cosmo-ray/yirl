@@ -60,6 +60,7 @@ for arg in $args; do
 	echo "use system sdl2-mixer"
 	var_add SDL_MIXER_LDFLAGS "`pkg-config --libs SDL2_mixer`"
 	var_add SDL_MIXER_CFLAGS "`pkg-config --cflags SDL2_mixer`"
+	var_add SDL_MIXER_DEP ""
     fi
     if [ "--prefix" = $( echo "$arg" | cut -d '=' -f 1) ]; then
  	PREFIX=$( echo $arg | cut -f 2 -d '=' )

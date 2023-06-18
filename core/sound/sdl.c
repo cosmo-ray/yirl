@@ -1,5 +1,5 @@
 /*
-**Copyright (C) 2017 Matthias Gatto
+**Copyright (C) 2017-2023 Matthias Gatto
 **
 **This program is free software: you can redistribute it and/or modify
 **it under the terms of the GNU Lesser General Public License as published by
@@ -53,22 +53,18 @@ static inline int find_chan(Mix_Chunk *c)
 
 static int init(void)
 {
-  int ret = Mix_Init(MIX_INIT_FLAC | MIX_INIT_MOD | MIX_INIT_MP3 |
-		     MIX_INIT_OGG);
-
-  if (ret < 0) {
-    DPRINT_ERR("Mix_Init fail");
-    return -1;
-  }
-  ret = Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT,
-		      MIX_DEFAULT_CHANNELS, 640);
-  if (ret < 0) {
-    DPRINT_ERR("Mix_OpenAudio fail");
-    Mix_Quit();
-    return -1;
-  }
-  Mix_AllocateChannels(255);
-  return 0;
+	int ret = Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT,
+				MIX_DEFAULT_CHANNELS, 4096);
+	if (ret < 0) {
+		DPRINT_ERR("Mix_OpenAudio fail: '%s'",
+			   SDL_GetError());
+		Mix_Quit();
+		return -1;
+	}
+	Mix_VolumeMusic(MIX_MAX_VOLUME);
+	Mix_SetMusicCMD(SDL_getenv("MUSIC_CMD"));
+	Mix_AllocateChannels(255);
+	return 0;
 }
 
 static int end(void)
@@ -134,7 +130,7 @@ static int libsdl_music_load(const char *path)
 		goto error;
 	musiques[nameId].m = Mix_LoadMUS(path);
 	if (!musiques[nameId].m) {
-		DPRINT_ERR("fail to load %s", path);
+		DPRINT_ERR("fail to load %s: %s", path, SDL_GetError());
 		goto error;
 	}
 	types[nameId] = SOUND_MIX_;
@@ -152,16 +148,18 @@ error:
 
 static int libsdl_play(int nameId)
 {
-  CHECK_NAMEID(nameId);
-  if (types[nameId] == SOUND_MIX_)
-	  return Mix_PlayMusic(musiques[nameId].m, 0);
-  int c = find_chan(musiques[nameId].c);
+	CHECK_NAMEID(nameId);
+	if (types[nameId] == SOUND_MIX_) {
+		int ret = Mix_PlayMusic(musiques[nameId].m, 0);
+		return ret;
+	}
+	int c = find_chan(musiques[nameId].c);
 
-  if (c >= 0) {
-	  Mix_Resume(c);
-	  return 0;
-  }
-  return Mix_PlayChannel(-1, musiques[nameId].c, 0);
+	if (c >= 0) {
+		Mix_Resume(c);
+		return 0;
+	}
+	return Mix_PlayChannel(-1, musiques[nameId].c, 0);
 }
 
 static int libsdl_play_loop(int nameId)
