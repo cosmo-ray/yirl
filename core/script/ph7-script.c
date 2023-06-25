@@ -1074,7 +1074,7 @@ static void *call_(void *sm, const char *name, int nb, union ycall_arg *args,
 
 	for (int i = 0; i < nb; ++i) {
 		int arg_type = t_array[i];
-		const char *arg_name;
+		const char *arg_name = "outbound";
 
 		/* it seems PH7 doesn't copy arg_name, */
 		/* so I have to keep each pointed data unique */

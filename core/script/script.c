@@ -89,7 +89,7 @@ void *ysEntityCall(void *sm, Entity *e, int nb,
 				 union ycall_arg *args, int *types)
 {
 	void *ret;
-	void *old_manager;
+	void *old_manager = NULL;
 
 	try_set_cur_mananger(sm, &old_manager);
 	ret = ((YScriptOps *)sm)->e_call(sm, e, nb, args, types);
@@ -101,7 +101,7 @@ void *ysFastCall(void *sm, void *opacFunc, int nb,
 			       union ycall_arg *args, int *types)
 {
 	void *ret;
-	void *old_manager;
+	void *old_manager = NULL;
 
 	try_set_cur_mananger(sm, &old_manager);
 	ret = ((YScriptOps *)sm)->fastCall(sm, opacFunc, nb, args, types);
@@ -113,7 +113,7 @@ void *ysCallInt(void *sm, const char *name, int nb, union ycall_arg *args,
 		int *types)
 {
 	void *ret;
-	void *old_manager;
+	void *old_manager = NULL;
 
 	try_set_cur_mananger(sm, &old_manager);
   	ret = ((YScriptOps *)sm)->call(sm, name, nb, args, types);
