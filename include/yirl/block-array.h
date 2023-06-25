@@ -53,7 +53,7 @@ typedef struct {
   (yBlockArrayIsBlockAllocated((ba), bPos) ? (ba).blocks[(bPos)] : 0)
 
 
-static inline int32_t yBlockArrayComputeLastBlock(BlockArray *ba)
+static inline int32_t yBlockArrayComputeLastBlock(BlockArray *restrict const ba)
 {
 	int lastBlock;
 

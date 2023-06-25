@@ -627,15 +627,17 @@ static SDL_Surface *makeHeadacheSurface(Entity *map, Entity *info)
 		0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
 	uint32_t *pixels = surface->pixels;
 
-	for (size_t i = 0; i < yeLen(pix_mapping); ++i) {
+	for (int i = 0, map_len = yeLen(pix_mapping); i < map_len; ++i) {
 		int k = *yeGetKeyAt(pix_mapping, i);
 
 		char_map[k] = yeGetIntAt(pix_mapping, i);
 	}
 
-	for (int iy = 0, dy = 0; iy < ywSizeH(size);
+	int size_h = ywSizeH(size);
+	int size_w = ywSizeW(size);
+	for (int iy = 0, dy = 0; iy < size_h;
 	     iy += 1, dy += ywSizeH(pix_per_char)) {
-		for (int ix = 0, dx = 0; ix < ywSizeW(size);
+		for (int ix = 0, dx = 0; ix < size_w;
 		     ix += 1, dx += ywSizeW(pix_per_char)) {
 			int pix_pos = dx + dy *
 				ywSizeW(pix_per_char) *
