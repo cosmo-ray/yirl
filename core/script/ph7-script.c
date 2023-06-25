@@ -807,7 +807,7 @@ static ph7_vm *loadProg(YScriptPH7 *ph7sm, char *prog, ph7_vm *vm)
 	rc = ph7_compile_v2(
 		ph7sm->pEngine,  /* PH7 engine */
 		prog, /* PHP test program */
-		-1    /* Compute input length automatically*/, 
+		-1    /* Compute input length automatically*/,
 		&vm,  /* OUT: Compiled PHP program */
 		0     /* IN: Compile flags */
 		);
@@ -817,7 +817,7 @@ static ph7_vm *loadProg(YScriptPH7 *ph7sm, char *prog, ph7_vm *vm)
 	}
 
 	rc = ph7_vm_config(vm,
-			   PH7_VM_CONFIG_OUTPUT, 
+			   PH7_VM_CONFIG_OUTPUT,
 			   Output_Consumer,    /* Output Consumer callback */
 			   0                   /* Callback private data */
 		);
@@ -825,7 +825,7 @@ static ph7_vm *loadProg(YScriptPH7 *ph7sm, char *prog, ph7_vm *vm)
 		Fatal("Error while installing the VM output consumer callback");
 	}
 
-	
+
 #define BIND(name, other...) do {					\
 		rc = ph7_create_function(vm, #name, ph7##name, 0);	\
 	} while (0)
@@ -1059,12 +1059,12 @@ static void *call_(void *sm, const char *name, int nb, union ycall_arg *args,
 
 	ph7_value *pv = ph7_new_scalar(vm);
 	ph7_value_string(pv, name, -1);
-	rc = ph7_vm_config(vm, PH7_VM_CONFIG_CREATE_VAR, 
+	rc = ph7_vm_config(vm, PH7_VM_CONFIG_CREATE_VAR,
 			   "function_to_call", pv);
 
 	pv = ph7_new_scalar(vm);
 	ph7_value_int(pv, nb);
-	rc = ph7_vm_config(vm, PH7_VM_CONFIG_CREATE_VAR, 
+	rc = ph7_vm_config(vm, PH7_VM_CONFIG_CREATE_VAR,
 			   "nb_args", pv);
 	ph7_release_value(vm, pv);
 	if (unlikely(rc != PH7_OK)) {
@@ -1100,7 +1100,7 @@ static void *call_(void *sm, const char *name, int nb, union ycall_arg *args,
 		if (unlikely(rc != PH7_OK)) {
 			Fatal("Error while storing value\n");
 		}
-		rc = ph7_vm_config(vm, PH7_VM_CONFIG_CREATE_VAR, 
+		rc = ph7_vm_config(vm, PH7_VM_CONFIG_CREATE_VAR,
 				   arg_name, pv);
 		ph7_release_value(vm, pv);
 		if (unlikely(rc != PH7_OK)) {
