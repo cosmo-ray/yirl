@@ -123,8 +123,11 @@ function y_stop_func(wid, x, y, txt, have_arrow)
     yePushBack(data, ywCanvasNewText(wid, x + 20  * xdir,
 				     y + 60 * ydir, txt));
     var head_threshold = 100
-    if (ydir < 0)
+    if (ydir < 0) {
 	head_threshold = -w
+    } else {
+	head_threshold = 20 * (1 + yeCountLines(txt)) + 40
+    }
     yePushBack(data, ywCanvasNewText(wid, x + 70  * xdir,
 				     y + head_threshold, yeCreateString(HELP_GUY)));
     return true
