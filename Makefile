@@ -190,6 +190,7 @@ WEB_MOD_DST ?= "./low_enforcement_agents/"
 PRELOAD_EMCC_FILES ?= \
 	--preload-file scripts-dependancies/object-wrapper.lua \
 	--preload-file modules/smart_cobject/ \
+	--preload-file modules/stop-screen/ \
 	--preload-file $(WEB_MOD_DST)
 
 WEB_CFLAG = \
