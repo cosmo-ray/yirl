@@ -156,9 +156,9 @@ static void addFuncSymbole(void *sm, const char *name, int nbArgs, Entity *func)
 	yeStringAdd(str, tmp_name);
 
 	for (int i = 0; i < nbArgs; ++i) {
-		yeAddStr(str, ", yLoveToPtr(var");
+		yeAddStr(str, ", var");
 		yeAddInt(str, i);
-		yeAddStr(str, ")");
+		yeAddStr(str, "");
 	}
 	yeStringAdd(str, ") end");
 	luaLoadString(sm, yeGetString(str));

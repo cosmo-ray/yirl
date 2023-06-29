@@ -1292,7 +1292,6 @@ static inline void call_set_arg(lua_State *L, int i, union ycall_arg *args,
 	} else if (lua_isstring(L, i)) {
 		types[nb] = YS_STR;
 		args[nb].str = lua_tostring(L, i);
-		printf("call s %s\n", args[nb].str);
 	} else if (lua_isuserdata(L, i) &&
 		   luaL_testudata(L, i, "Entity")) {
 		types[nb] = YS_ENTITY;
