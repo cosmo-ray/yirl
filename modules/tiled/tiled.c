@@ -35,6 +35,7 @@ void *deinit(int nbArg, void **args)
 	free(assetsPath);
 	assetsPath = NULL;
     }
+    return NULL;
 }
 
 void *setAssetPath(int nbArg, void **args)
@@ -47,6 +48,7 @@ void *setAssetPath(int nbArg, void **args)
     }
     deinit(0, NULL);
     assetsPath = strdup(newPath);
+    return assetsPath;
 }
 
 static void handle_properties(Entity *properties,

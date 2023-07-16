@@ -540,7 +540,7 @@ void *dialogueCurDialogue(int nbArgs, void **args)
 
 void *dialoguePostAction(int nbArgs, void **args)
 {
-	uint64_t ret_type = (long)args[0];
+	intptr_t ret_type = (intptr_t)args[0];
 	Entity *e = args[1];
 
 	if (!ywidInTree(e))

@@ -64,7 +64,7 @@ YManagerAllocator *ysScriptsTab(void);
 void *ysCallInt(void *sm, const char *name, int nb, union ycall_arg *args,
 		int *types);
 
-#define YS_MK(x) {(void *)x}
+#define YS_MK(x) {(void *)(intptr_t)x}
 
 #define YS_MK_BRACES_1(a) YS_MK(a)
 #define YS_MK_BRACES_2(a,b) YS_MK(a),YS_MK(b)
