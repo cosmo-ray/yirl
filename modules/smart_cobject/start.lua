@@ -13,7 +13,38 @@ local WID_I = 1 -- only for canvas layers
 local CVS_OBJ_I = 2
 local POS_I = 3
 
-function yGenericNewCanvasLayer(wid, canvasArray, char)
+function yGenericCurCanvas(handler)
+   handler = Entity.wrapp(handler)
+   local type = yeGetString(npc.char.type)
+   if  type == "layer-canvas" then
+      return handler.cvs_objs[0]
+   end
+   return handler.canvas
+end
+
+local function refresh_txt_array(handler)
+   local pos = handler.pos
+   handler.canvas = ywCanvasNewImgFromTexture(wid, ywPosX(pos), ywPosY(pos),
+					  yeGet(ret.txts, yeGetIntAt(ret, "cur_txt")))
+
+end
+
+function yGenericNewTexturesArray(wid, array, char, pos, parent, name)
+   if yIsNil(array) then
+      return nil
+   end
+   local ret = Entity.new_array(parent, name)
+   ret.char = char
+   ret.char.type = "textures-array"
+   ret.wid = wid
+   ret.txts = array
+   yePushBack(ret, pos, "pos")
+   ret.cur_txt = 0
+   refresh_txt_array(ret)
+   return ret
+end
+
+function yGenericNewCanvasLayer(wid, canvasArray, char, parent, name)
    if yIsNil(canvasArray) then
       return nil
    end
@@ -167,6 +198,10 @@ function yGenericHandlerRefresh(npc)
    local type = yeGetString(npc.char.type)
    if type == "sprite" then
       sprite_man.handlerRefresh(npc)
+   elseif type == "textures-array" then
+      ywCanvasRemoveObj(npc.wid, npc.canvas)
+      npc.canvas = nil
+      refresh_txt_array(npc)
    elseif type ~= "layer-canvas" then
       lpcs.handlerRefresh(npc)
    end
@@ -177,6 +212,9 @@ function yGenericHandlerNullify(npc)
    local type = yeGetString(npc.char.type)
    if type == "sprite" then
       sprite_man.handlerNullify(npc)
+   elseif type == "textures-array" then
+      ywCanvasRemoveObj(npc.wid, npc.canvas)
+      npc.canvas = nil
    elseif type == "layer-canvas" then
       yGenericHandlerRmCanva(npc)
       yeRemoveChild(h, "char");
@@ -194,7 +232,8 @@ function yGenericHandlerPos(npc)
    local type = yeGetString(npc.char.type)
    if type == "sprite" then
       return sprite_man.handlerPos(npc)
-   elseif type == "layer-canvas" then -- "layer-canvas"
+   elseif type == "layer-canvas" or
+      type == "textures-array" then -- "layer-canvas"
       return npc[POS_I]
    else
       return ylpcsHandlerPos(npc)
@@ -211,6 +250,8 @@ function yGenericHandlerSize(npc)
       return sprite_man.handlerSize(npc)
    elseif type == "layer-canvas" then
       return ywCanvasObjSize(NULL, npc[CVS_OBJ_I][0])
+   elseif type == "textures-array" then
+      return ywCanvasObjSize(NULL, npc.canvas)
    else
       return ylpcsHandlerSize(npc)
    end
@@ -220,7 +261,8 @@ function yGenericSetDir(npc, dir)
    npc = Entity.wrapp(npc)
    local type = yeGetString(npc.char.type)
 
-   if type == "layer-canvas" then
+   if type == "layer-canvas" or
+      type == "textures-array" then
       return
    end
 
@@ -280,7 +322,8 @@ function yGenericSetPos(npc, pos)
 
    if type == "sprite" then
       sprite_man.handlerSetPos(npc, pos)
-   elseif type == "layer-canvas" then
+   elseif type == "layer-canvas" or
+      type == "textures-array" then
       -- the post of each canvas need tp be a ref to a pos in the layer-canvas
       ywPosSet(npc[POS_I], pos)
    else
@@ -333,7 +376,9 @@ function mod_init(mod)
    ygRegistreFunc(2, "yGenericSetPos", "yGenericSetPos");
    ygRegistreFunc(2, "yGenericHandlerMove", "yGenericHandlerMove");
    ygRegistreFunc(3, "yGenericHandlerMoveXY", "yGenericHandlerMoveXY");
-   ygRegistreFunc(3, "yGenericNewCanvasLayer", "yGenericNewCanvasLayer");
+   ygRegistreFunc(5, "yGenericNewCanvasLayer", "yGenericNewCanvasLayer");
+   ygRegistreFunc(1, "yGenericCurCanvas", "yGenericCurCanvas");
+   ygRegistreFunc(6, "yGenericNewTexturesArray", "yGenericNewTexturesArray");
    yeCreateFunction("modinit_post", mod, "init-post-action");
    return mod
 end
