@@ -624,6 +624,8 @@ int ygRegistreFuncInternal(void *manager, int nbArgs, const char *name,
 		if (manager != s7Manager)
 			ysAddFuncSymbole(s7Manager, NULL, nbArgs, func);
 #endif
+		if (manager != qjsManager)
+			ysAddFuncSymbole(qjsManager, NULL, nbArgs, func);
 	} else {
 #if TCC_ENABLE > 0
 		ysAddFuncSymbole(tccManager, toRegistre, nbArgs, func);
@@ -633,6 +635,7 @@ int ygRegistreFuncInternal(void *manager, int nbArgs, const char *name,
 #if S7_ENABLE
 		ysAddFuncSymbole(s7Manager, toRegistre, nbArgs, func);
 #endif
+		ysAddFuncSymbole(qjsManager, toRegistre, nbArgs, func);
 	}
 	return 0;
 }

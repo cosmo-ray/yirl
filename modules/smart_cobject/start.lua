@@ -15,7 +15,7 @@ local POS_I = 3
 
 function yGenericCurCanvas(handler)
    handler = Entity.wrapp(handler)
-   local type = yeGetString(npc.char.type)
+   local type = yeGetString(handler.char.type)
    if  type == "layer-canvas" then
       return handler.cvs_objs[0]
    end
@@ -24,9 +24,8 @@ end
 
 local function refresh_txt_array(handler)
    local pos = handler.pos
-   handler.canvas = ywCanvasNewImgFromTexture(wid, ywPosX(pos), ywPosY(pos),
-					  yeGet(ret.txts, yeGetIntAt(ret, "cur_txt")))
-
+   handler.canvas = ywCanvasNewImgFromTexture(handler.wid, ywPosX(pos), ywPosY(pos),
+					      yeGet(handler.txts, yeGetIntAt(handler, "cur_txt")))
 end
 
 function yGenericNewTexturesArray(wid, array, char, pos, parent, name)
@@ -42,6 +41,18 @@ function yGenericNewTexturesArray(wid, array, char, pos, parent, name)
    ret.cur_txt = 0
    refresh_txt_array(ret)
    return ret
+end
+
+function yGenericUsePos(handler, pos)
+   handler = Entity.wrapp(handler);
+   local type = yeGetString(handler.char.type)
+
+   if type == "textures-array" then
+      ywCanvasObjReplacePos(handler.canvas, pos);
+      yePushAt2(handler, pos, POS_I, "pos");
+   else
+      print("yGenericUsePos not implemented")
+   end
 end
 
 function yGenericNewCanvasLayer(wid, canvasArray, char, parent, name)
@@ -366,6 +377,7 @@ function mod_init(mod)
       ygAddModule(Y_MOD_YIRL, mod, "sprite-manager")
       ygAddModule(Y_MOD_YIRL, mod, "Universal-LPC-spritesheet")
    end
+   ygRegistreFunc(6, "yGenericNewTexturesArray", "yGenericNewTexturesArray");
    ygRegistreFunc(1, "yGenericHandlerRmCanva", "yGenericHandlerRmCanva");
    ygRegistreFunc(1, "yGenericHandlerShowDead", "yGenericHandlerShowDead");
    ygRegistreFunc(1, "yGenericHandlerRefresh", "yGenericHandlerRefresh");
@@ -374,11 +386,12 @@ function mod_init(mod)
    ygRegistreFunc(1, "yGenericHandlerSize", "yGenericHandlerSize");
    ygRegistreFunc(2, "yGenericSetDir", "yGenericSetDir");
    ygRegistreFunc(2, "yGenericSetPos", "yGenericSetPos");
+   ygRegistreFunc(2, "yGenericUsePos", "yGenericUsePos");
    ygRegistreFunc(2, "yGenericHandlerMove", "yGenericHandlerMove");
    ygRegistreFunc(3, "yGenericHandlerMoveXY", "yGenericHandlerMoveXY");
    ygRegistreFunc(5, "yGenericNewCanvasLayer", "yGenericNewCanvasLayer");
    ygRegistreFunc(1, "yGenericCurCanvas", "yGenericCurCanvas");
-   ygRegistreFunc(6, "yGenericNewTexturesArray", "yGenericNewTexturesArray");
+   print("ALLO !!!!!\n")
    yeCreateFunction("modinit_post", mod, "init-post-action");
    return mod
 end

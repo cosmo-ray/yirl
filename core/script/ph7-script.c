@@ -1031,7 +1031,7 @@ static void addFuncSymbole(void *sm, const char *name, int nbArgs, Entity *func)
 	yeAdd(e, "    return yesCall(int_to_entity(");
 	yeAddLong(e, (int_ptr_t)func);
 	yeAdd(e, ")");
-	
+
 	for (int i = 0; i < nbArgs; ++i) {
 		char a[] = {'$', 'a', '0' + i / 10, '0' + i % 10, 0};
 

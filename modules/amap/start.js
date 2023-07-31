@@ -171,11 +171,13 @@ function print_all(wid)
 	}
     }
     let pc_pos = yeGet(pc_canel, PC_POS_IDX)
-    let pc_canvasobj = ywCanvasNewImgFromTexture(wid, ywPosX(pc_pos), ywPosY(pc_pos),
-						 yeGet(textures, "guy-0"))
+    let pc_handler = yeGet(wid, "pc_handler")
+    yGenericHandlerRefresh(pc_handler)
+    let pc_canvasobj = yGenericCurCanvas(pc_handler)
+    // ywCanvasNewImgFromTexture(wid, ywPosX(pc_pos), ywPosY(pc_pos), yeGet(textures, "guy-0"))
     // ywCanvasNewTextByStr(wid, ywPosX(pc_pos), ywPosY(pc_pos), " @ \n---")
     yeCreateIntAt(TYPE_PC, pc_canvasobj, "amap-t", YCANVAS_UDATA_IDX)
-    ywCanvasObjReplacePos(pc_canvasobj, pc_pos)
+    yGenericUsePos(pc_handler, pc_pos)
     yePushAt2(pc_canel, pc_canvasobj, PC_CANVAS_OBJ)
 
     monsters.forEach(function(mon, idx) {
@@ -576,8 +578,14 @@ function amap_init(wid)
     ygModDir("amap");
     ywTextureNewImg("./door.png", null, textures, "door");
     ywTextureNewImg("./pike.png", null, textures, "pike");
-    ywTextureNewImg("./gut-0.png", null, textures, "guy-0");
-    ywTextureNewImg("./gut-1.png", null, textures, "guy-1");
+
+    let txts_arrays = yeCreateArray()
+    yePushBack(txts_arrays, ywTextureNewImg("./gut-0.png", null, textures, "guy-0"));
+    yePushBack(txts_arrays, ywTextureNewImg("./gut-1.png", null, textures, "guy-1"));
+
+    yGenericNewTexturesArray(wid, txts_arrays, yeCreateArray(), ywPosCreate(0, 0),
+			     wid, "pc_handler");
+
     ywTextureNewImg("./punch.png", null, textures, "punch");
     ywTextureNewImg("./motivation.png", null, textures, "motivation");
     ywTextureNewImg("./uwu-head.png", null, textures, "uwu-head");
@@ -753,6 +761,7 @@ function mod_init(mod)
     yeCreateFunction(monster_round, mons_mv, "round")
     ygRegistreFunc(5, "yamap_generate_monster_canvasobj",
 		   "yamap_generate_monster_canvasobj")
+    ygAddModule(Y_MOD_YIRL, mod, "smart_cobject")
     ygAddModule(Y_MOD_YIRL, mod, "stop-screen")
     ygAddModule(Y_MOD_YIRL, mod, "y_move")
     return mod

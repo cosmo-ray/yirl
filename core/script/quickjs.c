@@ -1183,6 +1183,41 @@ static int loadFile(void *s, const char *file)
 	return 0;
 }
 
+static void addFuncSymbole(void *sm, const char *name, int nbArgs, Entity *func)
+{
+	Entity *str = yeCreateString("", NULL, NULL);
+	char *tmp_name;
+	JSContext *ctx = CTX(sm);
+	JSValueConst global_obj = JS_GetGlobalObject(ctx);
+
+	if (!name)
+		name = yeGetString(func);
+	tmp_name = y_strdup_printf("%sGlobal", name);
+	JS_SetPropertyStr(ctx, global_obj, tmp_name, new_ent(ctx, func));
+
+	yeStringAdd(str, "function ");
+	yeAddStr(str, name);
+	yeAddStr(str, "(");
+	for (int i = 0; i < nbArgs; ++i) {
+		if (i)
+			yeAddStr(str, ",");
+		yeAddStr(str, "var");
+		yeAddInt(str, i);
+	}
+
+	yeStringAdd(str, ") { return yesCall(");
+	yeStringAdd(str, tmp_name);
+
+	for (int i = 0; i < nbArgs; ++i) {
+		yeAddStr(str, ", var");
+		yeAddInt(str, i);
+	}
+	yeStringAdd(str, ") }");
+	loadString(sm, yeGetString(str));
+	free(tmp_name);
+	yeDestroy(str);
+}
+
 static void *allocator(void)
 {
 	YScriptQjs *ret;
@@ -1196,6 +1231,7 @@ static void *allocator(void)
 	ret->ops.call = call;
 	ret->ops.trace = NULL;
 	ret->ops.fastCall = fCall;
+	ret->ops.addFuncSymbole = addFuncSymbole;
 	return (void *)ret;
 }
 
