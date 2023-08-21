@@ -222,11 +222,13 @@ void yePatchAplyExt(Entity *dest, Entity *patch, uint32_t flag)
 
 			if (operation == YEP_ADD ||
 			    operation == YEP_CHANGE_TYPE) {
-				yeReplaceBack(dest, yeGet(sub_el, YEP_ELEM),
-					      key);
+				if (dest)
+					yeReplaceBack(dest, yeGet(sub_el, YEP_ELEM),
+						      key);
 			} else if (operation == YEP_SUP &&
 				   !(flag & YE_PATCH_NO_SUP)) {
-				yeRemoveChild(dest, key);
+				if (dest)
+					yeRemoveChild(dest, key);
 			} else if (operation == YEP_MOD) {
 				Entity *sub_dest = yeGet(dest, key);
 				yePatchAplyExt(sub_dest, sub_el, flag);
