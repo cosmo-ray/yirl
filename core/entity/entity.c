@@ -1000,7 +1000,6 @@ _Bool yeEraseByE(Entity *array, Entity *t)
 		yBlockArrayUnset(ba, yeLen(array) - 1);
 	}
 	ba->flag = flag;
-	printf("out\n");
 	return !!old;
 }
 
