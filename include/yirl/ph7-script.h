@@ -21,8 +21,32 @@
 #include <ph7.h>
 #include "script.h"
 
+#if PH7_ENABLE > 0
+
 int ysPH7Init(void);
 int ysPH7End(void);
 int ysPH7GetType(void);
+
+#else
+
+static int ysPH7Init(void)
+{
+	fatal("PH7 DISABLE\n");
+	return 0;
+}
+
+static int ysPH7End(void)
+{
+	fatal("PH7 DISABLE\n");
+	return 0;
+}
+
+static int ysPH7GetType(void)
+{
+	fatal("PH7 DISABLE\n");
+	return 0;
+}
+
+#endif
 
 #endif

@@ -15,6 +15,8 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#if PH7_ENABLE > 0
+
 #include "ph7-script.h"
 #include <yirl/all.h>
 #include "game.h"
@@ -1198,3 +1200,4 @@ int ysPH7GetType(void)
 	return t;
 }
 
+#endif /* PH7_ENABLE */

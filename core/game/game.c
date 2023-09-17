@@ -113,6 +113,9 @@ void *ygS7Manager(void)
 
 void *ygPH7Manager(void)
 {
+#if PH7_ENABLE < 1
+	fatal("PH7 IS DISABLE !");
+#endif
 	return ph7Manager;
 }
 
@@ -479,9 +482,11 @@ int ygInit(GameConfig *cfg)
 		       "s7 init failed");
 #endif
 
+#if PH7_ENABLE > 0
 	CHECK_AND_GOTO(t = ysPH7Init(), -1, error, "ph7 init failed");
 	CHECK_AND_GOTO(ph7Manager = ysNewManager(NULL, t), NULL, error,
 		       "ph7 init failed");
+#endif
 
 	CHECK_AND_GOTO(t = ysQjsInit(), -1, error, "Qjs init failed");
 	CHECK_AND_GOTO(qjsManager = ysNewManager(NULL, t), NULL, error,
@@ -579,12 +584,17 @@ void ygEnd()
 
 	ysDestroyManager(luaManager);
 	ysLuaEnd();
+
 #if S7_ENABLE > 0
 	ysDestroyManager(s7Manager);
 	ysS7End();
 #endif
+
+#if PH7_ENABLE > 0
 	ysDestroyManager(ph7Manager);
 	ysPH7End();
+#endif
+
 	/* it seems V crash :( */
 	/* ysDestroyManager(qjsManager); */
 	ysQjsEnd();
@@ -631,7 +641,9 @@ int ygRegistreFuncInternal(void *manager, int nbArgs, const char *name,
 		ysAddFuncSymbole(tccManager, toRegistre, nbArgs, func);
 #endif
 		ysAddFuncSymbole(luaManager, toRegistre, nbArgs, func);
+#if PH7_ENABLE
 		ysAddFuncSymbole(ph7Manager, toRegistre, nbArgs, func);
+#endif
 #if S7_ENABLE
 		ysAddFuncSymbole(s7Manager, toRegistre, nbArgs, func);
 #endif
@@ -675,12 +687,16 @@ void *ygGetManager(const char *name)
 	else if (yuiStrEqual0(name, "s7"))
 		return s7Manager;
 #else
-	else if (yuiStrEqual0(name, "s7"))
+	else if (unlikely(yuiStrEqual0(name, "s7")))
 		fatal("S7 IS DISABLE !!!");
 #endif
-	else if (yuiStrEqual0(name, "ph7"))
+	else if (yuiStrEqual0(name, "ph7")) {
+#if PH7_ENABLE > 0
 		return ph7Manager;
-	else if (yuiStrEqual0(name, "js"))
+#else
+		fatal("PH7 IS DISABLE !!!");
+#endif
+	} else if (yuiStrEqual0(name, "js"))
 		return qjsManager;
 	return NULL;
 }

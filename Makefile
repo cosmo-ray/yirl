@@ -55,7 +55,7 @@ SRC = 	$(HSEARCH_SRC) \
 
 SRC += $(SOUND_SRC)
 
-O_SRC = $(S7_SOURCE) ph7/ph7.c
+O_SRC = $(S7_SOURCE) $(PH7_SOURCE)
 
 O_OBJ = $(O_SRC:.c=.o)
 

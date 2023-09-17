@@ -8,7 +8,8 @@ LINEHELPER[4]="--asan			compile with adress sanitazer"
 LINEHELPER[5]="--analyzer		Use gcc 10+ --fanalyzer"
 LINEHELPER[6]="--disable-tcc		disable tcc scripting"
 LINEHELPER[7]="--disable-s7		disable s7 scripting"
-LINEHELPER[8]="--system-sdl-mixer	use sdl2_mixer from system"
+LINEHELPER[8]="--disable-ph7		disable ph7 scripting"
+LINEHELPER[9]="--system-sdl-mixer	use sdl2_mixer from system"
 
 source configure-helper.sh
 
@@ -80,6 +81,11 @@ for arg in $args; do
     if [ "--disable-s7" = $arg ]; then
 	S7_SOURCE=""
 	S7_CFLAGS="-DS7_ENABLE=0"
+    fi
+
+    if [ "--disable-ph7" = $arg ]; then
+	PH7_SOURCE=""
+	PH7_CFLAGS="-DPH7_ENABLE=0"
     fi
 
     if [ "--disable-perl" = $arg ]; then
@@ -222,6 +228,9 @@ echo TCC_CFLAGS=${TCC_CFLAGS} >> config.mk
 
 var_add S7_SOURCE "${SCRIPT_DIR}/s7.c"
 var_add S7_CFLAGS "-DS7_ENABLE=1"
+
+var_add PH7_SOURCE "${SCRIPT_DIR}/ph7/ph7.c"
+var_add PH7_CFLAGS "-DPH7_ENABLE=1"
 
 if [ -z "$PERL_LD" ]; then
     PERL_LD="$(perl -MExtUtils::Embed -e ldopts)"
