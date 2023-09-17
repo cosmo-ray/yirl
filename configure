@@ -229,7 +229,7 @@ echo TCC_CFLAGS=${TCC_CFLAGS} >> config.mk
 var_add S7_SOURCE "${SCRIPT_DIR}/s7.c"
 var_add S7_CFLAGS "-DS7_ENABLE=1"
 
-var_add PH7_SOURCE "${SCRIPT_DIR}/ph7/ph7.c"
+var_add PH7_SOURCE "ph7/ph7.c"
 var_add PH7_CFLAGS "-DPH7_ENABLE=1"
 
 if [ -z "$PERL_LD" ]; then
