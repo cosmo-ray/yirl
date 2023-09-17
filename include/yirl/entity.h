@@ -394,7 +394,7 @@ Entity *yeGetLast(Entity *array);
  */
 Entity *yeGetByIdx(Entity *entity, size_t index);
 
-static inline Entity *yeGetByIdxDirect(Entity *entity, size_t index)
+static inline Entity *yeGetByIdxDirect(Entity entity[static 1], size_t index)
 {
 	return yBlockArrayGetPtrDirect(YE_TO_ARRAY(entity)->values,
 				       index, ArrayEntry)->entity;
