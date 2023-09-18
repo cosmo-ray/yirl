@@ -102,8 +102,10 @@ function mingw-i686 {
     export IS_UNIX=0
     export YIRL_LINKING="\$(LIBNAME).a"
     export BINARY_LINKING="\$(LIBNAME).a"
-    export SDL_MIXER_ARFLAGS "$PWD/SDL_mixer/build/.libs/libSDL2_mixer.a"
-    export SDL_MIXER_LDFLAGS ""
+    export SDL_MIXER_LDFLAGS="`pkg-config --libs SDL2_mixer`"
+    export SDL_MIXER_CFLAGS="`pkg-config --cflags SDL2_mixer`"
+    export SDL_MIXER_DEP=""
+    export CMAKE_ARGS="-G 'MSYS Makefiles' -DCMAKE_C_FLAGS=-fPIC"
     export SDL_GPU_LDFLAGS="$PWD/sdl-gpu-build/SDL_gpu-MINGW/lib/libSDL2_gpu_s.a"
     export SDL_GPU_CFLAGS="$PWD/sdl-gpu-build/SDL_gpu-MINGW/include/"
     export WIN_SDL_EXTRA="opus vorbis libmpg123 opusfile vorbisfile libmodplug msmpi fluidsynth"
@@ -118,12 +120,14 @@ function mingw-64 {
     export IS_UNIX=0
     export YIRL_LINKING="\$(LIBNAME).a"
     export BINARY_LINKING="\$(LIBNAME).a"
-    export SDL_MIXER_ARFLAGS="$PWD/SDL_mixer/build/.libs/libSDL2_mixer.a"
-    export SDL_MIXER_LDFLAGS=""
+    export SDL_MIXER_LDFLAGS="`pkg-config --libs SDL2_mixer`"
+    export SDL_MIXER_CFLAGS="`pkg-config --cflags SDL2_mixer`"
+    export SDL_MIXER_DEP=""
+    export CMAKE_ARGS="-G 'MSYS Makefiles' -DCMAKE_C_FLAGS=-fPIC -DUSE_SYSTEM_GLEW=1"
     export SDL_GPU_LDFLAGS="$PWD/sdl-gpu-build/SDL_gpu-MINGW/lib/libSDL2_gpu_s.a"
     export SDL_GPU_CFLAGS="$PWD/sdl-gpu-build/SDL_gpu-MINGW/include/"
     export WIN_SDL_EXTRA="opus vorbis libmpg123 opusfile vorbisfile libmodplug msmpi fluidsynth"
-    export WIN_SDL_EXTRA2="-lfreeglut -lopengl32 -lFLAC -lwinmm"
+    export WIN_SDL_EXTRA2="-lfreeglut -lopengl32 -lFLAC -lwinmm -lglew32"
     var_add BIN_EXT .exe
 }
 
