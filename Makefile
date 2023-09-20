@@ -180,7 +180,7 @@ $(LIBNAME).a: $(OBJ) $(O_OBJ) $(SDL_MIXER_DEP)
 $(LIBNAME).$(LIBEXTENSION): $(OBJ) $(O_OBJ) $(OBJXX) $(SDL_MIXER_DEP)
 	$(CC) -shared -o  $(LIBNAME).$(LIBEXTENSION) $(OBJ) $(O_OBJ) $(OBJXX) $(LDFLAGS)
 
-yirl-loader: $(YIRL_LINKING) $(GEN_LOADER_OBJ)
+yirl-loader$(BIN_EXT): $(YIRL_LINKING) $(GEN_LOADER_OBJ)
 	$(CC) -o yirl-loader$(BIN_EXT) $(GEN_LOADER_OBJ) $(BINARY_LINKING) $(LDFLAGS)
 
 WEB_MOD_DST ?= "./low_enforcement_agents/"
@@ -208,7 +208,7 @@ clean:	clean-tests
 	rm -rvf $(OBJ) $(OBJXX) $(GEN_LOADER_OBJ)
 
 fclean: clean
-	rm -rvf $(LIBNAME).a $(O_OBJ) $(LIBNAME).so $(LIBNAME).dll webstart.* start.html
+	rm -rvf $(LIBNAME).a $(O_OBJ) $(LIBNAME).so $(LIBNAME).dll webstart.* start.html yirl-loader$(BIN_EXT)
 
 clean_all: fclean clean_sdl_mixer
 	rm -rvf $(DUCK_OBJ) $(QUICKJS_LIB_PATH) sdl-gpu-build $(QUICKJS_PATH)/.obj lua-git/liblua.a

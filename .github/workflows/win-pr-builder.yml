@@ -51,7 +51,7 @@ jobs:
         cmake -B ./sdl-gpu-build ./sdl-gpu/ -G "MSYS Makefiles"
         make /d/a/yirl/yirl/sdl-gpu-build/SDL_gpu-MINGW/lib/libSDL2_gpu_s.a
         make quickjs-2020-03-16
-        make yirl-loader
+        make yirl-loader.exe
         ./package-maker.sh ./yirl-loader.exe tmp/
         rm -f tmp/shcore.dll
         mv tmp/* .
