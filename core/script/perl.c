@@ -18,10 +18,17 @@
 #if PERL_ENABLE > 0
 
 #include <yirl/all.h>
+#include <stdlib.h>
+
+static int loadFile(void *sm, const char *file);
+static int loadString(void *sm, const char *str);
+static int destroy(void *sm);
+static int init(void *sm, void *args);
+static int destroy(void *sm);
+static void *call(void *sm, const char *name, int nb, union ycall_arg *args,
+		  int *t_array);
 #include <EXTERN.h>
 #include <perl.h>
-#include <XSUB.h>
-
 
 static int t = -1;
 
@@ -29,6 +36,29 @@ struct YPerlScript {
 	YScriptOps ops;
 	PerlInterpreter *my_perl;
 };
+
+/* It seems calloc segfault on MSYS2 if XS is include here */
+static void *allocator(void)
+{
+	struct YPerlScript *ret;
+
+	ret = calloc(1, sizeof *ret);
+	if (ret == NULL)
+		return NULL;
+	ret->my_perl = NULL;
+	ret->ops.init = init;
+	ret->ops.destroy = destroy;
+	ret->ops.loadFile = loadFile;
+	ret->ops.loadString = loadString;
+	ret->ops.call = call;
+	ret->ops.trace = NULL;
+	ret->ops.getError = NULL;
+	ret->ops.registreFunc = NULL;
+	ret->ops.addFuncSymbole = NULL;
+	return (void *)ret;
+}
+
+#include <XSUB.h>
 
 Entity *toFree;
 
@@ -742,26 +772,6 @@ static int loadFile(void *sm, const char *file)
 	struct YPerlScript *yperl = sm;
 	perl_parse(yperl->my_perl, xs_init,  2,
 		   (char *[]){"", (char *)file, NULL}, NULL);
-}
-
-static void *allocator(void)
-{
-	struct YPerlScript *ret;
-
-	ret = calloc(1, sizeof *ret);
-	if (ret == NULL)
-		return NULL;
-	ret->my_perl = NULL;
-	ret->ops.init = init;
-	ret->ops.destroy = destroy;
-	ret->ops.loadFile = loadFile;
-	ret->ops.loadString = loadString;
-	ret->ops.call = call;
-	ret->ops.trace = NULL;
-	ret->ops.getError = NULL;
-	ret->ops.registreFunc = NULL;
-	ret->ops.addFuncSymbole = NULL;
-	return (void *)ret;
 }
 
 int ysPerlInit(void)
