@@ -2,9 +2,9 @@ NAME= yirl
 
 LIBNAME= lib$(NAME)
 
-all:	yirl-loader build-tests
-
 include config.mk
+
+all:	yirl-loader$(BIN_EXT) build-tests
 
 include $(TESTS_DIR)/tests.mk
 
