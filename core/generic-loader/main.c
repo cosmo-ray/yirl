@@ -15,6 +15,7 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <stdio.h>
 #include <unistd.h>
 #include "tcc-script.h"
 #include "game.h"
@@ -40,6 +41,9 @@ int main(int argc, char **argv)
   int height = -1;
   int linux_user_path = 0;
 
+#ifdef _WIN32
+  setvbuf(stdout, NULL, _IONBF, 0);
+#endif
   yuiDebugInit();
 
   for (int i = 1; i < argc; ++i) {
