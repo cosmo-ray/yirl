@@ -241,9 +241,9 @@ EntityType yeStringToType(const char *str)
 	for (i = 0; i < NBR_ENTITYTYPE; ++i)
 	{
 		if (yuiStrEqual(str, EntityTypeStrings[i]))
-			return (i);
+			return i;
 	}
-	return (-1);
+	return -1;
 }
 
 const char *yeTypeToString(int type)
@@ -256,7 +256,7 @@ const char *yeTypeToString(int type)
 size_t yeLen(Entity *entity)
 {
 	if (unlikely(!entity))
-		return (0);
+		return 0;
 
 	if (likely(yeType(entity) == YARRAY)) {
 		return yBlockArrayLastPos(YE_TO_ARRAY(entity)->values) + 1;
