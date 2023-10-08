@@ -249,6 +249,7 @@ void	tccAddSyms(TCCState *l)
   ADD_SYM(yeType);
   ADD_SYM(yuiLinesRectIntersect);
   ADD_SYM(ywCanvasMergeRectangle);
+  ADD_SYM(ywPosAngle);
 
 #if defined(__unix__) || defined(__APPLE__)
   tcc_add_symbol(l, "yuiDebugPrint", yuiDebugPrint);
