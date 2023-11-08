@@ -98,6 +98,12 @@ int ysdl2RegistreCanvas(void);
 /* ^^^^^^ YIRL Internal ^^^^^^^ */
 
 /**
+ * write an obj in a mergable widget
+ * the obj is then automaticaly remove from the widget
+ */
+int ywCanvasMergeObj(Entity *wid, Entity *obj);
+
+/**
  * directly write rect into a mergable wid
  * @param color the color, format: "rgba: XXX,XXX,XXX,XXX" of "0xffffffff"
  */

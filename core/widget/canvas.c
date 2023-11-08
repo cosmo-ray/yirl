@@ -633,6 +633,22 @@ Entity *ywCanvasNewImgByPath(Entity *wid, int x, int y, const char *path)
 	return ywCanvasNewImg(wid, x, y, path, NULL);
 }
 
+int ywCanvasMergeObj(Entity *wid, Entity *obj)
+{
+	YCanvasState *s = (YCanvasState *)ywidGetState(wid);
+	Entity *dst = s->merge_texture;
+
+	yeAutoFree Entity *dst_rect = ywRectCreatePosSize(
+		ywCanvasObjPos(obj),
+		ywCanvasObjSize(wid, obj),
+		NULL, NULL);
+
+	ywTextureFastMerge(obj, NULL, dst, dst_rect);
+	ywCanvasRemoveObj(wid, obj);
+	return 0;
+}
+
+
 int ywCanvasMergeText(Entity *wid, int x, int y, int w, int h,
 		      const char * txt)
 {
