@@ -251,6 +251,8 @@ void	tccAddSyms(TCCState *l)
   ADD_SYM(ywCanvasMergeRectangle);
   ADD_SYM(ywPosAngle);
   ADD_SYM(ywCanvasMergeObj);
+  ADD_SYM(ywCanvasObjUnsetVFlip);
+  ADD_SYM(ywCanvasObjUnsetHFlip);
 
 #if defined(__unix__) || defined(__APPLE__)
   tcc_add_symbol(l, "yuiDebugPrint", yuiDebugPrint);
