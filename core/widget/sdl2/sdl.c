@@ -545,6 +545,8 @@ int    ysdl2Init(void)
   }
 #endif
 
+  SDL_SetWindowPosition(SDL_GetWindowFromID(sg.pWindow->context->windowID), 10, 40);
+
   for (int i = 0; i < SDL_NumJoysticks() && i < 128; ++i) {
 	  if (SDL_IsGameController(i)) {
 		  gamepads[i] = SDL_GameControllerOpen(i);
