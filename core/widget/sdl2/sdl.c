@@ -1012,7 +1012,15 @@ int sdlMergeRect(Entity *dst, int x, int y, int w, int h, const char *c)
 	struct SDL_Rect dr = {x, y, w, h};
 
 	ywidColorFromString(c, &cfg.r, &cfg.g, &cfg.b, &cfg.a);
-	return SDL_FillRect(dSurface, &dr, cfg.rgba);
+
+	if (cfg.a == 255)
+		return SDL_FillRect(dSurface, &dr, cfg.rgba);
+	SDL_Surface *tmp = SDL_CreateRGBSurface(0, w, h, 32, 0xFF000000, 0x00FF0000,
+						0x0000FF00, 0x000000FF);
+	SDL_FillRect(tmp, &(struct SDL_Rect){0, 0, w, h}, cfg.rgba);
+	int ret = SDL_BlitSurface(tmp, NULL, dSurface, &dr);
+	SDL_FreeSurface(tmp);
+	return ret;
 }
 
 int sdlMergeSurface(Entity *textSrc, Entity *srcRect,
