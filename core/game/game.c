@@ -641,7 +641,7 @@ int ygRegistreFuncInternal(void *manager, int nbArgs, const char *name,
 		ysAddFuncSymbole(tccManager, toRegistre, nbArgs, func);
 #endif
 		ysAddFuncSymbole(luaManager, toRegistre, nbArgs, func);
-#if PH7_ENABLE
+#if PH7_ENABLE > 0
 		ysAddFuncSymbole(ph7Manager, toRegistre, nbArgs, func);
 #endif
 #if S7_ENABLE

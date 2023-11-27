@@ -395,7 +395,6 @@ static int ph7yevCreateGrp(ph7_context *pCtx, int argc, ph7_value **argv)
 {
 	printf("NOT YET IMPLEMENTED");
 	return -1;
-	
 }
 
 static int ph7yeIncrAt(ph7_context *pCtx, int argc, ph7_value **argv)
@@ -429,7 +428,7 @@ static int ph7yeSetIntAt(ph7_context *pCtx, int argc, ph7_value **argv)
 		Fatali("Wrong type !");
 	}
 	yeSetInt(ent, I_AT(argv, 2));
-	return 0;	
+	return 0;
 }
 
 static int ph7yeSetStringAt(ph7_context *pCtx, int argc, ph7_value **argv)
@@ -446,7 +445,7 @@ static int ph7yeSetStringAt(ph7_context *pCtx, int argc, ph7_value **argv)
 		Fatali("Wrong type !");
 	}
 	yeSetString(ent, S_AT(argv, 2));
-	return 0;	
+	return 0;
 }
 
 static int ph7yeGet(ph7_context *pCtx, int argc, ph7_value **argv)
@@ -464,7 +463,6 @@ static int ph7yeGet(ph7_context *pCtx, int argc, ph7_value **argv)
 	}
 	ph7_result_resource(pCtx, ret);
 	return 0;
-	
 }
 
 static int ph7yeGetIntAt(ph7_context *pCtx, int argc, ph7_value **argv)
@@ -744,7 +742,7 @@ static int ph7ygFileToEnt(ph7_context *pCtx, int argc, ph7_value **argv)
 		gc_stack[gc_stack_i - 1];
 	const char *str = ph7_value_to_string(argv[1], NULL);
 	Entity *r = ygFileToEnt(ph7_value_to_int(argv[0]), str, father);
-	ph7_result_resource(pCtx, r);	
+	ph7_result_resource(pCtx, r);
 	return 0;
 }
 
@@ -961,7 +959,6 @@ static int loadString_(void *sm, const char *str, _Bool do_crc)
 		return -1;
 	}
 
-	
 	ph7sm->cur_vm = ph7sm->nb_vms;
 	ph7sm->vms[ph7sm->nb_vms].slowpath = 0;
 	ph7sm->vms[ph7sm->nb_vms].prog = prog;
@@ -1126,7 +1123,6 @@ static void *call_(void *sm, const char *name, int nb, union ycall_arg *args,
 	}
 
 	yeDestroy(gc_stack[--gc_stack_i]);
-	
 	return call_ret.vptr;
 }
 
