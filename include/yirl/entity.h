@@ -694,6 +694,16 @@ Entity *yePopBack(Entity *array);
 
 Entity *yeRemoveChildByEntity(Entity *array, Entity *toRemove);
 
+/**
+ * @brief	like yeRemoveChildByEntity, but toRemove can be NULL
+ */
+static inline Entity *yeTryRemoveChild(Entity *array, Entity *toRemove)
+{
+	if (!toRemove)
+		return NULL;
+	return yeRemoveChildByEntity(array, toRemove);
+}
+
 static inline Entity *yeRemoveChildByIdx(Entity *array, int toRemove);
 
 Entity *yeRemoveChildByStr(Entity *array, const char *toRemove);
