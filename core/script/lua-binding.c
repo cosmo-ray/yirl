@@ -229,6 +229,10 @@ int	luaentity_newindex(lua_State *L)
 			} else if (lua_isstring(L, 4)) {
 				yeCreateString(lua_tostring(L, 4), toPush,
 					       NULL);
+			} else if (lua_isuserdata(L, 4)) {
+				Entity *toPush2 = luaEntityAt(L, 4);
+				if (toPush2)
+					yePushBack(toPush, toPush2, NULL);
 			}
 			lua_pop(L, 1);
 		}
