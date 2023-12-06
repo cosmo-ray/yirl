@@ -1238,7 +1238,7 @@ function fightInit(entity)
    entity = Entity.wrapp(entity)
    entity.action = Entity.new_func("fightAction")
    entity.destroy = Entity.new_func("fightKboum")
-   entity.background = "rgba: 255 255 255 255"
+   yeTryCreateString("rgba: 255 255 255 255", entity, "background")
    entity.current = 1
    entity["turn-length"] = Y_REQUEST_ANIMATION_FRAME
    entity.entries = {}
@@ -1285,9 +1285,19 @@ function fightInit(entity)
    local y_carac = wid_h / 2 + y_start
    local locations = mk_location(wid_h, y_start)
 
-   local bg = ywCanvasNewImg(canvas, 0, 0, modPath .. "/BG_City.jpg")
-   ywCanvasForceSize(bg, Size.new(ywRectW(wid_pix) + 50,
-				  ywRectH(wid_pix) + 50).ent)
+   local bg = nil
+   if yIsNil(entity.fight_background) then
+      bg = ywCanvasNewImg(canvas, 0, 0, modPath .. "/BG_City.jpg")
+   else
+      bg = ywCanvasNewImg(canvas, 0, 0, yeGetString(entity.fight_background))
+   end
+   if yeGetInt(entity.half_background) == 1 then
+      ywCanvasForceSize(bg, Size.new(ywRectW(wid_pix) + 50,
+				     (ywRectH(wid_pix) + 50) / 2).ent)
+   else
+      ywCanvasForceSize(bg, Size.new(ywRectW(wid_pix) + 50,
+				     ywRectH(wid_pix) + 50).ent)
+   end
 
    local good_guys = try_mk_array_of_guys(entity.player)
    entity.player = good_guys
