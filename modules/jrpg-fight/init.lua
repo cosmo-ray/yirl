@@ -533,7 +533,7 @@ function fightAction(entity, eve)
       if yIsNil(entity.dead_anim_cnt) or entity.dead_anim_cnt:to_int() == 0 then
 	 entity.dead_anim_cnt = 0
       end
-      
+
       if entity.dead_anim_cnt > ANIM_DEAD_CNT_L then
 	 entity.dead_anim_cnt = 0
 	 entity.atk_state = dead_anim_old_state
@@ -834,7 +834,7 @@ function checkDead(main, cur_anim)
 	 :: next ::
       end
    elseif enemies.life <= 0 then
-      yePushBack(dead_anim_deaths, enemies[i])      
+      yePushBack(dead_anim_deaths, enemies[i])
    end
 
    if yeLen(dead_anim_deaths) > 0 then
