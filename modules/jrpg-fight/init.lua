@@ -32,6 +32,8 @@ local chooseTargetRight = 530
 local chooseTargetY = 1
 local chooseTargetFunc = nil
 
+local print_dmg_nbr = nil
+
 local cur_player = 0
 
 local enemy_idx = 0
@@ -502,6 +504,16 @@ function fightAction(entity, eve)
       return YEVE_ACTION
    end
 
+   if yIsNNil(print_dmg_nbr) then
+      if print_dmg_nbr_timer < 1 then
+	 local canvas = getCanvas(entity)
+	 canvas:remove(print_dmg_nbr)
+	 print_dmg_nbr = nil
+      else
+	 print_dmg_nbr_timer = print_dmg_nbr_timer - ywidTurnTimer()
+      end
+   end
+
    if yeGetInt(entity.explosion_time)  > 0 then
       local explosion_time = yeGetInt(entity.explosion_time)
       local mrot = entity.explosion_rotate_val
@@ -510,13 +522,10 @@ function fightAction(entity, eve)
 	 mrot = yeGetInt(mrot)
 	 if (explosion_time < EXPLOSION_TOT_TIME / 2) then
 	    rot = mrot * explosion_time / (EXPLOSION_TOT_TIME / 2)
-	    print("go")
 	 else
 	    explosion_time = explosion_time - (EXPLOSION_TOT_TIME / 2)
 	    rot = mrot - (mrot * explosion_time / (EXPLOSION_TOT_TIME / 2))
-	    print("back")
 	 end
-	 print(rot)
 	 ywCanvasRotate(entity.explosion_target, rot)
       end
       entity.explosion_time = entity.explosion_time - ywidTurnTimer()
@@ -646,6 +655,25 @@ function combatDmgInternal(main, target, dmg)
    elseif dmg < 0 then
       startExplosionTime(main, target, main.heart_txt)
    end
+
+   if dmg then
+      if yIsNNil(print_dmg_nbr) then
+	 dmg = dmg + yeGetInt(print_dmg_nbr.old_dmg)
+	 canvas:remove(print_dmg_nbr)
+      end
+
+      print_dmg_nbr = canvas:new_text(ywCanvasObjPosX(target.canvas),
+				      ywCanvasObjPosY(target.canvas) - 65,
+				      Entity.new_string(tostring(yuiAbs(dmg)))).ent
+      if dmg < 0 then
+	 ywCanvasSetStrColor(print_dmg_nbr, "rgba: 0 255 0 255")
+      else
+	 ywCanvasSetStrColor(print_dmg_nbr, "rgba: 255 0 0 255")
+      end
+      print_dmg_nbr.old_dmg = dmg
+      print_dmg_nbr_timer = 700000
+   end
+
    target.char.life = new_life
    reset_life_b(main, target, 0)
 end
