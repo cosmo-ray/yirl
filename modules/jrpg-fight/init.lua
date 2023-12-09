@@ -198,7 +198,6 @@ end
 function do_print_dmg_nbr(target, txt)
    canvas = getCanvas(fight_widget)
    if yIsNNil(print_dmg_nbr) then
-      dmg = dmg + yeGetInt(print_dmg_nbr.old_dmg)
       canvas:remove(print_dmg_nbr)
    end
    print_dmg_nbr = canvas:new_text(ywCanvasObjPosX(target.canvas),
@@ -450,13 +449,12 @@ local function attackCallback(main, eve)
 	 cur_anim.sucess = computer_sucess
       else
 	 guard_sucess = computer_sucess
-	 if guard_sucess then
-	    do_print_dmg_nbr(target, "BLOCKED !!")
-	 end
       end
 
       if target.char.can_guard:to_int() == 0 then
 	 guard_sucess = false
+      else
+	 do_print_dmg_nbr(target, "BLOCKED !!")
       end
 
       startTextAnim(main, txt)
@@ -677,6 +675,10 @@ function combatDmgInternal(main, target, dmg)
    end
 
    if dmg then
+      if yIsNNil(print_dmg_nbr) then
+	 dmg = dmg + yeGetInt(print_dmg_nbr.old_dmg)
+      end
+
       do_print_dmg_nbr(target, tostring(yuiAbs(dmg)))
       if dmg < 0 then
 	 ywCanvasSetStrColor(print_dmg_nbr, "rgba: 0 255 0 255")
@@ -998,9 +1000,9 @@ end
 
 function fightAttack(entity, eve)
    local main = menuGetMain(entity)
+   chooseTargetFunc = attack
    chooseTargetLoc(main, chooseTargetLeft,
 		   yeLen(main.bg_handlers), chooseTargetY)
-   chooseTargetFunc = attack
    return YEVE_ACTION
 end
 
@@ -1010,9 +1012,9 @@ end
 
 function fightStrongAttack(entity, eve)
    local main = menuGetMain(entity)
+   chooseTargetFunc = strong_attack
    chooseTargetLoc(main, chooseTargetLeft,
 		   yeLen(main.bg_handlers), chooseTargetY)
-   chooseTargetFunc = strong_attack
    return YEVE_ACTION
 end
 
@@ -1084,17 +1086,33 @@ function chooseTargetLoc(main, side, nb_handles, y)
    local location = mk_location(canvas.ent["wid-pix"].h,
 				yeGetInt(main.ychar_start))
    local arrow = nil
+   local arrow_str = ""
+
 
    y = getAvaibleTarget(main, side, y, 0)
+
+   if side == chooseTargetLeft then
+      arrow_str = "<--"
+      if chooseTargetFunc == attack or chooseTargetFunc == strong_attack then
+
+	 if yeGetInt(main.bg_handlers[y - 1].char.can_guard) == 1 then
+	    arrow_str = arrow_str .. " (" .. atk_sucess_percent(
+	       95,
+	       main.bg_handlers[y - 1].char,
+	       main.gg_handlers[cur_player].char) .. "%)"
+	 else
+	    arrow_str = arrow_str .. " (" .. 100 .. "%)"
+	 end
+      end
+   else
+      arrow_str = "-->"
+   end
+
    if (main.chooseTargetArrow) then
       canvas:remove(main.chooseTargetArrow)
    end
 
-   if side == chooseTargetLeft then
-      arrow = Entity.new_string("<--")
-   else
-      arrow = Entity.new_string("-->")
-   end
+   arrow = Entity.new_string(arrow_str)
 
    main.chooseTarget = side
    main.chooseTargetArrow = canvas:new_text(side,
