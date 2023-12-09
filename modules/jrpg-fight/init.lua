@@ -53,6 +53,8 @@ local BATK_KEEP_PUSHING = 2
 -- Note that explosion is like a magic word for any stuff that are show on a character after an action
 local EXPLOSION_TOT_TIME = 500000
 
+local fight_widget
+
 local function isPushingOkButton(eve)
    return eve:type() == YKEY_DOWN and eve:key() == Y_SPACE_KEY or
       eve:type() == YKEY_DOWN and eve:key() == Y_ENTER_KEY
@@ -186,6 +188,24 @@ function weapon_agy(g)
    local weapon_maniability = yeGetIntAt(g.weapon, "maniability")
 
    return yui0Min(g_agy - weapon_maniability)
+end
+
+-- the lower the better
+function atk_sucess_percent(sucess_goal, from, to)
+   return sucess_goal + (weapon_agy(to) - weapon_agy(from)) * 2;
+end
+
+function do_print_dmg_nbr(target, txt)
+   canvas = getCanvas(fight_widget)
+   if yIsNNil(print_dmg_nbr) then
+      dmg = dmg + yeGetInt(print_dmg_nbr.old_dmg)
+      canvas:remove(print_dmg_nbr)
+   end
+   print_dmg_nbr = canvas:new_text(ywCanvasObjPosX(target.canvas),
+				   ywCanvasObjPosY(target.canvas) - 65,
+				   Entity.new_string(txt)).ent
+   print_dmg_nbr_timer = 700000
+   print_dmg_nbr.old_dmg = 0
 end
 
 local function reprint_cmb_bar(canvas, anim, cur_cmb)
@@ -402,17 +422,15 @@ local function attackCallback(main, eve)
 
    if cur_anim.animation_frame >= last_frm then
 
-      local sucess_goal = 49
-
+      local sucess_goal;
       if main.atk_state:to_int() == ENEMY_ATTACK then
-	 sucess_goal = sucess_goal + (weapon_agy(target.char) - weapon_agy(guy)) * 2;
+	 sucess_goal = atk_sucess_percent(20, guy.char, target.char);
       else
-	 sucess_goal = sucess_goal + (weapon_agy(guy.char) - weapon_agy(target.char)) * 2;
+	 sucess_goal = atk_sucess_percent(95, target.char, guy.char);
       end
       sucess_goal = yuiMinMax(sucess_goal, 5, 95);
-      print("sucess goal ! ", sucess_goal)
 
-      local g_agy = get_stats(guy, "agility")
+      local g_agy = get_stats(guy.char, "agility")
       local computer_sucess
       if (yuiRand() % 100) > sucess_goal then
 	 computer_sucess = true
@@ -432,6 +450,9 @@ local function attackCallback(main, eve)
 	 cur_anim.sucess = computer_sucess
       else
 	 guard_sucess = computer_sucess
+	 if guard_sucess then
+	    do_print_dmg_nbr(target, "BLOCKED !!")
+	 end
       end
 
       if target.char.can_guard:to_int() == 0 then
@@ -442,7 +463,7 @@ local function attackCallback(main, eve)
       if guard_sucess == false then
 	 combatDmg(main, cur_anim)
       else
-	 startExplosionTime(main, target, main.wrong_txt, 10)
+	 startEffectTime(target, main.wrong_txt, 10)
       end
 
       if cur_anim.sucess:to_int() == 0 then
@@ -619,30 +640,29 @@ function menuGetMain(menu)
    return Entity.wrapp(ywCntWidgetFather(ywCntWidgetFather(menu)))
 end
 
-function startExplosionTime(main, target, explosion_type, rot)
-   local canvas = getCanvas(main)
+function startEffectTime(target, effect_type, rot)
+   local canvas = getCanvas(fight_widget)
    local p = ylpcsHandePos(target)
 
-   canvas:remove(main.explosion_canvas)
+   canvas:remove(fight_widget.explosion_canvas)
    if yIsNNil(rot) then
-      if main.atk_state:to_int() ~= ENEMY_ATTACK then
+      if fight_widget.atk_state:to_int() ~= ENEMY_ATTACK then
 	 rot = -rot
       end
-      main.explosion_rotate_val = rot
+      fight_widget.explosion_rotate_val = rot
    else
-      main.explosion_rotate_val = nil
+      fight_widget.explosion_rotate_val = nil
    end
 
-   canvas:remove(main.wrong)
-   main.explosion_canvas = canvas:new_texture(ywPosX(p) -5, ywPosY(p),
-					      explosion_type).ent
-   ywCanvasSetWeight(canvas.ent, main.explosion_canvas, 10)
-   main.explosion_target = target.canvas
-   main.explosion_time = EXPLOSION_TOT_TIME
+   canvas:remove(fight_widget.wrong)
+   fight_widget.explosion_canvas = canvas:new_texture(ywPosX(p) -5, ywPosY(p),
+					      effect_type).ent
+   ywCanvasSetWeight(canvas.ent, fight_widget.explosion_canvas, 10)
+   fight_widget.explosion_target = target.canvas
+   fight_widget.explosion_time = EXPLOSION_TOT_TIME
 end
 
 function combatDmgInternal(main, target, dmg)
-   local canvas = getCanvas(main)
    local new_life = target.char.life - dmg
    local max_life = target.char.max_life
    local p = ylpcsHandePos(target)
@@ -651,27 +671,19 @@ function combatDmgInternal(main, target, dmg)
       new_life = max_life:to_int()
    end
    if dmg > 0 then
-      startExplosionTime(main, target, main.explosion_txt, 30)
+      startEffectTime(target, main.explosion_txt, 30)
    elseif dmg < 0 then
-      startExplosionTime(main, target, main.heart_txt)
+      startEffectTime(target, main.heart_txt)
    end
 
    if dmg then
-      if yIsNNil(print_dmg_nbr) then
-	 dmg = dmg + yeGetInt(print_dmg_nbr.old_dmg)
-	 canvas:remove(print_dmg_nbr)
-      end
-
-      print_dmg_nbr = canvas:new_text(ywCanvasObjPosX(target.canvas),
-				      ywCanvasObjPosY(target.canvas) - 65,
-				      Entity.new_string(tostring(yuiAbs(dmg)))).ent
+      do_print_dmg_nbr(target, tostring(yuiAbs(dmg)))
       if dmg < 0 then
 	 ywCanvasSetStrColor(print_dmg_nbr, "rgba: 0 255 0 255")
       else
 	 ywCanvasSetStrColor(print_dmg_nbr, "rgba: 255 0 0 255")
       end
       print_dmg_nbr.old_dmg = dmg
-      print_dmg_nbr_timer = 700000
    end
 
    target.char.life = new_life
@@ -1249,6 +1261,7 @@ function fightKboum(ent)
    enemy_idx = 0
    chooseTargetY = 1
    dead_anim_deaths = nil
+   fight_widget = nil
 end
 
 function try_mk_array_of_guys(guys)
@@ -1368,6 +1381,7 @@ function fightInit(entity)
 
    -- if I want to implement initiative, I need to change it here
    cur_player = 0
+   fight_widget = entity
    return ret
 end
 
