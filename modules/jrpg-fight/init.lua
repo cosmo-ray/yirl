@@ -625,7 +625,7 @@ local function create_clasic_menu(menu)
    ywMenuPushEntry(menu, "attack", Entity.new_func(fightAttack))
    ywMenuPushEntry(menu, "strong attack", Entity.new_func(fightStrongAttack))
    ywMenuPushEntry(menu, "recover", Entity.new_func(fightRecover))
-   ywMenuPushEntry(menu, "use_items", Entity.new_func(fightItems))
+   ywMenuPushEntry(menu, "items", Entity.new_func(fightItems))
 end
 
 function setOrig(handler, x, y)
@@ -1057,7 +1057,7 @@ function useItem(main, user, target)
    if dmg then
       combatDmgInternal(main, target, dmg:to_int())
    end
-   local anime = mk_anim(main, user, main.bg_handlers[cur_player])
+   local anime = mk_anim(main, user, target)
 
    endAnimationAttack(main, anime)
    return YEVE_ACTION
@@ -1173,7 +1173,11 @@ function chooseTarget(main, eve)
 	    target = main.gg_handlers[0]
 	 end
 	 chooseTargetFunc(main, main.gg_handlers[cur_player], target)
-	 main.atk_state = PJ_ATTACK
+	 if yeGetInt(main.atk_state) ~= PJ_WIN and
+	    yeGetInt(main.atk_state) ~= ENEMY_WIN then
+	    main.atk_state = PJ_ATTACK
+	 end
+	 print("main.atk_state: ", main.atk_state)
 	 goto clean
       end
       eve = eve:next()
@@ -1203,7 +1207,9 @@ function useItemCallback(menu, eve)
    local canvas = getCanvas(main)
 
    --local ret = useItem(main, item, main.gg_handler)
-   if yeGetString(item.default_target) == "enemy" then
+   if yeGetString(item.default_target) == "enemy" or
+      yIsNNil(item.dmg)
+   then
       chooseTargetLoc(main, chooseTargetLeft, 1, 1)
    else
       chooseTargetLoc(main, chooseTargetRight, 1, 1)
