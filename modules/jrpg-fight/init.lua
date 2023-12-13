@@ -249,17 +249,18 @@ local function reset_cmb_bar(main, anim, target, cmb_idx)
    --print(anim.combots)
    local t_g = target.char
    local guy = anim.guy
+   local guy_char = guy.char
    local cur_cmb = anim.combots[cmb_idx]
    local canim = cur_cmb.anim
    local poses = canim.poses
    local touch = cur_cmb.touch
    local canvas = getCanvas(main)
    local can_print_loader = true
-   local g_str = get_stats(guy, "strength")
-   local g_agy = get_stats(guy, "agility")
+   local g_str = get_stats(guy_char, "strength")
+   local g_agy = get_stats(guy_char, "agility")
    local t_agy = get_stats(t_g, "agility")
-   local weapon_maniability = yeGetIntAt(guy.weapon, "maniability")
-   local weapon_range = yeGetIntAt(guy.weapon, "range")
+   local weapon_maniability = yeGetIntAt(guy_char.weapon, "maniability")
+   local weapon_range = yeGetIntAt(guy_char.weapon, "range")
    local weapon_agility = yui0Min(g_agy - weapon_maniability)
    local t_wp_agy = yui0Min(t_agy - yeGetIntAt(t_g.weapon, "maniability"))
 
@@ -984,8 +985,9 @@ function attack(main, attacker, attacked, mod)
       mod = 1
    end
    local anim = action_anim(main, attacker, attacked)
-   local weapon_power = yeGetIntAt(attacker.weapon, "power")
-   local str = get_stats(attacker, "strength")
+   local attacker_c = attacker.char
+   local weapon_power = yeGetIntAt(attacker_c.weapon, "power")
+   local str = get_stats(attacker_c, "strength")
    local atk_str = mod * (1 + yui0Min((weapon_power + str) / 2))
 
    startKanaAnim(main, main.katakana_words[0][0])
