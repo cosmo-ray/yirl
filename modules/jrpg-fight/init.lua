@@ -461,6 +461,7 @@ local function attackCallback(main, eve)
       startTextAnim(main, txt)
       if guard_sucess == false then
 	 combatDmg(main, cur_anim)
+	 ySoundPlayLoop(main.sound.punch)
       else
 	 startEffectTime(target, main.wrong_txt, 10)
       end
@@ -553,6 +554,7 @@ function fightAction(entity, eve)
 	 local canvas = getCanvas(entity)
 	 entity.explosion_time = nil
 	 canvas:remove(entity.explosion_canvas)
+	 ySoundPause(entity.sound.punch)
 	 entity.explosion_canvas = nil
 	 ywCanvasRotate(entity.explosion_target, 0)
       end
@@ -719,7 +721,6 @@ function endAnimationAttack(main, cur_anim)
    bpos = Pos.wrapp(bpos)
    ywCanvasObjSetPos(guy.life_b0, bpos:x(), bpos:y() - 25)
    ywCanvasObjSetPos(guy.life_b, bpos:x(), bpos:y() - 25)
-
    remove_loader(getCanvas(main), cur_anim)
 
    local have_lose = true
@@ -1286,6 +1287,7 @@ end
 function fightKboum(ent)
    enemy_idx = 0
    chooseTargetY = 1
+   ySoundPause(fight_widget.sound.punch)
    dead_anim_deaths = nil
    fight_widget = nil
 end
@@ -1310,6 +1312,10 @@ function fightInit(entity)
    entity["turn-length"] = Y_REQUEST_ANIMATION_FRAME
    entity.entries = {}
    entity.atk_state = AWAIT_CMD
+
+   entity.sound = {}
+   entity.sound.punch = ySoundLoad(modPath .. "sound/punch/1.ogg")
+
    ywTextureNewImg(modPath .. "/explosion.png",
 		   Rect.new(512 + 45, 32, 64, 64).ent,
 		   entity, "explosion_txt")
