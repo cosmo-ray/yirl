@@ -229,6 +229,8 @@ static void refreshAnswer(Entity *wid, Entity *menu, Entity *curent)
 	}
 }
 
+static int printfTextAndAnswer_earlyret;
+
 static Entity *getText_(Entity *box, Entity *e)
 {
 	Entity *condition;
@@ -262,12 +264,19 @@ static Entity *getText_(Entity *box, Entity *e)
 	again_r:
 		cur_txt = yeGet(rtext, yuiRand() % yeLen(rtext));
 		condition = yeGet(cur_txt, "condition");
+		if (yeGet(cur_txt, "dialog-change")) {
+			dialogueGoto(3, (void *[]){box,
+					NULL, yeGet(cur_txt, "dialog-change")});
+			printfTextAndAnswer_earlyret = 2;
+			return NULL;
+		}
 		if (condition) {
 			if (!dialogueCondition(box, condition, NULL))
 				goto again_r;
 			else
 				return yeGet(cur_txt, "text");
 		}
+		ywidActions(box, cur_txt, NULL);
 
 		return cur_txt;
 	}
@@ -294,6 +303,8 @@ static Entity *getText(Entity *box, Entity *e)
 
 	if (yeType(txt) != YSTRING && yeType(txt) != YARRAY) {
 		txt = getText_(box, e);
+		if (printfTextAndAnswer_earlyret == 2)
+			return NULL;
 	}
 	Entity *cnd_txt_append = yeGet(e, "conditional-texts-append");
 	if (cnd_txt_append) {
@@ -318,8 +329,6 @@ static Entity *getText(Entity *box, Entity *e)
 	}
 	return txt;
 }
-
-static int printfTextAndAnswer_earlyret;
 
 static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
 				Entity *menu, Entity *curent)
@@ -357,6 +366,8 @@ static void printfTextAndAnswer(Entity *wid, Entity *textScreen,
 			return;
 	}
 	txt = getText(menu, dialogue);
+	if (printfTextAndAnswer_earlyret == 2)
+		return;
 	answers = yeGet(dialogue, "answers");
 
 	if (!answers) {
