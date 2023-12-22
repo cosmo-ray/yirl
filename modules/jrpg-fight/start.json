@@ -41,6 +41,7 @@
 	    "type": "tanned",
 	    "stats": {
 		"strength": 3,
+		"charm": 3,
 		"agility": 4
 	    },
 	    "weapon": {
@@ -51,7 +52,19 @@
 	    "usable_items": {
 		"screw": 3,
 		"screw_driver": 1
-	    }
+	    },
+	    "invok": [
+		{
+		    "sex": "male",
+		    "name": "le machin",
+		    "type": "tanned",
+		    "stats": {
+			"strength": 3,
+			"agility": 4
+		    },
+
+		}
+	    ]
 	},
 	"enemy" : {
 	    "sex": "female",

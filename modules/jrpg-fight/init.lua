@@ -626,6 +626,9 @@ local function create_clasic_menu(menu)
    ywMenuClear(menu)
    ywMenuPushEntry(menu, "attack", Entity.new_func(fightAttack))
    ywMenuPushEntry(menu, "strong attack", Entity.new_func(fightStrongAttack))
+   if yIsNNil(fight_widget.gg_handlers[cur_player].char.invok) then
+      ywMenuPushEntry(menu, "invok", Entity.new_func(fightInvock))
+   end
    ywMenuPushEntry(menu, "recover", Entity.new_func(fightRecover))
    ywMenuPushEntry(menu, "items", Entity.new_func(fightItems))
 end
@@ -1038,6 +1041,22 @@ function fightRecover(entity, eve)
    return YEVE_ACTION
 end
 
+function useInvok(main, user, target)
+   local invok = main.inUseInvok
+
+   local dmg = get_stats(invok, "strength") + (get_stats(invok, "agility") / 2)
+   local user_charm_modifier = dmg * (get_stats(user.char, "charm")  / 15.0)
+   local target_charm_modifier = dmg * (get_stats(target.char, "charm")  / 15.0)
+
+   dmg = dmg + user_charm_modifier + target_charm_modifier
+   combatDmgInternal(main, target, dmg)
+
+   local anime = mk_anim(main, user, target)
+
+   endAnimationAttack(main, anime)
+   return YEVE_ACTION
+end
+
 function useItem(main, user, target)
    local item = main.inUseItem
    local stPlus = Entity.wrapp(yeGet(item, "stats+"))
@@ -1196,6 +1215,22 @@ function chooseTarget(main, eve)
    return YEVE_ACTION
 end
 
+function call_invok(menu, eve)
+   local main = menuGetMain(menu)
+   local curInvok = Entity.wrapp(ywMenuGetCurrentEntry(menu))
+
+   local invok = curInvok.invok
+   local canvas = getCanvas(main)
+
+   --local ret = useInvok(main, invok, main.gg_handler)
+   chooseTargetFunc = useInvok
+   chooseTargetLoc(main, chooseTargetLeft, 1, 1)
+   main.inUseInvok = invok
+   useItemBack(menu)
+   print(invok, main.inUseInvok)
+   return ret
+end
+
 function useItemCallback(menu, eve)
    local main = menuGetMain(menu)
    local curItem = Entity.wrapp(ywMenuGetCurrentEntry(menu))
@@ -1226,6 +1261,30 @@ function useItemBack(menu)
    local mnCnt = ywCntWidgetFather(menu)
    ywCntPopLastEntry(mnCnt)
    return YEVE_ACTION
+end
+
+function fightInvock(entity, func)
+   local main = menuGetMain(entity)
+   local pc = main.gg_handlers[cur_player].char
+   local menuCnt = ywCntWidgetFather(entity)
+   local invoksMenu = Menu.new_entity().ent
+
+   invoksMenu.margin = {}
+   invoksMenu.margin.size = 4
+   invoksMenu.margin.color = "rgba: 50 250 40 155"
+   yeGetPush(menuCnt, invoksMenu, "background");
+   local ui = pc.invok
+   ywMenuPushEntry(invoksMenu, "<-- back", Entity.new_func("useItemBack"))
+
+   for i = 0, yeLen(ui) - 1 do
+      local invok = ui[i]
+      local invok_name = yeGetStringAt(invok, "name")
+      local entry = ywMenuPushEntry(invoksMenu, invok_name, Entity.new_func("call_invok"))
+
+      entry = Entity.wrapp(entry)
+      entry.invok = invok
+   end
+   ywPushNewWidget(menuCnt, invoksMenu);
 end
 
 function fightItems(entity, func)
@@ -1305,6 +1364,7 @@ end
 
 function fightInit(entity)
    entity = Entity.wrapp(entity)
+   fight_widget = entity
    entity.action = Entity.new_func("fightAction")
    entity.destroy = Entity.new_func("fightKboum")
    yeTryCreateString("rgba: 255 255 255 255", entity, "background")
@@ -1343,7 +1403,6 @@ function fightInit(entity)
    menu.margin = {}
    menu.margin.size = 4
    menu.margin.color = "rgba: 50 40 250 155"
-   create_clasic_menu(menu)
 
    local ret = ywidNewWidget(entity, "container")
    ywCanvasEnableWeight(canvas)
@@ -1413,7 +1472,7 @@ function fightInit(entity)
 
    -- if I want to implement initiative, I need to change it here
    cur_player = 0
-   fight_widget = entity
+   create_clasic_menu(menu)
    return ret
 end
 
