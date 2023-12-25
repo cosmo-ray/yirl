@@ -55,6 +55,8 @@ local EXPLOSION_TOT_TIME = 500000
 
 local fight_widget
 
+local invok_handler = nil
+
 local function isPushingOkButton(eve)
    return eve:type() == YKEY_DOWN and eve:key() == Y_SPACE_KEY or
       eve:type() == YKEY_DOWN and eve:key() == Y_ENTER_KEY
@@ -146,13 +148,15 @@ local function new_handler(main, guy, y, x, orig, is_enemy)
    local life = guy.life
    local max_life = guy.max_life
    --print("l ", life, " - ml ", max_life )
-   bg_h.life_b0 = canvas:new_rect(x, y - 25,
-				  "rgba: 255 0 30 255",
-				  Pos.new(50, 10).ent).ent
-   bg_h.life_b = canvas:new_rect(x, y - 25,
-				 "rgba: 0 255 30 255",
-				 Pos.new(50 * life / max_life,
-					 10).ent).ent
+   if yIsNNil(max_life) then
+      bg_h.life_b0 = canvas:new_rect(x, y - 25,
+				     "rgba: 255 0 30 255",
+				     Pos.new(50, 10).ent).ent
+      bg_h.life_b = canvas:new_rect(x, y - 25,
+				    "rgba: 0 255 30 255",
+				    Pos.new(50 * life / max_life,
+					    10).ent).ent
+   end
 
    return bg_h
 end
@@ -557,6 +561,9 @@ function fightAction(entity, eve)
 	 ySoundPause(entity.sound.punch)
 	 entity.explosion_canvas = nil
 	 ywCanvasRotate(entity.explosion_target, 0)
+	 if yIsNNil(invok_handler) then
+	    rm_handler(entity, invok_handler)
+	 end
       end
       return YEVE_ACTION
    elseif entity.atk_state:to_int() == DEAD_ANIM then
@@ -1051,6 +1058,7 @@ function useInvok(main, user, target)
    dmg = dmg + user_charm_modifier + target_charm_modifier
    combatDmgInternal(main, target, dmg)
 
+   invok_handler = new_handler(main, invok, 150, 150, good_orig_pos, false)
    local anime = mk_anim(main, user, target)
 
    endAnimationAttack(main, anime)
@@ -1363,6 +1371,7 @@ function try_mk_array_of_guys(guys)
 end
 
 function fightInit(entity)
+   invok_handler = nil
    entity = Entity.wrapp(entity)
    fight_widget = entity
    entity.action = Entity.new_func("fightAction")
@@ -1374,7 +1383,7 @@ function fightInit(entity)
    entity.atk_state = AWAIT_CMD
 
    entity.sound = {}
-   entity.sound.punch = ySoundLoad(modPath .. "sound/punch/1.ogg")
+   entity.sound.punch = ySoundLoad(modPath .. "/sound/punch/1.ogg")
 
    ywTextureNewImg(modPath .. "/explosion.png",
 		   Rect.new(512 + 45, 32, 64, 64).ent,
