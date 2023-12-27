@@ -51,13 +51,13 @@ uint8_t fatPosToFLag[4] = {YENTITY_SMALL_SIZE_P0, YENTITY_SMALL_SIZE_P1,
 	yBlockArrayUnset(&entitysArray, unset);				\
 	stack_push(freedElems, unset);					\
 
-static inline int yeGetPosInBase(Entity *e)
+NO_SIDE_EFFECT static inline int yeGetPosInBase(Entity *e)
 {
 	return ((intptr_t)((char *)e - (char *)entity0) % FAT_SIZE) /
 		SMALL_SIZE;
 }
 
-static inline Entity *yeGetBase(Entity *e, int pos)
+NO_SIDE_EFFECT static inline Entity *yeGetBase(Entity *e, int pos)
 {
 	return YE_TO_ENTITY(((union SmallEntity *)e - pos));
 }
@@ -131,7 +131,7 @@ void yeInitMem(void)
 	}
 }
 
-EntityType yeType(const Entity * const entity)
+NO_SIDE_EFFECT EntityType yeType(const Entity * const entity)
 {
 	if (likely(entity != NULL)) {
 		ygAssert(entity->refCount);
@@ -141,22 +141,22 @@ EntityType yeType(const Entity * const entity)
 }
 
 
-int yeFreeEntitiesInStack(void)
+NO_SIDE_EFFECT int yeFreeEntitiesInStack(void)
 {
 	return freedElems.len;
 }
 
-int yeEntitiesUsed(void)
+NO_SIDE_EFFECT int yeEntitiesUsed(void)
 {
 	return yeEntitiesArraySize() - yeFreeEntitiesInStack();
 }
 
-int yeEntitiesArraySize(void)
+NO_SIDE_EFFECT int yeEntitiesArraySize(void)
 {
 	return yBlockArrayLastPos(entitysArray) + 1;
 }
 
-int yeIsPtrAnEntity(void *ptr)
+NO_SIDE_EFFECT int yeIsPtrAnEntity(void *ptr)
 {
 	return ptr >= (void *)entity0 &&
 		((union FatEntity *)ptr) <
@@ -212,12 +212,12 @@ const char * EntityTypeStrings[] = { "int", "float", "string",
  * @param type
  * @return 1 if entity is not null and entity's type is the same as type, 0 otherwise
  */
-static inline int	checkType(const Entity *entity, EntityType type)
+NO_SIDE_EFFECT static inline int	checkType(const Entity *entity, EntityType type)
 {
 	return (likely(entity != NULL && entity->type == type));
 }
 
-int yeStrCaseCmp(Entity *ent, const char *str)
+NO_SIDE_EFFECT int yeStrCaseCmp(Entity *ent, const char *str)
 {
 	const char *eStr = yeGetString(ent);
 	if (!eStr)
@@ -225,7 +225,7 @@ int yeStrCaseCmp(Entity *ent, const char *str)
 	return strcasecmp(eStr, str);
 }
 
-int yeStrCmp(Entity *ent1, const char *str)
+NO_SIDE_EFFECT int yeStrCmp(Entity *ent1, const char *str)
 {
 	const char *eStr = yeGetString(ent1);
 	if (!eStr)
@@ -234,7 +234,7 @@ int yeStrCmp(Entity *ent1, const char *str)
 }
 
 
-EntityType yeStringToType(const char *str)
+NO_SIDE_EFFECT EntityType yeStringToType(const char *str)
 {
 	int i;
 
@@ -246,14 +246,14 @@ EntityType yeStringToType(const char *str)
 	return -1;
 }
 
-const char *yeTypeToString(int type)
+NO_SIDE_EFFECT const char *yeTypeToString(int type)
 {
 	return (type < 0 || type >= NBR_ENTITYTYPE)
 		? ("unknow")
 		: (EntityTypeStrings[type]);
 }
 
-size_t yeLen(Entity *entity)
+NO_SIDE_EFFECT size_t yeLen(Entity *entity)
 {
 	if (unlikely(!entity))
 		return 0;
@@ -265,7 +265,7 @@ size_t yeLen(Entity *entity)
 	return YE_TO_STRING(entity)->len;
 }
 
-Entity *yeGetByIdx(Entity *entity, size_t index)
+NO_SIDE_EFFECT Entity *yeGetByIdx(Entity *entity, size_t index)
 {
 	if (unlikely(entity == NULL))
 		return NULL;
@@ -276,7 +276,7 @@ Entity *yeGetByIdx(Entity *entity, size_t index)
 	return r;
 }
 
-Entity *yeGetLast(Entity *array)
+NO_SIDE_EFFECT Entity *yeGetLast(Entity *array)
 {
 	size_t l = yeLen(array);
 
@@ -285,7 +285,7 @@ Entity *yeGetLast(Entity *array)
 	return yeGet(array, l - 1);
 }
 
-char *yeLastKey(Entity *array)
+NO_SIDE_EFFECT char *yeLastKey(Entity *array)
 {
 	size_t l = yeLen(array);
 
@@ -299,7 +299,7 @@ char *yeLastKey(Entity *array)
  * @param name  the name we will search the character '.' into
  * @return the index of the charactere '.' in name
  */
-static inline int	findIdxPoint(const char *name)
+NO_SIDE_EFFECT static inline int findIdxPoint(const char *name)
 {
 	char *res = strchr(name, '.');
 	return (res == NULL)
@@ -307,7 +307,7 @@ static inline int	findIdxPoint(const char *name)
 		: res - name;
 }
 
-static inline ArrayEntry *yeGetArrayEntryByStr(Entity *entity, const char *str)
+NO_SIDE_EFFECT static inline ArrayEntry *yeGetArrayEntryByStr(Entity *entity, const char *str)
 {
 	Y_BLOCK_ARRAY_SIZED_FOREACH_PTR(YE_TO_ARRAY(entity)->values, elem,
 					it, ArrayEntry, ArrayEntry) {
@@ -317,12 +317,12 @@ static inline ArrayEntry *yeGetArrayEntryByStr(Entity *entity, const char *str)
 	return NULL;
 }
 
-static inline ArrayEntry *yeGetArrayEntryByIdx(Entity *entity, uint32_t i)
+NO_SIDE_EFFECT static inline ArrayEntry *yeGetArrayEntryByIdx(Entity *entity, uint32_t i)
 {
 	return yBlockArrayGetPtr(&YE_TO_ARRAY(entity)->values, i, ArrayEntry);
 }
 
-char *yeGetKeyAt(Entity *entity, int idx)
+NO_SIDE_EFFECT char *yeGetKeyAt(Entity *entity, int idx)
 {
 	if (entity)
 		return yeGetArrayEntryByIdx(entity, idx)->name;
@@ -357,7 +357,7 @@ int yeSetFlagByStr(Entity *array, const char *name, int flag)
  * @param end     the size of the @name parameter we look for
  * @return        return the first entity in the parent @entity found
  */
-static Entity *yeGetByIdxFastWithEnd(Entity *entity, const char *name,
+NO_SIDE_EFFECT static Entity *yeGetByIdxFastWithEnd(Entity *entity, const char *name,
 				     int end)
 {
 	char *isNum = NULL;
@@ -377,7 +377,7 @@ static Entity *yeGetByIdxFastWithEnd(Entity *entity, const char *name,
 	return NULL;
 }
 
-Entity *yeGetByStrFast(Entity *entity, const char *name)
+NO_SIDE_EFFECT Entity *yeGetByStrFast(Entity *entity, const char *name)
 {
 	if (unlikely(!name || yeType(entity) != YARRAY))
 		return NULL;
@@ -413,7 +413,7 @@ Entity *yeGetByStrExt(Entity *entity, const char *name, int64_t *idx)
 	return NULL;
 }
 
-Entity *yeNGetByStr(Entity *entity, const char *name, int len)
+NO_SIDE_EFFECT Entity *yeNGetByStr(Entity *entity, const char *name, int len)
 {
 	int cur = 0;
 	Entity *ret = NULL;
@@ -440,7 +440,7 @@ Entity *yeNGetByStr(Entity *entity, const char *name, int len)
 	return ret;
 }
 
-Entity *yeGetByStr(Entity *entity, const char *name)
+NO_SIDE_EFFECT Entity *yeGetByStr(Entity *entity, const char *name)
 {
 	int	i;
 
@@ -483,7 +483,7 @@ static inline Entity *yeInitAt(Entity * restrict const entity,
 	return entity;
 }
 
-int yeArrayIdx_str(Entity *entity, const char *lookup)
+NO_SIDE_EFFECT int yeArrayIdx_str(Entity *entity, const char *lookup)
 {
 	if (unlikely(!entity || !lookup || yeType(entity) != YARRAY))
 		return -1;

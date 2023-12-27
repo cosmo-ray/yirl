@@ -131,15 +131,17 @@ static inline double GET_D_(JSContext *ctx, int idx,
 		 unsigned long: call,		\
 		 unsigned int: call)
 
-#define BIND_AUTORET(call)				\
-	int t = LUAT(call);				\
-	switch (t) {					\
-	case 0:						\
-		call;					\
-		return JS_NULL;				\
-	case 1:						\
-		return AUTOPUSH(VOID_CALL(call), ctx);	\
-	}						\
+#define BIND_AUTORET(call)						\
+	int t = LUAT(call);						\
+	switch (t) {							\
+	case 0:								\
+		_Pragma("GCC diagnostic ignored \"-Wunused-value\"");	\
+		call;							\
+		_Pragma("GCC diagnostic pop");				\
+		return JS_NULL;						\
+	case 1:								\
+		return AUTOPUSH(VOID_CALL(call), ctx);			\
+	}								\
 	return JS_NULL;
 
 static JSValue make_abort(JSContext *ctx, ...)

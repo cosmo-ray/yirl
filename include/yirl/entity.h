@@ -239,7 +239,7 @@ static inline Entity *yeIncrRef(Entity *e)
 	return YE_INCR_REF(e);
 }
 
-static inline int yeRefCount(Entity *e)
+NO_SIDE_EFFECT static inline int yeRefCount(Entity *e)
 {
 	if (likely(e))
 		return e->refCount;
@@ -259,17 +259,17 @@ void yeInitMem(void);
 
 void yeEnd(void);
 
-int yeIsPtrAnEntity(void *ptr);
+NO_SIDE_EFFECT int yeIsPtrAnEntity(void *ptr);
 
-int yeEntitiesArraySize(void);
+NO_SIDE_EFFECT int yeEntitiesArraySize(void);
 
-int yeEntitiesUsed(void);
+NO_SIDE_EFFECT int yeEntitiesUsed(void);
 
-int yeFreeEntitiesInStack(void);
+NO_SIDE_EFFECT int yeFreeEntitiesInStack(void);
 
-EntityType yeType(const Entity * const entity);
+NO_SIDE_EFFECT EntityType yeType(const Entity * const entity);
 
-static inline int yeIsNum(const Entity * const e)
+NO_SIDE_EFFECT static inline int yeIsNum(const Entity * const e)
 {
 	return yeType(e) == YINT || yeType(e) == YFLOAT;
 }
@@ -283,15 +283,15 @@ int yeIsPureArray(Entity *e);
  * @param str   the type name
  * @return the corresponding type, -1 if type not found
  */
-EntityType yeStringToType(const char *str);
+NO_SIDE_EFFECT EntityType yeStringToType(const char *str);
 
 /**
  * @param type
  * @return the corresponding string of the type
  */
-const char *yeTypeToString(int type);
+NO_SIDE_EFFECT const char *yeTypeToString(int type);
 
-static inline const char *yeTypeAsString(Entity *e)
+NO_SIDE_EFFECT static inline const char *yeTypeAsString(Entity *e)
 {
 	return yeTypeToString(yeType(e));
 }
@@ -301,7 +301,7 @@ static inline const char *yeTypeAsString(Entity *e)
  * @param entity  The Entity we want to get the len
  * @return the attribute len of the entity
  */
-size_t yeLen(Entity *entity);
+NO_SIDE_EFFECT size_t yeLen(Entity *entity);
 
 #define yeLenAt(e, at)				\
 	yeLen(yeGet(e, (at)))
@@ -363,7 +363,7 @@ Entity *yeBrutalCast(Entity *entity, int type);
 /**
  * @brief get first entity of array
  */
-static inline Entity *yeFirst(Entity *array)
+NO_SIDE_EFFECT static inline Entity *yeFirst(Entity *array)
 {
 	YE_FOREACH(array, el)
 		return el;
@@ -380,7 +380,7 @@ void yeUnsetFirst(Entity *array);
 /**
  * @brief get last elem of array
  */
-Entity *yeGetLast(Entity *array);
+NO_SIDE_EFFECT Entity *yeGetLast(Entity *array);
 
 /*
  * turn out yeLast seems a better name than get last
@@ -392,9 +392,9 @@ Entity *yeGetLast(Entity *array);
 /**
  * @return the entity at the position of @index or NULL
  */
-Entity *yeGetByIdx(Entity *entity, size_t index);
+NO_SIDE_EFFECT Entity *yeGetByIdx(Entity *entity, size_t index);
 
-static inline Entity *yeGetByIdxDirect(Entity entity[static 1], size_t index)
+NO_SIDE_EFFECT static inline Entity *yeGetByIdxDirect(Entity entity[static 1], size_t index)
 {
 	return yBlockArrayGetPtrDirect(YE_TO_ARRAY(entity)->values,
 				       index, ArrayEntry)->entity;
@@ -405,8 +405,8 @@ static inline Entity *yeGetByIdxDirect(Entity entity[static 1], size_t index)
  * @param name    the entity name whe are looking for
  * @return The found Entity named @name in @entity
  */
-Entity *yeGetByStr(Entity *entity, const char *name);
-Entity *yeNGetByStr(Entity *entity, const char *name, int len);
+NO_SIDE_EFFECT Entity *yeGetByStr(Entity *entity, const char *name);
+NO_SIDE_EFFECT Entity *yeNGetByStr(Entity *entity, const char *name, int len);
 
 /**
  * Same as yeGetByStrFast, but store the index in @idx
@@ -418,7 +418,7 @@ static inline Entity *yeGetByEntity(Entity *array, Entity *key);
 /**
  * Like yeGetByStr but dosn't work with sytaxe like this (entity1.entity11)
  */
-Entity *yeGetByStrFast(Entity *entity, const char *name);
+NO_SIDE_EFFECT Entity *yeGetByStrFast(Entity *entity, const char *name);
 
 #ifndef __cplusplus
 #define yeGet(ENTITY, INDEX) _Generic((INDEX),				\
@@ -445,9 +445,9 @@ Entity *yeGetByStrFast(Entity *entity, const char *name);
 	   const Entity *: yeArrayIdx_ent,			\
 	   const char *: yeArrayIdx_str)(a, lookup)		\
 
-int	yeArrayIdx_str(Entity *array, const char *lookup);
+NO_SIDE_EFFECT int yeArrayIdx_str(Entity *array, const char *lookup);
 
-static inline int yeArrayIdx_ent(Entity *array, Entity *lookup)
+NO_SIDE_EFFECT static inline int yeArrayIdx_ent(Entity *array, Entity *lookup)
 {
 	for (size_t i = 0; i < yeLen(array); ++i)
 		if (yeGet(array, i) == lookup)
@@ -458,9 +458,9 @@ static inline int yeArrayIdx_ent(Entity *array, Entity *lookup)
 /**
  * @return the key string if there is one
  */
-char *yeGetKeyAt(Entity *entity, int idx);
+NO_SIDE_EFFECT char *yeGetKeyAt(Entity *entity, int idx);
 
-char *yeLastKey(Entity *array);
+NO_SIDE_EFFECT char *yeLastKey(Entity *array);
 
 /* crappy ifndef for crappy language */
 #ifndef __cplusplus
@@ -468,7 +468,7 @@ char *yeLastKey(Entity *array);
 /**
  * @return the key string if there is one
  */
-static inline char *yeFindKey(Entity *entity, Entity *target)
+NO_SIDE_EFFECT static inline char *yeFindKey(Entity *entity, Entity *target)
 {
 	int idx = yeArrayIdx(entity, target);
 
@@ -516,12 +516,12 @@ int	yeGetInt(Entity *entity);
 /**
  * @return	value of entity at @pos in @array, 0 if entity doesn't existe
  */
-static inline int yeGetIntAtByIdx(Entity *array, int pos)
+NO_SIDE_EFFECT static inline int yeGetIntAtByIdx(Entity *array, int pos)
 {
 	return yeGetInt(yeGetByIdx(array, pos));
 }
 
-static inline int yeGetIntAtByStr(Entity *array, const char *pos)
+NO_SIDE_EFFECT static inline int yeGetIntAtByStr(Entity *array, const char *pos)
 {
 	return yeGetInt(yeGetByStrFast(array, pos));
 }
@@ -544,12 +544,12 @@ double yeGetFloat(Entity *entity);
 /**
  * @return	value of entity at @pos in @array, 0 if entity doesn't existe
  */
-static inline int yeGetFloatAtByIdx(Entity *array, int pos)
+NO_SIDE_EFFECT static inline int yeGetFloatAtByIdx(Entity *array, int pos)
 {
 	return yeGetFloat(yeGetByIdx(array, pos));
 }
 
-static inline int yeGetFloatAtByStr(Entity *array, const char *pos)
+NO_SIDE_EFFECT static inline int yeGetFloatAtByStr(Entity *array, const char *pos)
 {
 	return yeGetFloat(yeGetByStrFast(array, pos));
 }
@@ -565,12 +565,12 @@ const char *yeGetString(Entity *entity);
  * @TODO	do the generic version for strings
  * @return	value of entity at @pos in @array, 0 if entity doesn't existe
  */
-static inline const char *yeGetStringAtByIdx(Entity *array, int pos)
+NO_SIDE_EFFECT static inline const char *yeGetStringAtByIdx(Entity *array, int pos)
 {
 	return yeGetString(yeGetByIdx(array, pos));
 }
 
-static inline const char *yeGetStringAtByStr(Entity *array, const char *key)
+NO_SIDE_EFFECT static inline const char *yeGetStringAtByStr(Entity *array, const char *key)
 {
 	return yeGetString(yeGet(array, key));
 }
@@ -583,7 +583,7 @@ void *yeGetData(Entity *entity);
 /**
  * @return	value of entity at @pos in @array, 0 if entity doesn't existe
  */
-static inline void *yeGetDataAtByIdx(Entity *array, int pos)
+NO_SIDE_EFFECT static inline void *yeGetDataAtByIdx(Entity *array, int pos)
 {
 	return yeGetData(yeGetByIdx(array, pos));
 }
@@ -591,7 +591,7 @@ static inline void *yeGetDataAtByIdx(Entity *array, int pos)
 /**
  * @return	value of entity at @pos in @array, 0 if entity doesn't existe
  */
-static inline void *yeGetDataAtByStr(Entity *array, const char *pos)
+NO_SIDE_EFFECT static inline void *yeGetDataAtByStr(Entity *array, const char *pos)
 {
 	return yeGetData(yeGetByStr(array, pos));
 }
@@ -1047,7 +1047,7 @@ static inline Entity *yeTryCreateString(const char *value, Entity *parent,
 /**
  * @return the number of non null elems in the array
  */
-static inline size_t yeNbElems(Entity *array)
+NO_SIDE_EFFECT static inline size_t yeNbElems(Entity *array)
 {
 	int i = 0;
 	YE_FOREACH(array, e)
@@ -1066,7 +1066,7 @@ const char *yeGetFunction(Entity *entity);
 
 void *yeGetFunctionFastPath(Entity *entity);
 
-static inline intptr_t yeIData(Entity *e)
+NO_SIDE_EFFECT static inline intptr_t yeIData(Entity *e)
 {
 	return YE_TO_FUNC(e)->idata;
 }
@@ -1165,7 +1165,7 @@ static inline Entity *yeGetByEntity(Entity *array, Entity *key)
 	return NULL;
 }
 
-static inline _Bool yeArrayContainEntity(Entity *array, const char *str)
+NO_SIDE_EFFECT static inline _Bool yeArrayContainEntity(Entity *array, const char *str)
 {
 	return !!yeGet(array, str);
 }
@@ -1217,7 +1217,7 @@ int yeArrayContainEntitiesInternal(Entity *entity, ...);
 #define yeArrayContainEntities(array, ARGS...)			\
 	yeArrayContainEntitiesInternal(array, ARRAY, NULL)
 
-static inline int yeStringIndexChar(Entity *entityStr, const char *chars)
+NO_SIDE_EFFECT static inline int yeStringIndexChar(Entity *entityStr, const char *chars)
 {
 	const char *str = yeGetString(entityStr);
 	int len = yeLen(entityStr);
@@ -1480,7 +1480,7 @@ static inline int yeReplace(Entity *array, Entity *toReplace, Entity *toPush)
  * Check if @array contain @toFind
  * @return 1 if the @toFind is found, 0 otherwise.
  */
-static inline _Bool yeDoesInclude(Entity *array, Entity *toFind)
+NO_SIDE_EFFECT static inline _Bool yeDoesInclude(Entity *array, Entity *toFind)
 {
 	if (!array || !toFind)
 		return 0;
@@ -1565,7 +1565,7 @@ static inline int yeSwapElems(Entity *array, Entity *elem0, Entity *elem1)
 	return 0;
 }
 
-static inline Entity *yeGetRandomElem(Entity *array)
+NO_SIDE_EFFECT static inline Entity *yeGetRandomElem(Entity *array)
 {
 	if (!array || yeType(array) != YARRAY)
 		return NULL;
@@ -1605,7 +1605,7 @@ static inline int yeShuffle(Entity *array)
 /**
  * @return 1 if content of a and b is the same, work only for string, int and float
  */
-static inline int yeEqual(Entity *a, Entity *b)
+NO_SIDE_EFFECT static inline int yeEqual(Entity *a, Entity *b)
 {
 	if (yeType(a) != yeType(b))
 		return 0;
@@ -1625,28 +1625,28 @@ static inline int yeEqual(Entity *a, Entity *b)
 /**
  * check if an int is superior or inferior to e
  */
-static inline _Bool yeIntInfTo(Entity *e, int o)
+NO_SIDE_EFFECT static inline _Bool yeIntInfTo(Entity *e, int o)
 {
 	if (yeType(e) != YINT)
 		return 0;
 	return yeGetIntDirect(e) < o;
 }
 
-static inline _Bool yeIntSupTo(Entity *e, int o)
+NO_SIDE_EFFECT static inline _Bool yeIntSupTo(Entity *e, int o)
 {
 	if (yeType(e) != YINT)
 		return 0;
 	return yeGetIntDirect(e) > o;
 }
 
-static inline int yeIntBAnd(Entity *e, int o)
+NO_SIDE_EFFECT static inline int yeIntBAnd(Entity *e, int o)
 {
 	if (yeType(e) != YINT)
 		return 0;
 	return yeGetIntDirect(e) & o;
 }
 
-static inline _Bool yeIntCheckBAnd(Entity *e, int o)
+NO_SIDE_EFFECT static inline _Bool yeIntCheckBAnd(Entity *e, int o)
 {
 	return !!yeIntBAnd(e, o);
 }

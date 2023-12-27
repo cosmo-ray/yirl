@@ -78,7 +78,9 @@ enum ylua_type {
 	int t = LUAT(call);						\
 	switch (t) {							\
 	case 0:								\
+		_Pragma("GCC diagnostic ignored \"-Wunused-value\"");	\
 		call;							\
+		_Pragma("GCC diagnostic pop");				\
 		return 0;						\
 	case 1:								\
 	{								\

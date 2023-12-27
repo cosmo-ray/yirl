@@ -298,7 +298,9 @@ static s7_pointer make_nothing(s7_scheme *s, ...)
 	int t = YSCRIPT_RET_TYPE(call, 0);				\
 	switch (t) {							\
 	case 0:								\
+		_Pragma("GCC diagnostic ignored \"-Wunused-value\"");	\
 		call;							\
+		_Pragma("GCC diagnostic pop");				\
 		return s7_nil(s);					\
 	case 1:								\
 		return S7ME(s, s7m->et, (void *)YSCRIPT_VOID_CALL(call)); \

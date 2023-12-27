@@ -22,7 +22,7 @@
 Entity *yeToLower(Entity *e);
 
 
-int yeStrCmp(Entity *ent1, const char *str);
+NO_SIDE_EFFECT int yeStrCmp(Entity *ent1, const char *str);
 
 static inline int yeStrEq(Entity *e, const char *s)
 {
@@ -40,7 +40,7 @@ static inline int yeStrEq(Entity *e, const char *s)
 	entity;							\
 })
 
-int yeStrCaseCmp(Entity *ent, const char *str);
+NO_SIDE_EFFECT int yeStrCaseCmp(Entity *ent, const char *str);
 
 /**
  * @brief Add @str to the string entity @Ent

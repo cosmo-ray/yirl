@@ -100,13 +100,15 @@ static int make_nothing(ph7_context *pCtx,  ...)
 		 unsigned int: 1,		\
 		 default: 0)
 
-#define PH7_RET(call, ...)				\
-	int t = PH7T(call);				\
-	last_ctx = pCtx;				\
-	if (!t)						\
-		call;					\
-	else						\
-		S7A2(VOID_CALL(call), __VA_ARGS__);	\
+#define PH7_RET(call, ...)						\
+	int t = PH7T(call);						\
+	last_ctx = pCtx;						\
+	if (!t)	{							\
+		_Pragma("GCC diagnostic ignored \"-Wunused-value\"");	\
+		call;							\
+		_Pragma("GCC diagnostic pop");				\
+	} else								\
+		S7A2(VOID_CALL(call), __VA_ARGS__);			\
 	last_ctx = NULL;
 
 #define VOID_CALL(call)				\

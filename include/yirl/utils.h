@@ -24,12 +24,18 @@
 
 #ifdef Y_INSIDE_TCC
 #include <stddef.h>
+#define NO_SIDE_EFFECT
+#define CONST_FUNC
 #else
 #include <math.h>
 #include <assert.h>
 #include <stdint.h>
 #include <unistd.h>
 #include <string.h>
+
+#define NO_SIDE_EFFECT __attribute__ ((pure))
+/* const doesn't allow to read global variable */
+#define CONST_FUNC __attribute__ ((const))
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -366,7 +372,7 @@ static inline char *yuiStrdup(const char *s)
 /* This is usefull for macro and constant, otherwise use abs(so if a variable) */
 #define yuiAbs(val) ((val) > 0 ? (val) : - (val))
 
-static inline int yuiStrEqual(const char *str1, const char *str2)
+NO_SIDE_EFFECT static inline int yuiStrEqual(const char *str1, const char *str2)
 {
   int i;
 
@@ -376,7 +382,7 @@ static inline int yuiStrEqual(const char *str1, const char *str2)
   return (str1[i] == str2[i]);
 }
 
-static inline int yuiStrEqual0(const char *str1, const char *str2)
+NO_SIDE_EFFECT static inline int yuiStrEqual0(const char *str1, const char *str2)
 {
   if (!str1 || !str2) {
     return str1 == str2;
@@ -385,7 +391,7 @@ static inline int yuiStrEqual0(const char *str1, const char *str2)
 }
 
 
-static int yuiIsCharAlphaNum(char c)
+CONST_FUNC static int yuiIsCharAlphaNum(char c)
 {
 	return (c >= 'a' &&  c <= 'z') || (c >= 'A' && c <= 'Z') ||
 		(c >= '0' && c <= '9');
@@ -426,7 +432,7 @@ static inline int yuiStrCountCh(const char *str, char c, int *longerLine)
 /**
  * @return percent of @value
  */
-static inline int yuiPercentOf(int value, int percent)
+CONST_FUNC static inline int yuiPercentOf(int value, int percent)
 {
   return value * percent / 100;
 }
@@ -471,7 +477,7 @@ int yuiLinesRectIntersect(int x1, int y1, int x2, int y2,
 			  int rx, int ry, int rw, int rh,
 			  int *x, int *y, int *type);
 
-static inline int yuiPointsDist(int x1, int y1, int x2, int y2)
+CONST_FUNC static inline int yuiPointsDist(int x1, int y1, int x2, int y2)
 {
 	int x = x2 - x1;
 	int y = y2 - y1;
@@ -479,12 +485,12 @@ static inline int yuiPointsDist(int x1, int y1, int x2, int y2)
 	return sqrt(x * x + y * y);
 }
 
-static inline int yuiTurnX(int x, int y, double r)
+CONST_FUNC static inline int yuiTurnX(int x, int y, double r)
 {
 	return x * cos(r) - y * sin(r);
 }
 
-static inline int yuiTurnY(int x, int y, double r)
+CONST_FUNC static inline int yuiTurnY(int x, int y, double r)
 {
 	return y * cos(r) - x * sin(r);
 }
