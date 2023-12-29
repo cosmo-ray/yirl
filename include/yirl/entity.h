@@ -195,6 +195,8 @@ typedef	struct
 
 KHASH_MAP_INIT_STR(entity_hash, Entity *);
 
+KHASH_IMPLEMENT_STR_N_GET(entity_hash);
+
 typedef	struct
 {
 	ENTITY_HEADER

@@ -380,16 +380,13 @@ NO_SIDE_EFFECT static Entity *yeGetByIdxFastWithEnd(Entity *entity, const char *
 	int idx;
 
 	if (entity->type == YHASH) {
-		static char big_buf[1024];
-		char *buf = end >= 1024 ? malloc(end + 1) : big_buf;
-		Entity *ret;
+		// kh_nget_##name
+		HashEntity *hon = YE_TO_HASH(entity);
+		khiter_t iterator = kh_nget_entity_hash(hon->values, name, end);
 
-		memcpy(buf, name, end);
-		buf[end] = 0;
-		ret = yeGet(entity, buf);
-		if (end >= 1024)
-			free(buf);
-		return ret;
+		if (iterator == kh_end(hon->values))
+			return NULL;
+		return kh_val(hon->values, iterator);
 	}
 	idx = strtod(name, &isNum);
 	if (isNum != name)
@@ -984,7 +981,6 @@ Entity *yeRemoveChildByEntity(Entity *array, Entity *toRemove)
 				Entity *to_destroy = kh_val(h, k);
 
 				yeDestroy(to_destroy);
-				// Can this break everything ?
 				kh_del(entity_hash, h, k);
 				return to_destroy;
 			}

@@ -29,7 +29,9 @@ void testGet(void)
   Entity *c = yeCreateArray(b, "c");
   Entity *d = yeCreateHash(b, "d");
   Entity *e = yeCreateHash(d, "e");
+  Entity *efg = yeCreateHash(d, "efg");
   Entity *i = yeCreateInt(13, e, "i");
+  Entity *i2 = yeCreateInt(11, efg, "i2");
 
   g_assert(b == yeGet(a, "b"));
   g_assert(c == yeGetByStr(a, "b.c"));
@@ -38,6 +40,8 @@ void testGet(void)
   g_assert(d == yeGetByStr(a, "b.d"));
   g_assert(e == yeGetByStr(a, "b.d.e"));
   g_assert(i == yeGetByStr(a, "b.d.e.i"));
+  g_assert(efg == yeGetByStr(a, "b.d.efg"));
+  g_assert(i2 == yeGetByStr(a, "b.d.efg.i2"));
   g_assert(i == yeGet(e, "i"));
   yeDestroy(a);
   yeEnd();
