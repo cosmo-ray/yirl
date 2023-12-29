@@ -1204,7 +1204,14 @@ static inline void yeAttachChild(Entity *on, Entity *entity,
 	if (!on)
 		return;
 	if (on->type == YHASH) {
-		yePushBack(on, entity, name);
+		if (unlikely(!name)) {
+			DPRINT_ERR("name require if parent is an Hash");
+			ygDgbAbort();
+		}
+		if (unlikely(yePushBack(on, entity, name) < 0)) {
+			DPRINT_ERR("pushing '%s' on parent fail", name);
+			ygDgbAbort();
+		}
 		yeDestroy(entity);
 		return;
 	}

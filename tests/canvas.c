@@ -75,7 +75,7 @@ void testCanvasSdl2(void)
 {
   yeInitMem();
   GameConfig cfg;
-  Entity *canvas_example = yeCreateArray(NULL, NULL);
+  Entity *canvas_example = yeCreateHash(NULL, NULL);
   Entity *actions;
   Entity *resources;
   Entity *resource;
@@ -127,9 +127,9 @@ void testCanvasSdl2(void)
   /* Put sara into the canvas */
   obj = ywCanvasNewObj(canvas_example, 70, 100, 1);
   ywCanvasRotate(obj, -90);
-  ywCanvasForceSize(obj, ywSizeCreate(100, 200, canvas_example, NULL));
+  ywCanvasForceSize(obj, ywSizeCreate(100, 200, canvas_example, "s0"));
   obj = ywCanvasNewObj(canvas_example, 470, 380, 2);
-  ywCanvasForceSize(obj, ywSizeCreate(200, 200, canvas_example, NULL));
+  ywCanvasForceSize(obj, ywSizeCreate(200, 200, canvas_example, "s1"));
   obj = ywCanvasNewObj(canvas_example, 200, 250, 3);
   ywCanvasRotate(obj, 45);
 
@@ -173,7 +173,7 @@ void testCanvasSdl2(void)
 	     ywCanvasNewRect(canvas_example, 100, 250, rect),
 	     "R-rm");
   ywCanvasForceSize(yeGet(canvas_example, "r-rm"),
-		    ywSizeCreate(50, 50, canvas_example, NULL));
+		    ywSizeCreate(50, 50, canvas_example, "s2"));
   yePushBack(canvas_example,
 	     ywCanvasNewText(canvas_example, 100, 300, yeGet(strs, 0)),
 	     "song");

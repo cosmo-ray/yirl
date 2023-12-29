@@ -882,7 +882,8 @@ InputStatue ywidAction(Entity *action, Entity *wid, Entity *eve)
 
 InputStatue ywidActions(Entity *wid, Entity *actionWid, Entity *eve)
 {
-	if (yeType(actionWid) != YARRAY)
+	int wid_type = yeType(actionWid);
+	if (wid_type != YARRAY && wid_type != YHASH)
 		return NOTHANDLE;
 	Entity *actions = yeGet(actionWid, "action");
 	if (actions)
