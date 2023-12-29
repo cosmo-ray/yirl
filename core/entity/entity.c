@@ -381,7 +381,7 @@ NO_SIDE_EFFECT static Entity *yeGetByIdxFastWithEnd(Entity *entity, const char *
 
 	if (entity->type == YHASH) {
 		static char big_buf[1024];
-		char *buf = end >= 1024 ? malloc(end) : big_buf;
+		char *buf = end >= 1024 ? malloc(end + 1) : big_buf;
 		Entity *ret;
 
 		memcpy(buf, name, end);
