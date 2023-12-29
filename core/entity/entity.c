@@ -812,12 +812,14 @@ void yeClearArray(Entity *entity)
 		return;
 	switch (entity->type) {
 	case YARRAY:
+	{
 		Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(entity)->values, ae,
 					  i, ArrayEntry) {
 			arrayEntryDestroy(ae);
 		}
 		yBlockArrayClear(&YE_TO_ARRAY(entity)->values);
-		break;
+	}
+	break;
 	case YHASH:
 		{
 			Entity *vvar;
