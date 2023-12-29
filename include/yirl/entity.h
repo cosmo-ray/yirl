@@ -35,6 +35,13 @@
 
 #include "entity-macro.h"
 #include "block-array.h"
+#include "utils.h"
+
+#ifdef Y_INSIDE_TCC
+#define kn_no_include
+#endif
+
+#include "klib/khash.h"
 
 #define NONNULL(arg) __attribute__ ((nonnull (arg)))
 
@@ -55,7 +62,8 @@ typedef enum
 	YARRAY = 3,
 	YFUNCTION = 4,
 	YDATA = 5,
-	NBR_ENTITYTYPE = 6
+	YHASH = 6,
+	NBR_ENTITYTYPE = 7
 } EntityType;
 
 typedef enum
@@ -95,6 +103,7 @@ typedef enum
 #define	YE_TO_C_FUNC(X) ((const FunctionEntity *)X)
 #define	YE_TO_DATA(X) ((DataEntity *)X)
 #define	YE_TO_C_DATA(X) ((const DataEntity *)X)
+#define YE_TO_HASH(X) ((HashEntity *)X)
 
   /* TODO: move most of this code to yeDestroy, remove this */
 #define YE_DESTROY(X) do {			\
@@ -184,6 +193,14 @@ typedef	struct
 	void	(*destroy)(void *);
 } DataEntity;
 
+KHASH_MAP_INIT_STR(entity_hash, Entity *);
+
+typedef	struct
+{
+	ENTITY_HEADER
+	khash_t(entity_hash) *values;
+} HashEntity;
+
 typedef	struct
 {
 	ENTITY_HEADER
@@ -222,6 +239,7 @@ union FatEntity {
 	StringEntity StringEntity;
 	DataEntity DataEntity;
 	FunctionEntity FunctionEntity;
+	HashEntity HashEntity;
 	union SmallEntity SnallEntities[4];
 	uint8_t totalSize[128];
 };
@@ -658,7 +676,7 @@ int yePushAt2(Entity *array, Entity *toPush, int idx, const char *name);
  * Push @toPush anywhere in @array
  * it's slower than push back but saffer
  */
-int yePush(Entity *array, Entity *toPush, const char *name);
+int yePush(Entity array[static 1], Entity toPush[static 1], const char *name);
 
 /**
  * Insert toPush at idx, might be ways lot eavierst that yePushAt, because it
@@ -763,6 +781,8 @@ static inline Entity *yeCreateArrayByEntity(Entity *parent, Entity *name)
 	return yeCreateArrayByCStr(parent, yeGetString(name));
 }
 
+Entity *yeCreateHash(Entity *parent, const char *name);
+
 #ifndef __cplusplus
 #define yeCreateArray(mother, name)					\
   _Generic((name),							\
@@ -796,7 +816,8 @@ void yeDestroyFloat(Entity *entity);
 void yeDestroyString(Entity *entity);
 void yeDestroyFunction(Entity *entity);
 void yeDestroyArray(Entity *entity);
-void yeDestroyData(Entity *entity) ;
+void yeDestroyData(Entity *entity);
+void yeDestroyHash(Entity *entity);
 
 static void yeDestroy_VoidPtr(void *e)
 {

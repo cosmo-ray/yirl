@@ -115,6 +115,7 @@ do {									\
 #define YE_ALLOC_ENTITY_FloatEntity(ret, type) YE_ALLOC_ENTITY_SMALL(ret, type)
 #define YE_ALLOC_ENTITY_FunctionEntity(ret, type) YE_ALLOC_ENTITY_BASE(ret, type)
 #define YE_ALLOC_ENTITY_StringEntity(ret, type) YE_ALLOC_ENTITY_SMALL(ret, type)
+#define YE_ALLOC_ENTITY_HashEntity(ret, type) YE_ALLOC_ENTITY_BASE(ret, type)
 
 #define YE_ALLOC_ENTITY(ret, type) YUI_CAT(YE_ALLOC_ENTITY_, type)(ret, type)
 #define YE_DESTROY_ENTITY(entity, type) YE_DESTROY_ENTITY_SMALL(entity, type)
@@ -201,10 +202,11 @@ void (*destroyTab[])(Entity *) = {
 	yeDestroyArray,
 	yeDestroyFunction,
 	yeDestroyData,
+	yeDestroyHash,
 };
 
 const char * EntityTypeStrings[] = { "int", "float", "string",
-				     "array", "function", "data"};
+	"array", "function", "data", "hash"};
 
 
 /**
@@ -258,11 +260,23 @@ NO_SIDE_EFFECT size_t yeLen(Entity *entity)
 	if (unlikely(!entity))
 		return 0;
 
-	if (likely(yeType(entity) == YARRAY)) {
+	ygAssert(entity->refCount);
+	if (entity->type == YARRAY) {
 		return yBlockArrayLastPos(YE_TO_ARRAY(entity)->values) + 1;
+	} else if (entity->type == YHASH) {
+		HashEntity *hon = (void *)entity;
+		khash_t(entity_hash) *h = hon->values;
+		int ret = 0;
+		for (khiter_t k = kh_begin(h); k != kh_end(h); ++k) {
+			if (kh_exist(h, k))
+			    ++ret;
+		}
+		return ret;
+	} else if (entity->type == YSTRING) {
+		return YE_TO_STRING(entity)->len;
 	}
-
-	return YE_TO_STRING(entity)->len;
+	DPRINT_ERR("yeLen on non String entity !");
+	return 0;
 }
 
 NO_SIDE_EFFECT Entity *yeGetByIdx(Entity *entity, size_t index)
@@ -270,6 +284,8 @@ NO_SIDE_EFFECT Entity *yeGetByIdx(Entity *entity, size_t index)
 	if (unlikely(entity == NULL))
 		return NULL;
 	ygAssert(entity->refCount);
+	if (entity->type == YHASH)
+		abort();
 	Entity *r = yBlockArrayGet(&YE_TO_ARRAY(entity)->values,
 				   index, ArrayEntry).entity;
 	ygAssert(!r || yeIsPtrAnEntity(r));
@@ -363,6 +379,18 @@ NO_SIDE_EFFECT static Entity *yeGetByIdxFastWithEnd(Entity *entity, const char *
 	char *isNum = NULL;
 	int idx;
 
+	if (entity->type == YHASH) {
+		static char big_buf[1024];
+		char *buf = end >= 1024 ? malloc(end) : big_buf;
+		Entity *ret;
+
+		memcpy(buf, name, end);
+		buf[end] = 0;
+		ret = yeGet(entity, buf);
+		if (end >= 1024)
+			free(buf);
+		return ret;
+	}
 	idx = strtod(name, &isNum);
 	if (isNum != name)
 		return yeGet(entity, idx);
@@ -379,16 +407,24 @@ NO_SIDE_EFFECT static Entity *yeGetByIdxFastWithEnd(Entity *entity, const char *
 
 NO_SIDE_EFFECT Entity *yeGetByStrFast(Entity *entity, const char *name)
 {
-	if (unlikely(!name || yeType(entity) != YARRAY))
+	if (unlikely(!name || !entity))
 		return NULL;
 	ygAssert(entity->refCount);
+	if (yeType(entity) == YARRAY) {
 
-	Y_BLOCK_ARRAY_SIZED_FOREACH_PTR(YE_TO_ARRAY(entity)->values, tmp,
-					it, ArrayEntry, ArrayEntry) {
-		if (unlikely(!tmp || !tmp->name))
-			continue;
-		if (yuiStrEqual(tmp->name, name))
-			return tmp->entity;
+		Y_BLOCK_ARRAY_SIZED_FOREACH_PTR(YE_TO_ARRAY(entity)->values, tmp,
+						it, ArrayEntry, ArrayEntry) {
+			if (unlikely(!tmp || !tmp->name))
+				continue;
+			if (yuiStrEqual(tmp->name, name))
+				return tmp->entity;
+		}
+	} else if (yeType(entity) == YHASH) {
+		HashEntity *hon = YE_TO_HASH(entity);
+		khiter_t iterator = kh_get(entity_hash, hon->values, name);
+		if (iterator == kh_end(hon->values))
+			return NULL;
+		return kh_val(hon->values, iterator);
 	}
 	return NULL;
 }
@@ -418,7 +454,7 @@ NO_SIDE_EFFECT Entity *yeNGetByStr(Entity *entity, const char *name, int len)
 	int cur = 0;
 	Entity *ret = NULL;
 
-	if (unlikely(!entity || !name || yeType(entity) != YARRAY)) {
+	if (unlikely(!entity || !name || (entity->type != YARRAY && entity->type != YHASH))) {
 		DPRINT_INFO("can not find entity for %s\n", name);
 		return NULL;
 	}
@@ -444,7 +480,7 @@ NO_SIDE_EFFECT Entity *yeGetByStr(Entity *entity, const char *name)
 {
 	int	i;
 
-	if (unlikely(!entity || !name || yeType(entity) != YARRAY)) {
+	if (unlikely(!entity || !name || (entity->type != YARRAY && entity->type != YHASH))) {
 		DPRINT_INFO("can not find entity for %s\n", name);
 		return NULL;
 	}
@@ -556,6 +592,16 @@ Entity *yeCreateDataExt(void *value, Entity *father, const char *name,
 		ret->value = value;
 	ret->destroy = NULL;
 	return ((Entity *)ret);
+}
+
+Entity *yeCreateHash(Entity *father, const char *name)
+{
+	HashEntity * restrict ret;
+
+	YE_ALLOC_ENTITY(ret, HashEntity);
+	yeInit((Entity *)ret, YHASH, father, name);
+	ret->values = kh_init(entity_hash);
+	return (YE_TO_ENTITY(ret));
 }
 
 Entity *yeCreateArrayByCStr(Entity *father, const char *name)
@@ -764,11 +810,40 @@ void yeClearArray(Entity *entity)
 {
 	if (unlikely(!entity))
 		return;
-	Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(entity)->values, ae,
-				  i, ArrayEntry) {
-		arrayEntryDestroy(ae);
+	switch (entity->type) {
+	case YARRAY:
+		Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(entity)->values, ae,
+					  i, ArrayEntry) {
+			arrayEntryDestroy(ae);
+		}
+		yBlockArrayClear(&YE_TO_ARRAY(entity)->values);
+		break;
+	case YHASH:
+		{
+			Entity *vvar;
+
+			kh_foreach_value(((HashEntity *)entity)->values,
+				   vvar, yeDestroy(vvar));
+			kh_clear(entity_hash, ((HashEntity *)entity)->values);
+		}
+		break;
+	default:
+		DPRINT_ERR("yeClearArray with wrong type");
 	}
-	yBlockArrayClear(&YE_TO_ARRAY(entity)->values);
+}
+
+void yeDestroyHash(Entity *entity)
+{
+	Entity *vvar;
+
+	if(entity->refCount == 1) {
+		kh_foreach_value(((HashEntity *)entity)->values,
+				 vvar, yeDestroy(vvar));
+		kh_destroy(entity_hash, ((HashEntity *)entity)->values);
+		YE_DESTROY_ENTITY(entity, ArrayEntity);
+	} else {
+		YE_DECR_REF(entity);
+	}
 }
 
 void yeDestroyArray(Entity *entity)
@@ -892,9 +967,31 @@ Entity *yeRemoveChildByEntity(Entity *array, Entity *toRemove)
 {
 	Entity *ret;
 
-	if (!checkType(array, YARRAY)) {
-		DPRINT_ERR("bad argument 1 of type '%s', should be array\n",
+	if (array == NULL) {
+		DPRINT_ERR("bad argument 1 of type '%s', should not be NULL\n",
 			   yeTypeToString(yeType(array)));
+		ygDgbAbort();
+		return NULL;
+	} else if (array->type == YHASH) {
+		HashEntity *hon = (void *)array;
+		khash_t(entity_hash) *h = hon->values;
+		khiter_t k;
+
+		for (k = kh_begin(h); k != kh_end(h); ++k) {
+			if (kh_exist(h, k) && kh_value(h, k) == toRemove) {
+				Entity *to_destroy = kh_val(h, k);
+
+				yeDestroy(to_destroy);
+				// Can this break everything ?
+				kh_del(entity_hash, h, k);
+				return to_destroy;
+			}
+		}
+		return NULL;
+	} else if (array->type != YARRAY) {
+		DPRINT_ERR("bad argument 1 of type '%s', should be array/hash\n",
+			   yeTypeToString(yeType(array)));
+		ygDgbAbort();
 		return NULL;
 	}
 
@@ -947,8 +1044,24 @@ Entity *yeRemoveChildByStr(Entity *array, const char *toRemove)
 {
 	Entity *ret;
 
-	if (!checkType(array, YARRAY)) {
-		DPRINT_ERR("bad argument 1 of type '%s', should be array\n",
+	if (array == NULL) {
+		DPRINT_ERR("bad argument 1 of type '%s', should not be NULL\n",
+			   yeTypeToString(yeType(array)));
+		ygDgbAbort();
+		return NULL;
+	} else if (array->type == YHASH) {
+		HashEntity *hon = (void *)array;
+		khiter_t iterator = kh_get(entity_hash, hon->values, toRemove);
+
+		if (iterator == kh_end(hon->values))
+			return NULL;
+
+		Entity *to_destroy = kh_val(hon->values, iterator);
+
+		yeDestroy(to_destroy);
+		kh_del(entity_hash, hon->values, iterator);
+	} else if (array->type != YARRAY) {
+		DPRINT_ERR("bad argument 1 of type '%s', should be array/hash\n",
 			   yeTypeToString(yeType(array)));
 		ygDgbAbort();
 		return NULL;
@@ -1088,6 +1201,12 @@ static inline void yeAttachChild(Entity *on, Entity *entity,
 
 	if (!on)
 		return;
+	if (on->type == YHASH) {
+		yePushBack(on, entity, name);
+		yeDestroy(entity);
+		return;
+	}
+	ygAssert(on->refCount);
 	entry = yBlockArraySetGetPtr(&YE_TO_ARRAY(on)->values,
 				     yeLen(on), ArrayEntry);
 	entry->entity = entity;
@@ -1148,6 +1267,10 @@ int yeAttach(Entity *on, Entity *entity,
 	ArrayEntry *entry;
 	Entity *toRemove = NULL;
 	char *oldName = NULL;
+
+	if (unlikely(!on || !entity))
+		return -1;
+
 	union {
 		struct {
 			uint32_t entry_flag;
@@ -1156,8 +1279,32 @@ int yeAttach(Entity *on, Entity *entity,
 		uint64_t f;
 	} f;
 	f.f = flag;
+	if (on->type == YHASH) {
+		HashEntity *hon = (void *)on;
+		int ret;
 
-	if (unlikely(!on || !entity || on->type != YARRAY))
+		if (!name)
+			return -1;
+		khiter_t iterator = kh_get(entity_hash, hon->values, name);
+
+		if (iterator != kh_end(hon->values)) {
+			toRemove = kh_val(hon->values, iterator);
+			if (toRemove == entity)
+				return 0;
+			if (toRemove && !(flag & YE_ATTACH_NO_MEM_FREE)) {
+				printf("to remove: %d\n", toRemove->refCount);
+				yeDestroy(toRemove);
+				printf("to remove after: %d\n", toRemove->refCount);
+			}
+		}
+		iterator = kh_put(entity_hash, hon->values, name, &ret);
+		if (ret < 0)
+			return -1;
+		if (!(flag & YE_ATTACH_NO_INC_REF))
+			yeIncrRef(entity);
+		kh_val(hon->values, iterator) = entity;
+		return 0;
+	} else if (on->type != YARRAY)
 		return -1;
 	ygAssert(!(on->flag & YENTITY_CONST));
 
@@ -1195,10 +1342,16 @@ int yePushAt2(Entity *array, Entity *toPush, int idx, const char *name)
 	return yeAttach(array, toPush, idx, name, 0);
 }
 
-int yePush(Entity *array, Entity *toPush, const char *name)
+int yePush(Entity array[static 1], Entity toPush[static 1], const char *name)
 {
+	if (array->type == YHASH) {
+		return yePushBack(array, toPush, name);
+	}
 	BlockArray *ba = &YE_TO_ARRAY(array)->values;
 	uint64_t m;
+
+	ygAssert(array->refCount)
+	ygAssert(toPush->refCount)
 
 	for (int i = 0; i < ba->block_cnt; ++i) {
 		int j;
@@ -1516,6 +1669,35 @@ static void yeToCStrInternal(Entity *entity, int deep, Entity *str,
 				     yeIData(entity)
 			);
 		break;
+	case YHASH :
+		yeStringAddCh(str, '{');
+		if (yeLen(entity) > 20)
+			flag |= YE_FORMAT_OPT_PRINT_ONLY_VAL_ARRAY;
+		{
+			const char *key;
+			Entity *vvar;
+
+			kh_foreach(((HashEntity *)entity)->values, key,
+				   vvar,
+				   {
+					   yeStringAppendPrintf(str,
+								"\"%s\": ",
+								key);
+					   if (yeType(vvar) == YARRAY || yeType(vvar) == YHASH)
+						   append_pretty(str, deep - 1, origDeep, flag);
+				   if (!(deep - 1)) {
+					   yeStringAdd(str, "...");
+				   } else {
+					   yeToCStrInternal(vvar, deep - 1, str,
+							    flag, origDeep);
+				   }
+				   });
+		}
+		yeStringAddCh(str, '}');
+		if (flag & YE_FORMAT_OPT_BREAK_ARRAY_END)
+			yeStringAddCh(str, '\n');
+
+		break;
 	case YARRAY :
 		yeStringAddCh(str, '[');
 		if (yeLen(entity) > 20)
@@ -1539,7 +1721,7 @@ static void yeToCStrInternal(Entity *entity, int deep, Entity *str,
 				yeStringAppendPrintf(str, "[" PRIint64
 						     "] : ", it);
 			}
-			if (yeType(tmp->entity) == YARRAY)
+			if (yeType(tmp->entity) == YARRAY || yeType(tmp->entity) == YHASH)
 				append_pretty(str, deep - 1, origDeep, flag);
 			if (!(deep - 1)) {
 				yeStringAdd(str, "...");

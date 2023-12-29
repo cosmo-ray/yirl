@@ -525,7 +525,7 @@ int ygInit(GameConfig *cfg)
 	}
 
 
-	modList = yeCreateArray(NULL, NULL);
+	modList = yeCreateHash(NULL, NULL);
 	stalked_array = yeCreateArray(NULL, NULL);
 
 	/* Get Current Path, this comment is useless,

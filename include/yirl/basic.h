@@ -29,6 +29,7 @@
 
 #define INT_MIN       (-INT_MAX - 1)
 #define INT_MAX       2147483647
+#define UINT_MAX      0xffffffffu
 
 #define M_E            2.7182818284590452354   /* e */
 #define M_LOG2E        1.4426950408889634074   /* log_2 e */

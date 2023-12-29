@@ -14,3 +14,6 @@
 [submodule "ph7"]
 	path = ph7
 	url = https://github.com/cosmo-ray/PH7.git
+[submodule "include/klib"]
+	path = include/klib
+	url = https://github.com/cosmo-ray/klib.git

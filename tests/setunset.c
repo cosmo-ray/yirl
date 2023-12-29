@@ -27,11 +27,18 @@ void testGet(void)
   Entity *a = yeCreateArray(NULL, NULL);
   Entity *b = yeCreateArray(a, "b");
   Entity *c = yeCreateArray(b, "c");
+  Entity *d = yeCreateHash(b, "d");
+  Entity *e = yeCreateHash(d, "e");
+  Entity *i = yeCreateInt(13, e, "i");
 
   g_assert(b == yeGet(a, "b"));
   g_assert(c == yeGetByStr(a, "b.c"));
   g_assert(c == yeGetByStr(a, "b.0"));
   g_assert(b == yeNGetByStr(a, "b.c", 1));
+  g_assert(d == yeGetByStr(a, "b.d"));
+  g_assert(e == yeGetByStr(a, "b.d.e"));
+  g_assert(i == yeGetByStr(a, "b.d.e.i"));
+  g_assert(i == yeGet(e, "i"));
   yeDestroy(a);
   yeEnd();
 }

@@ -24,6 +24,7 @@ Entity *yeBrutalCast(Entity *entity, int type)
     case YFUNCTION:
     case BAD_TYPE:
     case YARRAY:
+    case YHASH:
     case NBR_ENTITYTYPE:
       return NULL;
     }
@@ -46,6 +47,7 @@ Entity *yeBrutalCast(Entity *entity, int type)
     case YFUNCTION:
     case YARRAY:
     case BAD_TYPE:
+    case YHASH:
     case NBR_ENTITYTYPE:
       return NULL;
     }
@@ -70,6 +72,7 @@ Entity *yeBrutalCast(Entity *entity, int type)
       return entity;
     case YFUNCTION:
     case YARRAY:
+    case YHASH:
     case BAD_TYPE:
     case NBR_ENTITYTYPE:
       return NULL;
@@ -95,6 +98,7 @@ Entity *yeBrutalCast(Entity *entity, int type)
       return entity;
     case YFUNCTION:
     case YARRAY:
+    case YHASH:
     case BAD_TYPE:
     case NBR_ENTITYTYPE:
       return NULL;
@@ -104,6 +108,7 @@ Entity *yeBrutalCast(Entity *entity, int type)
   case BAD_TYPE:
   case NBR_ENTITYTYPE:
   case YARRAY:
+  case YHASH:
   case YFUNCTION:
     return NULL;
   }
@@ -123,6 +128,7 @@ Entity *yeConvert(Entity *entity, int type)
     case YDATA:
     case YSTRING:
     case YFUNCTION:
+    case YHASH:
     case BAD_TYPE:
     case YARRAY:
     case NBR_ENTITYTYPE:
@@ -141,6 +147,7 @@ Entity *yeConvert(Entity *entity, int type)
     case YSTRING:
       /* Not Posible Because of the stupdity of small entity */
     case YFUNCTION:
+    case YHASH:
     case YARRAY:
     case BAD_TYPE:
     case NBR_ENTITYTYPE:
@@ -171,6 +178,7 @@ Entity *yeConvert(Entity *entity, int type)
     case YFLOAT:
     case YDATA:
     case YFUNCTION:
+    case YHASH:
     case BAD_TYPE:
     case NBR_ENTITYTYPE:
       return NULL;
@@ -182,6 +190,7 @@ Entity *yeConvert(Entity *entity, int type)
       return NULL;
     break;
 
+  case YHASH:
   case YARRAY:
   case BAD_TYPE:
   case NBR_ENTITYTYPE:

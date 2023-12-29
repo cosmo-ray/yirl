@@ -57,28 +57,45 @@ void testLifecycleFlow(void)
   Entity *mainStruct = yeCreateArray(NULL, NULL);
   Entity *subStruct1 = yeCreateArray(mainStruct, NULL);
   Entity *subStruct2 = yeCreateArray(NULL, NULL);
+  Entity *subHash = yeCreateHash(mainStruct, NULL);
   Entity *test2 = yeCreateInt(1, subStruct2, NULL);
   Entity *test3 = yeCreateFloat(1, subStruct2, NULL);
+  Entity *test4 = yeCreateString("yes ?", subHash, "a");
+  Entity *test5 = yeCreateString("yes yes ?", NULL, NULL);
 
   g_assert(test2);
   g_assert(test3);
   g_assert(mainStruct);
   g_assert(subStruct1);
   g_assert(subStruct2);
-  g_assert(yeLen(mainStruct) == 1);
-  g_assert(yeLen(subStruct2) == 2);
-  g_assert(!yePushBack(mainStruct, subStruct2, NULL));
   g_assert(yeLen(mainStruct) == 2);
+  g_assert(yeLen(subStruct2) == 2);
+  g_assert(yeLen(subHash) == 1);
+
+  g_assert(!yePushBack(mainStruct, subStruct2, NULL));
+  g_assert(yeLen(mainStruct) == 3);
+
   g_assert(mainStruct->refCount == 1);
   g_assert(subStruct1->refCount == 1);
   g_assert(test3->refCount == 1);
   g_assert(test2->refCount == 1);
   g_assert(subStruct2->refCount == 2);
+  g_assert(subHash->refCount == 1);
+  g_assert(test4->refCount == 1);
+  g_assert(test5->refCount == 1);
+
+  yePush(subHash, test5, "a");
+  g_assert(yeLen(subHash) == 1);
+  g_assert(test4->refCount == 0);
+  g_assert(test5->refCount == 2);
+  yeDestroy(test5);
+
   YE_DESTROY(subStruct2);
   g_assert(subStruct2);
   g_assert(subStruct2->refCount == 1);
   YE_DESTROY(mainStruct);
   g_assert(mainStruct == NULL);
+  g_assert(test5->refCount == 0);
   yeEnd();
 }
 
