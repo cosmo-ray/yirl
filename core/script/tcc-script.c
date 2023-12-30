@@ -28,6 +28,11 @@ static int t = -1;
 static Entity *includeStrs;
 static int tccLoadString(void *sm, const char *str);
 
+void *last_symboles_call[4];
+int last_symboles_call_idx;
+
+Entity *symboles_to_name;
+
 #ifdef TCC_FILETYPE_C
 #define tcc_add_c_file(s, filename) tcc_add_file(s, filename, TCC_FILETYPE_C)
 #else
@@ -482,6 +487,8 @@ static void *tccGetFastCall(void *scriptManager, const char *name)
 	}
 
 	if (NEED_REALLOC(scriptManager)) {
+		if (!symboles_to_name)
+			symboles_to_name = yeCreateArray(NULL, NULL);
 		if (includeStrs) {
 			tccLoadString(state, yeGetString(includeStrs));
 		}
@@ -499,14 +506,19 @@ static void *tccGetFastCall(void *scriptManager, const char *name)
 
 		for (int i = 0; i < state->nbStates - 1; ++i) {
 			ret = tcc_get_symbol(state->states[i], name);
-			if (ret)
+
+			if (ret) {
+				yeCreateData(ret, symboles_to_name, name);
 				return ret;
+			}
 		}
 	} else {
 		for (int i = 0; i < state->nbStates; ++i) {
 			ret = tcc_get_symbol(state->states[i], name);
-			if (ret)
+			if (ret) {
+				yeCreateData(ret, symboles_to_name, name);
 				return ret;
+			}
 		}
 	}
 	return NULL;
@@ -519,6 +531,8 @@ static void *tccFCall(void *sm, void *sym, int nb,
 	/* should work anyway assuming that V */
 	_Static_assert(sizeof(union ycall_arg) == sizeof(void *),
 		"sizeof(union ycall_arg) != sizeof(void *)");
+	last_symboles_call[last_symboles_call_idx % 4] = sym;
+	++last_symboles_call_idx;
 	return ((void *(*)(int, void **args))sym)(nb, (void **)args);
 }
 
@@ -545,6 +559,23 @@ static int tccDestroy(void *sm)
 	return 0;
 }
 
+static void trace(void *sm)
+{
+	printf("abort in tcc, trace:\n");
+	for (int i = 0; i < 4; ++i) {
+		void *last_symbole_call = last_symboles_call[(last_symboles_call_idx - i) % 4];
+		if (!last_symbole_call)
+			continue;
+		YE_REVFOREACH(symboles_to_name, iesym) {
+			if (yeGetData(iesym) == last_symbole_call) {
+				printf("%s\n",
+				       yeGetKeyAt(symboles_to_name, i_YE_REVFOREACH) ?
+				       yeGetKeyAt(symboles_to_name, i_YE_REVFOREACH) : "(nil)");
+			}
+		}
+	}
+}
+
 static void *tccAllocator(void)
 {
 	YTccScript *ret;
@@ -557,7 +588,7 @@ static void *tccAllocator(void)
 	ret->ops.init = tccInit;
 	ret->ops.destroy = tccDestroy;
 	ret->ops.loadFile = tccLoadFile;
-	ret->ops.trace = NULL;
+	ret->ops.trace = trace;
 	ret->ops.loadString = tccLoadString;
 	ret->ops.call = tccCall;
 	ret->ops.fastCall = tccFCall;

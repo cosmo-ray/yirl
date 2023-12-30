@@ -1220,6 +1220,11 @@ static void addFuncSymbole(void *sm, const char *name, int nbArgs, Entity *func)
 	yeDestroy(str);
 }
 
+static void trace(void *sm)
+{
+	printf("abort in quickjs\n");
+}
+
 static void *allocator(void)
 {
 	YScriptQjs *ret;
@@ -1231,7 +1236,7 @@ static void *allocator(void)
 	ret->ops.loadString = loadString;
 	ret->ops.e_destroy = e_destroy;
 	ret->ops.call = call;
-	ret->ops.trace = NULL;
+	ret->ops.trace = trace;
 	ret->ops.fastCall = fCall;
 	ret->ops.addFuncSymbole = addFuncSymbole;
 	return (void *)ret;

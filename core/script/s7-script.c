@@ -884,6 +884,11 @@ static void addFuncSymbole(void *sm, const char *name, int nbArgs, Entity *func)
 	yeDestroy(str);
 }
 
+static void trace(void *sm)
+{
+	printf("abort in s7\n");
+}
+
 static void *allocator(void)
 {
 	YScriptS7 *ret;
@@ -897,7 +902,7 @@ static void *allocator(void)
 	ret->ops.loadFile = loadFile;
 	ret->ops.loadString = loadString;
 	ret->ops.call = call;
-	ret->ops.trace = NULL;
+	ret->ops.trace = trace;
 	ret->ops.getError = NULL;
 	ret->ops.registreFunc = NULL;
 	ret->ops.addFuncSymbole = addFuncSymbole;
