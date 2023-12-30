@@ -719,7 +719,7 @@ Entity *yeRemoveChildByEntity(Entity *array, Entity *toRemove);
  */
 static inline Entity *yeTryRemoveChild(Entity *array, Entity *toRemove)
 {
-	if (!toRemove)
+	if (!toRemove || !array)
 		return NULL;
 	return yeRemoveChildByEntity(array, toRemove);
 }

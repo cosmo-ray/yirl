@@ -834,7 +834,7 @@ void *dialogueInit(int nbArgs, void **args)
 void *dialogueDestroy(int nbArgs, void **args)
 {
 	yeRemoveChild(yeGet(args[0], "box"), args[0]);
-	yeRemoveChild(yeGet(args[0], "name-box"), args[0]);
+	yeTryRemoveChild(yeGet(args[0], "name-box"), args[0]);
 }
 
 void *showDialogueImage(int n, void **args) {
