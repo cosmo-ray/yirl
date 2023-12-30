@@ -117,85 +117,111 @@ Entity *yeBrutalCast(Entity *entity, int type)
 
 Entity *yeConvert(Entity *entity, int type)
 {
-  switch (yeType(entity)) {
-    /*-- int --*/
-  case YINT:
-    switch (type) {
-    case YINT:
-	    return entity;
-    case YFLOAT:
-      return yeBrutalCast(entity, YFLOAT);
-    case YDATA:
-    case YSTRING:
-    case YFUNCTION:
-    case YHASH:
-    case BAD_TYPE:
-    case YARRAY:
-    case NBR_ENTITYTYPE:
-      return NULL;
-    }
-    break;
+	switch (yeType(entity)) {
+		/*-- int --*/
+	case YINT:
+		switch (type) {
+		case YINT:
+			return entity;
+		case YFLOAT:
+			return yeBrutalCast(entity, YFLOAT);
+		case YDATA:
+		case YSTRING:
+		case YFUNCTION:
+		case YHASH:
+		case BAD_TYPE:
+		case YARRAY:
+		case NBR_ENTITYTYPE:
+			return NULL;
+		}
+		break;
 
-    /*-- float --*/
-  case YFLOAT:
-    switch (type) {
-    case YFLOAT:
-	    return entity;
-    case YINT:
-      return yeBrutalCast(entity, YINT);
-    case YDATA:
-    case YSTRING:
-      /* Not Posible Because of the stupdity of small entity */
-    case YFUNCTION:
-    case YHASH:
-    case YARRAY:
-    case BAD_TYPE:
-    case NBR_ENTITYTYPE:
-      return NULL;
-    }
-    break;
+		/*-- float --*/
+	case YFLOAT:
+		switch (type) {
+		case YFLOAT:
+			return entity;
+		case YINT:
+			return yeBrutalCast(entity, YINT);
+		case YDATA:
+		case YSTRING:
+			/* Not Posible Because of the stupdity of small entity */
+		case YFUNCTION:
+		case YHASH:
+		case YARRAY:
+		case BAD_TYPE:
+		case NBR_ENTITYTYPE:
+			return NULL;
+		}
+		break;
 
-    /*-- string --*/
-  case YSTRING:
-    switch (type) {
-    case YSTRING:
-      return entity;
-    case YARRAY:
-      {
-	const char *c_tmp;
-	char *to_free = yeStringFreeable(entity);
+		/*-- string --*/
+	case YSTRING:
+		switch (type) {
+		case YSTRING:
+			return entity;
+		case YARRAY:
+		{
+			const char *c_tmp;
+			char *to_free = yeStringFreeable(entity);
 
-	c_tmp = yeGetString(entity);
-	Entity *tmp = yeCreateString(c_tmp, NULL, NULL);
-	entity->type = YARRAY;
-	yBlockArrayInit(&YE_TO_ARRAY(entity)->values, ArrayEntry);
-	yePushBack(entity, tmp, NULL);
-	yeDestroy(tmp);
-	free(to_free);
-	return entity;
-      }
-    case YINT:
-    case YFLOAT:
-    case YDATA:
-    case YFUNCTION:
-    case YHASH:
-    case BAD_TYPE:
-    case NBR_ENTITYTYPE:
-      return NULL;
-    }
-    break;
+			c_tmp = yeGetString(entity);
+			Entity *tmp = yeCreateString(c_tmp, NULL, NULL);
+			entity->type = YARRAY;
+			yBlockArrayInit(&YE_TO_ARRAY(entity)->values, ArrayEntry);
+			yePushBack(entity, tmp, NULL);
+			yeDestroy(tmp);
+			free(to_free);
+			return entity;
+		}
+		case YINT:
+		case YFLOAT:
+		case YDATA:
+		case YFUNCTION:
+		case YHASH:
+		case BAD_TYPE:
+		case NBR_ENTITYTYPE:
+			return NULL;
+		}
+		break;
 
-    /*-- data --*/
-  case YDATA:
-      return NULL;
-    break;
+		/*-- data --*/
+	case YDATA:
+		return NULL;
+		break;
 
-  case YHASH:
-  case YARRAY:
-  case BAD_TYPE:
-  case NBR_ENTITYTYPE:
-  case YFUNCTION:
-    return NULL;
-  }
-  return NULL;
+	case YHASH:
+		break;
+	case YARRAY:
+		switch (type) {
+		case YHASH:
+		{
+			yeAutoFree Entity *tmp = yeCreateCopy2(entity, NULL, NULL, 1);
+			yeClearArray(entity);
+			yBlockArrayFree(&YE_TO_ARRAY(entity)->values);
+			entity->type = YHASH;
+			YE_TO_HASH(entity)->values = kh_init(entity_hash);
+			for (size_t i = 0; i < yeLen(tmp); ++i) {
+				char *key = yeGetKeyAt(tmp, i);
+				static char buf[1024];
+
+				if (unlikely(!key)) {
+					snprintf(buf, 1023, "i-%ld", i);
+					key = buf;
+				}
+				yePush(entity, yeGet(tmp, i), key);
+			}
+			return entity;
+		}
+			break;
+		default:
+			break;
+		}
+		break;
+	case BAD_TYPE:
+	case NBR_ENTITYTYPE:
+	case YFUNCTION:
+		return NULL;
+	}
+	return NULL;
 }

@@ -405,6 +405,16 @@ int	luaentity_destroy(lua_State *L)
 	return 0;
 }
 
+int	luaentity_newhash(lua_State *L)
+{
+	const char *name = lua_tostring(L, 2);
+	Entity *father = NULL;
+	struct entityWrapper *ew = createEntityWrapper(L, 1, &father);
+
+	ew->e = yeCreateHash(father, name);
+	return 1;
+}
+
 int	luaentity_newarray(lua_State *L)
 {
 	const char *name = lua_tostring(L, 2);

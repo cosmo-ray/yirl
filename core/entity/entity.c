@@ -820,9 +820,10 @@ void yeClearArray(Entity *entity)
 	case YHASH:
 		{
 			Entity *vvar;
+			const char *kkey;
 
-			kh_foreach_value(((HashEntity *)entity)->values,
-				   vvar, yeDestroy(vvar));
+			kh_foreach(((HashEntity *)entity)->values,
+					 kkey, vvar, {free((char *)kkey);yeDestroy(vvar);});
 			kh_clear(entity_hash, ((HashEntity *)entity)->values);
 		}
 		break;
@@ -834,10 +835,11 @@ void yeClearArray(Entity *entity)
 void yeDestroyHash(Entity *entity)
 {
 	Entity *vvar;
+	const char *kkey;
 
 	if(entity->refCount == 1) {
-		kh_foreach_value(((HashEntity *)entity)->values,
-				 vvar, yeDestroy(vvar));
+		kh_foreach(((HashEntity *)entity)->values,
+			   kkey, vvar, {free((char *)kkey); yeDestroy(vvar);});
 		kh_destroy(entity_hash, ((HashEntity *)entity)->values);
 		YE_DESTROY_ENTITY(entity, ArrayEntity);
 	} else {
@@ -1235,7 +1237,7 @@ static inline void yeInit(Entity *entity, EntityType type,
 	yeAttachChild(father, entity, name);
 }
 
-Entity *yeCreateCopy(Entity *src, Entity *father, const char *name)
+Entity *yeCreateCopy2(Entity *src, Entity *father, const char *name, _Bool just_ref)
 {
 	Entity *ret;
 
@@ -1248,15 +1250,24 @@ Entity *yeCreateCopy(Entity *src, Entity *father, const char *name)
 		return yeCreateFloat(yeGetFloatDirect(src), father, name);
 	case YARRAY:
 	case YFUNCTION:
-		ret = yeType(src) == YARRAY ?
+		ret = src->type == YARRAY ?
 			yeCreateArray(father, name) :
 		yeCreateFunction(NULL, NULL, father, name);
-		if (!yeCopy(src, ret)) {
-			if (father)
-				yeRemoveChild(father, ret);
-			else
-				yeDestroy(ret);
-			return NULL;
+		if (src->type == YARRAY && just_ref) {
+			for (size_t i = 0; i < yeLen(src); ++i) {
+				char *key = yeGetKeyAt(src, i);
+
+				yePushBack(ret, yeGet(src, i), key);
+			}
+
+		} else {
+			if (!yeCopy(src, ret)) {
+				if (father)
+					yeRemoveChild(father, ret);
+				else
+					yeDestroy(ret);
+				return NULL;
+			}
 		}
 		break;
 	default:
@@ -1265,6 +1276,10 @@ Entity *yeCreateCopy(Entity *src, Entity *father, const char *name)
 	return ret;
 }
 
+Entity *yeCreateCopy(Entity *src, Entity *father, const char *name)
+{
+	return yeCreateCopy2(src, father, name, 0);
+}
 
 int yeAttach(Entity *on, Entity *entity,
 	     unsigned int idx, const char *name, uint64_t flag)
@@ -1302,7 +1317,7 @@ int yeAttach(Entity *on, Entity *entity,
 				printf("to remove after: %d\n", toRemove->refCount);
 			}
 		}
-		iterator = kh_put(entity_hash, hon->values, name, &ret);
+		iterator = kh_put(entity_hash, hon->values, strdup(name), &ret);
 		if (ret < 0)
 			return -1;
 		if (!(flag & YE_ATTACH_NO_INC_REF))

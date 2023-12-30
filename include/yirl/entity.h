@@ -1113,6 +1113,7 @@ Entity *yeCopy(Entity* src, Entity* dest);
 #define yecpy(dest, src)			\
 	yeCopy(src, dest)
 
+Entity *yeCreateCopy2(Entity *src, Entity *father, const char *name, _Bool just_ref);
 Entity *yeCreateCopy(Entity *src, Entity *father, const char *name);
 
 /**

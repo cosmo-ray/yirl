@@ -463,6 +463,7 @@ int	luaentity_newfunc(lua_State *L);
 int	luaentity_newint(lua_State *L);
 int	luaentity_newstring(lua_State *L);
 int	luaentity_newarray(lua_State *L);
+int	luaentity_newhash(lua_State *L);
 int	luaentity_newcopy(lua_State *L);
 int	luaentity_newfloat(lua_State *L);
 int	luaentity_index(lua_State *L);
@@ -500,6 +501,9 @@ int	luayIsNNil(lua_State *l);
 BIND_V(yuiRandInit);
 BIND_S(yuiMkdir);
 BIND_S(yuiFileExist);
+
+/* Hash */
+BIND_ES(yeCreateHash);
 
 /* Array */
 int	luayeGet(lua_State *L);
@@ -833,6 +837,7 @@ static inline int	yesLuaRegister(void *sm)
     { "new_string", luaentity_newstring},
     { "new_func", luaentity_newfunc},
     { "new_array", luaentity_newarray},
+    { "new_hash", luaentity_newhash},
     { "new_float", luaentity_newfloat},
     { "new_copy", luaentity_newcopy},
     {"wrapp", luaentity_wrapp},
@@ -852,6 +857,7 @@ static inline int	yesLuaRegister(void *sm)
   LUA_SET_INT_GLOBAL(sm, YSTRING);
   LUA_SET_INT_GLOBAL(sm, YFLOAT);
   LUA_SET_INT_GLOBAL(sm, YARRAY);
+  LUA_SET_INT_GLOBAL(sm, YHASH);
   LUA_SET_INT_GLOBAL(sm, YFUNCTION);
   LUA_SET_INT_GLOBAL(sm, YDATA);
 
