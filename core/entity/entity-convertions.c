@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include "entity.h"
+#include <inttypes.h>
 
 Entity *yeBrutalCast(Entity *entity, int type)
 {
@@ -206,7 +207,7 @@ Entity *yeConvert(Entity *entity, int type)
 				static char buf[1024];
 
 				if (unlikely(!key)) {
-					snprintf(buf, 1023, "i-%ld", i);
+					snprintf(buf, 1023, "i-"PRIint64, i);
 					key = buf;
 				}
 				yePush(entity, yeGet(tmp, i), key);
