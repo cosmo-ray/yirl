@@ -545,7 +545,7 @@ static inline int ye_revforeach_eval_(Entity *a, int *i, Entity **e)
 /**
  * @return 0 if @entity is NULL
  */
-int	yeGetInt(Entity *entity);
+NO_SIDE_EFFECT int yeGetInt(Entity *entity);
 
 /**
  * @return 0 if @entity is NULL
@@ -643,7 +643,7 @@ static inline uint32_t yeGetUInt(Entity *i) {
 /**
  * @return 0 if @entity is NULL
  */
-double yeGetFloat(Entity *entity);
+NO_SIDE_EFFECT double yeGetFloat(Entity *entity);
 
 #define yeGetFloatDirect(entity) (YE_TO_FLOAT(entity)->value)
 
@@ -665,7 +665,7 @@ NO_SIDE_EFFECT static inline int yeGetFloatAtByStr(Entity *array, const char *po
 /**
  * @return the string value
  */
-const char *yeGetString(Entity *entity);
+NO_SIDE_EFFECT const char *yeGetString(Entity *entity);
 
 /**
  * @TODO	do the generic version for strings
@@ -683,7 +683,7 @@ NO_SIDE_EFFECT static inline const char *yeGetStringAtByStr(Entity *array, const
 
 #define yeGetStringAt(array, pos) yeGetString(yeGet(array, pos))
 
-void *yeGetData(Entity *entity);
+NO_SIDE_EFFECT void *yeGetData(Entity *entity);
 
 #define yeGetDataAt(array, pos) yeGetData(yeGet(array, pos))
 /**
@@ -1173,9 +1173,9 @@ NO_SIDE_EFFECT static inline size_t yeNbElems(Entity *array)
  * @param entity
  * @return the entity's value if entity is of type YFUNCTION, NULL otherwise
  */
-const char *yeGetFunction(Entity *entity);
+NO_SIDE_EFFECT const char *yeGetFunction(Entity *entity);
 
-void *yeGetFunctionFastPath(Entity *entity);
+NO_SIDE_EFFECT void *yeGetFunctionFastPath(Entity *entity);
 
 NO_SIDE_EFFECT static inline intptr_t yeIData(Entity *e)
 {

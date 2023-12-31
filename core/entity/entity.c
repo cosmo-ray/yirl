@@ -287,7 +287,7 @@ NO_SIDE_EFFECT Entity *yeGetByIdx(Entity *entity, size_t index)
 		return NULL;
 	ygAssert(entity->refCount);
 	if (entity->type == YHASH)
-		abort();
+		ygDgbAbort();
 	Entity *r = yBlockArrayGet(&YE_TO_ARRAY(entity)->values,
 				   index, ArrayEntry).entity;
 	ygAssert(!r || yeIsPtrAnEntity(r));
@@ -1512,7 +1512,7 @@ void	yeSetFloat(Entity *entity, double value)
 	((FloatEntity *)entity)->value = value;
 }
 
-const char *yeGetString(Entity *entity)
+NO_SIDE_EFFECT const char *yeGetString(Entity *entity)
 {
 	if (unlikely(!entity)) {
 		return NULL;
@@ -1520,7 +1520,7 @@ const char *yeGetString(Entity *entity)
 	return ((StringEntity *)entity)->value;
 }
 
-int	yeGetInt(Entity *entity)
+NO_SIDE_EFFECT int	yeGetInt(Entity *entity)
 {
 	if (unlikely(!entity)) {
 		return 0;
@@ -1530,7 +1530,7 @@ int	yeGetInt(Entity *entity)
 	return YE_TO_INT(entity)->value;
 }
 
-void	*yeGetData(Entity *entity)
+NO_SIDE_EFFECT void	*yeGetData(Entity *entity)
 {
 	if (unlikely(!entity)) {
 		return NULL;
@@ -1538,12 +1538,12 @@ void	*yeGetData(Entity *entity)
 	return YE_TO_DATA(entity)->value;
 }
 
-void	*yeGetFunctionFastPath(Entity *entity)
+NO_SIDE_EFFECT void	*yeGetFunctionFastPath(Entity *entity)
 {
 	return YE_TO_FUNC(entity)->fastPath;
 }
 
-const char	*yeGetFunction(Entity *entity)
+NO_SIDE_EFFECT const char	*yeGetFunction(Entity *entity)
 {
 	if (unlikely(yeType(entity) != YFUNCTION)) {
 		return NULL;
@@ -1551,7 +1551,7 @@ const char	*yeGetFunction(Entity *entity)
 	return YE_TO_FUNC(entity)->value;
 }
 
-double	yeGetFloat(Entity *entity)
+NO_SIDE_EFFECT double	yeGetFloat(Entity *entity)
 {
 	if (unlikely(!entity)) {
 		return 0;
