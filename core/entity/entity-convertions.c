@@ -10,6 +10,10 @@ Entity *yeBrutalCast(Entity *entity, int type)
     switch (type) {
     case YINT:
       return entity;
+    case YQUADINT:
+      entity->type = YQUADINT;
+      YE_TO_QINT(entity)->x = (int)YE_TO_INT(entity)->value;
+      return entity;
     case YFLOAT:
       entity->type = YFLOAT;
       YE_TO_FLOAT(entity)->value = YE_TO_INT(entity)->value;
@@ -38,7 +42,11 @@ Entity *yeBrutalCast(Entity *entity, int type)
       return entity;
     case YINT:
       entity->type = YINT;
-      YE_TO_FLOAT(entity)->value = YE_TO_INT(entity)->value;
+      YE_TO_INT(entity)->value = YE_TO_FLOAT(entity)->value;
+      return entity;
+    case YQUADINT:
+      entity->type = YQUADINT;
+      YE_TO_QINT(entity)->x = YE_TO_FLOAT(entity)->value;
       return entity;
     case YDATA:
       entity->type = YDATA;
@@ -73,6 +81,7 @@ Entity *yeBrutalCast(Entity *entity, int type)
       return entity;
     case YFUNCTION:
     case YARRAY:
+    case YQUADINT:
     case YHASH:
     case BAD_TYPE:
     case NBR_ENTITYTYPE:
@@ -99,6 +108,7 @@ Entity *yeBrutalCast(Entity *entity, int type)
       return entity;
     case YFUNCTION:
     case YARRAY:
+    case YQUADINT:
     case YHASH:
     case BAD_TYPE:
     case NBR_ENTITYTYPE:
@@ -109,6 +119,7 @@ Entity *yeBrutalCast(Entity *entity, int type)
   case BAD_TYPE:
   case NBR_ENTITYTYPE:
   case YARRAY:
+  case YQUADINT:
   case YHASH:
   case YFUNCTION:
     return NULL;
@@ -129,6 +140,7 @@ Entity *yeConvert(Entity *entity, int type)
 		case YDATA:
 		case YSTRING:
 		case YFUNCTION:
+		case YQUADINT:
 		case YHASH:
 		case BAD_TYPE:
 		case YARRAY:
@@ -149,6 +161,7 @@ Entity *yeConvert(Entity *entity, int type)
 			/* Not Posible Because of the stupdity of small entity */
 		case YFUNCTION:
 		case YHASH:
+		case YQUADINT:
 		case YARRAY:
 		case BAD_TYPE:
 		case NBR_ENTITYTYPE:
@@ -178,6 +191,7 @@ Entity *yeConvert(Entity *entity, int type)
 		case YINT:
 		case YFLOAT:
 		case YDATA:
+		case YQUADINT:
 		case YFUNCTION:
 		case YHASH:
 		case BAD_TYPE:
@@ -219,6 +233,7 @@ Entity *yeConvert(Entity *entity, int type)
 			break;
 		}
 		break;
+	case YQUADINT:
 	case BAD_TYPE:
 	case NBR_ENTITYTYPE:
 	case YFUNCTION:
