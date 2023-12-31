@@ -63,7 +63,8 @@ typedef enum
 	YFUNCTION = 4,
 	YDATA = 5,
 	YHASH = 6,
-	NBR_ENTITYTYPE = 7
+	YQUADINT = 7,
+	NBR_ENTITYTYPE = 8
 } EntityType;
 
 typedef enum
@@ -104,6 +105,7 @@ typedef enum
 #define	YE_TO_DATA(X) ((DataEntity *)X)
 #define	YE_TO_C_DATA(X) ((const DataEntity *)X)
 #define YE_TO_HASH(X) ((HashEntity *)X)
+#define YE_TO_QINT(X) ((QuadIntEntity *)X)
 
   /* TODO: move most of this code to yeDestroy, remove this */
 #define YE_DESTROY(X) do {			\
@@ -173,6 +175,16 @@ typedef	struct
 {
 	ENTITY_HEADER
 
+	int	x;
+	int	y;
+	int	w;
+	int	h;
+} QuadIntEntity;
+
+typedef	struct
+{
+	ENTITY_HEADER
+
 	double	value;
 } FloatEntity;
 
@@ -228,6 +240,7 @@ union SmallEntity {
 	IntEntity IntEntity;
 	FloatEntity FloatEntity;
 	StringEntity StringEntity;
+	QuadIntEntity QuadIntEntity;
 	uint8_t totalSize[32];
 };
 
@@ -240,6 +253,7 @@ union FatEntity {
 	FloatEntity FloatEntity;
 	StringEntity StringEntity;
 	DataEntity DataEntity;
+	QuadIntEntity QuadIntEntity;
 	FunctionEntity FunctionEntity;
 	HashEntity HashEntity;
 	union SmallEntity SnallEntities[4];
@@ -534,15 +548,87 @@ static inline int ye_revforeach_eval_(Entity *a, int *i, Entity **e)
 int	yeGetInt(Entity *entity);
 
 /**
+ * @return 0 if @entity is NULL
+ */
+NO_SIDE_EFFECT static inline int yeGetQuadInt0(Entity *entity) {
+	if (yeType(entity) != YQUADINT) {
+		return 0;
+	} 
+	return YE_TO_QINT(entity)->x;
+}
+
+/**
+ * @return 0 if @entity is NULL
+ */
+NO_SIDE_EFFECT static inline int yeGetQuadInt1(Entity *entity) {
+	if (yeType(entity) != YQUADINT) {
+		return 0;
+	} 
+	return YE_TO_QINT(entity)->y;
+}
+
+/**
+ * @return 0 if @entity is NULL
+ */
+NO_SIDE_EFFECT static inline int yeGetQuadInt2(Entity *entity) {
+	if (yeType(entity) != YQUADINT) {
+		return 0;
+	} 
+	return YE_TO_QINT(entity)->w;
+}
+
+/**
+ * @return 0 if @entity is NULL
+ */
+NO_SIDE_EFFECT static inline int yeGetQuadInt3(Entity *entity) {
+	if (yeType(entity) != YQUADINT) {
+		return 0;
+	} 
+	return YE_TO_QINT(entity)->h;
+}
+
+/**
  * @return	value of entity at @pos in @array, 0 if entity doesn't existe
  */
 NO_SIDE_EFFECT static inline int yeGetIntAtByIdx(Entity *array, int pos)
 {
+	if (yeType(array) == YQUADINT) {
+		switch(pos) {
+		case 0:
+			return yeGetQuadInt0(array);
+		case 1:
+			return yeGetQuadInt1(array);
+		case 2:
+			return yeGetQuadInt2(array);
+		case 3:
+			return yeGetQuadInt3(array);
+		default:
+			DPRINT_ERR("can't get elem '%d', Quand int contain only 4 int", pos);
+			return 0;
+		}
+	}
 	return yeGetInt(yeGetByIdx(array, pos));
 }
 
 NO_SIDE_EFFECT static inline int yeGetIntAtByStr(Entity *array, const char *pos)
 {
+	if (yeType(array) == YQUADINT) {
+		if (!pos)
+			return 0;
+		switch(pos[0]) {
+		case 'x':
+			return yeGetQuadInt0(array);
+		case 'y':
+			return yeGetQuadInt1(array);
+		case 'w':
+			return yeGetQuadInt2(array);
+		case 'h':
+			return yeGetQuadInt3(array);
+		default:
+			DPRINT_ERR("can't get elem '%s'\nQuand int can only get string begining by 'x', 'y', 'w', 'h'", pos);
+			return 0;
+		}
+	}
 	return yeGetInt(yeGetByStrFast(array, pos));
 }
 
@@ -750,6 +836,7 @@ Entity *yeCreate(EntityType type, void *val, Entity *parent, const char *name);
 /*
  * Destructor and constructors.
  */
+Entity *yeCreateQuadInt(int i0, int i1, int i2, int i3, Entity *parent, const char *name);
 Entity *yeCreateInt(int value, Entity *parent, const char *name);
 Entity *yeCreateIntAt(int value, Entity *parent, const char *name, int idx);
 Entity *yeCreateFloat(double value, Entity *parent, const char *name);
@@ -820,6 +907,7 @@ void yeDestroyFunction(Entity *entity);
 void yeDestroyArray(Entity *entity);
 void yeDestroyData(Entity *entity);
 void yeDestroyHash(Entity *entity);
+void yeDestroyQuadInt(Entity *entity);
 
 static void yeDestroy_VoidPtr(void *e)
 {

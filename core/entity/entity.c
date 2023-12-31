@@ -116,6 +116,7 @@ do {									\
 #define YE_ALLOC_ENTITY_FunctionEntity(ret, type) YE_ALLOC_ENTITY_BASE(ret, type)
 #define YE_ALLOC_ENTITY_StringEntity(ret, type) YE_ALLOC_ENTITY_SMALL(ret, type)
 #define YE_ALLOC_ENTITY_HashEntity(ret, type) YE_ALLOC_ENTITY_BASE(ret, type)
+#define YE_ALLOC_ENTITY_QuadIntEntity(ret, type) YE_ALLOC_ENTITY_SMALL(ret, type)
 
 #define YE_ALLOC_ENTITY(ret, type) YUI_CAT(YE_ALLOC_ENTITY_, type)(ret, type)
 #define YE_DESTROY_ENTITY(entity, type) YE_DESTROY_ENTITY_SMALL(entity, type)
@@ -203,6 +204,7 @@ void (*destroyTab[])(Entity *) = {
 	yeDestroyFunction,
 	yeDestroyData,
 	yeDestroyHash,
+	yeDestroyQuadInt,
 };
 
 const char * EntityTypeStrings[] = { "int", "float", "string",
@@ -533,6 +535,29 @@ NO_SIDE_EFFECT int yeArrayIdx_str(Entity *entity, const char *lookup)
 	return -1;
 }
 
+Entity *yeCreateQuadInt(int i0, int i1, int i2, int i3, Entity *parent, const char *name)
+{
+	QuadIntEntity * restrict ret;
+
+	YE_ALLOC_ENTITY(ret, QuadIntEntity);
+	yeInit((Entity *)ret, YQUADINT, parent, name);
+	ret->x = i0;
+	ret->y = i1;
+	ret->w = i2;
+	ret->h = i3;
+	return ((Entity *)ret);
+}
+
+Entity *yeCreateQuadInt2(int i0, int i1, Entity *parent, const char *name)
+{
+	return yeCreateQuadInt(i0, i1, 0, 0, parent, name);
+}
+
+Entity *yeCreateQuadInt0(Entity *parent, const char *name)
+{
+	return yeCreateQuadInt(0, 0, 0, 0, parent, name);
+}
+
 Entity *yeCreateInt(int value, Entity *father, const char *name)
 {
 	IntEntity * restrict ret;
@@ -767,6 +792,11 @@ static void destroyChildsNoFree(Entity *entity)
 void yeDestroyInt(Entity *entity)
 {
 	YE_DESTROY_ENTITY(entity, IntEntity);
+}
+
+void yeDestroyQuadInt(Entity *entity)
+{
+	YE_DESTROY_ENTITY(entity, QuadIntEntity);
 }
 
 void yeDestroyFloat(Entity *entity)
@@ -1678,6 +1708,14 @@ static void yeToCStrInternal(Entity *entity, int deep, Entity *str,
 	case YINT :
 		yeStringAppendPrintf(str, "'%d'",
 				     (uint32_t)yeGetIntDirect(entity));
+		break;
+	case YQUADINT :
+		yeStringAppendPrintf(str, "<q: %d, %d, %d, %d>",
+				     yeGetIntAt(entity, 0),
+				     yeGetIntAt(entity, 1),
+				     yeGetIntAt(entity, 2),
+				     yeGetIntAt(entity, 3)
+			);
 		break;
 	case YFLOAT :
 		yeStringAppendPrintf(str, "'%f'", yeGetFloatDirect(entity));
