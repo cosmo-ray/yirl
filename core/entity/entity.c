@@ -535,6 +535,19 @@ NO_SIDE_EFFECT int yeArrayIdx_str(Entity *entity, const char *lookup)
 	return -1;
 }
 
+Entity *yeCreateQuadIntAt(int i0, int i1, int i2, int i3, Entity *mother, const char *name, int idx)
+{
+	QuadIntEntity * restrict ret;
+
+	YE_ALLOC_ENTITY(ret, QuadIntEntity);
+	yeInitAt((Entity *)ret, YQUADINT, mother, name, idx);
+	ret->x = i0;
+	ret->y = i1;
+	ret->w = i2;
+	ret->h = i3;
+	return ((Entity *)ret);
+}
+
 Entity *yeCreateQuadInt(int i0, int i1, int i2, int i3, Entity *parent, const char *name)
 {
 	QuadIntEntity * restrict ret;
@@ -1457,6 +1470,25 @@ void	yeSetStringAt(Entity *entity, unsigned int index, const char *value)
 
 void	yeSetIntAt(Entity *entity, unsigned int index, int value)
 {
+	if (yeType(entity) == YQUADINT) {
+		switch(index) {
+		case 0:
+			YE_TO_QINT(entity)->x = value;
+			break;
+		case 1:
+			YE_TO_QINT(entity)->y = value;
+			break;
+		case 2:
+			YE_TO_QINT(entity)->w = value;
+			break;
+		case 3:
+			YE_TO_QINT(entity)->h = value;
+			break;
+		default:
+			DPRINT_ERR("can't get elem '%d', Quand int contain only 4 int", index);
+		}
+		return;
+	}
 	yeSetInt(yeGet(entity, index), value);
 }
 
@@ -1472,6 +1504,25 @@ void	yeSetStringAtStrIdx(Entity *entity, const char *index, const char *value)
 
 void	yeSetIntAtStrIdx(Entity *entity, const char *index, int value)
 {
+	if (yeType(entity) == YQUADINT) {
+		switch(index[0]) {
+		case 'x':
+			YE_TO_QINT(entity)->x = value;
+			break;
+		case 'y':
+			YE_TO_QINT(entity)->y = value;
+			break;
+		case 'w':
+			YE_TO_QINT(entity)->w = value;
+			break;
+		case 'h':
+			YE_TO_QINT(entity)->h = value;
+			break;
+		default:
+			DPRINT_ERR("can't get elem '%s' in quad", index);
+		}
+		return;
+	}
 	yeSetInt(yeGet(entity, index), value);
 }
 

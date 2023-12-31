@@ -837,6 +837,7 @@ Entity *yeCreate(EntityType type, void *val, Entity *parent, const char *name);
  * Destructor and constructors.
  */
 Entity *yeCreateQuadInt(int i0, int i1, int i2, int i3, Entity *parent, const char *name);
+Entity *yeCreateQuadIntAt(int i0, int i1, int i2, int i3, Entity *parent, const char *name, int idx);
 Entity *yeCreateInt(int value, Entity *parent, const char *name);
 Entity *yeCreateIntAt(int value, Entity *parent, const char *name, int idx);
 Entity *yeCreateFloat(double value, Entity *parent, const char *name);
@@ -1310,10 +1311,45 @@ static inline void yeIntRoundBound(Entity *e, int min, int max) {
 		yeSetInt(e, min);
 }
 
+
 #define yeIncrAt(e, at) yeAdd(yeGet(e, at), 1)
 
-#define yeAddAt(e, at, toAdd)			\
-	yeAdd(yeGet(e, at), toAdd)
+#define YE_ADD_AT_STRIDX_INTERNAL(WHAT)		\
+	_Generic((WHAT),			\
+		 int: yeAddIntAtStr,		\
+		 long : yeAddLongAtStr,		\
+		 long long : yeAddLongAtStr,	\
+		 float: yeAddFloatAtStr,	\
+		 const char *: yeAddStrAtStr,	\
+		 char *: yeAddStrAtStr)
+
+#define yeAddAt(ENTITY, INDEX, VALUE)					\
+	_Generic((INDEX),						\
+		 long: _Generic((VALUE),				\
+			       int: yeAddIntAtIdx,			\
+			       long : yeAddLongAtIdx,			\
+			       long long : yeAddLongAtIdx,		\
+			       float: yeAddFloatAtIdx,			\
+			       const char *: yeAddStrAtIdx,		\
+			       char *: yeAddStrAtIdx),			\
+		 long long: _Generic((VALUE),				\
+			       int: yeAddIntAtIdx,			\
+			       long : yeAddLongAtIdx,			\
+			       long long : yeAddLongAtIdx,		\
+			       float: yeAddFloatAtIdx,			\
+			       const char *: yeAddStrAtIdx,		\
+			       char *: yeAddStrAtIdx),			\
+		 int: _Generic((VALUE),					\
+			       int: yeAddIntAtIdx,			\
+			       long : yeAddLongAtIdx,			\
+			       long long : yeAddLongAtIdx,		\
+			       float: yeAddFloatAtIdx,			\
+			       const char *: yeAddStrAtIdx,		\
+			       char *: yeAddStrAtIdx),			\
+		 char *: YE_ADD_AT_STRIDX_INTERNAL(VALUE),		\
+		 const char *: YE_ADD_AT_STRIDX_INTERNAL(VALUE)		\
+		)(ENTITY, INDEX, VALUE)
+
 
 #define yeAdd(e, toAdd)				\
 	_Generic(toAdd, int: yeAddInt,		\
@@ -1371,6 +1407,20 @@ static inline int yeAddInt(Entity *e, int i)
 		return yeIntAddInt(YE_TO_INT(e), i);
 	case YSTRING:
 		yeStringAddInt(e, i);
+		return 0;
+	default :
+		return -1;
+	}
+}
+
+static inline int yeAddFloat(Entity *e, double i)
+{
+	switch (yeType(e)) {
+	case YFLOAT:
+		YE_TO_FLOAT(e)->value += i;
+		return 0;
+	case YINT:
+		YE_TO_INT(e)->value += i;
 		return 0;
 	default :
 		return -1;
@@ -1462,6 +1512,84 @@ static inline int yeSubEnt(Entity *e, Entity *e2)
 		return -1;
 	}
 	return -1;
+}
+
+static inline int yeAddIntAtIdx(Entity *container, int at, int to_add)
+{
+	if (yeType(container) == YQUADINT) {
+		switch(at) {
+		case 0:
+			YE_TO_QINT(container)->x += to_add;
+			return 0;
+		case 1:
+			YE_TO_QINT(container)->y += to_add;
+			return 0;
+		case 2:
+			YE_TO_QINT(container)->w += to_add;
+			return 0;
+		case 3:
+			YE_TO_QINT(container)->h += to_add;
+			return 0;
+		default:
+			DPRINT_ERR("can't get elem '%d', Quand int contain only 4 int", at);
+			return -1;
+		}
+	}
+	return yeAddInt(yeGet(container, at), to_add);
+}
+
+static inline int yeAddLongAtStr(Entity *container, const char *at, long to_add)
+{
+	return yeAddLong(yeGet(container, at), to_add);
+}
+
+static inline int yeAddLongAtIdx(Entity *container, int at, long to_add)
+{
+	return yeAddLong(yeGet(container, at), to_add);
+}
+
+static inline int yeAddStrAtStr(Entity *container, const char *at, const char *to_add)
+{
+	return yeAddStr(yeGet(container, at), to_add);
+}
+
+static inline int yeAddStrAtIdx(Entity *container, int at, const char *to_add)
+{
+	return yeAddStr(yeGet(container, at), to_add);
+}
+
+static inline int yeAddFloatAtStr(Entity *container, const char *at, double to_add)
+{
+	return yeAddFloat(yeGet(container, at), to_add);
+}
+
+static inline int yeAddFloatAtIdx(Entity *container, int at, double to_add)
+{
+	return yeAddFloat(yeGet(container, at), to_add);
+}
+
+static inline int yeAddIntAtStr(Entity *container, const char *at, int to_add)
+{
+	if (yeType(container) == YQUADINT) {
+		switch(at[0]) {
+		case 'x':
+			YE_TO_QINT(container)->x += to_add;
+			return 0;
+		case 'y':
+			YE_TO_QINT(container)->y += to_add;
+			return 0;
+		case 'w':
+			YE_TO_QINT(container)->w += to_add;
+			return 0;
+		case 'h':
+			YE_TO_QINT(container)->h += to_add;
+			return 0;
+		default:
+			DPRINT_ERR("can't get elem '%s' in quad", at);
+			return -1;
+		}
+	}
+	return yeAddInt(yeGet(container, at), to_add);
 }
 
 static inline Entity *yeFind(Entity *entity,
