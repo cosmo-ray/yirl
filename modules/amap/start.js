@@ -84,7 +84,6 @@ function print_life(wid, pc, pc_canel)
 
 function move_punch(wid, pc_canel, turn_timer)
 {
-    var x_add = 0
     let pl = yeGetIntAt(pc_canel, PC_PUNCH_LIFE)
 
 
