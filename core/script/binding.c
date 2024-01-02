@@ -186,6 +186,7 @@ BIND_SI(ygReCreateInt, 2, 0);
 BIND_SI(ygIncreaseInt, 2, 0);
 BIND_SI(ygSetInt, 2, 0);
 
+BIND_EI(yeConvert, 2, 0);
 BIND_EI(ywPosDoPercent, 2, 0);
 
 BIND_EI(yeRemoveChildByIdx, 2, 0);
@@ -453,6 +454,7 @@ PUSH_I_GLOBAL(Y_MOD_YIRL);
 PUSH_I_GLOBAL(YSTRING);
 PUSH_I_GLOBAL(YARRAY);
 PUSH_I_GLOBAL(YINT);
+PUSH_I_GLOBAL(YHASH);
 
 PUSH_I_GLOBAL(Y_ESC_KEY);
 PUSH_I_GLOBAL(Y_UP_KEY);
