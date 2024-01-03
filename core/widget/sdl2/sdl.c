@@ -188,6 +188,14 @@ void	sdlDrawRect(SDLWid *swid, GPU_Rect rect, SDL_Color color)
   GPU_RectangleFilled2(sg.pWindow, rect, color);
 }
 
+void	sdlDrawCircle(SDLWid *swid, GPU_Rect rect, SDL_Color color)
+{
+	  float radius = rect.w;
+
+	  GPU_Circle(sg.pWindow, rect.x, rect.y, radius, color);
+}
+
+
 int   sdlFillColorBg(SDLWid *swid, short r, short g, short b, short a)
 {
 	SDL_Color color = {r, g, b, a};
@@ -1058,6 +1066,11 @@ int sdlMergeSurface(Entity *textSrc, Entity *srcRect,
 		return SDL_FillRect(dSurface, destRect ? &dr : NULL, cfg.rgba);
 	}
 
+	if (ywCanvasObjType(textSrc) == YCanvasCircle) {
+		DPRINT_ERR("merge surface not yet implemented for Circle\n");
+		ygDgbAbort();
+	}
+
 	if (unlikely(!sSurface))
 		return -1;
 
@@ -1329,7 +1342,7 @@ int sdlCanvasCacheTexture(Entity *state, Entity *elem)
 	Entity *texture;
 	const char *txt;
 
-	if (type == YCanvasRect) {
+	if (type == YCanvasRect || type == YCanvasCircle) {
 		return 0;
 	} else if (ywCanvasObjType(elem) == YCanvasString) {
 		Entity *str = yeGet(elem, 2);
@@ -1448,6 +1461,9 @@ uint32_t sdlCanvasPixInfo(Entity *obj, int x, int y)
   int type = yeGetIntAt(obj, 0);
 
   if (type == YCanvasRect) {
+	  DPRINT_ERR("pixel info not net implemented for Circle\n");
+	  ygDgbAbort();
+  } else if (type == YCanvasRect) {
     YBgConf cfg;
     Entity *s = ywCanvasObjSize(NULL, obj);
 
@@ -1550,7 +1566,20 @@ int sdlCanvasRendObj(YWidgetState *state, SDLWid *wid, Entity *obj,
 	GPU_Rect rect = {ywPosX(p) - ywPosX(cam), ywPosY(p) - ywPosY(cam),
 			 ywSizeW(s), ywSizeH(s)};
 
-	if (type == YCanvasRect) {
+	if (type == YCanvasCircle) {
+		YBgConf cfg;
+
+		ywidBgConfFill(yeGet(obj, 2), &cfg);
+		c.r = cfg.r;
+		c.g = cfg.g;
+		c.b = cfg.b;
+		c.a = cfg.a;
+		rect.x += ywRectX(wid_pix);
+		rect.y += ywRectY(wid_pix);
+
+		sdlDrawCircle(NULL, rect, c);
+		return 0;
+	} else if (type == YCanvasRect) {
 		YBgConf cfg;
 
 		ywidBgConfFill(yeGet(yeGet(obj, 2), 1), &cfg);

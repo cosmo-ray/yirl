@@ -56,6 +56,7 @@ typedef enum  {
 	YCanvasBigTexture,
 	YCanvasBicolorImg,
 	YCanvasHeadacheImg,
+	YCanvasCircle,
 	YCnvasEndType
 } YCanvasObjType;
 
@@ -273,6 +274,8 @@ static inline  Entity *ywCanvasNewRectangle(Entity *wid, int x, int y, int w,
 	obj = ywCanvasNewRect(wid, x, y, rect);
 	return obj;
 }
+
+Entity *ywCanvasNewCircle(Entity *wid, int x, int y, int radius, const char *color);
 
 static inline  Entity *ywCanvasNewRectangleByRect(Entity *wid, Entity *orect, const char *str)
 {
