@@ -682,6 +682,7 @@ Entity *ywCanvasNewRect(Entity *wid, int x, int y, Entity *rect)
 	ywPosCreateInts(x, y, obj, "pos");
 	yePushBack(obj, rect, "rect");
 	ywCanvasSetWeightInternal(wid, obj, 0, 1);
+	yeCreateIntAt(1, obj, "filled", YCANVAS_RECT_IS_FILLED_IDX);
 	return obj;
 }
 

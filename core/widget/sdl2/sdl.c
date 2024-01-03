@@ -161,13 +161,13 @@ SDLWid *sddComputeMargin(YWidgetState *w, SDLWid *swid)
 		return swid;
 
 	sdlDrawRect(swid, (GPU_Rect){0, 0, or->w, s},
-		    SDL_COLOR_FROM_YBGCONF(cfg));
+		    SDL_COLOR_FROM_YBGCONF(cfg), 1);
 	sdlDrawRect(swid, (GPU_Rect){0, 0 + s, s, or->h - s * 2},
-		    SDL_COLOR_FROM_YBGCONF(cfg));
+		    SDL_COLOR_FROM_YBGCONF(cfg), 1);
 	sdlDrawRect(swid, (GPU_Rect){or->w - s, s, s, or->h - s * 2},
-		    SDL_COLOR_FROM_YBGCONF(cfg));
+		    SDL_COLOR_FROM_YBGCONF(cfg), 1);
 	sdlDrawRect(swid, (GPU_Rect){0, or->h - s, or->w, s},
-		SDL_COLOR_FROM_YBGCONF(cfg));
+		    SDL_COLOR_FROM_YBGCONF(cfg), 1);
 
 out:
 	marged_wid.wid = w;
@@ -178,17 +178,20 @@ out:
 	return &marged_wid;
 }
 
-void	sdlDrawRect(SDLWid *swid, GPU_Rect rect, SDL_Color color)
+void	sdlDrawRect(SDLWid *swid, GPU_Rect rect, SDL_Color color, int filled)
 {
   if (swid) {
     rect.y += swid->rect.y;
     rect.x += swid->rect.x;
   }
 
-  GPU_RectangleFilled2(sg.pWindow, rect, color);
+  if (filled)
+    GPU_RectangleFilled2(sg.pWindow, rect, color);
+  else
+    GPU_Rectangle2(sg.pWindow, rect, color);
 }
 
-void	sdlDrawCircle(SDLWid *swid, GPU_Rect rect, SDL_Color color, int filled)
+static void	sdlDrawCircle(SDLWid *swid, GPU_Rect rect, SDL_Color color, int filled)
 {
 	  float radius = rect.w;
 
@@ -203,7 +206,7 @@ int   sdlFillColorBg(SDLWid *swid, short r, short g, short b, short a)
 {
 	SDL_Color color = {r, g, b, a};
 
-	sdlDrawRect(NULL, swid->rect, color);
+	sdlDrawRect(NULL, swid->rect, color, 1);
 	return 0;
 }
 
@@ -1593,7 +1596,7 @@ int sdlCanvasRendObj(YWidgetState *state, SDLWid *wid, Entity *obj,
 		rect.x += ywRectX(wid_pix);
 		rect.y += ywRectY(wid_pix);
 		// stuff to do here
-		sdlDrawRect(NULL, rect, c);
+		sdlDrawRect(NULL, rect, c, yeGetIntAt(obj, YCANVAS_RECT_IS_FILLED_IDX));
 		return 0;
 	} else if (type == YCanvasString) {
 		Entity *col = yeGet(obj, 3);
@@ -1664,7 +1667,7 @@ int sdlDisplaySprites(YWidgetState *state, SDLWid *wid,
 
 			if (type == Y_SDL_COLOR)
 				sdlDrawRect(NULL, DestR,
-					    *((SDL_Color *)texture));
+					    *((SDL_Color *)texture), 1);
 			else
 				GPU_BlitRect(texture, srcRP, sg.pWindow, &DestR);
 		} else {

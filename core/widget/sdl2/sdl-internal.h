@@ -59,7 +59,7 @@ int sdlFillColorBg(SDLWid *swid, short r, short g, short b, short a);
 
 int sdlFillBg(SDLWid *swid, YBgConf *cfg);
 
-void sdlDrawRect(SDLWid *swid, GPU_Rect rect, SDL_Color color);
+void sdlDrawRect(SDLWid *swid, GPU_Rect rect, SDL_Color color, int filled);
 
 void sdlWidDestroy(YWidgetState *wid, int t);
 

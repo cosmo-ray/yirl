@@ -76,7 +76,11 @@ enum {
 #define YCANVAS_TYPE_IDX 0
 #define YCANVAS_POS_IDX 1
 #define YCANVAS_DATA_IDX 2
+
+/* same as img, as I know rect don't store img */
+#define YCANVAS_RECT_IS_FILLED_IDX 6
 #define YCANVAS_IMG_IDX 6
+
 #define YCANVAS_SIZE_IDX 7
 #define YCANVAS_SURFACE_IDX 8
 #define YCANVAS_UDATA_IDX 10
@@ -263,8 +267,8 @@ Entity *ywCanvasNewObj(Entity *wid, int x, int y, int id);
  */
 Entity *ywCanvasNewRect(Entity *wid, int x, int y, Entity *rect);
 
-static inline  Entity *ywCanvasNewRectangle(Entity *wid, int x, int y, int w,
-					    int h, const char *str)
+static inline  Entity *ywCanvasNewRectangleExt(Entity *wid, int x, int y, int w,
+					       int h, const char *str, int filled)
 {
 	yeAutoFree Entity *rect = yeCreateArray(NULL, NULL);
 	Entity *obj;
@@ -272,7 +276,14 @@ static inline  Entity *ywCanvasNewRectangle(Entity *wid, int x, int y, int w,
 	ywPosCreateInts(w, h, rect, NULL);
 	yeCreateString(str, rect, NULL);
 	obj = ywCanvasNewRect(wid, x, y, rect);
+	yeSetAt(obj, YCANVAS_RECT_IS_FILLED_IDX, filled);
 	return obj;
+}
+
+static inline  Entity *ywCanvasNewRectangle(Entity *wid, int x, int y, int w,
+					    int h, const char *str)
+{
+	return ywCanvasNewRectangleExt(wid, x, y, w, h, str, 1);
 }
 
 Entity *ywCanvasNewCircle(Entity *wid, int x, int y, int radius, const char *color);
