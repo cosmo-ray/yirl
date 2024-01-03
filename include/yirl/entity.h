@@ -552,6 +552,7 @@ NO_SIDE_EFFECT int yeGetInt(Entity *entity);
  */
 NO_SIDE_EFFECT static inline int yeGetQuadInt0(Entity *entity) {
 	if (yeType(entity) != YQUADINT) {
+		DPRINT_ERR("entity not of type quand int\n");
 		return 0;
 	} 
 	return YE_TO_QINT(entity)->x;
@@ -562,6 +563,7 @@ NO_SIDE_EFFECT static inline int yeGetQuadInt0(Entity *entity) {
  */
 NO_SIDE_EFFECT static inline int yeGetQuadInt1(Entity *entity) {
 	if (yeType(entity) != YQUADINT) {
+		DPRINT_ERR("entity not of type quand int\n");
 		return 0;
 	} 
 	return YE_TO_QINT(entity)->y;
@@ -572,6 +574,7 @@ NO_SIDE_EFFECT static inline int yeGetQuadInt1(Entity *entity) {
  */
 NO_SIDE_EFFECT static inline int yeGetQuadInt2(Entity *entity) {
 	if (yeType(entity) != YQUADINT) {
+		DPRINT_ERR("entity not of type quand int\n");
 		return 0;
 	} 
 	return YE_TO_QINT(entity)->w;
@@ -582,6 +585,7 @@ NO_SIDE_EFFECT static inline int yeGetQuadInt2(Entity *entity) {
  */
 NO_SIDE_EFFECT static inline int yeGetQuadInt3(Entity *entity) {
 	if (yeType(entity) != YQUADINT) {
+		DPRINT_ERR("entity not of type quand int\n");
 		return 0;
 	} 
 	return YE_TO_QINT(entity)->h;
