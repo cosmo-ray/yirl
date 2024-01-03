@@ -964,6 +964,19 @@ static JSValue qjsygRegistreFunc(JSContext *ctx, JSValueConst this_val,
 
 static int loadString(void *s, const char *str);
 
+static JSValue array_set_at(JSContext *ctx, JSValueConst this_val,
+			    int argc, JSValueConst *argv)
+{
+	Entity *e = GET_E_(this_val);
+
+	if (JS_IsNumber(argv[0])) {
+		return mk_ent(ctx, yeReCreateInt(GET_I(ctx, 0), e, GET_S(ctx, 1)), 0);
+	} else if (JS_IsString(argv[0])) {
+		return mk_ent(ctx, yeReCreateString(GET_S(ctx, 0), e, GET_S(ctx, 1)), 0);
+	}
+	return JS_NULL;
+}
+
 static JSValue array_get(JSContext *ctx, JSValueConst this_val,
 			 int argc, JSValueConst *argv)
 {
@@ -1006,6 +1019,7 @@ static JSValue array_forEach(JSContext *ctx, JSValueConst this_val,
 static const JSCFunctionListEntry js_ent_proto_funcs[] = {
     JS_CFUNC_DEF("forEach", 0, array_forEach),
     JS_CFUNC_DEF("get", 1, array_get),
+    JS_CFUNC_DEF("setAt", 1, array_set_at)
 };
 
 #define countof(x) (sizeof(x) / sizeof((x)[0]))
@@ -1027,7 +1041,8 @@ static int init(void *sm, void *args)
 	JS_NewClass(JS_GetRuntime(ctx), freeable_entity_class_id,
 		    &freeable_entity_class);
 	JSValue ent_proto = JS_NewObject(ctx);
-	JS_SetPropertyFunctionList(ctx, ent_proto, js_ent_proto_funcs, countof(js_ent_proto_funcs));
+	JS_SetPropertyFunctionList(ctx, ent_proto, js_ent_proto_funcs,
+				   countof(js_ent_proto_funcs));
 	JS_SetClassProto(ctx, entity_class_id, ent_proto);
 	JS_SetClassProto(ctx, freeable_entity_class_id, ent_proto);
 
