@@ -964,6 +964,21 @@ static JSValue qjsygRegistreFunc(JSContext *ctx, JSValueConst this_val,
 
 static int loadString(void *s, const char *str);
 
+static JSValue array_get(JSContext *ctx, JSValueConst this_val,
+			 int argc, JSValueConst *argv)
+{
+	Entity *e = GET_E_(this_val);
+
+	if (JS_IsNumber(argv[0])) {
+		return new_ent(ctx, yeGet(e, GET_I(ctx, 0)));
+	} else if (JS_IsString(argv[0])) {
+		return new_ent(ctx, yeGet(e, GET_S(ctx, 0)));
+	} else {
+		return new_ent(ctx, yeGet(e, GET_E(ctx, 0)));
+	}
+	return JS_NULL;
+}
+
 static JSValue array_forEach(JSContext *ctx, JSValueConst this_val,
 			     int argc, JSValueConst *argv)
 {
@@ -990,6 +1005,7 @@ static JSValue array_forEach(JSContext *ctx, JSValueConst this_val,
 
 static const JSCFunctionListEntry js_ent_proto_funcs[] = {
     JS_CFUNC_DEF("forEach", 0, array_forEach),
+    JS_CFUNC_DEF("get", 1, array_get),
 };
 
 #define countof(x) (sizeof(x) / sizeof((x)[0]))
