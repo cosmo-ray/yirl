@@ -1785,10 +1785,21 @@ static void yeToCStrInternal(Entity *entity, int deep, Entity *str,
 		{
 			const char *key;
 			Entity *vvar;
+			int i = 0;
 
 			kh_foreach(((HashEntity *)entity)->values, key,
 				   vvar,
 				   {
+					   if (i++) {
+						   if (flag & YE_FORMAT_PRETTY) {
+							   yeStringAdd(str, ",");
+							   append_pretty(str, deep,
+									 origDeep, flag);
+						   } else {
+							   yeStringAdd(str, ", ");
+						   }
+					   }
+
 					   yeStringAppendPrintf(str,
 								"\"%s\": ",
 								key);
