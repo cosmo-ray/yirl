@@ -30,94 +30,103 @@ static int t = -1;
 static const char *nameType = "json";
 
 static Entity *parseGen(struct json_object *obj, const char *name,
-			Entity *father);
+			Entity *father, int *is_null, int at);
 
 static Entity *parseObject(struct json_object *obj,
-			   const char *name, Entity *father)
+			   const char *name, Entity *father, int at)
 {
-  Entity *ret = yeCreateArray(father, name);
+	Entity *ret = at < 0 ? yeCreateArray(father, name) :
+		yeCreateArrayAt(father, name, at);
+	if (ret == NULL) {
+		YE_DESTROY(father); // change this to free the head entty on the tree
+		return NULL;
+	}
 
-  if (ret == NULL) {
-    YE_DESTROY(father); // change this to free the head entty on the tree
-    return NULL;
-  }
+	int obj_at = 0;
+	json_object_object_foreach(obj, key, val) {
+		int is_null = 0;
 
-  json_object_object_foreach(obj, key, val) {
-    if (parseGen(val, key, ret) == NULL) {
-      DPRINT_ERR("fail to parse json obj %s", name);
-      return NULL;
-    }
-  }
+		if (parseGen(val, key, ret, &is_null, obj_at++) == NULL && !is_null) {
+			DPRINT_ERR("fail to parse json obj %s", name);
+			return NULL;
+		}
+	}
 
-  return ret;
+	return ret;
 }
 
 static Entity *parseArray(struct json_object *obj,
-			  const char *name, Entity *father)
+			  const char *name, Entity *father, int at)
 {
-  Entity *ret = yeCreateArray(father, name);
-  int len = json_object_array_length(obj);
+	Entity *ret = at < 0 ? yeCreateArray(father, name) :
+		yeCreateArrayAt(father, name, at);
+	int len = json_object_array_length(obj);
 
-  if (ret == NULL) {
-    YE_DESTROY(father); // change this to free the head entty on the tree
-    return NULL;
-  }
+	if (ret == NULL) {
+		YE_DESTROY(father); // change this to free the head entty on the tree
+		return NULL;
+	}
 
-  for (int i = 0; i < len; ++i) {
-    struct json_object *val = json_object_array_get_idx(obj, i);
+	int ar_at = 0;
+	for (int i = 0; i < len; ++i) {
+		int is_null = 0;
+		struct json_object *val = json_object_array_get_idx(obj, i);
 
-    if (parseGen(val, NULL, ret) == NULL)
-      return NULL;
-  }
+		if (parseGen(val, NULL, ret, &is_null, ar_at++) == NULL && !is_null)
+			return NULL;
+	}
 
-  return ret;
+	return ret;
 }
 
 static Entity *parseInt(struct json_object *obj, const char *name,
-			Entity *father)
+			Entity *father, int at)
 {
-  return yeCreateInt(json_object_get_int64(obj), father, name);
+	return yeCreateIntAt(json_object_get_int64(obj), father, name, at);
 }
 
 static Entity *parseBool(struct json_object *obj, const char *name,
-			 Entity *father)
+			 Entity *father, int at)
 {
-  return yeCreateInt(json_object_get_boolean(obj), father, name);
+	return yeCreateIntAt(json_object_get_boolean(obj), father, name, at);
 }
 
 static Entity *parseFloat(struct json_object *obj, const char *name,
-			  Entity *father)
+			  Entity *father, int at)
 {
-  return yeCreateFloat(json_object_get_double(obj), father, name);
+	return yeCreateFloatAt(json_object_get_double(obj), father, name, at);
 }
 
 static Entity *parseString(struct json_object *obj, const char *name,
-			   Entity *father)
+			   Entity *father, int at)
 {
-  return yeCreateString(json_object_get_string(obj), father, name);
+	return yeCreateStringAt(json_object_get_string(obj), father, name, at);
 }
 
 
 static Entity *parseGen(struct json_object *obj, const char *name,
-			Entity *father)
+			Entity *father, int *is_null, int at)
 {
-  switch (json_object_get_type(obj))
-    {
-    case json_type_object:
-      return parseObject(obj, name, father);
-    case json_type_boolean:
-      return parseBool(obj, name, father);
-    case json_type_int:
-      return parseInt(obj, name, father);
-    case json_type_double:
-      return parseFloat(obj, name, father);
-    case json_type_string:
-      return parseString(obj, name, father);
-    case json_type_array:
-      return parseArray(obj, name, father);
-    default:
-      return NULL;
-    }
+	switch (json_object_get_type(obj))
+	{
+	case json_type_object:
+		return parseObject(obj, name, father, at);
+	case json_type_boolean:
+		return parseBool(obj, name, father, at);
+	case json_type_null:
+		*is_null = 1;
+		return NULL;
+	case json_type_int:
+		return parseInt(obj, name, father, at);
+	case json_type_double:
+		return parseFloat(obj, name, father, at);
+	case json_type_string:
+		return parseString(obj, name, father, at);
+	case json_type_array:
+		return parseArray(obj, name, father, at);
+	default:
+		return NULL;
+	}
 }
 
 static Entity *jsonFromFile(void *opac, const char *fileName, Entity *father)
@@ -136,7 +145,8 @@ static Entity *jsonFromFile(void *opac, const char *fileName, Entity *father)
 	  }
 	  return NULL;
   }
-  ret = parseGen(file, NULL, father);
+  int unused = 0;
+  ret = parseGen(file, NULL, father, &unused, -1);
   json_object_put(file);
   return ret;
 }
