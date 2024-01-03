@@ -636,11 +636,27 @@ NO_SIDE_EFFECT static inline int yeGetIntAtByStr(Entity *array, const char *pos)
 	return yeGetInt(yeGetByStrFast(array, pos));
 }
 
+#define yeGetIntAt(ENTITY, INDEX) _Generic((INDEX),			\
+					   unsigned short int: yeGetIntAtByIdx, \
+					   short int: yeGetIntAtByIdx,	\
+					   unsigned int: yeGetIntAtByIdx, \
+					   int: yeGetIntAtByIdx,	\
+					   long : yeGetIntAtByIdx,	\
+					   long long : yeGetIntAtByIdx,	\
+					   unsigned long long : yeGetIntAtByIdx, \
+					   unsigned long: yeGetIntAtByIdx, \
+					   Entity *: yeGetIntAtByEntity, \
+					   const Entity *: yeGetIntAtByEntity, \
+					   Y_GEN_CLANG_ARRAY(char, yeGetIntAtByStr), \
+					   const char *: yeGetIntAtByStr, \
+					   char *: yeGetIntAtByStr) (ENTITY, INDEX)
+
 static inline uint32_t yeGetUInt(Entity *i) {
 	return (uint32_t)yeGetInt(i);
 }
 
-#define yeGetIntAt(array, pos) (yeGetInt(yeGet(array, pos)))
+
+//#define yeGetIntAt(array, pos) (yeGetInt(yeGet(array, pos)))
 
 #define yeGetBoolAt(array, pos) (!!yeGetIntAt(array, pos))
 
@@ -1260,7 +1276,7 @@ static inline Entity *yeGetPush(Entity *src, Entity *dst, const char *name)
 }
 
 /**
- * @briefJust read the code
+ * @brief Just read the code
  */
 static inline Entity *yeGetPush2(Entity *src, const char *src_name, Entity *dst, const char *dst_name)
 {
@@ -1273,7 +1289,7 @@ static inline Entity *yeGetPush2(Entity *src, const char *src_name, Entity *dst,
 }
 
 
-static inline Entity *yeGetByEntity(Entity *array, Entity *key)
+NO_SIDE_EFFECT static inline Entity *yeGetByEntity(Entity *array, Entity *key)
 {
 	if (yeType(key) == YINT)
 		return yeGet(array, yeGetInt(key));
@@ -1282,10 +1298,20 @@ static inline Entity *yeGetByEntity(Entity *array, Entity *key)
 	return NULL;
 }
 
+NO_SIDE_EFFECT static inline int yeGetIntAtByEntity(Entity *array, Entity *key)
+{
+	if (yeType(key) == YINT)
+		return yeGetIntAt(array, yeGetInt(key));
+	else if (yeType(key) == YSTRING)
+		return yeGetIntAt(array, yeGetString(key));
+	return 0;
+}
+
 NO_SIDE_EFFECT static inline _Bool yeArrayContainEntity(Entity *array, const char *str)
 {
 	return !!yeGet(array, str);
 }
+
 
 /**
  * Assure that and int entity value is not lower/higher than min/max
@@ -1298,6 +1324,15 @@ static inline void yeIntForceBound(Entity *e, int min, int max) {
 		yeSetInt(e, min);
 	if (v > max)
 		yeSetInt(e, max);
+}
+
+static inline void yeQuadIntForceBound(Entity *e, int at, int min, int max) {
+	int v = yeGetIntAt(e, at);
+
+	if (v < min)
+		yeSetIntAt(e, at, min);
+	if (v > max)
+		yeSetIntAt(e, at, max);
 }
 
 /**
@@ -1461,6 +1496,28 @@ static inline int yeAddEnt(Entity *e, Entity *e2)
 		return -1;
 	}
 	return -1;
+}
+
+static inline void yeMultQuadIntVals(Entity *e, int i0, int i1, int i2, int i3)
+{
+	YE_TO_QINT(e)->x *= i0;
+	YE_TO_QINT(e)->y *= i1;
+	YE_TO_QINT(e)->w *= i2;
+	YE_TO_QINT(e)->h *= i3;
+}
+
+static inline int yeMultQuadInt(Entity *e, int i)
+{
+	switch (yeType(e)) {
+	case YQUADINT:
+		YE_TO_QINT(e)->x *= i;
+		YE_TO_QINT(e)->y *= i;
+		YE_TO_QINT(e)->w *= i;
+		YE_TO_QINT(e)->h *= i;
+		return 0;
+	default :
+		return -1;
+	}
 }
 
 static inline int yeMultInt(Entity *e, int i)
