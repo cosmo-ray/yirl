@@ -257,6 +257,7 @@ void	tccAddSyms(TCCState *l)
   ADD_SYM(yeConvert);
   ADD_SYM(ywCanvasNewCircle);
   ADD_SYM(ywCanvasNewCircleExt);
+  ADD_SYM(ywCanvasNewTriangleExt);
 
 #if defined(__unix__) || defined(__APPLE__)
   tcc_add_symbol(l, "yuiDebugPrint", yuiDebugPrint);

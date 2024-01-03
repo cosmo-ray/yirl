@@ -57,6 +57,7 @@ typedef enum  {
 	YCanvasBicolorImg,
 	YCanvasHeadacheImg,
 	YCanvasCircle,
+	YCanvasTriangle,
 	YCnvasEndType
 } YCanvasObjType;
 
@@ -294,6 +295,11 @@ Entity *ywCanvasNewCircle(Entity *wid, int x, int y, int radius, const char *col
  * please only use 0/1 as I Might at some point, change the variable to a flag
  */
 Entity *ywCanvasNewCircleExt(Entity *wid, int x, int y, int radius, const char *color, int filled);
+
+Entity *ywCanvasNewTriangleExt(Entity *wid,
+			       int x1, int y1, int x2, int y2,
+			       int x3, int y3, const char *color,
+			       int filled);
 
 static inline  Entity *ywCanvasNewRectangleByRect(Entity *wid, Entity *orect, const char *str)
 {

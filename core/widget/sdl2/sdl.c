@@ -191,7 +191,18 @@ void	sdlDrawRect(SDLWid *swid, GPU_Rect rect, SDL_Color color, int filled)
     GPU_Rectangle2(sg.pWindow, rect, color);
 }
 
-static void	sdlDrawCircle(SDLWid *swid, GPU_Rect rect, SDL_Color color, int filled)
+static void     sdlDrawTriangle(float x1, float y1, float x2,
+				float y2, float x3, float y3,
+				SDL_Color c, int filled)
+{
+	if (!filled)
+		GPU_Tri(sg.pWindow, x1, y1, x2, y2, x3, y3, c);
+	else
+		GPU_TriFilled(sg.pWindow, x1, y1, x2, y2, x3, y3, c);
+}
+
+
+static void	sdlDrawCircle(GPU_Rect rect, SDL_Color color, int filled)
 {
 	  float radius = rect.w;
 
@@ -1348,7 +1359,7 @@ int sdlCanvasCacheTexture(Entity *state, Entity *elem)
 	Entity *texture;
 	const char *txt;
 
-	if (type == YCanvasRect || type == YCanvasCircle) {
+	if (type == YCanvasRect || type == YCanvasCircle || type == YCanvasTriangle) {
 		return 0;
 	} else if (ywCanvasObjType(elem) == YCanvasString) {
 		Entity *str = yeGet(elem, 2);
@@ -1466,8 +1477,8 @@ uint32_t sdlCanvasPixInfo(Entity *obj, int x, int y)
   SDL_Surface *surface = yeGetDataAt(obj, YCANVAS_SURFACE_IDX);
   int type = yeGetIntAt(obj, 0);
 
-  if (type == YCanvasRect) {
-	  DPRINT_ERR("pixel info not net implemented for Circle\n");
+  if (type == YCanvasCircle || type == YCanvasTriangle) {
+	  DPRINT_ERR("pixel info not net implemented for Circle/Triangle\n");
 	  ygDgbAbort();
   } else if (type == YCanvasRect) {
     YBgConf cfg;
@@ -1583,7 +1594,23 @@ int sdlCanvasRendObj(YWidgetState *state, SDLWid *wid, Entity *obj,
 		rect.x += ywRectX(wid_pix);
 		rect.y += ywRectY(wid_pix);
 
-		sdlDrawCircle(NULL, rect, c, yeGetIntAt(p, 3));
+		sdlDrawCircle(rect, c, yeGetIntAt(p, 3));
+		return 0;
+	} else if (type == YCanvasTriangle) {
+		YBgConf cfg;
+
+		ywidBgConfFill(yeGet(obj, 2), &cfg);
+		c.r = cfg.r;
+		c.g = cfg.g;
+		c.b = cfg.b;
+		c.a = cfg.a;
+		rect.x += ywRectX(wid_pix);
+		rect.y += ywRectY(wid_pix);
+
+		sdlDrawTriangle(rect.x, rect.y, rect.w,
+				rect.h, yeGetQuadInt2(s),
+				yeGetQuadInt3(s),
+				c, yeGetQuadInt3(p));
 		return 0;
 	} else if (type == YCanvasRect) {
 		YBgConf cfg;
