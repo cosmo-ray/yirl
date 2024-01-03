@@ -188,11 +188,14 @@ void	sdlDrawRect(SDLWid *swid, GPU_Rect rect, SDL_Color color)
   GPU_RectangleFilled2(sg.pWindow, rect, color);
 }
 
-void	sdlDrawCircle(SDLWid *swid, GPU_Rect rect, SDL_Color color)
+void	sdlDrawCircle(SDLWid *swid, GPU_Rect rect, SDL_Color color, int filled)
 {
 	  float radius = rect.w;
 
-	  GPU_Circle(sg.pWindow, rect.x, rect.y, radius, color);
+	  if (filled)
+	    GPU_CircleFilled(sg.pWindow, rect.x, rect.y, radius, color);
+	  else
+	    GPU_Circle(sg.pWindow, rect.x, rect.y, radius, color);
 }
 
 
@@ -1577,7 +1580,7 @@ int sdlCanvasRendObj(YWidgetState *state, SDLWid *wid, Entity *obj,
 		rect.x += ywRectX(wid_pix);
 		rect.y += ywRectY(wid_pix);
 
-		sdlDrawCircle(NULL, rect, c);
+		sdlDrawCircle(NULL, rect, c, yeGetIntAt(p, 3));
 		return 0;
 	} else if (type == YCanvasRect) {
 		YBgConf cfg;

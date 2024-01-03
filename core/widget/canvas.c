@@ -685,17 +685,23 @@ Entity *ywCanvasNewRect(Entity *wid, int x, int y, Entity *rect)
 	return obj;
 }
 
-Entity *ywCanvasNewCircle(Entity *wid, int x, int y, int radius, const char *color)
+Entity *ywCanvasNewCircleExt(Entity *wid, int x, int y, int radius, const char *color, int fill)
 {
 	Entity *obj = yeCreateArray(NULL, NULL);
 
 	yeCreateInt(YCanvasCircle, obj, "canvas-type");
-	yeCreateQuadInt(x, y, radius, 0, obj, "pos");
+	yeCreateQuadInt(x, y, radius, fill, obj, "pos");
 	yeCreateString(color, obj, "color");
 	yeCreateQuadIntAt(radius, radius, 0, 0, obj, "size", YCANVAS_SIZE_IDX);
 	ywCanvasSetWeightInternal(wid, obj, 0, 1);
 	return obj;
 }
+
+Entity *ywCanvasNewCircle(Entity *wid, int x, int y, int radius, const char *color)
+{
+  return ywCanvasNewCircleExt(wid, x, y, radius, color, 0);
+}
+
 
 static void pixMod(Entity *obj, Entity *rect, Entity *mod,
 		   int *x, int *y, int w, int h)

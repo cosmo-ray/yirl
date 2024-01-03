@@ -277,6 +277,13 @@ static inline  Entity *ywCanvasNewRectangle(Entity *wid, int x, int y, int w,
 
 Entity *ywCanvasNewCircle(Entity *wid, int x, int y, int radius, const char *color);
 
+/**
+ * @brief create circle
+ * @arg filled is 1, filled the circle with color
+ * please only use 0/1 as I Might at some point, change the variable to a flag
+ */
+Entity *ywCanvasNewCircleExt(Entity *wid, int x, int y, int radius, const char *color, int filled);
+
 static inline  Entity *ywCanvasNewRectangleByRect(Entity *wid, Entity *orect, const char *str)
 {
 	return ywCanvasNewRectangle(wid, ywRectX(orect), ywRectY(orect), ywRectW(orect), ywRectH(orect), str);
