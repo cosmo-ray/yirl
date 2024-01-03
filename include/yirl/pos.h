@@ -33,21 +33,25 @@ double sqrt(double x);
 
 static inline int ywPosX(Entity *pos)
 {
-  return yeGetInt(yeGetByIdx(pos, 0));
+  return yeGetIntAt(pos, 0);
 }
 
 static inline int ywPosY(Entity *pos)
 {
-  return yeGetInt(yeGetByIdx(pos, 1));
+  return yeGetIntAt(pos, 1);
 }
 
 static inline int ywPosXDirect(Entity *pos)
 {
+  if (unlikely(yeType(pos)) == YQUADINT)
+    return ywPosX(pos);
   return yeGetIntDirect(yeGetByIdxDirect(pos, 0));
 }
 
 static inline int ywPosYDirect(Entity *pos)
 {
+  if (unlikely(yeType(pos)) == YQUADINT)
+    return ywPosY(pos);
   return yeGetIntDirect(yeGetByIdxDirect(pos, 1));
 }
 
@@ -73,8 +77,8 @@ static inline char * ywPosSizeToString(Entity *pos, char a, char b)
   ++i;
   i &= 3;
   snprintf(tmp[i], 256, "%c: %d - %c: %d", a,
-	   yeGetInt(yeGetByIdx(pos, 0)), b,
-	   yeGetInt(yeGetByIdx(pos, 1)));
+	   yeGetIntAt(pos, 0), b,
+	   yeGetIntAt(pos, 1));
   return tmp[i];
 }
 
@@ -118,8 +122,8 @@ static inline Entity *ywPosCreateEnt(Entity *other, int useless,
 
 static inline Entity *ywPosSetInts(Entity *pos, int posX, int posY)
 {
-	yeSetInt(yeGetByIdx(pos, 0), posX);
-	yeSetInt(yeGetByIdx(pos, 1), posY);
+	yeSetIntAt(pos, 0, posX);
+	yeSetIntAt(pos, 1, posY);
 	return pos;
 }
 
@@ -127,8 +131,8 @@ static inline Entity *ywPosSetEnt(Entity *pos, Entity *other,
 				  int useless)
 {
 	(void)useless;
-	yeSetInt(yeGetByIdx(pos, 0), yeGetInt(yeGetByIdx(other, 0)));
-	yeSetInt(yeGetByIdx(pos, 1), yeGetInt(yeGetByIdx(other, 1)));
+	yeSetIntAt(pos, 0, yeGetIntAt(other, 0));
+	yeSetIntAt(pos, 1, yeGetIntAt(other, 1));
 	return pos;
 }
 
@@ -144,13 +148,13 @@ static inline Entity *ywPosSetEnt(Entity *pos, Entity *other,
 
 static inline Entity *ywPosSetX(Entity *pos, int posX)
 {
-	yeSetInt(yeGetByIdx(pos, 0), posX);
+	yeSetIntAt(pos, 0, posX);
 	return pos;
 }
 
 static inline Entity *ywPosSetY(Entity *pos, int posY)
 {
-	yeSetInt(yeGetByIdx(pos, 1), posY);
+	yeSetIntAt(pos, 1, posY);
 	return pos;
 }
 
@@ -158,16 +162,14 @@ static inline _Bool ywPosIsSameEnt(Entity *pos1, Entity *pos2,
 				   int useless)
 {
 	(void)useless;
-	return ((yeGetInt(yeGetByIdx(pos1, 0)) ==
-		 yeGetInt(yeGetByIdx(pos2, 0))) &&
-		(yeGetInt(yeGetByIdx(pos1, 1)) ==
-		 yeGetInt(yeGetByIdx(pos2, 1))));
+	return ((yeGetIntAt(pos1, 0) == yeGetIntAt(pos2, 0)) &&
+		(yeGetIntAt(pos1, 1) == yeGetIntAt(pos2, 1)));
 }
 
 static inline _Bool ywPosIsSameInts(Entity *pos1, int x, int y)
 {
-	return ((yeGetInt(yeGet(pos1, 0)) == x) &&
-		(yeGetInt(yeGet(pos1, 1)) == y));
+	return ((yeGetIntAt(pos1, 0) == x) &&
+		(yeGetIntAt(pos1, 1) == y));
 }
 
 #define ywPosIsSame(pos, x, y)				\
@@ -183,13 +185,13 @@ static inline _Bool ywPosIsSameInts(Entity *pos1, int x, int y)
 static inline int ywPosIsSameXEnt(Entity *pos1, Entity *pos2)
 {
   if (yeType(pos2) == YINT)
-    return (yeGetInt(yeGet(pos1, 0)) == yeGetInt(pos2));
-  return (yeGetInt(yeGet(pos1, 0)) == yeGetInt(yeGet(pos2, 0)));
+    return (yeGetIntAt(pos1, 0) == yeGetInt(pos2));
+  return (yeGetIntAt(pos1, 0) == yeGetIntAt(pos2, 0));
 }
 
 static inline int ywPosIsSameXInt(Entity *pos1, int x)
 {
-  return (yeGetInt(yeGet(pos1, 0)) == x);
+  return (yeGetIntAt(pos1, 0) == x);
 }
 
 #define ywPosIsSameX(pos, x)			\
@@ -202,13 +204,13 @@ static inline int ywPosIsSameXInt(Entity *pos1, int x)
 static inline int ywPosIsSameYEnt(Entity *pos1, Entity *pos2)
 {
   if (yeType(pos2) == YINT)
-    return (yeGetInt(yeGet(pos1, 1)) == yeGetInt(pos2));
-  return (yeGetInt(yeGet(pos1, 1)) == yeGetInt(yeGet(pos2, 0)));
+    return (yeGetIntAt(pos1, 1) == yeGetInt(pos2));
+  return (yeGetIntAt(pos1, 1) == yeGetIntAt(pos2, 0));
 }
 
 static inline int ywPosIsSameYInt(Entity *pos1, int x)
 {
-  return (yeGetInt(yeGet(pos1, 1)) == x);
+  return (yeGetIntAt(pos1, 1) == x);
 }
 
 #define ywPosIsSameY(pos, x)			\
@@ -220,54 +222,60 @@ static inline int ywPosIsSameYInt(Entity *pos1, int x)
 
 static inline Entity *ywPosAdd(Entity *pos1, Entity *pos2)
 {
-  yeAddEnt(yeGet(pos1, 0), yeGet(pos2, 0));
-  yeAddEnt(yeGet(pos1, 1), yeGet(pos2, 1));
-  return pos1;
+	yeAddAt(pos1, 0, yeGetIntAt(pos2, 0));
+	yeAddAt(pos1, 1, yeGetIntAt(pos2, 1));
+	return pos1;
 }
 
 static inline Entity *ywPosSubXY(Entity *pos1, int x, int y)
 {
-  yeSubInt(yeGet(pos1, 0), x);
-  yeSubInt(yeGet(pos1, 1), y);
-  return pos1;
+	yeAddAt(pos1, 0, -x);
+	yeAddAt(pos1, 1, -y);
+	return pos1;
 }
 
 static inline Entity *ywPosSub(Entity *pos1, Entity *pos2)
 {
-  yeSubEnt(yeGet(pos1, 0), yeGet(pos2, 0));
-  yeSubEnt(yeGet(pos1, 1), yeGet(pos2, 1));
-  return pos1;
+	yeAddAt(pos1, 0, -yeGetIntAt(pos2, 0));
+	yeAddAt(pos1, 1, -yeGetIntAt(pos2, 1));
+	return pos1;
 }
 
 static inline Entity *ywPosMultXY(Entity *pos1, int x, int y)
 {
-  yeMultInt(yeGet(pos1, 0), x);
-  yeMultInt(yeGet(pos1, 1), y);
-  return pos1;
+	if (yeType(pos1) == YQUADINT) {
+		yeMultQuadIntVals(pos1, x, y, 1, 1);
+	} else {
+		yeMultInt(yeGet(pos1, 0), x);
+		yeMultInt(yeGet(pos1, 1), y);
+	}
+	return pos1;
 }
 
 static inline Entity *ywPosDoPercent(Entity *pos1, int arg)
 {
-  Entity *x = yeGet(pos1, 0);
-  Entity *y = yeGet(pos1, 1);
-
-  yeSetInt(x, yuiPercentOf(yeGetInt(x), arg));
-  yeSetInt(y, yuiPercentOf(yeGetInt(y), arg));
-  return pos1;
+	yeSetIntAt(pos1, 0, yuiPercentOf(yeGetIntAt(pos1, 0), arg));
+	yeSetIntAt(pos1, 1, yuiPercentOf(yeGetIntAt(pos1, 1), arg));
+	return pos1;
 }
 
 static inline Entity *ywPosAddXY(Entity *pos, int x, int y)
 {
-  yeAddInt(yeGetByIdx(pos, 0), x);
-  yeAddInt(yeGetByIdx(pos, 1), y);
-  return pos;
+	yeAddAt(pos, 0, x);
+	yeAddAt(pos, 1, y);
+	return pos;
 }
 
 static inline Entity *ywPosAddXYAbsMaxXY(Entity *pos, int x, int y, int xmax, int ymax)
 {
 	ywPosAddXY(pos, x, y);
-	yeIntForceBound(yeGetByIdx(pos, 0), -xmax, xmax);
-	yeIntForceBound(yeGetByIdx(pos, 1), -ymax, ymax);
+	if (yeType(pos) == YQUADINT) {
+		yeQuadIntForceBound(pos, 0, -xmax, xmax);
+		yeQuadIntForceBound(pos, 1, -ymax, ymax);
+	} else {
+		yeIntForceBound(yeGetByIdx(pos, 0), -xmax, xmax);
+		yeIntForceBound(yeGetByIdx(pos, 1), -ymax, ymax);
+	}
 	return pos;
 }
 
