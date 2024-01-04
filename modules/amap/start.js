@@ -65,7 +65,7 @@ const CANVAS_MONSTER_IDX = YCANVAS_UDATA_IDX + 1
 
 function print_life(wid, pc, pc_canel)
 {
-    var j = 0;
+    let j = 0;
     let textures = yeGet(wid, "textures");
     let pj_pos = yeGet(pc_canel, PC_POS_IDX)
     let start_x = ywPosX(pj_pos) - 200
@@ -73,7 +73,7 @@ function print_life(wid, pc, pc_canel)
     let life_array = yeGet(pc_canel, PC_LIFE_ARRAY)
 
     ywCanvasClearArray(wid, life_array);
-    for (var i = yeGetIntAt(pc, "life"); i > 0; i -= 5) {
+    for (let i = yeGetIntAt(pc, "life"); i > 0; i -= 5) {
 	yePushBack(life_array,
 		   ywCanvasNewImgFromTexture(wid, j * SPRITE_SIZE + start_x,
 					     start_y,
@@ -116,14 +116,14 @@ function print_all(wid)
     let mi = yeGet(wid, "_mi")
     let pc = yeGet(wid, "pc")
     let pc_canel = yeGet(wid, "_pc")
-    var sharp_str = yeGet(mi, "#")
-    var objs = yeGet(mi, "objs")
+    let sharp_str = yeGet(mi, "#")
+    let objs = yeGet(mi, "objs")
     let textures = yeGet(wid, "textures");
-    var map_real_size = yeGet(mi, "size")
+    let map_real_size = yeGet(mi, "size")
     let monsters_info = yeGet(mi, "monsters")
     let monsters = yeGet(wid, "_monsters")
 
-    var backgound = ywCanvasNewRectangle(wid, 0, 0, ywSizeW(map_real_size) * SPRITE_SIZE,
+    let backgound = ywCanvasNewRectangle(wid, 0, 0, ywSizeW(map_real_size) * SPRITE_SIZE,
 			 ywSizeH(map_real_size) * SPRITE_SIZE,
 			 "rgba: 120 120 120 155")
     yeCreateIntAt(TYPE_ANIMATION, backgound, "amap-t", YCANVAS_UDATA_IDX)
@@ -131,7 +131,7 @@ function print_all(wid)
 	let s = yeGetStringAt(map_a, i)
 
 	for (let j = 0; j < s.length; ++j) {
-	    var c = s[j];
+	    let c = s[j];
 
 	    if (c == "'") {
 		if (sharp_str)
@@ -156,12 +156,12 @@ function print_all(wid)
 
 		continue;
 	    }
-	    var ic = parseInt(c)
+	    let ic = parseInt(c)
 	    if (!isNaN(ic)) {
-		var object = yeGet(objs, ic)
+		let object = yeGet(objs, ic)
 		if (!object)
 		    continue;
-		var o = ywCanvasNewImgFromTexture(wid, j * SPRITE_SIZE, i * SPRITE_SIZE,
+		let o = ywCanvasNewImgFromTexture(wid, j * SPRITE_SIZE, i * SPRITE_SIZE,
 						  yeGet(textures, yeGetStringAt(object, 0)))
 		yeCreateIntAt(TYPE_OBJ, o, "amap-t", YCANVAS_UDATA_IDX)
 		yeCreateIntAt(ic, o, "objidx", CANVAS_OBJ_IDX)
@@ -218,8 +218,8 @@ function amap_action(wid, events)
     let turn_timer = ywidGetTurnTimer()
     let monsters = yeGet(wid, "_monsters")
     let monsters_info = yeGet(mi, "monsters")
-    var have_upkey = -1
-    var ps_canvas_obj = yeGet(pc_canel, PC_CANVAS_OBJ)
+    let have_upkey = -1
+    let ps_canvas_obj = yeGet(pc_canel, PC_CANVAS_OBJ)
 
     if (yevIsKeyUp(events, Y_LEFT_KEY)) {
 	y_move_set_xspeed(pc_minfo, 0)
@@ -263,7 +263,7 @@ function amap_action(wid, events)
     }
 
     if (yeGetIntAt(pc_canel, PC_TURN_CNT_IDX) > 20000) {
-	var mult = yeGetIntAt(pc_canel, PC_TURN_CNT_IDX) / 20000
+	let mult = yeGetIntAt(pc_canel, PC_TURN_CNT_IDX) / 20000
 
 	yeAddAt(pc_canel, PC_NB_TURN_IDX, 1)
 	if (yeGetIntAt(pc_canel, PC_DASH) > 0) {
@@ -301,8 +301,8 @@ function amap_action(wid, events)
 	return
     }
     let map_pixs_l = yeGet(wid, "map-pixs-l");
-    var stop_fall = false;
-    var stop_x = false;
+    let stop_fall = false;
+    let stop_x = false;
 
     if (ywPosX(pc_pos) < 0 || ywPosX(pc_pos) + SPRITE_SIZE > ywSizeW(map_pixs_l))
 	stop_x = true;
@@ -317,14 +317,14 @@ function amap_action(wid, events)
 
     if (boss) {
 	let boss_i = yeGet(mi, "boss")
-	var life = yeGetIntAt(boss_i, "life")
+	let life = yeGetIntAt(boss_i, "life")
 
 	if (life < 1) {
 	    ywidAction(yeGet(boss_i, "win"), wid)
 	    return
 	}
 	let txt_start_x = ywPosX(old_pos) - 200
-	var txt_start_y = ywPosY(old_pos) - 200
+	let txt_start_y = ywPosY(old_pos) - 200
 
 	let tuple = yeCreateArray()
 	yePushBack(tuple, boss)
@@ -333,7 +333,7 @@ function amap_action(wid, events)
 
 	let txt_obj = yeGet(boss, BOSS_TXT_LIVE)
 	ywCanvasObjSetPos(txt_obj, txt_start_x, txt_start_y)
-	var base_txt = "BOSS life: |"
+	let base_txt = "BOSS life: |"
 	for (; life > 0; life -= 5) {
 	    base_txt = base_txt + "="
 	}
@@ -344,15 +344,15 @@ function amap_action(wid, events)
     }
 
     if (yeGetIntAt(pc_canel, PC_PUNCH_LIFE) > 0) {
-	var punch_obj = yeGet(pc_canel, PC_PUNCH_OBJ)
-	var cols = ywCanvasNewCollisionsArray(wid, punch_obj)
+	let punch_obj = yeGet(pc_canel, PC_PUNCH_OBJ)
+	let cols = ywCanvasNewCollisionsArray(wid, punch_obj)
 
 	if (cols) {
 	    cols.forEach(function(c) {
 		let ctype = yeGetIntAt(c, YCANVAS_UDATA_IDX)
 		if (ctype == TYPE_MONSTER) {
 		    if (ywCanvasObjectsCheckColisions(c, punch_obj)) {
-			var mon_idx = yeGetIntAt(c, CANVAS_MONSTER_IDX)
+			let mon_idx = yeGetIntAt(c, CANVAS_MONSTER_IDX)
 			ywCanvasRemoveObj(wid, c)
 			yeRemoveChildByIdx(monsters, mon_idx)
 			yeAddAt(pc_canel, PC_PUNCH_LIFE, -2)
@@ -375,16 +375,16 @@ function amap_action(wid, events)
 	}
     }
 
-    var cols = ywCanvasNewCollisionsArray(wid, ps_canvas_obj)
-    var direct_ret = false
+    let cols = ywCanvasNewCollisionsArray(wid, ps_canvas_obj)
+    let direct_ret = false
     //yePrint(cols)
     if (cols) {
 	cols.forEach(function(c) {
 	    let ctype = yeGetIntAt(c, YCANVAS_UDATA_IDX)
 
 	    if (ctype == TYPE_OBJ) {
-		var objs = yeGet(mi, "objs");
-		var action = yeGet(yeGet(objs, yeGetIntAt(c, CANVAS_OBJ_IDX)), 1);
+		let objs = yeGet(mi, "objs");
+		let action = yeGet(yeGet(objs, yeGetIntAt(c, CANVAS_OBJ_IDX)), 1);
 
 		ywidAction(action, wid);
 		direct_ret = true
@@ -438,21 +438,21 @@ function amap_action(wid, events)
 
 function init_map(wid, map_str)
 {
-    var pc = yeGet(wid, "pc")
+    let pc = yeGet(wid, "pc")
     let pc_canel = yeGet(wid, "_pc")
     yeReplaceBack(wid, ygFileToEnt(YJSON, map_str + ".json"), "_mi")
     let mi = yeGet(wid, "_mi")
     let parent_str = yeGet(mi, "parent")
     if (parent_str) {
-	var parent = ygFileToEnt(YJSON, yeGetString(parent_str) + ".json");
+	let parent = ygFileToEnt(YJSON, yeGetString(parent_str) + ".json");
 	yePrint(parent);
 	yeMergeInto(mi, parent, 0);
     }
-    var map_str = ygFileToEnt(YRAW_FILE, map_str);
-    var map_str_a = yeGetString(map_str).split('\n');
-    var map_a = yeReCreateArray(wid, "_m");
-    var boss_i = yeGet(mi, "boss");
-    var boss = null;
+    map_str = ygFileToEnt(YRAW_FILE, map_str);
+    let map_str_a = yeGetString(map_str).split('\n');
+    let map_a = yeReCreateArray(wid, "_m");
+    let boss_i = yeGet(mi, "boss");
+    let boss = null;
 
     if (!boss_i) {
 	yeRemoveChildByStr(wid, "_boss")
@@ -460,16 +460,16 @@ function init_map(wid, map_str)
 	boss = yeReCreateArray(wid, "_boss")
     }
 
-    for (var l in map_str_a) {
+    for (let l in map_str_a) {
 	yeCreateString(map_str_a[l], map_a)
 	let guy_index = map_str_a[l].indexOf('@')
 	if (guy_index > -1) {
-	    var pc_cam = yeGet(pc_canel, PC_POS_IDX)
+	    let pc_cam = yeGet(pc_canel, PC_POS_IDX)
 	    ywPosSetInts(pc_cam, guy_index * SPRITE_SIZE, l * SPRITE_SIZE)
 	    yeReplaceBack(wid, pc_cam, "cam")
 	}
     }
-    var size = yeGet(mi, "size")
+    let size = yeGet(mi, "size")
     let map_pixs_l = ywSizeCreate(ywSizeW(size) * SPRITE_SIZE, ywSizeH(size) * SPRITE_SIZE)
     yeReplaceBack(wid, map_pixs_l, "map-pixs-l")
     let monsters = yeReCreateArray(wid, "_monsters")
@@ -477,10 +477,10 @@ function init_map(wid, map_str)
     map_a.forEach(function(s, i) {
 	s = yeGetString(s)
 	for (let j = 0; j < s.length; ++j) {
-	    var c = s[j];
+	    let c = s[j];
 	    c_char_code = c.charCodeAt(0);
 	    if (c_char_code >= "a".charCodeAt(0) && c_char_code <= "z".charCodeAt(0)) {
-		var mon = yeCreateArray(monsters, c)
+		let mon = yeCreateArray(monsters, c)
 		yeCreateString(c, mon) // MONSTER_STR_KEY 0
 		ywPosCreate(j * SPRITE_SIZE, i * SPRITE_SIZE, mon) // MONSTER_POS 1
 		y_mover_new(mon) // MONSTER_MOVER 2
@@ -506,8 +506,8 @@ function init_map(wid, map_str)
 
 	yePushBack(boss, canvasobj);
 	y_mover_new(boss)
-	var base_txt = "BOSS life: |"
-	for (var life = yeGetIntAt(boss_i, "life"); life > 0; life -= 5) {
+	let base_txt = "BOSS life: |"
+	for (let life = yeGetIntAt(boss_i, "life"); life > 0; life -= 5) {
 	    base_txt = base_txt + "="
 	}
 	base_txt = base_txt + "|"
@@ -537,7 +537,7 @@ function amap_init(wid)
     ywSetTurnLengthOverwrite(-1)
     yeCreateFunction(amap_action, wid, "action")
 
-    var pc = yeGet(wid, "pc")
+    let pc = yeGet(wid, "pc")
     if (!pc) {
 	pc = yeCreateArray(wid, "pc")
 	yaeInt(
@@ -548,13 +548,13 @@ function amap_init(wid)
 		"max_life"),
 	    "xp")
 	yeCreateString("Joe", pc, "name");
-	var stats = yeCreateArray(pc, "stats");
+	let stats = yeCreateArray(pc, "stats");
 	yeCreateInt(6, stats, "agility");
 	yeCreateInt(4, stats, "strength");
     }
     //yePrint(pc)
     // canel for canvas element, it's the info about the screen position and stuff
-    var pc_canel = yeCreateArray(wid, "_pc")
+    let pc_canel = yeCreateArray(wid, "_pc")
 
     let map = yeGetStringAt(wid, "map")
 

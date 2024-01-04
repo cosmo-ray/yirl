@@ -977,6 +977,19 @@ static JSValue array_set_at(JSContext *ctx, JSValueConst this_val,
 	return JS_NULL;
 }
 
+static JSValue array_add_at(JSContext *ctx, JSValueConst this_val,
+			    int argc, JSValueConst *argv)
+{
+	Entity *e = GET_E_(this_val);
+
+	if (JS_IsNumber(argv[0])) {
+		yeAddAt(e, GET_I(ctx, 0), GET_I(ctx, 1));
+	} else if (JS_IsString(argv[0])) {
+		yeAddAt(e, GET_S(ctx, 0), GET_I(ctx, 1));
+	}
+	return JS_NULL;
+}
+
 static JSValue array_get(JSContext *ctx, JSValueConst this_val,
 			 int argc, JSValueConst *argv)
 {
@@ -1035,6 +1048,7 @@ static const JSCFunctionListEntry js_ent_proto_funcs[] = {
     JS_CFUNC_DEF("forEach", 0, array_forEach),
     JS_CFUNC_DEF("get", 1, array_get),
     JS_CFUNC_DEF("geti", 1, array_geti),
+    JS_CFUNC_DEF("addAt", 0, array_add_at),
     JS_CFUNC_DEF("setAt", 1, array_set_at)
 };
 
