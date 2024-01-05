@@ -1046,6 +1046,7 @@ int yeAttach(Entity *on, Entity *entity, unsigned int idx,
 #define YE_SET_AT_STRIDX_INTERNAL(WHAT)				\
 	_Generic((WHAT),					\
 		 int: yeSetIntAtStrIdx,				\
+		 double: yeSetFloatAtStrIdx,			\
 		 float: yeSetFloatAtStrIdx,			\
 		 const char *: yeSetStringAtStrIdx,		\
 		 Y_GEN_CLANG_ARRAY(char, yeSetStringAtStrIdx),	\
@@ -1059,6 +1060,7 @@ int yeAttach(Entity *on, Entity *entity, unsigned int idx,
 		 int: _Generic((VALUE),					\
 			       int: yeSetIntAt,				\
 			       float: yeSetFloatAt,			\
+			       double: yeSetFloatAt,			\
 			       const char *: yeSetStringAt,		\
 			       Y_GEN_CLANG_ARRAY(char, yeSetStringAt),	\
 			       char *: yeSetStringAt),			\

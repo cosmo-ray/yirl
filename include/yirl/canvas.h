@@ -78,6 +78,7 @@ enum {
 #define YCANVAS_POS_IDX 1
 #define YCANVAS_DATA_IDX 2
 
+#define YCANVAS_ROUNDED_RADIUS_IDX 5
 /* same as img, as I know rect don't store img */
 #define YCANVAS_RECT_IS_FILLED_IDX 6
 #define YCANVAS_IMG_IDX 6
@@ -85,6 +86,9 @@ enum {
 #define YCANVAS_SIZE_IDX 7
 #define YCANVAS_SURFACE_IDX 8
 #define YCANVAS_UDATA_IDX 10
+
+#define YCANVAS_RECTANGLE_FILL 1
+#define YCANVAS_RECTANGLE_ROUNDED 2
 
 typedef union {
 	uint32_t i;
@@ -269,7 +273,7 @@ Entity *ywCanvasNewObj(Entity *wid, int x, int y, int id);
 Entity *ywCanvasNewRect(Entity *wid, int x, int y, Entity *rect);
 
 static inline  Entity *ywCanvasNewRectangleExt(Entity *wid, int x, int y, int w,
-					       int h, const char *str, int filled)
+					       int h, const char *str, int flag)
 {
 	yeAutoFree Entity *rect = yeCreateArray(NULL, NULL);
 	Entity *obj;
@@ -277,7 +281,10 @@ static inline  Entity *ywCanvasNewRectangleExt(Entity *wid, int x, int y, int w,
 	ywPosCreateInts(w, h, rect, NULL);
 	yeCreateString(str, rect, NULL);
 	obj = ywCanvasNewRect(wid, x, y, rect);
-	yeSetAt(obj, YCANVAS_RECT_IS_FILLED_IDX, filled);
+	yeSetAt(obj, YCANVAS_RECT_IS_FILLED_IDX, flag & YCANVAS_RECTANGLE_FILL);
+	if (flag & YCANVAS_RECTANGLE_ROUNDED) {
+		yeCreateFloatAt((w + h) / 20, obj, "radius", YCANVAS_ROUNDED_RADIUS_IDX);
+	}
 	return obj;
 }
 
