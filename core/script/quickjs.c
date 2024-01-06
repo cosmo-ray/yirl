@@ -992,6 +992,15 @@ static JSValue array_set_at(JSContext *ctx, JSValueConst this_val,
 	return JS_NULL;
 }
 
+static JSValue array_clear(JSContext *ctx, JSValueConst this_val,
+			    int argc, JSValueConst *argv)
+{
+	Entity *e = GET_E_(this_val);
+
+	yeClearArray(e);
+	return JS_NULL;
+}
+
 static JSValue array_add_at(JSContext *ctx, JSValueConst this_val,
 			    int argc, JSValueConst *argv)
 {
@@ -1061,6 +1070,7 @@ static JSValue array_forEach(JSContext *ctx, JSValueConst this_val,
 
 static const JSCFunctionListEntry js_ent_proto_funcs[] = {
     JS_CFUNC_DEF("forEach", 0, array_forEach),
+    JS_CFUNC_DEF("clear", 0, array_clear),
     JS_CFUNC_DEF("get", 1, array_get),
     JS_CFUNC_DEF("geti", 1, array_geti),
     JS_CFUNC_DEF("addAt", 0, array_add_at),
