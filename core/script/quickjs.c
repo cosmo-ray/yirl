@@ -969,10 +969,10 @@ static JSValue array_set_at(JSContext *ctx, JSValueConst this_val,
 {
 	Entity *e = GET_E_(this_val);
 
-	if (JS_IsNumber(argv[0])) {
-		return mk_ent(ctx, yeReCreateInt(GET_I(ctx, 0), e, GET_S(ctx, 1)), 0);
-	} else if (JS_IsString(argv[0])) {
-		return mk_ent(ctx, yeReCreateString(GET_S(ctx, 0), e, GET_S(ctx, 1)), 0);
+	if (JS_IsNumber(argv[1])) {
+		return mk_ent(ctx, yeReCreateInt(GET_I(ctx, 1), e, GET_S(ctx, 0)), 0);
+	} else if (JS_IsString(argv[1])) {
+		return mk_ent(ctx, yeReCreateString(GET_S(ctx, 1), e, GET_S(ctx, 0)), 0);
 	}
 	return JS_NULL;
 }
