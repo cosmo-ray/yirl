@@ -184,8 +184,7 @@ void	sdlDrawRect(SDLWid *swid, GPU_Rect rect, SDL_Color color)
 		rect.y += swid->rect.y;
 		rect.x += swid->rect.x;
 	}
-	GPU_Rectangle2(sg.pWindow, rect, color);
-	
+	GPU_RectangleFilled2(sg.pWindow, rect, color);
 }
 
 
@@ -196,13 +195,11 @@ static void	sdlDrawRect2(SDLWid *swid, GPU_Rect rect, SDL_Color color, int fille
 		rect.x += swid->rect.x;
 	}
 
-	printf("RADIUS: %f\n", radius);
 	if (radius > 0) {
 		if (filled)
 			GPU_RectangleRoundFilled2(sg.pWindow, rect, radius, color);
 		else
 			GPU_RectangleRound2(sg.pWindow, rect, radius, color);
-	  
 	} else {
 		if (filled)
 			GPU_RectangleFilled2(sg.pWindow, rect, color);
