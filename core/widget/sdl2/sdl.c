@@ -1640,7 +1640,6 @@ int sdlCanvasRendObj(YWidgetState *state, SDLWid *wid, Entity *obj,
 		rect.x += ywRectX(wid_pix);
 		rect.y += ywRectY(wid_pix);
 		// stuff to do here
-		yePrint(obj);
 		sdlDrawRect2(NULL, rect, c,
 			     yeGetIntAt(obj, YCANVAS_RECT_IS_FILLED_IDX),
 			     yeGetFloatAt(obj, YCANVAS_ROUNDED_RADIUS_IDX));

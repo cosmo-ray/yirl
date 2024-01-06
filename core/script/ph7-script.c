@@ -155,6 +155,13 @@ static int make_nothing(ph7_context *pCtx,  ...)
 		return 0;						\
 	}
 
+#define BIND_EIIIISI(f, ...)						\
+	static int ph7##f(ph7_context *pCtx, int argc, ph7_value **a) {	\
+		PH7_RET(f(E_AT(a, 0), I_AT(a, 1), I_AT(a, 2), I_AT(a, 3), \
+			  I_AT(a, 4), S_AT(a, 5), I_AT(a, 6)), pCtx);	\
+		return 0;						\
+	}
+
 #define BIND_EIIIS(f, ...)						\
 	static int ph7##f(ph7_context *pCtx, int argc, ph7_value **a) {	\
 		PH7_RET(f(E_AT(a, 0), I_AT(a, 1), I_AT(a, 2), I_AT(a, 3), \

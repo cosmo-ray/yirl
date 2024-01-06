@@ -628,6 +628,20 @@ XS(XS_yevCreateGrp)
 				  SvPVbyte_nolen(ST(5))));	\
 	}
 
+#define BIND_EIIIISI(name, ...)					\
+	XS(XS_##name)						\
+	{							\
+		dXSARGS;					\
+		BIND_AUTORET(name((void *)SvIV(ST(0)),		\
+				  SvIV(ST(1)),			\
+				  SvIV(ST(2)),			\
+				  SvIV(ST(3)),			\
+				  SvIV(ST(4)),			\
+				  SvPVbyte_nolen(ST(5)),	\
+				  SvIV(ST(6))			\
+				     ));			\
+	}
+
 #include "binding.c"
 
 UNIMPLEMENTED(yeAddAt)

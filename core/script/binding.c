@@ -36,6 +36,7 @@
 #define BIND_EIIEE	BIND
 #define BIND_EIIIS	BIND
 #define BIND_EIIIIS	BIND
+#define BIND_EIIIISI	BIND
 #else
 
 #define PUSH_I_GLOBAL(X)
@@ -435,6 +436,8 @@ BIND_SEES(ywTextureNewImg, 4, 0);
 BIND_EIIIS(ywCanvasNewHSegment, 5, 0);
 BIND_EIIIS(ywCanvasNewVSegment, 5, 0);
 
+BIND_EIIIISI(ywCanvasNewRectangleExt, 6, 1);
+
 BIND_EIIIIS(ywCanvasNewRectangle, 6, 0);
 BIND_EIIIIS(ywCanvasMergeRectangle, 6, 0);
 BIND_EIIIIS(ywCanvasMergeText, 6, 0);
@@ -535,6 +538,7 @@ PUSH_I_GLOBAL(YTCC);
 PUSH_I_GLOBAL(YPH7);
 PUSH_I_GLOBAL(YPERL);
 
+#undef BIND_EIIIISI
 #undef BIND_EIIIIS
 #undef BIND_EIIIS
 #undef BIND_EIIEE
