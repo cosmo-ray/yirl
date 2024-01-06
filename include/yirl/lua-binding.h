@@ -891,6 +891,8 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "yLoveToPtr", luaToPtr));
 
 
+  YES_LUA_REGISTRE_CALL(sm, yeCreateHash);
+
   /*array*/
   YES_LUA_REGISTRE_CALL(sm, yeCreateArray);
   YES_LUA_REGISTRE_CALL(sm, yePopBack);
