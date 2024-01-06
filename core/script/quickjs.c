@@ -973,6 +973,12 @@ static JSValue qjsygRegistreFunc(JSContext *ctx, JSValueConst this_val,
 
 static int loadString(void *s, const char *str);
 
+static JSValue entity_to_int(JSContext *ctx, JSValueConst this_val,
+			     int argc, JSValueConst *argv)
+{
+	return JS_NewInt64(ctx, yeGetInt(GET_E_(this_val)));
+}
+
 static JSValue array_set_at(JSContext *ctx, JSValueConst this_val,
 			    int argc, JSValueConst *argv)
 {
@@ -1058,6 +1064,7 @@ static const JSCFunctionListEntry js_ent_proto_funcs[] = {
     JS_CFUNC_DEF("get", 1, array_get),
     JS_CFUNC_DEF("geti", 1, array_geti),
     JS_CFUNC_DEF("addAt", 0, array_add_at),
+    JS_CFUNC_DEF("toInt", 1, entity_to_int),
     JS_CFUNC_DEF("setAt", 1, array_set_at)
 };
 
