@@ -15,6 +15,7 @@
 #define BIND_EII	BIND
 #define BIND_ESS	BIND
 #define BIND_EEI	BIND
+#define BIND_ESI	BIND
 #define BIND_IIS	BIND
 #define BIND_IIE	BIND
 #define BIND_III	BIND
@@ -381,6 +382,8 @@ BIND_EII(ywPosMultXY, 3, 0);
 
 BIND_EII(ywCanvasForceSizeXY, 3, 0);
 
+BIND_EES(yePushFront, 2, 1);
+
 BIND_EEI(yeMergeInto, 3, 0);
 
 BIND_EEI(ywReplaceEntry2, 3, 0);
@@ -559,6 +562,7 @@ PUSH_I_GLOBAL(YPERL);
 #undef BIND_EEI
 #undef BIND_EII
 #undef BIND_ESS
+#undef BIND_ESI
 #undef BIND_ISS
 #undef BIND_IES
 #undef BIND_IIS
