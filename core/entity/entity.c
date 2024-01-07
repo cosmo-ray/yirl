@@ -1007,6 +1007,22 @@ Entity	*yeMoveByEntity(Entity* src, Entity* dest, Entity *what,
 	return what;
 }
 
+Entity *yeRemoveChildByIdx(Entity *array, int toRemove)
+{
+	BlockArray *ba = &YE_TO_ARRAY(array)->values;
+	uint16_t flag = ba->flag;
+	ArrayEntry *tmp = yeGetArrayEntryByIdx(array, toRemove);
+	Entity *ret = NULL;
+
+	ba->flag = YBLOCK_ARRAY_NOMIDFREE;
+	if (tmp && (ret = tmp->entity) != NULL) {
+		yBlockArrayUnset(ba, toRemove);
+		arrayEntryDestroy(tmp);
+	}
+	ba->flag = flag;
+	return ret;
+}
+
 Entity *yeRemoveChildByEntity(Entity *array, Entity *toRemove)
 {
 	Entity *ret;
