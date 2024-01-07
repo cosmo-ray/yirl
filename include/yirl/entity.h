@@ -830,14 +830,9 @@ static inline Entity *yeTryRemoveChild(Entity *array, Entity *toRemove)
 	return yeRemoveChildByEntity(array, toRemove);
 }
 
-static inline Entity *yeRemoveChildByIdx(Entity *array, int toRemove);
+Entity *yeRemoveChildByIdx(Entity *array, int toRemove);
 
 Entity *yeRemoveChildByStr(Entity *array, const char *toRemove);
-
-static inline Entity *yeRemoveChildByIdx(Entity *array, int toRemove)
-{
-	return yeRemoveChild(array, yeGet(array, toRemove));
-}
 
 /**
  * @brief remove an element from array, in comparaison to yeRemoveChild, reorder so it don't let blank

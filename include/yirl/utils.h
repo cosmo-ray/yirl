@@ -32,7 +32,7 @@
 #include <stdint.h>
 #include <unistd.h>
 #include <string.h>
-
+#include <limits.h>
 #define NO_SIDE_EFFECT __attribute__ ((pure))
 /* const doesn't allow to read global variable */
 #define CONST_FUNC __attribute__ ((const))

@@ -47,7 +47,7 @@ typedef struct {
 	uint16_t pos;
 } BlockArrayIterator;
 
-#define yBlockArrayIsBlockAllocated(ba, bPos) (((int32_t)bPos) < (ba).block_cnt)
+#define yBlockArrayIsBlockAllocated(ba, bPos) (bPos < INT_MAX && ((int32_t)bPos) < (ba).block_cnt)
 
 #define yBlockArrayGetBlock(ba, bPos)					\
   (yBlockArrayIsBlockAllocated((ba), bPos) ? (ba).blocks[(bPos)] : 0)
@@ -187,8 +187,7 @@ static inline int8_t *yBlockArrayGetInternal(BlockArray *ba, size_t pos)
 {
 	if (unlikely(!yBlockArrayIsBlockAllocated(*ba, yBlockArrayBlockPos(pos)))) {
 		static uint8_t nullPtr[YBA_MAX_ELEM_SIZE];
-
-		return (int8_t *)nullPtr;
+		return (int8_t *)&nullPtr[0];
 	}
 	return yBlockArrayFastGet(*ba, pos);
 }
