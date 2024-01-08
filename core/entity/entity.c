@@ -1350,6 +1350,8 @@ int yeAttach(Entity *on, Entity *entity,
 	if (unlikely(!on || !entity))
 		return -1;
 
+	ygAssert((int)idx >= 0);
+
 	union {
 		struct {
 			uint32_t entry_flag;
