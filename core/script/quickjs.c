@@ -480,7 +480,17 @@ static JSValue make_abort(JSContext *ctx, ...)
 			       GET_S(ctx, 5), GET_I(ctx, 6)));		\
 	}
 
-#define DUMB_FUNC(x)						\
+#define BIND_EI6SI(f, useless...)					\
+	static JSValue qjs##f(JSContext *ctx, JSValueConst this_val,	\
+			      int argc, JSValueConst *argv) {		\
+		BIND_AUTORET(f(GET_E(ctx, 0),				\
+			       GET_I(ctx, 1), GET_I(ctx, 2),		\
+			       GET_I(ctx, 3), GET_I(ctx, 4),		\
+			       GET_I(ctx, 5), GET_I(ctx, 6),		\
+			       GET_S(ctx, 7), GET_I(ctx, 8)));		\
+	}
+
+#define DUMB_FUNC(x)							\
 	static JSValue qjs##x(JSContext *ctx, JSValueConst this_val,	\
 			      int argc, JSValueConst *argv) {		\
 		printf("BIND not yet implemented %s\n", #x);		\
@@ -554,6 +564,7 @@ BIND_ESI(yeCreateArrayAt, 3, 0);
 BIND_IES(yeReCreateInt, 3, 0);
 BIND_EID(yeSetFloatAt, 3, 0);
 BIND_DESI(yeCreateFloatAt, 4, 0);
+BIND_EI6SI(ywCanvasNewTriangleExt, 8, 1);
 
 #define NO_ywTextureNewImg
 /* make all bindings here */
@@ -1060,6 +1071,14 @@ static JSValue array_geti(JSContext *ctx, JSValueConst this_val,
 	return JS_NULL;
 }
 
+static JSValue entity_len(JSContext *ctx, JSValueConst this_val,
+			 int argc, JSValueConst *argv)
+{
+	Entity *e = GET_E_(this_val);
+
+	return JS_NewInt64(ctx, yeLen(e));
+}
+
 static JSValue array_forEach(JSContext *ctx, JSValueConst this_val,
 			     int argc, JSValueConst *argv)
 {
@@ -1092,7 +1111,8 @@ static const JSCFunctionListEntry js_ent_proto_funcs[] = {
     JS_CFUNC_DEF("geti", 1, array_geti),
     JS_CFUNC_DEF("addAt", 0, array_add_at),
     JS_CFUNC_DEF("toInt", 1, entity_to_int),
-    JS_CFUNC_DEF("setAt", 1, array_set_at)
+    JS_CFUNC_DEF("setAt", 1, array_set_at),
+    JS_CFUNC_DEF("len", 1, entity_len)
 };
 
 #define countof(x) (sizeof(x) / sizeof((x)[0]))
@@ -1170,6 +1190,7 @@ static int init(void *sm, void *args)
 	BIND(yeCreateFloatAt, 4, 0);
 	BIND(yeSetFloatAt, 3, 0);
 	BIND(ywCanvasObjSetPos, 3, 0);
+	BIND(ywCanvasNewTriangleExt, 8, 1);
 
 
 #define IN_CALL 1
