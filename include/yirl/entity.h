@@ -852,6 +852,8 @@ Entity *yeCreate(EntityType type, void *val, Entity *parent, const char *name);
  * Destructor and constructors.
  */
 Entity *yeCreateQuadInt(int i0, int i1, int i2, int i3, Entity *parent, const char *name);
+Entity *yeCreateQuadInt2(int i0, int i1, Entity *parent, const char *name);
+Entity *yeCreateQuadInt0(Entity *parent, const char *name);
 Entity *yeCreateQuadIntAt(int i0, int i1, int i2, int i3, Entity *parent, const char *name, int idx);
 Entity *yeCreateInt(int value, Entity *parent, const char *name);
 Entity *yeCreateIntAt(int value, Entity *parent, const char *name, int idx);

@@ -686,6 +686,21 @@ Entity *ywCanvasNewRect(Entity *wid, int x, int y, Entity *rect)
 	return obj;
 }
 
+Entity *ywCanvasNewPolygonExt(Entity *wid, Entity *vertices, const char *color, int filled)
+{
+  Entity *obj = yeCreateArray(NULL, NULL);
+
+  yeCreateInt(YCanvasPolygone, obj, "canvas-type");
+  yePushBack(obj, yeGet(vertices, 0), "pos");
+  yeCreateString(color, obj, "color");
+  /* Kind of random so it doesn't crash */
+  yeCreateQuadIntAt(100, 100, filled, 0, obj, "size", YCANVAS_SIZE_IDX);
+  yePushAt(obj, vertices, YCANVAS_VERTICES_IDX);
+  ywCanvasSetWeightInternal(wid, obj, 0, 1);
+  return obj;	
+  
+}
+
 Entity *ywCanvasNewTriangleExt(Entity *wid,
 			       int x1, int y1, int x2, int y2,
 			       int x3, int y3, const char *color,

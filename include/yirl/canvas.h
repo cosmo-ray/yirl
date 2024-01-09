@@ -58,6 +58,7 @@ typedef enum  {
 	YCanvasHeadacheImg,
 	YCanvasCircle,
 	YCanvasTriangle,
+	YCanvasPolygone,
 	YCnvasEndType
 } YCanvasObjType;
 
@@ -78,6 +79,7 @@ enum {
 #define YCANVAS_POS_IDX 1
 #define YCANVAS_DATA_IDX 2
 
+#define YCANVAS_VERTICES_IDX 5
 #define YCANVAS_ROUNDED_RADIUS_IDX 5
 /* same as img, as I know rect don't store img */
 #define YCANVAS_RECT_IS_FILLED_IDX 6
@@ -302,6 +304,8 @@ Entity *ywCanvasNewCircle(Entity *wid, int x, int y, int radius, const char *col
  * please only use 0/1 as I Might at some point, change the variable to a flag
  */
 Entity *ywCanvasNewCircleExt(Entity *wid, int x, int y, int radius, const char *color, int filled);
+
+Entity *ywCanvasNewPolygonExt(Entity *wid, Entity *vertices, const char *color, int filled);
 
 Entity *ywCanvasNewTriangleExt(Entity *wid,
 			       int x1, int y1, int x2, int y2,

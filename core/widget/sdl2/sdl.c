@@ -208,6 +208,16 @@ static void	sdlDrawRect2(SDLWid *swid, GPU_Rect rect, SDL_Color color, int fille
 	}
 }
 
+static void	sdlDrawPoly(int nb_vertices, float vertices[static nb_vertices * 2],
+			    SDL_Color c, int filled)
+{
+	if (!filled)
+		GPU_Polygon(sg.pWindow, nb_vertices, vertices, c);
+	else
+		GPU_PolygonFilled(sg.pWindow, nb_vertices, vertices, c);
+	
+}
+
 static void     sdlDrawTriangle(float x1, float y1, float x2,
 				float y2, float x3, float y3,
 				SDL_Color c, int filled)
@@ -1376,7 +1386,8 @@ int sdlCanvasCacheTexture(Entity *state, Entity *elem)
 	Entity *texture;
 	const char *txt;
 
-	if (type == YCanvasRect || type == YCanvasCircle || type == YCanvasTriangle) {
+	if (type == YCanvasRect || type == YCanvasCircle ||
+	    type == YCanvasTriangle || type == YCanvasPolygone) {
 		return 0;
 	} else if (ywCanvasObjType(elem) == YCanvasString) {
 		Entity *str = yeGet(elem, 2);
@@ -1494,8 +1505,8 @@ uint32_t sdlCanvasPixInfo(Entity *obj, int x, int y)
   SDL_Surface *surface = yeGetDataAt(obj, YCANVAS_SURFACE_IDX);
   int type = yeGetIntAt(obj, 0);
 
-  if (type == YCanvasCircle || type == YCanvasTriangle) {
-	  DPRINT_ERR("pixel info not net implemented for Circle/Triangle\n");
+  if (type == YCanvasCircle || type == YCanvasTriangle || type == YCanvasPolygone) {
+	  DPRINT_ERR("pixel info not net implemented for most shapes\n");
 	  ygDgbAbort();
   } else if (type == YCanvasRect) {
     YBgConf cfg;
@@ -1628,6 +1639,37 @@ int sdlCanvasRendObj(YWidgetState *state, SDLWid *wid, Entity *obj,
 				rect.h, yeGetQuadInt2(s),
 				yeGetQuadInt3(s),
 				c, yeGetQuadInt3(p));
+		return 0;
+	} else if (type == YCanvasPolygone) {
+		YBgConf cfg;
+		static float vertices[512]; /*assuming smaller*/
+		Entity *vertices_ent = yeGet(obj, YCANVAS_VERTICES_IDX);
+		int nb_vertices = yeLen(vertices_ent);
+		int i = 0;
+
+		for (; i < nb_vertices * 2; i += 2) {
+			/* if I want a semblace of size, I should compute it here */
+			vertices[i] = yeGetIntAt(yeGet(vertices_ent, i / 2), 0);
+			vertices[i + 1] = yeGetIntAt(yeGet(vertices_ent, i / 2), 1);
+		}
+
+		/* close loop by default ? */
+		/* ++nb_vertices; */
+		/* vertices[i] = vertices[0]; */
+		/* vertices[i + 1] = vertices[1]; */
+
+		/* for (int i = 0; i < nb_vertices * 2; i  += 2) { */
+		/* 	printf( "[%f,%f]", vertices[i], vertices[i+1]); */
+		/* } */
+		/* yePrint(vertices_ent); */
+
+		ywidBgConfFill(yeGet(obj, 2), &cfg);
+		c.r = cfg.r;
+		c.g = cfg.g;
+		c.b = cfg.b;
+		c.a = cfg.a;
+
+		sdlDrawPoly(nb_vertices, vertices, c, yeGetQuadInt2(s));
 		return 0;
 	} else if (type == YCanvasRect) {
 		YBgConf cfg;
