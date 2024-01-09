@@ -342,7 +342,7 @@ static inline int ywPosMoveToward(Entity *from, Entity *to)
   return x || y;
 }
 
-/* more usefull for map where rounding errors are expected 
+/* more usefull for map where rounding errors are expected
  * and when you don't allow diagonal movement
  */
 static inline uint32_t ywPosTotCases(Entity *p0, Entity *p1)

@@ -385,6 +385,8 @@ BIND_EII(ywCanvasForceSizeXY, 3, 0);
 
 BIND_EES(yePushFront, 2, 1);
 
+BIND_EEI(ywRectContainPos, 3, 0);
+
 BIND_EEI(yeMergeInto, 3, 0);
 
 BIND_EEI(ywReplaceEntry2, 3, 0);

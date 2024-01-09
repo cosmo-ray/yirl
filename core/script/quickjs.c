@@ -389,6 +389,13 @@ static JSValue make_abort(JSContext *ctx, ...)
 			       GET_S(ctx, 3), GET_I(ctx, 4)));		\
 	}
 
+#define BIND_EESI(f, useless...)					\
+	static JSValue qjs##f(JSContext *ctx, JSValueConst this_val,	\
+			      int argc, JSValueConst *argv) {		\
+		BIND_AUTORET(f(GET_E(ctx, 0), GET_E(ctx, 1),		\
+			       GET_S(ctx, 2), GET_I(ctx, 3)));		\
+	}
+
 #define BIND_EEES(f, useless...)					\
 	static JSValue qjs##f(JSContext *ctx, JSValueConst this_val,	\
 			      int argc, JSValueConst *argv) {		\
@@ -564,6 +571,7 @@ BIND_ESI(yeCreateArrayAt, 3, 0);
 BIND_IES(yeReCreateInt, 3, 0);
 BIND_EID(yeSetFloatAt, 3, 0);
 BIND_DESI(yeCreateFloatAt, 4, 0);
+BIND_EESI(ywCanvasNewPolygonExt, 3, 1);
 BIND_EI6SI(ywCanvasNewTriangleExt, 8, 1);
 
 #define NO_ywTextureNewImg
@@ -1113,6 +1121,7 @@ static const JSCFunctionListEntry js_ent_proto_funcs[] = {
     JS_CFUNC_DEF("geti", 1, array_geti),
     JS_CFUNC_DEF("addAt", 0, array_add_at),
     JS_CFUNC_DEF("toInt", 1, entity_to_int),
+    JS_CFUNC_DEF("i", 1, entity_to_int),
     JS_CFUNC_DEF("setAt", 1, array_set_at),
     JS_CFUNC_DEF("len", 1, entity_len)
 };
@@ -1193,6 +1202,7 @@ static int init(void *sm, void *args)
 	BIND(yeSetFloatAt, 3, 0);
 	BIND(ywCanvasObjSetPos, 3, 0);
 	BIND(ywCanvasNewTriangleExt, 8, 1);
+	BIND(ywCanvasNewPolygonExt, 3, 1);
 
 
 #define IN_CALL 1
