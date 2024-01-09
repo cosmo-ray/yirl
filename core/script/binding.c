@@ -240,6 +240,7 @@ BIND_E(ywCanvasVFlip, 1, 0);
 BIND_E(ywCanvasHFlip, 1, 0);
 
 BIND_E(yevAnyMouseDown, 1, 0);
+BIND_E(yevMousePos, 1, 0);
 
 BIND_E(yeGetRandomElem, 1, 0);
 
