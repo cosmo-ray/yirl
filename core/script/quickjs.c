@@ -999,6 +999,8 @@ static JSValue array_set_at(JSContext *ctx, JSValueConst this_val,
 		return mk_ent(ctx, yeReCreateInt(GET_I(ctx, 1), e, GET_S(ctx, 0)), 0);
 	} else if (JS_IsString(argv[1])) {
 		return mk_ent(ctx, yeReCreateString(GET_S(ctx, 1), e, GET_S(ctx, 0)), 0);
+	} else if (JS_IsObject(argv[1])) {
+		return new_ent(ctx, yeReplaceBack(e, GET_E_(argv[1]), GET_S(ctx, 0)));
 	}
 	return JS_NULL;
 }
