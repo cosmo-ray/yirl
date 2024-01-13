@@ -816,6 +816,13 @@ static JSValue qjsyeCreateArray(JSContext *ctx, JSValueConst this_val,
 		      !GET_E(ctx, 0));
 }
 
+static JSValue qjsyeCreateHash(JSContext *ctx, JSValueConst this_val,
+			       int argc, JSValueConst *argv)
+{
+	return mk_ent(ctx, yeCreateHash(GET_E(ctx, 0), GET_S(ctx, 1)),
+		      !GET_E(ctx, 0));
+}
+
 static JSValue qjsyeCreateCopy(JSContext *ctx, JSValueConst this_val,
 			       int argc, JSValueConst *argv)
 {
@@ -1174,6 +1181,7 @@ static int init(void *sm, void *args)
 	BIND(yeCreateString, 1, 2);
 	BIND(yeCreateInt, 1, 2);
 	BIND(yeCreateArray, 0, 2);
+	BIND(yeCreateHash, 0, 2);
 	BIND(yeCreateCopy, 0, 3);
 	BIND(yeReCreateArray, 2, 1);
 	BIND(yeGetStringAt, 0, 2);
