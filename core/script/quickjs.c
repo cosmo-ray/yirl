@@ -1131,6 +1131,29 @@ static JSValue array_forEach(JSContext *ctx, JSValueConst this_val,
 	JSValue arg = argv[1];
 	JSValue r;
 
+	if (yeType(e) == YHASH) {
+		Entity *vvar;
+		const char *kkey;
+
+		kh_foreach(((HashEntity *)e)->values,
+			   kkey, vvar, {
+				   JSValue jse = new_ent(ctx, vvar);
+				   JSValue jsidx = JS_NewString(ctx, kkey);
+				   r = JS_Call(ctx, callback, JS_GetGlobalObject(ctx), 4,
+					       (JSValueConst []){
+						   jse,
+						   jsidx,
+						   this_val,
+						   arg
+					   });
+				   if (JS_IsBool(r) && JS_ToBool(ctx, r)) {
+					   break;
+				   }
+
+			   });
+		return JS_NULL;
+	}
+
 	for (int l = yeLen(e), i = 0; i < l; ++i) {
 		JSValue jse = new_ent(ctx, yeGet(e, i));
 		JSValue jsidx = JS_NewInt32(ctx, i);
