@@ -407,6 +407,9 @@ BIND_EIII(ywRectContain, 3, 1);
 
 BIND_V(yeFreeEntitiesInStack);
 
+BIND_V(ywidFontW);
+BIND_V(ywidFontH);
+
 BIND_V(yeEntitiesUsed);
 
 BIND_V(ysTraceCurrentScript);
