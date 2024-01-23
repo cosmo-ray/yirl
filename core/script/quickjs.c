@@ -1055,6 +1055,21 @@ static JSValue entity_add(JSContext *ctx, JSValueConst this_val,
 	return JS_NULL;
 }
 
+static JSValue array_push(JSContext *ctx, JSValueConst this_val,
+			  int argc, JSValueConst *argv)
+{
+	Entity *e = GET_E_(this_val);
+
+	if (JS_IsNumber(argv[0])) {
+		yeCreateInt(GET_I(ctx, 0), e, GET_S(ctx, 1));
+	} else if (JS_IsString(argv[0])) {
+		yeCreateString(GET_S(ctx, 0), e, GET_S(ctx, 1));
+	} else {
+		yePushBack(e, GET_E(ctx, 0), GET_S(ctx, 1));
+	}
+	return JS_NULL;
+}
+
 static JSValue array_get(JSContext *ctx, JSValueConst this_val,
 			 int argc, JSValueConst *argv)
 {
@@ -1188,6 +1203,7 @@ static const JSCFunctionListEntry js_ent_proto_funcs[] = {
     JS_CFUNC_DEF("clear", 0, array_clear),
     JS_CFUNC_DEF("rm", 0, array_remove),
     JS_CFUNC_DEF("get", 1, array_get),
+    JS_CFUNC_DEF("push", 1, array_push),
     JS_CFUNC_DEF("geti", 1, array_geti),
     JS_CFUNC_DEF("gets", 1, array_gets),
     JS_CFUNC_DEF("addAt", 0, array_add_at),
