@@ -94,6 +94,8 @@ BIND_EEIS(yeInsertAt, 3, 0);
 
 BIND_EIES(ywMapPushNbr, 3, 1);
 
+BIND_EEES(yeMoveByEntity, 3, 1);
+
 BIND_EEES(ywRectCreatePosSize, 2, 2);
 
 BIND_EEES(ywMapTryPushElem, 3, 1);
