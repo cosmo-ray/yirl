@@ -1373,9 +1373,7 @@ int yeAttach(Entity *on, Entity *entity,
 			if (toRemove == entity)
 				return 0;
 			if (toRemove && !(flag & YE_ATTACH_NO_MEM_FREE)) {
-				printf("to remove: %d\n", toRemove->refCount);
 				yeDestroy(toRemove);
-				printf("to remove after: %d\n", toRemove->refCount);
 			}
 		}
 		iterator = kh_put(entity_hash, hon->values, strdup(name), &ret);

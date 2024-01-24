@@ -48,10 +48,19 @@ int ywContainerEnd(void);
 _Bool ywCntInTree(Entity *cnt, Entity *widget);
 
 /**
- * Create a new widget from @wid and push it
+ * Push @wid to container
  * @retun the id of the new layer or -1
  */
 int ywPushNewWidget(Entity *container, Entity *wid, int dec_ref);
+
+static inline Entity *ywCntCreateChild(Entity *container, const char *type)
+{
+	Entity *nw = yeCreateHash(NULL, NULL);
+
+	yeCreateString(type, nw, "<type>");
+	ywPushNewWidget(container, nw, 1);
+	return nw;
+}
 
 int ywContainerUpdate(Entity *container, Entity *widEnt);
 
