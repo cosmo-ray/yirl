@@ -48,6 +48,7 @@ static int t = -1;
 
 static JSClassID widget_class_id;
 static JSClassID entity_class_id;
+static JSClassID it_class_id;
 static JSClassID freeable_entity_class_id;
 static JSClassID script_manager_class_id;
 
@@ -517,6 +518,17 @@ static void destroy_entity(JSRuntime *rt, JSValue val)
 }
 
 
+static void destroy_entity_it(JSRuntime *rt, JSValue val)
+{
+	void *e = JS_GetOpaque(val, it_class_id);
+	free(e);
+}
+
+static JSClassDef it_class = {
+	"Entity_Iterator",
+	.finalizer = destroy_entity_it,
+};
+
 static JSClassDef entity_class = {
 	"Entity",
 	.finalizer = NULL,
@@ -532,6 +544,11 @@ static JSClassDef sm_class = {
 };
 static JSClassDef widget_class = {
 	"WidgetState", .finalizer = NULL
+};
+
+struct EntityIterator {
+	Entity *e;
+	int i;
 };
 
 static inline JSValue mk_ent(JSContext *ctx, Entity *e, int add_destroy)
@@ -1198,6 +1215,76 @@ static JSValue array_forEach(JSContext *ctx, JSValueConst this_val,
 	return JS_NULL;
 }
 
+static JSValue container_it_next(JSContext *ctx, JSValueConst this_val,
+				 int argc, JSValueConst *argv)
+{
+	JSValue ret = JS_NewObject(ctx);
+	JSAtom atom;
+	int is_done = 1;
+	struct EntityIterator *it = JS_GetOpaque(this_val, it_class_id);
+	Entity *container = it->e;
+	int idx = it->i;
+
+	if (it->e->type == YHASH) {
+		/* Entity *old = it->cur_e; */
+		Entity *vvar;
+		const char *kkey;
+		int  i = 0;
+
+		kh_foreach(((HashEntity *)container)->values,
+			   kkey, vvar, {
+				   if (i >= idx) {
+					   it->i = ++i;
+					   atom = JS_NewAtom(ctx, "value");
+					   JSValue val = new_ent(ctx, vvar);
+					   JS_SetProperty(ctx, ret, atom, val);
+					   JSValue jsidx = JS_NewString(ctx, kkey);
+					   JS_SetPropertyStr(ctx, ret, "index", jsidx);
+					   is_done = 0;
+					   goto out;
+				   }
+				   ++i;
+			   });
+	} else {
+		for (size_t i = idx; i < yeLen(container); i++) {
+			if (!yeGet(container, i))
+				continue;
+			is_done = 0;
+			atom = JS_NewAtom(ctx, "value");
+			JSValue val = new_ent(ctx, yeGet(container, i));
+			JS_SetProperty(ctx, ret, atom, val);
+			it->i = ++i;
+			goto out;
+		}
+	}
+
+out:
+	atom = JS_NewAtom(ctx, "done");
+	JSValue is_done_js = JS_NewBool(ctx, is_done);
+	JS_SetProperty(ctx, ret, atom, is_done_js);
+	return ret;
+}
+
+static const JSCFunctionListEntry js_ent_it_proto_funcs[] = {
+	JS_CFUNC_DEF("next", 0, container_it_next)
+};
+
+static JSValue array_iterator(JSContext *ctx, JSValueConst this_val,
+			      int argc, JSValueConst *argv)
+{
+	JSValue obj = JS_NewObjectClass(ctx, it_class_id);
+	Entity *e = GET_E_(this_val);
+	int ent_type = yeType(e);
+	if (ent_type != YHASH && ent_type != YARRAY)
+		return JS_NULL;
+
+	struct EntityIterator *it = malloc(sizeof *it);
+	it->e = e;
+	it->i = 0;
+	JS_SetOpaque(obj, it);
+	return obj;
+}
+
 static const JSCFunctionListEntry js_ent_proto_funcs[] = {
     JS_CFUNC_DEF("forEach", 0, array_forEach),
     JS_CFUNC_DEF("clear", 0, array_clear),
@@ -1211,6 +1298,7 @@ static const JSCFunctionListEntry js_ent_proto_funcs[] = {
     JS_CFUNC_DEF("toInt", 1, entity_to_int),
     JS_CFUNC_DEF("i", 1, entity_to_int),
     JS_CFUNC_DEF("setAt", 1, array_set_at),
+    JS_CFUNC_DEF("[Symbol.iterator]", 1, array_iterator),
     JS_CFUNC_DEF("len", 1, entity_len)
 };
 
@@ -1232,6 +1320,13 @@ static int init(void *sm, void *args)
 	JS_NewClass(JS_GetRuntime(ctx), entity_class_id, &entity_class);
 	JS_NewClass(JS_GetRuntime(ctx), freeable_entity_class_id,
 		    &freeable_entity_class);
+	JS_NewClass(JS_GetRuntime(ctx), it_class_id, &it_class);
+
+	JSValue iterator_proto = JS_NewObject(ctx);
+	JS_SetPropertyFunctionList(ctx, iterator_proto, js_ent_it_proto_funcs,
+				   countof(js_ent_it_proto_funcs));
+	JS_SetClassProto(ctx, it_class_id, iterator_proto);
+
 	JSValue ent_proto = JS_NewObject(ctx);
 	JS_SetPropertyFunctionList(ctx, ent_proto, js_ent_proto_funcs,
 				   countof(js_ent_proto_funcs));
