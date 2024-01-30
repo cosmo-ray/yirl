@@ -32,6 +32,7 @@
 #define BIND_EEIS	BIND
 #define BIND_EIES	BIND
 #define BIND_EEES	BIND
+#define BIND_IIES	BIND
 #define BIND_EEEEI	BIND
 #define BIND_EEESI	BIND
 #define BIND_EIIEE	BIND
@@ -93,6 +94,8 @@ BIND_EEIS(yePushAt2, 3, 0);
 BIND_EEIS(yeInsertAt, 3, 0);
 
 BIND_EIES(ywMapPushNbr, 3, 1);
+
+BIND_IIES(yeCreateQuadInt2, 2, 2);
 
 BIND_EEES(yeMoveByEntity, 3, 1);
 
@@ -565,6 +568,7 @@ PUSH_I_GLOBAL(YPERL);
 #undef BIND_EIIE
 #undef BIND_EEEE
 #undef BIND_EEES
+#undef BIND_IIES
 #undef BIND_EEIS
 #undef BIND_EIES
 #undef BIND_SEES
