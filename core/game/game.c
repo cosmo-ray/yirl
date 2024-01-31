@@ -768,16 +768,16 @@ Entity *ygLoadMod(const char *path)
 	name = yeGet(mod, "name");
 
 	if (!name) {
-		char *last_slash = strrchr(path, '/');
+		char *last_slash = strrchr(path, PATH_SEPARATOR);
 		int short_end = 0;
 
 		if (strlen(last_slash) == 1) {
 			do {
 				--last_slash;
-			} while (last_slash != path && *last_slash != '/');
+			} while (last_slash != path && *last_slash != PATH_SEPARATOR);
 			short_end = 1;
 		}
-		if (*last_slash == '/')
+		if (*last_slash == PATH_SEPARATOR)
 			++last_slash;
 		yeSetString(tmp_name, last_slash);
 		yeStringTruncate(tmp_name, short_end);

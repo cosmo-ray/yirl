@@ -73,6 +73,10 @@ static char *strndup(const char *str, size_t chars)
     return buffer;
 }
 
+#define PATH_SEPARATOR '\\'
+#else
+#define PATH_SEPARATOR '/'
+
 #endif
 
 #endif
