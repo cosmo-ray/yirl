@@ -208,6 +208,9 @@ start.html: webstart.html
 clean:	clean-tests
 	rm -rvf $(OBJ) $(OBJXX) $(GEN_LOADER_OBJ)
 
+clean_ph7: fclean
+	rm -rvf ph7/ph7.o
+
 fclean: clean
 	rm -rvf $(LIBNAME).a $(O_OBJ) $(LIBNAME).so $(LIBNAME).dll webstart.* start.html yirl-loader$(BIN_EXT)
 
