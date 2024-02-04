@@ -27,7 +27,6 @@ jobs:
           cmake
           glew
           gcc
-          msmpi
           dlfcn
           lua
           autotools
