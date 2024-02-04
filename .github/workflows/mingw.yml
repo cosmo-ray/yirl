@@ -18,6 +18,7 @@ jobs:
           gcc
           base-devel
           zip
+          mingw-w64-x86_64-msmpi
         pacboy:
           SDL2_mixer
           SDL2_image
