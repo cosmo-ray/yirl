@@ -276,6 +276,8 @@ NO_SIDE_EFFECT size_t yeLen(Entity *entity)
 		return ret;
 	} else if (entity->type == YSTRING) {
 		return YE_TO_STRING(entity)->len;
+	} else if (entity->type == YDATA) {
+		return YE_TO_DATA(entity)->len;
 	}
 	DPRINT_ERR("yeLen on non String entity !");
 	return 0;

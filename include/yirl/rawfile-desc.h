@@ -26,4 +26,10 @@ int ydRawFileInit(void);
 
 int ydRawFileEnd(void);
 
+int ydRawFileDataGetType(void);
+
+int ydRawFileDataInit(void);
+
+int ydRawFileDataEnd(void);
+
 #endif

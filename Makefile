@@ -27,6 +27,7 @@ SRC = 	$(HSEARCH_SRC) \
 	$(DESCRIPTION_DIR)/description.c \
 	$(DESCRIPTION_DIR)/json-desc.c	 \
 	$(DESCRIPTION_DIR)/rawfile-decs.c \
+	$(DESCRIPTION_DIR)/rawfile-data-decs.c \
 	$(ENTITY_DIR)/entity.c \
 	$(ENTITY_DIR)/entity-string.c \
 	$(ENTITY_DIR)/entity-convertions.c \

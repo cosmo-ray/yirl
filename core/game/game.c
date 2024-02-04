@@ -58,6 +58,7 @@
 static int init;
 static void *jsonManager;
 static void *rawfileManager;
+static void *rawfiledataManager;
 
 static void *luaManager;
 static void *tccManager;
@@ -449,6 +450,9 @@ int ygInit(GameConfig *cfg)
 	CHECK_AND_GOTO(rawfileManager = ydNewManager(ydRawFileInit()),
 		       NULL, error, "raw-file init failed");
 
+	CHECK_AND_GOTO(rawfiledataManager = ydNewManager(ydRawFileDataInit()),
+		       NULL, error, "raw-file init failed");
+
   /* Init scripting */
   /* TODO init internal lua function */
 	CHECK_AND_GOTO(t = ysLuaInit(), -1, error, "lua init failed");
@@ -553,6 +557,8 @@ void ygEnd()
 	ydJsonEnd();
 	ydDestroyManager(rawfileManager);
 	ydRawFileEnd();
+	ydDestroyManager(rawfiledataManager);
+	ydRawFileDataEnd();
 	if (current_render_type != YNONE) {
 		ywTextScreenEnd();
 		ywMapEnd();
@@ -707,6 +713,8 @@ Entity *ygFileToEnt(YFileType t, const char *path, Entity *father)
 		return ydFromFile(jsonManager, path, father);
 	else if (t == YRAW_FILE)
 		return ydFromFile(rawfileManager, path, father);
+	else if (t == YRAW_FILE_DATA)
+		return ydFromFile(rawfiledataManager, path, father);
 	return NULL;
 }
 

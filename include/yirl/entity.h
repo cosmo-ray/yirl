@@ -203,6 +203,7 @@ typedef	struct
 
 	void	*value;
 	void	(*destroy)(void *);
+	int	len;
 } DataEntity;
 
 KHASH_MAP_INIT_STR(entity_hash, Entity *);
