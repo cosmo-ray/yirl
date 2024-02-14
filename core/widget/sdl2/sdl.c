@@ -1355,6 +1355,37 @@ void sdlCanvasCacheBicolorImg(Entity *elem, const uint8_t *img, Entity *info)
 	return;
 }
 
+void sdlCanvasDrawableSetPix(Entity *elem, int x, int y, int color)
+{
+	SDL_Surface *surface = yeGetData(yeGet(elem, YCANVAS_SURFACE_IDX));
+	uint32_t *pixels = surface->pixels;
+	int w = ywSizeW(yeGet(elem, YCANVAS_SIZE_IDX));
+
+	pixels[y * w + y] = color;
+}
+
+void sdlCanvasDrawableFinalyze(Entity *elem)
+{
+	SDL_Surface *surface = yeGetData(yeGet(elem, YCANVAS_SURFACE_IDX));
+	GPU_Image *texture = GPU_CopyImageFromSurface(surface);
+	Entity *data = yeCreateDataAt(texture, elem, "$img", YCANVAS_IMG_IDX);	
+	yeSetDestroy(data, sdlFreeTexture);
+}
+
+void sdlCanvasDrawableNew(Entity *elem, Entity *size)
+{
+	Entity *size_cpy = yeCreateCopy(size, NULL, NULL);
+
+	SDL_Surface *surface = SDL_CreateRGBSurface(
+		0, ywSizeW(size), ywSizeH(size), 32,
+		0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
+	yePushAt2(elem, size_cpy, YCANVAS_SIZE_IDX, "$size");
+
+	Entity *data = yeCreateDataAt(surface, elem, "$img-surface",
+				      YCANVAS_SURFACE_IDX);
+	yeSetDestroy(data, sdlFreeSurface);
+}
+
 void sdlCanvasCacheHeadacheImg(Entity *elem, Entity *map, Entity *info)
 {
 	Entity *pix_per_char = yeGet(info, "pix_per_char");
