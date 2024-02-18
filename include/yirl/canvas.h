@@ -338,6 +338,10 @@ Entity *ywCanvasNewText(Entity *wid, int x, int y, Entity *string);
 Entity *ywCanvasNewTextExt(Entity *wid, int x, int y, Entity *string,
 			   const char *color);
 
+Entity *ywCanvasNewDrawableImg(Entity *c, int x, int y, Entity *size);
+void ywCanvasDrawableSetPix(Entity *obj, int x, int y, int color);
+void ywCanvasDrawableFinalyze(Entity *obj);
+
 /**
  * create a image make of 2 colors describe in map, and info.
  * info mustbe like:

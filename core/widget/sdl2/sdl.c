@@ -1361,7 +1361,7 @@ void sdlCanvasDrawableSetPix(Entity *elem, int x, int y, int color)
 	uint32_t *pixels = surface->pixels;
 	int w = ywSizeW(yeGet(elem, YCANVAS_SIZE_IDX));
 
-	pixels[y * w + y] = color;
+	pixels[y * w + x] = color;
 }
 
 void sdlCanvasDrawableFinalyze(Entity *elem)
@@ -1498,15 +1498,14 @@ static int sdlCanvasRendImg(YWidgetState *state, SDLWid *wid, Entity *img,
 	Entity *s = ywCanvasObjSize(state->entity, img);
 	Entity *p = ywCanvasObjPos(img);
 	GPU_Rect *sd = NULL;
-	assert(p);
-	assert(s);
+	ygAssert(p);
+	ygAssert(s);
 	GPU_Rect rd = { ywPosXDirect(p) - ywPosX(cam),
 			ywPosYDirect(p) - ywPosY(cam),
 			ywSizeWDirect(s), ywSizeHDirect(s) };
 	double rotation = 0;
 	GPU_BatchFlagEnum flip = 0;
 	GPU_Image *t = NULL;
-
 
 	if (rd.x + rd.w < 0 || rd.y + rd.h < 0 || rd.y > ywRectHDirect(wid_pix)
 	    || rd.x > ywRectWDirect(wid_pix)) {

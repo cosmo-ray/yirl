@@ -262,6 +262,11 @@ void	tccAddSyms(TCCState *l)
   ADD_SYM(yeCreateFloatAt);
   ADD_SYM(yeCreateQuadInt2);
   ADD_SYM(ywCanvasNewPolygonExt);
+  ADD_SYM(ywCanvasNewDrawableImg);
+  ADD_SYM(ywCanvasDrawableSetPix);
+  ADD_SYM(ywCanvasDrawableFinalyze);
+  ADD_SYM(ywCanvasVFlip);
+  ADD_SYM(ywCanvasHFlip);
 
 #if defined(__unix__) || defined(__APPLE__)
   tcc_add_symbol(l, "yuiDebugPrint", yuiDebugPrint);
