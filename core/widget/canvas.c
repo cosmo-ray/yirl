@@ -23,6 +23,7 @@
 #include "yirl/canvas.h"
 #include "yirl/entity-script.h"
 #include "yirl/texture.h"
+#include "yirl/game.h"
 
 static int t = -1;
 
@@ -526,10 +527,35 @@ Entity *ywCanvasNewTextExt(Entity *wid, int x, int y, Entity *string,
 	return obj;
 }
 
+
+
 int ywCanvasCacheBicolorImg(Entity *obj, const uint8_t *map, Entity *info)
 {
 	sdlCanvasCacheBicolorImg(obj, map, info);
 	return 0;
+}
+
+void ywCanvasDrawableSetPix(Entity *obj, int x, int y, int color)
+{
+	sdlCanvasDrawableSetPix(obj, x, y, color);
+}
+
+void ywCanvasDrawableFinalyze(Entity *obj)
+{
+	sdlCanvasDrawableFinalyze(obj);
+}
+
+Entity *ywCanvasNewDrawableImg(Entity *c, int x, int y, Entity *size)
+{
+	Entity *obj = yeCreateArray(NULL, NULL);
+
+	ygAssert(c);
+	yeCreateInt(YCanvasImg, obj, "canvas-type");
+	ywPosCreateInts(x, y, obj, "pos");
+	yePushAt2(obj, size, YCANVAS_SIZE_IDX, "size");
+	ywCanvasSetWeightInternal(c, obj, 0, 1);
+	sdlCanvasDrawableNew(obj, size);
+	return obj;
 }
 
 Entity *ywCanvasNewBicolorImg(Entity *c, int x, int y, uint8_t *img,
@@ -537,9 +563,9 @@ Entity *ywCanvasNewBicolorImg(Entity *c, int x, int y, uint8_t *img,
 {
 	Entity *obj = yeCreateArray(NULL, NULL);
 
-	assert(c);
-	assert(img);
-	assert(info);
+	ygAssert(c);
+	ygAssert(img);
+	ygAssert(info);
 	yeCreateInt(YCanvasBicolorImg, obj, "canvas-type");
 	ywPosCreateInts(x, y, obj, "pos");
 	ywCanvasSetWeightInternal(c, obj, 0, 1);
@@ -557,9 +583,9 @@ Entity *ywCanvasNewHeadacheImg(Entity *c, int x, int y, Entity *map, Entity *inf
 {
 	Entity *obj = yeCreateArray(NULL, NULL);
 
-	assert(c);
-	assert(map);
-	assert(info);
+	ygAssert(c);
+	ygAssert(map);
+	ygAssert(info);
 	yeCreateInt(YCanvasHeadacheImg, obj, "canvas-type");
 	ywPosCreateInts(x, y, obj, "pos");
 	ywCanvasSetWeightInternal(c, obj, 0, 1);
