@@ -43,14 +43,14 @@ static inline int ywPosY(Entity *pos)
 
 static inline int ywPosXDirect(Entity *pos)
 {
-  if (unlikely(yeType(pos)) == YQUADINT)
+  if (yeType(pos) == YQUADINT)
     return ywPosX(pos);
   return yeGetIntDirect(yeGetByIdxDirect(pos, 0));
 }
 
 static inline int ywPosYDirect(Entity *pos)
 {
-  if (unlikely(yeType(pos)) == YQUADINT)
+  if (yeType(pos) == YQUADINT)
     return ywPosY(pos);
   return yeGetIntDirect(yeGetByIdxDirect(pos, 1));
 }
