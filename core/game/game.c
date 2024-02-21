@@ -743,13 +743,13 @@ Entity *ygLoadMod(const char *path)
 #define NB_STARTABLE_SCRIPT 6
 	for (int i = 0; i < NB_STARTABLE_SCRIPT; ++i) {
 		const char * const starts[NB_STARTABLE_SCRIPT] = {
-			"/start.c", "/start.lua",
-			"/start.scm", "/start.js", "/start.php", "/start.pl"};
+			"start.c", "start.lua",
+			"start.scm", "start.js", "start.php", "start.pl"};
 		void * const managers[NB_STARTABLE_SCRIPT] = {
 			tccManager, luaManager,
 			s7Manager, qjsManager, ph7Manager, perlManager};
 
-		tmp = y_strdup_printf("%s%s", path, starts[i]);
+		tmp = y_strdup_printf("%s%c%s", path, PATH_SEPARATOR, starts[i]);
 		CHECK_AND_RET(tmp, NULL, NULL,
 			      "cannot allocated path(like something went really wrong)");
 		if (!access(tmp, F_OK) && !ysLoadFile(managers[i], tmp)) {
@@ -764,7 +764,7 @@ Entity *ygLoadMod(const char *path)
 	}
 
 	if (!mod) {
-		tmp = y_strdup_printf("%s%s", path, "/start.json");
+		tmp = y_strdup_printf("%s%c%s", path, PATH_SEPARATOR, "start.json");
 		CHECK_AND_RET(tmp, NULL, NULL,
 			      "cannot allocated path(like something went really wrong)");
 		mod = ydFromFile(jsonManager, tmp, NULL);
@@ -779,16 +779,20 @@ Entity *ygLoadMod(const char *path)
 		char *last_slash = strrchr(path, PATH_SEPARATOR);
 		int short_end = 0;
 
-		if (strlen(last_slash) == 1) {
-			do {
-				--last_slash;
-			} while (last_slash != path && *last_slash != PATH_SEPARATOR);
-			short_end = 1;
+		if (!last_slash) {
+			yeSetString(tmp_name, last_slash);
+		} else {
+			if (strlen(last_slash) == 1) {
+				do {
+					--last_slash;
+				} while (last_slash != path && *last_slash != PATH_SEPARATOR);
+				short_end = 1;
+			}
+			if (*last_slash == PATH_SEPARATOR)
+				++last_slash;
+			yeSetString(tmp_name, last_slash);
+			yeStringTruncate(tmp_name, short_end);
 		}
-		if (*last_slash == PATH_SEPARATOR)
-			++last_slash;
-		yeSetString(tmp_name, last_slash);
-		yeStringTruncate(tmp_name, short_end);
 		name = tmp_name;
 	}
 
@@ -811,7 +815,8 @@ Entity *ygLoadMod(const char *path)
 		Entity *tmpType = yeGet(var, "type");
 		Entity *tmpFile = yeGet(var, "file");
 		Entity *pathEnt = yeGet(var, "path");
-		char *fileStr = y_strdup_printf("%s/%s", path,
+		char *fileStr = y_strdup_printf("%s%c%s", path,
+						PATH_SEPARATOR,
 						yeGetString(tmpFile));
 		const char *pathCstr = "no path set";
 
@@ -819,9 +824,11 @@ Entity *ygLoadMod(const char *path)
 		if (tmpFile) {
 			pathCstr = fileStr;
 		} else if (pathEnt) {
-			char *mod_path = y_strdup_printf("%s%s",
+			char *mod_path = y_strdup_printf("%s%c%s%c",
 							 ygBinaryRootPath,
-							 "/modules/");
+							 PATH_SEPARATOR,
+							 "modules",
+							 PATH_SEPARATOR);
 
 			yeStringReplace(pathEnt, "YIRL_MODULES_PATH", mod_path);
 			free(mod_path);
