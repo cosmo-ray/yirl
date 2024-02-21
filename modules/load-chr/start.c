@@ -56,6 +56,11 @@ void *draw_tile(Entity *wid, Entity *chr_data, int idx, int x, int y)
 	return r;
 }
 
+void *ychr_draw_tile(int nbArgs, void **args)
+{
+	return draw_tile(args[0], args[1], (intptr_t)args[2], (intptr_t)args[3], (intptr_t)args[4]);
+}
+
 void *printf_tile(Entity *chr_data, int idx)
 {
 	if (idx >= 512)
@@ -73,7 +78,12 @@ void *printf_tile(Entity *chr_data, int idx)
 	return NULL;
 }
 
-void chr_v_action(int nbArgs, void **args)
+void *ychr_printf_tile(int nbArgs, void **args)
+{
+	return printf_tile(args[0], (intptr_t)args[1]);
+}
+
+void *chr_v_action(int nbArgs, void **args)
 {
 	printf("chr_v_action\n");
 	return NULL;
@@ -81,10 +91,8 @@ void chr_v_action(int nbArgs, void **args)
 
 void *chr_v_init(int nbArgs, void **args)
 {
-	printf("init\n");
 	Entity *wid = args[0];
 	yeConvert(wid, YHASH);
-	printf("fc init !\n");
 	yeCreateString("rgba: 40 40 40 255", wid, "background");
 	yeCreateFunction("chr_v_action", ygGetTccManager(), wid, "action");
 	yeAutoFree Entity *chr = ygFileToEnt(YRAW_FILE_DATA, "file.chr", NULL);
@@ -110,7 +118,6 @@ void *chr_v_init(int nbArgs, void **args)
 			ywCanvasForceSize(sprite, size);
 		}
 	}
-	printf("out\n");
 	return ret;
 }
 
@@ -119,7 +126,10 @@ void *mod_init(int nbArgs, void **args)
 	Entity *mod = args[0];
 	yeAutoFree Entity *init = yeCreateFunction("chr_v_init", ygGetTccManager(), NULL, NULL);
 
-	printf("%p\n", chr_v_init);
 	ygInitWidgetModule(mod, "chr_viewer", init);
+	yeCreateFunction("ychr_draw_tile", ygGetTccManager(), mod, "draw_tile");
+	yeCreateFunction("ychr_printf_tile", ygGetTccManager(), mod, "printf_tile");
+	ygRegistreFunc(2, "ychr_printf_tile", "ychr_printf_tile");
+	ygRegistreFunc(5, "ychr_draw_tile", "ychr_draw_tile");
 	return mod;
 }

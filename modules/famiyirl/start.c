@@ -7,10 +7,10 @@
 #define OVERFLOW_FLAG (1 << 6)
 #define NEGATIVE_FLAG (1 << 7)
 
-#define SET_ZERO(val) cpu.flag &= (0xfd | ((val) << 1))
-#define SET_CARY(val) cpu.flag &= (0xfe | (val))
-#define SET_OVERFLOW(val) cpu.flag &= (0xBf | ((val) << 6))
-#define SET_NEGATIVE(val) cpu.flag &= (0x7f | ((val) << 7))
+#define SET_ZERO(val) cpu.flag = ((cpu.flag & 0xfd) ^ ((val) << 1))
+#define SET_CARY(val) cpu.flag = ((cpu.flag & 0xfe) ^ (val))
+#define SET_OVERFLOW(val) cpu.flag = ((cpu.flag & 0xBf) ^ ((val) << 6))
+#define SET_NEGATIVE(val) cpu.flag = ((cpu.flag & 0x7f) ^ ((val) << 7))
 
 struct cpu {
 	union {
@@ -22,7 +22,31 @@ struct cpu {
 	unsigned char s;
 	unsigned char flag;
 	int16_t pc;
-} cpu = {.a = 0, .x = 0, .y = 0, .s = 0xff, .pc = 0xC000};
+} cpu = {.a = 0, .x = 0, .y = 0, .s = 0xff, .flag = 0, .pc = 0xC000};
+
+
+/**
+ * PPU:
+ * PPUCTRL 	$2000 	VPHB SINN 	NMI enable (V), PPU master/slave (P), sprite height (H),
+ *                                      background tile select (B), sprite tile select (S),
+ *				        increment mode (I), nametable select (NN)
+ * PPUMASK 	$2001 	BGRs bMmG 	color emphasis (BGR), sprite enable (s),
+ *					background enable (b), sprite left column enable (M),
+ *					background left column enable (m), greyscale (G)
+ * PPUSTATUS 	$2002 	VSO- ---- 	vblank (V), sprite 0 hit (S), sprite overflow (O);
+ *					read resets write pair for $2005/$2006
+ * OAMADDR 	$2003 	aaaa aaaa 	OAM read/write address
+ * OAMDATA 	$2004 	dddd dddd 	OAM data read/write
+ * PPUSCROLL 	$2005 	xxxx xxxx 	fine scroll position (two writes: X scroll, Y scroll)
+ * PPUADDR 	$2006 	aaaa aaaa 	PPU read/write address
+ *					(two writes: most significant byte, least significant byte)
+ * PPUDATA 	$2007 	dddd dddd 	PPU data read/write
+ * OAMDMA 	$4014 	aaaa aaaa 	OAM DMA high address 
+ */
+struct ppu {
+	int16_t pc;
+	unsigned char not_vblank;
+} ppu;
 
 unsigned char ram[0x800];
 unsigned char miror0[0x800];
@@ -71,9 +95,28 @@ void set_mem(uint16_t addr, char val)
 		miror2[addr - 0x1800] = val;
 	} else if (addr < 0x2008) {
 		printf("set PPU regs\n");
+		if (addr == 0x2006) {
+			printf("write ppu dest addr\n");
+		} else if (addr == 0x2000) {
+			if (!val)
+				printf("disable MMI ?\n");
+		} else if (0x2001) {
+			if (!val)
+				printf("disable rendering ?\n");			
+		}
 	} else if (addr < 0x4000) {
 		printf("set PPU mirros\n");
 	} else if (addr < 0x4018) {
+		if (addr == 0x4010) {
+			if (!val)
+				printf("disable DMC IRQs\n");
+		}
+		if (addr == 0x4017) {
+			if (val == 0x40)
+				printf("disable APU ? \n");
+			else
+				printf("apu write");
+		}
 		printf("set APU and IO\n");
 	} else if (addr < 0x4020) {
 		printf("set APU unused ?\n");
@@ -99,12 +142,23 @@ unsigned char get_mem(uint16_t addr)
 		printf("mirror 2\n");
 		return miror2[addr - 0x1800];
 	} else if (addr < 0x2008) {
+		if (addr == 0x2002) {
+			unsigned char ret = 0;
+
+			++ppu.not_vblank;
+			if (ppu.not_vblank & 0x08)
+				ret |= 0x80;
+			printf("not vblak: %x - %x\n", ppu.not_vblank, ret);
+			return ret;
+		}
 		printf("PPU regs\n");
 		return ram[addr - 0x1800];
 	} else if (addr < 0x4000) {
 		printf("PPU mirros\n");
 	} else if (addr < 0x4018) {
 		printf("APU and IO\n");
+		if (addr == 0x4017)
+			return 0x40;
 	} else if (addr < 0x4020) {
 		printf("APU unused ?\n");
 	} else if (addr < 0xc000) {
@@ -118,11 +172,12 @@ unsigned char get_mem(uint16_t addr)
 void *fy_action(int nbArgs, void **args)
 {
 	unsigned char opcode = get_mem(cpu.pc);
-	printf("code (%x, %x, %x, %x): 0x%x: %x - %s ", cpu.a, cpu.x, cpu.y, cpu.flag,
+	printf("code (a: %x, x: %x, y: %x, f: %x): 0x%x: %x - %s\n", cpu.a, cpu.x, cpu.y, cpu.flag,
 	       cpu.pc & 0xffff, get_mem(cpu.pc), opcode_str[get_mem(cpu.pc)]);
 	switch (opcode) {
 	case INX:
 		cpu.x += (1 + (cpu.flag & CARY_FLAG));
+		SET_NEGATIVE(!!(cpu.a & 0x80));
 		SET_ZERO(!cpu.x);
 		break;
 	case CMP_2:
@@ -150,6 +205,9 @@ void *fy_action(int nbArgs, void **args)
 		printf("to: %x", addr);
 	}
 	break;
+	case TXS:
+		cpu.s = cpu.x;
+		break;
 	case AND:
 	{
 		int addr = get_mem(++cpu.pc);
@@ -239,7 +297,7 @@ void *fy_action(int nbArgs, void **args)
 
 		cpu.a = get_mem(addr);
 		printf("to: %x-%x", addr, cpu.a);
-		SET_ZERO(!!cpu.a);
+		SET_ZERO(!cpu.a);
 		SET_NEGATIVE(!!(cpu.a & 0x80));
 	}
 	break;
@@ -252,6 +310,8 @@ void *fy_action(int nbArgs, void **args)
 			cpu.x = addr;
 		else
 			cpu.y = addr;
+		SET_ZERO(!cpu.x);
+		SET_NEGATIVE(!!(cpu.x & 0x80));
 		printf("to: %x", addr);
 	}
 	break;
@@ -270,22 +330,22 @@ void *fy_action(int nbArgs, void **args)
 
 		addr |= get_mem(++cpu.pc) << 8;
 		/* set zero flag */
-		char res = cpu.a & get_mem(addr);
-		SET_ZERO(!!res);
+		char res = get_mem(addr);
+		SET_ZERO(!(res & cpu.a));
 		SET_OVERFLOW(!!(res & 0x40));
 		SET_NEGATIVE(!!(res & 0x80));
-		printf("to: %x", addr);
+		printf("to: %x - %x", addr, res);
 	}
 	break;
 	case BPL:
 	{
 		signed char addr = get_mem(++cpu.pc);
 
-		if (cpu.flag & NEGATIVE_FLAG) {
-			if (addr > 0)
-				cpu.pc +=addr;
-			else
-				cpu.pc -= addr;
+		if (!(cpu.flag & NEGATIVE_FLAG)) {
+			printf("pc += %d\n", addr);
+			printf("pc: %x\n", cpu.pc);
+			cpu.pc += addr + 1;
+			printf("pc: %x\n", cpu.pc);
 			goto out;
 		}
 			
@@ -329,7 +389,6 @@ void *fy_action(int nbArgs, void **args)
 		printf("to: %x", addr);
 	}
 	break;
-	default:
 	}
 	++cpu.pc;
 out:
@@ -339,10 +398,8 @@ out:
 
 void *fy_init(int nbArgs, void **args)
 {
-	printf("init\n");
 	Entity *wid = args[0];
 	yeConvert(wid, YHASH);
-	printf("fc init !\n");
 	yeCreateString("rgba: 0 0 0 255", wid, "backgroung");
 	yeCreateFunction("fy_action", ygGetTccManager(), wid, "action");
 	yeAutoFree Entity *rom = ygFileToEnt(YRAW_FILE_DATA, "cq.nes", NULL);
@@ -372,7 +429,7 @@ void *mod_init(int nbArgs, void **args)
 	Entity *mod = args[0];
 	yeAutoFree Entity *init = yeCreateFunction("fy_init", ygGetTccManager(), NULL, NULL);
 
-	printf("%p\n", fy_init);
+	ygAddModule(Y_MOD_YIRL, mod, "load-chr");
 	ygInitWidgetModule(mod, "famiyirl", init);
 	return mod;
 }
