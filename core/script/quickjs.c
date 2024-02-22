@@ -1038,6 +1038,12 @@ static JSValue entity_to_int(JSContext *ctx, JSValueConst this_val,
 	return JS_NewInt64(ctx, yeGetInt(GET_E_(this_val)));
 }
 
+static JSValue entity_to_str(JSContext *ctx, JSValueConst this_val,
+			     int argc, JSValueConst *argv)
+{
+	return JS_NewString(ctx, yeGetString(GET_E_(this_val)));
+}
+
 static JSValue array_set_at(JSContext *ctx, JSValueConst this_val,
 			    int argc, JSValueConst *argv)
 {
@@ -1314,6 +1320,7 @@ static const JSCFunctionListEntry js_ent_proto_funcs[] = {
     JS_CFUNC_DEF("boundary", 0, entity_bondary),
     JS_CFUNC_DEF("toInt", 1, entity_to_int),
     JS_CFUNC_DEF("i", 1, entity_to_int),
+    JS_CFUNC_DEF("s", 1, entity_to_str),
     JS_CFUNC_DEF("setAt", 1, array_set_at),
     JS_CFUNC_DEF("[Symbol.iterator]", 1, array_iterator),
     JS_CFUNC_DEF("len", 1, entity_len)
