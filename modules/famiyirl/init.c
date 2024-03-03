@@ -44,9 +44,17 @@ struct cpu {
  * OAMDMA 	$4014 	aaaa aaaa 	OAM DMA high address 
  */
 struct ppu {
-	int16_t pc;
+	union {
+		int16_t pc;
+		struct {
+			char low_pc;
+			char high_pc;
+		};
+	};
 	unsigned char not_vblank;
 } ppu;
+
+unsigned char ppu_mem[0x4000];
 
 unsigned char ram[0x800];
 unsigned char miror0[0x800];
@@ -79,6 +87,8 @@ enum opcode {
 
 char *opcode_str[0x100];
 
+Entity *main_canvas;
+
 void set_mem(uint16_t addr, char val)
 {
 	if (addr < 0x800) {
@@ -96,7 +106,20 @@ void set_mem(uint16_t addr, char val)
 	} else if (addr < 0x2008) {
 		printf("set PPU regs\n");
 		if (addr == 0x2006) {
+			static unsigned int addr_highgness;
+
+			if (!addr_highgness & 1) {
+				ppu.high_pc = val;
+			} else {
+				ppu.low_pc = val;				
+			}
+			++addr_highgness;
 			printf("write ppu dest addr\n");
+		} else if (addr == 0x2007) {
+			printf("PPU drawing stuff");
+			ppu_mem[ppu.pc] = val;
+			++ppu.pc;
+			ppu.pc &= 0x3fff;
 		} else if (addr == 0x2000) {
 			if (!val)
 				printf("disable MMI ?\n");
@@ -143,11 +166,35 @@ unsigned char get_mem(uint16_t addr)
 		return miror2[addr - 0x1800];
 	} else if (addr < 0x2008) {
 		if (addr == 0x2002) {
+			/* maybe the rendering should be done here */
 			unsigned char ret = 0;
+			int print_part = ppu.not_vblank;
 
-			++ppu.not_vblank;
-			if (ppu.not_vblank & 0x08)
+			if (ppu.not_vblank == 11) {
+				ppu.not_vblank = 0;
 				ret |= 0x80;
+			} else {
+				yeAutoFree Entity *chr_data = yeCreateData(&cartridge[CHR_ROM],
+									   NULL, NULL);
+				yeAutoFree Entity *size = ywSizeCreate(20, 20, 0, 0);
+				for (int y = 3 * print_part; y < 3 * print_part + 3; ++y) {
+					int sprites_per_lines = 32;
+
+					for (int x = 0; x < 256 / 8; x+= 1) {
+						/* load in nametable for now */
+						int idx = ppu_mem[0x2000 + y * 32 + x];
+
+						Entity *o = ygCall("load-chr", "ychr_draw_tile",
+								   main_canvas,
+								   chr_data, (0x10 * 0x10) + idx,
+								   (x * 20), (y * 20), 1);
+						ywCanvasForceSize(o, size);
+						//ychr_draw_tile(main_canvas, chr_data, idx, x, y);
+					}
+				}
+				/* printing here */
+				++ppu.not_vblank;
+			}
 			printf("not vblak: %x - %x\n", ppu.not_vblank, ret);
 			return ret;
 		}
@@ -169,16 +216,35 @@ unsigned char get_mem(uint16_t addr)
 	return 0xff;
 }
 
-void *fy_action(int nbArgs, void **args)
+static int process_inst(void)
 {
 	unsigned char opcode = get_mem(cpu.pc);
+	int ret = 0;
 	printf("code (a: %x, x: %x, y: %x, f: %x): 0x%x: %x - %s\n", cpu.a, cpu.x, cpu.y, cpu.flag,
 	       cpu.pc & 0xffff, get_mem(cpu.pc), opcode_str[get_mem(cpu.pc)]);
 	switch (opcode) {
+	case NOP:
+		break;
 	case INX:
 		cpu.x += (1 + (cpu.flag & CARY_FLAG));
-		SET_NEGATIVE(!!(cpu.a & 0x80));
+		SET_NEGATIVE(!!(cpu.x & 0x80));
 		SET_ZERO(!cpu.x);
+		break;
+	case INY:
+		cpu.y += (1 + (cpu.flag & CARY_FLAG));
+		SET_NEGATIVE(!!(cpu.y & 0x80));
+		SET_ZERO(!cpu.y);
+		break;
+	case DEX:
+		cpu.x -= (2 - (cpu.flag & CARY_FLAG));
+		SET_NEGATIVE(!!(cpu.x & 0x80));
+		SET_ZERO(!cpu.x);
+		break;
+		break;
+	case DEY:
+		cpu.y -= (2 - (cpu.flag & CARY_FLAG));
+		SET_NEGATIVE(!!(cpu.y & 0x80));
+		SET_ZERO(!cpu.y);
 		break;
 	case CMP_2:
 	{
@@ -195,10 +261,7 @@ void *fy_action(int nbArgs, void **args)
 		int addr = get_mem(++cpu.pc);
 
 		if (cpu.flag & ZERO_FLAG) {
-			if (addr > 0)
-				cpu.pc +=addr;
-			else
-				cpu.pc -= addr;
+			cpu.pc +=addr + 1;
 			goto out;
 		}
 
@@ -342,10 +405,7 @@ void *fy_action(int nbArgs, void **args)
 		signed char addr = get_mem(++cpu.pc);
 
 		if (!(cpu.flag & NEGATIVE_FLAG)) {
-			printf("pc += %d\n", addr);
-			printf("pc: %x\n", cpu.pc);
 			cpu.pc += addr + 1;
-			printf("pc: %x\n", cpu.pc);
 			goto out;
 		}
 			
@@ -360,10 +420,7 @@ void *fy_action(int nbArgs, void **args)
 		signed char addr = get_mem(++cpu.pc);
 
 		if (!(cpu.flag & ZERO_FLAG)) {
-			if (addr > 0)
-				cpu.pc +=addr;
-			else
-				cpu.pc -= addr;
+			cpu.pc +=addr + 1;
 			goto out;
 		}
 		/* addr |= get_mem(++cpu.pc) << 8; */
@@ -393,6 +450,31 @@ void *fy_action(int nbArgs, void **args)
 	++cpu.pc;
 out:
 	printf("\n");
+	return ret;
+}
+
+void *fy_action(int nbArgs, void **args)
+{
+	Entity *events = args[1];
+	static int turn_mode;
+
+	if (yevIsKeyDown(events, 'i')) {
+		printf("fast mode activate\n");
+		turn_mode = -1;
+		ywSetTurnLengthOverwrite(-1);
+	} else if (yevIsKeyDown(events, 'o')) {
+		printf("await mode activate\n");
+		turn_mode = 0;
+		ywSetTurnLengthOverwrite(0);
+	}
+
+	if (!turn_mode)
+		process_inst();
+	else
+		for (int i = 0; i < 35; ++i) {
+			process_inst();
+		}
+
 	return NULL;
 }
 
@@ -400,6 +482,7 @@ void *fy_init(int nbArgs, void **args)
 {
 	Entity *wid = args[0];
 	yeConvert(wid, YHASH);
+	main_canvas = wid;
 	yeCreateString("rgba: 0 0 0 255", wid, "backgroung");
 	yeCreateFunction("fy_action", ygGetTccManager(), wid, "action");
 	yeAutoFree Entity *rom = ygFileToEnt(YRAW_FILE_DATA, "cq.nes", NULL);
@@ -429,7 +512,6 @@ void *mod_init(int nbArgs, void **args)
 	Entity *mod = args[0];
 	yeAutoFree Entity *init = yeCreateFunction("fy_init", ygGetTccManager(), NULL, NULL);
 
-	ygAddModule(Y_MOD_YIRL, mod, "load-chr");
 	ygInitWidgetModule(mod, "famiyirl", init);
 	return mod;
 }

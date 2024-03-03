@@ -267,6 +267,7 @@ void	tccAddSyms(TCCState *l)
   ADD_SYM(ywCanvasDrawableFinalyze);
   ADD_SYM(ywCanvasVFlip);
   ADD_SYM(ywCanvasHFlip);
+  ADD_SYM(ygCallInt);
 
 #if defined(__unix__) || defined(__APPLE__)
   tcc_add_symbol(l, "yuiDebugPrint", yuiDebugPrint);

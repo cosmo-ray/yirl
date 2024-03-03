@@ -1,4 +1,3 @@
-  OPCODE(BRK_BIT_DEC_INC, 0x00) //break / interrupt
   OPCODE(BIT, 0x2c) //break / interrupt
   OPCODE(ORA, 0x01) //or with accumulator
   OPCODE(ASL, 0x02) //arithmetic shift left
