@@ -919,7 +919,6 @@ Entity *ygLoadMod(const char *path)
 		goto exit;
 	}
 
-
 	YE_ARRAY_FOREACH(initScripts, var2) {
 		if (yeType(var2) == YSTRING) {
 			void *fastPath = ysGetFastPath(tccManager,

@@ -25,17 +25,19 @@ int SYSTEM_PALLETE [] = {
 int bit_to_col(int bit)
 {
 	switch (bit) {
+	case 0:
+		return SYSTEM_PALLETE[0x00];
 	case 1:
-		return SYSTEM_PALLETE[0];
-	case 2:
 		return SYSTEM_PALLETE[0x10];
-	case 3:
+	case 2:
 		return SYSTEM_PALLETE[0x20];
+	case 3:
+		return SYSTEM_PALLETE[0x30];
 	}
 	return 0;
 }
 
-void *draw_tile(Entity *wid, Entity *chr_data, int idx, int x, int y)
+void *draw_tile(Entity *wid, Entity *chr_data, int idx, int x, int y, int col_0)
 {
 	if (idx >= 512)
 		return NULL;
@@ -48,7 +50,7 @@ void *draw_tile(Entity *wid, Entity *chr_data, int idx, int x, int y)
 		for (int x = 7; x >= 0; --x) {
 			int bit = !!(data[y] & (1 << x)) | (!!(data[y + 8] & (1 << x))) << 1;
 			int color = bit_to_col(bit);
-			if (color)
+			if (bit || col_0)
 				ywCanvasDrawableSetPix(r, 7 - x, y, color);
 		}
 	}
@@ -58,7 +60,8 @@ void *draw_tile(Entity *wid, Entity *chr_data, int idx, int x, int y)
 
 void *ychr_draw_tile(int nbArgs, void **args)
 {
-	return draw_tile(args[0], args[1], (intptr_t)args[2], (intptr_t)args[3], (intptr_t)args[4]);
+	return draw_tile(args[0], args[1], (intptr_t)args[2], (intptr_t)args[3],
+			 (intptr_t)args[4], (intptr_t)args[5]);
 }
 
 void *printf_tile(Entity *chr_data, int idx)
@@ -106,14 +109,14 @@ void *chr_v_init(int nbArgs, void **args)
 
 	for (int y = 0; y < 0x10; ++y) {
 		for (int x = 0; x < 0x10; ++x) {
-			sprite = draw_tile(wid, chr, x + y * 0x10, x * 20, y * 20);
+			sprite = draw_tile(wid, chr, x + y * 0x10, x * 20, y * 20, 0);
 			//ywCanvasHFlip(sprite);
 			ywCanvasForceSize(sprite, size);
 		}
 	}
 	for (int y = 0; y < 0x10; ++y) {
 		for (int x = 0; x < 0x10; ++x) {
-			sprite = draw_tile(wid, chr, (0x10 * 0x10) + x + y * 0x10, 320 + x * 20, y * 20);
+			sprite = draw_tile(wid, chr, (0x10 * 0x10) + x + y * 0x10, 320 + x * 20, y * 20, 1);
 			//ywCanvasHFlip(sprite);
 			ywCanvasForceSize(sprite, size);
 		}
@@ -127,9 +130,9 @@ void *mod_init(int nbArgs, void **args)
 	yeAutoFree Entity *init = yeCreateFunction("chr_v_init", ygGetTccManager(), NULL, NULL);
 
 	ygInitWidgetModule(mod, "chr_viewer", init);
-	yeCreateFunction("ychr_draw_tile", ygGetTccManager(), mod, "draw_tile");
-	yeCreateFunction("ychr_printf_tile", ygGetTccManager(), mod, "printf_tile");
+	yeCreateFunction("ychr_draw_tile", ygGetTccManager(), mod, "ychr_draw_tile");
+	yeCreateFunction("ychr_printf_tile", ygGetTccManager(), mod, "ychr_printf_tile");
 	ygRegistreFunc(2, "ychr_printf_tile", "ychr_printf_tile");
-	ygRegistreFunc(5, "ychr_draw_tile", "ychr_draw_tile");
+	ygRegistreFunc(6, "ychr_draw_tile", "ychr_draw_tile");
 	return mod;
 }
