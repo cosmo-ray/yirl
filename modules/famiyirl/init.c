@@ -51,6 +51,7 @@ struct ppu {
 			char high_pc;
 		};
 	};
+	int16_t sprite_loc;
 	unsigned char not_vblank;
 } ppu;
 
@@ -123,11 +124,19 @@ void set_mem(uint16_t addr, char val)
 		} else if (addr == 0x2000) {
 			if (!val)
 				printf("disable MMI ?\n");
-		} else if (0x2001) {
+		} else if (addr == 0x2001) {
 			if (!val)
 				printf("disable rendering ?\n");			
+		} else if (addr == 0x2003) {
+			printf("set sprites locations low bytes\n");
+			ppu.sprite_loc = (ppu.sprite_loc & 0xff00) | val;			
 		}
 	} else if (addr < 0x4000) {
+		if (addr == 0x4014) {
+			printf("set sprites locations high bytes\n");
+			ppu.sprite_loc = (ppu.sprite_loc & 0x00ff) | val << 8;
+		}
+
 		printf("set PPU mirros\n");
 	} else if (addr < 0x4018) {
 		if (addr == 0x4010) {
@@ -171,6 +180,8 @@ unsigned char get_mem(uint16_t addr)
 			int print_part = ppu.not_vblank;
 
 			if (ppu.not_vblank == 11) {
+				printf("we'll print spritex here");
+				/* sprites PPU  addr:  */
 				ppu.not_vblank = 0;
 				ret |= 0x80;
 			} else {
@@ -197,10 +208,16 @@ unsigned char get_mem(uint16_t addr)
 			}
 			printf("not vblak: %x - %x\n", ppu.not_vblank, ret);
 			return ret;
+		} else if (addr == 0x2003) {
+			printf("get sprite location low byte ?\n");
+			
 		}
 		printf("PPU regs\n");
-		return ram[addr - 0x1800];
+		return 0xff;
 	} else if (addr < 0x4000) {
+		if (addr == 0x4014) {
+			printf("get sprites locations high bytes\n");
+		}
 		printf("PPU mirros\n");
 	} else if (addr < 0x4018) {
 		printf("APU and IO\n");
@@ -224,6 +241,17 @@ static int process_inst(void)
 	       cpu.pc & 0xffff, get_mem(cpu.pc), opcode_str[get_mem(cpu.pc)]);
 	switch (opcode) {
 	case NOP:
+		break;
+	case LSR_A:
+		SET_CARY(cpu.a & 1);
+		cpu.a = cpu.a >> 1;
+		SET_NEGATIVE(0);
+		SET_ZERO(!cpu.a);
+		break
+	case TAY:
+		cpu.y = cpu.a;
+		SET_NEGATIVE(!!(cpu.y & 0x80));
+		SET_ZERO(!cpu.y);
 		break;
 	case INX:
 		cpu.x += (1 + (cpu.flag & CARY_FLAG));
