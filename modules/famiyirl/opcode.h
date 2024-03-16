@@ -12,8 +12,13 @@
   OPCODE(BMI, 0x30) //branch on minus (negative set)
   OPCODE(SEC, 0x38) //set carry
   OPCODE(JMP_RTI, 0x40) //jump //return from interrupt
-  OPCODE(EOR, 0x41) //exclusive or (with accumulator)
-  OPCODE(LSR, 0x42) //logical shift right
+  OPCODE(EOR_X_ZP_I, 0x41) //exclusive or (with accumulator)
+  OPCODE(EOR_ZP, 0x45)
+  OPCODE(EOR_IM, 0x49)
+  OPCODE(EOR_AB, 0x4D)
+  OPCODE(EOR_Y_AB, 0x59)
+  OPCODE(EOR_X_AB, 0x5D)
+  OPCODE(LSR_A, 0x4A) //logical shift right
   OPCODE(PHA, 0x48) //push accumulator
   OPCODE(JMP, 0x4c) //jump //return from interrupt
   OPCODE(BVC, 0x50) //branch on overflow clear
