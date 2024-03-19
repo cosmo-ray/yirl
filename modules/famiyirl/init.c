@@ -247,7 +247,7 @@ static int process_inst(void)
 		cpu.a = cpu.a >> 1;
 		SET_NEGATIVE(0);
 		SET_ZERO(!cpu.a);
-		break
+		break;
 	case TAY:
 		cpu.y = cpu.a;
 		SET_NEGATIVE(!!(cpu.y & 0x80));
@@ -267,7 +267,6 @@ static int process_inst(void)
 		cpu.x -= (2 - (cpu.flag & CARY_FLAG));
 		SET_NEGATIVE(!!(cpu.x & 0x80));
 		SET_ZERO(!cpu.x);
-		break;
 		break;
 	case DEY:
 		cpu.y -= (2 - (cpu.flag & CARY_FLAG));
