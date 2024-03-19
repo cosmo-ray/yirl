@@ -90,7 +90,10 @@ char *opcode_str[0x100];
 
 Entity *main_canvas;
 
-void set_mem(uint16_t addr, char val)
+void (*set_mem)(uint16_t addr, char val);
+unsigned char (*get_mem)(uint16_t addr);
+
+void set_mem_nes(uint16_t addr, char val)
 {
 	if (addr < 0x800) {
 		printf("set ram\n");
@@ -159,7 +162,7 @@ void set_mem(uint16_t addr, char val)
 	}
 }
 
-unsigned char get_mem(uint16_t addr)
+unsigned char get_mem_nes(uint16_t addr)
 {
 	if (addr < 0x800) {
 		printf("ram\n");
@@ -484,6 +487,9 @@ void *fy_action(int nbArgs, void **args)
 {
 	Entity *events = args[1];
 	static int turn_mode;
+
+	set_mem = set_mem_nes;
+	get_mem = get_mem_nes;
 
 	if (yevIsKeyDown(events, 'i')) {
 		printf("fast mode activate\n");
