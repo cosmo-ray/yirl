@@ -12,26 +12,26 @@
 //
 //  0. You just DO WHAT THE FUCK YOU WANT TO.
 
-let LAST = 5
+const LAST = 5
 
-let UL_ARROW = `^
+const UL_ARROW = `^
   \\
    \\
 `
-let DL_ARROW = `  /
+const DL_ARROW = `  /
  /
 V
 `
-let UR_ARROW = `  ^
+const UR_ARROW = `  ^
  /
 /
 `
-let DR_ARROW = `\\
+const DR_ARROW = `\\
  \\
   V
 `
 
-let HELP_GUY = `
+const HELP_GUY = `
  o        o
   \\      /
     -^^-
@@ -59,9 +59,9 @@ function y_stop_action(wid, eves)
 
 function y_stop_func(wid, x, y, txt, have_arrow)
 {
-    var wid_pos = yeGet(wid, "cam")
-    var start_x = 0
-    var start_y = 0
+    let wid_pos = yeGet(wid, "cam")
+    let start_x = 0
+    let start_y = 0
 
     if (wid_pos) {
 	start_x = ywPosX(wid_pos)
@@ -90,8 +90,8 @@ function y_stop_func(wid, x, y, txt, have_arrow)
     yePushBack(data, ywCanvasNewRectangle(wid, start_x, start_y, ywRectW(wid_pix),
 					  ywRectH(wid_pix),
 					  "rgba: 40 100 230 150"));
-    var xdir = 1
-    var ydir = 1
+    let xdir = 1
+    let ydir = 1
 
     if (have_arrow) {
 	if (x < ww / 2) { // left
@@ -122,7 +122,7 @@ function y_stop_func(wid, x, y, txt, have_arrow)
 					  "rgba: 255 255 255 150"));
     yePushBack(data, ywCanvasNewText(wid, x + 20  * xdir,
 				     y + 60 * ydir, txt));
-    var head_threshold = 100
+    let head_threshold = 100
     if (ydir < 0) {
 	head_threshold = -w
     } else {
