@@ -87,6 +87,11 @@ char yg_user_dir[PATH_MAX];
 
 RenderType current_render_type;
 
+const char *ygGetProgramArg(void)
+{
+  return yProgramArg;
+}
+
 const char *ygGetBinaryRootPath(void)
 {
 	return ygBinaryRootPath;

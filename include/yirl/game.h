@@ -109,6 +109,8 @@ static inline void ygAddModule(int type, Entity *mod, const char *path)
 
 const char *ygGetBinaryRootPath(void);
 
+const char *ygGetProgramArg(void);
+
 static inline void ygBinaryRootPathFree(void)
 {
   free(ygBinaryRootPath);
