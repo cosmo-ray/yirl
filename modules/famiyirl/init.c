@@ -518,7 +518,12 @@ void *fy_init(int nbArgs, void **args)
 	main_canvas = wid;
 	yeCreateString("rgba: 0 0 0 255", wid, "backgroung");
 	yeCreateFunction("fy_action", ygGetTccManager(), wid, "action");
-	yeAutoFree Entity *rom = ygFileToEnt(YRAW_FILE_DATA, "cq.nes", NULL);
+	yeAutoFree Entity *rom;
+	if (ygGetProgramArg()) {
+		rom = ygFileToEnt(YRAW_FILE_DATA, ygGetProgramArg(), NULL);
+	} else {
+		rom = ygFileToEnt(YRAW_FILE_DATA, "cq.nes", NULL);
+	}
 	printf("len r: %x - %x\n", yeLen(rom), yeLen(rom) + 0x4020);
 	yePushBack(wid, rom, "rom");
 	cartridge = yeGetData(rom);
