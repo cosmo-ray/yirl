@@ -1,6 +1,6 @@
   OPCODE(BIT_ab, 0x2c) //break / interrupt
   OPCODE(ORA, 0x01) //or with accumulator
-  OPCODE(ASL, 0x02) //arithmetic shift left
+  OPCODE(ASL_a, 0x0a) //arithmetic shift left
   OPCODE(PHP, 0x08) //push processor status (SR)
   OPCODE(BPL, 0x10) //branch on plus (negative clear)
   OPCODE(CLC, 0x18) //clear carry
