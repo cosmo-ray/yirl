@@ -330,6 +330,14 @@ static int process_inst(void)
 		cpu.cycle_cnt += 2;
 	}
 	break;
+	case SEI:
+		cpu.flag &= 0xfb; // & 11111011
+		cpu.cycle_cnt += 2;
+		break;
+	case CLD:
+		cpu.flag &= 0xf7; // & 11110111
+		cpu.cycle_cnt += 2;
+		break;
 	case CLC:
 		cpu.flag &= 0xfe;
 		cpu.cycle_cnt += 2;
@@ -486,6 +494,9 @@ static int process_inst(void)
 		cpu.cycle_cnt += 5;
 	}
 	break;
+	default:
+		printf("%s: UNIMPLEMENTED", opcode_str[opcode]);
+		break;
 	}
 	++cpu.pc;
 out:
