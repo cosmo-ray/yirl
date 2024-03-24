@@ -255,6 +255,18 @@ static int process_inst(void)
 		SET_ZERO(!cpu.a);
 		cpu.cycle_cnt += 2;
 		break;
+	case TXA:
+		cpu.a = cpu.x;
+		SET_NEGATIVE(!!(cpu.a & 0x80));
+		SET_ZERO(!cpu.a);
+		cpu.cycle_cnt += 2;
+		break;
+	case TAX:
+		cpu.x = cpu.a;
+		SET_NEGATIVE(!!(cpu.x & 0x80));
+		SET_ZERO(!cpu.x);
+		cpu.cycle_cnt += 2;
+		break;
 	case TAY:
 		cpu.y = cpu.a;
 		SET_NEGATIVE(!!(cpu.y & 0x80));
