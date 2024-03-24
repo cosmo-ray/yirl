@@ -22,7 +22,9 @@ struct cpu {
 	unsigned char s;
 	unsigned char flag;
 	int16_t pc;
-} cpu = {.a = 0, .x = 0, .y = 0, .s = 0xff, .flag = 0, .pc = 0xC000};
+	int64_t cycle_cnt;
+} cpu = {.a = 0, .x = 0, .y = 0, .s = 0xff,
+	.flag = 0, .pc = 0xC000, .cycle_cnt = 0};
 
 
 /**
@@ -244,46 +246,53 @@ static int process_inst(void)
 	       cpu.pc & 0xffff, get_mem(cpu.pc), opcode_str[get_mem(cpu.pc)]);
 	switch (opcode) {
 	case NOP:
+		cpu.cycle_cnt += 2;
 		break;
 	case LSR_A:
 		SET_CARY(cpu.a & 1);
 		cpu.a = cpu.a >> 1;
 		SET_NEGATIVE(0);
 		SET_ZERO(!cpu.a);
+		cpu.cycle_cnt += 2;
 		break;
 	case TAY:
 		cpu.y = cpu.a;
 		SET_NEGATIVE(!!(cpu.y & 0x80));
 		SET_ZERO(!cpu.y);
+		cpu.cycle_cnt += 2;
 		break;
 	case INX:
 		cpu.x += (1 + (cpu.flag & CARY_FLAG));
 		SET_NEGATIVE(!!(cpu.x & 0x80));
 		SET_ZERO(!cpu.x);
+		cpu.cycle_cnt += 2;
 		break;
 	case INY:
 		cpu.y += (1 + (cpu.flag & CARY_FLAG));
 		SET_NEGATIVE(!!(cpu.y & 0x80));
 		SET_ZERO(!cpu.y);
+		cpu.cycle_cnt += 2;
 		break;
 	case DEX:
 		cpu.x -= (2 - (cpu.flag & CARY_FLAG));
 		SET_NEGATIVE(!!(cpu.x & 0x80));
 		SET_ZERO(!cpu.x);
+		cpu.cycle_cnt += 2;
 		break;
 	case DEY:
 		cpu.y -= (2 - (cpu.flag & CARY_FLAG));
 		SET_NEGATIVE(!!(cpu.y & 0x80));
 		SET_ZERO(!cpu.y);
+		cpu.cycle_cnt += 2;
 		break;
-	case CMP_2:
+	case CMP_imediate:
 	{
 		unsigned char addr = get_mem(++cpu.pc);
 
 		SET_ZERO(cpu.a == addr);
 		SET_OVERFLOW(addr >= cpu.a);
 		SET_NEGATIVE(!!(((signed char)addr - cpu.sa) & 0x70));
-		printf("to: %x", addr);
+		cpu.cycle_cnt += 2;
 	}
 	break;
 	case BEQ:
@@ -294,56 +303,61 @@ static int process_inst(void)
 			cpu.pc +=addr + 1;
 			goto out;
 		}
-
-		printf("to: %x", addr);
+		cpu.cycle_cnt += 2;
 	}
 	break;
 	case TXS:
 		cpu.s = cpu.x;
+		cpu.cycle_cnt += 2;
 		break;
-	case AND:
+	case AND_im:
 	{
 		int addr = get_mem(++cpu.pc);
 
 		cpu.a &= addr;
 		SET_ZERO(!cpu.a);
 		SET_NEGATIVE(!!(cpu.a & 0x70));
-		printf("to: %x", addr);
+		cpu.cycle_cnt += 2;
 	}
 	break;
-	case LDA_2:
+	case LDA_im:
 	{
 		int addr = get_mem(++cpu.pc);
 
 		cpu.a = addr;
 		SET_ZERO(!!cpu.a);
 		SET_NEGATIVE(!!(cpu.a & 0x80));
-		printf("to: %x", addr);
+		cpu.cycle_cnt += 2;
 	}
 	break;
 	case CLC:
 		cpu.flag &= 0xfe;
+		cpu.cycle_cnt += 2;
 		break;
 	case SEC:
 		cpu.flag |= 1;
+		cpu.cycle_cnt += 2;
+		break;
 	case CPX:
 	case CPY:
 	case CPX_var:
 	{
 		int addr = get_mem(++cpu.pc);
-		if (opcode == CPX_var)
+		if (opcode == CPX_var) {
 			addr |= get_mem(++cpu.pc);
+			cpu.cycle_cnt++;
+		}
 
-		printf("to: %x", addr);			
+		cpu.cycle_cnt += 2;
 	}
 	break;
-	case JMP:
+	case JMP_ab:
 	{
 		int addr = get_mem(++cpu.pc);
 
 		addr |= get_mem(++cpu.pc) << 8;
-		printf("to: %x", addr);
 		cpu.pc = addr;
+		cpu.cycle_cnt += 3;
 		goto out;
 	}
 	break;
@@ -357,16 +371,16 @@ static int process_inst(void)
 		ram[0x100 | cpu.s] = ((cpu.pc & 0xff00) >> 8);
 		--cpu.s;
 		cpu.pc = addr;
-		printf("to: %x", addr);
+		cpu.cycle_cnt += 6;
 		goto out;
 	}
 	break;
-	case ADC:
+	case ADC_im:
 	{
 		int addr = get_mem(++cpu.pc);
 
 		cpu.a += addr;
-		printf("to: %x", addr);
+		cpu.cycle_cnt += 2;
 	}
 	break;
 	case LDA_addx:
@@ -379,7 +393,7 @@ static int process_inst(void)
 		cpu.a = get_mem(addr);
 		SET_ZERO(!!cpu.a);
 		SET_NEGATIVE(!!(cpu.a & 0x80));
-		printf("to: %x-%x", addr, cpu.a);
+		cpu.cycle_cnt += 4; // + 1 if page is cross ?
 	}
 	break;
 	case LDA_addr:
@@ -389,35 +403,35 @@ static int process_inst(void)
 		addr |= get_mem(++cpu.pc) << 8;
 
 		cpu.a = get_mem(addr);
-		printf("to: %x-%x", addr, cpu.a);
 		SET_ZERO(!cpu.a);
 		SET_NEGATIVE(!!(cpu.a & 0x80));
+		cpu.cycle_cnt += 3;
 	}
 	break;
-	case LDX:
-	case LDY:
+	case LDX_im:
+	case LDY_im:
 	{
 		int addr = get_mem(++cpu.pc);
 
-		if (opcode == LDX)
+		if (opcode == LDX_im)
 			cpu.x = addr;
 		else
 			cpu.y = addr;
 		SET_ZERO(!cpu.x);
 		SET_NEGATIVE(!!(cpu.x & 0x80));
-		printf("to: %x", addr);
+		cpu.cycle_cnt += 2;
 	}
 	break;
-	case STX_2:
+	case STX_ab:
 	{
 		int addr = get_mem(++cpu.pc);
 
 		addr |= get_mem(++cpu.pc) << 8;
-		printf("to: %x", addr);
 		set_mem(addr, cpu.x);
+		cpu.cycle_cnt += 4;
 	}
 	break;
-	case BIT:
+	case BIT_ab:
 	{
 		int addr = get_mem(++cpu.pc);
 
@@ -427,35 +441,31 @@ static int process_inst(void)
 		SET_ZERO(!(res & cpu.a));
 		SET_OVERFLOW(!!(res & 0x40));
 		SET_NEGATIVE(!!(res & 0x80));
-		printf("to: %x - %x", addr, res);
+		cpu.cycle_cnt += 3;
 	}
 	break;
 	case BPL:
 	{
 		signed char addr = get_mem(++cpu.pc);
 
+		cpu.cycle_cnt += 2; // +p ?
 		if (!(cpu.flag & NEGATIVE_FLAG)) {
 			cpu.pc += addr + 1;
+			cpu.cycle_cnt++;
 			goto out;
 		}
-			
-
-		/* addr |= get_mem(++cpu.pc) << 8; */
-
-		printf("to: %x", addr);
 	}
 	break;
 	case BNE:
 	{
 		signed char addr = get_mem(++cpu.pc);
 
+		cpu.cycle_cnt += 2; // +p ?
 		if (!(cpu.flag & ZERO_FLAG)) {
 			cpu.pc +=addr + 1;
+			cpu.cycle_cnt++;
 			goto out;
 		}
-		/* addr |= get_mem(++cpu.pc) << 8; */
-
-		printf("to: %x", addr);
 	}
 	break;
 	case STA_addr:
@@ -464,7 +474,7 @@ static int process_inst(void)
 
 		addr |= get_mem(++cpu.pc) << 8;
 		set_mem(addr, cpu.a);
-		printf("to: %x", addr);
+		cpu.cycle_cnt += 4;
 	}
 	break;
 	case STA_xaddr:
@@ -473,7 +483,7 @@ static int process_inst(void)
 
 		addr |= get_mem(++cpu.pc) << 8;
 		set_mem(addr, cpu.a);
-		printf("to: %x", addr);
+		cpu.cycle_cnt += 5;
 	}
 	break;
 	}
