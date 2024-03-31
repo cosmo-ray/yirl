@@ -255,6 +255,16 @@ static int process_inst(void)
 		SET_ZERO(!cpu.a);
 		cpu.cycle_cnt += 2;
 		break;
+	case ASL_a:
+	{
+		SET_CARY(!!(cpu.a & 0x80));
+		cpu.a = cpu.a << 1;
+		cpu.a &= 0xfe;
+		SET_NEGATIVE(!!(0x80 & cpu.a));
+		SET_ZERO(!cpu.a);
+		cpu.cycle_cnt += 2;
+	}
+	break;
 	case TXA:
 		cpu.a = cpu.x;
 		SET_NEGATIVE(!!(cpu.a & 0x80));
