@@ -255,6 +255,20 @@ static int process_inst(void)
 		SET_ZERO(!cpu.a);
 		cpu.cycle_cnt += 2;
 		break;
+	case LSR_ab:
+	{
+		int addr = get_mem(++cpu.pc);
+
+		addr |= get_mem(++cpu.pc) << 8;
+		char c = get_mem(addr);
+		SET_CARY(c & 1);
+		c = c >> 1;
+		SET_NEGATIVE(0);
+		SET_ZERO(!c);
+		set_mem(addr, c);
+		cpu.cycle_cnt += 6;
+	}
+	break;
 	case ASL_a:
 	{
 		SET_CARY(!!(cpu.a & 0x80));
