@@ -87,6 +87,15 @@ static inline int GET_I_(JSContext *ctx, int idx,
 #define GET_D(ctx, idx)				\
 	GET_D_(ctx, idx, argc, argv)
 
+static JSValue call_exept(JSContext *ctx, JSValueConst func_obj, JSValueConst this_obj,
+		  int argc, JSValueConst *argv) {
+	JSValue r = JS_Call(ctx, func_obj, this_obj, argc, argv);
+	if (JS_IsException(r)) {
+		js_std_dump_error(ctx);
+	}
+	return r;
+}
+
 static inline double GET_D_(JSContext *ctx, int idx,
 			 int argc, JSValueConst *argv)
 {
@@ -677,10 +686,7 @@ static JSValue qjsyjsCall(JSContext *ctx, JSValueConst this_val,
 	}
 call:
 	global_obj = JS_GetGlobalObject(ctx);
-	r = JS_Call(ctx, func, global_obj, argc - 1, argv + 1);
-	if (JS_IsException(r)) {
-		js_std_dump_error(ctx);
-	}
+	r = call_exept(ctx, func, global_obj, argc - 1, argv + 1);
 	return r;
 }
 
@@ -1210,16 +1216,14 @@ static JSValue array_forEach(JSContext *ctx, JSValueConst this_val,
 			   kkey, vvar, {
 				   JSValue jse = new_ent(ctx, vvar);
 				   JSValue jsidx = JS_NewString(ctx, kkey);
-				   r = JS_Call(ctx, callback, JS_GetGlobalObject(ctx), 4,
+				   r = call_exept(ctx, callback, JS_GetGlobalObject(ctx), 4,
 					       (JSValueConst []){
 						   jse,
 						   jsidx,
 						   this_val,
 						   arg
 					   });
-				   if (JS_IsException(r)) {
-					   js_std_dump_error(ctx);
-				   } else if (JS_IsBool(r) && JS_ToBool(ctx, r)) {
+				   if (JS_IsBool(r) && JS_ToBool(ctx, r)) {
 					   break;
 				   }
 
@@ -1230,7 +1234,7 @@ static JSValue array_forEach(JSContext *ctx, JSValueConst this_val,
 	for (int l = yeLen(e), i = 0; i < l; ++i) {
 		JSValue jse = new_ent(ctx, yeGet(e, i));
 		JSValue jsidx = JS_NewInt32(ctx, i);
-		r = JS_Call(ctx, callback, JS_GetGlobalObject(ctx), 4, (JSValueConst []){
+		r = call_exept(ctx, callback, JS_GetGlobalObject(ctx), 4, (JSValueConst []){
 				jse,
 				jsidx,
 				this_val,
@@ -1456,10 +1460,8 @@ static void *_call(void *sm, int nb, union ycall_arg *args,
 		}
 	}
 
-	r = JS_Call(ctx, func, global_obj, nb, vals);
-	if (JS_IsException(r)) {
-		js_std_dump_error(ctx);
-	} else if (JS_IsObject(r)) {
+	r = call_exept(ctx, func, global_obj, nb, vals);
+	if (JS_IsObject(r)) {
 		void *e = GET_E_(r);
 		if (likely(e))
 			return e;
