@@ -677,7 +677,11 @@ static JSValue qjsyjsCall(JSContext *ctx, JSValueConst this_val,
 	}
 call:
 	global_obj = JS_GetGlobalObject(ctx);
-	return JS_Call(ctx, func, global_obj, argc - 1, argv + 1);
+	r = JS_Call(ctx, func, global_obj, argc - 1, argv + 1);
+	if (JS_IsException(r)) {
+		js_std_dump_error(ctx);
+	}
+	return r;
 }
 
 
@@ -1213,7 +1217,9 @@ static JSValue array_forEach(JSContext *ctx, JSValueConst this_val,
 						   this_val,
 						   arg
 					   });
-				   if (JS_IsBool(r) && JS_ToBool(ctx, r)) {
+				   if (JS_IsException(r)) {
+					   js_std_dump_error(ctx);
+				   } else if (JS_IsBool(r) && JS_ToBool(ctx, r)) {
 					   break;
 				   }
 
