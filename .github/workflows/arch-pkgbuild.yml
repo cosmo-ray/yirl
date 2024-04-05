@@ -17,7 +17,7 @@ jobs:
     - name: get PKGBUILD
       run: |
        pacman -Syu --noconfirm
-       pacman -Sy --noconfirm git opendoas fakeroot binutils lua sdl2 sdl2_image sdl2_ttf sdl2_mixer autoconf make gcc cmake which pkgconf glib2 glu
+       pacman -Sy --noconfirm base-devel git opendoas fakeroot binutils lua sdl2 sdl2_image sdl2_ttf sdl2_mixer autoconf make gcc cmake which pkgconf glib2 glu
        useradd -m -G wheel -s /bin/bash tester
        echo permit nopass :wheel > /etc/doas.conf
        echo permit nopass root as tester >> /etc/doas.conf
