@@ -198,6 +198,17 @@ static int libsdl_pause(int nameId)
 
 static int libsdl_stop(int nameId)
 {
+	int r = libsdl_pause(nameId);
+	if (r < 0)
+		return r;
+	if (types[nameId] == SOUND_MIX_)
+		Mix_SetMusicPosition(0);
+	/* Mix doesn't seems to have a way to pause it */
+	return 0;
+}
+
+static int libsdl_destroy(int nameId)
+{
 	CHECK_NAMEID(nameId);
 	if (types[nameId] == SOUND_MIX_)
 		Mix_FreeMusic(musiques[nameId].m);
@@ -224,6 +235,7 @@ SoundState sdlDriver = {
   .load_music = libsdl_music_load,
   .play_loop = libsdl_play_loop,
   .stop = libsdl_stop,
+  .destroy = libsdl_destroy,
   .duration = duration
 };
 

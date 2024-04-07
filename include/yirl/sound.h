@@ -28,6 +28,7 @@ typedef struct {
   int (* ySoundLevel)(int, int);
   int (* pause)(int);
   int (* stop)(int);
+  int (* destroy)(int);
   int (* duration)(int);
 } SoundState;
 
