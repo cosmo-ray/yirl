@@ -62,7 +62,7 @@ like in [action.lua](https://github.com/cosmo-ray/Sukeban/blob/master/actions.lu
    ywPushNewWidget(main, snake) -- push snake widget into main
 ```
 
-supportted scripting languages are lua, C(with tinycc), scheme(s7), javascript(quickjs), php 5.3 (ph7) and yb(YIRL own asm) feel free to add your language :).
+supportted scripting languages are lua, C(with tinycc), scheme(s7), javascript(quickjs), php 5.3 (ph7), perl and yb(YIRL own asm) feel free to add your language :).
 
 ## how to start using YIRL
 For now the easier way to use YIRL is to come chat with us and ask for help
