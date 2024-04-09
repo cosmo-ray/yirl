@@ -78,6 +78,20 @@ A widget that implement some game mechanism(like snake), or a full game (like ga
 Each modules have a start file that will serve as entry file, and will tell YIRL how to load every other files.
 It can be either a json file (start.json), or a C/lua/scheme/javascript file. how to load every other files
 
+Note that for now some scripting languages doesn't support all platform.
+Here's a Table of what support what:
+
+| Language  | Linux | Windows | wasm |
+| ------------- | ------------- | -- | -- |
+| C  | :heavy_check_mark:  | :heavy_check_mark: | :x: |
+| js  | :heavy_check_mark:  | :heavy_check_mark: | :heavy_check_mark: |
+| php | :heavy_check_mark: | :x: | :heavy_check_mark: |
+| lua | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| perl | :heavy_check_mark: | :x: | :x: |
+| scheme | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+| yb | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
+
+
 ##Start a game from the source
 ./yirl-loader.sh -P $PWD -d path/to/game/module
 
