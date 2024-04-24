@@ -603,6 +603,7 @@ BIND_EIIE(ywCanvasNewText, 2, 2);
 BIND_IESI(yeCreateIntAt, 4, 0);
 BIND_ESI(yeCreateArrayAt, 3, 0);
 BIND_IES(yeReCreateInt, 3, 0);
+BIND_SES(yeReCreateString, 3, 0);
 BIND_EID(yeSetFloatAt, 3, 0);
 BIND_DESI(yeCreateFloatAt, 4, 0);
 BIND_EESI(ywCanvasNewPolygonExt, 3, 1);
@@ -1433,6 +1434,7 @@ static int init(void *sm, void *args)
 	BIND(yeCreateIntAt, 4, 0);
 	BIND(yeCreateArrayAt, 3, 0);
 	BIND(yeReCreateInt, 3, 0);
+	BIND(yeReCreateString, 3, 0);
 	BIND(yeCreateFloatAt, 4, 0);
 	BIND(yeSetFloatAt, 3, 0);
 	BIND(ywCanvasObjSetPos, 3, 0);

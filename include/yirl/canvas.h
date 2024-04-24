@@ -59,6 +59,7 @@ typedef enum  {
 	YCanvasCircle,
 	YCanvasTriangle,
 	YCanvasPolygone,
+	YCanvasLine,
 	YCnvasEndType
 } YCanvasObjType;
 
@@ -316,6 +317,9 @@ static inline  Entity *ywCanvasNewRectangleByRect(Entity *wid, Entity *orect, co
 {
 	return ywCanvasNewRectangle(wid, ywRectX(orect), ywRectY(orect), ywRectW(orect), ywRectH(orect), str);
 }
+
+/* that's a segment */
+Entity *ywCanvasNewLine(Entity *wid, int x1, int y1, int x2, int y2, const char *color);
 
 /**
  * Create horizontal segments

@@ -457,6 +457,7 @@ BIND_EIIIS(ywCanvasNewVSegment, 5, 0);
 
 BIND_EIIIISI(ywCanvasNewRectangleExt, 6, 1);
 
+BIND_EIIIIS(ywCanvasNewLine, 6, 0);
 BIND_EIIIIS(ywCanvasNewRectangle, 6, 0);
 BIND_EIIIIS(ywCanvasMergeRectangle, 6, 0);
 BIND_EIIIIS(ywCanvasMergeText, 6, 0);

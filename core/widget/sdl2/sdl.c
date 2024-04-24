@@ -215,7 +215,6 @@ static void	sdlDrawPoly(int nb_vertices, float vertices[static nb_vertices * 2],
 		GPU_Polygon(sg.pWindow, nb_vertices, vertices, c);
 	else
 		GPU_PolygonFilled(sg.pWindow, nb_vertices, vertices, c);
-	
 }
 
 static void     sdlDrawTriangle(float x1, float y1, float x2,
@@ -226,6 +225,12 @@ static void     sdlDrawTriangle(float x1, float y1, float x2,
 		GPU_Tri(sg.pWindow, x1, y1, x2, y2, x3, y3, c);
 	else
 		GPU_TriFilled(sg.pWindow, x1, y1, x2, y2, x3, y3, c);
+}
+
+static void     sdlDrawLine(float x1, float y1, float x2,
+			    float y2, SDL_Color c)
+{
+	GPU_Line(sg.pWindow, x1, y1, x2, y2, c);
 }
 
 
@@ -1387,7 +1392,8 @@ int sdlCanvasCacheTexture(Entity *state, Entity *elem)
 	const char *txt;
 
 	if (type == YCanvasRect || type == YCanvasCircle ||
-	    type == YCanvasTriangle || type == YCanvasPolygone) {
+	    type == YCanvasTriangle || type == YCanvasPolygone ||
+	    type == YCanvasLine) {
 		return 0;
 	} else if (ywCanvasObjType(elem) == YCanvasString) {
 		Entity *str = yeGet(elem, 2);
@@ -1505,7 +1511,8 @@ uint32_t sdlCanvasPixInfo(Entity *obj, int x, int y)
   SDL_Surface *surface = yeGetDataAt(obj, YCANVAS_SURFACE_IDX);
   int type = yeGetIntAt(obj, 0);
 
-  if (type == YCanvasCircle || type == YCanvasTriangle || type == YCanvasPolygone) {
+  if (type == YCanvasCircle || type == YCanvasTriangle || type == YCanvasPolygone
+	  || type == YCanvasLine) {
 	  DPRINT_ERR("pixel info not net implemented for most shapes\n");
 	  ygDgbAbort();
   } else if (type == YCanvasRect) {
@@ -1639,6 +1646,20 @@ int sdlCanvasRendObj(YWidgetState *state, SDLWid *wid, Entity *obj,
 				rect.h, yeGetQuadInt2(s),
 				yeGetQuadInt3(s),
 				c, yeGetQuadInt3(p));
+		return 0;
+	} else if (type == YCanvasLine) {
+		YBgConf cfg;
+
+		ywidBgConfFill(yeGet(obj, 2), &cfg);
+		c.r = cfg.r;
+		c.g = cfg.g;
+		c.b = cfg.b;
+		c.a = cfg.a;
+		rect.x += ywRectX(wid_pix);
+		rect.y += ywRectY(wid_pix);
+
+		sdlDrawLine(rect.x, rect.y, yeGetQuadInt2(p),
+				yeGetQuadInt3(p), c);
 		return 0;
 	} else if (type == YCanvasPolygone) {
 		YBgConf cfg;
