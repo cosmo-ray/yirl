@@ -138,6 +138,9 @@ Development package of these libs:
 * sdl2_mixer with a version >= 2.0.5 (you can use ./configure --clone-sdl-mixer)
 
 ## Tree:
+
+<details><summary>See file tree</summary>
+
 * include: headers
   * sys: system header, that can be useful for TCC
     * queue.h: [man 3 queue](https://linux.die.net/man/3/queue)
@@ -184,6 +187,9 @@ Development package of these libs:
 * https://uso.itch.io/sukeban
 * https://uso.itch.io/pewpew-pepper
 * https://github.com/cosmo-ray/polis-at-war 
+
+
+</details>
 
 ## for peoples who don't like github:
 https://git.iglou.eu/Matthias/yirl
