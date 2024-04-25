@@ -247,6 +247,9 @@ union SmallEntity {
 
 #define SMALL_SIZE sizeof(union SmallEntity)
 
+/* need to be that big for condition.c :( */
+#define YE_ENTITY_FAT_SIZE 256
+
 union FatEntity {
 	Entity Entity;
 	ArrayEntity ArrayEntity;
@@ -258,7 +261,7 @@ union FatEntity {
 	FunctionEntity FunctionEntity;
 	HashEntity HashEntity;
 	union SmallEntity SnallEntities[4];
-	uint8_t totalSize[128];
+	uint8_t totalSize[YE_ENTITY_FAT_SIZE];
 };
 
 #define FAT_SIZE sizeof(union FatEntity)
