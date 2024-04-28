@@ -450,7 +450,7 @@ static int process_inst(void)
 		char res = get_mem(addr);
 		int check_carry = cpu.a + res;
 
-		cpu.a += res;
+		cpu.a += res + (cpu.flag & CARY_FLAG);
 		SET_CARY(check_carry > 255);
 		SET_OVERFLOW(old_sign != (cpu.a & 0x80));
 		SET_NEGATIVE(!!(0x80 & cpu.a));
@@ -465,8 +465,33 @@ static int process_inst(void)
 
 		int check_carry = cpu.a + addr;
 
-		cpu.a += addr;
+		cpu.a += addr + (cpu.flag & CARY_FLAG);
 		SET_CARY(check_carry > 255);
+		SET_OVERFLOW(old_sign != (cpu.a & 0x80));
+		SET_NEGATIVE(!!(0x80 & cpu.a));
+		SET_ZERO(!cpu.a);
+		cpu.cycle_cnt += 2;
+	}
+	break;
+	case SBC_ab:
+	case SBC_im:
+	{
+	  char res;
+	  if (opcode == SBC_ab) {
+		int addr = get_mem(++cpu.pc);
+
+		addr |= get_mem(++cpu.pc) << 8;
+		res = get_mem(addr);
+		cpu.cycle_cnt += 2;
+	  } else {
+	    res = get_mem(++cpu.pc);
+	    
+	  }
+		char old_sign = cpu.a & 0x80;
+		int check_carry = cpu.a - res - 1 + (cpu.flag & CARY_FLAG);
+
+		cpu.a -= res;
+		SET_CARY(check_carry >= 0);
 		SET_OVERFLOW(old_sign != (cpu.a & 0x80));
 		SET_NEGATIVE(!!(0x80 & cpu.a));
 		SET_ZERO(!cpu.a);
