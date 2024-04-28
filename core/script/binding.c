@@ -452,6 +452,8 @@ BIND_SEES(ywTextureNewImg, 4, 0);
 #undef NO_ywTextureNewImg
 #endif
 
+BIND_EIIIS(ywCanvasNewFilledCircle, 5, 0);
+BIND_EIIIS(ywCanvasNewCircle, 5, 0);
 BIND_EIIIS(ywCanvasNewHSegment, 5, 0);
 BIND_EIIIS(ywCanvasNewVSegment, 5, 0);
 
