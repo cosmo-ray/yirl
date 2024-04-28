@@ -28,6 +28,7 @@
   OPCODE(ROR, 0x62) //rotate right
   OPCODE(PLA, 0x68) //pull accumulator
   OPCODE(ADC_im, 0x69) //add with carry
+  OPCODE(ADC_ab, 0x6D) //add with carry
   OPCODE(BVS, 0x70) //branch on overflow set
   OPCODE(SEI, 0x78) //set interrupt disable
   OPCODE(STY, 0x80) //store Y

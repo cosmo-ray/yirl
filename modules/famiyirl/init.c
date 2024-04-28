@@ -441,11 +441,35 @@ static int process_inst(void)
 		goto out;
 	}
 	break;
+	case ADC_ab:
+	{
+		int addr = get_mem(++cpu.pc);
+		char old_sign = cpu.a & 0x80;
+
+		addr |= get_mem(++cpu.pc) << 8;
+		char res = get_mem(addr);
+		int check_carry = cpu.a + res;
+
+		cpu.a += res;
+		SET_CARY(check_carry > 255);
+		SET_OVERFLOW(old_sign != (cpu.a & 0x80));
+		SET_NEGATIVE(!!(0x80 & cpu.a));
+		SET_ZERO(!cpu.a);
+		cpu.cycle_cnt += 4;
+	}
+	break;
 	case ADC_im:
 	{
 		int addr = get_mem(++cpu.pc);
+		char old_sign = cpu.a & 0x80;
+
+		int check_carry = cpu.a + addr;
 
 		cpu.a += addr;
+		SET_CARY(check_carry > 255);
+		SET_OVERFLOW(old_sign != (cpu.a & 0x80));
+		SET_NEGATIVE(!!(0x80 & cpu.a));
+		SET_ZERO(!cpu.a);
 		cpu.cycle_cnt += 2;
 	}
 	break;
