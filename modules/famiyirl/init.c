@@ -473,20 +473,46 @@ static int process_inst(void)
 		cpu.cycle_cnt += 2;
 	}
 	break;
+	case ORA_ab:
+	case ORA_zp:
+	case ORA_im:
+	{
+		char res;
+		if (opcode == ORA_ab) {
+			int addr = get_mem(++cpu.pc);
+
+			addr |= get_mem(++cpu.pc) << 8;
+			res = get_mem(addr);
+			cpu.cycle_cnt += 2;
+		} else if (opcode == ORA_zp) {
+			int addr = get_mem(++cpu.pc);
+
+			res = get_mem(addr);
+			cpu.cycle_cnt += 1;
+		} else {
+			res = get_mem(++cpu.pc);
+	    
+		}
+		char old_sign = cpu.a | 0x80;
+		SET_ZERO(!cpu.a);
+		SET_NEGATIVE(!!(0x80 & cpu.a));
+		cpu.cycle_cnt += 2;		
+	}
+	break;
 	case SBC_ab:
 	case SBC_im:
 	{
-	  char res;
-	  if (opcode == SBC_ab) {
-		int addr = get_mem(++cpu.pc);
+		char res;
+		if (opcode == SBC_ab) {
+			int addr = get_mem(++cpu.pc);
 
-		addr |= get_mem(++cpu.pc) << 8;
-		res = get_mem(addr);
-		cpu.cycle_cnt += 2;
-	  } else {
-	    res = get_mem(++cpu.pc);
+			addr |= get_mem(++cpu.pc) << 8;
+			res = get_mem(addr);
+			cpu.cycle_cnt += 2;
+		} else {
+			res = get_mem(++cpu.pc);
 	    
-	  }
+		}
 		char old_sign = cpu.a & 0x80;
 		int check_carry = cpu.a - res - 1 + (cpu.flag & CARY_FLAG);
 
