@@ -551,13 +551,24 @@ static int process_inst(void)
 	break;
 	case LDX_im:
 	case LDY_im:
+	case LDY_ab:
 	{
-		int addr = get_mem(++cpu.pc);
+		char res;
+
+		if (opcode == LDY_ab) {
+			int addr = get_mem(++cpu.pc);
+
+			addr |= get_mem(++cpu.pc) << 8;
+			res = get_mem(addr);
+			cpu.cycle_cnt += 2;	
+		} else {
+			res = get_mem(++cpu.pc);
+		}
 
 		if (opcode == LDX_im)
-			cpu.x = addr;
+			cpu.x = res;
 		else
-			cpu.y = addr;
+			cpu.y = res;
 		SET_ZERO(!cpu.x);
 		SET_NEGATIVE(!!(cpu.x & 0x80));
 		cpu.cycle_cnt += 2;

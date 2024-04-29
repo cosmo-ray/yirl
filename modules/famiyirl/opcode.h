@@ -45,6 +45,7 @@
   OPCODE(TYA, 0x9B) //transfer Y to accumulator
   OPCODE(STA_xaddr, 0x9D) //load accumulator
   OPCODE(LDY_im, 0xA0) //load Y
+  OPCODE(LDY_ab, 0xAC) //load Y
   OPCODE(LDA, 0xA1) //load accumulator
   OPCODE(LDX_im, 0xA2) //load X
   OPCODE(TAY, 0xA8) //transfer accumulator to Y
