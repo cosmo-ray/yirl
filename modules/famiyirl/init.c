@@ -248,6 +248,16 @@ static int process_inst(void)
 	case NOP:
 		cpu.cycle_cnt += 2;
 		break;
+	case ROL_a:
+	{
+		char new_c = cpu.a & 0x1;
+		cpu.a = (cpu.a << 1) | cpu.flag & 0x1;
+		SET_CARY(new_c);
+		SET_NEGATIVE(!!(0x80 & cpu.a));
+		SET_ZERO(!cpu.a);
+		cpu.cycle_cnt += 2;
+	}
+	break;
 	case EOR_IM:
 	  {
 	    unsigned char addr = get_mem(++cpu.pc);
