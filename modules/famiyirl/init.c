@@ -258,6 +258,21 @@ static int process_inst(void)
 		cpu.cycle_cnt += 2;
 	}
 	break;
+	case ROL_ab:
+	{
+		int addr = get_mem(++cpu.pc);
+
+		addr |= get_mem(++cpu.pc) << 8;
+		int val = get_mem(addr);
+		char new_c = val & 0x1;
+		val = (val << 1) | cpu.flag & 0x1;
+		set_mem(addr, val);
+		SET_CARY(new_c);
+		SET_NEGATIVE(!!(0x80 & val));
+		SET_ZERO(!val);
+		cpu.cycle_cnt += 6;
+	}
+	break;
 	case EOR_IM:
 	  {
 	    unsigned char addr = get_mem(++cpu.pc);

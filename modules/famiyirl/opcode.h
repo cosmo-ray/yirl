@@ -9,6 +9,7 @@
   OPCODE(JSR, 0x20)
   OPCODE(AND_xindir_zp, 0x21) //and (with accumulator)
   OPCODE(ROL_a, 0x2a) //rotate left
+  OPCODE(ROL_ab, 0x2e) //rotate left
   OPCODE(PLP, 0x28) //pull processor status (SR)
   OPCODE(AND_im, 0x29) //and (with accumulator)
   OPCODE(BMI, 0x30) //branch on minus (negative set)
