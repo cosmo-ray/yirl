@@ -537,7 +537,7 @@ static int process_inst(void)
 		cpu.cycle_cnt += 4; // + 1 if page is cross ?
 	}
 	break;
-	case LDA_addr:
+	case LDA_ab:
 	{
 		int addr = get_mem(++cpu.pc);
 
@@ -550,12 +550,13 @@ static int process_inst(void)
 	}
 	break;
 	case LDX_im:
+	case LDX_ab:
 	case LDY_im:
 	case LDY_ab:
 	{
 		char res;
 
-		if (opcode == LDY_ab) {
+		if (opcode == LDY_ab || opcode == LDX_ab) {
 			int addr = get_mem(++cpu.pc);
 
 			addr |= get_mem(++cpu.pc) << 8;
@@ -565,7 +566,7 @@ static int process_inst(void)
 			res = get_mem(++cpu.pc);
 		}
 
-		if (opcode == LDX_im)
+		if (opcode == LDX_im || opcode == LDX_ab)
 			cpu.x = res;
 		else
 			cpu.y = res;
@@ -620,7 +621,7 @@ static int process_inst(void)
 		}
 	}
 	break;
-	case STA_addr:
+	case STA_ab:
 	{
 		int addr = get_mem(++cpu.pc);
 

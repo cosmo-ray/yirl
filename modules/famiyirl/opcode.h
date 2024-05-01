@@ -38,7 +38,7 @@
   OPCODE(STX, 0x82) //store X
   OPCODE(DEY, 0x88) //decrement Y
   OPCODE(TXA, 0x8A) //transfer X to accumulator
-  OPCODE(STA_addr, 0x8D) //load accumulator
+  OPCODE(STA_ab, 0x8D) //load accumulator
   OPCODE(STX_ab, 0x8E) //store X
   OPCODE(BCC, 0x90) //branch on carry clear
   OPCODE(TXS, 0x9A) //transfer X to stack pointer
@@ -48,9 +48,10 @@
   OPCODE(LDY_ab, 0xAC) //load Y
   OPCODE(LDA, 0xA1) //load accumulator
   OPCODE(LDX_im, 0xA2) //load X
+  OPCODE(LDX_ab, 0xAE) //load X
   OPCODE(TAY, 0xA8) //transfer accumulator to Y
   OPCODE(LDA_im, 0xA9) //load accumulator
-  OPCODE(LDA_addr, 0xad) //load accumulator
+  OPCODE(LDA_ab, 0xad) //load accumulator
   OPCODE(LDA_addx, 0xbd) //load accumulator
   OPCODE(TAX, 0xAA) //transfer accumulator to X
   OPCODE(BCS, 0xB0) //branch on carry set
