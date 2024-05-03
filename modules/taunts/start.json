@@ -1,0 +1,23 @@
+{
+    "name" : "taunts",
+    "miss": [
+	"Hello, I'm HERE !",
+	"Did you try to hit me ?",
+	"Lol"
+    ],
+    "weak_atk": [
+	"lol, do you really think that hurt ?",
+	"Are you massaging me ?",
+	"Why are you caressing me"
+    ],
+    "strong_atk": [
+	"outch !",
+	"OK, you not that week",
+	"crap that hurt !",
+	"Wesh !",
+	"bitch !, you're gonna pay"
+    ],
+    "heal": [
+	"I feel better !"
+    ]
+}
