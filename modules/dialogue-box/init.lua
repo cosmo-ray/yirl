@@ -289,7 +289,7 @@ function setPos(box, x, y)
    y = yLovePtrToNumber(y)
 
    while i < len do
-      ywCanvasObjSetPos(yeGet(b0, i), x, y)
+      ywCanvasObjSetPos(yeGet(b0, i), x + border_threshold, y + border_threshold)
       i = i + 1
    end
    ywCanvasObjSetPos(yeGet(box, CAN_RECT_IDX), x, y)
