@@ -388,6 +388,7 @@ BIND_EII(ywCanvasMoveObjXY, 3, 0);
 
 BIND_EII(ywPosSetInts, 3, 0);
 
+BIND_EII(ywPosSubXY, 3, 0);
 BIND_EII(ywPosAddXY, 3, 0);
 BIND_EII(ywPosMultXY, 3, 0);
 

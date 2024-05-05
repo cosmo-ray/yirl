@@ -367,8 +367,14 @@ function Canvas:new_texture(x, y, text, srcRect)
    return CanvasObj.wrapp(ret)
 end
 
-function Canvas:new_text(x, y, txt)
-   local ret = ywCanvasNewText(self.ent, x, y, txt)
+function Canvas:new_text(x, y, txt, color)
+   local ret
+   print("color", color)
+   if color == nil then
+      ret = ywCanvasNewText(self.ent, x, y, txt)
+   else
+      ret = ywCanvasNewTextExt(self.ent, x, y, txt, color)
+   end
    return CanvasObj.wrapp(ret)
 end
 

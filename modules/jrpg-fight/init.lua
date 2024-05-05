@@ -34,6 +34,9 @@ local chooseTargetFunc = nil
 
 local print_dmg_nbr = nil
 
+local print_taunt = nil
+local print_taunt_timer = 0
+
 local cur_player = 0
 
 local enemy_idx = 0
@@ -467,6 +470,7 @@ local function attackCallback(main, eve)
 	 combatDmg(main, cur_anim)
 	 ySoundPlayLoop(main.sound.punch)
       else
+	 startTauntAnim(main, target, "miss")
 	 startEffectTime(target, main.wrong_txt, 10)
       end
 
@@ -527,6 +531,16 @@ function fightAction(entity, eve)
 	 yCallNextWidget(entity:cent());
       end
       return YEVE_ACTION
+   end
+
+   if yIsNNil(print_taunt) then
+      if print_taunt_timer < 0 then
+	 local canvas = getCanvas(entity)
+	 canvas:remove(print_taunt)
+	 print_taunt = nil
+      else
+	 print_taunt_timer = print_taunt_timer - ywidTurnTimer()
+      end
    end
 
    if yIsNNil(print_dmg_nbr) then
@@ -682,8 +696,16 @@ function combatDmgInternal(main, target, dmg)
       new_life = max_life:to_int()
    end
    if dmg > 0 then
+      if new_life > 0 then
+	 if new_life > max_life / 2 then
+	    startTauntAnim(main, target, "weak_atk")
+	 else
+	    startTauntAnim(main, target, "strong_atk")
+	 end
+      end
       startEffectTime(target, main.explosion_txt, 30)
    elseif dmg < 0 then
+      startTauntAnim(main, target, "heal")
       startEffectTime(target, main.heart_txt)
    end
 
@@ -920,6 +942,20 @@ function printTextAnim(main, cur_anim)
       return Y_FALSE
    end
    return Y_TRUE
+end
+
+function startTauntAnim(main, guy, type_taunt)
+   local pos = ywPosSubXY(Entity.new_copy(guy.canvas.pos), 30, 10)
+   local taunt = yeGetRandomElem(ygGet("taunts." .. type_taunt))
+   local canvas = getCanvas(main)
+   local txt_c = canvas:new_text(ywPosX(pos),
+				 ywPosY(pos), taunt,
+				 "rgba: 224 208 66").ent
+   if yIsNNil(print_taunt) then
+      canvas:remove(print_taunt)
+   end
+   print_taunt = txt_c
+   print_taunt_timer = 700000
 end
 
 function startTextAnim(main, txt)
@@ -1357,6 +1393,8 @@ function fightKboum(ent)
    ySoundPause(fight_widget.sound.punch)
    dead_anim_deaths = nil
    fight_widget = nil
+   print_taunt = nil
+   print_dmg_nbr = nil
 end
 
 function try_mk_array_of_guys(guys)

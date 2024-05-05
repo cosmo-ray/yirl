@@ -10,6 +10,10 @@
 	    "type" : "module"
 	},
 	{
+	    "path" : "YIRL_MODULES_PATH/taunts/",
+	    "type" : "module"
+	},
+	{
 	    "file" : "animation.lua",
 	    "type" : "lua"
 	},
