@@ -4,11 +4,14 @@
 	"Hello, I'm HERE !",
 	"Did you try to hit me ?",
 	"You blind ?",
+	"Noob",
+	"Have you try aiming ?",
 	"Lol"
     ],
     "weak_atk": [
 	"do you think that hurt ?",
 	"Are you massaging me ?",
+	"My grand dad is stronger than you",
 	"Why are you caressing me"
     ],
     "strong_atk": [
@@ -16,9 +19,11 @@
 	"OK, you not that week",
 	"crap that hurt !",
 	"Wesh !",
+	"Will smatch your head for this",
 	"bitch !, you're gonna pay"
     ],
     "heal": [
+	"pain go away !",
 	"I feel better !"
     ]
 }
