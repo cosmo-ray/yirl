@@ -60,6 +60,10 @@ void *lbSetPercent(int nbArg, void **args)
 {
 	Entity *entity = args[0];
 	int percent = (intptr_t)args[1];
+	if (percent > 100)
+		percent = 100;
+	if (percent < 0)
+		percent = 0;
 	int tot_pix = bar_w - (2 * border_len);
 	yeAutoFree Entity *info = yeCreateArray(NULL, NULL);
 	uint8_t *tmp = map;
