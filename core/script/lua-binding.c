@@ -108,13 +108,35 @@ int luaOrEntType(lua_State *L, int i)
 	return YLUA_DONT_KNOW;
 }
 
+static double luaDoubleAt(lua_State *L, int i)
+{
+	if (lua_islightuserdata(L, i)) {
+		void  *udata = lua_touserdata(L, i);
+
+		if (yeIsPtrAnEntity(udata)) {
+			return yeType(udata) == YFLOAT ? yeGetFloat(udata) : yeGetInt(udata);
+		}
+		return (intptr_t)udata;
+	} else if (lua_isuserdata(L, i)) {
+		struct entityWrapper *ew = luaL_checkudata(L, i, "Entity");
+
+		if (unlikely(yeType(ew->e) == YFLOAT))
+			return yeGetFloat(ew->e);
+		return yeGetInt(ew->e);
+	} else if (lua_isnumber(L, i)) {
+		return lua_tonumber(L, i);
+	}
+	return 0;
+}
+
 intptr_t luaNumberAt(lua_State *L, int i)
 {
 	if (lua_islightuserdata(L, i)) {
 		void  *udata = lua_touserdata(L, i);
 
-		if (yeIsPtrAnEntity(udata))
-			return yeGetInt(udata);
+		if (yeIsPtrAnEntity(udata)) {
+			return yeType(udata) == YFLOAT ? yeGetFloat(udata) : yeGetInt(udata);
+		}
 		return (intptr_t)udata;
 	} else if (lua_isuserdata(L, i)) {
 		struct entityWrapper *ew = luaL_checkudata(L, i, "Entity");
@@ -130,8 +152,8 @@ intptr_t luaNumberAt(lua_State *L, int i)
 
 int	luaentity_lt(lua_State *L)
 {
-	double i0 = luaNumberAt(L, 1);
-	double i1 = luaNumberAt(L, 2);
+	double i0 = luaDoubleAt(L, 1);
+	double i1 = luaDoubleAt(L, 2);
 
 	lua_pushboolean(L, i0 < i1);
 	return 1;
@@ -139,8 +161,8 @@ int	luaentity_lt(lua_State *L)
 
 int	luaentity_eq(lua_State *L)
 {
-	double i0 = luaNumberAt(L, 1);
-	double i1 = luaNumberAt(L, 2);
+	double i0 = luaDoubleAt(L, 1);
+	double i1 = luaDoubleAt(L, 2);
 
 	lua_pushboolean(L, i0 == i1);
 	return 1;
@@ -148,8 +170,8 @@ int	luaentity_eq(lua_State *L)
 
 int	luaentity_sub(lua_State *L)
 {
-	double i0 = luaNumberAt(L, 1);
-	double i1 = luaNumberAt(L, 2);
+	double i0 = luaDoubleAt(L, 1);
+	double i1 = luaDoubleAt(L, 2);
 
 	lua_pushnumber(L, i0 - i1);
 	return 1;
@@ -157,8 +179,8 @@ int	luaentity_sub(lua_State *L)
 
 int	luaentity_add(lua_State *L)
 {
-	double i0 = luaNumberAt(L, 1);
-	double i1 = luaNumberAt(L, 2);
+	double i0 = luaDoubleAt(L, 1);
+	double i1 = luaDoubleAt(L, 2);
 
 	lua_pushnumber(L, i0 + i1);
 	return 1;
@@ -166,8 +188,8 @@ int	luaentity_add(lua_State *L)
 
 int	luaentity_div(lua_State *L)
 {
-	double i0 = luaNumberAt(L, 1);
-	double i1 = luaNumberAt(L, 2);
+	double i0 = luaDoubleAt(L, 1);
+	double i1 = luaDoubleAt(L, 2);
 
 	lua_pushnumber(L, i0 / i1);
 	return 1;
@@ -175,8 +197,8 @@ int	luaentity_div(lua_State *L)
 
 int	luaentity_mul(lua_State *L)
 {
-	double i0 = luaNumberAt(L, 1);
-	double i1 = luaNumberAt(L, 2);
+	double i0 = luaDoubleAt(L, 1);
+	double i1 = luaDoubleAt(L, 2);
 
 	lua_pushnumber(L, i0 * i1);
 	return 1;
