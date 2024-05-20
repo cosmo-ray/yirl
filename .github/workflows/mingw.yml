@@ -19,6 +19,7 @@ jobs:
           base-devel
           zip
           mingw-w64-x86_64-msmpi
+          mingw-w64-perl
         pacboy:
           SDL2_mixer
           SDL2_image
@@ -32,7 +33,6 @@ jobs:
           lua
           autotools
           json-c
-          perl
     
     - shell: msys2 {0}
       run: |
