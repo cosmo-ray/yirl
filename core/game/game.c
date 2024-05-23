@@ -757,11 +757,16 @@ Entity *ygLoadMod(const char *path)
 		tmp = y_strdup_printf("%s%c%s", path, PATH_SEPARATOR, starts[i]);
 		CHECK_AND_RET(tmp, NULL, NULL,
 			      "cannot allocated path(like something went really wrong)");
-		if (!access(tmp, F_OK) && !ysLoadFile(managers[i], tmp)) {
-			mod = yeCreateArray(NULL, NULL);
-			yeCreateString(path, mod, "$path");
-			if (ysCall(managers[i], "mod_init", mod))
-				break;
+		if (!access(tmp, F_OK)) {
+			if (ysLoadFile(managers[i], tmp) < 0) {
+				DPRINT_ERR("Error when loading '%s': %s\n",
+					   tmp, ysGetError(managers[i]));
+			} else {
+				mod = yeCreateArray(NULL, NULL);
+				yeCreateString(path, mod, "$path");
+				if (ysCall(managers[i], "mod_init", mod))
+					break;
+			}
 		}
 		yeDestroy(mod);
 		free(tmp);
