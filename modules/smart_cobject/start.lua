@@ -8,6 +8,9 @@ local LPCS_RIGHT = nil
 local LPCS_UP = nil
 local LPCS_DEAD = nil
 
+local LPCS_ATK_UP = 12
+local LPCS_ATK_DOWN = 15
+
 local CHAR_I = 0 -- only for canvas layers
 local WID_I = 1 -- only for canvas layers
 local CVS_OBJ_I = 2
@@ -268,6 +271,33 @@ function yGenericHandlerSize(npc)
    end
 end
 
+function yGenericNext(npc)
+   local type = yeGetString(npc.char.type)
+   if type == "layer-canvas" or
+      type == "textures-array" or
+      type == "sprite" then
+      return
+   end
+   ylpcsHandlerNextStep(npc)
+end
+
+function yGenericSetAttackPos(npc)
+   local type = yeGetString(npc.char.type)
+   if type == "layer-canvas" or
+      type == "textures-array" or
+      type == "sprite" then
+      return
+   end
+   local type = yeGetString(npc.char.type)
+   local dir = yeGetInt(npc.y)
+   if dir >= LPCS_ATK_UP and dir < LPCS_ATK_DOWN + 1  then
+      -- already in atk pos
+      return
+   end
+   dir = dir % 4
+   npc.y = LPCS_ATK_UP + dir
+end
+
 function yGenericSetDir(npc, dir)
    npc = Entity.wrapp(npc)
    local type = yeGetString(npc.char.type)
@@ -391,7 +421,8 @@ function mod_init(mod)
    ygRegistreFunc(3, "yGenericHandlerMoveXY", "yGenericHandlerMoveXY");
    ygRegistreFunc(5, "yGenericNewCanvasLayer", "yGenericNewCanvasLayer");
    ygRegistreFunc(1, "yGenericCurCanvas", "yGenericCurCanvas");
-   print("ALLO !!!!!\n")
+   ygRegistreFunc(1, "yGenericSetAttackPos", "yGenericSetAttackPos");
+   ygRegistreFunc(1, "yGenericNext", "yGenericNext");
    yeCreateFunction("modinit_post", mod, "init-post-action");
    return mod
 end
