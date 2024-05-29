@@ -32,6 +32,7 @@
 #define BIND_EEIS	BIND
 #define BIND_EIES	BIND
 #define BIND_EEES	BIND
+#define BIND_EEEI	BIND
 #define BIND_IIES	BIND
 #define BIND_EEEEI	BIND
 #define BIND_EEESI	BIND
@@ -110,6 +111,8 @@ BIND_EEEE(ywMapMoveByEntity, 4, 0);
 
 BIND_EEEE(ywTextureMergeTexture, 4, 0);
 BIND_EEEE(ywTextureMergeUnsafe, 4, 0);
+
+BIND_EEEI(ywPosIsInRectPS, 4, 0);
 
 BIND_EEEEI(ywMapDrawSegment, 4, 1);
 
@@ -567,6 +570,7 @@ PUSH_I_GLOBAL(YPERL);
 #undef BIND_EIIEE
 #undef BIND_EEEEI
 #undef BIND_EEESI
+#undef BIND_EEEI
 #undef BIND_EIII
 #undef BIND_EIIS
 #undef BIND_EIIE

@@ -376,6 +376,21 @@ static inline uint32_t ywPosDistance(Entity *p0, Entity *p1)
 
 
 /**
+ * @return true if the point at opos is inside the rect defined by pos and size
+ * if proper is true
+ * doesn't return true when on the edge
+ */
+static inline _Bool ywPosIsInRectPS(Entity *point, Entity *pos, Entity *size,
+				      int proper)
+{
+	return ywPosX(point) > ywPosX(pos) - !(proper) &&
+		ywPosX(point) < ywPosX(pos) + ywSizeW(size) - !!(proper) &&
+		ywPosY(point) > ywPosY(pos) - !(proper) &&
+		ywPosY(point) < ywPosY(pos) + ywSizeH(size) - !!(proper);
+}
+
+
+/**
  * @brief compute distance of a size
  */
 static inline uint32_t ywSizeDistance(Entity *size)
