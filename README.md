@@ -92,8 +92,10 @@ Here's a Table of what support what:
 | yb | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 
 
-##Start a game from the source
+## Start a game from the source
+
 `-d` is the path to the game module
+
 `-P` is the path to engine root, that contain yirl base modules, and scripts helpers.
 ```sh
 ./yirl-loader.sh -P $PWD -d path/to/game/module
