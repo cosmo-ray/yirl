@@ -269,6 +269,10 @@ void	tccAddSyms(TCCState *l)
   ADD_SYM(ywCanvasHFlip);
   ADD_SYM(ygCallInt);
   ADD_SYM(ygGetProgramArg);
+  ADD_SYM(yeQuickSort);
+  ADD_SYM(yeDumbSort);
+  ADD_SYM(yeShuffle);
+
 #if defined(__unix__) || defined(__APPLE__)
   tcc_add_symbol(l, "yuiDebugPrint", yuiDebugPrint);
   ADD_SYM(fprintf);

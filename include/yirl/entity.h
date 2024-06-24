@@ -1880,31 +1880,22 @@ NO_SIDE_EFFECT static inline Entity *yeGetRandomElem(Entity *array)
 	return yeGet(array, yuiRand() % array_l);
 }
 
-static inline int yeShuffle(Entity *array)
-{
-	if (!array || yeType(array) != YARRAY)
-		return -1;
+/**
+ * @brief Quick Sort an array, or part of it
+ * @param func comparison function which returns a negative integer value
+ *	if the first argument is less than the second,
+ *	a positive integer value if the first argument is greater than the second
+ *	and zero if the arguments are equivalent.
+ */
+int yeQuickSort(Entity *array, Entity *func, int start);
 
-	int array_l = yeLen(array);
-	for (int i = 0; i < array_l; ++i) {
-		int b = yuiRand() % array_l;
+/**
+ * Dumb Sort, is generally slower than QuickSort, exept in the case where a few element are swap
+ * I use it for debug at first, but because in a few case it can be faster, I let it here
+ */
+int yeDumbSort(Entity *a, Entity *func, int start);
 
-		if (i == b)
-			continue;
-
-		yeSwapByIdx(array, i, b);
-	}
-
-	for (int i = 0; i < array_l; ++i) {
-		int a = yuiRand() % array_l;
-		int b = yuiRand() % array_l;
-
-		if (a == b)
-			continue;
-		yeSwapByIdx(array, a, b);
-	}
-	return 0;
-}
+int yeShuffle(Entity *array);
 
 /**
  * @return 1 if content of a and b is the same, work only for string, int and float

@@ -21,6 +21,7 @@
 #include	<unistd.h>
 
 #include	"entity.h"
+#include	"entity-script.h"
 #include	"utils.h"
 #include	"stack.h"
 #include	"script.h"
@@ -1970,6 +1971,97 @@ int yeIsPureArray(Entity *e)
 	}
 	return 1;
 }
+
+int yeDumbSort(Entity *a, Entity *func, int start)
+{
+	int have_change;
+
+	do {
+		int last = yeLen(a) - 1;
+		have_change = 0;
+
+		for (int i = start; i < last; ++i) {
+			int i2 = i + 1;
+
+			int cmp = (intptr_t)yesCall(func, yeGet(a, i),
+						    yeGet(a, i2));
+			if (cmp > 0) {
+				yeSwapByIdx(a, i, i2);
+				have_change = 1;
+			}
+		}
+	} while (have_change);
+	return 0;
+}
+
+static void yeQuickSort_pivot(Entity *array, Entity *func, int start, int last)
+{
+	if (last <= start)
+		return;
+	int pivot = start + (last - start) / 2;
+
+	if (pivot <= start)
+		return;
+
+	Entity *pivot_ent = yeGet(array, pivot);
+	yeSwapByIdx(array, pivot, last);
+	int pivot_left = start - 1;
+	int pivot_right = start - 1;
+	do
+	{
+		++pivot_right;
+		int cmp = (intptr_t)yesCall(func, yeGet(array, pivot_right), pivot_ent);
+		if (cmp <= 0) {
+			++pivot_left;
+			if (pivot_left == pivot_right)
+				continue;
+			int cmp = (intptr_t)yesCall(func, yeGet(array, pivot_left), yeGet(array, pivot_right));
+			if (cmp > 0) {
+				yeSwapByIdx(array, pivot_right, pivot_left);
+			}
+		}
+	} while (pivot_right + 1 < last);
+	yeSwapByIdx(array, last, pivot_left + 1);
+	yeQuickSort_pivot(array, func, start, pivot);
+	yeQuickSort_pivot(array, func, pivot, last);
+}
+
+int yeQuickSort(Entity *array, Entity *func, int start)
+{
+	int last = yeLen(array) - 1;
+
+	start = start < 1 ? 0 : start;
+
+	yeQuickSort_pivot(array, func, start, last);
+	return 0;
+}
+
+int yeShuffle(Entity *array)
+{
+	if (!array || yeType(array) != YARRAY)
+		return -1;
+
+	int array_l = yeLen(array);
+	for (int i = 0; i < array_l; ++i) {
+		int b = yuiRand() % array_l;
+
+		if (i == b)
+			continue;
+
+		yeSwapByIdx(array, i, b);
+	}
+
+	for (int i = 0; i < array_l; ++i) {
+		int a = yuiRand() % array_l;
+		int b = yuiRand() % array_l;
+
+		if (a == b)
+			continue;
+		yeSwapByIdx(array, a, b);
+	}
+	return 0;
+}
+
 
 #undef YE_DECR_REF
 
