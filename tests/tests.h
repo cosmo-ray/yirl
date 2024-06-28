@@ -41,6 +41,10 @@ void testEntityPatch(void);
 void testGet(void);
 void testGetByEntity(void);
 
+void testSwap(void);
+
+void testSorting(void);
+
 void testSetSimple(void);
 void testSetComplex(void);
 void testSetGeneric(void);

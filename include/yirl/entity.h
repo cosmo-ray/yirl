@@ -1828,11 +1828,13 @@ static inline int yeSwapByIdx(Entity *array, size_t idx0, size_t idx1)
 		return 0;
 	}
 	if (!entry0) {
-		YUI_SWAP_PTR(entry0, entry1, ArrayEntry *);
-		YUI_SWAP_VALUE(idx0, idx1);
+		entry0 = yBlockArraySetGetPtr(ba, idx0, ArrayEntry);
+		entry0->entity = entry1->entity;
+		entry0->name = entry1->name;
+		yBlockArrayUnset(ba, idx1);
 	}
 	if (!entry1) {
-		entry1 = yBlockArraySetGetPtr(ba, idx0, ArrayEntry);
+		entry1 = yBlockArraySetGetPtr(ba, idx1, ArrayEntry);
 		entry1->entity = entry0->entity;
 		entry1->name = entry0->name;
 		yBlockArrayUnset(ba, idx0);

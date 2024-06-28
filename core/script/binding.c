@@ -400,6 +400,7 @@ BIND_EII(ywCanvasForceSizeXY, 3, 0);
 BIND_EES(yePushFront, 2, 1);
 
 BIND_EEI(yeQuickSort, 2, 1);
+BIND_EEI(yeDumbSort, 2, 1);
 
 BIND_EEI(ywRectContainPos, 3, 0);
 
