@@ -640,6 +640,8 @@ NO_SIDE_EFFECT static inline int yeGetIntAtByStr(Entity *array, const char *pos)
 	return yeGetInt(yeGetByStrFast(array, pos));
 }
 
+#define yeIntAt(e, i) yeGetIntAt(e, i)
+
 #define yeGetIntAt(ENTITY, INDEX) _Generic((INDEX),			\
 					   unsigned short int: yeGetIntAtByIdx, \
 					   short int: yeGetIntAtByIdx,	\

@@ -17,6 +17,13 @@
 
 #include "yirl/widget.h"
 
+
+int ywSetGroupeSpeed(Entity *wid, int grp, int speed);
+/* set groupe dir in degree */
+int ywSetGroupeDir(Entity *wid, int grp, double radiant);
+int ywEBSSwapGroup(Entity *wid, unsigned int target);
+void ywEBSWrapperPush(Entity *wid, Entity *wrapper);
+
 int ywEBSInit(void);
 int ywEBSEnd(void);
 int ysdl2RegistreEBS(void);
