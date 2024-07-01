@@ -50,6 +50,7 @@
 #include "container.h"
 #include "native-script.h"
 #include "condition.h"
+#include "event-base-objs.h"
 
 #ifdef GAMEMOD
 #include <gamemode_client.h>
@@ -523,6 +524,8 @@ int ygInit(GameConfig *cfg)
 			       "Container init failed");
 		CHECK_AND_GOTO(ywCanvasInit(), -1, error, "Canvas init failed");
 
+		CHECK_AND_GOTO(ywEBSInit(), -1, error, "EBS init failed");
+
 		CHECK_AND_GOTO(ysdl2RegistreTextScreen(), -1, error,
 			       "Text Screen init failed");
 		CHECK_AND_GOTO(ysdl2RegistreMenu(), -1, error,
@@ -531,6 +534,8 @@ int ygInit(GameConfig *cfg)
 			       "Map init failed");
 		CHECK_AND_GOTO(ysdl2RegistreCanvas(), -1, error,
 			       "Canvas SDL2 init failed");
+		CHECK_AND_GOTO(ysdl2RegistreEBS(), -1, error,
+			       "EBS SDL2 init failed");
 	}
 
 
@@ -569,6 +574,7 @@ void ygEnd()
 		ywMapEnd();
 		ywMenuEnd();
 		ywCanvasEnd();
+		ywEBSEnd();
 		ywContainerEnd();
 		ysound_end();
 		ysdl2Destroy();

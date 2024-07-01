@@ -48,6 +48,7 @@ SRC = 	$(HSEARCH_SRC) \
 	$(WID_DIR)/container.c \
 	$(WID_DIR)/texture.c \
 	$(WID_DIR)/canvas.c \
+	$(WID_DIR)/event-base-objs.c \
 	$(SDL_WID_DIR)/sdl.c \
 	$(SDL_WID_DIR)/map.c \
 	$(SDL_WID_DIR)/menu.c \
