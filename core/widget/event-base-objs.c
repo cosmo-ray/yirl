@@ -20,6 +20,7 @@
 #include "sdl2/sdl-internal.h"
 #include "timer.h"
 #include "canvas.h"
+#include "entity-script.h"
 
 static int wid_t = -1;
 
@@ -87,10 +88,14 @@ static int init(YWidgetState *opac, Entity *entity, void *args)
 	state->timer = YTimerCreate();
 	yeTryCreateInt(0, entity, "cur_grp");
 	yeTryCreateInt(5, entity, "nb_grp");
+	yeTryCreateArray(entity, "on-down");
+	yeTryCreateArray(entity, "on-up");
 	Entity *grps = yeTryCreateArray(entity, "groups");
 	Entity *grps_spd = yeTryCreateArray(entity, "grps-spd");
 	Entity *grps_spd_rest = yeTryCreateArray(entity, "grps-rest-spd");
 	Entity *grps_dir = yeTryCreateArray(entity, "grps-dir");
+
+	ywSetTurnLengthOverwrite(-1);
 
 	for (int i = 0; i < yeIntAt(entity, "nb_grp"); ++i) {
 		yeCreateArray(grps, NULL);
@@ -118,6 +123,32 @@ static int rend(YWidgetState *opac)
 	return 0;
 }
 
+static InputStatue event(YWidgetState *opac, Entity *event)
+{
+	(void)opac;
+	if (ywidEveType(event) == YKEY_DOWN) {
+		Entity *on = yeGet(opac->entity, "on-down");
+
+		YE_FOREACH(on, on_entry) {
+			if (yeGetIntAt(on_entry, 0) == ywidEveKey(event)) {
+				yesCall(yeGet(on_entry, 1), opac->entity);
+			}
+		}
+	} else if (ywidEveType(event) == YKEY_UP) {
+		Entity *on = yeGet(opac->entity, "on-up");
+
+		YE_FOREACH(on, on_entry) {
+			if (yeGetIntAt(on_entry, 0) == ywidEveKey(event)) {
+				yesCall(yeGet(on_entry, 1), opac->entity);
+			}
+		}
+	}
+
+	if (!event)
+		return NOTHANDLE;
+	return ACTION;
+}
+
 static void *alloc(void)
 {
 	struct YEBSState *s = y_new0(struct YEBSState, 1);
@@ -125,7 +156,7 @@ static void *alloc(void)
 	ret->render = rend;
 	ret->init = init;
 	ret->destroy = destroy;
-	ret->handleEvent = ywidEventCallActionSin;
+	ret->handleEvent = event;
 	ret->type = wid_t;
 	return ret;
 }
