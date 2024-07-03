@@ -121,7 +121,8 @@ function action(entity, eve)
    end
    local pos = yevMousePos(eve)
 
-   if version == AXEMAN_SHOOTER and (yeGetInt(move.up_down) ~= 0 or yeGetInt(move.left_right) ~= 0) then
+   if version == AXEMAN_SHOOTER and (yeGetInt(move.up_down) ~= 0 or
+				     yeGetInt(move.left_right) ~= 0) then
       step_cnt = step_cnt + 1
       step_cnt = step_cnt % STEP_NB_SPRITE
    end
@@ -172,7 +173,7 @@ function action(entity, eve)
 	 local laser = canvas:new_obj(ship:pos():x() + ship:size():x() / 2 - fire_threshold,
 				      ship:pos():y() + ship:size():y() / 2  - fire_threshold, 2)
 
-	 local angle = yuiRand() % 360 - 180 
+	 local angle = yuiRand() % 360 - 180
 	 yeCreateFloat(laser:angle() + angle, laser.ent:cent(), "angle")
 	 ent.lasers:push_back(laser:cent())
       end
@@ -295,7 +296,6 @@ function action(entity, eve)
 		     local life = asteroides[i].life
 		     local ne = push_enemy(canvas, astip:x(), astip:y(), ywPosAngle(astip.ent,
 										    ship:pos().ent) - 90,
-					   
 					   ast_i.ent.speed + 1,
 					   modPath .. "z-cvck-hurt.png")
 		     ne.ent.life = life
@@ -423,7 +423,6 @@ end
       if loading_atk > 100 then
 	 loading_atk = 100
       end
-      
    end
    return YEVE_ACTION
 end
