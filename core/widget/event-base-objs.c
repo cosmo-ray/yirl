@@ -91,6 +91,8 @@ static int init(YWidgetState *opac, Entity *entity, void *args)
 	yeTryCreateArray(entity, "on-down");
 	yeTryCreateArray(entity, "on-up");
 	Entity *grps = yeTryCreateArray(entity, "groups");
+	yeTryCreateArray(entity, "grps-oob-callbacks");
+	yeTryCreateArray(entity, "grps-allow-oob");
 	Entity *grps_spd = yeTryCreateArray(entity, "grps-spd");
 	Entity *grps_spd_rest = yeTryCreateArray(entity, "grps-rest-spd");
 	Entity *grps_dir = yeTryCreateArray(entity, "grps-dir");
@@ -214,6 +216,8 @@ static int sdl2Render(YWidgetState *opac, int t)
 		double g_rad = yeGetFloatAt(rads, i);
 		Entity *g_rest = yeGet(rest, i);
 		Entity *grp = yeGet(grps, i);
+		Entity *oob_callback = yeGet(yeGet(entity, "grps-oob-callbacks"), i);
+		int allow_oob = yeGetIntAt(yeGet(entity, "grps-allow-oob"), i);
 
 		if (!g_speed)
 			continue;
@@ -235,7 +239,38 @@ static int sdl2Render(YWidgetState *opac, int t)
 
 		// move everything by x/y
 		YE_FOREACH(grp, o) {
+			int have_oob = 0;
+			Entity *o_pos = ywCanvasObjPos(o);
+			Entity *o_size = ywCanvasObjSize(entity, o);
+
+			if (ywPosX(o_pos) + ywSizeW(o_size) + delta_x > ywRectW(widPix)) {
+				have_oob = 1;
+				if (!allow_oob) {
+					delta_x -= ywPosX(o_pos) + ywSizeW(o_size) +
+						delta_x - ywRectW(widPix);
+				}
+			} else if (ywPosX(o_pos) + delta_x < 0) {
+				have_oob = 1;
+				if (!allow_oob) {
+					delta_x += ywPosX(o_pos) + delta_x;
+				}
+			}
+			if (ywPosY(o_pos) + ywSizeH(o_size) + delta_y > ywRectH(widPix)) {
+				have_oob = 1;
+				if (!allow_oob) {
+					delta_y -= ywPosY(o_pos) + ywSizeH(o_size) +
+						delta_y - ywRectH(widPix);
+				}
+			} else if (ywPosY(o_pos) + delta_y < 0) {
+				have_oob = 1;
+				if (!allow_oob) {
+					delta_y += ywPosY(o_pos) + delta_y;
+				}
+			}
 			ywCanvasMoveObjXY(o, delta_x, delta_y);
+			if (have_oob && oob_callback) {
+				yesCall(oob_callback, entity, o);
+			}
 		}
 
 	}
