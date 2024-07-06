@@ -128,22 +128,30 @@ static int rend(YWidgetState *opac)
 static InputStatue event(YWidgetState *opac, Entity *event)
 {
 	(void)opac;
+	Entity *entity = opac->entity;
+
 	if (ywidEveType(event) == YKEY_DOWN) {
-		Entity *on = yeGet(opac->entity, "on-down");
+		Entity *on = yeGet(entity, "on-down");
+		Entity *any_down = yeGet(entity, "any-down");
 
 		YE_FOREACH(on, on_entry) {
 			if (yeGetIntAt(on_entry, 0) == ywidEveKey(event)) {
-				yesCall(yeGet(on_entry, 1), opac->entity);
+				yesCall(yeGet(on_entry, 1), entity);
 			}
 		}
+		if (any_down)
+			yesCall(any_down, entity, event);
 	} else if (ywidEveType(event) == YKEY_UP) {
-		Entity *on = yeGet(opac->entity, "on-up");
+		Entity *on = yeGet(entity, "on-up");
+		Entity *any_up;
 
 		YE_FOREACH(on, on_entry) {
 			if (yeGetIntAt(on_entry, 0) == ywidEveKey(event)) {
-				yesCall(yeGet(on_entry, 1), opac->entity);
+				yesCall(yeGet(on_entry, 1), entity);
 			}
 		}
+		if ((any_up = yeGet(entity, "any-up")) != NULL)
+			yesCall(any_up, entity, event);
 	}
 
 	if (!event)
@@ -252,7 +260,7 @@ static int sdl2Render(YWidgetState *opac, int t)
 			} else if (ywPosX(o_pos) + delta_x < 0) {
 				have_oob = 1;
 				if (!allow_oob) {
-					delta_x += ywPosX(o_pos) + delta_x;
+					delta_x -= ywPosX(o_pos) + delta_x;
 				}
 			}
 			if (ywPosY(o_pos) + ywSizeH(o_size) + delta_y > ywRectH(widPix)) {
@@ -264,7 +272,7 @@ static int sdl2Render(YWidgetState *opac, int t)
 			} else if (ywPosY(o_pos) + delta_y < 0) {
 				have_oob = 1;
 				if (!allow_oob) {
-					delta_y += ywPosY(o_pos) + delta_y;
+					delta_y -= ywPosY(o_pos) + delta_y;
 				}
 			}
 			ywCanvasMoveObjXY(o, delta_x, delta_y);
