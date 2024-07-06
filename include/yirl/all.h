@@ -26,3 +26,4 @@
 #include <yirl/canvas.h>
 #include <yirl/entity-array.h>
 #include <yirl/text-screen.h>
+#include <yirl/event-base-objs.h>

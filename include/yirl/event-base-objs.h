@@ -51,6 +51,13 @@ int ywSetGroupeDir(Entity *wid, int grp, double radiant);
 int ywEBSSwapGroup(Entity *wid, unsigned int target);
 void ywEBSWrapperPush(Entity *wid, Entity *wrapper);
 
+static inline double ywEBSGroupeDir(Entity *wid, int grp)
+{
+	Entity *groups_dir = yeGet(wid, "grps-dir");
+
+	return yeGetFloatAt(groups_dir, grp);
+}
+
 int ywEBSInit(void);
 int ywEBSEnd(void);
 int ysdl2RegistreEBS(void);
