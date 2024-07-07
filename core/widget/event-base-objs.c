@@ -92,6 +92,7 @@ static int init(YWidgetState *opac, Entity *entity, void *args)
 	yeTryCreateArray(entity, "on-up");
 	Entity *grps = yeTryCreateArray(entity, "groups");
 	yeTryCreateArray(entity, "grps-oob-callbacks");
+	yeTryCreateArray(entity, "grps-mv-callbacks");
 	yeTryCreateArray(entity, "grps-allow-oob");
 	Entity *grps_spd = yeTryCreateArray(entity, "grps-spd");
 	Entity *grps_spd_rest = yeTryCreateArray(entity, "grps-rest-spd");
@@ -220,36 +221,52 @@ static int sdl2Render(YWidgetState *opac, int t)
 	Entity *rest =  yeGet(entity, "grps-rest-spd");
 
 	for (size_t i = 0; i < yeLen(speeds); ++i) {
+		Entity *mv_callback = yeGet(yeGet(entity, "grps-mv-callbacks"), i);
 		int g_speed = yeGetIntAt(speeds, i);
 		double g_rad = yeGetFloatAt(rads, i);
 		Entity *g_rest = yeGet(rest, i);
 		Entity *grp = yeGet(grps, i);
 		Entity *oob_callback = yeGet(yeGet(entity, "grps-oob-callbacks"), i);
 		int allow_oob = yeGetIntAt(yeGet(entity, "grps-allow-oob"), i);
+		double delta_x = 0;
+		double delta_y = 0;
 
-		if (!g_speed)
+		if (g_speed) {
+			// compute x/y advance here, + rest, store rest
+			int cur_speed = (g_speed * 10000) / timer;
+			double old_rest_x = yeGetQuadInt0(g_rest);
+			double old_rest_y = yeGetQuadInt1(g_rest);
+			old_rest_x = old_rest_x / 10000;
+			old_rest_y = old_rest_y / 10000;
+
+			delta_x = cur_speed * cos(g_rad) + old_rest_x;
+			delta_y = cur_speed * sin(g_rad) + old_rest_y;
+			int rest_x = (((double) (int)delta_x) - delta_x) * 10000;
+			int rest_y = (((double) (int)delta_y) - delta_y) * 10000;
+
+			yeSetAt(g_rest, 0, rest_x);
+			yeSetAt(g_rest, 1, rest_y);
+		} else if (!mv_callback) {
 			continue;
-
-		// compute x/y advance here, + rest, store rest
-		int cur_speed = (g_speed * 10000) / timer;
-		double old_rest_x = yeGetQuadInt0(g_rest);
-		double old_rest_y = yeGetQuadInt1(g_rest);
-		old_rest_x = old_rest_x / 10000;
-		old_rest_y = old_rest_y / 10000;
-
-		double delta_x = cur_speed * cos(g_rad) + old_rest_x;
-		double delta_y = cur_speed * sin(g_rad) + old_rest_y;
-		int rest_x = (((double) (int)delta_x) - delta_x) * 10000;
-		int rest_y = (((double) (int)delta_y) - delta_y) * 10000;
-
-		yeSetAt(g_rest, 0, rest_x);
-		yeSetAt(g_rest, 1, rest_y);
+		}
 
 		// move everything by x/y
 		YE_FOREACH(grp, o) {
 			int have_oob = 0;
 			Entity *o_pos = ywCanvasObjPos(o);
 			Entity *o_size = ywCanvasObjSize(entity, o);
+
+			if (mv_callback) {
+				Entity *new_delta = yesCall(mv_callback, wid, o, yeGet(speeds, i), yeGet(rads, i));
+				if (new_delta) {
+					delta_x = ywPosX(new_delta);
+					delta_y = ywPosY(new_delta);
+				} else {
+					delta_x = 0;
+					delta_y = 0;
+				}
+			}
+
 
 			if (ywPosX(o_pos) + ywSizeW(o_size) + delta_x > ywRectW(widPix)) {
 				have_oob = 1;
