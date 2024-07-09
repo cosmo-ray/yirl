@@ -265,7 +265,7 @@ static int sdl2Render(YWidgetState *opac, int t)
 			Entity *o_size = ywCanvasObjSize(entity, o);
 
 			if (mv_callback) {
-				Entity *new_delta = yesCall(mv_callback, wid, o, delta_x, delta_y);
+				yeAutoFree Entity *new_delta = yesCall(mv_callback, wid, o, delta_x, delta_y);
 				if (new_delta) {
 					delta_x = ywPosX(new_delta);
 					delta_y = ywPosY(new_delta);
