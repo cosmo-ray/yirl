@@ -44,6 +44,7 @@
 
 #include "yirl/widget.h"
 
+void ywEBSRemoveObj(Entity *wid, int grp, Entity *obj);
 
 int ywSetGroupeSpeed(Entity *wid, int grp, int speed);
 /* set groupe dir in degree */
