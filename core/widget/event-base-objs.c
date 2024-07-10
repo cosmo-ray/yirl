@@ -150,7 +150,8 @@ static InputStatue event(YWidgetState *opac, Entity *event)
 		}
 		if (any_down)
 			yesCall(any_down, entity, event);
-	} else if (ywidEveType(event) == YKEY_UP) {
+	}
+	if (ywidEveType(event) == YKEY_UP) {
 		Entity *on = yeGet(entity, "on-up");
 		Entity *any_up;
 
