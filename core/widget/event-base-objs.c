@@ -99,6 +99,7 @@ static int init(YWidgetState *opac, Entity *entity, void *args)
 	yeTryCreateArray(entity, "on-down");
 	yeTryCreateArray(entity, "on-up");
 	Entity *grps = yeTryCreateArray(entity, "groups");
+	yeTryCreateArray(entity, "grps-col-callbacks");
 	yeTryCreateArray(entity, "grps-oob-callbacks");
 	yeTryCreateArray(entity, "grps-mv-callbacks");
 	yeTryCreateArray(entity, "grps-allow-oob");
@@ -231,6 +232,7 @@ static int sdl2Render(YWidgetState *opac, int t)
 
 	for (size_t i = 0; i < yeLen(speeds); ++i) {
 		Entity *mv_callback = yeGet(yeGet(entity, "grps-mv-callbacks"), i);
+		Entity *col_callback = yeGet(yeGet(entity, "grps-col-callbacks"), i);
 		int g_speed = yeGetIntAt(speeds, i);
 		double g_rad = yeGetFloatAt(rads, i);
 		Entity *g_rest = yeGet(rest, i);
@@ -305,6 +307,20 @@ static int sdl2Render(YWidgetState *opac, int t)
 			if (have_oob && oob_callback) {
 				yesCall(oob_callback, entity, o);
 			}
+			if (col_callback) {
+				int target_gpr = yeGetIntAt(col_callback, 0);
+				Entity *calbback = yeGet(col_callback, 1);
+				Entity *o_grp = yeGet(grps, target_gpr);
+
+				YE_FOREACH(o_grp, other_obj) {
+					yePrint(ywCanvasObjPos(o));
+					yePrint(ywCanvasObjPos(other_obj));
+					if (ywCanvasObjectsCheckColisions(o, other_obj)) {
+						yesCall(calbback, entity, o, other_obj);
+					}
+				}
+			}
+
 		}
 
 	}
