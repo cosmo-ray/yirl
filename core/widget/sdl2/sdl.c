@@ -358,14 +358,13 @@ static inline Entity *mouse_create_pos(int bt_x, int bt_y)
 		int h = bt_y * ywidWindowHight / getRect().h;
 		return ywPosCreateInts(w, h, NULL, NULL);
 	}
-	
 }
 
 static inline Entity *SDLConvertEvent(SDL_Event* event)
 {
 	Entity *eve = yeCreateArray(NULL, NULL);
 
-	if (!event || !eve)
+	if (!event)
 		return NULL;
 	yeCreateIntAt(NOTHANDLE, eve, NULL, YEVE_STATUS);
 	switch(event->type)
@@ -383,6 +382,9 @@ static inline Entity *SDLConvertEvent(SDL_Event* event)
 		yeCreateIntAt(YKEY_UP, eve, NULL, YEVE_TYPE);
 		break;
 	case SDL_KEYDOWN:
+		if (event->key.repeat > 0) {
+			goto cancel;
+		}
 		yeCreateIntAt(YKEY_DOWN, eve, NULL, YEVE_TYPE);
 		break;
 	case SDL_MOUSEBUTTONUP:
@@ -509,6 +511,9 @@ static inline Entity *SDLConvertEvent(SDL_Event* event)
 	}
 	yeCreateIntAt(convertToYKEY(event->key.keysym.sym), eve, NULL, YEVE_KEY);
 	return eve;
+cancel:
+	yeDestroy(eve);
+	return NULL;
 }
 
 static Entity *SDLWaitEvent(void)

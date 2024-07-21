@@ -139,30 +139,33 @@ static InputStatue event(YWidgetState *opac, Entity *event)
 {
 	(void)opac;
 	Entity *entity = opac->entity;
+	Entity *eve = event;
 
-	if (ywidEveType(event) == YKEY_DOWN) {
-		Entity *on = yeGet(entity, "on-down");
-		Entity *any_down = yeGet(entity, "any-down");
+	YEVE_FOREACH(eve, event) {
+		if (ywidEveType(eve) == YKEY_DOWN) {
+			Entity *on = yeGet(entity, "on-down");
+			Entity *any_down = yeGet(entity, "any-down");
 
-		YE_FOREACH(on, on_entry) {
-			if (yeGetIntAt(on_entry, 0) == ywidEveKey(event)) {
-				yesCall(yeGet(on_entry, 1), entity);
+			YE_FOREACH(on, on_entry) {
+				if (yeGetIntAt(on_entry, 0) == ywidEveKey(eve)) {
+					yesCall(yeGet(on_entry, 1), entity);
+				}
 			}
+			if (any_down)
+				yesCall(any_down, entity, eve);
 		}
-		if (any_down)
-			yesCall(any_down, entity, event);
-	}
-	if (ywidEveType(event) == YKEY_UP) {
-		Entity *on = yeGet(entity, "on-up");
-		Entity *any_up;
+		if (ywidEveType(eve) == YKEY_UP) {
+			Entity *on = yeGet(entity, "on-up");
+			Entity *any_up;
 
-		YE_FOREACH(on, on_entry) {
-			if (yeGetIntAt(on_entry, 0) == ywidEveKey(event)) {
-				yesCall(yeGet(on_entry, 1), entity);
+			YE_FOREACH(on, on_entry) {
+				if (yeGetIntAt(on_entry, 0) == ywidEveKey(eve)) {
+					yesCall(yeGet(on_entry, 1), entity);
+				}
 			}
+			if ((any_up = yeGet(entity, "any-up")) != NULL)
+				yesCall(any_up, entity, eve);
 		}
-		if ((any_up = yeGet(entity, "any-up")) != NULL)
-			yesCall(any_up, entity, event);
 	}
 
 	if (!event)
@@ -313,8 +316,6 @@ static int sdl2Render(YWidgetState *opac, int t)
 				Entity *o_grp = yeGet(grps, target_gpr);
 
 				YE_FOREACH(o_grp, other_obj) {
-					yePrint(ywCanvasObjPos(o));
-					yePrint(ywCanvasObjPos(other_obj));
 					if (ywCanvasObjectsCheckColisions(o, other_obj)) {
 						yesCall(calbback, entity, o, other_obj);
 					}

@@ -68,6 +68,7 @@ static inline const char *ywidInputStatueToString(InputStatue i)
 
 typedef enum
 {
+	YKEY_IGNORE,
 	YKEY_DOWN,
 	YKEY_UP,
 	YKEY_MOUSEDOWN,
