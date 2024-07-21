@@ -619,6 +619,7 @@ interupt:
 				events = ywidGenericPollEvent();
 
 			regs.al = 0;
+			result = 0;
 			if (ywidEveType(events) == YKEY_DOWN) {
 				result = ywidEveKey(events);
 				if (regs.ah) {
