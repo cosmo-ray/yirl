@@ -38,6 +38,7 @@
  *	enable an object to OOB,
  *	set like this: { "grps-allow-oob": [0, 1, ...] }
  *
+ * 'grp-classic-movement' is an int that can be set to handle classic movement with 'WASD'
  * each groups have a speed, and direction, that can be set, either
  * using ywSetGroupeSpeed/ywSetGroupeDir, or {"grps-dir": [1.4, 2.4], "grps-spd": [10, 5]}
  */

@@ -20,13 +20,15 @@
 #include "sdl2/sdl-internal.h"
 #include "timer.h"
 #include "canvas.h"
+#include "events.h"
 #include "entity-script.h"
 
 static int wid_t = -1;
 
 struct YEBSState {
-	YWidgetState sate;
+	YWidgetState state;
 	YTimer *timer;
+	int dir_mask;
 };
 
 void ywEBSRemoveObj(Entity *wid, int grp, Entity *obj)
@@ -94,6 +96,7 @@ static int init(YWidgetState *opac, Entity *entity, void *args)
 	struct YEBSState *state = (struct YEBSState *)opac;
 
 	state->timer = YTimerCreate();
+	state->dir_mask = 0;
 	yeTryCreateInt(0, entity, "cur_grp");
 	yeTryCreateInt(5, entity, "nb_grp");
 	yeTryCreateArray(entity, "on-down");
@@ -135,16 +138,78 @@ static int rend(YWidgetState *opac)
 	return 0;
 }
 
+
+/* see arrow as this: < ^ V >, then if you put a flag under each on, it give:
+ * < ^ V >
+ * 8,4,2,1
+ *
+ * rad circle:
+ * 2pi / 3 ; pi / 2   ; pi / 4
+ * pi;                ; 0
+ * 5pi//4;  3 pi / 2  ; 7pi / 4
+ */
+static void compute_speed_n_dir(struct YEBSState *state, int grp)
+{
+	switch (state->dir_mask) {
+	case 4:
+		ywSetGroupeDir(state->state.entity, 0, M_PI_2);
+		break;
+	case 4 | 1:
+		ywSetGroupeDir(state->state.entity, 0, M_PI_4);
+		break;
+	case 1 | 2:
+		ywSetGroupeDir(state->state.entity, 0, 7 * M_PI / 4);
+		break;
+	case 1:
+		ywSetGroupeDir(state->state.entity, 0, 0);
+		break;
+	case 2 | 8:
+		ywSetGroupeDir(state->state.entity, 0, 5 * M_PI / 4);
+		break;
+	case 2:
+		ywSetGroupeDir(state->state.entity, 0, 3 * M_PI / 2);
+		break;
+	case 8:
+		ywSetGroupeDir(state->state.entity, 0, M_PI);
+		break;
+	case 8 | 4:
+		ywSetGroupeDir(state->state.entity, 0, 3 * M_PI / 4);
+		break;
+	}
+
+	if (state->dir_mask)
+		ywSetGroupeSpeed(state->state.entity, grp, 10);
+	else
+		ywSetGroupeSpeed(state->state.entity, grp, 0);
+}
+
 static InputStatue event(YWidgetState *opac, Entity *event)
 {
 	(void)opac;
 	Entity *entity = opac->entity;
 	Entity *eve = event;
+	Entity *clasic_movement = yeGet(entity, "grp-classic-movement");
+	struct YEBSState *state = (struct YEBSState *)opac;
 
 	YEVE_FOREACH(eve, event) {
 		if (ywidEveType(eve) == YKEY_DOWN) {
 			Entity *on = yeGet(entity, "on-down");
 			Entity *any_down = yeGet(entity, "any-down");
+
+			if (clasic_movement) {
+				if (ywidEveKey(eve) == 'a') {
+					state->dir_mask |= 8;
+				}
+				if (ywidEveKey(eve) == 'd') {
+					state->dir_mask |= 1;
+				}
+				if (ywidEveKey(eve) == 'w') {
+					state->dir_mask |= 2;
+				}
+				if (ywidEveKey(eve) == 's') {
+					state->dir_mask |= 4;
+				}
+			}
 
 			YE_FOREACH(on, on_entry) {
 				if (yeGetIntAt(on_entry, 0) == ywidEveKey(eve)) {
@@ -158,6 +223,21 @@ static InputStatue event(YWidgetState *opac, Entity *event)
 			Entity *on = yeGet(entity, "on-up");
 			Entity *any_up;
 
+			if (clasic_movement) {
+				if (yevIsKeyUp(eve, 'w')) {
+					state->dir_mask ^= 2;
+				}
+				if (yevIsKeyUp(eve, 'd')) {
+					state->dir_mask ^= 1;
+				}
+				if (yevIsKeyUp(eve, 'a')) {
+					state->dir_mask ^= 8;
+				}
+				if (yevIsKeyUp(eve, 's')) {
+					state->dir_mask ^= 4;
+				}
+			}
+
 			YE_FOREACH(on, on_entry) {
 				if (yeGetIntAt(on_entry, 0) == ywidEveKey(eve)) {
 					yesCall(yeGet(on_entry, 1), entity);
@@ -166,6 +246,12 @@ static InputStatue event(YWidgetState *opac, Entity *event)
 			if ((any_up = yeGet(entity, "any-up")) != NULL)
 				yesCall(any_up, entity, eve);
 		}
+	}
+
+	if (clasic_movement) {
+		int grp = yeGetInt(clasic_movement);
+
+		compute_speed_n_dir((void *)opac, grp);
 	}
 
 	if (!event)
