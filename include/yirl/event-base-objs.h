@@ -38,7 +38,11 @@
  *	enable an object to OOB,
  *	set like this: { "grps-allow-oob": [0, 1, ...] }
  *
- * 'grp-classic-movement' is an int that can be set to handle classic movement with 'WASD'
+ * 'grp-classic-movement' is an int that can be set to assign a group to be handle
+ *	by classic movements using 'WASD'
+ *
+ * 'grps-no-cam': array of bool, set to ignore camera durring object rendering
+ *
  * each groups have a speed, and direction, that can be set, either
  * using ywSetGroupeSpeed/ywSetGroupeDir, or {"grps-dir": [1.4, 2.4], "grps-spd": [10, 5]}
  */

@@ -102,6 +102,7 @@ static int init(YWidgetState *opac, Entity *entity, void *args)
 	yeTryCreateArray(entity, "on-down");
 	yeTryCreateArray(entity, "on-up");
 	Entity *grps = yeTryCreateArray(entity, "groups");
+	yeTryCreateArray(entity, "grps-no-cam");
 	yeTryCreateArray(entity, "grps-col-callbacks");
 	yeTryCreateArray(entity, "grps-oob-callbacks");
 	yeTryCreateArray(entity, "grps-mv-callbacks");
@@ -299,6 +300,7 @@ static int sdl2Render(YWidgetState *opac, int t)
 	Entity *cam_threshold = yeGet(entity, "cam-threshold");
 	Entity *grps = yeGet(entity, "groups");
 	Entity *widPix;
+	Entity *grps_no_cam = yeGet(entity, "grps-no-cam");
 	struct YEBSState *state = (struct YEBSState *)opac;
 	YTimer *timer_s = state->timer;
 	unsigned long int timer = YTimerGet(timer_s);
@@ -413,9 +415,14 @@ static int sdl2Render(YWidgetState *opac, int t)
 	}
 
 
-	YE_FOREACH(grps, g) {
+	for (size_t i = 0, len = yeLen(grps); i < len; ++i) {
+		Entity *g = yeGet(grps, i);
+
+		if (!g)
+			continue;
+		int no_cam = yeGetIntAt(grps_no_cam, i);
 		YE_FOREACH(g, o) {
-			sdlCanvasRendObj(opac, wid, o, cam, widPix);
+			sdlCanvasRendObj(opac, wid, o, no_cam ? NULL : cam, widPix);
 		}
 	}
 
