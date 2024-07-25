@@ -22,6 +22,7 @@
 #include "canvas.h"
 #include "events.h"
 #include "entity-script.h"
+#include "event-base-objs.h"
 
 static int wid_t = -1;
 
@@ -190,7 +191,11 @@ static InputStatue event(YWidgetState *opac, Entity *event)
 	Entity *entity = opac->entity;
 	Entity *eve = event;
 	Entity *clasic_movement = yeGet(entity, "grp-classic-movement");
+	int mv_style = yeGetIntAt(entity, "classic-movement-style");
 	struct YEBSState *state = (struct YEBSState *)opac;
+
+	if (!mv_style)
+		mv_style = 1;
 
 	YEVE_FOREACH(eve, event) {
 		if (ywidEveType(eve) == YKEY_DOWN) {
@@ -198,16 +203,21 @@ static InputStatue event(YWidgetState *opac, Entity *event)
 			Entity *any_down = yeGet(entity, "any-down");
 
 			if (clasic_movement) {
-				if (ywidEveKey(eve) == 'a') {
+				int k = ywidEveKey(eve);
+				if ((k == 'a' && mv_style & EBS_WASD) ||
+				    (k == Y_LEFT_KEY && mv_style & EBS_ARROW)) {
 					state->dir_mask |= 8;
 				}
-				if (ywidEveKey(eve) == 'd') {
+				if ((k == 'd' && mv_style & EBS_WASD) ||
+				    (k == Y_RIGHT_KEY && mv_style & EBS_ARROW)) {
 					state->dir_mask |= 1;
 				}
-				if (ywidEveKey(eve) == 'w') {
+				if ((k == 'w' && mv_style & EBS_WASD) ||
+				    (k == Y_UP_KEY && mv_style & EBS_ARROW)) {
 					state->dir_mask |= 2;
 				}
-				if (ywidEveKey(eve) == 's') {
+				if ((k == 's' && mv_style & EBS_WASD) ||
+				    (k == Y_DOWN_KEY && mv_style & EBS_ARROW)) {
 					state->dir_mask |= 4;
 				}
 			}
@@ -225,16 +235,22 @@ static InputStatue event(YWidgetState *opac, Entity *event)
 			Entity *any_up;
 
 			if (clasic_movement) {
-				if (yevIsKeyUp(eve, 'w')) {
+				int k = ywidEveKey(eve);
+
+				if ((k == 'w' && mv_style & EBS_WASD) ||
+				    (k == Y_UP_KEY && mv_style & EBS_ARROW)) {
 					state->dir_mask ^= 2;
 				}
-				if (yevIsKeyUp(eve, 'd')) {
+				if ((k == 'd' && mv_style & EBS_WASD) ||
+				    (k == Y_RIGHT_KEY && mv_style & EBS_ARROW)) {
 					state->dir_mask ^= 1;
 				}
-				if (yevIsKeyUp(eve, 'a')) {
+				if ((k == 'a' && mv_style & EBS_WASD) ||
+				    (k == Y_LEFT_KEY && mv_style & EBS_ARROW)) {
 					state->dir_mask ^= 8;
 				}
-				if (yevIsKeyUp(eve, 's')) {
+				if ((k == 's' && mv_style & EBS_WASD) ||
+				    (k == Y_DOWN_KEY && mv_style & EBS_ARROW)) {
 					state->dir_mask ^= 4;
 				}
 			}

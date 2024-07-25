@@ -40,6 +40,7 @@
  *
  * 'grp-classic-movement' is an int that can be set to assign a group to be handle
  *	by classic movements using 'WASD'
+ * 'classic-movement-style' flag, 1 for wasd, 2 for arrow, can use both
  *
  * 'grps-no-cam': array of bool, set to ignore camera durring object rendering
  *
@@ -49,11 +50,16 @@
 
 #include "yirl/widget.h"
 
+enum {
+	EBS_WASD = 1 << 0,
+	EBS_ARROW = 1 << 1
+};
+
 void ywEBSRemoveObj(Entity *wid, int grp, Entity *obj);
 
-int ywSetGroupeSpeed(Entity *wid, int grp, int speed);
+int ywSetGroupeSpeed(Entity *wid, unsigned int grp, int speed);
 /* set groupe dir in degree */
-int ywSetGroupeDir(Entity *wid, int grp, double radiant);
+int ywSetGroupeDir(Entity *wid, unsigned int grp, double radiant);
 int ywEBSSwapGroup(Entity *wid, unsigned int target);
 void ywEBSWrapperPush(Entity *wid, Entity *wrapper);
 
