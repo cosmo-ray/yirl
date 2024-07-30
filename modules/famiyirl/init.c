@@ -43,7 +43,7 @@ struct cpu {
  * PPUADDR 	$2006 	aaaa aaaa 	PPU read/write address
  *					(two writes: most significant byte, least significant byte)
  * PPUDATA 	$2007 	dddd dddd 	PPU data read/write
- * OAMDMA 	$4014 	aaaa aaaa 	OAM DMA high address 
+ * OAMDMA 	$4014 	aaaa aaaa 	OAM DMA high address
  */
 struct ppu {
 	union {
@@ -117,7 +117,7 @@ void set_mem_nes(uint16_t addr, char val)
 			if (!addr_highgness & 1) {
 				ppu.high_pc = val;
 			} else {
-				ppu.low_pc = val;				
+				ppu.low_pc = val;
 			}
 			++addr_highgness;
 			printf("write ppu dest addr\n");
@@ -131,10 +131,10 @@ void set_mem_nes(uint16_t addr, char val)
 				printf("disable MMI ?\n");
 		} else if (addr == 0x2001) {
 			if (!val)
-				printf("disable rendering ?\n");			
+				printf("disable rendering ?\n");
 		} else if (addr == 0x2003) {
 			printf("set sprites locations low bytes\n");
-			ppu.sprite_loc = (ppu.sprite_loc & 0xff00) | val;			
+			ppu.sprite_loc = (ppu.sprite_loc & 0xff00) | val;
 		}
 	} else if (addr < 0x4000) {
 		if (addr == 0x4014) {
@@ -215,7 +215,6 @@ unsigned char get_mem_nes(uint16_t addr)
 			return ret;
 		} else if (addr == 0x2003) {
 			printf("get sprite location low byte ?\n");
-			
 		}
 		printf("PPU regs\n");
 		return 0xff;
@@ -516,12 +515,11 @@ static int process_inst(void)
 			cpu.cycle_cnt += 1;
 		} else {
 			res = get_mem(++cpu.pc);
-	    
 		}
 		char old_sign = cpu.a | 0x80;
 		SET_ZERO(!cpu.a);
 		SET_NEGATIVE(!!(0x80 & cpu.a));
-		cpu.cycle_cnt += 2;		
+		cpu.cycle_cnt += 2;
 	}
 	break;
 	case SBC_ab:
@@ -536,7 +534,6 @@ static int process_inst(void)
 			cpu.cycle_cnt += 2;
 		} else {
 			res = get_mem(++cpu.pc);
-	    
 		}
 		char old_sign = cpu.a & 0x80;
 		int check_carry = cpu.a - res - 1 + (cpu.flag & CARY_FLAG);
@@ -586,7 +583,7 @@ static int process_inst(void)
 
 			addr |= get_mem(++cpu.pc) << 8;
 			res = get_mem(addr);
-			cpu.cycle_cnt += 2;	
+			cpu.cycle_cnt += 2;
 		} else {
 			res = get_mem(++cpu.pc);
 		}
@@ -713,7 +710,7 @@ void *fy_init(int nbArgs, void **args)
 	if (ygGetProgramArg()) {
 		rom = ygFileToEnt(YRAW_FILE_DATA, ygGetProgramArg(), NULL);
 	} else {
-		rom = ygFileToEnt(YRAW_FILE_DATA, "cq.nes", NULL);
+		rom = ygFileToEnt(YRAW_FILE_DATA, "background.nes", NULL);
 	}
 	printf("len r: %x - %x\n", yeLen(rom), yeLen(rom) + 0x4020);
 	yePushBack(wid, rom, "rom");

@@ -3,7 +3,7 @@
     "init-scripts" : [
 	    "mod_init"
     ],
-    
+
     "pre-load" : [
 	{ "path" : "YIRL_MODULES_PATH/load-chr/", "type": "module"},
 	{
