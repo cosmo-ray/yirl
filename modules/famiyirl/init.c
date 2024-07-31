@@ -26,6 +26,9 @@ struct cpu {
 } cpu = {.a = 0, .x = 0, .y = 0, .s = 0xff,
 	.flag = 0, .pc = 0xC000, .cycle_cnt = 0};
 
+int breakpoints[64];
+int breakpoints_cnt;
+
 
 /**
  * PPU:
@@ -671,6 +674,11 @@ out:
 	return ret;
 }
 
+enum  {
+	RUN_MODE = -1,
+	DEBUG_MODE = 0
+};
+
 void *fy_action(int nbArgs, void **args)
 {
 	Entity *events = args[1];
@@ -681,20 +689,48 @@ void *fy_action(int nbArgs, void **args)
 
 	if (yevIsKeyDown(events, 'i')) {
 		printf("fast mode activate\n");
-		turn_mode = -1;
+		turn_mode = RUN_MODE;
 		ywSetTurnLengthOverwrite(-1);
 	} else if (yevIsKeyDown(events, 'o')) {
 		printf("await mode activate\n");
-		turn_mode = 0;
+		turn_mode = DEBUG_MODE;
 		ywSetTurnLengthOverwrite(0);
 	}
 
-	if (!turn_mode)
+	if (turn_mode == DEBUG_MODE && !yevIsKeyDown(events, 's')) {
+		Entity *eve;
+
+		YEVE_FOREACH(eve, events) {
+			if (ywidEveType(eve) == YKEY_DOWN) {
+				int action = ywidEveKey(eve);
+				if (action == 'r') {
+					printf("breakpoint reset\n");
+					breakpoints[breakpoints_cnt] = 0;
+				} else if (action >= '0' && action <= '9') {
+					breakpoints[breakpoints_cnt] = breakpoints[breakpoints_cnt] << 4;
+					breakpoints[breakpoints_cnt] += action - '0';
+					printf("breakpoint value %x\n", breakpoints[breakpoints_cnt]);
+				} else if (action >= 'a' && action <= 'f') {
+					breakpoints[breakpoints_cnt] = breakpoints[breakpoints_cnt] << 4;
+					breakpoints[breakpoints_cnt] += (action - 'a' + 10);
+					printf("breakpoint value %x\n", breakpoints[breakpoints_cnt]);
+				}
+			}
+		}
+		return NULL;
+	}
+
+	if (turn_mode == DEBUG_MODE) {
 		process_inst();
-	else
+	} else {
 		for (int i = 0; i < 35; ++i) {
 			process_inst();
+			if ((cpu.pc & 0x0000ffff) == breakpoints[breakpoints_cnt]) {
+				turn_mode = DEBUG_MODE;
+				break;
+			}
 		}
+	}
 
 	return NULL;
 }
