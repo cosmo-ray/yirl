@@ -334,6 +334,9 @@ NO_SIDE_EFFECT static inline const char *yeTypeAsString(Entity *e)
 	return yeTypeToString(yeType(e));
 }
 
+#define yeLeni(entity)				\
+	((int)yeLen(entity))
+
 /**
  * Get the len attribute of an Entity
  * @param entity  The Entity we want to get the len

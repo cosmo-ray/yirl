@@ -414,17 +414,37 @@ static int sdl2Render(YWidgetState *opac, int t)
 			if (have_oob && oob_callback) {
 				yesCall(oob_callback, entity, o);
 			}
-			if (col_callback) {
-				int target_gpr = yeGetIntAt(col_callback, 0);
-				Entity *calbback = yeGet(col_callback, 1);
-				Entity *o_grp = yeGet(grps, target_gpr);
+#define CHECK_COL(target_gpr, call)					\
+			do {						\
+				Entity *o_grp = yeGet(grps, target_gpr); \
+				YE_FOREACH(o_grp, other_obj) {		\
+					if (ywCanvasObjectsCheckColisions(o, other_obj)) { \
+						yesCall(call, entity, o, other_obj); \
+					}				\
+				}					\
+			} while (0)
 
-				YE_FOREACH(o_grp, other_obj) {
-					if (ywCanvasObjectsCheckColisions(o, other_obj)) {
-						yesCall(calbback, entity, o, other_obj);
+			if (col_callback) {
+				Entity *target_grps = yeGet(col_callback, 0);
+				Entity *callback = yeGet(col_callback, 1);
+
+				if (yeType(target_grps) == YINT) {
+					int target_gpr = yeGetInt(target_grps);
+					CHECK_COL(target_gpr, callback);
+				} else {
+					for (int i = 0, target_gpr_l = yeLeni(target_grps);
+					     i < target_gpr_l; ++i) {
+						Entity *t_gpr = yeGet(target_grps, i);
+						int target_gpr = yeGetInt(t_gpr);
+						Entity *call = callback;
+						if (yeType(call) == YARRAY)
+							call = yeGet(callback, i);
+
+						CHECK_COL(target_gpr, call);
 					}
 				}
 			}
+#undef CHECK_COL
 
 		}
 
