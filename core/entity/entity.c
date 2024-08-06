@@ -1741,6 +1741,12 @@ static Entity *yeCopyInternal(Entity* src, Entity* dest,
 			strVal = yeGetString(src);
 			yeSetString(dest, strVal);
 			break;
+		case YQUADINT:
+			yeSetAt(dest, 0, yeGetQuadInt0(src));
+			yeSetAt(dest, 1, yeGetQuadInt1(src));
+			yeSetAt(dest, 2, yeGetQuadInt2(src));
+			yeSetAt(dest, 3, yeGetQuadInt3(src));
+			break;
 		case YARRAY:
 			yeCopyContainer((ArrayEntity*)src,
 					(ArrayEntity*)dest, used, refs);
