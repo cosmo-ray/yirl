@@ -1338,6 +1338,22 @@ Entity *yeCreateCopy2(Entity *src, Entity *father, const char *name, _Bool just_
 			}
 		}
 		break;
+	case YHASH:
+		ret = yeCreateHash(father, name);
+		{
+			Entity *vvar;
+			const char *kkey;
+
+			kh_foreach(((HashEntity *)src)->values,
+				   kkey, vvar, {
+					   if (just_ref) {
+						   yePushBack(ret, vvar, kkey);
+					   } else {
+						   yeCreateCopy2(vvar, ret, kkey, 0);
+					   }
+				   });
+		}
+		break;
 	default:
 		return NULL;
 	}
