@@ -1539,6 +1539,24 @@ static int sdlCanvasRendImg(YWidgetState *state, SDLWid *wid, Entity *img,
 	return 0;
 }
 
+static int point_in_poly(Entity *poly, int x, int y)
+{
+	Entity *vertices = yeGet(poly, YCANVAS_VERTICES_IDX);
+	int nvert = yeLen(vertices);
+	int i, j, c = 0;
+	for (i = 0, j = nvert-1; i < nvert; j = i++) {
+		Entity *vi = yeGet(vertices, i);
+		Entity *vj = yeGet(vertices, j);
+		int vy_i = ywPosY(vi), vx_i = ywPosX(vi);
+		int vx_j = ywPosX(vj), vy_j = ywPosY(vj);
+
+		if (((vy_i > y) != (vy_j > y)) &&
+		     (x < (vx_j - vx_i) * (y - vy_i) / (vy_j - vy_i) + vx_i))
+			c = !c;
+	}
+	return c;
+}
+
 uint32_t sdlCanvasPixInfo(Entity *obj, int x, int y)
 {
   if (!obj)
@@ -1546,10 +1564,12 @@ uint32_t sdlCanvasPixInfo(Entity *obj, int x, int y)
   SDL_Surface *surface = yeGetDataAt(obj, YCANVAS_SURFACE_IDX);
   int type = yeGetIntAt(obj, 0);
 
-  if (type == YCanvasCircle || type == YCanvasTriangle || type == YCanvasPolygone
-	  || type == YCanvasLine) {
+  if (type == YCanvasCircle || type == YCanvasTriangle || type == YCanvasLine) {
 	  DPRINT_ERR("pixel info not net implemented for most shapes\n");
 	  ygDgbAbort();
+  } else if (type == YCanvasPolygone) {
+	  // I cheat here because I need this only for colision detection
+	  return point_in_poly(obj, x, y) * 0xffffffff;
   } else if (type == YCanvasRect) {
     YBgConf cfg;
     Entity *s = ywCanvasObjSize(NULL, obj);
@@ -1699,14 +1719,15 @@ int sdlCanvasRendObj(YWidgetState *state, SDLWid *wid, Entity *obj,
 	} else if (type == YCanvasPolygone) {
 		YBgConf cfg;
 		static float vertices[512]; /*assuming smaller*/
+		Entity *pos0 = ywCanvasObjPos(obj);
 		Entity *vertices_ent = yeGet(obj, YCANVAS_VERTICES_IDX);
 		int nb_vertices = yeLen(vertices_ent);
 		int i = 0;
 
 		for (; i < nb_vertices * 2; i += 2) {
 			/* if I want a semblace of size, I should compute it here */
-			vertices[i] = yeGetIntAt(yeGet(vertices_ent, i / 2), 0);
-			vertices[i + 1] = yeGetIntAt(yeGet(vertices_ent, i / 2), 1);
+			vertices[i] = yeGetIntAt(yeGet(vertices_ent, i / 2), 0) + ywPosX(pos0);
+			vertices[i + 1] = yeGetIntAt(yeGet(vertices_ent, i / 2), 1) + ywPosY(pos0);
 		}
 
 		/* close loop by default ? */

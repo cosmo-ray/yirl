@@ -717,7 +717,10 @@ Entity *ywCanvasNewPolygonExt(Entity *wid, Entity *vertices, const char *color, 
   Entity *obj = yeCreateArray(NULL, NULL);
 
   yeCreateInt(YCanvasPolygone, obj, "canvas-type");
-  yePushBack(obj, yeGet(vertices, 0), "pos");
+  Entity *pos0 = yeCreateCopy(yeGet(vertices, 0), obj, "pos");
+  YE_FOREACH(vertices, v) {
+	  ywPosSub(v, pos0);
+  }
   yeCreateString(color, obj, "color");
   /* Kind of random so it doesn't crash */
   yeCreateQuadIntAt(100, 100, filled, 0, obj, "size", YCANVAS_SIZE_IDX);
