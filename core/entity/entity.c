@@ -1310,6 +1310,12 @@ Entity *yeCreateCopy2(Entity *src, Entity *father, const char *name, _Bool just_
 		return yeCreateString(yeGetString(src), father, name);
 	case YFLOAT:
 		return yeCreateFloat(yeGetFloatDirect(src), father, name);
+	case YQUADINT:
+		return yeCreateQuadInt(yeGetQuadInt0(src),
+				       yeGetQuadInt1(src),
+				       yeGetQuadInt2(src),
+				       yeGetQuadInt3(src),
+				       father, name);
 	case YARRAY:
 	case YFUNCTION:
 		ret = src->type == YARRAY ?
