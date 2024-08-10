@@ -24,7 +24,7 @@ const PC_POS_IDX = 0;
 const PC_MOVER_IDX = 1
 const PC_DROPSPEED_IDX = 2
 const PC_TURN_CNT_IDX = 3
-const PC_CANVAS_OBJ = 4
+const PC_HANDLER_OBJ = 4
 const PC_JMP_NUMBER = 5
 const PC_HURT = 6
 const PC_LIFE_ARRAY = 7
@@ -173,11 +173,12 @@ function print_all(wid)
     let pc_handler = yeGet(wid, "pc_handler")
     yGenericHandlerRefresh(pc_handler)
     let pc_canvasobj = yGenericCurCanvas(pc_handler)
+    yeCreateIntAt(TYPE_PC, pc_canvasobj, "amap-t", YCANVAS_UDATA_IDX)
+
     // ywCanvasNewImgFromTexture(wid, ywPosX(pc_pos), ywPosY(pc_pos), yeGet(textures, "guy-0"))
     // ywCanvasNewTextByStr(wid, ywPosX(pc_pos), ywPosY(pc_pos), " @ \n---")
-    yeCreateIntAt(TYPE_PC, pc_canvasobj, "amap-t", YCANVAS_UDATA_IDX)
     yGenericUsePos(pc_handler, pc_pos)
-    yePushAt2(pc_canel, pc_canvasobj, PC_CANVAS_OBJ)
+    yePushAt2(pc_canel, pc_handler, PC_HANDLER_OBJ)
 
     monsters.forEach(function(mon, idx) {
 	yamap_generate_monster_canvasobj(wid, textures, mon, monsters_info, idx)
@@ -219,7 +220,7 @@ function amap_action(wid, events)
     let monsters = yeGet(wid, "_monsters")
     let monsters_info = yeGet(mi, "monsters")
     let have_upkey = -1
-    let ps_canvas_obj = yeGet(pc_canel, PC_CANVAS_OBJ)
+    let pc_handler = yeGet(pc_canel, PC_HANDLER_OBJ)
 
     if (yevIsKeyUp(events, Y_LEFT_KEY)) {
 	y_move_set_xspeed(pc_minfo, 0)
@@ -232,11 +233,11 @@ function amap_action(wid, events)
     if (yevIsKeyDown(events, Y_LEFT_KEY) && have_upkey != DIR_LEFT) {
 	yeSetIntAt(pc_canel, PC_DIR, DIR_LEFT)
 	y_move_set_xspeed(pc_minfo, -BASE_SPEED)
-	ywCanvasHFlip(ps_canvas_obj);
+	pc_handler.setAt("flip", 1)
     } else if (yevIsKeyDown(events, Y_RIGHT_KEY) && have_upkey != DIR_RIGHT) {
 	yeSetIntAt(pc_canel, PC_DIR, DIR_RIGHT)
 	y_move_set_xspeed(pc_minfo, BASE_SPEED)
-	ywCanvasObjUnsetHFlip(ps_canvas_obj);
+	pc_handler.setAt("flip", 0)
     } else if (yevIsKeyDown(events, Y_C_KEY) && yeGetIntAt(pc_canel, PC_DASH) == 0) {
 	yeCreateFloatAt(2.5, pc_minfo, null, Y_MVER_SPEEDUP)
 	yeSetIntAt(pc_canel, PC_DASH, 10)
@@ -263,6 +264,12 @@ function amap_action(wid, events)
     }
 
     if (yeGetIntAt(pc_canel, PC_TURN_CNT_IDX) > 20000) {
+	if ((pc_canel.geti(PC_NB_TURN_IDX) % 3) == 0 && y_move_x_speed(pc_minfo) != 0)
+	    yGenericNext(pc_handler)
+	yGenericHandlerRefresh(pc_handler)
+	let pc_canvasobj = yGenericCurCanvas(pc_handler)
+	yeCreateIntAt(TYPE_PC, pc_canvasobj, "amap-t", YCANVAS_UDATA_IDX)
+
 	let mult = yeGetIntAt(pc_canel, PC_TURN_CNT_IDX) / 20000
 
 	yeAddAt(pc_canel, PC_NB_TURN_IDX, 1)
@@ -375,7 +382,8 @@ function amap_action(wid, events)
 	}
     }
 
-    let cols = ywCanvasNewCollisionsArray(wid, ps_canvas_obj)
+    let pc_canvas_obj = yGenericCurCanvas(pc_handler)
+    let cols = ywCanvasNewCollisionsArray(wid, pc_canvas_obj)
     let direct_ret = false
     //yePrint(cols)
     if (cols) {
@@ -390,7 +398,7 @@ function amap_action(wid, events)
 		direct_ret = true
 		return true
 	    } else if (ctype != TYPE_ANIMATION && ctype != TYPE_PUNCH) {
-		if (ywCanvasObjectsCheckColisions(c, ps_canvas_obj)) {
+		if (ywCanvasObjectsCheckColisions(c, pc_canvas_obj)) {
 		    if (ctype == TYPE_PIKE || ctype == TYPE_MONSTER || ctype == TYPE_BOSS) {
 			if (yeGetIntAt(pc_canel, PC_HURT) == 0)
 			    yeAddAt(pc, "life", -5)

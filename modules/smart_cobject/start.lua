@@ -27,9 +27,18 @@ end
 
 local function refresh_txt_array(handler)
    local pos = handler.pos
-   handler.canvas = ywCanvasNewImgFromTexture(handler.wid, ywPosX(pos), ywPosY(pos),
-					      yeGet(handler.txts, yeGetIntAt(handler, "cur_txt")))
+   local canvas = ywCanvasNewImgFromTexture(handler.wid, ywPosX(pos), ywPosY(pos),
+					    yeGet(handler.txts, yeGetIntAt(handler, "cur_txt")))
+   handler.canvas = canvas
+   if handler.flip > 0 then
+      ywCanvasHFlip(canvas);
+   end
+   if yIsNNil(handler[POS_I]) then
+      ywCanvasObjReplacePos(handler.canvas, handler[POS_I]);
+   end
 end
+
+
 
 function yGenericNewTexturesArray(wid, array, char, pos, parent, name)
    if yIsNil(array) then
@@ -42,6 +51,11 @@ function yGenericNewTexturesArray(wid, array, char, pos, parent, name)
    ret.txts = array
    yePushBack(ret, pos, "pos")
    ret.cur_txt = 0
+   -- horizontal flip = 1
+   -- ywCanvasObjUnsetHFlip(ps_canvas_obj);
+   -- ywCanvasHFlip(ps_canvas_obj);
+
+   ret.flip = 0
    refresh_txt_array(ret)
    return ret
 end
@@ -272,9 +286,16 @@ function yGenericHandlerSize(npc)
 end
 
 function yGenericNext(npc)
+   npc = Entity.wrapp(npc)
    local type = yeGetString(npc.char.type)
-   if type == "layer-canvas" or
-      type == "textures-array" or
+   if type == "textures-array" then
+      local txts = npc.txts
+      yeAddInt(npc.cur_txt, 1)
+      if npc.cur_txt > yeLen(txts) - 1 then
+	 yeSetInt(npc.cur_txt, 0)
+      end
+      return
+   elseif type == "layer-canvas" or
       type == "sprite" then
       return
    end
@@ -365,7 +386,7 @@ function yGenericSetPos(npc, pos)
       sprite_man.handlerSetPos(npc, pos)
    elseif type == "layer-canvas" or
       type == "textures-array" then
-      -- the post of each canvas need tp be a ref to a pos in the layer-canvas
+      -- the pos of each canvas need to be a ref to a pos in the layer-canvas
       ywPosSet(npc[POS_I], pos)
    else
       ylpcsHandlerSetPos(npc, pos)
