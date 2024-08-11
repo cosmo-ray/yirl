@@ -27,8 +27,9 @@ end
 
 local function refresh_txt_array(handler)
    local pos = handler.pos
+   local txts = handler.txts[handler.cur_array:to_string()]
    local canvas = ywCanvasNewImgFromTexture(handler.wid, ywPosX(pos), ywPosY(pos),
-					    yeGet(handler.txts, yeGetIntAt(handler, "cur_txt")))
+					    yeGet(txts, yeGetIntAt(handler, "cur_txt")))
    handler.canvas = canvas
    if handler.flip > 0 then
       ywCanvasHFlip(canvas);
@@ -40,6 +41,12 @@ end
 
 
 
+function yGenericTextureArraySet(handler, what)
+   handler = Entity.wrapp(handler)
+   handler.cur_array = what
+   handler.cur_txt = 0
+end
+
 function yGenericNewTexturesArray(wid, array, char, pos, parent, name)
    if yIsNil(array) then
       return nil
@@ -48,13 +55,11 @@ function yGenericNewTexturesArray(wid, array, char, pos, parent, name)
    ret.char = char
    ret.char.type = "textures-array"
    ret.wid = wid
-   ret.txts = array
+   yeCreateHash(ret, "txts")
+   ret.txts.base = array
    yePushBack(ret, pos, "pos")
+   ret.cur_array = "base"
    ret.cur_txt = 0
-   -- horizontal flip = 1
-   -- ywCanvasObjUnsetHFlip(ps_canvas_obj);
-   -- ywCanvasHFlip(ps_canvas_obj);
-
    ret.flip = 0
    refresh_txt_array(ret)
    return ret
@@ -289,7 +294,7 @@ function yGenericNext(npc)
    npc = Entity.wrapp(npc)
    local type = yeGetString(npc.char.type)
    if type == "textures-array" then
-      local txts = npc.txts
+      local txts = npc.txts[npc.cur_array:to_string()]
       yeAddInt(npc.cur_txt, 1)
       if npc.cur_txt > yeLen(txts) - 1 then
 	 yeSetInt(npc.cur_txt, 0)
@@ -428,6 +433,7 @@ function mod_init(mod)
       ygAddModule(Y_MOD_YIRL, mod, "sprite-manager")
       ygAddModule(Y_MOD_YIRL, mod, "Universal-LPC-spritesheet")
    end
+   ygRegistreFunc(2, "yGenericTextureArraySet", "yGenericTextureArraySet")
    ygRegistreFunc(6, "yGenericNewTexturesArray", "yGenericNewTexturesArray");
    ygRegistreFunc(1, "yGenericHandlerRmCanva", "yGenericHandlerRmCanva");
    ygRegistreFunc(1, "yGenericHandlerShowDead", "yGenericHandlerShowDead");

@@ -264,6 +264,11 @@ function amap_action(wid, events)
     }
 
     if (yeGetIntAt(pc_canel, PC_TURN_CNT_IDX) > 20000) {
+	if (yeGetIntAt(pc_canel, PC_DROPSPEED_IDX) < 0) {
+	    yGenericTextureArraySet(pc_handler, "jmp")
+	} else {
+	    yGenericTextureArraySet(pc_handler, "base")
+	}
 	if ((pc_canel.geti(PC_NB_TURN_IDX) % 3) == 0 && y_move_x_speed(pc_minfo) != 0)
 	    yGenericNext(pc_handler)
 	yGenericHandlerRefresh(pc_handler)
@@ -587,11 +592,31 @@ function amap_init(wid)
     ywTextureNewImg("./pike.png", null, textures, "pike");
 
     let txts_arrays = yeCreateArray()
-    yePushBack(txts_arrays, ywTextureNewImg("./gut-0.png", null, textures, "guy-0"));
-    yePushBack(txts_arrays, ywTextureNewImg("./gut-1.png", null, textures, "guy-1"));
+    yePrint(wid.get("pc-sprites"))
+    if (wid.get("pc-sprites") != null) {
+	ygModDirOut()
+	for (s of wid.get("pc-sprites")) {
+	    ywTextureNewImg(yeGetString(s), null, txts_arrays, null)
+	}
+	ygModDir("amap")
+    } else {
+	yePushBack(txts_arrays, ywTextureNewImg("./gut-0.png", null, textures, "guy-0"));
+	yePushBack(txts_arrays, ywTextureNewImg("./gut-1.png", null, textures, "guy-1"));
+    }
 
-    yGenericNewTexturesArray(wid, txts_arrays, yeCreateArray(), ywPosCreate(0, 0),
-			     wid, "pc_handler");
+    let pc_handler = yGenericNewTexturesArray(wid, txts_arrays,
+					      yeCreateArray(), ywPosCreate(0, 0),
+					      wid, "pc_handler");
+
+    if (wid.get("pc-jmp-sprites")) {
+	ygModDirOut()
+	let jmp_array = yeCreateArray()
+	for (s of wid.get("pc-jmp-sprites")) {
+	    ywTextureNewImg(yeGetString(s), null, jmp_array, null);
+	}
+	pc_handler.get("txts").push(jmp_array, "jmp")
+	ygModDir("amap")
+    }
 
     ywTextureNewImg("./punch.png", null, textures, "punch");
     ywTextureNewImg("./motivation.png", null, textures, "motivation");
