@@ -34,6 +34,7 @@ const PC_PUNCH_OBJ = 10
 const PC_PUNCH_MINFO = 11
 const PC_DASH = 12
 const PC_NB_TURN_IDX = 13
+const PC_PUNCH_COUNT_IDX = 14
 
 const MONSTER_STR_KEY = 0
 const MONSTER_POS = 1
@@ -253,6 +254,7 @@ function amap_action(wid, events)
 	    ywCanvasHFlip(canvasobj);
 	    y_move_set_xspeed(yeGet(pc_canel, PC_PUNCH_MINFO), -30)
 	}
+	pc_canel.setAt(PC_PUNCH_COUNT_IDX, 5)
 
 	// ywCanvasNewTextByStr(wid, ywPosX(pc_pos), ywPosY(pc_pos), " @ \n---")
 	yePushAt2(pc_canel, canvasobj, PC_PUNCH_OBJ)
@@ -264,7 +266,10 @@ function amap_action(wid, events)
     }
 
     if (yeGetIntAt(pc_canel, PC_TURN_CNT_IDX) > 20000) {
-	if (yeGetIntAt(pc_canel, PC_DROPSPEED_IDX) < 0) {
+	if (yeGetIntAt(pc_canel, PC_PUNCH_COUNT_IDX) > 0) {
+	    yGenericTextureArraySet(pc_handler, "punch")
+	    yeAddAt(pc_canel, PC_PUNCH_COUNT_IDX, -1);
+	} else if (yeGetIntAt(pc_canel, PC_DROPSPEED_IDX) < 0) {
 	    yGenericTextureArraySet(pc_handler, "jmp")
 	} else {
 	    yGenericTextureArraySet(pc_handler, "base")
@@ -615,6 +620,16 @@ function amap_init(wid)
 	    ywTextureNewImg(yeGetString(s), null, jmp_array, null);
 	}
 	pc_handler.get("txts").push(jmp_array, "jmp")
+	ygModDir("amap")
+    }
+
+    if (wid.get("pc-punch-sprites")) {
+	ygModDirOut()
+	let punch_array = yeCreateArray()
+	for (s of wid.get("pc-punch-sprites")) {
+	    ywTextureNewImg(yeGetString(s), null, punch_array, null);
+	}
+	pc_handler.get("txts").push(punch_array, "punch")
 	ygModDir("amap")
     }
 
