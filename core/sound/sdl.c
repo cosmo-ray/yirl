@@ -148,18 +148,14 @@ error:
 
 static int libsdl_play(int nameId)
 {
+	int ret;
 	CHECK_NAMEID(nameId);
 	if (types[nameId] == SOUND_MIX_) {
-		int ret = Mix_PlayMusic(musiques[nameId].m, 0);
+		ret = Mix_PlayMusic(musiques[nameId].m, 0);
 		return ret;
 	}
-	int c = find_chan(musiques[nameId].c);
-
-	if (c >= 0) {
-		Mix_Resume(c);
-		return 0;
-	}
-	return Mix_PlayChannel(-1, musiques[nameId].c, 0);
+	ret = Mix_PlayChannel(-1, musiques[nameId].c, 0);
+	return ret;
 }
 
 static int libsdl_play_loop(int nameId)
@@ -167,13 +163,22 @@ static int libsdl_play_loop(int nameId)
   CHECK_NAMEID(nameId);
   if (types[nameId] == SOUND_MIX_)
 	  return Mix_PlayMusic(musiques[nameId].m, 1);
-  return Mix_PlayChannel(-1, musiques[nameId].c, 1);
+  return Mix_PlayChannel(-1, musiques[nameId].c, -1);
 }
 
-/* int libsdl_soundLvl(int nameId, int soundLvl) */
-/* { */
-/*   CHECK_NAMEID(nameId); */
-/* } */
+int  libsdl_soundLvl(int nameId, int soundLvl)
+{
+  CHECK_NAMEID(nameId);
+  int ret;
+  int volume = soundLvl * MIX_MAX_VOLUME / 100;
+
+  if (types[nameId] == SOUND_MIX_) {
+	  ret = Mix_VolumeMusic(volume);
+	  return ret;
+  }
+  ret = Mix_VolumeChunk(musiques[nameId].c, volume);
+  return ret;
+}
 
 /* int libsdl_status(int nameId) */
 /* { */
@@ -232,6 +237,7 @@ SoundState sdlDriver = {
   .pause = libsdl_pause,
   .load = libsdl_chunk_load,
   .play = libsdl_play,
+  .ySoundLevel = libsdl_soundLvl,
   .load_music = libsdl_music_load,
   .play_loop = libsdl_play_loop,
   .stop = libsdl_stop,
