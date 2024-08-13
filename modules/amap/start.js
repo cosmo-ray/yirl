@@ -266,6 +266,7 @@ function amap_action(wid, events)
     }
 
     if (yeGetIntAt(pc_canel, PC_TURN_CNT_IDX) > 20000) {
+	let walk = false
 	if (yeGetIntAt(pc_canel, PC_PUNCH_COUNT_IDX) > 0) {
 	    yGenericTextureArraySet(pc_handler, "punch")
 	    yeAddAt(pc_canel, PC_PUNCH_COUNT_IDX, -1);
@@ -273,9 +274,16 @@ function amap_action(wid, events)
 	    yGenericTextureArraySet(pc_handler, "jmp")
 	} else {
 	    yGenericTextureArraySet(pc_handler, "base")
+	    walk = true
 	}
-	if ((pc_canel.geti(PC_NB_TURN_IDX) % 3) == 0 && y_move_x_speed(pc_minfo) != 0)
+	if ((pc_canel.geti(PC_NB_TURN_IDX) % 3) == 0 && y_move_x_speed(pc_minfo) != 0) {
 	    yGenericNext(pc_handler)
+	    if (walk && (pc_canel.geti(PC_NB_TURN_IDX) % 6) == 0) {
+		if (wid.get("_walk_sound")) {
+		    ySoundPlay(wid.geti("_walk_sound"))
+		}
+	    }
+	}
 	yGenericHandlerRefresh(pc_handler)
 	let pc_canvasobj = yGenericCurCanvas(pc_handler)
 	yeCreateIntAt(TYPE_PC, pc_canvasobj, "amap-t", YCANVAS_UDATA_IDX)
@@ -613,25 +621,41 @@ function amap_init(wid)
 					      yeCreateArray(), ywPosCreate(0, 0),
 					      wid, "pc_handler");
 
+    ygModDirOut()
     if (wid.get("pc-jmp-sprites")) {
-	ygModDirOut()
 	let jmp_array = yeCreateArray()
 	for (s of wid.get("pc-jmp-sprites")) {
 	    ywTextureNewImg(yeGetString(s), null, jmp_array, null);
 	}
 	pc_handler.get("txts").push(jmp_array, "jmp")
-	ygModDir("amap")
     }
 
     if (wid.get("pc-punch-sprites")) {
-	ygModDirOut()
 	let punch_array = yeCreateArray()
 	for (s of wid.get("pc-punch-sprites")) {
 	    ywTextureNewImg(yeGetString(s), null, punch_array, null);
 	}
 	pc_handler.get("txts").push(punch_array, "punch")
-	ygModDir("amap")
     }
+    if (wid.get("walk-sound")) {
+	let sound_path = wid.get("walk-sound").s()
+
+	let sound = ySoundLoad(sound_path)
+	print("sound: ", sound)
+	wid.setAt("_walk_sound", sound)
+	ySoundLevel(sound, 40)
+    }
+
+    if (wid.get("atk-sound")) {
+	let sound_path = wid.get("atk-sound").s()
+
+	let sound = ySoundLoad(sound_path)
+	print("sound: ", sound)
+	wid.setAt("_atk_sound", sound)
+	ySoundLevel(sound, 50)
+    }
+
+    ygModDir("amap")
 
     ywTextureNewImg("./punch.png", null, textures, "punch");
     ywTextureNewImg("./motivation.png", null, textures, "motivation");
