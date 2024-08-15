@@ -205,7 +205,7 @@ function amap_action(wid, events)
 		return false
 	    let at = yeGet(h, "at")
 	    if (yeGetInt(at) == yeGetIntAt(pc_canel, PC_NB_TURN_IDX)) {
-		if (h.geti("stop movement") == 1) {
+		if (h.getb("stop movement")) {
 		    y_move_set_xspeed(pc_minfo, 0)
 		}
 		ywidActions(wid, h)
