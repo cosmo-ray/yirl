@@ -196,6 +196,7 @@ function amap_action(wid, events)
     let pc_canel = yeGet(wid, "_pc")
     let boss = yeGet(wid, "_boss")
     let hooks = yeGet(mi, "hooks")
+    let pc_minfo = yeGet(pc_canel, PC_MOVER_IDX)
     if (hooks) {
 	let hooks_ret = false;
 
@@ -204,6 +205,9 @@ function amap_action(wid, events)
 		return false
 	    let at = yeGet(h, "at")
 	    if (yeGetInt(at) == yeGetIntAt(pc_canel, PC_NB_TURN_IDX)) {
+		if (h.geti("stop movement") == 1) {
+		    y_move_set_xspeed(pc_minfo, 0)
+		}
 		ywidActions(wid, h)
 		hooks_ret = true;
 		yeRemoveChildByIdx(hooks, idx)
@@ -216,7 +220,6 @@ function amap_action(wid, events)
 
     let pc_pos = yeGet(pc_canel, PC_POS_IDX)
     let old_pos = yeCreateCopy(pc_pos)
-    let pc_minfo = yeGet(pc_canel, PC_MOVER_IDX)
     let turn_timer = ywidGetTurnTimer()
     let monsters = yeGet(wid, "_monsters")
     let monsters_info = yeGet(mi, "monsters")
