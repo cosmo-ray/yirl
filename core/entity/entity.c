@@ -1751,6 +1751,24 @@ static Entity *yeCopyInternal(Entity* src, Entity* dest,
 			yeCopyContainer((ArrayEntity*)src,
 					(ArrayEntity*)dest, used, refs);
 			break;
+		case YHASH:
+			yeClearArray(dest);
+			{
+				Entity *vvar;
+				const char *kkey;
+
+				kh_foreach(((HashEntity *)src)->values,
+					   kkey, vvar, {
+						   if (yeDoesInclude(used, vvar)) {
+							   DPRINT_ERR("inifnit loop referance, at elem %s", kkey);
+							   return NULL;
+						   }
+
+						   yeCreateCopy2(vvar, dest, kkey, 0);
+					   });
+			}
+
+			break;
 		case YFUNCTION:
 			strVal = yeGetFunction(src);
 			yeSetFunction(dest, strVal);
