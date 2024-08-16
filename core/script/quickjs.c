@@ -1224,6 +1224,21 @@ static JSValue entity_len(JSContext *ctx, JSValueConst this_val,
 	return JS_NewInt64(ctx, yeLen(e));
 }
 
+static JSValue entity_call(JSContext *ctx, JSValueConst this_val,
+			   int argc, JSValueConst *argv)
+{
+	int nb = argc;
+	Entity *f = GET_E_(this_val);
+	union ycall_arg yargs[nb];
+	int types[nb];
+
+	for (int i = 0; i < nb; ++i) {
+		call_set_arg(ctx, i, yargs, types, i, argv, argc);
+	}
+	return new_ent(ctx, yesCallInt(f, nb, yargs, types));
+
+}
+
 static JSValue array_forEach_(JSContext *ctx, JSValueConst this_val,
 			      int argc, JSValueConst *argv, int skipp_null)
 {
@@ -1361,6 +1376,7 @@ static const JSCFunctionListEntry js_ent_proto_funcs[] = {
     JS_CFUNC_DEF("forEachNonNull", 0, array_forEachNN),
     JS_CFUNC_DEF("forEach", 0, array_forEach),
     JS_CFUNC_DEF("clear", 0, array_clear),
+    JS_CFUNC_DEF("call", 0, entity_call),
     JS_CFUNC_DEF("rm", 0, array_remove),
     JS_CFUNC_DEF("get", 1, array_get),
     JS_CFUNC_DEF("push", 1, array_push),
