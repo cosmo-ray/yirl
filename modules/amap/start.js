@@ -58,6 +58,8 @@ const BOSS_OBJ = 0
 const BOSS_MOVER = 1
 const BOSS_TXT_LIVE = 2
 
+const KEYDOWN_LEFT = 1
+const KEYDOWN_RIGHT = 1 << 1
 
 const CANVAS_OBJ_IDX = YCANVAS_UDATA_IDX + 1
 
@@ -196,6 +198,7 @@ function amap_action(wid, events)
     let pc_canel = yeGet(wid, "_pc")
     let boss = yeGet(wid, "_boss")
     let hooks = yeGet(mi, "hooks")
+
     let pc_minfo = yeGet(pc_canel, PC_MOVER_IDX)
     if (hooks) {
 	let hooks_ret = false;
@@ -226,24 +229,45 @@ function amap_action(wid, events)
     let have_upkey = -1
     let pc_handler = yeGet(pc_canel, PC_HANDLER_OBJ)
 
+    let on = wid.get("on")
+    if (on) {
+	let on_len = yeLen(on)
+	for (i = 0; i < on_len; ++i) {
+	    let key = yeGetKeyAt(on, i)
+	    if (key == "esc" && yevIsKeyDown(events, Y_ESC_KEY)) {
+		on.get(i).call(wid)
+	    }
+
+	}
+    }
     if (yevIsKeyUp(events, Y_LEFT_KEY)) {
 	y_move_set_xspeed(pc_minfo, 0)
 	have_upkey = DIR_LEFT
+	wid.setAt("keydown", wid.geti("keydown") & (~KEYDOWN_LEFT))
     } else if (yevIsKeyUp(events, Y_RIGHT_KEY)) {
 	y_move_set_xspeed(pc_minfo, 0)
 	have_upkey = DIR_RIGHT
+	wid.setAt("keydown", wid.geti("keydown") & (~KEYDOWN_RIGHT))
     }
 
     if (yevIsKeyDown(events, Y_LEFT_KEY) && have_upkey != DIR_LEFT) {
 	yeSetIntAt(pc_canel, PC_DIR, DIR_LEFT)
 	y_move_set_xspeed(pc_minfo, -BASE_SPEED)
+	wid.setAt("keydown", wid.geti("keydown") | KEYDOWN_LEFT)
 	pc_handler.setAt("flip", 1)
     } else if (yevIsKeyDown(events, Y_RIGHT_KEY) && have_upkey != DIR_RIGHT) {
 	yeSetIntAt(pc_canel, PC_DIR, DIR_RIGHT)
+	wid.setAt("keydown", wid.geti("keydown") | KEYDOWN_RIGHT)
 	y_move_set_xspeed(pc_minfo, BASE_SPEED)
 	pc_handler.setAt("flip", 0)
     } else if (yevIsKeyDown(events, Y_C_KEY) && yeGetIntAt(pc_canel, PC_DASH) == 0) {
-	yeCreateFloatAt(2.5, pc_minfo, null, Y_MVER_SPEEDUP)
+	let dir = 1
+	y_move_set_xspeed(pc_minfo, BASE_SPEED)
+	if (pc_handler.geti("flip")) {
+	    dir = -1
+	}
+	y_move_set_xspeed(pc_minfo, BASE_SPEED * dir)
+	yeCreateFloatAt(3, pc_minfo, null, Y_MVER_SPEEDUP)
 	yeSetIntAt(pc_canel, PC_DASH, 10)
     } else if (yevIsKeyDown(events, Y_X_KEY) && yeGetIntAt(pc_canel, PC_PUNCH_LIFE) == 0) {
 	yeSetIntAt(pc_canel, PC_PUNCH_LIFE, 4 + pc_agility)
@@ -299,6 +323,8 @@ function amap_action(wid, events)
 	    if (yeGetIntAt(pc_canel, PC_DASH) == 0) {
 		yeSetFloatAt(pc_minfo, Y_MVER_SPEEDUP, 1)
 		yeSetIntAt(pc_canel, PC_DASH, -20)
+		if (!wid.geti("keydown"))
+		    y_move_set_xspeed(pc_minfo, 0)
 	    }
 	} else if (yeGetIntAt(pc_canel, PC_DASH) < 0) {
 	    yeAddAt(pc_canel, PC_DASH, 1 * mult)
@@ -482,6 +508,7 @@ function init_map(wid, map_str)
     let map_a = yeReCreateArray(wid, "_m");
     let boss_i = yeGet(mi, "boss");
     let boss = null;
+    let keydown = wid.setAt("keydown", 0)
 
     if (!boss_i) {
 	yeRemoveChildByStr(wid, "_boss")
