@@ -43,6 +43,9 @@ end
 
 function yGenericTextureArraySet(handler, what)
    handler = Entity.wrapp(handler)
+   if yIsNil(handler.txts[what]) then
+      return
+   end
    handler.cur_array = what
    handler.cur_txt = 0
 end
