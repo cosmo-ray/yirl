@@ -987,6 +987,17 @@ static JSValue qjsyeIncrAt(JSContext *ctx, JSValueConst this_val,
 	return JS_NULL;
 }
 
+static JSValue qjsywPosSet(JSContext *ctx, JSValueConst this_val,
+			   int argc, JSValueConst *argv)
+{
+	Entity *p = GET_E(ctx, 0);
+	if (JS_IsNumber(argv[1])) {
+		return mk_ent(ctx, ywPosSet(p, GET_I(ctx, 1), GET_I(ctx, 2)), 0);
+	} else {
+		return mk_ent(ctx, ywPosSet(p, GET_E(ctx, 1), 0), 0);
+	}
+}
+
 static JSValue qjsyeAddAt(JSContext *ctx, JSValueConst this_val,
 				 int argc, JSValueConst *argv)
 {
@@ -1444,6 +1455,7 @@ static int init(void *sm, void *args)
 	PUSH_I_GLOBAL_VAL(YEVE_NOTHANDLE, NOTHANDLE);
 	PUSH_I_GLOBAL_VAL(YEVE_ACTION, ACTION);
 
+	BIND(ywPosSet, 2, 1);
 	BIND(ywRectCreateInts, 6, 0);
 	BIND(yeCreateFunction, 1, 2);
 	BIND(yeCreateString, 1, 2);
