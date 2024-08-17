@@ -120,6 +120,7 @@ function print_all(wid)
     let pc = yeGet(wid, "pc")
     let pc_canel = yeGet(wid, "_pc")
     let sharp_str = yeGet(mi, "#")
+    let upsharp_str = yeGet(mi, "'")
     let objs = yeGet(mi, "objs")
     let textures = yeGet(wid, "textures");
     let map_real_size = yeGet(mi, "size")
@@ -137,10 +138,14 @@ function print_all(wid)
 	    let c = s[j];
 
 	    if (c == "'") {
-		if (sharp_str)
+		if (upsharp_str)
+		    ywCanvasNewRectangle(wid, j * SPRITE_SIZE, i * SPRITE_SIZE,
+					 SPRITE_SIZE, SPRITE_SIZE / 3, upsharp_str.s())
+		else
 		    ywCanvasNewRectangle(wid, j * SPRITE_SIZE, i * SPRITE_SIZE,
 					 SPRITE_SIZE, SPRITE_SIZE / 3, "rgba: 0 0 0 255")
 
+		continue;
 	    }
 
 	    if (c == '#') {
