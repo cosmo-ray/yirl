@@ -496,10 +496,11 @@ function amap_action(wid, events)
     })
 }
 
-function init_map(wid, map_str)
+function init_map(wid, map_str, pc_pos_orig)
 {
     let pc = yeGet(wid, "pc")
     let pc_canel = yeGet(wid, "_pc")
+    let pc_pos = yeCreateCopy(pc_pos_orig)
     yeReplaceBack(wid, ygFileToEnt(YJSON, map_str + ".json"), "_mi")
     let mi = yeGet(wid, "_mi")
     let parent_str = yeGet(mi, "parent")
@@ -521,13 +522,26 @@ function init_map(wid, map_str)
 	boss = yeReCreateArray(wid, "_boss")
     }
 
-    for (let l in map_str_a) {
-	yeCreateString(map_str_a[l], map_a)
-	let guy_index = map_str_a[l].indexOf('@')
-	if (guy_index > -1) {
-	    let pc_cam = yeGet(pc_canel, PC_POS_IDX)
-	    ywPosSetInts(pc_cam, guy_index * SPRITE_SIZE, l * SPRITE_SIZE)
-	    yeReplaceBack(wid, pc_cam, "cam")
+    if (pc_pos) {
+	let pc_cam = yeGet(pc_canel, PC_POS_IDX)
+	ywPosMultXY(pc_pos, SPRITE_SIZE, SPRITE_SIZE)
+	yePrint(pc_pos)
+	ywPosSet(pc_cam, pc_pos)
+	yePrint(pc_cam)
+	yeReplaceBack(wid, pc_cam, "cam")
+	for (let l in map_str_a) {
+	    yeCreateString(map_str_a[l], map_a)
+	}
+    } else {
+	for (let l in map_str_a) {
+	    yeCreateString(map_str_a[l], map_a)
+	    let guy_index = map_str_a[l].indexOf('@')
+	    if (guy_index > -1) {
+		let pc_cam = yeGet(pc_canel, PC_POS_IDX)
+		ywPosSetInts(pc_cam, guy_index * SPRITE_SIZE, l * SPRITE_SIZE)
+		yePrint(pc_cam)
+		yeReplaceBack(wid, pc_cam, "cam")
+	    }
 	}
     }
     let size = yeGet(mi, "size")
@@ -718,20 +732,18 @@ function win(wid)
     ygCallFuncOrQuit(wid, "win");
 }
 
-function next(wid)
+function next(wid, _, pos)
 {
     print("ACTION !!!!!")
     let mi = yeGet(wid, "_mi")
-    yePrint(yeGet(mi, "next"))
-    init_map(wid, yeGetStringAt(mi, "next"))
+    init_map(wid, yeGetStringAt(mi, "next"), pos)
 }
 
-function next1(wid)
+function next1(wid, _, pos)
 {
     print("ACTION !!!!!")
     let mi = yeGet(wid, "_mi")
-    yePrint(yeGet(mi, "next1"))
-    init_map(wid, yeGetStringAt(mi, "next1"))
+    init_map(wid, yeGetStringAt(mi, "next1"), pos)
 }
 
 function monster_rand(wid, tuple)
