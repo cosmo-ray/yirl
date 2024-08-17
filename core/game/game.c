@@ -804,7 +804,7 @@ Entity *ygLoadMod(const char *path)
 				} while (last_slash != path && *last_slash != PATH_SEPARATOR);
 				short_end = 1;
 			}
-			if (*last_slash == PATH_SEPARATOR)
+			while (*last_slash == PATH_SEPARATOR)
 				++last_slash;
 			yeSetString(tmp_name, last_slash);
 			yeStringTruncate(tmp_name, short_end);

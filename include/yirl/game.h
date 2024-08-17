@@ -99,7 +99,8 @@ static inline void ygAddModule(int type, Entity *mod, const char *path)
 	if (type == Y_MOD_YIRL) {
 		Entity *path_ent;
 
-		path_ent = yeCreateString("YIRL_MODULES_PATH/", mod_to_load, "path");
+		path_ent = yeCreateString("YIRL_MODULES_PATH", mod_to_load, "path");
+		yeStringAddCh(path_ent, PATH_SEPARATOR);
 		yeAddStr(path_ent, path);
 	} else {
 		yeCreateString(path, mod_to_load, "file");
