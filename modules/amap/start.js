@@ -584,7 +584,6 @@ function init_map(wid, map_str, pc_pos_orig)
 	    const size = path.get(1)
 	    path = path.gets(0)
 
-	    yePrint(size)
 	    canvasobj = ywCanvasNewImg(wid, ywPosX(bpos), ywPosY(bpos),
 				       path, size)
 
