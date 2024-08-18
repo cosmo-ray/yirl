@@ -420,6 +420,9 @@ function amap_action(wid, events)
 
 		    yeAddAt(boss_i, "life", -5)
 		    yeAddAt(pc_canel, PC_PUNCH_LIFE, -25)
+		    ywCanvasSetColorModRGBA(boss.get(0), 255, 100, 0, 255)
+		    wid.setAt("boss-h-timer", 100000)
+		    have_boss_take_dmg = true
 		}
 
 		if (yeGetIntAt(pc_canel, PC_PUNCH_LIFE) <= 0) {
@@ -431,7 +434,19 @@ function amap_action(wid, events)
 	    })
 	    yeDestroy(cols)
 	}
+    } else if (boss) {
+	let boss_t = wid.geti("boss-h-timer")
+	if (boss_t > 0) {
+	    boss_t -= turn_timer
+	    if (boss_t <= 0) {
+		ywCanvasRemoveColorMod(boss.get(0));
+		wid.rm("boss-h-timer")
+	    } else {
+		wid.setAt("boss-h-timer", boss_t)
+	    }
+	}
     }
+
 
     let pc_canvas_obj = yGenericCurCanvas(pc_handler)
     let cols = ywCanvasNewCollisionsArray(wid, pc_canvas_obj)
@@ -586,7 +601,6 @@ function init_map(wid, map_str, pc_pos_orig)
 
 	    canvasobj = ywCanvasNewImg(wid, ywPosX(bpos), ywPosY(bpos),
 				       path, size)
-
 	}
 
 	yeCreateIntAt(TYPE_BOSS, canvasobj, "amap-t", YCANVAS_UDATA_IDX)
