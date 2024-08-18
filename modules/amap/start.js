@@ -397,7 +397,6 @@ function amap_action(wid, events)
 	    base_txt = base_txt + "="
 	}
 	base_txt = base_txt + "|"
-	print("print: ", base_txt, txt_start_x, txt_start_y)
 	ywCanvasStringSet(txt_obj, yeCreateString(base_txt))
 
     }
@@ -575,8 +574,22 @@ function init_map(wid, map_str, pc_pos_orig)
 	yePrint(bpos)
 	print(" === ===----")
 
-	let canvasobj = ywCanvasNewImgByPath(wid, ywPosX(bpos), ywPosY(bpos),
-					     yeGetStringAt(boss_i, "path"))
+	let canvasobj = null
+	let path = boss_i.get("path")
+
+	if (yeType(path) == YSTRING) {
+	    canvasobj = ywCanvasNewImgByPath(wid, ywPosX(bpos), ywPosY(bpos),
+					     path)
+	} else {
+	    const size = path.get(1)
+	    path = path.gets(0)
+
+	    yePrint(size)
+	    canvasobj = ywCanvasNewImg(wid, ywPosX(bpos), ywPosY(bpos),
+				       path, size)
+
+	}
+
 	yeCreateIntAt(TYPE_BOSS, canvasobj, "amap-t", YCANVAS_UDATA_IDX)
 
 	yePushBack(boss, canvasobj);

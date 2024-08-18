@@ -1025,6 +1025,14 @@ static JSValue qjsyeTryCreateArray(JSContext *ctx, JSValueConst this_val,
 		      !GET_E(ctx, 0));
 }
 
+static JSValue qjsywCanvasNewImg(JSContext *ctx, JSValueConst this_val,
+				 int argc, JSValueConst *argv)
+{
+	return mk_ent(ctx, ywCanvasNewImg(GET_E(ctx, 0), GET_I(ctx, 1), GET_I(ctx, 2),
+					  GET_S(ctx, 3), GET_E(ctx, 4)),
+		      0);
+}
+
 static JSValue qjsto_str(JSContext *ctx, JSValueConst this_val,
 			 int argc, JSValueConst *argv)
 {
@@ -1466,6 +1474,7 @@ static int init(void *sm, void *args)
 	BIND(yeReCreateArray, 2, 1);
 	BIND(yeGetStringAt, 0, 2);
 	BIND(ygLoadScript, 3, 0);
+	BIND(ywCanvasNewImg, 4, 1);
 	BIND(ysLoadFile, 2, 0);
 	BIND(ygGetManager, 1, 0);
 	BIND(ywidNewWidget, 2, 0);
