@@ -68,6 +68,7 @@ typedef enum  {
 	YCanvasRotate,
 	YCanvasVFlip,
 	YCanvasHFlip,
+	YCanvasColorMod,
 } YCanvasModifier;
 
 enum {
@@ -526,6 +527,9 @@ static inline Entity *ywCanvasObjMod(Entity *obj)
 {
 	return yeGet(obj, "$mod");
 }
+
+
+Entity *ywCanvasSetColorModRGBA(Entity *obj, int r, int g, int b, int a);
 
 /**
  * Create a texture from a Canvas Objet

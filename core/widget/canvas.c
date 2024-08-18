@@ -1003,6 +1003,14 @@ int ywCanvasRotate(Entity *obj, double angle)
 	return 0;
 }
 
+Entity *ywCanvasSetColorModRGBA(Entity *obj, int r, int g, int b, int a)
+{
+	Entity *mod = getOrCreateMod(obj);
+	yeCreateQuadIntAt(r, g, b, a, mod, NULL, YCanvasColorMod);
+	return obj;
+}
+
+
 int ywCanvasForceSize(Entity *obj, Entity *size)
 {
 	if (!obj || !size)

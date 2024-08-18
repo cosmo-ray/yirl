@@ -522,6 +522,15 @@ XS(XS_yevCreateGrp)
 				  SvIV(ST(3))));		\
 	}
 
+#define BIND_EIIII(name, ...)					\
+	XS(XS_##name)						\
+	{							\
+		dXSARGS;					\
+		BIND_AUTORET(name((void *)SvIV(ST(0)),		\
+				  SvIV(ST(1)), SvIV(ST(2)),	\
+				  SvIV(ST(3)), SvIV(ST(4))));	\
+	}
+
 #define BIND_EIIE(name, ...)					\
 	XS(XS_##name)						\
 	{							\

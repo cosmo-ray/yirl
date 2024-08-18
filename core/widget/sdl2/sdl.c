@@ -1491,12 +1491,22 @@ int sdlCanvasCacheTexture(Entity *state, Entity *elem)
 
 static void sdlCanvasAplyModifier(Entity *img, GPU_Rect *dst,
 				  GPU_Rect **src,
-				  double *rotation, GPU_BatchFlagEnum *flip)
+				  double *rotation, GPU_BatchFlagEnum *flip,
+				  SDL_Color *mod_color)
 {
 	Entity *mod = ywCanvasObjMod(img);
+	Entity *color_mod;
 
 	if (!mod)
 		return;
+	color_mod = yeGet(mod, YCanvasColorMod);
+	if (color_mod) {
+		int a = yeGetIntAt(color_mod, 3);
+		mod_color->r = yeGetIntAt(color_mod, 0);
+		mod_color->g = yeGetIntAt(color_mod, 1);
+		mod_color->b = yeGetIntAt(color_mod, 2);
+		mod_color->a = a ? a : 255;
+	}
 	*rotation = yeGetFloat(yeGet(mod, YCanvasRotate));
 	*flip |= (GPU_FLIP_VERTICAL * yeGetIntAt(mod, YCanvasVFlip));
 	*flip |= (GPU_FLIP_HORIZONTAL * yeGetIntAt(mod, YCanvasHFlip));
@@ -1517,6 +1527,7 @@ static int sdlCanvasRendImg(YWidgetState *state, SDLWid *wid, Entity *img,
 	double rotation = 0;
 	GPU_BatchFlagEnum flip = 0;
 	GPU_Image *t = NULL;
+	SDL_Color mod_color = {0};
 
 	if (rd.x + rd.w < 0 || rd.y + rd.h < 0 || rd.y > ywRectHDirect(wid_pix)
 	    || rd.x > ywRectWDirect(wid_pix)) {
@@ -1532,7 +1543,10 @@ static int sdlCanvasRendImg(YWidgetState *state, SDLWid *wid, Entity *img,
 
 	rd.x += ywRectX(wid_pix);
 	rd.y += ywRectY(wid_pix);
-	sdlCanvasAplyModifier(img, &rd, &sd, &rotation, &flip);
+	sdlCanvasAplyModifier(img, &rd, &sd, &rotation, &flip, &mod_color);
+	if (mod_color.r || mod_color.g || mod_color.b || mod_color.a) {
+		GPU_SetColor(t, mod_color);
+	}
 	GPU_BlitRectX(t, sd, sg.pWindow, &rd, rotation,
 		      rd.w, rd.h, flip);
 	free(sd);

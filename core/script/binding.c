@@ -37,6 +37,7 @@
 #define BIND_EEEEI	BIND
 #define BIND_EEESI	BIND
 #define BIND_EIIEE	BIND
+#define BIND_EIIII	BIND
 #define BIND_EIIIS	BIND
 #define BIND_EIIIIS	BIND
 #define BIND_EIIIISI	BIND
@@ -424,6 +425,8 @@ BIND_EIII(ywPosAddXYAbsMax, 4, 0);
 
 BIND_EIII(ywRectContain, 3, 1);
 
+BIND_EIIII(ywCanvasSetColorModRGBA, 5, 0);
+
 BIND_V(yeFreeEntitiesInStack);
 
 BIND_V(ywidFontW);
@@ -575,6 +578,7 @@ PUSH_I_GLOBAL(YPERL);
 #undef BIND_EIIEE
 #undef BIND_EEEEI
 #undef BIND_EEESI
+#undef BIND_EIIII
 #undef BIND_EEEI
 #undef BIND_EIII
 #undef BIND_EIIS
