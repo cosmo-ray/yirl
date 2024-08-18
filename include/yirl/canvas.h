@@ -531,6 +531,8 @@ static inline Entity *ywCanvasObjMod(Entity *obj)
 
 Entity *ywCanvasSetColorModRGBA(Entity *obj, int r, int g, int b, int a);
 
+void ywCanvasRemoveColorMod(Entity *obj);
+
 /**
  * Create a texture from a Canvas Objet
  */

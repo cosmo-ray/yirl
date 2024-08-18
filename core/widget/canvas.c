@@ -16,6 +16,7 @@
 */
 
 #include <math.h>
+#include <SDL_gpu.h>
 #include "rect.h"
 #include "text-screen.h"
 #include "sdl-driver.h"
@@ -1001,6 +1002,27 @@ int ywCanvasRotate(Entity *obj, double angle)
 
 	yeCreateFloatAt(angle, mod, NULL, YCanvasRotate);
 	return 0;
+}
+
+void ywCanvasRemoveColorMod(Entity *obj)
+{
+	if (!obj)
+		return;
+
+	Entity *mod = ywCanvasObjMod(obj);
+
+	if (!mod)
+		return;
+	int type = yeGetIntAt(obj, 0);
+	yeRemoveChild(mod, YCanvasColorMod);
+	if (type == YCanvasResource || type == YCanvasImg ||
+	    type == YCanvasTexture || type == YCanvasBicolorImg ||
+	    type == YCanvasHeadacheImg) {
+		void *img = yeGetData(yeGet(obj, YCANVAS_IMG_IDX));
+		if (!img)
+			return;
+		GPU_UnsetColor(img);
+	}
 }
 
 Entity *ywCanvasSetColorModRGBA(Entity *obj, int r, int g, int b, int a)
