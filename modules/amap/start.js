@@ -236,7 +236,7 @@ function amap_action(wid, events)
 
     let on = wid.get("on")
     if (on) {
-	let on_len = yeLen(on)
+	const on_len = yeLen(on)
 	for (i = 0; i < on_len; ++i) {
 	    let key = yeGetKeyAt(on, i)
 	    if (key == "esc" && yevIsKeyDown(events, Y_ESC_KEY)) {
