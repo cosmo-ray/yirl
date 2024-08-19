@@ -564,4 +564,36 @@ static inline void ycoRmObj(Entity *parent, const char *key)
 	yeRemoveChildByStr(parent, key);
 }
 
+/* return the position of up left pixel, taking into account the cam positioning */
+static inline int ywCanvasPix0X(Entity *wid)
+{
+	Entity *wid_pos = yeGet(wid, "cam");
+	int ret = 0;
+
+	if (wid_pos) {
+		ret = ywPosX(wid_pos);
+		wid_pos = yeGet(wid, "cam-threshold");
+		if (wid_pos) {
+			ret = ret + ywPosX(wid_pos);
+		}
+	}
+	return ret;
+}
+
+/* return the position of up left pixel, taking into account the cam positioning */
+static inline int ywCanvasPix0Y(Entity *wid)
+{
+	Entity *wid_pos = yeGet(wid, "cam");
+	int ret = 0;
+
+	if (wid_pos) {
+		ret = ywPosY(wid_pos);
+		wid_pos = yeGet(wid, "cam-threshold");
+		if (wid_pos) {
+			ret = ret + ywPosY(wid_pos);
+		}
+	}
+	return ret;
+}
+
 #endif

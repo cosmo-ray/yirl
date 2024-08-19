@@ -247,6 +247,9 @@ BIND_E(ywCntPopLastEntry, 1, 0);
 
 BIND_E(yeCountLines, 1, 0);
 
+BIND_E(ywCanvasPix0X, 1, 0);
+BIND_E(ywCanvasPix0Y, 1, 0);
+
 BIND_E(ywCanvasRemoveColorMod, 1, 0);
 BIND_E(ywCanvasObjUnsetVFlip, 1, 0);
 BIND_E(ywCanvasObjUnsetHFlip, 1, 0);
