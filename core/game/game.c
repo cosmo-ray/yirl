@@ -790,6 +790,8 @@ Entity *ygLoadMod(const char *path)
 	if (!mod)
 		goto failure;
 	name = yeGet(mod, "name");
+	if (!name)
+	  name = yeGet(mod, "Name");
 
 	if (!name) {
 		char *last_slash = strrchr(path, PATH_SEPARATOR);
