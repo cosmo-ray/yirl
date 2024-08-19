@@ -76,12 +76,26 @@ function print_life(wid, pc, pc_canel)
     let life_array = yeGet(pc_canel, PC_LIFE_ARRAY)
 
     ywCanvasClearArray(wid, life_array);
-    for (let i = yeGetIntAt(pc, "life"); i > 0; i -= 5) {
-	yePushBack(life_array,
-		   ywCanvasNewImgFromTexture(wid, j * SPRITE_SIZE + start_x,
-					     start_y,
-					     yeGet(textures, "motivation")));
-	++j;
+    if (wid.geti("life-bar")) {
+	const max_life = pc.geti("max_life")
+	const life = pc.geti("life")
+
+	start_y += 20
+	life_array.push(ywCanvasNewTextByStr(wid, start_x, start_y, "life:"))
+	start_x += 60
+	life_array.push(ywCanvasNewRectangle(wid, start_x, start_y, max_life * 2 + 10, 16,
+					     "rgba: 100 100 100 255"))
+	life_array.push(ywCanvasNewRectangle(wid, start_x + 5, start_y + 3,
+					     life * 2, 10,
+					     "rgba: 120 220 120 255"))
+    } else {
+	for (let i = yeGetIntAt(pc, "life"); i > 0; i -= 5) {
+	    yePushBack(life_array,
+		       ywCanvasNewImgFromTexture(wid, j * SPRITE_SIZE + start_x,
+						 start_y,
+						 yeGet(textures, "motivation")));
+	    ++j;
+	}
     }
 }
 
