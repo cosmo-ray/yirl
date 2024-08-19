@@ -1143,8 +1143,10 @@ static JSValue entity_add(JSContext *ctx, JSValueConst this_val,
 
 	if (JS_IsNumber(argv[0])) {
 		yeAdd(e, GET_I(ctx, 0));
+		return mk_ent(ctx, e, 0);
 	} else if (JS_IsString(argv[0])) {
 		yeAdd(e, GET_S(ctx, 0));
+		return mk_ent(ctx, e, 0);
 	}
 	return JS_NULL;
 }
