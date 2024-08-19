@@ -494,6 +494,14 @@ static JSValue make_abort(JSContext *ctx, ...)
 			       GET_E(ctx, 3), GET_E(ctx, 4)));		\
 	}
 
+#define BIND_EIIES(f, useless...)					\
+	static JSValue qjs##f(JSContext *ctx, JSValueConst this_val,	\
+			      int argc, JSValueConst *argv) {		\
+		BIND_AUTORET(f(GET_E(ctx, 0),				\
+			       GET_I(ctx, 1), GET_I(ctx, 2),		\
+			       GET_E(ctx, 3), GET_S(ctx, 4)));		\
+	}
+
 #define BIND_EIIIS(f, useless...)					\
 	static JSValue qjs##f(JSContext *ctx, JSValueConst this_val,	\
 			      int argc, JSValueConst *argv) {		\
@@ -624,6 +632,7 @@ BIND_EID(yeSetFloatAt, 3, 0);
 BIND_DESI(yeCreateFloatAt, 4, 0);
 BIND_EESI(ywCanvasNewPolygonExt, 3, 1);
 BIND_EI6SI(ywCanvasNewTriangleExt, 8, 1);
+BIND_EIIES(ywCanvasNewTextExt, 5, 0);
 
 #define NO_ywTextureNewImg
 /* make all bindings here */
@@ -1509,6 +1518,7 @@ static int init(void *sm, void *args)
 	BIND(ywCanvasObjSetPos, 3, 0);
 	BIND(ywCanvasNewTriangleExt, 8, 1);
 	BIND(ywCanvasNewPolygonExt, 3, 1);
+	BIND(ywCanvasNewTextExt, 5, 0);
 
 
 #define IN_CALL 1
