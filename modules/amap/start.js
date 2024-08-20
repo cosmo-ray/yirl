@@ -313,7 +313,9 @@ function amap_action(wid, events)
 
     if (yeGetIntAt(pc_canel, PC_TURN_CNT_IDX) > 20000) {
 	let walk = false
-	if (yeGetIntAt(pc_canel, PC_PUNCH_COUNT_IDX) > 0) {
+	if (pc_canel.geti(PC_DASH) > 0) {
+	    yGenericTextureArraySet(pc_handler, "dash")
+	} else if (yeGetIntAt(pc_canel, PC_PUNCH_COUNT_IDX) > 0) {
 	    yGenericTextureArraySet(pc_handler, "punch")
 	    yeAddAt(pc_canel, PC_PUNCH_COUNT_IDX, -1);
 	} else if (yeGetIntAt(pc_canel, PC_DROPSPEED_IDX) < 0) {
@@ -717,6 +719,14 @@ function amap_init(wid)
 	    ywTextureNewImg(yeGetString(s), null, jmp_array, null);
 	}
 	pc_handler.get("txts").push(jmp_array, "jmp")
+    }
+
+    if (wid.get("pc-dash-sprites")) {
+	let dash_array = yeCreateArray()
+	for (s of wid.get("pc-dash-sprites")) {
+	    ywTextureNewImg(yeGetString(s), null, dash_array, null);
+	}
+	pc_handler.get("txts").push(dash_array, "dash")
     }
 
     if (wid.get("pc-punch-sprites")) {
