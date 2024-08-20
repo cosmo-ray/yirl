@@ -29,6 +29,7 @@
 #include "entity-array.h"
 #include "events.h"
 #include "texture.h"
+#include "condition.h"
 
 static int t = -1;
 

@@ -1452,12 +1452,6 @@ int	luayeSetIntAt(lua_State *L)
 	return luayeSetAt(L);
 }
 
-int	luayeCheckCondition(lua_State *L)
-{
-	lua_pushboolean(L, yeCheckCondition(luaEntityAt(L, 1)));
-	return 1;
-}
-
 int	luaYTimerGet(lua_State *L)
 {
 	lua_pushnumber(L, YTimerGet(lua_touserdata(L, 1)));

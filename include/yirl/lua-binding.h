@@ -29,6 +29,7 @@
 #include "canvas.h"
 #include "entity-array.h"
 #include "texture.h"
+#include "condition.h"
 #include <lualib.h>
 #include <lauxlib.h>
 
@@ -706,9 +707,6 @@ int	luaygUnstalk(lua_State *L);
 /* Audio */
 int	luaySoundPlayLoop(lua_State *L);
 
-/* condition */
-int	luayeCheckCondition(lua_State *L);
-
 /* Timer */
 int	luaYTimerGet(lua_State *L);
 int	luaYTimerReset(lua_State *L);
@@ -1099,8 +1097,6 @@ static inline int	yesLuaRegister(void *sm)
   /* Audio */
   YES_LUA_REGISTRE_CALL(sm, ySoundPlayLoop);
 
-  /* Condition */
-  YES_LUA_REGISTRE_CALL(sm, yeCheckCondition);
 
   /* Timer */
   YES_LUA_REGISTRE_CALL(sm, YTimerGet);

@@ -38,6 +38,7 @@
 #include "entity-script.h"
 #include "entity-array.h"
 #include "events.h"
+#include "condition.h"
 
 static int t = -1;
 
