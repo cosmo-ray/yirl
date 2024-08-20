@@ -60,6 +60,7 @@ const BOSS_TXT_LIVE = 2
 
 const KEYDOWN_LEFT = 1
 const KEYDOWN_RIGHT = 1 << 1
+const KEYDOWN_UP = 1 << 2
 
 const CANVAS_OBJ_IDX = YCANVAS_UDATA_IDX + 1
 
@@ -276,6 +277,12 @@ function amap_action(wid, events)
 	wid.setAt("keydown", wid.geti("keydown") & (~KEYDOWN_RIGHT))
     }
 
+    if (yevIsKeyUp(events, Y_UP_KEY)) {
+	wid.setAt("keydown", wid.geti("keydown") & (~KEYDOWN_UP))
+    } else if (yevIsKeyDown(events, Y_UP_KEY)) {
+	wid.setAt("keydown", wid.geti("keydown") | KEYDOWN_UP)
+    }
+
     if (yevIsKeyDown(events, Y_LEFT_KEY) && have_upkey != DIR_LEFT) {
 	yeSetIntAt(pc_canel, PC_DIR, DIR_LEFT)
 	y_move_set_xspeed(pc_minfo, -BASE_SPEED)
@@ -301,11 +308,29 @@ function amap_action(wid, events)
 	let canvasobj = ywCanvasNewImgFromTexture(wid, ywPosX(pc_pos), ywPosY(pc_pos),
 						  yeGet(textures, "punch"))
 
-	if (yeGetIntAt(pc_canel, PC_DIR) == DIR_RIGHT) {
-	    y_move_set_xspeed(yeGet(pc_canel, PC_PUNCH_MINFO), 30)
+	let kd = wid.geti("keydown")
+	y_move_set_yspeed(yeGet(pc_canel, PC_PUNCH_MINFO), 0)
+	if (wid.geti("can_upshoot") && kd != 0) {
+	    y_move_set_xspeed(yeGet(pc_canel, PC_PUNCH_MINFO), 0)
+
+	    print("kd: ", kd, kd & KEYDOWN_UP)
+	    if (kd & KEYDOWN_UP) {
+		y_move_set_yspeed(yeGet(pc_canel, PC_PUNCH_MINFO), -30)
+	    }
+
+	    if (kd & KEYDOWN_LEFT) {
+		ywCanvasHFlip(canvasobj);
+		y_move_set_xspeed(yeGet(pc_canel, PC_PUNCH_MINFO), -30)
+	    } else if (kd & KEYDOWN_RIGHT) {
+		y_move_set_xspeed(yeGet(pc_canel, PC_PUNCH_MINFO), 30)
+	    }
 	} else {
-	    ywCanvasHFlip(canvasobj);
-	    y_move_set_xspeed(yeGet(pc_canel, PC_PUNCH_MINFO), -30)
+	    if (yeGetIntAt(pc_canel, PC_DIR) == DIR_RIGHT) {
+		y_move_set_xspeed(yeGet(pc_canel, PC_PUNCH_MINFO), 30)
+	    } else {
+		ywCanvasHFlip(canvasobj);
+		y_move_set_xspeed(yeGet(pc_canel, PC_PUNCH_MINFO), -30)
+	    }
 	}
 	pc_canel.setAt(PC_PUNCH_COUNT_IDX, 5)
 
