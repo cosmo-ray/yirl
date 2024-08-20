@@ -136,6 +136,7 @@ function print_all(wid)
     let sharp_str = yeGet(mi, "#")
     let upsharp_str = yeGet(mi, "'")
     let objs = yeGet(mi, "objs")
+    let objs_conditions = mi.get("objs_condition")
     let textures = yeGet(wid, "textures");
     let map_real_size = yeGet(mi, "size")
     let monsters_info = yeGet(mi, "monsters")
@@ -183,6 +184,12 @@ function print_all(wid)
 		let object = yeGet(objs, ic)
 		if (!object)
 		    continue;
+		if (objs_conditions) {
+		    let this_condition = objs_conditions.get(ic)
+
+		    if (this_condition && !yeCheckCondition(this_condition))
+			continue;
+		}
 		let o = ywCanvasNewImgFromTexture(wid, j * SPRITE_SIZE, i * SPRITE_SIZE,
 						  yeGet(textures, yeGetStringAt(object, 0)))
 		yeCreateIntAt(TYPE_OBJ, o, "amap-t", YCANVAS_UDATA_IDX)
@@ -476,9 +483,14 @@ function amap_action(wid, events)
 		let objs = yeGet(mi, "objs");
 		let action = yeGet(yeGet(objs, yeGetIntAt(c, CANVAS_OBJ_IDX)), 1);
 
-		ywidAction(action, wid);
-		direct_ret = true
-		return true
+		let ret = ywidAction(action, wid);
+		if (ret == 1) {
+		    direct_ret = true
+		    return true
+		}
+		if (ret == 2) {
+		    ywCanvasRemoveObj(wid, c)
+		}
 	    } else if (ctype != TYPE_ANIMATION && ctype != TYPE_PUNCH) {
 		if (ywCanvasObjectsCheckColisions(c, pc_canvas_obj)) {
 		    if (ctype == TYPE_PIKE || ctype == TYPE_MONSTER || ctype == TYPE_BOSS) {
@@ -764,6 +776,16 @@ function amap_init(wid)
     ywTextureNewImg("./vodeo-monster.png", null, textures, "vodeo-monster");
     ygModDirOut();
 
+    let extra_textures = wid.get("extra-textures")
+    if (extra_textures) {
+	for (let i = 0; i < yeLen(extra_textures); ++i) {
+	    let name = yeGetKeyAt(extra_textures, i)
+	    let txt = extra_textures.get(i)
+
+	    ywTextureNewImg(txt.s(), null, textures, name);
+	}
+    }
+
     yeCreateIntAt(0, pc_canel, "jmp-n", PC_JMP_NUMBER)
     yeCreateIntAt(0, pc_canel, "hurt", PC_HURT)
     yeCreateArrayAt(pc_canel, "life-array", PC_LIFE_ARRAY)
@@ -780,6 +802,7 @@ function win(wid)
 {
     print("YOU WIN !!!");
     ygCallFuncOrQuit(wid, "win");
+    return 1
 }
 
 function next(wid, _, pos)
@@ -787,6 +810,7 @@ function next(wid, _, pos)
     print("ACTION !!!!!")
     let mi = yeGet(wid, "_mi")
     init_map(wid, yeGetStringAt(mi, "next"), pos)
+    return 1
 }
 
 function next1(wid, _, pos)
@@ -794,6 +818,7 @@ function next1(wid, _, pos)
     print("ACTION !!!!!")
     let mi = yeGet(wid, "_mi")
     init_map(wid, yeGetStringAt(mi, "next1"), pos)
+    return 1
 }
 
 function monster_rand(wid, tuple)
