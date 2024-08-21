@@ -66,6 +66,10 @@ const CANVAS_OBJ_IDX = YCANVAS_UDATA_IDX + 1
 
 const CANVAS_MONSTER_IDX = YCANVAS_UDATA_IDX + 1
 
+const OBJECT_CANEL = 5
+const OBJECT_MOVER = 6
+const OBJECT_DIR = 7
+const OBJECT_START_POS = 8
 
 function print_life(wid, pc, pc_canel)
 {
@@ -195,7 +199,7 @@ function print_all(wid)
 						  yeGet(textures, yeGetStringAt(object, 0)))
 		yeCreateIntAt(TYPE_OBJ, o, "amap-t", YCANVAS_UDATA_IDX)
 		yeCreateIntAt(ic, o, "objidx", CANVAS_OBJ_IDX)
-		//yePrint(object)
+		object.setAt(OBJECT_CANEL, o)
 	    }
 	}
     }
@@ -495,6 +499,30 @@ function amap_action(wid, events)
 	}
     }
 
+    let movable_objs = mi.get("move_objs")
+    if (movable_objs) {
+	let objs = yeGet(mi, "objs");
+
+	for (o_info of movable_objs) {
+	    let o = objs.get(o_info.i())
+	    if (!o)
+		continue;
+	    let o_canel = o.get(OBJECT_CANEL)
+	    let o_pos = ywCanvasObjPos(o_canel)
+	    let mover = o.get(OBJECT_MOVER)
+	    if (!mover) {
+		mover = y_mover_new_at(o, "mv", OBJECT_MOVER)
+		o.setAt(OBJECT_START_POS, yeCreateCopy(o_pos))
+		y_move_set_yspeed(mover, -5)
+	    }
+	    const pos_diff = ywPosY(o_pos) - ywPosY(o.get(OBJECT_START_POS))
+	    if (pos_diff > 4)
+		y_move_set_yspeed(mover, -5)
+	    else if (pos_diff < -4)
+		y_move_set_yspeed(mover, 5)
+	    y_move_obj(o_canel, mover, turn_timer)
+	}
+    }
 
     let pc_canvas_obj = yGenericCurCanvas(pc_handler)
     let cols = ywCanvasNewCollisionsArray(wid, pc_canvas_obj)
@@ -514,7 +542,9 @@ function amap_action(wid, events)
 		    return true
 		}
 		if (ret == 2) {
+		    const idx =c.geti("objidx")
 		    ywCanvasRemoveObj(wid, c)
+		    objs.rm(idx)
 		}
 	    } else if (ctype != TYPE_ANIMATION && ctype != TYPE_PUNCH) {
 		if (ywCanvasObjectsCheckColisions(c, pc_canvas_obj)) {
