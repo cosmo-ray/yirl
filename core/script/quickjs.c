@@ -1106,11 +1106,25 @@ static JSValue array_set_at(JSContext *ctx, JSValueConst this_val,
 	Entity *e = GET_E_(this_val);
 
 	if (JS_IsNumber(argv[1])) {
-		return mk_ent(ctx, yeReCreateInt(GET_I(ctx, 1), e, GET_S(ctx, 0)), 0);
+		if (JS_IsNumber(argv[0])) {
+			return mk_ent(ctx, yeCreateIntAt(GET_I(ctx, 1), e, NULL, GET_I(ctx, 0)), 0);
+		} else {
+			return mk_ent(ctx, yeReCreateInt(GET_I(ctx, 1), e, GET_S(ctx, 0)), 0);
+		}
 	} else if (JS_IsString(argv[1])) {
-		return mk_ent(ctx, yeReCreateString(GET_S(ctx, 1), e, GET_S(ctx, 0)), 0);
+		if (JS_IsNumber(argv[0])) {
+			return mk_ent(ctx, yeCreateStringAt(GET_S(ctx, 1), e, NULL, GET_I(ctx, 0)), 0);
+		} else {
+			return mk_ent(ctx, yeReCreateString(GET_S(ctx, 1), e, GET_S(ctx, 0)), 0);
+		}
 	} else if (JS_IsObject(argv[1])) {
-		return new_ent(ctx, yeReplaceBack(e, GET_E_(argv[1]), GET_S(ctx, 0)));
+		if (JS_IsNumber(argv[0])) {
+			Entity *to_push = GET_E_(argv[1]);
+			yePushAt(e, to_push, GET_I(ctx, 0));
+			return mk_ent(ctx, to_push, 0);
+		} else {
+			return new_ent(ctx, yeReplaceBack(e, GET_E_(argv[1]), GET_S(ctx, 0)));
+		}
 	}
 	return JS_NULL;
 }
