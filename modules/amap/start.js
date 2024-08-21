@@ -319,6 +319,8 @@ function amap_action(wid, events)
 
 	    print("kd: ", kd, kd & KEYDOWN_UP)
 	    if (kd & KEYDOWN_UP) {
+		ywCanvasRotate(canvasobj, 90);
+		ywCanvasMoveObjXY(canvasobj, -20, 0)
 		y_move_set_yspeed(yeGet(pc_canel, PC_PUNCH_MINFO), -30)
 	    }
 
