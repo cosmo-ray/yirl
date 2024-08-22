@@ -303,6 +303,7 @@ function amap_action(wid, events)
 	if (pc_handler.geti("flip")) {
 	    dir = -1
 	}
+	y_move_set_yspeed(pc_minfo, 0)
 	y_move_set_xspeed(pc_minfo, BASE_SPEED * dir)
 	yeCreateFloatAt(3, pc_minfo, null, Y_MVER_SPEEDUP)
 	yeSetIntAt(pc_canel, PC_DASH, 10)
@@ -317,7 +318,6 @@ function amap_action(wid, events)
 	if (wid.geti("can_upshoot") && kd != 0) {
 	    y_move_set_xspeed(yeGet(pc_canel, PC_PUNCH_MINFO), 0)
 
-	    print("kd: ", kd, kd & KEYDOWN_UP)
 	    if (kd & KEYDOWN_UP) {
 		ywCanvasRotate(canvasobj, 90);
 		ywCanvasMoveObjXY(canvasobj, -20, 0)
@@ -407,7 +407,9 @@ function amap_action(wid, events)
 	yeAddAt(pc_canel, PC_TURN_CNT_IDX, turn_timer);
     }
 
-    y_move_set_yspeed(pc_minfo, yeGetIntAt(pc_canel, PC_DROPSPEED_IDX));
+    if (pc_canel.geti(PC_DASH) < 1) {
+	y_move_set_yspeed(pc_minfo, yeGetIntAt(pc_canel, PC_DROPSPEED_IDX));
+    }
     y_move_pos(pc_pos, pc_minfo, turn_timer);
     if (yeGetIntAt(pc_canel, PC_HURT) > 0) {
 	print_life(wid, pc, pc_canel)
@@ -557,14 +559,15 @@ function amap_action(wid, events)
 			yeSetIntAt(pc_canel, PC_DROPSPEED_IDX, -25);
 			print_life(wid, pc, pc_canel)
 			return true
-		    } else if ((ywPosY(old_pos) + SPRITE_SIZE - 1) <= ywPosY(ywCanvasObjPos(c))) {
-			stop_fall = true
-			print_life(wid, pc, pc_canel)
-		    } else if (yeGetIntAt(pc_canel, PC_DROPSPEED_IDX) >= 0 &&
-			       (ywPosY(old_pos) + SPRITE_SIZE - 1) >
-			       ywPosY(ywCanvasObjPos(c)) + 10) {
-			stop_x = true
 		    }
+		}
+		if ((ywPosY(old_pos) + SPRITE_SIZE) <= ywPosY(ywCanvasObjPos(c))) {
+		    stop_fall = true
+		    print_life(wid, pc, pc_canel)
+		} else if (yeGetIntAt(pc_canel, PC_DROPSPEED_IDX) >= 0 &&
+			   (ywPosY(old_pos) + SPRITE_SIZE - 1) >
+			   ywPosY(ywCanvasObjPos(c)) + 10) {
+		    stop_x = true
 		}
 	    }
 	})
@@ -605,7 +608,6 @@ function init_map(wid, map_str, pc_pos_orig)
     let parent_str = yeGet(mi, "parent")
     if (parent_str) {
 	let parent = ygFileToEnt(YJSON, yeGetString(parent_str) + ".json");
-	yePrint(parent);
 	yeMergeInto(mi, parent, 0);
     }
     map_str = ygFileToEnt(YRAW_FILE, map_str);
@@ -945,8 +947,6 @@ function monster_left_right(wid, tuple, distance)
     } else {
 	yeAddAt(mon, MONSTER_ACC, Math.abs(y_move_last_x(yeGet(mon, MONSTER_MOVER))))
     }
-    //yePrint(mon)
-    //yePrint(distance)
 }
 
 function monster_round(wid, tuple, distance)
