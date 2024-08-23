@@ -35,6 +35,8 @@ const PC_PUNCH_MINFO = 11
 const PC_DASH = 12
 const PC_NB_TURN_IDX = 13
 const PC_PUNCH_COUNT_IDX = 14
+/* jmp power allow you to jump longer if keep press 'space' */
+const PC_JMP_POWER_LEFT = 15
 
 const MONSTER_STR_KEY = 0
 const MONSTER_POS = 1
@@ -61,6 +63,7 @@ const BOSS_TXT_LIVE = 2
 const KEYDOWN_LEFT = 1
 const KEYDOWN_RIGHT = 1 << 1
 const KEYDOWN_UP = 1 << 2
+const KEYDOWN_SPACE = 1 << 3
 
 const CANVAS_OBJ_IDX = YCANVAS_UDATA_IDX + 1
 
@@ -178,7 +181,7 @@ function print_all(wid)
 		continue;
 		//print(i, j, c)
 	    } else if (c == "^") {
-		pike = ywCanvasNewImgFromTexture(wid, j * SPRITE_SIZE, i * SPRITE_SIZE,
+		let pike = ywCanvasNewImgFromTexture(wid, j * SPRITE_SIZE, i * SPRITE_SIZE,
 						 yeGet(textures, "pike"))
 		yeCreateIntAt(TYPE_PIKE, pike, "amap-t", YCANVAS_UDATA_IDX)
 
@@ -287,6 +290,10 @@ function amap_action(wid, events)
 	wid.setAt("keydown", wid.geti("keydown") | KEYDOWN_UP)
     }
 
+    if (yevIsKeyUp(events, Y_SPACE_KEY)) {
+	wid.setAt("keydown", wid.geti("keydown") & (~KEYDOWN_SPACE))
+    }
+
     if (yevIsKeyDown(events, Y_LEFT_KEY) && have_upkey != DIR_LEFT) {
 	yeSetIntAt(pc_canel, PC_DIR, DIR_LEFT)
 	y_move_set_xspeed(pc_minfo, -BASE_SPEED)
@@ -347,6 +354,8 @@ function amap_action(wid, events)
 	       yeGetIntAt(pc_canel, PC_JMP_NUMBER) < 2) {
 	yeSetIntAt(pc_canel, PC_DROPSPEED_IDX, -25);
 	yeAddAt(pc_canel, PC_JMP_NUMBER, 1);
+	wid.setAt("keydown", wid.geti("keydown") | KEYDOWN_SPACE)
+	pc_canel.setAt(PC_JMP_POWER_LEFT, pc.geti("jmp-power"))
     }
 
     if (yeGetIntAt(pc_canel, PC_TURN_CNT_IDX) > 20000) {
@@ -396,8 +405,15 @@ function amap_action(wid, events)
 		yeSetIntAt(pc_canel, PC_PUNCH_LIFE, 0)
 	    }
 	}
+	/* can't jump in dash */
 	if (yeGetIntAt(pc_canel, PC_DASH) < 1) {
-	    yeAddAt(pc_canel, PC_DROPSPEED_IDX, 2 * mult);
+	    let kd = wid.geti("keydown")
+
+	    if (pc_canel.geti(PC_JMP_POWER_LEFT) > 0 && kd & KEYDOWN_SPACE) {
+		yeAddAt(pc_canel, PC_JMP_POWER_LEFT, -2 * mult);
+	    } else {
+		yeAddAt(pc_canel, PC_DROPSPEED_IDX, 2 * mult);
+	    }
 	}
 	yeSetIntAt(pc_canel, PC_TURN_CNT_IDX, 0);
 	if (yeGetIntAt(pc_canel, PC_HURT)) {
@@ -739,6 +755,7 @@ function amap_init(wid)
 	let stats = yeCreateArray(pc, "stats");
 	yeCreateInt(6, stats, "agility");
 	yeCreateInt(4, stats, "strength");
+	pc.setAt("jmp-power", 10)
     }
     //yePrint(pc)
     // canel for canvas element, it's the info about the screen position and stuff
