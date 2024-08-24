@@ -783,7 +783,6 @@ function amap_init(wid)
 	let stats = yeCreateArray(pc, "stats");
 	yeCreateInt(6, stats, "agility");
 	yeCreateInt(4, stats, "strength");
-	pc.setAt("jmp-power", 10)
     }
     //yePrint(pc)
     // canel for canvas element, it's the info about the screen position and stuff
