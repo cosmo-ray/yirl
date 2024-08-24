@@ -119,6 +119,21 @@ function move_punch(wid, pc_canel, turn_timer)
 
 }
 
+function yamap_push_obj(wid, pos, idx)
+{
+    let ic = idx
+    let mi = yeGet(wid, "_mi")
+    let objs = yeGet(mi, "objs")
+    let object = yeGet(objs, ic)
+    let textures = wid.get("textures")
+    let o = ywCanvasNewImgFromTexture(wid, ywPosX(pos) * SPRITE_SIZE,
+				      ywPosY(pos) * SPRITE_SIZE,
+				      yeGet(textures, yeGetStringAt(object, 0)))
+    yeCreateIntAt(TYPE_OBJ, o, "amap-t", YCANVAS_UDATA_IDX)
+    yeCreateIntAt(ic, o, "objidx", CANVAS_OBJ_IDX)
+    object.setAt(OBJECT_CANEL, o)
+}
+
 function yamap_generate_monster_canvasobj(wid, textures,
 					  mon, monsters_info, idx)
 {
@@ -575,7 +590,7 @@ function amap_action(wid, events)
 		    return true
 		}
 		if (ret == 2) {
-		    const idx =c.geti("objidx")
+		    const idx = c.geti("objidx")
 		    ywCanvasRemoveObj(wid, c)
 		    objs.rm(idx)
 		}
@@ -1039,6 +1054,7 @@ function mod_init(mod)
     yeCreateFunction(monster_left_right, mons_mv, "left_right")
     yeCreateFunction(monster_rand, mons_mv, "rand")
     yeCreateFunction(monster_round, mons_mv, "round")
+    ygRegistreFunc(3, "yamap_push_obj", "yamap_push_obj")
     ygRegistreFunc(5, "yamap_generate_monster_canvasobj",
 		   "yamap_generate_monster_canvasobj")
     ygAddModule(Y_MOD_YIRL, mod, "smart_cobject")
