@@ -447,30 +447,43 @@ function amap_action(wid, events)
 
 
     if (boss) {
-	let boss_i = yeGet(mi, "boss")
-	let life = yeGetIntAt(boss_i, "life")
+	function boss_call() {
+	    let boss_i = yeGet(mi, "boss")
+	    let life = yeGetIntAt(boss_i, "life")
 
-	if (life < 1) {
-	    ywidAction(yeGet(boss_i, "win"), wid)
+	    let tuple = yeCreateArray()
+	    yePushBack(tuple, boss)
+	    yeCreateInt(turn_timer, tuple)
+
+	    if (life < 1) {
+		let ret = ywidAction(yeGet(boss_i, "win"), wid, boss_i, tuple)
+		if (ret == 1) {
+		    return 1
+		} else if (ret == 2) {
+		    ywCanvasRemoveObj(wid, boss.get(0))
+		    mi.rm("boss")
+		    wid.rm("_boss")
+		}
+		return 0;
+	    }
+	    let txt_start_x = ywPosX(old_pos) - 200
+	    let txt_start_y = ywPosY(old_pos) - 200
+
+	    ywidActions(wid, boss_i, tuple)
+
+	    let txt_obj = yeGet(boss, BOSS_TXT_LIVE)
+	    ywCanvasObjSetPos(txt_obj, txt_start_x, txt_start_y)
+	    let base_txt = "BOSS life: |"
+	    for (; life > 0; life -= 5) {
+		base_txt = base_txt + "="
+	    }
+	    base_txt = base_txt + "|"
+	    ywCanvasStringSet(txt_obj, yeCreateString(base_txt))
+	    return 0
+	}
+	if (boss_call()) {
 	    return
 	}
-	let txt_start_x = ywPosX(old_pos) - 200
-	let txt_start_y = ywPosY(old_pos) - 200
-
-	let tuple = yeCreateArray()
-	yePushBack(tuple, boss)
-	yeCreateInt(turn_timer, tuple)
-	ywidActions(wid, boss_i, tuple)
-
-	let txt_obj = yeGet(boss, BOSS_TXT_LIVE)
-	ywCanvasObjSetPos(txt_obj, txt_start_x, txt_start_y)
-	let base_txt = "BOSS life: |"
-	for (; life > 0; life -= 5) {
-	    base_txt = base_txt + "="
-	}
-	base_txt = base_txt + "|"
-	ywCanvasStringSet(txt_obj, yeCreateString(base_txt))
-
     }
 
     if (yeGetIntAt(pc_canel, PC_PUNCH_LIFE) > 0) {
