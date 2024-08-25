@@ -556,6 +556,8 @@ function amap_action(wid, events)
 	    if (!o)
 		continue;
 	    let o_canel = o.get(OBJECT_CANEL)
+	    if (!o_canel)
+		continue;
 	    let o_pos = ywCanvasObjPos(o_canel)
 	    let mover = o.get(OBJECT_MOVER)
 	    if (!mover) {
