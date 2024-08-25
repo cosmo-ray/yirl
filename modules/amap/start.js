@@ -783,6 +783,7 @@ function amap_init(wid)
 	let stats = yeCreateArray(pc, "stats");
 	yeCreateInt(6, stats, "agility");
 	yeCreateInt(4, stats, "strength");
+	// pc.setAt("jmp-power", 10)
     }
     //yePrint(pc)
     // canel for canvas element, it's the info about the screen position and stuff
@@ -910,7 +911,6 @@ function win(wid)
 
 function next(wid, _, pos)
 {
-    print("ACTION !!!!!")
     let mi = yeGet(wid, "_mi")
     init_map(wid, yeGetStringAt(mi, "next"), pos)
     return 1
@@ -918,9 +918,15 @@ function next(wid, _, pos)
 
 function next1(wid, _, pos)
 {
-    print("ACTION !!!!!")
     let mi = yeGet(wid, "_mi")
     init_map(wid, yeGetStringAt(mi, "next1"), pos)
+    return 1
+}
+
+function next2(wid, _, pos)
+{
+    let mi = yeGet(wid, "_mi")
+    init_map(wid, yeGetStringAt(mi, "next2"), pos)
     return 1
 }
 
@@ -1048,6 +1054,7 @@ function mod_init(mod)
     yeCreateString("rgba: 255 255 255 255", yeGet(mod, "test_wid"), "background")
     yeCreateFunction(next, mod, "next")
     yeCreateFunction(next1, mod, "next1")
+    yeCreateFunction(next2, mod, "next2")
     yeCreateFunction("win", mod, "win")
     let mons_mv = yeCreateArray(mod, "mons_mv")
     yeCreateFunction(monster_left_right, mons_mv, "left_right")
