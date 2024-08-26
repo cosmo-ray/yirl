@@ -9,7 +9,8 @@ LINEHELPER[5]="--analyzer		Use gcc 10+ --fanalyzer"
 LINEHELPER[6]="--disable-tcc		disable tcc scripting"
 LINEHELPER[7]="--disable-s7		disable s7 scripting"
 LINEHELPER[8]="--disable-ph7		disable ph7 scripting"
-LINEHELPER[9]="--system-sdl-mixer	use sdl2_mixer from system"
+LINEHELPER[9]="--disable-perl		disable perl scripting"
+LINEHELPER[10]="--system-sdl-mixer	use sdl2_mixer from system"
 
 source configure-helper.sh
 
