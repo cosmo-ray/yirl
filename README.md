@@ -102,6 +102,11 @@ Here's a Table of what support what:
 ```
 
 ## building
+First install the [dependencies](https://github.com/cosmo-ray/yirl?tab=readme-ov-file#dependencies)
+
+Most scripting language support are optional and can be disable using for instance: `--disable-perl`.
+more info using `./configure --help`
+
 Linux - Mac Os:
 ```
 git submodule update --init
@@ -196,9 +201,6 @@ Development package of these libs:
 
 
 </details>
-
-## for peoples who don't like github:
-https://git.iglou.eu/Matthias/yirl
 
 ## License:
 YIRL is licensed under the LGPL license, the idea behind that, is that you can add a modules under the license you want, but if you make a modification to the engine, you need to share it.
