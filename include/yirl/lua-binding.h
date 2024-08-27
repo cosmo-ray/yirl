@@ -262,6 +262,14 @@ static inline int make_abort(lua_State *L, ...)
 			       luaNumberAt(L, 5)));			\
 	}
 
+#define BIND_EEEEE(f, ...)						\
+	static inline int lua##f(lua_State *L)				\
+	{								\
+		BIND_AUTORET(f(luaEntityAt(L, 1), luaEntityAt(L, 2),	\
+			       luaEntityAt(L, 3), luaEntityAt(L, 4),	\
+			       luaEntityAt(L, 5)));			\
+	}
+
 #define BIND_EEESI(f, ...)						\
 	static inline int lua##f(lua_State *L)				\
 	{								\
@@ -664,7 +672,6 @@ int	luaYwCanvasMoveObjByIdx(lua_State *L);
 int	luaYwCanvasNewObj(lua_State *L);
 int	luaYwCanvasObjPos(lua_State *L);
 int	luaYwCanvasObjSize(lua_State *L);
-int	luaywCanvasObjAngle(lua_State *L);
 int	luaYwCanvasObjFromIdx(lua_State *L);
 int	luaYwCanvasIdxFromObj(lua_State *L);
 int	luaYwCanvasObjSetPos(lua_State *L);
@@ -1051,7 +1058,6 @@ static inline int	yesLuaRegister(void *sm)
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasMoveObjByIdx",
 				 luaYwCanvasMoveObjByIdx));
   YES_LUA_REGISTRE_CALL(sm, ywCanvasAdvenceObj);
-  YES_LUA_REGISTRE_CALL(sm, ywCanvasObjAngle);
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasNewObj", luaYwCanvasNewObj));
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ywCanvasNewText", luaYwCanvasNewText));
   YES_LUA_REGISTRE_CALL(sm, ywCanvasNewTextExt);

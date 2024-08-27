@@ -620,6 +620,17 @@ XS(XS_yevCreateGrp)
 				  SvIV(ST(4))));		\
 	}
 
+#define BIND_EEEEE(name, ...)					\
+	XS(XS_##name)						\
+	{							\
+		dXSARGS;					\
+		BIND_AUTORET(name((void *)SvIV(ST(0)),		\
+				  (void *)SvIV(ST(1)),		\
+				  (void *)SvIV(ST(2)),		\
+				  (void *)SvIV(ST(3)),		\
+				  (void *)SvIV(ST(4))));	\
+	}
+
 #define BIND_EEESI(name, ...)					\
 	XS(XS_##name)						\
 	{							\

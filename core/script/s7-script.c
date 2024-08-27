@@ -286,6 +286,7 @@ static s7_pointer make_nothing(s7_scheme *s, ...)
 		 long: s7_make_integer,			\
 		 long long: s7_make_integer,		\
 		 _Bool: s7_make_boolean,		\
+		 double: s7_make_real,			\
 		 unsigned long: s7_make_integer,	\
 		 unsigned int: s7_make_integer)		\
 		(__VA_ARGS__, call)
@@ -294,6 +295,7 @@ static s7_pointer make_nothing(s7_scheme *s, ...)
 #define S7ME s7_make_c_object
 #define S7MI s7_make_integer
 #define S7MB s7_make_boolean
+#define S7MD s7_make_real
 
 #define BIND_AUTORET(call)						\
 	int t = YSCRIPT_RET_TYPE(call, 0);				\
@@ -304,7 +306,7 @@ static s7_pointer make_nothing(s7_scheme *s, ...)
 		_Pragma("GCC diagnostic pop");				\
 		return s7_nil(s);					\
 	case 1:								\
-		return S7ME(s, s7m->et, (void *)YSCRIPT_VOID_CALL(call)); \
+		return S7ME(s, s7m->et, (void *)(intptr_t)YSCRIPT_VOID_CALL(call)); \
 	case 2:								\
 		return S7A2(YSCRIPT_VOID_CALL(call), s);		\
 	}								\
@@ -451,6 +453,14 @@ static s7_pointer make_nothing(s7_scheme *s, ...)
 		BIND_AUTORET(f(E_AT(s, a, 0), E_AT(s, a, 1),	\
 			       E_AT(s, a, 2), E_AT(s, a, 3),	\
 			       I_AT(s, a, 4)));			\
+	}
+
+#define BIND_EEEEE(f, ...)					\
+	static s7_pointer s7##f(s7_scheme *s, s7_pointer a)	\
+	{							\
+		BIND_AUTORET(f(E_AT(s, a, 0), E_AT(s, a, 1),	\
+			       E_AT(s, a, 2), E_AT(s, a, 3),	\
+			       E_AT(s, a, 4)));			\
 	}
 
 #define BIND_EEESI(f, ...)					\

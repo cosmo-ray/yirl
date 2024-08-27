@@ -55,6 +55,7 @@ const TYPE_PUNCH = 4
 const TYPE_MONSTER = 5
 const TYPE_OBJ = 6
 const TYPE_BOSS = 7
+const TYPE_BREAKABLE_BLOCK = 8
 
 const BOSS_OBJ = 0
 const BOSS_MOVER = 1
@@ -158,6 +159,7 @@ function print_all(wid)
     let pc_canel = yeGet(wid, "_pc")
     let sharp_str = yeGet(mi, "#")
     let upsharp_str = yeGet(mi, "'")
+    let brekable_str = yeGet(mi, "=")
     let objs = yeGet(mi, "objs")
     let objs_conditions = mi.get("objs_condition")
     let textures = yeGet(wid, "textures");
@@ -186,7 +188,14 @@ function print_all(wid)
 		continue;
 	    }
 
-	    if (c == '#') {
+	    if (c == '=') {
+		let breakable = ywCanvasNewRectangle(wid, j * SPRITE_SIZE, i * SPRITE_SIZE,
+				     SPRITE_SIZE, SPRITE_SIZE / 2, "rgba: 100 200 100 255")
+		yeCreateIntAt(TYPE_BREAKABLE_BLOCK, breakable, "amap-t", YCANVAS_UDATA_IDX)
+		continue;
+
+	    }
+	    else if (c == '#') {
 		if (sharp_str)
 		    ywCanvasNewRectangle(wid, j * SPRITE_SIZE, i * SPRITE_SIZE,
 					 SPRITE_SIZE, SPRITE_SIZE, yeGetString(sharp_str))
@@ -341,7 +350,7 @@ function amap_action(wid, events)
 	    y_move_set_xspeed(yeGet(pc_canel, PC_PUNCH_MINFO), 0)
 
 	    if (kd & KEYDOWN_UP) {
-		ywCanvasRotate(canvasobj, 90);
+		ywCanvasRotate(canvasobj, 90)
 		ywCanvasMoveObjXY(canvasobj, -20, 0)
 		y_move_set_yspeed(yeGet(pc_canel, PC_PUNCH_MINFO), -30)
 	    }
@@ -503,10 +512,14 @@ function amap_action(wid, events)
 
     if (yeGetIntAt(pc_canel, PC_PUNCH_LIFE) > 0) {
 	let punch_obj = yeGet(pc_canel, PC_PUNCH_OBJ)
-	let cols = ywCanvasNewCollisionsArray(wid, punch_obj)
+	let add_xy = null
+	if (ywCanvasObjAngle(punch_obj) > 89) {
+	    add_xy = ywPosCreate(20, -10)
+	}
+	let cols = ywCanvasNewProjectedCollisionsArrayExt(wid, punch_obj, add_xy, null, null)
 
 	if (cols) {
-	    cols.forEach(function(c) {
+	    for (c of cols) {
 		let ctype = yeGetIntAt(c, YCANVAS_UDATA_IDX)
 		if (ctype == TYPE_MONSTER) {
 		    if (ywCanvasObjectsCheckColisions(c, punch_obj)) {
@@ -515,6 +528,9 @@ function amap_action(wid, events)
 			yeRemoveChildByIdx(monsters, mon_idx)
 			yeAddAt(pc_canel, PC_PUNCH_LIFE, -2)
 		    }
+		} else if (ctype == TYPE_BREAKABLE_BLOCK) {
+		    ywCanvasRemoveObj(wid, c)
+		    yeAddAt(pc_canel, PC_PUNCH_LIFE, -25)
 		} else if (ctype == TYPE_BOSS) {
 		    let boss_i = yeGet(mi, "boss")
 
@@ -531,7 +547,7 @@ function amap_action(wid, events)
 		    return true
 		}
 
-	    })
+	    }
 	    yeDestroy(cols)
 	}
     } else if (boss) {
@@ -596,6 +612,14 @@ function amap_action(wid, events)
 		    ywCanvasRemoveObj(wid, c)
 		    objs.rm(idx)
 		}
+	    } else if (ctype == TYPE_BREAKABLE_BLOCK) {
+		stop_x = true
+		if ((ywPosY(old_pos) + SPRITE_SIZE) <= ywPosY(ywCanvasObjPos(c))) {
+		    stop_fall = true
+		    print_life(wid, pc, pc_canel)
+		}
+		if (pc_canel.geti(PC_DROPSPEED_IDX) < 0)
+		    pc_canel.setAt(PC_DROPSPEED_IDX, 0)
 	    } else if (ctype != TYPE_ANIMATION && ctype != TYPE_PUNCH) {
 		if (ywCanvasObjectsCheckColisions(c, pc_canvas_obj)) {
 		    if (ctype == TYPE_PIKE || ctype == TYPE_MONSTER || ctype == TYPE_BOSS) {

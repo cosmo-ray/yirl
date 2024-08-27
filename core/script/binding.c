@@ -35,6 +35,7 @@
 #define BIND_EEEI	BIND
 #define BIND_IIES	BIND
 #define BIND_EEEEI	BIND
+#define BIND_EEEEE	BIND
 #define BIND_EEESI	BIND
 #define BIND_EIIEE	BIND
 #define BIND_EIIII	BIND
@@ -114,6 +115,8 @@ BIND_EEEE(ywTextureMergeTexture, 4, 0);
 BIND_EEEE(ywTextureMergeUnsafe, 4, 0);
 
 BIND_EEEI(ywPosIsInRectPS, 4, 0);
+
+BIND_EEEEE(ywCanvasNewProjectedCollisionsArrayExt, 2, 3);
 
 BIND_EEEEI(ywMapDrawSegment, 4, 1);
 
@@ -242,6 +245,8 @@ BIND_EI(yeGetKeyAt, 2, 0);
 BIND_EI(ywMapCamPointedContainId, 2, 0);
 
 BIND_SS(ygReCreateString, 2, 0);
+
+BIND_E(ywCanvasObjAngle, 1, 0);
 
 BIND_E(yeCheckCondition, 1, 0);
 
@@ -583,6 +588,7 @@ PUSH_I_GLOBAL(YPERL);
 #undef BIND_EIIIS
 #undef BIND_EIIEE
 #undef BIND_EEEEI
+#undef BIND_EEEEE
 #undef BIND_EEESI
 #undef BIND_EIIII
 #undef BIND_EEEI

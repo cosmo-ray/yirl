@@ -618,12 +618,6 @@ int	luaYwCanvasMoveObjByIdx(lua_State *L)
 	return 1;
 }
 
-int	luaywCanvasObjAngle(lua_State *L)
-{
-	lua_pushnumber(L, ywCanvasObjAngle(luaEntityAt(L, 1)));
-	return 1;
-}
-
 int	luaywCanvasAdvenceObj(lua_State *L)
 {
 	lua_pushnumber(L, ywCanvasAdvenceObj(luaEntityAt(L, 1),

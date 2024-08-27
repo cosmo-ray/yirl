@@ -480,6 +480,15 @@ Entity *ywCanvasNewCollisionsArrayExt(Entity *wid, Entity *obj,
 				      Entity *colisionFuncArg);
 
 /**
+ * add add_x_y to obj pos
+ * @return array containing all object that colide with obj, this need to be free
+ */
+Entity *ywCanvasNewProjectedCollisionsArrayExt(Entity *wid, Entity *obj,
+					       Entity *add_x_y,
+					       Entity *colisionFunc,
+					       Entity *colisionFuncArg);
+
+/**
  * @return array containing all object that colide with rectangle, this need to be free
  */
 Entity *ywCanvasNewCollisionsArrayWithRectangle(Entity *wid, Entity *rectangle);
