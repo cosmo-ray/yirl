@@ -631,6 +631,8 @@ function amap_action(wid, events)
 			return true
 		    }
 		}
+		if (ctype == TYPE_PIKE || ctype == TYPE_MONSTER || ctype == TYPE_BOSS)
+		    return false;
 		if ((ywPosY(old_pos) + SPRITE_SIZE) <= ywPosY(ywCanvasObjPos(c))) {
 		    stop_fall = true
 		    print_life(wid, pc, pc_canel)
