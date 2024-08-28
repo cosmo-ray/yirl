@@ -60,7 +60,7 @@ typedef struct {
 
 extern char *yProgramArg;
 
-extern char *ygBinaryRootPath;
+extern const char *ygBinaryRootPath;
 
 static inline Entity *ygInitWidgetModule(Entity *mod, const char *name, Entity *call)
 {
@@ -111,12 +111,6 @@ static inline void ygAddModule(int type, Entity *mod, const char *path)
 const char *ygGetBinaryRootPath(void);
 
 const char *ygGetProgramArg(void);
-
-static inline void ygBinaryRootPathFree(void)
-{
-  free(ygBinaryRootPath);
-  ygBinaryRootPath = "./";
-}
 
 #define ygInitGameConfig(cfg, path, render)				\
   _Generic((render),							\

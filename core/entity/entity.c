@@ -716,6 +716,19 @@ Entity *yeCreateFunction(const char *funcName, void *manager,
 	return yeCreateFunctionExt(funcName, manager, father, name, 0);
 }
 
+Entity *yeStealString(char *string, Entity *father,
+		      const char *name)
+{
+	StringEntity *ret;
+
+	YE_ALLOC_ENTITY(ret, StringEntity);
+	yeInit((Entity *)ret, YSTRING, father, name);
+	ret->value = string;
+	ret->origin = NULL;
+	ret->len = strlen(string);
+	return (YE_TO_ENTITY(ret));
+}
+
 Entity *yeCreateString(const char *string, Entity *father, const char *name)
 {
 	StringEntity *ret;

@@ -875,6 +875,10 @@ Entity *yeCreateNString(const char *string, int l, Entity *parent,
 			const char *name);
 
 
+/* similar to CreateString, but steal a C pointer */
+Entity *yeStealString(char *string, Entity *father,
+		      const char *name);
+
 Entity *yeCreateInts_(Entity *parent, int nbVars, ...);
 
 #define yeCreateInts(parent, args...)				\

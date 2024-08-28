@@ -83,7 +83,7 @@ static YTimer *game_tick;
 char *yProgramArg;
 
 char ygBinaryRootPathBuf[PATH_MAX];
-char *ygBinaryRootPath;
+const char *ygBinaryRootPath;
 char yg_user_dir[PATH_MAX];
 
 RenderType current_render_type;

@@ -31,9 +31,10 @@ int main(int argc, char **argv)
 {
   GameConfig cfg = {0};
   int ret = 1;
+  char *binary_root_path_alloc = NULL;
   const char *start = NULL;
   const char *name = NULL;
-  char *binaryRootPath = NULL;
+  const char *binaryRootPath = NULL;
   const char *start_dir = NULL;
   char buf[PATH_MAX];
   char *cpath = getcwd(buf, PATH_MAX);
@@ -90,8 +91,27 @@ int main(int argc, char **argv)
 			 "-d, --start-dir <path>	move on the given directorry, use as starting module\n",
 			 argv[0]);
 		  return 0;
+	  } else {
+		  start_dir = argv[i];
 	  }
   }
+
+  /* if not binary root path, try to determine yirl main dir
+   * before changing start directory */
+  if (!binaryRootPath) {
+	  binary_root_path_alloc = get_current_dir_name();
+	  char *path_plus_mod = y_strdup_printf("%s%cmodules%cdialogue-box%c",
+						binary_root_path_alloc,
+						PATH_SEPARATOR, PATH_SEPARATOR,
+						PATH_SEPARATOR);
+	  if (!access(path_plus_mod, F_OK)) {
+		  binaryRootPath = binary_root_path_alloc;
+	  } else if (!access("/usr/share/yirl/modules/dialogue-box/", F_OK)) {
+		  binaryRootPath = "/usr/share/yirl/";
+	  }
+	  free(path_plus_mod);
+  }
+
 
   if (start_dir) {
     if (chdir(start_dir) < 0)
@@ -132,6 +152,7 @@ int main(int argc, char **argv)
  end:
   ygEnd();
   ygCleanGameConfig(&cfg);
+  free(binary_root_path_alloc);
 
   return ret;
 }
