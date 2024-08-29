@@ -40,6 +40,13 @@ const HELP_GUY = `
     \\__/
 `
 
+let CUR_HEAD = HELP_GUY
+
+function y_set_head(head)
+{
+    CUR_HEAD = head
+}
+
 function y_stop_action(wid, eves)
 {
     if (yevAnyMouseDown(eves) ||
@@ -129,7 +136,7 @@ function y_stop_func(wid, x, y, txt, have_arrow)
 	head_threshold = 20 * (1 + yeCountLines(txt)) + 40
     }
     yePushBack(data, ywCanvasNewText(wid, x + 70  * xdir,
-				     y + head_threshold, yeCreateString(HELP_GUY)));
+				     y + head_threshold, yeCreateString(CUR_HEAD)));
     return true
 }
 
@@ -145,7 +152,9 @@ function y_stop_head(wid, x, y, txt)
 
 function mod_init(mod)
 {
+    yeCreateFunction(y_set_head, mod, "y_set_head")
     ygRegistreFunc(4, "y_stop_head", "y_stop_head");
+    ygRegistreFunc(1, "y_set_head", "y_set_head");
     ygRegistreFunc(4, "y_stop_helper", "y_stop_helper");
     return mod
 }

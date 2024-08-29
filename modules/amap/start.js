@@ -481,6 +481,9 @@ function amap_action(wid, events)
 
 	    if (life < 1) {
 		let ret = ywidAction(yeGet(boss_i, "win"), wid, boss_i, tuple)
+		if (ret & 0x10)
+		    y_move_set_xspeed(pc_minfo, 0)
+		ret = ret & 0x0f
 		if (ret == 1) {
 		    return 1
 		} else if (ret == 2) {
@@ -603,6 +606,10 @@ function amap_action(wid, events)
 		let action = yeGet(yeGet(objs, yeGetIntAt(c, CANVAS_OBJ_IDX)), 1);
 
 		let ret = ywidAction(action, wid);
+		if (ret & 0x10)
+		    y_move_set_xspeed(pc_minfo, 0)
+		ret = ret & 0x0f
+
 		if (ret == 1) {
 		    direct_ret = true
 		    return true
