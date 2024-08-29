@@ -363,6 +363,7 @@ function amap_action(wid, events)
 	let textures = yeGet(wid, "textures");
 	let canvasobj = ywCanvasNewImgFromTexture(wid, ywPosX(pc_pos), ywPosY(pc_pos),
 						  yeGet(textures, "punch"))
+	let base_speed = 25 + pc.get("stats").geti("agility")
 
 	let kd = wid.geti("keydown")
 	y_move_set_yspeed(yeGet(pc_canel, PC_PUNCH_MINFO), 0)
@@ -518,8 +519,8 @@ function amap_action(wid, events)
 		}
 		return 0;
 	    }
-	    let txt_start_x = ywPosX(old_pos) - 200
-	    let txt_start_y = ywPosY(old_pos) - 200
+	    let txt_start_x = ywPosX(old_pos)
+	    let txt_start_y = ywPosY(old_pos) - 220
 
 	    ywidActions(wid, boss_i, tuple)
 
@@ -565,8 +566,9 @@ function amap_action(wid, events)
 		    yeAddAt(pc_canel, PC_PUNCH_LIFE, -25)
 		} else if (ctype == TYPE_BOSS) {
 		    let boss_i = yeGet(mi, "boss")
+		    let dmg = pc.get("stats").geti("strength")
 
-		    yeAddAt(boss_i, "life", -5)
+		    yeAddAt(boss_i, "life", -dmg)
 		    yeAddAt(pc_canel, PC_PUNCH_LIFE, -25)
 		    ywCanvasSetColorModRGBA(boss.get(0), 255, 100, 0, 255)
 		    wid.setAt("boss-h-timer", 100000)
