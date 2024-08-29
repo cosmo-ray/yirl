@@ -56,6 +56,7 @@ const TYPE_MONSTER = 5
 const TYPE_OBJ = 6
 const TYPE_BOSS = 7
 const TYPE_BREAKABLE_BLOCK = 8
+const TYPE_LIGHT_FLOOR = 9
 
 const BOSS_OBJ = 0
 const BOSS_MOVER = 1
@@ -105,6 +106,22 @@ function print_life(wid, pc, pc_canel)
 						 yeGet(textures, "motivation")));
 	    ++j;
 	}
+    }
+
+    let next_lvl = wid.geti("next-lvl")
+    if (next_lvl > 0) {
+	let cur_xp = pc.geti("xp")
+
+	start_y += 20
+	start_x -= 60
+	life_array.push(ywCanvasNewTextByStr(wid, start_x, start_y, "xp:"))
+	start_x += 60
+	life_array.push(ywCanvasNewRectangle(wid, start_x, start_y, next_lvl * 2 + 10, 16,
+					     "rgba: 100 100 100 255"))
+	life_array.push(ywCanvasNewRectangle(wid, start_x + 5, start_y + 3,
+					     cur_xp * 2, 10,
+					     "rgba: 120 220 120 255"))
+
     }
 }
 
@@ -178,13 +195,16 @@ function print_all(wid)
 	    let c = s[j];
 
 	    if (c == "'") {
+		let floor = null
 		if (upsharp_str)
-		    ywCanvasNewRectangle(wid, j * SPRITE_SIZE, i * SPRITE_SIZE,
-					 SPRITE_SIZE, SPRITE_SIZE / 3, upsharp_str.s())
+		    floor = ywCanvasNewRectangle(wid, j * SPRITE_SIZE, i * SPRITE_SIZE,
+						 SPRITE_SIZE, SPRITE_SIZE / 3, upsharp_str.s())
 		else
-		    ywCanvasNewRectangle(wid, j * SPRITE_SIZE, i * SPRITE_SIZE,
-					 SPRITE_SIZE, SPRITE_SIZE / 3, "rgba: 0 0 0 255")
+		    floor = ywCanvasNewRectangle(wid, j * SPRITE_SIZE, i * SPRITE_SIZE,
+						 SPRITE_SIZE, SPRITE_SIZE / 3,
+						 "rgba: 0 0 0 255")
 
+		yeCreateIntAt(TYPE_LIGHT_FLOOR, floor, "amap-t", YCANVAS_UDATA_IDX)
 		continue;
 	    }
 
@@ -469,6 +489,11 @@ function amap_action(wid, events)
 	ygCallFuncOrQuit(wid, "lose");
     }
 
+    let next_lvl = wid.geti("next-lvl")
+    if (next_lvl > 0 && pc.geti("xp") >= next_lvl) {
+	wid.get("lvl_up").call(wid)
+    }
+
 
     if (boss) {
 	function boss_call() {
@@ -530,6 +555,10 @@ function amap_action(wid, events)
 			ywCanvasRemoveObj(wid, c)
 			yeRemoveChildByIdx(monsters, mon_idx)
 			yeAddAt(pc_canel, PC_PUNCH_LIFE, -2)
+			let next_lvl = wid.geti("next-lvl")
+			if (next_lvl) {
+			    pc.get("xp").add(1)
+			}
 		    }
 		} else if (ctype == TYPE_BREAKABLE_BLOCK) {
 		    ywCanvasRemoveObj(wid, c)
@@ -643,7 +672,8 @@ function amap_action(wid, events)
 		if ((ywPosY(old_pos) + SPRITE_SIZE) <= ywPosY(ywCanvasObjPos(c))) {
 		    stop_fall = true
 		    print_life(wid, pc, pc_canel)
-		} else if (yeGetIntAt(pc_canel, PC_DROPSPEED_IDX) >= 0 &&
+		} else if (ctype != TYPE_LIGHT_FLOOR &&
+			   yeGetIntAt(pc_canel, PC_DROPSPEED_IDX) >= 0 &&
 			   (ywPosY(old_pos) + SPRITE_SIZE - 1) >
 			   ywPosY(ywCanvasObjPos(c)) + 10) {
 		    stop_x = true

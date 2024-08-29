@@ -1174,6 +1174,18 @@ static JSValue entity_add(JSContext *ctx, JSValueConst this_val,
 	return JS_NULL;
 }
 
+static JSValue entity_mult(JSContext *ctx, JSValueConst this_val,
+			  int argc, JSValueConst *argv)
+{
+	Entity *e = GET_E_(this_val);
+
+	if (JS_IsNumber(argv[0])) {
+		yeMultInt(e, GET_I(ctx, 0));
+		return mk_ent(ctx, e, 0);
+	}
+	return JS_NULL;
+}
+
 static JSValue array_push(JSContext *ctx, JSValueConst this_val,
 			  int argc, JSValueConst *argv)
 {
@@ -1446,6 +1458,7 @@ static const JSCFunctionListEntry js_ent_proto_funcs[] = {
     JS_CFUNC_DEF("gets", 1, array_gets),
     JS_CFUNC_DEF("addAt", 0, array_add_at),
     JS_CFUNC_DEF("add", 0, entity_add),
+    JS_CFUNC_DEF("mult", 0, entity_mult),
     JS_CFUNC_DEF("boundary", 0, entity_bondary),
     JS_CFUNC_DEF("toInt", 1, entity_to_int),
     JS_CFUNC_DEF("i", 1, entity_to_int),
