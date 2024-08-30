@@ -137,6 +137,23 @@ function move_punch(wid, pc_canel, turn_timer)
 
 }
 
+function yamap_push_animation(wid, pos, texture_name, lifetime)
+{
+    let anims = yeTryCreateArray(wid, "animations")
+    let textures = wid.get("textures")
+    yePrint(pos)
+    print("tn: ", texture_name)
+    yePrint(textures)
+    yePrint(yeGet(textures, texture_name))
+    let a = ywCanvasNewImgFromTexture(wid, ywPosX(pos),
+				      ywPosY(pos),
+				      yeGet(textures, texture_name))
+    yeCreateIntAt(TYPE_ANIMATION, a, "amap-t", YCANVAS_UDATA_IDX)
+    let anim_info = yeCreateArray(anims)
+    anim_info.setAt(0, a)
+    anim_info.setAt(1, lifetime)
+}
+
 function yamap_push_obj(wid, pos, idx)
 {
     let ic = idx
@@ -548,18 +565,26 @@ function amap_action(wid, events)
 	let cols = ywCanvasNewProjectedCollisionsArrayExt(wid, punch_obj, add_xy, null, null)
 
 	if (cols) {
+	    let monsters_info = yeGet(mi, "monsters")
+
 	    for (c of cols) {
 		let ctype = yeGetIntAt(c, YCANVAS_UDATA_IDX)
 		if (ctype == TYPE_MONSTER) {
 		    if (ywCanvasObjectsCheckColisions(c, punch_obj)) {
 			let mon_idx = yeGetIntAt(c, CANVAS_MONSTER_IDX)
-			ywCanvasRemoveObj(wid, c)
-			yeRemoveChildByIdx(monsters, mon_idx)
 			yeAddAt(pc_canel, PC_PUNCH_LIFE, -2)
 			let next_lvl = wid.geti("next-lvl")
 			if (next_lvl) {
 			    pc.get("xp").add(1)
 			}
+			let mon = monsters.get(mon_idx)
+			let mon_info = monsters_info.get(mon.gets(0))
+			if (mon_info.get("dead")) {
+			    ygGet(mon_info.gets("dead")).call(wid, mon, mon_info)
+			}
+			ywCanvasRemoveObj(wid, c)
+			yeRemoveChildByIdx(monsters, mon_idx)
+
 		    }
 		} else if (ctype == TYPE_BREAKABLE_BLOCK) {
 		    ywCanvasRemoveObj(wid, c)
@@ -707,6 +732,17 @@ function amap_action(wid, events)
 	yeCreateInt(turn_timer, tuple)
 	ywidActions(wid, mon_info, tuple)
     })
+    let animations = wid.get("animations")
+    if (animations) {
+	for (a of animations) {
+	    a.addAt(1, -turn_timer)
+	    if (a.geti(1) < 0) {
+		ywCanvasRemoveObj(wid, a.get(0))
+		animations.rm(a)
+	    }
+	}
+    }
+
 }
 
 function init_map(wid, map_str, pc_pos_orig)
