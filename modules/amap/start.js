@@ -523,7 +523,7 @@ function amap_action(wid, events)
 	    yeCreateInt(turn_timer, tuple)
 
 	    if (life < 1) {
-		let ret = ywidAction(yeGet(boss_i, "win"), wid, boss_i, tuple)
+		let ret = ywidAction(yeGet(boss_i, "win"), wid, tuple)
 		if (ret & 0x10)
 		    y_move_set_xspeed(pc_minfo, 0)
 		ret = ret & 0x0f
@@ -533,6 +533,8 @@ function amap_action(wid, events)
 		    ywCanvasRemoveObj(wid, boss.get(0))
 		    mi.rm("boss")
 		    wid.rm("_boss")
+		    let txt_obj = yeGet(boss, BOSS_TXT_LIVE)
+		    ywCanvasRemoveObj(wid, txt_obj)
 		}
 		return 0;
 	    }
