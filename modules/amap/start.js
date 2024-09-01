@@ -137,21 +137,22 @@ function move_punch(wid, pc_canel, turn_timer)
 
 }
 
-function yamap_push_animation(wid, pos, texture_name, lifetime)
+function yamap_push_animation(wid, pos, texture, lifetime, end_callback)
 {
     let anims = yeTryCreateArray(wid, "animations")
-    let textures = wid.get("textures")
-    yePrint(pos)
-    print("tn: ", texture_name)
-    yePrint(textures)
-    yePrint(yeGet(textures, texture_name))
-    let a = ywCanvasNewImgFromTexture(wid, ywPosX(pos),
-				      ywPosY(pos),
-				      yeGet(textures, texture_name))
+    if (yeType(texture) == YSTRING) {
+	let textures = wid.get("textures")
+	texture = yeGet(textures, texture)
+    }
+
+    a = ywCanvasNewImgFromTexture(wid, ywPosX(pos), ywPosY(pos), texture)
     yeCreateIntAt(TYPE_ANIMATION, a, "amap-t", YCANVAS_UDATA_IDX)
     let anim_info = yeCreateArray(anims)
     anim_info.setAt(0, a)
     anim_info.setAt(1, lifetime)
+    if (end_callback)
+	anim_info.setAt(2, end_callback)
+    return anim_info
 }
 
 function yamap_push_obj(wid, pos, idx)
@@ -739,8 +740,14 @@ function amap_action(wid, events)
 	for (a of animations) {
 	    a.addAt(1, -turn_timer)
 	    if (a.geti(1) < 0) {
-		ywCanvasRemoveObj(wid, a.get(0))
-		animations.rm(a)
+		let ret = 2
+		if (a.get(2)) {
+		    ret = a.get(2).call(wid, a)
+		}
+		if (ret == 2) {
+		    ywCanvasRemoveObj(wid, a.get(0))
+		    animations.rm(a)
+		}
 	    }
 	}
     }
