@@ -109,6 +109,18 @@ void *ysFastCall(void *sm, void *opacFunc, int nb,
 	return ret;
 }
 
+struct ys_ret ysFastCall2(void *sm, void *opacFunc, int nb,
+			  union ycall_arg *args, int *types)
+{
+	struct ys_ret ret;
+	void *old_manager = NULL;
+
+	try_set_cur_mananger(sm, &old_manager);
+	ret = ((YScriptOps *)sm)->fastCall2(sm, opacFunc, nb, args, types);
+	try_deset_cur_mananger(sm, old_manager);
+	return ret;
+}
+
 void *ysCallInt(void *sm, const char *name, int nb, union ycall_arg *args,
 		int *types)
 {
@@ -117,6 +129,18 @@ void *ysCallInt(void *sm, const char *name, int nb, union ycall_arg *args,
 
 	try_set_cur_mananger(sm, &old_manager);
   	ret = ((YScriptOps *)sm)->call(sm, name, nb, args, types);
+	try_deset_cur_mananger(sm, old_manager);
+	return ret;
+}
+
+struct ys_ret ysCall2Int(void *sm, const char *name, int nb, union ycall_arg *args,
+			 int *types)
+{
+	struct ys_ret ret;
+	void *old_manager = NULL;
+
+	try_set_cur_mananger(sm, &old_manager);
+  	ret = ((YScriptOps *)sm)->call2(sm, name, nb, args, types);
 	try_deset_cur_mananger(sm, old_manager);
 	return ret;
 }

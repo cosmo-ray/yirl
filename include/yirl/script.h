@@ -37,6 +37,11 @@ union ycall_arg {
 	const char *str;
 };
 
+struct ys_ret {
+	enum ys_type t;
+	union ycall_arg v;
+};
+
 typedef struct {
 	int (*init)(void *opac, void *args);
 	int (*loadFile)(void *opac, const char *fileName);
@@ -44,13 +49,23 @@ typedef struct {
 	int (* registreFunc)(void *opac, const char *name, void *arg);
 	void (*addFuncSymbole)(void *sm, const char *name, int nbArgs,
 			       Entity *func);
+	/* call e_call and fastCall use the old convention
+	 * that return a void *, problem is that with it
+	 * I don't what type is return, but easy to implement
+	 * and implement by all scripting language
+	 */
 	void *(*call)(void *sm, const char *name, int nb,
+		      union ycall_arg *args, int *types);
+	struct ys_ret (*call2)(void *sm, const char *name, int nb,
 		      union ycall_arg *args, int *types);
 	void *(*e_call)(void *sm, Entity *e, int nb,
 		      union ycall_arg *args, int *types);
 	void *(*fastCall)(void *opac, void *opacFunction,
 			  int nb, union ycall_arg *args,
-		int *types);
+			  int *types);
+	struct ys_ret (*fastCall2)(void *opac, void *opacFunction,
+				   int nb, union ycall_arg *args,
+				   int *types);
 	void *(*getFastPath)(void *scriptManager, const char *name);
 	void (*e_destroy)(void *manager, Entity *e);
 	int (*addDefine)(void *opac, const char *name, const char *val);
@@ -63,6 +78,9 @@ YManagerAllocator *ysScriptsTab(void);
 
 void *ysCallInt(void *sm, const char *name, int nb, union ycall_arg *args,
 		int *types);
+
+struct ys_ret ysCall2Int(void *sm, const char *name, int nb, union ycall_arg *args,
+			 int *types);
 
 #define YS_MK(x) {(void *)(intptr_t)x}
 
@@ -166,6 +184,9 @@ void *ysEntityCall(void *sm, Entity *e, int nb,
 
 void *ysFastCall(void *sm, void *opacFunc, int nb,
 		 union ycall_arg *args, int *types);
+
+struct ys_ret ysFastCall2(void *sm, void *opacFunc, int nb,
+			  union ycall_arg *args, int *types);
 
 static inline void ysAddFuncSymbole(void *sm, const char *name,
 				    int nbArgs, Entity *func)

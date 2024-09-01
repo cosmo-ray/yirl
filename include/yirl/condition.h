@@ -20,6 +20,6 @@
 
 #include <yirl/entity.h>
 
-int yeCheckCondition(Entity *condition);
+_Bool yeCheckCondition(Entity *condition);
 
 #endif

@@ -24,6 +24,9 @@
 void *yesCallInt(Entity *func, int nb, union ycall_arg *args,
 		 int *types);
 
+struct ys_ret yesCall2Int(Entity *func, int nb, union ycall_arg *args,
+			  int *types);
+
 #define yesCall0(func) yesCallInt(func, 0, NULL, NULL)
 
 #define yesCall(func, args...) yesCallInt(func,				\

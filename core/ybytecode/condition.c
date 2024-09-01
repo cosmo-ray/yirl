@@ -65,7 +65,7 @@ int conditionCall(Entity *condition)
 	return (intptr_t)yesCallInt(f, nb, args, types);
 }
 
-int yeCheckCondition(Entity *condition)
+_Bool yeCheckCondition(Entity *condition)
 {
 	if (yeType(condition) == YSTRING) {
 		Entity *e = ygGet(yeGetString(condition));

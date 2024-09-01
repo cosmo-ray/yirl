@@ -17,6 +17,40 @@
 
 #include "entity-script.h"
 
+struct ys_ret yesCall2Int(Entity *func, int nb, union ycall_arg *args,
+		 int *types)
+{
+		void *fp;
+	void *manager;
+
+	if (unlikely(!func))
+		return (struct ys_ret){.t=YS_VPTR, .v.vptr=0};;
+
+	manager = YE_TO_FUNC(func)->manager;
+
+
+	if (unlikely(!(fp = yeGetFunctionFastPath(func)) &&
+		     !yeGetFunction(func)))
+		return (struct ys_ret){.t=YS_VPTR, .v.vptr=0};;
+
+	if (!fp) {
+		YE_TO_FUNC(func)->fastPath =
+			ysGetFastPath(manager, yeGetFunction(func));
+		fp = yeGetFunctionFastPath(func);
+	}
+
+	if (fp) {
+		if (!((YScriptOps *)manager)->fastCall2)
+			goto call_1;
+		return ysFastCall2(manager, fp, nb, args, types);
+	}
+	if (!!((YScriptOps *)manager)->call2)
+		return ysCall2Int(manager, yeGetFunction(func), nb, args, types);
+call_1:
+	void *ret = yesCallInt(func, nb, args, types);
+	return (struct ys_ret){.t=YS_ENTITY, .v.e=ret};
+}
+
 void *yesCallInt(Entity *func, int nb, union ycall_arg *args,
 		 int *types)
 {

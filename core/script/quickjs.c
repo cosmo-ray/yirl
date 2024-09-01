@@ -787,7 +787,15 @@ static JSValue qjsyesCall(JSContext *ctx, JSValueConst this_val,
 	for (int i = 0; i < nb; ++i) {
 		call_set_arg(ctx, i + 1, yargs, types, i, argv, argc);
 	}
-	return new_ent(ctx, yesCallInt(f, nb, yargs, types));
+	struct ys_ret ret = yesCall2Int(f, nb, yargs, types);
+
+	if (ret.t == YS_ENTITY)
+		return new_ent(ctx, ret.v.e);
+	else if (ret.t == YS_INT)
+		return JS_NewInt64(ctx, ret.v.i);
+	else if (ret.t == YS_STR)
+		return JS_NewString(ctx, ret.v.str);
+	return JS_NULL;
 }
 
 static JSValue qjsyevCheckKeys(JSContext *ctx, JSValueConst this_val,
@@ -1308,8 +1316,15 @@ static JSValue entity_call(JSContext *ctx, JSValueConst this_val,
 	for (int i = 0; i < nb; ++i) {
 		call_set_arg(ctx, i, yargs, types, i, argv, argc);
 	}
-	return new_ent(ctx, yesCallInt(f, nb, yargs, types));
+	struct ys_ret ret = yesCall2Int(f, nb, yargs, types);
 
+	if (ret.t == YS_ENTITY)
+		return new_ent(ctx, ret.v.e);
+	else if (ret.t == YS_INT)
+		return JS_NewInt64(ctx, ret.v.i);
+	else if (ret.t == YS_STR)
+		return JS_NewString(ctx, ret.v.str);
+	return JS_NULL;
 }
 
 static JSValue array_forEach_(JSContext *ctx, JSValueConst this_val,
@@ -1569,8 +1584,8 @@ static int init(void *sm, void *args)
 	return 0;
 }
 
-static void *_call(void *sm, int nb, union ycall_arg *args,
-		   int *types, JSValue func)
+static struct ys_ret _call(void *sm, int nb, union ycall_arg *args,
+			   int *types, JSValue func)
 {
 	JSContext *ctx = CTX(sm);
 	JSValueConst global_obj = JS_GetGlobalObject(ctx);
@@ -1600,28 +1615,44 @@ static void *_call(void *sm, int nb, union ycall_arg *args,
 	if (JS_IsObject(r)) {
 		void *e = GET_E_(r);
 		if (likely(e))
-			return e;
+			return (struct ys_ret){.t=YS_ENTITY, .v.e=e};
 		e = JS_GetOpaque(r, widget_class_id);
 		if (e)
-			return e;
+			return (struct ys_ret){.t=YS_VPTR, .v.vptr=e};
 		e = JS_GetOpaque(r, script_manager_class_id);
 		if (e)
-			return e;
+			return (struct ys_ret){.t=YS_VPTR, .v.vptr=e};
 	} else if (JS_IsNumber(r)) {
 		int64_t ir;
 
 		JS_ToInt64(ctx, &ir, r);
-		return (void *)ir;
+		return (struct ys_ret){.t=YS_INT, .v.i=ir};
 	} else if (JS_IsString(r)) {
-		return (void *)JS_ToCString(ctx, r);
+		return (struct ys_ret){.t=YS_STR, .v.str=JS_ToCString(ctx, r)};
 	}
-	return NULL;
+	return (struct ys_ret){.t=YS_VPTR, .v.vptr=0};;
+}
+
+static struct ys_ret fCall2(void *sm, void *sym, int nb,
+		   union ycall_arg *args, int *t_arrray)
+{
+	return _call(sm, nb, args, t_arrray, functions[(intptr_t)sym - 1]);
+}
+
+static struct ys_ret call2(void *sm, const char *name, int nb, union ycall_arg *args,
+			   int *types)
+{
+	JSContext *ctx = CTX(sm);
+	JSValueConst global_obj = JS_GetGlobalObject(ctx);
+	JSValue func = JS_GetPropertyStr(ctx, global_obj, name);
+
+	return _call(sm, nb, args, types, func);
 }
 
 static void *fCall(void *sm, void *sym, int nb,
 		   union ycall_arg *args, int *t_arrray)
 {
-	return _call(sm, nb, args, t_arrray, functions[(intptr_t)sym - 1]);
+	return _call(sm, nb, args, t_arrray, functions[(intptr_t)sym - 1]).v.vptr;
 }
 
 static void *call(void *sm, const char *name, int nb, union ycall_arg *args,
@@ -1631,7 +1662,7 @@ static void *call(void *sm, const char *name, int nb, union ycall_arg *args,
 	JSValueConst global_obj = JS_GetGlobalObject(ctx);
 	JSValue func = JS_GetPropertyStr(ctx, global_obj, name);
 
-	return _call(sm, nb, args, types, func);
+	return _call(sm, nb, args, types, func).v.vptr;
 }
 
 static int destroy(void *sm)
@@ -1725,8 +1756,10 @@ static void *allocator(void)
 	ret->ops.loadString = loadString;
 	ret->ops.e_destroy = e_destroy;
 	ret->ops.call = call;
+	ret->ops.call2 = call2;
 	ret->ops.trace = trace;
 	ret->ops.fastCall = fCall;
+	ret->ops.fastCall2 = fCall2;
 	ret->ops.addFuncSymbole = addFuncSymbole;
 	return (void *)ret;
 }
