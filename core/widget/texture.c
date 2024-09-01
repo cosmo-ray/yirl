@@ -16,6 +16,7 @@
 */
 
 #include "texture.h"
+#include "game.h"
 #include "canvas.h"
 #include "sdl2/canvas-sdl.h"
 
@@ -78,7 +79,7 @@ Entity *ywTextureNew(Entity *size, Entity *father, const char *name)
 	if (ywSizeH(size) == 0 || ywSizeW(size) == 0) {
 		DPRINT_ERR("Broken size, %d %d is Invalide",
 			   ywSizeW(size), ywSizeH(size));
-		abort();
+		ygDgbAbort();
 	}
 	yeCreateInt(YCanvasTexture, obj, "canvas-type");
 	sdlCanvasCacheVoidTexture(obj, size);
