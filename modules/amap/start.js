@@ -500,6 +500,11 @@ function amap_action(wid, events)
 
     if (ywPosX(pc_pos) < 0 || ywPosX(pc_pos) + SPRITE_SIZE > ywSizeW(map_pixs_l))
 	stop_x = true;
+    if (wid.geti("block-up") > 0 && ywPosY(pc_pos) < 0) {
+	if (pc_canel.geti(PC_DROPSPEED_IDX) < 0)
+	    yeSetIntAt(pc_canel, PC_DROPSPEED_IDX, 0);
+	pc_canel.setAt(PC_JMP_POWER_LEFT, 0)
+    }
     if (ywPosY(pc_pos) > ywSizeH(map_pixs_l)) {
 	print("you fall, wou lose !");
 	ygCallFuncOrQuit(wid, "lose");
