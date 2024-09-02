@@ -101,6 +101,8 @@ Here's a Table of what support what:
 ./yirl-loader.sh -P $PWD -d path/to/game/module
 ```
 
+note: -d ans -P are now optional as YIRL does now add -d implicitly for first argument, and try to automatically detect its root directory.
+
 ## building
 First install the [dependencies](https://github.com/cosmo-ray/yirl?tab=readme-ov-file#dependencies)
 
