@@ -691,6 +691,7 @@ function amap_action(wid, events)
 		}
 		if (pc_canel.geti(PC_DROPSPEED_IDX) < 0)
 		    pc_canel.setAt(PC_DROPSPEED_IDX, 0)
+		return false;
 	    } else if (ctype != TYPE_ANIMATION && ctype != TYPE_PUNCH) {
 		if (ywCanvasObjectsCheckColisions(c, pc_canvas_obj)) {
 		    if (ctype == TYPE_PIKE || ctype == TYPE_MONSTER || ctype == TYPE_BOSS) {
@@ -708,10 +709,13 @@ function amap_action(wid, events)
 		    stop_fall = true
 		    print_life(wid, pc, pc_canel)
 		} else if (ctype != TYPE_LIGHT_FLOOR &&
-			   yeGetIntAt(pc_canel, PC_DROPSPEED_IDX) >= 0 &&
+			   (wid.geti("#-yblock") > 0 || yeGetIntAt(pc_canel, PC_DROPSPEED_IDX) >= 0) &&
 			   (ywPosY(old_pos) + SPRITE_SIZE - 1) >
 			   ywPosY(ywCanvasObjPos(c)) + 10) {
 		    stop_x = true
+		    if (wid.geti("#-yblock") > 0 && pc_canel.geti(PC_DROPSPEED_IDX) < 0) {
+			pc_canel.setAt(PC_DROPSPEED_IDX, 0)
+		    }
 		}
 	    }
 	})
