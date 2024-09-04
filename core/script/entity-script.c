@@ -18,9 +18,9 @@
 #include "entity-script.h"
 
 struct ys_ret yesCall2Int(Entity *func, int nb, union ycall_arg *args,
-		 int *types)
+			  int *types)
 {
-		void *fp;
+	void *fp;
 	void *manager;
 
 	if (unlikely(!func))
@@ -47,8 +47,10 @@ struct ys_ret yesCall2Int(Entity *func, int nb, union ycall_arg *args,
 	if (!!((YScriptOps *)manager)->call2)
 		return ysCall2Int(manager, yeGetFunction(func), nb, args, types);
 call_1:
-	void *ret = yesCallInt(func, nb, args, types);
-	return (struct ys_ret){.t=YS_ENTITY, .v.e=ret};
+	{
+		void *ret = yesCallInt(func, nb, args, types);
+		return (struct ys_ret){.t=YS_ENTITY, .v.e=ret};
+	}
 }
 
 void *yesCallInt(Entity *func, int nb, union ycall_arg *args,
