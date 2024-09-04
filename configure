@@ -30,7 +30,10 @@ if [ $? == 0 ]; then
     JSON_C_CFLAGS='-I./json-c -I./json-c-build  -I./json-c-git'
     JSON_C_RULE=json-c-build/libjson-c.a
     EMPORT="-sUSE_SDL_TTF=2 -sUSE_SDL_IMAGE=2 -sUSE_WEBGL2=1"
-    SDL_MIXER_BUILD_CFLAGS="-fPIC -sUSE_MPG123=1 -sUSE_OGG=1 -sUSE_VORBIS=1"
+    SDL_MIXER_BUILD_CFLAGS=""
+    SDL_MIXER_LDFLAGS=""
+    SDL_MIXER_CFLAGS=""
+    SDL_MIXER_DEP=""
     CMAKE_ARGS="-DEMSCRIPTEN=1 -DDISABLE_GLES_1=1 -DCMAKE_C_FLAGS=\"-fPIC\""
     EMCFLAGS="-DUSING_EMCC=1"
     WITH_SOUND=2
