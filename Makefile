@@ -191,6 +191,8 @@ PRELOAD_EMCC_FILES ?= \
 	--preload-file scripts-dependancies/object-wrapper.lua \
 	--preload-file modules/smart_cobject/ \
 	--preload-file modules/stop-screen/ \
+	--preload-file modules/amap/ \
+	--preload-file modules/y_move/ \
 	--preload-file $(WEB_MOD_DST)
 
 WEB_CFLAG = \
@@ -198,7 +200,7 @@ WEB_CFLAG = \
 	--use-preload-plugins
 
 
-WEB_ARG=arguments: ["-d", "$(WEB_MOD_DST)", "-P", "/", "-W", "800", "-H", "600"],
+WEB_ARG=arguments: ["-d", "$(WEB_MOD_DST)", "-P", "", "-W", "800", "-H", "600"],
 #	arguments: ['-d', './games/asteroide-shooter/', '-P', "/home/uso/yirl/"],
 
 webstart.html: $(YIRL_LINKING) $(GEN_LOADER_OBJ) $(LIBNAME).a

@@ -585,10 +585,17 @@ int    ysdl2Init(void)
 	  "/" DEFAULTPOLICE);
 
   /* Initialize the SDL library */
+#ifdef USING_EMCC
+  if (SDL_InitSubSystem(SDL_INIT_VIDEO) < 0) {
+	  DPRINT_ERR("Couldn't initialize SDL: %s\n", SDL_GetError());
+	  return -1;
+  }
+#else
   if (SDL_InitSubSystem(SDL_INIT_EVERYTHING) < 0) {
 	  DPRINT_ERR("Couldn't initialize SDL: %s\n", SDL_GetError());
 	  return -1;
   }
+#endif
 
   /* Initialisation simple */
 #ifdef USING_EMCC
