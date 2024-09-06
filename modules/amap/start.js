@@ -1006,8 +1006,13 @@ function amap_init(wid)
 	for (let i = 0; i < yeLen(extra_textures); ++i) {
 	    let name = yeGetKeyAt(extra_textures, i)
 	    let txt = extra_textures.get(i)
+	    let rect = null
 
-	    ywTextureNewImg(txt.s(), null, textures, name);
+	    if (yeType(txt) != YSTRING) {
+		rect = txt.get(1)
+		txt = txt.get(0)
+ 	    }
+	    ywTextureNewImg(txt.s(), rect, textures, name);
 	}
     }
 
