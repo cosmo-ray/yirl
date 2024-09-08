@@ -34,6 +34,13 @@ local function refresh_txt_array(handler)
    if handler.flip > 0 then
       ywCanvasHFlip(canvas);
    end
+
+   if yIsNNil(handler.colorMod) then
+      local col_mod = handler.colorMod
+      ywCanvasSetColorModRGBA(canvas, yeGetIntAt(col_mod, 0), yeGetIntAt(col_mod, 1),
+			      yeGetIntAt(col_mod, 2), yeGetIntAt(col_mod, 3))
+   end
+
    if yIsNNil(handler[POS_I]) then
       ywCanvasObjReplacePos(handler.canvas, handler[POS_I]);
    end

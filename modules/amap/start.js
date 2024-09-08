@@ -493,6 +493,8 @@ function amap_action(wid, events)
     if (yeGetIntAt(pc_canel, PC_HURT) > 0) {
 	print_life(wid, pc, pc_canel)
 	return
+    } else {
+	pc_handler.rm("colorMod")
     }
     let map_pixs_l = yeGet(wid, "map-pixs-l");
     let stop_fall = false;
@@ -695,8 +697,11 @@ function amap_action(wid, events)
 	    } else if (ctype != TYPE_ANIMATION && ctype != TYPE_PUNCH) {
 		if (ywCanvasObjectsCheckColisions(c, pc_canvas_obj)) {
 		    if (ctype == TYPE_PIKE || ctype == TYPE_MONSTER || ctype == TYPE_BOSS) {
-			if (yeGetIntAt(pc_canel, PC_HURT) == 0)
+			if (yeGetIntAt(pc_canel, PC_HURT) == 0) {
 			    yeAddAt(pc, "life", -5)
+			    pc_handler.setAt("colorMod", yeCreateQuadInt(255, 100, 0, 255))
+			    yGenericHandlerRefresh(pc_handler)
+			}
 			yeSetIntAt(pc_canel, PC_HURT, 7);
 			yeSetIntAt(pc_canel, PC_DROPSPEED_IDX, -25);
 			print_life(wid, pc, pc_canel)
