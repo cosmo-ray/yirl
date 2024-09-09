@@ -290,6 +290,7 @@ function amap_action(wid, events)
     let pc = yeGet(wid, "pc");
     let pc_stats = yeGet(pc, "stats")
     let pc_agility = yeGetIntAt(pc_stats, "agility")
+    let pc_strength = yeGetIntAt(pc_stats, "strength")
     let mi = yeGet(wid, "_mi")
     let pc_canel = yeGet(wid, "_pc")
     let boss = yeGet(wid, "_boss")
@@ -377,11 +378,17 @@ function amap_action(wid, events)
 	yeCreateFloatAt(3, pc_minfo, null, Y_MVER_SPEEDUP)
 	yeSetIntAt(pc_canel, PC_DASH, 10)
     } else if (yevIsKeyDown(events, Y_X_KEY) && yeGetIntAt(pc_canel, PC_PUNCH_LIFE) == 0) {
-	yeSetIntAt(pc_canel, PC_PUNCH_LIFE, 4 + pc_agility)
+	yeSetIntAt(pc_canel, PC_PUNCH_LIFE, 4 + pc_strength / 3)
 	let textures = yeGet(wid, "textures");
 	let canvasobj = ywCanvasNewImgFromTexture(wid, ywPosX(pc_pos), ywPosY(pc_pos),
 						  yeGet(textures, "punch"))
-	let base_speed = 25 + pc.get("stats").geti("agility")
+	let dash_val = 0
+	let base_cnt = 5 + pc_agility / 10
+	if (pc_canel.geti(PC_DASH) > 0) {
+	    dash_val = 30
+	    base_cnt = base_cnt / 2
+	}
+	let base_speed = 25 + pc_agility + dash_val
 
 	let kd = wid.geti("keydown")
 	y_move_set_yspeed(yeGet(pc_canel, PC_PUNCH_MINFO), 0)
@@ -391,24 +398,24 @@ function amap_action(wid, events)
 	    if (kd & KEYDOWN_UP) {
 		ywCanvasRotate(canvasobj, 90)
 		ywCanvasMoveObjXY(canvasobj, -20, 0)
-		y_move_set_yspeed(yeGet(pc_canel, PC_PUNCH_MINFO), -30)
+		y_move_set_yspeed(yeGet(pc_canel, PC_PUNCH_MINFO), -base_speed)
 	    }
 
 	    if (kd & KEYDOWN_LEFT) {
 		ywCanvasHFlip(canvasobj);
-		y_move_set_xspeed(yeGet(pc_canel, PC_PUNCH_MINFO), -30)
+		y_move_set_xspeed(yeGet(pc_canel, PC_PUNCH_MINFO), -base_speed)
 	    } else if (kd & KEYDOWN_RIGHT) {
-		y_move_set_xspeed(yeGet(pc_canel, PC_PUNCH_MINFO), 30)
+		y_move_set_xspeed(yeGet(pc_canel, PC_PUNCH_MINFO), base_speed)
 	    }
 	} else {
 	    if (yeGetIntAt(pc_canel, PC_DIR) == DIR_RIGHT) {
-		y_move_set_xspeed(yeGet(pc_canel, PC_PUNCH_MINFO), 30)
+		y_move_set_xspeed(yeGet(pc_canel, PC_PUNCH_MINFO), base_speed)
 	    } else {
 		ywCanvasHFlip(canvasobj);
-		y_move_set_xspeed(yeGet(pc_canel, PC_PUNCH_MINFO), -30)
+		y_move_set_xspeed(yeGet(pc_canel, PC_PUNCH_MINFO), -base_speed)
 	    }
 	}
-	pc_canel.setAt(PC_PUNCH_COUNT_IDX, 5)
+	pc_canel.setAt(PC_PUNCH_COUNT_IDX, base_cnt)
 
 	// ywCanvasNewTextByStr(wid, ywPosX(pc_pos), ywPosY(pc_pos), " @ \n---")
 	yePushAt2(pc_canel, canvasobj, PC_PUNCH_OBJ)
@@ -601,7 +608,7 @@ function amap_action(wid, events)
 		    yeAddAt(pc_canel, PC_PUNCH_LIFE, -25)
 		} else if (ctype == TYPE_BOSS) {
 		    let boss_i = yeGet(mi, "boss")
-		    let dmg = pc.get("stats").geti("strength")
+		    let dmg = pc_strength
 
 		    yeAddAt(boss_i, "life", -dmg)
 		    yeAddAt(pc_canel, PC_PUNCH_LIFE, -25)
