@@ -1020,7 +1020,13 @@ function amap_init(wid)
 
     ygModDir("amap")
 
-    ywTextureNewImg("./punch.png", null, textures, "punch");
+    if (wid.get("attack-sprite")) {
+	ygModDirOut();
+	ywTextureNewImg(wid.gets("attack-sprite"), null, textures, "punch");
+	ygModDir("amap")
+    } else {
+	ywTextureNewImg("./punch.png", null, textures, "punch");
+    }
     ywTextureNewImg("./motivation.png", null, textures, "motivation");
     ywTextureNewImg("./uwu-head.png", null, textures, "uwu-head");
     ywTextureNewImg("./gamu.png", null, textures, "gamu");
