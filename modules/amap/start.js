@@ -397,6 +397,12 @@ function amap_action(wid, events)
 	let textures = yeGet(wid, "textures");
 	let canvasobj = ywCanvasNewImgFromTexture(wid, ywPosX(pc_pos), ywPosY(pc_pos),
 						  yeGet(textures, "punch"))
+	let atk_size = wid.gets("attack-sprite-size")
+	if (atk_size == "half") {
+	    let canvasobj_size = ywCanvasObjSize(wid, canvasobj)
+	    ywCanvasForceSize(canvasobj, ywSizeCreate(ywSizeW(canvasobj_size) / 2,
+						      ywSizeH(canvasobj_size) / 2))
+	}
 	let dash_val = 0
 	let base_cnt = 5 + pc_agility / 10
 	if (pc_canel.geti(PC_DASH) > 0) {
