@@ -279,6 +279,13 @@ static inline Entity *ywPosAddXYAbsMaxXY(Entity *pos, int x, int y, int xmax, in
 	return pos;
 }
 
+static inline Entity *ywPosAddCopy(Entity *origin, int x, int y, Entity *parent, const char *key)
+{
+	Entity *ret = yeCreateCopy(origin, parent, key);
+	ywPosAddXY(ret, x, y);
+	return ret;
+}
+
 static inline Entity *ywPosAddXYAbsMax(Entity *pos, int x, int y, int max)
 {
 	return ywPosAddXYAbsMaxXY(pos, x, y, max, max);

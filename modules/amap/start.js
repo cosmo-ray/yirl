@@ -170,6 +170,21 @@ function yamap_push_obj(wid, pos, idx)
     object.setAt(OBJECT_CANEL, o)
 }
 
+function yamap_push_monster(wid, pos, type)
+{
+    let monsters = wid.get("_monsters")
+    let textures = wid.get("textures")
+    let monster_info = wid.get("_mi").get("monsters")
+    let mon = yeCreateArray(monsters)
+    yeCreateString("p", mon)
+    yeCreateCopy(pos, mon, "pos")
+    y_mover_new(mon, "mover")
+
+    yamap_generate_monster_canvasobj(wid, textures, mon, monster_info,
+				     yeLen(monsters) - 1)
+    return mon
+}
+
 function yamap_generate_monster_canvasobj(wid, textures,
 					  mon, monsters_info, idx)
 {

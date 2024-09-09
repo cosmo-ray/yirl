@@ -885,6 +885,14 @@ static JSValue qjsyeReCreateArray(JSContext *ctx, JSValueConst this_val,
 		      !GET_E(ctx, 0));
 }
 
+static JSValue qjsywPosAddCopy(JSContext *ctx, JSValueConst this_val,
+			       int argc, JSValueConst *argv)
+{
+	return mk_ent(ctx, ywPosAddCopy(GET_E(ctx, 0), GET_I(ctx, 1), GET_I(ctx, 2),
+					GET_E(ctx, 3), GET_S(ctx, 4)),
+		      !GET_E(ctx, 0));
+}
+
 
 static JSValue qjsywCanvasNewCollisionsArrayWithRectangle(
 	JSContext *ctx, JSValueConst this_val,
@@ -1551,6 +1559,7 @@ static int init(void *sm, void *args)
 	BIND(yeCreateArray, 0, 2);
 	BIND(yeCreateHash, 0, 2);
 	BIND(yeCreateCopy, 0, 3);
+	BIND(ywPosAddCopy, 3, 2);
 	BIND(yeReCreateArray, 2, 1);
 	BIND(yeGetStringAt, 0, 2);
 	BIND(ygLoadScript, 3, 0);
