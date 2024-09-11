@@ -682,7 +682,6 @@ int	luaYwCanvasObjSetResourceId(lua_State *L);
 int	luaywCanvasObjClearCache(lua_State *L);
 int	luaywCanvasNewCollisionsArrayExt(lua_State *L);
 int	luaywCanvasNewImg(lua_State *L);
-int	luaywCanvasMoveObj(lua_State *L);
 int	luaywCanvasAdvenceObj(lua_State *L);
 int	luaywCanvasRotate(lua_State *L);
 int	luaywCanvasObjPointTopTo(lua_State *L);
@@ -1073,7 +1072,6 @@ static inline int	yesLuaRegister(void *sm)
   YES_LUA_REGISTRE_CALL(sm, ywCanvasObjClearCache);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasNewCollisionsArrayExt);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasNewImg);
-  YES_LUA_REGISTRE_CALL(sm, ywCanvasMoveObj);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasRotate);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasObjPointTopTo);
   YES_LUA_REGISTRE_CALL(sm, ywCanvasObjPointRightTo);

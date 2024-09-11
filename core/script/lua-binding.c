@@ -626,13 +626,6 @@ int	luaywCanvasAdvenceObj(lua_State *L)
 	return 1;
 }
 
-int	luaywCanvasMoveObj(lua_State *L)
-{
-	lua_pushnumber(L, ywCanvasMoveObj(luaEntityAt(L, 1),
-					  luaEntityAt(L, 2)));
-	return 1;
-}
-
 int	luaYwCanvasObjSetResourceId(lua_State *L)
 {
 	ywCanvasObjSetResourceId(luaEntityAt(L, 1), lua_tonumber(L, 2));

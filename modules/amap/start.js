@@ -403,6 +403,10 @@ function amap_action(wid, events)
 	    ywCanvasForceSize(canvasobj, ywSizeCreate(ywSizeW(canvasobj_size) / 2,
 						      ywSizeH(canvasobj_size) / 2))
 	}
+	if (wid.get("attack-sprite-threshold")) {
+	    ywCanvasMoveObj(canvasobj, wid.get("attack-sprite-threshold"))
+	}
+
 	let dash_val = 0
 	let base_cnt = 5 + pc_agility / 10
 	if (pc_canel.geti(PC_DASH) > 0) {
