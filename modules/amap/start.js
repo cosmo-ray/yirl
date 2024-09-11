@@ -422,14 +422,18 @@ function amap_action(wid, events)
 	    y_move_set_xspeed(yeGet(pc_canel, PC_PUNCH_MINFO), 0)
 
 	    if (kd & KEYDOWN_UP) {
-		ywCanvasRotate(canvasobj, 90)
+		ywCanvasRotate(canvasobj, -90)
 		y_move_set_yspeed(yeGet(pc_canel, PC_PUNCH_MINFO), -base_speed)
 	    }
 
 	    if (kd & KEYDOWN_LEFT) {
 		ywCanvasHFlip(canvasobj);
+		if (kd & KEYDOWN_UP)
+		    ywCanvasRotate(canvasobj, 45)
 		y_move_set_xspeed(yeGet(pc_canel, PC_PUNCH_MINFO), -base_speed)
 	    } else if (kd & KEYDOWN_RIGHT) {
+		if (kd & KEYDOWN_UP)
+		    ywCanvasRotate(canvasobj, -45)
 		ywCanvasMoveObjXY(canvasobj, 20, 0)
 		y_move_set_xspeed(yeGet(pc_canel, PC_PUNCH_MINFO), base_speed)
 	    } else {
@@ -604,11 +608,7 @@ function amap_action(wid, events)
 
     if (yeGetIntAt(pc_canel, PC_PUNCH_LIFE) > 0) {
 	let punch_obj = yeGet(pc_canel, PC_PUNCH_OBJ)
-	let add_xy = null
-	if (ywCanvasObjAngle(punch_obj) > 89) {
-	    add_xy = ywPosCreate(0, -10)
-	}
-	let cols = ywCanvasNewProjectedCollisionsArrayExt(wid, punch_obj, add_xy, null, null)
+	let cols = ywCanvasNewProjectedCollisionsArrayExt(wid, punch_obj, null, null, null)
 
 	if (cols) {
 	    let monsters_info = yeGet(mi, "monsters")
