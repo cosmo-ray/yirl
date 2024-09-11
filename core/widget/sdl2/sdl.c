@@ -1554,8 +1554,16 @@ static int sdlCanvasRendImg(YWidgetState *state, SDLWid *wid, Entity *img,
 	if (mod_color.r || mod_color.g || mod_color.b || mod_color.a) {
 		GPU_SetColor(t, mod_color);
 	}
+	double rx = 0;
+	double ry = 0;
+	if (rotation) {
+		Entity *original_size = yeGet(img, YCANVAS_SIZE_IDX);
+
+		rx = ywSizeWDirect(original_size) / 2;
+		ry = ywSizeHDirect(original_size) / 2;
+	}
 	GPU_BlitRectX(t, sd, sg.pWindow, &rd, rotation,
-		      rd.w, rd.h, flip);
+		      rx, ry, flip);
 	free(sd);
 	return 0;
 }
