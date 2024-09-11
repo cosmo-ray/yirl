@@ -423,7 +423,6 @@ function amap_action(wid, events)
 
 	    if (kd & KEYDOWN_UP) {
 		ywCanvasRotate(canvasobj, 90)
-		ywCanvasMoveObjXY(canvasobj, -20, 0)
 		y_move_set_yspeed(yeGet(pc_canel, PC_PUNCH_MINFO), -base_speed)
 	    }
 
@@ -431,10 +430,14 @@ function amap_action(wid, events)
 		ywCanvasHFlip(canvasobj);
 		y_move_set_xspeed(yeGet(pc_canel, PC_PUNCH_MINFO), -base_speed)
 	    } else if (kd & KEYDOWN_RIGHT) {
+		ywCanvasMoveObjXY(canvasobj, 20, 0)
 		y_move_set_xspeed(yeGet(pc_canel, PC_PUNCH_MINFO), base_speed)
+	    } else {
+		ywCanvasMoveObjXY(canvasobj, 10, 0)
 	    }
 	} else {
 	    if (yeGetIntAt(pc_canel, PC_DIR) == DIR_RIGHT) {
+		ywCanvasMoveObjXY(canvasobj, 20, 0)
 		y_move_set_xspeed(yeGet(pc_canel, PC_PUNCH_MINFO), base_speed)
 	    } else {
 		ywCanvasHFlip(canvasobj);
@@ -603,7 +606,7 @@ function amap_action(wid, events)
 	let punch_obj = yeGet(pc_canel, PC_PUNCH_OBJ)
 	let add_xy = null
 	if (ywCanvasObjAngle(punch_obj) > 89) {
-	    add_xy = ywPosCreate(20, -10)
+	    add_xy = ywPosCreate(0, -10)
 	}
 	let cols = ywCanvasNewProjectedCollisionsArrayExt(wid, punch_obj, add_xy, null, null)
 
