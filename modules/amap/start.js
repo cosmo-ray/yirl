@@ -409,8 +409,9 @@ function amap_action(wid, events)
 
 	let dash_val = 0
 	let base_cnt = 5 + pc_agility / 10
-	if (pc_canel.geti(PC_DASH) > 0) {
-	    dash_val = 30
+	const dash = pc_canel.geti(PC_DASH)
+	if (dash > 0) {
+	    dash_val = 30 * dash / 10 + 10
 	    base_cnt = base_cnt / 2
 	}
 	let base_speed = 25 + pc_agility + dash_val
