@@ -322,6 +322,7 @@ function amap_action(wid, events)
 	    if (yeGetInt(at) == yeGetIntAt(pc_canel, PC_NB_TURN_IDX)) {
 		if (h.getb("stop movement")) {
 		    y_move_set_xspeed(pc_minfo, 0)
+		    wid.setAt("keydown", 0)
 		}
 		ywidActions(wid, h)
 		hooks_ret = true;
@@ -557,7 +558,11 @@ function amap_action(wid, events)
 
     let next_lvl = wid.geti("next-lvl")
     if (next_lvl > 0 && pc.geti("xp") >= next_lvl) {
-	wid.get("lvl_up").call(wid)
+	let ret = wid.get("lvl_up").call(wid)
+	if (ret) {
+	    y_move_set_xspeed(pc_minfo, 0)
+	    wid.setAt("keydown", 0)
+	}
     }
 
 
@@ -708,8 +713,10 @@ function amap_action(wid, events)
 		let action = yeGet(yeGet(objs, yeGetIntAt(c, CANVAS_OBJ_IDX)), 1);
 
 		let ret = ywidAction(action, wid);
-		if (ret & 0x10)
+		if (ret & 0x10) {
 		    y_move_set_xspeed(pc_minfo, 0)
+		    wid.setAt("keydown", 0)
+		}
 		ret = ret & 0x0f
 
 		if (ret == 1) {
