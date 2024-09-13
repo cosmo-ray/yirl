@@ -249,6 +249,9 @@ BIND_EI(ywMapCamPointedContainId, 2, 0);
 
 BIND_SS(ygReCreateString, 2, 0);
 
+BIND_E(ywTextureH, 1, 0);
+BIND_E(ywTextureW, 1, 0);
+
 BIND_E(ywCanvasObjAngle, 1, 0);
 
 BIND_E(yeCheckCondition, 1, 0);

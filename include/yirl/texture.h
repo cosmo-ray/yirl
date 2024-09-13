@@ -55,4 +55,7 @@ int ywTextureMergeRectangle(Entity *texture, int x, int y,
 int ywTextureMergeTexture(Entity *src, Entity *dst,
 			  Entity *srcRect, Entity *dstRect);
 
+int ywTextureW(Entity *texture);
+int ywTextureH(Entity *texture);
+
 #endif

@@ -19,6 +19,7 @@
 #include "game.h"
 #include "canvas.h"
 #include "sdl2/canvas-sdl.h"
+#include <SDL2/SDL.h>
 
 int ywTextureFastMerge(Entity *src, Entity *srcRect,
 		       Entity *dest, Entity *dstRect)
@@ -70,6 +71,20 @@ Entity *ywTextureNewImg(const char *path, Entity *size,
 			       YSDL_CACHE_IMG_NO_TEXTURE) < 0)
 		return NULL;
 	return ret;
+}
+
+int ywTextureH(Entity *texture)
+{
+	SDL_Surface *dSurface = yeGetDataAt(texture, YCANVAS_SURFACE_IDX);
+
+	return dSurface->h;
+}
+
+int ywTextureW(Entity *texture)
+{
+	SDL_Surface *dSurface = yeGetDataAt(texture, YCANVAS_SURFACE_IDX);
+
+	return dSurface->w;
 }
 
 Entity *ywTextureNew(Entity *size, Entity *father, const char *name)
