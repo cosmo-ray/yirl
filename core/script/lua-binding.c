@@ -754,12 +754,6 @@ int	luaywCanvasPopObj(lua_State *L)
 	return 0;
 }
 
-int	luaywTextureNormalize(lua_State *L)
-{
-	lua_pushnumber(L, ywTextureNormalize(luaEntityAt(L, 1)));
-	return 1;
-}
-
 int	luaywTextureMerge(lua_State *L)
 {
 	lua_pushnumber(L, ywTextureMerge(luaEntityAt(L, 1),

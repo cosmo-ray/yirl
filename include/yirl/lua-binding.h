@@ -694,7 +694,6 @@ BIND_EES(ywTextureNew);
 
 /* texture */
 int	luaywTextureMerge(lua_State *L);
-int	luaywTextureNormalize(lua_State *L);
 
 /* Menu */
 int	luaywMenuCallActionOn(lua_State *lua);
@@ -1083,7 +1082,6 @@ static inline int	yesLuaRegister(void *sm)
 
   /* texture */
   YES_LUA_REGISTRE_CALL(sm, ywTextureMerge);
-  YES_LUA_REGISTRE_CALL(sm, ywTextureNormalize);
 
   /* Game and Modules */
   YES_RET_IF_FAIL(ysRegistreFunc(sm, "ygGetMod", luaGetMod));
