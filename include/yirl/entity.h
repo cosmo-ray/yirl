@@ -1251,22 +1251,28 @@ Entity	*yeMoveByEntity(Entity* src, Entity* dest, Entity *what,
  * @return	the newly allocated string, need to be free
  */
 char *yeToCStr(Entity *entity, int deep, int flag);
+char *yeToCStr2(Entity *entity, int deep, int flag, Entity *ignore_keys);
 
 static inline void yePrintAddr(Entity *e)
 {
 	printf("%p\n", e);
 }
 
-static inline void yePrint(Entity *e)
+static inline void yePrint2(Entity *e, Entity *ignore_keys)
 {
 	if (!e) {
 		puts("(nil)");
 		return;
 	}
-	char *r = yeToCStr(e, 3, YE_FORMAT_PRETTY);
+	char *r = yeToCStr2(e, 3, YE_FORMAT_PRETTY, ignore_keys);
 
 	printf("%s\n", r);
 	free(r);
+}
+
+static inline void yePrint(Entity *e)
+{
+	yePrint2(e, NULL);
 }
 
 static inline Entity *yeMoveByStr(Entity* src, Entity* dest, const char *what)

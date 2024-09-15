@@ -1819,9 +1819,8 @@ static void append_pretty(Entity *str, int deep, int origDeep, int flag)
 		yeStringAddCh(str, '\t');
 }
 
-
 static void yeToCStrInternal(Entity *entity, int deep, Entity *str,
-			     int flag, int origDeep)
+			     int flag, int origDeep, Entity *ignore_keys)
 {
 	if (!deep)
 		return;
@@ -1886,8 +1885,13 @@ static void yeToCStrInternal(Entity *entity, int deep, Entity *str,
 				   if (!(deep - 1)) {
 					   yeStringAdd(str, "...");
 				   } else {
-					   yeToCStrInternal(vvar, deep - 1, str,
-							    flag, origDeep);
+					   if (yeFindString(ignore_keys, key)) {
+						   yeStringAdd(str, "IGNORED");
+					   } else {
+						   yeToCStrInternal(vvar, deep - 1, str,
+								    flag, origDeep,
+								    ignore_keys);
+					   }
 				   }
 				   });
 		}
@@ -1923,9 +1927,11 @@ static void yeToCStrInternal(Entity *entity, int deep, Entity *str,
 				append_pretty(str, deep - 1, origDeep, flag);
 			if (!(deep - 1)) {
 				yeStringAdd(str, "...");
+			} else if (tmp->name && yeFindString(ignore_keys, tmp->name)) {
+				yeStringAdd(str, "IGNORED");
 			} else {
 				yeToCStrInternal(tmp->entity, deep - 1, str,
-						 flag, origDeep);
+						 flag, origDeep, ignore_keys);
 			}
 		}
 
@@ -1944,7 +1950,7 @@ static void yeToCStrInternal(Entity *entity, int deep, Entity *str,
 	}
 }
 
-char *yeToCStr(Entity *entity, int deep, int flag)
+char *yeToCStr2(Entity *entity, int deep, int flag, Entity *ignore_keys)
 {
 	if (!entity)
 		return NULL;
@@ -1953,9 +1959,14 @@ char *yeToCStr(Entity *entity, int deep, int flag)
 
 	if (flag & YE_FORMAT_PRETTY && !YE_FORMAT_NO_NL)
 		yeStringAddCh(str, '\n');
-	yeToCStrInternal(entity, deep, str, flag, deep);
+	yeToCStrInternal(entity, deep, str, flag, deep, ignore_keys);
 	ret = strdup(yeGetString(str));
 	return ret;
+}
+
+char *yeToCStr(Entity *entity, int deep, int flag)
+{
+	return yeToCStr2(entity, deep, flag, NULL);
 }
 
 int yeRenameStrStr(Entity *array, const char *old_name, const char *new_name)
