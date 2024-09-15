@@ -662,6 +662,18 @@ function amap_action(wid, events)
 			let mon_idx = yeGetIntAt(c, CANVAS_MONSTER_IDX)
 			let mon = monsters.get(mon_idx)
 			yeAddAt(mon, MONSTER_LIFE, -dmg)
+			if (mon.geti(MONSTER_LIFE) > 0) {
+			    let handler = mon.get(MONSTER_HANDLER)
+			    if (handler) {
+				handler.setAt("colorMod", yeCreateQuadInt(255, 100, 0, 255))
+				yamap_monster_handler_refresh(mon)
+			    } else {
+				ywCanvasSetColorModRGBA(mon.get(MONSTER_OBJ), 255, 100, 0, 255)
+			    }
+			    let hurt = yeCreateArray(wid.get("monsters_hurt"))
+			    hurt.push(mon)
+			    yeCreateInt(0, hurt)
+			}
 
 		    }
 		} else if (ctype == TYPE_BREAKABLE_BLOCK) {
@@ -839,6 +851,25 @@ function amap_action(wid, events)
 	yeCreateInt(turn_timer, tuple)
 	ywidActions(wid, mon_info, tuple)
     })
+
+    let monsters_hurt = wid.get("monsters_hurt")
+    for (m_h of monsters_hurt) {
+	let m = m_h.get(0)
+	let time = m_h.get(1)
+	if (time.i() > 300000) {
+	    let handler = m.get(MONSTER_HANDLER)
+	    if (handler) {
+		handler.rm("colorMod")
+		yamap_monster_handler_refresh(m)
+	    } else {
+		ywCanvasRemoveColorMod(m.get(MONSTER_OBJ));
+	    }
+	    monsters_hurt.rm(m_h)
+	} else {
+	    yeAddAt(m_h, 1, turn_timer)
+	}
+    }
+
     let animations = wid.get("animations")
     if (animations) {
 	for (a of animations) {
@@ -985,6 +1016,7 @@ function amap_init(wid)
     ywSetTurnLengthOverwrite(-1)
     yeCreateFunction(amap_action, wid, "action")
 
+    yeReCreateArray(wid, "monsters_hurt")
     let pc = yeGet(wid, "pc")
     if (!pc) {
 	pc = yeCreateArray(wid, "pc")
