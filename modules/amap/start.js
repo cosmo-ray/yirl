@@ -44,7 +44,10 @@ const MONSTER_MOVER = 2
 const MONSTER_OBJ = 3
 const MONSTER_ACC = 4
 const MONSTER_DIR = 5
-
+const MONSTER_HANDLER = 6
+const MONSTER_OLD_ACC = 7
+const MONSTER_LIFE = 8
+const MONSTER_METADATA = 10
 const BASE_SPEED = 16
 
 const TYPE_WALL = 0
@@ -170,6 +173,17 @@ function yamap_push_obj(wid, pos, idx)
     object.setAt(OBJECT_CANEL, o)
 }
 
+function yamap_monster_handler_refresh(mon)
+{
+    let handler = mon.get(MONSTER_HANDLER)
+    yGenericHandlerRefresh(handler)
+    let canvasobj = yGenericCurCanvas(handler)
+    yeCreateIntAt(TYPE_MONSTER, canvasobj, "amap-t", YCANVAS_UDATA_IDX)
+    let mon_pos = yeGet(mon, MONSTER_POS)
+    ywCanvasObjReplacePos(canvasobj, mon_pos)
+    yePushAt2(mon, canvasobj, MONSTER_OBJ)
+}
+
 function yamap_push_monster(wid, pos, type)
 {
     let monsters = wid.get("_monsters")
@@ -191,13 +205,35 @@ function yamap_generate_monster_canvasobj(wid, textures,
     let mon_key = yeGetStringAt(mon, 0)
     let mon_info = yeGet(monsters_info, mon_key)
     let mon_pos = yeGet(mon, 1)
-    let canvasobj = ywCanvasNewImgFromTexture(wid, ywPosX(mon_pos), ywPosY(mon_pos),
-					      yeGet(textures, yeGetStringAt(mon_info, "img")))
+    let max_life = mon_info.geti("max_life")
+    let img = yeGetStringAt(mon_info, "img")
+    let animation = mon_info.gets("animation")
+    let canvasobj = null
+    if (img) {
+	canvasobj = ywCanvasNewImgFromTexture(wid, ywPosX(mon_pos), ywPosY(mon_pos),
+						  yeGet(textures, yeGetStringAt(mon_info, "img")))
+    } else if (animation) {
+	let animations = wid.get("animations")
+	let handler = animations.get(animation)
 
+	let test = yeCreateArray()
+	test.setAt(0, "wid")
+	yePrint2(handler, test)
+	yGenericSetPos(handler, mon_pos)
+	yGenericHandlerRefresh(handler)
+	canvasobj = yGenericCurCanvas(handler)
+	yePushAt2(mon, handler, MONSTER_HANDLER, "handler")
+    }
+
+    if (max_life > 0) {
+	mon.setAt(MONSTER_LIFE, max_life)
+    } else {
+	mon.setAt(MONSTER_LIFE, 1)
+    }
     yeCreateIntAt(TYPE_MONSTER, canvasobj, "amap-t", YCANVAS_UDATA_IDX)
     yeCreateIntAt(idx, canvasobj, "mon_idx", CANVAS_MONSTER_IDX)
     ywCanvasObjReplacePos(canvasobj, mon_pos)
-    yePushAt2(mon, canvasobj, MONSTER_OBJ)
+    yePushAt2(mon, canvasobj, MONSTER_OBJ, "canvasobj")
 }
 
 function print_all(wid)
@@ -275,8 +311,9 @@ function print_all(wid)
 		    if (this_condition && !yeCheckCondition(this_condition))
 			continue;
 		}
+		let obj_texture = yeGet(textures, yeGetStringAt(object, 0))
 		let o = ywCanvasNewImgFromTexture(wid, j * SPRITE_SIZE, i * SPRITE_SIZE,
-						  yeGet(textures, yeGetStringAt(object, 0)))
+						  obj_texture)
 		yeCreateIntAt(TYPE_OBJ, o, "amap-t", YCANVAS_UDATA_IDX)
 		yeCreateIntAt(ic, o, "objidx", CANVAS_OBJ_IDX)
 		object.setAt(OBJECT_CANEL, o)
@@ -615,24 +652,16 @@ function amap_action(wid, events)
 
 	if (cols) {
 	    let monsters_info = yeGet(mi, "monsters")
+	    let dmg = pc_strength
 
 	    for (c of cols) {
 		let ctype = yeGetIntAt(c, YCANVAS_UDATA_IDX)
 		if (ctype == TYPE_MONSTER) {
 		    if (ywCanvasObjectsCheckColisions(c, punch_obj)) {
-			let mon_idx = yeGetIntAt(c, CANVAS_MONSTER_IDX)
 			yeAddAt(pc_canel, PC_PUNCH_LIFE, -2)
-			let next_lvl = wid.geti("next-lvl")
-			if (next_lvl) {
-			    pc.get("xp").add(1)
-			}
+			let mon_idx = yeGetIntAt(c, CANVAS_MONSTER_IDX)
 			let mon = monsters.get(mon_idx)
-			let mon_info = monsters_info.get(mon.gets(0))
-			if (mon_info.get("dead")) {
-			    ygGet(mon_info.gets("dead")).call(wid, mon, mon_info)
-			}
-			ywCanvasRemoveObj(wid, c)
-			yeRemoveChildByIdx(monsters, mon_idx)
+			yeAddAt(mon, MONSTER_LIFE, -dmg)
 
 		    }
 		} else if (ctype == TYPE_BREAKABLE_BLOCK) {
@@ -640,7 +669,6 @@ function amap_action(wid, events)
 		    yeAddAt(pc_canel, PC_PUNCH_LIFE, -25)
 		} else if (ctype == TYPE_BOSS) {
 		    let boss_i = yeGet(mi, "boss")
-		    let dmg = pc_strength
 
 		    yeAddAt(boss_i, "life", -dmg)
 		    yeAddAt(pc_canel, PC_PUNCH_LIFE, -25)
@@ -782,9 +810,30 @@ function amap_action(wid, events)
     monsters.forEach(function(c, idx) {
 	if (!c)
 	    return;
+
 	let tuple = yeCreateArray()
 	let mon_key = yeGetStringAt(c, 0)
 	let mon_info = yeGet(monsters_info, mon_key)
+
+	if (c.geti(MONSTER_LIFE) < 1) {
+	    let ret = 2
+	    let mon_idx = yeGetIntAt(c, CANVAS_MONSTER_IDX)
+
+	    if (mon_info.get("dead")) {
+		ret = ygGet(mon_info.gets("dead")).call(wid, c, mon_info, turn_timer)
+	    }
+	    if (ret & 2) {
+		ywCanvasRemoveObj(wid, c.get(MONSTER_OBJ))
+		yeRemoveChildByEntity(monsters, c)
+		let next_lvl = wid.geti("next-lvl")
+		if (next_lvl) {
+		    pc.get("xp").add(1)
+		}
+	    }
+	    if (ret) {
+		return;
+	    }
+	}
 
 	yePushBack(tuple, c)
 	yeCreateInt(turn_timer, tuple)
@@ -1149,16 +1198,78 @@ function monster_rand(wid, tuple)
     }
 }
 
+function monster_dead(wid, mon, mon_info, turn_timer)
+{
+    let handler = mon.get(MONSTER_HANDLER)
+    const DEAD_STEPS_TIME = 100000
+
+    /* reset accumulators if they where used in AI */
+    if (mon.geti(MONSTER_OLD_ACC) > 0) {
+	mon.setAt(MONSTER_OLD_ACC, 0)
+	mon.setAt(MONSTER_ACC, 0)
+    }
+
+    let acc = mon.geti(MONSTER_ACC)
+    /* load dead animation at init */
+    if (acc == 0) {
+	yGenericTextureArraySet(handler, "dead")
+	yamap_monster_handler_refresh(mon)
+    }
+
+    print(mon.geti(MONSTER_ACC))
+    print(handler.get("txts").get("dead").len())
+    let nb_anim_len = handler.get("txts").get("dead").len()
+    let have_update_anim = false
+
+    let cur_limit = DEAD_STEPS_TIME
+    for (let i = 0; i < nb_anim_len - 1; ++i) {
+	if (acc > cur_limit && acc < cur_limit + 100000) {
+	    mon.setAt(MONSTER_ACC, cur_limit + 100000)
+	    yGenericNext(handler)
+	    yamap_monster_handler_refresh(mon)
+	    have_update_anim = true
+	}
+	cur_limit += DEAD_STEPS_TIME + 100000
+    }
+
+    if (mon.geti(MONSTER_ACC) > cur_limit) {
+	return 2
+    }
+
+    if (!have_update_anim) {
+	mon.setAt(MONSTER_ACC, acc + turn_timer)
+    }
+
+    return 1
+}
+
 function monster_left_right(wid, tuple, distance)
 {
     let mon = yeGet(tuple, 0)
     let turn_timer = yeGetIntAt(tuple, 1)
     let dist = yeGetInt(distance)
+    let handler = mon.get(MONSTER_HANDLER)
 
     if (!yeGet(mon, MONSTER_ACC)) {
 	y_move_set_xspeed(yeGet(mon, MONSTER_MOVER), -25)
 	yeCreateIntAt(0, mon, "acc", MONSTER_ACC)
 	yeCreateIntAt(DIR_LEFT, mon, "dir", MONSTER_DIR)
+	if (handler) {
+	    yGenericTextureArraySet(handler, "walk")
+	    yamap_monster_handler_refresh(mon)
+	}
+    }
+
+    if (handler) {
+	let old_acc = mon.geti(MONSTER_OLD_ACC)
+	let acc = mon.get(MONSTER_ACC).i()
+	if (acc - old_acc > 50) {
+	    yGenericNext(handler)
+	    yamap_monster_handler_refresh(mon)
+	    mon.setAt(MONSTER_OLD_ACC, acc)
+	} else if (old_acc > acc) {
+	    mon.setAt(MONSTER_OLD_ACC, 0)
+	}
     }
 
     y_move_obj(yeGet(mon, MONSTER_OBJ), yeGet(mon, MONSTER_MOVER), turn_timer)
@@ -1168,9 +1279,17 @@ function monster_left_right(wid, tuple, distance)
 	if (yeGetIntAt(mon, MONSTER_DIR) == DIR_LEFT) {
 	    y_move_set_xspeed(yeGet(mon, MONSTER_MOVER), 25)
 	    yeSetIntAt(mon, MONSTER_DIR, DIR_RIGHT)
+	    if (handler) {
+		handler.setAt("flip", 1)
+		yamap_monster_handler_refresh(mon)
+	    }
 	} else {
 	    y_move_set_xspeed(yeGet(mon, MONSTER_MOVER), -25)
 	    yeSetIntAt(mon, MONSTER_DIR, DIR_LEFT)
+	    if (handler) {
+		handler.setAt("flip", 0)
+		yamap_monster_handler_refresh(mon)
+	    }
 	}
     } else {
 	yeAddAt(mon, MONSTER_ACC, Math.abs(y_move_last_x(yeGet(mon, MONSTER_MOVER))))
@@ -1234,6 +1353,7 @@ function mod_init(mod)
     yeCreateFunction(next1, mod, "next1")
     yeCreateFunction(next2, mod, "next2")
     yeCreateFunction("win", mod, "win")
+    yeCreateFunction(monster_dead, mod, "monster_dead")
     let mons_mv = yeCreateArray(mod, "mons_mv")
     yeCreateFunction(monster_left_right, mons_mv, "left_right")
     yeCreateFunction(monster_rand, mons_mv, "rand")
