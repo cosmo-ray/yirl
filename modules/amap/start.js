@@ -289,8 +289,6 @@ function print_all(wid)
     let pc_canvasobj = yGenericCurCanvas(pc_handler)
     yeCreateIntAt(TYPE_PC, pc_canvasobj, "amap-t", YCANVAS_UDATA_IDX)
 
-    // ywCanvasNewImgFromTexture(wid, ywPosX(pc_pos), ywPosY(pc_pos), yeGet(textures, "guy-0"))
-    // ywCanvasNewTextByStr(wid, ywPosX(pc_pos), ywPosY(pc_pos), " @ \n---")
     yGenericUsePos(pc_handler, pc_pos)
     yePushAt2(pc_canel, pc_handler, PC_HANDLER_OBJ)
 
