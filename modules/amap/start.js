@@ -1248,8 +1248,6 @@ function monster_dead(wid, mon, mon_info, turn_timer)
 	yamap_monster_handler_refresh(mon)
     }
 
-    print(mon.geti(MONSTER_ACC))
-    print(handler.get("txts").get("dead").len())
     let nb_anim_len = handler.get("txts").get("dead").len()
     let have_update_anim = false
 
