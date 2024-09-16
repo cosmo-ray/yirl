@@ -412,12 +412,14 @@ function amap_action(wid, events)
 	yeSetIntAt(pc_canel, PC_DIR, DIR_LEFT)
 	y_move_set_xspeed(pc_minfo, -BASE_SPEED)
 	wid.setAt("keydown", wid.geti("keydown") | KEYDOWN_LEFT)
-	pc_handler.setAt("flip", 1)
+	let flip_val = wid.geti("pc_revers_flip")
+	pc_handler.setAt("flip", 1 - flip_val)
     } else if (yevIsKeyDown(events, Y_RIGHT_KEY) && have_upkey != DIR_RIGHT) {
 	yeSetIntAt(pc_canel, PC_DIR, DIR_RIGHT)
 	wid.setAt("keydown", wid.geti("keydown") | KEYDOWN_RIGHT)
 	y_move_set_xspeed(pc_minfo, BASE_SPEED)
-	pc_handler.setAt("flip", 0)
+	let flip_val = wid.geti("pc_revers_flip")
+	pc_handler.setAt("flip", 0 + flip_val)
     } else if (yevIsKeyDown(events, Y_C_KEY) && yeGetIntAt(pc_canel, PC_DASH) == 0) {
 	let dir = 1
 	y_move_set_xspeed(pc_minfo, BASE_SPEED)
@@ -1064,7 +1066,13 @@ function amap_init(wid)
     if (wid.get("pc-sprites") != null) {
 	ygModDirOut()
 	for (s of wid.get("pc-sprites")) {
-	    ywTextureNewImg(yeGetString(s), null, txts_arrays, null)
+	    if (yeType(s) == YSTRING) {
+		ywTextureNewImg(yeGetString(s), null, txts_arrays, null)
+	    } else {
+		let img = s.gets(0)
+		let rect = s.get(1)
+		ywTextureNewImg(img, rect, txts_arrays, null)
+	    }
 	}
 	ygModDir("amap")
     } else {
@@ -1080,7 +1088,13 @@ function amap_init(wid)
     if (wid.get("pc-jmp-sprites")) {
 	let jmp_array = yeCreateArray()
 	for (s of wid.get("pc-jmp-sprites")) {
-	    ywTextureNewImg(yeGetString(s), null, jmp_array, null);
+	    if (yeType(s) == YSTRING) {
+		ywTextureNewImg(yeGetString(s), null, jmp_array, null)
+	    } else {
+		let img = s.gets(0)
+		let rect = s.get(1)
+		ywTextureNewImg(img, rect, jmp_array, null)
+	    }
 	}
 	pc_handler.get("txts").push(jmp_array, "jmp")
     }
@@ -1088,7 +1102,13 @@ function amap_init(wid)
     if (wid.get("pc-dash-sprites")) {
 	let dash_array = yeCreateArray()
 	for (s of wid.get("pc-dash-sprites")) {
-	    ywTextureNewImg(yeGetString(s), null, dash_array, null);
+	    if (yeType(s) == YSTRING) {
+		ywTextureNewImg(yeGetString(s), null, dash_array, null)
+	    } else {
+		let img = s.gets(0)
+		let rect = s.get(1)
+		ywTextureNewImg(img, rect, dash_array, null)
+	    }
 	}
 	pc_handler.get("txts").push(dash_array, "dash")
     }
@@ -1096,7 +1116,13 @@ function amap_init(wid)
     if (wid.get("pc-punch-sprites")) {
 	let punch_array = yeCreateArray()
 	for (s of wid.get("pc-punch-sprites")) {
-	    ywTextureNewImg(yeGetString(s), null, punch_array, null);
+	    if (yeType(s) == YSTRING) {
+		ywTextureNewImg(yeGetString(s), null, punch_array, null)
+	    } else {
+		let img = s.gets(0)
+		let rect = s.get(1)
+		ywTextureNewImg(img, rect, punch_array, null)
+	    }
 	}
 	pc_handler.get("txts").push(punch_array, "punch")
     }
