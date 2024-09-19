@@ -211,7 +211,7 @@ function yamap_generate_monster_canvasobj(wid, textures,
     let canvasobj = null
     if (img) {
 	canvasobj = ywCanvasNewImgFromTexture(wid, ywPosX(mon_pos), ywPosY(mon_pos),
-						  yeGet(textures, yeGetStringAt(mon_info, "img")))
+					      yeGet(textures, yeGetStringAt(mon_info, "img")))
     } else if (animation) {
 	let animations = wid.get("animations")
 	let handler = animations.get(animation)
@@ -781,7 +781,11 @@ function amap_action(wid, events)
 		if (ywCanvasObjectsCheckColisions(c, pc_canvas_obj)) {
 		    if (ctype == TYPE_PIKE || ctype == TYPE_MONSTER || ctype == TYPE_BOSS) {
 			if (yeGetIntAt(pc_canel, PC_HURT) == 0) {
-			    yeAddAt(pc, "life", -5)
+			    let armor = yeGetIntAt(pc.get("armor"), "protect");
+			    let atk_str = 5 - armor;
+			    if (atk_str < 1)
+				atk_str = 1
+			    yeAddAt(pc, "life", -atk_str)
 			    pc_handler.setAt("colorMod", yeCreateQuadInt(255, 100, 0, 255))
 			    yGenericHandlerRefresh(pc_handler)
 			}
