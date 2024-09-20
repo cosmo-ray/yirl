@@ -694,6 +694,7 @@ function amap_action(wid, events)
 		if (yeGetIntAt(pc_canel, PC_PUNCH_LIFE) <= 0) {
 		    ywCanvasRemoveObj(wid, yeGet(pc_canel, PC_PUNCH_OBJ))
 		    yeSetIntAt(pc_canel, PC_PUNCH_LIFE, 0)
+		    yeDestroy(cols)
 		    return true
 		}
 
@@ -741,7 +742,8 @@ function amap_action(wid, events)
     }
 
     let pc_canvas_obj = yGenericCurCanvas(pc_handler)
-    let cols = ywCanvasNewCollisionsArray(wid, pc_canvas_obj)
+    let projection = wid.get("pc-collision-projection")
+    let cols = ywCanvasNewProjectedCollisionsArrayExt(wid, pc_canvas_obj, projection)
     let direct_ret = false
     //yePrint(cols)
     if (cols) {

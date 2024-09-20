@@ -374,7 +374,7 @@ Entity *ywCanvasNewCollisionsArrayWithRectangle_(Entity *wid, Entity *objRect,
 
 
 Entity *ywCanvasNewProjectedCollisionsArrayExt(Entity *wid, Entity *obj,
-					       Entity *add_x_y,
+					       Entity *projection_rect,
 					       Entity *colisionFunc,
 					       Entity *colisionFuncArg)
 {
@@ -382,10 +382,15 @@ Entity *ywCanvasNewProjectedCollisionsArrayExt(Entity *wid, Entity *obj,
 		return NULL;
 	}
 
-	Entity *objRect = ywRectCreatePosSize(ywCanvasObjPos(obj),
-					      ywCanvasObjSize(wid, obj),
-					      NULL, NULL);
-	ywPosAdd(objRect, add_x_y);
+	Entity *osize = ywCanvasObjSize(wid, obj);
+	int w = yeGetIntAt(projection_rect, 2) ? yeGetIntAt(projection_rect, 2) :
+		ywSizeW(osize);
+	int h = yeGetIntAt(projection_rect, 3) ? yeGetIntAt(projection_rect, 3) :
+		ywSizeH(osize);
+	Entity *opos = ywCanvasObjPos(obj);
+	Entity *objRect = ywRectCreateInts(ywPosX(opos), ywPosY(opos),
+					   w, h, NULL, NULL);
+	ywPosAdd(objRect, projection_rect);
 	Entity *ret =
 		ywCanvasNewCollisionsArrayWithRectangle_(wid, objRect, obj,
 							 colisionFunc,
