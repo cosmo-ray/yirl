@@ -158,6 +158,28 @@ function yamap_push_animation(wid, pos, texture, lifetime, end_callback)
     return anim_info
 }
 
+function ctype_to_str(ctype)
+{
+    if (ctype == TYPE_OBJ)
+	return "obj"
+    else if (ctype == TYPE_BREAKABLE_BLOCK)
+	return "breakable block"
+    else if (ctype == TYPE_PIKE)
+	return "pike"
+    else if (ctype == TYPE_MONSTER)
+	return "monster"
+    else if (ctype == TYPE_BOSS)
+	return "boss"
+    else if (ctype == TYPE_ANIMATION)
+	return "animation"
+    else if (ctype == TYPE_PUNCH)
+	return "PUNCH"
+    else if (ctype == TYPE_LIGHT_FLOOR)
+	return "light floor"
+    else
+	return "floor"
+}
+
 function yamap_push_obj(wid, pos, idx)
 {
     let ic = idx
@@ -568,12 +590,7 @@ function amap_action(wid, events)
 	y_move_set_yspeed(pc_minfo, yeGetIntAt(pc_canel, PC_DROPSPEED_IDX));
     }
     y_move_pos(pc_pos, pc_minfo, turn_timer);
-    if (yeGetIntAt(pc_canel, PC_HURT) > 0) {
-	print_life(wid, pc, pc_canel)
-	return
-    } else {
-	pc_handler.rm("colorMod")
-    }
+    pc_handler.rm("colorMod")
     let map_pixs_l = yeGet(wid, "map-pixs-l");
     let stop_fall = false;
     let stop_x = false;
@@ -745,6 +762,7 @@ function amap_action(wid, events)
     let projection = wid.get("pc-collision-projection")
     let cols = ywCanvasNewProjectedCollisionsArrayExt(wid, pc_canvas_obj, projection)
     let direct_ret = false
+    let need_pc_refresh = false
     //yePrint(cols)
     if (cols) {
 	cols.forEach(function(c) {
@@ -774,12 +792,11 @@ function amap_action(wid, events)
 		stop_x = true
 		if ((ywPosY(old_pos) + SPRITE_SIZE) <= ywPosY(ywCanvasObjPos(c))) {
 		    stop_fall = true
-		    print_life(wid, pc, pc_canel)
 		}
 		if (pc_canel.geti(PC_DROPSPEED_IDX) < 0)
 		    pc_canel.setAt(PC_DROPSPEED_IDX, 0)
 		return false;
-	    } else if (ctype != TYPE_ANIMATION && ctype != TYPE_PUNCH) {
+	    } else if (ctype == TYPE_PIKE || ctype == TYPE_MONSTER || ctype == TYPE_BOSS) {
 		if (ywCanvasObjectsCheckColisions(c, pc_canvas_obj)) {
 		    if (ctype == TYPE_PIKE || ctype == TYPE_MONSTER || ctype == TYPE_BOSS) {
 			if (yeGetIntAt(pc_canel, PC_HURT) == 0) {
@@ -789,19 +806,18 @@ function amap_action(wid, events)
 				atk_str = 1
 			    yeAddAt(pc, "life", -atk_str)
 			    pc_handler.setAt("colorMod", yeCreateQuadInt(255, 100, 0, 255))
-			    yGenericHandlerRefresh(pc_handler)
+			    need_pc_refresh = true
+			    yeSetIntAt(pc_canel, PC_HURT, 7);
+			    yeSetIntAt(pc_canel, PC_DROPSPEED_IDX, -10);
+			    if (ctype == TYPE_PIKE)
+				yeSetIntAt(pc_canel, PC_DROPSPEED_IDX, -25);
 			}
-			yeSetIntAt(pc_canel, PC_HURT, 7);
-			yeSetIntAt(pc_canel, PC_DROPSPEED_IDX, -25);
-			print_life(wid, pc, pc_canel)
-			return true
 		    }
 		}
-		if (ctype == TYPE_PIKE || ctype == TYPE_MONSTER || ctype == TYPE_BOSS)
-		    return false;
+		return false;
+	    } else if (ctype != TYPE_ANIMATION && ctype != TYPE_PUNCH) {
 		if ((ywPosY(old_pos) + SPRITE_SIZE) <= ywPosY(ywCanvasObjPos(c))) {
 		    stop_fall = true
-		    print_life(wid, pc, pc_canel)
 		} else if (ctype != TYPE_LIGHT_FLOOR &&
 			   (wid.geti("#-yblock") > 0 || yeGetIntAt(pc_canel, PC_DROPSPEED_IDX) >= 0) &&
 			   (ywPosY(old_pos) + SPRITE_SIZE - 1) >
@@ -813,6 +829,8 @@ function amap_action(wid, events)
 		}
 	    }
 	})
+	if (need_pc_refresh)
+	    yGenericHandlerRefresh(pc_handler)
 	yeDestroy(cols)
     }
     if (direct_ret)
