@@ -590,7 +590,9 @@ function amap_action(wid, events)
 	y_move_set_yspeed(pc_minfo, yeGetIntAt(pc_canel, PC_DROPSPEED_IDX));
     }
     y_move_pos(pc_pos, pc_minfo, turn_timer);
-    pc_handler.rm("colorMod")
+    if (yeGetIntAt(pc_canel, PC_HURT) <= 0) {
+	pc_handler.rm("colorMod")
+    }
     let map_pixs_l = yeGet(wid, "map-pixs-l");
     let stop_fall = false;
     let stop_x = false;
