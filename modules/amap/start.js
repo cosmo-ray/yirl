@@ -274,10 +274,30 @@ function print_all(wid)
     let map_real_size = yeGet(mi, "size")
     let monsters_info = yeGet(mi, "monsters")
     let monsters = yeGet(wid, "_monsters")
+    let bg_info = mi.get("background")
+    let backgound = null
 
-    let backgound = ywCanvasNewRectangle(wid, 0, 0, ywSizeW(map_real_size) * SPRITE_SIZE,
-			 ywSizeH(map_real_size) * SPRITE_SIZE,
-			 "rgba: 120 120 120 155")
+    if (bg_info) {
+	let bg_str = bg_info.s()
+
+	if (bg_str.startsWith("rdba:")) {
+	    backgound = ywCanvasNewRectangle(wid, 0, 0, ywSizeW(map_real_size) * SPRITE_SIZE,
+					     ywSizeH(map_real_size) * SPRITE_SIZE,
+					     "rgba: 120 120 120 155")
+	} else {
+	    backgound = ywCanvasNewImgByPath(wid, 0, 0, bg_str)
+	    if (mi.get("background_auto_scale")) {
+		ywCanvasForceSize(backgound,
+				  ywSizeCreate(ywSizeW(map_real_size) * SPRITE_SIZE,
+					       ywSizeH(map_real_size) * SPRITE_SIZE))
+	    }
+	}
+    } else {
+	backgound = ywCanvasNewRectangle(wid, 0, 0, ywSizeW(map_real_size) * SPRITE_SIZE,
+					 ywSizeH(map_real_size) * SPRITE_SIZE,
+					 "rgba: 120 120 120 155")
+    }
+    yePrint(backgound)
     yeCreateIntAt(TYPE_ANIMATION, backgound, "amap-t", YCANVAS_UDATA_IDX)
     for (let i = 0; i < yeLen(map_a); ++i) {
 	let s = yeGetStringAt(map_a, i)
