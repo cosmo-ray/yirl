@@ -153,6 +153,7 @@ BIND_EE(ywCanvasArrayPop, 2, 0);
 BIND_EE(ywCanvasClearArray, 2, 0);
 
 BIND_EE(ywCanvasObjectsCheckColisions, 2, 0);
+BIND_EE(ywCanvasObjectsCheckPointColisions, 2, 0);
 
 BIND_EE(ywCanvasObjReplacePos, 2, 0);
 

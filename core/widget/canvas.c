@@ -918,6 +918,43 @@ Entity *ywCanvasProjectedColisionArray(Entity *wid, Entity *obj,
 	return ret;
 }
 
+_Bool ywCanvasObjectsCheckPointColisions(Entity *obj0, Entity *point)
+{
+	Entity *mod0 = ywCanvasObjMod(obj0);
+
+	yeAutoFree Entity *r0 =
+		rectRotationMod(obj0, ywRectCreatePosSize(ywCanvasObjPos(obj0),
+							  ywCanvasObjSize(NULL,
+									  obj0),
+							  NULL, NULL),
+				mod0);
+	yeAutoFree Entity *r1 = ywRectCreatePosWH(point, 1, 1, NULL, NULL);
+
+	yeAutoFree Entity *colisionRects = ywRectColisionRect(r0, r1, NULL, NULL);
+	Entity *crect0 = yeGet(colisionRects, 0);
+
+	if (!colisionRects)
+		return 0;
+
+	if (yeGetIntAt(obj0, 0) == YCanvasString)
+		return 1;
+
+	for (int i = 0; i < ywRectH(crect0); i += ywidColisionYPresision) {
+		for (int j = 0; j < ywRectW(crect0);
+		     j += ywidColisionXPresision) {
+			YCanvasPixiel pix;
+			int x = ywRectX(crect0) + j, y = ywRectY(crect0) + i;
+
+			pixMod(obj0, r0, mod0, &x, &y, ywRectW(r0), ywRectH(r0));
+			pix.i = sdlCanvasPixInfo(obj0, x, y);
+			if (pix.rgba[3] != 0) {
+				return 1;
+			}
+		}
+	}
+	return 0;
+}
+
 _Bool	ywCanvasObjectsCheckColisions(Entity *obj0, Entity *obj1)
 {
 	Entity *mod0 = ywCanvasObjMod(obj0);

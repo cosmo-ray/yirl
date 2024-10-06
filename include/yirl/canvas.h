@@ -445,6 +445,7 @@ YCanvasObjType ywCanvasObjType(Entity *obj);
  * it should be pixiel perfect
  */
 _Bool ywCanvasObjectsCheckColisions(Entity *obj0, Entity *obj1);
+_Bool ywCanvasObjectsCheckPointColisions(Entity *obj0, Entity *point);
 
 /**
  * @return 1 if r0 is in colision with obj1

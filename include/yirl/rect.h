@@ -79,6 +79,19 @@ static inline Entity *ywRectReCreateEnt(Entity *other, Entity *father,
 				  ywRectH(other), father, name);
 }
 
+static inline Entity *ywRectCreatePosWH(Entity *pos, int w, int h,
+					Entity *father, const char *name)
+{
+	int x = 0, y = 0;
+
+	if (pos) {
+		x = ywPosX(pos);
+		y = ywPosY(pos);
+	}
+
+	return ywRectReCreateInts(x, y, w, h, father, name);
+}
+
 static inline Entity *ywRectCreatePosSize(Entity *pos, Entity *size,
 					  Entity *father, const char *name)
 {
