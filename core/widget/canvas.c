@@ -958,7 +958,7 @@ _Bool ywCanvasObjectsCheckPointColisions(Entity *obj0, Entity *point)
 _Bool	ywCanvasObjectsCheckColisions(Entity *obj0, Entity *obj1)
 {
 	Entity *mod0 = ywCanvasObjMod(obj0);
-	Entity *mod1 = ywCanvasObjMod(obj1);
+ 	Entity *mod1 = ywCanvasObjMod(obj1);
 	Entity *r0 =
 		rectRotationMod(obj0, ywRectCreatePosSize(ywCanvasObjPos(obj0),
 							  ywCanvasObjSize(NULL,

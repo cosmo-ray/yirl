@@ -1496,8 +1496,7 @@ int sdlCanvasCacheTexture(Entity *state, Entity *elem)
 	return -1;
 }
 
-static void sdlCanvasAplyModifier(Entity *img, GPU_Rect *dst,
-				  GPU_Rect **src,
+static void sdlCanvasAplyModifier(Entity *img,
 				  double *rotation, GPU_BatchFlagEnum *flip,
 				  SDL_Color *mod_color)
 {
@@ -1514,9 +1513,12 @@ static void sdlCanvasAplyModifier(Entity *img, GPU_Rect *dst,
 		mod_color->b = yeGetIntAt(color_mod, 2);
 		mod_color->a = a ? a : 255;
 	}
-	*rotation = yeGetFloat(yeGet(mod, YCanvasRotate));
-	*flip |= (GPU_FLIP_VERTICAL * yeGetIntAt(mod, YCanvasVFlip));
-	*flip |= (GPU_FLIP_HORIZONTAL * yeGetIntAt(mod, YCanvasHFlip));
+	if (rotation)
+		*rotation = yeGetFloat(yeGet(mod, YCanvasRotate));
+	if (flip) {
+		*flip |= (GPU_FLIP_VERTICAL * yeGetIntAt(mod, YCanvasVFlip));
+		*flip |= (GPU_FLIP_HORIZONTAL * yeGetIntAt(mod, YCanvasHFlip));
+	}
 	return;
 }
 
@@ -1550,7 +1552,7 @@ static int sdlCanvasRendImg(YWidgetState *state, SDLWid *wid, Entity *img,
 
 	rd.x += ywRectX(wid_pix);
 	rd.y += ywRectY(wid_pix);
-	sdlCanvasAplyModifier(img, &rd, &sd, &rotation, &flip, &mod_color);
+	sdlCanvasAplyModifier(img, &rotation, &flip, &mod_color);
 	if (mod_color.r || mod_color.g || mod_color.b || mod_color.a) {
 		GPU_SetColor(t, mod_color);
 	}
@@ -1660,6 +1662,9 @@ static int sdlCanvasRendBigImg(YWidgetState *state, SDLWid *wid,
 	int wadd = 2048 * wpercent / 100;
 	int hpercent = 100 * ywSizeH(s) / surface->h;
 	int hadd = 2048 * hpercent / 100;
+	SDL_Color mod_color = {0};
+
+	sdlCanvasAplyModifier(obj, NULL, NULL, &mod_color);
 
 	YE_FOREACH(txts_h, txts_w) {
 		int threshold_x = 0;
@@ -1675,6 +1680,9 @@ static int sdlCanvasRendBigImg(YWidgetState *state, SDLWid *wid,
 			w = yuiPercentOf(w, wpercent);
 			h = yuiPercentOf(h, hpercent);
 
+			if (mod_color.r || mod_color.g || mod_color.b || mod_color.a) {
+				GPU_SetColor(t, mod_color);
+			}
 			GPU_BlitRect(t, NULL, sg.pWindow,
 				     &(GPU_Rect){x, y, w, h});
 			threshold_x += wadd;
