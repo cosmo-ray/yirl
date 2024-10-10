@@ -1074,6 +1074,15 @@ void ywCanvasRemoveColorMod(Entity *obj)
 		if (!img)
 			return;
 		GPU_UnsetColor(img);
+	} else if (type == YCanvasBigTexture) {
+		Entity *txts_h = yeGet(obj, YCANVAS_IMG_IDX);
+		YE_FOREACH(txts_h, txts_w) {
+			YE_FOREACH(txts_w, texture) {
+				GPU_Image *t = yeGetData(texture);
+				GPU_UnsetColor(t);
+			}
+		}
+
 	}
 }
 
