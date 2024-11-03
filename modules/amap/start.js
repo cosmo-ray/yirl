@@ -811,8 +811,11 @@ function amap_action(wid, events)
 		    objs.rm(idx)
 		}
 	    } else if (ctype == TYPE_BREAKABLE_BLOCK) {
-		stop_x = true
-		if ((ywPosY(old_pos) + SPRITE_SIZE) <= ywPosY(ywCanvasObjPos(c))) {
+		let obj_pos = ywCanvasObjPos(c)
+		if (ywPosY(old_pos) <= ywPosY(obj_pos) + ywCanvasObjSize(wid, c)) {
+		    stop_x = true
+		}
+		if ((ywPosY(old_pos) + SPRITE_SIZE) <= ywPosY(obj_pos)) {
 		    stop_fall = true
 		}
 		if (pc_canel.geti(PC_DROPSPEED_IDX) < 0)
@@ -838,13 +841,18 @@ function amap_action(wid, events)
 		}
 		return false;
 	    } else if (ctype != TYPE_ANIMATION && ctype != TYPE_PUNCH) {
-		if ((ywPosY(old_pos) + SPRITE_SIZE) <= ywPosY(ywCanvasObjPos(c))) {
+		let obj_pos = ywCanvasObjPos(c)
+
+		if ((ywPosY(old_pos) + SPRITE_SIZE) <= ywPosY(obj_pos)) {
 		    stop_fall = true
 		} else if (ctype != TYPE_LIGHT_FLOOR &&
 			   (wid.geti("#-yblock") > 0 || yeGetIntAt(pc_canel, PC_DROPSPEED_IDX) >= 0) &&
 			   (ywPosY(old_pos) + SPRITE_SIZE - 1) >
-			   ywPosY(ywCanvasObjPos(c)) + 10) {
-		    stop_x = true
+			   ywPosY(obj_pos) + 10) {
+
+		    if (ywPosY(old_pos) <= ywPosY(obj_pos) + ywCanvasObjSize(wid, c)) {
+			stop_x = true
+		    }
 		    if (wid.geti("#-yblock") > 0 && pc_canel.geti(PC_DROPSPEED_IDX) < 0) {
 			pc_canel.setAt(PC_DROPSPEED_IDX, 0)
 		    }
