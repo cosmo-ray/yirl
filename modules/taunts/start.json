@@ -5,26 +5,29 @@
 	"Did you try to hit me ?",
 	"You blind ?",
 	"Noob",
-	"Have you try aiming ?",
+	"Have you tried aiming ?",
 	"Lol"
     ],
     "weak_atk": [
-	"do you think that hurt ?",
+	"Do you think that hurts ?",
 	"Are you massaging me ?",
-	"My grand dad is stronger than you",
-	"Why are you caressing me"
+	"My grandad is stronger than you",
+	"Why are you caressing me",
+	"Pathetic",
+	"And you call yourself a warrior ?",
+	"We got stronger mosquitoes where I'm from"
     ],
     "strong_atk": [
-	"outch !",
-	"OK, you not that week",
-	"crap that hurt !",
+	"Aoutch !",
+	"OK, you're not that weak",
+	"Crap ! that hurts !",
 	"Wesh !",
-	"Will smatch your head for this",
-	"bitch !, you're gonna pay",
-	"I need stim !"
+	"So much blood !",
+	"I will smash your head for this",
+	"Bitch !, you're gonna pay"
     ],
     "heal": [
-	"pain go away !",
+	"The pain ! It's gone !",
 	"I feel better !"
     ]
 }
