@@ -431,13 +431,15 @@ function amap_action(wid, events)
 	}
     }
     if (yevIsKeyUp(events, Y_LEFT_KEY)) {
-	y_move_set_xspeed(pc_minfo, 0)
-	have_upkey = DIR_LEFT
 	wid.setAt("keydown", wid.geti("keydown") & (~KEYDOWN_LEFT))
+	if (!wid.geti("keydown"))
+	    y_move_set_xspeed(pc_minfo, 0)
+	have_upkey = DIR_LEFT
     } else if (yevIsKeyUp(events, Y_RIGHT_KEY)) {
-	y_move_set_xspeed(pc_minfo, 0)
-	have_upkey = DIR_RIGHT
 	wid.setAt("keydown", wid.geti("keydown") & (~KEYDOWN_RIGHT))
+	if (!wid.geti("keydown"))
+	    y_move_set_xspeed(pc_minfo, 0)
+	have_upkey = DIR_RIGHT
     }
 
     if (yevIsKeyUp(events, Y_UP_KEY)) {
@@ -450,19 +452,24 @@ function amap_action(wid, events)
 	wid.setAt("keydown", wid.geti("keydown") & (~KEYDOWN_SPACE))
     }
 
+    yePrint(wid.get("keydown"))
     if (yevIsKeyDown(events, Y_LEFT_KEY) && have_upkey != DIR_LEFT) {
 	yeSetIntAt(pc_canel, PC_DIR, DIR_LEFT)
 	y_move_set_xspeed(pc_minfo, -BASE_SPEED)
 	wid.setAt("keydown", wid.geti("keydown") | KEYDOWN_LEFT)
 	let flip_val = wid.geti("pc_revers_flip")
 	pc_handler.setAt("flip", 1 - flip_val)
-    } else if (yevIsKeyDown(events, Y_RIGHT_KEY) && have_upkey != DIR_RIGHT) {
+    }
+
+    if (yevIsKeyDown(events, Y_RIGHT_KEY) && have_upkey != DIR_RIGHT) {
 	yeSetIntAt(pc_canel, PC_DIR, DIR_RIGHT)
 	wid.setAt("keydown", wid.geti("keydown") | KEYDOWN_RIGHT)
 	y_move_set_xspeed(pc_minfo, BASE_SPEED)
 	let flip_val = wid.geti("pc_revers_flip")
 	pc_handler.setAt("flip", 0 + flip_val)
-    } else if (yevIsKeyDown(events, Y_C_KEY) && yeGetIntAt(pc_canel, PC_DASH) == 0) {
+    }
+
+    if (yevIsKeyDown(events, Y_C_KEY) && yeGetIntAt(pc_canel, PC_DASH) == 0) {
 	let dir = 1
 	y_move_set_xspeed(pc_minfo, BASE_SPEED)
 	if (pc_handler.geti("flip")) {
@@ -472,7 +479,9 @@ function amap_action(wid, events)
 	y_move_set_xspeed(pc_minfo, BASE_SPEED * dir)
 	yeCreateFloatAt(3, pc_minfo, null, Y_MVER_SPEEDUP)
 	yeSetIntAt(pc_canel, PC_DASH, 10)
-    } else if (yevIsKeyDown(events, Y_X_KEY) && yeGetIntAt(pc_canel, PC_PUNCH_LIFE) == 0) {
+    }
+
+    if (yevIsKeyDown(events, Y_X_KEY) && yeGetIntAt(pc_canel, PC_PUNCH_LIFE) == 0) {
 	yeSetIntAt(pc_canel, PC_PUNCH_LIFE, 4 + pc_strength / 3)
 	let textures = yeGet(wid, "textures");
 	let canvasobj = ywCanvasNewImgFromTexture(wid, ywPosX(pc_pos), ywPosY(pc_pos),
@@ -533,7 +542,9 @@ function amap_action(wid, events)
 	// ywCanvasNewTextByStr(wid, ywPosX(pc_pos), ywPosY(pc_pos), " @ \n---")
 	yePushAt2(pc_canel, canvasobj, PC_PUNCH_OBJ)
 	yeCreateIntAt(TYPE_PUNCH, canvasobj, "amap-t", YCANVAS_UDATA_IDX)
-    } else if (yevIsKeyDown(events, Y_SPACE_KEY) &&
+    }
+
+    if (yevIsKeyDown(events, Y_SPACE_KEY) &&
 	       yeGetIntAt(pc_canel, PC_JMP_NUMBER) < 2) {
 	yeSetIntAt(pc_canel, PC_DROPSPEED_IDX, -25);
 	yeAddAt(pc_canel, PC_JMP_NUMBER, 1);
