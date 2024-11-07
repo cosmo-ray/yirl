@@ -852,15 +852,18 @@ function amap_action(wid, events)
 		return false;
 	    } else if (ctype != TYPE_ANIMATION && ctype != TYPE_PUNCH) {
 		let obj_pos = ywCanvasObjPos(c)
+		let obj_size = ywCanvasObjSize(wid, c)
+		let pc_canvasobj = yGenericCurCanvas(pc_handler)
+		let pc_size = ywCanvasObjSize(wid, pc_canvasobj)
 
 		if ((ywPosY(old_pos) + SPRITE_SIZE) <= ywPosY(obj_pos)) {
 		    stop_fall = true
 		} else if (ctype != TYPE_LIGHT_FLOOR &&
 			   (wid.geti("#-yblock") > 0 || yeGetIntAt(pc_canel, PC_DROPSPEED_IDX) >= 0) &&
-			   (ywPosY(old_pos) + SPRITE_SIZE - 1) >
-			   ywPosY(obj_pos) + 10) {
+			   (ywPosY(old_pos) + ywSizeH(pc_size) - 1) >
+			   ywPosY(obj_pos) + 4) {
 
-		    if (ywPosY(old_pos) <= ywPosY(obj_pos) + ywCanvasObjSize(wid, c)) {
+		    if (ywPosY(old_pos) + 4 <= ywPosY(obj_pos) + ywSizeH(obj_size)) {
 			stop_x = true
 		    }
 		    if (wid.geti("#-yblock") > 0 && pc_canel.geti(PC_DROPSPEED_IDX) < 0) {
