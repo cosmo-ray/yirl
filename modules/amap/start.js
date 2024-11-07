@@ -452,7 +452,6 @@ function amap_action(wid, events)
 	wid.setAt("keydown", wid.geti("keydown") & (~KEYDOWN_SPACE))
     }
 
-    yePrint(wid.get("keydown"))
     if (yevIsKeyDown(events, Y_LEFT_KEY) && have_upkey != DIR_LEFT) {
 	yeSetIntAt(pc_canel, PC_DIR, DIR_LEFT)
 	y_move_set_xspeed(pc_minfo, -BASE_SPEED)
