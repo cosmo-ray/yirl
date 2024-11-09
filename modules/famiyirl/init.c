@@ -98,6 +98,16 @@ Entity *main_canvas;
 void (*set_mem)(uint16_t addr, char val);
 unsigned char (*get_mem)(uint16_t addr);
 
+void set_mem_yirl(uint16_t addr, char val)
+{
+	printf("set_mem_yirl\n");
+}
+
+void get_mem_yirl(uint16_t addr)
+{
+	printf("get_mem_yirl");
+}
+
 void set_mem_nes(uint16_t addr, char val)
 {
 	if (addr < 0x800) {
@@ -751,6 +761,7 @@ void *fy_init(int nbArgs, void **args)
 	printf("len r: %x - %x\n", yeLen(rom), yeLen(rom) + 0x4020);
 	yePushBack(wid, rom, "rom");
 	cartridge = yeGetData(rom);
+	printf("%s\n", cartridge);
 	void *ret = ywidNewWidget(wid, "canvas");
 	for (int i = 0; i < 0x100; ++i) {
 		switch (i) {
