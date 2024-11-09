@@ -616,7 +616,6 @@ void ygEnd()
 	/* ysDestroyManager(qjsManager); */
 	ysQjsEnd();
 	yeEnd();
-	free(yProgramArg);
 	yProgramArg = NULL;
 	init = 0;
 #ifdef GAMEMODE
