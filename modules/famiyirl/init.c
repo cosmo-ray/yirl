@@ -1,5 +1,8 @@
 #include <yirl/all.h>
 
+#define YIRL_0_MODE 0
+#define NES_MODE 1
+
 #define CARY_FLAG 1
 #define ZERO_FLAG (1 << 1)
 #define IRQ_DISABLE_FLAG (1 << 2)
@@ -100,12 +103,12 @@ unsigned char (*get_mem)(uint16_t addr);
 
 void set_mem_yirl(uint16_t addr, char val)
 {
-	printf("set_mem_yirl\n");
+	printf("set_mem_yirl: at %x val: %x\n", addr, val);
 }
 
 void get_mem_yirl(uint16_t addr)
 {
-	printf("get_mem_yirl");
+	printf("get_mem_yirl at %d - %x\n", addr, addr);
 }
 
 void set_mem_nes(uint16_t addr, char val)
@@ -691,11 +694,18 @@ enum  {
 
 void *fy_action(int nbArgs, void **args)
 {
+	Entity *wid = args[0];
 	Entity *events = args[1];
 	static int turn_mode;
+	int mode = yeGetIntAt(wid, "mode");
 
-	set_mem = set_mem_nes;
-	get_mem = get_mem_nes;
+	if (mode == NES_MODE) {
+		set_mem = set_mem_nes;
+		get_mem = get_mem_nes;
+	} else {
+		set_mem = set_mem_yirl;
+		get_mem = get_mem_yirl;
+	}
 
 	if (yevIsKeyDown(events, 'i')) {
 		printf("fast mode activate\n");
@@ -758,10 +768,20 @@ void *fy_init(int nbArgs, void **args)
 	} else {
 		rom = ygFileToEnt(YRAW_FILE_DATA, "background.nes", NULL);
 	}
+
 	printf("len r: %x - %x\n", yeLen(rom), yeLen(rom) + 0x4020);
 	yePushBack(wid, rom, "rom");
 	cartridge = yeGetData(rom);
-	printf("%s\n", cartridge);
+	if (!strcmp(cartridge, "NES")) {
+		printf("NES mode\n");
+		yeCreateInt(NES_MODE, wid, "mode");
+	} else if (!strcmp(cartridge, "YIRL 0")) {
+		printf("YIRL 0 mode\n");
+		yeCreateInt(YIRL_0_MODE, wid, "mode");
+		cpu.pc = 0x1000;
+	} else {
+		printf("unknow mode %s\n", cartridge);
+	}
 	void *ret = ywidNewWidget(wid, "canvas");
 	for (int i = 0; i < 0x100; ++i) {
 		switch (i) {
