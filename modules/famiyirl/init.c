@@ -65,7 +65,7 @@ struct ppu {
 
 unsigned char ppu_mem[0x4000];
 
-unsigned char ram[0x800];
+unsigned char ram[0x1000];
 unsigned char miror0[0x800];
 unsigned char miror1[0x800];
 unsigned char miror2[0x800];
@@ -103,12 +103,44 @@ unsigned char (*get_mem)(uint16_t addr);
 
 void set_mem_yirl(uint16_t addr, char val)
 {
+	if (addr < 0x100) {
+		cartridge[addr] = val;
+	} else if (addr < 0x1000) {
+		ram[addr] = val;
+	} else if (addr < 0xc000) {
+		cartridge[addr] = val;
+	} else if (addr >= 0xff00) {
+		ppu_mem[addr & 0xff] = val;
+	} else if (addr >= 0xfc00) {
+		switch (addr & 0xff) {
+		case 0:
+			printf("write txt: -- at: %d - %d\n", cpu.x, cpu.y);
+			break;
+		default:
+			printf("unknow call\n");
+		}
+	}
 	printf("set_mem_yirl: at %x val: %x\n", addr, val);
 }
 
-void get_mem_yirl(uint16_t addr)
+/**
+ *   HDR:    start = $0000,  size = $1000, type = ro, file = %O, fill = yes, fillval = $00;
+ *   RAM:    start = $0100,  size = $0900, type = rw, file = "", fill = yes, fillval = $ff;
+ *   PRG:    start = $1000,  size = $8000, type = ro, file = %O, fill = yes, fillval = $00;
+ *   DTA:    start = $9000,  size = $7000, type = ro, file = %O, fill = yes, fillval = $00;
+ */
+unsigned char get_mem_yirl(uint16_t addr)
 {
 	printf("get_mem_yirl at %d - %x\n", addr, addr);
+	if (addr < 0x100) {
+		return cartridge[addr];
+	} else if (addr < 0x1000) {
+		return ram[addr];
+	} else if (addr < 0xc000) {
+		return cartridge[addr];
+	} else if (addr >= 0xff00) {
+		return ppu_mem[addr & 0xff];
+	}
 }
 
 void set_mem_nes(uint16_t addr, char val)
