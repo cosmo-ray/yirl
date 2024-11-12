@@ -365,6 +365,28 @@ static void *increaseInt(int nb, union ycall_arg *args, int *types)
 	return 0;
 }
 
+static void *increaseIntMax(int nb, union ycall_arg *args, int *types)
+{
+	// args[0] is the widget and args[1] are the events
+	Entity *toSet = args[2].e;
+	Entity *value = args[3].e;
+	Entity *max = args[4].e;
+
+	ygIncreaseIntMax(yeGetString(toSet), yeGetInt(value), yeGetInt(max));
+	return 0;
+}
+
+static void *decreaseIntMin(int nb, union ycall_arg *args, int *types)
+{
+	// args[0] is the widget and args[1] are the events
+	Entity *toSet = args[2].e;
+	Entity *value = args[3].e;
+	Entity *min = args[4].e;
+
+	ygDecreaseIntMin(yeGetString(toSet), yeGetInt(value), yeGetInt(min));
+	return 0;
+}
+
 static void *nextOnKeyDown(int nb, union ycall_arg *args, int *types)
 {
 	Entity *events = args[1].e;
@@ -406,6 +428,8 @@ static void addNativeFuncToBaseMod(void)
 				     baseMod, NULL);
 	ysRegistreCreateNativeEntity(recreateInt, "recreateInt", baseMod, NULL);
 	ysRegistreCreateNativeEntity(increaseInt, "increaseInt", baseMod, NULL);
+	ysRegistreCreateNativeEntity(increaseIntMax, "increaseIntMax", baseMod, NULL);
+	ysRegistreCreateNativeEntity(decreaseIntMin, "decreaseIntMin", baseMod, NULL);
 	ysRegistreCreateNativeEntity(randomCall, "randomCall", baseMod, NULL);
 	ysRegistreCreateNativeEntity(chkInfD100, "chkInfD100", baseMod, NULL);
 	yeCreateFunctionSimple("menuMove", ysNativeManager(), baseMod);
@@ -1124,6 +1148,24 @@ void ygIncreaseInt(const char *toInc, int val)
 	if (!e)
 		return ygReCreateInt(toInc, val);
 	yeAdd(e, val);
+}
+
+void ygIncreaseIntMax(const char *toInc, int val, int max)
+{
+	Entity *e = ygGet(toInc);
+
+	if (!e)
+		return ygReCreateInt(toInc, val);
+	yeAddIntMax(e, val, max);
+}
+
+void ygDecreaseIntMin(const char *toInc, int val, int min)
+{
+	Entity *e = ygGet(toInc);
+
+	if (!e)
+		return ygReCreateInt(toInc, min);
+	yeSubIntMin(e, val, min);
 }
 
 #define RECREATE_ARRAY()						\

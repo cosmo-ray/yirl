@@ -1444,6 +1444,53 @@ static inline int yeIntAddInt(IntEntity *e, int i)
 	return 0;
 }
 
+/**
+ * add i to e, e + i can not be bigger than max.
+ */
+static inline int yeAddIntMax(Entity *e, int i, int max)
+{
+	switch (yeType(e)) {
+	case YINT:
+		if (YE_TO_FLOAT(e)->value + i > max) {
+			YE_TO_FLOAT(e)->value = max;
+			return 1;
+		}
+		return yeIntAddInt(YE_TO_INT(e), i);
+		return 0;
+	case YFLOAT:
+		if (YE_TO_FLOAT(e)->value + i > max) {
+			YE_TO_FLOAT(e)->value = max;
+			return 1;
+		}
+		YE_TO_FLOAT(e)->value += i;
+		return 0;
+	default :
+		return -1;
+	}
+}
+
+static inline int yeSubIntMin(Entity *e, int i, int min)
+{
+	switch (yeType(e)) {
+	case YINT:
+		if (YE_TO_FLOAT(e)->value - i < min) {
+			YE_TO_FLOAT(e)->value = min;
+			return 1;
+		}
+		return yeIntAddInt(YE_TO_INT(e), -i);
+		return 0;
+	case YFLOAT:
+		if (YE_TO_FLOAT(e)->value - i < min) {
+			YE_TO_FLOAT(e)->value = min;
+			return 1;
+		}
+		YE_TO_FLOAT(e)->value -= i;
+		return 0;
+	default :
+		return -1;
+	}
+}
+
 static inline int yeAddLong(Entity *e, long i)
 {
 	switch (yeType(e)) {
@@ -1462,6 +1509,9 @@ static inline int yeAddInt(Entity *e, int i)
 	switch (yeType(e)) {
 	case YINT:
 		return yeIntAddInt(YE_TO_INT(e), i);
+	case YFLOAT:
+		YE_TO_FLOAT(e)->value += i;
+		return 0;
 	case YSTRING:
 		yeStringAddInt(e, i);
 		return 0;

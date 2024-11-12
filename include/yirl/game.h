@@ -231,6 +231,8 @@ Entity *ygGet(const char *toFind);
 void ygSetInt(const char *toSet, int val);
 void ygReCreateInt(const char *toSet, int val);
 void ygIncreaseInt(const char *toInc, int val);
+void ygIncreaseIntMax(const char *toInc, int val, int max);
+void ygDecreaseIntMin(const char *toInc, int val, int min);
 
 void ygReCreateString(const char *toSet, const char *str);
 
