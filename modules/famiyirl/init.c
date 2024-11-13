@@ -114,8 +114,12 @@ void set_mem_yirl(uint16_t addr, char val)
 	} else if (addr >= 0xfc00) {
 		switch (addr & 0xff) {
 		case 0:
-			printf("write txt: -- at: %d - %d\n", cpu.x, cpu.y);
+		{
+			int addr = ppu_mem[0] | (ppu_mem[1] << 8);
+			char *s = &cartridge[addr];
+			printf("write txt: %x/%s at: %d - %d\n", addr, s, cpu.x, cpu.y);
 			break;
+		}
 		default:
 			printf("unknow call\n");
 		}

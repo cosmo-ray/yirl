@@ -15,8 +15,10 @@ gamestate2:	.res 1  ; .rs 1 means reserve one byte of space
 	LDX #$40
 	STA gamestate
 	STA gamestate2
-	LDA hello
+	LDA #<hello
 	STA $FF00
+	LDA #>hello
+	STA $FF01
 	LDX #10
 	LDY #30
 	STA $FC00
