@@ -286,6 +286,11 @@ static inline int yWindowHeight(void)
 	return ywidWindowHight;
 }
 
+static Entity *ywPixelsSize(Entity *wid)
+{
+	return yeGet(wid, "wid-pix");
+}
+
 static int ywWidth(Entity *w)
 {
 	return ywRectW(yeGet(w, "wid-pix"));

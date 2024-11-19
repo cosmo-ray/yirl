@@ -115,9 +115,17 @@ void set_mem_yirl(uint16_t addr, char val)
 		switch (addr & 0xff) {
 		case 0:
 		{
+			int w = ywWidth(main_canvas);
+			int h = ywWidth(main_canvas);
 			int addr = ppu_mem[0] | (ppu_mem[1] << 8);
 			char *s = &cartridge[addr];
+			int x = cpu.x * w / 255;
+			int y = cpu.y * w / 255;
+
 			printf("write txt: %x/%s at: %d - %d\n", addr, s, cpu.x, cpu.y);
+			Entity *ret = ywCanvasNewTextByStr(main_canvas, x, y, s);
+			ywCanvasSetStrColor(ret, "rgba: 255 255 255 255");
+			yePrint(ret);
 			break;
 		}
 		default:
@@ -796,7 +804,7 @@ void *fy_init(int nbArgs, void **args)
 	Entity *wid = args[0];
 	yeConvert(wid, YHASH);
 	main_canvas = wid;
-	yeCreateString("rgba: 0 0 0 255", wid, "backgroung");
+	yeCreateString("rgba: 0 0 0 255", wid, "background");
 	yeCreateFunction("fy_action", ygGetTccManager(), wid, "action");
 	yeAutoFree Entity *rom;
 	if (ygGetProgramArg()) {
