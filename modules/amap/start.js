@@ -327,12 +327,30 @@ function print_all(wid)
 
 	    }
 	    else if (c == '#') {
-		if (sharp_str)
-		    ywCanvasNewRectangle(wid, j * SPRITE_SIZE, i * SPRITE_SIZE,
-					 SPRITE_SIZE, SPRITE_SIZE, yeGetString(sharp_str))
-		else
+		if (sharp_str) {
+		    if (yeType(sharp_str) == YSTRING) {
+			let sharp_str_str = yeGetString(sharp_str)
+			if (sharp_str_str.startsWith("rdba:")) {
+			    ywCanvasNewRectangle(wid, j * SPRITE_SIZE, i * SPRITE_SIZE,
+						 SPRITE_SIZE, SPRITE_SIZE, sharp_str_str)
+			} else {
+			    let sharp_block = ywCanvasNewImgByPath(wid, j * SPRITE_SIZE,
+								   i * SPRITE_SIZE,
+								   sharp_str_str)
+			    ywCanvasForceSize(sharp_block,
+					      ywSizeCreate(SPRITE_SIZE, SPRITE_SIZE))
+			}
+		    } else {
+			let sharp_str_str = sharp_str.gets("path")
+			let src_rect = sharp_str.get("src_rect")
+			let sharp_block = ywCanvasNewImg(wid, j * SPRITE_SIZE,
+							 i * SPRITE_SIZE,
+							 sharp_str_str, src_rect)
+		    }
+		} else {
 		    ywCanvasNewRectangle(wid, j * SPRITE_SIZE, i * SPRITE_SIZE,
 					 SPRITE_SIZE, SPRITE_SIZE, "rgba: 0 0 0 255")
+		}
 		continue;
 		//print(i, j, c)
 	    } else if (c == "^") {
