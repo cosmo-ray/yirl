@@ -299,6 +299,38 @@ function print_all(wid)
     }
     yePrint(backgound)
     yeCreateIntAt(TYPE_ANIMATION, backgound, "amap-t", YCANVAS_UDATA_IDX)
+
+    function show_block(block_info, x, y, w, h) {
+	let ret = null
+
+	if (block_info) {
+	    if (yeType(block_info) == YSTRING) {
+		let block_info_str = yeGetString(block_info)
+		if (block_info_str.startsWith("rdba:")) {
+		    ret = ywCanvasNewRectangle(wid, x, y,
+					 w, h, block_info_str)
+		} else {
+		    let sharp_block = ywCanvasNewImgByPath(wid, x, y,
+							   block_info_str)
+		    ywCanvasForceSize(sharp_block,
+				      ywSizeCreate(w, h))
+		    ret = sharp_block
+		}
+	    } else {
+		let block_info_str = block_info.gets("path")
+		let src_rect = block_info.get("src_rect")
+		let sharp_block = ywCanvasNewImg(wid, x, y,
+						 block_info_str, src_rect)
+		ywCanvasForceSize(sharp_block,
+				  ywSizeCreate(w, h))
+		ret = sharp_block
+	    }
+	} else {
+	    ret = ywCanvasNewRectangle(wid, x, y, w, h, "rgba: 0 0 0 255")
+	}
+	return ret
+    }
+
     for (let i = 0; i < yeLen(map_a); ++i) {
 	let s = yeGetStringAt(map_a, i)
 
@@ -306,51 +338,25 @@ function print_all(wid)
 	    let c = s[j];
 
 	    if (c == "'") {
-		let floor = null
-		if (upsharp_str)
-		    floor = ywCanvasNewRectangle(wid, j * SPRITE_SIZE, i * SPRITE_SIZE,
-						 SPRITE_SIZE, SPRITE_SIZE / 3, upsharp_str.s())
-		else
-		    floor = ywCanvasNewRectangle(wid, j * SPRITE_SIZE, i * SPRITE_SIZE,
-						 SPRITE_SIZE, SPRITE_SIZE / 3,
-						 "rgba: 0 0 0 255")
+		let floor = show_block(upsharp_str, j * SPRITE_SIZE, i * SPRITE_SIZE,
+				       SPRITE_SIZE, SPRITE_SIZE / 3)
 
 		yeCreateIntAt(TYPE_LIGHT_FLOOR, floor, "amap-t", YCANVAS_UDATA_IDX)
 		continue;
 	    }
 
 	    if (c == '=') {
-		let breakable = ywCanvasNewRectangle(wid, j * SPRITE_SIZE, i * SPRITE_SIZE,
-				     SPRITE_SIZE, SPRITE_SIZE / 2, "rgba: 100 200 100 255")
+		let breakable = show_block(brekable_str, j * SPRITE_SIZE, i * SPRITE_SIZE,
+				       SPRITE_SIZE, SPRITE_SIZE / 2)
+		    // ywCanvasNewRectangle(wid, j * SPRITE_SIZE, i * SPRITE_SIZE,
+		    // SPRITE_SIZE, SPRITE_SIZE / 2, "rgba: 100 200 100 255")
 		yeCreateIntAt(TYPE_BREAKABLE_BLOCK, breakable, "amap-t", YCANVAS_UDATA_IDX)
 		continue;
 
 	    }
 	    else if (c == '#') {
-		if (sharp_str) {
-		    if (yeType(sharp_str) == YSTRING) {
-			let sharp_str_str = yeGetString(sharp_str)
-			if (sharp_str_str.startsWith("rdba:")) {
-			    ywCanvasNewRectangle(wid, j * SPRITE_SIZE, i * SPRITE_SIZE,
-						 SPRITE_SIZE, SPRITE_SIZE, sharp_str_str)
-			} else {
-			    let sharp_block = ywCanvasNewImgByPath(wid, j * SPRITE_SIZE,
-								   i * SPRITE_SIZE,
-								   sharp_str_str)
-			    ywCanvasForceSize(sharp_block,
-					      ywSizeCreate(SPRITE_SIZE, SPRITE_SIZE))
-			}
-		    } else {
-			let sharp_str_str = sharp_str.gets("path")
-			let src_rect = sharp_str.get("src_rect")
-			let sharp_block = ywCanvasNewImg(wid, j * SPRITE_SIZE,
-							 i * SPRITE_SIZE,
-							 sharp_str_str, src_rect)
-		    }
-		} else {
-		    ywCanvasNewRectangle(wid, j * SPRITE_SIZE, i * SPRITE_SIZE,
-					 SPRITE_SIZE, SPRITE_SIZE, "rgba: 0 0 0 255")
-		}
+		show_block(sharp_str, j * SPRITE_SIZE, i * SPRITE_SIZE,
+			   SPRITE_SIZE, SPRITE_SIZE);
 		continue;
 		//print(i, j, c)
 	    } else if (c == "^") {
