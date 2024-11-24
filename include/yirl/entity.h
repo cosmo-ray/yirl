@@ -1936,14 +1936,54 @@ static inline int yeSwapElems(Entity *array, Entity *elem0, Entity *elem1)
 	return 0;
 }
 
+static inline const char *yeHashKey(Entity *hash, Entity *val)
+{
+	Entity *vvar;
+	const char *kkey;
+
+	kh_foreach(((HashEntity *)hash)->values,
+		   kkey, vvar, {
+			   if (val == vvar)
+				   return kkey;
+		   });
+
+	return NULL;
+}
+
 NO_SIDE_EFFECT static inline Entity *yeGetRandomElem(Entity *array)
 {
-	if (!array || yeType(array) != YARRAY)
+	int t = yeType(array);
+
+	if (!array)
 		return NULL;
 
 	int array_l = yeLen(array);
+
 	if (!array_l)
 		return NULL;
+
+	if (t == YHASH) {
+		int r = yuiRand() % array_l;
+
+		HashEntity *hon = (void *)array;
+		khash_t(entity_hash) *h = hon->values;
+		int cnt = 0;
+		for (khiter_t k = kh_begin(h); k != kh_end(h); ++k) {
+			if (kh_exist(h, k))
+				++cnt;
+			else
+				continue;
+			if (cnt == r) {
+				return kh_val(h, k);
+			}
+		}
+		return NULL;
+
+		
+	} else if (t != YARRAY) {
+		return NULL;
+	}
+
 	return yeGet(array, yuiRand() % array_l);
 }
 

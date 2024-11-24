@@ -144,6 +144,8 @@ BIND_I(ySoundStop, 1, 0);
 BIND_I(ySoundDuration, 1, 0);
 BIND_I(yuiUsleep, 1, 0);
 
+BIND_EE(yeHashKey, 2, 0);
+
 BIND_EE(yePrint2, 1, 1);
 
 BIND_EE(ywCanvasMoveObj, 2, 0);
