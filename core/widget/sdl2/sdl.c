@@ -360,7 +360,7 @@ static inline Entity *mouse_create_pos(int bt_x, int bt_y)
 	}
 }
 
-static inline Entity *SDLConvertEvent(SDL_Event* event)
+static inline Entity *SDLConvertEvent(SDL_Event* event, int *is_repeat)
 {
 	Entity *eve = yeCreateArray(NULL, NULL);
 
@@ -383,6 +383,7 @@ static inline Entity *SDLConvertEvent(SDL_Event* event)
 		break;
 	case SDL_KEYDOWN:
 		if (event->key.repeat > 0) {
+			*is_repeat = 1;
 			goto cancel;
 		}
 		yeCreateIntAt(YKEY_DOWN, eve, NULL, YEVE_TYPE);
@@ -519,19 +520,35 @@ cancel:
 static Entity *SDLWaitEvent(void)
 {
 	static SDL_Event event;
+	int is_repeat = 0;
+	Entity *ret;
 
+again:
 	if (!SDL_WaitEvent(&event))
 		return NULL;
-	return SDLConvertEvent(&event);
+	ret = SDLConvertEvent(&event, &is_repeat);
+	if (is_repeat) {
+		is_repeat = 0;
+		goto again;
+	}
+	return ret;
 }
 
 static Entity *SDLPollEvent(void)
 {
 	static SDL_Event event;
+	int is_repeat = 0;
+	Entity *ret;
 
+again:
 	if (!SDL_PollEvent(&event))
 		return NULL;
-	return SDLConvertEvent(&event);
+	ret = SDLConvertEvent(&event, &is_repeat);
+	if (is_repeat) {
+		is_repeat = 0;
+		goto again;
+	}
+	return ret;
 }
 
 static void changeWindName(const char *name)
