@@ -692,6 +692,12 @@ int ygRegistreFuncInternal(void *manager, int nbArgs, const char *name,
 	return 0;
 }
 
+int ygModDirByEntity(Entity *mod)
+{
+	int r = chdir(yeGetStringAt(mod, "$path"));
+	return r;
+}
+
 int ygModDir(const char * restrict const mod)
 {
 	int r = chdir(yeGetStringAt(ygGet(mod), "$path"));

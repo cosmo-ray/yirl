@@ -254,6 +254,8 @@ BIND_EI(ywMapCamPointedContainId, 2, 0);
 
 BIND_SS(ygReCreateString, 2, 0);
 
+BIND_E(ygModDirByEntity, 1, 0);
+
 BIND_E(ywTextureNormalize, 1, 0);
 
 BIND_E(ywTextureH, 1, 0);
