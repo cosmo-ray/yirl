@@ -826,9 +826,10 @@ function amap_action(wid, events)
 
 	    if (ctype == TYPE_OBJ) {
 		let objs = yeGet(mi, "objs");
-		let action = yeGet(yeGet(objs, yeGetIntAt(c, CANVAS_OBJ_IDX)), 1);
+		let obj = yeGet(objs, yeGetIntAt(c, CANVAS_OBJ_IDX))
+		let action = yeGet(obj, 1);
 
-		let ret = ywidAction(action, wid);
+		let ret = ywidAction(action, wid, obj);
 		if (ret & 0x10) {
 		    y_move_set_xspeed(pc_minfo, 0)
 		    wid.setAt("keydown", 0)
