@@ -275,6 +275,7 @@ function print_all(wid)
     let monsters_info = yeGet(mi, "monsters")
     let monsters = yeGet(wid, "_monsters")
     let bg_info = mi.get("background")
+    let img_mod = wid.gets("asset-mod")
     let backgound = null
 
     if (bg_info) {
@@ -285,12 +286,16 @@ function print_all(wid)
 					     ywSizeH(map_real_size) * SPRITE_SIZE,
 					     "rgba: 120 120 120 155")
 	} else {
+	    if (img_mod)
+		ygModDir(img_mod)
 	    backgound = ywCanvasNewImgByPath(wid, 0, 0, bg_str)
 	    if (mi.get("background_auto_scale")) {
 		ywCanvasForceSize(backgound,
 				  ywSizeCreate(ywSizeW(map_real_size) * SPRITE_SIZE,
 					       ywSizeH(map_real_size) * SPRITE_SIZE))
 	    }
+	    if (img_mod)
+		ygModDirOut()
 	}
     } else {
 	backgound = ywCanvasNewRectangle(wid, 0, 0, ywSizeW(map_real_size) * SPRITE_SIZE,
@@ -985,17 +990,25 @@ function amap_action(wid, events)
 
 function init_map(wid, map_str, pc_pos_orig)
 {
+    let mi = yeGet(wid, "_mi")
+    let asset_mod = wid.gets("asset-mod")
+    if (asset_mod) {
+	ygModDir(asset_mod)
+    }
+
     let pc = yeGet(wid, "pc")
     let pc_canel = yeGet(wid, "_pc")
     let pc_pos = yeCreateCopy(pc_pos_orig)
     yeReplaceBack(wid, ygFileToEnt(YJSON, map_str + ".json"), "_mi")
-    let mi = yeGet(wid, "_mi")
+    mi = yeGet(wid, "_mi")
     let parent_str = yeGet(mi, "parent")
     if (parent_str) {
 	let parent = ygFileToEnt(YJSON, yeGetString(parent_str) + ".json");
 	yeMergeInto(mi, parent, 0);
     }
     map_str = ygFileToEnt(YRAW_FILE, map_str);
+
+
     let map_str_a = yeGetString(map_str).split('\n');
     let map_a = yeReCreateArray(wid, "_m");
     let boss_i = yeGet(mi, "boss");
@@ -1102,6 +1115,8 @@ function init_map(wid, map_str, pc_pos_orig)
 	    }
 	})
     }
+    if (asset_mod)
+	ygModDirOut()
 }
 
 function amap_init(wid)

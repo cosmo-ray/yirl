@@ -133,6 +133,7 @@ BIND_EIIS(ywMapContainStr, 4, 0);
 BIND_EIIS(ywCanvasNewTextByStr, 2, 2);
 BIND_EIIS(ywCanvasNewImgByPath, 4, 0);
 
+BIND_S(ygModDirPath, 1, 0);
 BIND_S(ySoundLoad, 1, 0);
 BIND_S(ySoundMusicLoad, 1, 0);
 BIND_S(ygModDir, 1, 0);

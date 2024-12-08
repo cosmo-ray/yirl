@@ -786,7 +786,6 @@ int ywidDoTurn(YWidgetState *opac)
 		YTimerReset(cnt);
 		for (event = ywidGenericPollEvent(), head = event; event;
 		     event = ywidGenericPollEvent()) {
-
 			trackMouse(event);
 			if (old) {
 				yePushAt(old, event, YEVE_NEXT);
@@ -820,7 +819,6 @@ int ywidDoTurn(YWidgetState *opac)
 
 		for (event = ywidGenericPollEvent(), head = event; event;
 		     event = ywidGenericPollEvent()) {
-
 			trackMouse(event);
 			if (old) {
 				yePushAt(old, event, YEVE_NEXT);
