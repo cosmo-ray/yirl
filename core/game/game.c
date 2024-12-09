@@ -698,7 +698,7 @@ int ygModDirByEntity(Entity *mod)
 	return r;
 }
 
-char *ygModDirPath(const char * restrict const mod)
+const char *ygModDirPath(const char * restrict const mod)
 {
 	return yeGetStringAt(ygGet(mod), "$path");
 }

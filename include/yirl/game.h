@@ -180,6 +180,8 @@ int ygIsAlive(void);
 int ygStartLoop(GameConfig *config);
 int ygDoLoop(void);
 
+const char *ygModDirPath(const char * restrict const mod);
+
 Entity *ygLoadMod(const char *path);
 Entity *ygGetMod(const char *path);
 Entity *ygGetFuncExt(const char *func);
