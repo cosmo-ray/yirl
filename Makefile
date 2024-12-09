@@ -163,7 +163,7 @@ $(SCRIPT_DIR)/s7.o:
 	$(CC) -c -o $(SCRIPT_DIR)/s7.o $(SCRIPT_DIR)/s7.c -Wno-implicit-fallthrough -fPIC -O2 -g
 
 $(SCRIPT_DIR)/perl.o: $(PERL_SRC)
-	$(CC) -c -o $(SCRIPT_DIR)/perl.o $(SCRIPT_DIR)/perl.c $(shell perl -MExtUtils::Embed -e ccopts) $(PERL_CFLAGS) -I$(YIRL_INCLUDE_PATH2) -fPIC
+	$(CC) -c -o $(SCRIPT_DIR)/perl.o $(SCRIPT_DIR)/perl.c $(PERL_CFLAGS) -I$(YIRL_INCLUDE_PATH2) -fPIC
 
 SDL_mixer/:
 	git submodule update --init

@@ -245,7 +245,7 @@ if [ -z "$PERL_LD" ]; then
 fi
 echo PERL_LD=${PERL_LD} >> config.mk
 var_add PERL_SRC "${SCRIPT_DIR}/perl.c"
-var_add PERL_CFLAGS "-DPERL_ENABLE=1"
+PERL_CFLAGS="$(perl -MExtUtils::Embed -e ccopts) -DPERL_ENABLE=1"
 
 # var_add is a little broken, so I can't output variable
 var_add YIRL_LINKING "libyirl.so"
@@ -259,6 +259,9 @@ if [ $? -ne 0 ]; then
     echo HSEARCH_CFLAGS=${HSEARCH_CFLAGS} >> config.mk
     echo HSEARCH_CFLAGS=${HSEARCH_CFLAGS}
 fi
+
+echo PERL_CFLAGS=$PERL_CFLAGS
+echo PERL_CFLAGS=$PERL_CFLAGS >> config.mk
 
 var_add EMCMAKE ""
 var_add EMCONFIGURE ""
