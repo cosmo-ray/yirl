@@ -17,3 +17,6 @@
 [submodule "include/klib"]
 	path = include/klib
 	url = https://github.com/cosmo-ray/klib.git
+[submodule "kuroko"]
+	path = kuroko
+	url = https://github.com/kuroko-lang/kuroko.git
