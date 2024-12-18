@@ -11,8 +11,11 @@ LINEHELPER[7]="--disable-s7		disable s7 scripting"
 LINEHELPER[8]="--disable-ph7		disable ph7 scripting"
 LINEHELPER[9]="--disable-perl		disable perl scripting"
 LINEHELPER[10]="--system-sdl-mixer	use sdl2_mixer from system"
+LINEHELPER[11]="--perl-is-gravier	use gravier instead of libperl"
 
 source configure-helper.sh
+
+PERL_CFLAGS="$(perl -MExtUtils::Embed -e ccopts) -DPERL_ENABLE=1"
 
 args=$@
 
@@ -97,6 +100,12 @@ for arg in $args; do
 	PERL_SRC=""
 	PERL_CFLAGS="-DPERL_ENABLE=0"
     fi
+
+    if [ "--perl-is-gravier" = $arg ]; then
+	PERL_LD=" "
+	PERL_CFLAGS="-DPERL_ENABLE=1 -Igravier/"
+    fi
+
 done
 
 add_toolchain mingw-i686
@@ -245,7 +254,6 @@ if [ -z "$PERL_LD" ]; then
 fi
 echo PERL_LD=${PERL_LD} >> config.mk
 var_add PERL_SRC "${SCRIPT_DIR}/perl.c"
-PERL_CFLAGS="$(perl -MExtUtils::Embed -e ccopts) -DPERL_ENABLE=1"
 
 # var_add is a little broken, so I can't output variable
 var_add YIRL_LINKING "libyirl.so"

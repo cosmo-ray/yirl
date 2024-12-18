@@ -148,13 +148,19 @@ sdl-gpu-build:
 	bash -c "$(EMCMAKE) cmake -B ./sdl-gpu-build ./sdl-gpu/ $(CMAKE_ARGS)"
 
 $(SDL_GPU_LDFLAGS): sdl-gpu-build
-	$(EMMAKE) make -C sdl-gpu-build 
+	$(EMMAKE) make -C sdl-gpu-build
 
 $(QUICKJS_PATH):
 	git clone https://github.com/cosmo-ray/quickjs.git quickjs-$(QUICKJS_V)
 
 $(QUICKJS_LIB_PATH): $(QUICKJS_PATH)
 	CONFIG_FPIC=1 $(EMMAKE) make -C $(QUICKJS_PATH) libquickjs.a
+
+kuroko/:
+	git submodule update --init
+
+kuroko/libkuroko.a:
+	$(KRK_CFLAG) make -C kuroko/
 
 ph7/ph7.o:
 	$(CC) -c -o ph7/ph7.o ph7/ph7.c -I./ph7/ -O2 -g -fPIC -DPH7_ENABLE_MATH_FUNC=1 -DPH7_ENABLE_THREADS=1
@@ -163,7 +169,7 @@ $(SCRIPT_DIR)/s7.o:
 	$(CC) -c -o $(SCRIPT_DIR)/s7.o $(SCRIPT_DIR)/s7.c -Wno-implicit-fallthrough -fPIC -O2 -g
 
 $(SCRIPT_DIR)/perl.o: $(PERL_SRC)
-	$(CC) -c -o $(SCRIPT_DIR)/perl.o $(SCRIPT_DIR)/perl.c $(PERL_CFLAGS) -I$(YIRL_INCLUDE_PATH2) -fPIC
+	$(CC) -c -o $(SCRIPT_DIR)/perl.o $(SCRIPT_DIR)/perl.c -g $(PERL_CFLAGS) -I$(YIRL_INCLUDE_PATH2) -fPIC
 
 SDL_mixer/:
 	git submodule update --init

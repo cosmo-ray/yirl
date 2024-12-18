@@ -833,8 +833,8 @@ static int loadString(void *sm, const char *str)
 static int loadFile(void *sm, const char *file)
 {
 	struct YPerlScript *yperl = sm;
-	perl_parse(yperl->my_perl, xs_init,  2,
-		   (char *[]){"", (char *)file, NULL}, NULL);
+	return perl_parse(yperl->my_perl, xs_init,  2,
+			  (char *[]){"", (char *)file, NULL}, NULL);
 }
 
 int ysPerlInit(void)

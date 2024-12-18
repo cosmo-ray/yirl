@@ -282,6 +282,7 @@ again:
 	} else if (*reader == ';') {
 		RET_NEXT((struct tok){.tok=TOK_SEMICOL});
 	}
+	LOOK_FOR_DOUBLE('!', '=', TOK_NOT, TOK_NOT_EQUAL)
 	LOOK_FOR_DOUBLE('*', '=', TOK_MULT, TOK_MULT_EQUAL)
 	LOOK_FOR_DOUBLE('|', '|', TOK_PIPE, TOK_DOUBLE_PIPE)
 	LOOK_FOR_DOUBLE('&', '&', TOK_AND, TOK_DOUBLE_AND)
