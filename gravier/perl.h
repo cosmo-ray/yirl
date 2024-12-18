@@ -265,6 +265,15 @@ again:
 	if ((ret = dumbcmp(reader, "my"))) {
 		reader += ret - 1;
 		RET_NEXT((struct tok){.tok=TOK_MY});
+	} else if ((ret = dumbcmp(reader, "print"))) {
+		reader += ret - 1;
+		RET_NEXT((struct tok){.tok=TOK_PRINT});
+	} else if ((ret = dumbcmp(reader, "foreach"))) {
+		reader += ret - 1;
+		RET_NEXT((struct tok){.tok=TOK_FOREACH});
+	} else if ((ret = dumbcmp(reader, "for"))) {
+		reader += ret - 1;
+		RET_NEXT((struct tok){.tok=TOK_FOR});
 	} else if ((ret = dumbcmp(reader, "else"))) {
 		reader += ret - 1;
 		RET_NEXT((struct tok){.tok=TOK_ELSE});
@@ -277,6 +286,18 @@ again:
 	} else if (dumbcmp(reader, "sub")) {
 		reader += 2;
 		RET_NEXT((struct tok){.tok=TOK_SUB});
+	} else if (dumbcmp(reader, "eq")) {
+		reader += 1;
+		RET_NEXT((struct tok){.tok=TOK_EQ});
+	} else if (dumbcmp(reader, "do")) {
+		reader += 1;
+		RET_NEXT((struct tok){.tok=TOK_DO});
+	} else if (dumbcmp(reader, "<<")) {
+		reader += 1;
+		RET_NEXT((struct tok){.tok=TOK_L_REDIRECTION});
+	} else if (dumbcmp(reader, ">>")) {
+		reader += 1;
+		RET_NEXT((struct tok){.tok=TOK_R_REDIRECTION});
 	} else if (*reader == 0) {
 		RET_NEXT((struct tok){.tok=TOK_ENDFILE});
 	} else if (*reader == ';') {
