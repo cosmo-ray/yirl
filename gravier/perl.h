@@ -10,12 +10,26 @@
 #include <string.h>
 #include <ctype.h>
 
+#include "klib/khash.h"
+#include "gravier-str.h"
+
 #ifndef TRUE
 #define TRUE 1
 #endif
 
 #ifndef TRUE
 #define FALSE 0
+#endif
+
+#ifdef GRAVIER_ENABLE_DEBUG
+
+#define gravier_debug(args...)			\
+	do {					\
+		printf(args);			\
+	} while (0)
+
+#else
+#define gravier_debug(args...)
 #endif
 
 enum {
@@ -49,6 +63,7 @@ struct stack_val {
 		char *str;
 	};
 	int type;
+	int flag;
 };
 
 static inline int is_skipable(char c)
@@ -78,80 +93,80 @@ static struct stack_val *ERRSV;
 #define pTHX void *stuff
 
 #define dXSARGS do {				\
-		printf("dXSARGS stub\n");	\
+		gravier_debug("dXSARGS stub\n");	\
 } while (0)
 
 #define XSRETURN_IV(int_val) do {		\
-	printf("XSRETURN_IV stub\n");		\
+	gravier_debug("XSRETURN_IV stub\n");		\
 	} while (0)
 
 
 #define XSRETURN_UV(int_val) do {		\
-	printf("XSRETURN_UV stub\n");		\
+	gravier_debug("XSRETURN_UV stub\n");		\
 	} while (0)
 
 #define XSRETURN_PV(int_val) do {		\
-	printf("XSRETURN_PV stub\n");		\
+	gravier_debug("XSRETURN_PV stub\n");		\
 	} while (0)
 
 
 #define XSRETURN(val) do {				\
-		printf("XDRETURN(%s) stub\n", #val);	\
+		gravier_debug("XDRETURN(%s) stub\n", #val);	\
 	} while (0)
 
 #define XSRETURN_YES do {			\
-		printf("XSRETURN_YES stub\n");	\
+		gravier_debug("XSRETURN_YES stub\n");	\
 	} while (0)
 
 #define XSRETURN_NO do {			\
-		printf("XSRETURN_NO\n");	\
+		gravier_debug("XSRETURN_NO\n");	\
 	} while (0)
 
 
 #define croak(str) do {				\
-		printf("croak: " str);		\
+		gravier_debug("croak: " str);		\
 	} while (0)
 
 #define ST(pos)					\
-	({printf("ST(%d) stub\n", pos); &(struct stack_val ){.i=-1, .type=SVt_IV};})
+	({gravier_debug("ST(%d) stub\n", pos); &(struct stack_val ){.i=-1, .type=SVt_IV};})
 
 static inline intptr_t SvIV(struct stack_val *sv) {
-	printf("SvIV(%ld) stub\n", sv->i);
+	gravier_debug("SvIV(%ld) stub\n", sv->i);
 	return sv->i;
 }
 
 #define XPUSHs(val)				\
-	printf("XPUSHs %s\n", #val)
+	gravier_debug("XPUSHs %s\n", #val)
 
 #define ENTER					\
-	printf("ENTER\n")
+	gravier_debug("ENTER\n")
 
 #define SAVETMPS				\
-	printf("SAVETMPS\n")
+	gravier_debug("SAVETMPS\n")
 
 #define PUSHMARK(val)				\
-	printf("PUSHMARK %s\n", #val)
+	gravier_debug("PUSHMARK %s\n", #val)
 
 #define POPi					\
-	({ printf("POPi\n"); -1LL; })
+	({ gravier_debug("POPi\n"); -1LL; })
 
 #define SPAGAIN					\
-	printf("SPAGAIN\n")
+	gravier_debug("SPAGAIN\n")
 
 #define PUTBACK					\
-	printf("PUTBACK\n")
+	gravier_debug("PUTBACK\n")
 
 #define FREETMPS				\
-	printf("FREETMPS\n")
+	gravier_debug("FREETMPS\n")
 
 #define LEAVE					\
-	printf("LEAVE\n")
+	gravier_debug("LEAVE\n")
 
 #define dSP					\
-	printf("dSP\n")
+	gravier_debug("dSP\n")
 
 #define dXSUB_SYS				\
-	printf("dXSUB_SYS\n")
+	gravier_debug("dXSUB_SYS\n")
 
 #define XS(name)				\
 	void name(const char *func_name, const char *file, int items)
@@ -170,8 +185,65 @@ typedef intptr_t IV;
 
 #define EXTERN_C
 
+
+KHASH_MAP_INIT_STR(file_list, struct file *);
+KHASH_MAP_INIT_STR(func_syms, struct sym *);
+
+enum {
+	TOK_STR_NEED_FREE  = 1 << 0
+};
+
+struct tok {
+	int tok;
+	int flag;
+	union {
+		char *as_str;
+		intptr_t as_int;
+	};
+};
+
+struct sym {
+	struct tok t;
+	union {
+		struct stack_val v;
+		struct {
+			struct tok const_val; // can be name, literal or anything else
+			struct sym *end;
+		};
+		struct sym *ref;
+	};
+};
+
+struct file {
+	khash_t(func_syms) *functions;
+	char *file_content;
+	struct sym *stack;
+	int stack_len;
+	int stack_size;
+	int sym_len;
+	int sym_size;
+	struct sym *sym_string;
+};
+
 typedef struct {
+	khash_t(file_list) *files;
+	const char *first_file;
 } PerlInterpreter;
+
+#define LOOK_FOR_DOUBLE(first, sec, first_tok, second_tok)		\
+	else if (*reader == first) {					\
+		if (reader[1] == sec) {					\
+			++reader;					\
+			RET_NEXT((struct tok){.tok=second_tok});	\
+		}							\
+		RET_NEXT((struct tok){.tok=first_tok});			\
+	}
+
+#define RET_NEXT(val) do {			\
+		*reader_ptr = reader + 1;	\
+		return val;			\
+	} while (0)
+
 
 
 static inline void newXS(const char *func_name,
@@ -191,12 +263,23 @@ static inline PerlInterpreter *perl_alloc(void)
 static inline void perl_construct(PerlInterpreter *p)
 {
 	printf("perl_construct\n");
+	p->files = kh_init(file_list);
+	p->first_file = NULL;
 	ERRSV = &ERRSV_s;
 }
 
 static inline void perl_destruct(PerlInterpreter *p)
 {
+	struct file *vvar;
+	const char *kkey;
+
 	printf("perl_destruct\n");
+	kh_foreach(p->files, kkey, vvar, {
+			free(vvar->file_content);
+			free(vvar);
+		});
+	kh_destroy(file_list, p->files);
+	p->files = NULL;
 }
 
 static inline void perl_free(PerlInterpreter *p)
@@ -215,28 +298,6 @@ static inline void eval_pv(const char *str, int dont_know)
 {
 	printf("eval_pv: %s\n", str);
 }
-
-struct tok {
-	int tok;
-	union {
-		char *as_str;
-		intptr_t as_int;
-	};
-};
-
-#define LOOK_FOR_DOUBLE(first, sec, first_tok, second_tok)		\
-	else if (*reader == first) {					\
-		if (reader[1] == sec) {					\
-			++reader;					\
-			RET_NEXT((struct tok){.tok=second_tok});	\
-		}							\
-		RET_NEXT((struct tok){.tok=first_tok});			\
-	}
-
-#define RET_NEXT(val) do {			\
-		*reader_ptr = reader + 1;	\
-		return val;			\
-	} while (0)
 
 static inline struct tok next(char **reader_ptr)
 {
@@ -345,6 +406,7 @@ again:
 			return r;
 		}
 		*reader = 0;
+		graviver_str_small_replace(r.as_str, "\\n", "\n");
 		RET_NEXT(r);
 	} else if (isdigit(*reader)) {
 		struct tok r = {.tok=TOK_LITERAL_NUM};
@@ -420,7 +482,35 @@ again:
 	RET_NEXT((struct tok){.tok=TOK_UNKNOW});
 }
 
-static inline int perl_parse(PerlInterpreter * my_perl, void (*xs_init)(void *stuff),  int,
+#define ERROR(args...)	do {			\
+		fprintf(stderr, args);		\
+		goto exit;			\
+	} while (0)
+
+
+static struct sym *find_stack_ref(struct file *this_file, struct tok *t)
+{
+	for (int i = 0; i < this_file->stack_len; ++i) {
+		if (!strcmp(this_file->stack[i].t.as_str, t->as_str))
+			return &this_file->stack[i];
+	}
+	return NULL;
+}
+
+static int parse_equal(struct file *f, char **reader)
+{
+	struct tok t = next(reader);
+	if (t.tok == TOK_LITERAL_NUM || t.tok == TOK_LITERAL_STR) {
+		f->sym_string[f->sym_len++].t = t;
+	} else {
+		ERROR("unimplemented");
+	}
+	return 0;
+exit:
+	return -1;
+}
+
+static int perl_parse(PerlInterpreter * my_perl, void (*xs_init)(void *stuff),  int,
 			      char *av[], void *)
 {
 	const char *file_name = av[1];
@@ -439,30 +529,191 @@ static inline int perl_parse(PerlInterpreter * my_perl, void (*xs_init)(void *st
 	len = st.st_size;
 	char *file_str = malloc(len + 1);
 
+	khiter_t iterator;
+	iterator = kh_put(file_list, my_perl->files, file_name, &ret);
+	if (ret < 0)
+		return -1;
+
 	if (!file_str || read(fd, file_str, len) < 0)
 		goto exit;
 	file_str[len] = 0;
+
+	struct file *this_file = malloc(sizeof *this_file);
+	kh_val(my_perl->files, iterator) = this_file;
+
+	this_file->file_content = file_str;
+
+	if (!my_perl->first_file) {
+		my_perl->first_file = file_name;
+	}
+
+
+	this_file->sym_size = 128;
+	this_file->sym_len = 0;
+	this_file->sym_string = malloc(sizeof *this_file->sym_string * this_file->sym_size);
+	this_file->stack_size = 128;
+	this_file->stack = malloc(sizeof *this_file->stack * this_file->sym_size);
+
 	//printf("file:\n%s\n", file_str);
 	reader = file_str;
 
+#define CHECK_SYM_SPACE(X) do {						\
+		if (this_file->sym_len + X > this_file->sym_size) {	\
+			this_file->sym_size *= 2;			\
+			this_file->sym_string =				\
+				realloc(this_file->sym_string,		\
+					sizeof *this_file->sym_string * this_file->sym_size); \
+		}							\
+	} while (0)
+
+#define CHECK_STACK_SPACE(X) do {					\
+		if (this_file->stack_len + X > this_file->stack_size) {	\
+			this_file->stack_size *= 2;			\
+			this_file->stack =				\
+				realloc(this_file->stack,		\
+					sizeof *this_file->stack * this_file->stack_size); \
+		}							\
+	} while (0)
+
 	while ((t = next(&reader)).tok != TOK_ENDFILE) {
-		if (t.tok == TOK_NAME) {
-			printf("%s ", t.as_str);
+		CHECK_SYM_SPACE(2);
+		if (t.tok == TOK_MY || t.tok == TOK_DOLAR) {
+			CHECK_STACK_SPACE(1);
+			if (t.tok == TOK_MY) {
+				t = next(&reader);
+				if (t.tok != TOK_DOLAR) // @array need to be handle here
+					ERROR("expected dolar");
+			}
+			t = next(&reader);
+			if (t.tok != TOK_NAME)
+				ERROR("expected name");
+			struct sym *stack_sym = find_stack_ref(this_file, &t);
+			if (!stack_sym)
+				stack_sym = &this_file->stack[this_file->stack_len++];
+			stack_sym->t = t;
+			t = next(&reader);
+			if (t.tok == TOK_SEMICOL)
+				continue;
+			if (t.tok != TOK_EQUAL)
+				ERROR("unexpected token: %s\n", tok_str[t.tok]);
+
+			this_file->sym_string[this_file->sym_len].ref = stack_sym;
+			this_file->sym_string[this_file->sym_len++].t = t;
+			parse_equal(this_file, &reader);
 		} else if (t.tok == TOK_NAMESPACE) {
-			printf("%s::", t.as_str);
+			gravier_debug("%s::", t.as_str);
 		} else if (t.tok == TOK_SEMICOL || t.tok == TOK_OPEN_BRACE || t.tok == TOK_CLOSE_BRACE) {
-			putchar(t.tok == TOK_SEMICOL ? ';' : t.tok == TOK_OPEN_BRACE ? '{' : '}');
-			putchar('\n');
+			gravier_debug("%c\n", t.tok == TOK_SEMICOL ? ';' : t.tok == TOK_OPEN_BRACE ? '{' : '}');
+
+		} else if (t.tok == TOK_PRINT) {
+			int need_close = 0;
+			struct sym *print_sym = &this_file->sym_string[this_file->sym_len];
+
+			this_file->sym_string[this_file->sym_len++].t = t;
+			t = next(&reader);
+			if (t.tok == TOK_OPEN_PARENTESIS) {
+				t = next(&reader);
+				need_close = 1;
+			}
+		print_comma:
+			if (t.tok == TOK_LITERAL_NUM || t.tok == TOK_LITERAL_STR) {
+				this_file->sym_string[this_file->sym_len++].t = t;
+				t = next(&reader);
+			} else if (t.tok == TOK_DOLAR) {
+				t = next(&reader);
+				// check t is name
+				struct sym *stack_sym = find_stack_ref(this_file, &t);
+				if (!stack_sym) {
+					ERROR("unknow variable %s", t.as_str);
+				}
+				this_file->sym_string[this_file->sym_len].ref = stack_sym;
+				this_file->sym_string[this_file->sym_len++].t.tok = TOK_DOLAR;
+				t = next(&reader);
+			} else {
+				ERROR("unexpected %s token\n", tok_str[t.tok]);
+			}
+
+			if (t.tok == TOK_COMMA) {
+				CHECK_SYM_SPACE(3);
+				t = next(&reader);
+				goto print_comma;
+			}
+			if (need_close && t.tok == TOK_CLOSE_PARENTESIS) {
+				t = next(&reader);
+			} else if (need_close) {
+				ERROR("unclose parensesis in print\n", tok_str[t.tok]);
+			}
+			print_sym->end = &this_file->sym_string[this_file->sym_len];
 		} else {
-			printf("%s ", tok_str[t.tok]);
+			this_file->sym_string[this_file->sym_len].t = t;
+			gravier_debug("%s ", tok_str[t.tok]);
+			this_file->sym_len += 1;
 		}
 	}
+	this_file->sym_string[this_file->sym_len].t = t;
 
+	return 0;
 exit:
 	free(file_str);
-	return 0;
+	free(this_file);
+	return -1;
 }
 
+static void perl_run_file(PerlInterpreter *perl, struct file *f)
+{
+	struct sym *sym_string = f->sym_string;
 
+ 	while (sym_string->t.tok != TOK_ENDFILE) {
+		struct tok t = sym_string->t;
+
+		if (t.tok == TOK_PRINT) {
+			gravier_debug("in print\n");
+			struct sym *end = sym_string->end;
+			for (++sym_string; sym_string != end; ++sym_string) {
+				if (sym_string->t.tok == TOK_LITERAL_STR) {
+					printf("%s", sym_string->t.as_str);
+				} else if (sym_string->t.tok == TOK_LITERAL_NUM) {
+					printf("%d", sym_string->t.as_int);
+				} else if (sym_string->t.tok == TOK_DOLAR) {
+					struct sym *ref = sym_string->ref;
+
+					gravier_debug("A VARIABLE ! %p ", ref);
+					if (ref->v.type == SVt_PV)
+						printf("%s", ref->v.str);
+					else
+						printf("%lli", ref->v.i);
+				}
+			}
+			continue;
+		} else if (t.tok == TOK_EQUAL) {
+			struct sym *target_ref = sym_string->ref;
+
+			gravier_debug("SET STUFFF on: %p\n", target_ref);
+			++sym_string;
+			if (sym_string->t.tok == TOK_LITERAL_STR) {
+				target_ref->v.str = sym_string->t.as_str;
+				target_ref->v.type = SVt_PV;
+			} else if (sym_string->t.tok == TOK_LITERAL_NUM) {
+				target_ref->v.i = sym_string->t.as_int;
+				target_ref->v.type = SVt_IV;
+			} else {
+				gravier_debug("UNIMPLEMENTED %s\n",
+					      tok_str[sym_string->t.tok]);
+			}
+		}
+		gravier_debug("%s ", tok_str[sym_string->t.tok]);
+		++sym_string;
+	}
+	gravier_debug("perl run file\n");
+}
+
+static void perl_run(PerlInterpreter *perl)
+{
+	gravier_debug("perl run %s\n", perl->first_file);
+	khiter_t iterator = kh_get(file_list, perl->files, perl->first_file);
+	if (iterator == kh_end(perl->files))
+		return;
+	perl_run_file(perl, kh_val(perl->files, iterator));
+}
 
 #endif

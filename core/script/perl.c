@@ -27,6 +27,9 @@ static int init(void *sm, void *args);
 static int destroy(void *sm);
 static void *call(void *sm, const char *name, int nb, union ycall_arg *args,
 		  int *t_array);
+
+#define GRAVIER_ENABLE_DEBUG
+
 #include <EXTERN.h>
 #include <perl.h>
 

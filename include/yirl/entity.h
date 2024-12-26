@@ -1979,7 +1979,6 @@ NO_SIDE_EFFECT static inline Entity *yeGetRandomElem(Entity *array)
 		}
 		return NULL;
 
-		
 	} else if (t != YARRAY) {
 		return NULL;
 	}
