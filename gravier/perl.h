@@ -78,7 +78,7 @@ int dumbcmp(char *in, const char *keywork) {
 		if (*in != *keywork)
 			return 0;
 	}
-	if (*keywork == 0 && (*in == ' ' || *in == '\n' || *in == '\t' || *in == 0)) {
+	if (*keywork == 0 && (*in == ' ' || *in == '\n' || *in == '\t' || *in == 0 || *in == '(')) {
 		return in - orig;
 	}
 	return 0;
