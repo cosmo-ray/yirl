@@ -677,40 +677,58 @@ exit:
 	return -1;
 }
 
+#define MAX_ELSIF 258
+
 static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char **reader,
 				 struct tok t)
 {
 	if (t.tok == TOK_MY || t.tok == TOK_DOLAR) {
 		var_declaration(t, f, reader);
 	} else if (t.tok == TOK_IF) {
-		struct sym *if_sym = &f->sym_string[f->sym_len++];
+		gravier_debug("handling if\n");
 
-		CHECK_SYM_SPACE(f, 8);
-		if_sym->t = t;
-		t = next(reader);
-		if (t.tok != TOK_OPEN_PARENTESIS)
-			ERROR("unexpected token\n");
-		t = next(reader);
-		if (parse_condition(&t, f, reader) < 0)
-			goto exit;
-		t = next(reader);
-		if (t.tok != TOK_CLOSE_PARENTESIS)
-			ERROR("unexpected token\n");
-		t = next(reader);
-		parse_one_instruction(my_perl, f, reader, t);
-		t = next(reader);
-		if (t.tok == TOK_ELSE) {
-			struct sym *goto_sym = &f->sym_string[f->sym_len];
-			f->sym_string[f->sym_len++].t.tok = TOK_GOTO;
-			if_sym->end = &f->sym_string[f->sym_len];
+		struct sym *elsif_goto_syms[MAX_ELSIF];
+		int nb_elseif = 0;
+		{
+		an_elsif:
+			struct sym *if_sym = &f->sym_string[f->sym_len++];
+
+			CHECK_SYM_SPACE(f, 8);
+			if_sym->t = t;
+			t = next(reader);
+			if (t.tok != TOK_OPEN_PARENTESIS)
+				ERROR("unexpected token\n");
+			t = next(reader);
+			if (parse_condition(&t, f, reader) < 0)
+				goto exit;
+			t = next(reader);
+			if (t.tok != TOK_CLOSE_PARENTESIS)
+				ERROR("unexpected token\n");
 			t = next(reader);
 			parse_one_instruction(my_perl, f, reader, t);
-			goto_sym->end = &f->sym_string[f->sym_len];
-		} else {
-			if_sym->end = &f->sym_string[f->sym_len];
-			back[nb_back++] = t;
+			t = next(reader);
+			if (t.tok == TOK_ELSE) {
+				struct sym *goto_sym = &f->sym_string[f->sym_len];
+				f->sym_string[f->sym_len++].t.tok = TOK_GOTO;
+				if_sym->end = &f->sym_string[f->sym_len];
+				t = next(reader);
+				parse_one_instruction(my_perl, f, reader, t);
+				goto_sym->end = &f->sym_string[f->sym_len];
+			} else if (t.tok == TOK_ELSIF) {
+				elsif_goto_syms[nb_elseif++] = &f->sym_string[f->sym_len];
+				f->sym_string[f->sym_len++].t.tok = TOK_GOTO;
+				if_sym->end = &f->sym_string[f->sym_len];
+				goto an_elsif;
+			} else {
+				if_sym->end = &f->sym_string[f->sym_len];
+				back[nb_back++] = t;
+			}
+			if (nb_elseif) {
+				for (int i = 0; i < nb_elseif; ++i) {
+					elsif_goto_syms[i]->end = &f->sym_string[f->sym_len];
+				}
+			}
 		}
-		gravier_debug("handling if\n");
 	} else if (t.tok == TOK_FOR) {
 		CHECK_SYM_SPACE(f, 8);
 		gravier_debug("handling for\n");
@@ -882,7 +900,7 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 				}
 			}
 			continue;
-		} else if (t.tok == TOK_IF) {
+		} else if (t.tok == TOK_IF || t.tok == TOK_ELSIF) {
 			struct sym *if_end = sym_string->end;
 			++sym_string;
 			t = sym_string->t;
