@@ -189,7 +189,7 @@ typedef intptr_t IV;
 KHASH_MAP_INIT_STR(file_list, struct file *);
 KHASH_MAP_INIT_STR(func_syms, struct sym *);
 
-enum {
+enum token {
 	TOK_STR_NEED_FREE  = 1 << 0
 };
 
@@ -250,19 +250,19 @@ static inline void newXS(const char *func_name,
 			 void (*name)(const char *, const char *, int),
 			 const char *file)
 {
-	printf("newXS %s %s\n", func_name, file);
+	gravier_debug("newXS %s %s\n", func_name, file);
 	return;
 }
 
 static inline PerlInterpreter *perl_alloc(void)
 {
-	printf("perl_alloc\n");
+	gravier_debug("perl_alloc\n");
 	return malloc(sizeof(PerlInterpreter));
 }
 
 static inline void perl_construct(PerlInterpreter *p)
 {
-	printf("perl_construct\n");
+	gravier_debug("perl_construct\n");
 	p->files = kh_init(file_list);
 	p->first_file = NULL;
 	ERRSV = &ERRSV_s;
@@ -273,7 +273,7 @@ static inline void perl_destruct(PerlInterpreter *p)
 	struct file *vvar;
 	const char *kkey;
 
-	printf("perl_destruct\n");
+	gravier_debug("perl_destruct\n");
 	kh_foreach(p->files, kkey, vvar, {
 			free(vvar->file_content);
 			free(vvar);
@@ -284,26 +284,33 @@ static inline void perl_destruct(PerlInterpreter *p)
 
 static inline void perl_free(PerlInterpreter *p)
 {
-	printf("perl_free\n");
+	gravier_debug("perl_free\n");
 	free(p);
 }
 
 static inline int call_pv(const char *str, int flag)
 {
-	printf("call_pv %s\n", str);
+	gravier_debug("call_pv %s\n", str);
 	return 0;
 }
 
 static inline void eval_pv(const char *str, int dont_know)
 {
-	printf("eval_pv: %s\n", str);
+	gravier_debug("eval_pv: %s\n", str);
 }
+
+struct tok back[128];
+int nb_back;
 
 static inline struct tok next(char **reader_ptr)
 {
 	static int next_tok = 0;
 	char *reader = *reader_ptr;
 	int ret;
+
+	if (nb_back) {
+		return back[--nb_back];
+	}
 
 	if (next_tok) {
 		struct tok r = {.tok=next_tok};
@@ -488,6 +495,63 @@ again:
 	} while (0)
 
 
+#define CHECK_SYM_SPACE(this_file, X) do {				\
+		if (this_file->sym_len + X > this_file->sym_size) {	\
+			this_file->sym_size *= 2;			\
+			this_file->sym_string =				\
+				realloc(this_file->sym_string,		\
+					sizeof *this_file->sym_string * this_file->sym_size); \
+		}							\
+	} while (0)
+
+#define CHECK_STACK_SPACE(this_file, X) do {				\
+		if (this_file->stack_len + X > this_file->stack_size) {	\
+			this_file->stack_size *= 2;			\
+			this_file->stack =				\
+				realloc(this_file->stack,		\
+					sizeof *this_file->stack * this_file->stack_size); \
+		}							\
+	} while (0)
+
+
+static inline _Bool tok_is_condition(int t)
+{
+	return t == TOK_DOUBLE_EQUAL || t == TOK_NOT_EQUAL ||
+		t == TOK_SUP_EQUAL || t == TOK_SUP ||
+		t == TOK_INF_EQUAL || t == TOK_INF ||
+		t == TOK_EQ;
+}
+
+static inline intptr_t int_fron_sym(struct sym *sym)
+{
+	// really unsure if literal string should return they pointer here
+	if (sym->t.tok == TOK_LITERAL_NUM || sym->t.tok == TOK_LITERAL_STR) {
+		return sym->t.as_int;
+	} else if (sym->t.tok == TOK_DOLAR) {
+		struct sym *ref = sym->ref;
+
+		if (!ref)
+			return 0;
+		// again if type is not nbr here, maybe i should return 0
+		return ref->v.i;
+	}
+	return 0;
+}
+
+static inline const char *str_fron_sym(struct sym *sym)
+{
+	if (sym->t.tok == TOK_LITERAL_STR) {
+		return sym->t.as_str;
+	} else if (sym->t.tok == TOK_DOLAR) {
+		struct sym *ref = sym->ref;
+
+		if (!ref || ref->v.type != SVt_PV)
+			return "";
+		return ref->v.str;
+	}
+	return "";
+}
+
 static struct sym *find_stack_ref(struct file *this_file, struct tok *t)
 {
 	for (int i = 0; i < this_file->stack_len; ++i) {
@@ -503,7 +567,224 @@ static int parse_equal(struct file *f, char **reader)
 	if (t.tok == TOK_LITERAL_NUM || t.tok == TOK_LITERAL_STR) {
 		f->sym_string[f->sym_len++].t = t;
 	} else {
-		ERROR("unimplemented");
+		ERROR("unimplemented\n");
+	}
+	return 0;
+exit:
+	return -1;
+}
+
+#define STORE_OPERAND(in_t, in)						\
+	if ((in_t).tok == TOK_LITERAL_STR || (in_t).tok == TOK_LITERAL_NUM) { \
+		in.t = in_t;						\
+	} else if ((in_t).tok == TOK_DOLAR) {				\
+		t = next(reader);					\
+		if (t.tok != TOK_NAME) {				\
+			ERROR("variable name expected\n");		\
+		}							\
+		in.t.tok = TOK_DOLAR;					\
+		in.ref = find_stack_ref(f, &t);				\
+	}
+
+static int parse_condition(struct tok *t_ptr, struct file *f, char **reader)
+{
+	CHECK_SYM_SPACE(f, 2);
+	struct sym operation = {0};
+	struct sym l_operand = {0};
+	struct sym r_operand = {0};
+	struct tok t;
+
+	STORE_OPERAND(*t_ptr, l_operand);
+	t = next(reader);
+	if (t.tok == TOK_CLOSE_PARENTESIS) {
+		f->sym_string[f->sym_len++] = l_operand;
+		*t_ptr = t;
+		return 0;
+	}
+	if (!tok_is_condition(t.tok)) {
+		ERROR("unexpected token\n");
+	}
+
+	operation.t = t;
+	t = next(reader);
+
+	STORE_OPERAND(t, r_operand);
+
+	f->sym_string[f->sym_len++] = operation;
+	f->sym_string[f->sym_len++] = l_operand;
+	f->sym_string[f->sym_len++] = r_operand;
+	*t_ptr = t;
+	return 0;
+exit:
+	return -1;
+}
+
+static int operation(struct tok *t_ptr, struct file *f, char **reader)
+{
+	struct tok t;
+
+	if (t_ptr->tok != TOK_DOLAR) {
+		ERROR("unimplemented\n");
+	}
+	t = next(reader);
+	if (t.tok != TOK_NAME)
+		ERROR("expected name\n");
+
+	struct sym *stack_sym = find_stack_ref(f, &t);
+	if (!stack_sym) {
+		ERROR("unknow variable\n");
+	}
+	if (t.tok != TOK_EQUAL || t.tok != TOK_PLUS_EQUAL || t.tok != TOK_MINUS_EQUAL)
+		ERROR("unexpected operation\n");
+	f->sym_string[f->sym_len].ref = stack_sym;
+	f->sym_string[f->sym_len++].t = t;
+	parse_equal(f, reader);
+	return 0;
+
+exit:
+	return -1;
+}
+
+static int var_declaration(struct tok t, struct file *f, char **reader)
+{
+	CHECK_STACK_SPACE(f, 1);
+	if (t.tok == TOK_MY) {
+		t = next(reader);
+		if (t.tok != TOK_DOLAR) // @array need to be handle here
+			ERROR("expected dolar");
+	} else if (t.tok != TOK_DOLAR) {
+		return -1;
+	}
+	t = next(reader);
+	if (t.tok != TOK_NAME)
+		ERROR("expected name");
+	struct sym *stack_sym = find_stack_ref(f, &t);
+	if (!stack_sym)
+		stack_sym = &f->stack[f->stack_len++];
+	stack_sym->t = t;
+	t = next(reader);
+	if (t.tok == TOK_SEMICOL)
+		return 0;
+	if (t.tok != TOK_EQUAL)
+		ERROR("unexpected token: %s\n", tok_str[t.tok]);
+
+	f->sym_string[f->sym_len].ref = stack_sym;
+	f->sym_string[f->sym_len++].t = t;
+	parse_equal(f, reader);
+
+	return 0;
+exit:
+	return -1;
+}
+
+static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char **reader,
+				 struct tok t)
+{
+	if (t.tok == TOK_MY || t.tok == TOK_DOLAR) {
+		var_declaration(t, f, reader);
+	} else if (t.tok == TOK_IF) {
+		struct sym *if_sym = &f->sym_string[f->sym_len++];
+
+		CHECK_SYM_SPACE(f, 8);
+		if_sym->t = t;
+		t = next(reader);
+		if (t.tok != TOK_OPEN_PARENTESIS)
+			ERROR("unexpected token\n");
+		t = next(reader);
+		if (parse_condition(&t, f, reader) < 0)
+			goto exit;
+		t = next(reader);
+		if (t.tok != TOK_CLOSE_PARENTESIS)
+			ERROR("unexpected token\n");
+		t = next(reader);
+		parse_one_instruction(my_perl, f, reader, t);
+		t = next(reader);
+		if (t.tok == TOK_ELSE) {
+			struct sym *goto_sym = &f->sym_string[f->sym_len];
+			f->sym_string[f->sym_len++].t.tok = TOK_GOTO;
+			if_sym->end = &f->sym_string[f->sym_len];
+			t = next(reader);
+			parse_one_instruction(my_perl, f, reader, t);
+			goto_sym->end = &f->sym_string[f->sym_len];
+		} else {
+			if_sym->end = &f->sym_string[f->sym_len];
+			back[nb_back++] = t;
+		}
+		gravier_debug("handling if\n");
+	} else if (t.tok == TOK_FOR) {
+		CHECK_SYM_SPACE(f, 8);
+		gravier_debug("handling for\n");
+		t = next(reader);
+		if (t.tok != TOK_OPEN_PARENTESIS) {
+			ERROR("unexpected token");
+		}
+		t = next(reader);
+		if (!var_declaration(t, f, reader)) {
+			t = next(reader);
+		}
+		gravier_debug("for cur tok %s (sould be 2nd argument))\n", tok_str[t.tok]);
+		t = next(reader);
+		operation(&t, f, reader);
+	} else if (t.tok == TOK_OPEN_BRACE) {
+		// humm I have stack locality to handle here...
+		while ((t = next(reader)).tok != TOK_CLOSE_BRACE) {
+			if (t.tok == TOK_ENDFILE) {
+				ERROR("unclose brace\n");
+			}
+			if (parse_one_instruction(my_perl, f, reader, t) < 0)
+				goto exit;
+		}
+		// and stack to remove here
+
+	} else if (t.tok == TOK_NAMESPACE) {
+		gravier_debug("%s::", t.as_str);
+	} else if (t.tok == TOK_SEMICOL) {
+		gravier_debug("%c\n", t.tok == TOK_SEMICOL ? ';' : t.tok == TOK_OPEN_BRACE ? '{' : '}');
+
+	} else if (t.tok == TOK_PRINT) {
+		int need_close = 0;
+		struct sym *print_sym = &f->sym_string[f->sym_len];
+
+		f->sym_string[f->sym_len++].t = t;
+		t = next(reader);
+		if (t.tok == TOK_OPEN_PARENTESIS) {
+			t = next(reader);
+			need_close = 1;
+		}
+	print_comma:
+		CHECK_SYM_SPACE(f, 4);
+		if (t.tok == TOK_LITERAL_NUM || t.tok == TOK_LITERAL_STR) {
+			f->sym_string[f->sym_len++].t = t;
+			t = next(reader);
+		} else if (t.tok == TOK_DOLAR) {
+			t = next(reader);
+			// check t is name
+			struct sym *stack_sym = find_stack_ref(f, &t);
+			if (!stack_sym) {
+				ERROR("unknow variable %s", t.as_str);
+			}
+			f->sym_string[f->sym_len].ref = stack_sym;
+			f->sym_string[f->sym_len++].t.tok = TOK_DOLAR;
+			t = next(reader);
+		} else {
+			ERROR("unexpected %s token\n", tok_str[t.tok]);
+		}
+
+		if (t.tok == TOK_COMMA) {
+			CHECK_SYM_SPACE(f, 3);
+			t = next(reader);
+			goto print_comma;
+		}
+		if (need_close && t.tok == TOK_CLOSE_PARENTESIS) {
+			t = next(reader);
+		} else if (need_close) {
+			ERROR("unclose parensesis in print\n", tok_str[t.tok]);
+		}
+		print_sym->end = &f->sym_string[f->sym_len];
+	} else {
+		//f->sym_string[f->sym_len].t = t;
+		gravier_debug("%s ", tok_str[t.tok]);
+		//f->sym_len += 1;
 	}
 	return 0;
 exit:
@@ -521,7 +802,7 @@ static int perl_parse(PerlInterpreter * my_perl, void (*xs_init)(void *stuff),  
 	char *reader;
 	int ret;
 
-	printf("perl_parse %s\n", file_name);
+	gravier_debug("perl_parse %s\n", file_name);
 	if (stat(file_name, &st) < 0 || (fd = open(file_name, O_RDONLY) ) < 0) {
 		fprintf(stderr, "cannot open/stat '%s'", file_name);
 		return -1;
@@ -556,99 +837,11 @@ static int perl_parse(PerlInterpreter * my_perl, void (*xs_init)(void *stuff),  
 
 	//printf("file:\n%s\n", file_str);
 	reader = file_str;
+	int ret_parsing = TOK_ENDFILE;
 
-#define CHECK_SYM_SPACE(X) do {						\
-		if (this_file->sym_len + X > this_file->sym_size) {	\
-			this_file->sym_size *= 2;			\
-			this_file->sym_string =				\
-				realloc(this_file->sym_string,		\
-					sizeof *this_file->sym_string * this_file->sym_size); \
-		}							\
-	} while (0)
-
-#define CHECK_STACK_SPACE(X) do {					\
-		if (this_file->stack_len + X > this_file->stack_size) {	\
-			this_file->stack_size *= 2;			\
-			this_file->stack =				\
-				realloc(this_file->stack,		\
-					sizeof *this_file->stack * this_file->stack_size); \
-		}							\
-	} while (0)
-
-	while ((t = next(&reader)).tok != TOK_ENDFILE) {
-		CHECK_SYM_SPACE(2);
-		if (t.tok == TOK_MY || t.tok == TOK_DOLAR) {
-			CHECK_STACK_SPACE(1);
-			if (t.tok == TOK_MY) {
-				t = next(&reader);
-				if (t.tok != TOK_DOLAR) // @array need to be handle here
-					ERROR("expected dolar");
-			}
-			t = next(&reader);
-			if (t.tok != TOK_NAME)
-				ERROR("expected name");
-			struct sym *stack_sym = find_stack_ref(this_file, &t);
-			if (!stack_sym)
-				stack_sym = &this_file->stack[this_file->stack_len++];
-			stack_sym->t = t;
-			t = next(&reader);
-			if (t.tok == TOK_SEMICOL)
-				continue;
-			if (t.tok != TOK_EQUAL)
-				ERROR("unexpected token: %s\n", tok_str[t.tok]);
-
-			this_file->sym_string[this_file->sym_len].ref = stack_sym;
-			this_file->sym_string[this_file->sym_len++].t = t;
-			parse_equal(this_file, &reader);
-		} else if (t.tok == TOK_NAMESPACE) {
-			gravier_debug("%s::", t.as_str);
-		} else if (t.tok == TOK_SEMICOL || t.tok == TOK_OPEN_BRACE || t.tok == TOK_CLOSE_BRACE) {
-			gravier_debug("%c\n", t.tok == TOK_SEMICOL ? ';' : t.tok == TOK_OPEN_BRACE ? '{' : '}');
-
-		} else if (t.tok == TOK_PRINT) {
-			int need_close = 0;
-			struct sym *print_sym = &this_file->sym_string[this_file->sym_len];
-
-			this_file->sym_string[this_file->sym_len++].t = t;
-			t = next(&reader);
-			if (t.tok == TOK_OPEN_PARENTESIS) {
-				t = next(&reader);
-				need_close = 1;
-			}
-		print_comma:
-			if (t.tok == TOK_LITERAL_NUM || t.tok == TOK_LITERAL_STR) {
-				this_file->sym_string[this_file->sym_len++].t = t;
-				t = next(&reader);
-			} else if (t.tok == TOK_DOLAR) {
-				t = next(&reader);
-				// check t is name
-				struct sym *stack_sym = find_stack_ref(this_file, &t);
-				if (!stack_sym) {
-					ERROR("unknow variable %s", t.as_str);
-				}
-				this_file->sym_string[this_file->sym_len].ref = stack_sym;
-				this_file->sym_string[this_file->sym_len++].t.tok = TOK_DOLAR;
-				t = next(&reader);
-			} else {
-				ERROR("unexpected %s token\n", tok_str[t.tok]);
-			}
-
-			if (t.tok == TOK_COMMA) {
-				CHECK_SYM_SPACE(3);
-				t = next(&reader);
-				goto print_comma;
-			}
-			if (need_close && t.tok == TOK_CLOSE_PARENTESIS) {
-				t = next(&reader);
-			} else if (need_close) {
-				ERROR("unclose parensesis in print\n", tok_str[t.tok]);
-			}
-			print_sym->end = &this_file->sym_string[this_file->sym_len];
-		} else {
-			this_file->sym_string[this_file->sym_len].t = t;
-			gravier_debug("%s ", tok_str[t.tok]);
-			this_file->sym_len += 1;
-		}
+	while ((t = next(&reader)).tok != ret_parsing) {
+		if (parse_one_instruction(my_perl, this_file, &reader, t) < 0)
+			goto exit;
 	}
 	this_file->sym_string[this_file->sym_len].t = t;
 
@@ -677,6 +870,10 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 				} else if (sym_string->t.tok == TOK_DOLAR) {
 					struct sym *ref = sym_string->ref;
 
+					if (!ref) {
+						gravier_debug("unknow variable");
+						continue;
+					}
 					gravier_debug("A VARIABLE ! %p ", ref);
 					if (ref->v.type == SVt_PV)
 						printf("%s", ref->v.str);
@@ -684,6 +881,54 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 						printf("%lli", ref->v.i);
 				}
 			}
+			continue;
+		} else if (t.tok == TOK_IF) {
+			struct sym *if_end = sym_string->end;
+			++sym_string;
+			t = sym_string->t;
+			if (!tok_is_condition(t.tok)) {
+				if (t.tok == TOK_LITERAL_NUM && t.as_int)
+					++sym_string;
+				else
+					sym_string = if_end;
+				continue;
+			}
+			struct sym *lop = &sym_string[1];
+			struct sym *rop = &sym_string[2];
+			_Bool cnd = 0;
+			switch (t.tok) {
+			case TOK_DOUBLE_EQUAL:
+				cnd = int_fron_sym(lop) == int_fron_sym(rop);
+				break;
+			case TOK_NOT_EQUAL:
+				cnd = int_fron_sym(lop) != int_fron_sym(rop);
+				break;
+			case TOK_SUP_EQUAL:
+				cnd = int_fron_sym(lop) >= int_fron_sym(rop);
+				break;
+			case TOK_SUP:
+				cnd = int_fron_sym(lop) > int_fron_sym(rop);
+				break;
+			case TOK_INF_EQUAL:
+				cnd = int_fron_sym(lop) <= int_fron_sym(rop);
+				break;
+			case TOK_INF:
+				cnd = int_fron_sym(lop) < int_fron_sym(rop);
+				break;
+			case TOK_EQ:
+				cnd = !strcmp(str_fron_sym(lop), str_fron_sym(rop));
+				break;
+			default:
+			}
+			gravier_debug("condition result: %d\n", cnd)
+			if (cnd) {
+				sym_string += 3;
+			} else {
+				sym_string = if_end;
+			}
+			continue;
+		} else if (t.tok == TOK_GOTO) {
+			sym_string = sym_string->end;
 			continue;
 		} else if (t.tok == TOK_EQUAL) {
 			struct sym *target_ref = sym_string->ref;

@@ -1,4 +1,4 @@
-#define GRAVIER_ENABLE_DEBUG
+//#define GRAVIER_ENABLE_DEBUG
 
 #include "perl.h"
 
