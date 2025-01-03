@@ -12,6 +12,6 @@ expect_files:
 	for f in *pl; do perl $$f > $$f.expect ; done
 
 tests: gravier
-	for f in *pl; do echo "test $$f:"; ./gravier $$f > $$f.out ; diff $$f.expect $$f.out ; done
+	for f in *pl; do echo -n "test $$f:"; ./gravier $$f > $$f.out ; diff $$f.expect $$f.out ; echo " $$?" | sed 's/0/OK/;s/1/FAIL/'; done
 
 .PHONY : clean

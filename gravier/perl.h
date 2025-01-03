@@ -596,9 +596,10 @@ static int parse_condition(struct tok *t_ptr, struct file *f, char **reader)
 
 	STORE_OPERAND(*t_ptr, l_operand);
 	t = next(reader);
-	if (t.tok == TOK_CLOSE_PARENTESIS) {
+	if (t.tok == TOK_CLOSE_PARENTESIS || t.tok == TOK_SEMICOL) {
 		f->sym_string[f->sym_len++] = l_operand;
 		*t_ptr = t;
+		back[nb_back++] = t;
 		return 0;
 	}
 	if (!tok_is_condition(t.tok)) {
@@ -634,7 +635,8 @@ static int operation(struct tok *t_ptr, struct file *f, char **reader)
 	if (!stack_sym) {
 		ERROR("unknow variable\n");
 	}
-	if (t.tok != TOK_EQUAL || t.tok != TOK_PLUS_EQUAL || t.tok != TOK_MINUS_EQUAL)
+	t = next(reader);
+	if (t.tok != TOK_EQUAL && t.tok != TOK_PLUS_EQUAL && t.tok != TOK_MINUS_EQUAL)
 		ERROR("unexpected operation\n");
 	f->sym_string[f->sym_len].ref = stack_sym;
 	f->sym_string[f->sym_len++].t = t;
@@ -741,8 +743,42 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 			t = next(reader);
 		}
 		gravier_debug("for cur tok %s (sould be 2nd argument))\n", tok_str[t.tok]);
+		struct sym *check_at_end = &f->sym_string[f->sym_len];
+		f->sym_string[f->sym_len++].t.tok = TOK_GOTO;
+		struct sym *begin_for = &f->sym_string[f->sym_len];
+		struct tok for_toks_cnd[128];
+		int nb_for_toks_cnd = 0;
+		struct tok for_toks_op[128];
+		int nb_for_toks_op = 0;
+		while ((t = next(reader)).tok != TOK_SEMICOL) {
+			for_toks_cnd[nb_for_toks_cnd++] = t;
+		}
+		while ((t = next(reader)).tok != TOK_CLOSE_PARENTESIS) {
+			for_toks_op[nb_for_toks_op++] = t;
+		}
+		parse_one_instruction(my_perl, f, reader, next(reader));
+
+		for (int i = nb_for_toks_op - 1; i >= 0; --i) {
+			back[nb_back++] = for_toks_op[i];
+		}
 		t = next(reader);
 		operation(&t, f, reader);
+
+		check_at_end->end = &f->sym_string[f->sym_len];
+		struct sym *out_loop = &f->sym_string[f->sym_len];
+
+		f->sym_string[f->sym_len++].t.tok = TOK_IF;
+
+		for (int i = nb_for_toks_cnd - 1; i >= 0; --i) {
+			back[nb_back++] = for_toks_cnd[i];
+		}
+		t = next(reader);
+		parse_condition(&t, f, reader);
+
+		f->sym_string[f->sym_len].t.tok = TOK_GOTO;
+		f->sym_string[f->sym_len++].end = begin_for;
+		out_loop->end = &f->sym_string[f->sym_len];
+		//operation(&t, f, reader);
 	} else if (t.tok == TOK_OPEN_BRACE) {
 		// humm I have stack locality to handle here...
 		while ((t = next(reader)).tok != TOK_CLOSE_BRACE) {
@@ -938,7 +974,7 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 				break;
 			default:
 			}
-			gravier_debug("condition result: %d\n", cnd)
+			gravier_debug("condition result: %d\n", cnd);
 			if (cnd) {
 				sym_string += 3;
 			} else {
@@ -963,6 +999,20 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 				gravier_debug("UNIMPLEMENTED %s\n",
 					      tok_str[sym_string->t.tok]);
 			}
+		} else if (t.tok == TOK_PLUS_EQUAL) {
+			struct sym *target_ref = sym_string->ref;
+
+			gravier_debug("SET STUFFF on: %p\n", target_ref);
+			++sym_string;
+			if (sym_string->t.tok == TOK_LITERAL_NUM) {
+				target_ref->v.i += sym_string->t.as_int;
+				target_ref->v.type = SVt_IV;
+			} else {
+				gravier_debug("UNIMPLEMENTED %s\n",
+					      tok_str[sym_string->t.tok]);
+			}
+		} else {
+			printf("%s unimplemented\n", tok_str[t.tok]);
 		}
 		gravier_debug("%s ", tok_str[sym_string->t.tok]);
 		++sym_string;

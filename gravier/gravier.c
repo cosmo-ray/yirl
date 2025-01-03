@@ -1,5 +1,3 @@
-//#define GRAVIER_ENABLE_DEBUG
-
 #include "perl.h"
 
 int main(int ac, char **av)
