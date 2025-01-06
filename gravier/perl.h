@@ -222,6 +222,9 @@ struct file {
 	struct sym *stack;
 	int stack_len;
 	int stack_size;
+	struct sym *local_stack;
+	int l_stack_len;
+	int l_stack_size;
 	int sym_len;
 	int sym_size;
 	struct sym *sym_string;
@@ -313,8 +316,8 @@ static inline void eval_pv(const char *str, int dont_know)
 	gravier_debug("eval_pv: %s\n", str);
 }
 
-struct tok back[128];
-int nb_back;
+static struct tok back[128];
+static int nb_back;
 
 static inline struct tok next(char **reader_ptr)
 {
@@ -530,6 +533,15 @@ again:
 		}							\
 	} while (0)
 
+#define CHECK_L_STACK_SPACE(this_file, X) do {				\
+		if (this_file->l_stack_len + X > this_file->l_stack_size) { \
+			this_file->l_stack_size *= 2;			\
+			this_file->local_stack =			\
+				realloc(this_file->local_stack,		\
+					sizeof *this_file->local_stack * this_file->l_stack_size); \
+		}							\
+	} while (0)
+
 
 #define SKIP_REQ(tok_, reader, t) do {					\
 		if ((t).tok != tok_)					\
@@ -578,6 +590,10 @@ static inline const char *str_fron_sym(struct sym *sym)
 
 static struct sym *find_stack_ref(struct file *this_file, struct tok *t)
 {
+	for (int i = this_file->l_stack_len - 1; i >= 0; --i) {
+		if (!strcmp(this_file->local_stack[i].t.as_str, t->as_str))
+			return &this_file->local_stack[i];
+	}
 	for (int i = 0; i < this_file->stack_len; ++i) {
 		if (!strcmp(this_file->stack[i].t.as_str, t->as_str))
 			return &this_file->stack[i];
@@ -588,7 +604,9 @@ static struct sym *find_stack_ref(struct file *this_file, struct tok *t)
 static struct sym *find_set_stack_ref(struct file *this_file, struct tok *t)
 {
 	struct sym *ret = find_stack_ref(this_file, t);
+
 	if (!ret) {
+		CHECK_STACK_SPACE(this_file, 1);
 		this_file->stack[this_file->stack_len].t = *t;
 		return &this_file->stack[this_file->stack_len++];
 	}
@@ -709,9 +727,16 @@ exit:
 
 static int var_declaration(struct tok t, struct file *f, char **reader)
 {
-	CHECK_STACK_SPACE(f, 1);
 	if (t.tok == TOK_MY) {
 		t = next(reader);
+		SKIP_REQ(TOK_DOLAR, reader, t);
+		if (t.tok != TOK_NAME) {
+			ERROR("unexpected token, require %s\n", tok_str[TOK_NAME]); \
+		}
+		CHECK_L_STACK_SPACE(f, 1);
+		f->local_stack[f->l_stack_len++].t = t;
+		back[nb_back++] = t;
+		t.tok = TOK_DOLAR;
 	}
 
 	if (t.tok != TOK_DOLAR) {
@@ -843,6 +868,8 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 		//operation(&t, f, reader);
 	} else if (t.tok == TOK_OPEN_BRACE) {
 		// humm I have stack locality to handle here...
+		int begin_local_stack = f->l_stack_len;
+
 		while ((t = next(reader)).tok != TOK_CLOSE_BRACE) {
 			if (t.tok == TOK_ENDFILE) {
 				ERROR("unclose brace\n");
@@ -850,6 +877,8 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 			if (parse_one_instruction(my_perl, f, reader, t) < 0)
 				goto exit;
 		}
+
+		f->l_stack_len = begin_local_stack;
 		// and stack to remove here
 
 	} else if (t.tok == TOK_NAMESPACE) {
@@ -947,7 +976,11 @@ static int perl_parse(PerlInterpreter * my_perl, void (*xs_init)(void *stuff),  
 	this_file->sym_len = 0;
 	this_file->sym_string = malloc(sizeof *this_file->sym_string * this_file->sym_size);
 	this_file->stack_size = 128;
-	this_file->stack = malloc(sizeof *this_file->stack * this_file->sym_size);
+	this_file->stack_len = 0;
+	this_file->stack = malloc(sizeof *this_file->stack * this_file->stack_size);
+	this_file->l_stack_len = 0;
+	this_file->l_stack_size = 128;
+	this_file->local_stack = malloc(sizeof *this_file->local_stack * this_file->l_stack_size);
 
 	//printf("file:\n%s\n", file_str);
 	reader = file_str;
