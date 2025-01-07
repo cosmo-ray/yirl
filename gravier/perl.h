@@ -80,7 +80,7 @@ int dumbcmp(char *in, const char *keywork) {
 		if (*in != *keywork)
 			return 0;
 	}
-	if (*keywork == 0 && (*in == ' ' || *in == '\n' || *in == '\t' || *in == 0 || *in == '(')) {
+	if (*keywork == 0 && (*in == ' ' || *in == '\n' || *in == '\t' || *in == 0 || *in == '(' || *in == ';')) {
 		return in - orig;
 	}
 	return 0;
@@ -209,10 +209,14 @@ struct sym {
 	union {
 		struct stack_val v;
 		struct {
-			struct tok const_val; // can be name, literal or anything else
+			struct sym *caller;
+			struct sym *ref;
 			struct sym *end;
+			struct sym *arg;
+			struct sym *local_stack;
+			int l_stack_len;
+			int l_stack_size;
 		};
-		struct sym *ref;
 	};
 };
 
@@ -228,6 +232,7 @@ struct file {
 	int sym_len;
 	int sym_size;
 	struct sym *sym_string;
+	struct sym *cur_func;
 };
 
 typedef struct {
@@ -292,7 +297,11 @@ static inline void perl_destruct(PerlInterpreter *p)
 
 	gravier_debug("perl_destruct\n");
 	kh_foreach(p->files, kkey, vvar, {
+			free(vvar->sym_string);
+			free(vvar->stack);
+			free(vvar->local_stack);
 			free(vvar->file_content);
+			kh_destroy(func_syms, vvar->functions);
 			free(vvar);
 		});
 	kh_destroy(file_list, p->files);
@@ -368,6 +377,9 @@ again:
 	} else if ((ret = dumbcmp(reader, "if"))) {
 		reader += ret - 1;
 		RET_NEXT((struct tok){.tok=TOK_IF});
+	} else if ((ret = dumbcmp(reader, "return"))) {
+		reader += ret - 1;
+		RET_NEXT((struct tok){.tok=TOK_RETURN});
 	} else if ((ret = dumbcmp(reader, "elsif"))) {
 		reader += ret - 1;
 		RET_NEXT((struct tok){.tok=TOK_ELSIF});
@@ -550,6 +562,12 @@ again:
 	} while (0)
 
 
+#define NEXT_N_CHECK(tok_) do {						\
+		t = next(reader);					\
+		if (t.tok != tok_)					\
+			ERROR("unexcected %s, expected %s\n", tok_str[t.tok], tok_str[tok_]); \
+	} while (0)
+
 static inline _Bool tok_is_condition(int t)
 {
 	return t == TOK_DOUBLE_EQUAL || t == TOK_NOT_EQUAL ||
@@ -702,8 +720,30 @@ static int operation(struct tok *t_ptr, struct file *f, char **reader)
 		f->sym_string[f->sym_len++].ref = stack_sym;
 		return 0;
 	}
+	if (t_ptr->tok == TOK_NAME) {
+		khiter_t iterator = kh_get(func_syms, f->functions, t_ptr->as_str);
+
+		if (iterator == kh_end(f->functions))
+			ERROR("unknow function %s\n", t_ptr->as_str);
+		struct sym *function = kh_val(f->functions, iterator);
+		int need_close = 0;
+		f->sym_string[f->sym_len].ref = function;
+		t = next(reader);
+		if (t.tok == TOK_OPEN_PARENTESIS) {
+			need_close = 1;
+		} else {
+			back[nb_back++] = t;
+		}
+		// implement arguent push here
+		if (need_close) {
+			t = next(reader);
+			SKIP_REQ(TOK_CLOSE_PARENTESIS, reader, t);
+		}
+		f->sym_string[f->sym_len++].t.tok = TOK_SUB;
+		return 0;
+	}
 	if (t_ptr->tok != TOK_DOLAR) {
-		ERROR("unimplemented\n");
+		ERROR("unimplemented operation: %s\n", tok_str[t_ptr->tok]);
 	}
 	t = next(reader);
 	if (t.tok != TOK_NAME)
@@ -757,9 +797,44 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 {
 	if (t.tok == TOK_MY || t.tok == TOK_DOLAR) {
 		var_declaration(t, f, reader);
-	} else if (t.tok == TOK_IF) {
-		gravier_debug("handling if\n");
+	} else if (t.tok == TOK_RETURN) {
+		f->sym_string[f->sym_len].t = t;
+		f->sym_string[f->sym_len++].caller = f->cur_func;
+	} else if (t.tok == TOK_SUB) {
+		int ret = 0;
+		struct sym *goto_end = &f->sym_string[f->sym_len];
+		f->sym_string[f->sym_len++].t.tok = TOK_GOTO;
 
+		struct sym *function_begin = &f->sym_string[f->sym_len];
+		function_begin->caller = f->cur_func;
+		f->cur_func = function_begin;
+		f->sym_string[f->sym_len++].t.tok = TOK_SUB;
+
+		NEXT_N_CHECK(TOK_NAME);
+
+		khiter_t iterator;
+		iterator = kh_put(func_syms, f->functions, t.as_str, &ret);
+		if (ret < 0)
+			ERROR("me hash table fail me, so sad :(\n");
+		kh_val(f->functions, iterator) = function_begin;
+
+		//int begin_local_stack = f->l_stack_len;
+
+		NEXT_N_CHECK(TOK_OPEN_BRACE);
+		while ((t = next(reader)).tok != TOK_CLOSE_BRACE) {
+			if (t.tok == TOK_ENDFILE) {
+				ERROR("unclose brace\n");
+			}
+			if (parse_one_instruction(my_perl, f, reader, t) < 0)
+				goto exit;
+		}
+
+		f->sym_string[f->sym_len].caller = function_begin;
+		f->sym_string[f->sym_len++].t.tok = TOK_RETURN;
+		//f->l_stack_len = begin_local_stack;
+		f->cur_func = f->cur_func->caller;
+		goto_end->end = &f->sym_string[f->sym_len];
+	} else if (t.tok == TOK_IF) {
 		struct sym *elsif_goto_syms[MAX_ELSIF];
 		int nb_elseif = 0;
 		{
@@ -981,6 +1056,8 @@ static int perl_parse(PerlInterpreter * my_perl, void (*xs_init)(void *stuff),  
 	this_file->l_stack_len = 0;
 	this_file->l_stack_size = 128;
 	this_file->local_stack = malloc(sizeof *this_file->local_stack * this_file->l_stack_size);
+	this_file->functions = kh_init(func_syms);
+	this_file->cur_func = NULL;
 
 	//printf("file:\n%s\n", file_str);
 	reader = file_str;
@@ -1028,6 +1105,14 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 						printf("%lli", ref->v.i);
 				}
 			}
+			continue;
+		} else if (t.tok == TOK_SUB) {
+			struct sym *to_call = sym_string->ref;
+			to_call->end = &sym_string[1];
+			sym_string = to_call + 1;
+			continue;
+		} else if (t.tok == TOK_RETURN) {
+			sym_string = sym_string->caller->end;
 			continue;
 		} else if (t.tok == TOK_IF || t.tok == TOK_ELSIF) {
 			struct sym *if_end = sym_string->end;
