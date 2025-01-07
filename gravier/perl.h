@@ -224,6 +224,7 @@ struct file {
 	khash_t(func_syms) *functions;
 	char *file_content;
 	struct sym *stack;
+	struct sym a;
 	int stack_len;
 	int stack_size;
 	struct sym *local_stack;
@@ -631,19 +632,6 @@ static struct sym *find_set_stack_ref(struct file *this_file, struct tok *t)
 	return ret;
 }
 
-static int parse_equal(struct file *f, char **reader)
-{
-	struct tok t = next(reader);
-	if (t.tok == TOK_LITERAL_NUM || t.tok == TOK_LITERAL_STR) {
-		f->sym_string[f->sym_len++].t = t;
-	} else {
-		ERROR("unimplemented for %s\n", tok_str[t.tok]);
-	}
-	return 0;
-exit:
-	return -1;
-}
-
 #define STORE_OPERAND(in_t, in)						\
 	if ((in_t).tok == TOK_LITERAL_STR || (in_t).tok == TOK_LITERAL_NUM) { \
 		in.t = in_t;						\
@@ -655,6 +643,31 @@ exit:
 		in.t.tok = TOK_DOLAR;					\
 		in.ref = find_set_stack_ref(f, &t);				\
 	}
+
+static int parse_equal(struct file *f, char **reader, struct sym equal_sym)
+{
+	struct tok t = next(reader);
+
+	struct sym operand;
+	STORE_OPERAND(t, operand);
+	t = next(reader);
+	if (t.tok == TOK_PLUS) {
+		f->sym_string[f->sym_len++] = (struct sym){.ref=&f->a, .t=TOK_EQUAL};
+		f->sym_string[f->sym_len++] = operand;
+		f->sym_string[f->sym_len++] = (struct sym){.ref=&f->a, .t=TOK_PLUS_EQUAL};
+		t = next(reader);
+		STORE_OPERAND(t, operand);
+		f->sym_string[f->sym_len++] = operand;
+		operand = (struct sym){.ref=&f->a, .t=TOK_DOLAR};
+	} else {
+		back[nb_back++] = t;
+	}
+	f->sym_string[f->sym_len++] = equal_sym;
+	f->sym_string[f->sym_len++] = operand;
+	return 0;
+exit:
+	return -1;
+}
 
 static int parse_condition(struct tok *t_ptr, struct file *f, char **reader)
 {
@@ -756,9 +769,8 @@ static int operation(struct tok *t_ptr, struct file *f, char **reader)
 	t = next(reader);
 	if (t.tok != TOK_EQUAL && t.tok != TOK_PLUS_EQUAL && t.tok != TOK_MINUS_EQUAL)
 		ERROR("unexpected operation\n");
-	f->sym_string[f->sym_len].ref = stack_sym;
-	f->sym_string[f->sym_len++].t = t;
-	parse_equal(f, reader);
+	struct sym equal_sym = {.ref = stack_sym, .t = t};
+	parse_equal(f, reader, equal_sym);
 	return 0;
 
 exit:
@@ -1181,6 +1193,8 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 			} else if (sym_string->t.tok == TOK_LITERAL_NUM) {
 				target_ref->v.i = sym_string->t.as_int;
 				target_ref->v.type = SVt_IV;
+			} else if (sym_string->t.tok == TOK_DOLAR) {
+				target_ref->v = sym_string->ref->v;
 			} else {
 				gravier_debug("UNIMPLEMENTED %s\n",
 					      tok_str[sym_string->t.tok]);
