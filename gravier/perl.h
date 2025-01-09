@@ -665,7 +665,7 @@ static int parse_equal(struct file *f, char **reader, struct sym equal_sym)
 	struct sym operand;
 	STORE_OPERAND(t, operand);
 	t = next(reader);
-	if (t.tok == TOK_PLUS || t.tok == TOK_MINUS) {
+	if (t.tok == TOK_PLUS || t.tok == TOK_MINUS || t.tok == TOK_DIV || t.tok == TOK_MULT) {
 		f->sym_string[f->sym_len++] = (struct sym){.ref=&f->a, .t=TOK_EQUAL};
 		f->sym_string[f->sym_len++] = operand;
 		f->sym_string[f->sym_len++] = (struct sym){.ref=&f->a, .t=unequal_to_equal(t.tok)};
@@ -1102,15 +1102,31 @@ exit:
 	return -1;
 }
 
-#define MATH_OP(tok_, left, right) switch (tok_) {	\
-	case TOK_PLUS_EQUAL:				\
-		left += right; break;			\
-	case TOK_MINUS_EQUAL:				\
-		left -= right; break;			\
-	case TOK_MULT_EQUAL:				\
-		left *= right; break;			\
-	case TOK_DIV_EQUAL:				\
-		left /= right; break;			\
+#define MATH_OP(tok_, left, right)				\
+	if ((left).type == SVt_NV || tok_ == TOK_DIV_EQUAL) {	\
+		if ((left).type == SVt_IV)			\
+			(left).f = (double)(left).i;		\
+		(left).type = SVt_NV;				\
+		switch (tok_) {					\
+		case TOK_PLUS_EQUAL:				\
+			(left).f += (double)right; break;	\
+		case TOK_MINUS_EQUAL:				\
+			(left).f -= (double)right; break;	\
+		case TOK_MULT_EQUAL:				\
+			(left).f *= (double)right; break;	\
+		case TOK_DIV_EQUAL:				\
+			(left).f /= (double)right; break;	\
+		}						\
+	} else {						\
+		(left).type = SVt_IV;				\
+		switch (tok_) {					\
+		case TOK_PLUS_EQUAL:				\
+			(left).i += right; break;		\
+		case TOK_MINUS_EQUAL:				\
+			(left).i -= right; break;		\
+		case TOK_MULT_EQUAL:				\
+			(left).i *= right; break;		\
+		}						\
 	}
 
 static void perl_run_file(PerlInterpreter *perl, struct file *f)
@@ -1140,6 +1156,8 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 						printf("%s", ref->v.str);
 					else if (ref->v.type == SVt_IV)
 						printf("%lli", ref->v.i);
+					else if (ref->v.type == SVt_NV)
+						printf("%.15f", ref->v.f);
 				}
 			}
 			continue;
@@ -1231,18 +1249,18 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 			else
 				target_ref->v.i -= 1;
 			target_ref->v.type = SVt_IV;
-		} else if (t.tok == TOK_PLUS_EQUAL || t.tok == TOK_MINUS_EQUAL) {
+		} else if (t.tok == TOK_PLUS_EQUAL || t.tok == TOK_MINUS_EQUAL ||
+			TOK_DIV_EQUAL || TOK_DIV_EQUAL) {
 			struct sym *target_ref = sym_string->ref;
 
-			gravier_debug("SET STUFFF on: %p\n", target_ref);
 			++sym_string;
 			if (sym_string->t.tok == TOK_LITERAL_NUM) {
-				MATH_OP(t.tok, target_ref->v.i,
+				MATH_OP(t.tok, target_ref->v,
 					sym_string->t.as_int);
 				target_ref->v.type = SVt_IV;
 			} else if (sym_string->t.tok == TOK_DOLAR) {
 				if (sym_string->ref->v.type == SVt_IV) {
-					MATH_OP(t.tok, target_ref->v.i,
+					MATH_OP(t.tok, target_ref->v,
 						sym_string->ref->v.i);
 				}
 			} else {

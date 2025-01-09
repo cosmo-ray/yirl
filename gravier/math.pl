@@ -14,3 +14,11 @@ print $b, "\n";
 $c = $a - $b;
 
 print $c, "\n";
+
+$c = $a * $b;
+
+print $c, "\n";
+
+$c = $a / $b;
+
+print $c, "\n";
