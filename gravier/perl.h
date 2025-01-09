@@ -411,7 +411,7 @@ again:
 	LOOK_FOR_DOUBLE('=', '=', TOK_EQUAL, TOK_DOUBLE_EQUAL)
 	LOOK_FOR_DOUBLE('>', '=', TOK_SUP, TOK_SUP_EQUAL)
 	LOOK_FOR_DOUBLE('<', '=', TOK_INF, TOK_INF_EQUAL)
-	LOOK_FOR_DOUBLE('-', '=', TOK_MINUS, TOK_MINUS_EQUAL)
+	LOOK_FOR_TRIPLE('-', '=', '-', TOK_MINUS, TOK_MINUS_EQUAL, TOK_MINUS_MINUS)
 	LOOK_FOR_TRIPLE('+', '=', '+', TOK_PLUS, TOK_PLUS_EQUAL, TOK_PLUS_PLUS)
 	else if (*reader == '.') {
 		RET_NEXT((struct tok){.tok=TOK_DOT});
@@ -644,6 +644,20 @@ static struct sym *find_set_stack_ref(struct file *this_file, struct tok *t)
 		in.ref = find_set_stack_ref(f, &t);				\
 	}
 
+static inline int unequal_to_equal(int tok)
+{
+	switch (tok) {
+	case TOK_PLUS:
+		return TOK_PLUS_EQUAL;
+	case TOK_MINUS:
+		return TOK_MINUS_EQUAL;
+	case TOK_DIV:
+		return TOK_DIV_EQUAL;
+	case TOK_MULT:
+		return TOK_MULT_EQUAL;
+	}
+}
+
 static int parse_equal(struct file *f, char **reader, struct sym equal_sym)
 {
 	struct tok t = next(reader);
@@ -651,10 +665,10 @@ static int parse_equal(struct file *f, char **reader, struct sym equal_sym)
 	struct sym operand;
 	STORE_OPERAND(t, operand);
 	t = next(reader);
-	if (t.tok == TOK_PLUS) {
+	if (t.tok == TOK_PLUS || t.tok == TOK_MINUS) {
 		f->sym_string[f->sym_len++] = (struct sym){.ref=&f->a, .t=TOK_EQUAL};
 		f->sym_string[f->sym_len++] = operand;
-		f->sym_string[f->sym_len++] = (struct sym){.ref=&f->a, .t=TOK_PLUS_EQUAL};
+		f->sym_string[f->sym_len++] = (struct sym){.ref=&f->a, .t=unequal_to_equal(t.tok)};
 		t = next(reader);
 		STORE_OPERAND(t, operand);
 		f->sym_string[f->sym_len++] = operand;
@@ -715,7 +729,7 @@ static int operation(struct tok *t_ptr, struct file *f, char **reader)
 {
 	struct tok t;
 
-	if (t_ptr->tok == TOK_PLUS_PLUS) {
+	if (t_ptr->tok == TOK_PLUS_PLUS || t_ptr->tok == TOK_MINUS_MINUS) {
 		f->sym_string[f->sym_len].t = *t_ptr;
 		t = next(reader);
 		if (t.tok != TOK_DOLAR) {
@@ -1088,6 +1102,17 @@ exit:
 	return -1;
 }
 
+#define MATH_OP(tok_, left, right) switch (tok_) {	\
+	case TOK_PLUS_EQUAL:				\
+		left += right; break;			\
+	case TOK_MINUS_EQUAL:				\
+		left -= right; break;			\
+	case TOK_MULT_EQUAL:				\
+		left *= right; break;			\
+	case TOK_DIV_EQUAL:				\
+		left /= right; break;			\
+	}
+
 static void perl_run_file(PerlInterpreter *perl, struct file *f)
 {
 	struct sym *sym_string = f->sym_string;
@@ -1199,18 +1224,27 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 				gravier_debug("UNIMPLEMENTED %s\n",
 					      tok_str[sym_string->t.tok]);
 			}
-		} else if (t.tok == TOK_PLUS_PLUS) {
+		} else if (t.tok == TOK_PLUS_PLUS || t.tok == TOK_MINUS_MINUS) {
 			struct sym *target_ref = sym_string->ref;
-			target_ref->v.i += 1;
+			if (t.tok == TOK_PLUS_PLUS)
+				target_ref->v.i += 1;
+			else
+				target_ref->v.i -= 1;
 			target_ref->v.type = SVt_IV;
-		} else if (t.tok == TOK_PLUS_EQUAL) {
+		} else if (t.tok == TOK_PLUS_EQUAL || t.tok == TOK_MINUS_EQUAL) {
 			struct sym *target_ref = sym_string->ref;
 
 			gravier_debug("SET STUFFF on: %p\n", target_ref);
 			++sym_string;
 			if (sym_string->t.tok == TOK_LITERAL_NUM) {
-				target_ref->v.i += sym_string->t.as_int;
+				MATH_OP(t.tok, target_ref->v.i,
+					sym_string->t.as_int);
 				target_ref->v.type = SVt_IV;
+			} else if (sym_string->t.tok == TOK_DOLAR) {
+				if (sym_string->ref->v.type == SVt_IV) {
+					MATH_OP(t.tok, target_ref->v.i,
+						sym_string->ref->v.i);
+				}
 			} else {
 				gravier_debug("UNIMPLEMENTED %s\n",
 					      tok_str[sym_string->t.tok]);
