@@ -12,4 +12,8 @@ while ($j < 10) {
     ++$j
 }
 
-print "now:", $i, "\n";
+for (; $j > 0; --$j)
+{
+}
+
+print "now:", $i, " - ", $j, "\n";
