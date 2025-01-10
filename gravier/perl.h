@@ -224,7 +224,6 @@ struct file {
 	khash_t(func_syms) *functions;
 	char *file_content;
 	struct sym *stack;
-	struct sym a;
 	int stack_len;
 	int stack_size;
 	struct sym *local_stack;
@@ -634,14 +633,14 @@ static struct sym *find_set_stack_ref(struct file *this_file, struct tok *t)
 
 #define STORE_OPERAND(in_t, in)						\
 	if ((in_t).tok == TOK_LITERAL_STR || (in_t).tok == TOK_LITERAL_NUM) { \
-		in.t = in_t;						\
+		(in).t = in_t;						\
 	} else if ((in_t).tok == TOK_DOLAR) {				\
 		t = next(reader);					\
 		if (t.tok != TOK_NAME) {				\
 			ERROR("variable name expected, not %s\n", tok_str[t.tok]);	\
 		}							\
-		in.t.tok = TOK_DOLAR;					\
-		in.ref = find_set_stack_ref(f, &t);				\
+		(in).t.tok = TOK_DOLAR;					\
+		(in).ref = find_set_stack_ref(f, &t);			\
 	}
 
 static inline int unequal_to_equal(int tok)
@@ -658,21 +657,45 @@ static inline int unequal_to_equal(int tok)
 	}
 }
 
+static int parse_equal_(struct file *f, char **reader, struct sym *operand, int stack_tmp,
+			struct tok t)
+{
+	CHECK_STACK_SPACE(f, 1);
+	int p = f->stack_len + stack_tmp;
+	f->sym_string[f->sym_len++] = (struct sym){.ref=&f->stack[p], .t=TOK_EQUAL};
+	f->sym_string[f->sym_len++] = *operand;
+	int tok_op = t.tok;
+	struct sym second;
+	t = next(reader);
+	STORE_OPERAND(t, second);
+	// check for mul / div here and other here
+	t = next(reader);
+	if (t.tok == TOK_DIV || t.tok == TOK_MULT) {
+		parse_equal_(f, reader, &second, stack_tmp + 1, t);
+	} else {
+		back[nb_back++] = t;
+	}
+
+	f->sym_string[f->sym_len++] = (struct sym){.ref=&f->stack[p], .t=unequal_to_equal(tok_op)};
+	f->sym_string[f->sym_len++] = second;
+
+	*operand = (struct sym){.ref=&f->stack[p], .t=TOK_DOLAR};
+	return 0;
+exit:
+	return -1;
+}
+
 static int parse_equal(struct file *f, char **reader, struct sym equal_sym)
 {
 	struct tok t = next(reader);
 
 	struct sym operand;
 	STORE_OPERAND(t, operand);
+again:
 	t = next(reader);
 	if (t.tok == TOK_PLUS || t.tok == TOK_MINUS || t.tok == TOK_DIV || t.tok == TOK_MULT) {
-		f->sym_string[f->sym_len++] = (struct sym){.ref=&f->a, .t=TOK_EQUAL};
-		f->sym_string[f->sym_len++] = operand;
-		f->sym_string[f->sym_len++] = (struct sym){.ref=&f->a, .t=unequal_to_equal(t.tok)};
-		t = next(reader);
-		STORE_OPERAND(t, operand);
-		f->sym_string[f->sym_len++] = operand;
-		operand = (struct sym){.ref=&f->a, .t=TOK_DOLAR};
+		parse_equal_(f, reader, &operand, 1, t);
+		goto again;
 	} else {
 		back[nb_back++] = t;
 	}
