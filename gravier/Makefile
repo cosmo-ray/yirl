@@ -1,12 +1,15 @@
 
 gravier: gravier.c perl.h
-	gcc -g gravier.c -I../include/ -o gravier
+	gcc -g -O3 gravier.c -I../include/ -o gravier
 
 gravier-dbg: gravier.c perl.h
 	gcc -g -DGRAVIER_ENABLE_DEBUG=1 gravier.c -I../include/ -o gravier-dbg
 
 clean:
 	rm -rvf gravier
+
+bench:
+	for f in *bench.pl; do time perl $$f; time ./gravier $$f ; done
 
 expect_files:
 	for f in *pl; do perl $$f > $$f.expect ; done
