@@ -9,7 +9,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <ctype.h>
-
+#include <inttypes.h>
 #include "klib/khash.h"
 #include "gravier-str.h"
 
@@ -655,6 +655,7 @@ static inline int unequal_to_equal(int tok)
 	case TOK_MULT:
 		return TOK_MULT_EQUAL;
 	}
+	return 0;
 }
 
 static int parse_equal_(struct file *f, char **reader, struct sym *operand, int stack_tmp,
@@ -886,9 +887,10 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 	} else if (t.tok == TOK_IF) {
 		struct sym *elsif_goto_syms[MAX_ELSIF];
 		int nb_elseif = 0;
+		struct sym *if_sym;
 		{
 		an_elsif:
-			struct sym *if_sym = &f->sym_string[f->sym_len++];
+			if_sym = &f->sym_string[f->sym_len++];
 
 			CHECK_SYM_SPACE(f, 8);
 			if_sym->t = t;
@@ -1044,7 +1046,7 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 		if (need_close && t.tok == TOK_CLOSE_PARENTESIS) {
 			t = next(reader);
 		} else if (need_close) {
-			ERROR("unclose parensesis in print\n", tok_str[t.tok]);
+			ERROR("unclose parensesis in print\n");
 		}
 		print_sym->end = &f->sym_string[f->sym_len];
 	} else {
@@ -1058,8 +1060,8 @@ exit:
 	return -1;
 }
 
-static int perl_parse(PerlInterpreter * my_perl, void (*xs_init)(void *stuff),  int,
-			      char *av[], void *)
+static int perl_parse(PerlInterpreter * my_perl, void (*xs_init)(void *stuff), int ac,
+			      char *av[], void *env)
 {
 	const char *file_name = av[1];
 	struct stat st;
@@ -1166,7 +1168,7 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 				if (sym_string->t.tok == TOK_LITERAL_STR) {
 					printf("%s", sym_string->t.as_str);
 				} else if (sym_string->t.tok == TOK_LITERAL_NUM) {
-					printf("%d", sym_string->t.as_int);
+					printf("%"PRIiPTR, sym_string->t.as_int);
 				} else if (sym_string->t.tok == TOK_DOLAR) {
 					struct sym *ref = sym_string->ref;
 
@@ -1178,7 +1180,7 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 					if (ref->v.type == SVt_PV)
 						printf("%s", ref->v.str);
 					else if (ref->v.type == SVt_IV)
-						printf("%lli", ref->v.i);
+						printf("%"PRIiPTR, ref->v.i);
 					else if (ref->v.type == SVt_NV)
 						printf("%.15f", ref->v.f);
 				}
@@ -1234,7 +1236,6 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 			case TOK_EQ:
 				cnd = !strcmp(str_fron_sym(lop), str_fron_sym(rop));
 				break;
-			default:
 			}
 			gravier_debug("condition result: %d\n", cnd);
 			if (have_not)

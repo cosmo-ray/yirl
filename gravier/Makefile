@@ -1,9 +1,9 @@
 
 gravier: gravier.c perl.h
-	gcc -g -O3 gravier.c -I../include/ -o gravier
+	gcc -g --std=gnu17 -O3 gravier.c -I../include/ -o gravier
 
 gravier-dbg: gravier.c perl.h
-	gcc -g -DGRAVIER_ENABLE_DEBUG=1 gravier.c -I../include/ -o gravier-dbg
+	gcc -g --std=gnu17 -DGRAVIER_ENABLE_DEBUG=1 gravier.c -I../include/ -o gravier-dbg
 
 clean:
 	rm -rvf gravier
