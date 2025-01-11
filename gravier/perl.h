@@ -661,18 +661,31 @@ static inline int unequal_to_equal(int tok)
 static int parse_equal_(struct file *f, char **reader, struct sym *operand, int stack_tmp,
 			struct tok t)
 {
-	CHECK_STACK_SPACE(f, 1);
+	CHECK_STACK_SPACE(f, stack_tmp);
 	int p = f->stack_len + stack_tmp;
 	f->sym_string[f->sym_len++] = (struct sym){.ref=&f->stack[p], .t=TOK_EQUAL};
 	f->sym_string[f->sym_len++] = *operand;
 	int tok_op = t.tok;
 	struct sym second;
 	t = next(reader);
+	int in_parentesis = 0;
+	if (t.tok == TOK_OPEN_PARENTESIS) {
+		t = next(reader);
+		in_parentesis = 1;
+	}
 	STORE_OPERAND(t, second);
 	// check for mul / div here and other here
 	t = next(reader);
-	if (t.tok == TOK_DIV || t.tok == TOK_MULT) {
+
+recheck:
+	if (t.tok == TOK_DIV || t.tok == TOK_MULT || in_parentesis) {
 		parse_equal_(f, reader, &second, stack_tmp + 1, t);
+		if (in_parentesis) {
+			NEXT_N_CHECK(TOK_CLOSE_PARENTESIS);
+			in_parentesis = 0;
+			t = next(reader);
+			goto recheck;
+		}
 	} else {
 		back[nb_back++] = t;
 	}
