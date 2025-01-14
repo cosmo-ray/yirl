@@ -58,15 +58,21 @@ enum {
 	G_SCALAR = 1 << 1
 };
 
+enum {
+	VAL_NEED_FREE = 1
+};
+
 struct stack_val {
 	union {
 		intptr_t i;
 		void *v;
 		double f;
 		char *str;
+		struct stack_val *array;
 	};
-	int type;
-	int flag;
+	int16_t type;
+	int8_t flag;
+	int32_t array_size;
 };
 
 static inline int is_skipable(char c)
@@ -205,18 +211,37 @@ struct tok {
 	};
 };
 
+enum {
+	IDX_IS_NONE,
+	IDX_IS_TOKEN,
+	IDX_IS_REF,
+	IDX_IS_NEXT
+};
+
+struct array_idx_info {
+	union {
+		struct tok tok;
+		struct sym *ref;
+	};
+	int8_t type;
+};
+
 struct sym {
 	struct tok t;
 	union {
 		struct stack_val v;
 		struct {
 			struct sym *caller;
-			struct sym *ref;
+			struct sym *f_ref;
 			struct sym *end;
 			struct sym *arg;
 			struct sym *local_stack;
 			int l_stack_len;
 			int l_stack_size;
+		};
+		struct {
+			struct sym *ref;
+			struct array_idx_info idx;
 		};
 	};
 };
