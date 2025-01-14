@@ -49,6 +49,7 @@ enum {
 	SVt_IV,
 	SVt_NV,
 	SVt_PV,
+	SVt_PVAV, // array
 	SVt_UV
 };
 

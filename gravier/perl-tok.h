@@ -54,6 +54,12 @@ TOK(LITERAL_STR)
 TOK(LITERAL_NUM)
 TOK(NAME)
 TOK(NAMESPACE)
+
+/* no perl token per se, but use by perl_exec */
+TOK(ARRAY_PUSH)
+TOK(ARRAY_RESSET)
+
+/* other */
 TOK(ENDFILE)
 
 #undef TOK
