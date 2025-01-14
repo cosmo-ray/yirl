@@ -657,15 +657,48 @@ static struct sym *find_set_stack_ref(struct file *this_file, struct tok *t)
 	return ret;
 }
 
+static int parse_array_idx_nfo(struct file *this_file, struct tok t,
+			       struct array_idx_info *idx)
+{
+	if (t.tok == TOK_OPEN_BRACKET) {
+		struct tok bracket_tok = next();
+
+		if (bracket_tok.tok == TOK_LITERAL_NUM || bracket_tok.tok == TOK_LITERAL_STR) {
+			idx->type = IDX_IS_TOKEN;
+			idx->tok = bracket_tok;
+		} else if (bracket_tok.tok == TOK_DOLAR) {
+
+			idx->type = IDX_IS_REF;
+			NEXT_N_CHECK_2(TOK_NAME, bracket_tok);
+			idx->ref = find_set_stack_ref(this_file, &bracket_tok);
+			bracket_tok = next();
+			if (bracket_tok.tok == TOK_OPEN_BRACKET) {
+				idx->type = IDX_IS_NEXT;
+				return idx->type;
+			}
+		}
+		if (bracket_tok.tok != TOK_CLOSE_BRACKET) {
+			ERROR("expected ']'");
+		}
+		bracket_tok = next(); // skip close
+	} else {
+		idx->type = IDX_IS_NONE;
+	}
+	return idx->type;
+exit:
+	return -1;
+}
+
 #define STORE_OPERAND(in_t, in)						\
 	if ((in_t).tok == TOK_LITERAL_STR || (in_t).tok == TOK_LITERAL_NUM) { \
 		(in).t = in_t;						\
-	} else if ((in_t).tok == TOK_DOLAR) {				\
-		t = next(reader);					\
+	} else if ((in_t).tok == TOK_DOLAR || (in_t).tok == TOK_DOLAR) { \
+		struct array_idx_info array_idx;			\
+		t = next();						\
 		if (t.tok != TOK_NAME) {				\
 			ERROR("variable name expected, not %s\n", tok_str[t.tok]);	\
 		}							\
-		(in).t.tok = TOK_DOLAR;					\
+		(in).t.tok = (in_t).tok;				\
 		(in).ref = find_set_stack_ref(f, &t);			\
 	}
 
@@ -800,8 +833,9 @@ static int operation(struct tok *t_ptr, struct file *f, char **reader)
 		}
 		t = next(reader);
 		if (t.tok != TOK_NAME)
-			ERROR("expected name\n");
+			ERROR("expected name in icrement/decrement\n");
 
+		struct array_idx_info array_idx;
 		struct sym *stack_sym = find_set_stack_ref(f, &t);
 		if (!stack_sym) {
 			ERROR("unknow variable\n");
@@ -832,22 +866,44 @@ static int operation(struct tok *t_ptr, struct file *f, char **reader)
 		f->sym_string[f->sym_len++].t.tok = TOK_SUB;
 		return 0;
 	}
-	if (t_ptr->tok != TOK_DOLAR) {
+	if (t_ptr->tok != TOK_DOLAR && t_ptr->tok != TOK_AT) {
 		ERROR("unimplemented operation: %s\n", tok_str[t_ptr->tok]);
 	}
 	t = next(reader);
 	if (t.tok != TOK_NAME)
-		ERROR("expected name\n");
+		ERROR("expected name\n in operation");
 
+	struct array_idx_info array_idx;
 	struct sym *stack_sym = find_set_stack_ref(f, &t);
 	if (!stack_sym) {
 		ERROR("unknow variable\n");
 	}
 	t = next(reader);
 	if (t.tok != TOK_EQUAL && t.tok != TOK_PLUS_EQUAL && t.tok != TOK_MINUS_EQUAL)
-		ERROR("unexpected operation\n");
+		ERROR("unexpected operation %s\n", tok_str[t.tok]);
 	struct sym equal_sym = {.ref = stack_sym, .t = t};
-	parse_equal(f, reader, equal_sym);
+	if (t_ptr->tok == TOK_AT) {
+		NEXT_N_CHECK(TOK_OPEN_PARENTESIS);
+		CHECK_SYM_SPACE(f, 1);
+		f->sym_string[f->sym_len++] = (struct sym){.ref=stack_sym, .t=TOK_ARRAY_RESSET};
+		t = next();
+		while (t.tok != TOK_CLOSE_PARENTESIS) {
+			printf("in array parsing\n");
+
+			f->sym_string[f->sym_len++] = (struct sym){.ref=stack_sym, .t=TOK_ARRAY_PUSH};
+			STORE_OPERAND(t, f->sym_string[f->sym_len]);
+			f->sym_len++;
+
+			t = next();
+			if (t.tok != TOK_COMMA && t.tok != TOK_CLOSE_PARENTESIS)
+				ERROR("unexpected token in array init");
+			if (t.tok == TOK_COMMA)
+				t = next();
+		}
+		printf("equal on array\n");
+	} else {
+		parse_equal(f, reader, equal_sym);
+	}
 	return 0;
 
 exit:
