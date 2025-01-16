@@ -656,6 +656,8 @@ static struct sym *find_set_stack_ref(struct file *this_file, struct tok *t)
 	if (!ret) {
 		CHECK_STACK_SPACE(this_file, 1);
 		this_file->stack[this_file->stack_len].t = *t;
+		this_file->stack[this_file->stack_len].v.array_size = 0;
+		this_file->stack[this_file->stack_len].v.array = NULL;
 		return &this_file->stack[this_file->stack_len++];
 	}
 	return ret;
@@ -670,6 +672,7 @@ static int parse_array_idx_nfo(struct file *this_file, struct tok t,
 		if (bracket_tok.tok == TOK_LITERAL_NUM || bracket_tok.tok == TOK_LITERAL_STR) {
 			idx->type = IDX_IS_TOKEN;
 			idx->tok = bracket_tok;
+			bracket_tok = next();
 		} else if (bracket_tok.tok == TOK_DOLAR) {
 
 			idx->type = IDX_IS_REF;
@@ -684,7 +687,6 @@ static int parse_array_idx_nfo(struct file *this_file, struct tok t,
 		if (bracket_tok.tok != TOK_CLOSE_BRACKET) {
 			ERROR("expected ']'");
 		}
-		bracket_tok = next(); // skip close
 	} else {
 		idx->type = IDX_IS_NONE;
 	}
@@ -698,11 +700,12 @@ exit:
 		(in).t = in_t;						\
 	} else if ((in_t).tok == TOK_DOLAR || (in_t).tok == TOK_DOLAR) { \
 		struct array_idx_info array_idx;			\
+		int tmp_tok = (in_t).tok;				\
 		t = next();						\
 		if (t.tok != TOK_NAME) {				\
 			ERROR("variable name expected, not %s\n", tok_str[t.tok]);	\
 		}							\
-		(in).t.tok = (in_t).tok;				\
+		(in).t.tok = tmp_tok;					\
 		(in).ref = find_set_stack_ref(f, &t);			\
 	}
 
@@ -893,8 +896,6 @@ static int operation(struct tok *t_ptr, struct file *f, char **reader)
 		f->sym_string[f->sym_len++] = (struct sym){.ref=stack_sym, .t=TOK_ARRAY_RESSET};
 		t = next();
 		while (t.tok != TOK_CLOSE_PARENTESIS) {
-			printf("in array parsing\n");
-
 			f->sym_string[f->sym_len++] = (struct sym){.ref=stack_sym, .t=TOK_ARRAY_PUSH};
 			STORE_OPERAND(t, f->sym_string[f->sym_len]);
 			f->sym_len++;
@@ -905,7 +906,6 @@ static int operation(struct tok *t_ptr, struct file *f, char **reader)
 			if (t.tok == TOK_COMMA)
 				t = next();
 		}
-		printf("equal on array\n");
 	} else {
 		parse_equal(f, reader, equal_sym);
 	}
@@ -1114,6 +1114,7 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 
 	} else if (t.tok == TOK_PRINT) {
 		int need_close = 0;
+		/* volatile because gcc seems to set garbage value un print_sym */
 		struct sym *print_sym = &f->sym_string[f->sym_len];
 
 		f->sym_string[f->sym_len++].t = t;
@@ -1137,6 +1138,7 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 			t = next();
 			if (parse_array_idx_nfo(f, t, &array_idx) >= IDX_IS_NONE) {
 				f->sym_string[f->sym_len].idx = array_idx;
+				t = next();
 			} else {
 				back[nb_back++] = t;
 			}
@@ -1146,7 +1148,6 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 		}
 
 		if (t.tok == TOK_COMMA) {
-			CHECK_SYM_SPACE(f, 3);
 			t = next();
 			goto print_comma;
 		}
@@ -1279,21 +1280,65 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 					printf("%"PRIiPTR, sym_string->t.as_int);
 				} else if (sym_string->t.tok == TOK_DOLAR) {
 					struct sym *ref = sym_string->ref;
+					struct stack_val *sv;
 
 					if (!ref) {
 						gravier_debug("unknow variable\n");
 						continue;
 					}
+					sv = &ref->v;
 					gravier_debug("A VARIABLE ! %p ", ref);
-					if (ref->v.type == SVt_PV)
-						printf("%s", ref->v.str);
-					else if (ref->v.type == SVt_IV)
-						printf("%"PRIiPTR, ref->v.i);
-					else if (ref->v.type == SVt_NV)
-						printf("%.15f", ref->v.f);
+				pr_array_at:
+					if (sv->type == SVt_PV)
+						printf("%s", sv->str);
+					else if (sv->type == SVt_IV)
+						printf("%"PRIiPTR, sv->i);
+					else if (sv->type == SVt_NV)
+						printf("%.15f", sv->f);
+					else if (sv->type == SVt_PVAV) {
+						struct array_idx_info *idx = &sym_string->idx;
+
+						if (idx->type == IDX_IS_TOKEN) {
+							int i_idx = idx->tok.as_int;
+							sv = &sv->array[i_idx];
+							goto pr_array_at;
+						}
+					}
 				}
 			}
 			continue;
+		} else if (t.tok == TOK_ARRAY_RESSET) {
+			struct sym *array = sym_string->ref;
+
+			if (array->v.array_size) {
+				free(array->v.array);
+				array->v.array = NULL;
+			}
+			array->v.type = SVt_PVAV;
+			array->v.array_size = 0;
+		} else if (t.tok == TOK_ARRAY_PUSH) {
+			struct sym *array = sym_string->ref;
+			int p = array->v.array_size;
+
+			array->v.type = SVt_PVAV;
+			array->v.array_size = array->v.array_size + 1;
+			array->v.array = realloc(array->v.array,
+					       array->v.array_size * sizeof *array->v.array);
+			struct stack_val *elem = &array->v.array[p];
+			elem->type = SVt_NULL;
+			++sym_string;
+			if (sym_string->t.tok == TOK_LITERAL_STR) {
+				elem->str = sym_string->t.as_str;
+				elem->type = SVt_PV;
+			} else if (sym_string->t.tok == TOK_LITERAL_NUM) {
+				elem->i = sym_string->t.as_int;
+				elem->type = SVt_IV;
+			} else if (sym_string->t.tok == TOK_DOLAR) {
+				*elem = sym_string->ref->v;
+			} else {
+				gravier_debug("UNIMPLEMENTED %s\n",
+					      tok_str[sym_string->t.tok]);
+			}
 		} else if (t.tok == TOK_SUB) {
 			struct sym *to_call = sym_string->f_ref;
 			to_call->end = &sym_string[1];
