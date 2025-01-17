@@ -1304,12 +1304,19 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 						printf("%.15f", sv->f);
 					else if (sv->type == SVt_PVAV) {
 						struct array_idx_info *idx = &sym_string->idx;
+						int i_idx = 0;
 
 						if (idx->type == IDX_IS_TOKEN) {
-							int i_idx = idx->tok.as_int;
-							sv = &sv->array[i_idx];
-							goto pr_array_at;
+							i_idx = idx->tok.as_int;
+						} else if (idx->type == IDX_IS_REF) {
+							struct sym *idx_ref = idx->ref;
+
+							if (idx_ref) {
+								i_idx = idx_ref->v.i;
+							}
 						}
+						sv = &sv->array[i_idx];
+						goto pr_array_at;
 					}
 				}
 			}
@@ -1423,18 +1430,26 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 				struct array_idx_info *idx = op_idx;
 
 				op_idx = NULL;
+				int i_idx = 0;
 				if (idx->type == IDX_IS_TOKEN) {
-					int i_idx = idx->tok.as_int;
-					if (i_idx >= sv->array_size) {
-						sv->type = SVt_PVAV;
-						sv->array_size = i_idx + 1;
-						sv->array = realloc(sv->array,
-								    sv->array_size * sizeof *sv->array);
-					}
-					sv = &sv->array[i_idx];
-					goto eq_array_at;
-				}
+					i_idx = idx->tok.as_int;
+				} else if (idx->type == IDX_IS_REF) {
+					struct sym *idx_ref = idx->ref;
 
+					if (idx_ref) {
+						i_idx = idx_ref->v.i;
+					}
+				}
+				if (i_idx >= sv->array_size) {
+					sv->type = SVt_PVAV;
+					sv->array_size = i_idx + 1;
+					sv->array = realloc(
+						sv->array,
+						sv->array_size * sizeof *sv->array
+						);
+				}
+				sv = &sv->array[i_idx];
+				goto eq_array_at;
 			} else if (sym_string->t.tok == TOK_LITERAL_STR) {
 				sv->str = sym_string->t.as_str;
 				sv->type = SVt_PV;
