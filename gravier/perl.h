@@ -575,12 +575,25 @@ again:
 
 #define CHECK_L_STACK_SPACE(this_file, X) do {				\
 		if (this_file->l_stack_len + X > this_file->l_stack_size) { \
+			if (!this_file->l_stack_size)			\
+				this_file->l_stack_size = 4;		\
 			this_file->l_stack_size *= 2;			\
 			this_file->local_stack =			\
 				realloc(this_file->local_stack,		\
 					sizeof *this_file->local_stack * this_file->l_stack_size); \
 		}							\
 	} while (0)
+
+#define PUSH_L_STACK_CLEAR(f, cnt, end)					\
+	for (int i = cnt->l_stack_len - 1; i >= end; --i) {		\
+		if (cnt->local_stack[i].v.type == SVt_PVAV) {		\
+			f->sym_string[f->sym_len++] = (struct sym){	\
+				.ref=&cnt->local_stack[i],		\
+				.t=TOK_ARRAY_RESSET			\
+			};						\
+		}							\
+	}
+
 
 
 #define SKIP_REQ(tok_, t) do {						\
@@ -638,6 +651,18 @@ static inline const char *str_fron_sym(struct sym *sym)
 
 static struct sym *find_stack_ref(struct file *this_file, struct tok *t)
 {
+	struct sym *cur_func = this_file->cur_func;
+
+	while (cur_func) {
+		struct sym *cur_l_stack = cur_func->local_stack;
+
+		for (int i = cur_func->l_stack_len - 1; i >= 0; --i) {
+			if (!strcmp(cur_func->local_stack[i].t.as_str, t->as_str))
+				return &cur_func->local_stack[i];
+		}
+		cur_func = cur_func->caller;
+	}
+
 	for (int i = this_file->l_stack_len - 1; i >= 0; --i) {
 		if (!strcmp(this_file->local_stack[i].t.as_str, t->as_str))
 			return &this_file->local_stack[i];
@@ -773,10 +798,15 @@ static int parse_equal(struct file *f, char **reader, struct sym equal_sym)
 {
 	struct tok t = next();
 
+	struct array_idx_info array_idx;
 	struct sym operand;
 	STORE_OPERAND(t, operand);
 again:
 	t = next();
+	if (parse_array_idx_nfo(f, t, &array_idx) > IDX_IS_NONE) {
+		operand.idx = array_idx;
+		t = next();
+	}
 	if (t.tok == TOK_PLUS || t.tok == TOK_MINUS || t.tok == TOK_DIV || t.tok == TOK_MULT) {
 		parse_equal_(f, reader, &operand, 1, t);
 		goto again;
@@ -861,19 +891,31 @@ static int operation(struct tok *t_ptr, struct file *f, char **reader)
 		if (iterator == kh_end(f->functions))
 			ERROR("unknow function %s\n", t_ptr->as_str);
 		struct sym *function = kh_val(f->functions, iterator);
-		int need_close = 0;
-		f->sym_string[f->sym_len].f_ref = function;
+		int end_call_tok = TOK_SEMICOL;
+		struct sym *underscore = &function->local_stack[0];
 		t = next();
 		if (t.tok == TOK_OPEN_PARENTESIS) {
-			need_close = 1;
+			end_call_tok = TOK_CLOSE_PARENTESIS;
 		} else {
 			back[nb_back++] = t;
 		}
-		// implement arguent push here
-		if (need_close) {
+
+		int i = 0;
+		do  {
+			struct sym equal_sym = {
+				.ref = underscore,
+				.t = {.tok=TOK_EQUAL},
+				.idx={
+					.type=IDX_IS_TOKEN,
+					.tok={.tok=TOK_LITERAL_NUM, .as_int=i++}}};
+			parse_equal(f, reader, equal_sym);
 			t = next();
-			SKIP_REQ(TOK_CLOSE_PARENTESIS, t);
+		} while (t.tok == TOK_COMMA);
+		// implement arguent push here
+		if (t.tok != end_call_tok) {
+			ERROR("unclose function, got %s\n", tok_str[t.tok]);
 		}
+		f->sym_string[f->sym_len].f_ref = function;
 		f->sym_string[f->sym_len++].t.tok = TOK_SUB;
 		return 0;
 	}
@@ -957,6 +999,7 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 	if (t.tok == TOK_MY || t.tok == TOK_DOLAR) {
 		var_declaration(t, f, reader);
 	} else if (t.tok == TOK_RETURN) {
+		PUSH_L_STACK_CLEAR(f, f->cur_func, 0);
 		f->sym_string[f->sym_len].t = t;
 		f->sym_string[f->sym_len++].caller = f->cur_func;
 	} else if (t.tok == TOK_SUB) {
@@ -977,7 +1020,15 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 			ERROR("me hash table fail me, so sad :(\n");
 		kh_val(f->functions, iterator) = function_begin;
 
-		//int begin_local_stack = f->l_stack_len;
+		function_begin->l_stack_len = 0;
+		function_begin->l_stack_size = 0;
+		function_begin->local_stack = NULL;
+		CHECK_L_STACK_SPACE(function_begin, 1);
+		struct sym *func_l_stack = function_begin->local_stack;
+		func_l_stack[function_begin->l_stack_len].t = (struct tok){.tok=TOK_NAME, .as_str="_"};
+		func_l_stack[function_begin->l_stack_len].v.type = SVt_PVAV;
+		func_l_stack[function_begin->l_stack_len].v.array_size = 0;
+		func_l_stack[function_begin->l_stack_len++].v.array = NULL;
 
 		NEXT_N_CHECK(TOK_OPEN_BRACE);
 		while ((t = next()).tok != TOK_CLOSE_BRACE) {
@@ -988,9 +1039,10 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 				goto exit;
 		}
 
+		/* need to reset array in local stack here */
+		PUSH_L_STACK_CLEAR(f, function_begin, 0);
 		f->sym_string[f->sym_len].caller = function_begin;
 		f->sym_string[f->sym_len++].t.tok = TOK_RETURN;
-		//f->l_stack_len = begin_local_stack;
 		f->cur_func = f->cur_func->caller;
 		goto_end->end = &f->sym_string[f->sym_len];
 	} else if (t.tok == TOK_IF) {
