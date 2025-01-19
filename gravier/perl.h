@@ -896,21 +896,26 @@ static int operation(struct tok *t_ptr, struct file *f, char **reader)
 		t = next();
 		if (t.tok == TOK_OPEN_PARENTESIS) {
 			end_call_tok = TOK_CLOSE_PARENTESIS;
+			t = next();
+			if (t.tok != TOK_CLOSE_PARENTESIS)
+				back[nb_back++] = t;
 		} else {
 			back[nb_back++] = t;
 		}
 
 		int i = 0;
-		do  {
-			struct sym equal_sym = {
-				.ref = underscore,
-				.t = {.tok=TOK_EQUAL},
-				.idx={
-					.type=IDX_IS_TOKEN,
-					.tok={.tok=TOK_LITERAL_NUM, .as_int=i++}}};
-			parse_equal(f, reader, equal_sym);
-			t = next();
-		} while (t.tok == TOK_COMMA);
+		if (t.tok != end_call_tok) {
+			do {
+				struct sym equal_sym = {
+					.ref = underscore,
+					.t = {.tok=TOK_EQUAL},
+					.idx={
+						.type=IDX_IS_TOKEN,
+						.tok={.tok=TOK_LITERAL_NUM, .as_int=i++}}};
+				parse_equal(f, reader, equal_sym);
+				t = next();
+			} while (t.tok == TOK_COMMA);
+		}
 		// implement arguent push here
 		if (t.tok != end_call_tok) {
 			ERROR("unclose function, got %s\n", tok_str[t.tok]);

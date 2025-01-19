@@ -16,18 +16,20 @@ print("\n");
 $oui = "skip";
 oui;
 
-#sub print_01_nl
-#{
-#    sub print_01 {
-#	print $_[1];
-#    }
-#    sub print_01 {
-#	print $_[0];
-#    }
-#    print_01 $_[0];
-#    print_01("\n");
-#}
+sub print_01 {
+    print $_[0];
+}
 
-#print_01 "oh";
+sub print_01_nl
+{
+    #sub print_01 {
+    #print $_[1];
+    #}
+    print_01 $_[0];
+    print_01("\n");
+}
 
-#print_01_nl "ah";
+print_01 "oh";
+
+print_01_nl "ah";
+
