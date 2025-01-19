@@ -22,14 +22,21 @@ sub print_01 {
 
 sub print_01_nl
 {
-    #sub print_01 {
-    #print $_[1];
-    #}
     print_01 $_[0];
     print_01("\n");
 }
 
-print_01 "oh";
+sub print_02_nl
+{
+    sub print_02 {
+	print $_[1];
+    }
+    print_02 $_[0]; # nothing will be print here
+    print_02("\n", "humm\n");
+}
 
+print_01 "oh";
 print_01_nl "ah";
 
+print_02 "oh";
+print_02_nl "ah";
