@@ -17,3 +17,11 @@ print $ar[$none], "\n";
 
 $one=1;
 print $ar[$one], "\n";
+
+$out = $ar[2];
+
+print $out, "\n";
+
+$add = $ar[1] + $ar[0];
+
+print $add, "\n";

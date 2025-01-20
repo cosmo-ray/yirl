@@ -761,6 +761,7 @@ static int parse_equal_(struct file *f, char **reader, struct sym *operand, int 
 	f->sym_string[f->sym_len++] = (struct sym){.ref=&f->stack[p], .t=TOK_EQUAL};
 	f->sym_string[f->sym_len++] = *operand;
 	int tok_op = t.tok;
+	struct array_idx_info array_idx;
 	struct sym second;
 	t = next();
 	int in_parentesis = 0;
@@ -769,8 +770,14 @@ static int parse_equal_(struct file *f, char **reader, struct sym *operand, int 
 		in_parentesis = 1;
 	}
 	STORE_OPERAND(t, second);
-	// check for mul / div here and other here
 	t = next();
+	if (parse_array_idx_nfo(f, t, &array_idx) > IDX_IS_NONE) {
+		second.idx = array_idx;
+		t = next();
+	} else {
+		second.idx.type = IDX_IS_NONE;
+	}
+
 
 recheck:
 	if (t.tok == TOK_DIV || t.tok == TOK_MULT || in_parentesis) {
@@ -801,14 +808,17 @@ static int parse_equal(struct file *f, char **reader, struct sym equal_sym)
 	struct array_idx_info array_idx;
 	struct sym operand;
 	STORE_OPERAND(t, operand);
-again:
 	t = next();
 	if (parse_array_idx_nfo(f, t, &array_idx) > IDX_IS_NONE) {
 		operand.idx = array_idx;
 		t = next();
+	} else {
+		operand.idx.type = IDX_IS_NONE;
 	}
+again:
 	if (t.tok == TOK_PLUS || t.tok == TOK_MINUS || t.tok == TOK_DIV || t.tok == TOK_MULT) {
 		parse_equal_(f, reader, &operand, 1, t);
+		t = next();
 		goto again;
 	} else {
 		back[nb_back++] = t;
@@ -1514,7 +1524,22 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 				sv->i = sym_string->t.as_int;
 				sv->type = SVt_IV;
 			} else if (sym_string->t.tok == TOK_DOLAR) {
-				*sv = sym_string->ref->v;
+				struct array_idx_info *idx = &sym_string->idx;
+				if (idx->type == IDX_IS_TOKEN) {
+					int i_idx = idx->tok.as_int;
+
+					*sv = sym_string->ref->v.array[i_idx];
+				} else if (idx->type == IDX_IS_REF) {
+					struct sym *idx_ref = idx->ref;
+					int i_idx = 0;
+
+					if (idx_ref) {
+						i_idx = idx_ref->v.i;
+					}
+					*sv = sym_string->ref->v.array[i_idx];
+				} else {
+					*sv = sym_string->ref->v;
+				}
 			} else {
 				gravier_debug("UNIMPLEMENTED %s\n",
 					      tok_str[sym_string->t.tok]);
@@ -1539,6 +1564,23 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 				if (sym_string->ref->v.type == SVt_IV) {
 					MATH_OP(t.tok, target_ref->v,
 						sym_string->ref->v.i);
+				} else if (sym_string->ref->v.type == SVt_PVAV) {
+					struct array_idx_info *idx = &sym_string->idx;
+					if (idx->type == IDX_IS_TOKEN) {
+						int i_idx = idx->tok.as_int;
+
+						MATH_OP(t.tok, target_ref->v,
+							sym_string->ref->v.array[i_idx].i);
+					} else if (idx->type == IDX_IS_REF) {
+						struct sym *idx_ref = idx->ref;
+						int i_idx = 0;
+
+						if (idx_ref) {
+							i_idx = idx_ref->v.i;
+						}
+						MATH_OP(t.tok, target_ref->v,
+							sym_string->ref->v.array[i_idx].i);
+					}
 				}
 			} else {
 				gravier_debug("UNIMPLEMENTED %s\n",
