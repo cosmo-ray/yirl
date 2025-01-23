@@ -70,8 +70,9 @@ struct stack_val {
 		char *str;
 		struct stack_val *array;
 	};
-	int16_t type;
+	int8_t type;
 	int8_t flag;
+	uint16_t refcnf;
 	int32_t array_size;
 };
 
@@ -198,6 +199,8 @@ typedef intptr_t IV;
 KHASH_MAP_INIT_STR(file_list, struct file *);
 KHASH_MAP_INIT_STR(func_syms, struct sym *);
 
+static int parse_equal(struct file *f, char **reader, struct sym equal_sym);
+
 enum token {
 	TOK_STR_NEED_FREE  = 1 << 0
 };
@@ -232,7 +235,10 @@ struct sym {
 		struct stack_val v;
 		struct {
 			struct sym *caller;
-			struct sym *f_ref;
+			union {
+				struct sym *f_ref;
+				_Bool have_return;
+			};
 			struct sym *end;
 			struct sym *arg;
 			struct sym *local_stack;
@@ -264,7 +270,10 @@ struct file {
 typedef struct {
 	khash_t(file_list) *files;
 	const char *first_file;
+	struct sym return_val;
 } PerlInterpreter;
+
+static PerlInterpreter *cur_pi;
 
 #define LOOK_FOR_TRIPLE(first, sec, third, first_tok, second_tok, third_tok) \
 	else if (*reader == first) {					\
@@ -726,7 +735,7 @@ exit:
 #define STORE_OPERAND(in_t, in)						\
 	if ((in_t).tok == TOK_LITERAL_STR || (in_t).tok == TOK_LITERAL_NUM) { \
 		(in).t = in_t;						\
-	} else if ((in_t).tok == TOK_DOLAR || (in_t).tok == TOK_DOLAR) { \
+	} else if ((in_t).tok == TOK_DOLAR) {				\
 		struct array_idx_info array_idx;			\
 		int tmp_tok = (in_t).tok;				\
 		t = next();						\
@@ -752,6 +761,55 @@ static inline int unequal_to_equal(int tok)
 	return 0;
 }
 
+static int parse_func_call(struct tok t, struct file *f, struct sym *syms, int *nb_syms)
+{
+	khiter_t iterator = kh_get(func_syms, f->functions, t.as_str);
+
+	if (iterator == kh_end(f->functions))
+		ERROR("unknow function %s\n", t.as_str);
+	struct sym *function = kh_val(f->functions, iterator);
+	int end_call_tok = TOK_SEMICOL;
+	struct sym *underscore = &function->local_stack[0];
+	t = next();
+	if (t.tok == TOK_OPEN_PARENTESIS) {
+		end_call_tok = TOK_CLOSE_PARENTESIS;
+		t = next();
+		if (t.tok != TOK_CLOSE_PARENTESIS)
+			back[nb_back++] = t;
+	} else {
+		back[nb_back++] = t;
+	}
+
+	int i = 0;
+	if (t.tok != end_call_tok) {
+		do {
+			struct sym equal_sym = {
+				.ref = underscore,
+				.t = {.tok=TOK_EQUAL},
+				.idx={
+					.type=IDX_IS_TOKEN,
+					.tok={.tok=TOK_LITERAL_NUM, .as_int=i++}}};
+			int base = f->sym_len;
+			parse_equal(f, reader_ptr, equal_sym);
+			for (int i = base; i < f->sym_len; i++, *nb_syms += 1) {
+				syms[*nb_syms] = f->sym_string[i];
+			}
+			f->sym_len = base;
+			t = next();
+		} while (t.tok == TOK_COMMA);
+	}
+	// implement arguent push here
+	if (t.tok != end_call_tok) {
+		ERROR("unclose function, got %s\n", tok_str[t.tok]);
+	}
+	syms[*nb_syms].f_ref = function;
+	syms[*nb_syms].t.tok = TOK_SUB;
+	*nb_syms += 1;
+	return 0;
+exit:
+	return -1;
+}
+
 static int parse_equal_(struct file *f, char **reader, struct sym *operand, int stack_tmp,
 			struct tok t)
 {
@@ -765,6 +823,7 @@ static int parse_equal_(struct file *f, char **reader, struct sym *operand, int 
 	struct sym second;
 	t = next();
 	int in_parentesis = 0;
+
 	if (t.tok == TOK_OPEN_PARENTESIS) {
 		t = next();
 		in_parentesis = 1;
@@ -807,7 +866,24 @@ static int parse_equal(struct file *f, char **reader, struct sym equal_sym)
 
 	struct array_idx_info array_idx;
 	struct sym operand;
-	STORE_OPERAND(t, operand);
+	static struct sym syms[128];
+	int stack_tmp = 1;
+	int nb_syms = 0;
+
+	if (t.tok == TOK_NAME) {
+		parse_func_call(t, f, syms, &nb_syms);
+		for (int i = 0; i < nb_syms; ++i, f->sym_len++) {
+			f->sym_string[f->sym_len] = syms[i];
+		}
+		CHECK_STACK_SPACE(f, stack_tmp + 1);
+		int p = f->stack_len + stack_tmp;
+		operand = (struct sym){.ref=&f->stack[p], .t=TOK_DOLAR};
+		f->sym_string[f->sym_len++] = (struct sym){.ref=&f->stack[p], .t=TOK_EQUAL};
+		f->sym_string[f->sym_len++] = (struct sym){.ref=&cur_pi->return_val, .t=TOK_DOLAR};
+		++stack_tmp;
+	} else {
+		STORE_OPERAND(t, operand);
+	}
 	t = next();
 	if (parse_array_idx_nfo(f, t, &array_idx) > IDX_IS_NONE) {
 		operand.idx = array_idx;
@@ -817,7 +893,7 @@ static int parse_equal(struct file *f, char **reader, struct sym equal_sym)
 	}
 again:
 	if (t.tok == TOK_PLUS || t.tok == TOK_MINUS || t.tok == TOK_DIV || t.tok == TOK_MULT) {
-		parse_equal_(f, reader, &operand, 1, t);
+		parse_equal_(f, reader, &operand, stack_tmp, t);
 		t = next();
 		goto again;
 	} else {
@@ -896,43 +972,14 @@ static int operation(struct tok *t_ptr, struct file *f, char **reader)
 		return 0;
 	}
 	if (t_ptr->tok == TOK_NAME) {
-		khiter_t iterator = kh_get(func_syms, f->functions, t_ptr->as_str);
-
-		if (iterator == kh_end(f->functions))
-			ERROR("unknow function %s\n", t_ptr->as_str);
-		struct sym *function = kh_val(f->functions, iterator);
-		int end_call_tok = TOK_SEMICOL;
-		struct sym *underscore = &function->local_stack[0];
-		t = next();
-		if (t.tok == TOK_OPEN_PARENTESIS) {
-			end_call_tok = TOK_CLOSE_PARENTESIS;
-			t = next();
-			if (t.tok != TOK_CLOSE_PARENTESIS)
-				back[nb_back++] = t;
-		} else {
-			back[nb_back++] = t;
+		struct sym syms[64];
+		int nb_syms = 0;
+		int ret = parse_func_call(*t_ptr, f, syms, &nb_syms);
+		for (int i = 0; i < nb_syms; ++i, f->sym_len++) {
+			f->sym_string[f->sym_len] = syms[i];
 		}
 
-		int i = 0;
-		if (t.tok != end_call_tok) {
-			do {
-				struct sym equal_sym = {
-					.ref = underscore,
-					.t = {.tok=TOK_EQUAL},
-					.idx={
-						.type=IDX_IS_TOKEN,
-						.tok={.tok=TOK_LITERAL_NUM, .as_int=i++}}};
-				parse_equal(f, reader, equal_sym);
-				t = next();
-			} while (t.tok == TOK_COMMA);
-		}
-		// implement arguent push here
-		if (t.tok != end_call_tok) {
-			ERROR("unclose function, got %s\n", tok_str[t.tok]);
-		}
-		f->sym_string[f->sym_len].f_ref = function;
-		f->sym_string[f->sym_len++].t.tok = TOK_SUB;
-		return 0;
+		return ret;
 	}
 	if (t_ptr->tok != TOK_DOLAR && t_ptr->tok != TOK_AT) {
 		ERROR("unimplemented operation: %s\n", tok_str[t_ptr->tok]);
@@ -1016,7 +1063,16 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 	} else if (t.tok == TOK_RETURN) {
 		PUSH_L_STACK_CLEAR(f, f->cur_func, 0);
 		f->sym_string[f->sym_len].t = t;
-		f->sym_string[f->sym_len++].caller = f->cur_func;
+		f->sym_string[f->sym_len].caller = f->cur_func;
+		t = next();
+		f->sym_string[f->sym_len++].have_return = (t.tok !=TOK_SEMICOL);
+		if (t.tok == TOK_SEMICOL)
+			return 0;
+		STORE_OPERAND(t, f->sym_string[f->sym_len]);
+		if (parse_array_idx_nfo(f, t, &f->sym_string[f->sym_len].idx) > IDX_IS_NONE) {
+			t = next();
+		}
+		f->sym_len++;
 	} else if (t.tok == TOK_SUB) {
 		int ret = 0;
 		struct sym *goto_end = &f->sym_string[f->sym_len];
@@ -1057,6 +1113,7 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 		/* need to reset array in local stack here */
 		PUSH_L_STACK_CLEAR(f, function_begin, 0);
 		f->sym_string[f->sym_len].caller = function_begin;
+		f->sym_string[f->sym_len].have_return = 0;
 		f->sym_string[f->sym_len++].t.tok = TOK_RETURN;
 		f->cur_func = f->cur_func->caller;
 		goto_end->end = &f->sym_string[f->sym_len];
@@ -1253,6 +1310,8 @@ static int perl_parse(PerlInterpreter * my_perl, void (*xs_init)(void *stuff), i
 	char *reader;
 	int ret;
 
+	cur_pi = my_perl;
+
 	gravier_debug("perl_parse %s\n", file_name);
 	if (stat(file_name, &st) < 0 || (fd = open(file_name, O_RDONLY) ) < 0) {
 		fprintf(stderr, "cannot open/stat '%s'", file_name);
@@ -1336,6 +1395,68 @@ exit:
 			(left).i *= right; break;		\
 		}						\
 	}
+
+
+static struct sym *exec_equal(struct sym *target_ref, struct sym *sym_string,
+			      struct array_idx_info *op_idx)
+{
+	struct stack_val *sv = &target_ref->v;
+
+eq_array_at:
+	if ((sv->type == SVt_PVAV || sv->type == SVt_NULL) &&
+	    op_idx && op_idx->type != IDX_IS_NONE) {
+		struct array_idx_info *idx = op_idx;
+
+		op_idx = NULL;
+		int i_idx = 0;
+		if (idx->type == IDX_IS_TOKEN) {
+			i_idx = idx->tok.as_int;
+		} else if (idx->type == IDX_IS_REF) {
+			struct sym *idx_ref = idx->ref;
+
+			if (idx_ref) {
+				i_idx = idx_ref->v.i;
+			}
+		}
+		if (i_idx >= sv->array_size) {
+			sv->type = SVt_PVAV;
+			sv->array_size = i_idx + 1;
+			sv->array = realloc(
+				sv->array,
+				sv->array_size * sizeof *sv->array
+				);
+		}
+		sv = &sv->array[i_idx];
+		goto eq_array_at;
+	} else if (sym_string->t.tok == TOK_LITERAL_STR) {
+		sv->str = sym_string->t.as_str;
+		sv->type = SVt_PV;
+	} else if (sym_string->t.tok == TOK_LITERAL_NUM) {
+		sv->i = sym_string->t.as_int;
+		sv->type = SVt_IV;
+	} else if (sym_string->t.tok == TOK_DOLAR) {
+		struct array_idx_info *idx = &sym_string->idx;
+		if (idx->type == IDX_IS_TOKEN) {
+			int i_idx = idx->tok.as_int;
+
+			*sv = sym_string->ref->v.array[i_idx];
+		} else if (idx->type == IDX_IS_REF) {
+			struct sym *idx_ref = idx->ref;
+			int i_idx = 0;
+
+			if (idx_ref) {
+				i_idx = idx_ref->v.i;
+			}
+			*sv = sym_string->ref->v.array[i_idx];
+		} else {
+			*sv = sym_string->ref->v;
+		}
+	} else {
+		gravier_debug("UNIMPLEMENTED %s\n",
+			      tok_str[sym_string->t.tok]);
+	}
+	return sym_string;
+}
 
 static void perl_run_file(PerlInterpreter *perl, struct file *f)
 {
@@ -1426,7 +1547,12 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 			sym_string = to_call + 1;
 			continue;
 		} else if (t.tok == TOK_RETURN) {
-			sym_string = sym_string->caller->end;
+			struct sym *caller = sym_string->caller->end;
+			if (sym_string->have_return) {
+				++sym_string;
+				exec_equal(&cur_pi->return_val, sym_string, NULL);
+			}
+			sym_string = caller;
 			continue;
 		} else if (t.tok == TOK_IF || t.tok == TOK_ELSIF) {
 			struct sym *if_end = sym_string->end;
@@ -1485,65 +1611,12 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 			continue;
 		} else if (t.tok == TOK_EQUAL) {
 			struct sym *target_ref = sym_string->ref;
-			struct stack_val *sv = &target_ref->v;
 			struct array_idx_info *op_idx = &sym_string->idx;
 
 			gravier_debug("SET STUFFF on: %p\n", target_ref);
 			++sym_string;
 
-		eq_array_at:
-			if ((sv->type == SVt_PVAV || sv->type == SVt_NULL) &&
-			    op_idx && op_idx->type != IDX_IS_NONE) {
-				struct array_idx_info *idx = op_idx;
-
-				op_idx = NULL;
-				int i_idx = 0;
-				if (idx->type == IDX_IS_TOKEN) {
-					i_idx = idx->tok.as_int;
-				} else if (idx->type == IDX_IS_REF) {
-					struct sym *idx_ref = idx->ref;
-
-					if (idx_ref) {
-						i_idx = idx_ref->v.i;
-					}
-				}
-				if (i_idx >= sv->array_size) {
-					sv->type = SVt_PVAV;
-					sv->array_size = i_idx + 1;
-					sv->array = realloc(
-						sv->array,
-						sv->array_size * sizeof *sv->array
-						);
-				}
-				sv = &sv->array[i_idx];
-				goto eq_array_at;
-			} else if (sym_string->t.tok == TOK_LITERAL_STR) {
-				sv->str = sym_string->t.as_str;
-				sv->type = SVt_PV;
-			} else if (sym_string->t.tok == TOK_LITERAL_NUM) {
-				sv->i = sym_string->t.as_int;
-				sv->type = SVt_IV;
-			} else if (sym_string->t.tok == TOK_DOLAR) {
-				struct array_idx_info *idx = &sym_string->idx;
-				if (idx->type == IDX_IS_TOKEN) {
-					int i_idx = idx->tok.as_int;
-
-					*sv = sym_string->ref->v.array[i_idx];
-				} else if (idx->type == IDX_IS_REF) {
-					struct sym *idx_ref = idx->ref;
-					int i_idx = 0;
-
-					if (idx_ref) {
-						i_idx = idx_ref->v.i;
-					}
-					*sv = sym_string->ref->v.array[i_idx];
-				} else {
-					*sv = sym_string->ref->v;
-				}
-			} else {
-				gravier_debug("UNIMPLEMENTED %s\n",
-					      tok_str[sym_string->t.tok]);
-			}
+			sym_string = exec_equal(target_ref, sym_string, op_idx);
 		} else if (t.tok == TOK_PLUS_PLUS || t.tok == TOK_MINUS_MINUS) {
 			struct sym *target_ref = sym_string->ref;
 			if (t.tok == TOK_PLUS_PLUS)
@@ -1598,6 +1671,7 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 static void perl_run(PerlInterpreter *perl)
 {
 	gravier_debug("perl run %s\n", perl->first_file);
+	cur_pi = perl;
 	khiter_t iterator = kh_get(file_list, perl->files, perl->first_file);
 	if (iterator == kh_end(perl->files))
 		return;
