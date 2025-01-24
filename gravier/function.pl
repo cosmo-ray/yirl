@@ -40,3 +40,6 @@ print_01_nl "ah";
 
 print_02 "oh";
 print_02_nl "ah";
+
+print_01 3 + 4;
+print_01 "\n";

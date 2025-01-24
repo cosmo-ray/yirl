@@ -1544,8 +1544,10 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 								i_idx = idx_ref->v.i;
 							}
 						}
-						sv = &sv->array[i_idx];
-						goto pr_array_at;
+						if (i_idx < sv->array_size) {
+							sv = &sv->array[i_idx];
+							goto pr_array_at;
+						}
 					}
 				}
 			}
