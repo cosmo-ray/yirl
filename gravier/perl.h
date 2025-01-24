@@ -820,6 +820,8 @@ static int parse_equal_(struct file *f, char **reader, struct sym *operand, int 
 	f->sym_string[f->sym_len++] = *operand;
 	int tok_op = t.tok;
 	struct array_idx_info array_idx;
+	struct sym syms[64];
+	int nb_syms = 0;
 	struct sym second;
 	t = next();
 	int in_parentesis = 0;
@@ -828,7 +830,20 @@ static int parse_equal_(struct file *f, char **reader, struct sym *operand, int 
 		t = next();
 		in_parentesis = 1;
 	}
-	STORE_OPERAND(t, second);
+	if (t.tok == TOK_NAME) {
+		parse_func_call(t, f, syms, &nb_syms);
+		for (int i = 0; i < nb_syms; ++i, f->sym_len++) {
+			f->sym_string[f->sym_len] = syms[i];
+		}
+		CHECK_STACK_SPACE(f, stack_tmp + 1);
+		++stack_tmp;
+		int fp = f->stack_len + stack_tmp;
+		second = (struct sym){.ref=&f->stack[fp], .t=TOK_DOLAR};
+		f->sym_string[f->sym_len++] = (struct sym){.ref=&f->stack[fp], .t=TOK_EQUAL};
+		f->sym_string[f->sym_len++] = (struct sym){.ref=&cur_pi->return_val, .t=TOK_DOLAR};
+	} else {
+		STORE_OPERAND(t, second);
+	}
 	t = next();
 	if (parse_array_idx_nfo(f, t, &array_idx) > IDX_IS_NONE) {
 		second.idx = array_idx;
@@ -866,7 +881,7 @@ static int parse_equal(struct file *f, char **reader, struct sym equal_sym)
 
 	struct array_idx_info array_idx;
 	struct sym operand;
-	static struct sym syms[128];
+	struct sym syms[64];
 	int stack_tmp = 1;
 	int nb_syms = 0;
 
