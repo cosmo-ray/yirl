@@ -1247,8 +1247,9 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 
 	} else if (t.tok == TOK_PRINT) {
 		int need_close = 0;
+		int stack_tmp = 1;
 		/* volatile because gcc seems to set garbage value un print_sym */
-		struct sym *print_sym = &f->sym_string[f->sym_len];
+		int base = f->sym_len;
 
 		f->sym_string[f->sym_len++].t = t;
 		t = next();
@@ -1274,6 +1275,31 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 				t = next();
 			}
 			f->sym_len++;
+		} else if (t.tok == TOK_NAME) {
+			static struct sym syms[128];
+			int nb_syms = 0;
+			int p = f->stack_len + stack_tmp;
+
+			stack_tmp++;
+
+			CHECK_STACK_SPACE(f, stack_tmp);
+			CHECK_SYM_SPACE(f, nb_syms);
+
+			parse_func_call(t, f, syms, &nb_syms);
+			syms[nb_syms++] = (struct sym){.ref=&f->stack[p], .t=TOK_EQUAL};
+			syms[nb_syms++] = (struct sym){.ref=&cur_pi->return_val, .t=TOK_DOLAR};
+
+			int move_len = f->sym_len - base;
+			memmove(&f->sym_string[base + nb_syms], &f->sym_string[base],
+				sizeof *f->sym_string * move_len);
+			for (int i = base; i < base + nb_syms; i++) {
+				f->sym_string[i] = syms[i - base];
+			}
+			base += nb_syms;
+			f->sym_len += nb_syms;
+			f->sym_string[f->sym_len++] = (struct sym){
+				.ref=&f->stack[p], .t=TOK_DOLAR
+			};
 		} else {
 			ERROR("unexpected %s token\n", tok_str[t.tok]);
 		}
@@ -1287,7 +1313,7 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 		} else if (need_close) {
 			ERROR("unclose parensesis in print\n");
 		}
-		print_sym->end = &f->sym_string[f->sym_len];
+		f->sym_string[base].end = &f->sym_string[f->sym_len];
 	} else {
 		operation(&t, f, reader);
 		//f->sym_string[f->sym_len].t = t;
