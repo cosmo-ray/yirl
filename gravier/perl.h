@@ -460,11 +460,10 @@ again:
 	LOOK_FOR_DOUBLE('=', '=', TOK_EQUAL, TOK_DOUBLE_EQUAL)
 	LOOK_FOR_DOUBLE('>', '=', TOK_SUP, TOK_SUP_EQUAL)
 	LOOK_FOR_DOUBLE('<', '=', TOK_INF, TOK_INF_EQUAL)
+	LOOK_FOR_DOUBLE('.', '=', TOK_DOT, TOK_DOT_EQUAL)
 	LOOK_FOR_TRIPLE('-', '=', '-', TOK_MINUS, TOK_MINUS_EQUAL, TOK_MINUS_MINUS)
 	LOOK_FOR_TRIPLE('+', '=', '+', TOK_PLUS, TOK_PLUS_EQUAL, TOK_PLUS_PLUS)
-	else if (*reader == '.') {
-		RET_NEXT((struct tok){.tok=TOK_DOT});
-	} else if (*reader == '$') {
+	else if (*reader == '$') {
 		RET_NEXT((struct tok){.tok=TOK_DOLAR});
 	} else if (*reader == '/') {
 		RET_NEXT((struct tok){.tok=TOK_DIV});
@@ -542,6 +541,13 @@ again:
 					next_tok = TOK_DOUBLE_EQUAL;
 				} else {
 					next_tok = TOK_EQUAL;
+				}
+			} else if (reader[0] == '.') {
+				if (reader[1] == '=') {
+					add = 1;
+					next_tok = TOK_DOT_EQUAL;
+				} else {
+					next_tok = TOK_DOT;
 				}
 			} else if (*reader == ',') {
 				next_tok = TOK_COMMA;
@@ -1031,7 +1037,8 @@ static int operation(struct tok *t_ptr, struct file *f, char **reader)
 		t = next();
 	}
 
-	if (t.tok != TOK_EQUAL && t.tok != TOK_PLUS_EQUAL && t.tok != TOK_MINUS_EQUAL)
+	if (t.tok != TOK_EQUAL && t.tok != TOK_PLUS_EQUAL && t.tok != TOK_MINUS_EQUAL &&
+		t.tok != TOK_DOT_EQUAL)
 		ERROR("unexpected operation %s\n", tok_str[t.tok]);
 	struct sym equal_sym = {.ref = stack_sym, .t = t};
 	if (array_idx.type >= IDX_IS_NONE)
