@@ -59,7 +59,8 @@ enum {
 };
 
 enum {
-	VAL_NEED_FREE = 1
+	VAL_NEED_FREE = 1,
+	VAL_NEED_STEAL = 2
 };
 
 struct stack_val {
@@ -333,13 +334,13 @@ static inline void perl_destruct(PerlInterpreter *p)
 	gravier_debug("perl_destruct\n");
 	kh_foreach(p->files, kkey, vvar, {
 			for (int i = 0; i < vvar->l_stack_len; ++i) {
-				if (vvar->local_stack[i].v.flag & TOK_STR_NEED_FREE) {
+				if (vvar->local_stack[i].v.flag & VAL_NEED_FREE) {
 					if (vvar->local_stack[i].v.type == SVt_PV)
 						free(vvar->local_stack[i].v.v);
 				}
 			}
 			for (int i = 0; i < vvar->stack_len; ++i) {
-				if (vvar->stack[i].v.flag & TOK_STR_NEED_FREE) {
+				if (vvar->stack[i].v.flag & VAL_NEED_FREE) {
 					if (vvar->stack[i].v.type == SVt_PV)
 						free(vvar->stack[i].v.v);
 				}
@@ -840,6 +841,7 @@ static int parse_equal_(struct file *f, char **reader, struct sym *operand, int 
 	int p = f->stack_len + stack_tmp;
 	f->sym_string[f->sym_len++] = (struct sym){.ref=&f->stack[p], .t=TOK_EQUAL};
 	f->sym_string[f->sym_len++] = *operand;
+	f->stack[p].v.flag = VAL_NEED_STEAL;
 	int tok_op = t.tok;
 	struct array_idx_info array_idx;
 	struct sym syms[64];
@@ -861,6 +863,7 @@ static int parse_equal_(struct file *f, char **reader, struct sym *operand, int 
 		++stack_tmp;
 		int fp = f->stack_len + stack_tmp;
 		second = (struct sym){.ref=&f->stack[fp], .t=TOK_DOLAR};
+		f->stack[fp].v.flag = VAL_NEED_STEAL;
 		f->sym_string[f->sym_len++] = (struct sym){.ref=&f->stack[fp], .t=TOK_EQUAL};
 		f->sym_string[f->sym_len++] = (struct sym){.ref=&cur_pi->return_val, .t=TOK_DOLAR};
 	} else {
@@ -1466,7 +1469,7 @@ exit:
 
 
 static struct sym *exec_equal(struct sym *target_ref, struct sym *sym_string,
-			      struct array_idx_info *op_idx, int steal)
+			      struct array_idx_info *op_idx)
 {
 	struct stack_val *sv = &target_ref->v;
 
@@ -1497,12 +1500,8 @@ eq_array_at:
 		sv = &sv->array[i_idx];
 		goto eq_array_at;
 	} else if (sym_string->t.tok == TOK_LITERAL_STR) {
-		sv->flag = sym_string->v.flag;
-		if (!steal && sym_string->v.flag & VAL_NEED_FREE) {
-			sv->str = strdup(sym_string->t.as_str);
-		} else {
-			sv->str = sym_string->t.as_str;
-		}
+		sv->flag = 0;
+		sv->str = sym_string->t.as_str;
 		sv->type = SVt_PV;
 	} else if (sym_string->t.tok == TOK_LITERAL_NUM) {
 		sv->i = sym_string->t.as_int;
@@ -1510,6 +1509,7 @@ eq_array_at:
 		sv->type = SVt_IV;
 	} else if (sym_string->t.tok == TOK_DOLAR) {
 		struct array_idx_info *idx = &sym_string->idx;
+		int oflag = sv->flag;
 		if (idx->type == IDX_IS_TOKEN) {
 			int i_idx = idx->tok.as_int;
 
@@ -1525,7 +1525,16 @@ eq_array_at:
 		} else {
 			*sv = sym_string->ref->v;
 		}
-		sv->flag = 0;
+
+		if (sv->flag & VAL_NEED_FREE && sv->type == SVt_PV) {
+			int steal = sv->flag & VAL_NEED_STEAL;
+
+			if (!steal)
+				sv->str = strdup(sv->str);
+			sv->flag = oflag & VAL_NEED_FREE;
+		} else {
+			sv->flag = 0;
+		}
 	} else {
 		gravier_debug("UNIMPLEMENTED %s\n",
 			      tok_str[sym_string->t.tok]);
@@ -1589,6 +1598,14 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 		} else if (t.tok == TOK_ARRAY_RESSET) {
 			struct sym *array = sym_string->ref;
 
+			for (int i = 0; i < array->v.array_size; ++i) {
+				if (array->v.array[i].flag & VAL_NEED_FREE) {
+					if (array->v.array[i].type == SVt_PV) {
+						free(array->v.array[i].str);
+						array->v.array[i].str = NULL;
+					}
+				}
+			}
 			if (array->v.array_size) {
 				free(array->v.array);
 				array->v.array = NULL;
@@ -1627,7 +1644,7 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 			struct sym *caller = sym_string->caller->end;
 			if (sym_string->have_return) {
 				++sym_string;
-				exec_equal(&cur_pi->return_val, sym_string, NULL, 0);
+				exec_equal(&cur_pi->return_val, sym_string, NULL);
 			}
 			sym_string = caller;
 			continue;
@@ -1693,15 +1710,7 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 			gravier_debug("SET STUFFF on: %p\n", target_ref);
 			++sym_string;
 
-			sym_string = exec_equal(target_ref, sym_string, op_idx, 0);
-		} else if (t.tok == TOK_EQUAL_STEAL) {
-			struct sym *target_ref = sym_string->ref;
-			struct array_idx_info *op_idx = &sym_string->idx;
-
-			gravier_debug("SET STUFFF on: %p\n", target_ref);
-			++sym_string;
-
-			sym_string = exec_equal(target_ref, sym_string, op_idx, 1);
+			sym_string = exec_equal(target_ref, sym_string, op_idx);
 		} else if (t.tok == TOK_PLUS_PLUS || t.tok == TOK_MINUS_MINUS) {
 			struct sym *target_ref = sym_string->ref;
 			if (t.tok == TOK_PLUS_PLUS)
@@ -1719,7 +1728,7 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 
 			++sym_string;
 			if (target_ref->v.type == SVt_NULL) {
-				sym_string = exec_equal(target_ref, sym_string, op_idx, 0);
+				sym_string = exec_equal(target_ref, sym_string, op_idx);
 				++sym_string;
 				continue;
 			}
