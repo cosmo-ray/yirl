@@ -332,6 +332,19 @@ static inline void perl_destruct(PerlInterpreter *p)
 
 	gravier_debug("perl_destruct\n");
 	kh_foreach(p->files, kkey, vvar, {
+			for (int i = 0; i < vvar->l_stack_len; ++i) {
+				if (vvar->local_stack[i].v.flag & TOK_STR_NEED_FREE) {
+					if (vvar->local_stack[i].v.type == SVt_PV)
+						free(vvar->local_stack[i].v.v);
+				}
+			}
+			for (int i = 0; i < vvar->stack_len; ++i) {
+				if (vvar->stack[i].v.flag & TOK_STR_NEED_FREE) {
+					if (vvar->stack[i].v.type == SVt_PV)
+						free(vvar->stack[i].v.v);
+				}
+			}
+
 			free(vvar->sym_string);
 			free(vvar->stack);
 			free(vvar->local_stack);
@@ -692,6 +705,7 @@ static struct sym *find_set_stack_ref(struct file *this_file, struct tok *t)
 		this_file->stack[this_file->stack_len].t = *t;
 		this_file->stack[this_file->stack_len].idx.type = IDX_IS_NONE;
 		this_file->stack[this_file->stack_len].v.type = SVt_NULL;
+		this_file->stack[this_file->stack_len].v.flag = 0;
 		this_file->stack[this_file->stack_len].v.array_size = 0;
 		this_file->stack[this_file->stack_len].v.array = NULL;
 		return &this_file->stack[this_file->stack_len++];
@@ -749,6 +763,8 @@ exit:
 static inline int unequal_to_equal(int tok)
 {
 	switch (tok) {
+	case TOK_DOT:
+		return TOK_DOT_EQUAL;
 	case TOK_PLUS:
 		return TOK_PLUS_EQUAL;
 	case TOK_MINUS:
@@ -893,7 +909,8 @@ static int parse_equal(struct file *f, char **reader, struct sym equal_sym)
 		CHECK_STACK_SPACE(f, stack_tmp + 1);
 		int p = f->stack_len + stack_tmp;
 		operand = (struct sym){.ref=&f->stack[p], .t=TOK_DOLAR};
-		f->sym_string[f->sym_len++] = (struct sym){.ref=&f->stack[p], .t=TOK_EQUAL};
+		f->sym_string[f->sym_len++] = (struct sym){.ref=&f->stack[p],
+			.t=TOK_EQUAL};
 		f->sym_string[f->sym_len++] = (struct sym){.ref=&cur_pi->return_val, .t=TOK_DOLAR};
 		++stack_tmp;
 	} else {
@@ -907,7 +924,8 @@ static int parse_equal(struct file *f, char **reader, struct sym equal_sym)
 		operand.idx.type = IDX_IS_NONE;
 	}
 again:
-	if (t.tok == TOK_PLUS || t.tok == TOK_MINUS || t.tok == TOK_DIV || t.tok == TOK_MULT) {
+	if (t.tok == TOK_PLUS || t.tok == TOK_MINUS || t.tok == TOK_DIV || t.tok == TOK_MULT ||
+		t.tok == TOK_DOT) {
 		parse_equal_(f, reader, &operand, stack_tmp, t);
 		t = next();
 		goto again;
@@ -1412,6 +1430,7 @@ exit:
 
 #define MATH_OP(tok_, left, right)				\
 	if ((left).type == SVt_NV || tok_ == TOK_DIV_EQUAL) {	\
+		(left).flag = 0;				\
 		if ((left).type == SVt_IV)			\
 			(left).f = (double)(left).i;		\
 		(left).type = SVt_NV;				\
@@ -1427,6 +1446,7 @@ exit:
 		}						\
 	} else {						\
 		(left).type = SVt_IV;				\
+		(left).flag = 0;				\
 		switch (tok_) {					\
 		case TOK_PLUS_EQUAL:				\
 			(left).i += right; break;		\
@@ -1439,7 +1459,7 @@ exit:
 
 
 static struct sym *exec_equal(struct sym *target_ref, struct sym *sym_string,
-			      struct array_idx_info *op_idx)
+			      struct array_idx_info *op_idx, int steal)
 {
 	struct stack_val *sv = &target_ref->v;
 
@@ -1470,10 +1490,16 @@ eq_array_at:
 		sv = &sv->array[i_idx];
 		goto eq_array_at;
 	} else if (sym_string->t.tok == TOK_LITERAL_STR) {
-		sv->str = sym_string->t.as_str;
+		sv->flag = sym_string->v.flag;
+		if (!steal && sym_string->v.flag & VAL_NEED_FREE) {
+			sv->str = strdup(sym_string->t.as_str);
+		} else {
+			sv->str = sym_string->t.as_str;
+		}
 		sv->type = SVt_PV;
 	} else if (sym_string->t.tok == TOK_LITERAL_NUM) {
 		sv->i = sym_string->t.as_int;
+		sv->flag = 0;
 		sv->type = SVt_IV;
 	} else if (sym_string->t.tok == TOK_DOLAR) {
 		struct array_idx_info *idx = &sym_string->idx;
@@ -1492,6 +1518,7 @@ eq_array_at:
 		} else {
 			*sv = sym_string->ref->v;
 		}
+		sv->flag = 0;
 	} else {
 		gravier_debug("UNIMPLEMENTED %s\n",
 			      tok_str[sym_string->t.tok]);
@@ -1593,7 +1620,7 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 			struct sym *caller = sym_string->caller->end;
 			if (sym_string->have_return) {
 				++sym_string;
-				exec_equal(&cur_pi->return_val, sym_string, NULL);
+				exec_equal(&cur_pi->return_val, sym_string, NULL, 0);
 			}
 			sym_string = caller;
 			continue;
@@ -1659,14 +1686,58 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 			gravier_debug("SET STUFFF on: %p\n", target_ref);
 			++sym_string;
 
-			sym_string = exec_equal(target_ref, sym_string, op_idx);
+			sym_string = exec_equal(target_ref, sym_string, op_idx, 0);
+		} else if (t.tok == TOK_EQUAL_STEAL) {
+			struct sym *target_ref = sym_string->ref;
+			struct array_idx_info *op_idx = &sym_string->idx;
+
+			gravier_debug("SET STUFFF on: %p\n", target_ref);
+			++sym_string;
+
+			sym_string = exec_equal(target_ref, sym_string, op_idx, 1);
 		} else if (t.tok == TOK_PLUS_PLUS || t.tok == TOK_MINUS_MINUS) {
 			struct sym *target_ref = sym_string->ref;
 			if (t.tok == TOK_PLUS_PLUS)
 				target_ref->v.i += 1;
 			else
 				target_ref->v.i -= 1;
+			target_ref->v.flag = 0;
 			target_ref->v.type = SVt_IV;
+		} else if (t.tok == TOK_DOT_EQUAL) {
+			struct sym *target_ref = sym_string->ref;
+			struct array_idx_info *op_idx = &sym_string->idx;
+			char *first = "";
+			char *second = "";
+			int first_need_free = (target_ref->v.flag & VAL_NEED_FREE);
+
+			++sym_string;
+			if (target_ref->v.type == SVt_NULL) {
+				sym_string = exec_equal(target_ref, sym_string, op_idx, 0);
+				++sym_string;
+				continue;
+			}
+
+			first = target_ref->v.str;
+			if (sym_string->t.tok == TOK_LITERAL_STR)
+				second = sym_string->t.as_str;
+			else if (sym_string->t.tok == TOK_DOLAR)
+				second = sym_string->v.str;
+
+			int first_len = strlen(first);
+			int str_len = first_len + strlen(second);
+			if (!str_len) {
+				target_ref->v.str = "";
+				++sym_string;
+				continue;
+			}
+
+			str_len += 1;
+			target_ref->v.flag |= VAL_NEED_FREE;
+			target_ref->v.str = malloc(str_len);
+			strcpy(target_ref->v.str, first);
+			strcpy(target_ref->v.str + first_len, second);
+			if (first_need_free)
+				free(first);
 		} else if (t.tok == TOK_PLUS_EQUAL || t.tok == TOK_MINUS_EQUAL ||
 			TOK_DIV_EQUAL || TOK_DIV_EQUAL) {
 			struct sym *target_ref = sym_string->ref;

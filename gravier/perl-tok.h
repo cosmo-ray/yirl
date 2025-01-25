@@ -1,6 +1,7 @@
 TOK(MY)
 TOK(SUB)
 TOK(DOT)
+TOK(DOT_EQUAL)
 TOK(NOT)
 TOK(NOT_EQUAL)
 TOK(MULT)
@@ -58,6 +59,7 @@ TOK(NAMESPACE)
 /* no perl token per se, but use by perl_exec */
 TOK(ARRAY_PUSH)
 TOK(ARRAY_RESSET)
+TOK(EQUAL_STEAL)
 
 /* other */
 TOK(ENDFILE)
