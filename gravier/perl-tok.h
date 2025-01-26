@@ -59,7 +59,7 @@ TOK(NAMESPACE)
 /* no perl token per se, but use by perl_exec */
 TOK(ARRAY_PUSH)
 TOK(ARRAY_RESSET)
-
+TOK(ARRAY_SIZE)
 /* other */
 TOK(ENDFILE)
 

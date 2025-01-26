@@ -660,6 +660,13 @@ static inline intptr_t int_fron_sym(struct sym *sym)
 			return 0;
 		// again if type is not nbr here, maybe i should return 0
 		return ref->v.i;
+	}else if (sym->t.tok == TOK_ARRAY_SIZE) {
+		struct sym *ref = sym->ref;
+
+		if (!ref)
+			return 0;
+		// again if type is not nbr here, maybe i should return 0
+		return ref->v.array_size;
 	}
 	return 0;
 }
@@ -1240,6 +1247,66 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 				}
 			}
 		}
+	} else if (t.tok == TOK_FOREACH) {
+		CHECK_SYM_SPACE(f, 8);
+		t = next();
+
+		// Not need to ne push before we next
+		SKIP_REQ(TOK_OPEN_PARENTESIS, t);
+		SKIP_REQ(TOK_AT, t);
+		struct sym *array = find_set_stack_ref(f, &t);
+		t = next();
+		SKIP_REQ(TOK_CLOSE_PARENTESIS, t);
+		// increase local_stack by one
+		CHECK_L_STACK_SPACE(f, 1);
+		struct sym *tmp_i = &f->local_stack[f->l_stack_len++];
+		struct sym *underscore;
+		if (f->cur_func) {
+			CHECK_L_STACK_SPACE(f->cur_func, 1);
+			underscore = &f->cur_func->local_stack[f->cur_func->l_stack_len++];
+		} else {
+			CHECK_L_STACK_SPACE(f, 1);
+			underscore = &f->local_stack[f->l_stack_len++];
+		}
+		underscore->t = (struct tok){.tok=TOK_NAME, .as_str="_"};
+		// TOK_EQUAL local_stack[f->l_stack_len - 1]
+		f->sym_string[f->sym_len++] = (struct sym) {.t={.tok=TOK_EQUAL},
+			.ref=tmp_i};
+		// 0
+		f->sym_string[f->sym_len++].t = (struct tok){.tok=TOK_LITERAL_NUM, .as_int=0};
+		// struct sym *end = TOK_IF
+		struct sym *if_sym = &f->sym_string[f->sym_len];
+		f->sym_string[f->sym_len++] = (struct sym){.t={.tok=TOK_IF}};
+		// TOK_INF
+		f->sym_string[f->sym_len++] = (struct sym){.t={.tok=TOK_INF}};
+		// local_stack[f->l_stack_len - 1]
+		f->sym_string[f->sym_len++] = (struct sym){.t={.tok=TOK_DOLAR}, .ref=tmp_i};
+		// TOK_ARRAY_SIZE array
+		f->sym_string[f->sym_len++] = (struct sym){.t={.tok=TOK_ARRAY_SIZE},
+			.ref=array};
+		// TOK_EQUAL "_"
+		f->sym_string[f->sym_len++] = (struct sym) {.t={.tok=TOK_EQUAL},
+			.ref=underscore};
+		// DOLAR array idx = TOK_DOLAR local_stack[f->l_stack_len - 1]
+		f->sym_string[f->sym_len++] = (struct sym) {.t={.tok=TOK_DOLAR}, .ref=array,
+			.idx={
+				.type=IDX_IS_REF,
+				.ref=tmp_i
+			}
+		};
+		// parse_one_instruction
+		parse_one_instruction(my_perl, f, reader, t);
+		// TOK_PLUS_PLUS local_stack[f->l_stack_len - 1]
+		f->sym_string[f->sym_len++] = (struct sym) {.t={.tok=TOK_PLUS_PLUS}, .ref=tmp_i};
+		f->sym_string[f->sym_len++] = (struct sym) {.t={.tok=TOK_GOTO}, .end=if_sym};
+		// end = f->sym_string
+		if_sym->end = &f->sym_string[f->sym_len];
+		// decrease local stack
+		f->l_stack_len--;
+		if (f->cur_func)
+			f->cur_func->l_stack_len--;
+		else
+			f->l_stack_len--;
 	} else if (t.tok == TOK_WHILE) {
 		CHECK_SYM_SPACE(f, 8);
 		t = next();
