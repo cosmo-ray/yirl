@@ -10,3 +10,7 @@ $str.="l";
 $str .= "lol\n";
 
 print $str;
+
+$snum = "hell" . 0 . "\n";
+
+print $snum;

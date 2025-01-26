@@ -1762,6 +1762,8 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 		} else if (t.tok == TOK_DOT_EQUAL) {
 			struct sym *target_ref = sym_string->ref;
 			struct array_idx_info *op_idx = &sym_string->idx;
+			static char num_tmp[128];
+			static char num_tmp2[128];
 			char *first = "";
 			char *second = "";
 			int first_need_free = (target_ref->v.flag & VAL_NEED_FREE);
@@ -1771,13 +1773,26 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 				sym_string = exec_equal(target_ref, sym_string, op_idx);
 				++sym_string;
 				continue;
+			} else if (target_ref->v.type == SVt_IV) {
+				sprintf(num_tmp, "%"PRIiPTR, target_ref->v.i);
+				first = num_tmp;
+			} else {
+				first = target_ref->v.str;
 			}
 
-			first = target_ref->v.str;
-			if (sym_string->t.tok == TOK_LITERAL_STR)
+			if (sym_string->t.tok == TOK_LITERAL_STR) {
 				second = sym_string->t.as_str;
-			else if (sym_string->t.tok == TOK_DOLAR)
-				second = sym_string->v.str;
+			} else if (sym_string->t.tok == TOK_LITERAL_NUM) {
+				sprintf(num_tmp2, "%"PRIiPTR, sym_string->t.as_int);
+				second = num_tmp2;
+			} else if (sym_string->t.tok == TOK_DOLAR) {
+				if (sym_string->v.type == SVt_IV) {
+					sprintf(num_tmp2, "%"PRIiPTR, sym_string->v.i);
+					second = num_tmp2;
+				} else {
+					second = sym_string->v.str;
+				}
+			}
 
 			int first_len = strlen(first);
 			int str_len = first_len + strlen(second);
