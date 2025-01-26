@@ -1103,6 +1103,46 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 {
 	if (t.tok == TOK_MY || t.tok == TOK_DOLAR) {
 		var_declaration(t, f, reader);
+	} else if (t.tok == TOK_DO) {
+		t = next();
+
+		const char *file_name = t.as_str;
+		struct stat st;
+		int fd;
+
+		if (stat(file_name, &st) < 0 || (fd = open(file_name, O_RDONLY) ) < 0) {
+			fprintf(stderr, "cannot open/stat '%s'", file_name);
+			return -1;
+		}
+		int len = st.st_size;
+		char *file_str = malloc(len + 1);
+		char *to_free = file_str;
+		if (!file_str || read(fd, file_str, len) < 0) {
+			close(fd);
+			goto exit;
+		}
+		file_str[len] = 0;
+		char **old_reader = reader_ptr;
+		reader = &file_str;
+		reader_ptr = reader;
+
+#define CLEAN_DO() do {					\
+			reader = old_reader;		\
+			reader_ptr = old_reader;	\
+			free(to_free);			\
+			close(fd);			\
+	} while (0)
+
+		while ((t = next()).tok != TOK_ENDFILE) {
+			if (parse_one_instruction(my_perl, f, reader, t) < 0) {
+				CLEAN_DO();
+				goto exit;
+			}
+		}
+
+		CLEAN_DO();
+#undef CLEAN_DO
+
 	} else if (t.tok == TOK_RETURN) {
 		PUSH_L_STACK_CLEAR(f, f->cur_func, 0);
 		f->sym_string[f->sym_len].t = t;
