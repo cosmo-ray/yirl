@@ -1,6 +1,6 @@
 
 $ar2[1] = "tata";
-$ar2[0] = "titi";
+@ar2[0] = "titi";
 
 print $ar2[0], "\n";
 print $ar2[1], "\n";
@@ -8,7 +8,7 @@ print $ar2[1], "\n";
 @ar = (25, 30, "out");
 
 print $ar[0], "\n";
-print $ar[1], "\n";
+print @ar[1], "\n";
 print $ar[2], "\n";
 
 print $ar[$none], "\n";

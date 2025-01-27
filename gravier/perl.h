@@ -1051,9 +1051,10 @@ static int operation(struct tok *t_ptr, struct file *f, char **reader)
 		t.tok != TOK_DOT_EQUAL)
 		ERROR("unexpected operation %s\n", tok_str[t.tok]);
 	struct sym equal_sym = {.ref = stack_sym, .t = t};
-	if (array_idx.type >= IDX_IS_NONE)
+	if (array_idx.type >= IDX_IS_NONE) {
 		equal_sym.idx = array_idx;
-	if (t_ptr->tok == TOK_AT) {
+	}
+	if (array_idx.type == IDX_IS_NONE && t_ptr->tok == TOK_AT) {
 		NEXT_N_CHECK(TOK_OPEN_PARENTESIS);
 		CHECK_SYM_SPACE(f, 1);
 		f->sym_string[f->sym_len++] = (struct sym){.ref=stack_sym, .t=TOK_ARRAY_RESSET};
@@ -1412,7 +1413,7 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 		if (t.tok == TOK_LITERAL_NUM || t.tok == TOK_LITERAL_STR) {
 			f->sym_string[f->sym_len++].t = t;
 			t = next();
-		} else if (t.tok == TOK_DOLAR) {
+		} else if (t.tok == TOK_DOLAR || t.tok == TOK_AT) {
 			t = next();
 			// check t is name
 			struct array_idx_info array_idx;
