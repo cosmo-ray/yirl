@@ -1576,6 +1576,42 @@ exit:
 	}
 
 
+static void print_var(struct stack_val *sv, struct sym *sym_string)
+{
+	gravier_debug("A VARIABLE ! %p ", ref);
+pr_array_at:
+	if (sv->type == SVt_PV)
+		printf("%s", sv->str);
+	else if (sv->type == SVt_IV)
+		printf("%"PRIiPTR, sv->i);
+	else if (sv->type == SVt_NV)
+		printf("%.15f", sv->f);
+	else if (sv->type == SVt_PVAV) {
+		struct array_idx_info *idx = &sym_string->idx;
+		int i_idx = 0;
+
+		if (idx->type == IDX_IS_TOKEN) {
+			i_idx = idx->tok.as_int;
+		} else if (idx->type == IDX_IS_REF) {
+			struct sym *idx_ref = idx->ref;
+
+			if (idx_ref) {
+				i_idx = idx_ref->v.i;
+			}
+		} else {
+			for (int i = 0; i < sv->array_size; ++i) {
+				print_var(&sv->array[i], sym_string);
+			}
+			return;
+		}
+		if (i_idx < sv->array_size) {
+			sv = &sv->array[i_idx];
+			goto pr_array_at;
+		}
+	}
+
+}
+
 static struct sym *exec_equal(struct sym *target_ref, struct sym *sym_string,
 			      struct array_idx_info *op_idx)
 {
@@ -1674,32 +1710,7 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 						continue;
 					}
 					sv = &ref->v;
-					gravier_debug("A VARIABLE ! %p ", ref);
-				pr_array_at:
-					if (sv->type == SVt_PV)
-						printf("%s", sv->str);
-					else if (sv->type == SVt_IV)
-						printf("%"PRIiPTR, sv->i);
-					else if (sv->type == SVt_NV)
-						printf("%.15f", sv->f);
-					else if (sv->type == SVt_PVAV) {
-						struct array_idx_info *idx = &sym_string->idx;
-						int i_idx = 0;
-
-						if (idx->type == IDX_IS_TOKEN) {
-							i_idx = idx->tok.as_int;
-						} else if (idx->type == IDX_IS_REF) {
-							struct sym *idx_ref = idx->ref;
-
-							if (idx_ref) {
-								i_idx = idx_ref->v.i;
-							}
-						}
-						if (i_idx < sv->array_size) {
-							sv = &sv->array[i_idx];
-							goto pr_array_at;
-						}
-					}
+					print_var(sv, sym_string);
 				}
 			}
 			continue;

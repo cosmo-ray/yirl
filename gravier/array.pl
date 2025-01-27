@@ -25,3 +25,5 @@ print $out, "\n";
 $add = $ar[1] + $ar[0];
 
 print $add, "\n";
+
+print @ar, "\n";
