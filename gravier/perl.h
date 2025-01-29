@@ -73,7 +73,6 @@ struct stack_val {
 	};
 	int8_t type;
 	int8_t flag;
-	uint16_t refcnf;
 	int32_t array_size;
 };
 
@@ -1060,9 +1059,32 @@ static int operation(struct tok *t_ptr, struct file *f, char **reader)
 		f->sym_string[f->sym_len++] = (struct sym){.ref=stack_sym, .t=TOK_ARRAY_RESSET};
 		t = next();
 		while (t.tok != TOK_CLOSE_PARENTESIS) {
+			CHECK_SYM_SPACE(f, 4);
+			struct sym elem;
+			if (t.tok == TOK_OPEN_PARENTESIS) {
+				CHECK_L_STACK_SPACE(f, 1);
+				t = next();
+				struct sym *ar = &f->local_stack[f->l_stack_len + 1];
+				ar->v.array_size = 0;
+				ar->t = (struct tok){.tok=TOK_NAME, .as_str="?array?"};
+				f->sym_string[f->sym_len++] = (struct sym){.ref=ar, .t=TOK_ARRAY_RESSET};
+				while (t.tok != TOK_CLOSE_PARENTESIS) {
+					f->sym_string[f->sym_len++] = (struct sym){.ref=ar, .t=TOK_ARRAY_PUSH};
+					struct sym sub_el;
+					STORE_OPERAND(t, sub_el);
+					f->sym_string[f->sym_len++] = sub_el;
+					t = next();
+					if (t.tok != TOK_COMMA && t.tok != TOK_CLOSE_PARENTESIS)
+						ERROR("unexpected token in array init");
+					if (t.tok == TOK_COMMA)
+						t = next();
+				}
+				elem = (struct sym){.t={.tok=TOK_DOLAR}, .ref=ar};
+			} else {
+				STORE_OPERAND(t, elem);
+			}
 			f->sym_string[f->sym_len++] = (struct sym){.ref=stack_sym, .t=TOK_ARRAY_PUSH};
-			STORE_OPERAND(t, f->sym_string[f->sym_len]);
-			f->sym_len++;
+			f->sym_string[f->sym_len++] = elem;
 
 			t = next();
 			if (t.tok != TOK_COMMA && t.tok != TOK_CLOSE_PARENTESIS)
@@ -1738,7 +1760,7 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 			array->v.type = SVt_PVAV;
 			array->v.array_size = array->v.array_size + 1;
 			array->v.array = realloc(array->v.array,
-					       array->v.array_size * sizeof *array->v.array);
+						 array->v.array_size * sizeof *array->v.array);
 			struct stack_val *elem = &array->v.array[p];
 			elem->type = SVt_NULL;
 			++sym_string;
@@ -1750,6 +1772,13 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 				elem->type = SVt_IV;
 			} else if (sym_string->t.tok == TOK_DOLAR) {
 				*elem = sym_string->ref->v;
+				if (sym_string->ref->v.type == SVt_PVAV) {
+					struct stack_val *other = &sym_string->ref->v;
+					elem->array = malloc(elem->array_size * sizeof *elem->array);
+					memcpy(elem->array, other->array, elem->array_size * sizeof *elem->array);
+					// here I fail to properly copy string and sub array...
+				}
+
 			} else {
 				gravier_debug("UNIMPLEMENTED %s\n",
 					      tok_str[sym_string->t.tok]);
