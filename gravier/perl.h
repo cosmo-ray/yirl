@@ -1061,10 +1061,11 @@ static int operation(struct tok *t_ptr, struct file *f, char **reader)
 		while (t.tok != TOK_CLOSE_PARENTESIS) {
 			CHECK_SYM_SPACE(f, 4);
 			struct sym elem;
+			struct sym *ar = NULL;
 			if (t.tok == TOK_OPEN_PARENTESIS) {
 				CHECK_L_STACK_SPACE(f, 1);
 				t = next();
-				struct sym *ar = &f->local_stack[f->l_stack_len + 1];
+				ar = &f->local_stack[f->l_stack_len + 1];
 				ar->v.array_size = 0;
 				ar->t = (struct tok){.tok=TOK_NAME, .as_str="?array?"};
 				f->sym_string[f->sym_len++] = (struct sym){.ref=ar, .t=TOK_ARRAY_RESSET};
@@ -1085,6 +1086,9 @@ static int operation(struct tok *t_ptr, struct file *f, char **reader)
 			}
 			f->sym_string[f->sym_len++] = (struct sym){.ref=stack_sym, .t=TOK_ARRAY_PUSH};
 			f->sym_string[f->sym_len++] = elem;
+			if (ar) {
+				f->sym_string[f->sym_len++] = (struct sym){.ref=ar, .t=TOK_ARRAY_RESSET};
+			}
 
 			t = next();
 			if (t.tok != TOK_COMMA && t.tok != TOK_CLOSE_PARENTESIS)
