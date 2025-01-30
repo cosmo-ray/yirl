@@ -1639,6 +1639,46 @@ pr_array_at:
 }
 
 
+static void exec_dolar_equal(struct stack_val *sv, struct stack_val *that,
+			     struct array_idx_info *idx)
+{
+	int oflag = sv->flag;
+	if (idx && idx->type == IDX_IS_TOKEN) {
+		int i_idx = idx->tok.as_int;
+
+		exec_dolar_equal(sv, &that->array[i_idx], NULL);
+	} else if (idx && idx->type == IDX_IS_REF) {
+		struct sym *idx_ref = idx->ref;
+		int i_idx = 0;
+
+		if (idx_ref) {
+			i_idx = idx_ref->v.i;
+		}
+		exec_dolar_equal(sv, &that->array[i_idx], NULL);
+	} else {
+		*sv = *that;
+		if (that->type == SVt_PVAV) {
+			struct stack_val *other = that;
+			sv->array = malloc(sv->array_size * sizeof *sv->array);
+			memcpy(sv->array, other->array, sv->array_size * sizeof *sv->array);
+			for (int i = 0; i < sv->array_size; ++i) {
+				exec_dolar_equal(&sv->array[i], &other->array[i], NULL);
+			}
+		}
+
+	}
+
+	if (sv->flag & VAL_NEED_FREE && sv->type == SVt_PV) {
+		int steal = sv->flag & VAL_NEED_STEAL;
+
+		if (!steal)
+			sv->str = strdup(sv->str);
+		sv->flag = oflag & VAL_NEED_FREE;
+	} else {
+		sv->flag = 0;
+	}
+}
+
 static struct sym *exec_equal(struct stack_val *sv, struct sym *sym_string,
 			      struct array_idx_info *op_idx)
 {
@@ -1678,40 +1718,7 @@ eq_array_at:
 		sv->flag = 0;
 		sv->type = SVt_IV;
 	} else if (sym_string->t.tok == TOK_DOLAR) {
-		struct array_idx_info *idx = &sym_string->idx;
-		int oflag = sv->flag;
-		if (idx->type == IDX_IS_TOKEN) {
-			int i_idx = idx->tok.as_int;
-
-			*sv = sym_string->ref->v.array[i_idx];
-		} else if (idx->type == IDX_IS_REF) {
-			struct sym *idx_ref = idx->ref;
-			int i_idx = 0;
-
-			if (idx_ref) {
-				i_idx = idx_ref->v.i;
-			}
-			*sv = sym_string->ref->v.array[i_idx];
-		} else {
-			*sv = sym_string->ref->v;
-			if (sym_string->ref->v.type == SVt_PVAV) {
-				struct stack_val *other = &sym_string->ref->v;
-				sv->array = malloc(sv->array_size * sizeof *sv->array);
-				memcpy(sv->array, other->array, sv->array_size * sizeof *sv->array);
-				// here I fail to properly copy string and sub array...
-			}
-
-		}
-
-		if (sv->flag & VAL_NEED_FREE && sv->type == SVt_PV) {
-			int steal = sv->flag & VAL_NEED_STEAL;
-
-			if (!steal)
-				sv->str = strdup(sv->str);
-			sv->flag = oflag & VAL_NEED_FREE;
-		} else {
-			sv->flag = 0;
-		}
+		exec_dolar_equal(sv, &sym_string->ref->v, &sym_string->idx);
 	} else {
 		gravier_debug("UNIMPLEMENTED %s\n",
 			      tok_str[sym_string->t.tok]);
