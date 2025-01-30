@@ -1638,10 +1638,10 @@ pr_array_at:
 
 }
 
-static struct sym *exec_equal(struct sym *target_ref, struct sym *sym_string,
+
+static struct sym *exec_equal(struct stack_val *sv, struct sym *sym_string,
 			      struct array_idx_info *op_idx)
 {
-	struct stack_val *sv = &target_ref->v;
 
 eq_array_at:
 	if ((sv->type == SVt_PVAV || sv->type == SVt_NULL) &&
@@ -1694,6 +1694,13 @@ eq_array_at:
 			*sv = sym_string->ref->v.array[i_idx];
 		} else {
 			*sv = sym_string->ref->v;
+			if (sym_string->ref->v.type == SVt_PVAV) {
+				struct stack_val *other = &sym_string->ref->v;
+				sv->array = malloc(sv->array_size * sizeof *sv->array);
+				memcpy(sv->array, other->array, sv->array_size * sizeof *sv->array);
+				// here I fail to properly copy string and sub array...
+			}
+
 		}
 
 		if (sv->flag & VAL_NEED_FREE && sv->type == SVt_PV) {
@@ -1768,25 +1775,7 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 			struct stack_val *elem = &array->v.array[p];
 			elem->type = SVt_NULL;
 			++sym_string;
-			if (sym_string->t.tok == TOK_LITERAL_STR) {
-				elem->str = sym_string->t.as_str;
-				elem->type = SVt_PV;
-			} else if (sym_string->t.tok == TOK_LITERAL_NUM) {
-				elem->i = sym_string->t.as_int;
-				elem->type = SVt_IV;
-			} else if (sym_string->t.tok == TOK_DOLAR) {
-				*elem = sym_string->ref->v;
-				if (sym_string->ref->v.type == SVt_PVAV) {
-					struct stack_val *other = &sym_string->ref->v;
-					elem->array = malloc(elem->array_size * sizeof *elem->array);
-					memcpy(elem->array, other->array, elem->array_size * sizeof *elem->array);
-					// here I fail to properly copy string and sub array...
-				}
-
-			} else {
-				gravier_debug("UNIMPLEMENTED %s\n",
-					      tok_str[sym_string->t.tok]);
-			}
+			exec_equal(elem, sym_string, NULL);
 		} else if (t.tok == TOK_SUB) {
 			struct sym *to_call = sym_string->f_ref;
 			to_call->end = &sym_string[1];
@@ -1796,7 +1785,7 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 			struct sym *caller = sym_string->caller->end;
 			if (sym_string->have_return) {
 				++sym_string;
-				exec_equal(&cur_pi->return_val, sym_string, NULL);
+				exec_equal(&cur_pi->return_val.v, sym_string, NULL);
 			}
 			sym_string = caller;
 			continue;
@@ -1862,7 +1851,7 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 			gravier_debug("SET STUFFF on: %p\n", target_ref);
 			++sym_string;
 
-			sym_string = exec_equal(target_ref, sym_string, op_idx);
+			sym_string = exec_equal(&target_ref->v, sym_string, op_idx);
 		} else if (t.tok == TOK_PLUS_PLUS || t.tok == TOK_MINUS_MINUS) {
 			struct sym *target_ref = sym_string->ref;
 			if (t.tok == TOK_PLUS_PLUS)
@@ -1882,7 +1871,7 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 
 			++sym_string;
 			if (target_ref->v.type == SVt_NULL) {
-				sym_string = exec_equal(target_ref, sym_string, op_idx);
+				sym_string = exec_equal(&target_ref->v, sym_string, op_idx);
 				++sym_string;
 				continue;
 			} else if (target_ref->v.type == SVt_IV) {
