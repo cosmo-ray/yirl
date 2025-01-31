@@ -647,3 +647,25 @@ Entity *yeCreateYirlFmtString(Entity *fmt, Entity *father, const char *name)
 	}
 	return ret;
 }
+
+int yeSplitInto(Entity *into, const char *src, const char *separator)
+{
+	if (!src || !into)
+		return 0;
+	if (!separator) {
+		yeCreateString(src, into, NULL);
+		return 1;
+	}
+
+	const char *tmp;
+	int i = 0;
+
+	while ((tmp = strstr(src, separator)) != NULL) {
+		yeCreateNString(src, tmp - src, into, NULL);
+		src = tmp + 1;
+		++i;
+	}
+
+	yeCreateString(src, into, NULL);
+	return ++i;
+}

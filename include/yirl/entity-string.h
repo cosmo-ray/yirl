@@ -255,3 +255,9 @@ Entity *yeStringShrinkBlank(Entity *str);
  * @param fmt YIRL format string, that use {} to indicate entity path
  */
 Entity *yeCreateYirlFmtString(Entity *fmt, Entity *father, const char *name);
+
+/**
+ * split src, into multiple string all push in array.
+ * seperated by separator
+ */
+int yeSplitInto(Entity *into, const char *src, const char *separator);
