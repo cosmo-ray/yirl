@@ -1604,7 +1604,6 @@ exit:
 
 static void print_var(struct stack_val *sv, struct sym *sym_string)
 {
-	gravier_debug("A VARIABLE ! %p ", ref);
 pr_array_at:
 	if (sv->type == SVt_PV)
 		printf("%s", sv->str);
