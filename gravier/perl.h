@@ -106,30 +106,40 @@ static struct stack_val *ERRSV;
 		gravier_debug("dXSARGS stub\n");	\
 } while (0)
 
-#define XSRETURN_IV(int_val) do {			\
-		cur_pi->return_val.v = (struct stack_val){.i=int_val, .flag=0, .type=SVt_IV}; \
+#define XSRETURN_IV(int_val) do {				      \
+		cur_pi->return_val.v = (struct stack_val){.i=int_val, \
+			.flag=0, .type=SVt_IV};			      \
+		return 1;					      \
 	} while (0)
 
 
 #define XSRETURN_UV(int_val) do {		\
-	gravier_debug("XSRETURN_UV stub\n");		\
+		cur_pi->return_val.v = (struct stack_val){.i=int_val,	\
+			.flag=0, .type=SVt_IV};				\
+		return 1;						\
 	} while (0)
 
-#define XSRETURN_PV(int_val) do {		\
-	gravier_debug("XSRETURN_PV stub\n");		\
+#define XSRETURN_PV(_val) do {						\
+		cur_pi->return_val.v = (struct stack_val){.v=_val,	\
+			.flag=0, .type=SVt_PV};				\
+		return 1;						\
 	} while (0)
 
 
 #define XSRETURN(val) do {				\
-		gravier_debug("XDRETURN(%s) stub\n", #val);	\
+		return 0;					\
 	} while (0)
 
-#define XSRETURN_YES do {			\
-		gravier_debug("XSRETURN_YES stub\n");	\
+#define XSRETURN_YES do {						\
+		cur_pi->return_val.v = (struct stack_val){.v=1,		\
+			.flag=0, .type=SVt_PV};				\
+		return 1;						\
 	} while (0)
 
 #define XSRETURN_NO do {			\
-		gravier_debug("XSRETURN_NO\n");	\
+		cur_pi->return_val.v = (struct stack_val){.v=0,		\
+			.flag=0, .type=SVt_PV};				\
+		return 1;						\
 	} while (0)
 
 
@@ -183,7 +193,7 @@ static inline intptr_t SvIV(struct stack_val *sv) {
 	gravier_debug("dXSUB_SYS\n")
 
 #define XS(name)				\
-	void name(struct sym *func_sym)
+	int name(struct sym *func_sym)
 
 #define SvTRUE(sv) (sv->i)
 
@@ -242,7 +252,7 @@ struct sym {
 			union {
 				struct sym *f_ref;
 				_Bool have_return;
-				void (*nat_func)(struct sym *);
+				int (*nat_func)(struct sym *);
 			};
 			struct sym *end;
 			struct sym *arg;
@@ -315,7 +325,7 @@ static PerlInterpreter *cur_pi;
 
 
 static inline void newXS(const char *oname,
-			 void (*name)(struct sym *func_sym),
+			 int (*name)(struct sym *func_sym),
 			 const char *file)
 {
 	char *namespace = strstr(oname, "::");
