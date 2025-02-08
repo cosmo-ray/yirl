@@ -106,8 +106,8 @@ static struct stack_val *ERRSV;
 		gravier_debug("dXSARGS stub\n");	\
 } while (0)
 
-#define XSRETURN_IV(int_val) do {		\
-	gravier_debug("XSRETURN_IV stub\n");		\
+#define XSRETURN_IV(int_val) do {			\
+		cur_pi->return_val.v = (struct stack_val){.i=int_val, .flag=0, .type=SVt_IV}; \
 	} while (0)
 
 
@@ -137,8 +137,12 @@ static struct stack_val *ERRSV;
 		gravier_debug("croak: " str);		\
 	} while (0)
 
-#define ST(pos)					\
-	({gravier_debug("ST(%d) stub\n", pos); &(struct stack_val ){.i=-1, .type=SVt_IV};})
+#define ST(pos)								\
+	({								\
+		gravier_debug("ST(%d) stub\n", pos);			\
+		&func_sym->local_stack[0].v.array[pos];			\
+	})
+//&(struct stack_val ){.i=-1, .type=SVt_IV};	\
 
 static inline intptr_t SvIV(struct stack_val *sv) {
 	gravier_debug("SvIV(%ld) stub\n", sv->i);
@@ -179,7 +183,7 @@ static inline intptr_t SvIV(struct stack_val *sv) {
 	gravier_debug("dXSUB_SYS\n")
 
 #define XS(name)				\
-	void name(const char *func_name, const char *file, int items)
+	void name(struct sym *func_sym)
 
 #define SvTRUE(sv) (sv->i)
 
@@ -238,6 +242,7 @@ struct sym {
 			union {
 				struct sym *f_ref;
 				_Bool have_return;
+				void (*nat_func)(struct sym *);
 			};
 			struct sym *end;
 			struct sym *arg;
@@ -275,6 +280,12 @@ typedef struct {
 
 static PerlInterpreter *cur_pi;
 
+#define ERROR(args...)	do {			\
+		fprintf(stderr, args);		\
+		goto exit;			\
+	} while (0)
+
+
 #define LOOK_FOR_TRIPLE(first, sec, third, first_tok, second_tok, third_tok) \
 	else if (*reader == first) {					\
 		if (reader[1] == sec) {					\
@@ -303,11 +314,50 @@ static PerlInterpreter *cur_pi;
 
 
 
-static inline void newXS(const char *func_name,
-			 void (*name)(const char *, const char *, int),
+static inline void newXS(const char *oname,
+			 void (*name)(struct sym *func_sym),
 			 const char *file)
 {
-	gravier_debug("newXS %s %s\n", func_name, file);
+	char *namespace = strstr(oname, "::");
+	int ret = 0;
+	if (!namespace)
+		return;
+	const char *func_name = namespace + 2;
+	namespace = strndup(oname, namespace - oname);
+
+	struct file *this_mod;
+	khiter_t iterator = kh_get(file_list, cur_pi->files, namespace);
+	khiter_t end = kh_end(cur_pi->files);
+	if (iterator == end) {
+		iterator = kh_put(file_list, cur_pi->files, namespace, &ret);
+		if (ret < 0)
+			goto exit;
+		this_mod = malloc(sizeof *this_mod);
+		kh_val(cur_pi->files, iterator) = this_mod;
+			this_mod->sym_size = 0;
+			this_mod->sym_len = 0;
+			this_mod->sym_string = NULL;
+			this_mod->stack_size = 0;
+			this_mod->stack_len = 0;
+			this_mod->stack = NULL;
+			this_mod->l_stack_len = 0;
+			this_mod->l_stack_size = 0;
+			this_mod->local_stack = NULL;
+			this_mod->functions = kh_init(func_syms);
+			this_mod->cur_func = NULL;
+	} else {
+		this_mod = kh_val(cur_pi->files, iterator);
+	}
+
+	iterator = kh_put(func_syms, this_mod->functions, func_name, &ret);
+	if (ret < 0)
+		ERROR("me hash table fail me, so sad :(\n");
+	struct sym *function = malloc(sizeof *function);
+	function->nat_func = name;
+	function->t.tok = TOK_NATIVE_FUNC;
+	kh_val(this_mod->functions, iterator) = function;
+
+exit:
 	return;
 }
 
@@ -332,6 +382,14 @@ static inline void perl_destruct(PerlInterpreter *p)
 
 	gravier_debug("perl_destruct\n");
 	kh_foreach(p->files, kkey, vvar, {
+			const char *fkey;
+			struct sym *fvar;
+
+			kh_foreach(vvar->functions, fkey, fvar, {
+					if (fvar->t.tok == TOK_NATIVE_FUNC)
+						free(fvar);
+				});
+
 			for (int i = 0; i < vvar->l_stack_len; ++i) {
 				if (vvar->local_stack[i].v.flag & VAL_NEED_FREE) {
 					if (vvar->local_stack[i].v.type == SVt_PV)
@@ -435,7 +493,8 @@ again:
 		RET_NEXT((struct tok){.tok=TOK_ELSIF});
 	} else if (dumbcmp(reader, "sub")) {
 		reader += 2;
-		RET_NEXT((struct tok){.tok=TOK_SUB});
+		struct tok r = {.tok=TOK_SUB, .as_str="sub"};
+		RET_NEXT(r);
 	} else if (dumbcmp(reader, "eq")) {
 		reader += 1;
 		RET_NEXT((struct tok){.tok=TOK_EQ});
@@ -577,12 +636,6 @@ again:
 	RET_NEXT((struct tok){.tok=TOK_UNKNOW});
 }
 
-#define ERROR(args...)	do {			\
-		fprintf(stderr, args);		\
-		goto exit;			\
-	} while (0)
-
-
 #define CHECK_SYM_SPACE(this_file, X) do {				\
 		if (this_file->sym_len + X > this_file->sym_size) {	\
 			this_file->sym_size *= 2;			\
@@ -626,7 +679,8 @@ again:
 
 #define SKIP_REQ(tok_, t) do {						\
 		if ((t).tok != tok_)					\
-			ERROR("unexpected token, require %s\n", tok_str[tok_]); \
+			ERROR("%s:%d: unexpected token, require %s\n",	\
+			      __FILE__, __LINE__, tok_str[tok_]);	\
 		(t) = next();						\
 	} while (0)
 
@@ -634,7 +688,8 @@ again:
 #define NEXT_N_CHECK_2(tok_, t_) do {					\
 		t_ = next();						\
 		if (t_.tok != tok_)					\
-			ERROR("unexcected %s, expected %s\n", tok_str[t_.tok], tok_str[tok_]); \
+			ERROR("%s:%d: unexcected %s, expected %s\n", __FILE__, __LINE__, \
+			      tok_str[t_.tok], tok_str[tok_]);	     \
 	} while (0)
 
 #define NEXT_N_CHECK(tok_) NEXT_N_CHECK_2(tok_, t)
@@ -760,8 +815,14 @@ exit:
 }
 
 #define STORE_OPERAND(in_t, in)						\
-	if ((in_t).tok == TOK_LITERAL_STR || (in_t).tok == TOK_LITERAL_NUM) { \
-		(in).t = in_t;						\
+	if ((in_t).tok == TOK_MINUS) {					\
+		t = next();						\
+		if ((in_t).tok == TOK_LITERAL_NUM)			\
+			(in).t = (struct tok){.tok=(in_t).tok, .as_int=-(in_t).as_int}; \
+		else							\
+			back[nb_back++] = t;				\
+	} else if ((in_t).tok == TOK_LITERAL_STR || (in_t).tok == TOK_LITERAL_NUM) { \
+		(in).t = (in_t);					\
 	} else if ((in_t).tok == TOK_DOLAR) {				\
 		struct array_idx_info array_idx;			\
 		int tmp_tok = (in_t).tok;				\
@@ -792,12 +853,25 @@ static inline int unequal_to_equal(int tok)
 
 static int parse_func_call(struct tok t, struct file *f, struct sym *syms, int *nb_syms)
 {
-	khiter_t iterator = kh_get(func_syms, f->functions, t.as_str);
+	struct file *namespace = f;
+	if (t.tok == TOK_NAMESPACE) {
+		const char *namespace_name = t.as_str;
+		khiter_t iterator = kh_get(file_list, cur_pi->files, namespace_name);
+		khiter_t end = kh_end(cur_pi->files);
+		if (iterator == end) {
+			ERROR("can not find '%s' namespace\n", namespace_name);
+		}
+		namespace = kh_val(cur_pi->files, iterator);
+		t = next();
+	}
 
-	if (iterator == kh_end(f->functions))
+	khiter_t iterator = kh_get(func_syms, namespace->functions, t.as_str);
+
+	if (iterator == kh_end(namespace->functions))
 		ERROR("unknow function %s\n", t.as_str);
-	struct sym *function = kh_val(f->functions, iterator);
+	struct sym *function = kh_val(namespace->functions, iterator);
 	int end_call_tok = TOK_SEMICOL;
+	CHECK_L_STACK_SPACE(function, 1);
 	struct sym *underscore = &function->local_stack[0];
 	t = next();
 	if (t.tok == TOK_OPEN_PARENTESIS) {
@@ -829,9 +903,12 @@ static int parse_func_call(struct tok t, struct file *f, struct sym *syms, int *
 	}
 	// implement arguent push here
 	if (t.tok != end_call_tok) {
-		ERROR("unclose function, got %s\n", tok_str[t.tok]);
+		ERROR("unclose function, got %s, expected %s\n", tok_str[t.tok],
+			tok_str[end_call_tok]);
 	}
+
 	syms[*nb_syms].f_ref = function;
+	/* not sure function.tok.t is equal to tok_sub or tok_name */
 	syms[*nb_syms].t.tok = TOK_SUB;
 	*nb_syms += 1;
 	return 0;
@@ -860,7 +937,7 @@ static int parse_equal_(struct file *f, char **reader, struct sym *operand, int 
 		t = next();
 		in_parentesis = 1;
 	}
-	if (t.tok == TOK_NAME) {
+	if (t.tok == TOK_NAMESPACE || t.tok == TOK_NAME) {
 		parse_func_call(t, f, syms, &nb_syms);
 		for (int i = 0; i < nb_syms; ++i, f->sym_len++) {
 			f->sym_string[f->sym_len] = syms[i];
@@ -916,7 +993,7 @@ static int parse_equal(struct file *f, char **reader, struct sym equal_sym)
 	int stack_tmp = 1;
 	int nb_syms = 0;
 
-	if (t.tok == TOK_NAME) {
+	if (t.tok == TOK_NAMESPACE || t.tok == TOK_NAME) {
 		parse_func_call(t, f, syms, &nb_syms);
 		for (int i = 0; i < nb_syms; ++i, f->sym_len++) {
 			f->sym_string[f->sym_len] = syms[i];
@@ -1030,7 +1107,8 @@ static int operation(struct tok *t_ptr, struct file *f, char **reader)
 		return ret;
 	}
 	if (t_ptr->tok != TOK_DOLAR && t_ptr->tok != TOK_AT) {
-		ERROR("unimplemented operation: %s\n", tok_str[t_ptr->tok]);
+		ERROR("$s:%d: unimplemented operation: %s\n", __FILE__, __LINE__,
+		      tok_str[t_ptr->tok]);
 	}
 	t = next();
 	if (t.tok != TOK_NAME)
@@ -1218,7 +1296,16 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 		func_l_stack[function_begin->l_stack_len].v.array_size = 0;
 		func_l_stack[function_begin->l_stack_len++].v.array = NULL;
 
-		NEXT_N_CHECK(TOK_OPEN_BRACE);
+		t = next();
+		if (t.tok == TOK_OPEN_PARENTESIS) {
+			NEXT_N_CHECK(TOK_CLOSE_PARENTESIS);
+			t = next();
+		}
+		if (t.tok != TOK_OPEN_BRACE) {
+			ERROR("%s:%d: unexcected %s, expected '{'\n", __FILE__, __LINE__,
+			      tok_str[t.tok]);
+		}
+
 		while ((t = next()).tok != TOK_CLOSE_BRACE) {
 			if (t.tok == TOK_ENDFILE) {
 				ERROR("unclose brace\n");
@@ -1515,6 +1602,9 @@ static int perl_parse(PerlInterpreter * my_perl, void (*xs_init)(void *stuff), i
 
 	cur_pi = my_perl;
 
+	if (xs_init)
+		xs_init(NULL);
+
 	gravier_debug("perl_parse %s\n", file_name);
 	if (stat(file_name, &st) < 0 || (fd = open(file_name, O_RDONLY) ) < 0) {
 		fprintf(stderr, "cannot open/stat '%s'", file_name);
@@ -1784,9 +1874,13 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 			exec_equal(elem, sym_string, NULL);
 		} else if (t.tok == TOK_SUB) {
 			struct sym *to_call = sym_string->f_ref;
-			to_call->end = &sym_string[1];
-			sym_string = to_call + 1;
-			continue;
+			if (to_call->t.tok == TOK_NATIVE_FUNC) {
+				to_call->nat_func(to_call);
+			} else {
+				to_call->end = &sym_string[1];
+				sym_string = to_call + 1;
+				continue;
+			}
 		} else if (t.tok == TOK_RETURN) {
 			struct sym *caller = sym_string->caller->end;
 			if (sym_string->have_return) {
@@ -1952,7 +2046,7 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 					      tok_str[sym_string->t.tok]);
 			}
 		} else {
-			printf("%s unimplemented\n", tok_str[t.tok]);
+			fprintf(stderr, "%s unimplemented\n", tok_str[t.tok]);
 		}
 		gravier_debug("%s ", tok_str[sym_string->t.tok]);
 		++sym_string;
