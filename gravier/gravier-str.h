@@ -15,7 +15,7 @@ again:
 	strcpy(str, with);
 	cpy_src = str + what_len;
 	str += with_len;
-	memmove(str, cpy_src, str_len - (cpy_src - origin));
+	memmove(str, cpy_src, str_len - (cpy_src - origin) + 1);
 	goto again;
 }
 

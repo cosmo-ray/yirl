@@ -76,6 +76,8 @@ struct stack_val {
 	int32_t array_size;
 };
 
+static int line_cnt = 0;
+
 static inline int is_skipable(char c)
 {
 	return c == ' ' || c == '\n' || c == '\t';
@@ -133,13 +135,13 @@ static struct stack_val *ERRSV;
 	} while (0)
 
 #define XSRETURN_YES do {						\
-		cur_pi->return_val.v = (struct stack_val){.v=1,		\
+		cur_pi->return_val.v = (struct stack_val){.i=1,		\
 			.flag=0, .type=SVt_PV};				\
 		return 1;						\
 	} while (0)
 
 #define XSRETURN_NO do {			\
-		cur_pi->return_val.v = (struct stack_val){.v=0,		\
+		cur_pi->return_val.v = (struct stack_val){.i=0,		\
 			.flag=0, .type=SVt_PV};				\
 		return 1;						\
 	} while (0)
@@ -565,7 +567,10 @@ static inline struct tok next(void)
 	}
 
 again:
-	for (; *reader && is_skipable(*reader); ++reader);
+	for (; *reader && is_skipable(*reader); ++reader) {
+		if (*reader == '\n')
+			++line_cnt;
+	}
 
 	*reader_ptr = reader;
 
@@ -666,6 +671,8 @@ again:
 		}
 		*reader = 0;
 		graviver_str_small_replace(r.as_str, "\\n", "\n");
+		graviver_str_small_replace(r.as_str, "\\033", "\033");
+		graviver_str_small_replace(r.as_str, "\\t", "\t");
 		RET_NEXT(r);
 	} else if (isdigit(*reader)) {
 		struct tok r = {.tok=TOK_LITERAL_NUM};
@@ -1165,7 +1172,7 @@ static int parse_condition(struct tok *t_ptr, struct file *f, char **reader)
 		return 0;
 	}
 	if (!tok_is_condition(t.tok)) {
-		ERROR("unexpected token\n");
+		ERROR("%d: unexpected token %s\n", line_cnt, tok_str[t.tok]);
 	}
 
 	operation.t = t;
@@ -1229,13 +1236,15 @@ static int operation(struct tok *t_ptr, struct file *f, char **reader)
 		ERROR("unknow variable\n");
 	}
 	t = next();
+	if (t.tok == TOK_SEMICOL)
+		return 0;
 	if (parse_array_idx_nfo(f, t, &array_idx) > IDX_IS_NONE) {
 		t = next();
 	}
 
 	if (t.tok != TOK_EQUAL && t.tok != TOK_PLUS_EQUAL && t.tok != TOK_MINUS_EQUAL &&
 		t.tok != TOK_DOT_EQUAL)
-		ERROR("unexpected operation %s\n", tok_str[t.tok]);
+		ERROR("%d: unexpected operation %s\n", line_cnt, tok_str[t.tok]);
 	struct sym equal_sym = {.ref = stack_sym, .t = t};
 	if (array_idx.type >= IDX_IS_NONE) {
 		equal_sym.idx = array_idx;
@@ -1707,6 +1716,7 @@ static int perl_parse(PerlInterpreter * my_perl, void (*xs_init)(void *stuff), i
 	char *reader;
 	int ret;
 
+	line_cnt = 1;
 	cur_pi = my_perl;
 
 	if (xs_init)

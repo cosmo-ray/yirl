@@ -711,7 +711,6 @@ XS(XS_yeGet)
 		ret = yeGet((void *)SvIV(ST(0)), SvPVbyte_nolen(ST(1)));
 	} else {
 		croak("invalide inputetype");
-		return;
 	}
 	XSRETURN_IV(PTR2IV(ret));
 }
@@ -726,7 +725,6 @@ XS(XS_yeGetIntAt)
 		ret = yeGetIntAt((void *)SvIV(ST(0)), SvPVbyte_nolen(ST(1)));
 	} else {
 		croak("invalide inputetype");
-		return;
 	}
 	XSRETURN_IV(ret);
 }
