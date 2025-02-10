@@ -205,7 +205,7 @@ static inline struct stack_val newSVpv(const char *str, int l)
 	gravier_debug("PUSHMARK %s\n", #val)
 
 #define POPi					\
-	({ gravier_debug("POPi\n"); -1LL; })
+	({ gravier_debug("POPi\n"); cur_pi->return_val.v.i; })
 
 #define SPAGAIN					\
 	gravier_debug("SPAGAIN\n")
@@ -324,7 +324,7 @@ typedef struct {
 
 static PerlInterpreter *cur_pi;
 
-static void run_this(struct sym *sym_string, int return_at_return);
+static int run_this(struct sym *sym_string, int return_at_return);
 
 #define ERROR(args...)	do {			\
 		fprintf(stderr, args);		\
@@ -492,8 +492,7 @@ static inline int call_pv(const char *str, int flag)
 	if (iterator == end)
 		return -1;
 	struct sym *func  = kh_val(cur_pkg->functions, iterator);
-	run_this(func + 1, 1);
-	return 0;
+	return run_this(func + 1, 1);
 }
 
 static inline void eval_pv(const char *str, int dont_know)
@@ -1885,7 +1884,7 @@ eq_array_at:
 	return sym_string;
 }
 
-static void run_this(struct sym *sym_string, int return_at_return)
+static int run_this(struct sym *sym_string, int return_at_return)
 {
  	while (sym_string->t.tok != TOK_ENDFILE) {
 		struct tok t = sym_string->t;
@@ -1938,13 +1937,15 @@ static void run_this(struct sym *sym_string, int return_at_return)
 			}
 		} else if (t.tok == TOK_RETURN) {
 			struct sym *caller = sym_string->caller->end;
-			if (sym_string->have_return) {
+			int have_return = sym_string->have_return;
+			if (have_return) {
 				++sym_string;
 				exec_equal(&cur_pi->return_val.v, sym_string, NULL);
 			}
+			if (return_at_return) {
+				return have_return;
+			}
 			sym_string = caller;
-			if (return_at_return)
-				return;
 			continue;
 		} else if (t.tok == TOK_IF || t.tok == TOK_ELSIF) {
 			struct sym *if_end = sym_string->end;
@@ -2109,6 +2110,7 @@ static void run_this(struct sym *sym_string, int return_at_return)
 		++sym_string;
 	}
 	gravier_debug("perl run file\n");
+	return 0;
 }
 
 static void perl_run_file(PerlInterpreter *perl, struct file *f)

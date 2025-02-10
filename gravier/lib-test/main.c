@@ -36,12 +36,14 @@ XS(XS_subcall)
         }
         SPAGAIN;
 
+	intptr_t res = 0;
         if (count == 1) {
-                void *res = (void *)POPi;
+                res = POPi;
 	}
         PUTBACK;
         FREETMPS;
 	LEAVE;
+	XSRETURN_IV(res);
 }
 
 EXTERN_C void xs_init(pTHX)
