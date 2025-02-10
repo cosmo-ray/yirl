@@ -94,6 +94,8 @@ int dumbcmp(char *in, const char *keywork) {
 	return 0;
 }
 
+static struct stack_val call_args;
+
 static struct stack_val ERRSV_s;
 
 static struct stack_val *ERRSV;
@@ -190,10 +192,26 @@ static inline struct stack_val newSVpv(const char *str, int l)
 	} else {
 		ret.str = strndup(str, l);
 	}
+	return ret;
 }
 
-#define XPUSHs(val)				\
-	gravier_debug("XPUSHs %s\n", #val)
+static inline struct stack_val newSViv(intptr_t i)
+{
+	struct stack_val ret = {.flag = 0, .type=SVt_IV, .i=i};
+
+	return ret;
+}
+
+static inline void XPUSHs(struct stack_val val)
+{
+	int p = call_args.array_size;
+
+	call_args.type = SVt_PVAV;
+	call_args.array_size = call_args.array_size + 1;
+	call_args.array = realloc(call_args.array,
+				 call_args.array_size * sizeof *call_args.array);
+	call_args.array[p] = val;
+}
 
 #define ENTER					\
 	gravier_debug("ENTER\n")
@@ -466,6 +484,17 @@ static inline void perl_free(PerlInterpreter *p)
 	free(p);
 }
 
+static struct sym *find_stack_ref_in_sym(struct sym *cur_func, const char *t_as_str)
+{
+	struct sym *cur_l_stack = cur_func->local_stack;
+
+	for (int i = cur_func->l_stack_len - 1; i >= 0; --i) {
+		if (!strcmp(cur_func->local_stack[i].t.as_str, t_as_str))
+			return &cur_func->local_stack[i];
+	}
+	return NULL;
+}
+
 static inline int call_pv(const char *str, int flag)
 {
 	if (!str)
@@ -492,7 +521,21 @@ static inline int call_pv(const char *str, int flag)
 	if (iterator == end)
 		return -1;
 	struct sym *func  = kh_val(cur_pkg->functions, iterator);
-	return run_this(func + 1, 1);
+	if (call_args.array_size) {
+		struct sym *underscore;
+		if (func->l_stack_len > 0 &&
+		    (underscore = find_stack_ref_in_sym(func, "_"))) {
+			array_free(&underscore->v);
+		} else {
+			fprintf(stderr, "could not find place for args in function stack\n");
+			return -1;
+		}
+		underscore->v = call_args;
+		call_args.array_size = 0;
+		call_args.array = NULL;
+	}
+	int ret = run_this(func + 1, 1);
+	return ret;
 }
 
 static inline void eval_pv(const char *str, int dont_know)
@@ -813,12 +856,9 @@ static struct sym *find_stack_ref(struct file *this_file, struct tok *t)
 	struct sym *cur_func = this_file->cur_func;
 
 	while (cur_func) {
-		struct sym *cur_l_stack = cur_func->local_stack;
-
-		for (int i = cur_func->l_stack_len - 1; i >= 0; --i) {
-			if (!strcmp(cur_func->local_stack[i].t.as_str, t->as_str))
-				return &cur_func->local_stack[i];
-		}
+		struct sym *ret = find_stack_ref_in_sym(cur_func, t->as_str);
+		if (ret)
+			return ret;
 		cur_func = cur_func->caller;
 	}
 
@@ -1930,6 +1970,7 @@ static int run_this(struct sym *sym_string, int return_at_return)
 			struct sym *to_call = sym_string->f_ref;
 			if (to_call->t.tok == TOK_NATIVE_FUNC) {
 				to_call->nat_func(to_call, to_call->local_stack[0].v.array_size);
+				array_free(&to_call->local_stack[0].v);
 			} else {
 				to_call->end = &sym_string[1];
 				sym_string = to_call + 1;
