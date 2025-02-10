@@ -22,11 +22,13 @@ bench:
 expect_files: lib-perl-tst
 	for f in *pl; do perl $$f > $$f.expect ; done
 	./lib-perl-tst lib-test/add.pl > lib-test/add.pl.expect
+	./lib-perl-tst lib-test/subcall.pl > lib-test/subcall.pl.expect
 
 tests: gravier lib-perl-tst
 	for f in *pl; do echo -n "test $$f:"; ./gravier $$f > $$f.out ; diff $$f.expect $$f.out ; echo " $$?" | sed 's/0/OK/;s/1/FAIL/'; done
-	echo -n "test lib-test/add.pl"
 	./lib-gr-tst lib-test/add.pl > lib-test/add.pl.out
 	diff lib-test/add.pl.expect lib-test/add.pl.out ; echo " $$?" | sed 's/0/OK/;s/1/FAIL/'
+	./lib-gr-tst lib-test/subcall.pl > lib-test/subcall.pl.out
+	diff lib-test/subcall.pl.expect lib-test/subcall.pl.out ; echo " $$?" | sed 's/0/OK/;s/1/FAIL/'
 
 .PHONY : clean
