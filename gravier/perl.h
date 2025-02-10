@@ -143,7 +143,7 @@ static struct stack_val *ERRSV;
 	} while (0)
 
 
-#define croak(str) do {				\
+#define croak(str) do {					\
 		gravier_debug("croak: " str);		\
 	} while (0)
 
@@ -157,6 +157,39 @@ static struct stack_val *ERRSV;
 static inline intptr_t SvIV(struct stack_val *sv) {
 	gravier_debug("SvIV(%ld) stub\n", sv->i);
 	return sv->i;
+}
+
+static void array_free(struct stack_val *array)
+{
+	for (int i = 0; i < array->array_size; ++i) {
+		if (array->array[i].flag & VAL_NEED_FREE) {
+			if (array->array[i].type == SVt_PV) {
+				free(array->array[i].str);
+				array->array[i].str = NULL;
+			}
+		}
+	}
+	if (array->array_size) {
+		free(array->array);
+		array->array = NULL;
+	}
+	array->type = SVt_PVAV;
+	array->array_size = 0;
+}
+
+static inline struct stack_val sv_2mortal(struct stack_val v) {
+	v.flag = VAL_NEED_STEAL;
+}
+
+static inline struct stack_val newSVpv(const char *str, int l)
+{
+	struct stack_val ret = {.flag = 0, .type=SVt_PV, .flag = VAL_NEED_FREE};
+
+	if (!l) {
+		ret.str = strdup(str);
+	} else {
+		ret.str = strndup(str, l);
+	}
 }
 
 #define XPUSHs(val)				\
@@ -193,7 +226,7 @@ static inline intptr_t SvIV(struct stack_val *sv) {
 	gravier_debug("dXSUB_SYS\n")
 
 #define XS(name)				\
-	int name(struct sym *func_sym)
+	int name(struct sym *func_sym, int items)
 
 #define SvTRUE(sv) (sv->i)
 
@@ -252,7 +285,7 @@ struct sym {
 			union {
 				struct sym *f_ref;
 				_Bool have_return;
-				int (*nat_func)(struct sym *);
+				int (*nat_func)(struct sym *, int);
 			};
 			struct sym *end;
 			struct sym *arg;
@@ -286,9 +319,12 @@ typedef struct {
 	khash_t(file_list) *files;
 	const char *first_file;
 	struct sym return_val;
+	struct file *cur_pkg;
 } PerlInterpreter;
 
 static PerlInterpreter *cur_pi;
+
+static void run_this(struct sym *sym_string, int return_at_return);
 
 #define ERROR(args...)	do {			\
 		fprintf(stderr, args);		\
@@ -325,7 +361,7 @@ static PerlInterpreter *cur_pi;
 
 
 static inline void newXS(const char *oname,
-			 int (*name)(struct sym *func_sym),
+			 int (*name)(struct sym *func_sym, int items),
 			 const char *file)
 {
 	char *namespace = strstr(oname, "::");
@@ -432,7 +468,31 @@ static inline void perl_free(PerlInterpreter *p)
 
 static inline int call_pv(const char *str, int flag)
 {
-	gravier_debug("call_pv %s\n", str);
+	if (!str)
+		return -1;
+
+	char *namespace = strstr(str, "::");
+	struct file * cur_pkg = cur_pi->cur_pkg;
+	const char *name = str;
+
+	if (namespace) {
+		name = namespace + 2;
+		namespace = strndup(str, namespace - str);
+		khiter_t iterator = kh_get(file_list, cur_pi->files, namespace);
+		free(namespace);
+		khiter_t end = kh_end(cur_pi->files);
+
+		if (iterator == end)
+			return -1;
+		cur_pkg = kh_val(cur_pi->files, iterator);
+	}
+	khiter_t iterator = kh_get(func_syms, cur_pkg->functions, name);
+	khiter_t end = kh_end(cur_pi->files);
+
+	if (iterator == end)
+		return -1;
+	struct sym *func  = kh_val(cur_pkg->functions, iterator);
+	run_this(func + 1, 1);
 	return 0;
 }
 
@@ -1106,7 +1166,7 @@ static int operation(struct tok *t_ptr, struct file *f, char **reader)
 		f->sym_string[f->sym_len++].ref = stack_sym;
 		return 0;
 	}
-	if (t_ptr->tok == TOK_NAME) {
+	if (t_ptr->tok == TOK_NAME || t_ptr->tok == TOK_NAMESPACE) {
 		struct sym syms[64];
 		int nb_syms = 0;
 		int ret = parse_func_call(*t_ptr, f, syms, &nb_syms);
@@ -1514,8 +1574,6 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 		f->l_stack_len = begin_local_stack;
 		// and stack to remove here
 
-	} else if (t.tok == TOK_NAMESPACE) {
-		gravier_debug("%s::", t.as_str);
 	} else if (t.tok == TOK_SEMICOL) {
 		gravier_debug("%c\n", t.tok == TOK_SEMICOL ? ';' : t.tok == TOK_OPEN_BRACE ? '{' : '}');
 
@@ -1633,6 +1691,8 @@ static int perl_parse(PerlInterpreter * my_perl, void (*xs_init)(void *stuff), i
 	file_str[len] = 0;
 
 	struct file *this_file = malloc(sizeof *this_file);
+
+	my_perl->cur_pkg = this_file;
 	kh_val(my_perl->files, iterator) = this_file;
 
 	this_file->file_content = file_str;
@@ -1825,10 +1885,8 @@ eq_array_at:
 	return sym_string;
 }
 
-static void perl_run_file(PerlInterpreter *perl, struct file *f)
+static void run_this(struct sym *sym_string, int return_at_return)
 {
-	struct sym *sym_string = f->sym_string;
-
  	while (sym_string->t.tok != TOK_ENDFILE) {
 		struct tok t = sym_string->t;
 
@@ -1856,20 +1914,7 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 		} else if (t.tok == TOK_ARRAY_RESSET) {
 			struct sym *array = sym_string->ref;
 
-			for (int i = 0; i < array->v.array_size; ++i) {
-				if (array->v.array[i].flag & VAL_NEED_FREE) {
-					if (array->v.array[i].type == SVt_PV) {
-						free(array->v.array[i].str);
-						array->v.array[i].str = NULL;
-					}
-				}
-			}
-			if (array->v.array_size) {
-				free(array->v.array);
-				array->v.array = NULL;
-			}
-			array->v.type = SVt_PVAV;
-			array->v.array_size = 0;
+			array_free(&array->v);
 		} else if (t.tok == TOK_ARRAY_PUSH) {
 			struct sym *array = sym_string->ref;
 			int p = array->v.array_size;
@@ -1885,7 +1930,7 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 		} else if (t.tok == TOK_SUB) {
 			struct sym *to_call = sym_string->f_ref;
 			if (to_call->t.tok == TOK_NATIVE_FUNC) {
-				to_call->nat_func(to_call);
+				to_call->nat_func(to_call, to_call->local_stack[0].v.array_size);
 			} else {
 				to_call->end = &sym_string[1];
 				sym_string = to_call + 1;
@@ -1898,6 +1943,8 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 				exec_equal(&cur_pi->return_val.v, sym_string, NULL);
 			}
 			sym_string = caller;
+			if (return_at_return)
+				return;
 			continue;
 		} else if (t.tok == TOK_IF || t.tok == TOK_ELSIF) {
 			struct sym *if_end = sym_string->end;
@@ -2062,6 +2109,13 @@ static void perl_run_file(PerlInterpreter *perl, struct file *f)
 		++sym_string;
 	}
 	gravier_debug("perl run file\n");
+}
+
+static void perl_run_file(PerlInterpreter *perl, struct file *f)
+{
+	struct sym *sym_string = f->sym_string;
+
+	run_this(sym_string, 0);
 }
 
 static void perl_run(PerlInterpreter *perl)

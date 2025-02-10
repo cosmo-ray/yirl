@@ -14,10 +14,41 @@ XS(XS_sub)
 	XSRETURN_IV(SvIV(ST(0)) - SvIV(ST(1)));
 }
 
+XS(XS_subcall)
+{
+	dXSARGS;
+
+        ENTER;
+        SAVETMPS;
+        PUSHMARK(SP);
+        if (items > 1) {
+                for (int i = 1; i < items; ++i) {
+                        if (SvTYPE(ST(i)) == SVt_PV)
+                                XPUSHs(sv_2mortal(newSVpv(SvPVbyte_nolen(ST(i)), 0)));
+                        else
+                                XPUSHs(sv_2mortal(newSViv(PTR2IV(SvIV(ST(i))))));
+                }
+        }
+        PUTBACK;
+        int count = call_pv(SvPVbyte_nolen(ST(0)), G_EVAL | G_SCALAR);
+        if (SvTRUE(ERRSV)) {
+		printf("error in subcall");
+        }
+        SPAGAIN;
+
+        if (count == 1) {
+                void *res = (void *)POPi;
+	}
+        PUTBACK;
+        FREETMPS;
+	LEAVE;
+}
+
 EXTERN_C void xs_init(pTHX)
 {
 	char *file = __FILE__;
         dXSUB_SYS;
+        newXS("ATest::subcall", XS_subcall, file);
         newXS("ATest::add", XS_add, file);
         newXS("ATest::sub", XS_sub, file);
 }
