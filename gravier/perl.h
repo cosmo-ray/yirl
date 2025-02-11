@@ -460,12 +460,16 @@ static inline void perl_destruct(PerlInterpreter *p)
 				if (vvar->local_stack[i].v.flag & VAL_NEED_FREE) {
 					if (vvar->local_stack[i].v.type == SVt_PV)
 						free(vvar->local_stack[i].v.v);
+				} else if (vvar->local_stack[i].v.type == SVt_PVAV) {
+					array_free(&vvar->local_stack[i].v);
 				}
 			}
 			for (int i = 0; i < vvar->stack_len; ++i) {
 				if (vvar->stack[i].v.flag & VAL_NEED_FREE) {
 					if (vvar->stack[i].v.type == SVt_PV)
 						free(vvar->stack[i].v.v);
+				} else if (vvar->local_stack[i].v.type == SVt_PVAV) {
+					array_free(&vvar->local_stack[i].v);
 				}
 			}
 
@@ -1412,7 +1416,6 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 #undef CLEAN_DO
 
 	} else if (t.tok == TOK_RETURN) {
-		PUSH_L_STACK_CLEAR(f, f->cur_func, 0);
 		f->sym_string[f->sym_len].t = t;
 		f->sym_string[f->sym_len].caller = f->cur_func;
 		t = next();
@@ -1420,8 +1423,11 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 		if (t.tok == TOK_SEMICOL)
 			return 0;
 		STORE_OPERAND(t, f->sym_string[f->sym_len]);
+		t = next();
 		if (parse_array_idx_nfo(f, t, &f->sym_string[f->sym_len].idx) > IDX_IS_NONE) {
 			t = next();
+		} else {
+			back[nb_back++] = t;
 		}
 		f->sym_len++;
 	} else if (t.tok == TOK_SUB) {
@@ -2019,16 +2025,25 @@ static int run_this(struct sym *sym_string, int return_at_return)
 				continue;
 			}
 		} else if (t.tok == TOK_RETURN) {
-			struct sym *caller = sym_string->caller->end;
+			struct sym *caller = sym_string->caller;
+			struct sym *end = caller->end;
 			int have_return = sym_string->have_return;
 			if (have_return) {
 				++sym_string;
 				exec_equal(&cur_pi->return_val.v, sym_string, NULL);
 			}
+			for (int i = 0; i < caller->l_stack_len; ++i) {
+				if (caller->local_stack[i].v.type == SVt_PVAV) {
+					array_free(&caller->local_stack[i].v);
+				} else if (caller->local_stack[i].v.flag & VAL_NEED_FREE) {
+					if (caller->local_stack[i].v.type == SVt_PV)
+						free(caller->local_stack[i].v.v);
+				}
+			}
 			if (return_at_return) {
 				return have_return;
 			}
-			sym_string = caller;
+			sym_string = end;
 			continue;
 		} else if (t.tok == TOK_IF || t.tok == TOK_ELSIF) {
 			struct sym *if_end = sym_string->end;
