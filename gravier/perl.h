@@ -1147,7 +1147,29 @@ exit:
 	return -1;
 }
 
-static int parse_condition(struct tok *t_ptr, struct file *f, char **reader)
+#define CALL(t_, sym_)							\
+	do {								\
+		struct sym syms[64];					\
+		int nb_syms = 0;					\
+									\
+		parse_func_call((t_), f, syms, &nb_syms);		\
+		for (int i = 0; i < nb_syms; ++i, f->sym_len++) {	\
+			f->sym_string[f->sym_len] = syms[i];		\
+		}							\
+		CHECK_L_STACK_SPACE(f, 1);				\
+		struct sym *lstack_ref = &f->local_stack[f->l_stack_len++]; \
+		lstack_ref->v.flag = VAL_NEED_STEAL;			\
+		lstack_ref->t.tok = TOK_DOLAR;				\
+		++dec_lstack;						\
+		f->sym_string[f->sym_len++] = (struct sym){.ref=lstack_ref, \
+			.t=TOK_EQUAL};					\
+		f->sym_string[f->sym_len++] = (struct sym){.ref=&cur_pi->return_val, \
+			.t=TOK_DOLAR};					\
+		sym_ = (struct sym) {.ref=lstack_ref, .t=TOK_DOLAR};	\
+	} while (0)
+
+
+static struct sym *parse_condition(struct tok *t_ptr, struct file *f, char **reader, int tok)
 {
 	CHECK_SYM_SPACE(f, 2);
 	struct sym operation = {0};
@@ -1160,16 +1182,25 @@ static int parse_condition(struct tok *t_ptr, struct file *f, char **reader)
 		have_not = !have_not;
 		*t_ptr = next();
 	}
+	int dec_lstack = 0;
+	if (t_ptr->tok == TOK_NAMESPACE || t_ptr->tok == TOK_NAME) {
+		CALL(*t_ptr, l_operand);
+	} else {
+		STORE_OPERAND(*t_ptr, l_operand);
+	}
+
 	if (have_not) {
 		f->sym_string[f->sym_len++].t.tok = TOK_NOT;
 	}
-	STORE_OPERAND(*t_ptr, l_operand);
 	t = next();
 	if (t.tok == TOK_CLOSE_PARENTESIS || t.tok == TOK_SEMICOL) {
+		struct sym *ret = &f->sym_string[f->sym_len];
+		f->sym_string[f->sym_len++].t.tok = tok;
 		f->sym_string[f->sym_len++] = l_operand;
 		*t_ptr = t;
 		back[nb_back++] = t;
-		return 0;
+		f->l_stack_len -= dec_lstack;
+		return ret;
 	}
 	if (!tok_is_condition(t.tok)) {
 		ERROR("%d: unexpected token %s\n", line_cnt, tok_str[t.tok]);
@@ -1178,15 +1209,22 @@ static int parse_condition(struct tok *t_ptr, struct file *f, char **reader)
 	operation.t = t;
 	t = next();
 
-	STORE_OPERAND(t, r_operand);
+	if (t.tok == TOK_NAMESPACE || t.tok == TOK_NAME) {
+		CALL(t, r_operand);
+	} else {
+		STORE_OPERAND(t, r_operand);
+	}
 
+	struct sym *ret = &f->sym_string[f->sym_len];
+	f->sym_string[f->sym_len++].t.tok = TOK_IF;
 	f->sym_string[f->sym_len++] = operation;
 	f->sym_string[f->sym_len++] = l_operand;
 	f->sym_string[f->sym_len++] = r_operand;
 	*t_ptr = t;
-	return 0;
+	f->l_stack_len -= dec_lstack;
+	return ret;
 exit:
-	return -1;
+	return NULL;
 }
 
 static int operation(struct tok *t_ptr, struct file *f, char **reader)
@@ -1445,13 +1483,12 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 		struct sym *if_sym;
 		{
 		an_elsif:
-			if_sym = &f->sym_string[f->sym_len++];
 
 			CHECK_SYM_SPACE(f, 8);
-			if_sym->t = t;
 			t = next();
 			SKIP_REQ(TOK_OPEN_PARENTESIS, t);
-			if (parse_condition(&t, f, reader) < 0)
+			if_sym = parse_condition(&t, f, reader, t.tok);
+			if (!if_sym)
 				goto exit;
 			t = next();
 			SKIP_REQ(TOK_CLOSE_PARENTESIS, t);
@@ -1546,10 +1583,7 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 		// Not need to ne push before we next
 		SKIP_REQ(TOK_OPEN_PARENTESIS, t);
 
-		struct sym *begin_while = &f->sym_string[f->sym_len++];
-		begin_while->t.tok = TOK_IF;
-
-		parse_condition(&t, f, reader);
+		struct sym *begin_while = parse_condition(&t, f, reader, TOK_IF);
 		t = next();
 
 		SKIP_REQ(TOK_CLOSE_PARENTESIS, t);
@@ -1593,15 +1627,12 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 		operation(&t, f, reader);
 
 		check_at_end->end = &f->sym_string[f->sym_len];
-		struct sym *out_loop = &f->sym_string[f->sym_len];
-
-		f->sym_string[f->sym_len++].t.tok = TOK_IF;
 
 		for (int i = nb_for_toks_cnd - 1; i >= 0; --i) {
 			back[nb_back++] = for_toks_cnd[i];
 		}
 		t = next();
-		parse_condition(&t, f, reader);
+		struct sym *out_loop = parse_condition(&t, f, reader, TOK_IF);
 
 		f->sym_string[f->sym_len].t.tok = TOK_GOTO;
 		f->sym_string[f->sym_len++].end = begin_for;
