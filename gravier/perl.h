@@ -1261,12 +1261,12 @@ static int operation(struct tok *t_ptr, struct file *f, char **reader)
 		return ret;
 	}
 	if (t_ptr->tok != TOK_DOLAR && t_ptr->tok != TOK_AT) {
-		ERROR("$s:%d: unimplemented operation: %s\n", __FILE__, __LINE__,
-		      tok_str[t_ptr->tok]);
+		ERROR("%d: unimplemented operation: %s\n",
+		      line_cnt, tok_str[t_ptr->tok]);
 	}
 	t = next();
 	if (t.tok != TOK_NAME)
-		ERROR("expected name\n in operation");
+		ERROR("%d: expected name\n in operation", line_cnt);
 
 	struct array_idx_info array_idx;
 	struct sym *stack_sym = find_set_stack_ref(f, &t);
@@ -1711,6 +1711,7 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 			f->sym_string[f->sym_len++] = (struct sym){
 				.ref=&f->stack[p], .t=TOK_DOLAR
 			};
+			t = next();
 		} else {
 			ERROR("unexpected %s token\n", tok_str[t.tok]);
 		}
