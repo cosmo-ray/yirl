@@ -316,6 +316,7 @@ struct sym {
 		struct {
 			struct sym *ref;
 			struct array_idx_info idx;
+			_Bool oposite;
 		};
 	};
 };
@@ -934,24 +935,32 @@ exit:
 	return -1;
 }
 
+#define STORE_OPERAND_DOLAR(in_t, in)					\
+	{								\
+		int tmp_tok = (in_t).tok;				\
+		t = next();						\
+		if (t.tok != TOK_NAME) {				\
+			ERROR("variable name expected, not %s\n", tok_str[t.tok]); \
+		}							\
+		(in).t.tok = tmp_tok;					\
+		(in).ref = find_set_stack_ref(f, &t);			\
+	}								\
+
+
 #define STORE_OPERAND(in_t, in)						\
 	if ((in_t).tok == TOK_MINUS) {					\
 		t = next();						\
 		if ((in_t).tok == TOK_LITERAL_NUM)			\
 			(in).t = (struct tok){.tok=(in_t).tok, .as_int=-(in_t).as_int}; \
-		else							\
-			back[nb_back++] = t;				\
+		else {							\
+			(in).oposite = 1;				\
+			STORE_OPERAND_DOLAR(in_t, in);			\
+		}							\
 	} else if ((in_t).tok == TOK_LITERAL_STR || (in_t).tok == TOK_LITERAL_NUM) { \
 		(in).t = (in_t);					\
 	} else if ((in_t).tok == TOK_DOLAR) {				\
-		struct array_idx_info array_idx;			\
-		int tmp_tok = (in_t).tok;				\
-		t = next();						\
-		if (t.tok != TOK_NAME) {				\
-			ERROR("variable name expected, not %s\n", tok_str[t.tok]);	\
-		}							\
-		(in).t.tok = tmp_tok;					\
-		(in).ref = find_set_stack_ref(f, &t);			\
+		(in).oposite = 0;					\
+		STORE_OPERAND_DOLAR(in_t, in);				\
 	}
 
 static inline int unequal_to_equal(int tok)
@@ -988,7 +997,7 @@ static int parse_func_call(struct tok t, struct file *f, struct sym *syms, int *
 	khiter_t iterator = kh_get(func_syms, namespace->functions, t.as_str);
 
 	if (iterator == kh_end(namespace->functions))
-		ERROR("unknow function %s\n", t.as_str);
+		ERROR("%d: unknow function %s\n", line_cnt, t.as_str);
 	struct sym *function = kh_val(namespace->functions, iterator);
 	int end_call_tok = TOK_SEMICOL;
 	CHECK_L_STACK_SPACE(function, 1);
@@ -1023,7 +1032,7 @@ static int parse_func_call(struct tok t, struct file *f, struct sym *syms, int *
 	}
 	// implement arguent push here
 	if (t.tok != end_call_tok) {
-		ERROR("unclose function, got %s, expected %s\n", tok_str[t.tok],
+		ERROR("%d: unclose function, got %s, expected %s\n", line_cnt, tok_str[t.tok],
 			tok_str[end_call_tok]);
 	}
 
@@ -1057,6 +1066,7 @@ static int parse_equal_(struct file *f, char **reader, struct sym *operand, int 
 		t = next();
 		in_parentesis = 1;
 	}
+
 	if (t.tok == TOK_NAMESPACE || t.tok == TOK_NAME) {
 		parse_func_call(t, f, syms, &nb_syms);
 		for (int i = 0; i < nb_syms; ++i, f->sym_len++) {
@@ -1065,10 +1075,10 @@ static int parse_equal_(struct file *f, char **reader, struct sym *operand, int 
 		CHECK_STACK_SPACE(f, stack_tmp + 1);
 		++stack_tmp;
 		int fp = f->stack_len + stack_tmp;
-		second = (struct sym){.ref=&f->stack[fp], .t=TOK_DOLAR};
+		second = (struct sym){.ref=&f->stack[fp], .t=TOK_DOLAR, .oposite=0};
 		f->stack[fp].v.flag = VAL_NEED_STEAL;
 		f->sym_string[f->sym_len++] = (struct sym){.ref=&f->stack[fp], .t=TOK_EQUAL};
-		f->sym_string[f->sym_len++] = (struct sym){.ref=&cur_pi->return_val, .t=TOK_DOLAR};
+		f->sym_string[f->sym_len++] = (struct sym){.ref=&cur_pi->return_val, .t=TOK_DOLAR, .oposite=0};
 	} else {
 		STORE_OPERAND(t, second);
 	}
@@ -1097,7 +1107,7 @@ recheck:
 	f->sym_string[f->sym_len++] = (struct sym){.ref=&f->stack[p], .t=unequal_to_equal(tok_op)};
 	f->sym_string[f->sym_len++] = second;
 
-	*operand = (struct sym){.ref=&f->stack[p], .t=TOK_DOLAR};
+	*operand = (struct sym){.ref=&f->stack[p], .t=TOK_DOLAR, .oposite=0};
 	return 0;
 exit:
 	return -1;
@@ -1120,10 +1130,11 @@ static int parse_equal(struct file *f, char **reader, struct sym equal_sym)
 		}
 		CHECK_STACK_SPACE(f, stack_tmp + 1);
 		int p = f->stack_len + stack_tmp;
-		operand = (struct sym){.ref=&f->stack[p], .t=TOK_DOLAR};
+		operand = (struct sym){.ref=&f->stack[p], .t=TOK_DOLAR, .oposite=0};
 		f->sym_string[f->sym_len++] = (struct sym){.ref=&f->stack[p],
 			.t=TOK_EQUAL};
-		f->sym_string[f->sym_len++] = (struct sym){.ref=&cur_pi->return_val, .t=TOK_DOLAR};
+		f->sym_string[f->sym_len++] = (struct sym){.ref=&cur_pi->return_val,
+			.t=TOK_DOLAR, .oposite=0};
 		++stack_tmp;
 	} else {
 		STORE_OPERAND(t, operand);
@@ -1168,8 +1179,8 @@ exit:
 		f->sym_string[f->sym_len++] = (struct sym){.ref=lstack_ref, \
 			.t=TOK_EQUAL};					\
 		f->sym_string[f->sym_len++] = (struct sym){.ref=&cur_pi->return_val, \
-			.t=TOK_DOLAR};					\
-		sym_ = (struct sym) {.ref=lstack_ref, .t=TOK_DOLAR};	\
+			.t=TOK_DOLAR, .oposite=0};			\
+		sym_ = (struct sym) {.oposite=0, .ref=lstack_ref, .t=TOK_DOLAR}; \
 	} while (0)
 
 
@@ -1318,7 +1329,7 @@ static int operation(struct tok *t_ptr, struct file *f, char **reader)
 					if (t.tok == TOK_COMMA)
 						t = next();
 				}
-				elem = (struct sym){.t={.tok=TOK_DOLAR}, .ref=ar};
+				elem = (struct sym){.t={.tok=TOK_DOLAR}, .ref=ar, .oposite=0};
 			} else {
 				STORE_OPERAND(t, elem);
 			}
@@ -1555,7 +1566,8 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 		// TOK_INF
 		f->sym_string[f->sym_len++] = (struct sym){.t={.tok=TOK_INF}};
 		// local_stack[f->l_stack_len - 1]
-		f->sym_string[f->sym_len++] = (struct sym){.t={.tok=TOK_DOLAR}, .ref=tmp_i};
+		f->sym_string[f->sym_len++] = (struct sym){.t={.tok=TOK_DOLAR}, .ref=tmp_i,
+			.oposite=0};
 		// TOK_ARRAY_SIZE array
 		f->sym_string[f->sym_len++] = (struct sym){.t={.tok=TOK_ARRAY_SIZE},
 			.ref=array};
@@ -1567,7 +1579,7 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 			.idx={
 				.type=IDX_IS_REF,
 				.ref=tmp_i
-			}
+			}, .oposite=0
 		};
 		// parse_one_instruction
 		parse_one_instruction(my_perl, f, reader, t);
@@ -1660,8 +1672,7 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 		// and stack to remove here
 
 	} else if (t.tok == TOK_SEMICOL) {
-		gravier_debug("%c\n", t.tok == TOK_SEMICOL ? ';' : t.tok == TOK_OPEN_BRACE ? '{' : '}');
-
+		// nothing ...
 	} else if (t.tok == TOK_PRINT) {
 		int need_close = 0;
 		int stack_tmp = 1;
@@ -1704,7 +1715,8 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 
 			parse_func_call(t, f, syms, &nb_syms);
 			syms[nb_syms++] = (struct sym){.ref=&f->stack[p], .t=TOK_EQUAL};
-			syms[nb_syms++] = (struct sym){.ref=&cur_pi->return_val, .t=TOK_DOLAR};
+			syms[nb_syms++] = (struct sym){.ref=&cur_pi->return_val, .t=TOK_DOLAR,
+				.oposite=0};
 
 			int move_len = f->sym_len - base;
 			memmove(&f->sym_string[base + nb_syms], &f->sym_string[base],
@@ -1715,7 +1727,7 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 			base += nb_syms;
 			f->sym_len += nb_syms;
 			f->sym_string[f->sym_len++] = (struct sym){
-				.ref=&f->stack[p], .t=TOK_DOLAR
+				.ref=&f->stack[p], .t=TOK_DOLAR, .oposite=0
 			};
 			t = next();
 		} else {
@@ -1735,7 +1747,6 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 	} else {
 		operation(&t, f, reader);
 		//f->sym_string[f->sym_len].t = t;
-		gravier_debug("%s ", tok_str[t.tok]);
 		//f->sym_len += 1;
 	}
 	return 0;
@@ -1886,13 +1897,13 @@ pr_array_at:
 
 
 static void exec_dolar_equal(struct stack_val *sv, struct stack_val *that,
-			     struct array_idx_info *idx)
+			     struct array_idx_info *idx, int oposite)
 {
 	int oflag = sv->flag;
 	if (idx && idx->type == IDX_IS_TOKEN) {
 		int i_idx = idx->tok.as_int;
 
-		exec_dolar_equal(sv, &that->array[i_idx], NULL);
+		exec_dolar_equal(sv, &that->array[i_idx], NULL, oposite);
 	} else if (idx && idx->type == IDX_IS_REF) {
 		struct sym *idx_ref = idx->ref;
 		int i_idx = 0;
@@ -1900,7 +1911,7 @@ static void exec_dolar_equal(struct stack_val *sv, struct stack_val *that,
 		if (idx_ref) {
 			i_idx = idx_ref->v.i;
 		}
-		exec_dolar_equal(sv, &that->array[i_idx], NULL);
+		exec_dolar_equal(sv, &that->array[i_idx], NULL, oposite);
 	} else {
 		*sv = *that;
 		if (that->type == SVt_PVAV) {
@@ -1908,10 +1919,12 @@ static void exec_dolar_equal(struct stack_val *sv, struct stack_val *that,
 			sv->array = malloc(sv->array_size * sizeof *sv->array);
 			memcpy(sv->array, other->array, sv->array_size * sizeof *sv->array);
 			for (int i = 0; i < sv->array_size; ++i) {
-				exec_dolar_equal(&sv->array[i], &other->array[i], NULL);
+				exec_dolar_equal(&sv->array[i], &other->array[i], NULL,
+					oposite);
 			}
+		} else if (that->type == SVt_IV && oposite) {
+			sv->i *= -1;
 		}
-
 	}
 
 	if (sv->flag & VAL_NEED_FREE && sv->type == SVt_PV) {
@@ -1964,7 +1977,8 @@ eq_array_at:
 		sv->flag = 0;
 		sv->type = SVt_IV;
 	} else if (sym_string->t.tok == TOK_DOLAR) {
-		exec_dolar_equal(sv, &sym_string->ref->v, &sym_string->idx);
+		exec_dolar_equal(sv, &sym_string->ref->v, &sym_string->idx,
+				 sym_string->oposite);
 	} else {
 		gravier_debug("UNIMPLEMENTED %s\n",
 			      tok_str[sym_string->t.tok]);
