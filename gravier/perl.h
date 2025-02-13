@@ -262,12 +262,6 @@ typedef intptr_t IV;
 
 #define EXTERN_C
 
-struct forward_func {
-	struct sym *f;
-	struct sym ***to_rebind;
-	int to_rebind_l;
-};
-
 KHASH_MAP_INIT_STR(file_list, struct file *);
 KHASH_MAP_INIT_STR(func_syms, struct sym *);
 KHASH_MAP_INIT_STR(forward_func_h, struct forward_func *);
@@ -310,10 +304,14 @@ struct sym {
 			struct sym *caller;
 			union {
 				struct sym *f_ref;
+				khiter_t f_iter;
 				_Bool have_return;
 				int (*nat_func)(struct sym *, int);
 			};
-			struct sym *end;
+			union {
+				struct sym *end;
+				struct file *package;
+			};
 			struct sym *local_stack;
 			int l_stack_len;
 			int l_stack_size;
@@ -457,20 +455,13 @@ static inline void perl_destruct(PerlInterpreter *p)
 
 	gravier_debug("perl_destruct\n");
 
-	kh_foreach(p->forward_dec, fdkey, fdvar, {
-			free(fdvar->to_rebind);
-			free(fdvar->f->local_stack);
-			free(fdvar->f);
-			free(fdvar);
-		});
-	kh_destroy(forward_func_h, p->forward_dec);
-
 	kh_foreach(p->files, kkey, vvar, {
 			const char *fkey;
 			struct sym *fvar;
 
 			kh_foreach(vvar->functions, fkey, fvar, {
-					if (fvar->t.tok == TOK_NATIVE_FUNC)
+					if (fvar->t.tok == TOK_NATIVE_FUNC ||
+					    fvar->t.tok == TOK_INDIRECT_FUNC)
 						free(fvar);
 				});
 
@@ -1014,29 +1005,17 @@ static int parse_func_call(struct tok t, struct file *f, struct sym *syms, int *
 	khiter_t iterator = kh_get(func_syms, namespace->functions, t.as_str);
 	struct sym *func_syms;
 	struct sym *function;
-	struct forward_func *forward = NULL;
+	int is_indirect_func = 0;
 
 	if (iterator == kh_end(namespace->functions)) {
-		int ret = 0;
-
-		iterator = kh_get(forward_func_h, cur_pi->forward_dec, t.as_str);
-		if (iterator == kh_end(cur_pi->forward_dec)) {
-			iterator = kh_put(forward_func_h, cur_pi->forward_dec,
-					  t.as_str, &ret);
-			if (ret < 0)
-				ERROR("me hash table fail me, so sad :(\n");
-			kh_val(cur_pi->forward_dec, iterator) = malloc(sizeof *forward);
-			forward = kh_val(cur_pi->forward_dec, iterator);
-			forward->f = malloc(sizeof *function);
-			forward->to_rebind_l = 0;
-			forward->to_rebind = NULL;
-		} else {
-			forward = kh_val(cur_pi->forward_dec, iterator);
-		}
-		function = forward->f;
-		forward->to_rebind_l++;
-		forward->to_rebind = realloc(forward->to_rebind,
-					     sizeof *forward->to_rebind * forward->to_rebind_l);
+		int ret;
+		iterator = kh_put(func_syms, namespace->functions, t.as_str, &ret);
+		if (ret < 0)
+			ERROR("me hash table fail me, so sad :(\n");
+		function = malloc(sizeof *function);
+		function->t.tok = TOK_INDIRECT_FUNC;
+		kh_val(namespace->functions, iterator) = function;
+		is_indirect_func = 1;
 	} else {
 		function = kh_val(namespace->functions, iterator);
 	}
@@ -1077,13 +1056,16 @@ static int parse_func_call(struct tok t, struct file *f, struct sym *syms, int *
 			tok_str[end_call_tok]);
 	}
 
-	syms[*nb_syms].f_ref = function;
-	if (forward) {
-		printf("rebind 0 %p %p\n", syms[*nb_syms].f_ref, &syms[*nb_syms].f_ref);
-		forward->to_rebind[forward->to_rebind_l - 1] = &syms[*nb_syms].f_ref;
+	if (is_indirect_func) {
+		syms[*nb_syms].f_iter = iterator;
+		syms[*nb_syms].package = namespace;
+		/* not sure function.tok.t is equal to tok_sub or tok_name */
+		syms[*nb_syms].t.tok = TOK_INDIRECT_FUNC;
+	} else {
+		syms[*nb_syms].f_ref = function;
+		/* not sure function.tok.t is equal to tok_sub or tok_name */
+		syms[*nb_syms].t.tok = TOK_SUB;
 	}
-	/* not sure function.tok.t is equal to tok_sub or tok_name */
-	syms[*nb_syms].t.tok = TOK_SUB;
 	*nb_syms += 1;
 	return 0;
 exit:
@@ -1316,7 +1298,6 @@ static int operation(struct tok *t_ptr, struct file *f, char **reader)
 		int ret = parse_func_call(*t_ptr, f, syms, &nb_syms);
 		for (int i = 0; i < nb_syms; ++i, f->sym_len++) {
 			f->sym_string[f->sym_len] = syms[i];
-			printf("bla %p - %p\n", f->sym_string[f->sym_len].f_ref, syms[i].f_ref);
 		}
 
 		return ret;
@@ -1499,25 +1480,26 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 
 		NEXT_N_CHECK(TOK_NAME);
 
-		khiter_t iterator = kh_put(func_syms, f->functions, t.as_str, &ret);
-		if (ret < 0)
-			ERROR("me hash table fail me, so sad :(\n");
-		kh_val(f->functions, iterator) = function_begin;
-
-		iterator = kh_get(forward_func_h, cur_pi->forward_dec, t.as_str);
-		if (iterator != kh_end(cur_pi->forward_dec)) {
-			struct forward_func *fd = kh_val(cur_pi->forward_dec, iterator);
-			if (fd->f->local_stack) {
-				function_begin->l_stack_len = fd->f->l_stack_len;
-				function_begin->l_stack_size = fd->f->l_stack_size;
-				function_begin->local_stack = fd->f->local_stack;
-				fd->f->local_stack = NULL;
+		khiter_t iterator = kh_get(func_syms, f->functions, t.as_str);
+		if (iterator != kh_end(f->functions)) {
+			struct sym *fd = kh_val(f->functions, iterator);
+			if (fd->local_stack) {
+				function_begin->l_stack_len = fd->l_stack_len;
+				function_begin->l_stack_size = fd->l_stack_size;
+				function_begin->local_stack = fd->local_stack;
+				if (fd->t.tok == TOK_INDIRECT_FUNC)
+					free(fd);
 			}
 		} else {
 			function_begin->l_stack_len = 0;
 			function_begin->l_stack_size = 0;
 			function_begin->local_stack = NULL;
 		}
+		iterator = kh_put(func_syms, f->functions, t.as_str, &ret);
+		if (ret < 0)
+			ERROR("me hash table fail me, so sad :(\n");
+		kh_val(f->functions, iterator) = function_begin;
+
 		CHECK_L_STACK_SPACE(function_begin, 1);
 		struct sym *func_l_stack = function_begin->local_stack;
 		func_l_stack[function_begin->l_stack_len].t = (struct tok){.tok=TOK_NAME, .as_str="_"};
@@ -1883,23 +1865,6 @@ static int perl_parse(PerlInterpreter * my_perl, void (*xs_init)(void *stuff), i
 	const char *fdkey;
 	struct forward_func *fdvar;
 
-	kh_foreach(cur_pi->forward_dec, fdkey, fdvar, {
-			khiter_t iterator = kh_get(func_syms, this_file->functions, fdkey);
-			khiter_t end = kh_end(cur_pi->forward_dec);
-
-			if (iterator == end)
-				continue;
-			struct sym *func = kh_val(this_file->functions, iterator);
-			for (int i = 0; i < fdvar->to_rebind_l; ++i) {
-				printf("bonjour, peu etre  %p %p to %p\n", *fdvar->to_rebind[i],
-				       fdvar->to_rebind[i], func);
-				*fdvar->to_rebind[i] = func;
-				printf("bonjour, peu etre 2  %p %p\n", *fdvar->to_rebind[i],
-				       fdvar->to_rebind[i]);
-			}
-		});
-
-
 	return 0;
 exit:
 	free(file_str);
@@ -2105,9 +2070,15 @@ static int run_this(struct sym *sym_string, int return_at_return)
 			elem->type = SVt_NULL;
 			++sym_string;
 			exec_equal(elem, sym_string, NULL);
-		} else if (t.tok == TOK_SUB) {
-			struct sym *to_call = sym_string->f_ref;
-			printf("to call %p %p\n", &to_call, to_call);
+		} else if (t.tok == TOK_SUB || t.tok == TOK_INDIRECT_FUNC) {
+			struct sym *to_call;
+			if (t.tok == TOK_SUB) {
+				to_call = sym_string->f_ref;
+			} else {
+				khiter_t it = sym_string->f_iter;
+
+				to_call = kh_val(sym_string->package->functions, it);
+			}
 			if (to_call->t.tok == TOK_NATIVE_FUNC) {
 				to_call->nat_func(to_call, to_call->local_stack[0].v.array_size);
 				array_free(&to_call->local_stack[0].v);
