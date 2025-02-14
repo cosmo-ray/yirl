@@ -2078,6 +2078,10 @@ static int run_this(struct sym *sym_string, int return_at_return)
 				khiter_t it = sym_string->f_iter;
 
 				to_call = kh_val(sym_string->package->functions, it);
+				if (to_call->t.tok == TOK_INDIRECT_FUNC) {
+					fprintf(stderr, "Undefined subroutine '%s'\n", kh_key(sym_string->package->functions, it));
+					return 1;
+				}
 			}
 			if (to_call->t.tok == TOK_NATIVE_FUNC) {
 				to_call->nat_func(to_call, to_call->local_stack[0].v.array_size);
