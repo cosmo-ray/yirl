@@ -838,7 +838,11 @@ static inline _Bool tok_is_condition(int t)
 		t == TOK_EQ;
 }
 
-/* static inline _Bool tok_is_logical_operator(int t) */
+static inline _Bool tok_is_logical_operator(int t)
+{
+	 return t == TOK_DOUBLE_AND || t == TOK_DOUBLE_PIPE;
+
+}
 
 static inline intptr_t int_fron_sym(struct sym *sym)
 {
@@ -1245,7 +1249,6 @@ static void parse_condition_(struct tok t, struct file *f, struct sym *syms, int
 		}
 		syms[syms_l++] = l_operand;
 		back[nb_back++] = t;
-		*syms_l_ptr = syms_l;
 		goto exit;
 	}
 	if (!tok_is_condition(t.tok)) {
@@ -1268,25 +1271,16 @@ static void parse_condition_(struct tok t, struct file *f, struct sym *syms, int
 	syms[syms_l++] = l_operand;
 	syms[syms_l++] = r_operand;
 
-again:
 	t = next();
-	if (tok_is_condition(t.tok)) {
-		operation.t = t;
-		syms[syms_l++] = operation;
+	if (tok_is_logical_operator(t.tok)) {
+		syms[syms_l++].t.tok = t.tok;
 		t = next();
-
-		if (t.tok == TOK_NAMESPACE || t.tok == TOK_NAME) {
-			CALL(t, r_operand);
-		} else {
-			STORE_OPERAND(t, r_operand);
-		}
-		syms[syms_l++] = r_operand;
-		goto again;
-	} else {
-		back[nb_back++] = t;
+		*syms_l_ptr = syms_l;
+		return parse_condition_(t, f, syms, syms_l_ptr, dec_lstack);
 	}
-	*syms_l_ptr = syms_l;
+	back[nb_back++] = t;
 exit:
+	*syms_l_ptr = syms_l;
 }
 
 static struct sym *parse_condition(struct tok *t_ptr, struct file *f, char **reader, int tok)
@@ -1979,6 +1973,26 @@ pr_array_at:
 }
 
 
+static int exec_relational_operator(int tok, struct sym *lop, struct sym *rop)
+{
+	switch (tok) {
+	case TOK_DOUBLE_EQUAL:
+		return int_fron_sym(lop) == int_fron_sym(rop);
+	case TOK_NOT_EQUAL:
+		return int_fron_sym(lop) != int_fron_sym(rop);
+	case TOK_SUP_EQUAL:
+		return int_fron_sym(lop) >= int_fron_sym(rop);
+	case TOK_SUP:
+		return int_fron_sym(lop) > int_fron_sym(rop);
+	case TOK_INF_EQUAL:
+		return int_fron_sym(lop) <= int_fron_sym(rop);
+	case TOK_INF:
+		return int_fron_sym(lop) < int_fron_sym(rop);
+	case TOK_EQ:
+		return !strcmp(str_fron_sym(lop), str_fron_sym(rop));
+	}
+}
+
 static void exec_dolar_equal(struct stack_val *sv, struct stack_val *that,
 			     struct array_idx_info *idx, int oposite)
 {
@@ -2156,7 +2170,6 @@ static int run_this(struct sym *sym_string, int return_at_return)
 		} else if (t.tok == TOK_IF || t.tok == TOK_ELSIF) {
 			struct sym *if_end = sym_string->end;
 			int have_not = 0;
-			struct sym tmp = {.t.tok = TOK_LITERAL_NUM};
 			++sym_string;
 			t = sym_string->t;
 			if (t.tok == TOK_NOT) {
@@ -2178,37 +2191,29 @@ static int run_this(struct sym *sym_string, int return_at_return)
 			struct sym *lop = &sym_string[1];
 			struct sym *rop = &sym_string[2];
 			int nb = 3;
-			_Bool cnd = 0;
-		recheck_cnd:
-			switch (t.tok) {
-			case TOK_DOUBLE_EQUAL:
-				cnd = int_fron_sym(lop) == int_fron_sym(rop);
-				break;
-			case TOK_NOT_EQUAL:
-				cnd = int_fron_sym(lop) != int_fron_sym(rop);
-				break;
-			case TOK_SUP_EQUAL:
-				cnd = int_fron_sym(lop) >= int_fron_sym(rop);
-				break;
-			case TOK_SUP:
-				cnd = int_fron_sym(lop) > int_fron_sym(rop);
-				break;
-			case TOK_INF_EQUAL:
-				cnd = int_fron_sym(lop) <= int_fron_sym(rop);
-				break;
-			case TOK_INF:
-				cnd = int_fron_sym(lop) < int_fron_sym(rop);
-				break;
-			case TOK_EQ:
-				cnd = !strcmp(str_fron_sym(lop), str_fron_sym(rop));
-				break;
-			}
-			if (tok_is_condition(sym_string[nb].t.tok)) {
-				rop = &sym_string[nb + 1];
-				lop = &tmp;
-				tmp.t.as_int = cnd;
-				nb += 2;
-				goto recheck_cnd;
+			_Bool cnd = exec_relational_operator(t.tok, rop, lop);
+
+			while (tok_is_logical_operator(sym_string[nb].t.tok)) {
+				int logical_op_tok = sym_string[nb].t.tok;
+
+				lop = &sym_string[nb + 1];
+				if (tok_is_condition(sym_string[nb + 2].t.tok)) {
+					rop = &sym_string[nb + 3];
+					if (logical_op_tok == TOK_DOUBLE_PIPE) {
+						cnd = cnd || exec_relational_operator(sym_string[nb + 2].t.tok, lop, rop);
+					} else {
+						cnd = cnd && exec_relational_operator(sym_string[nb + 2].t.tok, lop, rop);
+					}
+					nb += 4;
+				} else {
+					if (logical_op_tok == TOK_DOUBLE_PIPE) {
+						cnd = cnd || int_fron_sym(lop);
+					} else {
+						cnd = cnd && int_fron_sym(lop);
+
+					}
+					nb += 2;
+				}
 			}
 			gravier_debug("condition result: %d\n", cnd);
 			if (have_not)
