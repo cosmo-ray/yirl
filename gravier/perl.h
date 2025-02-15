@@ -426,6 +426,9 @@ static inline void newXS(const char *oname,
 	struct sym *function = malloc(sizeof *function);
 	function->nat_func = name;
 	function->t.tok = TOK_NATIVE_FUNC;
+	function->local_stack = NULL;
+	function->l_stack_size = 0;
+	function->l_stack_len = 0;
 	kh_val(this_mod->functions, iterator) = function;
 
 exit:
@@ -826,6 +829,7 @@ again:
 
 #define NEXT_N_CHECK(tok_) NEXT_N_CHECK_2(tok_, t)
 
+/* in C they're call Relational Operators */
 static inline _Bool tok_is_condition(int t)
 {
 	return t == TOK_DOUBLE_EQUAL || t == TOK_NOT_EQUAL ||
@@ -833,6 +837,8 @@ static inline _Bool tok_is_condition(int t)
 		t == TOK_INF_EQUAL || t == TOK_INF ||
 		t == TOK_EQ;
 }
+
+/* static inline _Bool tok_is_logical_operator(int t) */
 
 static inline intptr_t int_fron_sym(struct sym *sym)
 {
@@ -1020,6 +1026,7 @@ static int parse_func_call(struct tok t, struct file *f, struct sym *syms, int *
 		function = kh_val(namespace->functions, iterator);
 	}
 	int end_call_tok = TOK_SEMICOL;
+	gravier_debug("%s - %p\n", t.as_str, function);
 	CHECK_L_STACK_SPACE(function, 1);
 	struct sym *underscore = &function->local_stack[0];
 	t = next();
@@ -1202,7 +1209,7 @@ exit:
 		struct sym *lstack_ref = &f->local_stack[f->l_stack_len++]; \
 		lstack_ref->v.flag = VAL_NEED_STEAL;			\
 		lstack_ref->t.tok = TOK_DOLAR;				\
-		++dec_lstack;						\
+		*dec_lstack += 1;						\
 		f->sym_string[f->sym_len++] = (struct sym){.ref=lstack_ref, \
 			.t=TOK_EQUAL};					\
 		f->sym_string[f->sym_len++] = (struct sym){.ref=&cur_pi->return_val, \
@@ -1211,38 +1218,35 @@ exit:
 	} while (0)
 
 
-static struct sym *parse_condition(struct tok *t_ptr, struct file *f, char **reader, int tok)
+static void parse_condition_(struct tok t, struct file *f, struct sym *syms, int *syms_l_ptr, int *dec_lstack)
 {
-	CHECK_SYM_SPACE(f, 2);
+	char **reader = reader_ptr;
 	struct sym operation = {0};
 	struct sym l_operand = {0};
 	struct sym r_operand = {0};
-	struct tok t;
+
+	int syms_l = *syms_l_ptr;
 	int have_not = 0;
 
-	while (t_ptr->tok == TOK_NOT) {
+	while (t.tok == TOK_NOT) {
 		have_not = !have_not;
-		*t_ptr = next();
+		t = next();
 	}
-	int dec_lstack = 0;
-	if (t_ptr->tok == TOK_NAMESPACE || t_ptr->tok == TOK_NAME) {
-		CALL(*t_ptr, l_operand);
+	if (t.tok == TOK_NAMESPACE || t.tok == TOK_NAME) {
+		CALL(t, l_operand);
 	} else {
-		STORE_OPERAND(*t_ptr, l_operand);
+		STORE_OPERAND(t, l_operand);
 	}
 
-	if (have_not) {
-		f->sym_string[f->sym_len++].t.tok = TOK_NOT;
-	}
 	t = next();
 	if (t.tok == TOK_CLOSE_PARENTESIS || t.tok == TOK_SEMICOL) {
-		struct sym *ret = &f->sym_string[f->sym_len];
-		f->sym_string[f->sym_len++].t.tok = tok;
-		f->sym_string[f->sym_len++] = l_operand;
-		*t_ptr = t;
+		if (have_not) {
+			syms[syms_l++].t.tok = TOK_NOT;
+		}
+		syms[syms_l++] = l_operand;
 		back[nb_back++] = t;
-		f->l_stack_len -= dec_lstack;
-		return ret;
+		*syms_l_ptr = syms_l;
+		goto exit;
 	}
 	if (!tok_is_condition(t.tok)) {
 		ERROR("%d: unexpected token %s\n", line_cnt, tok_str[t.tok]);
@@ -1257,12 +1261,47 @@ static struct sym *parse_condition(struct tok *t_ptr, struct file *f, char **rea
 		STORE_OPERAND(t, r_operand);
 	}
 
+	if (have_not) {
+		syms[syms_l++].t.tok = TOK_NOT;
+	}
+	syms[syms_l++] = operation;
+	syms[syms_l++] = l_operand;
+	syms[syms_l++] = r_operand;
+
+again:
+	t = next();
+	if (tok_is_condition(t.tok)) {
+		operation.t = t;
+		syms[syms_l++] = operation;
+		t = next();
+
+		if (t.tok == TOK_NAMESPACE || t.tok == TOK_NAME) {
+			CALL(t, r_operand);
+		} else {
+			STORE_OPERAND(t, r_operand);
+		}
+		syms[syms_l++] = r_operand;
+		goto again;
+	} else {
+		back[nb_back++] = t;
+	}
+	*syms_l_ptr = syms_l;
+exit:
+}
+
+static struct sym *parse_condition(struct tok *t_ptr, struct file *f, char **reader, int tok)
+{
+	CHECK_SYM_SPACE(f, 2);
+	struct sym syms[125];
+	int syms_l = 0;
+	int dec_lstack = 0;
+
+	parse_condition_(*t_ptr, f, syms, &syms_l, &dec_lstack);
+	CHECK_SYM_SPACE(f, syms_l + 2);
 	struct sym *ret = &f->sym_string[f->sym_len];
-	f->sym_string[f->sym_len++].t.tok = TOK_IF;
-	f->sym_string[f->sym_len++] = operation;
-	f->sym_string[f->sym_len++] = l_operand;
-	f->sym_string[f->sym_len++] = r_operand;
-	*t_ptr = t;
+	f->sym_string[f->sym_len++].t.tok = tok;
+	for (int i = 0; i < syms_l; ++i)
+		f->sym_string[f->sym_len++] = syms[i];
 	f->l_stack_len -= dec_lstack;
 	return ret;
 exit:
@@ -1536,13 +1575,15 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 		struct sym *elsif_goto_syms[MAX_ELSIF];
 		int nb_elseif = 0;
 		struct sym *if_sym;
+		int tok;
 		{
 		an_elsif:
 
+			tok = t.tok;
 			CHECK_SYM_SPACE(f, 8);
 			t = next();
 			SKIP_REQ(TOK_OPEN_PARENTESIS, t);
-			if_sym = parse_condition(&t, f, reader, t.tok);
+			if_sym = parse_condition(&t, f, reader, tok);
 			if (!if_sym)
 				goto exit;
 			t = next();
@@ -1741,7 +1782,7 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 				t = next();
 			}
 			f->sym_len++;
-		} else if (t.tok == TOK_NAME) {
+		} else if (t.tok == TOK_NAME || t.tok == TOK_NAMESPACE) {
 			static struct sym syms[128];
 			int nb_syms = 0;
 			int p = f->stack_len + stack_tmp;
@@ -2115,6 +2156,7 @@ static int run_this(struct sym *sym_string, int return_at_return)
 		} else if (t.tok == TOK_IF || t.tok == TOK_ELSIF) {
 			struct sym *if_end = sym_string->end;
 			int have_not = 0;
+			struct sym tmp = {.t.tok = TOK_LITERAL_NUM};
 			++sym_string;
 			t = sym_string->t;
 			if (t.tok == TOK_NOT) {
@@ -2123,7 +2165,11 @@ static int run_this(struct sym *sym_string, int return_at_return)
 				t = sym_string->t;
 			}
 			if (!tok_is_condition(t.tok)) {
-				if (t.tok == TOK_LITERAL_NUM && t.as_int)
+				int cnd = t.tok == TOK_LITERAL_NUM && t.as_int;
+
+				if (have_not)
+					cnd = !cnd;
+				if (cnd)
 					++sym_string;
 				else
 					sym_string = if_end;
@@ -2131,7 +2177,9 @@ static int run_this(struct sym *sym_string, int return_at_return)
 			}
 			struct sym *lop = &sym_string[1];
 			struct sym *rop = &sym_string[2];
+			int nb = 3;
 			_Bool cnd = 0;
+		recheck_cnd:
 			switch (t.tok) {
 			case TOK_DOUBLE_EQUAL:
 				cnd = int_fron_sym(lop) == int_fron_sym(rop);
@@ -2155,11 +2203,18 @@ static int run_this(struct sym *sym_string, int return_at_return)
 				cnd = !strcmp(str_fron_sym(lop), str_fron_sym(rop));
 				break;
 			}
+			if (tok_is_condition(sym_string[nb].t.tok)) {
+				rop = &sym_string[nb + 1];
+				lop = &tmp;
+				tmp.t.as_int = cnd;
+				nb += 2;
+				goto recheck_cnd;
+			}
 			gravier_debug("condition result: %d\n", cnd);
 			if (have_not)
 				cnd = !cnd;
 			if (cnd) {
-				sym_string += 3;
+				sym_string += nb;
 			} else {
 				sym_string = if_end;
 			}
