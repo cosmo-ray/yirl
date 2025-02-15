@@ -1973,23 +1973,30 @@ pr_array_at:
 }
 
 
-static int exec_relational_operator(int tok, struct sym *lop, struct sym *rop)
+static int exec_not(int cnd, int have_not)
+{
+	if (have_not)
+		return !cnd;
+	return cnd;
+}
+
+static int exec_relational_operator(int tok, struct sym *lop, struct sym *rop, int have_not)
 {
 	switch (tok) {
 	case TOK_DOUBLE_EQUAL:
-		return int_fron_sym(lop) == int_fron_sym(rop);
+		return exec_not(int_fron_sym(lop) == int_fron_sym(rop), have_not);
 	case TOK_NOT_EQUAL:
-		return int_fron_sym(lop) != int_fron_sym(rop);
+		return exec_not(int_fron_sym(lop) != int_fron_sym(rop), have_not);
 	case TOK_SUP_EQUAL:
-		return int_fron_sym(lop) >= int_fron_sym(rop);
+		return exec_not(int_fron_sym(lop) >= int_fron_sym(rop), have_not);
 	case TOK_SUP:
-		return int_fron_sym(lop) > int_fron_sym(rop);
+		return exec_not(int_fron_sym(lop) > int_fron_sym(rop), have_not);
 	case TOK_INF_EQUAL:
-		return int_fron_sym(lop) <= int_fron_sym(rop);
+		return exec_not(int_fron_sym(lop) <= int_fron_sym(rop), have_not);
 	case TOK_INF:
-		return int_fron_sym(lop) < int_fron_sym(rop);
+		return exec_not(int_fron_sym(lop) < int_fron_sym(rop), have_not);
 	case TOK_EQ:
-		return !strcmp(str_fron_sym(lop), str_fron_sym(rop));
+		return exec_not(!strcmp(str_fron_sym(lop), str_fron_sym(rop)), have_not);
 	}
 }
 
@@ -2178,10 +2185,9 @@ static int run_this(struct sym *sym_string, int return_at_return)
 				t = sym_string->t;
 			}
 			if (!tok_is_condition(t.tok)) {
-				int cnd = t.tok == TOK_LITERAL_NUM && t.as_int;
+				int cnd = exec_not(t.tok == TOK_LITERAL_NUM && t.as_int,
+						   have_not);
 
-				if (have_not)
-					cnd = !cnd;
 				if (cnd)
 					++sym_string;
 				else
@@ -2191,33 +2197,36 @@ static int run_this(struct sym *sym_string, int return_at_return)
 			struct sym *lop = &sym_string[1];
 			struct sym *rop = &sym_string[2];
 			int nb = 3;
-			_Bool cnd = exec_relational_operator(t.tok, rop, lop);
+			_Bool cnd = exec_relational_operator(t.tok, lop, rop, have_not);
 
 			while (tok_is_logical_operator(sym_string[nb].t.tok)) {
 				int logical_op_tok = sym_string[nb].t.tok;
+				have_not = 0;
 
+				if (sym_string[nb + 1].t.tok == TOK_NOT) {
+					++nb;
+					have_not = !have_not;
+				}
 				lop = &sym_string[nb + 1];
 				if (tok_is_condition(sym_string[nb + 2].t.tok)) {
 					rop = &sym_string[nb + 3];
 					if (logical_op_tok == TOK_DOUBLE_PIPE) {
-						cnd = cnd || exec_relational_operator(sym_string[nb + 2].t.tok, lop, rop);
+						cnd = cnd || exec_relational_operator(sym_string[nb + 2].t.tok, lop, rop, have_not);
 					} else {
-						cnd = cnd && exec_relational_operator(sym_string[nb + 2].t.tok, lop, rop);
+						cnd = cnd && exec_relational_operator(sym_string[nb + 2].t.tok, lop, rop, have_not);
 					}
 					nb += 4;
 				} else {
 					if (logical_op_tok == TOK_DOUBLE_PIPE) {
-						cnd = cnd || int_fron_sym(lop);
+						cnd = cnd || exec_not(int_fron_sym(lop), have_not);
 					} else {
-						cnd = cnd && int_fron_sym(lop);
+						cnd = cnd && exec_not(int_fron_sym(lop), have_not);
 
 					}
 					nb += 2;
 				}
 			}
 			gravier_debug("condition result: %d\n", cnd);
-			if (have_not)
-				cnd = !cnd;
 			if (cnd) {
 				sym_string += nb;
 			} else {
