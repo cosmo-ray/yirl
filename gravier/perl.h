@@ -1042,7 +1042,11 @@ static int parse_func_call(struct tok t, struct file *f, struct sym *syms, int *
 		iterator = kh_put(func_syms, namespace->functions, t.as_str, &ret);
 		if (ret < 0)
 			ERROR("me hash table fail me, so sad :(\n");
+		gravier_debug("forward declaration of %s\n", t.as_str);
 		function = malloc(sizeof *function);
+		function->local_stack = NULL;
+		function->l_stack_len = 0;
+		function->l_stack_size = 0;
 		function->t.tok = TOK_INDIRECT_FUNC;
 		kh_val(namespace->functions, iterator) = function;
 		is_indirect_func = 1;
