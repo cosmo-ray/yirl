@@ -910,9 +910,12 @@ static struct sym *find_stack_ref(struct file *this_file, struct tok *t)
 	}
 
 	for (int i = this_file->l_stack_len - 1; i >= 0; --i) {
-		if (!strcmp(this_file->local_stack[i].t.as_str, t->as_str))
+		const char *s = this_file->local_stack[i].t.as_str;
+
+		if (s && !strcmp(s, t->as_str))
 			return &this_file->local_stack[i];
 	}
+
 	for (int i = 0; i < this_file->stack_len; ++i) {
 		if (!strcmp(this_file->stack[i].t.as_str, t->as_str))
 			return &this_file->stack[i];
@@ -1104,7 +1107,6 @@ static int parse_equal_(struct file *f, char **reader, struct sym *operand, int 
 			struct tok t)
 {
 	CHECK_STACK_SPACE(f, stack_tmp);
-	CHECK_SYM_SPACE(f, 4);
 	int p = f->stack_len + stack_tmp;
 	f->sym_string[f->sym_len++] = (struct sym){.ref=&f->stack[p], .t=TOK_EQUAL};
 	f->sym_string[f->sym_len++] = *operand;
@@ -1312,13 +1314,11 @@ exit:
 
 static struct sym *parse_condition(struct tok *t_ptr, struct file *f, char **reader, int tok)
 {
-	CHECK_SYM_SPACE(f, 2);
 	struct sym syms[125];
 	int syms_l = 0;
 	int dec_lstack = 0;
 
 	parse_condition_(*t_ptr, f, syms, &syms_l, &dec_lstack);
-	CHECK_SYM_SPACE(f, syms_l + 2);
 	struct sym *ret = &f->sym_string[f->sym_len];
 	f->sym_string[f->sym_len++].t.tok = tok;
 	for (int i = 0; i < syms_l; ++i)
@@ -1391,11 +1391,9 @@ static int operation(struct tok *t_ptr, struct file *f, char **reader)
 	}
 	if (array_idx.type == IDX_IS_NONE && t_ptr->tok == TOK_AT) {
 		NEXT_N_CHECK(TOK_OPEN_PARENTESIS);
-		CHECK_SYM_SPACE(f, 1);
 		f->sym_string[f->sym_len++] = (struct sym){.ref=stack_sym, .t=TOK_ARRAY_RESSET};
 		t = next();
 		while (t.tok != TOK_CLOSE_PARENTESIS) {
-			CHECK_SYM_SPACE(f, 4);
 			struct sym elem;
 			struct sym *ar = NULL;
 			if (t.tok == TOK_OPEN_PARENTESIS) {
@@ -1471,6 +1469,7 @@ exit:
 static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char **reader,
 				 struct tok t)
 {
+	CHECK_SYM_SPACE(f, 258);
 	if (t.tok == TOK_MY || t.tok == TOK_DOLAR) {
 		var_declaration(t, f, reader);
 	} else if (t.tok == TOK_DO) {
@@ -1554,10 +1553,10 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 			function_begin->l_stack_len = 0;
 			function_begin->l_stack_size = 0;
 			function_begin->local_stack = NULL;
+			iterator = kh_put(func_syms, f->functions, t.as_str, &ret);
+			if (ret < 0)
+				ERROR("me hash table fail me, so sad :(\n");
 		}
-		iterator = kh_put(func_syms, f->functions, t.as_str, &ret);
-		if (ret < 0)
-			ERROR("me hash table fail me, so sad :(\n");
 		kh_val(f->functions, iterator) = function_begin;
 
 		CHECK_L_STACK_SPACE(function_begin, 1);
@@ -1601,7 +1600,6 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 		an_elsif:
 
 			tok = t.tok;
-			CHECK_SYM_SPACE(f, 8);
 			t = next();
 			SKIP_REQ(TOK_OPEN_PARENTESIS, t);
 			if_sym = parse_condition(&t, f, reader, tok);
@@ -1634,7 +1632,6 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 			}
 		}
 	} else if (t.tok == TOK_FOREACH) {
-		CHECK_SYM_SPACE(f, 8);
 		t = next();
 
 		// Not need to ne push before we next
@@ -1695,7 +1692,6 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 		else
 			f->l_stack_len--;
 	} else if (t.tok == TOK_WHILE) {
-		CHECK_SYM_SPACE(f, 8);
 		t = next();
 
 		// Not need to ne push before we next
@@ -1712,7 +1708,6 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 		f->sym_string[f->sym_len++].t.tok = TOK_GOTO;
 		begin_while->end = &f->sym_string[f->sym_len];
 	} else if (t.tok == TOK_FOR) {
-		CHECK_SYM_SPACE(f, 8);
 		gravier_debug("handling for\n");
 		t = next();
 		if (t.tok != TOK_OPEN_PARENTESIS) {
@@ -1786,7 +1781,6 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 			need_close = 1;
 		}
 	print_comma:
-		CHECK_SYM_SPACE(f, 4);
 		if (t.tok == TOK_LITERAL_NUM || t.tok == TOK_LITERAL_STR) {
 			f->sym_string[f->sym_len++].t = t;
 			t = next();
@@ -1811,7 +1805,6 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 			stack_tmp++;
 
 			CHECK_STACK_SPACE(f, stack_tmp);
-			CHECK_SYM_SPACE(f, nb_syms);
 
 			parse_func_call(t, f, syms, &nb_syms);
 			syms[nb_syms++] = (struct sym){.ref=&f->stack[p], .t=TOK_EQUAL};
