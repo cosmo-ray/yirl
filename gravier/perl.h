@@ -603,6 +603,12 @@ again:
 	} else if ((ret = dumbcmp(reader, "print"))) {
 		reader += ret - 1;
 		RET_NEXT((struct tok){.tok=TOK_PRINT});
+	} else if ((ret = dumbcmp(reader, "or"))) {
+		reader += ret - 1;
+		RET_NEXT((struct tok){.tok=TOK_STR_OR});
+	} else if ((ret = dumbcmp(reader, "and"))) {
+		reader += ret - 1;
+		RET_NEXT((struct tok){.tok=TOK_STR_AND});
 	} else if ((ret = dumbcmp(reader, "foreach"))) {
 		reader += ret - 1;
 		RET_NEXT((struct tok){.tok=TOK_FOREACH});
@@ -841,6 +847,17 @@ static inline _Bool tok_is_condition(int t)
 static inline _Bool tok_is_logical_operator(int t)
 {
 	 return t == TOK_DOUBLE_AND || t == TOK_DOUBLE_PIPE;
+
+}
+
+static inline _Bool tok_is_str_logical_operator(int t)
+{
+	 return t == TOK_STR_AND || t == TOK_STR_OR;
+}
+
+static inline _Bool tok_is_any_logical_operator(int t)
+{
+	return tok_is_logical_operator(t) || tok_is_str_logical_operator(t);
 
 }
 
@@ -1243,13 +1260,23 @@ static void parse_condition_(struct tok t, struct file *f, struct sym *syms, int
 	}
 
 	t = next();
-	if (t.tok == TOK_CLOSE_PARENTESIS || t.tok == TOK_SEMICOL) {
+	if (t.tok == TOK_CLOSE_PARENTESIS || t.tok == TOK_SEMICOL ||
+	    tok_is_any_logical_operator(t.tok)) {
 		if (have_not) {
 			syms[syms_l++].t.tok = TOK_NOT;
 		}
+
 		syms[syms_l++] = l_operand;
-		back[nb_back++] = t;
-		goto exit;
+		if (tok_is_any_logical_operator(t.tok)) {
+			syms[syms_l++].t.tok = t.tok;
+			t = next();
+			*syms_l_ptr = syms_l;
+
+			return parse_condition_(t, f, syms, syms_l_ptr, dec_lstack);
+		} else {
+			back[nb_back++] = t;
+			goto exit;
+		}
 	}
 	if (!tok_is_condition(t.tok)) {
 		ERROR("%d: unexpected token %s\n", line_cnt, tok_str[t.tok]);
@@ -1272,7 +1299,7 @@ static void parse_condition_(struct tok t, struct file *f, struct sym *syms, int
 	syms[syms_l++] = r_operand;
 
 	t = next();
-	if (tok_is_logical_operator(t.tok)) {
+	if (tok_is_any_logical_operator(t.tok)) {
 		syms[syms_l++].t.tok = t.tok;
 		t = next();
 		*syms_l_ptr = syms_l;
@@ -2184,22 +2211,25 @@ static int run_this(struct sym *sym_string, int return_at_return)
 				++sym_string;
 				t = sym_string->t;
 			}
+			int nb = 0;
+			_Bool cnd;
+			struct sym *lop;
+			struct sym *rop;
+
 			if (!tok_is_condition(t.tok)) {
-				int cnd = exec_not(t.tok == TOK_LITERAL_NUM && t.as_int,
+				cnd = exec_not(t.tok == TOK_LITERAL_NUM && t.as_int,
 						   have_not);
 
-				if (cnd)
-					++sym_string;
-				else
-					sym_string = if_end;
-				continue;
-			}
-			struct sym *lop = &sym_string[1];
-			struct sym *rop = &sym_string[2];
-			int nb = 3;
-			_Bool cnd = exec_relational_operator(t.tok, lop, rop, have_not);
+				++nb;
+			} else {
+				lop = &sym_string[1];
+				rop = &sym_string[2];
 
-			while (tok_is_logical_operator(sym_string[nb].t.tok)) {
+				nb = 3;
+				cnd = exec_relational_operator(t.tok, lop, rop, have_not);
+			}
+
+			while (tok_is_any_logical_operator(sym_string[nb].t.tok)) {
 				int logical_op_tok = sym_string[nb].t.tok;
 				have_not = 0;
 
@@ -2210,14 +2240,16 @@ static int run_this(struct sym *sym_string, int return_at_return)
 				lop = &sym_string[nb + 1];
 				if (tok_is_condition(sym_string[nb + 2].t.tok)) {
 					rop = &sym_string[nb + 3];
-					if (logical_op_tok == TOK_DOUBLE_PIPE) {
+					if (logical_op_tok == TOK_DOUBLE_PIPE ||
+					    logical_op_tok == TOK_STR_OR) {
 						cnd = cnd || exec_relational_operator(sym_string[nb + 2].t.tok, lop, rop, have_not);
 					} else {
 						cnd = cnd && exec_relational_operator(sym_string[nb + 2].t.tok, lop, rop, have_not);
 					}
 					nb += 4;
 				} else {
-					if (logical_op_tok == TOK_DOUBLE_PIPE) {
+					if (logical_op_tok == TOK_DOUBLE_PIPE ||
+					    logical_op_tok == TOK_STR_OR) {
 						cnd = cnd || exec_not(int_fron_sym(lop), have_not);
 					} else {
 						cnd = cnd && exec_not(int_fron_sym(lop), have_not);
