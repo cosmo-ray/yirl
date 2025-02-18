@@ -655,6 +655,7 @@ again:
 			return (struct tok){.tok=TOK_ENDFILE};
 		}
 		reader += 2; // skip ';\n'
+		line_cnt += 1;
 		struct tok r = {.tok=TOK_LITERAL_STR, .as_str=reader};
 		reader = strstr(reader, end);
 		if (!reader) {
@@ -662,6 +663,10 @@ again:
 			return r;
 		}
 		*reader = 0;
+		for (int j  = 0; reader[j]; ++j) {
+			if (reader[j] == '\n')
+				++line_cnt;
+		}
 		reader += end_i;
 		RET_NEXT(r);
 	} else if (dumbcmp(reader, ">>")) {
@@ -1519,10 +1524,13 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 		char **old_reader = reader_ptr;
 		reader = &file_str;
 		reader_ptr = reader;
+		int line_backup = line_cnt;
+		line_cnt = 0;
 
 #define CLEAN_DO() do {					\
 			reader = old_reader;		\
 			reader_ptr = old_reader;	\
+			line_cnt = line_backup;		\
 			free(to_free);			\
 			close(fd);			\
 	} while (0)
