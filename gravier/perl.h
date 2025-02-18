@@ -641,8 +641,29 @@ again:
 		reader += 1;
 		RET_NEXT((struct tok){.tok=TOK_DO});
 	} else if (dumbcmp(reader, "<<")) {
-		reader += 1;
 		RET_NEXT((struct tok){.tok=TOK_L_REDIRECTION});
+	} else if (*reader == '<' && reader[1] == '<') {
+		char end[128];
+		int end_i = 0;
+		reader += 2;
+
+		for (; isalpha(*reader); ++reader)
+			end[end_i++] = *reader;
+		end[end_i] = 0;
+		if (*reader != ';' && reader[1] != '\n') {
+			fprintf(stderr, "unclose HERESTRING ex: $s = <<EOC;\\n\n");
+			return (struct tok){.tok=TOK_ENDFILE};
+		}
+		reader += 2; // skip ';\n'
+		struct tok r = {.tok=TOK_LITERAL_STR, .as_str=reader};
+		reader = strstr(reader, end);
+		if (!reader) {
+			r.tok = TOK_ENDFILE;
+			return r;
+		}
+		*reader = 0;
+		reader += end_i;
+		RET_NEXT(r);
 	} else if (dumbcmp(reader, ">>")) {
 		reader += 1;
 		RET_NEXT((struct tok){.tok=TOK_R_REDIRECTION});
