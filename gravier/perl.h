@@ -385,8 +385,29 @@ static int run_this(struct sym *sym_string, int return_at_return);
 
 
 
+static inline void newXS_(const char *func_name,
+			 int (*nat_func)(struct sym *func_sym, int items),
+			 struct file *this_mod)
+{
+	int ret = 0;
+	khiter_t iterator = kh_put(func_syms, this_mod->functions, func_name, &ret);
+
+	if (ret < 0)
+		ERROR("me hash table fail me, so sad :(\n");
+	struct sym *function = malloc(sizeof *function);
+	function->nat_func = nat_func;
+	function->t.tok = TOK_NATIVE_FUNC;
+	function->local_stack = NULL;
+	function->l_stack_size = 0;
+	function->l_stack_len = 0;
+	kh_val(this_mod->functions, iterator) = function;
+
+exit:
+	return;
+}
+
 static inline void newXS(const char *oname,
-			 int (*name)(struct sym *func_sym, int items),
+			 int (*nat_func)(struct sym *func_sym, int items),
 			 const char *file)
 {
 	char *namespace = strstr(oname, "::");
@@ -420,17 +441,7 @@ static inline void newXS(const char *oname,
 		this_mod = kh_val(cur_pi->files, iterator);
 	}
 
-	iterator = kh_put(func_syms, this_mod->functions, func_name, &ret);
-	if (ret < 0)
-		ERROR("me hash table fail me, so sad :(\n");
-	struct sym *function = malloc(sizeof *function);
-	function->nat_func = name;
-	function->t.tok = TOK_NATIVE_FUNC;
-	function->local_stack = NULL;
-	function->l_stack_size = 0;
-	function->l_stack_len = 0;
-	kh_val(this_mod->functions, iterator) = function;
-
+	newXS_(func_name, nat_func, this_mod);
 exit:
 	return;
 }
@@ -793,6 +804,8 @@ again:
 				goto out_alpla;
 			} else if (!is_skipable(*reader)) {
 				fprintf(stderr, "unexpected character: '%c\n", *reader);
+			} else if (*reader == '\n') {
+				++line_cnt;
 			}
 		}
 		*reader = 0;
@@ -1081,7 +1094,15 @@ static int parse_func_call(struct tok t, struct file *f, struct sym *syms, int *
 	}
 	int end_call_tok = TOK_SEMICOL;
 	gravier_debug("%s - %p\n", t.as_str, function);
-	CHECK_L_STACK_SPACE(function, 1);
+	if (function->l_stack_len < 1) {
+		CHECK_L_STACK_SPACE(function, 1);
+		function->l_stack_len = 1;
+		function->local_stack[0].t = (struct tok){.tok=TOK_NAME, .as_str="_"};
+		function->local_stack[0].v.type = SVt_PVAV;
+		function->local_stack[0].v.array_size = 0;
+		function->local_stack[0].v.array = NULL;
+
+	}
 	struct sym *underscore = &function->local_stack[0];
 	t = next();
 	if (t.tok == TOK_OPEN_PARENTESIS) {
@@ -1420,9 +1441,18 @@ static int operation(struct tok *t_ptr, struct file *f, char **reader)
 		equal_sym.idx = array_idx;
 	}
 	if (array_idx.type == IDX_IS_NONE && t_ptr->tok == TOK_AT) {
-		NEXT_N_CHECK(TOK_OPEN_PARENTESIS);
+		t = next();
+		if (t.tok == TOK_NAME || t.tok == TOK_NAMESPACE) {
+			back[nb_back++] = t;
+			parse_equal(f, reader, equal_sym);
+			return 0;
+		} else if (t.tok != TOK_OPEN_PARENTESIS) {
+			ERROR("weirdness in array declaration\n");
+		}
+
 		f->sym_string[f->sym_len++] = (struct sym){.ref=stack_sym, .t=TOK_ARRAY_RESSET};
 		t = next();
+
 		while (t.tok != TOK_CLOSE_PARENTESIS) {
 			struct sym elem;
 			struct sym *ar = NULL;
@@ -1525,7 +1555,7 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 		reader = &file_str;
 		reader_ptr = reader;
 		int line_backup = line_cnt;
-		line_cnt = 0;
+		line_cnt = 1;
 
 #define CLEAN_DO() do {					\
 			reader = old_reader;		\
@@ -1938,6 +1968,8 @@ static int perl_parse(PerlInterpreter * my_perl, void (*xs_init)(void *stuff), i
 	this_file->functions = kh_init(func_syms);
 	cur_pi->forward_dec = kh_init(forward_func_h);
 	this_file->cur_func = NULL;
+
+        newXS_("split", XS_split, this_file);
 
 	//printf("file:\n%s\n", file_str);
 	reader = file_str;
