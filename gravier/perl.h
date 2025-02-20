@@ -1835,6 +1835,7 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 		int need_close = 0;
 		int stack_tmp = 1;
 		/* volatile because gcc seems to set garbage value un print_sym */
+
 		int base = f->sym_len;
 
 		f->sym_string[f->sym_len++].t = t;
@@ -1908,6 +1909,41 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 	return 0;
 exit:
 	return -1;
+}
+
+XS(XS_split)
+{
+	dXSARGS;
+	char *split = SvPVbyte_nolen(ST(0));
+	char *str = SvPVbyte_nolen(ST(1));
+	int split_l = strlen(split);
+
+	char *tmp, *tmp2;
+	int i = 1;
+	tmp2 = str;
+	while ((tmp = strstr(tmp2, split))) {
+		++i;
+		tmp2 = tmp + split_l;
+	}
+	if (cur_pi->return_val.v.array_size)
+		free(cur_pi->return_val.v.array);
+	cur_pi->return_val.v.type = SVt_PVAV;
+	cur_pi->return_val.v.array_size = i;
+	cur_pi->return_val.v.array = malloc(i * sizeof *cur_pi->return_val.v.array);
+
+	i = 0;
+	for (;(tmp = strstr(str, split)); ++i) {
+		cur_pi->return_val.v.array[i].type = SVt_PV;
+		cur_pi->return_val.v.array[i].str = strndup(str, tmp - str);
+		cur_pi->return_val.v.array[i].flag = VAL_NEED_STEAL;
+		str = tmp + split_l;
+	}
+	if (!i) {
+		cur_pi->return_val.v.array[i].type = SVt_PV;
+		cur_pi->return_val.v.array[i].str = strdup(str);
+		cur_pi->return_val.v.array[i].flag = VAL_NEED_STEAL;
+	}
+	return 1;
 }
 
 static int perl_parse(PerlInterpreter * my_perl, void (*xs_init)(void *stuff), int ac,
