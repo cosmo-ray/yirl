@@ -124,8 +124,8 @@ static struct stack_val *ERRSV;
 	} while (0)
 
 #define XSRETURN_PV(_val) do {						\
-		cur_pi->return_val.v = (struct stack_val){.v=_val,	\
-			.flag=0, .type=SVt_PV};				\
+		cur_pi->return_val.v = (struct stack_val){.str=strdup(_val), \
+			.flag=VAL_NEED_STEAL, .type=SVt_PV};		\
 		return 1;						\
 	} while (0)
 
@@ -1035,7 +1035,7 @@ exit:
 		}							\
 	} else if ((in_t).tok == TOK_LITERAL_STR || (in_t).tok == TOK_LITERAL_NUM) { \
 		(in).t = (in_t);					\
-	} else if ((in_t).tok == TOK_DOLAR) {				\
+	} else if ((in_t).tok == TOK_DOLAR || (in_t).tok == TOK_AT) {	\
 		(in).oposite = 0;					\
 		STORE_OPERAND_DOLAR(in_t, in);				\
 	}
@@ -1911,6 +1911,21 @@ exit:
 	return -1;
 }
 
+XS(XS_scalar)
+{
+	dXSARGS;
+	struct stack_val *val_0 = ST(0);
+
+	if (val_0->type == SVt_PV) {
+		XSRETURN_PV(val_0->str);
+	} else if (val_0->type == SVt_IV) {
+		XSRETURN_IV(val_0->i);
+	} else if (val_0->type == SVt_PVAV) {
+		XSRETURN_IV(val_0->array_size);
+	}
+	XSRETURN_NO;
+}
+
 XS(XS_split)
 {
 	dXSARGS;
@@ -2006,6 +2021,7 @@ static int perl_parse(PerlInterpreter * my_perl, void (*xs_init)(void *stuff), i
 	this_file->cur_func = NULL;
 
         newXS_("split", XS_split, this_file);
+        newXS_("scalar", XS_scalar, this_file);
 
 	//printf("file:\n%s\n", file_str);
 	reader = file_str;
@@ -2201,7 +2217,7 @@ eq_array_at:
 		sv->i = sym_string->t.as_int;
 		sv->flag = 0;
 		sv->type = SVt_IV;
-	} else if (sym_string->t.tok == TOK_DOLAR) {
+	} else if (sym_string->t.tok == TOK_DOLAR || sym_string->t.tok == TOK_AT) {
 		exec_dolar_equal(sv, &sym_string->ref->v, &sym_string->idx,
 				 sym_string->oposite);
 	} else {
