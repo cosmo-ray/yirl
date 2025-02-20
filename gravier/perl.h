@@ -1911,6 +1911,26 @@ exit:
 	return -1;
 }
 
+
+XS(XS_uc)
+{
+	dXSARGS;
+	struct stack_val *val_0 = ST(0);
+
+
+	if (val_0->type != SVt_PV) {
+		XSRETURN_NO;
+	}
+	char *cpy = strdup(val_0->str);
+	cur_pi->return_val.v = (struct stack_val){.str=cpy,
+		.flag=VAL_NEED_STEAL, .type=SVt_PV};
+	for (char *tmp = cpy; *cpy; ++cpy) {
+		*cpy = toupper(*cpy);
+	}
+	return 1;
+
+}
+
 XS(XS_scalar)
 {
 	dXSARGS;
@@ -2022,6 +2042,7 @@ static int perl_parse(PerlInterpreter * my_perl, void (*xs_init)(void *stuff), i
 
         newXS_("split", XS_split, this_file);
         newXS_("scalar", XS_scalar, this_file);
+        newXS_("uc", XS_uc, this_file);
 
 	//printf("file:\n%s\n", file_str);
 	reader = file_str;
