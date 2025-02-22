@@ -1776,6 +1776,16 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 		};
 		// parse_one_instruction
 		parse_one_instruction(my_perl, f, reader, t);
+		f->sym_string[f->sym_len++] = (struct sym) {.t={.tok=TOK_EQUAL},
+			.ref=array, .idx={
+				.type=IDX_IS_REF,
+				.ref=tmp_i
+			}
+		};
+		f->sym_string[f->sym_len++] = (struct sym) {.t={.tok=TOK_DOLAR},
+			.ref=underscore, .oposite=0
+		};
+
 		// TOK_PLUS_PLUS local_stack[f->l_stack_len - 1]
 		f->sym_string[f->sym_len++] = (struct sym) {.t={.tok=TOK_PLUS_PLUS}, .ref=tmp_i};
 		f->sym_string[f->sym_len++] = (struct sym) {.t={.tok=TOK_GOTO}, .end=if_sym};
