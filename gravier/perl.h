@@ -1594,9 +1594,12 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 			reader = old_reader;		\
 			reader_ptr = old_reader;	\
 			line_cnt = line_backup;		\
-			free(to_free);			\
 			close(fd);			\
 	} while (0)
+
+		// I need to free to free, after perl exit.
+		//			free(to_free);
+
 
 		while ((t = next()).tok != TOK_ENDFILE) {
 			if (parse_one_instruction(my_perl, f, reader, t) < 0) {
@@ -1996,6 +1999,10 @@ XS(XS_split)
 	char *str = SvPVbyte_nolen(ST(1));
 	int split_l = strlen(split);
 
+	if (!split_l) {
+		XSRETURN_NO;
+	}
+
 	char *tmp, *tmp2;
 	int i = 1;
 	tmp2 = str;
@@ -2284,11 +2291,14 @@ static struct sym *exec_equal(struct stack_val *sv, struct sym *sym_string,
 		}
 		*operation = 0;
 		++operation;
+		tmp = strstr(target, needle);
+		if (!tmp)
+			goto regex_out;
+
 		dest_l = strlen(target);
 		dest_l = dest_l << 1;
 		dest = malloc(dest_l);
 
-		tmp = strstr(target, needle);
 		for (i = 0; target != tmp; ++i, ++target) {
 			dest[i] = *target;
 		}
@@ -2390,6 +2400,7 @@ static int run_this(struct sym *sym_string, int return_at_return)
 					print_var(sv, sym_string);
 				}
 			}
+			fflush(stdout);
 			continue;
 		} else if (t.tok == TOK_ARRAY_RESSET) {
 			struct sym *array = sym_string->ref;
