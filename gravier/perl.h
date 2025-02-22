@@ -679,6 +679,7 @@ again:
 				++line_cnt;
 		}
 		reader += end_i;
+		next_tok = TOK_SEMICOL;
 		RET_NEXT(r);
 	} else if (dumbcmp(reader, ">>")) {
 		reader += 1;
@@ -1973,11 +1974,9 @@ XS(XS_split)
 		cur_pi->return_val.v.array[i].flag = VAL_NEED_STEAL;
 		str = tmp + split_l;
 	}
-	if (!i) {
-		cur_pi->return_val.v.array[i].type = SVt_PV;
-		cur_pi->return_val.v.array[i].str = strdup(str);
-		cur_pi->return_val.v.array[i].flag = VAL_NEED_STEAL;
-	}
+	cur_pi->return_val.v.array[i].type = SVt_PV;
+	cur_pi->return_val.v.array[i].str = strdup(str);
+	cur_pi->return_val.v.array[i].flag = VAL_NEED_STEAL;
 	return 1;
 }
 
