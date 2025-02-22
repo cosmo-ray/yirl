@@ -181,6 +181,16 @@ static void array_free(struct stack_val *array)
 	array->array_size = 0;
 }
 
+static void free_var(struct stack_val *v)
+{
+	if (v->type == SVt_PV && v->flag & VAL_NEED_FREE) {
+		free(v->str);
+		v->str = NULL;
+	} else if (v->type == SVt_PVAV) {
+		array_free(v);
+	}
+}
+
 static inline struct stack_val sv_2mortal(struct stack_val v) {
 	v.flag = VAL_NEED_STEAL;
 }
@@ -1268,6 +1278,7 @@ static int parse_equal(struct file *f, char **reader, struct sym equal_sym)
 	}
 	t = next();
 	if (parse_array_idx_nfo(f, t, &array_idx) > IDX_IS_NONE) {
+		operand.idx = array_idx;
 		t = next();
 	} else {
 		operand.idx.type = IDX_IS_NONE;
@@ -2195,6 +2206,8 @@ static void exec_dolar_equal(struct stack_val *sv, struct stack_val *that,
 		}
 		exec_dolar_equal(sv, &that->array[i_idx], NULL, oposite);
 	} else {
+		if (sv != that)
+			free_var(sv);
 		*sv = *that;
 		if (that->type == SVt_PVAV) {
 			struct stack_val *other = that;
@@ -2287,6 +2300,7 @@ static struct sym *exec_equal(struct stack_val *sv, struct sym *sym_string,
 			dest[i] = *target;
 		}
 		dest[i] = 0;
+		free_var(sv);
 		sv->type = SVt_PV;
 		sv->str = dest;
 		sv->flag = VAL_NEED_FREE;
@@ -2322,10 +2336,12 @@ eq_array_at:
 		sv = &sv->array[i_idx];
 		goto eq_array_at;
 	} else if (sym_string->t.tok == TOK_LITERAL_STR) {
+		free_var(sv);
 		sv->flag = 0;
 		sv->str = sym_string->t.as_str;
 		sv->type = SVt_PV;
 	} else if (sym_string->t.tok == TOK_LITERAL_NUM) {
+		free_var(sv);
 		sv->i = sym_string->t.as_int;
 		sv->flag = 0;
 		sv->type = SVt_IV;
@@ -2411,12 +2427,7 @@ static int run_this(struct sym *sym_string, int return_at_return)
 				exec_equal(&cur_pi->return_val.v, sym_string, NULL);
 			}
 			for (int i = 0; i < caller->l_stack_len; ++i) {
-				if (caller->local_stack[i].v.type == SVt_PVAV) {
-					array_free(&caller->local_stack[i].v);
-				} else if (caller->local_stack[i].v.flag & VAL_NEED_FREE) {
-					if (caller->local_stack[i].v.type == SVt_PV)
-						free(caller->local_stack[i].v.v);
-				}
+				free_var(&caller->local_stack[i].v);
 			}
 			if (return_at_return) {
 				return have_return;
