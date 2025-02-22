@@ -688,6 +688,23 @@ again:
 		RET_NEXT((struct tok){.tok=TOK_ENDFILE});
 	} else if (*reader == ';') {
 		RET_NEXT((struct tok){.tok=TOK_SEMICOL});
+	} else if (*reader == '=' && reader[1] == '~') {
+		reader += 2;
+		struct tok r = {.tok=TOK_REGEX};
+
+		while (*reader == ' ' || *reader == '\t')
+			++reader;
+
+		r.as_str = reader;
+		while (*reader && *reader != ';' && *reader != '\n')
+			++reader;
+
+		if (*reader == ';')
+			next_tok = TOK_SEMICOL;
+		else if (!(*reader))
+			next_tok = TOK_ENDFILE;
+		*reader = 0;
+		RET_NEXT(r);
 	}
 	LOOK_FOR_DOUBLE('!', '=', TOK_NOT, TOK_NOT_EQUAL)
 	LOOK_FOR_DOUBLE('*', '=', TOK_MULT, TOK_MULT_EQUAL)
@@ -1228,6 +1245,7 @@ static int parse_equal(struct file *f, char **reader, struct sym equal_sym)
 
 	struct array_idx_info array_idx;
 	struct sym operand;
+	struct sym regex = {.t.tok=0};
 	struct sym syms[64];
 	int stack_tmp = 1;
 	int nb_syms = 0;
@@ -1250,7 +1268,6 @@ static int parse_equal(struct file *f, char **reader, struct sym equal_sym)
 	}
 	t = next();
 	if (parse_array_idx_nfo(f, t, &array_idx) > IDX_IS_NONE) {
-		operand.idx = array_idx;
 		t = next();
 	} else {
 		operand.idx.type = IDX_IS_NONE;
@@ -1261,10 +1278,14 @@ again:
 		parse_equal_(f, reader, &operand, stack_tmp, t);
 		t = next();
 		goto again;
+	} else if (t.tok == TOK_REGEX) {
+		regex.t= t;
 	} else {
 		back[nb_back++] = t;
 	}
 	f->sym_string[f->sym_len++] = equal_sym;
+	if (regex.t.tok == TOK_REGEX)
+		f->sym_string[f->sym_len++] = regex;
 	f->sym_string[f->sym_len++] = operand;
 	return 0;
 exit:
@@ -2203,6 +2224,77 @@ static struct sym *exec_equal(struct stack_val *sv, struct sym *sym_string,
 			      struct array_idx_info *op_idx)
 {
 
+	if (sym_string->t.tok == TOK_REGEX) {
+		struct tok regex = sym_string->t;
+		char *target = NULL;
+		int search_patern = regex.as_str[0];
+		char separator = regex.as_str[1];
+		char *operation;
+		char *needle;
+		char *replace;
+		char *dest;
+		char *tmp;
+		int dest_l = 0;
+		int i;
+
+		if (search_patern != 's') {
+			fprintf(stderr, "regex on %c not supported\n", search_patern);
+			return sym_string + 1;
+		}
+
+		++sym_string;
+		if (sym_string->t.tok == TOK_LITERAL_STR) {
+			target = sym_string->t.as_str;
+		} else if (sym_string->t.tok == TOK_DOLAR) {
+			target = sym_string->ref->v.str;
+		}
+		needle = strdup(regex.as_str + 2);
+		replace = strchr(needle, separator);
+		if (!replace) {
+			goto regex_out;
+		}
+		*replace = 0;
+		++replace;
+		operation = strchr(replace, separator);
+		if (!operation) {
+			goto regex_out;
+		}
+		*operation = 0;
+		++operation;
+		dest_l = strlen(target);
+		dest_l = dest_l << 1;
+		dest = malloc(dest_l);
+
+		tmp = strstr(target, needle);
+		for (i = 0; target != tmp; ++i, ++target) {
+			dest[i] = *target;
+		}
+		for (int j = 0; replace[j]; ++j, ++i) {
+			if (replace[j] == '\\') {
+				++j;
+				if (replace[j] == 'n')
+					dest[i] = '\n';
+				else if (target[j] == 't')
+					dest[i] = '\t';
+				else
+					dest[i] = '\\';
+			} else {
+				dest[i] = replace[j];
+			}
+		}
+		target += strlen(needle);
+		for (; *target; ++target, ++i) {
+			dest[i] = *target;
+		}
+		dest[i] = 0;
+		sv->type = SVt_PV;
+		sv->str = dest;
+		sv->flag = VAL_NEED_FREE;
+
+	regex_out:
+		free(needle);
+		return sym_string;
+	}
 eq_array_at:
 	if ((sv->type == SVt_PVAV || sv->type == SVt_NULL) &&
 	    op_idx && op_idx->type != IDX_IS_NONE) {

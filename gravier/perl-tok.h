@@ -57,6 +57,7 @@ TOK(LITERAL_STR)
 TOK(LITERAL_NUM)
 TOK(NAME)
 TOK(NAMESPACE)
+TOK(REGEX)
 
 /* no perl token per se, but use by perl_exec */
 TOK(ARRAY_PUSH)
