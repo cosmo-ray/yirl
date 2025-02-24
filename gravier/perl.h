@@ -2219,7 +2219,7 @@ static void exec_dolar_equal(struct stack_val *sv, struct stack_val *that,
 	if (idx && idx->type == IDX_IS_TOKEN) {
 		int i_idx = idx->tok.as_int;
 
-		exec_dolar_equal(sv, &that->array[i_idx], NULL, oposite);
+		return exec_dolar_equal(sv, &that->array[i_idx], NULL, oposite);
 	} else if (idx && idx->type == IDX_IS_REF) {
 		struct sym *idx_ref = idx->ref;
 		int i_idx = 0;
@@ -2227,7 +2227,7 @@ static void exec_dolar_equal(struct stack_val *sv, struct stack_val *that,
 		if (idx_ref) {
 			i_idx = idx_ref->v.i;
 		}
-		exec_dolar_equal(sv, &that->array[i_idx], NULL, oposite);
+		return exec_dolar_equal(sv, &that->array[i_idx], NULL, oposite);
 	} else {
 		if (sv != that)
 			free_var(sv);
@@ -2571,11 +2571,11 @@ static int run_this(struct sym *sym_string, int return_at_return)
 				sprintf(num_tmp2, "%"PRIiPTR, sym_string->t.as_int);
 				second = num_tmp2;
 			} else if (sym_string->t.tok == TOK_DOLAR) {
-				if (sym_string->v.type == SVt_IV) {
-					sprintf(num_tmp2, "%"PRIiPTR, sym_string->v.i);
+				if (sym_string->ref->v.type == SVt_IV) {
+					sprintf(num_tmp2, "%"PRIiPTR, sym_string->ref->v.i);
 					second = num_tmp2;
 				} else {
-					second = sym_string->v.str;
+					second = sym_string->ref->v.str;
 				}
 			}
 
