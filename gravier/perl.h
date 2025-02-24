@@ -106,9 +106,9 @@ static struct stack_val *ERRSV;
 
 #define pTHX void *stuff
 
-#define dXSARGS do {				\
-		gravier_debug("dXSARGS stub\n");	\
-} while (0)
+#define dXSARGS								\
+	struct stack_val none = {.v = NULL, .flag = 0, .type=SVt_NULL};	\
+	gravier_debug("dXSARGS stub\n");				\
 
 #define XSRETURN_IV(int_val) do {				      \
 		cur_pi->return_val.v = (struct stack_val){.i=int_val, \
@@ -153,8 +153,13 @@ static struct stack_val *ERRSV;
 
 #define ST(pos)								\
 	({								\
+		struct stack_val *ret;					\
 		gravier_debug("ST(%d) stub\n", pos);			\
-		&func_sym->local_stack[0].v.array[pos];			\
+		if (pos >= func_sym->local_stack[0].v.array_size)	\
+			ret = &none;					\
+		else							\
+			ret = &func_sym->local_stack[0].v.array[pos];	\
+		ret;							\
 	})
 //&(struct stack_val ){.i=-1, .type=SVt_IV};	\
 
@@ -999,6 +1004,7 @@ static struct sym *find_set_stack_ref(struct file *this_file, struct tok *t)
 		this_file->stack[this_file->stack_len].t = *t;
 		this_file->stack[this_file->stack_len].idx.type = IDX_IS_NONE;
 		this_file->stack[this_file->stack_len].v.type = SVt_NULL;
+		this_file->stack[this_file->stack_len].v.i = 0;
 		this_file->stack[this_file->stack_len].v.flag = 0;
 		this_file->stack[this_file->stack_len].v.array_size = 0;
 		this_file->stack[this_file->stack_len].v.array = NULL;
@@ -2075,14 +2081,14 @@ static int perl_parse(PerlInterpreter * my_perl, void (*xs_init)(void *stuff), i
 	}
 
 
-	this_file->sym_size = 128;
+	this_file->sym_size = (1 << 16);
 	this_file->sym_len = 0;
 	this_file->sym_string = malloc(sizeof *this_file->sym_string * this_file->sym_size);
-	this_file->stack_size = 128;
+	this_file->stack_size = 2058;
 	this_file->stack_len = 0;
 	this_file->stack = malloc(sizeof *this_file->stack * this_file->stack_size);
 	this_file->l_stack_len = 0;
-	this_file->l_stack_size = 128;
+	this_file->l_stack_size = 2058;
 	this_file->local_stack = malloc(sizeof *this_file->local_stack * this_file->l_stack_size);
 	this_file->functions = kh_init(func_syms);
 	cur_pi->forward_dec = kh_init(forward_func_h);
@@ -2582,6 +2588,7 @@ static int run_this(struct sym *sym_string, int return_at_return)
 			}
 
 			str_len += 1;
+			target_ref->v.type = SVt_PV;
 			target_ref->v.flag |= VAL_NEED_FREE;
 			target_ref->v.str = malloc(str_len);
 			strcpy(target_ref->v.str, first);
