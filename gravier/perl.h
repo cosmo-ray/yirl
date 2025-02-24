@@ -995,6 +995,16 @@ static struct sym *find_stack_ref(struct file *this_file, struct tok *t)
 	return NULL;
 }
 
+static void sym_val_init(struct sym *s)
+{
+	s->v.type = SVt_NULL;
+	s->v.i = 0;
+	s->v.flag = 0;
+	s->v.array_size = 0;
+	s->v.array = NULL;
+	s->idx.type = IDX_IS_NONE;
+}
+
 static struct sym *find_set_stack_ref(struct file *this_file, struct tok *t)
 {
 	struct sym *ret = find_stack_ref(this_file, t);
@@ -1002,12 +1012,7 @@ static struct sym *find_set_stack_ref(struct file *this_file, struct tok *t)
 	if (!ret) {
 		CHECK_STACK_SPACE(this_file, 1);
 		this_file->stack[this_file->stack_len].t = *t;
-		this_file->stack[this_file->stack_len].idx.type = IDX_IS_NONE;
-		this_file->stack[this_file->stack_len].v.type = SVt_NULL;
-		this_file->stack[this_file->stack_len].v.i = 0;
-		this_file->stack[this_file->stack_len].v.flag = 0;
-		this_file->stack[this_file->stack_len].v.array_size = 0;
-		this_file->stack[this_file->stack_len].v.array = NULL;
+		sym_val_init(&this_file->stack[this_file->stack_len]);
 		return &this_file->stack[this_file->stack_len++];
 	}
 	return ret;
@@ -1188,13 +1193,16 @@ exit:
 	return -1;
 }
 
-static int parse_equal_(struct file *f, char **reader, struct sym *operand, int stack_tmp,
+static int parse_equal_(struct file *f, char **reader, struct sym *operand,
 			struct tok t)
 {
-	CHECK_STACK_SPACE(f, stack_tmp);
-	int p = f->stack_len + stack_tmp;
+	int stack_tmp = 1;
+	int p = f->stack_len;
+
+	f->stack_len += 1;
 	f->sym_string[f->sym_len++] = (struct sym){.ref=&f->stack[p], .t=TOK_EQUAL};
 	f->sym_string[f->sym_len++] = *operand;
+	sym_val_init(&f->stack[p]);
 	f->stack[p].v.flag = VAL_NEED_STEAL;
 	int tok_op = t.tok;
 	struct array_idx_info array_idx;
@@ -1214,9 +1222,9 @@ static int parse_equal_(struct file *f, char **reader, struct sym *operand, int 
 		for (int i = 0; i < nb_syms; ++i, f->sym_len++) {
 			f->sym_string[f->sym_len] = syms[i];
 		}
-		CHECK_STACK_SPACE(f, stack_tmp + 1);
 		++stack_tmp;
-		int fp = f->stack_len + stack_tmp;
+		int fp = f->stack_len;
+		f->stack_len++;
 		second = (struct sym){.ref=&f->stack[fp], .t=TOK_DOLAR, .oposite=0};
 		f->stack[fp].v.flag = VAL_NEED_STEAL;
 		f->sym_string[f->sym_len++] = (struct sym){.ref=&f->stack[fp], .t=TOK_EQUAL};
@@ -1235,7 +1243,7 @@ static int parse_equal_(struct file *f, char **reader, struct sym *operand, int 
 
 recheck:
 	if (t.tok == TOK_DIV || t.tok == TOK_MULT || in_parentesis) {
-		parse_equal_(f, reader, &second, stack_tmp + 1, t);
+		parse_equal_(f, reader, &second, t);
 		if (in_parentesis) {
 			NEXT_N_CHECK(TOK_CLOSE_PARENTESIS);
 			in_parentesis = 0;
@@ -1250,6 +1258,7 @@ recheck:
 	f->sym_string[f->sym_len++] = second;
 
 	*operand = (struct sym){.ref=&f->stack[p], .t=TOK_DOLAR, .oposite=0};
+	f->stack_len -= stack_tmp;
 	return 0;
 exit:
 	return -1;
@@ -1265,6 +1274,10 @@ static int parse_equal(struct file *f, char **reader, struct sym equal_sym)
 	struct sym syms[64];
 	int stack_tmp = 1;
 	int nb_syms = 0;
+	int ret_val = -1;
+
+	sym_val_init(&f->stack[f->stack_len]);
+	f->stack_len++;
 
 	if (t.tok == TOK_NAMESPACE || t.tok == TOK_NAME) {
 		parse_func_call(t, f, syms, &nb_syms);
@@ -1272,13 +1285,14 @@ static int parse_equal(struct file *f, char **reader, struct sym equal_sym)
 			f->sym_string[f->sym_len] = syms[i];
 		}
 		CHECK_STACK_SPACE(f, stack_tmp + 1);
-		int p = f->stack_len + stack_tmp;
+		int p = f->stack_len;
+		++f->stack_len;
+		++stack_tmp;
 		operand = (struct sym){.ref=&f->stack[p], .t=TOK_DOLAR, .oposite=0};
 		f->sym_string[f->sym_len++] = (struct sym){.ref=&f->stack[p],
 			.t=TOK_EQUAL};
 		f->sym_string[f->sym_len++] = (struct sym){.ref=&cur_pi->return_val,
 			.t=TOK_DOLAR, .oposite=0};
-		++stack_tmp;
 	} else {
 		STORE_OPERAND(t, operand);
 	}
@@ -1292,7 +1306,7 @@ static int parse_equal(struct file *f, char **reader, struct sym equal_sym)
 again:
 	if (t.tok == TOK_PLUS || t.tok == TOK_MINUS || t.tok == TOK_DIV || t.tok == TOK_MULT ||
 		t.tok == TOK_DOT) {
-		parse_equal_(f, reader, &operand, stack_tmp, t);
+		parse_equal_(f, reader, &operand,  t);
 		t = next();
 		goto again;
 	} else if (t.tok == TOK_REGEX) {
@@ -1304,9 +1318,11 @@ again:
 	if (regex.t.tok == TOK_REGEX)
 		f->sym_string[f->sym_len++] = regex;
 	f->sym_string[f->sym_len++] = operand;
-	return 0;
+
+	ret_val = 0;
 exit:
-	return -1;
+	f->stack_len -= stack_tmp;
+	return ret_val;
 }
 
 #define CALL(t_, sym_)							\
