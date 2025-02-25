@@ -995,7 +995,7 @@ static struct sym *find_stack_ref(struct file *this_file, struct tok *t)
 	return NULL;
 }
 
-static void sym_val_init(struct sym *s)
+static void sym_val_init(struct sym *s, struct tok t)
 {
 	s->v.type = SVt_NULL;
 	s->v.i = 0;
@@ -1003,6 +1003,7 @@ static void sym_val_init(struct sym *s)
 	s->v.array_size = 0;
 	s->v.array = NULL;
 	s->idx.type = IDX_IS_NONE;
+	s->t = t;
 }
 
 static struct sym *find_set_stack_ref(struct file *this_file, struct tok *t)
@@ -1011,8 +1012,7 @@ static struct sym *find_set_stack_ref(struct file *this_file, struct tok *t)
 
 	if (!ret) {
 		CHECK_STACK_SPACE(this_file, 1);
-		this_file->stack[this_file->stack_len].t = *t;
-		sym_val_init(&this_file->stack[this_file->stack_len]);
+		sym_val_init(&this_file->stack[this_file->stack_len], *t);
 		return &this_file->stack[this_file->stack_len++];
 	}
 	return ret;
@@ -1202,7 +1202,7 @@ static int parse_equal_(struct file *f, char **reader, struct sym *operand,
 	f->stack_len += 1;
 	f->sym_string[f->sym_len++] = (struct sym){.ref=&f->stack[p], .t=TOK_EQUAL};
 	f->sym_string[f->sym_len++] = *operand;
-	sym_val_init(&f->stack[p]);
+	sym_val_init(&f->stack[p], (struct tok) {.tok=TOK_DOLAR, .as_str="?"});
 	f->stack[p].v.flag = VAL_NEED_STEAL;
 	int tok_op = t.tok;
 	struct array_idx_info array_idx;
@@ -1276,7 +1276,7 @@ static int parse_equal(struct file *f, char **reader, struct sym equal_sym)
 	int nb_syms = 0;
 	int ret_val = -1;
 
-	sym_val_init(&f->stack[f->stack_len]);
+	sym_val_init(&f->stack[f->stack_len], (struct tok) {.tok=TOK_DOLAR, .as_str="?"});
 	f->stack_len++;
 
 	if (t.tok == TOK_NAMESPACE || t.tok == TOK_NAME) {
@@ -1902,6 +1902,9 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 	} else if (t.tok == TOK_PRINT) {
 		int need_close = 0;
 		int stack_tmp = 1;
+		sym_val_init(&f->stack[f->stack_len], (struct tok) {.tok=TOK_DOLAR,
+				.as_str="?"});
+		f->stack_len++;
 		/* volatile because gcc seems to set garbage value un print_sym */
 
 		int base = f->sym_len;
@@ -1932,13 +1935,14 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 		} else if (t.tok == TOK_NAME || t.tok == TOK_NAMESPACE) {
 			static struct sym syms[128];
 			int nb_syms = 0;
-			int p = f->stack_len + stack_tmp;
+			int p = f->stack_len;
 
 			stack_tmp++;
-
-			CHECK_STACK_SPACE(f, stack_tmp);
-
+			sym_val_init(&f->stack[f->stack_len],
+				     (struct tok) {.tok=TOK_DOLAR, .as_str="?"});
+			f->stack_len++;
 			parse_func_call(t, f, syms, &nb_syms);
+
 			syms[nb_syms++] = (struct sym){.ref=&f->stack[p], .t=TOK_EQUAL};
 			syms[nb_syms++] = (struct sym){.ref=&cur_pi->return_val, .t=TOK_DOLAR,
 				.oposite=0};
@@ -1969,6 +1973,7 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 			ERROR("unclose parensesis in print\n");
 		}
 		f->sym_string[base].end = &f->sym_string[f->sym_len];
+		f->stack_len -= stack_tmp;
 	} else {
 		operation(&t, f, reader);
 		//f->sym_string[f->sym_len].t = t;
