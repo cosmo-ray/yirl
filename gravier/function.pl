@@ -28,6 +28,7 @@ sub print_01_nl
 
 sub print_02_nl
 {
+    print_01_nl "yu";
     sub print_02 {
 	print $_[1];
     }

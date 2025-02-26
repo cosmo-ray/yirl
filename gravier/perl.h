@@ -2462,6 +2462,8 @@ static int run_this(struct sym *sym_string, int return_at_return)
 				to_call->nat_func(to_call, to_call->local_stack[0].v.array_size);
 				array_free(&to_call->local_stack[0].v);
 			} else {
+				if (return_at_return)
+					++return_at_return;
 				to_call->end = &sym_string[1];
 				sym_string = to_call + 1;
 				continue;
@@ -2478,7 +2480,10 @@ static int run_this(struct sym *sym_string, int return_at_return)
 				free_var(&caller->local_stack[i].v);
 			}
 			if (return_at_return) {
-				return have_return;
+				if (return_at_return == 1)
+					return have_return;
+				else
+					--return_at_return;
 			}
 			sym_string = end;
 			continue;
