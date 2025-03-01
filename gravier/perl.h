@@ -2430,7 +2430,10 @@ static int run_this(struct sym *sym_string, int return_at_return)
  	while (sym_string->t.tok != TOK_ENDFILE) {
 		struct tok t = sym_string->t;
 
-		if (t.tok == TOK_PRINT) {
+		switch (t.tok) {
+
+		case TOK_PRINT:
+		{
 			gravier_debug("in print\n");
 			struct sym *end = sym_string->end;
 			for (++sym_string; sym_string != end; ++sym_string) {
@@ -2452,11 +2455,13 @@ static int run_this(struct sym *sym_string, int return_at_return)
 			}
 			fflush(stdout);
 			continue;
-		} else if (t.tok == TOK_ARRAY_RESSET) {
-			struct sym *array = sym_string->ref;
-
-			array_free(&array->v);
-		} else if (t.tok == TOK_ARRAY_PUSH) {
+		}
+		break;
+		case TOK_ARRAY_RESSET:
+			array_free(&sym_string->ref->v);
+			break;
+		case TOK_ARRAY_PUSH:
+		{
 			struct sym *array = sym_string->ref;
 			int p = array->v.array_size;
 
@@ -2468,8 +2473,12 @@ static int run_this(struct sym *sym_string, int return_at_return)
 			elem->type = SVt_NULL;
 			++sym_string;
 			exec_equal(elem, sym_string, NULL);
-		} else if (t.tok == TOK_SUB || t.tok == TOK_INDIRECT_FUNC) {
-			/* printf("call %s\n", t.as_str); */
+		}
+		break;
+
+		case TOK_SUB:
+		case TOK_INDIRECT_FUNC:
+		{
 			struct sym *to_call;
 			if (t.tok == TOK_SUB) {
 				to_call = sym_string->f_ref;
@@ -2492,7 +2501,10 @@ static int run_this(struct sym *sym_string, int return_at_return)
 				sym_string = to_call + 1;
 				continue;
 			}
-		} else if (t.tok == TOK_RETURN) {
+		}
+		break;
+
+		case TOK_RETURN: {
 			struct sym *caller = sym_string->caller;
 			struct sym *end = caller->end;
 			int have_return = sym_string->have_return;
@@ -2511,7 +2523,11 @@ static int run_this(struct sym *sym_string, int return_at_return)
 			}
 			sym_string = end;
 			continue;
-		} else if (t.tok == TOK_IF || t.tok == TOK_ELSIF) {
+		}
+		break;
+		case  TOK_IF:
+		case TOK_ELSIF:
+		{
 			struct sym *if_end = sym_string->end;
 			int have_not = 0;
 			++sym_string;
@@ -2547,17 +2563,21 @@ static int run_this(struct sym *sym_string, int return_at_return)
 					++nb;
 					have_not = !have_not;
 				}
-				lop = &sym_string[nb + 1];
-				if (tok_is_condition(sym_string[nb + 2].t.tok)) {
+
+				struct sym *cnd_sym = &sym_string[nb + 1];
+				if (tok_is_condition(cnd_sym->t.tok)) {
+					lop = &sym_string[nb + 2];
 					rop = &sym_string[nb + 3];
+
 					if (logical_op_tok == TOK_DOUBLE_PIPE ||
 					    logical_op_tok == TOK_STR_OR) {
-						cnd = cnd || exec_relational_operator(sym_string[nb + 2].t.tok, lop, rop, have_not);
+						cnd = cnd || exec_relational_operator(cnd_sym->t.tok, lop, rop, have_not);
 					} else {
-						cnd = cnd && exec_relational_operator(sym_string[nb + 2].t.tok, lop, rop, have_not);
+						cnd = cnd && exec_relational_operator(cnd_sym->t.tok, lop, rop, have_not);
 					}
 					nb += 4;
 				} else {
+					lop = &sym_string[nb + 1];
 					if (logical_op_tok == TOK_DOUBLE_PIPE ||
 					    logical_op_tok == TOK_STR_OR) {
 						cnd = cnd || exec_not(int_fron_sym(lop), have_not);
@@ -2575,10 +2595,13 @@ static int run_this(struct sym *sym_string, int return_at_return)
 				sym_string = if_end;
 			}
 			continue;
-		} else if (t.tok == TOK_GOTO) {
+		}
+		break;
+		case TOK_GOTO:
 			sym_string = sym_string->end;
 			continue;
-		} else if (t.tok == TOK_EQUAL) {
+		case TOK_EQUAL:
+		{
 			struct sym *target_ref = sym_string->ref;
 			struct array_idx_info *op_idx = &sym_string->idx;
 
@@ -2586,7 +2609,11 @@ static int run_this(struct sym *sym_string, int return_at_return)
 			++sym_string;
 
 			sym_string = exec_equal(&target_ref->v, sym_string, op_idx);
-		} else if (t.tok == TOK_PLUS_PLUS || t.tok == TOK_MINUS_MINUS) {
+		}
+		break;
+		case TOK_PLUS_PLUS:
+		case TOK_MINUS_MINUS:
+		{
 			struct sym *target_ref = sym_string->ref;
 			if (t.tok == TOK_PLUS_PLUS)
 				target_ref->v.i += 1;
@@ -2594,7 +2621,9 @@ static int run_this(struct sym *sym_string, int return_at_return)
 				target_ref->v.i -= 1;
 			target_ref->v.flag = 0;
 			target_ref->v.type = SVt_IV;
-		} else if (t.tok == TOK_DOT_EQUAL) {
+		}
+		break;
+		case TOK_DOT_EQUAL: {
 			struct sym *target_ref = sym_string->ref;
 			struct array_idx_info *op_idx = &sym_string->idx;
 			static char num_tmp[128];
@@ -2666,8 +2695,13 @@ static int run_this(struct sym *sym_string, int return_at_return)
 			strcpy(target_ref->v.str + first_len, second);
 			if (first_need_free)
 				free(first);
-		} else if (t.tok == TOK_PLUS_EQUAL || t.tok == TOK_MINUS_EQUAL ||
-			TOK_DIV_EQUAL || TOK_DIV_EQUAL) {
+		}
+		break;
+		case TOK_PLUS_EQUAL:
+		case TOK_MINUS_EQUAL:
+		case TOK_DIV_EQUAL:
+		case TOK_MULT_EQUAL:
+		{
 			struct sym *target_ref = sym_string->ref;
 
 			++sym_string;
@@ -2701,7 +2735,9 @@ static int run_this(struct sym *sym_string, int return_at_return)
 				gravier_debug("UNIMPLEMENTED %s\n",
 					      tok_str[sym_string->t.tok]);
 			}
-		} else {
+			break;
+		}
+		default:
 			fprintf(stderr, "%s unimplemented\n", tok_str[t.tok]);
 		}
 		gravier_debug("%s ", tok_str[sym_string->t.tok]);
