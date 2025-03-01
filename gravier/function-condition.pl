@@ -25,8 +25,3 @@ if (one() < zero()) {
     print "one is still superior to zero\n";
 }
 
-
-#if (one() > zero()) {
-#    print "one is superior to zero\n";
-#}
-

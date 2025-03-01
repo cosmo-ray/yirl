@@ -528,6 +528,31 @@ static inline void perl_free(PerlInterpreter *p)
 	free(p);
 }
 
+#define NEW_LOCAL_VAL()							\
+	({								\
+		struct sym *cur_func = cur_pi->cur_pkg->cur_func;	\
+		struct sym *ret_ = cur_func ?				\
+			&cur_func->local_stack[cur_func->l_stack_len++] : \
+			&cur_pi->cur_pkg->local_stack[cur_pi->cur_pkg->l_stack_len++]; \
+		ret_;							\
+	})
+
+#define NEW_LOCAL_VAL_INIT(name)					\
+	({								\
+		struct sym *ret_ = NEW_LOCAL_VAL();			\
+		sym_val_init(ret_, (struct tok) {.tok=TOK_DOLAR, .as_str=name}); \
+		ret_;							\
+	})
+
+#define DEV_LOCAL_STACK(nb) do {					\
+		struct sym *cur_func = cur_pi->cur_pkg->cur_func;	\
+		if (cur_func)						\
+			cur_func->l_stack_len -= (nb);			\
+		else							\
+			cur_pi->cur_pkg->l_stack_len -= (nb);		\
+	} while (0)
+
+
 static struct sym *find_stack_ref_in_sym(struct sym *cur_func, const char *t_as_str)
 {
 	struct sym *cur_l_stack = cur_func->local_stack;
@@ -1275,24 +1300,20 @@ static int parse_equal(struct file *f, char **reader, struct sym equal_sym)
 	int stack_tmp = 1;
 	int nb_syms = 0;
 	int ret_val = -1;
-
-	sym_val_init(&f->stack[f->stack_len], (struct tok) {.tok=TOK_DOLAR, .as_str="?"});
-	f->stack_len++;
+	struct sym *s_ptr = NEW_LOCAL_VAL_INIT("?eqtmp?");
 
 	if (t.tok == TOK_NAMESPACE || t.tok == TOK_NAME) {
 		parse_func_call(t, f, syms, &nb_syms);
 		for (int i = 0; i < nb_syms; ++i, f->sym_len++) {
 			f->sym_string[f->sym_len] = syms[i];
 		}
-		CHECK_STACK_SPACE(f, stack_tmp + 1);
-		int p = f->stack_len;
-		++f->stack_len;
-		++stack_tmp;
-		operand = (struct sym){.ref=&f->stack[p], .t=TOK_DOLAR, .oposite=0};
-		f->sym_string[f->sym_len++] = (struct sym){.ref=&f->stack[p],
+		operand = (struct sym){.ref=s_ptr, .t=TOK_DOLAR, .oposite=0};
+		f->sym_string[f->sym_len++] = (struct sym){.ref=s_ptr,
 			.t=TOK_EQUAL};
 		f->sym_string[f->sym_len++] = (struct sym){.ref=&cur_pi->return_val,
 			.t=TOK_DOLAR, .oposite=0};
+		s_ptr = NEW_LOCAL_VAL_INIT("?eqtmp+?");
+		++stack_tmp;
 	} else {
 		STORE_OPERAND(t, operand);
 	}
@@ -1321,7 +1342,7 @@ again:
 
 	ret_val = 0;
 exit:
-	f->stack_len -= stack_tmp;
+	DEV_LOCAL_STACK(stack_tmp);
 	return ret_val;
 }
 
@@ -1334,10 +1355,9 @@ exit:
 		for (int i = 0; i < nb_syms; ++i, f->sym_len++) {	\
 			f->sym_string[f->sym_len] = syms[i];		\
 		}							\
-		CHECK_L_STACK_SPACE(f, 1);				\
 		struct sym *lstack_ref = &f->local_stack[f->l_stack_len++]; \
+		sym_val_init(lstack_ref, (struct tok) {.tok=TOK_DOLAR, .as_str="?callarg?"}); \
 		lstack_ref->v.flag = VAL_NEED_STEAL;			\
-		lstack_ref->t.tok = TOK_DOLAR;				\
 		*dec_lstack += 1;						\
 		f->sym_string[f->sym_len++] = (struct sym){.ref=lstack_ref, \
 			.t=TOK_EQUAL};					\
@@ -1438,6 +1458,8 @@ exit:
 static int operation(struct tok *t_ptr, struct file *f, char **reader)
 {
 	struct tok t;
+	int ret = -1;
+	int add_l_stack = 0;
 
 	if (t_ptr->tok == TOK_PLUS_PLUS || t_ptr->tok == TOK_MINUS_MINUS) {
 		f->sym_string[f->sym_len].t = *t_ptr;
@@ -1514,7 +1536,13 @@ static int operation(struct tok *t_ptr, struct file *f, char **reader)
 			if (t.tok == TOK_OPEN_PARENTESIS) {
 				CHECK_L_STACK_SPACE(f, 1);
 				t = next();
-				ar = &f->local_stack[f->l_stack_len + 1];
+				ar = &f->local_stack[f->l_stack_len];
+				sym_val_init(ar, (struct tok) {.tok=TOK_DOLAR,
+						.as_str="?ar-tmp?"});
+				add_l_stack++;
+
+				f->l_stack_len++;
+
 				ar->v.array_size = 0;
 				ar->t = (struct tok){.tok=TOK_NAME, .as_str="?array?"};
 				f->sym_string[f->sym_len++] = (struct sym){.ref=ar, .t=TOK_ARRAY_RESSET};
@@ -1548,10 +1576,11 @@ static int operation(struct tok *t_ptr, struct file *f, char **reader)
 	} else {
 		parse_equal(f, reader, equal_sym);
 	}
-	return 0;
 
+	ret = 0;
 exit:
-	return -1;
+	f->l_stack_len -= add_l_stack;
+	return ret;
 }
 
 static int var_declaration(struct tok t, struct file *f, char **reader)
@@ -1562,8 +1591,8 @@ static int var_declaration(struct tok t, struct file *f, char **reader)
 		if (t.tok != TOK_NAME) {
 			ERROR("unexpected token, require %s\n", tok_str[TOK_NAME]); \
 		}
-		CHECK_L_STACK_SPACE(f, 1);
-		f->local_stack[f->l_stack_len++].t = t;
+		struct sym *v = NEW_LOCAL_VAL();
+		v->t = t;
 		back[nb_back++] = t;
 		t.tok = TOK_DOLAR;
 	}
@@ -1634,20 +1663,23 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 #undef CLEAN_DO
 
 	} else if (t.tok == TOK_RETURN) {
-		f->sym_string[f->sym_len].t = t;
-		f->sym_string[f->sym_len].caller = f->cur_func;
+		struct sym ret_sym = {.t = t, .caller = f->cur_func};
 		t = next();
-		f->sym_string[f->sym_len++].have_return = (t.tok !=TOK_SEMICOL);
-		if (t.tok == TOK_SEMICOL)
+		ret_sym.have_return = (t.tok != TOK_SEMICOL);
+		if (t.tok == TOK_SEMICOL) {
+			f->sym_string[f->sym_len++] = ret_sym;
 			return 0;
-		STORE_OPERAND(t, f->sym_string[f->sym_len]);
-		t = next();
-		if (parse_array_idx_nfo(f, t, &f->sym_string[f->sym_len].idx) > IDX_IS_NONE) {
-			t = next();
-		} else {
-			back[nb_back++] = t;
 		}
-		f->sym_len++;
+		back[nb_back++] = t;
+		struct sym *ret_val = NEW_LOCAL_VAL();
+		struct sym ret_equal = {.t = {.tok=TOK_EQUAL}, .ref = ret_val};
+		sym_val_init(ret_val, (struct tok) {.tok=TOK_DOLAR, .as_str="?ret_tmp?"});
+		f->l_stack_len++;
+		parse_equal(f, reader_ptr, ret_equal);
+		f->sym_string[f->sym_len++] = ret_sym;
+		f->sym_string[f->sym_len++] = (struct sym){.t={.tok=TOK_DOLAR},
+			.ref=ret_val, .oposite=0};
+		DEV_LOCAL_STACK(1);
 	} else if (t.tok == TOK_SUB) {
 		int ret = 0;
 		struct sym *goto_end = &f->sym_string[f->sym_len];
@@ -1680,7 +1712,7 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 		}
 		kh_val(f->functions, iterator) = function_begin;
 
-		CHECK_L_STACK_SPACE(function_begin, 1);
+		CHECK_L_STACK_SPACE(function_begin, 2048);
 		struct sym *func_l_stack = function_begin->local_stack;
 		func_l_stack[function_begin->l_stack_len].t = (struct tok){.tok=TOK_NAME, .as_str="_"};
 		func_l_stack[function_begin->l_stack_len].v.type = SVt_PVAV;
@@ -1766,10 +1798,8 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 		struct sym *tmp_i = &f->local_stack[f->l_stack_len++];
 		struct sym *underscore;
 		if (f->cur_func) {
-			CHECK_L_STACK_SPACE(f->cur_func, 1);
 			underscore = &f->cur_func->local_stack[f->cur_func->l_stack_len++];
 		} else {
-			CHECK_L_STACK_SPACE(f, 1);
 			underscore = &f->local_stack[f->l_stack_len++];
 		}
 		underscore->t = (struct tok){.tok=TOK_NAME, .as_str="_"};
