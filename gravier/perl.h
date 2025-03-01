@@ -1135,14 +1135,15 @@ static int parse_func_call(struct tok t, struct file *f, struct sym *syms, int *
 		t = next();
 	}
 
-	khiter_t iterator = kh_get(func_syms, namespace->functions, t.as_str);
+	char *func_name = t.as_str;
+	khiter_t iterator = kh_get(func_syms, namespace->functions, func_name);
 	struct sym *func_syms;
 	struct sym *function;
 	int is_indirect_func = 0;
 
 	if (iterator == kh_end(namespace->functions)) {
 		int ret;
-		iterator = kh_put(func_syms, namespace->functions, t.as_str, &ret);
+		iterator = kh_put(func_syms, namespace->functions, func_name, &ret);
 		if (ret < 0)
 			ERROR("me hash table fail me, so sad :(\n");
 		gravier_debug("forward declaration of %s\n", t.as_str);
@@ -1157,7 +1158,7 @@ static int parse_func_call(struct tok t, struct file *f, struct sym *syms, int *
 		function = kh_val(namespace->functions, iterator);
 	}
 	int end_call_tok = TOK_SEMICOL;
-	gravier_debug("%s - %p\n", t.as_str, function);
+	gravier_debug("%s - %p\n", func_name, function);
 	if (function->l_stack_len < 1) {
 		CHECK_L_STACK_SPACE(function, 1);
 		function->l_stack_len = 1;
@@ -1212,6 +1213,7 @@ static int parse_func_call(struct tok t, struct file *f, struct sym *syms, int *
 		/* not sure function.tok.t is equal to tok_sub or tok_name */
 		syms[*nb_syms].t.tok = TOK_SUB;
 	}
+	syms[*nb_syms].t.as_str = func_name;
 	*nb_syms += 1;
 	return 0;
 exit:
@@ -2467,6 +2469,7 @@ static int run_this(struct sym *sym_string, int return_at_return)
 			++sym_string;
 			exec_equal(elem, sym_string, NULL);
 		} else if (t.tok == TOK_SUB || t.tok == TOK_INDIRECT_FUNC) {
+			/* printf("call %s\n", t.as_str); */
 			struct sym *to_call;
 			if (t.tok == TOK_SUB) {
 				to_call = sym_string->f_ref;
@@ -2618,11 +2621,32 @@ static int run_this(struct sym *sym_string, int return_at_return)
 				sprintf(num_tmp2, "%"PRIiPTR, sym_string->t.as_int);
 				second = num_tmp2;
 			} else if (sym_string->t.tok == TOK_DOLAR) {
-				if (sym_string->ref->v.type == SVt_IV) {
-					sprintf(num_tmp2, "%"PRIiPTR, sym_string->ref->v.i);
+				struct stack_val *sv = &sym_string->ref->v;
+
+			dot_again:
+				if (sv->type == SVt_IV) {
+					sprintf(num_tmp2, "%"PRIiPTR, sv->i);
 					second = num_tmp2;
+				} else if (sv->type == SVt_PVAV) {
+					struct array_idx_info *idx = &sym_string->idx;
+
+					if (idx->type == IDX_IS_TOKEN) {
+						int i_idx = idx->tok.as_int;
+
+						sv = &sv->array[i_idx];
+						goto dot_again;
+					} else {
+						struct sym *idx_ref = idx->ref;
+						int i_idx = 0;
+
+						if (idx_ref) {
+							i_idx = idx_ref->v.i;
+						}
+						sv = &sv->array[i_idx];
+						goto dot_again;
+					}
 				} else {
-					second = sym_string->ref->v.str;
+					second = sv->str;
 				}
 			}
 
