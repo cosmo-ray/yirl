@@ -544,7 +544,7 @@ static inline void perl_free(PerlInterpreter *p)
 		ret_;							\
 	})
 
-#define DEV_LOCAL_STACK(nb) do {					\
+#define DEC_LOCAL_STACK(nb) do {					\
 		struct sym *cur_func = cur_pi->cur_pkg->cur_func;	\
 		if (cur_func)						\
 			cur_func->l_stack_len -= (nb);			\
@@ -1222,13 +1222,11 @@ static int parse_equal_(struct file *f, char **reader, struct sym *operand,
 			struct tok t)
 {
 	int stack_tmp = 1;
-	int p = f->stack_len;
+	struct sym *s_ptr = NEW_LOCAL_VAL_INIT("?eqtmp_?");
 
-	f->stack_len += 1;
-	f->sym_string[f->sym_len++] = (struct sym){.ref=&f->stack[p], .t=TOK_EQUAL};
+	f->sym_string[f->sym_len++] = (struct sym){.ref=s_ptr, .t=TOK_EQUAL};
 	f->sym_string[f->sym_len++] = *operand;
-	sym_val_init(&f->stack[p], (struct tok) {.tok=TOK_DOLAR, .as_str="?"});
-	f->stack[p].v.flag = VAL_NEED_STEAL;
+	s_ptr->v.flag = VAL_NEED_STEAL;
 	int tok_op = t.tok;
 	struct array_idx_info array_idx;
 	struct sym syms[64];
@@ -1247,13 +1245,13 @@ static int parse_equal_(struct file *f, char **reader, struct sym *operand,
 		for (int i = 0; i < nb_syms; ++i, f->sym_len++) {
 			f->sym_string[f->sym_len] = syms[i];
 		}
+		struct sym *s_ptr_2 = NEW_LOCAL_VAL_INIT("?eqtmp_+?");
 		++stack_tmp;
-		int fp = f->stack_len;
-		f->stack_len++;
-		second = (struct sym){.ref=&f->stack[fp], .t=TOK_DOLAR, .oposite=0};
-		f->stack[fp].v.flag = VAL_NEED_STEAL;
-		f->sym_string[f->sym_len++] = (struct sym){.ref=&f->stack[fp], .t=TOK_EQUAL};
-		f->sym_string[f->sym_len++] = (struct sym){.ref=&cur_pi->return_val, .t=TOK_DOLAR, .oposite=0};
+		second = (struct sym){.ref=s_ptr_2, .t=TOK_DOLAR, .oposite=0};
+		s_ptr_2->v.flag = VAL_NEED_STEAL;
+		f->sym_string[f->sym_len++] = (struct sym){.ref=s_ptr_2, .t=TOK_EQUAL};
+		f->sym_string[f->sym_len++] = (struct sym){.ref=&cur_pi->return_val,
+			.t=TOK_DOLAR, .oposite=0};
 	} else {
 		STORE_OPERAND(t, second);
 	}
@@ -1279,11 +1277,11 @@ recheck:
 		back[nb_back++] = t;
 	}
 
-	f->sym_string[f->sym_len++] = (struct sym){.ref=&f->stack[p], .t=unequal_to_equal(tok_op)};
+	f->sym_string[f->sym_len++] = (struct sym){.ref=s_ptr, .t=unequal_to_equal(tok_op)};
 	f->sym_string[f->sym_len++] = second;
 
-	*operand = (struct sym){.ref=&f->stack[p], .t=TOK_DOLAR, .oposite=0};
-	f->stack_len -= stack_tmp;
+	*operand = (struct sym){.ref=s_ptr, .t=TOK_DOLAR, .oposite=0};
+	DEC_LOCAL_STACK(stack_tmp);
 	return 0;
 exit:
 	return -1;
@@ -1342,7 +1340,7 @@ again:
 
 	ret_val = 0;
 exit:
-	DEV_LOCAL_STACK(stack_tmp);
+	DEC_LOCAL_STACK(stack_tmp);
 	return ret_val;
 }
 
@@ -1355,10 +1353,9 @@ exit:
 		for (int i = 0; i < nb_syms; ++i, f->sym_len++) {	\
 			f->sym_string[f->sym_len] = syms[i];		\
 		}							\
-		struct sym *lstack_ref = &f->local_stack[f->l_stack_len++]; \
-		sym_val_init(lstack_ref, (struct tok) {.tok=TOK_DOLAR, .as_str="?callarg?"}); \
+		struct sym *lstack_ref = NEW_LOCAL_VAL_INIT("?callarg?"); \
 		lstack_ref->v.flag = VAL_NEED_STEAL;			\
-		*dec_lstack += 1;						\
+		*dec_lstack += 1;					\
 		f->sym_string[f->sym_len++] = (struct sym){.ref=lstack_ref, \
 			.t=TOK_EQUAL};					\
 		f->sym_string[f->sym_len++] = (struct sym){.ref=&cur_pi->return_val, \
@@ -1449,7 +1446,7 @@ static struct sym *parse_condition(struct tok *t_ptr, struct file *f, char **rea
 	f->sym_string[f->sym_len++].t.tok = tok;
 	for (int i = 0; i < syms_l; ++i)
 		f->sym_string[f->sym_len++] = syms[i];
-	f->l_stack_len -= dec_lstack;
+	DEC_LOCAL_STACK(dec_lstack);
 	return ret;
 exit:
 	return NULL;
@@ -1679,7 +1676,7 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 		f->sym_string[f->sym_len++] = ret_sym;
 		f->sym_string[f->sym_len++] = (struct sym){.t={.tok=TOK_DOLAR},
 			.ref=ret_val, .oposite=0};
-		DEV_LOCAL_STACK(1);
+		DEC_LOCAL_STACK(1);
 	} else if (t.tok == TOK_SUB) {
 		int ret = 0;
 		struct sym *goto_end = &f->sym_string[f->sym_len];
@@ -1932,10 +1929,7 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 	} else if (t.tok == TOK_PRINT) {
 		int need_close = 0;
 		int stack_tmp = 1;
-		sym_val_init(&f->stack[f->stack_len], (struct tok) {.tok=TOK_DOLAR,
-				.as_str="?"});
-		f->stack_len++;
-		/* volatile because gcc seems to set garbage value un print_sym */
+		struct sym *s_ptr = NEW_LOCAL_VAL_INIT("?pri?");
 
 		int base = f->sym_len;
 
@@ -1965,15 +1959,11 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 		} else if (t.tok == TOK_NAME || t.tok == TOK_NAMESPACE) {
 			static struct sym syms[128];
 			int nb_syms = 0;
-			int p = f->stack_len;
 
 			stack_tmp++;
-			sym_val_init(&f->stack[f->stack_len],
-				     (struct tok) {.tok=TOK_DOLAR, .as_str="?"});
-			f->stack_len++;
 			parse_func_call(t, f, syms, &nb_syms);
 
-			syms[nb_syms++] = (struct sym){.ref=&f->stack[p], .t=TOK_EQUAL};
+			syms[nb_syms++] = (struct sym){.ref=s_ptr, .t=TOK_EQUAL};
 			syms[nb_syms++] = (struct sym){.ref=&cur_pi->return_val, .t=TOK_DOLAR,
 				.oposite=0};
 
@@ -1986,8 +1976,9 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 			base += nb_syms;
 			f->sym_len += nb_syms;
 			f->sym_string[f->sym_len++] = (struct sym){
-				.ref=&f->stack[p], .t=TOK_DOLAR, .oposite=0
+				.ref=s_ptr, .t=TOK_DOLAR, .oposite=0
 			};
+			s_ptr = NEW_LOCAL_VAL_INIT("?pri+?");
 			t = next();
 		} else {
 			ERROR("unexpected %s token\n", tok_str[t.tok]);
@@ -2003,7 +1994,7 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 			ERROR("unclose parensesis in print\n");
 		}
 		f->sym_string[base].end = &f->sym_string[f->sym_len];
-		f->stack_len -= stack_tmp;
+		DEC_LOCAL_STACK(stack_tmp);
 	} else {
 		operation(&t, f, reader);
 		//f->sym_string[f->sym_len].t = t;
