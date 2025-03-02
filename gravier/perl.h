@@ -1180,6 +1180,9 @@ static int parse_func_call(struct tok t, struct file *f, struct sym *syms, int *
 	}
 
 	int i = 0;
+	struct sym assignement[64];
+	int nb_assignement = 0;
+	int nb_annoying_assign = 0;
 	if (t.tok != end_call_tok) {
 		do {
 			struct sym equal_sym = {
@@ -1190,19 +1193,36 @@ static int parse_func_call(struct tok t, struct file *f, struct sym *syms, int *
 					.tok={.tok=TOK_LITERAL_NUM, .as_int=i++}}};
 			int base = f->sym_len;
 			parse_equal(f, reader_ptr, equal_sym);
-			for (int i = base; i < f->sym_len; i++, *nb_syms += 1) {
+			for (int i = base; i < f->sym_len - 2; i++, *nb_syms += 1) {
 				syms[*nb_syms] = f->sym_string[i];
+			}
+			assignement[nb_assignement++] = f->sym_string[f->sym_len - 2];
+			if (f->sym_string[f->sym_len - 1].t.tok == TOK_DOLAR &&
+			    !strcmp("?eqtmp?", f->sym_string[f->sym_len - 1].ref->t.as_str)) {
+				struct sym *s_ptr = NEW_LOCAL_VAL_INIT("?inarg?");
+				nb_annoying_assign++;
+				syms[*nb_syms] = (struct sym) {.t.tok=TOK_EQUAL, .ref=s_ptr};
+				syms[*nb_syms + 1] = f->sym_string[f->sym_len - 1];
+				assignement[nb_assignement++] = (struct sym){.ref=s_ptr, .t=TOK_DOLAR, .oposite=0};;
+				*nb_syms += 2;
+			} else {
+				assignement[nb_assignement++] = f->sym_string[f->sym_len - 1];
 			}
 			f->sym_len = base;
 			t = next();
 		} while (t.tok == TOK_COMMA);
 	}
+	DEC_LOCAL_STACK(nb_annoying_assign);
 	// implement arguent push here
 	if (t.tok != end_call_tok) {
 		ERROR("%d: unclose function, got %s, expected %s\n", line_cnt, tok_str[t.tok],
 			tok_str[end_call_tok]);
 	}
 
+	for (int i = 0; i < nb_assignement; ++i) {
+		syms[*nb_syms] = assignement[i];
+		*nb_syms += 1;
+	}
 	if (is_indirect_func) {
 		syms[*nb_syms].f_iter = iterator;
 		syms[*nb_syms].package = namespace;
