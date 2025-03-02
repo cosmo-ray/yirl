@@ -293,6 +293,7 @@ struct tok {
 	union {
 		char *as_str;
 		intptr_t as_int;
+		double as_double;
 	};
 };
 
@@ -793,14 +794,25 @@ again:
 		RET_NEXT(r);
 	} else if (isdigit(*reader)) {
 		struct tok r = {.tok=TOK_LITERAL_NUM};
+		char **end_toll = &reader;
+		char **end_tod = &reader;
 
-		long long int i = strtoll(reader, &reader, 0);
-		if (!reader) {
+		long long int i = strtoll(reader, end_toll, 0);
+		double d = strtod(reader, end_tod);
+		if (!end_tod && !end_toll) {
 			r.tok = TOK_ENDFILE;
 			return r;
 		}
-		r.as_int = i;
-		--reader;
+		if (*end_tod > *end_toll) {
+			r.tok=TOK_LITERAL_FLOAT;
+			reader = *end_toll;
+			r.as_double = d;
+			--reader;
+		} else {
+			reader = *end_tod;
+			r.as_int = i;
+			--reader;
+		}
 		RET_NEXT(r);
 	} else if (isalpha(*reader) || *reader == '_') {
 		int is_namespace = 0;
@@ -2062,6 +2074,21 @@ XS(XS_scalar)
 	XSRETURN_NO;
 }
 
+XS(XS_int)
+{
+	dXSARGS;
+	struct stack_val *val_0 = ST(0);
+
+	if (val_0->type == SVt_PV) {
+		XSRETURN_IV(atoi(val_0->str));
+	} else if (val_0->type == SVt_IV) {
+		XSRETURN_IV(val_0->i);
+	} else if (val_0->type == SVt_NV) {
+		XSRETURN_IV((intptr_t)val_0->f);
+	}
+	XSRETURN_NO;
+}
+
 XS(XS_split)
 {
 	dXSARGS;
@@ -2158,6 +2185,7 @@ static int perl_parse(PerlInterpreter * my_perl, void (*xs_init)(void *stuff), i
 	cur_pi->forward_dec = kh_init(forward_func_h);
 	this_file->cur_func = NULL;
 
+        newXS_("int", XS_int, this_file);
         newXS_("split", XS_split, this_file);
         newXS_("scalar", XS_scalar, this_file);
         newXS_("uc", XS_uc, this_file);
@@ -2460,6 +2488,8 @@ static int run_this(struct sym *sym_string, int return_at_return)
 				if (sym_string->t.tok == TOK_LITERAL_STR) {
 					printf("%s", sym_string->t.as_str);
 				} else if (sym_string->t.tok == TOK_LITERAL_NUM) {
+					printf("%"PRIiPTR, sym_string->t.as_int);
+				} else if (sym_string->t.tok == TOK_LITERAL_FLOAT) {
 					printf("%"PRIiPTR, sym_string->t.as_int);
 				} else if (sym_string->t.tok == TOK_DOLAR) {
 					struct sym *ref = sym_string->ref;
