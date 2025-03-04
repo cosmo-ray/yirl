@@ -975,20 +975,49 @@ static inline intptr_t int_fron_sym(struct sym *sym)
 	// really unsure if literal string should return they pointer here
 	if (sym->t.tok == TOK_LITERAL_NUM || sym->t.tok == TOK_LITERAL_STR) {
 		return sym->t.as_int;
+	} else if (sym->t.tok == TOK_LITERAL_FLOAT) {
+		return sym->t.as_double;
 	} else if (sym->t.tok == TOK_DOLAR) {
 		struct sym *ref = sym->ref;
 
 		if (!ref)
 			return 0;
 		// again if type is not nbr here, maybe i should return 0
+		if (ref->v.type == SVt_NV)
+			return ref->v.f;
 		return ref->v.i;
-	}else if (sym->t.tok == TOK_ARRAY_SIZE) {
+	} else if (sym->t.tok == TOK_ARRAY_SIZE) {
 		struct sym *ref = sym->ref;
 
 		if (!ref)
 			return 0;
 		// again if type is not nbr here, maybe i should return 0
 		return ref->v.array_size;
+	}
+	return 0;
+}
+
+static inline _Bool is_sym_double(struct sym *sym)
+{
+	return sym->t.tok == TOK_LITERAL_FLOAT ||
+		(sym->t.tok == TOK_DOLAR && sym->ref->v.type == SVt_NV);
+}
+
+static inline double double_fron_sym(struct sym *sym)
+{
+	if (sym->t.tok == TOK_LITERAL_NUM || sym->t.tok == TOK_LITERAL_STR) {
+		return sym->t.as_int;
+	} else if (sym->t.tok == TOK_LITERAL_FLOAT) {
+		return sym->t.as_double;
+	} else if (sym->t.tok == TOK_DOLAR) {
+		struct sym *ref = sym->ref;
+
+		if (!ref)
+			return 0;
+		// again if type is not nbr here, maybe i should return 0
+		if (ref->v.type == SVt_NV)
+			return ref->v.f;
+		return ref->v.i;
 	}
 	return 0;
 }
@@ -2288,17 +2317,25 @@ static int exec_relational_operator(int tok, struct sym *lop, struct sym *rop, i
 {
 	switch (tok) {
 	case TOK_DOUBLE_EQUAL:
+		if (is_sym_double(lop) || is_sym_double(rop))
+			return exec_not(double_fron_sym(lop) == double_fron_sym(rop), have_not);
 		return exec_not(int_fron_sym(lop) == int_fron_sym(rop), have_not);
 	case TOK_NOT_EQUAL:
+		if (is_sym_double(lop) || is_sym_double(rop))
+			return exec_not(double_fron_sym(lop) != double_fron_sym(rop), have_not);
 		return exec_not(int_fron_sym(lop) != int_fron_sym(rop), have_not);
 	case TOK_SUP_EQUAL:
-		return exec_not(int_fron_sym(lop) >= int_fron_sym(rop), have_not);
+		if (is_sym_double(lop) || is_sym_double(rop))
+			return exec_not(double_fron_sym(lop) >= double_fron_sym(rop), have_not);		return exec_not(int_fron_sym(lop) >= int_fron_sym(rop), have_not);
 	case TOK_SUP:
-		return exec_not(int_fron_sym(lop) > int_fron_sym(rop), have_not);
+		if (is_sym_double(lop) || is_sym_double(rop))
+			return exec_not(double_fron_sym(lop) > double_fron_sym(rop), have_not);		return exec_not(int_fron_sym(lop) > int_fron_sym(rop), have_not);
 	case TOK_INF_EQUAL:
-		return exec_not(int_fron_sym(lop) <= int_fron_sym(rop), have_not);
+		if (is_sym_double(lop) || is_sym_double(rop))
+			return exec_not(double_fron_sym(lop) <= double_fron_sym(rop), have_not);		return exec_not(int_fron_sym(lop) <= int_fron_sym(rop), have_not);
 	case TOK_INF:
-		return exec_not(int_fron_sym(lop) < int_fron_sym(rop), have_not);
+		if (is_sym_double(lop) || is_sym_double(rop))
+			return exec_not(double_fron_sym(lop) < double_fron_sym(rop), have_not);		return exec_not(int_fron_sym(lop) < int_fron_sym(rop), have_not);
 	case TOK_EQ:
 		return exec_not(!strcmp(str_fron_sym(lop), str_fron_sym(rop)), have_not);
 	}
@@ -2317,7 +2354,10 @@ static void exec_dolar_equal(struct stack_val *sv, struct stack_val *that,
 		int i_idx = 0;
 
 		if (idx_ref) {
-			i_idx = idx_ref->v.i;
+			if (idx_ref->v.type == SVt_NV)
+				i_idx = idx_ref->v.f;
+			else
+				i_idx = idx_ref->v.i;
 		}
 		return exec_dolar_equal(sv, &that->array[i_idx], NULL, oposite);
 	} else {
@@ -2440,7 +2480,10 @@ eq_array_at:
 			struct sym *idx_ref = idx->ref;
 
 			if (idx_ref) {
-				i_idx = idx_ref->v.i;
+				if (idx_ref->v.type == SVt_NV)
+					i_idx = idx_ref->v.f;
+				else
+					i_idx = idx_ref->v.i;
 			}
 		}
 		if (i_idx >= sv->array_size) {
