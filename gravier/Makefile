@@ -1,5 +1,5 @@
 gravier: gravier.c perl.h
-	gcc -g --std=gnu17 gravier.c -I../include/ -o gravier
+	gcc -g --std=gnu17 gravier.c -I../include/ -o gravier # -lasan -lubsan
 
 lib-gr-tst: perl.h lib-test/main.c
 	gcc -g --std=gnu17 -I./ lib-test/main.c -I../include/ -o lib-gr-tst

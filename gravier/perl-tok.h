@@ -63,6 +63,7 @@ TOK(REGEX)
 /* no perl token per se, but use by perl_exec */
 TOK(ARRAY_PUSH)
 TOK(ARRAY_RESSET)
+TOK(FREE_VAR)
 TOK(ARRAY_SIZE)
 TOK(NATIVE_FUNC)
 TOK(INDIRECT_FUNC)

@@ -1,3 +1,5 @@
+
+
 #ifndef PERL_H
 #define PERL_H
 
@@ -171,10 +173,12 @@ static inline intptr_t SvIV(struct stack_val *sv) {
 static void array_free(struct stack_val *array)
 {
 	for (int i = 0; i < array->array_size; ++i) {
-		if (array->array[i].flag & VAL_NEED_FREE) {
+		if (array->array[i].flag & VAL_NEED_FREE &&
+		    !(array->array[i].flag & VAL_NEED_STEAL)) {
 			if (array->array[i].type == SVt_PV) {
 				free(array->array[i].str);
 				array->array[i].str = NULL;
+				array->array[i].flag = 0;
 			}
 		}
 	}
@@ -194,6 +198,7 @@ static void free_var(struct stack_val *v)
 	} else if (v->type == SVt_PVAV) {
 		array_free(v);
 	}
+	v->flag = 0;
 }
 
 static inline struct stack_val sv_2mortal(struct stack_val v) {
@@ -400,6 +405,13 @@ static int run_this(struct sym *sym_string, int return_at_return);
 	} while (0)
 
 
+#define ALLOC_L_STACK_SPACE(this_file, X) do {				\
+		this_file->l_stack_len = 0;				\
+		this_file->l_stack_size = X;				\
+		this_file->local_stack =				\
+			malloc(sizeof *this_file->local_stack * this_file->l_stack_size); \
+	} while (0)
+
 
 static inline void newXS_(const char *func_name,
 			 int (*nat_func)(struct sym *func_sym, int items),
@@ -413,9 +425,7 @@ static inline void newXS_(const char *func_name,
 	struct sym *function = malloc(sizeof *function);
 	function->nat_func = nat_func;
 	function->t.tok = TOK_NATIVE_FUNC;
-	function->local_stack = NULL;
-	function->l_stack_size = 0;
-	function->l_stack_len = 0;
+	ALLOC_L_STACK_SPACE(function, 1);
 	kh_val(this_mod->functions, iterator) = function;
 
 exit:
@@ -490,26 +500,18 @@ static inline void perl_destruct(PerlInterpreter *p)
 			struct sym *fvar;
 
 			kh_foreach(vvar->functions, fkey, fvar, {
+					free(fvar->local_stack);
 					if (fvar->t.tok == TOK_NATIVE_FUNC ||
-					    fvar->t.tok == TOK_INDIRECT_FUNC)
+					    fvar->t.tok == TOK_INDIRECT_FUNC) {
 						free(fvar);
+					}
 				});
 
 			for (int i = 0; i < vvar->l_stack_len; ++i) {
-				if (vvar->local_stack[i].v.flag & VAL_NEED_FREE) {
-					if (vvar->local_stack[i].v.type == SVt_PV)
-						free(vvar->local_stack[i].v.v);
-				} else if (vvar->local_stack[i].v.type == SVt_PVAV) {
-					array_free(&vvar->local_stack[i].v);
-				}
+				free_var(&vvar->local_stack[i].v);
 			}
 			for (int i = 0; i < vvar->stack_len; ++i) {
-				if (vvar->stack[i].v.flag & VAL_NEED_FREE) {
-					if (vvar->stack[i].v.type == SVt_PV)
-						free(vvar->stack[i].v.v);
-				} else if (vvar->local_stack[i].v.type == SVt_PVAV) {
-					array_free(&vvar->local_stack[i].v);
-				}
+				free_var(&vvar->stack[i].v);
 			}
 
 			free(vvar->sym_string);
@@ -519,8 +521,11 @@ static inline void perl_destruct(PerlInterpreter *p)
 			kh_destroy(func_syms, vvar->functions);
 			free(vvar);
 		});
+	free_var(&cur_pi->return_val.v);
 	kh_destroy(file_list, p->files);
 	p->files = NULL;
+	kh_destroy(forward_func_h, p->forward_dec);
+	p->forward_dec = NULL;
 }
 
 static inline void perl_free(PerlInterpreter *p)
@@ -545,13 +550,28 @@ static inline void perl_free(PerlInterpreter *p)
 		ret_;							\
 	})
 
-#define DEC_LOCAL_STACK(nb) do {					\
+static inline void push_free_var(struct sym *to_free, struct sym *syms, int *nb_syms)
+{
+	syms[*nb_syms] = (struct sym){.t.tok=TOK_FREE_VAR, .ref=to_free};
+	*nb_syms += 1;
+}
+
+#define DEC_LOCAL_STACK(to_, rm_syms_dest, sym_iterator) do {		\
 		struct sym *cur_func = cur_pi->cur_pkg->cur_func;	\
-		if (cur_func)						\
-			cur_func->l_stack_len -= (nb);			\
-		else							\
-			cur_pi->cur_pkg->l_stack_len -= (nb);		\
-	} while (0)
+		if (cur_func) {						\
+			for (int i = to_;				\
+			     i <  cur_func->l_stack_len; ++i)		\
+				push_free_var(&cur_func->local_stack[i], \
+					      rm_syms_dest, sym_iterator); \
+			cur_func->l_stack_len = (to_);			\
+		} else {						\
+			for (int i = to_;				\
+			     i <  cur_pi->cur_pkg->l_stack_len; ++i)	\
+				push_free_var(&cur_pi->cur_pkg->local_stack[i], \
+					      rm_syms_dest, sym_iterator); \
+			cur_pi->cur_pkg->l_stack_len = (to_);		\
+		}							\
+} while (0)
 
 
 static struct sym *find_stack_ref_in_sym(struct sym *cur_func, const char *t_as_str)
@@ -721,6 +741,7 @@ again:
 		}
 		reader += end_i;
 		next_tok = TOK_SEMICOL;
+		graviver_str_small_replace(r.as_str, "\\\\", "\\");
 		RET_NEXT(r);
 	} else if (dumbcmp(reader, ">>")) {
 		reader += 1;
@@ -901,17 +922,6 @@ again:
 			this_file->stack =				\
 				realloc(this_file->stack,		\
 					sizeof *this_file->stack * this_file->stack_size); \
-		}							\
-	} while (0)
-
-#define CHECK_L_STACK_SPACE(this_file, X) do {				\
-		if (this_file->l_stack_len + X > this_file->l_stack_size) { \
-			if (!this_file->l_stack_size)			\
-				this_file->l_stack_size = 4;		\
-			this_file->l_stack_size *= 2;			\
-			this_file->local_stack =			\
-				realloc(this_file->local_stack,		\
-					sizeof *this_file->local_stack * this_file->l_stack_size); \
 		}							\
 	} while (0)
 
@@ -1189,9 +1199,7 @@ static int parse_func_call(struct tok t, struct file *f, struct sym *syms, int *
 			ERROR("me hash table fail me, so sad :(\n");
 		gravier_debug("forward declaration of %s\n", t.as_str);
 		function = malloc(sizeof *function);
-		function->local_stack = NULL;
-		function->l_stack_len = 0;
-		function->l_stack_size = 0;
+		ALLOC_L_STACK_SPACE(function, 2048);
 		function->t.tok = TOK_INDIRECT_FUNC;
 		kh_val(namespace->functions, iterator) = function;
 		is_indirect_func = 1;
@@ -1201,7 +1209,6 @@ static int parse_func_call(struct tok t, struct file *f, struct sym *syms, int *
 	int end_call_tok = TOK_SEMICOL;
 	gravier_debug("%s - %p\n", func_name, function);
 	if (function->l_stack_len < 1) {
-		CHECK_L_STACK_SPACE(function, 1);
 		function->l_stack_len = 1;
 		function->local_stack[0].t = (struct tok){.tok=TOK_NAME, .as_str="_"};
 		function->local_stack[0].v.type = SVt_PVAV;
@@ -1244,7 +1251,7 @@ static int parse_func_call(struct tok t, struct file *f, struct sym *syms, int *
 				nb_annoying_assign++;
 				syms[*nb_syms] = (struct sym) {.t.tok=TOK_EQUAL, .ref=s_ptr};
 				syms[*nb_syms + 1] = f->sym_string[f->sym_len - 1];
-				assignement[nb_assignement++] = (struct sym){.ref=s_ptr, .t=TOK_DOLAR, .oposite=0};;
+				assignement[nb_assignement++] = (struct sym){.ref=s_ptr, .t.tok=TOK_DOLAR,  .t.as_str="?assignement?", .oposite=0};;
 				*nb_syms += 2;
 			} else {
 				assignement[nb_assignement++] = f->sym_string[f->sym_len - 1];
@@ -1253,7 +1260,6 @@ static int parse_func_call(struct tok t, struct file *f, struct sym *syms, int *
 			t = next();
 		} while (t.tok == TOK_COMMA);
 	}
-	DEC_LOCAL_STACK(nb_annoying_assign);
 	// implement arguent push here
 	if (t.tok != end_call_tok) {
 		ERROR("%d: unclose function, got %s, expected %s\n", line_cnt, tok_str[t.tok],
@@ -1289,7 +1295,6 @@ static int parse_equal_(struct file *f, char **reader, struct sym *operand,
 
 	f->sym_string[f->sym_len++] = (struct sym){.ref=s_ptr, .t=TOK_EQUAL};
 	f->sym_string[f->sym_len++] = *operand;
-	s_ptr->v.flag = VAL_NEED_STEAL;
 	int tok_op = t.tok;
 	struct array_idx_info array_idx;
 	struct sym syms[64];
@@ -1310,8 +1315,7 @@ static int parse_equal_(struct file *f, char **reader, struct sym *operand,
 		}
 		struct sym *s_ptr_2 = NEW_LOCAL_VAL_INIT("?eqtmp_+?");
 		++stack_tmp;
-		second = (struct sym){.ref=s_ptr_2, .t=TOK_DOLAR, .oposite=0};
-		s_ptr_2->v.flag = VAL_NEED_STEAL;
+		second = (struct sym){.ref=s_ptr_2, .t.tok=TOK_DOLAR, .t.as_str="?high_eqtmp_?", .oposite=0};
 		f->sym_string[f->sym_len++] = (struct sym){.ref=s_ptr_2, .t=TOK_EQUAL};
 		f->sym_string[f->sym_len++] = (struct sym){.ref=&cur_pi->return_val,
 			.t=TOK_DOLAR, .oposite=0};
@@ -1344,7 +1348,6 @@ recheck:
 	f->sym_string[f->sym_len++] = second;
 
 	*operand = (struct sym){.ref=s_ptr, .t=TOK_DOLAR, .oposite=0};
-	DEC_LOCAL_STACK(stack_tmp);
 	return 0;
 exit:
 	return -1;
@@ -1403,7 +1406,6 @@ again:
 
 	ret_val = 0;
 exit:
-	DEC_LOCAL_STACK(stack_tmp);
 	return ret_val;
 }
 
@@ -1417,7 +1419,6 @@ exit:
 			f->sym_string[f->sym_len] = syms[i];		\
 		}							\
 		struct sym *lstack_ref = NEW_LOCAL_VAL_INIT("?callarg?"); \
-		lstack_ref->v.flag = VAL_NEED_STEAL;			\
 		*dec_lstack += 1;					\
 		f->sym_string[f->sym_len++] = (struct sym){.ref=lstack_ref, \
 			.t=TOK_EQUAL};					\
@@ -1509,7 +1510,6 @@ static struct sym *parse_condition(struct tok *t_ptr, struct file *f, char **rea
 	f->sym_string[f->sym_len++].t.tok = tok;
 	for (int i = 0; i < syms_l; ++i)
 		f->sym_string[f->sym_len++] = syms[i];
-	DEC_LOCAL_STACK(dec_lstack);
 	return ret;
 exit:
 	return NULL;
@@ -1594,7 +1594,6 @@ static int operation(struct tok *t_ptr, struct file *f, char **reader)
 			struct sym elem;
 			struct sym *ar = NULL;
 			if (t.tok == TOK_OPEN_PARENTESIS) {
-				CHECK_L_STACK_SPACE(f, 1);
 				t = next();
 				ar = &f->local_stack[f->l_stack_len];
 				sym_val_init(ar, (struct tok) {.tok=TOK_DOLAR,
@@ -1734,12 +1733,10 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 		struct sym *ret_val = NEW_LOCAL_VAL();
 		struct sym ret_equal = {.t = {.tok=TOK_EQUAL}, .ref = ret_val};
 		sym_val_init(ret_val, (struct tok) {.tok=TOK_DOLAR, .as_str="?ret_tmp?"});
-		f->l_stack_len++;
 		parse_equal(f, reader_ptr, ret_equal);
 		f->sym_string[f->sym_len++] = ret_sym;
 		f->sym_string[f->sym_len++] = (struct sym){.t={.tok=TOK_DOLAR},
 			.ref=ret_val, .oposite=0};
-		DEC_LOCAL_STACK(1);
 	} else if (t.tok == TOK_SUB) {
 		int ret = 0;
 		struct sym *goto_end = &f->sym_string[f->sym_len];
@@ -1763,16 +1760,13 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 					free(fd);
 			}
 		} else {
-			function_begin->l_stack_len = 0;
-			function_begin->l_stack_size = 0;
-			function_begin->local_stack = NULL;
+			ALLOC_L_STACK_SPACE(function_begin, 2048);
 			iterator = kh_put(func_syms, f->functions, t.as_str, &ret);
 			if (ret < 0)
 				ERROR("me hash table fail me, so sad :(\n");
 		}
 		kh_val(f->functions, iterator) = function_begin;
 
-		CHECK_L_STACK_SPACE(function_begin, 2048);
 		struct sym *func_l_stack = function_begin->local_stack;
 		func_l_stack[function_begin->l_stack_len].t = (struct tok){.tok=TOK_NAME, .as_str="_"};
 		func_l_stack[function_begin->l_stack_len].v.type = SVt_PVAV;
@@ -1854,7 +1848,6 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 		t = next();
 		SKIP_REQ(TOK_CLOSE_PARENTESIS, t);
 		// increase local_stack by one
-		CHECK_L_STACK_SPACE(f, 1);
 		struct sym *tmp_i = &f->local_stack[f->l_stack_len++];
 		struct sym *underscore;
 		if (f->cur_func) {
@@ -1975,6 +1968,8 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 	} else if (t.tok == TOK_OPEN_BRACE) {
 		// humm I have stack locality to handle here...
 		int begin_local_stack = f->l_stack_len;
+		if (cur_pi->cur_pkg->cur_func)
+			begin_local_stack = cur_pi->cur_pkg->cur_func->l_stack_len;
 
 		while ((t = next()).tok != TOK_CLOSE_BRACE) {
 			if (t.tok == TOK_ENDFILE) {
@@ -1984,7 +1979,7 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 				goto exit;
 		}
 
-		f->l_stack_len = begin_local_stack;
+		DEC_LOCAL_STACK(begin_local_stack, f->sym_string, &f->sym_len);
 		// and stack to remove here
 
 	} else if (t.tok == TOK_SEMICOL) {
@@ -2057,7 +2052,6 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 			ERROR("unclose parensesis in print\n");
 		}
 		f->sym_string[base].end = &f->sym_string[f->sym_len];
-		DEC_LOCAL_STACK(stack_tmp);
 	} else {
 		operation(&t, f, reader);
 		//f->sym_string[f->sym_len].t = t;
@@ -2207,10 +2201,9 @@ static int perl_parse(PerlInterpreter * my_perl, void (*xs_init)(void *stuff), i
 	this_file->stack_size = 2058;
 	this_file->stack_len = 0;
 	this_file->stack = malloc(sizeof *this_file->stack * this_file->stack_size);
-	this_file->l_stack_len = 0;
-	this_file->l_stack_size = 2058;
-	this_file->local_stack = malloc(sizeof *this_file->local_stack * this_file->l_stack_size);
+	ALLOC_L_STACK_SPACE(this_file, 2058);
 	this_file->functions = kh_init(func_syms);
+	sym_val_init(&cur_pi->return_val, (struct tok) {.tok=TOK_DOLAR, .as_str="??RETURN_TMP??"});
 	cur_pi->forward_dec = kh_init(forward_func_h);
 	this_file->cur_func = NULL;
 
@@ -2344,7 +2337,6 @@ static int exec_relational_operator(int tok, struct sym *lop, struct sym *rop, i
 static void exec_dolar_equal(struct stack_val *sv, struct stack_val *that,
 			     struct array_idx_info *idx, int oposite)
 {
-	int oflag = sv->flag;
 	if (idx && idx->type == IDX_IS_TOKEN) {
 		int i_idx = idx->tok.as_int;
 
@@ -2367,7 +2359,7 @@ static void exec_dolar_equal(struct stack_val *sv, struct stack_val *that,
 		if (that->type == SVt_PVAV) {
 			struct stack_val *other = that;
 			sv->array = malloc(sv->array_size * sizeof *sv->array);
-			memcpy(sv->array, other->array, sv->array_size * sizeof *sv->array);
+			memset(sv->array, 0, sv->array_size * sizeof *sv->array);
 			for (int i = 0; i < sv->array_size; ++i) {
 				exec_dolar_equal(&sv->array[i], &other->array[i], NULL,
 					oposite);
@@ -2377,12 +2369,19 @@ static void exec_dolar_equal(struct stack_val *sv, struct stack_val *that,
 		}
 	}
 
-	if (sv->flag & VAL_NEED_FREE && sv->type == SVt_PV) {
+	if ((sv->flag & (VAL_NEED_FREE | VAL_NEED_STEAL)) && sv->type == SVt_PV) {
 		int steal = sv->flag & VAL_NEED_STEAL;
 
-		if (!steal)
-			sv->str = strdup(sv->str);
-		sv->flag = oflag & VAL_NEED_FREE;
+		if (!steal) {
+			char *dest = strdup(sv->str);
+			if (sv == that && (that->flag & VAL_NEED_FREE))
+				free(that->str);
+			sv->str = dest;
+		} else {
+			that->str = NULL;
+			that->flag = 0;
+		}
+		sv->flag = VAL_NEED_FREE;
 	} else {
 		sv->flag = 0;
 	}
@@ -2552,6 +2551,9 @@ static int run_this(struct sym *sym_string, int return_at_return)
 		break;
 		case TOK_ARRAY_RESSET:
 			array_free(&sym_string->ref->v);
+			break;
+		case TOK_FREE_VAR:
+			free_var(&sym_string->ref->v);
 			break;
 		case TOK_ARRAY_PUSH:
 		{
@@ -2723,7 +2725,7 @@ static int run_this(struct sym *sym_string, int return_at_return)
 			static char num_tmp2[128];
 			char *first = "";
 			char *second = "";
-			int first_need_free = (target_ref->v.flag & VAL_NEED_FREE);
+			int first_need_free = (target_ref->v.flag & (VAL_NEED_FREE | VAL_NEED_STEAL));
 
 			++sym_string;
 			if (target_ref->v.type == SVt_NULL) {
