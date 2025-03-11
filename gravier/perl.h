@@ -170,17 +170,12 @@ static inline intptr_t SvIV(struct stack_val *sv) {
 	return sv->i;
 }
 
+static void free_var(struct stack_val *v);
+
 static void array_free(struct stack_val *array)
 {
 	for (int i = 0; i < array->array_size; ++i) {
-		if (array->array[i].flag & VAL_NEED_FREE &&
-		    !(array->array[i].flag & VAL_NEED_STEAL)) {
-			if (array->array[i].type == SVt_PV) {
-				free(array->array[i].str);
-				array->array[i].str = NULL;
-				array->array[i].flag = 0;
-			}
-		}
+		free_var(&array->array[i]);
 	}
 	if (array->array_size) {
 		free(array->array);
@@ -510,6 +505,7 @@ static inline void perl_destruct(PerlInterpreter *p)
 			for (int i = 0; i < vvar->l_stack_len; ++i) {
 				free_var(&vvar->local_stack[i].v);
 			}
+
 			for (int i = 0; i < vvar->stack_len; ++i) {
 				free_var(&vvar->stack[i].v);
 			}
@@ -521,6 +517,7 @@ static inline void perl_destruct(PerlInterpreter *p)
 			kh_destroy(func_syms, vvar->functions);
 			free(vvar);
 		});
+
 	free_var(&cur_pi->return_val.v);
 	kh_destroy(file_list, p->files);
 	p->files = NULL;
@@ -1071,13 +1068,17 @@ static struct sym *find_stack_ref(struct file *this_file, struct tok *t)
 	return NULL;
 }
 
+static void stack_val_init(struct stack_val *s)
+{
+	s->type = SVt_NULL;
+	s->i = 0;
+	s->flag = 0;
+	s->array_size = 0;
+}
+
 static void sym_val_init(struct sym *s, struct tok t)
 {
-	s->v.type = SVt_NULL;
-	s->v.i = 0;
-	s->v.flag = 0;
-	s->v.array_size = 0;
-	s->v.array = NULL;
+	stack_val_init(&s->v);
 	s->idx.type = IDX_IS_NONE;
 	s->t = t;
 }
@@ -2346,14 +2347,15 @@ static void exec_dolar_equal(struct stack_val *sv, struct stack_val *that,
 	} else {
 		if (sv != that)
 			free_var(sv);
+		else
+			printf("oops?\n");
 		*sv = *that;
 		if (that->type == SVt_PVAV) {
-			struct stack_val *other = that;
 			sv->array = malloc(sv->array_size * sizeof *sv->array);
 			memset(sv->array, 0, sv->array_size * sizeof *sv->array);
 			for (int i = 0; i < sv->array_size; ++i) {
-				exec_dolar_equal(&sv->array[i], &other->array[i], NULL,
-					oposite);
+				exec_dolar_equal(&sv->array[i], &that->array[i], NULL,
+						 oposite);
 			}
 		} else if (that->type == SVt_IV && oposite) {
 			sv->i *= -1;
@@ -2378,84 +2380,90 @@ static void exec_dolar_equal(struct stack_val *sv, struct stack_val *that,
 	}
 }
 
+static struct sym *gogo_regex_engine(struct stack_val *sv, struct sym *sym_string)
+{
+	struct tok regex = sym_string->t;
+	char *target = NULL;
+	int search_patern = regex.as_str[0];
+	char separator = regex.as_str[1];
+	char *operation;
+	char *needle;
+	char *replace;
+	char *dest;
+	char *tmp;
+	int dest_l = 0;
+	int i;
+
+	if (search_patern != 's') {
+		fprintf(stderr, "regex on %c not supported\n", search_patern);
+		return sym_string + 1;
+	}
+
+	++sym_string;
+	if (sym_string->t.tok == TOK_LITERAL_STR) {
+		target = sym_string->t.as_str;
+	} else if (sym_string->t.tok == TOK_DOLAR) {
+		target = sym_string->ref->v.str;
+	}
+	needle = strdup(regex.as_str + 2);
+	replace = strchr(needle, separator);
+	if (!replace) {
+		goto regex_out;
+	}
+	*replace = 0;
+	++replace;
+	operation = strchr(replace, separator);
+	if (!operation) {
+		goto regex_out;
+	}
+	*operation = 0;
+	++operation;
+	tmp = strstr(target, needle);
+	if (!tmp)
+		goto regex_out;
+
+	dest_l = strlen(target);
+	dest_l = dest_l << 1;
+	dest = malloc(dest_l);
+
+	for (i = 0; target != tmp; ++i, ++target) {
+		dest[i] = *target;
+	}
+	for (int j = 0; replace[j]; ++j, ++i) {
+		if (replace[j] == '\\') {
+			++j;
+			if (replace[j] == 'n')
+				dest[i] = '\n';
+			else if (target[j] == 't')
+				dest[i] = '\t';
+			else
+				dest[i] = '\\';
+		} else {
+			dest[i] = replace[j];
+		}
+	}
+	target += strlen(needle);
+	for (; *target; ++target, ++i) {
+		dest[i] = *target;
+	}
+	dest[i] = 0;
+	free_var(sv);
+	sv->type = SVt_PV;
+	sv->str = dest;
+	sv->flag = VAL_NEED_FREE;
+
+regex_out:
+	free(needle);
+	return sym_string;
+
+}
+
 static struct sym *exec_equal(struct stack_val *sv, struct sym *sym_string,
 			      struct array_idx_info *op_idx)
 {
 
 	if (sym_string->t.tok == TOK_REGEX) {
-		struct tok regex = sym_string->t;
-		char *target = NULL;
-		int search_patern = regex.as_str[0];
-		char separator = regex.as_str[1];
-		char *operation;
-		char *needle;
-		char *replace;
-		char *dest;
-		char *tmp;
-		int dest_l = 0;
-		int i;
-
-		if (search_patern != 's') {
-			fprintf(stderr, "regex on %c not supported\n", search_patern);
-			return sym_string + 1;
-		}
-
-		++sym_string;
-		if (sym_string->t.tok == TOK_LITERAL_STR) {
-			target = sym_string->t.as_str;
-		} else if (sym_string->t.tok == TOK_DOLAR) {
-			target = sym_string->ref->v.str;
-		}
-		needle = strdup(regex.as_str + 2);
-		replace = strchr(needle, separator);
-		if (!replace) {
-			goto regex_out;
-		}
-		*replace = 0;
-		++replace;
-		operation = strchr(replace, separator);
-		if (!operation) {
-			goto regex_out;
-		}
-		*operation = 0;
-		++operation;
-		tmp = strstr(target, needle);
-		if (!tmp)
-			goto regex_out;
-
-		dest_l = strlen(target);
-		dest_l = dest_l << 1;
-		dest = malloc(dest_l);
-
-		for (i = 0; target != tmp; ++i, ++target) {
-			dest[i] = *target;
-		}
-		for (int j = 0; replace[j]; ++j, ++i) {
-			if (replace[j] == '\\') {
-				++j;
-				if (replace[j] == 'n')
-					dest[i] = '\n';
-				else if (target[j] == 't')
-					dest[i] = '\t';
-				else
-					dest[i] = '\\';
-			} else {
-				dest[i] = replace[j];
-			}
-		}
-		target += strlen(needle);
-		for (; *target; ++target, ++i) {
-			dest[i] = *target;
-		}
-		dest[i] = 0;
-		free_var(sv);
-		sv->type = SVt_PV;
-		sv->str = dest;
-		sv->flag = VAL_NEED_FREE;
-
-	regex_out:
-		free(needle);
-		return sym_string;
+		return gogo_regex_engine(sv, sym_string);
 	}
 eq_array_at:
 	if ((sv->type == SVt_PVAV || sv->type == SVt_NULL) &&
@@ -2556,7 +2564,7 @@ static int run_this(struct sym *sym_string, int return_at_return)
 			array->v.array = realloc(array->v.array,
 						 array->v.array_size * sizeof *array->v.array);
 			struct stack_val *elem = &array->v.array[p];
-			elem->type = SVt_NULL;
+			stack_val_init(elem);
 			++sym_string;
 			exec_equal(elem, sym_string, NULL);
 		}
