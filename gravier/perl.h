@@ -1519,7 +1519,6 @@ static int operation(struct tok *t_ptr, struct file *f, char **reader)
 {
 	struct tok t;
 	int ret = -1;
-	int add_l_stack = 0;
 
 	if (t_ptr->tok == TOK_PLUS_PLUS || t_ptr->tok == TOK_MINUS_MINUS) {
 		f->sym_string[f->sym_len].t = *t_ptr;
@@ -1595,15 +1594,8 @@ static int operation(struct tok *t_ptr, struct file *f, char **reader)
 			struct sym *ar = NULL;
 			if (t.tok == TOK_OPEN_PARENTESIS) {
 				t = next();
-				ar = &f->local_stack[f->l_stack_len];
-				sym_val_init(ar, (struct tok) {.tok=TOK_DOLAR,
-						.as_str="?ar-tmp?"});
-				add_l_stack++;
+				ar = NEW_LOCAL_VAL_INIT("?ar-tmp?");
 
-				f->l_stack_len++;
-
-				ar->v.array_size = 0;
-				ar->t = (struct tok){.tok=TOK_NAME, .as_str="?array?"};
 				f->sym_string[f->sym_len++] = (struct sym){.ref=ar, .t=TOK_ARRAY_RESSET};
 				while (t.tok != TOK_CLOSE_PARENTESIS) {
 					f->sym_string[f->sym_len++] = (struct sym){.ref=ar, .t=TOK_ARRAY_PUSH};
@@ -1638,7 +1630,6 @@ static int operation(struct tok *t_ptr, struct file *f, char **reader)
 
 	ret = 0;
 exit:
-	f->l_stack_len -= add_l_stack;
 	return ret;
 }
 
