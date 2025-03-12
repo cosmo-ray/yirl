@@ -2359,8 +2359,6 @@ static void exec_dolar_equal(struct stack_val *sv, struct stack_val *that,
 	} else {
 		if (sv != that)
 			free_var(sv);
-		else
-			printf("oops?\n");
 		*sv = *that;
 		if (that->type == SVt_PVAV) {
 			sv->array = malloc(sv->array_size * sizeof *sv->array);
@@ -2594,6 +2592,9 @@ static int run_this(struct sym *sym_string, int return_at_return)
 				to_call = kh_val(sym_string->package->functions, it);
 				if (to_call->t.tok == TOK_INDIRECT_FUNC) {
 					fprintf(stderr, "Undefined subroutine '%s'\n", kh_key(sym_string->package->functions, it));
+					for (int i = 0; i < to_call->l_stack_len; ++i) {
+						free_var(&to_call->local_stack[i].v);
+					}
 					return 1;
 				}
 			}
