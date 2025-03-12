@@ -361,6 +361,8 @@ typedef struct {
 	struct sym return_val;
 	struct file *cur_pkg;
 	khash_t(forward_func_h) *forward_dec;
+	char **tmp_files;
+	int nb_tmp_files;
 } PerlInterpreter;
 
 static PerlInterpreter *cur_pi;
@@ -478,6 +480,8 @@ static inline void perl_construct(PerlInterpreter *p)
 	gravier_debug("perl_construct\n");
 	p->files = kh_init(file_list);
 	p->first_file = NULL;
+	p->tmp_files = NULL;
+	p->nb_tmp_files = 0;
 	ERRSV = &ERRSV_s;
 }
 
@@ -523,6 +527,10 @@ static inline void perl_destruct(PerlInterpreter *p)
 	p->files = NULL;
 	kh_destroy(forward_func_h, p->forward_dec);
 	p->forward_dec = NULL;
+	for (int i = 0; i < p->nb_tmp_files; ++i) {
+		free(cur_pi->tmp_files[i]);
+	}
+	free(cur_pi->tmp_files);
 }
 
 static inline void perl_free(PerlInterpreter *p)
@@ -1680,6 +1688,10 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 		}
 		int len = st.st_size;
 		char *file_str = malloc(len + 1);
+		cur_pi->nb_tmp_files += 1;
+		cur_pi->tmp_files = realloc(cur_pi->tmp_files,
+					    cur_pi->nb_tmp_files * sizeof *cur_pi->tmp_files);
+		cur_pi->tmp_files[cur_pi->nb_tmp_files - 1] = file_str;
 		char *to_free = file_str;
 		if (!file_str || read(fd, file_str, len) < 0) {
 			close(fd);
