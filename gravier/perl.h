@@ -1852,13 +1852,9 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 		t = next();
 		SKIP_REQ(TOK_CLOSE_PARENTESIS, t);
 		// increase local_stack by one
-		struct sym *tmp_i = &f->local_stack[f->l_stack_len++];
-		struct sym *underscore;
-		if (f->cur_func) {
-			underscore = &f->cur_func->local_stack[f->cur_func->l_stack_len++];
-		} else {
-			underscore = &f->local_stack[f->l_stack_len++];
-		}
+		struct sym *tmp_i = NEW_LOCAL_VAL_INIT("?foreach_iter?");
+		struct sym *underscore = NEW_LOCAL_VAL_INIT("?foreach_underscore?");
+
 		underscore->t = (struct tok){.tok=TOK_NAME, .as_str="_"};
 		// TOK_EQUAL local_stack[f->l_stack_len - 1]
 		f->sym_string[f->sym_len++] = (struct sym) {.t={.tok=TOK_EQUAL},
@@ -1901,14 +1897,10 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 		// TOK_PLUS_PLUS local_stack[f->l_stack_len - 1]
 		f->sym_string[f->sym_len++] = (struct sym) {.t={.tok=TOK_PLUS_PLUS}, .ref=tmp_i};
 		f->sym_string[f->sym_len++] = (struct sym) {.t={.tok=TOK_GOTO}, .end=if_sym};
+		// decrease local stack
+		push_free_var(underscore, f->sym_string, &f->sym_len);
 		// end = f->sym_string
 		if_sym->end = &f->sym_string[f->sym_len];
-		// decrease local stack
-		f->l_stack_len--;
-		if (f->cur_func)
-			f->cur_func->l_stack_len--;
-		else
-			f->l_stack_len--;
 	} else if (t.tok == TOK_WHILE) {
 		t = next();
 
