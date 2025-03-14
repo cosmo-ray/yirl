@@ -113,26 +113,29 @@ static struct stack_val *ERRSV;
 	gravier_debug("dXSARGS stub\n");				\
 
 #define XSRETURN_IV(int_val) do {				      \
+	free_var(&cur_pi->return_val.v);			      \
 		cur_pi->return_val.v = (struct stack_val){.i=int_val, \
 			.flag=0, .type=SVt_IV};			      \
 		return 1;					      \
 	} while (0)
 
 
-#define XSRETURN_UV(int_val) do {		\
+#define XSRETURN_UV(int_val) do {					\
+		free_var(&cur_pi->return_val.v);			\
 		cur_pi->return_val.v = (struct stack_val){.i=int_val,	\
 			.flag=0, .type=SVt_IV};				\
 		return 1;						\
 	} while (0)
 
 #define XSRETURN_PV(_val) do {						\
+		free_var(&cur_pi->return_val.v);			\
 		cur_pi->return_val.v = (struct stack_val){.str=strdup(_val), \
 			.flag=VAL_NEED_STEAL, .type=SVt_PV};		\
 		return 1;						\
 	} while (0)
 
 
-#define XSRETURN(val) do {				\
+#define XSRETURN(val) do {					\
 		return 0;					\
 	} while (0)
 
@@ -2069,6 +2072,7 @@ XS(XS_uc)
 		XSRETURN_NO;
 	}
 	char *cpy = strdup(val_0->str);
+	free_var(&cur_pi->return_val.v);
 	cur_pi->return_val.v = (struct stack_val){.str=cpy,
 		.flag=VAL_NEED_STEAL, .type=SVt_PV};
 	for (char *tmp = cpy; *cpy; ++cpy) {
@@ -2126,8 +2130,7 @@ XS(XS_split)
 		++i;
 		tmp2 = tmp + split_l;
 	}
-	if (cur_pi->return_val.v.array_size)
-		free(cur_pi->return_val.v.array);
+	free_var(&cur_pi->return_val.v);
 	cur_pi->return_val.v.type = SVt_PVAV;
 	cur_pi->return_val.v.array_size = i;
 	cur_pi->return_val.v.array = malloc(i * sizeof *cur_pi->return_val.v.array);
