@@ -113,7 +113,7 @@ static struct stack_val *ERRSV;
 	gravier_debug("dXSARGS stub\n");				\
 
 #define XSRETURN_IV(int_val) do {				      \
-	free_var(&cur_pi->return_val.v);			      \
+		free_var(&cur_pi->return_val.v);		      \
 		cur_pi->return_val.v = (struct stack_val){.i=int_val, \
 			.flag=0, .type=SVt_IV};			      \
 		return 1;					      \
@@ -140,12 +140,14 @@ static struct stack_val *ERRSV;
 	} while (0)
 
 #define XSRETURN_YES do {						\
+		free_var(&cur_pi->return_val.v);			\
 		cur_pi->return_val.v = (struct stack_val){.i=1,		\
 			.flag=0, .type=SVt_PV};				\
 		return 1;						\
 	} while (0)
 
 #define XSRETURN_NO do {			\
+		free_var(&cur_pi->return_val.v);			\
 		cur_pi->return_val.v = (struct stack_val){.i=0,		\
 			.flag=0, .type=SVt_PV};				\
 		return 1;						\
@@ -2354,6 +2356,10 @@ static void exec_dolar_equal(struct stack_val *sv, struct stack_val *that,
 	} else {
 		if (sv != that)
 			free_var(sv);
+		if (!that) {
+			sv->type = SVt_NULL;
+			return;
+		}
 		*sv = *that;
 		if (that->type == SVt_PVAV) {
 			sv->array = malloc(sv->array_size * sizeof *sv->array);
