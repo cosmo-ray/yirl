@@ -9,3 +9,4 @@ print $eoc;
 @ar = split "\n", $eoc;
 
 print "------\n", uc($ar[1]), "\n------\n";
+
