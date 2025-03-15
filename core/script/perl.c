@@ -221,7 +221,7 @@ XS(XS_yeReCreateArray)
 	if (items < 1) {
 		parent = toFree;
 	} else {
-		parent = (void *)SvIV(ST(1));
+		parent = (void *)SvIV(ST(0));
 		key = items > 1 ? SvPVbyte_nolen(ST(1)) : NULL;
 	}
 	Entity *r = yeReCreateArray(parent, key, NULL);

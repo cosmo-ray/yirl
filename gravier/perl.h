@@ -2068,6 +2068,13 @@ exit:
 }
 
 
+XS(XS_rand)
+{
+	dXSARGS;
+	intptr_t r = SvIV(ST(0));
+	XSRETURN_IV(yuiRand() % r);
+}
+
 XS(XS_uc)
 {
 	dXSARGS;
@@ -2216,6 +2223,7 @@ static int perl_parse(PerlInterpreter * my_perl, void (*xs_init)(void *stuff), i
         newXS_("split", XS_split, this_file);
         newXS_("scalar", XS_scalar, this_file);
         newXS_("uc", XS_uc, this_file);
+        newXS_("rand", XS_rand, this_file);
 
 	//printf("file:\n%s\n", file_str);
 	reader = file_str;
