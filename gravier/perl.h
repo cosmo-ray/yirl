@@ -12,6 +12,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <inttypes.h>
+#include <time.h>
 #include "klib/khash.h"
 #include "gravier-str.h"
 
@@ -487,6 +488,7 @@ static inline void perl_construct(PerlInterpreter *p)
 	p->first_file = NULL;
 	p->tmp_files = NULL;
 	p->nb_tmp_files = 0;
+	srand(time(NULL));
 	ERRSV = &ERRSV_s;
 }
 
@@ -2072,7 +2074,7 @@ XS(XS_rand)
 {
 	dXSARGS;
 	intptr_t r = SvIV(ST(0));
-	XSRETURN_IV(yuiRand() % r);
+	XSRETURN_IV(rand() % r);
 }
 
 XS(XS_uc)
@@ -2659,12 +2661,11 @@ static int run_this(struct sym *sym_string, int return_at_return)
 			}
 			int nb = 0;
 			_Bool cnd;
-			struct sym *lop;
 			struct sym *rop;
+			struct sym *lop = sym_string;
 
 			if (!tok_is_condition(t.tok)) {
-				cnd = exec_not(t.tok == TOK_LITERAL_NUM && t.as_int,
-						   have_not);
+				cnd = exec_not(int_fron_sym(lop), have_not);
 
 				++nb;
 			} else {
