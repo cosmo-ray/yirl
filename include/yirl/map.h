@@ -290,7 +290,6 @@ static inline int ywMapRemoveByStr(Entity *state, Entity *pos,
 #define ywMapRemove(sate, pos, elem)				\
 	_Generic(elem,						\
 		 Entity *: ywMapRemoveByEntity,			\
-		 Y_GEN_CLANG_ARRAY(char, ywMapRemoveByStr),	\
 		 const char *: ywMapRemoveByStr,		\
 		 int : ywMapRemoveByInt,			\
 		 char *: ywMapRemoveByStr) (sate, pos, elem)

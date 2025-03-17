@@ -47,7 +47,7 @@ typedef struct {
 	uint16_t pos;
 } BlockArrayIterator;
 
-#define yBlockArrayIsBlockAllocated(ba, bPos) (bPos < INT_MAX && ((int32_t)bPos) < (ba).block_cnt)
+#define yBlockArrayIsBlockAllocated(ba, bPos) (bPos < SHRT_MAX && ((int32_t)bPos) < (ba).block_cnt)
 
 #define yBlockArrayGetBlock(ba, bPos)					\
   (yBlockArrayIsBlockAllocated((ba), bPos) ? (ba).blocks[(bPos)] : 0)

@@ -473,7 +473,6 @@ NO_SIDE_EFFECT Entity *yeGetByStrFast(Entity *entity, const char *name);
 				      unsigned long: yeGetByIdx,	\
 				      Entity *: yeGetByEntity,		\
 				      const Entity *: yeGetByEntity,		\
-				      Y_GEN_CLANG_ARRAY(char, yeGetByStrFast), \
 				      const char *: yeGetByStrFast,	\
 				      char *: yeGetByStrFast) (ENTITY, INDEX)
 
@@ -656,7 +655,6 @@ NO_SIDE_EFFECT static inline int yeGetIntAtByStr(Entity *array, const char *pos)
 					   unsigned long: yeGetIntAtByIdx, \
 					   Entity *: yeGetIntAtByEntity, \
 					   const Entity *: yeGetIntAtByEntity, \
-					   Y_GEN_CLANG_ARRAY(char, yeGetIntAtByStr), \
 					   const char *: yeGetIntAtByStr, \
 					   char *: yeGetIntAtByStr) (ENTITY, INDEX)
 
@@ -822,7 +820,6 @@ Entity *yePopBack(Entity *array);
 	    unsigned long: yeRemoveChildByIdx,				\
 	    long: yeRemoveChildByIdx,					\
 	    unsigned int: yeRemoveChildByIdx,				\
-	    Y_GEN_CLANG_ARRAY(char, yeRemoveChildByStr),		\
 	    const char *: yeRemoveChildByStr,				\
 	    char *: yeRemoveChildByStr)((array), (toRemove)))
 #endif
@@ -909,7 +906,6 @@ Entity *yeCreateHash(Entity *parent, const char *name);
 	   Entity *: yeCreateArrayByEntity,				\
 	   void *: yeCreateArrayByEntity,				\
 	   int: yeCreateArrayByCStr,					\
-	   Y_GEN_CLANG_ARRAY(char, yeCreateArrayByCStr),		\
 	   const char *: yeCreateArrayByCStr,				\
 	   char *: yeCreateArrayByCStr)((mother), (name))
 #endif
@@ -1017,7 +1013,6 @@ static void  yeSetFreeAdDestroy(Entity *entity)
 				      int: yeSetInt,			\
 				      double: yeSetFloat,		\
 				      const char *: yeSetString,	\
-				      Y_GEN_CLANG_ARRAY(char, yeSetString), \
 				      char *: yeSetString)(ENTITY, VALUE)
 
 /**
@@ -1049,7 +1044,6 @@ int yeAttach(Entity *on, Entity *entity, unsigned int idx,
 	_Generic((VALUE),					\
 		 int: yeSetIntAt,				\
 		 float: yeSetFloatAt,				\
-		 Y_GEN_CLANG_ARRAY(char, yeSetStringAt),	\
 		 const char *: yeSetStringAt,			\
 		 char *: yeSetStringAt)(ENTITY, INDEX, VALUE)
 
@@ -1059,7 +1053,6 @@ int yeAttach(Entity *on, Entity *entity, unsigned int idx,
 		 double: yeSetFloatAtStrIdx,			\
 		 float: yeSetFloatAtStrIdx,			\
 		 const char *: yeSetStringAtStrIdx,		\
-		 Y_GEN_CLANG_ARRAY(char, yeSetStringAtStrIdx),	\
 		 char *: yeSetStringAtStrIdx)
 
 #define yeSetAtStrIdx(ENTITY, INDEX, VALUE)			\
@@ -1072,10 +1065,8 @@ int yeAttach(Entity *on, Entity *entity, unsigned int idx,
 			       float: yeSetFloatAt,			\
 			       double: yeSetFloatAt,			\
 			       const char *: yeSetStringAt,		\
-			       Y_GEN_CLANG_ARRAY(char, yeSetStringAt),	\
 			       char *: yeSetStringAt),			\
 		 char *: YE_SET_AT_STRIDX_INTERNAL(VALUE),		\
-		 Y_GEN_CLANG_ARRAY(char, YE_SET_AT_STRIDX_INTERNAL(VALUE)), \
 		 const char *: YE_SET_AT_STRIDX_INTERNAL(VALUE)		\
 		)(ENTITY, INDEX, VALUE)
 
@@ -1868,8 +1859,6 @@ int yeSetFlagByIdx(Entity *array, int idx, int flag);
 
 #define yeSetFlag(array, idx, flag) _Generic((idx),			\
 					     int : yeSetFlagByIdx,	\
-					     Y_GEN_CLANG_ARRAY(char,	\
-							       yeSetFlagByStr), \
 					     char *: yeSetFlagByStr,	\
 					     const char *: yeSetFlagByStr \
 					     )(array, idx, flag)

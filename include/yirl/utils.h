@@ -279,31 +279,6 @@ static inline unsigned int yuiCtz64(uint64_t v)
 		double : action,		\
 		float : action
 
-/*
- * because clang is unable to guess that a 'char[1]' may be cast in 'char *'
- * when using generic
- */
-#define Y_GEN_CLANG_ARRAY(type, func)		\
-  type [1]: func,				\
-    type [2]: func,				\
-    type [3]: func,				\
-    type [4]: func,				\
-    type [5]: func,				\
-    type [6]: func,				\
-    type [7]: func,				\
-    type [8]: func,				\
-    type [9]: func,				\
-    type [10]: func,				\
-    type [11]: func,				\
-    type [12]: func,				\
-    type [13]: func,				\
-    type [14]: func,				\
-    type [15]: func,				\
-    type [16]: func,				\
-    type [17]: func,				\
-    type [18]: func,				\
-    type [1024]: func
-
 
 typedef struct {
   void *(*allocator[MAX_NB_MANAGER])(void);

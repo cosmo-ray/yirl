@@ -1,17 +1,19 @@
+CC=clang
+
 gravier: gravier.c perl.h
-	gcc -g --std=gnu17 gravier.c -I../include/ -o gravier  -lasan -lubsan
+	$(CC) -g --std=gnu17 gravier.c -I../include/ -o gravier  -lasan -lubsan
 
 lib-gr-tst: perl.h lib-test/main.c
-	gcc -g --std=gnu17 -I./ lib-test/main.c -I../include/ -o lib-gr-tst
+	$(CC) -g --std=gnu17 -I./ lib-test/main.c -I../include/ -o lib-gr-tst
 
 PERL_CFLAGS=$(shell perl -MExtUtils::Embed -e ccopts)
 PERL_LD=$(shell perl -MExtUtils::Embed -e ldopts)
 
 lib-perl-tst: lib-test/main.c
-	gcc -g --std=gnu17 $(PERL_CFLAGS)  lib-test/main.c $(PERL_LD) -o lib-perl-tst
+	$(CC) -g --std=gnu17 $(PERL_CFLAGS)  lib-test/main.c $(PERL_LD) -o lib-perl-tst
 
 gravier-dbg: gravier.c perl.h
-	gcc -g --std=gnu17 -DGRAVIER_ENABLE_DEBUG=1 gravier.c -I../include/ -o gravier-dbg
+	$(CC) -g --std=gnu17 -DGRAVIER_ENABLE_DEBUG=1 gravier.c -I../include/ -o gravier-dbg
 
 clean:
 	rm -rvf gravier

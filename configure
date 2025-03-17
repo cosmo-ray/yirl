@@ -21,7 +21,7 @@ args=$@
 
 env | grep EMSCRIPTEN_TOOLS  >> /dev/null 2>&1
 if [ $? == 0 ]; then
-    args="--disable-tcc --disable-perl"
+    args="--disable-tcc --perl-is-gravier"
     EMCMAKE=emcmake
     EMMAKE=emmake
     EMCONFIGURE=emconfigure

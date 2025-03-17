@@ -113,7 +113,6 @@ struct ys_ret ysCall2Int(void *sm, const char *name, int nb, union ycall_arg *ar
 	_Generic(a, Y_GENERIC_NUMBER(YS_INT),		\
 		 Entity * : YS_ENTITY,			\
 		 char * : YS_STR,			\
-		 Y_GEN_CLANG_ARRAY(char, YS_STR),	\
 		 const char * : YS_STR,			\
 		 default: YS_VPTR			\
 		)

@@ -848,14 +848,14 @@ InputStatue ywidAction(Entity *action, Entity *wid, Entity *eve)
 
 	if (yeType(action) == YSTRING) {
 		Entity *f = ygGet(yeGetString(action));
-		InputStatue r = (InputStatue)yesCall(f, wid, eve);
+		InputStatue r = (InputStatue)(intptr_t)yesCall(f, wid, eve);
 
 		if (unlikely(!ygIsInit())) {
 			yeDestroy(f);
 		}
 		return r;
 	} else if (yeType(action) == YFUNCTION) {
-		return (InputStatue)yesCall(action, wid, eve);
+		return (InputStatue)(intptr_t)yesCall(action, wid, eve);
 	} else {
 		Entity *f = yeGet(action, 0);
 		int nb = yeLen(action);

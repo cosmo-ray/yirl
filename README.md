@@ -22,8 +22,8 @@
 - YIRL is a game engine aiming to be fully configurable, fully scriptable and mod friendly.
 - YIRL has been started as an school project at EPITECH
 
-| ![Preview from sukeban](doc/img/preview_sukeban.png) | 
-|:--:| 
+| ![Preview from sukeban](doc/img/preview_sukeban.png) |
+|:--:|
 | *A screenshot from the Sukeban project made with YIRL* |
 
 _The first version, the one release at the end of my scholarship can be found on bitbucket: https://bitbucket.org/cosmo_ray/yirl/src_
@@ -39,7 +39,7 @@ As an example the [snake module](https://github.com/cosmo-ray/yirl/tree/master/m
 Snake module is written in lua, but as YIRL have a generic script system, we could have written snake in any scripting language.
 Here is an example how Snake module can be use: https://github.com/cosmo-ray/yirl/tree/master/example/modules/snake.
 Another example would be how I integrate most games widgets into my RPG Sukeban:
-I first load the games modules in sukeban start.json: 
+I first load the games modules in sukeban start.json:
 https://github.com/cosmo-ray/Sukeban/blob/master/start.json
 like snake modules:
 ```json
@@ -199,7 +199,7 @@ Development package of these libs:
 * https://uso.itch.io/jims
 * https://uso.itch.io/sukeban
 * https://uso.itch.io/pewpew-pepper
-* https://github.com/cosmo-ray/polis-at-war 
+* https://github.com/cosmo-ray/polis-at-war
 
 
 </details>

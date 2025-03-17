@@ -116,7 +116,6 @@ const char *ygGetProgramArg(void);
 	   const char *: ygInitGameConfigByStr,				\
 	   char *: ygInitGameConfigByStr,				\
 	   void *: ygInitGameConfigByStr,				\
-	   Y_GEN_CLANG_ARRAY(char, ygInitGameConfigByStr),		\
 	   RenderType : ygInitGameConfigByRenderType,			\
 	   int : ygInitGameConfigByRenderType) (cfg, path, render)
 

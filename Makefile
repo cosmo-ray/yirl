@@ -103,7 +103,7 @@ COMMON_CFLAGS += -I./$(QUICKJS_PATH)
 COMMON_CFLAGS += -fpic
 COMMON_CFLAGS += $(LUA_CFLAGS)
 COMMON_CFLAGS += -I$(SDL_GPU_CFLAGS)
-COMMON_CFLAGS += $(WERROR) -Wall -Wextra -Wno-unused-function -Wno-unused-parameter -Wno-int-to-pointer-cast
+COMMON_CFLAGS += $(WERROR) -Wall -Wextra -Wno-unused-function -Wno-unused-parameter -Wno-int-to-pointer-cast -Wno-unknown-pragmas
 
 COMMON_CFLAGS += -DYIRL_INCLUDE_PATH=\"$(YIRL_INCLUDE_PATH2)\"
 COMMON_CFLAGS += -DTCC_LIB_PATH=\"$(TCC_LIB_PATH)\"
@@ -169,7 +169,7 @@ $(SCRIPT_DIR)/s7.o:
 	$(CC) -c -o $(SCRIPT_DIR)/s7.o $(SCRIPT_DIR)/s7.c -Wno-implicit-fallthrough -fPIC -O2 -g
 
 $(SCRIPT_DIR)/perl.o: $(PERL_SRC)
-	$(CC) -c -o $(SCRIPT_DIR)/perl.o $(SCRIPT_DIR)/perl.c -g $(PERL_CFLAGS) -I$(YIRL_INCLUDE_PATH2) -fPIC
+	$(CC) -c -o $(SCRIPT_DIR)/perl.o $(SCRIPT_DIR)/perl.c -g $(PERL_CFLAGS) -I$(YIRL_INCLUDE_PATH2) $(EMCFLAGS) -fPIC
 
 SDL_mixer/:
 	git submodule update --init
