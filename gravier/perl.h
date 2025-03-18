@@ -204,11 +204,12 @@ static void free_var(struct stack_val *v)
 
 static inline struct stack_val sv_2mortal(struct stack_val v) {
 	v.flag = VAL_NEED_STEAL;
+	return v;
 }
 
 static inline struct stack_val newSVpv(const char *str, int l)
 {
-	struct stack_val ret = {.flag = 0, .type=SVt_PV, .flag = VAL_NEED_FREE};
+	struct stack_val ret = {.type=SVt_PV, .flag = VAL_NEED_FREE};
 
 	if (!l) {
 		ret.str = strdup(str);
@@ -2347,6 +2348,7 @@ static int exec_relational_operator(int tok, struct sym *lop, struct sym *rop, i
 	case TOK_EQ:
 		return exec_not(!strcmp(str_fron_sym(lop), str_fron_sym(rop)), have_not);
 	}
+	return 0;
 }
 
 static void exec_dolar_equal(struct stack_val *sv, struct stack_val *that,

@@ -29,6 +29,7 @@
 
 #define INT_MIN       (-INT_MAX - 1)
 #define INT_MAX       2147483647
+#define SHRT_MAX      32767
 #define UINT_MAX      0xffffffffu
 
 #define M_E            2.7182818284590452354   /* e */
