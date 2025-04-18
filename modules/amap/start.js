@@ -1507,6 +1507,15 @@ function monster_round(wid, tuple, distance)
     }
 }
 
+function yamap_pc_stop(wid)
+{
+    let pc_canel = yeGet(wid, "_pc")
+    let pc_minfo = yeGet(pc_canel, PC_MOVER_IDX)
+
+    y_move_set_xspeed(pc_minfo, 0)
+    wid.setAt("keydown", 0)
+}
+
 function mod_init(mod)
 {
     ygInitWidgetModule(mod, "amap", yeCreateFunction("amap_init"))
@@ -1521,6 +1530,7 @@ function mod_init(mod)
     yeCreateFunction(monster_left_right, mons_mv, "left_right")
     yeCreateFunction(monster_rand, mons_mv, "rand")
     yeCreateFunction(monster_round, mons_mv, "round")
+    ygRegistreFunc(1, "yamap_pc_stop", "yamap_pc_stop")
     ygRegistreFunc(3, "yamap_push_obj", "yamap_push_obj")
     ygRegistreFunc(5, "yamap_generate_monster_canvasobj",
 		   "yamap_generate_monster_canvasobj")
