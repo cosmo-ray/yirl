@@ -79,6 +79,12 @@ const OBJECT_MOVER = 6
 const OBJECT_DIR = 7
 const OBJECT_START_POS = 8
 
+const ANIM_MV_SIZES = 0
+const ANIM_MV_CANVAS = 1
+const ANIM_MV_PATH = 2
+const ANIM_MV_IDX = 3
+const ANIM_MV_TT = 4
+
 function print_life(wid, pc, pc_canel)
 {
     let j = 0;
@@ -374,7 +380,22 @@ function print_all(wid)
 		let background_info = mi.get(c)
 		let bg_path = background_info.gets(0)
 		let bg_size = background_info.get(1)
-		let bg_b = ywCanvasNewImg(wid, j * SPRITE_SIZE, i * SPRITE_SIZE, bg_path, bg_size)
+		let mv_info = null
+		let bg_b = null
+		if (yeType(bg_size.get(0)) == YARRAY) {
+		    let size = bg_size.get(0)
+		    let mv_objs = yeTryCreateArray(mi, "_mv_animation")
+		    mv_info = yeCreateArray(mv_objs)
+		    bg_b = ywCanvasNewImg(wid, j * SPRITE_SIZE, i * SPRITE_SIZE, bg_path, size)
+		    yePushBack(mv_info, bg_size) // ANIM_MV_SIZES
+		    yePushBack(mv_info, bg_b) // ANIM_MV_CANVAS
+		    yeCreateString(bg_path, mv_info) // ANIM_MV_PATH
+		    yeCreateInt(0, mv_info) // ANIM_MV_IDX
+		    yeCreateInt(0, mv_info) // ANIM_MV_TT
+		} else {
+		    bg_b = ywCanvasNewImg(wid, j * SPRITE_SIZE, i * SPRITE_SIZE, bg_path, bg_size)
+		}
+		// TYPE_ANIMATION should work so we don't have to create a type TYPE_BG_OBJ
 		yeCreateIntAt(TYPE_ANIMATION, bg_b, "amap-t", YCANVAS_UDATA_IDX)
 
 		continue;
@@ -825,6 +846,24 @@ function amap_action(wid, events)
 	    else if (pos_diff < -4)
 		y_move_set_yspeed(mover, 5)
 	    y_move_obj(o_canel, mover, turn_timer)
+	}
+    }
+    let movable_animations = mi.get("_mv_animation")
+    for (o_info of movable_animations) {
+	let sizes = o_info.get(ANIM_MV_SIZES)
+	o_info.addAt(ANIM_MV_TT, turn_timer)
+	let tt = o_info.geti(ANIM_MV_TT)
+	if (tt > 100000) {
+	    let c = o_info.get(ANIM_MV_CANVAS)
+	    let path = o_info.get(ANIM_MV_PATH)
+	    let c_pos = ywCanvasObjPos(c)
+	    yeIncrAt(o_info, ANIM_MV_IDX)
+	    let tmp = ywCanvasNewImg(wid, ywPosX(c_pos), ywPosY(c_pos), path.s(),
+				     sizes.get(o_info.geti(ANIM_MV_IDX) % sizes.len()))
+	    ywCanvasRemoveObj(wid, c)
+	    o_info.setAt(ANIM_MV_CANVAS, tmp)
+	    yeCreateIntAt(TYPE_ANIMATION, tmp, "amap-t", YCANVAS_UDATA_IDX)
+	    o_info.setAt(ANIM_MV_TT, 0)
 	}
     }
 
