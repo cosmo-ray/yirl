@@ -370,6 +370,15 @@ function print_all(wid)
 		yeCreateIntAt(TYPE_PIKE, pike, "amap-t", YCANVAS_UDATA_IDX)
 
 		continue;
+	    } else if (c >= 'A' && c <= "M") {
+		let background_info = mi.get(c)
+		let bg_path = background_info.gets(0)
+		let bg_size = background_info.get(1)
+		let bg_b = ywCanvasNewImg(wid, j * SPRITE_SIZE, i * SPRITE_SIZE, bg_path, bg_size)
+		yeCreateIntAt(TYPE_ANIMATION, bg_b, "amap-t", YCANVAS_UDATA_IDX)
+
+		continue;
+
 	    }
 	    let ic = parseInt(c)
 	    if (!isNaN(ic)) {
