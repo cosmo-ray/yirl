@@ -482,6 +482,14 @@ static inline PerlInterpreter *perl_alloc(void)
 	return malloc(sizeof(PerlInterpreter));
 }
 
+static void stack_val_init(struct stack_val *s)
+{
+	s->type = SVt_NULL;
+	s->i = 0;
+	s->flag = 0;
+	s->array_size = 0;
+}
+
 static inline void perl_construct(PerlInterpreter *p)
 {
 	gravier_debug("perl_construct\n");
@@ -489,6 +497,7 @@ static inline void perl_construct(PerlInterpreter *p)
 	p->first_file = NULL;
 	p->tmp_files = NULL;
 	p->nb_tmp_files = 0;
+	stack_val_init(&p->return_val.v);
 	srand(time(NULL));
 	ERRSV = &ERRSV_s;
 }
@@ -530,15 +539,15 @@ static inline void perl_destruct(PerlInterpreter *p)
 			free(vvar);
 		});
 
-	free_var(&cur_pi->return_val.v);
+	free_var(&p->return_val.v);
 	kh_destroy(file_list, p->files);
 	p->files = NULL;
 	kh_destroy(forward_func_h, p->forward_dec);
 	p->forward_dec = NULL;
 	for (int i = 0; i < p->nb_tmp_files; ++i) {
-		free(cur_pi->tmp_files[i]);
+		free(p->tmp_files[i]);
 	}
-	free(cur_pi->tmp_files);
+	free(p->tmp_files);
 }
 
 static inline void perl_free(PerlInterpreter *p)
@@ -1082,14 +1091,6 @@ static struct sym *find_stack_ref(struct file *this_file, struct tok *t)
 			return &this_file->stack[i];
 	}
 	return NULL;
-}
-
-static void stack_val_init(struct stack_val *s)
-{
-	s->type = SVt_NULL;
-	s->i = 0;
-	s->flag = 0;
-	s->array_size = 0;
 }
 
 static void sym_val_init(struct sym *s, struct tok t)
