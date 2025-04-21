@@ -317,7 +317,7 @@ function print_all(wid)
 	if (block_info) {
 	    if (yeType(block_info) == YSTRING) {
 		let block_info_str = yeGetString(block_info)
-		if (block_info_str.startsWith("rdba:")) {
+		if (block_info_str.startsWith("rgba:")) {
 		    ret = ywCanvasNewRectangle(wid, x, y,
 					 w, h, block_info_str)
 		} else {
@@ -849,21 +849,23 @@ function amap_action(wid, events)
 	}
     }
     let movable_animations = mi.get("_mv_animation")
-    for (o_info of movable_animations) {
-	let sizes = o_info.get(ANIM_MV_SIZES)
-	o_info.addAt(ANIM_MV_TT, turn_timer)
-	let tt = o_info.geti(ANIM_MV_TT)
-	if (tt > 100000) {
-	    let c = o_info.get(ANIM_MV_CANVAS)
-	    let path = o_info.get(ANIM_MV_PATH)
-	    let c_pos = ywCanvasObjPos(c)
-	    yeIncrAt(o_info, ANIM_MV_IDX)
-	    let tmp = ywCanvasNewImg(wid, ywPosX(c_pos), ywPosY(c_pos), path.s(),
-				     sizes.get(o_info.geti(ANIM_MV_IDX) % sizes.len()))
-	    ywCanvasRemoveObj(wid, c)
-	    o_info.setAt(ANIM_MV_CANVAS, tmp)
-	    yeCreateIntAt(TYPE_ANIMATION, tmp, "amap-t", YCANVAS_UDATA_IDX)
-	    o_info.setAt(ANIM_MV_TT, 0)
+    if (movable_animations) {
+	for (o_info of movable_animations) {
+	    let sizes = o_info.get(ANIM_MV_SIZES)
+	    o_info.addAt(ANIM_MV_TT, turn_timer)
+	    let tt = o_info.geti(ANIM_MV_TT)
+	    if (tt > 100000) {
+		let c = o_info.get(ANIM_MV_CANVAS)
+		let path = o_info.get(ANIM_MV_PATH)
+		let c_pos = ywCanvasObjPos(c)
+		yeIncrAt(o_info, ANIM_MV_IDX)
+		let tmp = ywCanvasNewImg(wid, ywPosX(c_pos), ywPosY(c_pos), path.s(),
+					 sizes.get(o_info.geti(ANIM_MV_IDX) % sizes.len()))
+		ywCanvasRemoveObj(wid, c)
+		o_info.setAt(ANIM_MV_CANVAS, tmp)
+		yeCreateIntAt(TYPE_ANIMATION, tmp, "amap-t", YCANVAS_UDATA_IDX)
+		o_info.setAt(ANIM_MV_TT, 0)
+	    }
 	}
     }
 
