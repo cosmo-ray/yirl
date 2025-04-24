@@ -1227,6 +1227,14 @@ static JSValue array_push(JSContext *ctx, JSValueConst this_val,
 	return JS_NULL;
 }
 
+static JSValue entity_type(JSContext *ctx, JSValueConst this_val,
+			   int argc, JSValueConst *argv)
+{
+	Entity *e = GET_E_(this_val);
+
+	return JS_NewInt64(ctx, yeType(e));
+}
+
 static JSValue array_get(JSContext *ctx, JSValueConst this_val,
 			 int argc, JSValueConst *argv)
 {
@@ -1484,6 +1492,7 @@ static const JSCFunctionListEntry js_ent_proto_funcs[] = {
     JS_CFUNC_DEF("clear", 0, array_clear),
     JS_CFUNC_DEF("call", 0, entity_call),
     JS_CFUNC_DEF("rm", 0, array_remove),
+    JS_CFUNC_DEF("type", 0, entity_type),
     JS_CFUNC_DEF("get", 1, array_get),
     JS_CFUNC_DEF("push", 1, array_push),
     JS_CFUNC_DEF("getb", 1, array_getb),
