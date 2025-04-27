@@ -21,6 +21,7 @@ SRC = 	$(HSEARCH_SRC) \
 	$(SCRIPT_DIR)/ph7-script.c \
 	$(SCRIPT_DIR)/quickjs.c \
 	$(SCRIPT_DIR)/script.c \
+	$(SCRIPT_DIR)/krk.c \
 	$(PERL_SRC) \
 	$(BYTECODE_DIR)/ybytecode.c \
 	$(BYTECODE_DIR)/condition.c \
@@ -88,6 +89,7 @@ LDFLAGS += $(ANALYZER_FLAG)
 LDFLAGS += $(EMPORT)
 LDFLAGS += $(shell $(PKG_CONFIG) --libs gl glu)
 LDFLAGS += $(PERL_LD)
+LDFLAGS += kuroko/libkuroko.a
 GLIB_LDFLAGS += $(shell $(PKG_CONFIG) --libs glib-2.0)
 
 COMMON_CFLAGS += $(SDL_MIXER_CFLAGS) $(HSEARCH_CFLAGS)
@@ -159,7 +161,7 @@ $(QUICKJS_LIB_PATH): $(QUICKJS_PATH)
 kuroko/:
 	git submodule update --init
 
-kuroko/libkuroko.a:
+kuroko/libkuroko.a: kuroko/
 	$(KRK_CFLAG) make -C kuroko/
 
 ph7/ph7.o:
@@ -167,6 +169,10 @@ ph7/ph7.o:
 
 $(SCRIPT_DIR)/s7.o:
 	$(CC) -c -o $(SCRIPT_DIR)/s7.o $(SCRIPT_DIR)/s7.c -Wno-implicit-fallthrough -fPIC -O2 -g
+
+$(SCRIPT_DIR)/krk.o: kuroko/libkuroko.a
+	$(CC) -c -o $(SCRIPT_DIR)/krk.o $(SCRIPT_DIR)/krk.c -g $(KRK_CFLAGS) -I$(YIRL_INCLUDE_PATH2) $(EMCFLAGS) -Ikuroko/src/ -fPIC
+
 
 $(SCRIPT_DIR)/perl.o: $(PERL_SRC)
 	$(CC) -c -o $(SCRIPT_DIR)/perl.o $(SCRIPT_DIR)/perl.c -g $(PERL_CFLAGS) -I$(YIRL_INCLUDE_PATH2) $(EMCFLAGS) -fPIC

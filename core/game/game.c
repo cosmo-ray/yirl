@@ -38,6 +38,7 @@
 #include "ybytecode-script.h"
 #include "ph7-script.h"
 #include "perl-script.h"
+#include "krk-script.h"
 
 /* widgets */
 #include "utils.h"
@@ -64,6 +65,7 @@ static void *rawfiledataManager;
 static void *luaManager;
 static void *tccManager;
 static void *perlManager;
+static void *krkManager;
 static void *s7Manager;
 static void *ph7Manager;
 static void *qjsManager;
@@ -137,6 +139,11 @@ void *ygPerlManager(void)
 	fatal("PERL IS DISABLE !");
 #endif
 	return perlManager;
+}
+
+void *ygKrkManager(void)
+{
+	return krkManager;
 }
 
 void *ygGetTccManager(void)
@@ -510,6 +517,10 @@ int ygInit(GameConfig *cfg)
 		       "perl init failed");
 #endif
 
+	CHECK_AND_GOTO(t = ysKrkInit(), -1, error, "krk init failed");
+	CHECK_AND_GOTO(krkManager = ysNewManager(NULL, t), NULL, error,
+		       "krk Manager init failed");
+
 #if S7_ENABLE > 0
 	CHECK_AND_GOTO(t = ysS7Init(), -1, error, "s7 init failed");
 	CHECK_AND_GOTO(s7Manager = ysNewManager(NULL, t), NULL, error,
@@ -623,6 +634,9 @@ void ygEnd()
 	ysPerlEnd();
 #endif
 
+	ysDestroyManager(krkManager);
+	ysKrkEnd();
+
 	ysDestroyManager(luaManager);
 	ysLuaEnd();
 
@@ -730,6 +744,8 @@ void *ygGetManager(const char *name)
 	else if (yuiStrEqual0(name, "perl"))
 		fatal("PERL IS DISABLE !!!");
 #endif
+	else if (yuiStrEqual0(name, "krk"))
+		return krkManager;
 	else if (yuiStrEqual0(name, "lua"))
 		return luaManager;
 	else if (yuiStrEqual0(name, "yb"))
@@ -785,14 +801,14 @@ Entity *ygLoadMod(const char *path)
 
 	YE_NEW(string, tmp_name, "");
 
-#define NB_STARTABLE_SCRIPT 6
+#define NB_STARTABLE_SCRIPT 7
 	for (int i = 0; i < NB_STARTABLE_SCRIPT; ++i) {
 		const char * const starts[NB_STARTABLE_SCRIPT] = {
 			"start.c", "start.lua",
-			"start.scm", "start.js", "start.php", "start.pl"};
+			"start.scm", "start.js", "start.php", "start.pl", "start.krk"};
 		void * const managers[NB_STARTABLE_SCRIPT] = {
 			tccManager, luaManager,
-			s7Manager, qjsManager, ph7Manager, perlManager};
+			s7Manager, qjsManager, ph7Manager, perlManager, krkManager};
 
 		tmp = y_strdup_printf("%s%c%s", path, PATH_SEPARATOR, starts[i]);
 		CHECK_AND_RET(tmp, NULL, NULL,
@@ -914,7 +930,12 @@ Entity *ygLoadMod(const char *path)
 #else
 			fatal("PERL IS DISABLE !");
 #endif
-
+		} else if (yuiStrEqual0(yeGetString(tmpType), "krk")) {
+			if (ysLoadFile(krkManager, pathCstr) < 0) {
+				DPRINT_ERR("Error when loading '%s': %s\n",
+					   pathCstr, ysGetError(krkManager));
+				goto fail_preload;
+			}
 		} else if (yuiStrEqual0(yeGetString(tmpType), "s7")) {
 #if S7_ENABLE > 0
 			if (ysLoadFile(s7Manager, pathCstr) < 0) {
