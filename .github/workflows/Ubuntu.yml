@@ -18,6 +18,7 @@ jobs:
       run: |
         sudo apt-get update --fix-missing
         sudo apt-get install -y -f -o Acquire::Retries=3 libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libsdl2-dev lua5.3-dev libjson-c-dev libperl-dev
+        sudo apt-get install -y -f -o Acquire::Retries=3 libglfw3-dev libgl1-mesa-dev libglu1-mesa-dev
         cd tinycc
         ./configure --extra-cflags=-fPIC
         make -j$(nproc)
