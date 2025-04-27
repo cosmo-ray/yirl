@@ -1,7 +1,7 @@
-CC=clang
+CC?=clang
 
 gravier: gravier.c perl.h
-	$(CC) -g --std=gnu17 gravier.c -I../include/ -o gravier  -lasan -lubsan
+	$(CC) -g --std=gnu17 gravier.c -I../include/ -o gravier
 
 lib-gr-tst: perl.h lib-test/main.c
 	$(CC) -g --std=gnu17 -I./ lib-test/main.c -I../include/ -o lib-gr-tst
@@ -26,7 +26,7 @@ expect_files: lib-perl-tst
 	./lib-perl-tst lib-test/add.pl > lib-test/add.pl.expect
 	./lib-perl-tst lib-test/subcall.pl > lib-test/subcall.pl.expect
 
-tests: gravier lib-perl-tst
+tests: gravier
 	for f in *pl; do echo -n "test $$f:"; ./gravier $$f > $$f.out ; diff $$f.expect $$f.out ; echo " $$?" | sed 's/0/OK/;s/1/FAIL/'; done
 	./lib-gr-tst lib-test/add.pl > lib-test/add.pl.out
 	diff lib-test/add.pl.expect lib-test/add.pl.out ; echo " $$?" | sed 's/0/OK/;s/1/FAIL/'

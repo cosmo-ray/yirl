@@ -24,6 +24,26 @@
 #define FALSE 0
 #endif
 
+#ifdef _WIN32
+
+static char *strndup(const char *str, size_t chars)
+{
+    char *buffer;
+    size_t n;
+
+    buffer = (char *) malloc(chars +1);
+    if (buffer)
+    {
+        for (n = 0; ((n < chars) && (str[n] != 0)) ; n++) buffer[n] = str[n];
+        buffer[n] = 0;
+    }
+
+    return buffer;
+}
+
+#endif
+
+
 #ifdef GRAVIER_ENABLE_DEBUG
 
 #define gravier_debug(args...)			\
@@ -376,7 +396,7 @@ static PerlInterpreter *cur_pi;
 
 static int run_this(struct sym *sym_string, int return_at_return);
 
-#define ERROR(args...)	do {			\
+#define GR_ERROR(args...)	do {			\
 		fprintf(stderr, args);		\
 		goto exit;			\
 	} while (0)
@@ -425,7 +445,7 @@ static inline void newXS_(const char *func_name,
 	khiter_t iterator = kh_put(func_syms, this_mod->functions, func_name, &ret);
 
 	if (ret < 0)
-		ERROR("me hash table fail me, so sad :(\n");
+		GR_ERROR("me hash table fail me, so sad :(\n");
 	struct sym *function = malloc(sizeof *function);
 	function->nat_func = nat_func;
 	function->t.tok = TOK_NATIVE_FUNC;
@@ -961,7 +981,7 @@ again:
 
 #define SKIP_REQ(tok_, t) do {						\
 		if ((t).tok != tok_)					\
-			ERROR("%s:%d: unexpected token, require %s\n",	\
+			GR_ERROR("%s:%d: unexpected token, require %s\n",	\
 			      __FILE__, __LINE__, tok_str[tok_]);	\
 		(t) = next();						\
 	} while (0)
@@ -970,7 +990,7 @@ again:
 #define NEXT_N_CHECK_2(tok_, t_) do {					\
 		t_ = next();						\
 		if (t_.tok != tok_)					\
-			ERROR("%s:%d: unexcected %s, expected %s\n", __FILE__, __LINE__, \
+			GR_ERROR("%s:%d: unexcected %s, expected %s\n", __FILE__, __LINE__, \
 			      tok_str[t_.tok], tok_str[tok_]);	     \
 	} while (0)
 
@@ -1135,7 +1155,7 @@ static int parse_array_idx_nfo(struct file *this_file, struct tok t,
 			}
 		}
 		if (bracket_tok.tok != TOK_CLOSE_BRACKET) {
-			ERROR("expected ']'");
+			GR_ERROR("expected ']'");
 		}
 	} else {
 		idx->type = IDX_IS_NONE;
@@ -1150,7 +1170,7 @@ exit:
 		int tmp_tok = (in_t).tok;				\
 		t = next();						\
 		if (t.tok != TOK_NAME) {				\
-			ERROR("variable name expected, not %s\n", tok_str[t.tok]); \
+			GR_ERROR("variable name expected, not %s\n", tok_str[t.tok]); \
 		}							\
 		(in).t.tok = tmp_tok;					\
 		(in).ref = find_set_stack_ref(f, &t);			\
@@ -1198,7 +1218,7 @@ static int parse_func_call(struct tok t, struct file *f, struct sym *syms, int *
 		khiter_t iterator = kh_get(file_list, cur_pi->files, namespace_name);
 		khiter_t end = kh_end(cur_pi->files);
 		if (iterator == end) {
-			ERROR("can not find '%s' namespace\n", namespace_name);
+			GR_ERROR("can not find '%s' namespace\n", namespace_name);
 		}
 		namespace = kh_val(cur_pi->files, iterator);
 		t = next();
@@ -1214,7 +1234,7 @@ static int parse_func_call(struct tok t, struct file *f, struct sym *syms, int *
 		int ret;
 		iterator = kh_put(func_syms, namespace->functions, func_name, &ret);
 		if (ret < 0)
-			ERROR("me hash table fail me, so sad :(\n");
+			GR_ERROR("me hash table fail me, so sad :(\n");
 		gravier_debug("forward declaration of %s\n", t.as_str);
 		function = malloc(sizeof *function);
 		ALLOC_L_STACK_SPACE(function, 2048);
@@ -1280,7 +1300,7 @@ static int parse_func_call(struct tok t, struct file *f, struct sym *syms, int *
 	}
 	// implement arguent push here
 	if (t.tok != end_call_tok) {
-		ERROR("%d: unclose function, got %s, expected %s\n", line_cnt, tok_str[t.tok],
+		GR_ERROR("%d: unclose function, got %s, expected %s\n", line_cnt, tok_str[t.tok],
 			tok_str[end_call_tok]);
 	}
 
@@ -1486,7 +1506,7 @@ static void parse_condition_(struct tok t, struct file *f, struct sym *syms, int
 		}
 	}
 	if (!tok_is_condition(t.tok)) {
-		ERROR("%d: unexpected token %s\n", line_cnt, tok_str[t.tok]);
+		GR_ERROR("%d: unexpected token %s\n", line_cnt, tok_str[t.tok]);
 	}
 
 	operation.t = t;
@@ -1542,16 +1562,16 @@ static int operation(struct tok *t_ptr, struct file *f, char **reader)
 		f->sym_string[f->sym_len].t = *t_ptr;
 		t = next();
 		if (t.tok != TOK_DOLAR) {
-			ERROR("unimplemented\n");
+			GR_ERROR("unimplemented\n");
 		}
 		t = next();
 		if (t.tok != TOK_NAME)
-			ERROR("expected name in icrement/decrement\n");
+			GR_ERROR("expected name in icrement/decrement\n");
 
 		struct array_idx_info array_idx;
 		struct sym *stack_sym = find_set_stack_ref(f, &t);
 		if (!stack_sym) {
-			ERROR("unknow variable\n");
+			GR_ERROR("unknow variable\n");
 		}
 
 		f->sym_string[f->sym_len++].ref = stack_sym;
@@ -1568,17 +1588,17 @@ static int operation(struct tok *t_ptr, struct file *f, char **reader)
 		return ret;
 	}
 	if (t_ptr->tok != TOK_DOLAR && t_ptr->tok != TOK_AT) {
-		ERROR("%d: unimplemented operation: %s\n",
+		GR_ERROR("%d: unimplemented operation: %s\n",
 		      line_cnt, tok_str[t_ptr->tok]);
 	}
 	t = next();
 	if (t.tok != TOK_NAME)
-		ERROR("%d: expected name\n in operation", line_cnt);
+		GR_ERROR("%d: expected name\n in operation", line_cnt);
 
 	struct array_idx_info array_idx;
 	struct sym *stack_sym = find_set_stack_ref(f, &t);
 	if (!stack_sym) {
-		ERROR("unknow variable\n");
+		GR_ERROR("unknow variable\n");
 	}
 	t = next();
 	if (t.tok == TOK_SEMICOL)
@@ -1589,7 +1609,7 @@ static int operation(struct tok *t_ptr, struct file *f, char **reader)
 
 	if (t.tok != TOK_EQUAL && t.tok != TOK_PLUS_EQUAL && t.tok != TOK_MINUS_EQUAL &&
 		t.tok != TOK_DOT_EQUAL)
-		ERROR("%d: unexpected operation %s\n", line_cnt, tok_str[t.tok]);
+		GR_ERROR("%d: unexpected operation %s\n", line_cnt, tok_str[t.tok]);
 	struct sym equal_sym = {.ref = stack_sym, .t = t};
 	if (array_idx.type >= IDX_IS_NONE) {
 		equal_sym.idx = array_idx;
@@ -1601,7 +1621,7 @@ static int operation(struct tok *t_ptr, struct file *f, char **reader)
 			parse_equal(f, reader, equal_sym);
 			return 0;
 		} else if (t.tok != TOK_OPEN_PARENTESIS) {
-			ERROR("weirdness in array declaration\n");
+			GR_ERROR("weirdness in array declaration\n");
 		}
 
 		f->sym_string[f->sym_len++] = (struct sym){.ref=stack_sym, .t=TOK_ARRAY_RESSET};
@@ -1622,7 +1642,7 @@ static int operation(struct tok *t_ptr, struct file *f, char **reader)
 					f->sym_string[f->sym_len++] = sub_el;
 					t = next();
 					if (t.tok != TOK_COMMA && t.tok != TOK_CLOSE_PARENTESIS)
-						ERROR("unexpected token in array init");
+						GR_ERROR("unexpected token in array init");
 					if (t.tok == TOK_COMMA)
 						t = next();
 				}
@@ -1638,7 +1658,7 @@ static int operation(struct tok *t_ptr, struct file *f, char **reader)
 
 			t = next();
 			if (t.tok != TOK_COMMA && t.tok != TOK_CLOSE_PARENTESIS)
-				ERROR("unexpected token in array init");
+				GR_ERROR("unexpected token in array init");
 			if (t.tok == TOK_COMMA)
 				t = next();
 		}
@@ -1657,7 +1677,7 @@ static int var_declaration(struct tok t, struct file *f, char **reader)
 		t = next();
 		SKIP_REQ(TOK_DOLAR, t);
 		if (t.tok != TOK_NAME) {
-			ERROR("unexpected token, require %s\n", tok_str[TOK_NAME]); \
+			GR_ERROR("unexpected token, require %s\n", tok_str[TOK_NAME]); \
 		}
 		struct sym *v = NEW_LOCAL_VAL();
 		v->t = t;
@@ -1776,7 +1796,7 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 			ALLOC_L_STACK_SPACE(function_begin, 2048);
 			iterator = kh_put(func_syms, f->functions, t.as_str, &ret);
 			if (ret < 0)
-				ERROR("me hash table fail me, so sad :(\n");
+				GR_ERROR("me hash table fail me, so sad :(\n");
 		}
 		kh_val(f->functions, iterator) = function_begin;
 
@@ -1792,13 +1812,13 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 			t = next();
 		}
 		if (t.tok != TOK_OPEN_BRACE) {
-			ERROR("%s:%d: unexcected %s, expected '{'\n", __FILE__, __LINE__,
+			GR_ERROR("%s:%d: unexcected %s, expected '{'\n", __FILE__, __LINE__,
 			      tok_str[t.tok]);
 		}
 
 		while ((t = next()).tok != TOK_CLOSE_BRACE) {
 			if (t.tok == TOK_ENDFILE) {
-				ERROR("unclose brace\n");
+				GR_ERROR("unclose brace\n");
 			}
 			if (parse_one_instruction(my_perl, f, reader, t) < 0)
 				goto exit;
@@ -1934,7 +1954,7 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 		gravier_debug("handling for\n");
 		t = next();
 		if (t.tok != TOK_OPEN_PARENTESIS) {
-			ERROR("unexpected token");
+			GR_ERROR("unexpected token");
 		}
 		t = next();
 		if (!var_declaration(t, f, reader)) {
@@ -1982,7 +2002,7 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 
 		while ((t = next()).tok != TOK_CLOSE_BRACE) {
 			if (t.tok == TOK_ENDFILE) {
-				ERROR("unclose brace\n");
+				GR_ERROR("unclose brace\n");
 			}
 			if (parse_one_instruction(my_perl, f, reader, t) < 0)
 				goto exit;
@@ -2048,7 +2068,7 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 			s_ptr = NEW_LOCAL_VAL_INIT("?pri+?");
 			t = next();
 		} else {
-			ERROR("unexpected %s token\n", tok_str[t.tok]);
+			GR_ERROR("unexpected %s token\n", tok_str[t.tok]);
 		}
 
 		if (t.tok == TOK_COMMA) {
@@ -2058,7 +2078,7 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 		if (need_close && t.tok == TOK_CLOSE_PARENTESIS) {
 			t = next();
 		} else if (need_close) {
-			ERROR("unclose parensesis in print\n");
+			GR_ERROR("unclose parensesis in print\n");
 		}
 		f->sym_string[base].end = &f->sym_string[f->sym_len];
 	} else {
