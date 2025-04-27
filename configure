@@ -141,6 +141,10 @@ function mingw-64 {
     export SDL_GPU_CFLAGS="$PWD/sdl-gpu-build/SDL_gpu-MINGW/include/"
     export WIN_SDL_EXTRA="opus vorbis libmpg123 opusfile vorbisfile libmodplug msmpi fluidsynth"
     export WIN_SDL_EXTRA2="-lfreeglut -lopengl32 -lFLAC -lwinmm"
+    # equivalent to perl is gravier
+    export PERL_LD=" "
+    export PERL_CFLAGS="-DPERL_ENABLE=1 -Igravier/"
+    export KRK_CC=/mingw64/bin/gcc
     var_add BIN_EXT .exe
 }
 
@@ -276,6 +280,8 @@ var_add EMCONFIGURE ""
 var_add EMMAKE ""
 var_add EMPORT ""
 var_add EMCFLAGS ""
+
+var_add KRK_CC "gcc"
 
 var_add CMAKE_ARGS "-DCMAKE_C_FLAGS=\"-fPIC\""
 

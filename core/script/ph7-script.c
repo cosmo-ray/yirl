@@ -842,7 +842,7 @@ static int Output_Consumer(const void *pOutput, unsigned int nOutputLen,
 static ph7_vm *loadProg(YScriptPH7 *ph7sm, char *prog, ph7_vm *vm)
 {
 	int rc;
-	char *error_str = NULL;
+	char *error_str = "(unknow)";
 
 	rc = ph7_compile_v2(
 		ph7sm->pEngine,  /* PH7 engine */

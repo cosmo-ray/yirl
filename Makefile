@@ -162,7 +162,7 @@ kuroko/:
 	git submodule update --init
 
 kuroko/libkuroko.a: kuroko/
-	$(KRK_CFLAG) make -C kuroko/
+	CC=$(KRK_CC) $(KRK_CFLAG) make -C kuroko/ libkuroko.a
 
 ph7/ph7.o:
 	$(CC) -c -o ph7/ph7.o ph7/ph7.c -I./ph7/ -O2 -g -fPIC -DPH7_ENABLE_MATH_FUNC=1 -DPH7_ENABLE_THREADS=1

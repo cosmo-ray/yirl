@@ -26,7 +26,7 @@
 
 #ifdef _WIN32
 
-static char *strndup(const char *str, size_t chars)
+static char *gr_strndup(const char *str, size_t chars)
 {
     char *buffer;
     size_t n;
@@ -40,6 +40,10 @@ static char *strndup(const char *str, size_t chars)
 
     return buffer;
 }
+
+#else
+
+#define gr_strndup strndup
 
 #endif
 
@@ -234,7 +238,7 @@ static inline struct stack_val newSVpv(const char *str, int l)
 	if (!l) {
 		ret.str = strdup(str);
 	} else {
-		ret.str = strndup(str, l);
+		ret.str = gr_strndup(str, l);
 	}
 	return ret;
 }
@@ -465,7 +469,7 @@ static inline void newXS(const char *oname,
 	if (!namespace)
 		return;
 	const char *func_name = namespace + 2;
-	namespace = strndup(oname, namespace - oname);
+	namespace = gr_strndup(oname, namespace - oname);
 
 	struct file *this_mod;
 	khiter_t iterator = kh_get(file_list, cur_pi->files, namespace);
@@ -638,7 +642,7 @@ static inline int call_pv(const char *str, int flag)
 
 	if (namespace) {
 		name = namespace + 2;
-		namespace = strndup(str, namespace - str);
+		namespace = gr_strndup(str, namespace - str);
 		khiter_t iterator = kh_get(file_list, cur_pi->files, namespace);
 		free(namespace);
 		khiter_t end = kh_end(cur_pi->files);
@@ -2175,7 +2179,7 @@ XS(XS_split)
 	i = 0;
 	for (;(tmp = strstr(str, split)); ++i) {
 		cur_pi->return_val.v.array[i].type = SVt_PV;
-		cur_pi->return_val.v.array[i].str = strndup(str, tmp - str);
+		cur_pi->return_val.v.array[i].str = gr_strndup(str, tmp - str);
 		cur_pi->return_val.v.array[i].flag = VAL_NEED_STEAL;
 		str = tmp + split_l;
 	}
