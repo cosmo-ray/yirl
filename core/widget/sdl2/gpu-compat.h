@@ -31,8 +31,13 @@ void SDL_Clear(SDL_Renderer *renderer, SDL_Color *color) {
 }
 
 static SDL_Texture *GPU_CopyImageFromSurfaceRect(SDL_Renderer *renderer, SDL_Surface *surface, const SDL_Rect *rect) {
-	if (!surface || !renderer || !rect) {
-		printf("Invalid surface, renderer, or rect provided.\n");
+
+	if (!rect) {
+		return SDL_CreateTextureFromSurface(renderer, surface);
+	}
+
+	if (!surface || !renderer) {
+		DPRINT_ERR("Invalid surface, renderer, or rect provided.\n");
 		return NULL;
 	}
 
@@ -41,7 +46,7 @@ static SDL_Texture *GPU_CopyImageFromSurfaceRect(SDL_Renderer *renderer, SDL_Sur
 						       surface->format->Rmask, surface->format->Gmask,
 						       surface->format->Bmask, surface->format->Amask);
 	if (!subSurface) {
-		printf("Failed to create sub-surface: %s\n", SDL_GetError());
+		DPRINT_ERR("Failed to create sub-surface: %s\n", SDL_GetError());
 		return NULL;
 	}
 
