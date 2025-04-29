@@ -22,16 +22,15 @@
 #include <math.h>
 
 #define YGEO_MAX_SEGMENTS 128
-#define YGEO_MAX_VERTICES (YGEO_MAX_SEGMENTS * 5)
 
 void RendRectangleRoundFilled(SDL_Renderer *renderer, SDL_Rect rect, float radius, SDL_Color color) {
-    // Ensure the radius is valid
+      // Ensure the radius is valid
     if (radius > rect.w / 2) radius = rect.w / 2;
     if (radius > rect.h / 2) radius = rect.h / 2;
 
     // Preallocate a static array for vertices
-    static SDL_Vertex vertices[YGEO_MAX_VERTICES];
-    int indices[YGEO_MAX_VERTICES];
+    static SDL_Vertex vertices[YGEO_MAX_SEGMENTS + 20];
+    int indices[YGEO_MAX_SEGMENTS * 4];
     int vertexIdx = 1;
     int indiceIdx = 0;
 
@@ -94,7 +93,8 @@ void RendRectangleRoundFilled(SDL_Renderer *renderer, SDL_Rect rect, float radiu
 
         // Add the arc for this corner
         SDL_FPoint prevPoint = {cx + radius * cosf(startAngle), cy + radius * sinf(startAngle)};
-        for (int i = 1; i <= cornerSegments; ++i) {
+	vertices[vertexIdx++] = (SDL_Vertex){prevPoint, color, {0, 0}}; // Previous arc point
+        for (int i = 2; i <= cornerSegments; ++i) {
             float angle = startAngle + i * angleStep;
 
             // Point on the arc
@@ -102,13 +102,9 @@ void RendRectangleRoundFilled(SDL_Renderer *renderer, SDL_Rect rect, float radiu
 
             // Add a triangle: center -> previous arc point -> current arc point
 	    indices[indiceIdx++] = 0;
-	    indices[indiceIdx++] = vertexIdx;
-            vertices[vertexIdx++] = (SDL_Vertex){prevPoint, color, {0, 0}}; // Previous arc point
+	    indices[indiceIdx++] = vertexIdx - 1;
 	    indices[indiceIdx++] = vertexIdx;
             vertices[vertexIdx++] = (SDL_Vertex){arcPoint, color, {0, 0}};  // Current arc point
-
-            // Update the previous point
-            prevPoint = arcPoint;
         }
     }
 
