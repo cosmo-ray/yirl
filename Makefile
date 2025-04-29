@@ -76,7 +76,6 @@ GEN_LOADER_OBJ = $(GEN_LOADER_SRC:.c=.o)
 #SDL_MIXER_LDFLAGS = "/home/uso/SDL_mixer/build/.libs/libSDL2_mixer.a"
 #SDL_MIXER_CFLAGS = "-I../SDL_mixer/"
 
-LDFLAGS += $(SDL_GPU_LDFLAGS)
 LDFLAGS += $(TCC_LIB_PATH)$(TCC_LIB_NAME)
 LDFLAGS += $(shell $(PKG_CONFIG) --libs SDL2_image SDL2_ttf $(WIN_SDL_EXTRA)) $(WIN_SDL_EXTRA2)
 LDFLAGS += $(SDL_MIXER_LDFLAGS) $(SDL_MIXER_ARFLAGS)
@@ -104,7 +103,6 @@ COMMON_CFLAGS += $(JSON_C_CFLAGS)
 COMMON_CFLAGS += -I./$(QUICKJS_PATH)
 COMMON_CFLAGS += -fpic
 COMMON_CFLAGS += $(LUA_CFLAGS)
-COMMON_CFLAGS += -I$(SDL_GPU_CFLAGS)
 COMMON_CFLAGS += $(WERROR) -Wall -Wextra -Wno-unused-function -Wno-unused-parameter -Wno-int-to-pointer-cast -Wno-unknown-pragmas
 
 COMMON_CFLAGS += -DYIRL_INCLUDE_PATH=\"$(YIRL_INCLUDE_PATH2)\"
@@ -148,9 +146,6 @@ lua-git/liblua.a:
 
 sdl-gpu-build:
 	bash -c "$(EMCMAKE) cmake -B ./sdl-gpu-build ./sdl-gpu/ $(CMAKE_ARGS)"
-
-$(SDL_GPU_LDFLAGS): sdl-gpu-build
-	$(EMMAKE) make -C sdl-gpu-build
 
 $(QUICKJS_PATH):
 	git clone https://github.com/cosmo-ray/quickjs.git quickjs-$(QUICKJS_V)

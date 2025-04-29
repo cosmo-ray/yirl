@@ -1,5 +1,5 @@
 /*
-**Copyright (C) 2015 Matthias Gatto
+**Copyright (C) 2015-2025 Matthias Gatto
 **
 **This program is free software: you can redistribute it and/or modify
 **it under the terms of the GNU Lesser General Public License as published by
@@ -20,12 +20,13 @@
 /*      V      */
 #include <assert.h>
 #include <unistd.h>
-#include <SDL_gpu.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_image.h>
 #include "sdl-internal.h"
 #include "canvas-sdl.h"
+#include "gpu-compat.h"
+#include "sdl-geometry.h"
 #include "widget.h"
 #include "utils.h"
 #include "rect.h"
@@ -52,11 +53,13 @@ static inline void deinit_controllers(void)
 	}
 }
 
-GPU_Rect getRect(void)
+SDL_Rect getRect(void)
 {
-	GPU_Rect ret = {0, 0, sg.pWindow->w, sg.pWindow->h};
+	int w, h;
+	SDL_GetWindowSize(sg.window, &w, &h);
+	SDL_Rect ret = {0, 0, w, h};
 
-	return (ret);
+	return ret;
 }
 
 TTF_Font *sgDefaultFont(void)
@@ -69,8 +72,11 @@ int ysdl2WindowMode(void)
 #ifdef USING_EMCC
 	return 0;
 #else
-	/* SDL_SetWindowGrab(sg.pWindow, 0); */
-	return GPU_SetFullscreen(0, 1);
+	if (SDL_SetWindowFullscreen(sg.window, 0) != 0) {
+            DPRINT_ERR("Error disabling fullscreen: %s\n", SDL_GetError());
+	    return -1;
+        }
+	return 0;
 #endif
 }
 
@@ -80,7 +86,11 @@ int ysdl2FullScreen(void)
 	return 0;
 #else
 	int r;
-	r = GPU_SetFullscreen(1, 1);
+
+	r = SDL_SetWindowFullscreen(sg.window, SDL_WINDOW_FULLSCREEN);
+	if (r != 0) {
+		DPRINT_ERR("Error enbling fullscreen: %s\n", SDL_GetError());
+	}
 	return r;
 #endif
 }
@@ -123,7 +133,7 @@ int sgGetFontSize(void)
 
 static int	sdlDraw(void)
 {
-	GPU_Flip(sg.pWindow);
+	SDL_RenderPresent(sg.pWindow);
 	return 0;
 }
 
@@ -138,8 +148,8 @@ SDLWid *sddComputeMargin(YWidgetState *w, SDLWid *swid)
 	Entity *s_e = yeGet(m, "size");
 	Entity *c_e = yeGet(m, "color");
 	double s;
-	const GPU_Rect *or = &swid->rect;
-	GPU_Rect *dr = &marged_wid.rect;
+	const SDL_Rect *or = &swid->rect;
+	SDL_Rect *dr = &marged_wid.rect;
 	YBgConf cfg;
 
 	if (!m)
@@ -160,13 +170,13 @@ SDLWid *sddComputeMargin(YWidgetState *w, SDLWid *swid)
 	if (ywidBgConfFill(c_e, &cfg) < 0)
 		return swid;
 
-	sdlDrawRect(swid, (GPU_Rect){0, 0, or->w, s},
+	sdlDrawRect(swid, (SDL_Rect){0, 0, or->w, s},
 		    SDL_COLOR_FROM_YBGCONF(cfg));
-	sdlDrawRect(swid, (GPU_Rect){0, 0 + s, s, or->h - s * 2},
+	sdlDrawRect(swid, (SDL_Rect){0, 0 + s, s, or->h - s * 2},
 		    SDL_COLOR_FROM_YBGCONF(cfg));
-	sdlDrawRect(swid, (GPU_Rect){or->w - s, s, s, or->h - s * 2},
+	sdlDrawRect(swid, (SDL_Rect){or->w - s, s, s, or->h - s * 2},
 		    SDL_COLOR_FROM_YBGCONF(cfg));
-	sdlDrawRect(swid, (GPU_Rect){0, or->h - s, or->w, s},
+	sdlDrawRect(swid, (SDL_Rect){0, or->h - s, or->w, s},
 		    SDL_COLOR_FROM_YBGCONF(cfg));
 
 out:
@@ -178,17 +188,18 @@ out:
 	return &marged_wid;
 }
 
-void	sdlDrawRect(SDLWid *swid, GPU_Rect rect, SDL_Color color)
+void	sdlDrawRect(SDLWid *swid, SDL_Rect rect, SDL_Color color)
 {
 	if (swid) {
 		rect.y += swid->rect.y;
 		rect.x += swid->rect.x;
 	}
-	GPU_RectangleFilled2(sg.pWindow, rect, color);
+	SDL_SetRenderDrawColor(sg.pWindow, color.r, color.g, color.b, color.a);
+	SDL_RenderFillRect(sg.pWindow, &rect);
 }
 
 
-static void	sdlDrawRect2(SDLWid *swid, GPU_Rect rect, SDL_Color color, int filled, float radius)
+static void	sdlDrawRect2(SDLWid *swid, SDL_Rect rect, SDL_Color color, int filled, float radius)
 {
 	if (swid) {
 		rect.y += swid->rect.y;
@@ -197,51 +208,57 @@ static void	sdlDrawRect2(SDLWid *swid, GPU_Rect rect, SDL_Color color, int fille
 
 	if (radius > 0) {
 		if (filled)
-			GPU_RectangleRoundFilled2(sg.pWindow, rect, radius, color);
+			RendRectangleRoundFilled(sg.pWindow, rect, radius, color);
 		else
-			GPU_RectangleRound2(sg.pWindow, rect, radius, color);
+			RendRectangleRound(sg.pWindow, rect, radius, color);
 	} else {
+		SDL_SetRenderDrawColor(sg.pWindow, color.r, color.g, color.b, color.a);
+
 		if (filled)
-			GPU_RectangleFilled2(sg.pWindow, rect, color);
+			SDL_RenderFillRect(sg.pWindow, &rect);
 		else
-			GPU_Rectangle2(sg.pWindow, rect, color);
+			SDL_RenderDrawRect(sg.pWindow, &rect);
 	}
 }
 
-static void	sdlDrawPoly(int nb_vertices, float vertices[static nb_vertices * 2],
-			    SDL_Color c, int filled)
+static void	sdlDrawPolyFilled(int nb_vertex, SDL_Vertex vertex[static nb_vertex])
 {
-	if (!filled)
-		GPU_Polygon(sg.pWindow, nb_vertices, vertices, c);
-	else
-		GPU_PolygonFilled(sg.pWindow, nb_vertices, vertices, c);
+	SDL_RenderGeometry(sg.pWindow, NULL, vertex, nb_vertex, NULL, 0);
 }
 
 static void     sdlDrawTriangle(float x1, float y1, float x2,
 				float y2, float x3, float y3,
 				SDL_Color c, int filled)
 {
-	if (!filled)
-		GPU_Tri(sg.pWindow, x1, y1, x2, y2, x3, y3, c);
-	else
-		GPU_TriFilled(sg.pWindow, x1, y1, x2, y2, x3, y3, c);
+	if (!filled) {
+		SDL_SetRenderDrawColor(sg.pWindow, c.r, c.g, c.b, c.a);
+		SDL_RenderDrawLine(sg.pWindow, x1, y1, x2, y2);
+		SDL_RenderDrawLine(sg.pWindow, x2, y2, x3, y3);
+		SDL_RenderDrawLine(sg.pWindow, x3, y3, x1, y1);
+	} else {
+		// Define the vertices for the filled triangle
+		SDL_Vertex verts[3] = {
+			{ {x1, y1}, c , {0,0}},
+			{ {x2, y2}, c , {0,0} },
+			{ {x3, y3}, c , {0,0} }
+		};
+
+		// Render the filled triangle
+		SDL_RenderGeometry(sg.pWindow, NULL, verts, 3, NULL, 0);
+	}
 }
 
 static void     sdlDrawLine(float x1, float y1, float x2,
 			    float y2, SDL_Color c)
 {
-	GPU_Line(sg.pWindow, x1, y1, x2, y2, c);
+	SDL_SetRenderDrawColor(sg.pWindow, c.r, c.g, c.b, c.a);
+	SDL_RenderDrawLine(sg.pWindow, x1, y1, x2, y2);
 }
 
 
-static void	sdlDrawCircle(GPU_Rect rect, SDL_Color color, int filled)
+static void	sdlDrawCircle(SDL_Rect rect, SDL_Color color, int filled)
 {
-	  float radius = rect.w;
-
-	  if (filled)
-	    GPU_CircleFilled(sg.pWindow, rect.x, rect.y, radius, color);
-	  else
-	    GPU_Circle(sg.pWindow, rect.x, rect.y, radius, color);
+	RenderCircle(sg.pWindow, NULL, color, rect.x, rect.y, rect.w, filled);
 }
 
 
@@ -260,9 +277,9 @@ static int    sdlFillImgBg(SDLWid *swid, YBgConf *cfg)
 		SDL_Surface *img = IMG_Load(cimg);
 		if (!img)
 			return -1;
-		GPU_Image *texture = GPU_CopyImageFromSurface(img);
+		SDL_Texture *texture = SDL_CreateTextureFromSurface(sg.pWindow, img);
 		if (cfg->flag & YBG_FIT_TO_SCREEN) {
-			GPU_Rect drect = swid->rect;
+			SDL_Rect drect = swid->rect;
 
 			if (cfg->flag & YBG_FIT_TO_SCREEN_H) {
 				drect.w = img->w * drect.h / img->h;
@@ -271,12 +288,12 @@ static int    sdlFillImgBg(SDLWid *swid, YBgConf *cfg)
 				drect.h = img->h * drect.w / img->w;
 				drect.y += (swid->rect.h / 2) - drect.h / 2;
 			}
-			GPU_BlitRect(texture, NULL, sg.pWindow, &drect);
+			SDL_RenderCopy(sg.pWindow, texture, NULL, &drect);
 		} else {
-			GPU_BlitRect(texture, NULL, sg.pWindow, &swid->rect);
+			SDL_RenderCopy(sg.pWindow, texture, NULL, &swid->rect);
 		}
 		SDL_FreeSurface(img);
-		GPU_FreeImage(texture);
+		SDL_DestroyTexture(texture);
 		return 0;
 	}
 	return -1;
@@ -296,8 +313,10 @@ void    ysdl2Destroy(void)
 	if (type == -1)
 		return;
 	TTF_CloseFont(sg.font);
-	GPU_FreeTarget(sg.pWindow);
+	SDL_DestroyRenderer(sg.pWindow);
 	sg.pWindow = NULL;
+	SDL_DestroyWindow(sg.window);
+	sg.window = NULL;
 	IMG_Quit();
 	TTF_Quit();
 	deinit_controllers();
@@ -569,8 +588,8 @@ static int sdlChangeResolution(void)
 		return -1;
 	}
 
-	GPU_SetWindowResolution(ywidWindowWidth, ywidWindowHight);
-	/* SDL_SetWindowPosition(sg.pWindow, SDL_WINDOWPOS_CENTERED, */
+	SDL_SetWindowSize(sg.window, ywidWindowWidth, ywidWindowHight);
+	/* SDL_SetWindowPosition(sg.window, SDL_WINDOWPOS_CENTERED, */
 	/* 		      SDL_WINDOWPOS_CENTERED); */
 	/* SDL_DestroyRenderer(sg.pWindow); */
 	/* if (sdlRenderCreate() < 0) { */
@@ -579,7 +598,7 @@ static int sdlChangeResolution(void)
 	/* 	return -1; */
 	/* } */
 	ywNeedTextureReload = 1;
-	/* SDL_RenderClear(sg.pWindow); */
+	/* SDL_RendererClear(sg.pWindow); */
 	return 0;
 #endif
 }
@@ -614,24 +633,22 @@ int    ysdl2Init(void)
   }
 #endif
 
+
+  sg.window = SDL_CreateWindow("YIRL", SDL_WINDOWPOS_CENTERED,
+			       SDL_WINDOWPOS_CENTERED, ywidWindowWidth, ywidWindowHight,
+			       SDL_WINDOW_SHOWN);
+  if (!sg.window) {
+	  printf("Failed to create window: %s\n", SDL_GetError());
+	  return -1;
+  }
+
   /* Initialisation simple */
-#ifdef USING_EMCC
-  if ((sg.pWindow = GPU_Init(ywidWindowWidth, ywidWindowHight,
-			     GPU_DEFAULT_INIT_FLAGS)) == NULL) {
+  if ((sg.pWindow = SDL_CreateRenderer(sg.window, -1, SDL_RENDERER_ACCELERATED |
+				     SDL_RENDERER_PRESENTVSYNC)) == NULL) {
 	  DPRINT_ERR("SDL GPU initialisation failed: (%s)\n", SDL_GetError());
 	  return -1;
   }
-
-#else
-  if ((sg.pWindow = GPU_InitRenderer(GPU_RENDERER_OPENGL_1,
-				     ywidWindowWidth, ywidWindowHight,
-				     GPU_DEFAULT_INIT_FLAGS)) == NULL) {
-	  DPRINT_ERR("SDL GPU initialisation failed: (%s)\n", SDL_GetError());
-	  return -1;
-  }
-#endif
-
-  SDL_SetWindowPosition(SDL_GetWindowFromID(sg.pWindow->context->windowID), 10, 40);
+  SDL_SetRenderDrawBlendMode(sg.pWindow, SDL_BLENDMODE_BLEND);
 
   for (int i = 0; i < SDL_NumJoysticks() && i < 128; ++i) {
 	  if (SDL_IsGameController(i)) {
@@ -684,8 +701,8 @@ int    ysdl2Init(void)
 // fill the window with a black rectangle
   // SDL_Rect   rect = sg.getRect();
 
-  /* GPU_SetBlendMode(sg.pWindow, GPU_BLEND_NORMAL); */
-  GPU_Clear(sg.pWindow);
+  /* SDL_SetBlendMode(sg.pWindow, SDL_BLEND_NORMAL); */
+  SDL_Clear(sg.pWindow, NULL);
   type = ywidRegistreRender(sdlResize, SDLPollEvent, SDLWaitEvent,
 			    sdlDraw, sdlChangeResolution,
 			    changeWindName);
@@ -696,7 +713,8 @@ int    ysdl2Init(void)
  img_fail:
   IMG_Quit();
  ttf_fail:
-  GPU_FreeTarget(sg.pWindow);
+  SDL_DestroyRenderer(sg.pWindow);
+  SDL_DestroyWindow(sg.window);
   deinit_controllers();
   SDL_Quit();
   return -1;
@@ -752,12 +770,12 @@ static SDL_Surface *mk_print_surface(char *str, SDL_Color color)
 	return textSurface;
 }
 
-static int do_print(SDL_Surface **surfaces, int surfaces_cnt, GPU_Rect pos,
-		    int alignementType, GPU_Target *renderer)
+static int do_print(SDL_Surface **surfaces, int surfaces_cnt, SDL_Rect pos,
+		    int alignementType, SDL_Renderer *renderer)
 {
 	int ret = 0;
 	int mod_x = 0;
-	GPU_Rect renderQuad = { pos.x + mod_x, pos.y, 0, 0};
+	SDL_Rect renderQuad = { pos.x + mod_x, pos.y, 0, 0};
 
 	if (alignementType == YSDL_ALIGN_CENTER) {
 		int tot_w = 0;
@@ -768,7 +786,7 @@ static int do_print(SDL_Surface **surfaces, int surfaces_cnt, GPU_Rect pos,
 		renderQuad.x = pos.x + ((pos.w / 2) - (tot_w / 2));
 	}
 	for (int i = 0; i < surfaces_cnt; ++i) {
-		GPU_Image *text = GPU_CopyImageFromSurface(surfaces[i]);
+		SDL_Texture *text = SDL_CreateTextureFromSurface(sg.pWindow, surfaces[i]);
 
 		if (!text) {
 			ret = -1;
@@ -777,9 +795,9 @@ static int do_print(SDL_Surface **surfaces, int surfaces_cnt, GPU_Rect pos,
 
 		renderQuad.w = surfaces[i]->w;
 		renderQuad.h = surfaces[i]->h;
-		GPU_BlitRect(text, NULL, renderer,
+		SDL_RenderCopy(renderer, text, NULL,
 			     &renderQuad);
-		GPU_FreeImage(text);
+		SDL_DestroyTexture(text);
 		renderQuad.x += surfaces[i]->w;
 	}
 out:
@@ -790,11 +808,11 @@ out:
 
 static int sdlPrintLine(
 	SDLWid *wid, char *str, SDL_Color *color,
-	GPU_Rect pos, int line, int alignementType,
+	SDL_Rect pos, int line, int alignementType,
 	int lineSpace, SDL_Color orig_color)
 {
 	int len = strlen(str);
-	GPU_Target *renderer = sg.pWindow;
+	SDL_Renderer *renderer = sg.pWindow;
 	int caract_per_line = len;
 	int ret = 0;
 	int txth = sgGetTxtH() + lineSpace;
@@ -894,7 +912,7 @@ static int sdlPrintLine(
 }
 
 int sdlPrintTextExt(SDLWid *wid, const char *str, SDL_Color color,
-		    GPU_Rect pos, int alignementType, int lineSpace)
+		    SDL_Rect pos, int alignementType, int lineSpace)
 {
 	if (!str)
 		return 0;
@@ -933,7 +951,7 @@ exit:
 int sdlPrintText(SDLWid *wid,
 		 const char *str,
 		 SDL_Color color,
-		 GPU_Rect pos,
+		 SDL_Rect pos,
 		 int alignementType)
 {
 	return sdlPrintTextExt(wid, str, color, pos, alignementType, 0);
@@ -965,7 +983,7 @@ void sdlWidDestroy(YWidgetState *wid, int t)
 /* Wrapper for DataEntity destroy */
 static void sdlFreeTexture(void *txt)
 {
-	GPU_FreeImage(txt);
+	SDL_DestroyTexture(txt);
 }
 
 void sdlFreeSurface(void *surface)
@@ -977,11 +995,11 @@ void sdlFreeSurface(void *surface)
 #define Y_SDL_SPRITE 2
 #define Y_SDL_COLOR 3
 
-static GPU_Image *sdlLoasAndCachTexture(Entity *elem)
+static SDL_Texture *sdlLoasAndCachTexture(Entity *elem)
 {
 	const char *path = NULL;
 	Entity *data = yeGet(elem, "$sdl-img");
-	GPU_Image *texture = yeGetData(data);
+	SDL_Texture *texture = yeGetData(data);
 
 	if (texture)
 		return texture;
@@ -1027,7 +1045,7 @@ static GPU_Image *sdlLoasAndCachTexture(Entity *elem)
 		yeCreateInt(Y_SDL_COLOR, elem, "$sdl-type");
 		data = yeCreateData(col, elem, "$sdl-img");
 		yeSetDestroy(data, free);
-		return (GPU_Image *)col;
+		return (SDL_Texture *)col;
 	}
 
 	if (unlikely(!path || !(image = IMG_Load(path)))) {
@@ -1048,7 +1066,7 @@ static GPU_Image *sdlLoasAndCachTexture(Entity *elem)
 
 finish:
 
-	texture = GPU_CopyImageFromSurface(image);
+	texture = SDL_CreateTextureFromSurface(sg.pWindow, image);
 	data = yeCreateData(texture, elem, "$sdl-img");
 	yeSetDestroy(data, sdlFreeTexture);
 	SDL_FreeSurface(image);
@@ -1060,14 +1078,13 @@ static int sdlCanvasCacheText(Entity *state, Entity *elem, Entity *resource,
 {
 	SDL_Color color = {0,0,0,255};
 	SDL_Surface *image;
-	GPU_Image *texture;
+	SDL_Texture *texture;
 	Entity *data;
 	int w = 0, h = 0;
 
 	image = TTF_RenderUTF8_Solid(sgDefaultFont(), str, color);
-	texture = GPU_CopyImageFromSurface(image);
-	w = texture->w;
-	h = texture->h;
+	texture = SDL_CreateTextureFromSurface(sg.pWindow, image);
+	SDL_QueryTexture(texture, NULL, NULL, &w, &h);
 	data = yeCreateDataAt(texture, elem, "$img", YCANVAS_IMG_IDX);
 	yeSetDestroy(data, sdlFreeTexture);
 	ywSizeCreateAt(w, h, elem, "$size", YCANVAS_SIZE_IDX);
@@ -1201,7 +1218,7 @@ static int sdlCacheBigTexture(Entity *e, SDL_Surface *s,
 				int tot_w, int tot_h)
 {
 	Entity *txts_h = yeCreateArrayAt(e, "$img", YCANVAS_IMG_IDX);
-	GPU_Image *t;
+	SDL_Texture *t;
 	SDL_Surface *tmp_s;
 
 	ywSizeCreateAt(tot_w, tot_h, e, "$size", YCANVAS_SIZE_IDX);
@@ -1216,7 +1233,7 @@ static int sdlCacheBigTexture(Entity *e, SDL_Surface *s,
 			w = tot_w > 2048 ? 2048 : tot_w;
 			rdest = ywRectCreateInts(x, y, w, h, NULL, NULL);
 			tmp_s = sdlCopySurface(s, rdest);
-			t = GPU_CopyImageFromSurface(tmp_s);
+			t = SDL_CreateTextureFromSurface(sg.pWindow, tmp_s);
 			Entity *d = yeCreateData(t, txts_w, NULL);
 			yeSetDestroy(d, sdlFreeTexture);
 		}
@@ -1230,7 +1247,7 @@ int sdlCanvasCacheImg3(Entity *elem, Entity *resource, const char *imgPath,
 		       Entity *rEnt, int32_t flag, Entity *img_dst_rect)
 {
 	SDL_Surface *surface;
-	GPU_Image *texture;
+	SDL_Texture *texture;
 	Entity *data;
 	int w, h, isText = 0;
 
@@ -1279,8 +1296,8 @@ int sdlCanvasCacheImg3(Entity *elem, Entity *resource, const char *imgPath,
 	}
 
 	if (!(flag & YSDL_CACHE_IMG_NO_TEXTURE)) {
-		GPU_Rect *surface_rect = NULL;
-		GPU_Rect tmp_surface_rect;
+		SDL_Rect *surface_rect = NULL;
+		SDL_Rect tmp_surface_rect;
 
 		if (img_dst_rect) {
 			tmp_surface_rect.x = ywRectX(img_dst_rect);
@@ -1301,16 +1318,13 @@ int sdlCanvasCacheImg3(Entity *elem, Entity *resource, const char *imgPath,
 			}
 			goto store_surface;
 		}
-		texture = GPU_CopyImageFromSurfaceRect(surface, surface_rect);
+		texture = GPU_CopyImageFromSurfaceRect(sg.pWindow, surface, surface_rect);
 		if (unlikely(!texture)) {
-			GPU_ErrorObject e = GPU_PopErrorCode();
-			DPRINT_ERR("fail to create texture %s, %s: %s\n",
-				   GPU_GetErrorString(e.error), e.function,
-				   e.details);
+			const char *e = SDL_GetError();
+			DPRINT_ERR("fail to create texture %s\n", e);
 			goto free_surface;
 		}
-		w = texture->w;
-		h = texture->h;
+		SDL_QueryTexture(texture, NULL, NULL, &w, &h);
 		data = yeCreateDataAt(texture, elem, "$img", YCANVAS_IMG_IDX);
 		yeSetDestroy(data, sdlFreeTexture);
 		ywSizeCreateAt(w, h, elem, "$size", YCANVAS_SIZE_IDX);
@@ -1370,7 +1384,7 @@ void sdlCanvasCacheBicolorImg(Entity *elem, const uint8_t *img, Entity *info)
 						    flags & 1 ? 0x0000FF00 : 0,
 						    flags & 1 ? 0x000000FF : 0);
 	uint32_t *pixels = surface->pixels;
-	GPU_Image *texture;
+	SDL_Texture *texture;
 	Entity *data;
 
 	assert(w);
@@ -1379,7 +1393,7 @@ void sdlCanvasCacheBicolorImg(Entity *elem, const uint8_t *img, Entity *info)
 		if (!(flags & 1 && img[i] == (uint8_t)-1))
 			pixels[i] = img[i] ? fg : bg;
 	}
-	texture = GPU_CopyImageFromSurface(surface);
+	texture = SDL_CreateTextureFromSurface(sg.pWindow, surface);
 	data = yeCreateDataAt(texture, elem, "$img", YCANVAS_IMG_IDX);
 	yeSetDestroy(data, sdlFreeTexture);
 	ywSizeCreateAt(w, h, elem, "$size", YCANVAS_SIZE_IDX);
@@ -1401,7 +1415,7 @@ void sdlCanvasDrawableSetPix(Entity *elem, int x, int y, int color)
 void sdlCanvasDrawableFinalyze(Entity *elem)
 {
 	SDL_Surface *surface = yeGetData(yeGet(elem, YCANVAS_SURFACE_IDX));
-	GPU_Image *texture = GPU_CopyImageFromSurface(surface);
+	SDL_Texture *texture = SDL_CreateTextureFromSurface(sg.pWindow, surface);
 	Entity *data = yeCreateDataAt(texture, elem, "$img", YCANVAS_IMG_IDX);	
 	yeSetDestroy(data, sdlFreeTexture);
 }
@@ -1425,7 +1439,7 @@ void sdlCanvasCacheHeadacheImg(Entity *elem, Entity *map, Entity *info)
 	Entity *pix_per_char = yeGet(info, "pix_per_char");
 	Entity *size = yeGet(info, "size");
 	SDL_Surface *surface = makeHeadacheSurface(map, info);
-	GPU_Image *texture = GPU_CopyImageFromSurface(surface);
+	SDL_Texture *texture = SDL_CreateTextureFromSurface(sg.pWindow, surface);
 	Entity *data = yeCreateDataAt(texture, elem, "$img", YCANVAS_IMG_IDX);
 
 	yeSetDestroy(data, sdlFreeTexture);
@@ -1514,7 +1528,7 @@ int sdlCanvasCacheTexture(Entity *state, Entity *elem)
 }
 
 static void sdlCanvasAplyModifier(Entity *img,
-				  double *rotation, GPU_BatchFlagEnum *flip,
+				  double *rotation, SDL_RendererFlip *flip,
 				  SDL_Color *mod_color)
 {
 	Entity *mod = ywCanvasObjMod(img);
@@ -1533,8 +1547,8 @@ static void sdlCanvasAplyModifier(Entity *img,
 	if (rotation)
 		*rotation = yeGetFloat(yeGet(mod, YCanvasRotate));
 	if (flip) {
-		*flip |= (GPU_FLIP_VERTICAL * yeGetIntAt(mod, YCanvasVFlip));
-		*flip |= (GPU_FLIP_HORIZONTAL * yeGetIntAt(mod, YCanvasHFlip));
+		*flip |= (SDL_FLIP_VERTICAL * yeGetIntAt(mod, YCanvasVFlip));
+		*flip |= (SDL_FLIP_HORIZONTAL * yeGetIntAt(mod, YCanvasHFlip));
 	}
 	return;
 }
@@ -1544,15 +1558,15 @@ static int sdlCanvasRendImg(YWidgetState *state, SDLWid *wid, Entity *img,
 {
 	Entity *s = ywCanvasObjSize(state->entity, img);
 	Entity *p = ywCanvasObjPos(img);
-	GPU_Rect *sd = NULL;
+	SDL_Rect *sd = NULL;
 	ygAssert(p);
 	ygAssert(s);
-	GPU_Rect rd = { ywPosXDirect(p) - ywPosX(cam),
-			ywPosYDirect(p) - ywPosY(cam),
-			ywSizeWDirect(s), ywSizeHDirect(s) };
+	SDL_FRect rd = { ywPosXDirect(p) - ywPosX(cam),
+		ywPosYDirect(p) - ywPosY(cam),
+		ywSizeWDirect(s), ywSizeHDirect(s) };
 	double rotation = 0;
-	GPU_BatchFlagEnum flip = 0;
-	GPU_Image *t = NULL;
+	SDL_RendererFlip flip = 0;
+	SDL_Texture *t = NULL;
 	SDL_Color mod_color = {0};
 
 	if (rd.x + rd.w < 0 || rd.y + rd.h < 0 || rd.y > ywRectHDirect(wid_pix)
@@ -1571,7 +1585,8 @@ static int sdlCanvasRendImg(YWidgetState *state, SDLWid *wid, Entity *img,
 	rd.y += ywRectY(wid_pix);
 	sdlCanvasAplyModifier(img, &rotation, &flip, &mod_color);
 	if (mod_color.r || mod_color.g || mod_color.b || mod_color.a) {
-		GPU_SetColor(t, mod_color);
+		SDL_SetTextureColorMod(t, mod_color.r, mod_color.g, mod_color.b);
+		SDL_SetTextureAlphaMod(t, mod_color.a);
 	}
 	double rx = 0;
 	double ry = 0;
@@ -1581,8 +1596,8 @@ static int sdlCanvasRendImg(YWidgetState *state, SDLWid *wid, Entity *img,
 		rx = ywSizeWDirect(original_size) / 2;
 		ry = ywSizeHDirect(original_size) / 2;
 	}
-	GPU_BlitRectX(t, sd, sg.pWindow, &rd, rotation,
-		      rx, ry, flip);
+	SDL_RenderCopyExF(sg.pWindow, t, sd, &rd, rotation,
+			  &(SDL_FPoint){rx, ry}, flip);
 	free(sd);
 	return 0;
 }
@@ -1686,22 +1701,22 @@ static int sdlCanvasRendBigImg(YWidgetState *state, SDLWid *wid,
 	YE_FOREACH(txts_h, txts_w) {
 		int threshold_x = 0;
 		YE_FOREACH(txts_w, texture) {
-			GPU_Image *t = yeGetData(texture);
+			SDL_Texture *t = yeGetData(texture);
 			int w, h;
 			int x = x0 + threshold_x;
 			int y = y0 + threshold_y;
 
-			w = t->w;
-			h = t->h;
+			SDL_QueryTexture(t, NULL, NULL, &w, &h);
 
 			w = yuiPercentOf(w, wpercent);
 			h = yuiPercentOf(h, hpercent);
 
 			if (mod_color.r || mod_color.g || mod_color.b || mod_color.a) {
-				GPU_SetColor(t, mod_color);
+				SDL_SetTextureColorMod(t, mod_color.r, mod_color.g, mod_color.b);
+				SDL_SetTextureAlphaMod(t, mod_color.a);
 			}
-			GPU_BlitRect(t, NULL, sg.pWindow,
-				     &(GPU_Rect){x, y, w, h});
+			SDL_RenderCopy(sg.pWindow, t, NULL,
+				     &(SDL_Rect){x, y, w, h});
 			threshold_x += wadd;
 		}
 		threshold_y += hadd;
@@ -1724,7 +1739,7 @@ int sdlCanvasRendObj(YWidgetState *state, SDLWid *wid, Entity *obj,
 	Entity *p = ywCanvasObjPos(obj);
 	SDL_Color c = {0, 0, 0, 255};
 	Entity *s = ywCanvasObjSize(state->entity, obj);
-	GPU_Rect rect = {ywPosX(p) - ywPosX(cam), ywPosY(p) - ywPosY(cam),
+	SDL_Rect rect = {ywPosX(p) - ywPosX(cam), ywPosY(p) - ywPosY(cam),
 			 ywSizeW(s), ywSizeH(s)};
 
 	if (type == YCanvasCircle) {
@@ -1772,35 +1787,25 @@ int sdlCanvasRendObj(YWidgetState *state, SDLWid *wid, Entity *obj,
 		return 0;
 	} else if (type == YCanvasPolygone) {
 		YBgConf cfg;
-		static float vertices[512]; /*assuming smaller*/
+		SDL_Vertex vertices[256]; /*assuming smaller*/
 		Entity *pos0 = ywCanvasObjPos(obj);
 		Entity *vertices_ent = yeGet(obj, YCANVAS_VERTICES_IDX);
 		int nb_vertices = yeLen(vertices_ent);
 		int i = 0;
 
-		for (; i < nb_vertices * 2; i += 2) {
+		ywidBgConfFill(yeGet(obj, 2), &cfg);
+		for (; i < nb_vertices; i++) {
 			/* if I want a semblace of size, I should compute it here */
-			vertices[i] = yeGetIntAt(yeGet(vertices_ent, i / 2), 0) + ywPosX(pos0);
-			vertices[i + 1] = yeGetIntAt(yeGet(vertices_ent, i / 2), 1) + ywPosY(pos0);
+			vertices[i] = (SDL_Vertex){
+				{
+					yeGetIntAt(yeGet(vertices_ent, i), 0) + ywPosX(pos0),
+					yeGetIntAt(yeGet(vertices_ent, i), 1) + ywPosY(pos0)
+				}, {cfg.r, cfg.g, cfg.b, cfg.a}, {0, 0}
+			};
 		}
 
-		/* close loop by default ? */
-		/* ++nb_vertices; */
-		/* vertices[i] = vertices[0]; */
-		/* vertices[i + 1] = vertices[1]; */
-
-		/* for (int i = 0; i < nb_vertices * 2; i  += 2) { */
-		/* 	printf( "[%f,%f]", vertices[i], vertices[i+1]); */
-		/* } */
-		/* yePrint(vertices_ent); */
-
-		ywidBgConfFill(yeGet(obj, 2), &cfg);
-		c.r = cfg.r;
-		c.g = cfg.g;
-		c.b = cfg.b;
-		c.a = cfg.a;
-
-		sdlDrawPoly(nb_vertices, vertices, c, yeGetQuadInt2(s));
+		/* int isFilled = yeGetQuadInt2(s); */
+		sdlDrawPolyFilled(nb_vertices, vertices);
 		return 0;
 	} else if (type == YCanvasRect) {
 		YBgConf cfg;
@@ -1836,10 +1841,10 @@ int sdlDisplaySprites(YWidgetState *state, SDLWid *wid,
 		      int w, int h, int thresholdX,
 		      int thresholdY, Entity *mod)
 {
-	GPU_Rect DestR = {x * w + wid->rect.x + thresholdX,
+	SDL_Rect DestR = {x * w + wid->rect.x + thresholdX,
 			  y * h + wid->rect.y + thresholdY,
 			  w, h};
-	GPU_Image *texture;
+	SDL_Texture *texture;
 	int id;
 	Entity *elem;
 
@@ -1854,12 +1859,11 @@ int sdlDisplaySprites(YWidgetState *state, SDLWid *wid,
 		int type = yeGetInt(yeGet(elem, "$sdl-type"));
 
 		if (type == Y_SDL_TILD || type == Y_SDL_COLOR) {
-			GPU_Rect srcR = {0, 0, 0, 0};
-			GPU_Rect *srcRP = NULL;
+			SDL_Rect srcR = {0, 0, 0, 0};
+			SDL_Rect *srcRP = NULL;
 
 			if (type != Y_SDL_COLOR) {
-				srcR.w = texture->w;
-				srcR.h = texture->h;
+				SDL_QueryTexture(texture, NULL, NULL, &srcR.w, &srcR.h);
 				int diff = srcR.w - srcR.h;
 				if (diff > 0) {
 					int bigger = srcR.w;
@@ -1888,18 +1892,17 @@ int sdlDisplaySprites(YWidgetState *state, SDLWid *wid,
 				sdlDrawRect(NULL, DestR,
 					    *((SDL_Color *)texture));
 			else
-				GPU_BlitRect(texture, srcRP, sg.pWindow, &DestR);
+				SDL_RenderCopy(sg.pWindow, texture, srcRP, &DestR);
 		} else {
 			Entity *rinfo = yeGet(mapElem, "rend_info");
-			GPU_Rect srcR = YRECT_MK_INIT(yeGet(rinfo, "src"));
-			GPU_Rect *rp = rinfo ? &srcR : NULL;
+			SDL_Rect srcR = YRECT_MK_INIT(yeGet(rinfo, "src"));
+			SDL_Rect *rp = rinfo ? &srcR : NULL;
 			Entity *pt = yeGet(rinfo, "threshold");
 			int xt = ywPosX(pt);
 			int yt = ywPosY(pt);
 
 			if (!rinfo) {
-				DestR.w = texture->w;
-				DestR.h = texture->h;
+				SDL_QueryTexture(texture, NULL, NULL, &DestR.w, &DestR.h);
 			}
 			else {
 				DestR.w = srcR.w;
@@ -1907,7 +1910,7 @@ int sdlDisplaySprites(YWidgetState *state, SDLWid *wid,
 			}
 			DestR.y = y * h - (DestR.h - h) + wid->rect.y + yt;
 			DestR.x += xt;
-			GPU_BlitRect(texture, rp, sg.pWindow, &DestR);
+			SDL_RenderCopy(sg.pWindow, texture, rp, &DestR);
 		}
 	}
 	return 0;

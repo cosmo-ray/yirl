@@ -18,14 +18,14 @@
 #ifndef _SDL_INTERNAL_H_
 #define _SDL_INTERNAL_H_
 
-#include <SDL_gpu.h>
 #include "sdl-driver.h"
 #include "widget.h"
 
 typedef struct
 {
   int           fullscreen;
-  GPU_Target	*pWindow;
+  SDL_Window	*window;
+  SDL_Renderer	*pWindow;
   TTF_Font	*font;
   unsigned int  fontSize;
   unsigned int  txtHeight;
@@ -40,7 +40,7 @@ typedef enum  {
 typedef struct
 {
   YWidgetState *wid;
-  GPU_Rect      rect;
+  SDL_Rect      rect;
 } SDLWid;
 
 #define SDL_COLOR_FROM_YBGCONF(cfg)			\
@@ -59,7 +59,7 @@ int sdlFillColorBg(SDLWid *swid, short r, short g, short b, short a);
 
 int sdlFillBg(SDLWid *swid, YBgConf *cfg);
 
-void sdlDrawRect(SDLWid *swid, GPU_Rect rect, SDL_Color color);
+void sdlDrawRect(SDLWid *swid, SDL_Rect rect, SDL_Color color);
 
 void sdlWidDestroy(YWidgetState *wid, int t);
 
@@ -68,18 +68,18 @@ int sgGetFontSize(void);
 uint32_t sgGetTxtW(void);
 uint32_t sgGetTxtH(void);
 
-GPU_Rect  getRect(void);
+SDL_Rect  getRect(void);
 TTF_Font *sgDefaultFont(void);
 int sgSetDefaultFont(const char *path);
 
 int sdlPrintText(SDLWid *wid,
 		 const char *str,
 		 SDL_Color color,
-		 GPU_Rect pos,
+		 SDL_Rect pos,
 		 int alignementType);
 
 int sdlPrintTextExt(SDLWid *wid, const char *str, SDL_Color color,
-		    GPU_Rect pos, int alignementType, int lineSpace);
+		    SDL_Rect pos, int alignementType, int lineSpace);
 
 int sdlCanvasCacheImg3(Entity *elem, Entity *resource, const char *imgPath,
 		       Entity *rEnt, int32_t flag, Entity *img_dst_rect);
@@ -96,9 +96,9 @@ int sdlDisplaySprites(YWidgetState *state, SDLWid *wid,
 		      int w, int h, int thresholdX,
 		      int thresholdY, Entity *mod);
 
-static inline GPU_Rect sdlRectFromRectEntity(Entity *rect)
+static inline SDL_Rect sdlRectFromRectEntity(Entity *rect)
 {
-	GPU_Rect ret = {ywRectX(rect), ywRectY(rect),
+	SDL_Rect ret = {ywRectX(rect), ywRectY(rect),
 			ywRectW(rect), ywRectH(rect)};
 
 	return ret;

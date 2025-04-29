@@ -16,8 +16,8 @@
 */
 
 #include <math.h>
-#include <SDL_gpu.h>
 #include "rect.h"
+#include <SDL2/SDL.h>
 #include "text-screen.h"
 #include "sdl-driver.h"
 #include "sdl2/canvas-sdl.h"
@@ -1073,13 +1073,15 @@ void ywCanvasRemoveColorMod(Entity *obj)
 		void *img = yeGetData(yeGet(obj, YCANVAS_IMG_IDX));
 		if (!img)
 			return;
-		GPU_UnsetColor(img);
+		SDL_SetTextureColorMod(img, 255, 255, 255);
+		SDL_SetTextureAlphaMod(img, 255);
 	} else if (type == YCanvasBigTexture) {
 		Entity *txts_h = yeGet(obj, YCANVAS_IMG_IDX);
 		YE_FOREACH(txts_h, txts_w) {
 			YE_FOREACH(txts_w, texture) {
-				GPU_Image *t = yeGetData(texture);
-				GPU_UnsetColor(t);
+				SDL_Texture *t = yeGetData(texture);
+				SDL_SetTextureColorMod(t, 255, 255, 255);
+				SDL_SetTextureAlphaMod(t, 255);
 			}
 		}
 

@@ -17,7 +17,6 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
-#include <SDL_gpu.h>
 #include <string.h>
 #include "sdl-internal.h"
 #include "yirl/map.h"

@@ -119,8 +119,6 @@ function mingw-i686 {
     export SDL_MIXER_CFLAGS="`pkg-config --cflags SDL2_mixer`"
     export SDL_MIXER_DEP=""
     export CMAKE_ARGS="-G 'MSYS Makefiles' -DCMAKE_C_FLAGS=-fPIC"
-    export SDL_GPU_LDFLAGS="$PWD/sdl-gpu-build/SDL_gpu-MINGW/lib/libSDL2_gpu_s.a"
-    export SDL_GPU_CFLAGS="$PWD/sdl-gpu-build/SDL_gpu-MINGW/include/"
     export WIN_SDL_EXTRA="opus vorbis libmpg123 opusfile vorbisfile libmodplug msmpi fluidsynth"
     export WIN_SDL_EXTRA2="-lfreeglut -lopengl32 -lFLAC -lwinmm"
     var_add BIN_EXT .exe
@@ -137,8 +135,6 @@ function mingw-64 {
     export SDL_MIXER_CFLAGS="`pkg-config --cflags SDL2_mixer`"
     export SDL_MIXER_DEP=""
     export CMAKE_ARGS="-G 'MSYS Makefiles' -DCMAKE_C_FLAGS=-fPIC"
-    export SDL_GPU_LDFLAGS="$PWD/sdl-gpu-build/SDL_gpu-MINGW/lib/libSDL2_gpu_s.a"
-    export SDL_GPU_CFLAGS="$PWD/sdl-gpu-build/SDL_gpu-MINGW/include/"
     export WIN_SDL_EXTRA="opus vorbis libmpg123 opusfile vorbisfile libmodplug msmpi fluidsynth"
     export WIN_SDL_EXTRA2="-lfreeglut -lopengl32 -lFLAC -lwinmm"
     # equivalent to perl is gravier
@@ -169,9 +165,6 @@ var_add SDL_MIXER_ARFLAGS ""
 var_add SDL_MIXER_LDFLAGS "$PWD/SDL_mixer/build/.libs/libSDL2_mixer.a"
 var_add SDL_MIXER_CFLAGS "-I$PWD/SDL_mixer/include/"
 var_add SDL_MIXER_DEP "SDL_mixer/build/.libs/libSDL2_mixer.a"
-
-var_add SDL_GPU_LDFLAGS "$PWD/sdl-gpu-build/SDL_gpu/lib/libSDL2_gpu.a"
-var_add SDL_GPU_CFLAGS "$PWD/sdl-gpu-build/SDL_gpu/include/"
 
 var_add WIN_SDL_EXTRA ""
 var_add WIN_SDL_EXTRA2 ""

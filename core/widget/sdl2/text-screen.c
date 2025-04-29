@@ -52,11 +52,11 @@ static int sdlRender(YWidgetState *state, int t)
 	}
 
 	int threshold = yeGetIntAt(state->entity, "text-threshold");
-	GPU_Rect txtR = {0, threshold,
+	SDL_Rect txtR = {0, threshold,
 		wid->rect.w, wid->rect.h};
 
 	if (text_bg && ywidBgConfFill(text_bg, &cfg) >= 0) {
-		GPU_Rect r = txtR;
+		SDL_Rect r = txtR;
 		int lines = 1, col = 0;
 		const char *tmp = toPrint;
 		int col_cnt = 0;
@@ -83,7 +83,7 @@ static int sdlRender(YWidgetState *state, int t)
 		int c_pos = yeGetInt(cursor);
 		int32_t f_sw = sgGetTxtW();
 		int32_t f_sh = sgGetTxtH();
-		GPU_Rect rect = {f_sw * c_pos, threshold, 2, f_sh};
+		SDL_Rect rect = {f_sw * c_pos, threshold, 2, f_sh};
 		SDL_Color color = {0, 0, 0, 255};
 
 		sdlDrawRect(wid, rect, color);
