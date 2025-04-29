@@ -1588,16 +1588,8 @@ static int sdlCanvasRendImg(YWidgetState *state, SDLWid *wid, Entity *img,
 		SDL_SetTextureColorMod(t, mod_color.r, mod_color.g, mod_color.b);
 		SDL_SetTextureAlphaMod(t, mod_color.a);
 	}
-	double rx = 0;
-	double ry = 0;
-	if (rotation) {
-		Entity *original_size = yeGet(img, YCANVAS_SIZE_IDX);
-
-		rx = ywSizeWDirect(original_size) / 2;
-		ry = ywSizeHDirect(original_size) / 2;
-	}
 	SDL_RenderCopyExF(sg.pWindow, t, sd, &rd, rotation,
-			  &(SDL_FPoint){rx, ry}, flip);
+			  NULL, flip);
 	free(sd);
 	return 0;
 }
