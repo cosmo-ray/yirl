@@ -31,18 +31,21 @@ void RendRectangleRoundFilled(SDL_Renderer *renderer, SDL_Rect rect, float radiu
 
     // Preallocate a static array for vertices
     static SDL_Vertex vertices[YGEO_MAX_VERTICES];
-    int vertexIdx = 0;
+    int indices[YGEO_MAX_VERTICES];
+    int vertexIdx = 1;
+    int indiceIdx = 0;
 
     // Define the center of the rectangle
     float centerX = rect.x + rect.w / 2.0;
     float centerY = rect.y + rect.h / 2.0;
 
     // Add the center vertex
-    SDL_Vertex center_vertex = (SDL_Vertex){{centerX, centerY}, color, {0, 0}};
+    vertices[0] = (SDL_Vertex){{centerX, centerY}, color, {0, 0}};
 
     // Number of segments for the rounded corners
     int cornerSegments = (int)(radius * M_PI / 2);
     if (cornerSegments > YGEO_MAX_SEGMENTS) cornerSegments = YGEO_MAX_SEGMENTS;
+
     float angleStep = M_PI / 2 / cornerSegments;
 
     // Generate the geometry for edges and corners
@@ -83,8 +86,10 @@ void RendRectangleRoundFilled(SDL_Renderer *renderer, SDL_Rect rect, float radiu
         }
 
         // Add two triangles to represent the straight edge
-        vertices[vertexIdx++] = center_vertex; // Center of the rectangle
+	indices[indiceIdx++] = 0;
+	indices[indiceIdx++] = vertexIdx;
         vertices[vertexIdx++] = (SDL_Vertex){edgeStart, color, {0, 0}}; // Start of the edge
+	indices[indiceIdx++] = vertexIdx;
         vertices[vertexIdx++] = (SDL_Vertex){edgeEnd, color, {0, 0}};   // End of the edge
 
         // Add the arc for this corner
@@ -96,8 +101,10 @@ void RendRectangleRoundFilled(SDL_Renderer *renderer, SDL_Rect rect, float radiu
             SDL_FPoint arcPoint = {cx + radius * cosf(angle), cy + radius * sinf(angle)};
 
             // Add a triangle: center -> previous arc point -> current arc point
-            vertices[vertexIdx++] = center_vertex; // Center of the rectangle
+	    indices[indiceIdx++] = 0;
+	    indices[indiceIdx++] = vertexIdx;
             vertices[vertexIdx++] = (SDL_Vertex){prevPoint, color, {0, 0}}; // Previous arc point
+	    indices[indiceIdx++] = vertexIdx;
             vertices[vertexIdx++] = (SDL_Vertex){arcPoint, color, {0, 0}};  // Current arc point
 
             // Update the previous point
@@ -106,7 +113,7 @@ void RendRectangleRoundFilled(SDL_Renderer *renderer, SDL_Rect rect, float radiu
     }
 
     // Render the filled rounded rectangle using SDL_RenderGeometry
-    SDL_RenderGeometry(renderer, NULL, vertices, vertexIdx, NULL, 0);
+    SDL_RenderGeometry(renderer, NULL, vertices, vertexIdx, indices, indiceIdx);
 }
 
 void RendRectangleRound(SDL_Renderer *renderer, SDL_Rect rect, float radius, SDL_Color color) {
