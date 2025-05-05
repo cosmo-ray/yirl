@@ -98,6 +98,8 @@ static inline int yeCountLines(Entity *ent)
 
 Entity *yeAddStrFromFd(Entity *e, int fd, int len);
 Entity *yeStringAddInt(Entity *ent, int i);
+Entity *yeStringAddDouble(Entity *ent, double d);
+Entity *yeStringAddI64(Entity *ent, int64_t i);
 Entity *yeStringAddLong(Entity *ent, long i);
 
 int yeStringReplace(Entity *ent, const char *substr, const char *replacement);
