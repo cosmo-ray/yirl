@@ -280,6 +280,36 @@ Entity *yeStringAddInt(Entity *ent, int i)
 	return ent;
 }
 
+Entity *yeStringAddDouble(Entity *ent, double d)
+{
+	char *tmp = YE_TO_STRING(ent)->value;
+	char *to_free = yeStringFreeable(ent);
+
+	if (unlikely(!tmp))
+		return NULL;
+	YE_TO_STRING(ent)->value = y_strdup_printf("%s%f", tmp, d);
+	YE_TO_STRING(ent)->len = strlen(YE_TO_STRING(ent)->value);
+	YE_TO_STRING(ent)->origin = NULL;
+	ygAssert(YE_TO_STRING(ent)->value);
+	free(to_free);
+	return ent;
+}
+
+Entity *yeStringAddI64(Entity *ent, int64_t i)
+{
+	char *tmp = YE_TO_STRING(ent)->value;
+	char *to_free = yeStringFreeable(ent);
+
+	if (unlikely(!tmp))
+		return NULL;
+	YE_TO_STRING(ent)->value = y_strdup_printf("%s" PRIint64, tmp, i);
+	YE_TO_STRING(ent)->len = strlen(YE_TO_STRING(ent)->value);
+	YE_TO_STRING(ent)->origin = NULL;
+	ygAssert(YE_TO_STRING(ent)->value);
+	free(to_free);
+	return ent;
+}
+
 Entity *yeStringAddLong(Entity *ent, long i)
 {
 	char *tmp = YE_TO_STRING(ent)->value;

@@ -27,6 +27,7 @@ enum ys_type {
 	YS_VPTR,
 	YS_ENTITY,
 	YS_STR,
+	YS_FLOAT,
 	YS_INT
 };
 
@@ -34,6 +35,7 @@ union ycall_arg {
 	void *vptr;
 	Entity *e;
 	intptr_t i;
+	double f;
 	const char *str;
 };
 

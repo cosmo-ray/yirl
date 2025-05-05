@@ -162,7 +162,7 @@ kuroko/:
 	git submodule update --init
 
 kuroko/libkuroko.a: kuroko/
-	CC=$(KRK_CC) $(KRK_CFLAG) make -C kuroko/ libkuroko.a
+	CC=$(KRK_CC) CFLAGS="-fPIC -g -Wno-unused-parameter" make -C kuroko/ libkuroko.a
 
 ph7/ph7.o:
 	$(CC) -c -o ph7/ph7.o ph7/ph7.c -I./ph7/ -O2 -g -fPIC -DPH7_ENABLE_MATH_FUNC=1 -DPH7_ENABLE_THREADS=1
@@ -170,7 +170,7 @@ ph7/ph7.o:
 $(SCRIPT_DIR)/s7.o:
 	$(CC) -c -o $(SCRIPT_DIR)/s7.o $(SCRIPT_DIR)/s7.c -Wno-implicit-fallthrough -fPIC -O2 -g
 
-$(SCRIPT_DIR)/krk.o: kuroko/libkuroko.a
+$(SCRIPT_DIR)/krk.o: kuroko/libkuroko.a $(SCRIPT_DIR)/krk.c
 	$(CC) -c -o $(SCRIPT_DIR)/krk.o $(SCRIPT_DIR)/krk.c -g $(KRK_CFLAGS) -I$(YIRL_INCLUDE_PATH2) $(EMCFLAGS) -Ikuroko/src/ -fPIC
 
 
