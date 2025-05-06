@@ -20,7 +20,7 @@
 
 #include <SDL2/SDL.h>
 
-void SDL_Clear(SDL_Renderer *renderer, SDL_Color *color) {
+static void SDL_Clear(SDL_Renderer *renderer, SDL_Color *color) {
 	// Set the color to clear with
 	if (color)
 		SDL_SetRenderDrawColor(renderer, color->r, color->g, color->b, color->a);

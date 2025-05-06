@@ -23,96 +23,103 @@
 
 #define YGEO_MAX_SEGMENTS 128
 
-void RendRectangleRoundFilled(SDL_Renderer *renderer, SDL_Rect rect, float radius, SDL_Color color) {
-      // Ensure the radius is valid
-    if (radius > rect.w / 2) radius = rect.w / 2;
-    if (radius > rect.h / 2) radius = rect.h / 2;
+/* no idea why, but with more vertex it fail */
+#define YGEO_MAX_FILLED_VERTICES 42
 
-    // Preallocate a static array for vertices
-    static SDL_Vertex vertices[YGEO_MAX_SEGMENTS + 20];
-    int indices[YGEO_MAX_SEGMENTS * 4];
-    int vertexIdx = 1;
-    int indiceIdx = 0;
+static void RendRectangleRoundFilled(SDL_Renderer *renderer, SDL_Rect rect, float radius, SDL_Color color) {
+	// Ensure the radius is valid
+	if (radius > rect.w / 2)
+		radius = rect.w / 2;
+	if (radius > rect.h / 2)
+		radius = rect.h / 2;
 
-    // Define the center of the rectangle
-    float centerX = rect.x + rect.w / 2.0;
-    float centerY = rect.y + rect.h / 2.0;
+	// Preallocate a static array for vertices
+	static SDL_Vertex vertices[YGEO_MAX_SEGMENTS + 20];
+	int indices[YGEO_MAX_SEGMENTS * 4 + 20];
+	int vertexIdx = 1;
+	int indiceIdx = 0;
 
-    // Add the center vertex
-    vertices[0] = (SDL_Vertex){{centerX, centerY}, color, {0, 0}};
+	// Define the center of the rectangle
+	float centerX = rect.x + rect.w / 2.0;
+	float centerY = rect.y + rect.h / 2.0;
 
-    // Number of segments for the rounded corners
-    int cornerSegments = (int)(radius * M_PI / 2);
-    if (cornerSegments > YGEO_MAX_SEGMENTS) cornerSegments = YGEO_MAX_SEGMENTS;
+	// Add the center vertex
+	vertices[0] = (SDL_Vertex){{centerX, centerY}, color, {0, 0}};
 
-    float angleStep = M_PI / 2 / cornerSegments;
+	// Number of segments for the rounded corners
+	int cornerSegments = (int)(radius * M_PI / 2);
+	if (cornerSegments > YGEO_MAX_FILLED_VERTICES) {
+		cornerSegments = YGEO_MAX_FILLED_VERTICES;
+	}
 
-    // Generate the geometry for edges and corners
-    for (int corner = 0; corner < 4; ++corner) {
-        float cx, cy, startAngle;
-        SDL_FPoint edgeStart, edgeEnd;
+	float angleStep = M_PI / 2 / cornerSegments;
 
-        // Initialize corner center, starting angle, and edge points
-        switch (corner) {
-            case 0: // Top-left corner and top edge
-                cx = rect.x + radius;
-                cy = rect.y + radius;
-                startAngle = M_PI;
-                edgeStart = (SDL_FPoint){rect.x + radius, rect.y};
-                edgeEnd = (SDL_FPoint){rect.x + rect.w - radius, rect.y};
-                break;
-            case 1: // Top-right corner and right edge
-                cx = rect.x + rect.w - radius;
-                cy = rect.y + radius;
-                startAngle = -M_PI / 2;
-                edgeStart = (SDL_FPoint){rect.x + rect.w, rect.y + radius};
-                edgeEnd = (SDL_FPoint){rect.x + rect.w, rect.y + rect.h - radius};
-                break;
-            case 2: // Bottom-right corner and bottom edge
-                cx = rect.x + rect.w - radius;
-                cy = rect.y + rect.h - radius;
-                startAngle = 0;
-                edgeStart = (SDL_FPoint){rect.x + rect.w - radius, rect.y + rect.h};
-                edgeEnd = (SDL_FPoint){rect.x + radius, rect.y + rect.h};
-                break;
-            case 3: // Bottom-left corner and left edge
-                cx = rect.x + radius;
-                cy = rect.y + rect.h - radius;
-                startAngle = M_PI / 2;
-                edgeStart = (SDL_FPoint){rect.x, rect.y + rect.h - radius};
-                edgeEnd = (SDL_FPoint){rect.x, rect.y + radius};
-                break;
-        }
+	// Generate the geometry for edges and corners
+	for (int corner = 0; corner < 4; ++corner) {
+		float cx, cy, startAngle;
+		SDL_FPoint edgeStart, edgeEnd;
 
-        // Add two triangles to represent the straight edge
-	indices[indiceIdx++] = 0;
-	indices[indiceIdx++] = vertexIdx;
-        vertices[vertexIdx++] = (SDL_Vertex){edgeStart, color, {0, 0}}; // Start of the edge
-	indices[indiceIdx++] = vertexIdx;
-        vertices[vertexIdx++] = (SDL_Vertex){edgeEnd, color, {0, 0}};   // End of the edge
+		// Initialize corner center, starting angle, and edge points
+		switch (corner) {
+		case 0: // Top-left corner and top edge
+			cx = rect.x + radius;
+			cy = rect.y + radius;
+			startAngle = M_PI;
+			edgeStart = (SDL_FPoint){rect.x + radius, rect.y};
+			edgeEnd = (SDL_FPoint){rect.x + rect.w - radius, rect.y};
+			break;
+		case 1: // Top-right corner and right edge
+			cx = rect.x + rect.w - radius;
+			cy = rect.y + radius;
+			startAngle = -M_PI / 2;
+			edgeStart = (SDL_FPoint){rect.x + rect.w, rect.y + radius};
+			edgeEnd = (SDL_FPoint){rect.x + rect.w, rect.y + rect.h - radius};
+			break;
+		case 2: // Bottom-right corner and bottom edge
+			cx = rect.x + rect.w - radius;
+			cy = rect.y + rect.h - radius;
+			startAngle = 0;
+			edgeStart = (SDL_FPoint){rect.x + rect.w - radius, rect.y + rect.h};
+			edgeEnd = (SDL_FPoint){rect.x + radius, rect.y + rect.h};
+			break;
+		case 3: // Bottom-left corner and left edge
+			cx = rect.x + radius;
+			cy = rect.y + rect.h - radius;
+			startAngle = M_PI / 2;
+			edgeStart = (SDL_FPoint){rect.x, rect.y + rect.h - radius};
+			edgeEnd = (SDL_FPoint){rect.x, rect.y + radius};
+			break;
+		}
 
-        // Add the arc for this corner
-        SDL_FPoint prevPoint = {cx + radius * cosf(startAngle), cy + radius * sinf(startAngle)};
-	vertices[vertexIdx++] = (SDL_Vertex){prevPoint, color, {0, 0}}; // Previous arc point
-        for (int i = 2; i <= cornerSegments; ++i) {
-            float angle = startAngle + i * angleStep;
+		// Add two triangles to represent the straight edge
+		indices[indiceIdx++] = 0;
+		indices[indiceIdx++] = vertexIdx;
+		vertices[vertexIdx++] = (SDL_Vertex){edgeStart, color, {0, 0}}; // Start of the edge
+		indices[indiceIdx++] = vertexIdx;
+		vertices[vertexIdx++] = (SDL_Vertex){edgeEnd, color, {0, 0}};   // End of the edge
 
-            // Point on the arc
-            SDL_FPoint arcPoint = {cx + radius * cosf(angle), cy + radius * sinf(angle)};
+		// Add the arc for this corner
+		SDL_FPoint prevPoint = {cx + radius * cosf(startAngle), cy + radius * sinf(startAngle)};
+		vertices[vertexIdx++] = (SDL_Vertex){prevPoint, color, {0, 0}}; // Previous arc point
+		for (int i = 2; i <= cornerSegments; ++i) {
+			float angle = startAngle + i * angleStep;
 
-            // Add a triangle: center -> previous arc point -> current arc point
-	    indices[indiceIdx++] = 0;
-	    indices[indiceIdx++] = vertexIdx - 1;
-	    indices[indiceIdx++] = vertexIdx;
-            vertices[vertexIdx++] = (SDL_Vertex){arcPoint, color, {0, 0}};  // Current arc point
-        }
-    }
+			// Point on the arc
+			SDL_FPoint arcPoint = {cx + radius * cosf(angle), cy + radius * sinf(angle)};
 
-    // Render the filled rounded rectangle using SDL_RenderGeometry
-    SDL_RenderGeometry(renderer, NULL, vertices, vertexIdx, indices, indiceIdx);
+			// Add a triangle: center -> previous arc point -> current arc point
+			indices[indiceIdx++] = 0;
+			indices[indiceIdx++] = vertexIdx - 1;
+			indices[indiceIdx++] = vertexIdx;
+			vertices[vertexIdx++] = (SDL_Vertex){arcPoint, color, {0, 0}};  // Current arc point
+		}
+	}
+
+	// Render the filled rounded rectangle using SDL_RenderGeometry
+	SDL_RenderGeometry(renderer, NULL, vertices, vertexIdx, indices, indiceIdx);
 }
 
-void RendRectangleRound(SDL_Renderer *renderer, SDL_Rect rect, float radius, SDL_Color color) {
+static void RendRectangleRound(SDL_Renderer *renderer, SDL_Rect rect, float radius, SDL_Color color) {
     // Set the drawing color
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
 
@@ -165,7 +172,7 @@ void RendRectangleRound(SDL_Renderer *renderer, SDL_Rect rect, float radius, SDL
     SDL_RenderDrawPointsF(renderer, points, pointIdx);
 }
 
-int RenderCircle(SDL_Renderer *renderer, SDL_Texture *texture, SDL_Color color, int x, int y, int radius, int isFilled) {
+static int RenderCircle(SDL_Renderer *renderer, SDL_Texture *texture, SDL_Color color, int x, int y, int radius, int isFilled) {
     #define NUM_SEGMENTS 64
 
     if (!isFilled) {
