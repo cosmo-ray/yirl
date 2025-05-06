@@ -799,8 +799,9 @@ int yePush(Entity array[static 1], Entity toPush[static 1], const char *name);
  */
 int yeInsertAt(Entity *array, Entity *toPush, size_t idx, const char *name);
 
-#define yePushFront(array, toPush, name)	\
-	yeInsertAt(array, toPush, 0, name)
+static inline int yePushFront(Entity *a, Entity *e, const char *name) {
+	return yeInsertAt(a, e, 0, name);
+}
 
 /**
  * @param	array the array

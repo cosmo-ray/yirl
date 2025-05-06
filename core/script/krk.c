@@ -67,6 +67,7 @@ struct YKrkEntity {
 #define CURRENT_NAME  self
 
 static int loadString(void *s, const char *str);
+static KrkValue make_ent(Entity *e);
 
 #define GET_E(idx)				\
 	AS_yent_krk_class(argv[idx])->e
@@ -88,7 +89,7 @@ static int loadString(void *s, const char *str);
 		return NONE_VAL();					\
 	case YSCRIPT_RET_ENTITY:					\
 	{								\
-		Entity *ret = call;					\
+		Entity *ret = (void *)(intptr_t)YSCRIPT_VOID_CALL(call); \
 		return make_ent(ret);					\
 	}								\
 	case YSCRIPT_RET_STR:						\
@@ -105,10 +106,246 @@ static int loadString(void *s, const char *str);
 		return BOOLEAN_VAL((_Bool)YSCRIPT_VOID_CALL(call));	\
 	}
 
-static KrkValue krkyePrint(int argc, const KrkValue argv[], int hasKw) {
-	if (argc != 1) return krk_runtimeError(vm.exceptions->argumentError, "yePrint() expects exactly 1 argument, %d given", argc);
-	Entity *e = GET_E(0);
-	yePrint(e);
+#define BIND_V(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f());					\
+	}
+
+#define BIND_E(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f(YS_GETTER_LST(E)));			\
+	}
+
+#define BIND_I(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f(GET_I(0)));				\
+	}
+
+#define BIND_S(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f(GET_S(0)));				\
+	}
+
+#define BIND_EE(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f(GET_E(0), GET_E(1)));			\
+	}
+
+#define BIND_II(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f(GET_I(0), GET_I(1)));			\
+	}
+
+#define BIND_ES(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f(GET_E(0), GET_S(1)));			\
+	}
+
+#define BIND_EI(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f(GET_E(0), GET_I(1)));			\
+	}
+
+#define BIND_SI(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f(GET_S(0), GET_I(1)));			\
+	}
+
+#define BIND_SS(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f(GET_S(0), GET_S(1)));			\
+	}
+
+#define BIND_SES(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f(YS_GETTER_LST(S,E,S)));			\
+	}
+
+#define BIND_EII(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f(YS_GETTER_LST(E,I,I)));			\
+	}
+
+#define BIND_ESS(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f(YS_GETTER_LST(E,S,S)));			\
+	}
+
+#define BIND_EEI(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f(YS_GETTER_LST(E,E,I)));			\
+	}
+
+#define BIND_ESI(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f(YS_GETTER_LST(E,S,I)));			\
+	}
+
+#define BIND_IIS(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f(YS_GETTER_LST(I,I,S)));			\
+	}
+
+#define BIND_IIE(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f(YS_GETTER_LST(I,I,E)));			\
+	}
+
+#define BIND_III(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f(GET_I(0),GET_I(1),GET_I(2)));		\
+	}
+
+#define BIND_ISS(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f(YS_GETTER_LST(I,S,S)));			\
+	}
+
+#define BIND_IES(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f(YS_GETTER_LST(I,E,S)));			\
+	}
+
+#define BIND_ESE(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f(YS_GETTER_LST(E,S,E)));			\
+	}
+
+#define BIND_EES(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f(YS_GETTER_LST(E,E,S)));			\
+	}
+
+#define BIND_EEE(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f(YS_GETTER_LST(E,E,E)));			\
+	}
+
+#define BIND_SEES(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f(YS_GETTER_LST(S,E,E,S)));		\
+	}
+
+#define BIND_EIII(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f(YS_GETTER_LST(E,I,I,I)));		\
+	}
+
+#define BIND_EIIE(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f(YS_GETTER_LST(E,I,I,E)));		\
+	}
+
+#define BIND_EIIS(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f(YS_GETTER_LST(E,I,I,S)));		\
+	}
+
+#define BIND_EEEE(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f(YS_GETTER_LST(E,E,E,E)));		\
+	}
+
+#define BIND_EEIS(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f(YS_GETTER_LST(E,E,I,S)));		\
+	}
+
+#define BIND_EIES(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f(YS_GETTER_LST(E,I,E,S)));		\
+	}
+
+#define BIND_EEES(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f(YS_GETTER_LST(E,E,E,S)));		\
+	}
+
+#define BIND_EEEI(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f(YS_GETTER_LST(E,E,E,I)));		\
+	}
+
+#define BIND_IIES(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f(YS_GETTER_LST(I,I,E,S)));		\
+	}
+
+#define BIND_EEEEI(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f(YS_GETTER_LST(E,E,E,E,I)));		\
+	}
+
+#define BIND_EEEEE(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f(YS_GETTER_LST(E,E,E,E,E)));		\
+	}
+
+#define BIND_EEESI(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f(YS_GETTER_LST(E,E,E,S,I)));		\
+	}
+
+#define BIND_EIIEE(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f(YS_GETTER_LST(E,I,I,E,E)));		\
+	}
+
+#define BIND_EIIII(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f(YS_GETTER_LST(E,I,I,I,I)));		\
+	}
+
+#define BIND_EIIIS(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f(YS_GETTER_LST(E,I,I,I,S)));		\
+	}
+
+#define BIND_EIIIIS(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f(YS_GETTER_LST(E, I, I, I ,I, S)));	\
+	}
+
+#define BIND_EIIIISI(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f(YS_GETTER_LST(E, I, I, I, I, S, I)));	\
+	}
+
+#include "binding.c"
+
+
+static KrkValue krkywPosCreate(int argc, const KrkValue argv[], int hasKw) {
+	DPRINT_ERR("not implemented");
+	return NONE_VAL();
+}
+
+static KrkValue krkyeGet(int argc, const KrkValue argv[], int hasKw) {
+	DPRINT_ERR("not implemented");
+	return NONE_VAL();
+}
+
+static KrkValue krkyeGetIntAt(int argc, const KrkValue argv[], int hasKw) {
+	DPRINT_ERR("not implemented");
+	return NONE_VAL();
+}
+
+static KrkValue krkyeSetIntAt(int argc, const KrkValue argv[], int hasKw) {
+	DPRINT_ERR("not implemented");
+	return NONE_VAL();
+}
+
+static KrkValue krkyevCreateGrp(int argc, const KrkValue argv[], int hasKw) {
+	DPRINT_ERR("not implemented");
+	return NONE_VAL();
+}
+
+static KrkValue krkyeAddAt(int argc, const KrkValue argv[], int hasKw) {
+	DPRINT_ERR("not implemented");
+	return NONE_VAL();
+}
+
+static KrkValue krkyeIncrAt(int argc, const KrkValue argv[], int hasKw) {
+	DPRINT_ERR("not implemented");
 	return NONE_VAL();
 }
 
@@ -202,6 +439,10 @@ KRK_Method(yent_krk_float_class, __init__) {
 	return NONE_VAL();
 }
 
+KRK_Method(yent_krk_array_class, __len__) {
+	return INTEGER_VAL(yeLen(self->e));
+}
+
 KRK_Method(yent_krk_array_class, __getitem__) {
 	KrkValue v;
 	Entity *eret;
@@ -213,6 +454,8 @@ KRK_Method(yent_krk_array_class, __getitem__) {
 		eret = yeGet(self->e, (int)AS_FLOATING(v));
 	else if (IS_STRING(v))
 		eret = yeGet(self->e, AS_CSTRING(v));
+	if (!eret)
+		return NONE_VAL();
 	return make_ent(eret);
 }
 
@@ -274,12 +517,21 @@ KRK_Method(yent_krk_array_class, __init__) {
 static int init(void *sm, void *args)
 {
 	struct YScriptKrk *this = sm;
+
+	krk_initVM(0); // Initialize the VM with default flags
+	this->module = krk_startModule("__main__");
+
 #define BIND(x, args...)					\
 	krk_defineNative(&vm.builtins->fields, #x, krk##x);
 
-	krk_initVM(0); // Initialize the VM with default flags
-	BIND(yePrint);
-	this->module = krk_startModule("__main__");
+#define PUSH_I_GLOBAL(x)
+
+#define PUSH_I_GLOBAL_VAL(x, val)
+
+#define IN_CALL 1
+#include "binding.c"
+
+
 	yent_krk_class = krk_makeClass(this->module, &yent_krk_class, "Entity",
 				       KRK_BASE_CLASS(object));
 	yent_krk_class->allocSize = sizeof(struct YKrkEntity);
@@ -313,6 +565,7 @@ static int init(void *sm, void *args)
 	BIND_METHOD(yent_krk_array_class, __init__);
 	BIND_METHOD(yent_krk_array_class, __getitem__);
 	BIND_METHOD(yent_krk_array_class, __setitem__);
+	BIND_METHOD(yent_krk_array_class, __len__);
 	krk_finalizeClass(yent_krk_array_class);
 
 	return 0;
