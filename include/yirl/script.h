@@ -255,6 +255,41 @@ enum {
 	YSCRIPT_RET_BOOL    /* 6 */
 };
 
+
+
+#define YS_GET_THIS(type) YUI_CAT(GET_, type)
+
+#define YS_GETTER_NB_1(a)			\
+	YS_GET_THIS(a)(0)
+
+#define YS_GETTER_NB_2(a, b)			\
+	YS_GET_THIS(a)(0), YS_GET_THIS(b)(1)
+
+#define YS_GETTER_NB_3(a, b, c)			\
+	YS_GET_THIS(a)(0), YS_GET_THIS(b)(1), YS_GET_THIS(c)(2)
+
+#define YS_GETTER_NB_4(a, b, c, d)		\
+	YS_GET_THIS(a)(0), YS_GET_THIS(b)(1), YS_GET_THIS(c)(2), YS_GET_THIS(d)(3)
+
+#define YS_GETTER_NB_5(a, b, c, d, e)		\
+	YS_GET_THIS(a)(0), YS_GET_THIS(b)(1), YS_GET_THIS(c)(2), \
+		YS_GET_THIS(d)(3), YS_GET_THIS(e)(4)
+
+#define YS_GETTER_NB_6(a, b, c, d, e, f)	\
+	YS_GET_THIS(a)(0), YS_GET_THIS(b)(1), YS_GET_THIS(c)(2), \
+		YS_GET_THIS(d)(3), YS_GET_THIS(e)(4), YS_GET_THIS(f)(5)
+
+#define YS_GETTER_NB_7(a, b, c, d, e, f, g)			 \
+	YS_GET_THIS(a)(0), YS_GET_THIS(b)(1), YS_GET_THIS(c)(2), \
+		YS_GET_THIS(d)(3), YS_GET_THIS(e)(4), YS_GET_THIS(f)(5), \
+		YS_GET_THIS(g)(6)
+
+#define YS_GETTER_LST_(nb, lst...)		\
+	YUI_CAT(YS_GETTER_NB_, nb)(lst)
+
+#define YS_GETTER_LST(lst...)					\
+	YS_GETTER_LST_(YUI_GET_ARG_COUNT(lst), lst)
+
 #define YSCRIPT_RET_TYPE(call, multy)			\
 	_Generic(call,					\
 		 default: 0,				\

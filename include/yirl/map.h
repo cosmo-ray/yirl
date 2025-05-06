@@ -156,8 +156,13 @@ static inline _Bool ywMapCamPointedContainId(Entity *map, int id) {
 	return 0;
 }
 
-#define ywMapContainEnt(m,x,y,e) yeDoesInclude(ywMapCaseXY(m, x, y), e)
-#define ywMapContainStr(m,x,y,s) yeArrayContainEntity(ywMapCaseXY(m, x, y), s)
+static inline _Bool ywMapContainEnt(Entity *m, int x, int y, Entity *e) {
+	return yeDoesInclude(ywMapCaseXY(m, x, y), e);
+}
+
+static inline _Bool ywMapContainStr(Entity *m, int x, int y, const char *str) {
+	return yeArrayContainEntity(ywMapCaseXY(m, x, y), str);
+}
 
 static inline Entity *ywMapGetEntityById(Entity *state, Entity *pos, int id)
 {
