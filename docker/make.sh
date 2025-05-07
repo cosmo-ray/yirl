@@ -26,7 +26,6 @@ cd SDL_mixer
 ./configure CFLAGS="-fPIC"
 make -j$(nproc)
 cd ..
-make sdl-gpu-build
 make quickjs-2020-03-16
 make -j$(nproc)
 make # just in case last one doesn't work
