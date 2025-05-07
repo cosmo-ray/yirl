@@ -13,12 +13,13 @@ jobs:
    
     - uses: msys2/setup-msys2@v2
       with:
-        msystem: MINGW64
         install: >-
           git
           gcc
           base-devel
           zip
+          mingw-w64-x86_64-msmpi
+          mingw-w64-x86_64-perl
         pacboy:
           SDL2_mixer
           SDL2_image
@@ -28,7 +29,6 @@ jobs:
           cmake
           glew
           gcc
-          msmpi
           dlfcn
           lua
           autotools
@@ -42,14 +42,6 @@ jobs:
         ./configure --enable-static
         make -j$(nproc)
         cd ..
-        cd SDL_mixer
-        ./autogen.sh
-        ./configure
-        make -j$(nproc)
-        cd ..
-        #MinGW Makefiles
-        cmake -B ./sdl-gpu-build ./sdl-gpu/ -G "MSYS Makefiles"
-        make /d/a/yirl/yirl/sdl-gpu-build/SDL_gpu-MINGW/lib/libSDL2_gpu_s.a
         make quickjs-2020-03-16
         make yirl-loader.exe
         ./package-maker.sh ./yirl-loader.exe tmp/
@@ -58,7 +50,7 @@ jobs:
         rm -rvf tmp core tests .git* Makefile check.sh configure* *.sh sdl-gpu sdl-gpu-build SDL_mixer tinycc/tests/ quickjs-2020-03-16/ 
         zip -r yirl.zip .
         
-    - uses: "actions/upload-artifact@v2"
+    - uses: "actions/upload-artifact@v4"
       with:
           name: build
           path: yirl.zip
