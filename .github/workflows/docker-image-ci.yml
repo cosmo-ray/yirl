@@ -18,7 +18,7 @@ jobs:
         sudo apt-get update --fix-missing
         sudo apt-get install -y -f -o Acquire::Retries=3 mesa-utils libglu1-mesa
         docker build  -t yirl-build ./docker
-        docker run -v $PWD:/yirl yirl-build scl enable devtoolset-9 "/yirl/docker/make.sh https://github.com/cosmo-ray/yirl.git"
+        docker run -v $PWD:/yirl yirl-build /yirl/docker/make.sh https://github.com/cosmo-ray/yirl.git
         whoami
         sudo chown $(whoami) -R ./docker-package/
         ./docker-package/yirl-loader.sh -h
