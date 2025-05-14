@@ -37,6 +37,7 @@ KrkClass *yent_krk_str_class;
 KrkClass *yent_krk_int_class;
 KrkClass *yent_krk_float_class;
 KrkClass *yent_krk_array_class;
+KrkClass *yent_krk_function_class;
 
 struct YScriptKrk {
 	YScriptOps ops;
@@ -48,6 +49,9 @@ struct YKrkEntity {
 	Entity *e;
 	int need_free;
 };
+
+#define IS_yent_krk_function_class(o) (krk_isInstanceOf(o,yent_krk_class))
+#define AS_yent_krk_function_class(o) ((struct YKrkEntity*)AS_OBJECT(o))
 
 #define IS_yent_krk_str_class(o) (krk_isInstanceOf(o,yent_krk_class))
 #define AS_yent_krk_str_class(o) ((struct YKrkEntity*)AS_OBJECT(o))
@@ -394,6 +398,44 @@ KRK_Method(yent_krk_class, __init__) {
 	return NONE_VAL();
 }
 
+KRK_Method(yent_krk_class, __call__) {
+	Entity *e = self->e;
+	int nb = argc;
+	union ycall_arg yargs[nb];
+	int types[nb];
+
+	for (int i = 0; i < nb; ++i) {
+		if (IS_INTEGER(argv[i])) {
+			types[i] = YS_INT;
+			yargs[i].i = AS_INTEGER(argv[i]);
+		} else if (IS_yent_krk_class(argv[i])) {
+			types[i] = YS_ENTITY;
+			yargs[i].e = AS_yent_krk_class(argv[i])->e;
+		} else if (IS_FLOATING(argv[i])) {
+			types[i] = YS_FLOAT;
+			yargs[i].f = AS_FLOATING(argv[i]); // Cast to void *
+		} else if (IS_STRING(argv[i])) {
+			types[i] = YS_STR;
+			yargs[i].str = AS_CSTRING(argv[i]);
+		} else if (!IS_NONE(argv[i])) {
+			printf("Error: Unsupported return type\n");
+		}
+
+	}
+	struct ys_ret ret = yesCall2Int(e, nb, yargs, types);
+	switch (ret.t) {
+	case YS_INT:
+		return INTEGER_VAL(ret.v.i);
+	case YS_STR:
+		return OBJECT_VAL(krk_copyString(ret.v.str, strlen(ret.v.str)));
+	case YS_FLOAT:
+		return FLOATING_VAL(ret.v.f);
+	case YS_ENTITY:
+		return make_ent(ret.v.e);
+	}
+	return NONE_VAL();
+}
+
 KRK_Method(yent_krk_str_class, __init__) {
 	const char *str, *name;
 	struct YKrkEntity *mother;
@@ -404,6 +446,30 @@ KRK_Method(yent_krk_str_class, __init__) {
 		return NONE_VAL();
 
 	self->e = yeCreateString(str, have_mother ? mother->e : NULL, have_name ? name : NULL);
+	self->need_free = !have_mother;
+	return NONE_VAL();
+}
+
+KRK_Method(yent_krk_function_class, __init__) {
+	const char *name;
+	KrkValue func;
+	struct YKrkEntity *mother;
+	int have_mother, have_name;
+	char *func_name = "(unnamed)";
+
+	if (!krk_parseArgs(".V|O?s?", (const char *[]){"func", "parent", "name"},
+			   &func, &have_mother, &mother, &have_name, &name))
+		return NONE_VAL();
+	if (IS_STRING(func)) {
+		func_name = AS_CSTRING(func);
+	}
+	self->e = yeCreateFunctionExt(func_name,
+				      ygGetManager("krk"),
+				      have_mother ? mother->e : NULL, have_name ? name : NULL,
+				      YE_FUNC_NO_FASTPATH_INIT);
+	if (IS_NATIVE(func) | IS_CLOSURE(func)) {
+		YE_TO_FUNC(self->e)->idata = func;
+	}
 	self->need_free = !have_mother;
 	return NONE_VAL();
 }
@@ -471,6 +537,14 @@ KRK_Method(yent_krk_array_class, __setitem__) {
 			yeCreateIntAt(AS_INTEGER(val), self->e, NULL, k);
 		} else if (IS_yent_krk_class(val)) {
 			yePushAt(self->e, AS_yent_krk_class(val)->e, k);
+		} else if (IS_NATIVE(val) | IS_CLOSURE(val)) {
+			Entity *r = yeCreateFunctionExt("(unmamed)",
+							ygGetManager("krk"),
+							NULL, NULL,
+							YE_FUNC_NO_FASTPATH_INIT);
+			YE_TO_FUNC(r)->idata = val;
+			yePushAt(self->e, r, k);
+			yeDestroy(r);
 		} else if (IS_STRING(val)) {
 			yeCreateStringAt(AS_CSTRING(val), self->e, NULL, k);
 		} else if (IS_FLOATING(val)) {
@@ -482,6 +556,12 @@ KRK_Method(yent_krk_array_class, __setitem__) {
 			yeCreateInt(AS_INTEGER(val), self->e, k);
 		} else if (IS_yent_krk_class(val)) {
 			yePushBack(self->e, AS_yent_krk_class(val)->e, k);
+		} else if (IS_NATIVE(val) | IS_CLOSURE(val)) {
+			Entity *r = yeCreateFunctionExt(k,
+							ygGetManager("krk"),
+							self->e, k,
+							YE_FUNC_NO_FASTPATH_INIT);
+			YE_TO_FUNC(r)->idata = val;
 		} else if (IS_STRING(val)) {
 			yeCreateString(AS_CSTRING(val), self->e, k);
 		} else if (IS_FLOATING(val)) {
@@ -537,8 +617,16 @@ static int init(void *sm, void *args)
 	yent_krk_class->allocSize = sizeof(struct YKrkEntity);
 	yent_krk_class->_ongcsweep = _ent_gcsweep;;
 	BIND_METHOD(yent_krk_class, __init__);
+	BIND_METHOD(yent_krk_class, __call__);
 	BIND_METHOD(yent_krk_class, __repr__);
 	krk_finalizeClass(yent_krk_class);
+
+	yent_krk_str_class = krk_makeClass(this->module, &yent_krk_function_class, "FunctionEntity",
+				       yent_krk_class);
+	yent_krk_class->allocSize = sizeof(struct YKrkEntity);
+	BIND_METHOD(yent_krk_function_class, __init__);
+	krk_finalizeClass(yent_krk_function_class);
+
 
 	yent_krk_str_class = krk_makeClass(this->module, &yent_krk_str_class, "StringEntity",
 				       yent_krk_class);
@@ -605,10 +693,6 @@ static int prepareArguments(int nb, union ycall_arg *args, int *types) {
 static struct ys_ret ys_ret_from_krk_ret(KrkValue returnValue)
 {
 	struct ys_ret result = { .t = YS_VPTR, .v.vptr = NULL }; // Default return
-	if (IS_NONE(returnValue)) {
-		DPRINT_ERR("Error: Function execution failed\n");
-		return result;
-	}
 
 	if (IS_INTEGER(returnValue)) {
 		result.t = YS_INT;
@@ -622,10 +706,7 @@ static struct ys_ret ys_ret_from_krk_ret(KrkValue returnValue)
 	} else if (IS_STRING(returnValue)) {
 		result.t = YS_STR;
 		result.v.str = AS_CSTRING(returnValue);
-	} else if (IS_NONE(returnValue)) {
-		result.t = YS_VPTR;
-		result.v.vptr = NULL;
-	} else {
+	} else if (!IS_NONE(returnValue)) {
 		printf("Error: Unsupported return type\n");
 	}
 
@@ -636,8 +717,6 @@ static struct ys_ret ys_ret_from_krk_ret(KrkValue returnValue)
 static struct ys_ret krk_coreCall(KrkValue funcValue, int nb, union ycall_arg *args, int *types) {
 	struct ys_ret result = { .t = YS_VPTR, .v.vptr = NULL }; // Default return
 
-	// Push the function onto the stack
-	krk_push(funcValue);
 
 	// Push the arguments onto the stack
 	if (prepareArguments(nb, args, types) < 0) {
@@ -645,14 +724,16 @@ static struct ys_ret krk_coreCall(KrkValue funcValue, int nb, union ycall_arg *a
 	}
 
 	// Call the function
-	KrkValue returnValue = krk_callStack(nb);
+	KrkValue returnValue = krk_callDirect(AS_OBJECT(funcValue), nb);
+	printf("func is ret\n");
 	return ys_ret_from_krk_ret(returnValue);
 }
 
 // Implementation of call2
 static struct ys_ret krk_call2(void *sm, const char *name, int nb, union ycall_arg *args, int *types) {
-	yeAutoFree Entity *str = yeCreateString(name, NULL, NULL);
+	yeAutoFree Entity *str = yeCreateString("return ", NULL, NULL);
 
+	yeStringAdd(str, name);
 	yeStringAddCh(str, '(');
 	for (int i = 0; i < nb; ++i) {
 		if (i)
@@ -686,6 +767,7 @@ static struct ys_ret krk_call2(void *sm, const char *name, int nb, union ycall_a
 	yeStringAddCh(str, ')');
 	yePrint(str);
 	KrkValue result = krk_interpret(yeGetString(str), "<stdin>");
+	return ys_ret_from_krk_ret(result);
 }
 
 // Implementation of call
@@ -696,7 +778,8 @@ static void *krk_call(void *sm, const char *name, int nb, union ycall_arg *args,
 
 // Implementation of fastCall2
 static struct ys_ret krk_fastCall2(void *sm, void *opacFunction, int nb, union ycall_arg *args, int *types) {
-	KrkValue funcValue = *(KrkValue *)opacFunction; // Use the provided function value directly
+	printf("krk_fastCall2\n");
+	KrkValue funcValue = (intptr_t)opacFunction; // Use the provided function value directly
 	return krk_coreCall(funcValue, nb, args, types);
 }
 
@@ -730,7 +813,6 @@ static int loadFile(void *s, const char *fileName)
 		return -1;
 	}
 
-	loadString(s, "print(kuroko.modules())\ntata(\"ho\")");
 	printf("File '%s' executed successfully.\n", fileName);
 	return 0;
 }
@@ -790,7 +872,7 @@ static void addFuncSymbole(void *sm, const char *name, int nbArgs, Entity *func)
 
 	// Execute the dynamically constructed function string
 	const char *finalFunction = yeGetString(strBuilder);
-	KrkValue result = krk_interpret(finalFunction, "<addFuncSymbole>");
+	KrkValue result = krk_interpret(finalFunction, "<stdio>");
 	if (IS_NONE(result)) {
 		printf("Error: Failed to add function '%s' to Kuroko.\n", funcName);
 	} else {
