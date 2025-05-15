@@ -404,25 +404,26 @@ KRK_Method(yent_krk_class, __call__) {
 	union ycall_arg yargs[nb];
 	int types[nb];
 
-	for (int i = 0; i < nb; ++i) {
+	for (int i = 1; i < nb; ++i) {
+		int j = i - 1;
 		if (IS_INTEGER(argv[i])) {
-			types[i] = YS_INT;
-			yargs[i].i = AS_INTEGER(argv[i]);
+			types[j] = YS_INT;
+			yargs[j].i = AS_INTEGER(argv[i]);
 		} else if (IS_yent_krk_class(argv[i])) {
-			types[i] = YS_ENTITY;
-			yargs[i].e = AS_yent_krk_class(argv[i])->e;
+			types[j] = YS_ENTITY;
+			yargs[j].e = AS_yent_krk_class(argv[i])->e;
 		} else if (IS_FLOATING(argv[i])) {
-			types[i] = YS_FLOAT;
-			yargs[i].f = AS_FLOATING(argv[i]); // Cast to void *
+			types[j] = YS_FLOAT;
+			yargs[j].f = AS_FLOATING(argv[i]); // Cast to void *
 		} else if (IS_STRING(argv[i])) {
-			types[i] = YS_STR;
-			yargs[i].str = AS_CSTRING(argv[i]);
+			types[j] = YS_STR;
+			yargs[j].str = AS_CSTRING(argv[i]);
 		} else if (!IS_NONE(argv[i])) {
 			printf("Error: Unsupported return type\n");
 		}
 
 	}
-	struct ys_ret ret = yesCall2Int(e, nb, yargs, types);
+	struct ys_ret ret = yesCall2Int(e, nb - 1, yargs, types);
 	switch (ret.t) {
 	case YS_INT:
 		return INTEGER_VAL(ret.v.i);
@@ -719,13 +720,13 @@ static struct ys_ret krk_coreCall(KrkValue funcValue, int nb, union ycall_arg *a
 
 
 	// Push the arguments onto the stack
+	krk_push(funcValue);
 	if (prepareArguments(nb, args, types) < 0) {
 		return result; // Return default result on error
 	}
 
 	// Call the function
-	KrkValue returnValue = krk_callDirect(AS_OBJECT(funcValue), nb);
-	printf("func is ret\n");
+	KrkValue returnValue = krk_callStack(nb);
 	return ys_ret_from_krk_ret(returnValue);
 }
 
