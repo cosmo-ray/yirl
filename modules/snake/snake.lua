@@ -15,6 +15,13 @@
 --along with this program.  If not, see <http://www.gnu.org/licenses/>.
 --
 
+-- !! ATTENTION PLEASE !!
+-- this is one of the first module I've made, and as sure
+-- it doesn't use lua wrapper sure as Entity object which
+-- handle memory for you
+-- and use a lot of "low level" Function, which have now a simpler
+-- equivalent
+
 function getLooseScreen(entity)
   return yeGet(yeGet(entity, "menus"), "LooseScreen")
 end
