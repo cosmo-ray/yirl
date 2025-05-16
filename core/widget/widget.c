@@ -501,9 +501,16 @@ YWidgetState *ywidNewWidget(Entity *entity, const char *type)
 	if (shouldInit) {
 		YE_ARRAY_FOREACH(subTypes, tmpType) {
 			if (yuiStrEqual0(type, yeGetStringAt(tmpType, "name"))) {
-				YWidgetState *ret =
-					yesCall(yeGet(tmpType, "callback"),
-						entity, tmpType);
+				YWidgetState *ret;
+
+				if (yeGet(tmpType, "callback-ent")) {
+					type = yeGetStringAt(tmpType, "sub-type");
+					yesCall(yeGet(tmpType, "callback-ent"), entity, tmpType);
+
+					goto init_basic_widget;
+				}
+				ret = yesCall(yeGet(tmpType, "callback"),
+					      entity, tmpType);
 
 				if (!ret) {
 					DPRINT_ERR("init for type '%s' fail",
@@ -518,6 +525,7 @@ YWidgetState *ywidNewWidget(Entity *entity, const char *type)
 		}
 	}
 
+init_basic_widget:
 	for (int i = 0; i < 64; ++i) {
 		if (widgetOptTab[i].name &&
 		    yuiStrEqual(type, widgetOptTab[i].name)) {

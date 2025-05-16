@@ -602,6 +602,16 @@ XS(XS_yevCreateGrp)
 				  SvPVbyte_nolen(ST(3))));	\
 	}
 
+#define BIND_EESS(name, ...)					\
+	XS(XS_##name)						\
+	{							\
+		dXSARGS;					\
+		BIND_AUTORET(name((void *)SvIV(ST(0)),		\
+				  (void *)SvIV(ST(1)),		\
+				  SvPVbyte_nolen(ST(2)),	\
+				  SvPVbyte_nolen(ST(3))));	\
+	}
+
 #define BIND_IIES(name, ...)					\
 	XS(XS_##name)						\
 	{							\
@@ -632,6 +642,17 @@ XS(XS_yevCreateGrp)
 				  (void *)SvIV(ST(2)),		\
 				  (void *)SvIV(ST(3)),		\
 				  (void *)SvIV(ST(4))));	\
+	}
+
+#define BIND_EEESI(name, ...)					\
+	XS(XS_##name)						\
+	{							\
+		dXSARGS;					\
+		BIND_AUTORET(name((void *)SvIV(ST(0)),		\
+				  (void *)SvIV(ST(1)),		\
+				  (void *)SvIV(ST(2)),		\
+				  SvPVbyte_nolen(ST(3)),	\
+				  SvIV(ST(4))));		\
 	}
 
 #define BIND_EEESI(name, ...)					\

@@ -31,6 +31,7 @@
 #define BIND_EEEE	BIND
 #define BIND_EEIS	BIND
 #define BIND_EIES	BIND
+#define BIND_EESS	BIND
 #define BIND_EEES	BIND
 #define BIND_EEEI	BIND
 #define BIND_IIES	BIND
@@ -108,6 +109,8 @@ BIND_EEES(ywRectCreatePosSize, 2, 2);
 
 BIND_EEES(ywMapTryPushElem, 3, 1);
 BIND_EEES(ywMapPushElem, 3, 1);
+
+BIND_EESS(ygInitWidgetModule2, 4, 0);
 
 BIND_EEEE(ywCanvasCheckCollisions, 2, 2);
 BIND_EEEE(ywCanvasMergeTexture, 4, 0);
@@ -613,6 +616,7 @@ PUSH_I_GLOBAL(YPERL);
 #undef BIND_EIII
 #undef BIND_EIIS
 #undef BIND_EIIE
+#undef BIND_EESS
 #undef BIND_EEEE
 #undef BIND_EEES
 #undef BIND_IIES
