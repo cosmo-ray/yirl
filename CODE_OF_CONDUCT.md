@@ -37,10 +37,6 @@ local and global, especially global, namespace are for bad developer's who don't
 
 This Code of Conduct is adapted from the Contributor Covenant, version 1.4, available at http://contributor-covenant.org/version/1/4
 
-# Note about Virtual Hugs
-
-in the hope to make this project as hostile as possibly, Virtual Hugs are completely forbidden for everyone expet for Free BSDs Developers.
-
 # Note
 
 Nothing serious here, We just don't like code of conduct, we think most peoples are smart enough to know how to behave
