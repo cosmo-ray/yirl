@@ -814,12 +814,7 @@ static int loadFile(void *s, const char *fileName)
 	}
 
 	KrkValue result = krk_runfile(fileName, "<stdin>");
-	if (IS_NONE(result)) {
-		printf("Error: Failed to execute file '%s'.\n", fileName);
-		return -1;
-	}
-
-	printf("File '%s' executed successfully.\n", fileName);
+	// we should check if an error happen here, sadly, i can't check for NONE
 	return 0;
 }
 
