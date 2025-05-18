@@ -543,10 +543,13 @@ init_basic_widget:
 		    yuiStrEqual(type, widgetOptTab[i].name)) {
 			yeReCreateString(type, entity, "<r_t>");
 			Entity *post_init = yeGet(entity, "post-init");
+			YWidgetState *ret = ywidNewWidgetInternal(i, entity, shouldInit);
+			if (!ret)
+				return NULL;
 			if (post_init) {
 				yesCall(post_init, entity);
 			}
-			return ywidNewWidgetInternal(i, entity, shouldInit);
+			return ret;
 		}
 	}
 	DPRINT_ERR("unable to find widget type: '%s'", type);
