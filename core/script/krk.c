@@ -37,6 +37,7 @@ KrkClass *yent_krk_str_class;
 KrkClass *yent_krk_int_class;
 KrkClass *yent_krk_float_class;
 KrkClass *yent_krk_array_class;
+KrkClass *yent_krk_hash_class;
 KrkClass *yent_krk_function_class;
 
 struct YScriptKrk {
@@ -64,6 +65,9 @@ struct YKrkEntity {
 
 #define IS_yent_krk_array_class(o) (krk_isInstanceOf(o,yent_krk_class))
 #define AS_yent_krk_array_class(o) ((struct YKrkEntity*)AS_OBJECT(o))
+
+#define IS_yent_krk_hash_class(o) (krk_isInstanceOf(o,yent_krk_class))
+#define AS_yent_krk_hash_class(o) ((struct YKrkEntity*)AS_OBJECT(o))
 
 #define IS_yent_krk_class(o) (krk_isInstanceOf(o,yent_krk_class))
 #define AS_yent_krk_class(o) ((struct YKrkEntity*)AS_OBJECT(o))
@@ -362,6 +366,8 @@ static KrkValue make_ent(Entity *e) {
 	struct YKrkEntity *ret;
 	if (yeType(e) == YARRAY)
 		ret = (struct YKrkEntity *)krk_newInstance(yent_krk_array_class);
+	else if (yeType(e) == YHASH)
+		ret = (struct YKrkEntity *)krk_newInstance(yent_krk_hash_class);
 	else
 		ret = (struct YKrkEntity *)krk_newInstance(yent_krk_class);
 	ret->e = e;
@@ -515,7 +521,27 @@ KRK_Method(yent_krk_array_class, __len__) {
 	return INTEGER_VAL(yeLen(self->e));
 }
 
+KRK_Method(yent_krk_hash_class, __len__) {
+	return INTEGER_VAL(yeLen(self->e));
+}
+
 KRK_Method(yent_krk_array_class, __getitem__) {
+	KrkValue v;
+	Entity *eret;
+	if (!krk_parseArgs(".V", (const char *[]){"key"}, &v))
+		return NONE_VAL();
+	if (IS_INTEGER(v))
+		eret = yeGet(self->e, AS_INTEGER(v));
+	else if (IS_FLOATING(v))
+		eret = yeGet(self->e, (int)AS_FLOATING(v));
+	else if (IS_STRING(v))
+		eret = yeGet(self->e, AS_CSTRING(v));
+	if (!eret)
+		return NONE_VAL();
+	return make_ent(eret);
+}
+
+KRK_Method(yent_krk_hash_class, __getitem__) {
 	KrkValue v;
 	Entity *eret;
 	if (!krk_parseArgs(".V", (const char *[]){"key"}, &v))
@@ -578,6 +604,31 @@ KRK_Method(yent_krk_array_class, __setitem__) {
 	return NONE_VAL();
 }
 
+KRK_Method(yent_krk_hash_class, __setitem__) {
+	const char *key;
+	KrkValue val;
+	Entity *eret;
+	if (!krk_parseArgs(".sV", (const char *[]){"key"}, &key, &val))
+		return NONE_VAL();
+	if (IS_INTEGER(val)) {
+		yeCreateInt(AS_INTEGER(val), self->e, key);
+	} else if (IS_yent_krk_class(val)) {
+		yePushBack(self->e, AS_yent_krk_class(val)->e, key);
+	} else if (IS_NATIVE(val) | IS_CLOSURE(val)) {
+		Entity *r = yeCreateFunctionExt(key,
+						ygGetManager("krk"),
+						self->e, key,
+						YE_FUNC_NO_FASTPATH_INIT);
+		YE_TO_FUNC(r)->idata = val;
+	} else if (IS_STRING(val)) {
+		yeCreateString(AS_CSTRING(val), self->e, key);
+	} else if (IS_FLOATING(val)) {
+		yeCreateFloat(AS_FLOATING(val), self->e, key);
+	}
+	eret = yeGet(self->e, key);
+	return NONE_VAL();
+}
+
 KRK_Method(yent_krk_array_class, __init__) {
 	const char *name;
 	struct YKrkEntity *mother;
@@ -595,6 +646,28 @@ KRK_Method(yent_krk_array_class, __init__) {
 		self->need_free = 0;
 	} else {
 		self->e = yeCreateArray(have_mother ? mother->e : NULL, have_name ? name : NULL);
+		self->need_free = !have_mother;
+	}
+	return NONE_VAL();
+}
+
+KRK_Method(yent_krk_hash_class, __init__) {
+	const char *name;
+	struct YKrkEntity *mother;
+	int have_mother, have_name, have_int_ptr;
+	long long int int_ptr = 0;
+
+	if (!krk_parseArgs(".|O?s?L?", (const char *[]){"parent", "name", "int_ptr"},
+			   &have_mother, &mother, &have_name, &name,
+			   &have_int_ptr, &int_ptr)) {
+		return NONE_VAL();
+	}
+
+	if (have_int_ptr) {
+		self->e = (void *)int_ptr;
+		self->need_free = 0;
+	} else {
+		self->e = yeCreateHash(have_mother ? mother->e : NULL, have_name ? name : NULL);
 		self->need_free = !have_mother;
 	}
 	return NONE_VAL();
@@ -661,6 +734,15 @@ static int init(void *sm, void *args)
 	BIND_METHOD(yent_krk_array_class, __setitem__);
 	BIND_METHOD(yent_krk_array_class, __len__);
 	krk_finalizeClass(yent_krk_array_class);
+
+	yent_krk_hash_class = krk_makeClass(this->module, &yent_krk_str_class, "HashEntity",
+					     yent_krk_class);
+	yent_krk_class->allocSize = sizeof(struct YKrkEntity);
+	BIND_METHOD(yent_krk_hash_class, __init__);
+	BIND_METHOD(yent_krk_hash_class, __getitem__);
+	BIND_METHOD(yent_krk_hash_class, __setitem__);
+	BIND_METHOD(yent_krk_hash_class, __len__);
+	krk_finalizeClass(yent_krk_hash_class);
 
 	return 0;
 }

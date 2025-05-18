@@ -87,7 +87,7 @@ static inline Entity *ygInitWidgetModule2(Entity *mod, Entity *call, const char 
 	yePushBack(wid_type, call, "callback-ent");
 	yeCreateString(subtype, wid_type, "sub-type");
 
-	Entity *start = yeCreateArray(mod, "test_wid");
+	Entity *start = yeCreateHash(mod, "test_wid");
 	yeCreateString(name, start, "<type>");
 
 	yeCreateString("test_wid", mod, "starting widget");
