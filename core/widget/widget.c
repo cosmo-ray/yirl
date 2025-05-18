@@ -542,6 +542,10 @@ init_basic_widget:
 		if (widgetOptTab[i].name &&
 		    yuiStrEqual(type, widgetOptTab[i].name)) {
 			yeReCreateString(type, entity, "<r_t>");
+			Entity *post_init = yeGet(entity, "post-init");
+			if (post_init) {
+				yesCall(post_init, entity);
+			}
 			return ywidNewWidgetInternal(i, entity, shouldInit);
 		}
 	}
