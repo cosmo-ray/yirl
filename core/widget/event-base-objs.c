@@ -72,7 +72,7 @@ int ywEBSSwapGroup(Entity *wid, unsigned int target)
 	Entity *groups = yeGet(wid, "groups");
 
 	if (target >= last) {
-		DPRINT_ERR("target is superiot to last groups");
+		DPRINT_ERR("target is superior to last groups");
 		return -1;
 	}
 	yeReCreateInt(target, wid, "cur_grp");

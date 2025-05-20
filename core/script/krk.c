@@ -542,16 +542,11 @@ KRK_Method(yent_krk_array_class, __getitem__) {
 }
 
 KRK_Method(yent_krk_hash_class, __getitem__) {
-	KrkValue v;
+	const char *v;
 	Entity *eret;
-	if (!krk_parseArgs(".V", (const char *[]){"key"}, &v))
+	if (!krk_parseArgs(".s", (const char *[]){"key"}, &v))
 		return NONE_VAL();
-	if (IS_INTEGER(v))
-		eret = yeGet(self->e, AS_INTEGER(v));
-	else if (IS_FLOATING(v))
-		eret = yeGet(self->e, (int)AS_FLOATING(v));
-	else if (IS_STRING(v))
-		eret = yeGet(self->e, AS_CSTRING(v));
+	eret = yeGet(self->e, v);
 	if (!eret)
 		return NONE_VAL();
 	return make_ent(eret);
@@ -585,19 +580,21 @@ KRK_Method(yent_krk_array_class, __setitem__) {
 	} else if (IS_STRING(key)) {
 		const char *k = AS_CSTRING(key);
 		if (IS_INTEGER(val)) {
-			yeCreateInt(AS_INTEGER(val), self->e, k);
+			yeReCreateInt(AS_INTEGER(val), self->e, k);
 		} else if (IS_yent_krk_class(val)) {
 			yePushBack(self->e, AS_yent_krk_class(val)->e, k);
 		} else if (IS_NATIVE(val) | IS_CLOSURE(val)) {
+			if (yeGet(self->e, k))
+				yeRemoveChild(self->e, k);
 			Entity *r = yeCreateFunctionExt(k,
 							ygGetManager("krk"),
 							self->e, k,
 							YE_FUNC_NO_FASTPATH_INIT);
 			YE_TO_FUNC(r)->idata = val;
 		} else if (IS_STRING(val)) {
-			yeCreateString(AS_CSTRING(val), self->e, k);
+			yeReCreateString(AS_CSTRING(val), self->e, k);
 		} else if (IS_FLOATING(val)) {
-			yeCreateFloat(AS_FLOATING(val), self->e, k);
+			yeReCreateFloat(AS_FLOATING(val), self->e, k);
 		}
 		eret = yeGet(self->e, AS_CSTRING(key));
 	}
@@ -611,19 +608,21 @@ KRK_Method(yent_krk_hash_class, __setitem__) {
 	if (!krk_parseArgs(".sV", (const char *[]){"key"}, &key, &val))
 		return NONE_VAL();
 	if (IS_INTEGER(val)) {
-		yeCreateInt(AS_INTEGER(val), self->e, key);
+		yeReCreateInt(AS_INTEGER(val), self->e, key);
 	} else if (IS_yent_krk_class(val)) {
-		yePushBack(self->e, AS_yent_krk_class(val)->e, key);
+		yeReplaceBack(self->e, AS_yent_krk_class(val)->e, key);
 	} else if (IS_NATIVE(val) | IS_CLOSURE(val)) {
+		if (yeGet(self->e, key))
+			yeRemoveChild(self->e, key);
 		Entity *r = yeCreateFunctionExt(key,
 						ygGetManager("krk"),
 						self->e, key,
 						YE_FUNC_NO_FASTPATH_INIT);
 		YE_TO_FUNC(r)->idata = val;
 	} else if (IS_STRING(val)) {
-		yeCreateString(AS_CSTRING(val), self->e, key);
+		yeReCreateString(AS_CSTRING(val), self->e, key);
 	} else if (IS_FLOATING(val)) {
-		yeCreateFloat(AS_FLOATING(val), self->e, key);
+		yeReCreateFloat(AS_FLOATING(val), self->e, key);
 	}
 	eret = yeGet(self->e, key);
 	return NONE_VAL();
@@ -814,6 +813,10 @@ static struct ys_ret krk_coreCall(KrkValue funcValue, int nb, union ycall_arg *a
 
 	// Call the function
 	KrkValue returnValue = krk_callStack(nb);
+	if (krk_currentThread.flags & KRK_THREAD_HAS_EXCEPTION) {
+		DPRINT_ERR("krk error:");
+		krk_dumpTraceback();
+	}
 	return ys_ret_from_krk_ret(returnValue);
 }
 
@@ -830,6 +833,8 @@ static struct ys_ret krk_call2(void *sm, const char *name, int nb, union ycall_a
 		case YS_ENTITY: {
 			if (yeType(args[i].e) == YARRAY)
 				yeStringAdd(str, "ArrayEntity(int_ptr=");
+			else if (yeType(args[i].e) == YHASH)
+				yeStringAdd(str, "HashEntity(int_ptr=");
 			else
 				yeStringAdd(str, "Entity(int_ptr=");
 			yeStringAddI64(str, args[i].i);
@@ -855,6 +860,10 @@ static struct ys_ret krk_call2(void *sm, const char *name, int nb, union ycall_a
 	yeStringAddCh(str, ')');
 	yePrint(str);
 	KrkValue result = krk_interpret(yeGetString(str), "<stdin>");
+	if (krk_currentThread.flags & KRK_THREAD_HAS_EXCEPTION) {
+		DPRINT_ERR("krk error:");
+		krk_dumpTraceback();
+	}
 	return ys_ret_from_krk_ret(result);
 }
 
@@ -885,6 +894,10 @@ static int loadString(void *s, const char *str)
 	}
 
 	krk_interpret(str, "<stdin>");
+	if (krk_currentThread.flags & KRK_THREAD_HAS_EXCEPTION) {
+		DPRINT_ERR("krk error:");
+		krk_dumpTraceback();
+	}
 	return 0;
 }
 
@@ -897,6 +910,10 @@ static int loadFile(void *s, const char *fileName)
 
 	KrkValue result = krk_runfile(fileName, "<stdin>");
 	// we should check if an error happen here, sadly, i can't check for NONE
+	if (krk_currentThread.flags & KRK_THREAD_HAS_EXCEPTION) {
+		DPRINT_ERR("krk error:");
+		krk_dumpTraceback();
+	}
 	return 0;
 }
 
