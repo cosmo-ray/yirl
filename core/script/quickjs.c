@@ -39,6 +39,7 @@
 #include "entity-array.h"
 #include "events.h"
 #include "condition.h"
+#include "event-base-objs.h"
 
 static int t = -1;
 

@@ -30,9 +30,9 @@
 #include "entity-array.h"
 #include "texture.h"
 #include "condition.h"
+#include "event-base-objs.h"
 #include <lualib.h>
 #include <lauxlib.h>
-
 enum ylua_type {
 	YLUA_STR,
 	YLUA_INT,

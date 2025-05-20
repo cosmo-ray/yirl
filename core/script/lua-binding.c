@@ -31,7 +31,7 @@
 #include	"timer.h"
 #include	"lua-convert.h"
 #include	"condition.h"
-
+#include	"event-base-objs.h"
 Entity *YLUA_NO_DESTROY_ORPHAN = ((void *)0x1);
 
 struct entityWrapper {

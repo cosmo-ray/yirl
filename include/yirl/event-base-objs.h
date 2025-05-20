@@ -15,6 +15,9 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef EVENT_BASE_OBJS_H_
+#define EVENT_BASE_OBJS_H_
+
 /**
  * this widgets try to handle colision detection, and objects movements for you.
  * you have a defined number of groups, that can be set with 'nb_grp', in widget entity
@@ -73,3 +76,5 @@ static inline double ywEBSGroupeDir(Entity *wid, int grp)
 int ywEBSInit(void);
 int ywEBSEnd(void);
 int ysdl2RegistreEBS(void);
+
+#endif

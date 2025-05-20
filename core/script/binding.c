@@ -150,6 +150,8 @@ BIND_I(ySoundStop, 1, 0);
 BIND_I(ySoundDuration, 1, 0);
 BIND_I(yuiUsleep, 1, 0);
 
+BIND_EE(ywEBSWrapperPush, 2, 0);
+
 BIND_EE(yeHashKey, 2, 0);
 
 BIND_EE(yePrint2, 1, 1);
@@ -216,6 +218,9 @@ BIND_SI(ygReCreateInt, 2, 0);
 
 BIND_SI(ygIncreaseInt, 2, 0);
 BIND_SI(ygSetInt, 2, 0);
+
+BIND_EI(ywEBSSwapGroup, 2, 0);
+BIND_EI(ywEBSGroupeDir, 2, 0);
 
 BIND_EI(yeConvert, 2, 0);
 BIND_EI(ywPosDoPercent, 2, 0);
@@ -415,6 +420,8 @@ BIND_EI(yeSetInt, 2, 0);
 BIND_SES(yaeString, 2, 1);
 
 BIND_ESE(ygInitWidgetModule, 3, 0);
+
+BIND_EII(ywSetGroupeSpeed, 3, 0);
 
 BIND_EII(yeIntRoundBound, 3, 0);
 
