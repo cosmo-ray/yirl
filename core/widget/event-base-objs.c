@@ -154,28 +154,28 @@ static void compute_speed_n_dir(struct YEBSState *state, int grp)
 {
 	switch (state->dir_mask) {
 	case 4:
-		ywSetGroupeDir(state->state.entity, 0, M_PI_2);
+		ywSetGroupeDir(state->state.entity, grp, M_PI_2);
 		break;
 	case 4 | 1:
-		ywSetGroupeDir(state->state.entity, 0, M_PI_4);
+		ywSetGroupeDir(state->state.entity, grp, M_PI_4);
 		break;
 	case 1 | 2:
-		ywSetGroupeDir(state->state.entity, 0, 7 * M_PI / 4);
+		ywSetGroupeDir(state->state.entity, grp, 7 * M_PI / 4);
 		break;
 	case 1:
-		ywSetGroupeDir(state->state.entity, 0, 0);
+		ywSetGroupeDir(state->state.entity, grp, 0);
 		break;
 	case 2 | 8:
-		ywSetGroupeDir(state->state.entity, 0, 5 * M_PI / 4);
+		ywSetGroupeDir(state->state.entity, grp, 5 * M_PI / 4);
 		break;
 	case 2:
-		ywSetGroupeDir(state->state.entity, 0, 3 * M_PI / 2);
+		ywSetGroupeDir(state->state.entity, grp, 3 * M_PI / 2);
 		break;
 	case 8:
-		ywSetGroupeDir(state->state.entity, 0, M_PI);
+		ywSetGroupeDir(state->state.entity, grp, M_PI);
 		break;
 	case 8 | 4:
-		ywSetGroupeDir(state->state.entity, 0, 3 * M_PI / 4);
+		ywSetGroupeDir(state->state.entity, grp, 3 * M_PI / 4);
 		break;
 	}
 
