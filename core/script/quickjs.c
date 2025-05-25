@@ -1289,6 +1289,21 @@ static JSValue array_geti(JSContext *ctx, JSValueConst this_val,
 	return JS_NULL;
 }
 
+static JSValue array_getf(JSContext *ctx, JSValueConst this_val,
+			 int argc, JSValueConst *argv)
+{
+	Entity *e = GET_E_(this_val);
+
+	if (JS_IsNumber(argv[0])) {
+		return JS_NewFloat64(ctx, yeGetFloatAt(e, GET_I(ctx, 0)));
+	} else if (JS_IsString(argv[0])) {
+		return JS_NewFloat64(ctx, yeGetFloatAt(e, GET_S(ctx, 0)));
+	} else {
+		return JS_NewFloat64(ctx, yeGetFloatAt(e, GET_E(ctx, 0)));
+	}
+	return JS_NULL;
+}
+
 static JSValue array_getb(JSContext *ctx, JSValueConst this_val,
 			 int argc, JSValueConst *argv)
 {
@@ -1505,6 +1520,7 @@ static const JSCFunctionListEntry js_ent_proto_funcs[] = {
     JS_CFUNC_DEF("push", 1, array_push),
     JS_CFUNC_DEF("getb", 1, array_getb),
     JS_CFUNC_DEF("geti", 1, array_geti),
+    JS_CFUNC_DEF("getf", 1, array_getf),
     JS_CFUNC_DEF("gets", 1, array_gets),
     JS_CFUNC_DEF("addAt", 0, array_add_at),
     JS_CFUNC_DEF("add", 0, entity_add),
@@ -1572,6 +1588,7 @@ static int init(void *sm, void *args)
 	BIND(ywRectCreateInts, 6, 0);
 	BIND(yeCreateFunction, 1, 2);
 	BIND(yeCreateString, 1, 2);
+	BIND(yeCreateFloat, 1, 2);
 	BIND(yeCreateInt, 1, 2);
 	BIND(yeCreateArray, 0, 2);
 	BIND(yeCreateHash, 0, 2);

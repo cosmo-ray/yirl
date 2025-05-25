@@ -193,9 +193,24 @@ function yamap_push_obj(wid, pos, idx)
     let objs = yeGet(mi, "objs")
     let object = yeGet(objs, ic)
     let textures = wid.get("textures")
+    let texture_32x32 = wid.get("texture_32x32")
+    let texture_mv = wid.get("texture_mv")
+    let txt_name = yeGetStringAt(object, 0)
     let o = ywCanvasNewImgFromTexture(wid, ywPosX(pos) * SPRITE_SIZE,
 				      ywPosY(pos) * SPRITE_SIZE,
-				      yeGet(textures, yeGetStringAt(object, 0)))
+				      yeGet(textures, txt_name))
+    let scale = texture_32x32.getf(txt_name)
+    let txt_mv = texture_mv.get(txt_name)
+    if (scale > 0) {
+	ywCanvasForceSize(o, ywSizeCreate(32, 32))
+	if (!txt_mv) {
+	    let mv = 32 - 32 * scale / 2
+	    ywCanvasMoveObj(o, ywPosCreate(-mv, -mv))
+	}
+
+    }
+    if (txt_mv)
+	    ywCanvasMoveObj(o, txt_mv)
     yeCreateIntAt(TYPE_OBJ, o, "amap-t", YCANVAS_UDATA_IDX)
     yeCreateIntAt(ic, o, "objidx", CANVAS_OBJ_IDX)
     object.setAt(OBJECT_CANEL, o)
@@ -277,6 +292,8 @@ function print_all(wid)
     let objs = yeGet(mi, "objs")
     let objs_conditions = mi.get("objs_condition")
     let textures = yeGet(wid, "textures");
+    let texture_32x32 = wid.get("texture_32x32")
+    let texture_mv = wid.get("texture_mv")
     let map_real_size = yeGet(mi, "size")
     let monsters_info = yeGet(mi, "monsters")
     let monsters = yeGet(wid, "_monsters")
@@ -412,9 +429,23 @@ function print_all(wid)
 		    if (this_condition && !yeCheckCondition(this_condition))
 			continue;
 		}
-		let obj_texture = yeGet(textures, yeGetStringAt(object, 0))
+		let txt_name = yeGetStringAt(object, 0)
+		let obj_texture = yeGet(textures, txt_name)
 		let o = ywCanvasNewImgFromTexture(wid, j * SPRITE_SIZE, i * SPRITE_SIZE,
 						  obj_texture)
+		let scale = texture_32x32.getf(txt_name)
+		let txt_mv = texture_mv.get(txt_name)
+		if (scale > 0) {
+		    ywCanvasForceSize(o, ywSizeCreate(32 * scale, 32 * scale))
+		    if (!txt_mv) {
+			let mv = 32 - 32 * scale / 2
+			ywCanvasMoveObj(o, ywPosCreate(-mv, -mv))
+		    }
+		}
+		if (txt_mv)
+		    ywCanvasMoveObj(o, txt_mv)
+
+
 		yeCreateIntAt(TYPE_OBJ, o, "amap-t", YCANVAS_UDATA_IDX)
 		yeCreateIntAt(ic, o, "objidx", CANVAS_OBJ_IDX)
 		object.setAt(OBJECT_CANEL, o)
@@ -1213,10 +1244,14 @@ function amap_init(wid)
     ywPosAddXY(cam_t, SPRITE_SIZE, 0);
 
     let size = ywSizeCreate(SPRITE_SIZE, SPRITE_SIZE);
+    let texture_32x32 = yeCreateHash(wid, "texture_32x32");
+    let texture_mv = yeCreateHash(wid, "texture_mv");
     let textures = yeCreateArray(wid, "textures");
     ygModDir("amap");
     ywTextureNewImg("./door.png", null, textures, "door");
     ywTextureNewImg("./pike.png", null, textures, "pike");
+    yeCreateFloat(1.5, texture_32x32, "door");
+    texture_mv.setAt("door", ywSizeCreate(-16, -16))
 
     let txts_arrays = yeCreateArray()
     yePrint(wid.get("pc-sprites"))
