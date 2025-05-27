@@ -41,10 +41,19 @@ const HELP_GUY = `
 `
 
 let CUR_HEAD = HELP_GUY
+let HEAD_DEFAULT_COLOR = "rgba: 255 255 255 150"
+let HEAD_RECT_COLOR = HEAD_DEFAULT_COLOR
+let HEAD_RECT_FLAG = 1
 
 function y_set_head(head)
 {
     CUR_HEAD = head
+}
+
+function y_set_talk_rect_style(color, flag)
+{
+    HEAD_RECT_COLOR = color
+    HEAD_RECT_FLAG = flag
 }
 
 function y_stop_action(wid, eves)
@@ -94,9 +103,10 @@ function y_stop_func(wid, x, y, txt, have_arrow)
     yeCreateFunction("y_stop_action", wid, "action");
     let data = yeCreateArray(wid, "_stop_data");
     txt = yeCreateString(txt)
-    yePushBack(data, ywCanvasNewRectangle(wid, start_x, start_y, ywRectW(wid_pix),
-					  ywRectH(wid_pix),
-					  "rgba: 40 100 230 150"));
+    yePushBack(data, ywCanvasNewRectangleExt(wid, start_x, start_y, ywRectW(wid_pix),
+					     ywRectH(wid_pix),
+					     "rgba: 40 100 230 150",
+					     1));
     let xdir = 1
     let ydir = 1
 
@@ -124,9 +134,9 @@ function y_stop_func(wid, x, y, txt, have_arrow)
     if (w < 0)
 	w = txt_js.length * 9;
 
-    yePushBack(data, ywCanvasNewRectangle(wid, x + 18 * xdir, y + 58  * ydir, w,
-					  20 * (1 + yeCountLines(txt)),
-					  "rgba: 255 255 255 150"));
+    yePushBack(data, ywCanvasNewRectangleExt(wid, x + 10 * xdir, y + 50  * ydir, w + 5,
+					     20 * (1 + yeCountLines(txt)),
+					     HEAD_RECT_COLOR, HEAD_RECT_FLAG));
     yePushBack(data, ywCanvasNewText(wid, x + 20  * xdir,
 				     y + 60 * ydir, txt));
     let head_threshold = 100
@@ -135,6 +145,9 @@ function y_stop_func(wid, x, y, txt, have_arrow)
     } else {
 	head_threshold = 20 * (1 + yeCountLines(txt)) + 40
     }
+    yePushBack(data, ywCanvasNewCircleExt(wid, x + 120  * xdir,
+					  y + head_threshold + 115, 100, "rgba: 255 255 255 50", 1));
+
     yePushBack(data, ywCanvasNewText(wid, x + 70  * xdir,
 				     y + head_threshold, yeCreateString(CUR_HEAD)));
     return true
@@ -153,8 +166,10 @@ function y_stop_head(wid, x, y, txt)
 function mod_init(mod)
 {
     yeCreateFunction(y_set_head, mod, "y_set_head")
+    yeCreateFunction(y_set_talk_rect_style, mod, "y_set_talk_rect_style")
     ygRegistreFunc(4, "y_stop_head", "y_stop_head");
     ygRegistreFunc(1, "y_set_head", "y_set_head");
+    ygRegistreFunc(2, "y_set_talk_rect_style", "y_set_talk_rect_style");
     ygRegistreFunc(4, "y_stop_helper", "y_stop_helper");
     return mod
 }

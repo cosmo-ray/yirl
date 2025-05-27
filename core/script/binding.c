@@ -42,6 +42,7 @@
 #define BIND_EIIII	BIND
 #define BIND_EIIIS	BIND
 #define BIND_EIIIIS	BIND
+#define BIND_EIIISI	BIND
 #define BIND_EIIIISI	BIND
 #else
 
@@ -508,6 +509,7 @@ BIND_EIIIS(ywCanvasNewCircle, 5, 0);
 BIND_EIIIS(ywCanvasNewHSegment, 5, 0);
 BIND_EIIIS(ywCanvasNewVSegment, 5, 0);
 
+BIND_EIIISI(ywCanvasNewCircleExt, 5, 1);
 BIND_EIIIISI(ywCanvasNewRectangleExt, 6, 1);
 
 BIND_EIIIIS(ywCanvasNewLine, 6, 0);
@@ -613,6 +615,7 @@ PUSH_I_GLOBAL(YPERL);
 
 #undef BIND_EIIIISI
 #undef BIND_EIIIIS
+#undef BIND_EIIISI
 #undef BIND_EIIIS
 #undef BIND_EIIEE
 #undef BIND_EEEEI

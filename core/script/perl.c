@@ -701,6 +701,19 @@ XS(XS_yevCreateGrp)
 				  SvPVbyte_nolen(ST(5))));	\
 	}
 
+#define BIND_EIIISI(name, ...)					\
+	XS(XS_##name)						\
+	{							\
+		dXSARGS;					\
+		BIND_AUTORET(name((void *)SvIV(ST(0)),		\
+				  SvIV(ST(1)),			\
+				  SvIV(ST(2)),			\
+				  SvIV(ST(3)),			\
+				  SvPVbyte_nolen(ST(4)),	\
+				  SvIV(ST(5))			\
+				     ));			\
+	}
+
 #define BIND_EIIIISI(name, ...)					\
 	XS(XS_##name)						\
 	{							\
