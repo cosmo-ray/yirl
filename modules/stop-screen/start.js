@@ -135,7 +135,7 @@ function y_stop_func(wid, x, y, txt, have_arrow)
 	w = txt_js.length * 9;
 
     yePushBack(data, ywCanvasNewRectangleExt(wid, x + 10 * xdir, y + 50  * ydir, w + 5,
-					     20 * (1 + yeCountLines(txt)),
+					     20 * (1 + yeCountLines(txt)) + 10,
 					     HEAD_RECT_COLOR, HEAD_RECT_FLAG));
     yePushBack(data, ywCanvasNewText(wid, x + 20  * xdir,
 				     y + 60 * ydir, txt));

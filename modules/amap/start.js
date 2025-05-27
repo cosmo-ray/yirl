@@ -202,7 +202,7 @@ function yamap_push_obj(wid, pos, idx)
     let scale = texture_32x32.getf(txt_name)
     let txt_mv = texture_mv.get(txt_name)
     if (scale > 0) {
-	ywCanvasForceSize(o, ywSizeCreate(32, 32))
+	ywCanvasForceSize(o, ywSizeCreate(32 * scale, 32 * scale))
 	if (!txt_mv) {
 	    let mv = 32 - 32 * scale / 2
 	    ywCanvasMoveObj(o, ywPosCreate(-mv, -mv))
