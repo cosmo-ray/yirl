@@ -703,8 +703,8 @@ function amap_action(wid, events)
 	    }
 	}
 	yeSetIntAt(pc_canel, PC_TURN_CNT_IDX, 0);
-	if (yeGetIntAt(pc_canel, PC_HURT)) {
-	    yeAddAt(pc_canel, PC_HURT, -1 * mult);
+	if (pc_canel.geti(PC_HURT)) {
+	    yeSubIntMin(pc_canel.get(PC_HURT), 1 * mult, 0);
 	}
     } else {
 	yeAddAt(pc_canel, PC_TURN_CNT_IDX, turn_timer);

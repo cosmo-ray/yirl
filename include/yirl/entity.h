@@ -1443,8 +1443,8 @@ static inline int yeAddIntMax(Entity *e, int i, int max)
 {
 	switch (yeType(e)) {
 	case YINT:
-		if (YE_TO_FLOAT(e)->value + i > max) {
-			YE_TO_FLOAT(e)->value = max;
+		if (YE_TO_INT(e)->value + i > max) {
+			YE_TO_INT(e)->value = max;
 			return 1;
 		}
 		return yeIntAddInt(YE_TO_INT(e), i);
@@ -1465,8 +1465,8 @@ static inline int yeSubIntMin(Entity *e, int i, int min)
 {
 	switch (yeType(e)) {
 	case YINT:
-		if (YE_TO_FLOAT(e)->value - i < min) {
-			YE_TO_FLOAT(e)->value = min;
+		if (YE_TO_INT(e)->value - i < min) {
+			YE_TO_INT(e)->value = min;
 			return 1;
 		}
 		return yeIntAddInt(YE_TO_INT(e), -i);
