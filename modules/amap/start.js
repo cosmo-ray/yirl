@@ -506,6 +506,10 @@ function amap_action(wid, events)
     let turn_timer = ywidGetTurnTimer()
     let monsters = yeGet(wid, "_monsters")
     let monsters_info = yeGet(mi, "monsters")
+    let no_fall = false
+    if (mi.getb("no-fall")) {
+	no_fall = true
+    }
     let have_upkey = -1
     let pc_handler = yeGet(pc_canel, PC_HANDLER_OBJ)
 
@@ -724,6 +728,11 @@ function amap_action(wid, events)
 	    yeSetIntAt(pc_canel, PC_DROPSPEED_IDX, 0);
 	pc_canel.setAt(PC_JMP_POWER_LEFT, 0)
     }
+
+    if (no_fall && (ywPosY(pc_pos) + SPRITE_SIZE) > ywSizeH(map_pixs_l)) {
+	stop_fall = true
+    }
+
     if (ywPosY(pc_pos) > ywSizeH(map_pixs_l)) {
 	print("you fall, wou lose !");
 	ygCallFuncOrQuit(wid, "lose");
