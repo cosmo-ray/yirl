@@ -47,6 +47,11 @@ local function refresh_txt_array(handler)
 end
 
 
+function yGenericTextureArrayCheck(handler, what)
+   handler = Entity.wrapp(handler)
+   return yIsNNil(handler.txts[what])
+end
+
 
 function yGenericTextureArraySet(handler, what)
    handler = Entity.wrapp(handler)
@@ -440,10 +445,11 @@ function mod_init(mod)
 
    mod.name = "smart_cobject"
    if yeGetInt(ygGet("mods_config.smart_cobject.no_submodule")) < 1 then
-      ygAddModule(Y_MOD_YIRL, mod, "sprite-manager")
-      ygAddModule(Y_MOD_YIRL, mod, "Universal-LPC-spritesheet")
+      ygAddModule(Y_MOD_YIRL, mod, "sprite-manager");
+      ygAddModule(Y_MOD_YIRL, mod, "Universal-LPC-spritesheet");
    end
-   ygRegistreFunc(2, "yGenericTextureArraySet", "yGenericTextureArraySet")
+   ygRegistreFunc(2, "yGenericTextureArrayCheck", "yGenericTextureArrayCheck");
+   ygRegistreFunc(2, "yGenericTextureArraySet", "yGenericTextureArraySet");
    ygRegistreFunc(6, "yGenericNewTexturesArray", "yGenericNewTexturesArray");
    ygRegistreFunc(1, "yGenericHandlerRmCanva", "yGenericHandlerRmCanva");
    ygRegistreFunc(1, "yGenericHandlerShowDead", "yGenericHandlerShowDead");

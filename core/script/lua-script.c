@@ -75,8 +75,8 @@ static void e_destroy(void *manager, Entity *e)
 	}
 }
 
-static inline void *do_call(lua_State *l, int nb, union ycall_arg *args,
-			    int *types)
+static inline struct ys_ret do_call_(lua_State *l, int nb, union ycall_arg *args,
+				     int *types)
 {
 	for (int i = 0; i < nb; ++i) {
 		int t = types[i];
@@ -88,14 +88,27 @@ static inline void *do_call(lua_State *l, int nb, union ycall_arg *args,
 			lua_pushlightuserdata(l, args[i].vptr);
 	}
 	lua_call(l, nb, 1);
-	if (lua_isnumber(l, lua_gettop(l)))
-		return (void *)lua_tointeger(l, lua_gettop(l));
-	if (lua_isuserdata(l, lua_gettop(l))) {
+	if (lua_isnumber(l, lua_gettop(l))) {
+		return (struct ys_ret){.t=YS_INT, .v.i=lua_tointeger(l, lua_gettop(l))};
+	} else if (lua_isboolean(l, lua_gettop(l))) {
+		return (struct ys_ret){.t=YS_INT, .v.i=lua_toboolean(l, lua_gettop(l))};
+	} else if (lua_isuserdata(l, lua_gettop(l))) {
 		void *ret = luaEntityAt(l, lua_gettop(l));
 		if (ret)
-			return ret;
+			return (struct ys_ret){.t=YS_ENTITY, .v.e=ret};
+
+	} else if (lua_isstring(l, lua_gettop(l))) {
+		return (struct ys_ret){.t=YS_STR, .v.str=lua_tostring(l, lua_gettop(l))};
+	} else if (lua_isnil(l, lua_gettop(l))) {
+		return (struct ys_ret){.t=YS_VPTR, .v.vptr=NULL};
 	}
-	return (void *)lua_topointer(l, lua_gettop(l));
+	return (struct ys_ret){.t=YS_VPTR, .v.vptr=lua_touserdata(l, lua_gettop(l))};
+}
+
+static void *do_call(lua_State *l, int nb, union ycall_arg *args,
+				     int *types)
+{
+	return do_call_(l, nb, args, types).v.vptr;
 }
 
 static void *fastCall(void *opac, void *opacFunction,
@@ -110,6 +123,18 @@ static void *fastCall(void *opac, void *opacFunction,
 	return do_call(l, nb, args, types);
 }
 
+static struct ys_ret fastCall2(void *opac, void *opacFunction,
+			       int nb, union ycall_arg *args,
+			       int *types)
+{
+	lua_State *l = GET_L(opac);
+	int r = (intptr_t)opacFunction;
+
+	lua_rawgeti(l, LUA_REGISTRYINDEX, r);
+
+	return do_call_(l, nb, args, types);
+}
+
 
 static void *luaCall(void *sm, const char *name, int nb,
 		     union ycall_arg *args, int *types)
@@ -122,6 +147,19 @@ static void *luaCall(void *sm, const char *name, int nb,
 	}
 
 	return do_call(l, nb, args, types);
+}
+
+static struct ys_ret luaCall2(void *sm, const char *name, int nb,
+			      union ycall_arg *args, int *types)
+{
+	lua_State *l = GET_L(sm);
+
+	lua_getglobal(l, name);
+	if (lua_isnil(l, -1)) {
+		return (struct ys_ret){.t=YS_VPTR, .v.vptr=NULL};
+	}
+
+	return do_call_(l, nb, args, types);
 }
 
 static int luaDestroy(void *sm)
@@ -190,6 +228,8 @@ static void *luaAllocator(void)
 	ret->ops.e_destroy = e_destroy;
 	ret->ops.call = luaCall;
 	ret->ops.fastCall = fastCall;
+	ret->ops.call2 = luaCall2;
+	ret->ops.fastCall2 = fastCall2;
 	ret->ops.trace = trace;
 	ret->ops.getError = luaGetError;
 	ret->ops.registreFunc = luaRegistreFunc;
