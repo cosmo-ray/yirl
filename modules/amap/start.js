@@ -1504,8 +1504,21 @@ function monster_left_right(wid, tuple, distance)
 {
     let mon = yeGet(tuple, 0)
     let turn_timer = yeGetIntAt(tuple, 1)
-    let dist = yeGetInt(distance)
     let handler = mon.get(MONSTER_HANDLER)
+    let have_turn = false
+    let in_turn = false
+    let dist = yeGetInt(distance)
+    let step = 50
+    let turn_steps = 1
+    if (handler) {
+	have_turn = yGenericTextureArrayCheck(handler, "turn")
+	in_turn = yGenericTextureArrayCurrent(handler) == "turn"
+	if (in_turn) {
+	    dist = 600000 // impartial number
+	    turn_steps = yGenericTextureArrayCurrentLen(handler)
+	    step = dist / (turn_steps * 2)
+	}
+    }
 
     if (!yeGet(mon, MONSTER_ACC)) {
 	y_move_set_xspeed(yeGet(mon, MONSTER_MOVER), -25)
@@ -1520,8 +1533,16 @@ function monster_left_right(wid, tuple, distance)
     if (handler) {
 	let old_acc = mon.geti(MONSTER_OLD_ACC)
 	let acc = mon.get(MONSTER_ACC).i()
-	if (acc - old_acc > 50) {
-	    yGenericNext(handler)
+	if (acc - old_acc > step) {
+	    let half_turn = dist / 2
+	    if (in_turn && acc > half_turn) {
+		if (yeGetIntAt(mon, MONSTER_DIR) == DIR_LEFT)
+		    handler.setAt("flip", 1)
+		else
+		    handler.setAt("flip", 0)
+	    } else {
+		yGenericNext(handler)
+	    }
 	    yamap_monster_handler_refresh(mon)
 	    mon.setAt(MONSTER_OLD_ACC, acc)
 	} else if (old_acc > acc) {
@@ -1533,6 +1554,16 @@ function monster_left_right(wid, tuple, distance)
 
     if (yeGetIntAt(mon, MONSTER_ACC) >= dist) {
 	yeSetIntAt(mon, MONSTER_ACC, 0)
+	if (have_turn && !in_turn) {
+	    yGenericTextureArraySet(handler, "turn")
+	    y_move_set_xspeed(yeGet(mon, MONSTER_MOVER), 0)
+	    yamap_monster_handler_refresh(mon)
+	    return
+	}
+
+	if (have_turn) {
+	    yGenericTextureArraySet(handler, "walk")
+	}
 	if (yeGetIntAt(mon, MONSTER_DIR) == DIR_LEFT) {
 	    y_move_set_xspeed(yeGet(mon, MONSTER_MOVER), 25)
 	    yeSetIntAt(mon, MONSTER_DIR, DIR_RIGHT)
@@ -1549,7 +1580,11 @@ function monster_left_right(wid, tuple, distance)
 	    }
 	}
     } else {
-	yeAddAt(mon, MONSTER_ACC, Math.abs(y_move_last_x(yeGet(mon, MONSTER_MOVER))))
+	if (in_turn) {
+	    yeAddAt(mon, MONSTER_ACC, ywidGetTurnTimer())
+	} else {
+	    yeAddAt(mon, MONSTER_ACC, Math.abs(y_move_last_x(yeGet(mon, MONSTER_MOVER))))
+	}
     }
 }
 

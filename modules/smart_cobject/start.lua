@@ -52,6 +52,16 @@ function yGenericTextureArrayCheck(handler, what)
    return yIsNNil(handler.txts[what])
 end
 
+function yGenericTextureArrayCurrent(handler)
+   handler = Entity.wrapp(handler)
+   return yeGetString(handler.cur_array)
+end
+
+function yGenericTextureArrayCurrentLen(handler)
+   handler = Entity.wrapp(handler)
+   return yeLen(handler.txts[yeGetString(handler.cur_array)])
+end
+
 
 function yGenericTextureArraySet(handler, what)
    handler = Entity.wrapp(handler)
@@ -450,6 +460,8 @@ function mod_init(mod)
    end
    ygRegistreFunc(2, "yGenericTextureArrayCheck", "yGenericTextureArrayCheck");
    ygRegistreFunc(2, "yGenericTextureArraySet", "yGenericTextureArraySet");
+   ygRegistreFunc(1, "yGenericTextureArrayCurrent", "yGenericTextureArrayCurrent");
+   ygRegistreFunc(1, "yGenericTextureArrayCurrentLen", "yGenericTextureArrayCurrentLen");
    ygRegistreFunc(6, "yGenericNewTexturesArray", "yGenericNewTexturesArray");
    ygRegistreFunc(1, "yGenericHandlerRmCanva", "yGenericHandlerRmCanva");
    ygRegistreFunc(1, "yGenericHandlerShowDead", "yGenericHandlerShowDead");
