@@ -1116,6 +1116,11 @@ function init_map(wid, map_str, pc_pos_orig)
     }
     map_str = ygFileToEnt(YRAW_FILE, map_str);
 
+    if (mi.get("back_background")) {
+	wid.setAt("background", mi.get("back_background"))
+    } else {
+	wid.setAt("background", "rgba: 255 255 255 255")
+    }
 
     let map_str_a = yeGetString(map_str).split('\n');
     let map_a = yeReCreateArray(wid, "_m");
