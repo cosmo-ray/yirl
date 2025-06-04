@@ -299,6 +299,25 @@ static int    sdlFillImgBg(SDLWid *swid, YBgConf *cfg)
 	return -1;
 }
 
+int ywidShowBG(Entity *wid, SDLWid *sdl_wid)
+{
+	Entity *bg = yeGet(wid, "background");
+	YBgConf cfg;
+
+	if (yeType(bg) == YARRAY) {
+		printf("bg is an array\n");
+		yePrint(bg);
+		YE_FOREACH(bg, this) {
+			if (ywidBgConfFill(this, &cfg) >= 0)
+				sdlFillBg(sdl_wid, &cfg);
+		}
+	} else {
+		if (ywidBgConfFill(bg, &cfg) >= 0)
+			sdlFillBg(sdl_wid, &cfg);
+	}
+	return 0;
+}
+
 int    sdlFillBg(SDLWid *swid, YBgConf *cfg)
 {
 	if (cfg->type == BG_COLOR)

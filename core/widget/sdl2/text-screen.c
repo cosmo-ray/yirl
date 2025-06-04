@@ -34,9 +34,7 @@ static int sdlRender(YWidgetState *state, int t)
 	Entity *text_bg = yeGet(state->entity, "text_background");
 
 	wid = sddComputeMargin(state, wid);
-	if (ywidInitBgConf(state->entity, &cfg) >= 0) {
-		sdlFillBg(wid, &cfg);
-	}
+	ywidShowBG(state->entity, wid);
 
 	if (unlikely(!toPrint))
 		return 0;

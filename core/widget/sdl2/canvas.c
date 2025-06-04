@@ -42,8 +42,7 @@ static int sdl2Render(YWidgetState *state, int t)
 
 	wid = sddComputeMargin(state, wid);
 	widPix = yeGet(state->entity, "wid-pix");
-	if (ywidBgConfFill(yeGet(entity, "background"), &cfg) >= 0)
-		sdlFillBg(wid, &cfg);
+	ywidShowBG(entity, wid);
 
 	if (s->flag & YC_MERGE_NO_MERGE) {
 		yeAutoFree Entity *dst_rect = ywRectCreateInts(

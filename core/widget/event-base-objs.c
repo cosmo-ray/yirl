@@ -328,9 +328,8 @@ static int sdl2Render(YWidgetState *opac, int t)
 		cam = ywPosCreate(cam, 0, NULL, NULL);
 		ywPosAdd(cam, cam_threshold);
 	}
-	if (ywidBgConfFill(yeGet(entity, "background"), &cfg) >= 0)
-		sdlFillBg(wid, &cfg);
 
+	ywidShowBG(entity, wid);
 
 	/* here we move stuff that need to be move, and so on */
 	Entity *speeds = yeGet(entity, "grps-spd");

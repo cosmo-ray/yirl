@@ -279,6 +279,54 @@ function yamap_generate_monster_canvasobj(wid, textures,
     yePushAt2(mon, canvasobj, MONSTER_OBJ, "canvasobj")
 }
 
+function show_bg_(wid, bg_info, map_real_size, img_mod, auto_scale)
+{
+    let bg_str = bg_info.s()
+    let backgound = null
+
+    if (bg_str.startsWith("rdba:")) {
+	backgound = ywCanvasNewRectangle(wid, 0, 0, ywSizeW(map_real_size) * SPRITE_SIZE,
+					 ywSizeH(map_real_size) * SPRITE_SIZE,
+					 "rgba: 120 120 120 155")
+    } else {
+	if (img_mod)
+	    ygModDir(img_mod)
+	backgound = ywCanvasNewImgByPath(wid, 0, 0, bg_str)
+	if (auto_scale) {
+	    ywCanvasForceSize(backgound,
+			      ywSizeCreate(ywSizeW(map_real_size) * SPRITE_SIZE,
+					   ywSizeH(map_real_size) * SPRITE_SIZE))
+	}
+	if (img_mod)
+	    ygModDirOut()
+    }
+    yeCreateIntAt(TYPE_ANIMATION, backgound, "amap-t", YCANVAS_UDATA_IDX)
+}
+
+function show_bg(wid, mi)
+{
+    let map_real_size = yeGet(mi, "size")
+    let bg_info = mi.get("background")
+    let img_mod = wid.gets("asset-mod")
+    let backgound = null
+    let auto_scale = mi.get("background_auto_scale")
+
+    if (bg_info) {
+	if (yeType(bg_info) == YARRAY) {
+	    for (b of bg_info) {
+		show_bg_(wid, b, map_real_size, img_mod, auto_scale)
+	    }
+	} else {
+	    show_bg_(wid, bg_info, map_real_size, img_mod, auto_scale)
+	}
+    } else {
+	backgound = ywCanvasNewRectangle(wid, 0, 0, ywSizeW(map_real_size) * SPRITE_SIZE,
+					 ywSizeH(map_real_size) * SPRITE_SIZE,
+					 "rgba: 120 120 120 155")
+	yeCreateIntAt(TYPE_ANIMATION, backgound, "amap-t", YCANVAS_UDATA_IDX)
+    }
+    yePrint(backgound)
+}
 function print_all(wid)
 {
     ywCanvasClear(wid);
@@ -294,40 +342,10 @@ function print_all(wid)
     let textures = yeGet(wid, "textures");
     let texture_32x32 = wid.get("texture_32x32")
     let texture_mv = wid.get("texture_mv")
-    let map_real_size = yeGet(mi, "size")
     let monsters_info = yeGet(mi, "monsters")
     let monsters = yeGet(wid, "_monsters")
-    let bg_info = mi.get("background")
-    let img_mod = wid.gets("asset-mod")
-    let backgound = null
 
-    if (bg_info) {
-	let bg_str = bg_info.s()
-
-	if (bg_str.startsWith("rdba:")) {
-	    backgound = ywCanvasNewRectangle(wid, 0, 0, ywSizeW(map_real_size) * SPRITE_SIZE,
-					     ywSizeH(map_real_size) * SPRITE_SIZE,
-					     "rgba: 120 120 120 155")
-	} else {
-	    if (img_mod)
-		ygModDir(img_mod)
-	    backgound = ywCanvasNewImgByPath(wid, 0, 0, bg_str)
-	    if (mi.get("background_auto_scale")) {
-		ywCanvasForceSize(backgound,
-				  ywSizeCreate(ywSizeW(map_real_size) * SPRITE_SIZE,
-					       ywSizeH(map_real_size) * SPRITE_SIZE))
-	    }
-	    if (img_mod)
-		ygModDirOut()
-	}
-    } else {
-	backgound = ywCanvasNewRectangle(wid, 0, 0, ywSizeW(map_real_size) * SPRITE_SIZE,
-					 ywSizeH(map_real_size) * SPRITE_SIZE,
-					 "rgba: 120 120 120 155")
-    }
-    yePrint(backgound)
-    yeCreateIntAt(TYPE_ANIMATION, backgound, "amap-t", YCANVAS_UDATA_IDX)
-
+    show_bg(wid, mi)
     function show_block(block_info, x, y, w, h) {
 	let ret = null
 
