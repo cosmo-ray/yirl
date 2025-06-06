@@ -1816,7 +1816,9 @@ static void addFuncSymbole(void *sm, const char *name, int nbArgs, Entity *func)
 
 static void trace(void *sm)
 {
-	printf("abort in quickjs\n");
+	JSContext *ctx = CTX(sm);
+	JSValue v = JS_ThrowTypeError(ctx, "abort in quickjs:");
+	js_std_dump_error(ctx);
 }
 
 static void *allocator(void)

@@ -219,9 +219,12 @@ function yamap_push_obj(wid, pos, idx)
 function yamap_monster_handler_refresh(mon)
 {
     let handler = mon.get(MONSTER_HANDLER)
-    yGenericHandlerRefresh(handler)
     let canvasobj = yGenericCurCanvas(handler)
+    let idx = canvasobj.geti(CANVAS_MONSTER_IDX)
+    yGenericHandlerRefresh(handler)
+    canvasobj = yGenericCurCanvas(handler)
     yeCreateIntAt(TYPE_MONSTER, canvasobj, "amap-t", YCANVAS_UDATA_IDX)
+    yeCreateIntAt(idx, canvasobj, "mon-idx", CANVAS_MONSTER_IDX)
     let mon_pos = yeGet(mon, MONSTER_POS)
     ywCanvasObjReplacePos(canvasobj, mon_pos)
     yePushAt2(mon, canvasobj, MONSTER_OBJ)
@@ -256,16 +259,15 @@ function yamap_generate_monster_canvasobj(wid, textures,
 	canvasobj = ywCanvasNewImgFromTexture(wid, ywPosX(mon_pos), ywPosY(mon_pos),
 					      yeGet(textures, yeGetStringAt(mon_info, "img")))
     } else if (animation) {
-	let animations = wid.get("animations")
-	let handler = animations.get(animation)
-
+	let animations = wid.get("monster_animations")
+	let handler = animations.get(animation).call(wid)
+	yePushAt2(mon, handler, MONSTER_HANDLER, "handler")
+	yeDestroy(handler)
 	let test = yeCreateArray()
 	test.setAt(0, "wid")
-	yePrint2(handler, test)
 	yGenericSetPos(handler, mon_pos)
 	yGenericHandlerRefresh(handler)
 	canvasobj = yGenericCurCanvas(handler)
-	yePushAt2(mon, handler, MONSTER_HANDLER, "handler")
     }
 
     if (max_life > 0) {
@@ -1036,7 +1038,6 @@ function amap_action(wid, events)
 
 	if (c.geti(MONSTER_LIFE) < 1) {
 	    let ret = 2
-	    let mon_idx = yeGetIntAt(c, CANVAS_MONSTER_IDX)
 
 	    if (mon_info.get("dead")) {
 		ret = ygGet(mon_info.gets("dead")).call(wid, c, mon_info, turn_timer)
