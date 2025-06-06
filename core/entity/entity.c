@@ -949,13 +949,18 @@ Entity *yeCreate(EntityType type, void *val, Entity *father, const char *name)
 	case YINT:
 		return yeCreateInt(((size_t)val), father, name);
 	case YFLOAT:
-		return yeCreateFloat(((size_t)&val), father, name);
+		return yeCreateFloat(((size_t)val), father, name);
 	case YARRAY:
 		return yeCreateArray(father, name);
 	case YDATA:
 		return yeCreateData(val, father, name);
 	case YFUNCTION:
 		return yeCreateFunction(val, NULL, father, name);
+	case YHASH:
+		return yeCreateHash(father, name);
+	case YQUADINT:
+		return yeCreateQuadInt((size_t)val, (size_t)val,
+				       (size_t)val, (size_t)val, father, name);
 	default:
 		DPRINT_ERR( "%s generic constructor not yet implemented\n",
 			    yeTypeToString(type));
