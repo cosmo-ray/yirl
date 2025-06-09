@@ -1233,13 +1233,8 @@ function init_map(wid, map_str, pc_pos_orig)
 	ygModDirOut()
 }
 
-function amap_init(wid)
+function yamap_init_playble_char(wid)
 {
-    //yePrint(wid)
-    ywSetTurnLengthOverwrite(-1)
-    yeCreateFunction(amap_action, wid, "action")
-
-    yeReCreateArray(wid, "monsters_hurt")
     let pc = yeGet(wid, "pc")
     if (!pc) {
 	pc = yeCreateArray(wid, "pc")
@@ -1256,6 +1251,17 @@ function amap_init(wid)
 	yeCreateInt(4, stats, "strength");
 	// pc.setAt("jmp-power", 10)
     }
+}
+
+function amap_init(wid)
+{
+    //yePrint(wid)
+    ywSetTurnLengthOverwrite(-1)
+    yeCreateFunction(amap_action, wid, "action")
+
+    yeReCreateArray(wid, "monsters_hurt")
+
+    yamap_init_playble_char(wid)
     //yePrint(pc)
     // canel for canvas element, it's the info about the screen position and stuff
     let pc_canel = yeCreateArray(wid, "_pc")
@@ -1524,7 +1530,7 @@ function monster_dead(wid, mon, mon_info, turn_timer)
     return 1
 }
 
-function monster_left_right(wid, tuple, distance)
+function monster_left_right_(wid, tuple, distance, flip_dir)
 {
     let mon = yeGet(tuple, 0)
     let turn_timer = yeGetIntAt(tuple, 1)
@@ -1534,6 +1540,13 @@ function monster_left_right(wid, tuple, distance)
     let dist = yeGetInt(distance)
     let step = 50
     let turn_steps = 1
+    let left_flip = 1
+    let right_flip = 0
+
+    if (flip_dir == 1) {
+	left_flip = 0
+	right_flip = 1
+    }
     if (handler) {
 	have_turn = yGenericTextureArrayCheck(handler, "turn")
 	in_turn = yGenericTextureArrayCurrent(handler) == "turn"
@@ -1561,9 +1574,9 @@ function monster_left_right(wid, tuple, distance)
 	    let half_turn = dist / 2
 	    if (in_turn && acc > half_turn) {
 		if (yeGetIntAt(mon, MONSTER_DIR) == DIR_LEFT)
-		    handler.setAt("flip", 1)
+		    handler.setAt("flip", left_flip)
 		else
-		    handler.setAt("flip", 0)
+		    handler.setAt("flip", right_flip)
 	    } else {
 		yGenericNext(handler)
 	    }
@@ -1592,14 +1605,14 @@ function monster_left_right(wid, tuple, distance)
 	    y_move_set_xspeed(yeGet(mon, MONSTER_MOVER), 25)
 	    yeSetIntAt(mon, MONSTER_DIR, DIR_RIGHT)
 	    if (handler) {
-		handler.setAt("flip", 1)
+		handler.setAt("flip", left_flip)
 		yamap_monster_handler_refresh(mon)
 	    }
 	} else {
 	    y_move_set_xspeed(yeGet(mon, MONSTER_MOVER), -25)
 	    yeSetIntAt(mon, MONSTER_DIR, DIR_LEFT)
 	    if (handler) {
-		handler.setAt("flip", 0)
+		handler.setAt("flip", right_flip)
 		yamap_monster_handler_refresh(mon)
 	    }
 	}
@@ -1610,6 +1623,16 @@ function monster_left_right(wid, tuple, distance)
 	    yeAddAt(mon, MONSTER_ACC, Math.abs(y_move_last_x(yeGet(mon, MONSTER_MOVER))))
 	}
     }
+}
+
+function monster_left_right(wid, tuple, distance)
+{
+    monster_left_right_(wid, tuple, distance, 0)
+}
+
+function monster_left_right_flipped(wid, tuple, distance)
+{
+    monster_left_right_(wid, tuple, distance, 1)
 }
 
 function monster_round(wid, tuple, distance)
@@ -1681,9 +1704,11 @@ function mod_init(mod)
     yeCreateFunction(monster_dead, mod, "monster_dead")
     let mons_mv = yeCreateArray(mod, "mons_mv")
     yeCreateFunction(monster_left_right, mons_mv, "left_right")
+    yeCreateFunction(monster_left_right_flipped, mons_mv, "left_right_flipped")
     yeCreateFunction(monster_rand, mons_mv, "rand")
     yeCreateFunction(monster_round, mons_mv, "round")
     ygRegistreFunc(1, "yamap_pc_stop", "yamap_pc_stop")
+    ygRegistreFunc(1, "yamap_init_playble_char", "yamap_init_playble_char")
     ygRegistreFunc(3, "yamap_push_obj", "yamap_push_obj")
     ygRegistreFunc(5, "yamap_generate_monster_canvasobj",
 		   "yamap_generate_monster_canvasobj")
