@@ -1530,6 +1530,76 @@ function monster_dead(wid, mon, mon_info, turn_timer)
     return 1
 }
 
+function monster_platform_atk(wid, tuple, flip_dir)
+{
+    let mon = yeGet(tuple, 0)
+    let turn_timer = yeGetIntAt(tuple, 1)
+    let handler = mon.get(MONSTER_HANDLER)
+    let left_flip = 1
+    let right_flip = 0
+    let m_pos = mon.get(MONSTER_POS)
+    let m_size = yGenericHandlerSize(handler)
+    let pc_handler = yeGet(wid, "pc_handler")
+    let pc_pos = yGenericHandlerPos(pc_handler)
+
+    if (flip_dir == 1) {
+	left_flip = 0
+	right_flip = 1
+    }
+    let pc_x = ywPosX(pc_pos)
+    let m_x = ywPosX(m_pos)
+    if (!(ywPosY(pc_pos) > ywPosY(m_pos) && ywPosY(pc_pos) < (ywPosY(m_pos) + ywSizeH(m_size)))) {
+	print("no atk")
+	y_move_set_xspeed(yeGet(mon, MONSTER_MOVER), 0)
+	yamap_monster_handler_refresh(mon)
+	return
+    }
+    let xspeed = -BASE_SPEED
+    let xrect = m_x - 8
+    if (pc_x > m_x) {
+	xspeed = BASE_SPEED
+	xrect = m_x + ywSizeW(m_pos) - 8
+	handler.setAt("flip", right_flip)
+    } else {
+	handler.setAt("flip", left_flip)
+    }
+
+    let col_rect = ywRectCreateInts(xrect, ywPosY(m_pos) + ywSizeH(m_size) - 8, 16, 32)
+    let col = ywCanvasNewCollisionsArrayWithRectangle(wid, col_rect)
+    let step = 50
+    for (c of col) {
+	let type = c.geti(YCANVAS_UDATA_IDX)
+	if (type == TYPE_BREAKABLE_BLOCK || type == TYPE_BREAKABLE_BLOCK || type == TYPE_LIGHT_FLOOR) {
+	    let old_acc = mon.geti(MONSTER_OLD_ACC)
+	    let acc = mon.get(MONSTER_ACC)
+	    if (!acc)
+		acc = mon.setAt(MONSTER_ACC, 0)
+	    acc = acc.i()
+
+	    if (yGenericTextureArrayCurrent(handler) != "walk")
+		yGenericTextureArraySet(handler, "walk")
+	    print("attacking", acc, old_acc)
+	    y_move_set_xspeed(mon.get(MONSTER_MOVER), xspeed)
+	    y_move_obj(yeGet(mon, MONSTER_OBJ), yeGet(mon, MONSTER_MOVER), turn_timer)
+	    if (acc - old_acc > step) {
+		print("step !")
+		yGenericNext(handler)
+		mon.setAt(MONSTER_OLD_ACC, acc)
+	    }
+	    if (old_acc > acc)
+		mon.setAt(MONSTER_OLD_ACC, 0)
+	    yeAddAt(mon, MONSTER_ACC, Math.abs(y_move_last_x(yeGet(mon, MONSTER_MOVER))))
+	    yamap_monster_handler_refresh(mon)
+	    yeDestroy(col)
+	    return
+	}
+    }
+    print("blocked")
+    yamap_monster_handler_refresh(mon)
+    yeDestroy(col)
+    return
+}
+
 function monster_left_right_(wid, tuple, distance, flip_dir)
 {
     let mon = yeGet(tuple, 0)
@@ -1705,6 +1775,7 @@ function mod_init(mod)
     let mons_mv = yeCreateArray(mod, "mons_mv")
     yeCreateFunction(monster_left_right, mons_mv, "left_right")
     yeCreateFunction(monster_left_right_flipped, mons_mv, "left_right_flipped")
+    yeCreateFunction(monster_platform_atk, mons_mv, "platform_atk")
     yeCreateFunction(monster_rand, mons_mv, "rand")
     yeCreateFunction(monster_round, mons_mv, "round")
     ygRegistreFunc(1, "yamap_pc_stop", "yamap_pc_stop")
