@@ -23,6 +23,19 @@
 #include "rect.h"
 #include "entity.h"
 
+#define REND_PRE_TXT(txt, align, left_pix) do {					\
+		destRect = ywRectReCreateInts(				\
+			left_pix, y0 + pos * sgGetTxtH() + 1,		\
+			wid->rect.w, sgGetTxtH() + 1,			\
+			NULL, NULL);					\
+		txtR = sdlRectFromRectEntity(destRect);			\
+		yeDestroy(destRect);					\
+		sdlPrintText(wid, yeGetString(txt), base_color,		\
+			     txtR, align);				\
+		if (yeLen(txt))						\
+			pos += 1 + yeCountCharacters(txt, '\n', -1);	\
+	} while (0)
+
 static int sdlRend(YWidgetState *state, int t)
 {
 	SDLWid *wid = ywidGetRenderData(state, t);
@@ -64,21 +77,26 @@ static int sdlRend(YWidgetState *state, int t)
 	if (pre_text) {
 		Entity *destRect;
 		SDL_Rect txtR;
+		int align = yeGetIntAt(state->entity, "pre-txt-no-align");
+		int left_pix = yeGetIntAt(state->entity, "pre-txt-left-pix");
+
+		if (align) {
+			align = YSDL_ALIGN_LEFT;
+		} else {
+			align = alignementType;
+		}
 
 		if (isPane) {
 			DPRINT_ERR("pre_text not supported with panel yet");
 		}
 
-		destRect = ywRectReCreateInts(
-			0, y0 + pos * sgGetTxtH() + 1,
-			wid->rect.w, sgGetTxtH() + 1,
-			NULL, NULL);
-		txtR = sdlRectFromRectEntity(destRect);
-		yeDestroy(destRect);
-		sdlPrintText(wid, yeGetString(pre_text), base_color,
-			     txtR, alignementType);
-		if (yeLen(pre_text))
-			pos = 1 + yeCountCharacters(pre_text, '\n', -1);
+		if (yeType(pre_text) == YSTRING) {
+			REND_PRE_TXT(pre_text, align, left_pix);
+		} else {
+			YE_FOREACH(pre_text, txt) {
+				REND_PRE_TXT(txt, align, left_pix);
+			}
+		}
 	}
 
 	YE_ARRAY_FOREACH_EXT(entries, entry, it) {
@@ -102,7 +120,7 @@ static int sdlRend(YWidgetState *state, int t)
 		has_loading_bar = (type && !yeStrCmp(type, "loading-bar"));
 
 		if (isPane) {
-			destRect = ywRectReCreateInts(wid->rect.w / len * pos, 0,
+			destRect = ywRectReCreateInts(wid->rect.w / len * pos, y0,
 						      wid->rect.w / len,
 						      sgGetTxtH() + 1,
 						      entry, "$rect");
