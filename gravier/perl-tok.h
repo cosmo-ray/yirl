@@ -54,6 +54,8 @@ TOK(PRINT)
 TOK(SEMICOL)
 TOK(UNSERSCORE)
 TOK(LITERAL_STR)
+/* I need a diferent one from literal string if the string contain varables */
+TOK(CHARGED_LITERAL_STR)
 TOK(LITERAL_NUM) /* should have been literal_int, too late */
 TOK(LITERAL_FLOAT)
 TOK(NAME)

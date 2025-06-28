@@ -103,6 +103,21 @@ struct stack_val {
 	int32_t array_size;
 };
 
+
+int gravier_str_append_sv(struct gravier_str *gstr, struct stack_val *sv)
+{
+	switch (sv->type) {
+	case SVt_IV:
+		return gravier_str_append_int(gstr, sv->i);
+	case SVt_NV:
+		return gravier_str_append_int(gstr, sv->i);
+	case SVt_PV:
+		return gravier_str_append(gstr, sv->str);
+	default:
+		return -1;
+	}
+}
+
 static int line_cnt = 0;
 
 static inline int is_skipable(char c)
@@ -784,6 +799,9 @@ again:
 		for (int j  = 0; reader[j]; ++j) {
 			if (reader[j] == '\n')
 				++line_cnt;
+			if (reader[j] == '$') {
+				r.tok = TOK_CHARGED_LITERAL_STR;
+			}
 		}
 		reader += end_i;
 		next_tok = TOK_SEMICOL;
@@ -849,7 +867,10 @@ again:
 
 		++reader;
 		struct tok r = {.tok=TOK_LITERAL_STR, .as_str=reader};
-		reader = strchr(reader, end_lit);
+		int have_variables;
+		reader = weird_strchr(reader, end_lit, '$', &have_variables);
+		if (have_variables)
+			r.tok = TOK_CHARGED_LITERAL_STR;
 		if (!reader) {
 			r.tok = TOK_ENDFILE;
 			return r;
@@ -1190,7 +1211,8 @@ exit:
 			(in).oposite = 1;				\
 			STORE_OPERAND_DOLAR(in_t, in);			\
 		}							\
-	} else if ((in_t).tok == TOK_LITERAL_STR || (in_t).tok == TOK_LITERAL_NUM) { \
+	} else if ((in_t).tok == TOK_LITERAL_STR || (in_t).tok == TOK_LITERAL_NUM || \
+		   (in_t).tok == TOK_CHARGED_LITERAL_STR || (in_t).tok == TOK_LITERAL_FLOAT) { \
 		(in).t = (in_t);					\
 	} else if ((in_t).tok == TOK_DOLAR || (in_t).tok == TOK_AT) {	\
 		(in).oposite = 0;					\
@@ -2546,6 +2568,36 @@ eq_array_at:
 		}
 		sv = &sv->array[i_idx];
 		goto eq_array_at;
+	} else if (sym_string->t.tok == TOK_CHARGED_LITERAL_STR) {
+		struct gravier_str gstr;
+		char tmp_buf[258];
+		char *tmp = sym_string->t.as_str;
+		char *tmp_next = NULL;
+
+		free_var(sv);
+		gravier_str_init(&gstr, NULL);
+		do {
+			struct sym *ref;
+
+			tmp_next = strchr(tmp, '$');
+			if (!tmp_next) {
+				gravier_str_append(&gstr, tmp);
+				break;
+			}
+			gravier_str_append_n(&gstr, tmp, tmp_next - tmp);
+			tmp = tmp_next + 1;
+			for (++tmp_next; isalnum(*tmp_next) || *tmp_next == '_' ; ++tmp_next)
+				tmp_buf[tmp_next - tmp] = *tmp_next;
+			tmp_buf[tmp_next - tmp] = 0;
+			ref = find_stack_ref(cur_pi->cur_pkg, &(struct tok){.as_str=tmp_buf});
+			gravier_str_append_sv(&gstr, &ref->v);
+			tmp = tmp_next;
+		} while (tmp_next && *tmp_next);
+		// find_stack_ref(this_file, t);
+		// steal pointer
+		sv->str = gstr.str;
+		sv->type = SVt_PV;
+		sv->flag = VAL_NEED_FREE;
 	} else if (sym_string->t.tok == TOK_LITERAL_STR) {
 		free_var(sv);
 		sv->flag = 0;
