@@ -2454,12 +2454,41 @@ static void exec_dolar_equal(struct stack_val *sv, struct stack_val *that,
 	}
 }
 
+static int handle_varaible_in_str(struct gravier_str *gstr, char *str)
+{
+	char tmp_buf[258];
+	char *tmp = str;
+	char *tmp_next = NULL;
+
+	gravier_str_init(gstr, NULL);
+	do {
+		struct sym *ref;
+
+		tmp_next = strchr(tmp, '$');
+		if (!tmp_next) {
+			gravier_str_append(gstr, tmp);
+			break;
+		}
+		gravier_str_append_n(gstr, tmp, tmp_next - tmp);
+		tmp = tmp_next + 1;
+		for (++tmp_next; isalnum(*tmp_next) || *tmp_next == '_' ; ++tmp_next)
+			tmp_buf[tmp_next - tmp] = *tmp_next;
+		tmp_buf[tmp_next - tmp] = 0;
+		ref = find_stack_ref(cur_pi->cur_pkg, &(struct tok){.as_str=tmp_buf});
+		gravier_str_append_sv(gstr, &ref->v);
+		tmp = tmp_next;
+	} while (tmp_next && *tmp_next);
+
+	return 0;
+}
+
 static struct sym *gogo_regex_engine(struct stack_val *sv, struct sym *sym_string)
 {
 	struct tok regex = sym_string->t;
 	char *target = NULL;
 	int search_patern = regex.as_str[0];
 	char separator = regex.as_str[1];
+	struct gravier_str gstr;
 	char *operation;
 	char *needle;
 	char *replace;
@@ -2479,7 +2508,8 @@ static struct sym *gogo_regex_engine(struct stack_val *sv, struct sym *sym_strin
 	} else if (sym_string->t.tok == TOK_DOLAR) {
 		target = sym_string->ref->v.str;
 	}
-	needle = strdup(regex.as_str + 2);
+	handle_varaible_in_str(&gstr, regex.as_str + 2);
+	needle = gstr.str;
 	replace = strchr(needle, separator);
 	if (!replace) {
 		goto regex_out;
@@ -2570,31 +2600,11 @@ eq_array_at:
 		goto eq_array_at;
 	} else if (sym_string->t.tok == TOK_CHARGED_LITERAL_STR) {
 		struct gravier_str gstr;
-		char tmp_buf[258];
-		char *tmp = sym_string->t.as_str;
-		char *tmp_next = NULL;
 
-		free_var(sv);
-		gravier_str_init(&gstr, NULL);
-		do {
-			struct sym *ref;
-
-			tmp_next = strchr(tmp, '$');
-			if (!tmp_next) {
-				gravier_str_append(&gstr, tmp);
-				break;
-			}
-			gravier_str_append_n(&gstr, tmp, tmp_next - tmp);
-			tmp = tmp_next + 1;
-			for (++tmp_next; isalnum(*tmp_next) || *tmp_next == '_' ; ++tmp_next)
-				tmp_buf[tmp_next - tmp] = *tmp_next;
-			tmp_buf[tmp_next - tmp] = 0;
-			ref = find_stack_ref(cur_pi->cur_pkg, &(struct tok){.as_str=tmp_buf});
-			gravier_str_append_sv(&gstr, &ref->v);
-			tmp = tmp_next;
-		} while (tmp_next && *tmp_next);
 		// find_stack_ref(this_file, t);
 		// steal pointer
+		free_var(sv);
+		handle_varaible_in_str(&gstr, sym_string->t.as_str);
 		sv->str = gstr.str;
 		sv->type = SVt_PV;
 		sv->flag = VAL_NEED_FREE;
