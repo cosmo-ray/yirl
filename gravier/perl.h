@@ -2053,7 +2053,8 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 			need_close = 1;
 		}
 	print_comma:
-		if (t.tok == TOK_LITERAL_NUM || t.tok == TOK_LITERAL_STR) {
+		if (t.tok == TOK_LITERAL_NUM || t.tok == TOK_LITERAL_STR ||
+		    t.tok == TOK_CHARGED_LITERAL_STR) {
 			f->sym_string[f->sym_len++].t = t;
 			t = next();
 		} else if (t.tok == TOK_DOLAR || t.tok == TOK_AT) {
@@ -2495,6 +2496,7 @@ static struct sym *gogo_regex_engine(struct stack_val *sv, struct sym *sym_strin
 	char *dest;
 	char *tmp;
 	int dest_l = 0;
+	char *to_free = NULL;
 	int i;
 
 	if (search_patern != 's') {
@@ -2505,6 +2507,10 @@ static struct sym *gogo_regex_engine(struct stack_val *sv, struct sym *sym_strin
 	++sym_string;
 	if (sym_string->t.tok == TOK_LITERAL_STR) {
 		target = sym_string->t.as_str;
+	} else if (sym_string->t.tok == TOK_CHARGED_LITERAL_STR) {
+		handle_varaible_in_str(&gstr, sym_string->t.as_str);
+		target = gstr.str;
+		to_free = target;
 	} else if (sym_string->t.tok == TOK_DOLAR) {
 		target = sym_string->ref->v.str;
 	}
@@ -2558,6 +2564,7 @@ static struct sym *gogo_regex_engine(struct stack_val *sv, struct sym *sym_strin
 
 regex_out:
 	free(needle);
+	free(to_free);
 	return sym_string;
 
 }
@@ -2642,6 +2649,12 @@ static int run_this(struct sym *sym_string, int return_at_return)
 			for (++sym_string; sym_string != end; ++sym_string) {
 				if (sym_string->t.tok == TOK_LITERAL_STR) {
 					printf("%s", sym_string->t.as_str);
+				} else if (sym_string->t.tok == TOK_CHARGED_LITERAL_STR) {
+					struct gravier_str gstr;
+
+					handle_varaible_in_str(&gstr, sym_string->t.as_str);
+					printf("%s", gstr.str);
+					free(gstr.str);
 				} else if (sym_string->t.tok == TOK_LITERAL_NUM) {
 					printf("%"PRIiPTR, sym_string->t.as_int);
 				} else if (sym_string->t.tok == TOK_LITERAL_FLOAT) {

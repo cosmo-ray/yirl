@@ -7,3 +7,6 @@ print $str;
 
 $s = "Hello #" =~ s/#/$str/r;
 print $s;
+
+$s = "$str #" =~ s/#/$str/r;
+print $s;
