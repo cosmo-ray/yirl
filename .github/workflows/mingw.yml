@@ -17,6 +17,7 @@ jobs:
           git
           gcc
           base-devel
+          pkgconf
           zip
           mingw-w64-x86_64-msmpi
           mingw-w64-x86_64-perl
@@ -25,6 +26,7 @@ jobs:
           SDL2_image
           SDL2_ttf
           freeglut
+          pkgconf
           mesa
           cmake
           glew
