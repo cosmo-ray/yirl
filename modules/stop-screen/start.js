@@ -40,6 +40,11 @@ const HELP_GUY = `
     \\__/
 `
 
+
+const YSTOP_HEAD_TYPE_ASCII = 0
+const YSTOP_HEAD_TYPE_IMG = 1
+
+let HEAD_TYPE = YSTOP_HEAD_TYPE_ASCII
 let CUR_HEAD = HELP_GUY
 let HEAD_DEFAULT_COLOR = "rgba: 255 255 255 150"
 let HEAD_RECT_COLOR = HEAD_DEFAULT_COLOR
@@ -48,6 +53,13 @@ let HEAD_RECT_FLAG = 1
 function y_set_head(head)
 {
     CUR_HEAD = head
+    HEAD_TYPE = YSTOP_HEAD_TYPE_ASCII
+}
+
+function y_set_head_img(head)
+{
+    CUR_HEAD = head
+    HEAD_TYPE = YSTOP_HEAD_TYPE_IMG
 }
 
 function y_set_talk_rect_style(color, flag)
@@ -148,8 +160,14 @@ function y_stop_func(wid, x, y, txt, have_arrow)
     yePushBack(data, ywCanvasNewCircleExt(wid, x + 120  * xdir,
 					  y + head_threshold + 115, 100, "rgba: 255 255 255 50", 1));
 
-    yePushBack(data, ywCanvasNewText(wid, x + 70  * xdir,
-				     y + head_threshold, yeCreateString(CUR_HEAD)));
+    if (HEAD_TYPE == YSTOP_HEAD_TYPE_ASCII) {
+	yePushBack(data, ywCanvasNewText(wid, x + 70  * xdir,
+					 y + head_threshold, yeCreateString(CUR_HEAD)));
+    } else {
+	yePushBack(data, ywCanvasNewImg(wid, x + 70  * xdir,
+					y + head_threshold, CUR_HEAD));
+
+    }
     return true
 }
 
@@ -166,6 +184,7 @@ function y_stop_head(wid, x, y, txt)
 function mod_init(mod)
 {
     yeCreateFunction(y_set_head, mod, "y_set_head")
+    yeCreateFunction(y_set_head_img, mod, "y_set_head_img")
     yeCreateFunction(y_set_talk_rect_style, mod, "y_set_talk_rect_style")
     ygRegistreFunc(4, "y_stop_head", "y_stop_head");
     ygRegistreFunc(1, "y_set_head", "y_set_head");

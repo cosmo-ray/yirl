@@ -1766,7 +1766,7 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 			close(fd);			\
 	} while (0)
 
-		// I need to free to free, after perl exit.
+		// I need to free to_free, after perl exit.
 		//			free(to_free);
 
 
