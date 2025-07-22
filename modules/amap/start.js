@@ -942,23 +942,25 @@ function amap_action(wid, events)
 	    if (ctype == TYPE_OBJ) {
 		let objs = yeGet(mi, "objs");
 		let obj = yeGet(objs, yeGetIntAt(c, CANVAS_OBJ_IDX))
-		let action = yeGet(obj, 1);
+		if (ywCanvasObjectsCheckColisions(c, pc_canvas_obj)) {
+		    let action = yeGet(obj, 1);
 
-		let ret = ywidAction(action, wid, obj);
-		if (ret & 0x10) {
-		    y_move_set_xspeed(pc_minfo, 0)
-		    wid.setAt("keydown", 0)
-		}
-		ret = ret & 0x0f
+		    let ret = ywidAction(action, wid, obj);
+		    if (ret & 0x10) {
+			y_move_set_xspeed(pc_minfo, 0)
+			wid.setAt("keydown", 0)
+		    }
+		    ret = ret & 0x0f
 
-		if (ret == 1) {
-		    direct_ret = true
-		    return true
-		}
-		if (ret == 2) {
-		    const idx = c.geti("objidx")
-		    ywCanvasRemoveObj(wid, c)
-		    objs.rm(idx)
+		    if (ret == 1) {
+			direct_ret = true
+			return true
+		    }
+		    if (ret == 2) {
+			const idx = c.geti("objidx")
+			ywCanvasRemoveObj(wid, c)
+			objs.rm(idx)
+		    }
 		}
 	    } else if (ctype == TYPE_BREAKABLE_BLOCK) {
 		let obj_pos = ywCanvasObjPos(c)
@@ -1290,7 +1292,7 @@ function amap_init(wid)
     ywTextureNewImg("./door.png", null, textures, "door");
     ywTextureNewImg("./pike.png", null, textures, "pike");
     yeCreateFloat(1.5, texture_32x32, "door");
-    texture_mv.setAt("door", ywSizeCreate(-16, -16))
+    texture_mv.setAt("door", ywSizeCreate(0, -16))
 
     let txts_arrays = yeCreateArray()
     yePrint(wid.get("pc-sprites"))
