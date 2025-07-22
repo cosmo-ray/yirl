@@ -157,16 +157,24 @@ function y_stop_func(wid, x, y, txt, have_arrow)
     } else {
 	head_threshold = 20 * (1 + yeCountLines(txt)) + 40
     }
-    yePushBack(data, ywCanvasNewCircleExt(wid, x + 120  * xdir,
-					  y + head_threshold + 115, 100, "rgba: 255 255 255 50", 1));
 
     if (HEAD_TYPE == YSTOP_HEAD_TYPE_ASCII) {
+	yePushBack(data, ywCanvasNewCircleExt(wid, x + 120  * xdir,
+					      y + head_threshold + 115, 100, "rgba: 255 255 255 50", 1));
 	yePushBack(data, ywCanvasNewText(wid, x + 70  * xdir,
 					 y + head_threshold, yeCreateString(CUR_HEAD)));
     } else {
-	yePushBack(data, ywCanvasNewImg(wid, x + 70  * xdir,
-					y + head_threshold, CUR_HEAD));
-
+	let head_threshold2 = head_threshold + 20
+	let img = ywCanvasNewImg(wid, x + 70  * xdir,
+				 y + head_threshold2, CUR_HEAD);
+	let img_s = ywCanvasObjSize(wid, img);
+	let circle = ywCanvasNewCircleExt(wid, x + 70  * xdir + ywSizeH(img_s) / 1.9,
+					  y + head_threshold2 + ywSizeH(img_s) / 1.9,
+					  ywSizeH(img_s) / 1.9,
+					  "rgba: 255 255 255 50", 1);
+	yePushBack(data, circle);
+	yePushBack(data, img);
+	ywCanvasSwapObj(wid, img, circle);
     }
     return true
 }
