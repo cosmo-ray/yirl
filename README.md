@@ -54,7 +54,7 @@ like in [action.lua](https://github.com/cosmo-ray/Sukeban/blob/master/actions.lu
 
    snake["<type>"] = "snake" -- set the widget type
    snake.dreadful_die = 1 -- internal stuff
-   snake.hitWall = "snake:snakeWarp" -- which function to call when hit a wall (to make it me like snake2)
+   snake.hitWall = "snake:snakeWarp" -- which function to call when hit a wall (to make it more like snake2)
    snake.die = Entity.new_func("backToGame") -- what's happend when you die
    snake.quit = Entity.new_func("backToGame") -- when your quit... (backToGame is sukeban function to return to game)
    snake.resources = "snake:resources" -- resource to describe snake sprites/characters
@@ -62,7 +62,7 @@ like in [action.lua](https://github.com/cosmo-ray/Sukeban/blob/master/actions.lu
    ywPushNewWidget(main, snake) -- push snake widget into main
 ```
 
-supportted scripting languages are lua, C(with tinycc), scheme(s7), javascript(quickjs), php 5.3 (ph7), perl and yb(YIRL own asm) feel free to add your language :).
+supportted scripting languages are lua, C(with tinycc), scheme(s7), javascript(quickjs), php 5.3 (ph7), perl, kuroko (python-like language), and yb(YIRL own asm) feel free to add your language :).
 
 ## how to start using YIRL
 For now the easier way to use YIRL is to come chat with us and ask for help
@@ -85,6 +85,7 @@ Here's a Table of what support what:
 | ------------- | ------------- | -- | -- |
 | C  | :heavy_check_mark:  | :heavy_check_mark: | :x: |
 | js  | :heavy_check_mark:  | :heavy_check_mark: | :heavy_check_mark: |
+| kuroko  | :heavy_check_mark:  | :heavy_check_mark: | :heavy_check_mark: |
 | php | :heavy_check_mark: | :x: | :heavy_check_mark: |
 | lua | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 | perl | :heavy_check_mark: | :x: | :x: |
@@ -94,7 +95,7 @@ Here's a Table of what support what:
 
 ## Start a game from the source
 
-`-d` is the path to the game module
+`-d` is the path to the game module 
 
 `-P` is the path to engine root, that contain yirl base modules, and scripts helpers.
 ```sh
@@ -132,7 +133,7 @@ for windows you can use `package-game-mingw.sh` with mingw
 for linux (like Arch Linux that I use BTW): `package-game.sh`
 
 Both script are rarly used because I'm lazy and might require manual inervention to remove some lib
-Also you should use an old distro (like centos 6) to package you game, otherwise old(or stable) distro might have incompatibility wih glibc
+Also you should use an old distro (like centos 7) to package you game, otherwise old(or stable) distro might have incompatibility wih glibc
 
 ## Contribution
 Obviously contributions are very welcome, to contribute you can simply make a Pull Request on GitHub, if something is wrong, I'll tell you :)
@@ -144,13 +145,13 @@ A good contribution would be to make YIRL compatible with Linux coding style.
 ## Dependencies
 Development package of these libs:
 
-* glib2
+* glib2 (only for tests)
 * lua 53+
 * sdl2, sdl2_image, sdl2_ttf
 * json-c
 * sdl2_mixer with a version >= 2.0.5 (you can use ./configure --clone-sdl-mixer)
 
-## Tree:
+## Tree (outdated):
 
 <details><summary>See file tree</summary>
 
