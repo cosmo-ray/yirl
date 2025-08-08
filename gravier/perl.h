@@ -26,6 +26,7 @@
 
 #ifdef _WIN32
 
+#define GR_PATH_SEPARATOR '\\'
 static char *gr_strndup(const char *str, size_t chars)
 {
     char *buffer;
@@ -43,6 +44,8 @@ static char *gr_strndup(const char *str, size_t chars)
 
 #else
 
+
+#define GR_PATH_SEPARATOR '/'
 #define gr_strndup strndup
 
 #endif
@@ -409,6 +412,7 @@ typedef struct {
 	khash_t(forward_func_h) *forward_dec;
 	char **tmp_files;
 	int nb_tmp_files;
+	char path_dir[2048];
 } PerlInterpreter;
 
 static PerlInterpreter *cur_pi;
@@ -1738,8 +1742,16 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 		int fd;
 
 		if (stat(file_name, &st) < 0 || (fd = open(file_name, O_RDONLY) ) < 0) {
-			fprintf(stderr, "cannot open/stat '%s'", file_name);
-			return -1;
+			char tmp_file[2048];
+
+			if (sprintf(tmp_file, "%s%s", my_perl->path_dir, file_name) < 0) {
+				fprintf(stderr, "that's fuck up");
+				return -1;
+			}
+			if (stat(tmp_file, &st) < 0 || (fd = open(tmp_file, O_RDONLY) ) < 0) {
+				fprintf(stderr, "do: cannot open/stat '%s'", file_name);
+				return -1;
+			}
 		}
 		int len = st.st_size;
 		char *file_str = malloc(len + 1);
@@ -2229,10 +2241,18 @@ static int perl_parse(PerlInterpreter * my_perl, void (*xs_init)(void *stuff), i
 	if (xs_init)
 		xs_init(NULL);
 
-	gravier_debug("perl_parse %s\n", file_name);
 	if (stat(file_name, &st) < 0 || (fd = open(file_name, O_RDONLY) ) < 0) {
-		fprintf(stderr, "cannot open/stat '%s'", file_name);
+		fprintf(stderr, "perl_parse: cannot open/stat '%s'", file_name);
 		return -1;
+	}
+	char *dir = strrchr(file_name, GR_PATH_SEPARATOR);
+	if (dir) {
+		if (dir - file_name + 1 > 2048) {
+			fprintf(stderr, "perl_parse: path too long for %s\n", file_name);
+			return -1;
+		}
+		strncpy(my_perl->path_dir, file_name, dir - file_name + 1);
+		my_perl->path_dir[dir - file_name + 1] = 0;
 	}
 	len = st.st_size;
 	char *file_str = malloc(len + 1);
