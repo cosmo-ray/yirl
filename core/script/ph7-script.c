@@ -1056,7 +1056,7 @@ static int destroy(void *sm)
 
 static void *getFastPath(void *scriptManager, const char *name)
 {
-	return (void *)manager->cur_vm;
+	return (void *)(intptr_t)manager->cur_vm;
 }
 
 

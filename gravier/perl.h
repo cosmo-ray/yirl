@@ -1319,7 +1319,7 @@ static int parse_func_call(struct tok t, struct file *f, struct sym *syms, int *
 				nb_annoying_assign++;
 				syms[*nb_syms] = (struct sym) {.t.tok=TOK_EQUAL, .ref=s_ptr};
 				syms[*nb_syms + 1] = f->sym_string[f->sym_len - 1];
-				assignement[nb_assignement++] = (struct sym){.ref=s_ptr, .t.tok=TOK_DOLAR,  .t.as_str="?assignement?", .oposite=0};;
+				assignement[nb_assignement++] = (struct sym){.ref=s_ptr, .t.tok=TOK_DOLAR,  .t.as_str="?assignement?", .oposite=0};
 				*nb_syms += 2;
 			} else {
 				assignement[nb_assignement++] = f->sym_string[f->sym_len - 1];

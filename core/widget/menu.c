@@ -198,7 +198,7 @@ static void *mnActions(int nb, union ycall_arg *args, int *types)
 	Entity *wid = args[0].e;
 	Entity *eve = args[1].e;
 
-	return (void *)mnActions_(wid, eve, ywMenuGetCurrentEntry(wid));
+	return (void *)(intptr_t)mnActions_(wid, eve, ywMenuGetCurrentEntry(wid));
 }
 
 void ywMenuUp(Entity *wid)

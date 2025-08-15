@@ -359,7 +359,7 @@ static void *chkInfD100(int nb, union ycall_arg *args, int *types)
 	// args[0] is the widget and args[1] are the events
 	int target = yeGetInt(args[2].e);
 
-	return (void *)(target < (yuiRand() % 100));
+	return (void *)(intptr_t)(target < (yuiRand() % 100));
 }
 
 static void *increaseInt(int nb, union ycall_arg *args, int *types)

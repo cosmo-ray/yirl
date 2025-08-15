@@ -77,9 +77,14 @@ static char *strndup(const char *str, size_t chars)
 #else
 #define PATH_SEPARATOR '/'
 
+#endif /* windows or orther */
+
+#ifdef __TINYC__
+#undef __attribute__
+#define _Pragma(X)
 #endif
 
-#endif
+#endif /* no in tcc script */
 
 #ifndef __INT64_C
 #define __INT64_C(c) (c ## LL)

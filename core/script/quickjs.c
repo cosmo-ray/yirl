@@ -1116,7 +1116,7 @@ static JSValue qjsto_str(JSContext *ctx, JSValueConst this_val,
 			 int argc, JSValueConst *argv)
 {
 	if (JS_IsNumber(argv[0]))
-		return JS_NewString(ctx, (void *)GET_I(ctx, 0));
+		return JS_NewString(ctx, (void *)(intptr_t)GET_I(ctx, 0));
 	return JS_NULL;
 }
 
