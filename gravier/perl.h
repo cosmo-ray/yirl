@@ -525,27 +525,23 @@ static inline PerlInterpreter *perl_alloc(void)
 	return malloc(sizeof(PerlInterpreter));
 }
 
-static void stack_val_init(struct stack_val *s)
+static void stack_val_init(struct stack_val s[static 1])
 {
-	s->type = SVt_NULL;
-	s->i = 0;
-	s->flag = 0;
-	s->array_size = 0;
+	*s = (struct stack_val){.type=SVt_NULL};
 }
 
-static inline void perl_construct(PerlInterpreter *p)
+static inline void perl_construct(PerlInterpreter p[static 1])
 {
 	gravier_debug("perl_construct\n");
-	p->files = kh_init(file_list);
-	p->first_file = NULL;
-	p->tmp_files = NULL;
-	p->nb_tmp_files = 0;
+	*p = (PerlInterpreter) {
+		.files = kh_init(file_list)
+	};
 	stack_val_init(&p->return_val.v);
 	srand(time(NULL));
 	ERRSV = &ERRSV_s;
 }
 
-static inline void perl_destruct(PerlInterpreter *p)
+static inline void perl_destruct(PerlInterpreter p[static 1])
 {
 	struct file *vvar;
 	const char *kkey;
