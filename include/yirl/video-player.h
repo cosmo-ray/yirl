@@ -1,5 +1,5 @@
 /*
-**Copyright (C) 2020 Matthias Gatto
+**Copyright (C) 2024 Matthias Gatto
 **
 **This program is free software: you can redistribute it and/or modify
 **it under the terms of the GNU Lesser General Public License as published by
@@ -15,17 +15,18 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <yirl/entity.h>
-#include <yirl/events.h>
-#include <yirl/entity-script.h>
-#include <yirl/map.h>
-#include <yirl/game.h>
-#include <yirl/menu.h>
-#include <yirl/texture.h>
-#include <yirl/container.h>
-#include <yirl/canvas.h>
-#include <yirl/entity-array.h>
-#include <yirl/text-screen.h>
-#include <yirl/event-base-objs.h>
-#include <yirl/video-player.h>
-#include <yirl/condition.h>
+#ifndef VIDEO_PLAYER_OBJS_H_
+#define VIDEO_PLAYER_OBJS_H_
+
+/**
+ * Entity content:
+ * filename: path to the video to read
+ */
+
+#include "yirl/widget.h"
+
+int ywVideoPlayerInit(void);
+int ywVideoPlayerEnd(void);
+int ysdl2RegistreVideoPlayer(void);
+
+#endif

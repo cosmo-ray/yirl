@@ -50,6 +50,7 @@ SRC = 	$(HSEARCH_SRC) \
 	$(WID_DIR)/texture.c \
 	$(WID_DIR)/canvas.c \
 	$(WID_DIR)/event-base-objs.c \
+	$(WID_DIR)/video-player.c \
 	$(SDL_WID_DIR)/sdl.c \
 	$(SDL_WID_DIR)/map.c \
 	$(SDL_WID_DIR)/menu.c \
@@ -153,6 +154,9 @@ $(QUICKJS_PATH):
 $(QUICKJS_LIB_PATH): $(QUICKJS_PATH)
 	CONFIG_FPIC=1 $(EMMAKE) make -C $(QUICKJS_PATH) libquickjs.a
 
+core/widget/pl_mpeg/pl_mpeg.h:
+	git clone https://github.com/phoboslab/pl_mpeg.git core/widget/pl_mpeg
+
 kuroko/:
 	git submodule update --init
 
@@ -182,7 +186,7 @@ $(SDL_MIXER_DEP): SDL_mixer/
 clean_sdl_mixer:
 	make -C SDL_mixer/ clean
 
-$(OBJ): $(LUA_RULE) $(JSON_C_RULE) $(QUICKJS_LIB_PATH) $(SDL_MIXER_DEP) $(SDL_GPU_LDFLAGS)
+$(OBJ): $(LUA_RULE) $(JSON_C_RULE) $(QUICKJS_LIB_PATH) $(SDL_MIXER_DEP) $(SDL_GPU_LDFLAGS) core/widget/pl_mpeg/pl_mpeg.h
 
 $(LIBNAME).a: $(OBJ) $(O_OBJ) $(SDL_MIXER_DEP)
 	$(AR)  -r -c -s $(LIBNAME).a $(OBJ) $(O_OBJ)

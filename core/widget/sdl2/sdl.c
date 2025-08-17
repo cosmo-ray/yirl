@@ -38,6 +38,11 @@ static int type = -1;
 
 static SDL_Global sg;
 
+SDL_Global *sdl_global(void)
+{
+	return &sg;
+}
+
 #define MAX_GAMEPAD 128
 
 static SDL_GameController *gamepads[MAX_GAMEPAD];

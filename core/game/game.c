@@ -52,6 +52,7 @@
 #include "native-script.h"
 #include "condition.h"
 #include "event-base-objs.h"
+#include "video-player.h"
 
 #ifdef GAMEMOD
 #include <gamemode_client.h>
@@ -561,6 +562,8 @@ int ygInit(GameConfig *cfg)
 
 		CHECK_AND_GOTO(ywEBSInit(), -1, error, "EBS init failed");
 
+		CHECK_AND_GOTO(ywVideoPlayerInit(), -1, error, "Video Player init failed");
+
 		CHECK_AND_GOTO(ysdl2RegistreTextScreen(), -1, error,
 			       "Text Screen init failed");
 		CHECK_AND_GOTO(ysdl2RegistreMenu(), -1, error,
@@ -571,6 +574,8 @@ int ygInit(GameConfig *cfg)
 			       "Canvas SDL2 init failed");
 		CHECK_AND_GOTO(ysdl2RegistreEBS(), -1, error,
 			       "EBS SDL2 init failed");
+		CHECK_AND_GOTO(ysdl2RegistreVideoPlayer(), -1, error,
+			       "Video Player SDL2 init failed");
 	}
 
 
@@ -610,6 +615,7 @@ void ygEnd()
 		ywMenuEnd();
 		ywCanvasEnd();
 		ywEBSEnd();
+		ywVideoPlayerEnd();
 		ywContainerEnd();
 		ysound_end();
 		ysdl2Destroy();

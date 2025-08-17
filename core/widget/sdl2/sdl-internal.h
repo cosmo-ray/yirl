@@ -51,6 +51,8 @@ typedef struct
  */
 SDLWid *sddComputeMargin(YWidgetState *w, SDLWid *swid);
 
+SDL_Global *sdl_global(void);
+
 void sdlResize(YWidgetState *wid, int renderType);
 
 void sdlWidInit(YWidgetState *wid, int t);
