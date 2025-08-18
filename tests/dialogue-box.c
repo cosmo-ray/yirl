@@ -66,14 +66,14 @@ static void *doEvents(int n, union ycall_arg *args, int *types)
 
 void testDialogueBox(void)
 {
-  yeInitMem();
   GameConfig cfg;
-  Entity *canvas = yeCreateArray(NULL, NULL);
   YWidgetState *wid;
   Entity *actions;
 
   g_assert(!ygInitGameConfig(&cfg, NULL, YSDL2));
   g_assert(!ygInit(&cfg));
+
+  Entity *canvas = yeCreateArray(NULL, NULL);
   g_assert(ygLoadMod(TESTS_PATH"../modules/dialogue-box/"));
   yeCreateString("canvas", canvas, "<type>");
   ysRegistreNativeFunc("doEvents", doEvents);
