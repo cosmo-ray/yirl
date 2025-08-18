@@ -83,6 +83,8 @@ static void app_on_audio(plm_t *mpeg, plm_samples_t *samples, void *user) {
 static int init(YWidgetState *opac, Entity *entity, void *args)
 {
 	struct YVideoPlayerState *self = (void *)opac;
+	Entity *widPix = yeGet(entity, "wid-pix");
+	int keep_size = yeGetIntAt(entity, "keep-size");
 
 	const char *filename = yeGetStringAt(entity, "filename");
 	if (!filename) {
@@ -90,6 +92,7 @@ static int init(YWidgetState *opac, Entity *entity, void *args)
 		return -1;
 	}
 
+	ywSetTurnLengthOverwrite(-1);
 	self->seek_to = -1;
 	self->plm = plm_create_with_filename(filename);
 	if (!self->plm) {
@@ -134,6 +137,15 @@ static int init(YWidgetState *opac, Entity *entity, void *args)
 		// Adjust the audio lead time according to the audio_spec buffer size
 		plm_set_audio_lead_time(self->plm, (double)audio_spec.samples / (double)samplerate);
 	}
+	// Adjust rectangle to video size
+	if (keep_size) {
+		self->rectangle.w = plm_get_width(self->plm);
+		self->rectangle.h = plm_get_height(self->plm);
+	} else {
+		self->rectangle.w = ywRectW(widPix);
+		self->rectangle.h = ywRectH(widPix);
+	}
+
 	self->texture = SDL_CreateTexture(
 		sdl_global()->pWindow,
 		SDL_PIXELFORMAT_IYUV,
@@ -141,16 +153,6 @@ static int init(YWidgetState *opac, Entity *entity, void *args)
 		plm_get_width(self->plm),
  		plm_get_height(self->plm)
 		);
-
-	// Adjust rectangle to video size
-	self->rectangle.w = plm_get_width(self->plm);
-	self->rectangle.h = plm_get_height(self->plm);
-
-	// Mouse position based on the renderer logical size
-	SDL_SetHint(SDL_HINT_MOUSE_RELATIVE_SCALING, "1");
-
-	// Best render scale quality
-	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "2");
 
 
 	ywidGenericCall(opac, wid_t, init);
@@ -237,6 +239,7 @@ int ywVideoPlayerEnd(void)
 	return 0;
 }
 
+#include <unistd.h>
 static int sdl2Render(YWidgetState *opac, int t)
 {
 	struct YVideoPlayerState *self = (void *)opac;
@@ -250,27 +253,22 @@ static int sdl2Render(YWidgetState *opac, int t)
 
 	SDL_RenderPresent(sdl_global()->pWindow);
 
+	usleep(30000);
 	// Compute the delta time since the last app_update(), limit max step to
 	// 1/30th of a second
 	double current_time = (double)SDL_GetTicks() / 1000.0;
 	double elapsed_time = current_time - self->last_time;
-	if (elapsed_time > 1.0 / 30.0) {
-		elapsed_time = 1.0 / 30.0;
-	}
+	/* if (elapsed_time > 1.0 / 30.0) { */
+	/* 	elapsed_time = 1.0 / 30.0; */
+	/* } */
+	printf("%f - %f - %f\n", current_time, elapsed_time, 1.0/30.0);
 	self->last_time = current_time;
-
-	// Seek using mouse position
-	int mouse_x, mouse_y;
-	if (SDL_GetMouseState(&mouse_x, &mouse_y) & SDL_BUTTON(SDL_BUTTON_LEFT)) {
-		int sx, sy;
-		SDL_GetWindowSize(sdl_global()->window, &sx, &sy);
-		seek_to = plm_get_duration(self->plm) * ((float)mouse_x / (float)sx);
-	}
 
 	// Seek or advance decode
 	if (seek_to != -1) {
 		SDL_ClearQueuedAudio(self->audio_device);
 		plm_seek(self->plm, seek_to, FALSE);
+		self->seek_to = -1;
 	}
 	else {
 		plm_decode(self->plm, elapsed_time);
