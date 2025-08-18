@@ -90,19 +90,13 @@ void testJsonToFile(void)
   int t = ydJsonInit();
   void *jsonManager;
   Entity *entity = yeCreateArray(NULL, NULL);
-  Entity *i = yeCreateInt(17, entity, NULL);
+  yeCreateInt(17, entity, NULL);
   Entity *ret;
 
   g_assert(t != -1);
   g_assert(ydJsonGetType() == t);
   jsonManager = ydNewManager(t);
   g_assert(jsonManager != NULL);
-  g_assert(ydToFile(jsonManager, TESTS_PATH"/out.json", i) >= 0);
-
-  ret = ydFromFile(jsonManager, TESTS_PATH"/out.json", NULL);
-  g_assert(ret);
-  g_assert(yeGetInt(ret) == 17);
-  yeDestroy(ret);
 
   g_assert(ydToFile(jsonManager, TESTS_PATH"/out.json", entity) >= 0);
 

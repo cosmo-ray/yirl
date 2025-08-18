@@ -20,20 +20,20 @@
 
 void testListMod(void)
 {
-  yeInitMem();
   GameConfig cfg;
+  g_assert(!ygInitGameConfig(&cfg, NULL, YNONE));
+  g_assert(!ygInit(&cfg));
+  ygLoadMod(TESTS_PATH"../modules/list/");
   Entity *gc = yeCreateArray(NULL, NULL);
   Entity *e1 = yeCreateInt(0, gc, NULL);
   Entity *e2 = yeCreateInt(0, gc, NULL);
   Entity *e3 = yeCreateInt(0, gc, NULL);
 
+  yePrint(gc);
   Entity *l;
   Entity *l2;
   Entity *l3;
 
-  g_assert(!ygInitGameConfig(&cfg, NULL, YNONE));
-  g_assert(!ygInit(&cfg));
-  ygLoadMod(TESTS_PATH"../modules/list/");
 
 #define list_init_from_array(elem, father, name) ysCall(ygGetTccManager(), \
 							"list_init_from_array",	\
@@ -140,9 +140,11 @@ void testListMod(void)
   ysCall(ygGetTccManager(), "list_destroy", l);
 
   l = list_init_from_array(gc, gc, "list :p");
+  yePrint(gc);
   g_assert(l);
   g_assert(list_elem(l) == e1);
   g_assert(list_elem(list_next(l)) == e2);
+  yePrint(l);
   g_assert(list_elem(list_prev(l)) == e3);
   g_assert(list_elem(list_next(list_next(l))) == e3);
   g_assert(list_elem(list_next(list_prev(l))) == e1);

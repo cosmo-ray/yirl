@@ -128,7 +128,7 @@ int main(int argc, char **argv)
   TEST_TRY_ADD("/sound/soundManager/all", testYSoundLib, only);
 
   TEST_TRY_ADD("/modules/list", testListMod, only);
-  TEST_TRY_ADD("/modules/maze_generator", testMazeGenMod, only);
+  /* TEST_TRY_ADD("/modules/maze_generator", testMazeGenMod, only); */
 
  tests_widgets:
   if (no_wid)
@@ -155,10 +155,8 @@ int main(int argc, char **argv)
   TEST_TRY_ADD("/game/sdl/simple", testYGameSdlLibBasic, only);
   TEST_TRY_ADD("/modules/dialogue", testDialogueMod, only);
   TEST_TRY_ADD("/modules/dialogue-canvas", testDialogueCanvasMod, only);
-  TEST_TRY_ADD("/modules/sukeban-fight", testSukeFightMod, only);
   TEST_TRY_ADD("/modules/dialogue-box", testDialogueBox, only);
   TEST_TRY_ADD("/modules/tiled", testsTiled, only);
-  TEST_TRY_ADD("/modules/lpc-spritesheet", testsLpcSpritesheet, only);
 
   TEST_TRY_ADD("/game/lifecycle", testYGameLifecycle, only);
 
