@@ -254,7 +254,7 @@ static int sdl2Render(YWidgetState *opac, int t)
 	double seek_to = self->seek_to;
 
 
-	if (self->pause)
+	if (self->pause && seek_to == -1)
 		return 0;
 	// Clear pWindow, copy texture and present
 
