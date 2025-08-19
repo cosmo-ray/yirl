@@ -58,6 +58,7 @@ struct YVideoPlayerState {
 	plm_t *plm;
 	double last_time;
 	int wants_to_quit;
+	int pause;
 	double seek_to;
 	SDL_Texture *texture;
 	SDL_Rect rectangle;
@@ -67,7 +68,6 @@ struct YVideoPlayerState {
 
 static void app_on_video(plm_t *mpeg, plm_frame_t *frame, void *user) {
 	struct YVideoPlayerState *self = (void *)user;
-
 	SDL_UpdateYUVTexture(self->texture, NULL, frame->y.data, frame->y.width, frame->cb.data, frame->cb.width, frame->cr.data,  frame->cr.width);
 }
 
@@ -93,7 +93,9 @@ static int init(YWidgetState *opac, Entity *entity, void *args)
 	}
 
 	ywSetTurnLengthOverwrite(-1);
+	self->pause = 0;
 	self->seek_to = -1;
+	self->last_time = (double)SDL_GetTicks() / 1000.0;
 	self->plm = plm_create_with_filename(filename);
 	if (!self->plm) {
 		DPRINT_ERR("Couldn't open %s", filename);
@@ -173,6 +175,12 @@ static InputStatue event(YWidgetState *opac, Entity *event)
 			case Y_RIGHT_KEY:
 				self->seek_to = plm_get_time(self->plm) + 3;
 				break;
+			case ' ':
+				self->pause = !self->pause;
+				if (!self->pause) {
+					self->last_time = (double)SDL_GetTicks() / 1000.0;
+				}
+				break;
 			case Y_LEFT_KEY:
 				self->seek_to = plm_get_time(self->plm) - 3;
 				break;
@@ -246,23 +254,18 @@ static int sdl2Render(YWidgetState *opac, int t)
 	double seek_to = self->seek_to;
 
 
+	if (self->pause)
+		return 0;
 	// Clear pWindow, copy texture and present
-	SDL_RenderClear(sdl_global()->pWindow);
 
-	SDL_RenderCopy(sdl_global()->pWindow, self->texture, NULL, &self->rectangle);
-
-	SDL_RenderPresent(sdl_global()->pWindow);
-
-	usleep(30000);
 	// Compute the delta time since the last app_update(), limit max step to
 	// 1/30th of a second
 	double current_time = (double)SDL_GetTicks() / 1000.0;
 	double elapsed_time = current_time - self->last_time;
-	/* if (elapsed_time > 1.0 / 30.0) { */
-	/* 	elapsed_time = 1.0 / 30.0; */
-	/* } */
-	printf("%f - %f - %f\n", current_time, elapsed_time, 1.0/30.0);
 	self->last_time = current_time;
+	SDL_RenderClear(sdl_global()->pWindow);
+
+	SDL_RenderCopy(sdl_global()->pWindow, self->texture, NULL, &self->rectangle);
 
 	// Seek or advance decode
 	if (seek_to != -1) {

@@ -672,6 +672,7 @@ int    ysdl2Init(void)
 	  DPRINT_ERR("SDL GPU initialisation failed: (%s)\n", SDL_GetError());
 	  return -1;
   }
+  SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "2");
   SDL_SetRenderDrawBlendMode(sg.pWindow, SDL_BLENDMODE_BLEND);
 
   for (int i = 0; i < SDL_NumJoysticks() && i < 128; ++i) {
