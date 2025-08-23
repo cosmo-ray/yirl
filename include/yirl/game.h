@@ -316,7 +316,7 @@ static inline void ygUpdateScreen(void)
 	ywidRend(ywidGetMainWid());
 }
 
-#ifdef NDEBUG
+#if defined(NDEBUG) || defined(YIRL_WITHOUT_ASSERT)
 #define ygAssert(expr)
 #else
 #define ygAssert(expr)							\

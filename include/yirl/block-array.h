@@ -148,11 +148,9 @@ static inline void yBlockArrayClear(BlockArray *ba)
 {
 	if (!(ba->flag & YBLOCK_ARRAY_BIG_CHUNK)) {
 		free(ba->elems);
-		ba->elems = NULL;
 	}
 	yBlockArrayFreeBlocks(ba);
-	ba->blocks = NULL;
-	ba->block_cnt = 0;
+	*ba = (BlockArray){};
 }
 
 static inline void yBlockArraySet(BlockArray *ba, int32_t pos)
