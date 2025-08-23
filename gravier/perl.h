@@ -2399,16 +2399,20 @@ static int exec_relational_operator(int tok, struct sym *lop, struct sym *rop, i
 		return exec_not(int_fron_sym(lop) != int_fron_sym(rop), have_not);
 	case TOK_SUP_EQUAL:
 		if (is_sym_double(lop) || is_sym_double(rop))
-			return exec_not(double_fron_sym(lop) >= double_fron_sym(rop), have_not);		return exec_not(int_fron_sym(lop) >= int_fron_sym(rop), have_not);
+			return exec_not(double_fron_sym(lop) >= double_fron_sym(rop), have_not);
+		return exec_not(int_fron_sym(lop) >= int_fron_sym(rop), have_not);
 	case TOK_SUP:
 		if (is_sym_double(lop) || is_sym_double(rop))
-			return exec_not(double_fron_sym(lop) > double_fron_sym(rop), have_not);		return exec_not(int_fron_sym(lop) > int_fron_sym(rop), have_not);
+			return exec_not(double_fron_sym(lop) > double_fron_sym(rop), have_not);
+		return exec_not(int_fron_sym(lop) > int_fron_sym(rop), have_not);
 	case TOK_INF_EQUAL:
 		if (is_sym_double(lop) || is_sym_double(rop))
-			return exec_not(double_fron_sym(lop) <= double_fron_sym(rop), have_not);		return exec_not(int_fron_sym(lop) <= int_fron_sym(rop), have_not);
+			return exec_not(double_fron_sym(lop) <= double_fron_sym(rop), have_not);
+		return exec_not(int_fron_sym(lop) <= int_fron_sym(rop), have_not);
 	case TOK_INF:
 		if (is_sym_double(lop) || is_sym_double(rop))
-			return exec_not(double_fron_sym(lop) < double_fron_sym(rop), have_not);		return exec_not(int_fron_sym(lop) < int_fron_sym(rop), have_not);
+			return exec_not(double_fron_sym(lop) < double_fron_sym(rop), have_not);
+		return exec_not(int_fron_sym(lop) < int_fron_sym(rop), have_not);
 	case TOK_EQ:
 		return exec_not(!strcmp(str_fron_sym(lop), str_fron_sym(rop)), have_not);
 	}
