@@ -1266,9 +1266,7 @@ static int parse_func_call(struct tok t, struct file *f, struct sym *syms, int *
 	if (function->l_stack_len < 1) {
 		function->l_stack_len = 1;
 		function->local_stack[0].t = (struct tok){.tok=TOK_NAME, .as_str="_"};
-		function->local_stack[0].v.type = SVt_PVAV;
-		function->local_stack[0].v.array_size = 0;
-		function->local_stack[0].v.array = NULL;
+		function->local_stack[0].v = (struct stack_val) {.type = SVt_PVAV};
 
 	}
 	struct sym *underscore = &function->local_stack[0];
