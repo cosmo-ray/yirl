@@ -152,13 +152,13 @@ static struct stack_val *ERRSV;
 #define pTHX void *stuff
 
 #define dXSARGS								\
-	struct stack_val none = {.v = NULL, .flag = 0, .type=SVt_NULL};	\
+	struct stack_val none = {.type=SVt_NULL};			\
 	gravier_debug("dXSARGS stub\n");				\
 
 #define XSRETURN_IV(int_val) do {				      \
 		free_var(&cur_pi->return_val.v);		      \
 		cur_pi->return_val.v = (struct stack_val){.i=int_val, \
-			.flag=0, .type=SVt_IV};			      \
+			.type=SVt_IV};				      \
 		return 1;					      \
 	} while (0)
 
@@ -166,7 +166,7 @@ static struct stack_val *ERRSV;
 #define XSRETURN_UV(int_val) do {					\
 		free_var(&cur_pi->return_val.v);			\
 		cur_pi->return_val.v = (struct stack_val){.i=int_val,	\
-			.flag=0, .type=SVt_IV};				\
+			.type=SVt_IV};					\
 		return 1;						\
 	} while (0)
 
@@ -185,14 +185,13 @@ static struct stack_val *ERRSV;
 #define XSRETURN_YES do {						\
 		free_var(&cur_pi->return_val.v);			\
 		cur_pi->return_val.v = (struct stack_val){.i=1,		\
-			.flag=0, .type=SVt_PV};				\
+			.type=SVt_PV};					\
 		return 1;						\
 	} while (0)
 
-#define XSRETURN_NO do {			\
+#define XSRETURN_NO do {						\
 		free_var(&cur_pi->return_val.v);			\
-		cur_pi->return_val.v = (struct stack_val){.i=0,		\
-			.flag=0, .type=SVt_PV};				\
+		cur_pi->return_val.v = (struct stack_val){.type=SVt_PV}; \
 		return 1;						\
 	} while (0)
 
@@ -499,17 +498,9 @@ static inline void newXS(const char *oname,
 			goto exit;
 		this_mod = malloc(sizeof *this_mod);
 		kh_val(cur_pi->files, iterator) = this_mod;
-			this_mod->sym_size = 0;
-			this_mod->sym_len = 0;
-			this_mod->sym_string = NULL;
-			this_mod->stack_size = 0;
-			this_mod->stack_len = 0;
-			this_mod->stack = NULL;
-			this_mod->l_stack_len = 0;
-			this_mod->l_stack_size = 0;
-			this_mod->local_stack = NULL;
-			this_mod->functions = kh_init(func_syms);
-			this_mod->cur_func = NULL;
+		*this_mod = (struct file){
+			.functions = kh_init(func_syms)
+		};
 	} else {
 		this_mod = kh_val(cur_pi->files, iterator);
 	}
@@ -1423,7 +1414,7 @@ static int parse_equal(struct file *f, char **reader, struct sym equal_sym)
 
 	struct array_idx_info array_idx;
 	struct sym operand;
-	struct sym regex = {.t.tok=0};
+	struct sym regex = {};
 	struct sym syms[64];
 	int stack_tmp = 1;
 	int nb_syms = 0;
@@ -1922,7 +1913,7 @@ static int parse_one_instruction(PerlInterpreter * my_perl, struct file *f, char
 		f->sym_string[f->sym_len++] = (struct sym) {.t={.tok=TOK_EQUAL},
 			.ref=tmp_i};
 		// 0
-		f->sym_string[f->sym_len++].t = (struct tok){.tok=TOK_LITERAL_NUM, .as_int=0};
+		f->sym_string[f->sym_len++].t = (struct tok){.tok=TOK_LITERAL_NUM};
 		// struct sym *end = TOK_IF
 		struct sym *if_sym = &f->sym_string[f->sym_len];
 		f->sym_string[f->sym_len++] = (struct sym){.t={.tok=TOK_IF}};
