@@ -20,6 +20,7 @@
 #define BIND_IIE	BIND
 #define BIND_III	BIND
 #define BIND_ISS	BIND
+#define BIND_ISE	BIND
 #define BIND_IES	BIND
 #define BIND_ESE	BIND
 #define BIND_EES	BIND
@@ -637,6 +638,7 @@ PUSH_I_GLOBAL(YPERL);
 #undef BIND_SEES
 #undef BIND_EES
 #undef BIND_SES
+#undef BIND_ISE
 #undef BIND_ESE
 #undef BIND_EEE
 #undef BIND_EEI

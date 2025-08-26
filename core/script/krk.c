@@ -219,6 +219,11 @@ static KrkValue make_ent(Entity *e);
 		BIND_AUTORET(f(YS_GETTER_LST(E,S,E)));			\
 	}
 
+#define BIND_ISE(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f(YS_GETTER_LST(I,S,E)));			\
+	}
+
 #define BIND_EES(f, useless...)						\
 	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
 		BIND_AUTORET(f(YS_GETTER_LST(E,E,S)));			\
@@ -389,17 +394,13 @@ KRK_Method(yent_krk_class, __repr__) {
 static void _ent_gcsweep(KrkInstance * self) {
 	struct YKrkEntity *ke = (void *)self;
 	if (ke->need_free) {
-		printf("destroy ");
-		yePrint(ke->e);
 		yeDestroy(ke->e);
 	}
-	printf("delete entity !!!\n");
 }
 
 KRK_Method(yent_krk_class, __init__) {
 	int have_int_ptr0 = 0;
 	long long int int_ptr;
-	printf("init entity\n");
 	if (!krk_parseArgs(".|L?", (const char *[]){"int_ptr"},
 			   &have_int_ptr0, &int_ptr))
 		return NONE_VAL();
@@ -516,7 +517,6 @@ KRK_Method(yent_krk_float_class, __init__) {
 			   &d, &have_mother, &mother, &have_name, &name))
 		return NONE_VAL();
 
-	printf("f %f\n", d);
 	self->e = yeCreateFloat(d, have_mother ? mother->e : NULL, have_name ? name : NULL);
 	self->need_free = !have_mother;
 	return NONE_VAL();
@@ -880,7 +880,6 @@ static void *krk_call(void *sm, const char *name, int nb, union ycall_arg *args,
 
 // Implementation of fastCall2
 static struct ys_ret krk_fastCall2(void *sm, void *opacFunction, int nb, union ycall_arg *args, int *types) {
-	printf("krk_fastCall2\n");
 	KrkValue funcValue = (intptr_t)opacFunction; // Use the provided function value directly
 	return krk_coreCall(funcValue, nb, args, types);
 }
@@ -926,7 +925,6 @@ static int destroy(void *sm)
 {
 	krk_freeVM(); // Free the VM resources
 	((struct YScriptKrk *)sm)->module = NULL;
-	printf("Kuroko VM destroyed.\n");
 	return 0;
 }
 
@@ -980,8 +978,6 @@ static void addFuncSymbole(void *sm, const char *name, int nbArgs, Entity *func)
 	KrkValue result = krk_interpret(finalFunction, "<stdio>");
 	if (IS_NONE(result)) {
 		printf("Error: Failed to add function '%s' to Kuroko.\n", funcName);
-	} else {
-		printf("Function '%s' added successfully.\n", funcName);
 	}
 
 	// Clean up

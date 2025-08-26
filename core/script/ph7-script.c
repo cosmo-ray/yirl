@@ -307,6 +307,12 @@ static int make_nothing(ph7_context *pCtx,  ...)
 		return 0;						\
 	}
 
+#define BIND_ISE(f, ...)						\
+	static int ph7##f(ph7_context *pCtx, int argc, ph7_value **a) { \
+		PH7_RET(f(I_AT(a, 0), S_AT(a, 1), E_AT(a, 2)), pCtx);	\
+		return 0;						\
+	}
+
 #define BIND_IES(f, ...)						\
 	static int ph7##f(ph7_context *pCtx, int argc, ph7_value **a) { \
 		PH7_RET(f(I_AT(a, 0), E_AT(a, 1), S_AT(a, 2)), pCtx);	\
