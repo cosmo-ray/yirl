@@ -470,6 +470,8 @@ BIND_EIII(ywRectContain, 3, 1);
 
 BIND_EIIII(ywCanvasSetColorModRGBA, 5, 0);
 
+BIND_V(ygGetTick);
+
 BIND_V(yeFreeEntitiesInStack);
 
 BIND_V(ywidFontW);

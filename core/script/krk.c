@@ -78,10 +78,10 @@ static int loadString(void *s, const char *str);
 static KrkValue make_ent(Entity *e);
 
 #define GET_E(idx)				\
-	AS_yent_krk_class(argv[idx])->e
+	IS_NONE(argv[idx]) ? NULL : AS_yent_krk_class(argv[idx])->e
 
 #define GET_S(idx)				\
-	AS_CSTRING(argv[idx])
+	IS_NONE(argv[idx]) ? NULL : AS_CSTRING(argv[idx])
 
 #define GET_I(idx)				\
 	AS_INTEGER(argv[idx])
@@ -372,7 +372,7 @@ static KrkValue krkyeIncrAt(int argc, const KrkValue argv[], int hasKw) {
 	return NONE_VAL();
 }
 
-static KrkValue make_ent(Entity *e) {
+static KrkValue make_ent_(Entity *e, int need_free) {
 	struct YKrkEntity *ret;
 	if (yeType(e) == YARRAY)
 		ret = (struct YKrkEntity *)krk_newInstance(yent_krk_array_class);
@@ -381,8 +381,12 @@ static KrkValue make_ent(Entity *e) {
 	else
 		ret = (struct YKrkEntity *)krk_newInstance(yent_krk_class);
 	ret->e = e;
-	ret->need_free = 0;
+	ret->need_free = need_free;
 	return OBJECT_VAL(ret);
+}
+
+static KrkValue make_ent(Entity *e) {
+	return make_ent_(e, 0);
 }
 
 KRK_Method(yent_krk_class, __repr__) {
@@ -677,6 +681,12 @@ KRK_Method(yent_krk_hash_class, __init__) {
 	return NONE_VAL();
 }
 
+static KrkValue krkygFileToEnt(int argc, const KrkValue argv[], int hasKw) {
+	Entity *parent = GET_E(2);
+	Entity *ret = ygFileToEnt(GET_I(0), GET_S(1), parent);
+	return make_ent_(ret, !parent);
+}
+
 static int init(void *sm, void *args)
 {
 	struct YScriptKrk *this = sm;
@@ -690,6 +700,8 @@ static int init(void *sm, void *args)
 #define PUSH_I_GLOBAL(x)
 
 #define PUSH_I_GLOBAL_VAL(x, val)
+
+	BIND(ygFileToEnt);
 
 #define IN_CALL 1
 #include "binding.c"
