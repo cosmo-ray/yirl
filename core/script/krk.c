@@ -378,6 +378,8 @@ static KrkValue make_ent_(Entity *e, int need_free) {
 		ret = (struct YKrkEntity *)krk_newInstance(yent_krk_array_class);
 	else if (yeType(e) == YHASH)
 		ret = (struct YKrkEntity *)krk_newInstance(yent_krk_hash_class);
+	else if (yeType(e) == YINT)
+		ret = (struct YKrkEntity *)krk_newInstance(yent_krk_int_class);
 	else
 		ret = (struct YKrkEntity *)krk_newInstance(yent_krk_class);
 	ret->e = e;
@@ -509,6 +511,50 @@ KRK_Method(yent_krk_int_class, __init__) {
 	self->e = yeCreateInt(i, have_mother ? mother->e : NULL, have_name ? name : NULL);
 	self->need_free = !have_mother;
 	return NONE_VAL();
+}
+
+KRK_Method(yent_krk_int_class, __rsub__) {
+	int i;
+	if (!krk_parseArgs(".i", (const char *[]){"int"}, &i)) {
+		DPRINT_ERR("krk error:");
+		krk_dumpTraceback();
+		return NONE_VAL();
+	}
+	return INTEGER_VAL(i - yeGetInt(self->e));
+}
+
+KRK_Method(yent_krk_int_class, __lt__) {
+	KrkValue second;
+	int second_i;
+	if (!krk_parseArgs(".V", (const char *[]){"second"}, &second)) {
+		DPRINT_ERR("krk error:");
+		krk_dumpTraceback();
+		return NONE_VAL();
+	}
+
+	if (IS_INTEGER(second)) {
+		second_i = AS_INTEGER(second);
+	} else {
+		second_i = yeGetInt(AS_yent_krk_class(second)->e);
+	}
+	return BOOLEAN_VAL(yeGetInt(self->e) < second_i);
+}
+
+KRK_Method(yent_krk_int_class, __gt__) {
+	KrkValue second;
+	int second_i;
+	if (!krk_parseArgs(".V", (const char *[]){"second"}, &second)) {
+		DPRINT_ERR("krk error:");
+		krk_dumpTraceback();
+		return NONE_VAL();
+	}
+
+	if (IS_INTEGER(second)) {
+		second_i = AS_INTEGER(second);
+	} else {
+		second_i = yeGetInt(AS_yent_krk_class(second)->e);
+	}
+	return BOOLEAN_VAL(yeGetInt(self->e) > second_i);
 }
 
 KRK_Method(yent_krk_float_class, __init__) {
@@ -734,8 +780,10 @@ static int init(void *sm, void *args)
 				       yent_krk_class);
 	yent_krk_class->allocSize = sizeof(struct YKrkEntity);
 	BIND_METHOD(yent_krk_int_class, __init__);
+	BIND_METHOD(yent_krk_int_class, __rsub__);
+	BIND_METHOD(yent_krk_int_class, __lt__);
+	BIND_METHOD(yent_krk_int_class, __gt__);
 	krk_finalizeClass(yent_krk_int_class);
-
 	yent_krk_float_class = krk_makeClass(this->module, &yent_krk_str_class, "FloatEntity",
 				       yent_krk_class);
 	yent_krk_class->allocSize = sizeof(struct YKrkEntity);
