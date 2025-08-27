@@ -380,6 +380,8 @@ static KrkValue make_ent_(Entity *e, int need_free) {
 		ret = (struct YKrkEntity *)krk_newInstance(yent_krk_hash_class);
 	else if (yeType(e) == YINT)
 		ret = (struct YKrkEntity *)krk_newInstance(yent_krk_int_class);
+	else if (yeType(e) == YSTRING)
+		ret = (struct YKrkEntity *)krk_newInstance(yent_krk_str_class);
 	else
 		ret = (struct YKrkEntity *)krk_newInstance(yent_krk_class);
 	ret->e = e;
@@ -582,7 +584,7 @@ KRK_Method(yent_krk_hash_class, __len__) {
 
 KRK_Method(yent_krk_array_class, __getitem__) {
 	KrkValue v;
-	Entity *eret;
+	Entity *eret = NULL;
 	if (!krk_parseArgs(".V", (const char *[]){"key"}, &v))
 		return NONE_VAL();
 	if (IS_INTEGER(v))
@@ -591,6 +593,14 @@ KRK_Method(yent_krk_array_class, __getitem__) {
 		eret = yeGet(self->e, (int)AS_FLOATING(v));
 	else if (IS_STRING(v))
 		eret = yeGet(self->e, AS_CSTRING(v));
+	else if (IS_yent_krk_class(v)) {
+		Entity *e = AS_yent_krk_class(v)->e;
+		if (yeType(e) == YSTRING) {
+			eret = yeGet(self->e, yeGetString(e));
+		} else if (yeType(e) == YINT) {
+			eret = yeGet(self->e, yeGetInt(e));
+		}
+	}
 	if (!eret)
 		return NONE_VAL();
 	return make_ent(eret);
