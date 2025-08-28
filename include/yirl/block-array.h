@@ -183,8 +183,8 @@ void yBlockArrayCopyElemInternal(BlockArray *ba, size_t pos,
 
 static inline int8_t *yBlockArrayGetInternal(BlockArray *ba, size_t pos)
 {
-	if (unlikely(!yBlockArrayIsBlockAllocated(*ba, yBlockArrayBlockPos(pos)))) {
-		static uint8_t nullPtr[YBA_MAX_ELEM_SIZE];
+	static uint8_t nullPtr[YBA_MAX_ELEM_SIZE];
+	if (unlikely(!yBlockArrayIsSet(*ba, pos))) {
 		return (int8_t *)&nullPtr[0];
 	}
 	return yBlockArrayFastGet(*ba, pos);

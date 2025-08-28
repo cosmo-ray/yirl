@@ -1440,6 +1440,8 @@ int yeAttach(Entity *on, Entity *entity,
 			return 0;
 		toRemove = entry->entity;
 		oldName = entry->name;
+		ygAssert(!toRemove || yeIsPtrAnEntity(toRemove));
+		ygAssert(!toRemove || toRemove->refCount);
 	}
 	entry->entity = entity;
 	if (flag & YE_ATTACH_STEAL_NAME)
