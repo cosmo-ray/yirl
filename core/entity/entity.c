@@ -328,10 +328,10 @@ NO_SIDE_EFFECT static inline ArrayEntry *yeGetArrayEntryByIdx(Entity *entity, ui
 	return yBlockArrayGetPtr(&YE_TO_ARRAY(entity)->values, i, ArrayEntry);
 }
 
-NO_SIDE_EFFECT char *yeGetKeyAt(Entity *entity, int idx)
+NO_SIDE_EFFECT char *yeGetKeyAt(const Entity *entity, int idx)
 {
 	if (entity)
-		return yeGetArrayEntryByIdx(entity, idx)->name;
+		return yeGetArrayEntryByIdx((Entity *)entity, idx)->name;
 	return NULL;
 }
 
