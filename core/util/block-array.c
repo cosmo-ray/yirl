@@ -31,9 +31,14 @@ size_t yBlockArrayDataNextSize0;
 inline void yBlockArrayInitInternal(BlockArray *ba, uint32_t elemSize, int flag)
 {
 	assert(elemSize < YBA_MAX_ELEM_SIZE);
-	*ba = (BlockArray){.elem_size = elemSize, .flag = flag};
+	ba->elem_size = elemSize;
 	if (flag & YBLOCK_ARRAY_BIG_CHUNK)
 		ba->elems = malloc(ALLOC_SIZE);
+	else
+		ba->elems = NULL;
+	ba->blocks = NULL;
+	ba->flag = flag;
+	ba->block_cnt = 0;
 }
 
 inline void yBlockArrayFree(BlockArray *ba)

@@ -192,6 +192,21 @@ void yeEnd(void)
 	yBlockArrayFree(&entitysArray);
 }
 
+/**
+ * Contain all functions used to destruct entity
+ * Must be in the same order than the EntityType Enum
+ * TODO up to date
+ */
+void (*destroyTab[])(Entity *) = {
+	yeDestroyInt,
+	yeDestroyFloat,
+	yeDestroyString,
+	yeDestroyArray,
+	yeDestroyFunction,
+	yeDestroyData,
+	yeDestroyHash,
+	yeDestroyQuadInt,
+};
 
 const char * EntityTypeStrings[] = { "int", "float", "string",
 	"array", "function", "data", "hash"};
@@ -328,10 +343,10 @@ NO_SIDE_EFFECT static inline ArrayEntry *yeGetArrayEntryByIdx(Entity *entity, ui
 	return yBlockArrayGetPtr(&YE_TO_ARRAY(entity)->values, i, ArrayEntry);
 }
 
-NO_SIDE_EFFECT char *yeGetKeyAt(const Entity *entity, int idx)
+NO_SIDE_EFFECT char *yeGetKeyAt(Entity *entity, int idx)
 {
 	if (entity)
-		return yeGetArrayEntryByIdx((Entity *)entity, idx)->name;
+		return yeGetArrayEntryByIdx(entity, idx)->name;
 	return NULL;
 }
 
@@ -906,24 +921,7 @@ void yeDestroy(Entity *entity)
 {
 	if (unlikely(!entity))
 		return;
-	switch (entity->type) {
-	case YINT:
-		return yeDestroyInt(entity);
-	case YSTRING:
-		return yeDestroyString(entity);
-	case YFLOAT:
-		return yeDestroyFloat(entity);
-	case YFUNCTION:
-		return yeDestroyFunction(entity);
-	case YARRAY:
-		return yeDestroyArray(entity);
-	case YDATA:
-		return yeDestroyData(entity);
-	case YHASH:
-		return yeDestroyHash(entity);
-	case YQUADINT:
-		return yeDestroyQuadInt(entity);
-	}
+	destroyTab[entity->type](entity);
 }
 
 void yeMultDestroy_(Entity *toRm, ...)

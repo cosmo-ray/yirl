@@ -498,7 +498,7 @@ NO_SIDE_EFFECT static inline int yeArrayIdx_ent(Entity *array, Entity *lookup)
 /**
  * @return the key string if there is one
  */
-NO_SIDE_EFFECT char *yeGetKeyAt(const Entity *entity, int idx);
+NO_SIDE_EFFECT char *yeGetKeyAt(Entity *entity, int idx);
 
 NO_SIDE_EFFECT char *yeLastKey(Entity *array);
 
