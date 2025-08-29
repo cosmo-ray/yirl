@@ -22,22 +22,22 @@
 
 static inline int ywRectX(Entity *e)
 {
-	return yeGetInt(yeGetByIdx(e, 0));
+	return yeGetIntAt(e, 0);
 }
 
 static inline int ywRectY(Entity *e)
 {
-	return yeGetInt(yeGetByIdx(e, 1));
+	return yeGetIntAt(e, 1);
 }
 
 static inline int ywRectW(Entity *e)
 {
-	return yeGetInt(yeGetByIdx(e, 2));
+	return yeGetIntAt(e, 2);
 }
 
 static inline int ywRectH(Entity *e)
 {
-	return yeGetInt(yeGetByIdx(e, 3));
+	return yeGetIntAt(e, 3);
 }
 
 static inline int ywRectWDirect(Entity *e)
@@ -116,13 +116,13 @@ static inline void ywRectSetFromRect(Entity *rect, Entity *o)
 
 static inline Entity *ywRectSetX(Entity *pos, int posX)
 {
-	yeSetInt(yeGetByIdx(pos, 0), posX);
+	yeSetIntAt(pos, 0, posX);
 	return pos;
 }
 
 static inline Entity *ywRectSetY(Entity *pos, int posY)
 {
-	yeSetInt(yeGetByIdx(pos, 1), posY);
+	yeSetIntAt(pos, 1, posY);
 	return pos;
 }
 
@@ -135,20 +135,20 @@ static inline Entity *ywRectSetPos(Entity *rect, Entity *pos)
 
 static inline Entity *ywRectSetW(Entity *pos, int posW)
 {
-	yeSetInt(yeGetByIdx(pos, 2), posW);
+	yeSetIntAt(pos, 2, posW);
 	return pos;
 }
 
 static inline Entity *ywRectSetH(Entity *pos, int posH)
 {
-	yeSetInt(yeGetByIdx(pos, 3), posH);
+	yeSetIntAt(pos, 3, posH);
 	return pos;
 }
 
 static inline Entity *ywRectAddWH(Entity *r, int w, int h)
 {
-	yeAddInt(yeGetByIdx(r, 2), w);
-	yeAddInt(yeGetByIdx(r, 3), h);
+	yeAddAt(r, 2, w);
+	yeAddAt(r, 3, h);
 	return r;
 }
 
@@ -213,7 +213,7 @@ static inline char *ywRectToString(Entity *r)
 	++i;
 	i &= 3;
 	snprintf(tmp[i], 256, "x: %d - y: %d w: %d h: %d",
-		 yeGetInt(yeGetByIdx(r, 0)), yeGetInt(yeGetByIdx(r, 1)),
+		 yeGetIntAt(r, 0), yeGetIntAt(r, 1),
 		 ywRectW(r), ywRectH(r));
 	return tmp[i];
 }
