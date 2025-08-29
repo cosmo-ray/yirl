@@ -35,6 +35,7 @@ static void *cur_manager;
 KrkClass *yent_krk_class;
 KrkClass *yent_krk_str_class;
 KrkClass *yent_krk_int_class;
+KrkClass *yent_krk_quad_int_class;
 KrkClass *yent_krk_float_class;
 KrkClass *yent_krk_array_class;
 KrkClass *yent_krk_hash_class;
@@ -56,6 +57,9 @@ struct YKrkEntity {
 
 #define IS_yent_krk_str_class(o) (krk_isInstanceOf(o,yent_krk_class))
 #define AS_yent_krk_str_class(o) ((struct YKrkEntity*)AS_OBJECT(o))
+
+#define IS_yent_krk_quad_int_class(o) (krk_isInstanceOf(o,yent_krk_class))
+#define AS_yent_krk_quad_int_class(o) ((struct YKrkEntity*)AS_OBJECT(o))
 
 #define IS_yent_krk_int_class(o) (krk_isInstanceOf(o,yent_krk_class))
 #define AS_yent_krk_int_class(o) ((struct YKrkEntity*)AS_OBJECT(o))
@@ -382,6 +386,8 @@ static KrkValue make_ent_(Entity *e, int need_free) {
 		ret = (struct YKrkEntity *)krk_newInstance(yent_krk_int_class);
 	else if (yeType(e) == YSTRING)
 		ret = (struct YKrkEntity *)krk_newInstance(yent_krk_str_class);
+	else if (yeType(e) == YQUADINT)
+		ret = (struct YKrkEntity *)krk_newInstance(yent_krk_quad_int_class);
 	else
 		ret = (struct YKrkEntity *)krk_newInstance(yent_krk_class);
 	ret->e = e;
@@ -515,6 +521,39 @@ KRK_Method(yent_krk_int_class, __init__) {
 	return NONE_VAL();
 }
 
+KRK_Method(yent_krk_quad_int_class, __init__) {
+	const char *name;
+	int i, j, k ,l;
+	int have_i, have_j, have_k, have_l;
+	struct YKrkEntity *mother;
+	int have_mother, have_name;
+
+	if (!krk_parseArgs(".|i?i?i?i?O?s?", (const char *[]){"int 0",
+				"int 1", "int 2", "int 3", "parent", "name"},
+			&have_i, &i, &have_j, &j, &have_k, &k, &have_l, &l,
+			&have_mother, &mother, &have_name, &name))
+		return NONE_VAL();
+
+	if (have_i && have_l && have_k && have_j) {
+		self->e = yeCreateQuadInt(i, j, k, l, have_mother ? mother->e : NULL,
+					  have_name ? name : NULL);
+	} else if (have_i && have_j && have_k) {
+		self->e = yeCreateQuadInt(i, j, k, k, have_mother ? mother->e : NULL,
+					  have_name ? name : NULL);
+	} else if (have_i && have_j) {
+		self->e = yeCreateQuadInt2(i, j, have_mother ? mother->e : NULL,
+					  have_name ? name : NULL);
+	} else if (have_i) {
+		self->e = yeCreateQuadInt2(i, i, have_mother ? mother->e : NULL,
+					  have_name ? name : NULL);
+	} else {
+		self->e = yeCreateQuadInt0(have_mother ? mother->e : NULL,
+					   have_name ? name : NULL);
+	}
+	self->need_free = !have_mother;
+	return NONE_VAL();
+}
+
 KRK_Method(yent_krk_int_class, __rsub__) {
 	int i;
 	if (!krk_parseArgs(".i", (const char *[]){"int"}, &i)) {
@@ -523,6 +562,16 @@ KRK_Method(yent_krk_int_class, __rsub__) {
 		return NONE_VAL();
 	}
 	return INTEGER_VAL(i - yeGetInt(self->e));
+}
+
+KRK_Method(yent_krk_int_class, __mul__) {
+	int i;
+	if (!krk_parseArgs(".i", (const char *[]){"int"}, &i)) {
+		DPRINT_ERR("krk error:");
+		krk_dumpTraceback();
+		return NONE_VAL();
+	}
+	return INTEGER_VAL(i * yeGetInt(self->e));
 }
 
 KRK_Method(yent_krk_int_class, __lt__) {
@@ -785,22 +834,30 @@ static int init(void *sm, void *args)
 	BIND_METHOD(yent_krk_str_class, __init__);
 	krk_finalizeClass(yent_krk_str_class);
 
+	yent_krk_quad_int_class = krk_makeClass(this->module, &yent_krk_quad_int_class,
+						"QuadIntEntity", yent_krk_class);
+	yent_krk_class->allocSize = sizeof(struct YKrkEntity);
+	BIND_METHOD(yent_krk_quad_int_class, __init__);
+	krk_finalizeClass(yent_krk_quad_int_class);
 
-	yent_krk_int_class = krk_makeClass(this->module, &yent_krk_str_class, "IntEntity",
+
+	yent_krk_int_class = krk_makeClass(this->module, &yent_krk_int_class, "IntEntity",
 				       yent_krk_class);
 	yent_krk_class->allocSize = sizeof(struct YKrkEntity);
 	BIND_METHOD(yent_krk_int_class, __init__);
 	BIND_METHOD(yent_krk_int_class, __rsub__);
+	BIND_METHOD(yent_krk_int_class, __mul__);
 	BIND_METHOD(yent_krk_int_class, __lt__);
 	BIND_METHOD(yent_krk_int_class, __gt__);
 	krk_finalizeClass(yent_krk_int_class);
-	yent_krk_float_class = krk_makeClass(this->module, &yent_krk_str_class, "FloatEntity",
+
+	yent_krk_float_class = krk_makeClass(this->module, &yent_krk_float_class, "FloatEntity",
 				       yent_krk_class);
 	yent_krk_class->allocSize = sizeof(struct YKrkEntity);
 	BIND_METHOD(yent_krk_float_class, __init__);
 	krk_finalizeClass(yent_krk_float_class);
 
-	yent_krk_array_class = krk_makeClass(this->module, &yent_krk_str_class, "ArrayEntity",
+	yent_krk_array_class = krk_makeClass(this->module, &yent_krk_array_class, "ArrayEntity",
 					     yent_krk_class);
 	yent_krk_class->allocSize = sizeof(struct YKrkEntity);
 	BIND_METHOD(yent_krk_array_class, __init__);
@@ -809,8 +866,8 @@ static int init(void *sm, void *args)
 	BIND_METHOD(yent_krk_array_class, __len__);
 	krk_finalizeClass(yent_krk_array_class);
 
-	yent_krk_hash_class = krk_makeClass(this->module, &yent_krk_str_class, "HashEntity",
-					     yent_krk_class);
+	yent_krk_hash_class = krk_makeClass(this->module, &yent_krk_hash_class, "HashEntity",
+					    yent_krk_class);
 	yent_krk_class->allocSize = sizeof(struct YKrkEntity);
 	BIND_METHOD(yent_krk_hash_class, __init__);
 	BIND_METHOD(yent_krk_hash_class, __getitem__);
