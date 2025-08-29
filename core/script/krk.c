@@ -88,7 +88,8 @@ static KrkValue make_ent(Entity *e);
 	IS_NONE(argv[idx]) ? NULL : AS_CSTRING(argv[idx])
 
 #define GET_I(idx)				\
-	AS_INTEGER(argv[idx])
+	IS_FLOATING(argv[idx]) ? (int)AS_FLOATING(argv[idx]) :	\
+		AS_INTEGER(argv[idx])
 
 #define GET_D(idx)				\
 	AS_FLOATING(argv[idx])
@@ -574,6 +575,16 @@ KRK_Method(yent_krk_int_class, __mul__) {
 	return INTEGER_VAL(i * yeGetInt(self->e));
 }
 
+KRK_Method(yent_krk_int_class, __truediv__) {
+	int i;
+	if (!krk_parseArgs(".i", (const char *[]){"int"}, &i)) {
+		DPRINT_ERR("krk error:");
+		krk_dumpTraceback();
+		return NONE_VAL();
+	}
+	return INTEGER_VAL(yeGetInt(self->e) / i);
+}
+
 KRK_Method(yent_krk_int_class, __lt__) {
 	KrkValue second;
 	int second_i;
@@ -589,6 +600,25 @@ KRK_Method(yent_krk_int_class, __lt__) {
 		second_i = yeGetInt(AS_yent_krk_class(second)->e);
 	}
 	return BOOLEAN_VAL(yeGetInt(self->e) < second_i);
+}
+
+KRK_Method(yent_krk_int_class, __sub__) {
+	KrkValue second;
+	int second_i;
+	if (!krk_parseArgs(".V", (const char *[]){"second"}, &second)) {
+		DPRINT_ERR("krk error:");
+		krk_dumpTraceback();
+		return NONE_VAL();
+	}
+
+	if (IS_INTEGER(second)) {
+		second_i = AS_INTEGER(second);
+	} else if (IS_FLOATING(second)) {
+		second_i = (int)AS_FLOATING(second);
+	} else {
+		second_i = yeGetInt(AS_yent_krk_class(second)->e);
+	}
+	return INTEGER_VAL(yeGetInt(self->e) - second_i);
 }
 
 KRK_Method(yent_krk_int_class, __gt__) {
@@ -846,7 +876,9 @@ static int init(void *sm, void *args)
 	yent_krk_class->allocSize = sizeof(struct YKrkEntity);
 	BIND_METHOD(yent_krk_int_class, __init__);
 	BIND_METHOD(yent_krk_int_class, __rsub__);
+	BIND_METHOD(yent_krk_int_class, __sub__);
 	BIND_METHOD(yent_krk_int_class, __mul__);
+	BIND_METHOD(yent_krk_int_class, __truediv__);
 	BIND_METHOD(yent_krk_int_class, __lt__);
 	BIND_METHOD(yent_krk_int_class, __gt__);
 	krk_finalizeClass(yent_krk_int_class);
