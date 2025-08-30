@@ -312,6 +312,36 @@ NO_SIDE_EFFECT static inline int yeIsNum(const Entity * const e)
 	return yeType(e) == YINT || yeType(e) == YFLOAT;
 }
 
+NO_SIDE_EFFECT static inline int yeIsInt(const Entity * const e)
+{
+	return yeType(e) == YINT;
+}
+
+NO_SIDE_EFFECT static inline int yeIsFloat(const Entity * const e)
+{
+	return yeType(e) == YFLOAT;
+}
+
+NO_SIDE_EFFECT static inline int yeIsString(const Entity * const e)
+{
+	return yeType(e) == YSTRING;
+}
+
+NO_SIDE_EFFECT static inline int yeIsArray(const Entity * const e)
+{
+	return yeType(e) == YARRAY;
+}
+
+NO_SIDE_EFFECT static inline int yeIsHash(const Entity * const e)
+{
+	return yeType(e) == YHASH;
+}
+
+NO_SIDE_EFFECT static inline int yeIsQuadInt(const Entity * const e)
+{
+	return yeType(e) == YQUADINT;
+}
+
 /**
  * @return 1 if e is an array that doen't contain any named key
  */

@@ -267,6 +267,15 @@ BIND_EI(ywMapCamPointedContainId, 2, 0);
 
 BIND_SS(ygReCreateString, 2, 0);
 
+BIND_E(yeIsNum, 1, 0);
+
+BIND_E(yeIsInt, 1, 0);
+BIND_E(yeIsFloat, 1, 0);
+BIND_E(yeIsString, 1, 0);
+BIND_E(yeIsArray, 1, 0);
+BIND_E(yeIsHash, 1, 0);
+BIND_E(yeIsQuadInt, 1, 0);
+
 BIND_E(ywRectPrint, 1, 0);
 
 BIND_E(ygModDirByEntity, 1, 0);

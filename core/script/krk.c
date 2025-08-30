@@ -602,6 +602,23 @@ KRK_Method(yent_krk_int_class, __lt__) {
 	return BOOLEAN_VAL(yeGetInt(self->e) < second_i);
 }
 
+KRK_Method(yent_krk_int_class, __le__) {
+	KrkValue second;
+	int second_i;
+	if (!krk_parseArgs(".V", (const char *[]){"second"}, &second)) {
+		DPRINT_ERR("krk error:");
+		krk_dumpTraceback();
+		return NONE_VAL();
+	}
+
+	if (IS_INTEGER(second)) {
+		second_i = AS_INTEGER(second);
+	} else {
+		second_i = yeGetInt(AS_yent_krk_class(second)->e);
+	}
+	return BOOLEAN_VAL(yeGetInt(self->e) <= second_i);
+}
+
 KRK_Method(yent_krk_int_class, __sub__) {
 	KrkValue second;
 	int second_i;
@@ -621,6 +638,25 @@ KRK_Method(yent_krk_int_class, __sub__) {
 	return INTEGER_VAL(yeGetInt(self->e) - second_i);
 }
 
+KRK_Method(yent_krk_int_class, __add__) {
+	KrkValue second;
+	int second_i;
+	if (!krk_parseArgs(".V", (const char *[]){"second"}, &second)) {
+		DPRINT_ERR("krk error:");
+		krk_dumpTraceback();
+		return NONE_VAL();
+	}
+
+	if (IS_INTEGER(second)) {
+		second_i = AS_INTEGER(second);
+	} else if (IS_FLOATING(second)) {
+		second_i = (int)AS_FLOATING(second);
+	} else {
+		second_i = yeGetInt(AS_yent_krk_class(second)->e);
+	}
+	return INTEGER_VAL(yeGetInt(self->e) + second_i);
+}
+
 KRK_Method(yent_krk_int_class, __gt__) {
 	KrkValue second;
 	int second_i;
@@ -636,6 +672,23 @@ KRK_Method(yent_krk_int_class, __gt__) {
 		second_i = yeGetInt(AS_yent_krk_class(second)->e);
 	}
 	return BOOLEAN_VAL(yeGetInt(self->e) > second_i);
+}
+
+KRK_Method(yent_krk_int_class, __ge__) {
+	KrkValue second;
+	int second_i;
+	if (!krk_parseArgs(".V", (const char *[]){"second"}, &second)) {
+		DPRINT_ERR("krk error:");
+		krk_dumpTraceback();
+		return NONE_VAL();
+	}
+
+	if (IS_INTEGER(second)) {
+		second_i = AS_INTEGER(second);
+	} else {
+		second_i = yeGetInt(AS_yent_krk_class(second)->e);
+	}
+	return BOOLEAN_VAL(yeGetInt(self->e) >= second_i);
 }
 
 KRK_Method(yent_krk_float_class, __init__) {
@@ -678,6 +731,10 @@ KRK_Method(yent_krk_array_class, __getitem__) {
 			eret = yeGet(self->e, yeGetString(e));
 		} else if (yeType(e) == YINT) {
 			eret = yeGet(self->e, yeGetInt(e));
+		} else if (yeType(e) == YFLOAT) {
+			eret = yeGet(self->e, (int)yeGetFloat(e));
+		} else {
+			krk_dumpTraceback();
 		}
 	}
 	if (!eret)
@@ -877,10 +934,13 @@ static int init(void *sm, void *args)
 	BIND_METHOD(yent_krk_int_class, __init__);
 	BIND_METHOD(yent_krk_int_class, __rsub__);
 	BIND_METHOD(yent_krk_int_class, __sub__);
+	BIND_METHOD(yent_krk_int_class, __add__);
 	BIND_METHOD(yent_krk_int_class, __mul__);
 	BIND_METHOD(yent_krk_int_class, __truediv__);
 	BIND_METHOD(yent_krk_int_class, __lt__);
 	BIND_METHOD(yent_krk_int_class, __gt__);
+	BIND_METHOD(yent_krk_int_class, __le__);
+	BIND_METHOD(yent_krk_int_class, __ge__);
 	krk_finalizeClass(yent_krk_int_class);
 
 	yent_krk_float_class = krk_makeClass(this->module, &yent_krk_float_class, "FloatEntity",
