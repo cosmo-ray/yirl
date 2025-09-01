@@ -85,7 +85,10 @@ static KrkValue make_ent(Entity *e);
 	IS_NONE(argv[idx]) ? NULL : AS_yent_krk_class(argv[idx])->e
 
 #define GET_S(idx)				\
-	IS_NONE(argv[idx]) ? NULL : AS_CSTRING(argv[idx])
+	IS_NONE(argv[idx]) ? NULL :		\
+		IS_STRING(argv[idx]) ?		\
+		AS_CSTRING(argv[idx]) :				\
+		yeGetString(AS_yent_krk_class(argv[idx])->e)
 
 #define GET_I(idx)				\
 	IS_FLOATING(argv[idx]) ? (int)AS_FLOATING(argv[idx]) :	\
@@ -565,6 +568,27 @@ KRK_Method(yent_krk_int_class, __rsub__) {
 	return INTEGER_VAL(i - yeGetInt(self->e));
 }
 
+
+KRK_Method(yent_krk_str_class, __eq__) {
+	KrkValue second;
+	const char *second_s = NULL;
+	if (!krk_parseArgs(".V", (const char *[]){"second"}, &second)) {
+		DPRINT_ERR("krk error:");
+		krk_dumpTraceback();
+		return NONE_VAL();
+	}
+
+	if (IS_STRING(second)) {
+		second_s = AS_CSTRING(second);
+	} else {
+		if (yeIsString(AS_yent_krk_class(second)->e))
+			second_s = yeGetString(AS_yent_krk_class(second)->e);
+	}
+	if (!second_s)
+		return BOOLEAN_VAL(0);
+	return BOOLEAN_VAL(yeStrEq(self->e, second_s));
+}
+
 KRK_Method(yent_krk_int_class, __mul__) {
 	int i;
 	if (!krk_parseArgs(".i", (const char *[]){"int"}, &i)) {
@@ -908,7 +932,7 @@ static int init(void *sm, void *args)
 	BIND_METHOD(yent_krk_class, __repr__);
 	krk_finalizeClass(yent_krk_class);
 
-	yent_krk_str_class = krk_makeClass(this->module, &yent_krk_function_class, "FunctionEntity",
+	yent_krk_function_class = krk_makeClass(this->module, &yent_krk_function_class, "FunctionEntity",
 				       yent_krk_class);
 	yent_krk_class->allocSize = sizeof(struct YKrkEntity);
 	BIND_METHOD(yent_krk_function_class, __init__);
@@ -919,6 +943,7 @@ static int init(void *sm, void *args)
 				       yent_krk_class);
 	yent_krk_class->allocSize = sizeof(struct YKrkEntity);
 	BIND_METHOD(yent_krk_str_class, __init__);
+	BIND_METHOD(yent_krk_str_class, __eq__);
 	krk_finalizeClass(yent_krk_str_class);
 
 	yent_krk_quad_int_class = krk_makeClass(this->module, &yent_krk_quad_int_class,
