@@ -1,0 +1,81 @@
+def action(wid, eve):
+    let tick = ygGetTick()
+    let elapse = tick - wid["cur_time"]
+    if elapse < wid["anim-length"] and wid["anim_idx"] >= 0:
+        return
+
+    wid["anim_idx"] += 1
+    let wid_size = wid["wid-pix"]
+    ywCanvasClear(wid)
+    let imgs = wid["imgs"]
+    let anim_len = len(wid["anim"])
+    if wid["anim_idx"] >= anim_len:
+        wid["anim_idx"] = 0
+
+    let anim = wid["anim"][wid["anim_idx"]]
+    let anim_l = len(anim)
+    let have_change = False
+    for i in range(0, anim_l):
+        if (yeIsString(anim[i])):
+            let to_push = wid["compound"][anim[i]]
+            anim[i] = to_push[0]
+            for j in range(1, len(to_push)):
+                yeInsertAt(anim, to_push[j], i+1, None)
+            have_change = True
+    if have_change:
+        anim_l = len(anim)
+
+    for i in range(0, anim_l):
+        let frm = anim[i]
+        for j in range(0, len(frm)):
+
+            def do_show(frm):
+                let img_name = frm[0]
+                if img_name == "if":
+                    let to_do = None
+                    if yeCheckCondition(frm[1]):
+                        to_do = frm[2]
+                    elif len(frm) > 2:
+                        to_do = frm[3]
+                    if not to_do:
+                        return
+                    for k in range(0, len(to_do)):
+                        do_show(to_do[k])
+                else:
+                    let x_pos = frm[1]
+                    let y_pos = frm[2]
+                    let img = imgs[img_name]
+                    let step = yeGetInt(img["step"])
+                    let t = x_pos * step
+                    let src_pos = QuadIntEntity(x_pos * step, y_pos * step, step, step)
+                    let r = ywCanvasNewImgFromTexture(wid, wid_size[2] / 2 - step / 2,
+                                                  wid_size[3] / 2 - step / 2, img["t"], src_pos)
+            do_show(frm)
+            wid["cur_time"] = tick
+
+
+def init(wid, arg):
+    wid["background"] = "white"
+    wid["action"] = action
+    if not wid["path"]:
+        wid["path"] = "anim-desc.json"
+    let conf = ygFileToEnt(0, wid["path"], None)
+    ywSetTurnLengthOverwrite(-1)
+    wid["imgs"] = conf["imgs"]
+    wid["compound"] = conf["compound"]
+    wid["anim_idx"] = -1
+    wid["anim"] = conf["anim"]
+    let imgs = wid["imgs"]
+    let l = yeLen(imgs)
+    for i in range(0, l):
+        let img = imgs[i]
+        img["t"] = ywTextureNewImg(yeGetString(img["path"]), None, None, None)
+    wid["cur_time"] = ygGetTick()
+    wid["anim-length"] = conf["anim-length"]
+
+def mod_init(mod):
+    mod["armor_lvl"] = 0
+    ygInitWidgetModule2(mod, FunctionEntity(init), "small-anim", "canvas")
+    return mod
+
+return 1
