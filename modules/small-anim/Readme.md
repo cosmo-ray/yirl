@@ -15,5 +15,4 @@ then look at [anim-desc.json](anim-desc.json) for example
 
 ![til](./demo.gif)
 
-Bote that the module handle condition, so in this case, you can change the guy armor,
-by adjusting 'armor-lvl' in code.
+*Note that the module handle condition, so in this case, you can change the guy armor, by adjusting 'armor-lvl' in code.*
