@@ -110,6 +110,7 @@ do {									\
 	ret->refCount = 1;						\
 } while (0);
 
+#define YE_ALLOC_ENTITY_VectorEntity(ret, type) YE_ALLOC_ENTITY_BASE(ret, type)
 #define YE_ALLOC_ENTITY_ArrayEntity(ret, type) YE_ALLOC_ENTITY_BASE(ret, type)
 #define YE_ALLOC_ENTITY_IntEntity(ret, type) YE_ALLOC_ENTITY_SMALL(ret, type)
 #define YE_ALLOC_ENTITY_DataEntity(ret, type) YE_ALLOC_ENTITY_BASE(ret, type)
@@ -260,6 +261,8 @@ NO_SIDE_EFFECT size_t yeLen(Entity *entity)
 			    ++ret;
 		}
 		return ret;
+	} else if (entity->type == YVECTOR) {
+		return YE_TO_VECTOR(entity)->len;
 	} else if (entity->type == YSTRING) {
 		return YE_TO_STRING(entity)->len;
 	} else if (entity->type == YDATA) {
@@ -276,6 +279,12 @@ NO_SIDE_EFFECT Entity *yeGetByIdx(Entity *entity, size_t index)
 	ygAssert(entity->refCount);
 	if (entity->type == YHASH)
 		ygDgbAbort();
+	else if (entity->type == YVECTOR) {
+		VectorEntity *vec = (void *)entity;
+		if (index > vec->len)
+			return NULL;
+		return vec->data[index];
+	}
 	Entity *r = yBlockArrayGet(&YE_TO_ARRAY(entity)->values,
 				   index, ArrayEntry).entity;
 	ygAssert(!r || yeIsPtrAnEntity(r));
@@ -369,7 +378,9 @@ NO_SIDE_EFFECT static Entity *yeGetByIdxFastWithEnd(Entity *entity, const char *
 	char *isNum = NULL;
 	int idx;
 
-	if (entity->type == YHASH) {
+	if (entity->type == YVECTOR)
+		ygDgbAbort();
+	else if (entity->type == YHASH) {
 		// kh_nget_##name
 		HashEntity *hon = YE_TO_HASH(entity);
 		khiter_t iterator = kh_nget_entity_hash(hon->values, name, end);
@@ -627,6 +638,18 @@ Entity *yeCreateHash(Entity *father, const char *name)
 	return (YE_TO_ENTITY(ret));
 }
 
+Entity *yeCreateVector(Entity *father, const char *name)
+{
+	VectorEntity * restrict ret;
+
+	YE_ALLOC_ENTITY(ret, VectorEntity);
+	yeInit((Entity *)ret, YVECTOR, father, name);
+	ret->data = (void *)yeMetadata(ret, VectorEntity);
+	ret->len = 0;
+	ret->max = yeMetadataSize(VectorEntity) / sizeof(Entity *);
+	return (YE_TO_ENTITY(ret));
+}
+
 Entity *yeCreateArrayByCStr(Entity *father, const char *name)
 {
 	ArrayEntity * restrict ret;
@@ -862,15 +885,23 @@ void yeClearArray(Entity *entity)
 	}
 	break;
 	case YHASH:
-		{
-			Entity *vvar;
-			const char *kkey;
+	{
+		Entity *vvar;
+		const char *kkey;
 
-			kh_foreach(((HashEntity *)entity)->values,
-					 kkey, vvar, {free((char *)kkey);yeDestroy(vvar);});
-			kh_clear(entity_hash, ((HashEntity *)entity)->values);
+		kh_foreach(((HashEntity *)entity)->values,
+			   kkey, vvar, {free((char *)kkey);yeDestroy(vvar);});
+		kh_clear(entity_hash, ((HashEntity *)entity)->values);
+	}
+	break;
+	case YVECTOR:
+	{
+		VectorEntity *vec = (void *)entity;
+		for (int i = 0; i < vec->len; ++i) {
+			yeDestroy(vec->data[i]);
 		}
-		break;
+	}
+	break;
 	default:
 		DPRINT_ERR("yeClearArray with wrong type");
 	}
@@ -886,6 +917,19 @@ void yeDestroyHash(Entity *entity)
 			   kkey, vvar, {free((char *)kkey); yeDestroy(vvar);});
 		kh_destroy(entity_hash, ((HashEntity *)entity)->values);
 		YE_DESTROY_ENTITY(entity, ArrayEntity);
+	} else {
+		YE_DECR_REF(entity);
+	}
+}
+
+void yeDestroyVector(Entity *entity)
+{
+	if(entity->refCount == 1) {
+		VectorEntity *vec = (void *)entity;
+		yeClearArray(entity);
+		if (vec->max > yeMetadataSize(VectorEntity) / sizeof(Entity *)) {
+			free(vec->data);
+		}
 	} else {
 		YE_DECR_REF(entity);
 	}
@@ -921,6 +965,8 @@ void yeDestroy(Entity *entity)
 		return yeDestroyData(entity);
 	case YHASH:
 		return yeDestroyHash(entity);
+	case YVECTOR:
+		return yeDestroyVector(entity);
 	case YQUADINT:
 		return yeDestroyQuadInt(entity);
 	}
@@ -960,6 +1006,8 @@ Entity *yeCreate(EntityType type, void *val, Entity *father, const char *name)
 		return yeCreateFunction(val, NULL, father, name);
 	case YHASH:
 		return yeCreateHash(father, name);
+	case YVECTOR:
+		return yeCreateVector(father, name);
 	case YQUADINT:
 		return yeCreateQuadInt((size_t)val, (size_t)val,
 				       (size_t)val, (size_t)val, father, name);
@@ -1032,6 +1080,17 @@ Entity	*yeMoveByEntity(Entity* src, Entity* dest, Entity *what,
 
 Entity *yeRemoveChildByIdx(Entity *array, int toRemove)
 {
+	if (array->type == YVECTOR) {
+		VectorEntity *vec = (void *)array;
+		int l = vec->len;
+		if (toRemove >= l)
+			return NULL;
+		yeDestroy(vec->data[toRemove]);
+		if  (toRemove == l - 1)
+			return NULL;
+		vec->data[toRemove] = vec->data[--l];
+		return NULL;
+	}
 	BlockArray *ba = &YE_TO_ARRAY(array)->values;
 	uint16_t flag = ba->flag;
 	ArrayEntry *tmp = yeGetArrayEntryByIdx(array, toRemove);
@@ -1067,6 +1126,19 @@ Entity *yeRemoveChildByEntity(Entity *array, Entity *toRemove)
 				yeDestroy(to_destroy);
 				kh_del(entity_hash, h, k);
 				return to_destroy;
+			}
+		}
+		return NULL;
+	} else if (array->type == YVECTOR) {
+		VectorEntity *vec = (void *)array;
+		int l = vec->len;
+
+		for (int i = 0; i < l; ++i) {
+			if (toRemove == vec->data[i]) {
+				yeDestroy(toRemove);
+				if (i == l - 1)
+					return NULL;
+				vec->data[i] = vec->data[--l];
 			}
 		}
 		return NULL;
@@ -1294,6 +1366,17 @@ static inline void yeAttachChild(Entity *on, Entity *entity,
 		}
 		yeDestroy(entity);
 		return;
+	} else if (on->type == YVECTOR) {
+		if (unlikely(name)) {
+			DPRINT_ERR("name can not be use in Vector");
+			ygDgbAbort();
+		}
+		if (unlikely(yePushBack(on, entity, NULL) < 0)) {
+			DPRINT_ERR("pushing '%s' on parent fail", name);
+			ygDgbAbort();
+		}
+		yeDestroy(entity);
+		return;
 	}
 	ygAssert(on->refCount);
 	entry = yBlockArraySetGetPtr(&YE_TO_ARRAY(on)->values,
@@ -1374,6 +1457,20 @@ Entity *yeCreateCopy2(Entity *src, Entity *father, const char *name, _Bool just_
 				   });
 		}
 		break;
+	case YVECTOR:
+		ret = yeCreateVector(father, name);
+		{
+			VectorEntity *vec = (void *)src;
+
+			for (int i = 0; i < vec->len; ++i) {
+				if (just_ref) {
+					yePushBack(ret, vec->data[i], NULL);
+				} else {
+					yeCreateCopy2(vec->data[i], ret, NULL, 0);
+				}
+			}
+		}
+		break;
 	default:
 		return NULL;
 	}
@@ -1427,6 +1524,33 @@ int yeAttach(Entity *on, Entity *entity,
 		if (!(flag & YE_ATTACH_NO_INC_REF))
 			yeIncrRef(entity);
 		kh_val(hon->values, iterator) = entity;
+		return 0;
+	} else if (on->type == YVECTOR) {
+		VectorEntity *vec = (void *)on;
+
+		if (idx > vec->len) {
+			DPRINT_ERR("YVector doesn't allow for sparce elems\n");
+			ygDgbAbort();
+		} else if (idx == vec->max) {
+			if (vec->max == yeMetadataSize(VectorEntity) / sizeof(Entity *)) {
+				Entity **anew = malloc(128 * sizeof(Entity *));
+				if (!anew)
+					ygDgbAbort();
+				memcpy(anew, vec->data, yeMetadataSize(VectorEntity));
+				vec->max = 128;
+			} else {
+				vec->max = vec->max << 1;
+				vec->data = realloc(vec->data, vec->max);
+				ygAssert(vec->data);
+			}
+			++vec->len;
+			vec->data[idx] = entity;
+		} else {
+			if (vec->data[idx] != entity) {
+				yeDestroy(vec->data[idx]);
+				vec->data[idx] = entity;
+			}
+		}
 		return 0;
 	} else if (on->type != YARRAY)
 		return -1;
@@ -1791,6 +1915,16 @@ static Entity *yeCopyInternal(Entity* src, Entity* dest,
 			}
 
 			break;
+		case YVECTOR:
+			yeClearArray(dest);
+			{
+				VectorEntity *vec = (void *)src;
+
+				for (int i = 0; i < vec->len; ++i) {
+					yeCreateCopy2(vec->data[i], dest, NULL, 0);
+				}
+			}
+			break;
 		case YFUNCTION:
 			strVal = yeGetFunction(src);
 			yeSetFunction(dest, strVal);
@@ -1889,7 +2023,7 @@ static void yeToCStrInternal(Entity *entity, int deep, Entity *str,
 					   yeStringAppendPrintf(str,
 								"\"%s\": ",
 								key);
-					   if (yeType(vvar) == YARRAY || yeType(vvar) == YHASH)
+					   if (yeIsContainer(vvar))
 						   append_pretty(str, deep - 1, origDeep, flag);
 				   if (!(deep - 1)) {
 					   yeStringAdd(str, "...");
@@ -1909,6 +2043,36 @@ static void yeToCStrInternal(Entity *entity, int deep, Entity *str,
 			yeStringAddCh(str, '\n');
 
 		break;
+	case YVECTOR :
+		{
+			VectorEntity *vec = (void *)entity;
+			yeStringAddCh(str, '[');
+			for (int i = 0; i < vec->len; ++i) {
+				Entity *tmp = vec->data[i];
+
+				if (!(flag & YE_FORMAT_OPT_PRINT_ONLY_VAL_ARRAY)) {
+					if (flag & YE_FORMAT_PRETTY) {
+						append_pretty(str, deep,
+							      origDeep, flag);
+					} else {
+						yeStringAdd(str, ", ");
+					}
+				}
+				if (yeIsContainer(tmp))
+					append_pretty(str, deep - 1, origDeep, flag);
+				if (!(deep - 1)) {
+					yeStringAdd(str, "...");
+				} else {
+					yeToCStrInternal(tmp, deep - 1, str,
+							 flag, origDeep, ignore_keys);
+				}
+
+			}
+			yeStringAddCh(str, ']');
+			if (flag & YE_FORMAT_OPT_BREAK_ARRAY_END)
+				yeStringAddCh(str, '\n');
+			break;
+		}
 	case YARRAY :
 		yeStringAddCh(str, '[');
 		if (yeLen(entity) > 20)
@@ -1932,7 +2096,7 @@ static void yeToCStrInternal(Entity *entity, int deep, Entity *str,
 				yeStringAppendPrintf(str, "[" PRIint64
 						     "] : ", it);
 			}
-			if (yeType(tmp->entity) == YARRAY || yeType(tmp->entity) == YHASH)
+			if (yeIsContainer(tmp->entity))
 				append_pretty(str, deep - 1, origDeep, flag);
 			if (!(deep - 1)) {
 				yeStringAdd(str, "...");

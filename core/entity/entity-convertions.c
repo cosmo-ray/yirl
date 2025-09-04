@@ -30,6 +30,7 @@ Entity *yeBrutalCast(Entity *entity, int type)
     case BAD_TYPE:
     case YARRAY:
     case YHASH:
+    case YVECTOR:
     case NBR_ENTITYTYPE:
       return NULL;
     }
@@ -55,6 +56,7 @@ Entity *yeBrutalCast(Entity *entity, int type)
     case YSTRING:
     case YFUNCTION:
     case YARRAY:
+    case YVECTOR:
     case BAD_TYPE:
     case YHASH:
     case NBR_ENTITYTYPE:
@@ -81,6 +83,7 @@ Entity *yeBrutalCast(Entity *entity, int type)
       return entity;
     case YFUNCTION:
     case YARRAY:
+    case YVECTOR:
     case YQUADINT:
     case YHASH:
     case BAD_TYPE:
@@ -108,6 +111,7 @@ Entity *yeBrutalCast(Entity *entity, int type)
       return entity;
     case YFUNCTION:
     case YARRAY:
+    case YVECTOR:
     case YQUADINT:
     case YHASH:
     case BAD_TYPE:
@@ -120,6 +124,7 @@ Entity *yeBrutalCast(Entity *entity, int type)
   case NBR_ENTITYTYPE:
   case YARRAY:
   case YQUADINT:
+  case YVECTOR:
   case YHASH:
   case YFUNCTION:
     return NULL;
@@ -142,6 +147,7 @@ Entity *yeConvert(Entity *entity, int type)
 		case YFUNCTION:
 		case YQUADINT:
 		case YHASH:
+		case YVECTOR:
 		case BAD_TYPE:
 		case YARRAY:
 		case NBR_ENTITYTYPE:
@@ -163,6 +169,7 @@ Entity *yeConvert(Entity *entity, int type)
 		case YHASH:
 		case YQUADINT:
 		case YARRAY:
+		case YVECTOR:
 		case BAD_TYPE:
 		case NBR_ENTITYTYPE:
 			return NULL;
@@ -191,6 +198,7 @@ Entity *yeConvert(Entity *entity, int type)
 		case YINT:
 		case YFLOAT:
 		case YDATA:
+		case YVECTOR:
 		case YQUADINT:
 		case YFUNCTION:
 		case YHASH:
@@ -205,10 +213,27 @@ Entity *yeConvert(Entity *entity, int type)
 		return NULL;
 		break;
 
+	case YVECTOR:
+		break;
 	case YHASH:
 		break;
 	case YARRAY:
 		switch (type) {
+		case YVECTOR:
+		{
+			yeAutoFree Entity *tmp = yeCreateCopy2(entity, NULL, NULL, 1);
+			yeClearArray(entity);
+			yBlockArrayFree(&YE_TO_ARRAY(entity)->values);
+			entity->type = YVECTOR;
+			YE_TO_VECTOR(entity)->data = (void *)yeMetadata(entity, VectorEntity);
+			YE_TO_VECTOR(entity)->len = 0;
+			YE_TO_VECTOR(entity)->max = yeMetadataSize(VectorEntity) / sizeof(Entity *);
+			for (size_t i = 0; i < yeLen(tmp); ++i) {
+				yePushBack(entity, yeGet(tmp, i), NULL);
+			}
+			return entity;
+		}
+		break;
 		case YHASH:
 		{
 			yeAutoFree Entity *tmp = yeCreateCopy2(entity, NULL, NULL, 1);

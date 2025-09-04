@@ -64,7 +64,8 @@ typedef enum
 	YDATA = 5,
 	YHASH = 6,
 	YQUADINT = 7,
-	NBR_ENTITYTYPE = 8
+	YVECTOR = 8,
+	NBR_ENTITYTYPE = 9
 } EntityType;
 
 typedef enum
@@ -106,6 +107,7 @@ typedef enum
 #define	YE_TO_C_DATA(X) ((const DataEntity *)X)
 #define YE_TO_HASH(X) ((HashEntity *)X)
 #define YE_TO_QINT(X) ((QuadIntEntity *)X)
+#define YE_TO_VECTOR(X) ((VectorEntity *)X)
 
   /* TODO: move most of this code to yeDestroy, remove this */
 #define YE_DESTROY(X) do {			\
@@ -163,6 +165,15 @@ typedef	struct
 
 	BlockArray values;
 } ArrayEntity;
+
+typedef	struct
+{
+	ENTITY_HEADER
+
+	uint16_t len;
+	uint16_t max;
+	Entity **data;
+} VectorEntity;
 
 typedef	struct
 {
@@ -253,6 +264,7 @@ union SmallEntity {
 union FatEntity {
 	Entity Entity;
 	ArrayEntity ArrayEntity;
+	VectorEntity VectorEntity;
 	IntEntity IntEntity;
 	FloatEntity FloatEntity;
 	StringEntity StringEntity;
@@ -340,6 +352,16 @@ NO_SIDE_EFFECT static inline int yeIsHash(const Entity * const e)
 NO_SIDE_EFFECT static inline int yeIsQuadInt(const Entity * const e)
 {
 	return yeType(e) == YQUADINT;
+}
+
+NO_SIDE_EFFECT static inline int yeIsVector(const Entity * const e)
+{
+	return yeType(e) == YVECTOR;
+}
+
+NO_SIDE_EFFECT static inline int yeIsContainer(const Entity * const e)
+{
+	return yeType(e) == YVECTOR || yeType(e) == YHASH || yeType(e) == YARRAY;
 }
 
 /**
@@ -1875,10 +1897,27 @@ NO_SIDE_EFFECT static inline _Bool yeDoesInclude(Entity *array, Entity *toFind)
 {
 	if (!array || !toFind)
 		return 0;
-	Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(array)->values, tmp,
-				  it, ArrayEntry) {
-		if (tmp && tmp->entity == toFind)
-			return 1;
+	if (yeIsVector(array)) {
+		VectorEntity *vec = (void *)array;
+
+		for (int i = 0; i < vec->len; ++i) {
+			if (toFind == vec->data[i])
+				return 1;
+		}
+	} else if (yeIsHash(array)) {
+		Entity *vvar;
+
+		kh_foreach_value(((HashEntity *)array)->values, vvar, {
+				if (vvar == toFind)
+					return 1;
+			});
+	} else {
+
+		Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(array)->values, tmp,
+					  it, ArrayEntry) {
+			if (tmp && tmp->entity == toFind)
+				return 1;
+		}
 	}
 	return 0;
 }
