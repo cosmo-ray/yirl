@@ -370,6 +370,10 @@ void ywCntConstructChilds(Entity *ent)
 				yeReplace(entries, tmp, tmp2);
 				tmp = tmp2;
 			}
+			if (!tmp) {
+				DPRINT_ERR("can't init NULL widget");
+				continue;
+			}
 			yeReplaceBackExt(tmp, ent, "$father-container",
 					 YE_FLAG_NO_COPY);
 			wid = ywidNewWidget(tmp, NULL);
