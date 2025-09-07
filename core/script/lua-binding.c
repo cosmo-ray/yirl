@@ -1077,12 +1077,6 @@ int	luaYwCntGetEntry(lua_State *L)
 	return 1;
 }
 
-int	luaywCntConstructChilds(lua_State *L)
-{
-	ywCntConstructChilds(luaEntityAt(L, 1));
-	return 0;
-}
-
 int	luaYwCntPopLastEntry(lua_State *L)
 {
 	ywCntPopLastEntry(luaEntityAt(L, 1));

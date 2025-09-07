@@ -267,6 +267,8 @@ BIND_EI(ywMapCamPointedContainId, 2, 0);
 
 BIND_SS(ygReCreateString, 2, 0);
 
+BIND_E(ywCntConstructChilds, 1, 0);
+
 BIND_E(yeIsNum, 1, 0);
 
 BIND_E(yeIsInt, 1, 0);
