@@ -951,6 +951,8 @@ static inline Entity *yeCreateArrayByEntity(Entity *parent, Entity *name)
 	return yeCreateArrayByCStr(parent, yeGetString(name));
 }
 
+Entity *yeCreateVector(Entity *father, const char *name);
+
 Entity *yeCreateHash(Entity *parent, const char *name);
 
 #ifndef __cplusplus
@@ -987,6 +989,7 @@ void yeDestroyFunction(Entity *entity);
 void yeDestroyArray(Entity *entity);
 void yeDestroyData(Entity *entity);
 void yeDestroyHash(Entity *entity);
+void yeDestroyVector(Entity *entity);
 void yeDestroyQuadInt(Entity *entity);
 
 static void yeDestroy_VoidPtr(void *e)
@@ -2038,7 +2041,7 @@ NO_SIDE_EFFECT static inline Entity *yeGetRandomElem(Entity *array)
 		}
 		return NULL;
 
-	} else if (t != YARRAY) {
+	} else if (t != YARRAY && t != YVECTOR) {
 		return NULL;
 	}
 
