@@ -768,6 +768,12 @@ void YWidDestroy(YWidgetState *wid)
 	else
 		free(wid);
 	yeRemoveChild(ent, "$wid");
+	if (!yeRefCount(ent)) {
+		DPRINT_ERR("widget entity without refcount, "
+			   "maybe you replace a parent widget\n"
+			   "and did not incref in a script language that use GC");
+		ygAbort();
+	}
 	if (yeGetIntAt(ent, "need_yedestroy"))
 		yeDestroy(ent);
 }
