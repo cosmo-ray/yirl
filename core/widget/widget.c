@@ -772,7 +772,7 @@ void YWidDestroy(YWidgetState *wid)
 		DPRINT_ERR("widget entity without refcount, "
 			   "maybe you replace a parent widget\n"
 			   "and did not incref in a script language that use GC");
-		ygAbort();
+		ygDgbAbort();
 	}
 	if (yeGetIntAt(ent, "need_yedestroy"))
 		yeDestroy(ent);
