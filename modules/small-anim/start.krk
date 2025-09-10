@@ -10,6 +10,9 @@ def action(wid, eve):
     let imgs = wid["imgs"]
     let anim_len = len(wid["anim"])
     if wid["anim_idx"] >= anim_len:
+        if wid["end"]:
+            wid["end"](wid)
+            return
         wid["anim_idx"] = 0
 
     let anim = wid["anim"][wid["anim_idx"]]

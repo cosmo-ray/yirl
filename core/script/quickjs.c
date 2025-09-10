@@ -681,8 +681,8 @@ BIND_IIIIES(yeCreateQuadInt, 4, 2);
 /* make all bindings here */
 #include "binding.c"
 
-static JSValue functions[256];
-static uint64_t f_mask[4];
+static JSValue functions[32 * 64];
+static uint64_t f_mask[32];
 
 static JSValue qjsyeCreateFunction(JSContext *ctx, JSValueConst this_val,
 				   int argc, JSValueConst *argv)
@@ -696,7 +696,7 @@ static JSValue qjsyeCreateFunction(JSContext *ctx, JSValueConst this_val,
 
 	again:
 		if (f_mask[mask_i] == YUI_MASK_FULL) {
-			if (++mask_i < 4) {
+			if (++mask_i < 16) {
 				f_pos += 64;
 				goto again;
 			}
@@ -1185,6 +1185,8 @@ static JSValue array_set_at(JSContext *ctx, JSValueConst this_val,
 		} else {
 			return mk_ent(ctx, yeReCreateString(GET_S(ctx, 1), e, GET_S(ctx, 0)), 0);
 		}
+	} else if (JS_IsFunction(ctx, argv[1])) {
+		return qjsyeCreateFunction(ctx, this_val, argc + 1, (JSValueConst[]){argv[1], this_val, argv[0]});
 	} else if (JS_IsObject(argv[1])) {
 		if (JS_IsNumber(argv[0])) {
 			Entity *to_push = GET_E_(argv[1]);
