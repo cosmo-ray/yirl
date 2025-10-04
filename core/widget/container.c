@@ -224,8 +224,7 @@ static int cntInit(YWidgetState *opac, Entity *entity, void *args)
 
 	(void)args;
 	if (!entries) {
-		DPRINT_ERR("no entries");
-		return -1;
+		entries = yeCreateArray(entity, "entries");
 	}
 
 	if (bg) {

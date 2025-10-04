@@ -802,21 +802,25 @@ void *fy_action(int nbArgs, void **args)
 void *fy_init(int nbArgs, void **args)
 {
 	Entity *wid = args[0];
+	char *rom_path;
+
 	yeConvert(wid, YHASH);
 	main_canvas = wid;
 	yeCreateString("rgba: 0 0 0 255", wid, "background");
 	yeCreateFunction("fy_action", ygGetTccManager(), wid, "action");
 	yeAutoFree Entity *rom;
 	if (ygGetProgramArg()) {
-		rom = ygFileToEnt(YRAW_FILE_DATA, ygGetProgramArg(), NULL);
-	} else {
-		rom = ygFileToEnt(YRAW_FILE_DATA, "background.nes", NULL);
+		rom_path = ygGetProgramArg();
+	} else if ((rom_path = yeGetStringAt(wid, "rom")) == NULL) {
+		rom_path = "background.nes";
 	}
+	rom = ygFileToEnt(YRAW_FILE_DATA, rom_path, NULL);
 
+	printf("rom %s\n", rom_path);
 	printf("len r: %x - %x\n", yeLen(rom), yeLen(rom) + 0x4020);
 	yePushBack(wid, rom, "rom");
 	cartridge = yeGetData(rom);
-	if (!strcmp(cartridge, "NES")) {
+	if (cartridge[0] == 'N' && cartridge[1] == 'E' && cartridge[2] == 'S') {
 		printf("NES mode\n");
 		yeCreateInt(NES_MODE, wid, "mode");
 	} else if (!strcmp(cartridge, "YIRL 0")) {
@@ -824,7 +828,7 @@ void *fy_init(int nbArgs, void **args)
 		yeCreateInt(YIRL_0_MODE, wid, "mode");
 		cpu.pc = 0x1000;
 	} else {
-		printf("unknow mode %s\n", cartridge);
+		printf("unknow mode '%s'\n", cartridge);
 	}
 	void *ret = ywidNewWidget(wid, "canvas");
 	for (int i = 0; i < 0x100; ++i) {
