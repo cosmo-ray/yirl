@@ -4,18 +4,29 @@ def action(wid, eve):
     if elapse < wid["anim-length"] and wid["anim_idx"] >= 0:
         return
 
-    wid["anim_idx"] += 1
     let wid_size = wid["wid-pix"]
     ywCanvasClear(wid)
     let imgs = wid["imgs"]
     let anim_len = len(wid["anim"])
-    if wid["anim_idx"] >= anim_len:
-        if wid["end"]:
-            wid["end"](wid)
-            return
-        wid["anim_idx"] = 0
+    def incr_anim_idx(wid, anim_len):
+        wid["anim_idx"] += 1
+        if wid["anim_idx"] >= anim_len:
+            if wid["end"]:
+                wid["end"](wid)
+                return True
+            wid["anim_idx"] = 0
+            return False
 
+    if incr_anim_idx(wid, anim_len):
+        return
     let anim = wid["anim"][wid["anim_idx"]]
+    if anim[0] == "conditional":
+        if !yeCheckCondition(anim[1]):
+            if incr_anim_idx(wid, anim_len):
+                return
+            return action(wid, eve)
+        else:
+            anim = anim[2]
     let anim_l = len(anim)
     let have_change = False
     for i in range(0, anim_l):
@@ -77,7 +88,7 @@ def init(wid, arg):
     wid["anim-length"] = conf["anim-length"]
 
 def mod_init(mod):
-    mod["armor_lvl"] = 0
+    mod["armor_lvl"] = 1
     ygInitWidgetModule2(mod, FunctionEntity(init), "small-anim", "canvas")
     return mod
 
