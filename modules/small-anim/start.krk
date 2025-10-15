@@ -1,6 +1,7 @@
 def action(wid, eve):
     let tick = ygGetTick()
     let elapse = tick - wid["cur_time"]
+    let reduce_percent = 0
     if elapse < wid["anim-length"] and wid["anim_idx"] >= 0:
         return
 
@@ -27,6 +28,13 @@ def action(wid, eve):
             return action(wid, eve)
         else:
             anim = anim[2]
+    if anim[0] == "modifier":
+        for mod_i in range(0, len(anim[1])):
+            let mod = anim[1][mod_i]
+            if mod[0] == "reduce":
+                reduce_percent = mod[1]
+        anim = anim[2]
+
     let anim_l = len(anim)
     let have_change = False
     for i in range(0, anim_l):
@@ -63,7 +71,10 @@ def action(wid, eve):
                     let t = x_pos * step
                     let src_pos = QuadIntEntity(x_pos * step, y_pos * step, step, step)
                     let r = ywCanvasNewImgFromTexture(wid, wid_size[2] / 2 - step / 2,
-                                                  wid_size[3] / 2 - step / 2, img["t"], src_pos)
+                                                      wid_size[3] / 2 - step / 2,
+                                                      img["t"], src_pos)
+                    if reduce_percent:
+                        ywCanvasPercentReduce(r, reduce_percent)
             do_show(frm)
             wid["cur_time"] = tick
 

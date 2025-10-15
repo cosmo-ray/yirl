@@ -90,9 +90,11 @@ static KrkValue make_ent(Entity *e);
 		AS_CSTRING(argv[idx]) :				\
 		yeGetString(AS_yent_krk_class(argv[idx])->e)
 
-#define GET_I(idx)				\
+#define GET_I(idx)						\
 	IS_FLOATING(argv[idx]) ? (int)AS_FLOATING(argv[idx]) :	\
-		AS_INTEGER(argv[idx])
+		IS_NONE(argv[idx]) ? 0 :			\
+		IS_INTEGER(argv[idx]) ? AS_INTEGER(argv[idx]) :		\
+		yeGetInt(AS_yent_krk_class(argv[idx])->e)
 
 #define GET_D(idx)				\
 	AS_FLOATING(argv[idx])
