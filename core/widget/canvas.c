@@ -105,7 +105,10 @@ static Entity *getOrCreateObjs(Entity *wid)
 	Entity *objs = yeGet(wid, "objs");
 
 	if (unlikely(!objs)) {
-		objs = yeCreateArray(wid, "objs");
+		if (yeGetIntAt(wid, "objs_is_vector"))
+			objs = yeCreateVector(wid, "objs");
+		else
+			objs = yeCreateArray(wid, "objs");
 		if (unlikely(!objs))
 			return NULL;
 	}

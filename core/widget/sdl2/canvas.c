@@ -56,13 +56,28 @@ static int sdl2Render(YWidgetState *state, int t)
 		sdlCanvasRendObj(state, wid, e, NULL, widPix);
 		ywCanvasRemoveObj(entity, e);
 	} else if (s->flag & YC_MERGE) {
-		YE_ARRAY_FOREACH(objs, obj) {
-			yeAutoFree Entity *dst_rect = ywRectCreatePosSize(
-				ywCanvasObjPos(obj),
-				ywCanvasObjSize(entity, obj),
-				NULL, NULL);
+		if (yeType(objs) == YARRAY) {
+			YE_ARRAY_FOREACH(objs, obj) {
+				yeAutoFree Entity *dst_rect = ywRectCreatePosSize(
+					ywCanvasObjPos(obj),
+					ywCanvasObjSize(entity, obj),
+					NULL, NULL);
 
-			ywTextureFastMerge(obj, NULL, dst, dst_rect);
+				ywTextureFastMerge(obj, NULL, dst, dst_rect);
+			}
+		} else {
+			int l = yeLen(objs);
+
+			for (int i = 0; i < l; ++i) {
+				Entity *obj = yeGet(objs, i);
+
+				yeAutoFree Entity *dst_rect = ywRectCreatePosSize(
+					ywCanvasObjPos(obj),
+					ywCanvasObjSize(entity, obj),
+					NULL, NULL);
+
+				ywTextureFastMerge(obj, NULL, dst, dst_rect);
+			}
 		}
 		ywCanvasClear(entity);
 		sdlCanvasRendObj(state, wid,
@@ -72,8 +87,15 @@ static int sdl2Render(YWidgetState *state, int t)
 		ywCanvasClear(entity);
 		goto forground;
 	}
-	YE_ARRAY_FOREACH(objs, obj) {
-		sdlCanvasRendObj(state, wid, obj, cam, widPix);
+	if (yeType(objs) == YARRAY) {
+		YE_ARRAY_FOREACH(objs, obj) {
+			sdlCanvasRendObj(state, wid, obj, cam, widPix);
+		}
+	} else {
+		Entity *obj;
+		YE_VECTORE_FOREACH(objs, obj) {
+			sdlCanvasRendObj(state, wid, obj, cam, widPix);
+		}
 	}
 
 forground:

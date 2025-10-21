@@ -1538,20 +1538,21 @@ int yeAttach(Entity *on, Entity *entity,
 					ygDgbAbort();
 				memcpy(anew, vec->data, yeMetadataSize(VectorEntity));
 				vec->max = 128;
+				vec->data = anew;
 			} else {
 				vec->max = vec->max << 1;
-				vec->data = realloc(vec->data, vec->max);
+				vec->data = realloc(vec->data, vec->max * sizeof(Entity *));
 				ygAssert(vec->data);
 			}
-			++vec->len;
 			vec->data[idx] = entity;
 		} else {
 			if (vec->data[idx] != entity) {
-				yeDestroy(vec->data[idx]);
+				if (idx != vec->len)
+					yeDestroy(vec->data[idx]);
 				vec->data[idx] = entity;
-				++vec->len;
 			}
 		}
+		++vec->len;
 		if (!(flag & YE_ATTACH_NO_INC_REF))
 			yeIncrRef(entity);
 		return 0;

@@ -1258,8 +1258,9 @@ function yamap_init_playble_char(wid)
 function amap_init(wid)
 {
     //yePrint(wid)
-    ywSetTurnLengthOverwrite(-1)
-    yeCreateFunction(amap_action, wid, "action")
+    ywSetTurnLengthOverwrite(-1);
+    yeCreateFunction(amap_action, wid, "action");
+    //wid.setAt("objs_is_vector", 1);
 
     yeReCreateArray(wid, "monsters_hurt")
 
