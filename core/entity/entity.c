@@ -1549,8 +1549,11 @@ int yeAttach(Entity *on, Entity *entity,
 			if (vec->data[idx] != entity) {
 				yeDestroy(vec->data[idx]);
 				vec->data[idx] = entity;
+				++vec->len;
 			}
 		}
+		if (!(flag & YE_ATTACH_NO_INC_REF))
+			yeIncrRef(entity);
 		return 0;
 	} else if (on->type != YARRAY)
 		return -1;
