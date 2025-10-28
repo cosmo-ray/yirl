@@ -2,6 +2,7 @@
 
 #define YIRL_0_MODE 0
 #define NES_MODE 1
+#define ATARI_MODE 2
 
 #define CARY_FLAG 1
 #define ZERO_FLAG (1 << 1)
@@ -153,6 +154,17 @@ unsigned char get_mem_yirl(uint16_t addr)
 	} else if (addr >= 0xff00) {
 		return ppu_mem[addr & 0xff];
 	}
+}
+
+void set_mem_atari(uint16_t addr, char val)
+{
+	printf("set_mem_atari at %d - %x: %d\n", addr, addr, val);
+}
+
+unsigned char get_mem_atari(uint16_t addr)
+{
+	printf("get_mem_atari at %d - %x\n", addr, addr);
+	return 0;
 }
 
 void set_mem_nes(uint16_t addr, char val)
@@ -746,9 +758,12 @@ void *fy_action(int nbArgs, void **args)
 	if (mode == NES_MODE) {
 		set_mem = set_mem_nes;
 		get_mem = get_mem_nes;
-	} else {
+	} else if (mode == YIRL_0_MODE) {
 		set_mem = set_mem_yirl;
 		get_mem = get_mem_yirl;
+	} else {
+		get_mem = get_mem_atari;
+		set_mem = set_mem_atari;
 	}
 
 	if (yevIsKeyDown(events, 'i')) {
@@ -778,20 +793,49 @@ void *fy_action(int nbArgs, void **args)
 					breakpoints[breakpoints_cnt] = breakpoints[breakpoints_cnt] << 4;
 					breakpoints[breakpoints_cnt] += (action - 'a' + 10);
 					printf("breakpoint value %x\n", breakpoints[breakpoints_cnt]);
+				} else if (action == 'p') {
+					printf("CPU:\na: %x(%d)\n"
+					       "x: %x(%d)\n"
+					       "y: %x(%d)\n"
+					       "s: %x\n"
+					       "flag: %x\n"
+					       "PC: %hx\n"
+					       "cycle_cnt: %lld\n",
+					       (int)cpu.a, (int)cpu.a,
+					       (int)cpu.x, (int)cpu.x,
+					       (int)cpu.y, (int)cpu.y,
+					       (int)cpu.s,
+					       (int)cpu.flag, cpu.pc,
+					       (long long int)cpu.cycle_cnt);
+					if (mode == NES_MODE) {
+						printf("PPU:\n"
+						       "pc: %hx\n"
+						       "sprite_loc: %hu\n"
+						       "not_vblank: %d\n",
+						       ppu.pc,
+						       ppu.sprite_loc,
+						       (int)ppu.not_vblank);
+					}
 				}
 			}
 		}
 		return NULL;
 	}
 
+	uint64_t time = y_get_time();
 	if (turn_mode == DEBUG_MODE) {
 		process_inst();
 	} else {
-		for (int i = 0; i < 35; ++i) {
-			process_inst();
-			if ((cpu.pc & 0x0000ffff) == breakpoints[breakpoints_cnt]) {
-				turn_mode = DEBUG_MODE;
-				break;
+		for (;turn_mode != DEBUG_MODE;) {
+			uint64_t cur = y_get_time();
+			if (time - cur > (1000000 / 60))
+				break; /* VBLANK ? */
+			for (int i = 0; i < 35; ++i) {
+				process_inst();
+				if ((cpu.pc & 0x0000ffff) == breakpoints[breakpoints_cnt]) {
+					turn_mode = DEBUG_MODE;
+					break;
+				}
 			}
 		}
 	}
@@ -828,7 +872,8 @@ void *fy_init(int nbArgs, void **args)
 		yeCreateInt(YIRL_0_MODE, wid, "mode");
 		cpu.pc = 0x1000;
 	} else {
-		printf("unknow mode '%s'\n", cartridge);
+		printf("ATARI MODE\n");
+		yeCreateInt(ATARI_MODE, wid, "mode");
 	}
 	void *ret = ywidNewWidget(wid, "canvas");
 	for (int i = 0; i < 0x100; ++i) {
