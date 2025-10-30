@@ -37,11 +37,13 @@
   OPCODE(STY, 0x80) //store Y
   OPCODE(STA, 0x81) //store accumulator
   OPCODE(STX, 0x82) //store X
+  OPCODE(STA_z, 0x85) //store accumulator zeropae
   OPCODE(DEY, 0x88) //decrement Y
   OPCODE(TXA, 0x8A) //transfer X to accumulator
   OPCODE(STA_ab, 0x8D) //load accumulator
   OPCODE(STX_ab, 0x8E) //store X
   OPCODE(BCC, 0x90) //branch on carry clear
+  OPCODE(STA_zaddr, 0x95) //load accumulator zeropage, x
   OPCODE(TXS, 0x9A) //transfer X to stack pointer
   OPCODE(TYA, 0x9B) //transfer Y to accumulator
   OPCODE(STA_xaddr, 0x9D) //load accumulator

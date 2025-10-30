@@ -159,11 +159,16 @@ unsigned char get_mem_yirl(uint16_t addr)
 void set_mem_atari(uint16_t addr, char val)
 {
 	printf("set_mem_atari at %d - %x: %d\n", addr, addr, val);
+	ram[addr] = val;
 }
 
 unsigned char get_mem_atari(uint16_t addr)
 {
 	printf("get_mem_atari at %d - %x\n", addr, addr);
+	if (addr >= 0xf000)
+		return cartridge[addr - 0xf000];
+	else
+		return ram[addr];
 	return 0;
 }
 
@@ -416,25 +421,25 @@ static int process_inst(void)
 		cpu.cycle_cnt += 2;
 		break;
 	case INX:
-		cpu.x += (1 + (cpu.flag & CARY_FLAG));
+		cpu.x += 1;
 		SET_NEGATIVE(!!(cpu.x & 0x80));
 		SET_ZERO(!cpu.x);
 		cpu.cycle_cnt += 2;
 		break;
 	case INY:
-		cpu.y += (1 + (cpu.flag & CARY_FLAG));
+		cpu.y += 1;
 		SET_NEGATIVE(!!(cpu.y & 0x80));
 		SET_ZERO(!cpu.y);
 		cpu.cycle_cnt += 2;
 		break;
 	case DEX:
-		cpu.x -= (2 - (cpu.flag & CARY_FLAG));
+		cpu.x -= 1;
 		SET_NEGATIVE(!!(cpu.x & 0x80));
 		SET_ZERO(!cpu.x);
 		cpu.cycle_cnt += 2;
 		break;
 	case DEY:
-		cpu.y -= (2 - (cpu.flag & CARY_FLAG));
+		cpu.y -= 1;
 		SET_NEGATIVE(!!(cpu.y & 0x80));
 		SET_ZERO(!cpu.y);
 		cpu.cycle_cnt += 2;
@@ -509,7 +514,7 @@ static int process_inst(void)
 			addr |= get_mem(++cpu.pc);
 			cpu.cycle_cnt++;
 		}
-
+		/* TODO */
 		cpu.cycle_cnt += 2;
 	}
 	break;
@@ -724,6 +729,22 @@ static int process_inst(void)
 		cpu.cycle_cnt += 4;
 	}
 	break;
+	case STA_z:
+	{
+		int addr = get_mem(++cpu.pc);
+
+		set_mem(addr, cpu.a);
+		cpu.cycle_cnt += 3;
+	}
+	break;
+	case STA_zaddr:
+	{
+		int addr = get_mem(++cpu.pc) + cpu.x;
+
+		set_mem(addr, cpu.a);
+		cpu.cycle_cnt += 4;
+	}
+	break;
 	case STA_xaddr:
 	{
 		int addr = get_mem(++cpu.pc) + cpu.x;
@@ -734,7 +755,7 @@ static int process_inst(void)
 	}
 	break;
 	default:
-		printf("%s: UNIMPLEMENTED", opcode_str[opcode]);
+		printf("(%x)%s: UNIMPLEMENTED", opcode, opcode_str[opcode]);
 		break;
 	}
 	++cpu.pc;
@@ -874,6 +895,7 @@ void *fy_init(int nbArgs, void **args)
 	} else {
 		printf("ATARI MODE\n");
 		yeCreateInt(ATARI_MODE, wid, "mode");
+		cpu.pc = 0xf000;
 	}
 	void *ret = ywidNewWidget(wid, "canvas");
 	for (int i = 0; i < 0x100; ++i) {
