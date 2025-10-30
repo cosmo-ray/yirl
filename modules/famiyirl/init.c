@@ -527,6 +527,15 @@ static int process_inst(void)
 		cpu.cycle_cnt += 2 + ((opcode == CPX_var) || (opcode == CPY_var));
 	}
 	break;
+	case JMP_ab:
+	{
+		int addr = get_mem(++cpu.pc);
+
+		addr |= get_mem(++cpu.pc) << 8;
+		cpu.pc = addr;
+		cpu.cycle_cnt += 3;
+		goto out;
+	}
 	case JSR:
 	{
 		int addr = get_mem(++cpu.pc);
