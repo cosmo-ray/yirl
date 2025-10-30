@@ -16,7 +16,7 @@
 #define SET_OVERFLOW(val) cpu.flag = ((cpu.flag & 0xBf) ^ ((val) << 6))
 #define SET_NEGATIVE(val) cpu.flag = ((cpu.flag & 0x7f) ^ ((val) << 7))
 
-struct cpu {
+static struct cpu {
 	union {
 		unsigned char a;
 		signed char sa;
@@ -30,8 +30,8 @@ struct cpu {
 } cpu = {.a = 0, .x = 0, .y = 0, .s = 0xff,
 	.flag = 0, .pc = 0xC000, .cycle_cnt = 0};
 
-int breakpoints[64];
-int breakpoints_cnt;
+static int breakpoints[64];
+static int breakpoints_cnt;
 
 
 /**
@@ -52,7 +52,7 @@ int breakpoints_cnt;
  * PPUDATA 	$2007 	dddd dddd 	PPU data read/write
  * OAMDMA 	$4014 	aaaa aaaa 	OAM DMA high address
  */
-struct ppu {
+static struct ppu {
 	union {
 		int16_t pc;
 		struct {
@@ -64,12 +64,12 @@ struct ppu {
 	unsigned char not_vblank;
 } ppu;
 
-unsigned char ppu_mem[0x4000];
+static unsigned char ppu_mem[0x4000];
 
-unsigned char ram[0x1000];
-unsigned char miror0[0x800];
-unsigned char miror1[0x800];
-unsigned char miror2[0x800];
+static unsigned char ram[0x1000];
+static unsigned char miror0[0x800];
+static unsigned char miror1[0x800];
+static unsigned char miror2[0x800];
 struct {
 	union {
 		unsigned char buf[8];
@@ -95,9 +95,11 @@ enum opcode {
 };
 #undef OPCODE
 
-char *opcode_str[0x100];
+static char *opcode_str[0x100];
 
-Entity *main_canvas;
+static Entity *main_canvas;
+
+static int turn_mode;
 
 void (*set_mem)(uint16_t addr, char val);
 unsigned char (*get_mem)(uint16_t addr);
@@ -773,7 +775,6 @@ void *fy_action(int nbArgs, void **args)
 {
 	Entity *wid = args[0];
 	Entity *events = args[1];
-	static int turn_mode;
 	int mode = yeGetIntAt(wid, "mode");
 
 	if (mode == NES_MODE) {
@@ -814,6 +815,19 @@ void *fy_action(int nbArgs, void **args)
 					breakpoints[breakpoints_cnt] = breakpoints[breakpoints_cnt] << 4;
 					breakpoints[breakpoints_cnt] += (action - 'a' + 10);
 					printf("breakpoint value %x\n", breakpoints[breakpoints_cnt]);
+				} else if (action == 'z') {
+					putchar('[');
+					for (int i = 0; i <= 0xff; ++i) {
+						if ((i & 0xf) == 0) {
+							printf("\n\t");
+						} else {
+							putchar(',');
+						}
+						printf("%x", ram[i]);
+					}
+					putchar('\n');
+					putchar(']');
+					putchar('\n');
 				} else if (action == 'p') {
 					printf("CPU:\na: %x(%d)\n"
 					       "x: %x(%d)\n"
@@ -853,9 +867,11 @@ void *fy_action(int nbArgs, void **args)
 				break; /* VBLANK ? */
 			for (int i = 0; i < 35; ++i) {
 				process_inst();
-				if ((cpu.pc & 0x0000ffff) == breakpoints[breakpoints_cnt]) {
-					turn_mode = DEBUG_MODE;
-					break;
+				for (int i = 0; i < breakpoints_cnt; ++i) {
+					if ((cpu.pc & 0x0000ffff) == breakpoints[breakpoints_cnt]) {
+						turn_mode = DEBUG_MODE;
+						break;
+					}
 				}
 			}
 		}
@@ -878,6 +894,14 @@ void *fy_init(int nbArgs, void **args)
 		rom_path = ygGetProgramArg();
 	} else if ((rom_path = yeGetStringAt(wid, "rom")) == NULL) {
 		rom_path = "background.nes";
+	}
+
+	if (yeGetIntAt(wid, "release")) {
+		turn_mode = RUN_MODE;
+	} else {
+		turn_mode = DEBUG_MODE;
+		for (int i = 0; i < sizeof ram; ++i)
+			ram[i] = (unsigned char)yuiRand();
 	}
 	rom = ygFileToEnt(YRAW_FILE_DATA, rom_path, NULL);
 
