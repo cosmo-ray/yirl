@@ -65,6 +65,7 @@
   OPCODE(INY, 0xC8) //increment Y
   OPCODE(CMP_imediate, 0xC9) //branch on equal (zero set)
   OPCODE(DEX, 0xCA) //decrement X
+  OPCODE(CPY_var, 0xCC) //compare with Y
   OPCODE(BNE, 0xD0) //branch on not equal (zero clear)
   OPCODE(CLD, 0xD8) //clear decimal
   OPCODE(CPX, 0xE0) //compare with X

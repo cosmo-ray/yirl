@@ -507,27 +507,24 @@ static int process_inst(void)
 		cpu.flag |= 1;
 		cpu.cycle_cnt += 2;
 		break;
+
 	case CPX:
 	case CPY:
 	case CPX_var:
+	case CPY_var:
 	{
 		int addr = get_mem(++cpu.pc);
-		if (opcode == CPX_var) {
-			addr |= get_mem(++cpu.pc);
-			cpu.cycle_cnt++;
+		if (opcode == CPX_var || opcode == CPY_var) {
+			addr |= get_mem(++cpu.pc) << 8;
+			cpu.cycle_cnt += 1;
 		}
-		/* TODO */
-		cpu.cycle_cnt += 2;
-	}
-	break;
-	case JMP_ab:
-	{
-		int addr = get_mem(++cpu.pc);
-
-		addr |= get_mem(++cpu.pc) << 8;
-		cpu.pc = addr;
-		cpu.cycle_cnt += 3;
-		goto out;
+		unsigned char reg = (opcode == CPY || opcode == CPY_var) ? cpu.y : cpu.x;
+		unsigned char val = get_mem(addr);
+		unsigned char res = reg - val;
+		SET_ZERO(reg == val);
+		SET_CARY(reg >= val);
+		SET_NEGATIVE(res & 0x80);
+		cpu.cycle_cnt += 2 + ((opcode == CPX_var) || (opcode == CPY_var));
 	}
 	break;
 	case JSR:
