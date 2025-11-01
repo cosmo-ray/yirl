@@ -16,6 +16,11 @@
 #define SET_OVERFLOW(val) cpu.flag = ((cpu.flag & 0xBf) ^ ((val) << 6))
 #define SET_NEGATIVE(val) cpu.flag = ((cpu.flag & 0x7f) ^ ((val) << 7))
 
+enum  {
+	RUN_MODE = -1,
+	DEBUG_MODE = 0
+};
+
 static struct cpu {
 	union {
 		unsigned char a;
@@ -33,6 +38,62 @@ static struct cpu {
 static int breakpoints[64];
 static int breakpoints_cnt;
 
+enum {
+	VSYNC       , //    ; $00   0000 00x0   Vertical Sync Set-Clear
+	VBLANK      , //    ; $01   xx00 00x0   Vertical Blank Set-Clear
+	WSYNC       , //    ; $02   ---- ----   Wait for Horizontal Blank
+	RSYNC       , //    ; $03   ---- ----   Reset Horizontal Sync Counter
+	NUSIZ0      , //    ; $04   00xx 0xxx   Number-Size player/missle 0
+	NUSIZ1      , //    ; $05   00xx 0xxx   Number-Size player/missle 1
+	COLUP0      , //    ; $06   xxxx xxx0   Color-Luminance Player 0
+	COLUP1      , //    ; $07   xxxx xxx0   Color-Luminance Player 1
+	COLUPF      , //    ; $08   xxxx xxx0   Color-Luminance Playfield
+	COLUBK      , //    ; $09   xxxx xxx0   Color-Luminance Background
+	CTRLPF      , //    ; $0A   00xx 0xxx   Control Playfield, Ball, Collisions
+	REFP0       , //    ; $0B   0000 x000   Reflection Player 0
+	REFP1       , //    ; $0C   0000 x000   Reflection Player 1
+	PF0         , //    ; $0D   xxxx 0000   Playfield Register Byte 0
+	PF1         , //    ; $0E   xxxx xxxx   Playfield Register Byte 1
+	PF2         , //    ; $0F   xxxx xxxx   Playfield Register Byte 2
+	RESP0       , //    ; $10   ---- ----   Reset Player 0
+	RESP1       , //    ; $11   ---- ----   Reset Player 1
+	RESM0       , //    ; $12   ---- ----   Reset Missle 0
+	RESM1       , //    ; $13   ---- ----   Reset Missle 1
+	RESBL       , //    ; $14   ---- ----   Reset Ball
+	AUDC0       , //    ; $15   0000 xxxx   Audio Control 0
+	AUDC1       , //    ; $16   0000 xxxx   Audio Control 1
+	AUDF0       , //    ; $17   000x xxxx   Audio Frequency 0
+	AUDF1       , //    ; $18   000x xxxx   Audio Frequency 1
+	AUDV0       , //    ; $19   0000 xxxx   Audio Volume 0
+	AUDV1       , //    ; $1A   0000 xxxx   Audio Volume 1
+	GRP0        , //    ; $1B   xxxx xxxx   Graphics Register Player 0
+	GRP1        , //    ; $1C   xxxx xxxx   Graphics Register Player 1
+	ENAM0       , //    ; $1D   0000 00x0   Graphics Enable Missle 0
+	ENAM1       , //    ; $1E   0000 00x0   Graphics Enable Missle 1
+	ENABL       , //    ; $1F   0000 00x0   Graphics Enable Ball
+	HMP0        , //    ; $20   xxxx 0000   Horizontal Motion Player 0
+	HMP1        , //    ; $21   xxxx 0000   Horizontal Motion Player 1
+	HMM0        , //    ; $22   xxxx 0000   Horizontal Motion Missle 0
+	HMM1        , //    ; $23   xxxx 0000   Horizontal Motion Missle 1
+	HMBL        , //    ; $24   xxxx 0000   Horizontal Motion Ball
+	VDELP0      , //    ; $25   0000 000x   Vertical Delay Player 0
+	VDELP1      , //    ; $26   0000 000x   Vertical Delay Player 1
+	VDELBL      , //    ; $27   0000 000x   Vertical Delay Ball
+	RESMP0      , //    ; $28   0000 00x0   Reset Missle 0 to Player 0
+	RESMP1      , //    ; $29   0000 00x0   Reset Missle 1 to Player 1
+	HMOVE       , //    ; $2A   ---- ----   Apply Horizontal Motion
+	HMCLR       , //    ; $2B   ---- ----   Clear Horizontal Move Registers
+	CXCLR       , //    ; $2C   ---- ----   Clear Collision Latches
+}
+
+/* it seems every 105 cycle I need to update v_line */
+static struct atari_ppu {
+	uint8_t col_p0;
+	uint8_t col_p1;
+	uint8_t col_bg;
+	uint8_t col_playfield;
+	int v_line;
+} atari_ppu;
 
 /**
  * PPU:
@@ -160,17 +221,34 @@ unsigned char get_mem_yirl(uint16_t addr)
 
 void set_mem_atari(uint16_t addr, char val)
 {
-	printf("set_mem_atari at %d - %x: %d\n", addr, addr, val);
+	if (turn_mode == DEBUG_MODE)
+		printf("set_mem_atari at %d - %x: %d\n", addr, addr, val);
+	if (addr < 0x2c) {
+		switch (addr) {
+		case WSYNC:
+			atari_ppu.v_line++;
+			return;
+		case COLUBK:
+			col_bg = val;
+			return;
+		}
+		printf("peripheric write at %x\n", addr);
+		return;
+	}
 	ram[addr] = val;
 }
 
 unsigned char get_mem_atari(uint16_t addr)
 {
-	printf("get_mem_atari at %d - %x\n", addr, addr);
+	if (turn_mode == DEBUG_MODE)
+		printf("get_mem_atari at %d - %x\n", addr, addr);
 	if (addr >= 0xf000)
 		return cartridge[addr - 0xf000];
-	else
+	else if (addr > 0x2c)
 		return ram[addr];
+	else {
+		printf("peripheric read at %x\n", addr);
+	}
 	return 0;
 }
 
@@ -320,8 +398,9 @@ static int process_inst(void)
 {
 	unsigned char opcode = get_mem(cpu.pc);
 	int ret = 0;
-	printf("code (a: %x, x: %x, y: %x, f: %x): 0x%x: %x - %s\n", cpu.a, cpu.x, cpu.y, cpu.flag,
-	       cpu.pc & 0xffff, get_mem(cpu.pc), opcode_str[get_mem(cpu.pc)]);
+	if (turn_mode == DEBUG_MODE)
+		printf("code (a: %x, x: %x, y: %x, f: %x): 0x%x: %x - %s\n", cpu.a, cpu.x, cpu.y, cpu.flag,
+		       cpu.pc & 0xffff, get_mem(cpu.pc), opcode_str[get_mem(cpu.pc)]);
 	switch (opcode) {
 	case NOP:
 		cpu.cycle_cnt += 2;
@@ -768,14 +847,10 @@ static int process_inst(void)
 	}
 	++cpu.pc;
 out:
-	printf("\n");
+	if (turn_mode == DEBUG_MODE)
+		printf("\n");
 	return ret;
 }
-
-enum  {
-	RUN_MODE = -1,
-	DEBUG_MODE = 0
-};
 
 void *fy_action(int nbArgs, void **args)
 {
@@ -792,6 +867,7 @@ void *fy_action(int nbArgs, void **args)
 	} else {
 		get_mem = get_mem_atari;
 		set_mem = set_mem_atari;
+		atari_ppu.v_line = 0;
 	}
 
 	if (yevIsKeyDown(events, 'i')) {
@@ -869,7 +945,7 @@ void *fy_action(int nbArgs, void **args)
 	} else {
 		for (;turn_mode != DEBUG_MODE;) {
 			uint64_t cur = y_get_time();
-			if (time - cur > (1000000 / 60))
+			if (cur - time > (1000000 / 60))
 				break; /* VBLANK ? */
 			for (int i = 0; i < 35; ++i) {
 				process_inst();
