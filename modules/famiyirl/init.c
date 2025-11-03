@@ -84,15 +84,17 @@ enum {
 	HMOVE       , //    ; $2A   ---- ----   Apply Horizontal Motion
 	HMCLR       , //    ; $2B   ---- ----   Clear Horizontal Move Registers
 	CXCLR       , //    ; $2C   ---- ----   Clear Collision Latches
-}
+};
+
+#define CYCLE_PER_SCANE_LINE 105
 
 /* it seems every 105 cycle I need to update v_line */
+/* another souce seems to say 76 cycles */
 static struct atari_ppu {
 	uint8_t col_p0;
 	uint8_t col_p1;
 	uint8_t col_bg;
 	uint8_t col_playfield;
-	int v_line;
 } atari_ppu;
 
 /**
@@ -219,17 +221,30 @@ unsigned char get_mem_yirl(uint16_t addr)
 	}
 }
 
+static int atari_curent_scane_line(void)
+{
+	return (cpu.cycle_cnt / CYCLE_PER_SCANE_LINE) & CYCLE_PER_SCANE_LINE;
+}
+
 void set_mem_atari(uint16_t addr, char val)
 {
 	if (turn_mode == DEBUG_MODE)
 		printf("set_mem_atari at %d - %x: %d\n", addr, addr, val);
 	if (addr < 0x2c) {
+		/**
+		 **  262 rowa total: **
+		 * 3 vertical sync (first lines)
+		 * 37 vertical blank
+		 * 192 visible one
+		 * 30 overscan (after the visible one)
+		 ** Colums:
+		 * 160 pixels
+		 */
 		switch (addr) {
 		case WSYNC:
-			atari_ppu.v_line++;
-			return;
+			cpu.cycle_cnt += CYCLE_PER_SCANE_LINE - CYCLE_PER_SCANE_LINE % cpu.cycle_cnt;			return;
 		case COLUBK:
-			col_bg = val;
+			atari_ppu.col_bg = val;
 			return;
 		}
 		printf("peripheric write at %x\n", addr);
@@ -867,7 +882,6 @@ void *fy_action(int nbArgs, void **args)
 	} else {
 		get_mem = get_mem_atari;
 		set_mem = set_mem_atari;
-		atari_ppu.v_line = 0;
 	}
 
 	if (yevIsKeyDown(events, 'i')) {
@@ -966,11 +980,14 @@ void *fy_init(int nbArgs, void **args)
 {
 	Entity *wid = args[0];
 	char *rom_path;
+	yeAutoFree Entity *atari_color = ygFileToEnt(YJSON, "./color-atari.json", NULL);
 
 	yeConvert(wid, YHASH);
 	main_canvas = wid;
 	yeCreateString("rgba: 0 0 0 255", wid, "background");
 	yeCreateFunction("fy_action", ygGetTccManager(), wid, "action");
+	yePushBack(wid, atari_color, "atari_color");
+	yePrint(yeGet(wid, "atari_color"));
 	yeAutoFree Entity *rom;
 	if (ygGetProgramArg()) {
 		rom_path = ygGetProgramArg();

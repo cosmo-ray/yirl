@@ -176,8 +176,13 @@ static inline int ygRegistreFunc(int nbArgs, const char *name,
  */
 uint32_t ygGetTick(void);
 
-Entity *ygFileToEnt(YFileType t, const char *path, Entity *ent);
+Entity *ygFileToEnt(YFileType t, const char *path, Entity *parent);
 int ygEntToFile(YFileType t, const char *path, Entity *ent);
+
+/*
+ * same as ygEntToFile, but easiyer to do binding for, as BIND_IES exist but not
+ * BIND_ISE (or didn't when I make ygEntToFile2)
+ */
 static inline int ygEntToFile2(YFileType t, Entity *ent, const char *path)
 {
   return ygEntToFile(t, path, ent);
