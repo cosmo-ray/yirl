@@ -273,61 +273,50 @@ next_is_wid:
 int ywidColorFromString(const char *str, uint8_t *r, uint8_t *g,
 			uint8_t *b, uint8_t *a)
 {
-	size_t len;
-	int limiterPos = 0;
+	const char *double_dot;
 	int ret = -1;
 
 	if (!str)
 		return -1;
-	for (int i = 0; str[i]; ++i) {
-		if (str[i] == ':') {
-			limiterPos = i;
-			break;
+	double_dot = strchr(str, ':');
+
+	// color or whatever
+	if (double_dot) {
+		size_t len = strlen(str);
+		const char *rgba;
+
+		if (str[0] != 'r' && str[1] != 'g' && str[2] != 'b' && str[3] != 'a')
+			return -1;
+
+		str = double_dot + 1;
+		if (len < sizeof("rgba:r,g,b")) {
+			DPRINT_ERR("invalide rgba color string: '%s'",
+				   str);
+			return -1;
 		}
-	}
-
-	len = strlen(str);
-	// collor or whatever
-	if (limiterPos) {
-		char str_cpy[len + 1];
-
-		strcpy(str_cpy, str);
-		str = str_cpy;
-		str_cpy[limiterPos] = '\0';
-
-		if (yuiStrEqual(str, "rgba")) {
-			const char *rgba;
-
-			str += (limiterPos + 1);
-			if (len < sizeof("rgba:r,g,b")) {
-				DPRINT_ERR("invalide rgba color string: '%s'",
-					   str);
-				return -1;
-			}
 
 #define CHECK_RGBA(rgba, str)						\
-			if (!rgba)					\
-			{						\
-				DPRINT_ERR("invalide rgba color string: %s", \
-					   str);			\
-				return -1;				\
-			}						\
+		if (!rgba)						\
+		{							\
+			DPRINT_ERR("invalide rgba color string: %s",	\
+				   str);				\
+			return -1;					\
+		}							\
 
-			rgba = str;
-			*r = atoi(rgba);
-			rgba = strpbrk(rgba+1, ", :");
-			CHECK_RGBA(rgba, str);
-			*g = atoi(rgba);
-			rgba = strpbrk(rgba+1, ", :");
-			CHECK_RGBA(rgba, str);
-			*b = atoi(rgba);
-			rgba = strpbrk(rgba+1, ", :");
-			if (rgba)
-				*a = atoi(rgba);
+		rgba = str;
+		*r = atoi(rgba);
+		rgba = strpbrk(rgba+1, ", :");
+		CHECK_RGBA(rgba, str);
+		*g = atoi(rgba);
+		rgba = strpbrk(rgba+1, ", :");
+		CHECK_RGBA(rgba, str);
+		*b = atoi(rgba);
+		rgba = strpbrk(rgba+1, ", :");
+		if (rgba)
+			*a = atoi(rgba);
+		else
+			*a = 255;
 		ret = 0;
-
-		}
-
 	} else if (str[0] == '#') {
 		char *eptr;
 		long c = strtol(str + 1, &eptr, 16);
