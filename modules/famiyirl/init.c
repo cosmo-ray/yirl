@@ -88,6 +88,8 @@ enum {
 
 #define CYCLE_PER_SCANE_LINE 105
 
+#define ATARI_SCREEN_H 262
+
 /* it seems every 105 cycle I need to update v_line */
 /* another souce seems to say 76 cycles */
 static struct atari_ppu {
@@ -161,11 +163,13 @@ enum opcode {
 static char *opcode_str[0x100];
 
 static Entity *main_canvas;
+static Entity *colors_json;
 
 static int turn_mode;
 
 void (*set_mem)(uint16_t addr, char val);
 unsigned char (*get_mem)(uint16_t addr);
+int current_emu_mode;
 
 void set_mem_yirl(uint16_t addr, char val)
 {
@@ -223,7 +227,36 @@ unsigned char get_mem_yirl(uint16_t addr)
 
 static int atari_curent_scane_line(void)
 {
-	return (cpu.cycle_cnt / CYCLE_PER_SCANE_LINE) & CYCLE_PER_SCANE_LINE;
+	return (cpu.cycle_cnt / CYCLE_PER_SCANE_LINE) % ATARI_SCREEN_H;
+}
+
+
+static char *atari_get_color(unsigned int idx)
+{
+	return yeGetStringAt(yeGet(colors_json, (idx >> 4)), (idx & 0xf) / 2);
+}
+
+//yeGet(colors_json, atari_color_idx(atari_ppu.col_bg))
+
+
+static int atari_do_scan_line(void)
+{
+	int cur = atari_curent_scane_line();
+	if (cur < 40) {
+		/* in blank */
+		return 0;
+	}
+	if (cur > 230)
+		return 0;
+	printf("do scanline\n");
+	printf("col bg hex %x %d %d\n", atari_ppu.col_bg,
+	       atari_ppu.col_bg >> 4,
+	       (atari_ppu.col_bg & 0xf) / 2);
+	printf("col bg: %s\n", atari_get_color(atari_ppu.col_bg));
+	ywCanvasMergeRectangle(main_canvas, 0, cur - 40, 160, 192,
+			       atari_get_color(atari_ppu.col_bg));
+	/* ywCanvasNewRectangle(main_canvas, 0, cur - 40, 160, 192, */
+	/* 		     atari_get_color(atari_ppu.col_bg)); */
 }
 
 void set_mem_atari(uint16_t addr, char val)
@@ -232,7 +265,7 @@ void set_mem_atari(uint16_t addr, char val)
 		printf("set_mem_atari at %d - %x: %d\n", addr, addr, val);
 	if (addr < 0x2c) {
 		/**
-		 **  262 rowa total: **
+		 **  262 row total: **
 		 * 3 vertical sync (first lines)
 		 * 37 vertical blank
 		 * 192 visible one
@@ -416,6 +449,11 @@ static int process_inst(void)
 	if (turn_mode == DEBUG_MODE)
 		printf("code (a: %x, x: %x, y: %x, f: %x): 0x%x: %x - %s\n", cpu.a, cpu.x, cpu.y, cpu.flag,
 		       cpu.pc & 0xffff, get_mem(cpu.pc), opcode_str[get_mem(cpu.pc)]);
+	if (current_emu_mode == ATARI_MODE && cpu.cycle_cnt &&
+	    !(cpu.cycle_cnt % CYCLE_PER_SCANE_LINE)) {
+		atari_do_scan_line();
+	}
+
 	switch (opcode) {
 	case NOP:
 		cpu.cycle_cnt += 2;
@@ -871,12 +909,12 @@ void *fy_action(int nbArgs, void **args)
 {
 	Entity *wid = args[0];
 	Entity *events = args[1];
-	int mode = yeGetIntAt(wid, "mode");
 
-	if (mode == NES_MODE) {
+	current_emu_mode = yeGetIntAt(wid, "mode");
+	if (current_emu_mode == NES_MODE) {
 		set_mem = set_mem_nes;
 		get_mem = get_mem_nes;
-	} else if (mode == YIRL_0_MODE) {
+	} else if (current_emu_mode == YIRL_0_MODE) {
 		set_mem = set_mem_yirl;
 		get_mem = get_mem_yirl;
 	} else {
@@ -938,7 +976,7 @@ void *fy_action(int nbArgs, void **args)
 					       (int)cpu.s,
 					       (int)cpu.flag, cpu.pc,
 					       (long long int)cpu.cycle_cnt);
-					if (mode == NES_MODE) {
+					if (current_emu_mode == NES_MODE) {
 						printf("PPU:\n"
 						       "pc: %hx\n"
 						       "sprite_loc: %hu\n"
@@ -987,7 +1025,6 @@ void *fy_init(int nbArgs, void **args)
 	yeCreateString("rgba: 0 0 0 255", wid, "background");
 	yeCreateFunction("fy_action", ygGetTccManager(), wid, "action");
 	yePushBack(wid, atari_color, "atari_color");
-	yePrint(yeGet(wid, "atari_color"));
 	yeAutoFree Entity *rom;
 	if (ygGetProgramArg()) {
 		rom_path = ygGetProgramArg();
@@ -1018,6 +1055,9 @@ void *fy_init(int nbArgs, void **args)
 	} else {
 		printf("ATARI MODE\n");
 		yeCreateInt(ATARI_MODE, wid, "mode");
+		yeCreateInt(1, wid, "mergable");
+		current_emu_mode = ATARI_MODE;
+		colors_json = yeGet(wid, "atari_color");
 		cpu.pc = 0xf000;
 	}
 	void *ret = ywidNewWidget(wid, "canvas");
