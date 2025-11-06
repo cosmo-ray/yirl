@@ -248,15 +248,8 @@ static int atari_do_scan_line(void)
 	}
 	if (cur > 230)
 		return 0;
-	printf("do scanline\n");
-	printf("col bg hex %x %d %d\n", atari_ppu.col_bg,
-	       atari_ppu.col_bg >> 4,
-	       (atari_ppu.col_bg & 0xf) / 2);
-	printf("col bg: %s\n", atari_get_color(atari_ppu.col_bg));
-	ywCanvasMergeRectangle(main_canvas, 0, cur - 40, 160, 192,
+	ywCanvasMergeRectangle(main_canvas, 0, cur - 40, 160, 1,
 			       atari_get_color(atari_ppu.col_bg));
-	/* ywCanvasNewRectangle(main_canvas, 0, cur - 40, 160, 192, */
-	/* 		     atari_get_color(atari_ppu.col_bg)); */
 }
 
 void set_mem_atari(uint16_t addr, char val)
