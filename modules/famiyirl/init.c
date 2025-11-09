@@ -171,6 +171,9 @@ void (*set_mem)(uint16_t addr, char val);
 unsigned char (*get_mem)(uint16_t addr);
 int current_emu_mode;
 
+int wid_width;
+int wid_height;
+
 void set_mem_yirl(uint16_t addr, char val)
 {
 	if (addr < 0x100) {
@@ -242,20 +245,29 @@ static char *atari_get_color(unsigned int idx)
 static int atari_do_scan_line(void)
 {
 	int cur = atari_curent_scane_line();
+	int pix_per_pix = wid_width / 160;
+	if (wid_height / 192 < pix_per_pix)
+		pix_per_pix = wid_height / 192;
+	printf("%d: %d %d %d %d\n", pix_per_pix, wid_height, wid_width, 160 * pix_per_pix, 192 * pix_per_pix);
 	if (cur < 40) {
 		/* in blank */
 		return 0;
 	}
 	if (cur > 230)
 		return 0;
-	ywCanvasMergeRectangle(main_canvas, 0, cur - 40, 160, 1,
+	printf("pix per pix: %d\n%d %d %d% d\n",
+	       pix_per_pix,
+	       0, (cur - 40) * pix_per_pix,
+	       160 * pix_per_pix, pix_per_pix);
+	ywCanvasMergeRectangle(main_canvas, 0, (cur - 40) * pix_per_pix,
+			       160 * pix_per_pix, pix_per_pix,
 			       atari_get_color(atari_ppu.col_bg));
 }
 
 void set_mem_atari(uint16_t addr, char val)
 {
 	if (turn_mode == DEBUG_MODE)
-		printf("set_mem_atari at %d - %x: %d\n", addr, addr, val);
+		printf("set_mem_atari at %d(%x): %d\n", addr, addr, val);
 	if (addr < 0x2c) {
 		/**
 		 **  262 row total: **
@@ -268,7 +280,13 @@ void set_mem_atari(uint16_t addr, char val)
 		 */
 		switch (addr) {
 		case WSYNC:
-			cpu.cycle_cnt += CYCLE_PER_SCANE_LINE - CYCLE_PER_SCANE_LINE % cpu.cycle_cnt;			return;
+			printf("cycle %d, cycle per sl: %d, next: %d\n",
+			       cpu.cycle_cnt, CYCLE_PER_SCANE_LINE,
+			       CYCLE_PER_SCANE_LINE - cpu.cycle_cnt % CYCLE_PER_SCANE_LINE);
+			printf("cur sl: %d, col %x\n", atari_curent_scane_line(),
+			       atari_ppu.col_bg);
+			cpu.cycle_cnt += CYCLE_PER_SCANE_LINE - cpu.cycle_cnt % CYCLE_PER_SCANE_LINE;
+			return;
 		case COLUBK:
 			atari_ppu.col_bg = val;
 			return;
@@ -442,9 +460,13 @@ static int process_inst(void)
 	if (turn_mode == DEBUG_MODE)
 		printf("code (a: %x, x: %x, y: %x, f: %x): 0x%x: %x - %s\n", cpu.a, cpu.x, cpu.y, cpu.flag,
 		       cpu.pc & 0xffff, get_mem(cpu.pc), opcode_str[get_mem(cpu.pc)]);
-	if (current_emu_mode == ATARI_MODE && cpu.cycle_cnt &&
-	    !(cpu.cycle_cnt % CYCLE_PER_SCANE_LINE)) {
-		atari_do_scan_line();
+	if (current_emu_mode == ATARI_MODE) {
+		static old_sl_cycle;
+		int elapse = cpu.cycle_cnt - old_sl_cycle;
+		if (elapse > CYCLE_PER_SCANE_LINE) {
+			atari_do_scan_line();
+			old_sl_cycle += elapse / CYCLE_PER_SCANE_LINE;
+		}
 	}
 
 	switch (opcode) {
@@ -903,6 +925,8 @@ void *fy_action(int nbArgs, void **args)
 	Entity *wid = args[0];
 	Entity *events = args[1];
 
+	wid_width = ywWidth(wid);
+	wid_height = ywHeight(wid);
 	current_emu_mode = yeGetIntAt(wid, "mode");
 	if (current_emu_mode == NES_MODE) {
 		set_mem = set_mem_nes;
@@ -977,6 +1001,18 @@ void *fy_action(int nbArgs, void **args)
 						       ppu.pc,
 						       ppu.sprite_loc,
 						       (int)ppu.not_vblank);
+					} else if (current_emu_mode == ATARI_MODE) {
+						printf("PPU:\n"
+						       "col p0: %x\n"
+						       "col p1: %x\n"
+						       "col bg: %x\n"
+						       "col playfield: %x\n"
+						       "current line: $d\n",
+						       (int)atari_ppu.col_p0,
+						       (int)atari_ppu.col_p1,
+						       (int)atari_ppu.col_bg,
+						       (int)atari_ppu.col_playfield,
+						       atari_curent_scane_line());
 					}
 				}
 			}
@@ -1048,7 +1084,7 @@ void *fy_init(int nbArgs, void **args)
 	} else {
 		printf("ATARI MODE\n");
 		yeCreateInt(ATARI_MODE, wid, "mode");
-		yeCreateInt(1, wid, "mergable");
+		yeCreateInt(YC_MERGE_NO_MERGE, wid, "mergable");
 		current_emu_mode = ATARI_MODE;
 		colors_json = yeGet(wid, "atari_color");
 		cpu.pc = 0xf000;
