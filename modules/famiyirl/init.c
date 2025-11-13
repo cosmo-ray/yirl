@@ -97,6 +97,7 @@ static struct atari_ppu {
 	uint8_t col_p1;
 	uint8_t col_bg;
 	uint8_t col_playfield;
+	uint8_t vblank_mode;
 } atari_ppu;
 
 /**
@@ -244,6 +245,8 @@ static char *atari_get_color(unsigned int idx)
 
 static int atari_do_scan_line(void)
 {
+	if (atari_ppu.vblank_mode)
+		return 0;
 	int cur = atari_curent_scane_line();
 	int pix_per_pix = wid_width / 160;
 	if (wid_height / 192 < pix_per_pix)
@@ -279,6 +282,9 @@ void set_mem_atari(uint16_t addr, char val)
 		 * 160 pixels
 		 */
 		switch (addr) {
+		case VBLANK:
+			atari_ppu.vblank_mode = val;
+			break;
 		case WSYNC:
 			printf("cycle %d, cycle per sl: %d, next: %d\n",
 			       cpu.cycle_cnt, CYCLE_PER_SCANE_LINE,
