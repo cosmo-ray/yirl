@@ -251,17 +251,17 @@ static int atari_do_scan_line(void)
 	int pix_per_pix = wid_width / 160;
 	if (wid_height / 192 < pix_per_pix)
 		pix_per_pix = wid_height / 192;
-	printf("%d: %d %d %d %d\n", pix_per_pix, wid_height, wid_width, 160 * pix_per_pix, 192 * pix_per_pix);
 	if (cur < 40) {
 		/* in blank */
 		return 0;
 	}
-	if (cur > 230)
+	if (cur > 232)
 		return 0;
-	printf("pix per pix: %d\n%d %d %d% d\n",
-	       pix_per_pix,
-	       0, (cur - 40) * pix_per_pix,
-	       160 * pix_per_pix, pix_per_pix);
+	/* printf("l: %d %d| %d: %d %d %d %d\n", cur, cur-40, pix_per_pix, wid_height, wid_width, 160 * pix_per_pix, 192 * pix_per_pix); */
+	/* printf("pix per pix: %d\n%d %d %d% d\n", */
+	/*        pix_per_pix, */
+	/*        0, (cur - 40) * pix_per_pix, */
+	/*        160 * pix_per_pix, pix_per_pix); */
 	ywCanvasMergeRectangle(main_canvas, 0, (cur - 40) * pix_per_pix,
 			       160 * pix_per_pix, pix_per_pix,
 			       atari_get_color(atari_ppu.col_bg));
@@ -285,19 +285,21 @@ void set_mem_atari(uint16_t addr, char val)
 		case VBLANK:
 			atari_ppu.vblank_mode = val;
 			break;
+		case VSYNC:
+			cpu.cycle_cnt = 0;
 		case WSYNC:
-			printf("cycle %d, cycle per sl: %d, next: %d\n",
-			       cpu.cycle_cnt, CYCLE_PER_SCANE_LINE,
-			       CYCLE_PER_SCANE_LINE - cpu.cycle_cnt % CYCLE_PER_SCANE_LINE);
-			printf("cur sl: %d, col %x\n", atari_curent_scane_line(),
-			       atari_ppu.col_bg);
+			/* printf("cycle %d, cycle per sl: %d, next: %d\n", */
+			/*        cpu.cycle_cnt, CYCLE_PER_SCANE_LINE, */
+			/*        CYCLE_PER_SCANE_LINE - cpu.cycle_cnt % CYCLE_PER_SCANE_LINE); */
+			/* printf("cur sl: %d, col %x\n", atari_curent_scane_line(), */
+			/*        atari_ppu.col_bg); */
 			cpu.cycle_cnt += CYCLE_PER_SCANE_LINE - cpu.cycle_cnt % CYCLE_PER_SCANE_LINE;
 			return;
 		case COLUBK:
 			atari_ppu.col_bg = val;
 			return;
 		}
-		printf("peripheric write at %x\n", addr);
+		/* printf("peripheric write at %x\n", addr); */
 		return;
 	}
 	ram[addr] = val;
