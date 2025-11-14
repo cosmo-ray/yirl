@@ -86,11 +86,12 @@ enum {
 	CXCLR       , //    ; $2C   ---- ----   Clear Collision Latches
 };
 
-#define CYCLE_PER_SCANE_LINE 105
+#define CYCLE_PER_SCANE_LINE 104
 
 #define ATARI_SCREEN_H 262
+#define ATARI_SCREEN_W 169
 
-/* it seems every 105 cycle I need to update v_line */
+/* it seems every 104 cycle I need to update v_line */
 /* another souce seems to say 76 cycles */
 static struct atari_ppu {
 	uint8_t col_p0;
@@ -98,6 +99,7 @@ static struct atari_ppu {
 	uint8_t col_bg;
 	uint8_t col_playfield;
 	uint8_t vblank_mode;
+	uint8_t ball_p[2];
 } atari_ppu;
 
 /**
@@ -229,6 +231,12 @@ unsigned char get_mem_yirl(uint16_t addr)
 	}
 }
 
+static uint8_t atari_current_col(void)
+{
+	int line_cycle = cpu.cycle_cnt % CYCLE_PER_SCANE_LINE;
+	return line_cycle * ATARI_SCREEN_W / CYCLE_PER_SCANE_LINE;
+}
+
 static int atari_curent_scane_line(void)
 {
 	return (cpu.cycle_cnt / CYCLE_PER_SCANE_LINE) % ATARI_SCREEN_H;
@@ -243,27 +251,26 @@ static char *atari_get_color(unsigned int idx)
 //yeGet(colors_json, atari_color_idx(atari_ppu.col_bg))
 
 
-static int atari_do_scan_line(void)
+static void atari_do_scan_line(void)
 {
 	if (atari_ppu.vblank_mode)
-		return 0;
+		return;
 	int cur = atari_curent_scane_line();
-	int pix_per_pix = wid_width / 160;
-	if (wid_height / 192 < pix_per_pix)
-		pix_per_pix = wid_height / 192;
+	int pix_per_pix_x = wid_width / 160;
+	int pix_per_pix_y = wid_height / 192;
 	if (cur < 40) {
 		/* in blank */
-		return 0;
+		return;
 	}
 	if (cur > 232)
-		return 0;
+		return;
 	/* printf("l: %d %d| %d: %d %d %d %d\n", cur, cur-40, pix_per_pix, wid_height, wid_width, 160 * pix_per_pix, 192 * pix_per_pix); */
 	/* printf("pix per pix: %d\n%d %d %d% d\n", */
 	/*        pix_per_pix, */
 	/*        0, (cur - 40) * pix_per_pix, */
 	/*        160 * pix_per_pix, pix_per_pix); */
-	ywCanvasMergeRectangle(main_canvas, 0, (cur - 40) * pix_per_pix,
-			       160 * pix_per_pix, pix_per_pix,
+	ywCanvasMergeRectangle(main_canvas, 0, (cur - 40) * pix_per_pix_y,
+			       160 * pix_per_pix_x, pix_per_pix_y,
 			       atari_get_color(atari_ppu.col_bg));
 }
 
@@ -285,18 +292,24 @@ void set_mem_atari(uint16_t addr, char val)
 		case VBLANK:
 			atari_ppu.vblank_mode = val;
 			break;
+		case ENABL:
+			if (val)
+				atari_ppu.ball_p[1] = atari_curent_scane_line();
+			break;
+		case RESBL:
+			atari_ppu.ball_p[0] = atari_current_col();
+			break;
 		case VSYNC:
 			cpu.cycle_cnt = 0;
+			break;
 		case WSYNC:
-			/* printf("cycle %d, cycle per sl: %d, next: %d\n", */
-			/*        cpu.cycle_cnt, CYCLE_PER_SCANE_LINE, */
-			/*        CYCLE_PER_SCANE_LINE - cpu.cycle_cnt % CYCLE_PER_SCANE_LINE); */
-			/* printf("cur sl: %d, col %x\n", atari_curent_scane_line(), */
-			/*        atari_ppu.col_bg); */
 			cpu.cycle_cnt += CYCLE_PER_SCANE_LINE - cpu.cycle_cnt % CYCLE_PER_SCANE_LINE;
 			return;
 		case COLUBK:
 			atari_ppu.col_bg = val;
+			return;
+		case COLUPF:
+			atari_ppu.col_playfield = val;
 			return;
 		}
 		/* printf("peripheric write at %x\n", addr); */
@@ -1025,7 +1038,7 @@ void *fy_action(int nbArgs, void **args)
 				}
 			}
 		}
-		return NULL;
+		goto out;
 	}
 
 	uint64_t time = y_get_time();
@@ -1048,6 +1061,20 @@ void *fy_action(int nbArgs, void **args)
 		}
 	}
 
+out:
+	if (atari_ppu.ball_p[0] + atari_ppu.ball_p[1]) {
+		int pix_per_pix_x = wid_width / 160;
+		int pix_per_pix_y = wid_height / 192;
+		printf("%d %d %d %d\n", atari_ppu.ball_p[0],
+		       atari_ppu.ball_p[1],
+		       atari_ppu.ball_p[0] * pix_per_pix_x,
+		       (atari_ppu.ball_p[1] - 40) * pix_per_pix_y
+			);
+		ywCanvasMergeRectangle(main_canvas, atari_ppu.ball_p[0] * pix_per_pix_x,
+				       (atari_ppu.ball_p[1] - 40) * pix_per_pix_y,
+				       pix_per_pix_x, pix_per_pix_y,
+				       atari_get_color(atari_ppu.col_playfield));
+	}
 	return NULL;
 }
 
