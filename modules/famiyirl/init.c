@@ -170,14 +170,14 @@ static Entity *colors_json;
 
 static int turn_mode;
 
-void (*set_mem)(uint16_t addr, char val);
+int (*set_mem)(uint16_t addr, char val);
 unsigned char (*get_mem)(uint16_t addr);
 int current_emu_mode;
 
 int wid_width;
 int wid_height;
 
-void set_mem_yirl(uint16_t addr, char val)
+int set_mem_yirl(uint16_t addr, char val)
 {
 	if (addr < 0x100) {
 		cartridge[addr] = val;
@@ -209,6 +209,7 @@ void set_mem_yirl(uint16_t addr, char val)
 		}
 	}
 	printf("set_mem_yirl: at %x val: %x\n", addr, val);
+	return 0;
 }
 
 /**
@@ -274,7 +275,7 @@ static void atari_do_scan_line(void)
 			       atari_get_color(atari_ppu.col_bg));
 }
 
-void set_mem_atari(uint16_t addr, char val)
+int set_mem_atari(uint16_t addr, char val)
 {
 	if (turn_mode == DEBUG_MODE)
 		printf("set_mem_atari at %d(%x): %d\n", addr, addr, val);
@@ -301,21 +302,22 @@ void set_mem_atari(uint16_t addr, char val)
 			break;
 		case VSYNC:
 			cpu.cycle_cnt = 0;
-			break;
+			return 1;
 		case WSYNC:
 			cpu.cycle_cnt += CYCLE_PER_SCANE_LINE - cpu.cycle_cnt % CYCLE_PER_SCANE_LINE;
-			return;
+			return 1;
 		case COLUBK:
 			atari_ppu.col_bg = val;
-			return;
+			return 0;
 		case COLUPF:
 			atari_ppu.col_playfield = val;
-			return;
+			return 0;
 		}
 		/* printf("peripheric write at %x\n", addr); */
 		return;
 	}
 	ram[addr] = val;
+	return 0;
 }
 
 unsigned char get_mem_atari(uint16_t addr)
@@ -332,7 +334,7 @@ unsigned char get_mem_atari(uint16_t addr)
 	return 0;
 }
 
-void set_mem_nes(uint16_t addr, char val)
+int set_mem_nes(uint16_t addr, char val)
 {
 	if (addr < 0x800) {
 		printf("set ram\n");
@@ -399,6 +401,7 @@ void set_mem_nes(uint16_t addr, char val)
 	} else {
 		printf("cannot set Read Only RAM\n");
 	}
+	return 0;
 }
 
 unsigned char get_mem_nes(uint16_t addr)
@@ -512,11 +515,11 @@ static int process_inst(void)
 		int val = get_mem(addr);
 		char new_c = val & 0x1;
 		val = (val << 1) | cpu.flag & 0x1;
-		set_mem(addr, val);
+		if (!set_mem(addr, val))
+			cpu.cycle_cnt += 6;
 		SET_CARY(new_c);
 		SET_NEGATIVE(!!(0x80 & val));
 		SET_ZERO(!val);
-		cpu.cycle_cnt += 6;
 	}
 	break;
 	case EOR_IM:
@@ -558,8 +561,8 @@ static int process_inst(void)
 		c = c >> 1;
 		SET_NEGATIVE(0);
 		SET_ZERO(!c);
-		set_mem(addr, c);
-		cpu.cycle_cnt += 6;
+		if (!set_mem(addr, c))
+			cpu.cycle_cnt += 6;
 	}
 	break;
 	case ASL_a:
@@ -855,8 +858,8 @@ static int process_inst(void)
 		int addr = get_mem(++cpu.pc);
 
 		addr |= get_mem(++cpu.pc) << 8;
-		set_mem(addr, cpu.x);
-		cpu.cycle_cnt += 4;
+		if (!set_mem(addr, cpu.x))
+			cpu.cycle_cnt += 4;
 	}
 	break;
 	case BIT_ab:
@@ -901,24 +904,24 @@ static int process_inst(void)
 		int addr = get_mem(++cpu.pc);
 
 		addr |= get_mem(++cpu.pc) << 8;
-		set_mem(addr, cpu.a);
-		cpu.cycle_cnt += 4;
+		if (!set_mem(addr, cpu.a))
+			cpu.cycle_cnt += 4;
 	}
 	break;
 	case STA_z:
 	{
 		int addr = get_mem(++cpu.pc);
 
-		set_mem(addr, cpu.a);
-		cpu.cycle_cnt += 3;
+		if (!set_mem(addr, cpu.a))
+			cpu.cycle_cnt += 3;
 	}
 	break;
 	case STA_zaddr:
 	{
 		int addr = get_mem(++cpu.pc) + cpu.x;
 
-		set_mem(addr, cpu.a);
-		cpu.cycle_cnt += 4;
+		if (!set_mem(addr, cpu.a))
+			cpu.cycle_cnt += 4;
 	}
 	break;
 	case STA_xaddr:
@@ -926,8 +929,8 @@ static int process_inst(void)
 		int addr = get_mem(++cpu.pc) + cpu.x;
 
 		addr |= get_mem(++cpu.pc) << 8;
-		set_mem(addr, cpu.a);
-		cpu.cycle_cnt += 5;
+		if (!set_mem(addr, cpu.a))
+			cpu.cycle_cnt += 5;
 	}
 	break;
 	default:
@@ -1065,11 +1068,6 @@ out:
 	if (atari_ppu.ball_p[0] + atari_ppu.ball_p[1]) {
 		int pix_per_pix_x = wid_width / 160;
 		int pix_per_pix_y = wid_height / 192;
-		printf("%d %d %d %d\n", atari_ppu.ball_p[0],
-		       atari_ppu.ball_p[1],
-		       atari_ppu.ball_p[0] * pix_per_pix_x,
-		       (atari_ppu.ball_p[1] - 40) * pix_per_pix_y
-			);
 		ywCanvasMergeRectangle(main_canvas, atari_ppu.ball_p[0] * pix_per_pix_x,
 				       (atari_ppu.ball_p[1] - 40) * pix_per_pix_y,
 				       pix_per_pix_x, pix_per_pix_y,
