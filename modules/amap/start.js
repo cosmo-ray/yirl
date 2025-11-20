@@ -85,6 +85,8 @@ const ANIM_MV_PATH = 2
 const ANIM_MV_IDX = 3
 const ANIM_MV_TT = 4
 
+const MAX_DASH = 5
+
 function print_life(wid, pc, pc_canel)
 {
     let j = 0;
@@ -544,15 +546,20 @@ function amap_action(wid, events)
 
 	}
     }
+
     if (yevIsKeyUp(events, Y_LEFT_KEY)) {
 	wid.setAt("keydown", wid.geti("keydown") & (~KEYDOWN_LEFT))
-	if (!wid.geti("keydown"))
-	    y_move_set_xspeed(pc_minfo, 0)
+	if (yeGetIntAt(pc_canel, PC_DASH) <= 0) {
+	    if (!wid.geti("keydown"))
+		y_move_set_xspeed(pc_minfo, 0)
+	}
 	have_upkey = DIR_LEFT
     } else if (yevIsKeyUp(events, Y_RIGHT_KEY)) {
 	wid.setAt("keydown", wid.geti("keydown") & (~KEYDOWN_RIGHT))
-	if (!wid.geti("keydown"))
-	    y_move_set_xspeed(pc_minfo, 0)
+	if (yeGetIntAt(pc_canel, PC_DASH) <= 0) {
+	    if (!wid.geti("keydown"))
+		y_move_set_xspeed(pc_minfo, 0)
+	}
 	have_upkey = DIR_RIGHT
     }
 
@@ -568,7 +575,9 @@ function amap_action(wid, events)
 
     if (yevIsKeyDown(events, Y_LEFT_KEY) && have_upkey != DIR_LEFT) {
 	yeSetIntAt(pc_canel, PC_DIR, DIR_LEFT)
-	y_move_set_xspeed(pc_minfo, -BASE_SPEED)
+	if (yeGetIntAt(pc_canel, PC_DASH) <= 0) {
+	    y_move_set_xspeed(pc_minfo, -BASE_SPEED)
+	}
 	wid.setAt("keydown", wid.geti("keydown") | KEYDOWN_LEFT)
 	let flip_val = wid.geti("pc_revers_flip")
 	pc_handler.setAt("flip", 1 - flip_val)
@@ -577,7 +586,9 @@ function amap_action(wid, events)
     if (yevIsKeyDown(events, Y_RIGHT_KEY) && have_upkey != DIR_RIGHT) {
 	yeSetIntAt(pc_canel, PC_DIR, DIR_RIGHT)
 	wid.setAt("keydown", wid.geti("keydown") | KEYDOWN_RIGHT)
-	y_move_set_xspeed(pc_minfo, BASE_SPEED)
+	if (yeGetIntAt(pc_canel, PC_DASH) <= 0) {
+	    y_move_set_xspeed(pc_minfo, BASE_SPEED)
+	}
 	let flip_val = wid.geti("pc_revers_flip")
 	pc_handler.setAt("flip", 0 + flip_val)
     }
@@ -591,7 +602,7 @@ function amap_action(wid, events)
 	y_move_set_yspeed(pc_minfo, 0)
 	y_move_set_xspeed(pc_minfo, BASE_SPEED * dir)
 	yeCreateFloatAt(3, pc_minfo, null, Y_MVER_SPEEDUP)
-	yeSetIntAt(pc_canel, PC_DASH, 10)
+	yeSetIntAt(pc_canel, PC_DASH, MAX_DASH)
     }
 
     if (yevIsKeyDown(events, Y_X_KEY) && yeGetIntAt(pc_canel, PC_PUNCH_LIFE) == 0) {
@@ -700,6 +711,17 @@ function amap_action(wid, events)
 		yeSetIntAt(pc_canel, PC_DASH, -20)
 		if (!wid.geti("keydown"))
 		    y_move_set_xspeed(pc_minfo, 0)
+		else {
+		    let xspeed = y_move_x_speed(pc_minfo)
+		    print("xspeed:", xspeed)
+		    if (pc_canel.geti(PC_DIR) == DIR_RIGHT) {
+			if (xspeed < 0)
+			    y_move_set_xspeed(pc_minfo, BASE_SPEED)
+		    } else {
+			if (xspeed > 0)
+			    y_move_set_xspeed(pc_minfo, -BASE_SPEED)
+		    }
+		}
 	    }
 	} else if (yeGetIntAt(pc_canel, PC_DASH) < 0) {
 	    yeAddAt(pc_canel, PC_DASH, 1 * mult)
