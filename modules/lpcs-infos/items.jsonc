@@ -1,0 +1,56 @@
+{
+    "weapons": {
+	"iron longsword": {
+	    "power": 3,
+	    "name": "longsword",
+	    "range": 0,
+	    "sprite_weapon": "oversize/right hand/male/longsword-universal.png",
+	    "oversize_weapon": "right hand/male/longsword-attack.png",
+	    "maniability": 2
+	},
+	"steel longsword": {
+	    "power": 5,
+	    "name": "longsword",
+	    "range": 0,
+	    "sprite_weapon": "oversize/right hand/male/longsword-universal.png",
+	    "oversize_weapon": "right hand/male/longsword-attack.png",
+	    "maniability": 2
+	},
+	"bow": {
+	    "power": 2,
+	    "name": "bow",
+	    "range": -1,
+	    "sprite_weapon": "right hand/either/bow.png",
+	    "maniability": 4
+	},
+	"iron spear": {
+	    "power": 2,
+	    "range": 1,
+	    "name": "spear",
+	    "sprite_weapon": "both hand/spear.png",
+	    "maniability": 2
+	},
+	"steel spear": {
+	    "power": 3,
+	    "range": 1,
+	    "name": "spear",
+	    "sprite_weapon": "both hand/spear.png",
+	    "maniability": 2
+	}
+    },
+    "armors": {
+	"full leather": {
+	    "heavy": 1,
+	    "protect": 3,
+	    "legs": "legs/armor/male/12.png",
+	    "torso": "torso/leather/chest_male.png",
+	    "head": "head/hoods/male/cloth_hood_male.png",
+	    "feet": "feet/boots/male/brown.png"
+	},
+	"weak leather": {
+	    "heavy": 0,
+	    "protect": 1,
+	    "torso": "torso/leather/chest_male.png"
+	}
+    }
+}

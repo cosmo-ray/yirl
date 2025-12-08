@@ -1,0 +1,54 @@
+{
+    "guard": {
+	"gender": "male",
+	"name": "guard",
+	"life": 15,
+	"max_life": 15,
+	"type": "tanned", // should be random ?, but not yet supported
+	"stats": {
+	    "strength": 3,
+	    "charm": 1,
+	    "smart": 1,
+	    "agility": 3
+	}
+    },
+    "bandit": {
+	"gender": "male",
+	"name": "guard",
+	"life": 13,
+	"max_life": 13,
+	"type": "tanned", // should be random ?, but not yet supported
+	"stats": {
+	    "strength": 4,
+	    "charm": 1,
+	    "smart": 1,
+	    "agility": 2
+	}
+    },
+    "peasant" :{
+	"gender": "male",
+	"name": "peasant",
+	"life": 5,
+	"max_life": 5,
+	"type": "tanned", // should be random ?, but not yet supported
+	"stats": {
+	    "strength": 2,
+	    "charm": 1,
+	    "smart": 2,
+	    "agility": 1
+	}
+    },
+    "orc": {
+	"gender": "male",
+	"name": "orc",
+	"life": 20,
+	"max_life": 20,
+	"type": "orcs/4", //should find a way to use more orc
+	"stats": {
+	    "strength": 5,
+	    "charm": 0,
+	    "smart": 0,
+	    "agility": 2
+	},
+    }
+}
