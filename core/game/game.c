@@ -839,7 +839,15 @@ Entity *ygLoadMod(const char *path)
 		tmp = y_strdup_printf("%s%c%s", path, PATH_SEPARATOR, "start.json");
 		CHECK_AND_RET(tmp, NULL, NULL,
 			      "cannot allocated path(like something went really wrong)");
-		mod = ydFromFile(jsonManager, tmp, NULL);
+		if (access(tmp, F_OK)) {
+			free(tmp);
+			tmp = y_strdup_printf("%s%c%s", path, PATH_SEPARATOR, "start.jsonc");
+			CHECK_AND_RET(tmp, NULL, NULL,
+				      "cannot allocated path(like something went really wrong)");
+			mod = ydFromFile(jsonManager, tmp, NULL);
+		} else {
+			mod = ydFromFile(jsonManager, tmp, NULL);
+		}
 		yeCreateString(path, mod, "$path");
 	}
 

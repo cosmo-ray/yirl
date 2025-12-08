@@ -20,11 +20,11 @@
 
 /**
  * this widgets try to handle colision detection, and objects movements for you.
- * you have a defined number of groups, that can be set with 'nb_grp', in widget entity
+ * you have a defined number of groups, that can be set with 'nb_grp' (default 5), in widget entity
  * each groups have printable objects, and have some optional callbacks,
  *	and options that can be set, to define objects behaviors.
  *
- * when creating objects, you can use canvas fucntion, but need to call ywEBSSwapGroup
+ * when creating objects, you can use canvas function, but need to call ywEBSSwapGroup
  * to define in which group you want your canvasObj to be created.
  *
  * avaible callbackss are:
