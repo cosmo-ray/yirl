@@ -1,5 +1,5 @@
 {
-    "name" : "lpcs-infos",
+    "name" : "infos-lpcs",
     "pre-load" : [
 	{ "file" : "items.jsonc", "type" : "json", "as" : "items"},
         { "file" : "units.jsonc", "type" : "json", "as" : "units"},

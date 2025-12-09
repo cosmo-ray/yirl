@@ -489,7 +489,7 @@ NO_SIDE_EFFECT Entity *yeGetByStr(Entity *entity, const char *name)
 		char *isNum = NULL;
 		int idx;
 
-		idx = strtod(name, &isNum);
+		idx = strtol(name, &isNum, 0);
 		if (isNum != name)
 			return yeGet(entity, idx);
 		return yeGet(entity, name);
