@@ -457,6 +457,9 @@ KRK_Method(yent_krk_class, __call__) {
 			yargs[j].str = AS_CSTRING(argv[i]);
 		} else if (!IS_NONE(argv[i])) {
 			printf("Error: Unsupported return type\n");
+		} else {
+			types[j] = YS_VPTR;
+			yargs[j].vptr = 0;
 		}
 
 	}
@@ -1202,19 +1205,25 @@ static void addFuncSymbole(void *sm, const char *name, int nbArgs, Entity *func)
 	yeAddStr(strBuilder, "(");
 
 	for (int i = 0; i < nbArgs; i++) {
-		if (i > 0) {
-			yeAddStr(strBuilder, ", ");
-		}
 		yeAddStr(strBuilder, "arg");
 		yeAddInt(strBuilder, i);
+		if (i < nbArgs - 1) {
+			yeAddStr(strBuilder, ", ");
+		}
 	}
 
-	yeAddStr(strBuilder, "):\n    return yesCall(");
+	yeAddStr(strBuilder, "):\n    let ");
 	yeAddStr(strBuilder, uniqueName);
-
+	yeAddStr(strBuilder, "=Entity(int_ptr=");
+	yeStringAddI64(strBuilder, (intptr_t)func);
+	yeAddStr(strBuilder, ")\n    return ");
+	yeAddStr(strBuilder, uniqueName);
+	yeAddStr(strBuilder, "(");
 	for (int i = 0; i < nbArgs; i++) {
-		yeAddStr(strBuilder, ", arg");
+		yeAddStr(strBuilder, "arg");
 		yeAddInt(strBuilder, i);
+		if (i < nbArgs -1)
+			yeAddStr(strBuilder, ",");
 	}
 
 	yeAddStr(strBuilder, ")\n");
@@ -1222,8 +1231,9 @@ static void addFuncSymbole(void *sm, const char *name, int nbArgs, Entity *func)
 	// Execute the dynamically constructed function string
 	const char *finalFunction = yeGetString(strBuilder);
 	KrkValue result = krk_interpret(finalFunction, "<stdio>");
-	if (IS_NONE(result)) {
-		printf("Error: Failed to add function '%s' to Kuroko.\n", funcName);
+	if (krk_currentThread.flags & KRK_THREAD_HAS_EXCEPTION) {
+		DPRINT_ERR("krk error:");
+		krk_dumpTraceback();
 	}
 
 	// Clean up
