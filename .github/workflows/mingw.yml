@@ -35,6 +35,7 @@ jobs:
           lua
           autotools
           json-c
+          libmodplug
     
     - shell: msys2 {0}
       run: |
