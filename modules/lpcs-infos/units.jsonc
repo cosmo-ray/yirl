@@ -5,6 +5,8 @@
 	"life": 15,
 	"max_life": 15,
 	"type": "tanned", // should be random ?, but not yet supported
+	"armor": "full leather",
+	"weapon": "steel longsword",
 	"stats": {
 	    "strength": 3,
 	    "charm": 1,
@@ -17,6 +19,8 @@
 	"name": "guard",
 	"life": 13,
 	"max_life": 13,
+	"armor": "full leather",
+	"weapon": "iron longsword",
 	"type": "tanned", // should be random ?, but not yet supported
 	"stats": {
 	    "strength": 4,
@@ -30,6 +34,7 @@
 	"name": "peasant",
 	"life": 5,
 	"max_life": 5,
+	"armor": "weak leather",
 	"type": "tanned", // should be random ?, but not yet supported
 	"stats": {
 	    "strength": 2,
@@ -43,6 +48,8 @@
 	"name": "orc",
 	"life": 20,
 	"max_life": 20,
+	"armor": "weak leather",
+	"weapon": "iron longsword",
 	"type": "orcs/4", //should find a way to use more orc
 	"stats": {
 	    "strength": 5,
