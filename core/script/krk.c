@@ -877,6 +877,36 @@ KRK_Method(yent_krk_hash_class, __setitem__) {
 	return NONE_VAL();
 }
 
+void value_array_to_ent(KrkValueArray *av, Entity *e)
+{
+	for (int i = 0; i < av->count; ++i) {
+		KrkValue val = av->values[i];
+		if (IS_INTEGER(val)) {
+			yeCreateIntAt(AS_INTEGER(val), e, NULL, i);
+		} else if (IS_yent_krk_class(val)) {
+			yePushAt(e, AS_yent_krk_class(val)->e, i);
+		} else if (IS_NATIVE(val) | IS_CLOSURE(val)) {
+			Entity *r = yeCreateFunctionExt("(unnamed)",
+							ygGetManager("krk"),
+							NULL, NULL,
+							YE_FUNC_NO_FASTPATH_INIT);
+			YE_TO_FUNC(r)->idata = val;
+			yePushAt(e, r, i);
+			yeDestroy(r);
+		} else if (IS_list(val)) {
+			KrkValueArray *l = AS_LIST(val);
+			yeAutoFree Entity *e_as_l = yeCreateVector(NULL, NULL);
+
+			value_array_to_ent(l, e_as_l);
+			yePushAt(e, e_as_l, i);
+		} else if (IS_STRING(val)) {
+			yeCreateStringAt(AS_CSTRING(val), e, NULL, i);
+		} else if (IS_FLOATING(val)) {
+			yeCreateFloatAt(AS_FLOATING(val), e, NULL, i);
+		}
+	}
+}
+
 KRK_Method(yent_krk_vector_class, __setitem__) {
 	int k;
 	KrkValue val;
@@ -894,6 +924,12 @@ KRK_Method(yent_krk_vector_class, __setitem__) {
 		YE_TO_FUNC(r)->idata = val;
 		yePushAt(self->e, r, k);
 		yeDestroy(r);
+	} else if (IS_list(val)) {
+		KrkValueArray *l = AS_LIST(val);
+		yeAutoFree Entity *e_as_l = yeCreateVector(NULL, NULL);
+
+		value_array_to_ent(l, e_as_l);
+		yePushAt(self->e, e_as_l, k);
 	} else if (IS_STRING(val)) {
 		yeCreateStringAt(AS_CSTRING(val), self->e, NULL, k);
 	} else if (IS_FLOATING(val)) {
