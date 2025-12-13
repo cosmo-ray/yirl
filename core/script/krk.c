@@ -38,6 +38,7 @@ KrkClass *yent_krk_int_class;
 KrkClass *yent_krk_quad_int_class;
 KrkClass *yent_krk_float_class;
 KrkClass *yent_krk_array_class;
+KrkClass *yent_krk_vector_class;
 KrkClass *yent_krk_hash_class;
 KrkClass *yent_krk_function_class;
 
@@ -69,6 +70,9 @@ struct YKrkEntity {
 
 #define IS_yent_krk_array_class(o) (krk_isInstanceOf(o,yent_krk_class))
 #define AS_yent_krk_array_class(o) ((struct YKrkEntity*)AS_OBJECT(o))
+
+#define IS_yent_krk_vector_class(o) (krk_isInstanceOf(o,yent_krk_class))
+#define AS_yent_krk_vector_class(o) ((struct YKrkEntity*)AS_OBJECT(o))
 
 #define IS_yent_krk_hash_class(o) (krk_isInstanceOf(o,yent_krk_class))
 #define AS_yent_krk_hash_class(o) ((struct YKrkEntity*)AS_OBJECT(o))
@@ -386,6 +390,8 @@ static KrkValue make_ent_(Entity *e, int need_free) {
 	struct YKrkEntity *ret;
 	if (yeType(e) == YARRAY)
 		ret = (struct YKrkEntity *)krk_newInstance(yent_krk_array_class);
+	else if (yeType(e) == YVECTOR)
+		ret = (struct YKrkEntity *)krk_newInstance(yent_krk_vector_class);
 	else if (yeType(e) == YHASH)
 		ret = (struct YKrkEntity *)krk_newInstance(yent_krk_hash_class);
 	else if (yeType(e) == YINT)
@@ -739,6 +745,10 @@ KRK_Method(yent_krk_array_class, __len__) {
 	return INTEGER_VAL(yeLen(self->e));
 }
 
+KRK_Method(yent_krk_vector_class, __len__) {
+	return INTEGER_VAL(yeLen(self->e));
+}
+
 KRK_Method(yent_krk_hash_class, __len__) {
 	return INTEGER_VAL(yeLen(self->e));
 }
@@ -777,6 +787,17 @@ KRK_Method(yent_krk_hash_class, __getitem__) {
 	if (!krk_parseArgs(".s", (const char *[]){"key"}, &v))
 		return NONE_VAL();
 	eret = yeGet(self->e, v);
+	if (!eret)
+		return NONE_VAL();
+	return make_ent(eret);
+}
+
+KRK_Method(yent_krk_vector_class, __getitem__) {
+	int k;
+	Entity *eret;
+	if (!krk_parseArgs(".k", (const char *[]){"index"}, &k))
+		return NONE_VAL();
+	eret = yeGet(self->e, k);
 	if (!eret)
 		return NONE_VAL();
 	return make_ent(eret);
@@ -834,7 +855,6 @@ KRK_Method(yent_krk_array_class, __setitem__) {
 KRK_Method(yent_krk_hash_class, __setitem__) {
 	const char *key;
 	KrkValue val;
-	Entity *eret;
 	if (!krk_parseArgs(".sV", (const char *[]){"key"}, &key, &val))
 		return NONE_VAL();
 	if (IS_INTEGER(val)) {
@@ -854,7 +874,31 @@ KRK_Method(yent_krk_hash_class, __setitem__) {
 	} else if (IS_FLOATING(val)) {
 		yeReCreateFloat(AS_FLOATING(val), self->e, key);
 	}
-	eret = yeGet(self->e, key);
+	return NONE_VAL();
+}
+
+KRK_Method(yent_krk_vector_class, __setitem__) {
+	int k;
+	KrkValue val;
+	if (!krk_parseArgs(".iV", (const char *[]){"index"}, &k, &val))
+		return NONE_VAL();
+	if (IS_INTEGER(val)) {
+		yeCreateIntAt(AS_INTEGER(val), self->e, NULL, k);
+	} else if (IS_yent_krk_class(val)) {
+		yePushAt(self->e, AS_yent_krk_class(val)->e, k);
+	} else if (IS_NATIVE(val) | IS_CLOSURE(val)) {
+		Entity *r = yeCreateFunctionExt("(unnamed)",
+						ygGetManager("krk"),
+						NULL, NULL,
+						YE_FUNC_NO_FASTPATH_INIT);
+		YE_TO_FUNC(r)->idata = val;
+		yePushAt(self->e, r, k);
+		yeDestroy(r);
+	} else if (IS_STRING(val)) {
+		yeCreateStringAt(AS_CSTRING(val), self->e, NULL, k);
+	} else if (IS_FLOATING(val)) {
+		yeCreateFloatAt(AS_FLOATING(val), self->e, NULL, k);
+	}
 	return NONE_VAL();
 }
 
@@ -897,6 +941,28 @@ KRK_Method(yent_krk_hash_class, __init__) {
 		self->need_free = 0;
 	} else {
 		self->e = yeCreateHash(have_mother ? mother->e : NULL, have_name ? name : NULL);
+		self->need_free = !have_mother;
+	}
+	return NONE_VAL();
+}
+
+KRK_Method(yent_krk_vector_class, __init__) {
+	const char *name;
+	struct YKrkEntity *mother;
+	int have_mother, have_name, have_int_ptr;
+	long long int int_ptr = 0;
+
+	if (!krk_parseArgs(".|O?s?L?", (const char *[]){"parent", "name", "int_ptr"},
+			   &have_mother, &mother, &have_name, &name,
+			   &have_int_ptr, &int_ptr)) {
+		return NONE_VAL();
+	}
+
+	if (have_int_ptr) {
+		self->e = (void *)int_ptr;
+		self->need_free = 0;
+	} else {
+		self->e = yeCreateVector(have_mother ? mother->e : NULL, have_name ? name : NULL);
 		self->need_free = !have_mother;
 	}
 	return NONE_VAL();
@@ -997,6 +1063,15 @@ static int init(void *sm, void *args)
 	BIND_METHOD(yent_krk_hash_class, __len__);
 	krk_finalizeClass(yent_krk_hash_class);
 
+	yent_krk_vector_class = krk_makeClass(this->module, &yent_krk_vector_class, "VectorEntity",
+					      yent_krk_class);
+	yent_krk_class->allocSize = sizeof(struct YKrkEntity);
+	BIND_METHOD(yent_krk_vector_class, __init__);
+	BIND_METHOD(yent_krk_vector_class, __getitem__);
+	BIND_METHOD(yent_krk_vector_class, __setitem__);
+	BIND_METHOD(yent_krk_vector_class, __len__);
+	krk_finalizeClass(yent_krk_vector_class);
+
 	return 0;
 }
 
@@ -1089,6 +1164,8 @@ static struct ys_ret krk_call2(void *sm, const char *name, int nb, union ycall_a
 				yeStringAdd(str, "ArrayEntity(int_ptr=");
 			else if (yeType(args[i].e) == YHASH)
 				yeStringAdd(str, "HashEntity(int_ptr=");
+			else if (yeType(args[i].e) == YVECTOR)
+				yeStringAdd(str, "VectorEntity(int_ptr=");
 			else
 				yeStringAdd(str, "Entity(int_ptr=");
 			yeStringAddI64(str, args[i].i);
