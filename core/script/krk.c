@@ -877,7 +877,8 @@ KRK_Method(yent_krk_hash_class, __setitem__) {
 	return NONE_VAL();
 }
 
-void value_array_to_ent(KrkValueArray *av, Entity *e)
+static void table_to_ent(KrkTable *av, Entity *e);
+static void value_array_to_ent(KrkValueArray *av, Entity *e)
 {
 	for (int i = 0; i < av->count; ++i) {
 		KrkValue val = av->values[i];
@@ -899,12 +900,59 @@ void value_array_to_ent(KrkValueArray *av, Entity *e)
 
 			value_array_to_ent(l, e_as_l);
 			yePushAt(e, e_as_l, i);
+		} else if (IS_dict(val)) {
+			KrkTable *t = AS_DICT(val);
+			yeAutoFree Entity *e_as_d = yeCreateHash(NULL, NULL);
+
+			table_to_ent(t, e_as_d);
+			yePushAt(e, e_as_d, i);
 		} else if (IS_STRING(val)) {
 			yeCreateStringAt(AS_CSTRING(val), e, NULL, i);
 		} else if (IS_FLOATING(val)) {
 			yeCreateFloatAt(AS_FLOATING(val), e, NULL, i);
 		}
 	}
+}
+
+static void table_to_ent(KrkTable *av, Entity *e)
+{
+	if (!av->count)
+		return;
+	for (int i = 0; i < av->capacity; ++i) {
+		KrkTableEntry *entry = &av->entries[i];
+		KrkValue key = entry->key;
+
+		if (!IS_STRING(key))
+			continue;
+		const char *ckey = AS_CSTRING(key);
+		KrkValue val = entry->value;
+		if (IS_INTEGER(val)) {
+			yeCreateInt(AS_INTEGER(val), e, ckey);
+		} else if (IS_yent_krk_class(val)) {
+			yePushBack(e, AS_yent_krk_class(val)->e, ckey);
+		} else if (IS_NATIVE(val) | IS_CLOSURE(val)) {
+			Entity *r = yeCreateFunctionExt(ckey,
+							ygGetManager("krk"),
+							e, ckey,
+							YE_FUNC_NO_FASTPATH_INIT);
+			YE_TO_FUNC(r)->idata = val;
+		} else if (IS_dict(val)) {
+			KrkTable *t = AS_DICT(val);
+			Entity *e_as_d = yeCreateHash(e, ckey);
+
+			table_to_ent(t, e_as_d);
+		} else if (IS_list(val)) {
+			KrkValueArray *l = AS_LIST(val);
+			Entity *e_as_l = yeCreateVector(e, ckey);
+
+			value_array_to_ent(l, e_as_l);
+		} else if (IS_STRING(val)) {
+			yeCreateString(AS_CSTRING(val), e, ckey);
+		} else if (IS_FLOATING(val)) {
+			yeCreateFloat(AS_FLOATING(val), e, ckey);
+		}
+	}
+
 }
 
 KRK_Method(yent_krk_vector_class, __setitem__) {
@@ -924,6 +972,12 @@ KRK_Method(yent_krk_vector_class, __setitem__) {
 		YE_TO_FUNC(r)->idata = val;
 		yePushAt(self->e, r, k);
 		yeDestroy(r);
+	} else if (IS_dict(val)) {
+		KrkTable *t = AS_DICT(val);
+		yeAutoFree Entity *e_as_d = yeCreateHash(NULL, NULL);
+
+		table_to_ent(t, e_as_d);
+		yePushAt(self->e, e_as_d, k);
 	} else if (IS_list(val)) {
 		KrkValueArray *l = AS_LIST(val);
 		yeAutoFree Entity *e_as_l = yeCreateVector(NULL, NULL);
