@@ -90,6 +90,10 @@ ywMenuPushEntry(Entity *menu, const char *name, Entity *func)
 
 #endif
 
+/*
+ * slider_array: an array or vector entity:
+ * [{"text": SLIDER_OPTION_NAME, "action": CALLBACK}, ...]
+ */
 Entity *ywMenuPushSlider(Entity *menu, const char *name, Entity *slider_array);
 
 Entity *ywMenuGetEntry(Entity *menu, int idx);
