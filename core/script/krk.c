@@ -793,13 +793,25 @@ KRK_Method(yent_krk_hash_class, __getitem__) {
 }
 
 KRK_Method(yent_krk_vector_class, __getitem__) {
-	int k;
-	Entity *eret;
-	if (!krk_parseArgs(".k", (const char *[]){"index"}, &k))
+	KrkValue v;
+	Entity *eret = NULL;
+	if (!krk_parseArgs(".V", (const char *[]){"index"}, &v))
 		return NONE_VAL();
-	eret = yeGet(self->e, k);
+	if (IS_INTEGER(v)) {
+		eret = yeGet(self->e, AS_INTEGER(v));
+	} else if (IS_yent_krk_class(v)) {
+		Entity *e = AS_yent_krk_class(v)->e;
+		if (yeType(e) == YINT) {
+			eret = yeGet(self->e, yeGetInt(e));
+		} else {
+			krk_dumpTraceback();
+		}
+	} else {
+		krk_dumpTraceback();
+	}
 	if (!eret)
 		return NONE_VAL();
+
 	return make_ent(eret);
 }
 
