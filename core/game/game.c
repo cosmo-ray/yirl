@@ -58,6 +58,9 @@
 #include <gamemode_client.h>
 #endif
 
+/* need windows support here */
+#include <dirent.h>
+
 static int init;
 static void *jsonManager;
 static void *rawfileManager;
@@ -724,6 +727,53 @@ int ygModDirByEntity(Entity *mod)
 const char *ygModDirPath(const char * restrict const mod)
 {
 	return yeGetStringAt(ygGet(mod), "$path");
+}
+
+static int unix_file_to_y(int ft)
+{
+	switch (ft) {
+	case DT_BLK:
+		return YFILE_BLK;
+	case DT_CHR:
+		return YFILE_CHR;
+	case DT_DIR:
+		return YFILE_DIR;
+	case DT_FIFO:
+		return YFILE_FIFO;
+	case DT_LNK:
+		return YFILE_LNK;
+	case DT_REG:
+		return YFILE_REG;
+	case DT_SOCK:
+		return YFILE_SOCK;
+	default: /* include DT_UNKNOWN and anything else */
+		return YFILE_UNKNOWN;
+	}
+}
+
+_Bool ygModDirListPath(const char * restrict const mod, Entity *out_vector)
+{
+	const char *mod_path = ygModDirPath(mod);
+	int ret = 0;
+	if (!mod_path)
+		return 0;
+	// need to be handle diferently for windows
+	DIR *d = opendir(mod_path);
+	if (!d)
+		return 0;
+	struct dirent *de;
+	while ((de = readdir(d)) != NULL) {
+		Entity *v = yeCreateVector(out_vector, NULL);
+		/* let's skipp '.' and '..' */
+		if (!strcmp(de->d_name, ".") || !strcmp(de->d_name, ".."))
+			continue;
+		yeCreateString(de->d_name, v, NULL);
+		yeCreateInt(unix_file_to_y(de->d_type), v, NULL);
+	}
+	/* keep ret as a int here, so I can easily add a goto if I add error check */
+	ret = 1;
+	closedir(d);
+	return ret;
 }
 
 int ygModDir(const char * restrict const mod)

@@ -160,6 +160,18 @@ enum {
 };
 /* Code from http://jhnet.co.uk/articles/cpp_magic */
 
+/* did steal that from readdir man */
+enum Y_FILE_TYPE {
+	YFILE_BLK,       /* This is a block device. */
+	YFILE_CHR,      /* This is a character device. */
+	YFILE_DIR,      /* This is a directory. */
+	YFILE_FIFO,     /* This is a named pipe (FIFO). */
+	YFILE_LNK,      /* This is a symbolic link. */
+	YFILE_REG,      /* This is a regular file. */
+	YFILE_SOCK,     /* This is a UNIX domain socket. */
+	YFILE_UNKNOWN  /* The file type could not be determined. */
+};
+
 #define YUI_GET_ARG_COUNT(...) _GET_ARG_COUNT(0, ## __VA_ARGS__, 70, 69, 68, \
 					      67, 66, 65, 64, 63, 62, 61, 60, \
 					      59, 58, 57, 56, 55, 54, 53, 52, \
@@ -432,6 +444,7 @@ CONST_FUNC static inline int yuiPercentOf(int value, int percent)
 #define ypow9(X) X * ypow8(X)
 #define ypow10(X) X * ypow9(X)
 
+/* that rely on UB on int ... */
 #define YUI_SWAP_VALUE(a, b) ((a) += (b), (b) = ((a) - (b)), (a) -= (b))
 
 #define YUI_SWAP_PTR(a, b, ptr_type) ({				\

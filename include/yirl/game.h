@@ -203,6 +203,8 @@ int ygDoLoop(void);
 
 const char *ygModDirPath(const char * restrict const mod);
 
+_Bool ygModDirListPath(const char * restrict const mod, Entity *out_vector);
+
 Entity *ygLoadMod(const char *path);
 Entity *ygGetMod(const char *path);
 Entity *ygGetFuncExt(const char *func);

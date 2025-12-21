@@ -178,6 +178,11 @@ static KrkValue make_ent(Entity *e);
 		BIND_AUTORET(f(GET_S(0), GET_S(1)));			\
 	}
 
+#define BIND_SE(f, useless...)						\
+	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
+		BIND_AUTORET(f(YS_GETTER_LST(S,E)));			\
+	}
+
 #define BIND_SES(f, useless...)						\
 	static KrkValue krk##f(int argc, const KrkValue argv[], int hasKw) { \
 		BIND_AUTORET(f(YS_GETTER_LST(S,E,S)));			\

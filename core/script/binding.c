@@ -59,6 +59,8 @@ BIND_NONE(yeGet, 2, 0);
 BIND_NONE(yeGetIntAt, 2, 0);
 BIND_NONE(yeSetIntAt, 3, 0);
 
+BIND_SE(ygModDirListPath, 2, 0);
+
 BIND_ESS(yeSplitInto, 3, 0);
 
 BIND_ESS(yeRenameStrStr, 3, 0);
