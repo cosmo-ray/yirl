@@ -28,6 +28,16 @@
 
 static int tryMatchToks(const char *str, Entity *tokInfo, int len, int beg);
 
+int yeStrLastCh(const Entity str[static 1])
+{
+	const char *val = YE_TO_C_STRING(str)->value;
+
+	if (!val)
+		return -1;
+	int l = YE_TO_C_STRING(str)->len;
+	return val[l - 1];
+}
+
 int yeStrChrIdx(Entity *str_ent, char c)
 {
 	const char *str = yeGetString(str_ent);

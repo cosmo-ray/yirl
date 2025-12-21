@@ -59,7 +59,11 @@ BIND_NONE(yeGet, 2, 0);
 BIND_NONE(yeGetIntAt, 2, 0);
 BIND_NONE(yeSetIntAt, 3, 0);
 
+BIND_SE(yFillPathList, 2, 0);
+
 BIND_SE(ygModDirListPath, 2, 0);
+
+BIND_SE(yFillDirectoryPathList, 2, 0);
 
 BIND_ESS(yeSplitInto, 3, 0);
 
@@ -198,6 +202,8 @@ BIND_EE(ywCanvasCheckColisionsRectObj, 2, 0);
 BIND_EE(ywRemoveEntryByEntity, 2, 0);
 
 BIND_EE(ywCanvasObjSetPosByEntity, 2, 0);
+
+BIND_ES(yPathAdd, 2, 0);
 
 BIND_ES(ywCntCreateChild, 2, 0);
 

@@ -31,6 +31,8 @@
 #include "texture.h"
 #include "condition.h"
 #include "event-base-objs.h"
+#include "filesystem.h"
+
 #include <lualib.h>
 #include <lauxlib.h>
 enum ylua_type {

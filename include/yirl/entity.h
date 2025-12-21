@@ -317,6 +317,11 @@ NO_SIDE_EFFECT int yeEntitiesUsed(void);
 
 NO_SIDE_EFFECT int yeFreeEntitiesInStack(void);
 
+NO_SIDE_EFFECT static inline EntityType yeTypeNoCheck(const Entity entity[static 1])
+{
+	return entity->type;
+}
+
 NO_SIDE_EFFECT EntityType yeType(const Entity * const entity);
 
 NO_SIDE_EFFECT static inline int yeIsNum(const Entity * const e)

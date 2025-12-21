@@ -30,6 +30,7 @@
 #include "events.h"
 #include "texture.h"
 #include "condition.h"
+#include "filesystem.h"
 #include "event-base-objs.h"
 
 static int t = -1;

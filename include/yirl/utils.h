@@ -1,5 +1,5 @@
 /*
-**Copyright (C) 2015 Matthias Gatto
+**Copyright (C) 2015-2025 Matthias Gatto
 **
 **This program is free software: you can redistribute it and/or modify
 **it under the terms of the GNU Lesser General Public License as published by
@@ -74,8 +74,10 @@ static char *strndup(const char *str, size_t chars)
 }
 
 #define PATH_SEPARATOR '\\'
+#define PATH_SEPARATOR_STR "\\"
 #else
 #define PATH_SEPARATOR '/'
+#define PATH_SEPARATOR_STR "/"
 
 #endif /* windows or orther */
 
@@ -162,15 +164,17 @@ enum {
 
 /* did steal that from readdir man */
 enum Y_FILE_TYPE {
-	YFILE_BLK,       /* This is a block device. */
-	YFILE_CHR,      /* This is a character device. */
-	YFILE_DIR,      /* This is a directory. */
-	YFILE_FIFO,     /* This is a named pipe (FIFO). */
-	YFILE_LNK,      /* This is a symbolic link. */
-	YFILE_REG,      /* This is a regular file. */
-	YFILE_SOCK,     /* This is a UNIX domain socket. */
-	YFILE_UNKNOWN  /* The file type could not be determined. */
+	YFILE_BLK = 1 << 1,       /* This is a block device. */
+	YFILE_CHR = 1 << 2,      /* This is a character device. */
+	YFILE_DIR = 1 << 3,      /* This is a directory. */
+	YFILE_FIFO = 1 << 4,     /* This is a named pipe (FIFO). */
+	YFILE_LNK = 1 << 5,      /* This is a symbolic link. */
+	YFILE_REG = 1 << 6,      /* This is a regular file. */
+	YFILE_SOCK = 1 << 7,     /* This is a UNIX domain socket. */
+	YFILE_UNKNOWN = 1 << 8  /* The file type could not be determined. */
 };
+
+#define YFILE_ALL (YFILE_UNKNOWN - 1)
 
 #define YUI_GET_ARG_COUNT(...) _GET_ARG_COUNT(0, ## __VA_ARGS__, 70, 69, 68, \
 					      67, 66, 65, 64, 63, 62, 61, 60, \

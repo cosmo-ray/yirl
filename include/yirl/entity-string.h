@@ -21,6 +21,7 @@
 
 Entity *yeToLower(Entity *e);
 
+int yeStrLastCh(const Entity str[static 1]);
 
 NO_SIDE_EFFECT int yeStrCmp(Entity *ent1, const char *str);
 

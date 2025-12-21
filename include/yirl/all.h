@@ -29,3 +29,4 @@
 #include <yirl/event-base-objs.h>
 #include <yirl/video-player.h>
 #include <yirl/condition.h>
+#include <yirl/filesystem.h>
