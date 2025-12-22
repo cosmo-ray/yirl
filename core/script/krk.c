@@ -820,6 +820,9 @@ KRK_Method(yent_krk_vector_class, __getitem__) {
 	return make_ent(eret);
 }
 
+static void table_to_ent(KrkTable *av, Entity *e);
+static void value_array_to_ent(KrkValueArray *av, Entity *e);
+
 KRK_Method(yent_krk_array_class, __setitem__) {
 	KrkValue key, val;
 	Entity *eret;
@@ -840,6 +843,18 @@ KRK_Method(yent_krk_array_class, __setitem__) {
 			YE_TO_FUNC(r)->idata = val;
 			yePushAt(self->e, r, k);
 			yeDestroy(r);
+		} else if (IS_dict(val)) {
+			KrkTable *t = AS_DICT(val);
+			yeAutoFree Entity *e_as_d = yeCreateHash(NULL, NULL);
+
+			table_to_ent(t, e_as_d);
+			yePushAt(self->e, e_as_d, k);
+		} else if (IS_list(val)) {
+			KrkValueArray *l = AS_LIST(val);
+			yeAutoFree Entity *e_as_l = yeCreateVector(NULL, NULL);
+
+			value_array_to_ent(l, e_as_l);
+			yePushAt(self->e, e_as_l, k);
 		} else if (IS_STRING(val)) {
 			yeCreateStringAt(AS_CSTRING(val), self->e, NULL, k);
 		} else if (IS_FLOATING(val)) {
@@ -859,6 +874,18 @@ KRK_Method(yent_krk_array_class, __setitem__) {
 							self->e, k,
 							YE_FUNC_NO_FASTPATH_INIT);
 			YE_TO_FUNC(r)->idata = val;
+		} else if (IS_list(val)) {
+			KrkValueArray *l = AS_LIST(val);
+			yeAutoFree Entity *e_as_l = yeCreateVector(NULL, NULL);
+
+			value_array_to_ent(l, e_as_l);
+			yeReplaceBack(self->e, e_as_l, k);
+		} else if (IS_dict(val)) {
+			KrkTable *t = AS_DICT(val);
+			yeAutoFree Entity *e_as_d = yeCreateHash(NULL, NULL);
+
+			table_to_ent(t, e_as_d);
+			yeReplaceBack(self->e, e_as_d, k);
 		} else if (IS_STRING(val)) {
 			yeReCreateString(AS_CSTRING(val), self->e, k);
 		} else if (IS_FLOATING(val)) {
@@ -886,6 +913,18 @@ KRK_Method(yent_krk_hash_class, __setitem__) {
 						self->e, key,
 						YE_FUNC_NO_FASTPATH_INIT);
 		YE_TO_FUNC(r)->idata = val;
+	} else if (IS_list(val)) {
+		KrkValueArray *l = AS_LIST(val);
+		yeAutoFree Entity *e_as_l = yeCreateVector(NULL, NULL);
+
+		value_array_to_ent(l, e_as_l);
+		yeReplaceBack(self->e, e_as_l, key);
+	} else if (IS_dict(val)) {
+		KrkTable *t = AS_DICT(val);
+		yeAutoFree Entity *e_as_d = yeCreateHash(NULL, NULL);
+
+		table_to_ent(t, e_as_d);
+		yeReplaceBack(self->e, e_as_d, key);
 	} else if (IS_STRING(val)) {
 		yeReCreateString(AS_CSTRING(val), self->e, key);
 	} else if (IS_FLOATING(val)) {
@@ -894,7 +933,6 @@ KRK_Method(yent_krk_hash_class, __setitem__) {
 	return NONE_VAL();
 }
 
-static void table_to_ent(KrkTable *av, Entity *e);
 static void value_array_to_ent(KrkValueArray *av, Entity *e)
 {
 	for (int i = 0; i < av->count; ++i) {
