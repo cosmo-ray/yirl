@@ -595,6 +595,8 @@ NO_SIDE_EFFECT static inline char *yeFindKey(Entity *entity, Entity *target)
 
 #define yeGetIntDirect(entity) (YE_TO_INT(entity)->value)
 
+#define yeGetLongDirect(entity) (YE_TO_INT(entity)->lval)
+
 
 static inline int ye_revforeach_eval_(Entity *a, int *i, Entity **e)
 {

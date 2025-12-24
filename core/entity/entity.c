@@ -2011,8 +2011,8 @@ static void yeToCStrInternal(Entity *entity, int deep, Entity *str,
 		}
 		break;
 	case YINT :
-		yeStringAppendPrintf(str, "'%d'",
-				     (uint32_t)yeGetIntDirect(entity));
+		yeStringAppendPrintf(str, "'"PRIint64"'",
+				     yeGetIntDirect(entity));
 		break;
 	case YQUADINT :
 		yeStringAppendPrintf(str, "<q: %d, %d, %d, %d>",
