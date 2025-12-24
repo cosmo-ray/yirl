@@ -570,6 +570,27 @@ Entity *yeCreateQuadInt0(Entity *parent, const char *name)
 	return yeCreateQuadInt(0, 0, 0, 0, parent, name);
 }
 
+Entity *yeCreateLong(int64_t value, Entity *father, const char *name)
+{
+	IntEntity * restrict ret;
+
+	YE_ALLOC_ENTITY(ret, IntEntity);
+	yeInit((Entity *)ret, YINT, father, name);
+	ret->lval = value;
+	return ((Entity *)ret);
+}
+
+Entity *yeCreateLongAt(int64_t value, Entity *father, const char *name, long idx)
+{
+	IntEntity * restrict ret;
+
+	YE_ALLOC_ENTITY(ret, IntEntity);
+	yeInitAt((Entity *)ret, YINT, father, name, idx);
+	ret->lval = value;
+	return ((Entity *)ret);
+}
+
+
 Entity *yeCreateInt(int value, Entity *father, const char *name)
 {
 	IntEntity * restrict ret;
@@ -1744,6 +1765,15 @@ void	yeSetInt(Entity *entity, int value)
 		return;
 	ygAssert(!(entity->flag & YENTITY_CONST));
 	((IntEntity *)entity)->value = value;
+}
+
+void	yeSetLong(Entity *entity, int64_t value)
+{
+	if (unlikely(!entity || (yeType(entity) != YINT &&
+				 yeType(entity) != YFLOAT)))
+		return;
+	ygAssert(!(entity->flag & YENTITY_CONST));
+	((IntEntity *)entity)->lval = value;
 }
 
 void	yeSetFloat(Entity *entity, double value)

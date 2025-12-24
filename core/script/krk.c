@@ -832,7 +832,7 @@ KRK_Method(yent_krk_array_class, __setitem__) {
 		int k = AS_INTEGER(key);
 
 		if (IS_INTEGER(val)) {
-			yeCreateIntAt(AS_INTEGER(val), self->e, NULL, k);
+			yeCreateLongAt(AS_INTEGER(val), self->e, NULL, k);
 		} else if (IS_yent_krk_class(val)) {
 			yePushAt(self->e, AS_yent_krk_class(val)->e, k);
 		} else if (IS_NATIVE(val) | IS_CLOSURE(val)) {
@@ -863,7 +863,7 @@ KRK_Method(yent_krk_array_class, __setitem__) {
 	} else if (IS_STRING(key)) {
 		const char *k = AS_CSTRING(key);
 		if (IS_INTEGER(val)) {
-			yeReCreateInt(AS_INTEGER(val), self->e, k);
+			yeReCreateLong(AS_INTEGER(val), self->e, k);
 		} else if (IS_yent_krk_class(val)) {
 			yePushBack(self->e, AS_yent_krk_class(val)->e, k);
 		} else if (IS_NATIVE(val) | IS_CLOSURE(val)) {
@@ -902,7 +902,7 @@ KRK_Method(yent_krk_hash_class, __setitem__) {
 	if (!krk_parseArgs(".sV", (const char *[]){"key"}, &key, &val))
 		return NONE_VAL();
 	if (IS_INTEGER(val)) {
-		yeReCreateInt(AS_INTEGER(val), self->e, key);
+		yeReCreateLong(AS_INTEGER(val), self->e, key);
 	} else if (IS_yent_krk_class(val)) {
 		yeReplaceBack(self->e, AS_yent_krk_class(val)->e, key);
 	} else if (IS_NATIVE(val) | IS_CLOSURE(val)) {
@@ -938,7 +938,7 @@ static void value_array_to_ent(KrkValueArray *av, Entity *e)
 	for (int i = 0; i < av->count; ++i) {
 		KrkValue val = av->values[i];
 		if (IS_INTEGER(val)) {
-			yeCreateIntAt(AS_INTEGER(val), e, NULL, i);
+			yeCreateLongAt(AS_INTEGER(val), e, NULL, i);
 		} else if (IS_yent_krk_class(val)) {
 			yePushAt(e, AS_yent_krk_class(val)->e, i);
 		} else if (IS_NATIVE(val) | IS_CLOSURE(val)) {
@@ -982,7 +982,7 @@ static void table_to_ent(KrkTable *av, Entity *e)
 		const char *ckey = AS_CSTRING(key);
 		KrkValue val = entry->value;
 		if (IS_INTEGER(val)) {
-			yeCreateInt(AS_INTEGER(val), e, ckey);
+			yeCreateLong(AS_INTEGER(val), e, ckey);
 		} else if (IS_yent_krk_class(val)) {
 			yePushBack(e, AS_yent_krk_class(val)->e, ckey);
 		} else if (IS_NATIVE(val) | IS_CLOSURE(val)) {

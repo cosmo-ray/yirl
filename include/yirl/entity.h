@@ -179,7 +179,10 @@ typedef	struct
 {
 	ENTITY_HEADER
 
-	int_ptr_t	value;
+	union {
+		int_ptr_t	value;
+		int64_t		lval;
+	};
 } IntEntity;
 
 typedef	struct
@@ -924,6 +927,13 @@ Entity *yeCreateQuadInt0(Entity *parent, const char *name);
 Entity *yeCreateQuadIntAt(int i0, int i1, int i2, int i3, Entity *parent, const char *name, int idx);
 Entity *yeCreateInt(int value, Entity *parent, const char *name);
 Entity *yeCreateIntAt(int value, Entity *parent, const char *name, int idx);
+
+/**
+ *  those create a long entity, but using int64_t
+ */
+Entity *yeCreateLong(int64_t value, Entity *father, const char *name);
+Entity *yeCreateLongAt(int64_t value, Entity *father, const char *name, long idx);
+
 Entity *yeCreateFloat(double value, Entity *parent, const char *name);
 Entity *yeCreateFloatAt(double value, Entity *parent, const char *name, int idx);
 Entity *yeCreateString(const char *string, Entity *parent, const char *name);
@@ -1030,6 +1040,8 @@ void yeClearArray(Entity *entity);
  * @return -1 if entity is not og type YINT, <value> otherwise
  */
 void	yeSetInt(Entity *entity, int value);
+
+void	yeSetLong(Entity *entity, int64_t value);
 
 #define yeSetFloatDirect(entity, value_)		\
 	(((FloatEntity *)entity)->value = (value_))
@@ -1140,6 +1152,7 @@ int yeAttach(Entity *on, Entity *entity, unsigned int idx,
 
 #define RECREATE_IS_Float YFLOAT
 #define RECREATE_IS_Int YINT
+#define RECREATE_IS_Long YINT
 #define RECREATE_IS_Function YFUNCTION
 #define RECREATE_IS_String YSTRING
 
@@ -1207,6 +1220,12 @@ static inline Entity *yeReCreateInt(int value, Entity *parent,
 				    const char *name)
 {
 	YE_IMPL_RECREATE(Int, value, parent, name);
+}
+
+static inline Entity *yeReCreateLong(int64_t value, Entity *parent,
+				    const char *name)
+{
+	YE_IMPL_RECREATE(Long, value, parent, name);
 }
 
 
