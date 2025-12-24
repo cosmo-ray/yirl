@@ -623,6 +623,11 @@ NO_SIDE_EFFECT int yeGetInt(Entity *entity);
 /**
  * @return 0 if @entity is NULL
  */
+NO_SIDE_EFFECT int64_t yeGetLong(Entity *entity);
+
+/**
+ * @return 0 if @entity is NULL
+ */
 NO_SIDE_EFFECT static inline int yeGetQuadInt0(Entity *entity) {
 	if (yeType(entity) != YQUADINT) {
 		DPRINT_ERR("entity not of type quand int\n");

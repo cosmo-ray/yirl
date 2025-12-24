@@ -1802,6 +1802,16 @@ NO_SIDE_EFFECT int	yeGetInt(Entity *entity)
 	return YE_TO_INT(entity)->value;
 }
 
+NO_SIDE_EFFECT int64_t	yeGetLong(Entity *entity)
+{
+	if (unlikely(!entity)) {
+		return 0;
+	} else if (yeType(entity) == YFLOAT) {
+		return (int64_t)yeGetFloatDirect(entity);
+	}
+	return YE_TO_INT(entity)->lval;
+}
+
 NO_SIDE_EFFECT void	*yeGetData(Entity *entity)
 {
 	if (unlikely(!entity)) {

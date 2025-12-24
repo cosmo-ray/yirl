@@ -581,7 +581,7 @@ KRK_Method(yent_krk_int_class, __rsub__) {
 		krk_dumpTraceback();
 		return NONE_VAL();
 	}
-	return INTEGER_VAL(i - yeGetInt(self->e));
+	return INTEGER_VAL(i - yeGetLongDirect(self->e));
 }
 
 
@@ -612,7 +612,7 @@ KRK_Method(yent_krk_int_class, __mul__) {
 		krk_dumpTraceback();
 		return NONE_VAL();
 	}
-	return INTEGER_VAL(i * yeGetInt(self->e));
+	return INTEGER_VAL(i * yeGetLongDirect(self->e));
 }
 
 KRK_Method(yent_krk_int_class, __truediv__) {
@@ -622,7 +622,7 @@ KRK_Method(yent_krk_int_class, __truediv__) {
 		krk_dumpTraceback();
 		return NONE_VAL();
 	}
-	return INTEGER_VAL(yeGetInt(self->e) / i);
+	return INTEGER_VAL(yeGetLongDirect(self->e) / i);
 }
 
 KRK_Method(yent_krk_int_class, __lt__) {
@@ -637,9 +637,9 @@ KRK_Method(yent_krk_int_class, __lt__) {
 	if (IS_INTEGER(second)) {
 		second_i = AS_INTEGER(second);
 	} else {
-		second_i = yeGetInt(AS_yent_krk_class(second)->e);
+		second_i = yeGetLong(AS_yent_krk_class(second)->e);
 	}
-	return BOOLEAN_VAL(yeGetInt(self->e) < second_i);
+	return BOOLEAN_VAL(yeGetLongDirect(self->e) < second_i);
 }
 
 KRK_Method(yent_krk_int_class, __le__) {
@@ -654,9 +654,9 @@ KRK_Method(yent_krk_int_class, __le__) {
 	if (IS_INTEGER(second)) {
 		second_i = AS_INTEGER(second);
 	} else {
-		second_i = yeGetInt(AS_yent_krk_class(second)->e);
+		second_i = yeGetLong(AS_yent_krk_class(second)->e);
 	}
-	return BOOLEAN_VAL(yeGetInt(self->e) <= second_i);
+	return BOOLEAN_VAL(yeGetLongDirect(self->e) <= second_i);
 }
 
 KRK_Method(yent_krk_int_class, __sub__) {
@@ -673,9 +673,9 @@ KRK_Method(yent_krk_int_class, __sub__) {
 	} else if (IS_FLOATING(second)) {
 		second_i = (int)AS_FLOATING(second);
 	} else {
-		second_i = yeGetInt(AS_yent_krk_class(second)->e);
+		second_i = yeGetLong(AS_yent_krk_class(second)->e);
 	}
-	return INTEGER_VAL(yeGetInt(self->e) - second_i);
+	return INTEGER_VAL(yeGetLongDirect(self->e) - second_i);
 }
 
 KRK_Method(yent_krk_int_class, __add__) {
@@ -692,9 +692,9 @@ KRK_Method(yent_krk_int_class, __add__) {
 	} else if (IS_FLOATING(second)) {
 		second_i = (int)AS_FLOATING(second);
 	} else {
-		second_i = yeGetInt(AS_yent_krk_class(second)->e);
+		second_i = yeGetLong(AS_yent_krk_class(second)->e);
 	}
-	return INTEGER_VAL(yeGetInt(self->e) + second_i);
+	return INTEGER_VAL(yeGetLongDirect(self->e) + second_i);
 }
 
 KRK_Method(yent_krk_int_class, __gt__) {
@@ -709,9 +709,9 @@ KRK_Method(yent_krk_int_class, __gt__) {
 	if (IS_INTEGER(second)) {
 		second_i = AS_INTEGER(second);
 	} else {
-		second_i = yeGetInt(AS_yent_krk_class(second)->e);
+		second_i = yeGetLongDirect(AS_yent_krk_class(second)->e);
 	}
-	return BOOLEAN_VAL(yeGetInt(self->e) > second_i);
+	return BOOLEAN_VAL(yeGetLongDirect(self->e) > second_i);
 }
 
 KRK_Method(yent_krk_int_class, __ge__) {
@@ -726,9 +726,9 @@ KRK_Method(yent_krk_int_class, __ge__) {
 	if (IS_INTEGER(second)) {
 		second_i = AS_INTEGER(second);
 	} else {
-		second_i = yeGetInt(AS_yent_krk_class(second)->e);
+		second_i = yeGetLongDirect(AS_yent_krk_class(second)->e);
 	}
-	return BOOLEAN_VAL(yeGetInt(self->e) >= second_i);
+	return BOOLEAN_VAL(yeGetLongDirect(self->e) >= second_i);
 }
 
 KRK_Method(yent_krk_float_class, __init__) {
