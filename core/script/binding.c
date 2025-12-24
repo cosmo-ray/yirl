@@ -424,6 +424,7 @@ BIND_E(ywRectH, 1, 0);
 
 BIND_E(ywidAddSubType, 1, 0);
 BIND_E(ywidAddSubTypeNF, 1, 0);
+BIND_E(yeGetLong, 1, 0);
 BIND_E(yeGetInt, 1, 0);
 BIND_E(yeLen, 1, 0);
 BIND_E(ywidEveKey, 1, 0);
