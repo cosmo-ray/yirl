@@ -41,6 +41,7 @@
 #include "condition.h"
 #include "event-base-objs.h"
 #include "filesystem.h"
+#include "timer.h"
 
 static int t = -1;
 

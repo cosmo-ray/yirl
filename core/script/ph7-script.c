@@ -20,6 +20,7 @@
 #include "ph7-script.h"
 #include <yirl/all.h>
 #include "game.h"
+#include "timer.h"
 #include <stdlib.h>
 #include <string.h>
 

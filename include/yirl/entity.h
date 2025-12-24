@@ -461,6 +461,8 @@ Entity *yeBrutalCast(Entity *entity, int type);
 
 #define YE_FOREACH YE_ARRAY_FOREACH
 
+#define YE_VECTOR_FOREACH YE_VECTORE_FOREACH
+
 #define YE_VECTORE_FOREACH(vec, o_)					\
 	for (int l = yeLen(vec), i = l; ({int r = i < 0; if (r) o_ = yeGet(vec, i); r;}); ++i)
 

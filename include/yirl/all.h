@@ -30,3 +30,5 @@
 #include <yirl/video-player.h>
 #include <yirl/condition.h>
 #include <yirl/filesystem.h>
+#include <yirl/timer.h>
+

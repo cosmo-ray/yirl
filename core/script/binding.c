@@ -203,6 +203,8 @@ BIND_EE(ywRemoveEntryByEntity, 2, 0);
 
 BIND_EE(ywCanvasObjSetPosByEntity, 2, 0);
 
+BIND_ES(ywCntSetForwarStyle, 2, 0);
+
 BIND_ES(yPathAdd, 2, 0);
 
 BIND_ES(ywCntCreateChild, 2, 0);
@@ -505,6 +507,8 @@ BIND_V(ysTraceCurrentScript);
 BIND_V(ygGetBinaryRootPath);
 
 BIND_V(ygTerminate);
+
+BIND_V(y_get_time);
 
 BIND_V(ygUserDir);
 BIND_V(ywGetTurnLengthOverwrite);

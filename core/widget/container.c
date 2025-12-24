@@ -214,6 +214,28 @@ static void cntResize(YWidgetState *opac)
 	}
 }
 
+int ywCntSetForwarStyle(Entity *cnt, const char *str)
+{
+	YContainerState *cntState = (YContainerState *)ywidGetState(cnt);
+	int to_set;
+
+	if (!strcmp(str, "under mouse")) {
+		to_set = Y_CNT_UNDER_MOUSE;
+	} else if (!strcmp(str, "forward all")) {
+		to_set = Y_CNT_FORWARD_ALL;
+	} else if (!strcmp(str, "goto curent")) {
+		to_set = Y_CNT_GOTO_CURRENT;
+	} else {
+		DPRINT_ERR("unknow forward style: %s\n", str);
+		return -1;
+	}
+	yeReCreateString(str, cnt, "event_forwarding");
+	if (!cntState)
+		return 0;
+	cntState->fwStyle = to_set;
+	return 0;
+}
+
 static int cntInit(YWidgetState *opac, Entity *entity, void *args)
 {
 	Entity *entries = yeGet(entity, "entries");
@@ -241,6 +263,8 @@ static int cntInit(YWidgetState *opac, Entity *entity, void *args)
 
 	if (eve_forwarding && !yeStrCmp(eve_forwarding, "under mouse")) {
 		cntState->fwStyle = Y_CNT_UNDER_MOUSE;
+	} else if (eve_forwarding && !yeStrCmp(eve_forwarding, "forward all")) {
+		cntState->fwStyle = Y_CNT_FORWARD_ALL;
 	}
 
 	yeTryCreateInt(0, entity, "current");
@@ -307,23 +331,45 @@ static int cntDestroy(YWidgetState *opac)
 
 static InputStatue cntEvent(YWidgetState *opac, Entity *event)
 {
-	InputStatue ret;
-	Entity *entries = yeGet(opac->entity, "entries");
+	int ret = NOTHANDLE;
+	Entity *this = opac->entity;
+	Entity *entries = yeGet(this, "entries");
 	YWidgetState *cur;
+	int fw_style = ((YContainerState *)opac)->fwStyle;
 
-	ret = ywidActions(opac->entity, opac->entity, event);
+	if (fw_style == Y_CNT_FORWARD_ALL) {
+		int tmp_ret;
+		if (yeType(entries) == YVECTOR) {
+			Entity *e;
+
+			YE_VECTOR_FOREACH(entries, e) {
+				tmp_ret = ywidHandleEvent(ywidGetState(e), event);
+				if (tmp_ret > ret)
+					ret = tmp_ret;
+			}
+
+		} else {
+			YE_ARRAY_FOREACH(entries, e) {
+				tmp_ret = ywidHandleEvent(ywidGetState(e), event);
+				if (tmp_ret > ret)
+					ret = tmp_ret;
+			}
+		}
+		return ret;
+	}
+	ret = ywidActions(this, this, event);
 
 	if (ret != NOTHANDLE)
 		return ret;
 
-	if (((YContainerState *)opac)->fwStyle == Y_CNT_GOTO_CURRENT) {
+	if (fw_style == Y_CNT_GOTO_CURRENT) {
 		cur = ywidGetState(
 			yeGet(entries,
-			      yeGetInt(yeGet(opac->entity,
+			      yeGetInt(yeGet(this,
 					     "current"))));
 	} else {
 		cur = ywidGetState(
-			ywContainerGetWidgetAt(opac->entity,
+			ywContainerGetWidgetAt(this,
 					       ywidXMouseGlobalPos,
 					       ywidYMouseGlobalPos));
 	}

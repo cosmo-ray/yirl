@@ -30,6 +30,7 @@ typedef enum {
 typedef enum {
   Y_CNT_GOTO_CURRENT = 0,
   Y_CNT_UNDER_MOUSE = 1,
+  Y_CNT_FORWARD_ALL = 2,
 } YCntForwardingStyle;
 
 typedef struct {
@@ -94,6 +95,11 @@ ywReplaceEntryByEntity(Entity *container, Entity *target, Entity *entry)
 }
 
 void ywCntPopLastEntry(Entity *container);
+
+/**
+ * set forwarding style to either: 'under mouse', 'goto curent' or 'forward all'
+ */
+int ywCntSetForwarStyle(Entity *cnt, const char *str);
 
 Entity *ywCntGetLastEntry(Entity *container);
 
