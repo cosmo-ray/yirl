@@ -64,7 +64,7 @@ static _Bool yFillPathListFilter(const char dir[static 1], Entity *out_vector, i
 			continue;
 		/* let's skipp '.' and '..' */
 		if (!strcmp(de->d_name, ".") || !strcmp(de->d_name, ".."))
-FindFileData.cFileName			continue;
+			continue;
 		Entity *v = yeCreateVector(out_vector, NULL);
 		yeCreateString(de->d_name, v, NULL);
 		yeCreateInt(t, v, NULL);
