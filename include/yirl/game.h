@@ -15,6 +15,11 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+ * For turn management, see ywSetTurnLengthOverwrite and
+ * ywGetTurnLengthOverwrite in widget.h
+ */
+
 #ifndef _YIRL_GAME_H_
 #define _YIRL_GAME_H_
 

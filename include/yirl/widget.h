@@ -272,8 +272,16 @@ extern int ywTurnPecent;
 
 extern int ywTurnLengthOverwrite;
 
+
+/**
+ * set global timer per turn.
+ * 0 mean await commande
+ * -1 mean "request animation frame"
+ * more than 1 mean: wait for X
+ */
 void ywSetTurnLengthOverwrite(int i);
 int ywGetTurnLengthOverwrite(void);
+
 unsigned int ywTurnId(void);
 
 static inline int yWindowWidth(void)
