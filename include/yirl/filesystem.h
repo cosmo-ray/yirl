@@ -21,6 +21,9 @@
 #include "yirl/utils.h"
 #include "yirl/entity.h"
 
+#ifndef Y_INSIDE_TCC
+
+#ifndef _WIN32
 /* need windows support here */
 #include <dirent.h>
 
@@ -48,6 +51,8 @@ static int unix_file_to_y(int ft)
 
 static _Bool yFillPathListFilter(const char dir[static 1], Entity *out_vector, int filter)
 {
+	if (!out_vector)
+		return 0;
 	DIR *d = opendir(dir);
 	if (!d)
 		return 0;
@@ -59,7 +64,7 @@ static _Bool yFillPathListFilter(const char dir[static 1], Entity *out_vector, i
 			continue;
 		/* let's skipp '.' and '..' */
 		if (!strcmp(de->d_name, ".") || !strcmp(de->d_name, ".."))
-			continue;
+FindFileData.cFileName			continue;
 		Entity *v = yeCreateVector(out_vector, NULL);
 		yeCreateString(de->d_name, v, NULL);
 		yeCreateInt(t, v, NULL);
@@ -67,6 +72,38 @@ static _Bool yFillPathListFilter(const char dir[static 1], Entity *out_vector, i
 	closedir(d);
 	return 1;
 }
+#else
+
+#include <fileapi.h>
+
+static _Bool yFillPathListFilter(const char dir[static 1], Entity *out_vector, int filter)
+{
+	HANDLE hFind;
+	WIN32_FIND_DATA FindFileData;
+	yeAutoFree Entity *path_to_use = yeCreateString(dir, NULL, NULL);
+
+	if (!out_vector)
+		return 0;
+	yeAdd(path_to_use, "\\*");
+	if((hFind = FindFirstFile(yeGetString(path_to_use), &FindFileData)) != INVALID_HANDLE_VALUE){
+		do {
+			int t = strchr(FindFileData.cFileName, '.') ? YFILE_REG : YFILE_DIR;
+
+			if (!(t & filter))
+				continue;
+			if (!strcmp(FindFileData.cFileName, ".") || !strcmp(FindFileData.cFileName, ".."))
+				continue;
+			Entity *v = yeCreateVector(out_vector, NULL);
+
+			yeCreateString(FindFileData.cFileName, v, NULL);
+			yeCreateInt(t, v, NULL);
+		} while(FindNextFile(hFind, &FindFileData));
+		FindClose(hFind);
+	}
+	return 1;
+}
+
+#endif
 
 static _Bool yFillPathList(const char dir[static 1], Entity *out_vector)
 {
@@ -87,5 +124,7 @@ static int yPathAdd(Entity path[static 1], const char to_append[static 1])
 	yeStringAdd(path, to_append);
 	return 0;
 }
+
+#endif /* not in tcc */
 
 #endif
