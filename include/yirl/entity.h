@@ -1190,11 +1190,10 @@ static inline Entity *yeReCreateFunction(const char *funcName, void *manager,
 
 Entity *yeReCreateData(void *value, Entity *parent, const char *name);
 
-/*
- * I could add cast everywhere to allow c++, but because C++
- * annoy me, I won't add a line of code for it.
- */
-#ifndef __cplusplus
+Entity *yeReCreateContainer(Entity *father, const char *name,
+			    Entity *child,
+			    Entity *(*maker)(Entity *parent, const char *name));
+
 
 /**
  * child is the newly created array
@@ -1202,28 +1201,20 @@ Entity *yeReCreateData(void *value, Entity *parent, const char *name);
 static inline Entity *yeReCreateArray(Entity *father, const char *name,
 				      Entity *child)
 {
-	if (!father || !name)
-		return yeCreateArray(father, NULL);
-
-	Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(father)->values, tmp,
-				  it, ArrayEntry) {
-		if (tmp && yuiStrEqual0(tmp->name, name)) {
-			if (child) {
-				YE_INCR_REF(child);
-			} else {
-				child = yeCreateArray(NULL, NULL);
-			}
-			YE_DESTROY(tmp->entity);
-			tmp->entity = child;
-			return child;
-		}
-	}
-	if (child) {
-		return yePushBack(father, child, name) < 0 ? NULL : child;
-	}
-	return yeCreateArray(father, name);
+	return yeReCreateContainer(father, name, child, yeCreateArrayByCStr);
 }
-#endif
+
+static inline Entity *yeReCreateHash(Entity *father, const char *name,
+				      Entity *child)
+{
+	return yeReCreateContainer(father, name, child, yeCreateHash);
+}
+
+static inline Entity *yeReCreateVector(Entity *father, const char *name,
+				       Entity *child)
+{
+	return yeReCreateContainer(father, name, child, yeCreateVector);
+}
 
 static inline Entity *yeReCreateInt(int value, Entity *parent,
 				    const char *name)

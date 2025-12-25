@@ -659,6 +659,53 @@ Entity *yeCreateHash(Entity *father, const char *name)
 	return (YE_TO_ENTITY(ret));
 }
 
+Entity *yeReCreateContainer(Entity *father, const char *name,
+			    Entity *child,
+			    Entity *(*maker)(Entity *parent, const char *name))
+{
+	if (!father || !name)
+		return maker(father, NULL);
+	int type = yeType(father);
+	int child_need_rm = 0;
+	Entity *ret;
+
+	if (type == YARRAY) {
+		Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(father)->values, tmp,
+					  it, ArrayEntry) {
+			if (tmp && yuiStrEqual0(tmp->name, name)) {
+				if (child) {
+					YE_INCR_REF(child);
+				} else {
+					child = maker(NULL, NULL);
+				}
+				YE_DESTROY(tmp->entity);
+				tmp->entity = child;
+				return child;
+			}
+		}
+	} else if (type == YHASH) {
+		if (child) {
+			YE_INCR_REF(child);
+			child_need_rm = 1;
+		}
+		yeRemoveChild(father, name);
+	} else if (type == YVECTOR) {
+		if (child && yeDoesInclude(father, child)) {
+			return child;
+		}
+	}
+	if (child) {
+		yePushBack(father, child, name) < 0 ? NULL : child;
+		ret = child;
+	} else {
+		ret = maker(father, name);
+	}
+	if (child_need_rm) {
+		YE_DESTROY(child);
+	}
+	return ret;
+}
+
 Entity *yeCreateVector(Entity *father, const char *name)
 {
 	VectorEntity * restrict ret;

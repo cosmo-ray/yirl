@@ -865,7 +865,7 @@ KRK_Method(yent_krk_array_class, __setitem__) {
 		if (IS_INTEGER(val)) {
 			yeReCreateLong(AS_INTEGER(val), self->e, k);
 		} else if (IS_yent_krk_class(val)) {
-			yePushBack(self->e, AS_yent_krk_class(val)->e, k);
+			yeReplaceBack(self->e, AS_yent_krk_class(val)->e, k);
 		} else if (IS_NATIVE(val) | IS_CLOSURE(val)) {
 			if (yeGet(self->e, k))
 				yeRemoveChild(self->e, k);
@@ -876,16 +876,14 @@ KRK_Method(yent_krk_array_class, __setitem__) {
 			YE_TO_FUNC(r)->idata = val;
 		} else if (IS_list(val)) {
 			KrkValueArray *l = AS_LIST(val);
-			yeAutoFree Entity *e_as_l = yeCreateVector(NULL, NULL);
+			Entity *e_as_l = yeReCreateVector(self->e, k, NULL);
 
 			value_array_to_ent(l, e_as_l);
-			yeReplaceBack(self->e, e_as_l, k);
 		} else if (IS_dict(val)) {
 			KrkTable *t = AS_DICT(val);
-			yeAutoFree Entity *e_as_d = yeCreateHash(NULL, NULL);
+			Entity *e_as_d = yeReCreateHash(self->e, k, NULL);
 
 			table_to_ent(t, e_as_d);
-			yeReplaceBack(self->e, e_as_d, k);
 		} else if (IS_STRING(val)) {
 			yeReCreateString(AS_CSTRING(val), self->e, k);
 		} else if (IS_FLOATING(val)) {
