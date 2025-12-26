@@ -88,10 +88,11 @@ Here's a Table of what support what:
 | kuroko  | :heavy_check_mark:  | :heavy_check_mark: | :heavy_check_mark: |
 | php | :heavy_check_mark: | :x: | :heavy_check_mark: |
 | lua | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
-| perl | :heavy_check_mark: | :x: | :x: |
+| perl | :heavy_check_mark: | :construction_worker: | :construction_worker: |
 | scheme | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 | yb | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 
+*perl for windows and wasm use [gravier](./gravier), YIRL own perl implementation, use it at your own risk*
 
 ## Start a game from the source
 
