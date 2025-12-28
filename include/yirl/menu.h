@@ -96,6 +96,8 @@ ywMenuPushEntry(Entity *menu, const char *name, Entity *func)
  */
 Entity *ywMenuPushSlider(Entity *menu, const char *name, Entity *slider_array);
 
+Entity *ywMenuPushTextInput(Entity *menu, const char *name);
+
 Entity *ywMenuGetEntry(Entity *menu, int idx);
 
 static inline Entity *ywMenuGetCurSliderSlide(Entity *menu)

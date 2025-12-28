@@ -15,6 +15,7 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <ctype.h>
 #include "menu.h"
 #include "container.h"
 #include "rect.h"
@@ -270,6 +271,9 @@ static InputStatue mnEvent(YWidgetState *opac, Entity *event)
 
 	if (ywidEveType(event) == YKEY_DOWN) {
 		Entity *on = yeGet(opac->entity, "on");
+		Entity *cur_entry = ywMenuGetCurrentEntry(opac->entity);
+		Entity *input_text = yeGet(cur_entry, "input-txt");
+		int cur_k;
 
 		YE_FOREACH(on, on_entry) {
 			if (yeGetIntAt(on_entry, 0) == ywidEveKey(event)) {
@@ -279,8 +283,9 @@ static InputStatue mnEvent(YWidgetState *opac, Entity *event)
 					ywMenuGetCurrentEntry(opac->entity));
 			}
 		}
+		cur_k = ywidEveKey(event);
 
-		if (ywidEveKey(event) == Y_ESC_KEY) {
+		if (cur_k == Y_ESC_KEY) {
 			Entity *onEsc = yeGet(opac->entity, "onEsc");
 
 			if (onEsc) {
@@ -290,12 +295,14 @@ static InputStatue mnEvent(YWidgetState *opac, Entity *event)
 					((YMenuState *)opac)->current,
 					ywMenuGetCurrentEntry(opac->entity));
 			}
-		} else if (ywidEveKey(event) == '\n' ||
-			   ywidEveKey(event) == ' ') {
+		} else if (input_text && cur_k != '\n') {
+			if (isalnum(cur_k) || cur_k == ' ' || cur_k == '_')
+				yeStringAddCh(input_text, cur_k);
+		} else if (cur_k == '\n' || cur_k == ' ') {
 			ret = ywMenuCallActionOn(opac, event,
 						 ((YMenuState *)opac)->current);
 		} else {
-			ret = (InputStatue)(intptr_t)yesCall(yeGet(opac->entity, "move"),
+ 			ret = (InputStatue)(intptr_t)yesCall(yeGet(opac->entity, "move"),
 						   opac->entity, event);
 		}
 	} else if (ywidEveType(event) == YKEY_MOUSEDOWN) {
@@ -373,6 +380,17 @@ Entity *ywMenuPushSlider(Entity *menu, const char *name, Entity *slider_array)
 	yeCreateInt(0, entry, "slider_idx");
 	return entry;
 
+}
+
+Entity *ywMenuPushTextInput(Entity *menu, const char *name)
+{
+	Entity *entries = yeTryCreateArray(menu, "entries");
+	Entity *entry = yeCreateHash(entries, name);
+
+	yeCreateString(name, entry, "text");
+	yeCreateString("", entry, "input-txt");
+	yeCreateInt(0, entry, "cursor-pos");
+	return entry;
 }
 
 int ywMenuGetCurrent(YWidgetState *opac)

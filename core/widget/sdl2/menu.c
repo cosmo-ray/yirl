@@ -109,6 +109,7 @@ static int sdlRend(YWidgetState *state, int t)
 		SDL_Rect txtR;
 		int has_loading_bar;
 		Entity *slider = yeGet(entry, "slider");
+		Entity *input_text = yeGet(entry, "input-txt");
 
 		if (hiden)
 			continue;
@@ -164,6 +165,18 @@ static int sdlRend(YWidgetState *state, int t)
 				"%s%s%s", toPrint, separator, lb);
 		}
 		sdlPrintText(wid, toPrint, color, txtR, alignementType);
+		if (input_text) {
+			int rect_pos = sgGetTxtW() * strlen(toPrint);
+
+			sdlDrawRect(wid, (SDL_Rect){rect_pos, txtR.y,
+					txtR.w - rect_pos - 4, txtR.h}, (SDL_Color){
+					255, 255, 255, 255
+				});
+			sdlPrintText(wid, yeGetString(input_text), color,
+				     (SDL_Rect){rect_pos + 2, txtR.y,
+					     txtR.w - rect_pos - 2, txtR.h},
+				     alignementType);
+		}
 		if (has_loading_bar)
 			free((char *)toPrint);
 		if (cur == it.pos) {

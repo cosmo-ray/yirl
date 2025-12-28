@@ -999,6 +999,13 @@ static inline Entity *yeTryCreateArray(Entity *mother, const char *name)
 	return ret ? ret : yeCreateArrayByCStr(mother, name);
 }
 
+static inline Entity *yeTryCreateHash(Entity *mother, const char *name)
+{
+	Entity *ret = yeGet(mother, name);
+
+	return ret ? ret : yeCreateHash(mother, name);
+}
+
 Entity *yeCreateArrayAt(Entity *father, const char *name, int idx);
 
 Entity *yeCreateArrayExt(Entity *father, const char *name, uint32_t flags);
