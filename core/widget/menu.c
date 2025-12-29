@@ -298,6 +298,10 @@ static InputStatue mnEvent(YWidgetState *opac, Entity *event)
 					((YMenuState *)opac)->current,
 					ywMenuGetCurrentEntry(opac->entity));
 			}
+		} else if (input_text && cur_k == '\b') {
+			if (yeLen(input_text)) {
+				yeStringTruncate(input_text, 1);
+			}
 		} else if (input_text && cur_k < 255 &&
 			   (isalnum(cur_k) || cur_k == ' ' || cur_k == '_')) {
 			Entity *wid_size = yeGet(opac->entity, "wid-pix");
