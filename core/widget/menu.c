@@ -30,6 +30,7 @@ typedef struct {
 	YWidgetState sate;
 	unsigned int current;
 	int threshold;
+	int shift_push;
 } YMenuState;
 
 static void *MoveOn(YWidgetState *wid, uint32_t at)
@@ -263,8 +264,7 @@ InputStatue ywMenuCallActionOnByState(YWidgetState *opac, Entity *event,
 static InputStatue mnEvent(YWidgetState *opac, Entity *event)
 {
 	InputStatue ret = NOTHANDLE;
-
-	(void)opac;
+	YMenuState *mnstate = (void *)opac;
 
 	if (!event)
 		return NOTHANDLE;
@@ -279,12 +279,15 @@ static InputStatue mnEvent(YWidgetState *opac, Entity *event)
 			if (yeGetIntAt(on_entry, 0) == ywidEveKey(event)) {
 				return (InputStatue)(intptr_t)yesCall(
 					yeGet(on_entry, 1), opac->entity,
-					((YMenuState *)opac)->current,
+					mnstate->current,
 					ywMenuGetCurrentEntry(opac->entity));
 			}
 		}
 		cur_k = ywidEveKey(event);
 
+		if (cur_k == Y_LSHIFT_KEY || cur_k == Y_RSHIFT_KEY) {
+			mnstate->shift_push = 1;
+		}
 		if (cur_k == Y_ESC_KEY) {
 			Entity *onEsc = yeGet(opac->entity, "onEsc");
 
@@ -295,8 +298,11 @@ static InputStatue mnEvent(YWidgetState *opac, Entity *event)
 					((YMenuState *)opac)->current,
 					ywMenuGetCurrentEntry(opac->entity));
 			}
-		} else if (input_text && cur_k != '\n') {
-			if (isalnum(cur_k) || cur_k == ' ' || cur_k == '_')
+		} else if (input_text && cur_k < 255 &&
+			   (isalnum(cur_k) || cur_k == ' ' || cur_k == '_')) {
+			if (mnstate->shift_push && isalpha(cur_k))
+				yeStringAddCh(input_text, cur_k + ('A' - 'a'));
+			else
 				yeStringAddCh(input_text, cur_k);
 		} else if (cur_k == '\n' || cur_k == ' ') {
 			ret = ywMenuCallActionOn(opac, event,
@@ -316,6 +322,11 @@ static InputStatue mnEvent(YWidgetState *opac, Entity *event)
 			   ywMenuPosFromPix(opac->entity,
 					    ywPosX(ywidEveMousePos(event)),
 					    ywPosY(ywidEveMousePos(event))));
+	} else if (ywidEveType(event) == YKEY_UP) {
+		int cur_k = ywidEveKey(event);
+		if (cur_k == Y_LSHIFT_KEY || cur_k == Y_RSHIFT_KEY) {
+			mnstate->shift_push = 0;
+		}
 	}
 	return ret;
 }
