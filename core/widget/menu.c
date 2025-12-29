@@ -300,10 +300,18 @@ static InputStatue mnEvent(YWidgetState *opac, Entity *event)
 			}
 		} else if (input_text && cur_k < 255 &&
 			   (isalnum(cur_k) || cur_k == ' ' || cur_k == '_')) {
+			Entity *wid_size = yeGet(opac->entity, "wid-pix");
+			int wid_w = ywRectW(wid_size);
+			/* -2 is kind of inpartial, 'caus ther's margin and shit */
+			size_t max_char = wid_w / sgGetTxtW() - 2;
+
+			if (yeLen(input_text) + yeLenAt(cur_entry, "text") > max_char)
+				goto skip_txt;
 			if (mnstate->shift_push && isalpha(cur_k))
 				yeStringAddCh(input_text, cur_k + ('A' - 'a'));
 			else
 				yeStringAddCh(input_text, cur_k);
+		skip_txt:
 		} else if (cur_k == '\n' || cur_k == ' ') {
 			ret = ywMenuCallActionOn(opac, event,
 						 ((YMenuState *)opac)->current);
