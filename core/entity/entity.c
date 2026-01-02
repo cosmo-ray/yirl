@@ -281,7 +281,7 @@ NO_SIDE_EFFECT Entity *yeGetByIdx(Entity *entity, size_t index)
 		ygDgbAbort();
 	else if (entity->type == YVECTOR) {
 		VectorEntity *vec = (void *)entity;
-		if (index > vec->len)
+		if (index >= vec->len)
 			return NULL;
 		return vec->data[index];
 	}

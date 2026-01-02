@@ -136,11 +136,15 @@ static int sdlRend(YWidgetState *state, int t)
 			int slider_idx = yeGetIntAt(entry, "slider_idx");
 			Entity *cur_option = yeGet(slider, slider_idx);
 
-			complex_txt = yeCreateString(toPrint, NULL, NULL);
-			yeStringAdd(complex_txt, "<--");
-			yeAdd(complex_txt, yeGet(cur_option, "text"));
-			yeStringAdd(complex_txt, "-->");
-			toPrint = yeGetString(complex_txt);
+			if (!cur_option) {
+				toPrint = "!! BUGGY SLIDER !!";
+			} else {
+				complex_txt = yeCreateString(toPrint, NULL, NULL);
+				yeStringAdd(complex_txt, "<--");
+				yeAdd(complex_txt, yeGet(cur_option, "text"));
+				yeStringAdd(complex_txt, "-->");
+				toPrint = yeGetString(complex_txt);
+			}
 		}
 		if (has_loading_bar) {
 			char lb[17] = {[0] = '[', [15] = ']', [16] = 0};
