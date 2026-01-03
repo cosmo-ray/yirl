@@ -96,6 +96,11 @@ ywMenuPushEntry(Entity *menu, const char *name, Entity *func)
  */
 Entity *ywMenuPushSlider(Entity *menu, const char *name, Entity *slider_array);
 
+/*
+ * same as ywMenuPushSlider, but push a slide down menu, and subentries is optionel
+ */
+Entity *ywMenuPushSlideDownSubMenu(Entity *menu, const char *name, Entity *subentries);
+
 Entity *ywMenuPushTextInput(Entity *menu, const char *name);
 
 Entity *ywMenuGetEntry(Entity *menu, int idx);

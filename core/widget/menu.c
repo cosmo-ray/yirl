@@ -90,28 +90,43 @@ void *ywMenuMove(Entity *ent, uint32_t at)
 	return MoveOn((YWidgetState *)s, at);
 }
 
-static void *nmMenuDown(YWidgetState *wid)
+static void *mn_up_down(YWidgetState *wid, int to_add)
 {
-	((YMenuState *)wid)->current += 1;
+	Entity *cur = ywMenuGetCurrentEntry(wid->entity);
+	Entity *subentries = yeGet(cur, "subentries");
+	if (subentries) {
+		if (!yeGetIntAt(cur, "is-click"))
+			goto out_sub;
+		yeAddAt(cur, "slider_idx", to_add);
+		int cur_sub_idx = yeGetIntAt(cur, "slider_idx");
+		if (cur_sub_idx == -1)
+			goto out_sub;
+		if (cur_sub_idx >= yeLeni(subentries)) {
+			yeSetAt(cur, "slider_idx", -1);
+			goto out_sub;
+		}
+		return NULL;
+	out_sub:
+	}
+	((YMenuState *)wid)->current += to_add;
 
 	if (((YMenuState *)wid)->current > yeLen(yeGet(wid->entity,
 						       "entries")) - 1)
 		((YMenuState *)wid)->current = 0;
 	if (yeGetInt(yeGet(ywMenuGetCurrentEntry(wid->entity), "hiden")))
-		return nmMenuDown(wid);
+		return mn_up_down(wid, to_add);
 	return MoveOn(wid, ((YMenuState *)wid)->current);
+
+}
+
+static void *nmMenuDown(YWidgetState *wid)
+{
+	return mn_up_down(wid, 1);
 }
 
 static void *nmMenuUp(YWidgetState *wid)
 {
-	((YMenuState *)wid)->current -= 1;
-
-	if (((YMenuState *)wid)->current > yeLen(yeGet(wid->entity, "entries")))
-		((YMenuState *)wid)->current =
-			yeLen(yeGet(wid->entity, "entries")) - 1;
-	if (yeGetInt(yeGet(ywMenuGetCurrentEntry(wid->entity), "hiden")))
-		return nmMenuUp(wid);
-	return MoveOn(wid, ((YMenuState *)wid)->current);
+	return mn_up_down(wid, -1);
 }
 
 static void *nmMenuMove(int nb, union ycall_arg *args, int *types)
@@ -186,7 +201,7 @@ InputStatue mnActions_(Entity *menu, Entity *event, Entity *current_entry)
 {
 	Entity *s;
 
-	if ((s = yeGet(current_entry, "slider"))) {
+	if ((s = yeGet(current_entry, "slider")) || (s = yeGet(current_entry, "subentries"))) {
 		Entity *option =
 			yeGet(s, yeGetIntAt(current_entry, "slider_idx"));
 
@@ -317,8 +332,15 @@ static InputStatue mnEvent(YWidgetState *opac, Entity *event)
 				yeStringAddCh(input_text, cur_k);
 		skip_txt:
 		} else if (cur_k == '\n' || cur_k == ' ') {
-			ret = ywMenuCallActionOn(opac, event,
-						 ((YMenuState *)opac)->current);
+			/* is-click use here, to know if we have subentries */
+			Entity *is_click = yeGet(cur_entry, "is-click");
+			int sld_idx = yeGetIntAt(cur_entry, "slider_idx");
+			if (sld_idx < 0 && is_click) {
+				yeSet(is_click, !yeGetInt(is_click));
+			} else {
+				ret = ywMenuCallActionOn(opac, event,
+							 ((YMenuState *)opac)->current);
+			}
 		} else {
  			ret = (InputStatue)(intptr_t)yesCall(yeGet(opac->entity, "move"),
 						   opac->entity, event);
@@ -381,9 +403,7 @@ int ywMenuPosFromPix(Entity *wid, uint32_t x, uint32_t y)
 
 Entity *ywMenuPushEntryByEnt(Entity *menu, const char *name, Entity *func)
 {
-	Entity *entries = yeGet(menu, "entries");
-	if (unlikely(!entries))
-		entries = yeCreateArray(menu, "entries");
+	Entity *entries = yeTryCreateArray(menu, "entries");
 	Entity *entry = yeCreateArray(entries, name);
 
 	yeCreateString(name, entry, "text");
@@ -391,11 +411,24 @@ Entity *ywMenuPushEntryByEnt(Entity *menu, const char *name, Entity *func)
 	return entry;
 }
 
+Entity *ywMenuPushSlideDownSubMenu(Entity *menu, const char *name, Entity *subentries)
+{
+	Entity *entries = yeTryCreateArray(menu, "entries");
+	Entity *entry = yeCreateHash(entries, name);
+
+	yeCreateString(name, entry, "text");
+	if (subentries)
+		yePushBack(entry, subentries, "subentries");
+	else
+		yeCreateVector(entry, "subentries");
+	yeCreateInt(0, entry, "is-click");
+	yeCreateInt(-1, entry, "slider_idx");
+	return entry;
+}
+
 Entity *ywMenuPushSlider(Entity *menu, const char *name, Entity *slider_array)
 {
-	Entity *entries = yeGet(menu, "entries");
-	if (unlikely(!entries))
-		entries = yeCreateArray(menu, "entries");
+	Entity *entries = yeTryCreateArray(menu, "entries");
 	Entity *entry = yeCreateArray(entries, name);
 
 	yeCreateString(name, entry, "text");

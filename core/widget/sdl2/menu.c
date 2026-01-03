@@ -36,6 +36,13 @@
 			pos += 1 + yeCountCharacters(txt, '\n', -1);	\
 	} while (0)
 
+
+static inline void draw_over_rect(SDLWid *wid, SDL_Rect txtR, SDL_Color color)
+{
+	color.a = 150;
+	sdlDrawRect(wid, txtR, color);
+}
+
 static int sdlRend(YWidgetState *state, int t)
 {
 	SDLWid *wid = ywidGetRenderData(state, t);
@@ -109,6 +116,7 @@ static int sdlRend(YWidgetState *state, int t)
 		SDL_Rect txtR;
 		int has_loading_bar;
 		Entity *slider = yeGet(entry, "slider");
+		Entity *subentries = yeGet(entry, "subentries");
 		Entity *input_text = yeGet(entry, "input-txt");
 
 		if (hiden)
@@ -145,8 +153,42 @@ static int sdlRend(YWidgetState *state, int t)
 				yeStringAdd(complex_txt, "-->");
 				toPrint = yeGetString(complex_txt);
 			}
-		}
-		if (has_loading_bar) {
+		} else if (subentries) {
+			if (yeGetIntAt(entry, "is-click")) {
+				complex_txt = yeCreateString(" V ", NULL, NULL);
+			} else {
+				complex_txt = yeCreateString("-> ", NULL, NULL);
+			}
+			yeAdd(complex_txt, toPrint);
+			toPrint = yeGetString(complex_txt);
+			if (yeGetIntAt(entry, "is-click")) {
+				int idx = yeGetIntAt(entry, "slider_idx");
+				if (cur == it.pos && idx == -1)
+					draw_over_rect(wid, txtR, color);
+				sdlPrintText(wid, toPrint, color, txtR, alignementType);
+				for (int i = 0, len = yeLen(subentries); i < len; ++i) {
+					Entity *sub = yeGet(subentries, i);
+
+					++pos;
+					if (isPane) {
+						txtR.x = wid->rect.w / len * pos;
+						txtR.y = y0;
+						txtR.w = wid->rect.w / len;
+						txtR.h = sgGetTxtH() + 1;
+					} else {
+						txtR.x = 0;
+						txtR.y = y0 + pos * sgGetTxtH() + 1;
+						txtR.w = wid->rect.w;
+						txtR.h = sgGetTxtH() + 1;
+					}
+					if (i == idx)
+						draw_over_rect(wid, txtR, color);
+					sdlPrintText(wid, yeGetStringAt(sub, "text"),
+						     color, txtR, alignementType);
+				}
+				goto next;
+			}
+		} else if (has_loading_bar) {
 			char lb[17] = {[0] = '[', [15] = ']', [16] = 0};
 			int barPercent = yeGetInt(
 				yeGet(entry, "loading-bar-%"));
@@ -181,13 +223,12 @@ static int sdlRend(YWidgetState *state, int t)
 					     txtR.w - rect_pos - 2, txtR.h},
 				     alignementType);
 		}
+		if (cur == it.pos) {
+			draw_over_rect(wid, txtR, color);
+		}
 		if (has_loading_bar)
 			free((char *)toPrint);
-		if (cur == it.pos) {
-			color.a = 150;
-			sdlDrawRect(wid, txtR, color);
-			color.a = 255;
-		}
+	next:
 		++pos;
 	}
 	if (ywidBgConfFill(yeGet(state->entity, "foreground"), &cfg) >= 0)
