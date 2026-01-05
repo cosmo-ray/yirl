@@ -28,7 +28,7 @@ static int t = -1;
 
 typedef struct {
 	YWidgetState sate;
-	unsigned int current;
+	int current;
 	int threshold;
 	int shift_push;
 } YMenuState;
@@ -94,14 +94,18 @@ static void *mn_up_down(YWidgetState *wid, int to_add)
 {
 	Entity *cur = ywMenuGetCurrentEntry(wid->entity);
 	Entity *subentries = yeGet(cur, "subentries");
+	int len = yeLen(yeGet(wid->entity, "entries"));
 	if (subentries) {
 		if (!yeGetIntAt(cur, "is-click"))
 			goto out_sub;
 		yeAddAt(cur, "slider_idx", to_add);
 		int cur_sub_idx = yeGetIntAt(cur, "slider_idx");
 		if (cur_sub_idx == -1)
+			goto skip_add;
+		else if (cur_sub_idx == -2) {
+			yeSetAt(cur, "slider_idx", -1);
 			goto out_sub;
-		if (cur_sub_idx >= yeLeni(subentries)) {
+		} else if (cur_sub_idx >= yeLeni(subentries)) {
 			yeSetAt(cur, "slider_idx", -1);
 			goto out_sub;
 		}
@@ -109,10 +113,17 @@ static void *mn_up_down(YWidgetState *wid, int to_add)
 	out_sub:
 	}
 	((YMenuState *)wid)->current += to_add;
-
-	if (((YMenuState *)wid)->current > yeLen(yeGet(wid->entity,
-						       "entries")) - 1)
+	if (((YMenuState *)wid)->current > len - 1)
 		((YMenuState *)wid)->current = 0;
+	else if (((YMenuState *)wid)->current < 0) {
+		((YMenuState *)wid)->current = len - 1;
+	}
+	cur = ywMenuGetCurrentEntry(wid->entity);
+	subentries = yeGet(cur, "subentries");
+	if (to_add < 0 && subentries) {
+		yeSetAt(cur, "slider_idx", yeLen(subentries) - 1);
+	}
+skip_add:
 	if (yeGetInt(yeGet(ywMenuGetCurrentEntry(wid->entity), "hiden")))
 		return mn_up_down(wid, to_add);
 	return MoveOn(wid, ((YMenuState *)wid)->current);

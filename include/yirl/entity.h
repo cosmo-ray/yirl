@@ -1135,16 +1135,20 @@ int yeAttach(Entity *on, Entity *entity, unsigned int idx,
 #define yeSetAtIntIxd(ENTITY, INDEX, VALUE)			\
 	_Generic((VALUE),					\
 		 int: yeSetIntAt,				\
+		 unsigned int: yeSetIntAt,			\
+		 unsigned long int: yeSetIntAt,			\
 		 float: yeSetFloatAt,				\
 		 const char *: yeSetStringAt,			\
 		 char *: yeSetStringAt)(ENTITY, INDEX, VALUE)
 
-#define YE_SET_AT_STRIDX_INTERNAL(WHAT)				\
-	_Generic((WHAT),					\
-		 int: yeSetIntAtStrIdx,				\
-		 double: yeSetFloatAtStrIdx,			\
-		 float: yeSetFloatAtStrIdx,			\
-		 const char *: yeSetStringAtStrIdx,		\
+#define YE_SET_AT_STRIDX_INTERNAL(WHAT)			\
+	_Generic((WHAT),				\
+		 int: yeSetIntAtStrIdx,			\
+		 unsigned int: yeSetIntAtStrIdx,	\
+		 unsigned long int: yeSetIntAtStrIdx,	\
+		 double: yeSetFloatAtStrIdx,		\
+		 float: yeSetFloatAtStrIdx,		\
+		 const char *: yeSetStringAtStrIdx,	\
 		 char *: yeSetStringAtStrIdx)
 
 #define yeSetAtStrIdx(ENTITY, INDEX, VALUE)			\
@@ -1154,6 +1158,8 @@ int yeAttach(Entity *on, Entity *entity, unsigned int idx,
 	_Generic((INDEX),						\
 		 int: _Generic((VALUE),					\
 			       int: yeSetIntAt,				\
+			       unsigned int: yeSetIntAt,		\
+			       unsigned long int: yeSetIntAt,		\
 			       float: yeSetFloatAt,			\
 			       double: yeSetFloatAt,			\
 			       const char *: yeSetStringAt,		\
