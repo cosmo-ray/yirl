@@ -1160,6 +1160,7 @@ int yeAttach(Entity *on, Entity *entity, unsigned int idx,
 			       int: yeSetIntAt,				\
 			       unsigned int: yeSetIntAt,		\
 			       unsigned long int: yeSetIntAt,		\
+				   unsigned long long int: yeSetIntAt,		\
 			       float: yeSetFloatAt,			\
 			       double: yeSetFloatAt,			\
 			       const char *: yeSetStringAt,		\
