@@ -120,7 +120,7 @@ static void *mn_up_down(YWidgetState *wid, int to_add)
 	}
 	cur = ywMenuGetCurrentEntry(wid->entity);
 	subentries = yeGet(cur, "subentries");
-	if (to_add < 0 && subentries) {
+	if (to_add < 0 && subentries && yeGetIntAt(cur, "is-click")) {
 		yeSetAt(cur, "slider_idx", yeLen(subentries) - 1);
 	}
 skip_add:
