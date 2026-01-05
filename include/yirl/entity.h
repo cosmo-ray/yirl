@@ -1137,6 +1137,7 @@ int yeAttach(Entity *on, Entity *entity, unsigned int idx,
 		 int: yeSetIntAt,				\
 		 unsigned int: yeSetIntAt,			\
 		 unsigned long int: yeSetIntAt,			\
+		 unsigned long long int: yeSetIntAt,		\
 		 float: yeSetFloatAt,				\
 		 const char *: yeSetStringAt,			\
 		 char *: yeSetStringAt)(ENTITY, INDEX, VALUE)
@@ -1146,6 +1147,7 @@ int yeAttach(Entity *on, Entity *entity, unsigned int idx,
 		 int: yeSetIntAtStrIdx,			\
 		 unsigned int: yeSetIntAtStrIdx,	\
 		 unsigned long int: yeSetIntAtStrIdx,	\
+	         unsigned long long int: yeSetIntAtStrIdx,	\
 		 double: yeSetFloatAtStrIdx,		\
 		 float: yeSetFloatAtStrIdx,		\
 		 const char *: yeSetStringAtStrIdx,	\
@@ -1160,7 +1162,7 @@ int yeAttach(Entity *on, Entity *entity, unsigned int idx,
 			       int: yeSetIntAt,				\
 			       unsigned int: yeSetIntAt,		\
 			       unsigned long int: yeSetIntAt,		\
-				   unsigned long long int: yeSetIntAt,		\
+			       unsigned long long int: yeSetIntAt,	\
 			       float: yeSetFloatAt,			\
 			       double: yeSetFloatAt,			\
 			       const char *: yeSetStringAt,		\
