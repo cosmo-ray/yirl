@@ -100,6 +100,7 @@ static void *mn_up_down(YWidgetState *wid, int to_add)
 			goto out_sub;
 		yeAddAt(cur, "slider_idx", to_add);
 		int cur_sub_idx = yeGetIntAt(cur, "slider_idx");
+		/* -1 mean it was 0, so we need to be pos on the submenu button */
 		if (cur_sub_idx == -1)
 			goto skip_add;
 		else if (cur_sub_idx == -2) {

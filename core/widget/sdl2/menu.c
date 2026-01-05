@@ -176,9 +176,9 @@ static int sdlRend(YWidgetState *state, int t)
 						txtR.w = wid->rect.w / len;
 						txtR.h = sgGetTxtH() + 1;
 					} else {
-						txtR.x = 0;
+						txtR.x = 10;
 						txtR.y = y0 + pos * sgGetTxtH() + 1;
-						txtR.w = wid->rect.w;
+						txtR.w = wid->rect.w - 20;
 						txtR.h = sgGetTxtH() + 1;
 					}
 					if (i == idx)
