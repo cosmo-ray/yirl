@@ -184,6 +184,17 @@ static void *nmPanelMove(int nb, union ycall_arg *args, int *types)
 	return (void *)NOTHANDLE;
 }
 
+_Bool ywMenuRemoveLastEntry(Entity *menu)
+{
+	YMenuState *wid = (void *)ywidGetState(menu);
+	Entity *entries = yeGet(menu, "entries");
+
+	yePopBack(entries);
+	if (wid->current == yeLeni(entries))
+		--wid->current;
+	return 1;
+}
+
 static void *nmMenuNext(int nb, union ycall_arg *args, int *types)
 {
 	Entity *e = args[0].e;

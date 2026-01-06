@@ -1343,6 +1343,11 @@ Entity *yePopBack(Entity *entity)
 	int len = yeLen(entity);
 	Entity *ret;
 
+	if (yeIsVector(entity)) {
+		VectorEntity *vec = (void *)entity;
+		vec->len--;
+		yeDestroy(vec->data[vec->len]);
+	}
 	if (unlikely(!checkType(entity, YARRAY) || !len)) {
 		return NULL;
 	}

@@ -105,6 +105,8 @@ Entity *ywMenuPushTextInput(Entity *menu, const char *name);
 
 Entity *ywMenuGetEntry(Entity *menu, int idx);
 
+_Bool ywMenuRemoveLastEntry(Entity *menu);
+
 static inline Entity *ywMenuGetCurSliderSlide(Entity *menu)
 {
 	Entity *entry = ywMenuGetCurrentEntry(menu);
