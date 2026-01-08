@@ -280,6 +280,10 @@ BIND_EI(ywMapCamPointedContainId, 2, 0);
 
 BIND_SS(ygReCreateString, 2, 0);
 
+BIND_E(ywMenuSliderFromEntry, 1, 0);
+
+BIND_E(yPathUp, 1, 0);
+
 BIND_E(ywMenuRemoveLastEntry, 1, 0);
 
 BIND_E(ywCntConstructChilds, 1, 0);

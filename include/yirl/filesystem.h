@@ -125,6 +125,26 @@ static int yPathAdd(Entity path[static 1], const char to_append[static 1])
 	return 0;
 }
 
+/**
+ * say you give /tmp/b, will return /tmp
+ * give /tmp/b/ will return /tmp
+ */
+static _Bool yPathUp(Entity path[static 1])
+{
+	/* nothing up to '/', and I basically don't know how to handle 1 char path */
+	if (yeLen(path) < 2)
+		return 0;
+	if (yeStrLastCh(path) == PATH_SEPARATOR)
+		yeStringTruncate(path, 1);
+	while (yeLen(path) && yeStrLastCh(path) != PATH_SEPARATOR)
+		yeStringTruncate(path, 1);
+	if (yeLen(path) < 2)
+		return 1;
+	/* remove last path separator */
+	yeStringTruncate(path, 1);
+	return 1;
+}
+
 #endif /* not in tcc */
 
 #endif

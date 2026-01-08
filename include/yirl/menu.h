@@ -41,6 +41,11 @@ int ywMenuEnd(void);
 int ywMenuGetCurrent(YWidgetState *opac);
 int ywMenuGetThreshold(YWidgetState *state);
 
+static inline Entity *ywMenuSliderFromEntry(Entity *entry)
+{
+	return yeGet(yeGet(entry, "subentries"), yeGetIntAt(entry, "slider_idx"));
+}
+
 static inline int ywMenuGetCurrentByEntity(Entity *entity) {
 	return ywMenuGetCurrent(ywidGetState(entity));
 }
