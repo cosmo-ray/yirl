@@ -1347,6 +1347,7 @@ Entity *yePopBack(Entity *entity)
 		VectorEntity *vec = (void *)entity;
 		vec->len--;
 		yeDestroy(vec->data[vec->len]);
+		return NULL;
 	}
 	if (unlikely(!checkType(entity, YARRAY) || !len)) {
 		return NULL;
