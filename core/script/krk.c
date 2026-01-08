@@ -421,6 +421,11 @@ KRK_Method(yent_krk_class, __repr__) {
 	return OBJECT_VAL(krk_takeString(r, strlen(r)));
 }
 
+KRK_Method(yent_krk_class, copy) {
+	Entity *ret = yeCreateCopy2(self->e, NULL, NULL, 1);
+	return make_ent_(ret, 1);
+}
+
 
 static void _ent_gcsweep(KrkInstance * self) {
 	struct YKrkEntity *ke = (void *)self;
@@ -1045,6 +1050,52 @@ KRK_Method(yent_krk_vector_class, __setitem__) {
 	return NONE_VAL();
 }
 
+static KrkValue append_implem(struct YKrkEntity *self, KrkValue val)
+{
+	if (IS_INTEGER(val)) {
+		yeCreateInt(AS_INTEGER(val), self->e, NULL);
+	} else if (IS_yent_krk_class(val)) {
+		yePushBack(self->e, AS_yent_krk_class(val)->e, NULL);
+	} else if (IS_NATIVE(val) | IS_CLOSURE(val)) {
+		Entity *r = yeCreateFunctionExt("(unnamed)",
+						ygGetManager("krk"),
+						self->e, NULL,
+						YE_FUNC_NO_FASTPATH_INIT);
+		YE_TO_FUNC(r)->idata = val;
+	} else if (IS_dict(val)) {
+		KrkTable *t = AS_DICT(val);
+		Entity *e_as_d = yeCreateHash(self->e, NULL);
+
+		table_to_ent(t, e_as_d);
+	} else if (IS_list(val)) {
+		KrkValueArray *l = AS_LIST(val);
+		Entity *e_as_l = yeCreateVector(self->e, NULL);
+
+		value_array_to_ent(l, e_as_l);
+	} else if (IS_STRING(val)) {
+		yeCreateString(AS_CSTRING(val), self->e, NULL);
+	} else if (IS_FLOATING(val)) {
+		yeCreateFloat(AS_FLOATING(val), self->e, NULL);
+	}
+	return NONE_VAL();
+}
+
+KRK_Method(yent_krk_vector_class, append) {
+	KrkValue val;
+	if (!krk_parseArgs(".V", (const char *[]){"index"}, &val))
+		return NONE_VAL();
+
+	return append_implem(self, val);
+}
+
+KRK_Method(yent_krk_array_class, append) {
+	KrkValue val;
+	if (!krk_parseArgs(".V", (const char *[]){"index"}, &val))
+		return NONE_VAL();
+
+	return append_implem(self, val);
+}
+
 KRK_Method(yent_krk_array_class, __init__) {
 	const char *name;
 	struct YKrkEntity *mother;
@@ -1144,6 +1195,7 @@ static int init(void *sm, void *args)
 	BIND_METHOD(yent_krk_class, __init__);
 	BIND_METHOD(yent_krk_class, __call__);
 	BIND_METHOD(yent_krk_class, __repr__);
+	BIND_METHOD(yent_krk_class, copy);
 	krk_finalizeClass(yent_krk_class);
 
 	yent_krk_function_class = krk_makeClass(this->module, &yent_krk_function_class, "FunctionEntity",
@@ -1195,6 +1247,7 @@ static int init(void *sm, void *args)
 	BIND_METHOD(yent_krk_array_class, __getitem__);
 	BIND_METHOD(yent_krk_array_class, __setitem__);
 	BIND_METHOD(yent_krk_array_class, __len__);
+	BIND_METHOD(yent_krk_array_class, append);
 	krk_finalizeClass(yent_krk_array_class);
 
 	yent_krk_hash_class = krk_makeClass(this->module, &yent_krk_hash_class, "HashEntity",
@@ -1213,6 +1266,7 @@ static int init(void *sm, void *args)
 	BIND_METHOD(yent_krk_vector_class, __getitem__);
 	BIND_METHOD(yent_krk_vector_class, __setitem__);
 	BIND_METHOD(yent_krk_vector_class, __len__);
+	BIND_METHOD(yent_krk_vector_class, append);
 	krk_finalizeClass(yent_krk_vector_class);
 
 	return 0;
