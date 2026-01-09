@@ -408,6 +408,7 @@ BIND_EE(ywCanvasRemoveObj, 2, 0);
 BIND_NONE(yeIncrAt, 2, 0);
 BIND_NONE(yeAddAt, 3, 0);
 BIND_EE(yeAddEnt, 2, 0);
+
 BIND_EI(yeAddInt, 2, 0);
 
 BIND_E(ywPosToString, 1, 0);
@@ -448,6 +449,7 @@ BIND_II(yuiPercentOf, 2, 0);
 
 BIND_III(yuiMinMax, 3, 0);
 
+BIND_EI(ywMenuSliderFromEntryAt, 2, 0);
 BIND_EI(ywMapReset, 1, 1);
 
 BIND_EI(yeSetInt, 2, 0);
