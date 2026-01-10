@@ -589,15 +589,9 @@ KRK_Method(yent_krk_int_class, __rsub__) {
 	return INTEGER_VAL(i - yeGetLongDirect(self->e));
 }
 
-
-KRK_Method(yent_krk_str_class, __eq__) {
-	KrkValue second;
+static const char *get_str_from_krkval(KrkValue second)
+{
 	const char *second_s = NULL;
-	if (!krk_parseArgs(".V", (const char *[]){"second"}, &second)) {
-		DPRINT_ERR("krk error:");
-		krk_dumpTraceback();
-		return NONE_VAL();
-	}
 
 	if (IS_STRING(second)) {
 		second_s = AS_CSTRING(second);
@@ -605,9 +599,36 @@ KRK_Method(yent_krk_str_class, __eq__) {
 		if (yeIsString(AS_yent_krk_class(second)->e))
 			second_s = yeGetString(AS_yent_krk_class(second)->e);
 	}
+	return second_s;
+}
+
+KRK_Method(yent_krk_str_class, __eq__) {
+	KrkValue second;
+	if (!krk_parseArgs(".V", (const char *[]){"second"}, &second)) {
+		DPRINT_ERR("krk error:");
+		krk_dumpTraceback();
+		return NONE_VAL();
+	}
+	const char *second_s = get_str_from_krkval(second);
 	if (!second_s)
 		return BOOLEAN_VAL(0);
 	return BOOLEAN_VAL(yeStrEq(self->e, second_s));
+}
+
+KRK_Method(yent_krk_str_class, __contains__) {
+	KrkValue second;
+	if (!krk_parseArgs(".V", (const char *[]){"second"}, &second)) {
+		DPRINT_ERR("krk error:");
+		krk_dumpTraceback();
+		return NONE_VAL();
+	}
+	const char *second_s = get_str_from_krkval(second);
+	if (!second_s)
+		return BOOLEAN_VAL(0);
+	const char *first = yeGetString(self->e);
+	if (!first)
+		return BOOLEAN_VAL(0);
+	return BOOLEAN_VAL(!!strstr(first, second_s));
 }
 
 KRK_Method(yent_krk_int_class, __mul__) {
@@ -1210,6 +1231,7 @@ static int init(void *sm, void *args)
 	yent_krk_class->allocSize = sizeof(struct YKrkEntity);
 	BIND_METHOD(yent_krk_str_class, __init__);
 	BIND_METHOD(yent_krk_str_class, __eq__);
+	BIND_METHOD(yent_krk_str_class, __contains__);
 	krk_finalizeClass(yent_krk_str_class);
 
 	yent_krk_quad_int_class = krk_makeClass(this->module, &yent_krk_quad_int_class,
