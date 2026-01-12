@@ -120,6 +120,15 @@ static _Bool yFillDirectoryPathList(const char dir[static 1], Entity *out_vector
 	return yFillPathListFilter(dir, out_vector, YFILE_DIR);
 }
 
+/**
+ * return true, if path_to_use is a directory
+ * path_info, been one of the entity filled by yFillPathList
+ */
+static _Bool yPathInfoIsDir(Entity path_info[static 1])
+{
+	return yeGetIntAt(path_info, YPATH_TYPE_IDX) == YFILE_DIR;
+}
+
 static int yPathAdd(Entity path[static 1], const char to_append[static 1])
 {
 	if (yeTypeNoCheck(path) != YSTRING)

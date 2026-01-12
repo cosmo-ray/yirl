@@ -41,21 +41,31 @@ int ywMenuEnd(void);
 int ywMenuGetCurrent(YWidgetState *opac);
 int ywMenuGetThreshold(YWidgetState *state);
 
-static inline Entity *ywMenuSliderFromEntryAt(Entity *entry, int at)
+static inline Entity *ywMenuSliderEntries(Entity *entry)
 {
 	Entity *sub = yeGet(entry, "subentries");
 	if (!sub) {
 		sub = yeGet(entry, "slide");
 	}
+
+	return sub;
+}
+
+static inline void ywMenuSliderClear(Entity *entry)
+{
+	Entity *sub = ywMenuSliderEntries(entry);
+	yeClearArray(sub);
+}
+
+static inline Entity *ywMenuSliderFromEntryAt(Entity *entry, int at)
+{
+	Entity *sub = ywMenuSliderEntries(entry);
 	return yeGet(sub, at);
 }
 
 static inline Entity *ywMenuSliderFromEntry(Entity *entry)
 {
-	Entity *sub = yeGet(entry, "subentries");
-	if (!sub) {
-		sub = yeGet(entry, "slide");
-	}
+	Entity *sub = ywMenuSliderEntries(entry);
 	return yeGet(sub, yeGetIntAt(entry, "slider_idx"));
 }
 
