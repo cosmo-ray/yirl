@@ -38,6 +38,30 @@ int yeStrLastCh(const Entity str[static 1])
 	return val[l - 1];
 }
 
+int yeStrRIndex(Entity *str_ent, const char str[static 1])
+{
+	char *str_in = yeGetNCString(str_ent);
+	const char *p;
+	if (unlikely(!str_in))
+		return -1;
+	p = yuiStrrstr(str_in, str);
+	if (unlikely(!p))
+		return -1;
+	return p - str_in;
+}
+
+int yeStrIndex(Entity *str_ent, const char str[static 1])
+{
+	char *str_in = yeGetNCString(str_ent);
+	const char *p;
+	if (unlikely(!str_in))
+		return -1;
+	p = strstr(str_in, str);
+	if (unlikely(!p))
+		return -1;
+	return p - str_in;
+}
+
 int yeStrChrIdx(Entity *str_ent, char c)
 {
 	const char *str = yeGetString(str_ent);

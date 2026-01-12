@@ -57,6 +57,17 @@ Entity *yeStringAdd(Entity *ent, const char *str);
 int yeStrChrIdx(Entity *str_ent, char c);
 
 /**
+ * @return the index of str in ent or -1
+ */
+int yeStrIndex(Entity *str_ent, const char str[static 1]);
+
+/**
+ * @return same as yeStrIndex, but last index
+ */
+int yeStrRIndex(Entity *str_ent, const char str[static 1]);
+
+
+/**
  * check that all char from beg to end are only c or include inside str
  */
 int yeStrIsRangeChr(Entity *str_ent, int beg, int end, char c);

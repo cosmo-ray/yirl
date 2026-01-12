@@ -767,6 +767,18 @@ NO_SIDE_EFFECT static inline int yeGetFloatAtByStr(Entity *array, const char *po
 NO_SIDE_EFFECT const char *yeGetString(Entity *entity);
 
 /**
+ * like yeGetString but non const, whould be avoid if posible
+ */
+NO_SIDE_EFFECT static char *yeGetNCString(Entity *entity)
+{
+	if (!yeIsString(entity)) {
+		return NULL;
+	}
+	return ((StringEntity *)entity)->value;
+}
+
+
+/**
  * @TODO	do the generic version for strings
  * @return	value of entity at @pos in @array, 0 if entity doesn't existe
  */

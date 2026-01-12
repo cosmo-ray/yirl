@@ -23,6 +23,11 @@
 
 #ifndef Y_INSIDE_TCC
 
+enum {
+	YPATH_PATH_IDX = 0,
+	YPATH_TYPE_IDX = 1
+};
+
 #ifndef _WIN32
 /* need windows support here */
 #include <dirent.h>

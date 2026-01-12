@@ -615,6 +615,25 @@ KRK_Method(yent_krk_str_class, __eq__) {
 	return BOOLEAN_VAL(yeStrEq(self->e, second_s));
 }
 
+
+KRK_Method(yent_krk_str_class, index) {
+	const char *str;
+
+	if (!krk_parseArgs(".s", (const char *[]){"needle"}, &str))
+		return NONE_VAL();
+
+	return INTEGER_VAL(yeStrIndex(self->e, str));
+}
+
+KRK_Method(yent_krk_str_class, rindex) {
+	const char *str;
+
+	if (!krk_parseArgs(".s", (const char *[]){"needle"}, &str))
+		return NONE_VAL();
+
+	return INTEGER_VAL(yeStrRIndex(self->e, str));
+}
+
 KRK_Method(yent_krk_str_class, __contains__) {
 	KrkValue second;
 	if (!krk_parseArgs(".V", (const char *[]){"second"}, &second)) {
@@ -1232,6 +1251,8 @@ static int init(void *sm, void *args)
 	BIND_METHOD(yent_krk_str_class, __init__);
 	BIND_METHOD(yent_krk_str_class, __eq__);
 	BIND_METHOD(yent_krk_str_class, __contains__);
+	BIND_METHOD(yent_krk_str_class, rindex);
+	BIND_METHOD(yent_krk_str_class, index);
 	krk_finalizeClass(yent_krk_str_class);
 
 	yent_krk_quad_int_class = krk_makeClass(this->module, &yent_krk_quad_int_class,

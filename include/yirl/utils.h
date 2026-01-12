@@ -372,6 +372,24 @@ static inline char *yuiStrdup(const char *s)
 /* This is usefull for macro and constant, otherwise use abs(so if a variable) */
 #define yuiAbs(val) ((val) > 0 ? (val) : - (val))
 
+static char *yuiStrrstr(char haystack[static 1], const char needle[static 1])
+{
+	const char *needle_tmp = needle;
+	char *ret = NULL, *tmp = haystack;
+
+	while (*tmp) {
+		if (*needle_tmp++ == *tmp++) {
+			if (!(*needle_tmp)) {
+				ret = tmp - (needle_tmp - needle);
+				needle_tmp = needle;
+			}
+		} else {
+			needle_tmp = needle;
+		}
+	}
+	return ret;
+}
+
 NO_SIDE_EFFECT static inline int yuiStrEqual(const char *str1, const char *str2)
 {
   int i;
