@@ -968,6 +968,7 @@ void yeClearArray(Entity *entity)
 		for (int i = 0; i < vec->len; ++i) {
 			yeDestroy(vec->data[i]);
 		}
+		vec->len = 0;
 	}
 	break;
 	default:
