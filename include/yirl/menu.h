@@ -54,6 +54,7 @@ static inline Entity *ywMenuSliderEntries(Entity *entry)
 static inline void ywMenuSliderClear(Entity *entry)
 {
 	Entity *sub = ywMenuSliderEntries(entry);
+	yeSetAt(entry, "slider_idx", -1);
 	yeClearArray(sub);
 }
 
