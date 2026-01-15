@@ -905,8 +905,13 @@ KRK_Method(yent_krk_array_class, __setitem__) {
 		} else if (IS_FLOATING(val)) {
 			yeCreateFloatAt(AS_FLOATING(val), self->e, NULL, k);
 		}
-	} else if (IS_STRING(key)) {
-		const char *k = AS_CSTRING(key);
+	} else if (IS_STRING(key) || krk_isInstanceOf(key, yent_krk_str_class)) {
+		const char *k;
+		if (IS_STRING(key)) {
+			k = AS_CSTRING(key);
+		} else {
+			k = yeGetString(AS_yent_krk_str_class(key)->e);
+		}
 		if (IS_INTEGER(val)) {
 			yeReCreateLong(AS_INTEGER(val), self->e, k);
 		} else if (IS_yent_krk_class(val)) {
@@ -940,10 +945,23 @@ KRK_Method(yent_krk_array_class, __setitem__) {
 }
 
 KRK_Method(yent_krk_hash_class, __setitem__) {
-	const char *key;
+	KrkValue krkkey;
 	KrkValue val;
-	if (!krk_parseArgs(".sV", (const char *[]){"key"}, &key, &val))
+	const char *key;
+
+	if (!krk_parseArgs(".VV", (const char *[]){"key"}, &krkkey, &val))
 		return NONE_VAL();
+
+	if (IS_STRING(krkkey)) {
+		key = AS_CSTRING(krkkey);
+	} else if (krk_isInstanceOf(krkkey, yent_krk_str_class)) {
+		key = yeGetString(AS_yent_krk_class(krkkey)->e);
+	} else {
+		DPRINT_ERR("hash can only index by string and string entity");
+		krk_dumpTraceback();
+		return NONE_VAL();
+	}
+
 	if (IS_INTEGER(val)) {
 		yeReCreateLong(AS_INTEGER(val), self->e, key);
 	} else if (IS_yent_krk_class(val)) {
