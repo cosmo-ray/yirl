@@ -23,10 +23,10 @@
 #include "rect.h"
 #include "entity.h"
 
-#define REND_PRE_TXT(txt, align, left_pix) do {					\
+#define REND_PRE_TXT(txt, align, left_pix) do {				\
 		destRect = ywRectReCreateInts(				\
-			left_pix, y0 + pos * sgGetTxtH() + 1,		\
-			wid->rect.w, sgGetTxtH() + 1,			\
+			left_pix, y0 + pos * entry_height,		\
+			wid->rect.w, entry_height,			\
 			NULL, NULL);					\
 		txtR = sdlRectFromRectEntity(destRect);			\
 		yeDestroy(destRect);					\
@@ -58,6 +58,8 @@ static int sdlRend(YWidgetState *state, int t)
 	int threshold = ywMenuGetThreshold(state);
 	Entity *pre_text = yeGet(state->entity, "pre-text");
 	int y0 = threshold;
+	int entry_height = sgGetTxtH() + 1;
+	int entry_to_skip = 0;
 
 	wid = sddComputeMargin(state, wid);
 
@@ -105,6 +107,39 @@ static int sdlRend(YWidgetState *state, int t)
 			}
 		}
 	}
+	if (!isPane) {
+		int real_cur = 0;
+		int cnt = 0;
+
+		YE_ARRAY_FOREACH(entries, entry0) {
+			int need_break = 0;
+			if (cur == cnt)
+				need_break = 1;
+			int hiden = yeGetInt(yeGet(entry0, "hiden"));
+			if (hiden)
+				continue;
+			if (yeGetIntAt(entry0, "is-click")) {
+				if (cur != cnt) {
+					Entity *subentries = yeGet(entry0, "subentries");
+					real_cur += yeLen(subentries);
+				} else {
+					real_cur += yeGetIntAt(entry0, "slider_idx");
+				}
+			}
+			if (need_break) {
+				break;
+			}
+			++real_cur;
+			++cnt;
+		}
+
+		/* we care about seeying the botom of the entry, not the top */
+		real_cur += 1;
+		if (real_cur * entry_height >= wid->rect.h) {
+			int entry_per_screen = wid->rect.h / entry_height;
+			entry_to_skip = (real_cur / entry_per_screen) * entry_per_screen;
+		}
+	}
 
 	YE_ARRAY_FOREACH_EXT(entries, entry, it) {
 		SDL_Color color = base_color;
@@ -121,6 +156,20 @@ static int sdlRend(YWidgetState *state, int t)
 
 		if (hiden)
 			continue;
+		if (entry_to_skip) {
+			entry_to_skip -= 1;
+			y0 -= entry_height;
+			++pos;
+			if (!yeGetIntAt(entry, "is-click")) {
+				continue;
+			}
+			if (entry_to_skip > yeLeni(subentries)) {
+				entry_to_skip -= yeLen(subentries);
+				y0 -= entry_height * yeLen(subentries);
+				pos += yeLen(subentries);
+				continue;
+			}
+		}
 		ywidColorFromString((char *)yeGetString(
 					    yeGet(entry, "text-color")),
 				    &color.r, &color.g, &color.b, &color.a);
@@ -131,12 +180,12 @@ static int sdlRend(YWidgetState *state, int t)
 		if (isPane) {
 			destRect = ywRectReCreateInts(wid->rect.w / len * pos, y0,
 						      wid->rect.w / len,
-						      sgGetTxtH() + 1,
+						      entry_height,
 						      entry, "$rect");
 		} else {
 			destRect = ywRectReCreateInts(
-				0, y0 + pos * sgGetTxtH() + 1, wid->rect.w,
-				sgGetTxtH() + 1, entry, "$rect");
+				0, y0 + pos * entry_height, wid->rect.w,
+				entry_height, entry, "$rect");
 		}
 		/* ywRectPrint(destRect); */
 		txtR = sdlRectFromRectEntity(destRect);
@@ -163,29 +212,41 @@ static int sdlRend(YWidgetState *state, int t)
 			toPrint = yeGetString(complex_txt);
 			if (yeGetIntAt(entry, "is-click")) {
 				int idx = yeGetIntAt(entry, "slider_idx");
-				if (cur == it.pos && idx == -1)
-					draw_over_rect(wid, txtR, color);
-				sdlPrintText(wid, toPrint, color, txtR, alignementType);
+				if (!entry_to_skip) {
+					if (cur == it.pos && idx == -1)
+						draw_over_rect(wid, txtR, color);
+					sdlPrintText(wid, toPrint, color, txtR, alignementType);
+					++pos;
+				}
 				for (int i = 0, len = yeLen(subentries); i < len; ++i) {
 					Entity *sub = yeGet(subentries, i);
 
-					++pos;
+					if (entry_to_skip) {
+						--entry_to_skip;
+						y0 -= entry_height;
+						++pos;
+						continue;
+					}
 					if (isPane) {
 						txtR.x = wid->rect.w / len * pos;
 						txtR.y = y0;
 						txtR.w = wid->rect.w / len;
-						txtR.h = sgGetTxtH() + 1;
+						txtR.h = entry_height;
 					} else {
 						txtR.x = 10;
-						txtR.y = y0 + pos * sgGetTxtH() + 1;
+						txtR.y = y0 + pos * entry_height;
 						txtR.w = wid->rect.w - 20;
-						txtR.h = sgGetTxtH() + 1;
+						txtR.h = entry_height;
 					}
-					if (i == idx)
+					if (i == idx) {
 						draw_over_rect(wid, txtR, color);
+					}
 					sdlPrintText(wid, yeGetStringAt(sub, "text"),
 						     color, txtR, alignementType);
+					++pos;
 				}
+				if (yeLen(subentries))
+					--pos;
 				goto next;
 			}
 		} else if (has_loading_bar) {
