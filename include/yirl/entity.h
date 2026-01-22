@@ -334,49 +334,55 @@ NO_SIDE_EFFECT static inline EntityType yeTypeNoCheck(const Entity entity[static
 	return entity->type;
 }
 
+struct EntityIterator yeIteratorInit(Entity e[static 1]);
+
+Entity *yeIteratorGet(struct EntityIterator it[static 1]);
+
+void yeIteratorStep(struct EntityIterator it[static 1]);
+
 NO_SIDE_EFFECT EntityType yeType(const Entity * const entity);
 
-NO_SIDE_EFFECT static inline int yeIsNum(const Entity * const e)
+NO_SIDE_EFFECT static inline _Bool yeIsNum(const Entity * const e)
 {
 	return yeType(e) == YINT || yeType(e) == YFLOAT;
 }
 
-NO_SIDE_EFFECT static inline int yeIsInt(const Entity * const e)
+NO_SIDE_EFFECT static inline _Bool yeIsInt(const Entity * const e)
 {
 	return yeType(e) == YINT;
 }
 
-NO_SIDE_EFFECT static inline int yeIsFloat(const Entity * const e)
+NO_SIDE_EFFECT static inline _Bool yeIsFloat(const Entity * const e)
 {
 	return yeType(e) == YFLOAT;
 }
 
-NO_SIDE_EFFECT static inline int yeIsString(const Entity * const e)
+NO_SIDE_EFFECT static inline _Bool yeIsString(const Entity * const e)
 {
 	return yeType(e) == YSTRING;
 }
 
-NO_SIDE_EFFECT static inline int yeIsArray(const Entity * const e)
+NO_SIDE_EFFECT static inline _Bool yeIsArray(const Entity * const e)
 {
 	return yeType(e) == YARRAY;
 }
 
-NO_SIDE_EFFECT static inline int yeIsHash(const Entity * const e)
+NO_SIDE_EFFECT static inline _Bool yeIsHash(const Entity * const e)
 {
 	return yeType(e) == YHASH;
 }
 
-NO_SIDE_EFFECT static inline int yeIsQuadInt(const Entity * const e)
+NO_SIDE_EFFECT static inline _Bool yeIsQuadInt(const Entity * const e)
 {
 	return yeType(e) == YQUADINT;
 }
 
-NO_SIDE_EFFECT static inline int yeIsVector(const Entity * const e)
+NO_SIDE_EFFECT static inline _Bool yeIsVector(const Entity * const e)
 {
 	return yeType(e) == YVECTOR;
 }
 
-NO_SIDE_EFFECT static inline int yeIsContainer(const Entity * const e)
+NO_SIDE_EFFECT static inline _Bool yeIsContainer(const Entity * const e)
 {
 	return yeType(e) == YVECTOR || yeType(e) == YHASH || yeType(e) == YARRAY;
 }
