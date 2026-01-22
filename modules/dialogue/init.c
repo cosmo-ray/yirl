@@ -309,6 +309,8 @@ static Entity *getText(Entity *box, Entity *e)
 	Entity *cnd_txt_append = yeGet(e, "conditional-texts-append");
 	if (cnd_txt_append) {
 		Entity *r;
+		Entity *cnd_txt;
+
 		if (yeType(txt) == YARRAY) {
 			if (yeGet(e, "_tmp_txt"))
 				yeRemoveChildByStr(e, "_tmp_txt");

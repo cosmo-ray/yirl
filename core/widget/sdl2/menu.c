@@ -102,6 +102,7 @@ static int sdlRend(YWidgetState *state, int t)
 		if (yeType(pre_text) == YSTRING) {
 			REND_PRE_TXT(pre_text, align, left_pix);
 		} else {
+			Entity *txt;
 			YE_FOREACH(pre_text, txt) {
 				REND_PRE_TXT(txt, align, left_pix);
 			}

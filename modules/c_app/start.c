@@ -30,6 +30,7 @@ void *capp_action(int nbArg, void **w_args)
 	int argc = yeLen(args) + 1;
 	char *argv[argc];
 	unsigned int argv_tot_len = 0;
+	Entity *arg;
 
 	{
 		YE_FOREACH(args, arg) {
@@ -47,6 +48,8 @@ void *capp_action(int nbArg, void **w_args)
 		ysTccPushSym(ygGetManager("tcc"), "exit", exit);
 		ysTccPushSym(ygGetManager("tcc"), "cur_wid", cur_wid);
 		Entity *files = yeGet(capp, "files");
+		Entity *file;
+
 		YE_FOREACH(files, file) {
 			ysLoadFile(ygGetManager("tcc"), yeGetString(file));
 		}

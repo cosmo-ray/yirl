@@ -304,6 +304,7 @@ Entity *ywCanvasNewIntersectArray(Entity *wid, Entity *p0, Entity *p1)
  	int y1 = ywPosY(p1);
 	Entity *ret = yeCreateArray(NULL, NULL);
 	Entity *objs = yeGet(wid, "objs");
+	Entity *o;
 
 	YE_FOREACH(objs, o) {
 		Entity *p = ywCanvasObjPos(o);
@@ -328,12 +329,14 @@ Entity *ywCanvasNewCollisionsArrayWithRectangles(Entity *wid, Entity *objRects,
 {
 	Entity *ret = yeCreateArray(NULL, NULL);
 	Entity *objs = yeGet(wid, "objs");
+	Entity *unused;
 
 	YE_FOREACH(objRects, unused) {
 		yeCreateArray(ret, NULL);
 	}
 
 	YE_ARRAY_FOREACH(objs, tmp) {
+		Entity *objRect;
 		int i = 0;
 
 		YE_FOREACH(objRects, objRect) {
@@ -737,6 +740,8 @@ Entity *ywCanvasNewPolygonExt(Entity *wid, Entity *vertices, const char *color, 
 
   yeCreateInt(YCanvasPolygone, obj, "canvas-type");
   Entity *pos0 = yeCreateCopy(yeGet(vertices, 0), obj, "pos");
+  Entity *v;
+
   YE_FOREACH(vertices, v) {
 	  ywPosSub(v, pos0);
   }
@@ -1080,7 +1085,11 @@ void ywCanvasRemoveColorMod(Entity *obj)
 		SDL_SetTextureAlphaMod(img, 255);
 	} else if (type == YCanvasBigTexture) {
 		Entity *txts_h = yeGet(obj, YCANVAS_IMG_IDX);
+		Entity *txts_w;
+
 		YE_FOREACH(txts_h, txts_w) {
+			Entity *texture;
+
 			YE_FOREACH(txts_w, texture) {
 				SDL_Texture *t = yeGetData(texture);
 				SDL_SetTextureColorMod(t, 255, 255, 255);

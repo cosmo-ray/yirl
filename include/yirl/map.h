@@ -148,6 +148,7 @@ static inline Entity *ywMapCamPointedCase(Entity *map)
 
 static inline _Bool ywMapCamPointedContainId(Entity *map, int id) {
 	Entity *tmp = ywMapCamPointedCase(map);
+	Entity *caseTmp;
 
 	YE_FOREACH(tmp, caseTmp) {
 		if (ywMapGetIdByElem(caseTmp) == id)
@@ -167,6 +168,7 @@ static inline _Bool ywMapContainStr(Entity *m, int x, int y, const char *str) {
 static inline Entity *ywMapGetEntityById(Entity *state, Entity *pos, int id)
 {
 	Entity *tmp = ywMapGetCase(state, pos);
+	Entity *caseTmp;
 
 	YE_FOREACH(tmp, caseTmp) {
 		if (ywMapGetIdByElem(caseTmp) == id)
@@ -258,6 +260,7 @@ static inline int ywMapRemoveByEntity(Entity *state, Entity *pos,
 static inline int ywMapRemoveByInt(Entity *state, Entity *pos, int id)
 {
 	Entity *cur = ywMapGetCase(state, pos);
+	Entity *el;
 
 	if (unlikely(!cur))
 		return -1;
@@ -302,6 +305,7 @@ static inline int ywMapRemoveByStr(Entity *state, Entity *pos,
 static inline void ywMapCLearArrayPos(Entity *map, Entity *pos_array,
 				      const char *str)
 {
+	Entity *p;
 	YE_FOREACH(pos_array, p) {
 		ywMapRemove(map, p, str);
 	}

@@ -385,6 +385,8 @@ _Bool ywCntInTree(Entity *cnt, Entity *widget)
 		return 0;
 
 	Entity *entries = yeGet(cnt, "entries");
+	Entity *tmp;
+
 	YE_FOREACH(entries, tmp) {
 		int r = 0;
 		if (widget == tmp)

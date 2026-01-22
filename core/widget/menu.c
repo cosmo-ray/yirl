@@ -311,6 +311,7 @@ static InputStatue mnEvent(YWidgetState *opac, Entity *event)
 		Entity *on = yeGet(opac->entity, "on");
 		Entity *cur_entry = ywMenuGetCurrentEntry(opac->entity);
 		Entity *input_text = yeGet(cur_entry, "input-txt");
+		Entity *on_entry;
 		int cur_k;
 
 		YE_FOREACH(on, on_entry) {

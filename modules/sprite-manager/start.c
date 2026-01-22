@@ -25,6 +25,7 @@ void *createHandler(int nbArg, void **args)
 	yePushBack(ret, thing, "char");
 	yePushBack(ret, s_info, "sp");
 	if (paths) {
+		Entity *p;
 		YE_FOREACH(paths, p) {
 			ywTextureNewImg(yeGetString(p), NULL, texts, NULL);
 		}

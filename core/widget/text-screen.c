@@ -114,6 +114,7 @@ static Entity *ywTextScreenText2(Entity *wid)
 {
   Entity *txt = yeGet(wid, "text");
   Entity *ret = NULL;
+  Entity *c_txt;
 
   if (yeType(txt) != YARRAY) {
     return txt;

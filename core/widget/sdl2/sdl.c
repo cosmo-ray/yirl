@@ -312,7 +312,7 @@ int ywidShowBG(Entity *wid, SDLWid *sdl_wid)
 	if (yeType(bg) == YARRAY) {
 		printf("bg is an array\n");
 		yePrint(bg);
-		YE_FOREACH(bg, this) {
+		YE_ARRAY_FOREACH(bg, this) {
 			if (ywidBgConfFill(this, &cfg) >= 0)
 				sdlFillBg(sdl_wid, &cfg);
 		}
@@ -1714,6 +1714,7 @@ static int sdlCanvasRendBigImg(YWidgetState *state, SDLWid *wid,
 	int hpercent = 100 * ywSizeH(s) / surface->h;
 	int hadd = 2048 * hpercent / 100;
 	SDL_Color mod_color = {0};
+	Entity *txts_w, *texture;
 
 	sdlCanvasAplyModifier(obj, NULL, NULL, &mod_color);
 

@@ -386,6 +386,7 @@ void ywCanvasRemoveObj(Entity *wid, Entity *obj);
 
 static inline void ywCanvasClearArray(Entity *wid, Entity *array_to_clear)
 {
+	Entity *el;
 	YE_FOREACH(array_to_clear, el) {
 		ywCanvasRemoveObj(wid, el);
 	}

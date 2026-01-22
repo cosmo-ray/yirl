@@ -246,6 +246,7 @@ static s7_pointer s7yeForeach(s7_scheme *s, s7_pointer a)
 	Entity *array = E_AT(s, a, 0);
 	s7_pointer func = s7_list_ref(s, a, 1);
 	s7_pointer arg = s7_list_ref(s, a, 2);
+	Entity *el;
 
 	YE_FOREACH(array, el) {
 		s7_pointer args = s7_list(s, 2, s7_make_c_object(s, s7m->et, el),

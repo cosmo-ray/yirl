@@ -197,7 +197,6 @@ void yeEnd(void)
 const char * EntityTypeStrings[] = { "int", "float", "string",
 	"array", "function", "data", "hash"};
 
-
 /**
  * @param entity
  * @param type

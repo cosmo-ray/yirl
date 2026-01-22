@@ -98,8 +98,9 @@ _Bool yeCheckCondition(Entity *condition)
 			return !yeCheckCondition(yeGet(condition, 1));
 		} else if (!yeStrCmp(estr, "contain_string")) {
 			Entity *array = ygGet(yeGetStringAt(condition, 1));
+			Entity *s;
 
-			if (yeType(array) != YARRAY)
+			if (!yeIsContainer(array))
 				return 0;
 			YE_FOREACH(array, s) {
 				if (!yeStrCmp(s, yeGetStringAt(condition, 2))) {

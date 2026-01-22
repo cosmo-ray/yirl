@@ -61,6 +61,7 @@ _Bool yevIsGrpDown(Entity *events, Entity *grp)
 		if (ywidEveType(eve) != YKEY_DOWN)
 			continue;
 		int ck = ywidEveKey(eve);
+		Entity *key;
 
 		YE_FOREACH(grp, key) {
 			int k = yeGetInt(key);
@@ -80,6 +81,7 @@ _Bool yevIsGrpUp(Entity *events, Entity *grp)
 		if (ywidEveType(eve) != YKEY_UP)
 			continue;
 		int ck = ywidEveKey(eve);
+		Entity *key;
 
 		YE_FOREACH(grp, key) {
 			int k = yeGetInt(key);

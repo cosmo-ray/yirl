@@ -256,14 +256,14 @@ void *fileToCanvas(int nbArg, void **args)
 		    } else {
 			yeCreateString(yeGetStringAt(property, "value"),
 				       condition, NULL);
-			YE_FOREACH(properties, ca0) {
+			YE_ARRAY_FOREACH(properties, ca0) {
 			    if (!strcmp(yeGetStringAt(ca0, "name"),
 					"ConditionArg0")) {
 				yePushBack(condition, yeGet(ca0, "value"),
 					   NULL);
 			    }
 			}
-			YE_FOREACH(properties, ca1) {
+			YE_ARRAY_FOREACH(properties, ca1) {
 			    if (!strcmp(yeGetStringAt(ca1, "name"),
 					"ConditionArg1")) {
 				yePushBack(condition, yeGet(ca1, "value"),

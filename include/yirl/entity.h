@@ -474,7 +474,9 @@ Entity *yeBrutalCast(Entity *entity, int type);
 #define YE_ARRAY_FOREACH(array, val)		\
 	YE_ARRAY_FOREACH_EXT(array, val, it##val)
 
-#define YE_FOREACH YE_ARRAY_FOREACH
+#define YE_FOREACH(container, ent)					\
+	for (struct EntityIterator it = yeIteratorInit(container);	\
+	     (ent = yeIteratorGet(&it)) != NULL; yeIteratorStep(&it))		\
 
 #define YE_VECTOR_FOREACH YE_VECTORE_FOREACH
 
@@ -486,6 +488,7 @@ Entity *yeBrutalCast(Entity *entity, int type);
  */
 NO_SIDE_EFFECT static inline Entity *yeFirst(Entity *array)
 {
+	Entity *el;
 	YE_FOREACH(array, el)
 		return el;
 	return NULL;
@@ -1070,7 +1073,6 @@ void yeMultDestroy_(Entity *toRm, ...);
 
 #define yeMultDestroy(args...) (yeMultDestroy_(args, NULL))
 
-
 void yeClearArray(Entity *entity);
 
 #define yeIncrementIntDirect(entity) (((IntEntity *)entity)->value += 1)
@@ -1311,6 +1313,11 @@ static inline Entity *yeTryCreateString(const char *value, Entity *parent,
 NO_SIDE_EFFECT static inline size_t yeNbElems(Entity *array)
 {
 	int i = 0;
+	Entity *e;
+
+	if (yeIsVector(array)) {
+		return YE_TO_VECTOR(array)->len;
+	}
 	YE_FOREACH(array, e)
 		++i;
 	return i;

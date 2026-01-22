@@ -193,6 +193,7 @@ static InputStatue event(YWidgetState *opac, Entity *event)
 	Entity *clasic_movement = yeGet(entity, "grp-classic-movement");
 	int mv_style = yeGetIntAt(entity, "classic-movement-style");
 	struct YEBSState *state = (struct YEBSState *)opac;
+	Entity *on_entry;
 
 	if (!mv_style)
 		mv_style = 1;
@@ -368,6 +369,7 @@ static int sdl2Render(YWidgetState *opac, int t)
 		}
 
 		// move everything by x/y
+		Entity *o;
 		YE_FOREACH(grp, o) {
 			int have_oob = 0;
 			Entity *o_pos = ywCanvasObjPos(o);
@@ -416,6 +418,7 @@ static int sdl2Render(YWidgetState *opac, int t)
 #define CHECK_COL(target_gpr, call)					\
 			do {						\
 				Entity *o_grp = yeGet(grps, target_gpr); \
+				Entity *other_obj;			\
 				YE_FOREACH(o_grp, other_obj) {		\
 					if (ywCanvasObjectsCheckColisions(o, other_obj)) { \
 						yesCall(call, entity, o, other_obj); \
@@ -456,6 +459,7 @@ static int sdl2Render(YWidgetState *opac, int t)
 		if (!g)
 			continue;
 		int no_cam = yeGetIntAt(grps_no_cam, i);
+		Entity *o;
 		YE_FOREACH(g, o) {
 			sdlCanvasRendObj(opac, wid, o, no_cam ? NULL : cam, widPix);
 		}
