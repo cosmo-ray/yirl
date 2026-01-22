@@ -279,6 +279,15 @@ union FatEntity {
 	uint8_t totalSize[YE_ENTITY_FAT_SIZE];
 };
 
+struct EntityIterator {
+	Entity *e;
+	union {
+		BlockArrayIterator it;
+		intptr_t idx;
+		khiter_t kh_it;
+	};
+};
+
 #define FAT_SIZE sizeof(union FatEntity)
 
 #ifdef __cplusplus

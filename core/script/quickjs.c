@@ -631,7 +631,7 @@ static JSClassDef widget_class = {
 	"WidgetState", .finalizer = NULL
 };
 
-struct EntityIterator {
+struct quickjs_entity_iterator {
 	Entity *e;
 	int i;
 };
@@ -1475,7 +1475,7 @@ static JSValue container_it_next(JSContext *ctx, JSValueConst this_val,
 	JSValue ret = JS_NewObject(ctx);
 	JSAtom atom;
 	int is_done = 1;
-	struct EntityIterator *it = JS_GetOpaque(this_val, it_class_id);
+	struct quickjs_entity_iterator *it = JS_GetOpaque(this_val, it_class_id);
 	Entity *container = it->e;
 	int idx = it->i;
 
@@ -1532,7 +1532,7 @@ static JSValue array_iterator(JSContext *ctx, JSValueConst this_val,
 	if (ent_type != YHASH && ent_type != YARRAY)
 		return JS_NULL;
 
-	struct EntityIterator *it = malloc(sizeof *it);
+	struct quickjs_entity_iterator *it = malloc(sizeof *it);
 	it->e = e;
 	it->i = 0;
 	JS_SetOpaque(obj, it);

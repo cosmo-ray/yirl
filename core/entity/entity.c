@@ -244,6 +244,62 @@ NO_SIDE_EFFECT const char *yeTypeToString(int type)
 		: (EntityTypeStrings[type]);
 }
 
+
+struct EntityIterator yeIteratorInit(Entity e[static 1])
+{
+	struct EntityIterator ret = {.e=e};
+
+	if (yeIsArray(e)) {
+		ret.it = yBlockArrayIteratorCreate(&YE_TO_ARRAY(e)->values, 0);
+	} else if (yeIsVector(e)) {
+		ret.idx = 0;
+	} else if (yeIsHash(e)) {
+		HashEntity *hon = (void *)e;
+		khash_t(entity_hash) *h = hon->values;
+
+		(void)h; /* I think kh_begin is a macro that doesn't use h */
+		ret.kh_it = kh_begin(h);
+	} else {
+		ret.idx = -1; /* use for broken iterator */
+	}
+	return ret;
+}
+
+Entity *yeIteratorGet(struct EntityIterator it[static 1])
+{
+	if (yeIsArray(it->e)) {
+		if (yBlockArrayIteratorIsEnd(&it->it))
+			return NULL;
+		return yBlockArrayIteratorGetPtr(it->it, ArrayEntry)->entity;
+	} else if (yeIsVector(it->e)) {
+		if (it->idx == YE_TO_VECTOR(it->e)->len)
+			return NULL;
+		return YE_TO_VECTOR(it->e)->data[it->idx];
+	} else if (yeIsHash(it->e)) {
+		HashEntity *hon = (void *)it->e;
+		khash_t(entity_hash) *h = hon->values;
+
+	recheck:
+		if (it->kh_it == kh_end(h))
+			return NULL;
+		if (!kh_exist(h, it->kh_it))
+			goto recheck;
+		return kh_val(hon->values, it->kh_it);
+	}
+	return NULL;
+}
+
+void yeIteratorStep(struct EntityIterator it[static 1])
+{
+	if (yeIsArray(it->e)) {
+		yBlockArrayIteratorIncr(&it->it);
+	} else if (yeIsVector(it->e)) {
+		++it->idx;
+	} else if (yeIsHash(it->e)) {
+		++it->kh_it;
+	}
+}
+
 NO_SIDE_EFFECT size_t yeLen(Entity *entity)
 {
 	if (unlikely(!entity))
