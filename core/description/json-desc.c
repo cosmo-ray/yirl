@@ -221,6 +221,29 @@ static json_object *jsonObjectFromEntity(Entity *entity)
   case YSTRING:
   case YFUNCTION:
     return jsonObjectFromStringEntity(entity);
+  case YVECTOR:
+  {
+	  struct json_object *json_obj = json_object_new_array();
+	  size_t l = yeLen(entity);
+
+	  for (size_t i = 0; i < l; ++i) {
+		  json_object_array_add(json_obj, jsonObjectFromEntity(yeGet(entity, i)));
+	  }
+	  return json_obj;
+  }
+  case YHASH:
+  {
+	  struct json_object *json_obj = json_object_new_object();
+	  Entity *vvar;
+	  const char *kkey;
+
+	  kh_foreach(((HashEntity *)entity)->values,
+		     kkey, vvar, {
+			     json_object_object_add(json_obj, kkey,
+						    jsonObjectFromEntity(vvar));
+		     });
+	  return json_obj;
+  }
   case YARRAY:
     return jsonObjectFromArrayEntity(entity);
   case YDATA:
