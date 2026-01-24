@@ -791,6 +791,11 @@ KRK_Method(yent_krk_float_class, __init__) {
 	return NONE_VAL();
 }
 
+KRK_Method(yent_krk_str_class, __len__) {
+	return INTEGER_VAL(yeLen(self->e));
+}
+
+
 KRK_Method(yent_krk_array_class, __len__) {
 	return INTEGER_VAL(yeLen(self->e));
 }
@@ -1283,6 +1288,7 @@ static int init(void *sm, void *args)
 	yent_krk_class->allocSize = sizeof(struct YKrkEntity);
 	BIND_METHOD(yent_krk_str_class, __init__);
 	BIND_METHOD(yent_krk_str_class, __eq__);
+	BIND_METHOD(yent_krk_str_class, __len__);
 	BIND_METHOD(yent_krk_str_class, __contains__);
 	BIND_METHOD(yent_krk_str_class, rindex);
 	BIND_METHOD(yent_krk_str_class, index);

@@ -234,6 +234,8 @@ BIND_SI(ygReCreateInt, 2, 0);
 BIND_SI(ygIncreaseInt, 2, 0);
 BIND_SI(ygSetInt, 2, 0);
 
+BIND_EI(ywMenuGetEntry, 2, 0);
+
 BIND_EI(ywEBSSwapGroup, 2, 0);
 BIND_EI(ywEBSGroupeDir, 2, 0);
 
