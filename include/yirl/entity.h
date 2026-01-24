@@ -413,6 +413,13 @@ NO_SIDE_EFFECT static inline const char *yeTypeAsString(Entity *e)
 	((int)yeLen(entity))
 
 /**
+ * Get the len attribute of an Entity
+ * @param entity  The Entity we want to get the len
+ * @return the attribute len of the entity
+ */
+NO_SIDE_EFFECT size_t yeLen(Entity *entity);
+
+/**
  * Last index of an array/vector
  * useful when use in scripting language that does inclusive range
  */
@@ -420,13 +427,6 @@ static inline int yeLastIdx(Entity e[static 1])
 {
 	return yeLeni(e) - 1;
 }
-
-/**
- * Get the len attribute of an Entity
- * @param entity  The Entity we want to get the len
- * @return the attribute len of the entity
- */
-NO_SIDE_EFFECT size_t yeLen(Entity *entity);
 
 #define yeLenAt(e, at)				\
 	yeLen(yeGet(e, (at)))

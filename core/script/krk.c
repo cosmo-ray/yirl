@@ -832,11 +832,26 @@ KRK_Method(yent_krk_array_class, __getitem__) {
 }
 
 KRK_Method(yent_krk_hash_class, __getitem__) {
-	const char *v;
-	Entity *eret;
-	if (!krk_parseArgs(".s", (const char *[]){"key"}, &v))
+	KrkValue v;
+	Entity *eret = NULL;
+	const char *vs = NULL;
+
+	if (!krk_parseArgs(".V", (const char *[]){"key"}, &v))
 		return NONE_VAL();
-	eret = yeGet(self->e, v);
+
+
+	if (IS_STRING(v)) {
+		vs = AS_CSTRING(v);
+	} else if (IS_yent_krk_class(v)) {
+		Entity *e = AS_yent_krk_class(v)->e;
+		if (yeType(e) == YSTRING) {
+			vs = yeGetString(e);
+		} else {
+			krk_dumpTraceback();
+			return NONE_VAL();
+		}
+	}
+	eret = yeGet(self->e, vs);
 	if (!eret)
 		return NONE_VAL();
 	return make_ent(eret);
