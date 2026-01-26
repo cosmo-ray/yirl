@@ -1,0 +1,31 @@
+{
+    "name": "lpcs_char",
+    "starting widget" : "main",
+    "window size" : [1024, 600],
+    "init-scripts" : [
+	["krk", "init"]
+    ],
+    "pre-load": [
+	{
+	    "file" : "init.krk",
+	    "type" : "krk"
+	},
+	{ "path" : "YIRL_MODULES_PATH/Universal-LPC-spritesheet", "type" : "module"}
+    ],
+    "main": {
+	"<type>": "container",
+	"background": "rgba: 255 255 255 255",
+	"cnt-type": "vertical",
+	"entries": [
+	    {"path": "lpcs_char.menu", "size": 25},
+	    {"path": "lpcs_char.canvas"}
+	]
+    },
+    "menu": {
+	"<type>": "menu",
+	"background": "rgba: 205 205 205 255"
+    },
+    "canvas": {
+	"<type>" : "canvas"
+    }
+}

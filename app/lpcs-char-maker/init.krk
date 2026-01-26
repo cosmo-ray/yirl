@@ -1,0 +1,215 @@
+def get_canvas(wid):
+    return ywCntGetEntry(wid, 1)
+
+def get_menu(wid):
+    return wid["entries"][0]
+
+def canvas_reload(wid):
+    let canvas = ywCntGetEntry(wid, 1)
+    let gc = ArrayEntity()
+    ywCanvasClear(canvas)
+    let items = wid["items"]["armors"]
+    let char = wid['character']
+    print("wid['character']\n", wid["character"])
+    char["clothes"] = []
+    def append_clothers_part(part):
+        for i in range(0, len(items[part])):
+            let tmp = items[part][i].copy()
+            yeStringShrinkStr(tmp, f"{ygModDirPath('lpcs')}/spritesheets")
+            char["clothes"].append(tmp)
+    append_clothers_part("feet")
+    append_clothers_part("legs")
+    append_clothers_part("torso")
+    append_clothers_part("head")
+    print(char["clothes"])
+    let handler = ylpcsCreateHandler(wid["character"], canvas, gc, None)
+    ylpcsHandlerSetOrigXY(handler, 0, 2)
+    ylpcsHandlerMoveXY(handler, 50, 50)
+    ylpcsHandlerRefresh(handler)
+    canvas["cur_handler"] = handler
+
+def go_back(wid, useless):
+    let entry = ywMenuGetCurrentEntry(wid)
+    let items = ywMenuSliderEntries(entry)
+    let body_part = entry['text']
+    let path_key = f"{body_part}-path"
+    ywMenuSliderClear(entry)
+    print("go back")
+    print(wid[path_key])
+    yPathUp(wid[path_key])
+    let paths = VectorEntity()
+    yFillDirectoryPathList(wid[path_key], paths)
+    fill_original_path(items, paths)
+    print(wid[path_key])
+
+def remove_ext(in_estr):
+    let end = in_estr.rindex(".")
+    let strip_str = yeGetString(in_estr)[:end]
+    return strip_str
+
+def set_cloth_final(wid, useless):
+    let entry = ywMenuGetCurrentEntry(wid)
+    let cur_part = ywMenuSliderFromEntry(entry)
+    let parent_wid = ywCntParent(wid)
+    let body_part = entry['text']
+
+    print(f"entry name: {body_part}")
+    print(f"cur part: {cur_part}")
+    print(parent_wid["character"])
+    parent_wid["items"]["armors"][body_part].append(cur_part["path"])
+    print(parent_wid["items"])
+    canvas_reload(parent_wid)
+
+def unset_part(wid, useless):
+    let entry = ywMenuGetCurrentEntry(wid)
+    let cur_part = ywMenuSliderFromEntry(entry)
+    let parent_wid = ywCntParent(wid)
+    let body_part = entry['text']
+    parent_wid["items"]["armors"][body_part] = []
+    canvas_reload(parent_wid)
+
+def fill_original_path(to_fill, directory):
+    for i in range(0, len(directory)):
+        let part_name = directory[i][0]
+        if "pregnant" not in part_name:
+            to_fill.append({"text": part_name, "action": set_cloth})
+
+
+def set_cloth(wid, useless):
+    let entry = ywMenuGetCurrentEntry(wid)
+    let first = ywMenuSliderFromEntryAt(entry, 0)
+    let cur_part = ywMenuSliderFromEntry(entry)
+    let body_part = entry['text']
+    let path_key = f"{body_part}-path"
+
+    yPathAdd(wid[path_key], cur_part["text"])
+    let legs_stuff_paths = VectorEntity()
+    ywMenuSliderClear(entry)
+    let items = ywMenuSliderEntries(entry)
+
+    items.append({"text": "back", "action": go_back})
+    items.append({"text": "clear", "action": unset_part})
+    yFillPathList(wid[path_key], legs_stuff_paths)
+    for i in range(0, len(legs_stuff_paths)):
+        let p = legs_stuff_paths[i][0]
+        if "pregnant" in p or "child" in p:
+            continue
+        let copy_path = wid[path_key].copy()
+        yPathAdd(copy_path, p)
+        if yPathInfoIsDir(legs_stuff_paths[i]):
+            let legs_stuff_path_sub = VectorEntity()
+            yFillPathList(copy_path, legs_stuff_path_sub)
+            for j in range(0, len(legs_stuff_path_sub)):
+                let pp = legs_stuff_path_sub[j][0]
+                if (yPathInfoIsDir(legs_stuff_path_sub[j])):
+                    continue
+                yPathAdd(copy_path, pp)
+                items.append({"text": remove_ext(pp), "path": copy_path.copy(),
+                              "action": set_cloth_final})
+                yPathUp(copy_path)
+        else:
+            items.append({"text": remove_ext(p), "path": copy_path,
+                          "action": set_cloth_final})
+
+def base_type_slier(wid, second):
+    let parent_wid = ywCntParent(wid)
+    let cur_sld = ywMenuGetCurrentEntry(wid)
+    let gender = cur_sld["slider"][cur_sld["slider_idx"]]["text"]
+    #print()
+    while ywMenuNbEntries(wid) > 3:
+        ywMenuRemoveLastEntry(wid)
+
+    def add_part(what):
+        let paths = VectorEntity()
+        let mod_path = StringEntity(ygModDirPath("lpcs", paths))
+        yPathAdd(mod_path, "spritesheets")
+        let legs_path = mod_path.copy()
+        yPathAdd(legs_path, what)
+        yFillDirectoryPathList(legs_path, paths)
+        wid[f"{what}-path"] = legs_path
+        let legs = VectorEntity()
+
+        fill_original_path(legs, paths)
+        ywMenuPushSlideDownSubMenu(wid, what, legs)
+
+    add_part("legs")
+    add_part("torso")
+    add_part("feet")
+    add_part("head")
+
+    wid["gender"] = gender
+    parent_wid["character"] = {
+        "gender": gender,
+        "type": "tanned",
+    }
+
+    parent_wid["items"] = {
+        "armors": {
+            "feet": [],
+            "torso": [],
+            "head": [],
+            "legs": [],
+        }
+    }
+    canvas_reload(parent_wid)
+
+
+def canvas_action(wid, eves):
+    if not wid["cur_handler"]:
+        return
+    if not wid["cur_time"]:
+        wid["cur_time"] = y_get_time()
+    let elapse =  y_get_time() - yeGetLong(wid["cur_time"])
+    if elapse > 1000000:
+        wid["cur_time"] = y_get_time()
+        ylpcsHandlerNextStep(wid["cur_handler"])
+        ylpcsHandlerRefresh(wid["cur_handler"])
+
+def save_func(wid, uselsss):
+    let parent_wid = ywCntParent(wid)
+    let name_entry = ywMenuGetEntry(wid, 0)
+    let name = name_entry["input-txt"]
+    if len(name) == 0:
+        print("need a name")
+        return
+    if parent_wid["items"] is None:
+        print("need to set stuff")
+        return
+    let tmp = parent_wid["items"].copy()
+    let items = tmp["armors"]
+    print(tmp)
+    def fixup_path(what):
+        for i in range(0, len(items[what])):
+            yeStringShrinkStr(items[what][i], f"{ygModDirPath('lpcs')}/spritesheets")
+
+    fixup_path("feet")
+    fixup_path("legs")
+    fixup_path("torso")
+    fixup_path("head")
+    print(f"save into '{name}.json'")
+    print(parent_wid["items"])
+    let ret = ygEntToFile2(0, tmp, f"./{name}.json")
+    print("ret: ", ret)
+
+def init_main(wid):
+    print("init main")
+    wid["current"] = 0
+    ywCntSetForwarStyle(wid, "forward all")
+    ywSetTurnLengthOverwrite(-1)
+    let menu = get_menu(wid)
+    let base_types = VectorEntity()
+    base_types[0] = {"text": "male", "action": base_type_slier}
+    base_types[1] = {"text": "female", "action": base_type_slier}
+
+    print(base_types)
+    ywMenuPushTextInput(menu, "name:")
+
+    ywMenuPushEntry(menu, "save", FunctionEntity(save_func))
+    ywMenuPushSlider(menu, "base type", base_types)
+    let canvas = get_canvas(wid)
+    canvas["action"] = canvas_action
+
+def init(mod):
+    print("there's this", mod)
+    let main = mod["main"]
+    main["init"] = init_main
