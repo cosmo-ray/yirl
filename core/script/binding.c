@@ -204,6 +204,8 @@ BIND_EE(ywRemoveEntryByEntity, 2, 0);
 
 BIND_EE(ywCanvasObjSetPosByEntity, 2, 0);
 
+BIND_ES(yeStringShrinkStr, 2, 0);
+
 BIND_ES(ywMenuPushTextInput, 2, 0);
 
 BIND_ES(ywCntSetForwarStyle, 2, 0);

@@ -259,6 +259,27 @@ Entity *yeStringTruncate(Entity *str, uint32_t len);
 Entity *yeStringShrink(Entity *str, uint32_t len);
 
 /**
+ * @param str the string to shrink
+ * @param to_remove self explainatory
+ * example: give /home/ in to_remove to /home/guy/ in str, will transform str to
+ * guy/
+ */
+static _Bool yeStringShrinkStr(Entity str[static 1], const char to_remove[static 1])
+{
+	const char *tmp = yeGetString(str);
+	int i = 0;
+
+	while (*tmp && *tmp++ == *to_remove++)
+		++i;
+	if (!*to_remove) {
+		yeStringShrink(str, i);
+		return 1;
+	}
+	return 0;
+}
+
+
+/**
  * @brief remove all blank and tab up front
  * @return str
  */
