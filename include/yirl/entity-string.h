@@ -266,9 +266,14 @@ Entity *yeStringShrink(Entity *str, uint32_t len);
  */
 static _Bool yeStringShrinkStr(Entity str[static 1], const char to_remove[static 1])
 {
+	if (!yeIsString(str))
+		return 0;
+
 	const char *tmp = yeGetString(str);
 	int i = 0;
 
+	if (!tmp)
+		return 0;
 	while (*tmp && *tmp++ == *to_remove++)
 		++i;
 	if (!*to_remove) {
