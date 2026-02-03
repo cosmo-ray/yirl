@@ -85,7 +85,7 @@
 	}
     },
     "armors": {
-	"female": [
+	"female": {
 	    "beastplate": {
 		"torso":[
 		    "/torso/plate/chest_female.png"
@@ -117,8 +117,8 @@
 		"head": "head/hoods/female/cloth_hood_female.png",
 		"feet": "feet/boots/female/brown.png"
 	    }
-	],
-	"male": [
+	},
+	"male": {
 	    "full leather": {
 		"heavy": 1,
 		"protect": 3,
@@ -132,6 +132,6 @@
 		"protect": 1,
 		"torso": "torso/leather/chest_male.png"
 	    }
-	]
+	}
     }
 }
