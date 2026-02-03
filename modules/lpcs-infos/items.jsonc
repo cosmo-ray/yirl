@@ -85,6 +85,24 @@
 	}
     },
     "armors": {
+	"beastplate": {
+	    "torso":[
+		"/torso/plate/chest_female.png"
+	    ],
+	    "legs":[
+		"/legs/pantaloons/male/charcoal.png"
+	    ],
+	    "feet":[
+		"/feet/boots/female/maroon.png"
+	    ],
+	    "heavy": 1,
+	    "protect": {
+		"head": 0,
+		"torso": 7,
+		"legs": 1,
+		"feet": 2
+	    }
+	}
 	"full leather": {
 	    "heavy": 1,
 	    "protect": 3,
