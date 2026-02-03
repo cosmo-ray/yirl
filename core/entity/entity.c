@@ -2362,6 +2362,8 @@ int yeArrayContainEntitiesInternal(Entity *entity, ...)
 
 int yeIsPureArray(Entity *e)
 {
+	if (yeIsVector(e))
+		return 1;
 	if (yeType(e) != YARRAY)
 		return 0;
 

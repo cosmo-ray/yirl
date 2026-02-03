@@ -306,6 +306,8 @@ BIND_E(yeIsString, 1, 0);
 BIND_E(yeIsArray, 1, 0);
 BIND_E(yeIsHash, 1, 0);
 BIND_E(yeIsQuadInt, 1, 0);
+BIND_E(yeIsVector, 1, 0);
+BIND_E(yeIsContainer, 1, 0);
 
 BIND_E(ywRectPrint, 1, 0);
 
