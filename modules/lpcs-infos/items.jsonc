@@ -1,5 +1,19 @@
 {
     "weapons": {
+	"formal_cane": {
+	    "power": 1,
+	    "name": "formal_cane",
+	    "range": 1,
+	    "sprite_weapon": "weapons/both hand/formal_cane.png",
+	    "maniability": 3
+	},
+	"chassepot": {
+	    "power": 8,
+	    "name": "chassepot",
+	    "range": -1,
+	    "sprite_weapon": "weapons/both hand/chassepot.png",
+	    "maniability": 3
+	},
 	"iron longsword": {
 	    "power": 3,
 	    "name": "longsword",
@@ -36,6 +50,38 @@
 	    "name": "spear",
 	    "sprite_weapon": "both hand/spear.png",
 	    "maniability": 2
+	},
+	"warhammer": {
+	    "power": 3,
+	    "range": 0,
+	    "name": "warhammer",
+	    "sprite_weapon": {
+		"male": "weapons/right hand/male/warhammer.png",
+		"female": "weapons/right hand/female/warhammer.png"
+	    }
+	},
+	"pickaxe": {
+	    "power": 3,
+	    "range": 0,
+	    "name": "pickaxe",
+	    "sprite_weapon": {
+		"male": "weapons/right hand/male/pickaxe.png",
+		"female": "weapons/right hand/female/pickaxe.png"
+	    }
+	}
+    },
+    "shilds": {
+	"spartan": {
+	    "sprite_weapon": {
+		"female": "weapons/left hand/female/spartan_female.png",
+		"male": "weapons/left hand/male/spartan_male.png"
+	    }
+	},
+	"crusader": {
+	    "sprite_weapon": {
+		"female": "weapons/left hand/female/crusader_female.png",
+		"male": "weapons/left hand/male/crusader_male.png"
+	    }
 	}
     },
     "armors": {
