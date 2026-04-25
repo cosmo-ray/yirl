@@ -930,6 +930,11 @@ Entity *ygLoadMod(const char *path)
 
 			yeStringReplace(pathEnt, "YIRL_MODULES_PATH" PATH_SEPARATOR_STR,
 					mod_path);
+#ifdef WIN32
+			yeStringReplace(pathEnt, "YIRL_MODULES_PATH/",
+					mod_path);
+			
+#endif
 			free(mod_path);
 			pathCstr = yeGetString(pathEnt);
 		}

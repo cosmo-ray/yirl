@@ -46,6 +46,7 @@ void	tccAddSyms(TCCState *l)
 {
   tcc_add_symbol(l, "free", free);
   tcc_add_symbol(l, "strdup", strdup);
+  tcc_add_symbol(l, "putchar", strdup);
   tcc_add_symbol(l, "printf", printf);
   tcc_add_symbol(l, "ygFileToEnt", ygFileToEnt);
   tcc_add_symbol(l, "ywMapSetSmootMovement", ywMapSetSmootMovement);
@@ -272,6 +273,8 @@ void	tccAddSyms(TCCState *l)
   ADD_SYM(yeQuickSort);
   ADD_SYM(yeDumbSort);
   ADD_SYM(yeShuffle);
+  ADD_SYM(yeStringShrink);
+  ADD_SYM(yeToCStr2);
 
 #if defined(__unix__) || defined(__APPLE__)
   tcc_add_symbol(l, "yuiDebugPrint", yuiDebugPrint);

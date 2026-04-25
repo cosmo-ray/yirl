@@ -5,7 +5,7 @@
     ],
 
     "pre-load" : [
-	{ "path" : "YIRL_MODULES_PATH/load-chr/", "type": "module"},
+	{ "path" : "YIRL_MODULES_PATH/load-chr", "type": "module"},
 	{
 	    "file" : "init.c",
 	    "type" : "tcc"

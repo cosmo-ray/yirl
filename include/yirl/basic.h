@@ -137,7 +137,7 @@ int usleep(useconds_t);
 
 void abort(void);
 int isdigit(int);
-
+int putchar( int );
 int puts(const char *s);
 
 /* Because I have no fucking idea of to define
