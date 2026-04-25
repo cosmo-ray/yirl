@@ -824,9 +824,18 @@ static int process_inst(void)
 		cpu.a = get_mem(addr);
 		SET_ZERO(!cpu.a);
 		SET_NEGATIVE(!!(cpu.a & 0x80));
-		cpu.cycle_cnt += 3;
+		cpu.cycle_cnt += 4;
 	}
 	break;
+	case LDA_zp:
+	{
+		int addr = get_mem(++cpu.pc);
+
+		cpu.a = get_mem(addr);
+		SET_ZERO(!cpu.a);
+		SET_NEGATIVE(!!(cpu.a & 0x80));
+		cpu.cycle_cnt += 3;
+	}
 	case LDX_im:
 	case LDX_ab:
 	case LDY_im:
@@ -934,7 +943,7 @@ static int process_inst(void)
 	}
 	break;
 	default:
-		printf("(%x)%s: UNIMPLEMENTED", opcode, opcode_str[opcode]);
+		printf("(%x)%s: UNIMPLEMENTED\n", opcode, opcode_str[opcode]);
 		break;
 	}
 	++cpu.pc;

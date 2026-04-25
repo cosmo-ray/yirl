@@ -50,6 +50,7 @@
   OPCODE(LDY_im, 0xA0) //load Y
   OPCODE(LDY_ab, 0xAC) //load Y
   OPCODE(LDA, 0xA1) //load accumulator
+  OPCODE(LDA_zp, 0xA5) //load accumulator
   OPCODE(LDX_im, 0xA2) //load X
   OPCODE(LDX_ab, 0xAE) //load X
   OPCODE(TAY, 0xA8) //transfer accumulator to Y
