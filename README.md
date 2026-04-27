@@ -86,7 +86,7 @@ Here's a Table of what support what:
 | C  | :heavy_check_mark:  | :heavy_check_mark: | :x: |
 | js  | :heavy_check_mark:  | :heavy_check_mark: | :heavy_check_mark: |
 | kuroko  | :heavy_check_mark:  | :heavy_check_mark: | :heavy_check_mark: |
-| php | :heavy_check_mark: | :x: | :heavy_check_mark: |
+| php | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 | lua | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 | perl | :heavy_check_mark: | :construction_worker: | :construction_worker: |
 | scheme | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
