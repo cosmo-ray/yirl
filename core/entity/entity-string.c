@@ -213,8 +213,10 @@ int yeStringReplace(Entity *ent, const char *substr, const char *replacement)
 	entLen = yeLen(ent);
 	dest = (char *)entChar;
 	while ((dest = strstr(dest, substr)) != NULL) {
-		if (nbFound == 256)
+		if (nbFound == 256) {
+			DPRINT_ERR("too much substitution found, abort\n");
 			return -1;
+		}
 		begs[nbFound] = dest - entChar;
 		++dest;
 		++nbFound;
