@@ -96,14 +96,17 @@ enum {
 static struct atari_ppu {
 	uint8_t col_p0;
 	uint8_t col_p1;
+	uint8_t gr_p0;
+	uint8_t gr_p1;
 	uint8_t col_bg;
 	uint8_t col_playfield;
 	uint8_t vblank_mode;
-	uint8_t ball_p[2];
+ 	uint8_t ball_p[2];
+ 	uint8_t players_px[2];
 } atari_ppu;
 
 /**
- * PPU:
+ * NES PPU:
  * PPUCTRL 	$2000 	VPHB SINN 	NMI enable (V), PPU master/slave (P), sprite height (H),
  *                                      background tile select (B), sprite tile select (S),
  *				        increment mode (I), nametable select (NN)
@@ -300,21 +303,71 @@ int set_mem_atari(uint16_t addr, char val)
 		case RESBL:
 			atari_ppu.ball_p[0] = atari_current_col();
 			break;
+		case RESP0:
+			atari_ppu.players_px[0] = atari_current_col();
+			break;
+		case RESP1:
+			atari_ppu.players_px[1] = atari_current_col();
+			break;
 		case VSYNC:
 			cpu.cycle_cnt = 0;
 			return 1;
 		case WSYNC:
 			cpu.cycle_cnt += CYCLE_PER_SCANE_LINE - cpu.cycle_cnt % CYCLE_PER_SCANE_LINE;
 			return 1;
+		case GRP0:
+		{
+			int pix_per_pix_x = wid_width / 160;
+			int pix_per_pix_y = wid_height / 192;
+
+			for (int i = 0; i < 8; ++i) {
+				int pix_val = !!(val & (1 << i));
+				if (!pix_val)
+					continue;
+				ywCanvasMergeRectangle(main_canvas,
+						       atari_ppu.players_px[0] * pix_per_pix_x + i * pix_per_pix_x,
+						       (atari_curent_scane_line() - 40) * pix_per_pix_y,
+						       pix_per_pix_x, pix_per_pix_y,
+						       atari_get_color(atari_ppu.col_p0));
+			}
+			atari_ppu.gr_p0 = val;
+			return 0;
+		}
+		case GRP1:
+		{
+			int pix_per_pix_x = wid_width / 160;
+			int pix_per_pix_y = wid_height / 192;
+
+			for (int i = 0; i < 8; ++i) {
+				int pix_val = !!(val & (1 << i));
+				if (!pix_val)
+					continue;
+				ywCanvasMergeRectangle(main_canvas,
+						       atari_ppu.players_px[1] * pix_per_pix_x + i * pix_per_pix_x,
+						       (atari_curent_scane_line() - 40) * pix_per_pix_y,
+						       pix_per_pix_x, pix_per_pix_y,
+						       atari_get_color(atari_ppu.col_p1));
+			}
+			atari_ppu.gr_p1 = val;
+			return 0;
+		}
+		case COLUP0:
+			atari_ppu.col_p0 = val;
+			return 0;
+		case COLUP1:
+			atari_ppu.col_p1 = val;
+			return 0;
 		case COLUBK:
 			atari_ppu.col_bg = val;
 			return 0;
 		case COLUPF:
 			atari_ppu.col_playfield = val;
 			return 0;
+		default:
+		  printf("peripheric write at %x\n", addr);
 		}
 		/* printf("peripheric write at %x\n", addr); */
-		return;
+		return 0;
 	}
 	ram[addr] = val;
 	return 0;
@@ -1061,6 +1114,8 @@ void *fy_action(int nbArgs, void **args)
 			uint64_t cur = y_get_time();
 			if (cur - time > (1000000 / 60))
 				break; /* VBLANK ? */
+			/* 35 is kind of random, so I don't use y_get_time at each instruction,
+			   which is pretty heavy */
 			for (int i = 0; i < 35; ++i) {
 				process_inst();
 				for (int i = 0; i < breakpoints_cnt; ++i) {
@@ -1074,6 +1129,7 @@ void *fy_action(int nbArgs, void **args)
 	}
 
 out:
+	
 	if (atari_ppu.ball_p[0] + atari_ppu.ball_p[1]) {
 		int pix_per_pix_x = wid_width / 160;
 		int pix_per_pix_y = wid_height / 192;
