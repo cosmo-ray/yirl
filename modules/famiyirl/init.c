@@ -94,13 +94,13 @@ enum {
 /* it seems every 104 cycle I need to update v_line */
 /* another souce seems to say 76 cycles */
 static struct atari_ppu {
-	uint8_t col_p0;
-	uint8_t col_p1;
+	uint8_t col_p[2];
 	uint8_t gr_p0;
 	uint8_t gr_p1;
 	uint8_t col_bg;
 	uint8_t col_playfield;
 	uint8_t vblank_mode;
+	uint8_t nusiz[2];
  	uint8_t ball_p[2];
  	uint8_t players_px[2];
 } atari_ppu;
@@ -278,6 +278,89 @@ static void atari_do_scan_line(void)
 			       atari_get_color(atari_ppu.col_bg));
 }
 
+void atari_show_player(int p, int val)
+{
+	/* | Bits (2–0) | Copies | Spacing (TIA pixels) | Notes              | */
+	/* | ---------- | ------ | -------------------- | ------------------ | */
+	/* | `000`      | 1      | —                    | Single copy        | */
+	/* | `001`      | 2      | 16                   | Close double       | */
+	/* | `010`      | 2      | 32                   | Medium double      | */
+	/* | `011`      | 3      | 16                   | Triple, tight      | */
+	/* | `100`      | 2      | 64                   | Wide double        | */
+	/* | `101`      | 1      | —                    | Double-size player | */
+	/* | `110`      | 3      | 32                   | Triple, spaced     | */
+	/* | `111`      | 1      | —                    | Quad-size player   | */
+
+	int pix_per_pix_x = wid_width / 160;
+	int pix_per_pix_y = wid_height / 192;
+	int width = pix_per_pix_x;
+	_Bool space_16 = 0;
+	_Bool space_32 = 0;
+	_Bool space_64 = 0;
+	int x = atari_ppu.players_px[p];
+
+	switch (atari_ppu.nusiz[p]) {
+	case 3:
+		space_32 = 1;
+	case 1:
+		space_16 = 1;
+		break;
+	case 2:
+		space_32 = 1;
+		break;
+	case 4:
+		space_64 = 1;
+		break;
+	case 5:
+		width *= 2;
+		break;
+	case 6:
+		space_32 = 1;
+		space_64 = 1;
+		break;
+	case 7:
+		width *= 4;
+		break;
+	default:
+		break;
+	}
+	for (int i = 0; i < 8; ++i) {
+		int pix_val = !!(val & (1 << i));
+		if (!pix_val)
+			continue;
+		ywCanvasMergeRectangle(main_canvas,
+				       x * pix_per_pix_x + i * width,
+				       (atari_curent_scane_line() - 40) * pix_per_pix_y,
+				       width, pix_per_pix_y,
+				       atari_get_color(atari_ppu.col_p[p]));
+		if (space_16) {
+			ywCanvasMergeRectangle(main_canvas,
+					       (x + 16) * pix_per_pix_x + i * width,
+					       (atari_curent_scane_line() - 40) * pix_per_pix_y,
+					       width, pix_per_pix_y,
+					       atari_get_color(atari_ppu.col_p[p]));
+					
+		}
+		if (space_32) {
+			ywCanvasMergeRectangle(main_canvas,
+					       (x + 32) * pix_per_pix_x + i * width,
+					       (atari_curent_scane_line() - 40) * pix_per_pix_y,
+					       width, pix_per_pix_y,
+					       atari_get_color(atari_ppu.col_p[p]));
+					
+		}
+		if (space_64) {
+			ywCanvasMergeRectangle(main_canvas,
+					       (x + 64) * pix_per_pix_x + i * width,
+					       (atari_curent_scane_line() - 40) * pix_per_pix_y,
+					       width, pix_per_pix_y,
+					       atari_get_color(atari_ppu.col_p[p]));
+					
+		}
+	}
+
+}
+
 int set_mem_atari(uint16_t addr, char val)
 {
 	if (turn_mode == DEBUG_MODE)
@@ -309,6 +392,12 @@ int set_mem_atari(uint16_t addr, char val)
 		case RESP1:
 			atari_ppu.players_px[1] = atari_current_col();
 			break;
+		case NUSIZ0:
+			atari_ppu.nusiz[0] = val;
+			break;
+		case NUSIZ1:
+			atari_ppu.nusiz[1] = val;
+			break;
 		case VSYNC:
 			cpu.cycle_cnt = 0;
 			return 1;
@@ -317,45 +406,21 @@ int set_mem_atari(uint16_t addr, char val)
 			return 1;
 		case GRP0:
 		{
-			int pix_per_pix_x = wid_width / 160;
-			int pix_per_pix_y = wid_height / 192;
-
-			for (int i = 0; i < 8; ++i) {
-				int pix_val = !!(val & (1 << i));
-				if (!pix_val)
-					continue;
-				ywCanvasMergeRectangle(main_canvas,
-						       atari_ppu.players_px[0] * pix_per_pix_x + i * pix_per_pix_x,
-						       (atari_curent_scane_line() - 40) * pix_per_pix_y,
-						       pix_per_pix_x, pix_per_pix_y,
-						       atari_get_color(atari_ppu.col_p0));
-			}
+			atari_show_player(0, val);
 			atari_ppu.gr_p0 = val;
 			return 0;
 		}
 		case GRP1:
 		{
-			int pix_per_pix_x = wid_width / 160;
-			int pix_per_pix_y = wid_height / 192;
-
-			for (int i = 0; i < 8; ++i) {
-				int pix_val = !!(val & (1 << i));
-				if (!pix_val)
-					continue;
-				ywCanvasMergeRectangle(main_canvas,
-						       atari_ppu.players_px[1] * pix_per_pix_x + i * pix_per_pix_x,
-						       (atari_curent_scane_line() - 40) * pix_per_pix_y,
-						       pix_per_pix_x, pix_per_pix_y,
-						       atari_get_color(atari_ppu.col_p1));
-			}
+			atari_show_player(1, val);
 			atari_ppu.gr_p1 = val;
 			return 0;
 		}
 		case COLUP0:
-			atari_ppu.col_p0 = val;
+			atari_ppu.col_p[0] = val;
 			return 0;
 		case COLUP1:
-			atari_ppu.col_p1 = val;
+			atari_ppu.col_p[1] = val;
 			return 0;
 		case COLUBK:
 			atari_ppu.col_bg = val;
@@ -1105,8 +1170,8 @@ void *fy_action(int nbArgs, void **args)
 						       "col bg: %x\n"
 						       "col playfield: %x\n"
 						       "current line: $d\n",
-						       (int)atari_ppu.col_p0,
-						       (int)atari_ppu.col_p1,
+						       (int)atari_ppu.col_p[0],
+						       (int)atari_ppu.col_p[1],
 						       (int)atari_ppu.col_bg,
 						       (int)atari_ppu.col_playfield,
 						       atari_curent_scane_line());
@@ -1121,9 +1186,11 @@ void *fy_action(int nbArgs, void **args)
 	if (turn_mode == DEBUG_MODE) {
 		process_inst();
 	} else {
+#define CYCLE_PER_FRAME 19912
+		int64_t start_cycle = cpu.cycle_cnt;
 		for (;turn_mode != DEBUG_MODE;) {
 			uint64_t cur = y_get_time();
-			if (cur - time > (1000000 / 60))
+			if (cur - time > (1000000 / 60) || cpu.cycle_cnt - start_cycle > CYCLE_PER_FRAME)
 				break; /* VBLANK ? */
 			/* 35 is kind of random, so I don't use y_get_time at each instruction,
 			   which is pretty heavy */
