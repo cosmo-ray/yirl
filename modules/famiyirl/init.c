@@ -646,6 +646,16 @@ static int process_inst(void)
 		SET_ZERO(!cpu.y);
 		cpu.cycle_cnt += 2;
 		break;
+	case INC_zp:
+	{
+		int addr = get_mem(++cpu.pc);
+		char val = get_mem(addr);
+		set_mem(addr, val);
+		SET_NEGATIVE(!!(val & 0x80));
+		SET_ZERO(!val);
+		cpu.cycle_cnt += 5;
+		break;
+	}
 	case INX:
 		cpu.x += 1;
 		SET_NEGATIVE(!!(cpu.x & 0x80));
@@ -698,7 +708,6 @@ static int process_inst(void)
 	case AND_im:
 	{
 		int addr = get_mem(++cpu.pc);
-
 		cpu.a &= addr;
 		SET_ZERO(!cpu.a);
 		SET_NEGATIVE(!!(cpu.a & 0x70));
@@ -888,6 +897,7 @@ static int process_inst(void)
 		SET_ZERO(!cpu.a);
 		SET_NEGATIVE(!!(cpu.a & 0x80));
 		cpu.cycle_cnt += 3;
+		break;
 	}
 	case LDX_im:
 	case LDX_ab:
@@ -997,6 +1007,7 @@ static int process_inst(void)
 	break;
 	default:
 		printf("(%x)%s: UNIMPLEMENTED\n", opcode, opcode_str[opcode]);
+		turn_mode = DEBUG_MODE;
 		break;
 	}
 	++cpu.pc;
@@ -1124,6 +1135,8 @@ void *fy_action(int nbArgs, void **args)
 						break;
 					}
 				}
+				if (turn_mode == DEBUG_MODE)
+					break;
 			}
 		}
 	}

@@ -64,6 +64,7 @@
   OPCODE(CPY, 0xC0) //compare with Y
   OPCODE(CMP, 0xC1) //compare (with accumulator)
   OPCODE(INY, 0xC8) //increment Y
+  OPCODE(INC_zp, 0xe6) // increment a, zeropage
   OPCODE(CMP_imediate, 0xC9) //branch on equal (zero set)
   OPCODE(DEX, 0xCA) //decrement X
   OPCODE(CPY_var, 0xCC) //compare with Y
