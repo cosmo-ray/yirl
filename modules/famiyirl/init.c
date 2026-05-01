@@ -650,7 +650,7 @@ static int process_inst(void)
 	{
 		int addr = get_mem(++cpu.pc);
 		char val = get_mem(addr);
-		set_mem(addr, val);
+		set_mem(addr, val + 1);
 		SET_NEGATIVE(!!(val & 0x80));
 		SET_ZERO(!val);
 		cpu.cycle_cnt += 5;
