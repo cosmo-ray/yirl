@@ -86,7 +86,10 @@ enum {
 	CXCLR       , //    ; $2C   ---- ----   Clear Collision Latches
 };
 
-#define CYCLE_PER_SCANE_LINE 104
+#define CYCLE_PER_FRAME 19912
+
+// #define CYCLE_PER_SCANE_LINE 104
+#define CYCLE_PER_SCANE_LINE 76
 
 #define ATARI_SCREEN_H 262
 #define ATARI_SCREEN_W 169
@@ -243,7 +246,8 @@ static uint8_t atari_current_col(void)
 
 static int atari_curent_scane_line(void)
 {
-	return (cpu.cycle_cnt / CYCLE_PER_SCANE_LINE) % ATARI_SCREEN_H;
+	int cycle_cur = cpu.cycle_cnt % CYCLE_PER_FRAME;
+	return (cycle_cur / CYCLE_PER_SCANE_LINE) % ATARI_SCREEN_H;
 }
 
 
@@ -399,8 +403,11 @@ int set_mem_atari(uint16_t addr, char val)
 			atari_ppu.nusiz[1] = val;
 			break;
 		case VSYNC:
-			cpu.cycle_cnt = 0;
+		{
+			int cycle_cur = cpu.cycle_cnt % CYCLE_PER_FRAME;
+			cpu.cycle_cnt += CYCLE_PER_FRAME - cycle_cur;
 			return 1;
+		}
 		case WSYNC:
 			cpu.cycle_cnt += CYCLE_PER_SCANE_LINE - cpu.cycle_cnt % CYCLE_PER_SCANE_LINE;
 			return 1;
@@ -603,11 +610,11 @@ static int process_inst(void)
 		printf("code (a: %x, x: %x, y: %x, f: %x): 0x%x: %x - %s\n", cpu.a, cpu.x, cpu.y, cpu.flag,
 		       cpu.pc & 0xffff, get_mem(cpu.pc), opcode_str[get_mem(cpu.pc)]);
 	if (current_emu_mode == ATARI_MODE) {
-		static old_sl_cycle;
-		int elapse = cpu.cycle_cnt - old_sl_cycle;
+		static int64_t old_sl_cycle;
+		int64_t elapse = cpu.cycle_cnt - old_sl_cycle;
 		if (elapse > CYCLE_PER_SCANE_LINE) {
 			atari_do_scan_line();
-			old_sl_cycle += elapse / CYCLE_PER_SCANE_LINE;
+			old_sl_cycle += CYCLE_PER_SCANE_LINE;
 		}
 	}
 
@@ -1186,7 +1193,6 @@ void *fy_action(int nbArgs, void **args)
 	if (turn_mode == DEBUG_MODE) {
 		process_inst();
 	} else {
-#define CYCLE_PER_FRAME 19912
 		int64_t start_cycle = cpu.cycle_cnt;
 		for (;turn_mode != DEBUG_MODE;) {
 			uint64_t cur = y_get_time();
