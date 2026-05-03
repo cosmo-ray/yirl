@@ -92,7 +92,7 @@ enum {
 #define CYCLE_PER_SCANE_LINE 76
 
 #define ATARI_SCREEN_H 262
-#define ATARI_SCREEN_W 169
+#define ATARI_SCREEN_W 160
 
 /* it seems every 104 cycle I need to update v_line */
 /* another souce seems to say 76 cycles */
@@ -241,7 +241,11 @@ unsigned char get_mem_yirl(uint16_t addr)
 static uint8_t atari_current_col(void)
 {
 	int line_cycle = cpu.cycle_cnt % CYCLE_PER_SCANE_LINE;
-	return line_cycle * ATARI_SCREEN_W / CYCLE_PER_SCANE_LINE;
+	int color_blocks = line_cycle * 3;
+	if (color_blocks < 68)
+		return 161; // out of screen
+	int pixel_pos = color_blocks - 68;
+	return pixel_pos;
 }
 
 static int atari_curent_scane_line(void)
@@ -410,7 +414,7 @@ int set_mem_atari(uint16_t addr, char val)
 		}
 		case WSYNC:
 			cpu.cycle_cnt += CYCLE_PER_SCANE_LINE - cpu.cycle_cnt % CYCLE_PER_SCANE_LINE;
-			return 1;
+			return 0;
 		case GRP0:
 		{
 			atari_show_player(0, val);
