@@ -94,6 +94,8 @@ enum {
 #define ATARI_SCREEN_H 262
 #define ATARI_SCREEN_W 160
 
+#define ATARI_SCREEN_THRESHOLD_Y 20
+
 /* it seems every 104 cycle I need to update v_line */
 /* another souce seems to say 76 cycles */
 static struct atari_ppu {
@@ -263,27 +265,15 @@ static char *atari_get_color(unsigned int idx)
 //yeGet(colors_json, atari_color_idx(atari_ppu.col_bg))
 
 
-static void atari_do_scan_line(void)
+void arati_print_player_pixel(int p, int x, int i, int width,
+			      int pix_per_pix_x, int pix_per_pix_y)
 {
-	if (atari_ppu.vblank_mode)
-		return;
-	int cur = atari_curent_scane_line();
-	int pix_per_pix_x = wid_width / 160;
-	int pix_per_pix_y = wid_height / 192;
-	if (cur < 40) {
-		/* in blank */
-		return;
-	}
-	if (cur > 232)
-		return;
-	/* printf("l: %d %d| %d: %d %d %d %d\n", cur, cur-40, pix_per_pix, wid_height, wid_width, 160 * pix_per_pix, 192 * pix_per_pix); */
-	/* printf("pix per pix: %d\n%d %d %d% d\n", */
-	/*        pix_per_pix, */
-	/*        0, (cur - 40) * pix_per_pix, */
-	/*        160 * pix_per_pix, pix_per_pix); */
-	ywCanvasMergeRectangle(main_canvas, 0, (cur - 40) * pix_per_pix_y,
-			       160 * pix_per_pix_x, pix_per_pix_y,
-			       atari_get_color(atari_ppu.col_bg));
+	ywCanvasMergeRectangle(main_canvas,
+			       x * pix_per_pix_x + i * width,
+			       ATARI_SCREEN_THRESHOLD_Y + (atari_curent_scane_line() - 40) * pix_per_pix_y,
+			       width, pix_per_pix_y,
+			       atari_get_color(atari_ppu.col_p[p]));
+
 }
 
 void atari_show_player(int p, int val)
@@ -336,37 +326,44 @@ void atari_show_player(int p, int val)
 		int pix_val = !!(val & (1 << i));
 		if (!pix_val)
 			continue;
-		ywCanvasMergeRectangle(main_canvas,
-				       x * pix_per_pix_x + i * width,
-				       (atari_curent_scane_line() - 40) * pix_per_pix_y,
-				       width, pix_per_pix_y,
-				       atari_get_color(atari_ppu.col_p[p]));
+		arati_print_player_pixel(p, x, i, width, pix_per_pix_x, pix_per_pix_y);
 		if (space_16) {
-			ywCanvasMergeRectangle(main_canvas,
-					       (x + 16) * pix_per_pix_x + i * width,
-					       (atari_curent_scane_line() - 40) * pix_per_pix_y,
-					       width, pix_per_pix_y,
-					       atari_get_color(atari_ppu.col_p[p]));
-					
+			arati_print_player_pixel(p, x + 16, i, width, pix_per_pix_x, pix_per_pix_y);
 		}
 		if (space_32) {
-			ywCanvasMergeRectangle(main_canvas,
-					       (x + 32) * pix_per_pix_x + i * width,
-					       (atari_curent_scane_line() - 40) * pix_per_pix_y,
-					       width, pix_per_pix_y,
-					       atari_get_color(atari_ppu.col_p[p]));
-					
+			arati_print_player_pixel(p, x + 32, i, width, pix_per_pix_x, pix_per_pix_y);
 		}
 		if (space_64) {
-			ywCanvasMergeRectangle(main_canvas,
-					       (x + 64) * pix_per_pix_x + i * width,
-					       (atari_curent_scane_line() - 40) * pix_per_pix_y,
-					       width, pix_per_pix_y,
-					       atari_get_color(atari_ppu.col_p[p]));
-					
+			arati_print_player_pixel(p, x + 32, i, width, pix_per_pix_x, pix_per_pix_y);
 		}
 	}
 
+}
+
+static void atari_do_scan_line(void)
+{
+	if (atari_ppu.vblank_mode)
+		return;
+	int cur = atari_curent_scane_line();
+	int pix_per_pix_x = wid_width / 160;
+	int pix_per_pix_y = wid_height / 192;
+	if (cur < 40) {
+		/* in blank */
+		return;
+	}
+	if (cur > 232)
+		return;
+	ywCanvasMergeRectangle(main_canvas, 0,
+			       ATARI_SCREEN_THRESHOLD_Y + (cur - 40) * pix_per_pix_y,
+			       160 * pix_per_pix_x, pix_per_pix_y,
+			       atari_get_color(atari_ppu.col_bg));
+	if (atari_ppu.gr_p0) {
+		atari_show_player(0, atari_ppu.gr_p0);
+	}
+	if (atari_ppu.gr_p1) {
+		atari_show_player(1, atari_ppu.gr_p1);
+		
+	}
 }
 
 int set_mem_atari(uint16_t addr, char val)
@@ -417,13 +414,11 @@ int set_mem_atari(uint16_t addr, char val)
 			return 0;
 		case GRP0:
 		{
-			atari_show_player(0, val);
 			atari_ppu.gr_p0 = val;
 			return 0;
 		}
 		case GRP1:
 		{
-			atari_show_player(1, val);
 			atari_ppu.gr_p1 = val;
 			return 0;
 		}
@@ -1224,7 +1219,7 @@ out:
 		int pix_per_pix_x = wid_width / 160;
 		int pix_per_pix_y = wid_height / 192;
 		ywCanvasMergeRectangle(main_canvas, atari_ppu.ball_p[0] * pix_per_pix_x,
-				       (atari_ppu.ball_p[1] - 40) * pix_per_pix_y,
+				       ATARI_SCREEN_THRESHOLD_Y + (atari_ppu.ball_p[1] - 40) * pix_per_pix_y,
 				       pix_per_pix_x, pix_per_pix_y,
 				       atari_get_color(atari_ppu.col_playfield));
 	}
