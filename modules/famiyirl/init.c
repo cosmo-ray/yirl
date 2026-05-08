@@ -106,7 +106,8 @@ static struct atari_ppu {
 	uint8_t col_playfield;
 	uint8_t vblank_mode;
 	uint8_t nusiz[2];
- 	uint8_t ball_p[2];
+ 	uint8_t ball_p;
+	uint8_t enabl;
  	uint8_t players_px[2];
 } atari_ppu;
 
@@ -364,6 +365,13 @@ static void atari_do_scan_line(void)
 		atari_show_player(1, atari_ppu.gr_p1);
 		
 	}
+	if (atari_ppu.enabl & 0x02) {
+		ywCanvasMergeRectangle(main_canvas, atari_ppu.ball_p * pix_per_pix_x,
+				       ATARI_SCREEN_THRESHOLD_Y + (cur - 40) * pix_per_pix_y,
+				       pix_per_pix_x, pix_per_pix_y,
+				       atari_get_color(atari_ppu.col_playfield));
+	}
+
 }
 
 int set_mem_atari(uint16_t addr, char val)
@@ -385,11 +393,10 @@ int set_mem_atari(uint16_t addr, char val)
 			atari_ppu.vblank_mode = val;
 			break;
 		case ENABL:
-			if (val)
-				atari_ppu.ball_p[1] = atari_curent_scane_line();
+			atari_ppu.enabl = val;
 			break;
 		case RESBL:
-			atari_ppu.ball_p[0] = atari_current_col();
+			atari_ppu.ball_p = atari_current_col();
 			break;
 		case RESP0:
 			atari_ppu.players_px[0] = atari_current_col();
@@ -1215,14 +1222,6 @@ void *fy_action(int nbArgs, void **args)
 
 out:
 	
-	if (atari_ppu.ball_p[0] + atari_ppu.ball_p[1]) {
-		int pix_per_pix_x = wid_width / 160;
-		int pix_per_pix_y = wid_height / 192;
-		ywCanvasMergeRectangle(main_canvas, atari_ppu.ball_p[0] * pix_per_pix_x,
-				       ATARI_SCREEN_THRESHOLD_Y + (atari_ppu.ball_p[1] - 40) * pix_per_pix_y,
-				       pix_per_pix_x, pix_per_pix_y,
-				       atari_get_color(atari_ppu.col_playfield));
-	}
 	return NULL;
 }
 
