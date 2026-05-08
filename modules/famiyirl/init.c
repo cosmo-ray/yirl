@@ -98,7 +98,7 @@ enum {
 
 /* it seems every 104 cycle I need to update v_line */
 /* another souce seems to say 76 cycles */
-static struct atari_ppu {
+static struct tia {
 	uint8_t col_p[2];
 	uint8_t gr_p0;
 	uint8_t gr_p1;
@@ -108,8 +108,11 @@ static struct atari_ppu {
 	uint8_t nusiz[2];
  	uint8_t ball_p;
 	uint8_t enabl;
+	uint8_t enam0;
+	uint8_t enam1;
  	uint8_t players_px[2];
-} atari_ppu;
+ 	uint8_t missils_px[2];
+} tia;
 
 /**
  * NES PPU:
@@ -263,21 +266,22 @@ static char *atari_get_color(unsigned int idx)
 	return yeGetStringAt(yeGet(colors_json, (idx >> 4)), (idx & 0xf) / 2);
 }
 
-//yeGet(colors_json, atari_color_idx(atari_ppu.col_bg))
+//yeGet(colors_json, atari_color_idx(tia.col_bg))
 
 
 void arati_print_player_pixel(int p, int x, int i, int width,
-			      int pix_per_pix_x, int pix_per_pix_y)
+			      int pix_per_pix_x, int pix_per_pix_y,
+			      int line)
 {
 	ywCanvasMergeRectangle(main_canvas,
 			       x * pix_per_pix_x + i * width,
-			       ATARI_SCREEN_THRESHOLD_Y + (atari_curent_scane_line() - 40) * pix_per_pix_y,
+			       ATARI_SCREEN_THRESHOLD_Y + (line - 40) * pix_per_pix_y,
 			       width, pix_per_pix_y,
-			       atari_get_color(atari_ppu.col_p[p]));
+			       atari_get_color(tia.col_p[p]));
 
 }
 
-void atari_show_player(int p, int val)
+void atari_show_player(int p, int val, int cur)
 {
 	/* | Bits (2–0) | Copies | Spacing (TIA pixels) | Notes              | */
 	/* | ---------- | ------ | -------------------- | ------------------ | */
@@ -296,9 +300,9 @@ void atari_show_player(int p, int val)
 	_Bool space_16 = 0;
 	_Bool space_32 = 0;
 	_Bool space_64 = 0;
-	int x = atari_ppu.players_px[p];
+	int x = tia.players_px[p];
 
-	switch (atari_ppu.nusiz[p]) {
+	switch (tia.nusiz[p]) {
 	case 3:
 		space_32 = 1;
 	case 1:
@@ -323,27 +327,63 @@ void atari_show_player(int p, int val)
 	default:
 		break;
 	}
+	if (p == 0 && !tia.gr_p0)
+		goto skipp_player;
+	if (p == 1 && !tia.gr_p1)
+		goto skipp_player;
 	for (int i = 0; i < 8; ++i) {
 		int pix_val = !!(val & (1 << i));
 		if (!pix_val)
 			continue;
-		arati_print_player_pixel(p, x, i, width, pix_per_pix_x, pix_per_pix_y);
+		arati_print_player_pixel(p, x, i, width, pix_per_pix_x, pix_per_pix_y, cur);
 		if (space_16) {
-			arati_print_player_pixel(p, x + 16, i, width, pix_per_pix_x, pix_per_pix_y);
+			arati_print_player_pixel(p, x + 16, i, width, pix_per_pix_x, pix_per_pix_y, cur);
 		}
 		if (space_32) {
-			arati_print_player_pixel(p, x + 32, i, width, pix_per_pix_x, pix_per_pix_y);
+			arati_print_player_pixel(p, x + 32, i, width, pix_per_pix_x, pix_per_pix_y, cur);
 		}
 		if (space_64) {
-			arati_print_player_pixel(p, x + 32, i, width, pix_per_pix_x, pix_per_pix_y);
+			arati_print_player_pixel(p, x + 32, i, width, pix_per_pix_x, pix_per_pix_y, cur);
 		}
 	}
+skipp_player:
+	if (p == 0 && !tia.enam0)
+		return;
+	if (p == 1 && !tia.enam1)
+		return;
+	ywCanvasMergeRectangle(main_canvas,
+			       tia.missils_px[p] * pix_per_pix_x,
+			       ATARI_SCREEN_THRESHOLD_Y + (cur - 40) * pix_per_pix_y,
+			       width, pix_per_pix_y,
+			       atari_get_color(tia.col_p[p]));
+	if (space_16) {
+		ywCanvasMergeRectangle(main_canvas,
+				       (tia.missils_px[p] + 16) * pix_per_pix_x,
+				       ATARI_SCREEN_THRESHOLD_Y + (cur - 40) * pix_per_pix_y,
+				       width, pix_per_pix_y,
+				       atari_get_color(tia.col_p[p]));
+	}
 
+	if (space_32) {
+		ywCanvasMergeRectangle(main_canvas,
+				       (tia.missils_px[p] + 32) * pix_per_pix_x,
+				       ATARI_SCREEN_THRESHOLD_Y + (cur - 40) * pix_per_pix_y,
+				       width, pix_per_pix_y,
+				       atari_get_color(tia.col_p[p]));
+	}
+
+	if (space_64) {
+		ywCanvasMergeRectangle(main_canvas,
+				       (tia.missils_px[p] + 64) * pix_per_pix_x,
+				       ATARI_SCREEN_THRESHOLD_Y + (cur - 40) * pix_per_pix_y,
+				       width, pix_per_pix_y,
+				       atari_get_color(tia.col_p[p]));
+	}
 }
 
 static void atari_do_scan_line(void)
 {
-	if (atari_ppu.vblank_mode)
+	if (tia.vblank_mode)
 		return;
 	int cur = atari_curent_scane_line();
 	int pix_per_pix_x = wid_width / 160;
@@ -357,21 +397,19 @@ static void atari_do_scan_line(void)
 	ywCanvasMergeRectangle(main_canvas, 0,
 			       ATARI_SCREEN_THRESHOLD_Y + (cur - 40) * pix_per_pix_y,
 			       160 * pix_per_pix_x, pix_per_pix_y,
-			       atari_get_color(atari_ppu.col_bg));
-	if (atari_ppu.gr_p0) {
-		atari_show_player(0, atari_ppu.gr_p0);
+			       atari_get_color(tia.col_bg));
+	if (tia.gr_p0 || tia.enam0) {
+		atari_show_player(0, tia.gr_p0, cur);
 	}
-	if (atari_ppu.gr_p1) {
-		atari_show_player(1, atari_ppu.gr_p1);
-		
+	if (tia.gr_p1 || tia.enam1) {
+		atari_show_player(1, tia.gr_p1, cur);
 	}
-	if (atari_ppu.enabl & 0x02) {
-		ywCanvasMergeRectangle(main_canvas, atari_ppu.ball_p * pix_per_pix_x,
+	if (tia.enabl & 0x02) {
+		ywCanvasMergeRectangle(main_canvas, tia.ball_p * pix_per_pix_x,
 				       ATARI_SCREEN_THRESHOLD_Y + (cur - 40) * pix_per_pix_y,
 				       pix_per_pix_x, pix_per_pix_y,
-				       atari_get_color(atari_ppu.col_playfield));
+				       atari_get_color(tia.col_playfield));
 	}
-
 }
 
 int set_mem_atari(uint16_t addr, char val)
@@ -390,25 +428,35 @@ int set_mem_atari(uint16_t addr, char val)
 		 */
 		switch (addr) {
 		case VBLANK:
-			atari_ppu.vblank_mode = val;
+			tia.vblank_mode = val;
 			break;
 		case ENABL:
-			atari_ppu.enabl = val;
+			tia.enabl = val;
 			break;
 		case RESBL:
-			atari_ppu.ball_p = atari_current_col();
+			tia.ball_p = atari_current_col();
 			break;
 		case RESP0:
-			atari_ppu.players_px[0] = atari_current_col();
+			tia.players_px[0] = atari_current_col();
 			break;
 		case RESP1:
-			atari_ppu.players_px[1] = atari_current_col();
+			tia.players_px[1] = atari_current_col();
 			break;
+		/* RESMP0 and RESMP1 are oversimplify here,
+		 * in theory I must write 2 then 0 after 76 cpu instructions are pass */
+		case RESMP0:
+			if (val == 2)
+				tia.missils_px[0] = tia.players_px[0] + 3;
+			return 0;
+		case RESMP1:
+			if (val == 2)
+				tia.missils_px[1] = tia.players_px[1] + 3;
+			return 0;
 		case NUSIZ0:
-			atari_ppu.nusiz[0] = val;
+			tia.nusiz[0] = val;
 			break;
 		case NUSIZ1:
-			atari_ppu.nusiz[1] = val;
+			tia.nusiz[1] = val;
 			break;
 		case VSYNC:
 		{
@@ -421,25 +469,31 @@ int set_mem_atari(uint16_t addr, char val)
 			return 0;
 		case GRP0:
 		{
-			atari_ppu.gr_p0 = val;
+			tia.gr_p0 = val;
 			return 0;
 		}
 		case GRP1:
 		{
-			atari_ppu.gr_p1 = val;
+			tia.gr_p1 = val;
 			return 0;
 		}
 		case COLUP0:
-			atari_ppu.col_p[0] = val;
+			tia.col_p[0] = val;
 			return 0;
 		case COLUP1:
-			atari_ppu.col_p[1] = val;
+			tia.col_p[1] = val;
 			return 0;
 		case COLUBK:
-			atari_ppu.col_bg = val;
+			tia.col_bg = val;
 			return 0;
 		case COLUPF:
-			atari_ppu.col_playfield = val;
+			tia.col_playfield = val;
+			return 0;
+		case ENAM0:
+			tia.enam0 = val;
+			return 0;
+		case ENAM1:
+			tia.enam1 = val;
 			return 0;
 		default:
 		  printf("peripheric write at %x\n", addr);
@@ -460,7 +514,7 @@ unsigned char get_mem_atari(uint16_t addr)
 	else if (addr > 0x2c)
 		return ram[addr];
 	else {
-		printf("peripheric read at %x\n", addr);
+		/* printf("peripheric read at %x\n", addr); */
 	}
 	return 0;
 }
@@ -1195,10 +1249,10 @@ void *fy_action(int nbArgs, void **args)
 						       "col bg: %x\n"
 						       "col playfield: %x\n"
 						       "current line: $d\n",
-						       (int)atari_ppu.col_p[0],
-						       (int)atari_ppu.col_p[1],
-						       (int)atari_ppu.col_bg,
-						       (int)atari_ppu.col_playfield,
+						       (int)tia.col_p[0],
+						       (int)tia.col_p[1],
+						       (int)tia.col_bg,
+						       (int)tia.col_playfield,
 						       atari_curent_scane_line());
 					}
 				}
