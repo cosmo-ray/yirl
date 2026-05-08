@@ -968,12 +968,24 @@ static int process_inst(void)
 	}
 	break;
 	case LDA_zp:
+	case LDX_zp:
+	case LDY_zp:
 	{
 		int addr = get_mem(++cpu.pc);
+		int res;
 
-		cpu.a = get_mem(addr);
-		SET_ZERO(!cpu.a);
-		SET_NEGATIVE(!!(cpu.a & 0x80));
+		if (opcode == LDA_zp) {
+			cpu.a = get_mem(addr);
+			res = cpu.a;
+		} else if (opcode == LDX_zp) {
+			cpu.x = get_mem(addr);
+			res = cpu.x;
+		} else {
+			cpu.y = get_mem(addr);
+			res = cpu.y;
+		}
+		SET_ZERO(!res);
+		SET_NEGATIVE(!!(res & 0x80));
 		cpu.cycle_cnt += 3;
 		break;
 	}
