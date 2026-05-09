@@ -343,7 +343,7 @@ void atari_show_player(int p, int val, int cur)
 			arati_print_player_pixel(p, x + 32, i, width, pix_per_pix_x, pix_per_pix_y, cur);
 		}
 		if (space_64) {
-			arati_print_player_pixel(p, x + 32, i, width, pix_per_pix_x, pix_per_pix_y, cur);
+			arati_print_player_pixel(p, x + 64, i, width, pix_per_pix_x, pix_per_pix_y, cur);
 		}
 	}
 skipp_player:
@@ -354,13 +354,13 @@ skipp_player:
 	ywCanvasMergeRectangle(main_canvas,
 			       tia.missils_px[p] * pix_per_pix_x,
 			       ATARI_SCREEN_THRESHOLD_Y + (cur - 40) * pix_per_pix_y,
-			       width, pix_per_pix_y,
+			       pix_per_pix_x, pix_per_pix_y,
 			       atari_get_color(tia.col_p[p]));
 	if (space_16) {
 		ywCanvasMergeRectangle(main_canvas,
 				       (tia.missils_px[p] + 16) * pix_per_pix_x,
 				       ATARI_SCREEN_THRESHOLD_Y + (cur - 40) * pix_per_pix_y,
-				       width, pix_per_pix_y,
+				       pix_per_pix_x, pix_per_pix_y,
 				       atari_get_color(tia.col_p[p]));
 	}
 
@@ -368,7 +368,7 @@ skipp_player:
 		ywCanvasMergeRectangle(main_canvas,
 				       (tia.missils_px[p] + 32) * pix_per_pix_x,
 				       ATARI_SCREEN_THRESHOLD_Y + (cur - 40) * pix_per_pix_y,
-				       width, pix_per_pix_y,
+				       pix_per_pix_x, pix_per_pix_y,
 				       atari_get_color(tia.col_p[p]));
 	}
 
@@ -376,7 +376,7 @@ skipp_player:
 		ywCanvasMergeRectangle(main_canvas,
 				       (tia.missils_px[p] + 64) * pix_per_pix_x,
 				       ATARI_SCREEN_THRESHOLD_Y + (cur - 40) * pix_per_pix_y,
-				       width, pix_per_pix_y,
+				       pix_per_pix_x, pix_per_pix_y,
 				       atari_get_color(tia.col_p[p]));
 	}
 }
@@ -446,11 +446,11 @@ int set_mem_atari(uint16_t addr, char val)
 		 * in theory I must write 2 then 0 after 76 cpu instructions are pass */
 		case RESMP0:
 			if (val == 2)
-				tia.missils_px[0] = tia.players_px[0] + 3;
+				tia.missils_px[0] = tia.players_px[0] + 4;
 			return 0;
 		case RESMP1:
 			if (val == 2)
-				tia.missils_px[1] = tia.players_px[1] + 3;
+				tia.missils_px[1] = tia.players_px[1] + 4;
 			return 0;
 		case NUSIZ0:
 			tia.nusiz[0] = val;
