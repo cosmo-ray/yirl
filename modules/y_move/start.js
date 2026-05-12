@@ -33,15 +33,15 @@ function y_move_pos(pos, minfo, turn_timer)
     var mvy = 0;
 
     if (hspd) {
-	let acc = yeGetIntAt(minfo, Y_MVER_REST_X) + hspd * turn_timer / 100000;
+	let acc = minfo.getf(Y_MVER_REST_X) + hspd * turn_timer / 100000;
 	mvx = Math.floor(acc / 100);
-	yeSetIntAt(minfo, Y_MVER_REST_X, acc - mvx * 100);
+	yeSetFloatAt(minfo, Y_MVER_REST_X, acc - mvx * 100);
     }
 
     if (vspd) {
-	let acc = yeGetIntAt(minfo, Y_MVER_REST_Y) + vspd * turn_timer / 100000;
+	let acc = minfo.getf(Y_MVER_REST_Y) + vspd * turn_timer / 100000;
 	mvy = Math.floor(acc / 100);
-	yeSetIntAt(minfo, Y_MVER_REST_Y, acc - mvy * 100);
+	yeSetFloatAt(minfo, Y_MVER_REST_Y, acc - mvy * 100);
     }
     yeSetIntAt(minfo, Y_MVER_LAST_X, mvx)
     yeSetIntAt(minfo, Y_MVER_LAST_Y, mvy)
@@ -97,8 +97,8 @@ function y_mover_init(minfo)
 {
     yeReCreateInt(0, minfo, "horizontal_speed");
     yeReCreateInt(0, minfo, "vertical_speed");
-    yeReCreateInt(0, minfo, "horizontal_remain");
-    yeReCreateInt(0, minfo, "vertical_remain");
+    yeCreateFloat(0.0, minfo, "horizontal_remain");
+    yeCreateFloat(0.0, minfo, "vertical_remain");
     yeReCreateInt(0, minfo, "last_x");
     yeReCreateInt(0, minfo, "last_y");
     return minfo
