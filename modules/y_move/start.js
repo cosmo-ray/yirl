@@ -24,27 +24,24 @@ function y_move_undo_y(pos, minfo)
 
 function y_move_pos(pos, minfo, turn_timer)
 {
-    let hremain = yeGetIntAt(minfo, Y_MVER_REST_X);
-    let vremain = yeGetIntAt(minfo, Y_MVER_REST_Y);
     let speedup = yeGetFloatAtByIdx(minfo, Y_MVER_SPEEDUP)
     if (speedup == 0)
 	speedup = 1
-    let hms = yeGetIntAt(minfo, Y_MVER_X) * 100 * speedup + hremain;
-    let vms = yeGetIntAt(minfo, Y_MVER_Y) * 100 * speedup + vremain;
+    let hspd = yeGetIntAt(minfo, Y_MVER_X) * 100 * speedup;
+    let vspd = yeGetIntAt(minfo, Y_MVER_Y) * 100 * speedup;
     var mvx = 0;
     var mvy = 0;
 
-    if (hms) {
-	// mv = hms * turn_timer / 10000
-	mvx = hms * turn_timer / 100000
-	yeSetIntAt(minfo, Y_MVER_REST_X, mvx % 100)
-	mvx = mvx / 100
+    if (hspd) {
+	let acc = yeGetIntAt(minfo, Y_MVER_REST_X) + hspd * turn_timer / 100000;
+	mvx = Math.floor(acc / 100);
+	yeSetIntAt(minfo, Y_MVER_REST_X, acc - mvx * 100);
     }
 
-    if (vms) {
-	mvy = vms * turn_timer / 100000
-	yeSetIntAt(minfo, Y_MVER_REST_Y, mvy % 100)
-	mvy = mvy / 100
+    if (vspd) {
+	let acc = yeGetIntAt(minfo, Y_MVER_REST_Y) + vspd * turn_timer / 100000;
+	mvy = Math.floor(acc / 100);
+	yeSetIntAt(minfo, Y_MVER_REST_Y, acc - mvy * 100);
     }
     yeSetIntAt(minfo, Y_MVER_LAST_X, mvx)
     yeSetIntAt(minfo, Y_MVER_LAST_Y, mvy)
