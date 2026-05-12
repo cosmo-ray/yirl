@@ -667,8 +667,7 @@ int    ysdl2Init(void)
   }
 
   /* Initialisation simple */
-  if ((sg.pWindow = SDL_CreateRenderer(sg.window, -1, SDL_RENDERER_ACCELERATED |
-				     SDL_RENDERER_PRESENTVSYNC)) == NULL) {
+  if ((sg.pWindow = SDL_CreateRenderer(sg.window, -1, SDL_RENDERER_ACCELERATED)) == NULL) {
 	  DPRINT_ERR("SDL GPU initialisation failed: (%s)\n", SDL_GetError());
 	  return -1;
   }
