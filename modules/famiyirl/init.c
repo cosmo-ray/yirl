@@ -1268,8 +1268,17 @@ void *fy_action(int nbArgs, void **args)
 		int64_t start_cycle = cpu.cycle_cnt;
 		for (;turn_mode != DEBUG_MODE;) {
 			uint64_t cur = y_get_time();
-			if (cur - time > (1000000 / 60) || cpu.cycle_cnt - start_cycle > CYCLE_PER_FRAME)
+			int frm_length = 1000000 / 60;
+			if (cur - time > frm_length) {
 				break; /* VBLANK ? */
+			}
+			if (cpu.cycle_cnt - start_cycle > CYCLE_PER_FRAME) {
+				int sleep_time = frm_length - ((cur-time));
+				if (sleep_time > 0)
+					usleep(sleep_time);
+				
+				break;
+			}
 			/* 35 is kind of random, so I don't use y_get_time at each instruction,
 			   which is pretty heavy */
 			for (int i = 0; i < 35; ++i) {
