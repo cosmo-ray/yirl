@@ -301,6 +301,7 @@ enum {
 		 _Bool: 2 + 4 * multy,			\
 		 long: 2 + 1 * multy,			\
 		 long long int: 2 + 1 * multy,		\
+		 unsigned long long int: 2 + 3 * multy,	\
 		 double: 2 + 2 * multy,			\
 		 float: 2 + 2 * multy,			\
 		 unsigned long: 2 + 3 * multy,		\
@@ -316,6 +317,7 @@ enum {
 		 int: call,			\
 		 _Bool: call,			\
 		 long long: call,		\
+		 unsigned long long: call,	\
 		 long: call,			\
 		 double: call,			\
 		 float: call,			\
