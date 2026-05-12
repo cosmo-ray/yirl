@@ -673,6 +673,7 @@ BIND_ESI(yeCreateArrayAt, 3, 0);
 BIND_IES(yeReCreateInt, 3, 0);
 BIND_SES(yeReCreateString, 3, 0);
 BIND_EID(yeSetFloatAt, 3, 0);
+BIND_EID(yeAddFloatAtIdx, 3, 0);
 BIND_DESI(yeCreateFloatAt, 4, 0);
 BIND_EESI(ywCanvasNewPolygonExt, 3, 1);
 BIND_EI6SI(ywCanvasNewTriangleExt, 8, 1);
@@ -969,6 +970,13 @@ static JSValue qjsyeCreateFloat(JSContext *ctx, JSValueConst this_val,
 {
 	return mk_ent(ctx, yeCreateFloat(GET_D(ctx, 0), GET_E(ctx, 1),
 					 GET_S(ctx, 2)), !GET_E(ctx, 1));
+}
+
+static JSValue qjsyeReCreateFloat(JSContext *ctx, JSValueConst this_val,
+				  int argc, JSValueConst *argv)
+{
+	return mk_ent(ctx, yeReCreateFloat(GET_D(ctx, 0), GET_E(ctx, 1),
+					   GET_S(ctx, 2)), !GET_E(ctx, 1));
 }
 
 static JSValue qjsyeCreateInt(JSContext *ctx, JSValueConst this_val,
@@ -1652,6 +1660,8 @@ static int init(void *sm, void *args)
 	BIND(yeReCreateString, 3, 0);
 	BIND(yeCreateFloatAt, 4, 0);
 	BIND(yeSetFloatAt, 3, 0);
+	BIND(yeAddFloatAtIdx, 3, 0);
+	BIND(yeReCreateFloat, 1, 2);
 	BIND(ywCanvasObjSetPos, 3, 0);
 	BIND(ywCanvasNewTriangleExt, 8, 1);
 	BIND(ywCanvasNewPolygonExt, 3, 1);
