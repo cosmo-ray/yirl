@@ -301,11 +301,11 @@ enum {
 		 _Bool: 2 + 4 * multy,			\
 		 long: 2 + 1 * multy,			\
 		 long long int: 2 + 1 * multy,		\
-		 unsigned long long int: 2 + 3 * multy,	\
-		 double: 2 + 2 * multy,			\
-		 float: 2 + 2 * multy,			\
-		 unsigned long: 2 + 3 * multy,		\
-		 unsigned int: 2 + 3 * multy)
+		 double: 2 + 3 * multy,			\
+		 float: 2 + 3 * multy,			\
+		 unsigned long long int: 2 + 2 * multy,	\
+		 unsigned long: 2 + 2 * multy,		\
+		 unsigned int: 2 + 2 * multy)
 
 #define YSCRIPT_VOID_CALL(call)			\
 	_Generic(call,				\

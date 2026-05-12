@@ -776,12 +776,12 @@ NO_SIDE_EFFECT double yeGetFloat(Entity *entity);
 /**
  * @return	value of entity at @pos in @array, 0 if entity doesn't existe
  */
-NO_SIDE_EFFECT static inline int yeGetFloatAtByIdx(Entity *array, int pos)
+NO_SIDE_EFFECT static inline double yeGetFloatAtByIdx(Entity *array, int pos)
 {
 	return yeGetFloat(yeGetByIdx(array, pos));
 }
 
-NO_SIDE_EFFECT static inline int yeGetFloatAtByStr(Entity *array, const char *pos)
+NO_SIDE_EFFECT static inline double yeGetFloatAtByStr(Entity *array, const char *pos)
 {
 	return yeGetFloat(yeGetByStrFast(array, pos));
 }
