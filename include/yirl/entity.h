@@ -1177,6 +1177,7 @@ int yeAttach(Entity *on, Entity *entity, unsigned int idx,
 		 unsigned long int: yeSetIntAt,			\
 		 unsigned long long int: yeSetIntAt,		\
 		 float: yeSetFloatAt,				\
+		 double: yeSetFloatAt,				\
 		 const char *: yeSetStringAt,			\
 		 char *: yeSetStringAt)(ENTITY, INDEX, VALUE)
 
@@ -1520,6 +1521,7 @@ static inline void yeIntRoundBound(Entity *e, int min, int max) {
 			       long : yeAddLongAtIdx,			\
 			       long long : yeAddLongAtIdx,		\
 			       float: yeAddFloatAtIdx,			\
+			       double: yeAddFloatAtIdx,		\
 			       const char *: yeAddStrAtIdx,		\
 			       char *: yeAddStrAtIdx),			\
 		 long long: _Generic((VALUE),				\
@@ -1527,6 +1529,7 @@ static inline void yeIntRoundBound(Entity *e, int min, int max) {
 			       long : yeAddLongAtIdx,			\
 			       long long : yeAddLongAtIdx,		\
 			       float: yeAddFloatAtIdx,			\
+			       double: yeAddFloatAtIdx,			\
 			       const char *: yeAddStrAtIdx,		\
 			       char *: yeAddStrAtIdx),			\
 		 int: _Generic((VALUE),					\
@@ -1534,6 +1537,7 @@ static inline void yeIntRoundBound(Entity *e, int min, int max) {
 			       long : yeAddLongAtIdx,			\
 			       long long : yeAddLongAtIdx,		\
 			       float: yeAddFloatAtIdx,			\
+			       double: yeAddFloatAtIdx,			\
 			       const char *: yeAddStrAtIdx,		\
 			       char *: yeAddStrAtIdx),			\
 		 char *: YE_ADD_AT_STRIDX_INTERNAL(VALUE),		\
@@ -1545,6 +1549,8 @@ static inline void yeIntRoundBound(Entity *e, int min, int max) {
 	_Generic(toAdd, int: yeAddInt,		\
 		 long : yeAddLong,		\
 		 long long : yeAddLong,		\
+		 float : yeAddFloat,		\
+		 double : yeAddFloat,		\
 		 const char *: yeAddStr,	\
 		 char *: yeAddStr,		\
 		 Entity *: yeAddEnt)		\
