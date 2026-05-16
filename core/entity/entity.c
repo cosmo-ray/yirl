@@ -1947,7 +1947,11 @@ NO_SIDE_EFFECT double	yeGetFloat(Entity *entity)
 	if (unlikely(!entity)) {
 		return 0;
 	}
+	if (yeType(entity) == YINT) {
+		return YE_TO_INT(entity)->value;
+	}
 	return ((FloatEntity *)entity)->value;
+
 }
 
 
