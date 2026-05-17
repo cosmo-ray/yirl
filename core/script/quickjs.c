@@ -1184,11 +1184,24 @@ static JSValue array_set_at(JSContext *ctx, JSValueConst this_val,
 	Entity *e = GET_E_(this_val);
 
 	if (JS_IsNumber(argv[1]) || JS_IsBool(argv[1])) {
+		Entity *tmp;
 		if (JS_IsNumber(argv[0])) {
+			tmp = yeGet(e, GET_I(ctx, 0));
+			if (tmp)
+				goto have_tmp;
 			return mk_ent(ctx, yeCreateIntAt(GET_I(ctx, 1), e, NULL, GET_I(ctx, 0)), 0);
 		} else {
+			tmp = yeGet(e, GET_S(ctx, 0));
+			if (tmp)
+				goto have_tmp;
 			return mk_ent(ctx, yeReCreateInt(GET_I(ctx, 1), e, GET_S(ctx, 0)), 0);
 		}
+	have_tmp:
+		if (yeIsFloat(tmp))
+			yeSet(tmp, GET_D(ctx, 1));
+		else
+			yeSet(tmp, GET_I(ctx, 1));
+		return mk_ent(ctx, tmp, 0);
 	} else if (JS_IsString(argv[1])) {
 		if (JS_IsNumber(argv[0])) {
 			return mk_ent(ctx, yeCreateStringAt(GET_S(ctx, 1), e, NULL, GET_I(ctx, 0)), 0);
