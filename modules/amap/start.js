@@ -138,7 +138,7 @@ function print_life(wid, pc, pc_canel)
 
 function move_punch(wid, pc_canel, turn_timer)
 {
-    let pl = yeGetIntAt(pc_canel, PC_PUNCH_LIFE)
+    let pl = pc_canel.getf(PC_PUNCH_LIFE)
 
 
     if (pl != 0) {
@@ -549,23 +549,37 @@ function amap_action(wid, events)
 
     if (yevIsKeyUp(events, Y_LEFT_KEY)) {
 	wid.setAt("keydown", wid.geti("keydown") & (~KEYDOWN_LEFT))
-	if (yeGetIntAt(pc_canel, PC_DASH) <= 0) {
-	    if (!wid.geti("keydown"))
+	if (pc_canel.getf(PC_DASH) <= 0) {
+	    if ((wid.geti("keydown") & KEYDOWN_RIGHT)) {
+		y_move_set_xspeed(pc_minfo, BASE_SPEED)
+		let flip_val = wid.geti("pc_revers_flip")
+		print("new val 0: ", 0 + flip_val, " - ", pc_handler.geti("flip"))
+		pc_handler.setAt("flip", 0 + flip_val)
+	    } else {
 		y_move_set_xspeed(pc_minfo, 0)
+	    }
 	}
 	have_upkey = DIR_LEFT
-    } else if (yevIsKeyUp(events, Y_RIGHT_KEY)) {
+    }
+    if (yevIsKeyUp(events, Y_RIGHT_KEY)) {
 	wid.setAt("keydown", wid.geti("keydown") & (~KEYDOWN_RIGHT))
-	if (yeGetIntAt(pc_canel, PC_DASH) <= 0) {
-	    if (!wid.geti("keydown"))
+	if (pc_canel.getf(PC_DASH) <= 0) {
+	    if ((wid.geti("keydown") & KEYDOWN_LEFT)) {
+		y_move_set_xspeed(pc_minfo, -BASE_SPEED)
+		let flip_val = wid.geti("pc_revers_flip")
+		print("new val 1: ", 1 - flip_val, " - ", pc_handler.geti("flip"))
+		pc_handler.setAt("flip", 1 - flip_val)
+	    } else {
 		y_move_set_xspeed(pc_minfo, 0)
+	    }
 	}
 	have_upkey = DIR_RIGHT
     }
 
     if (yevIsKeyUp(events, Y_UP_KEY)) {
 	wid.setAt("keydown", wid.geti("keydown") & (~KEYDOWN_UP))
-    } else if (yevIsKeyDown(events, Y_UP_KEY)) {
+    }
+    if (yevIsKeyDown(events, Y_UP_KEY)) {
 	wid.setAt("keydown", wid.geti("keydown") | KEYDOWN_UP)
     }
 
@@ -575,7 +589,7 @@ function amap_action(wid, events)
 
     if (yevIsKeyDown(events, Y_LEFT_KEY) && have_upkey != DIR_LEFT) {
 	yeSetIntAt(pc_canel, PC_DIR, DIR_LEFT)
-	if (yeGetIntAt(pc_canel, PC_DASH) <= 0) {
+	if (pc_canel.getf(PC_DASH) <= 0) {
 	    y_move_set_xspeed(pc_minfo, -BASE_SPEED)
 	}
 	wid.setAt("keydown", wid.geti("keydown") | KEYDOWN_LEFT)
@@ -586,14 +600,14 @@ function amap_action(wid, events)
     if (yevIsKeyDown(events, Y_RIGHT_KEY) && have_upkey != DIR_RIGHT) {
 	yeSetIntAt(pc_canel, PC_DIR, DIR_RIGHT)
 	wid.setAt("keydown", wid.geti("keydown") | KEYDOWN_RIGHT)
-	if (yeGetIntAt(pc_canel, PC_DASH) <= 0) {
+	if (pc_canel.getf(PC_DASH) <= 0) {
 	    y_move_set_xspeed(pc_minfo, BASE_SPEED)
 	}
 	let flip_val = wid.geti("pc_revers_flip")
 	pc_handler.setAt("flip", 0 + flip_val)
     }
 
-    if (yevIsKeyDown(events, Y_C_KEY) && yeGetIntAt(pc_canel, PC_DASH) == 0) {
+    if (yevIsKeyDown(events, Y_C_KEY) && pc_canel.getf(PC_DASH) == 0) {
 	let dir = 1
 	y_move_set_xspeed(pc_minfo, BASE_SPEED)
 	if (pc_handler.geti("flip")) {
@@ -602,11 +616,11 @@ function amap_action(wid, events)
 	y_move_set_yspeed(pc_minfo, 0)
 	y_move_set_xspeed(pc_minfo, BASE_SPEED * dir)
 	yeCreateFloatAt(3, pc_minfo, null, Y_MVER_SPEEDUP)
-	yeSetIntAt(pc_canel, PC_DASH, MAX_DASH)
+	yeSetFloatAt(pc_canel, PC_DASH, MAX_DASH)
     }
 
-    if (yevIsKeyDown(events, Y_X_KEY) && yeGetIntAt(pc_canel, PC_PUNCH_LIFE) == 0) {
-	yeSetIntAt(pc_canel, PC_PUNCH_LIFE, 4 + pc_strength / 3)
+    if (yevIsKeyDown(events, Y_X_KEY) && pc_canel.getf(PC_PUNCH_LIFE) == 0) {
+	yeSetFloatAt(pc_canel, PC_PUNCH_LIFE, 4 + pc_strength / 3)
 	let textures = yeGet(wid, "textures");
 	let canvasobj = ywCanvasNewImgFromTexture(wid, ywPosX(pc_pos), ywPosY(pc_pos),
 						  yeGet(textures, "punch"))
@@ -622,7 +636,7 @@ function amap_action(wid, events)
 
 	let dash_val = 0
 	let base_cnt = 5 + pc_agility / 10
-	const dash = pc_canel.geti(PC_DASH)
+	const dash = pc_canel.getf(PC_DASH)
 	if (dash > 0) {
 	    dash_val = 30 * dash / 10 + 10
 	    base_cnt = base_cnt / 2
@@ -670,20 +684,20 @@ function amap_action(wid, events)
 
     if (yevIsKeyDown(events, Y_SPACE_KEY) &&
 	       yeGetIntAt(pc_canel, PC_JMP_NUMBER) < 2) {
-	yeSetIntAt(pc_canel, PC_DROPSPEED_IDX, -25);
+	yeSetFloatAt(pc_canel, PC_DROPSPEED_IDX, -25);
 	yeAddAt(pc_canel, PC_JMP_NUMBER, 1);
 	wid.setAt("keydown", wid.geti("keydown") | KEYDOWN_SPACE)
-	pc_canel.setAt(PC_JMP_POWER_LEFT, pc.geti("jmp-power"))
+	yeSetFloatAt(pc_canel, PC_JMP_POWER_LEFT, pc.geti("jmp-power"))
     }
 
     if (yeGetIntAt(pc_canel, PC_TURN_CNT_IDX) > 20000) {
 	let walk = false
-	if (pc_canel.geti(PC_DASH) > 0) {
+	if (pc_canel.getf(PC_DASH) > 0) {
 	    yGenericTextureArraySet(pc_handler, "dash")
 	} else if (yeGetIntAt(pc_canel, PC_PUNCH_COUNT_IDX) > 0) {
 	    yGenericTextureArraySet(pc_handler, "punch")
 	    yeAddAt(pc_canel, PC_PUNCH_COUNT_IDX, -1);
-	} else if (yeGetIntAt(pc_canel, PC_DROPSPEED_IDX) < 0) {
+	} else if (pc_canel.getf(PC_DROPSPEED_IDX) < 0) {
 	    yGenericTextureArraySet(pc_handler, "jmp")
 	} else {
 	    yGenericTextureArraySet(pc_handler, "base")
@@ -704,11 +718,11 @@ function amap_action(wid, events)
 	let mult = yeGetIntAt(pc_canel, PC_TURN_CNT_IDX) / 20000
 
 	yeAddAt(pc_canel, PC_NB_TURN_IDX, 1)
-	if (yeGetIntAt(pc_canel, PC_DASH) > 0) {
-	    yeAddAt(pc_canel, PC_DASH, -1 * mult)
-	    if (yeGetIntAt(pc_canel, PC_DASH) == 0) {
+	if (pc_canel.getf(PC_DASH) > 0) {
+	    yeAddFloatAtIdx(pc_canel, PC_DASH, -1 * mult)
+	    if (pc_canel.getf(PC_DASH) <= 0) {
 		yeSetFloatAt(pc_minfo, Y_MVER_SPEEDUP, 1)
-		yeSetIntAt(pc_canel, PC_DASH, -20)
+		yeSetFloatAt(pc_canel, PC_DASH, -20)
 		if (!wid.geti("keydown"))
 		    y_move_set_xspeed(pc_minfo, 0)
 		else {
@@ -723,40 +737,42 @@ function amap_action(wid, events)
 		    }
 		}
 	    }
-	} else if (yeGetIntAt(pc_canel, PC_DASH) < 0) {
-	    yeAddAt(pc_canel, PC_DASH, 1 * mult)
+	} else if (pc_canel.getf(PC_DASH) < 0) {
+	    yeAddFloatAtIdx(pc_canel, PC_DASH, 1 * mult)
+	    if (pc_canel.getf(PC_DASH) > 0)
+		yeSetFloatAt(pc_canel, PC_DASH, 0)
 	}
 
-	if (yeGetIntAt(pc_canel, PC_PUNCH_LIFE) > 0) {
-	    yeAddAt(pc_canel, PC_PUNCH_LIFE, -1 * mult)
-	    if (yeGetIntAt(pc_canel, PC_PUNCH_LIFE) <= 0) {
+	if (pc_canel.getf(PC_PUNCH_LIFE) > 0) {
+	    yeAddFloatAtIdx(pc_canel, PC_PUNCH_LIFE, -1 * mult)
+	    if (pc_canel.getf(PC_PUNCH_LIFE) <= 0) {
 		ywCanvasRemoveObj(wid, yeGet(pc_canel, PC_PUNCH_OBJ))
-		yeSetIntAt(pc_canel, PC_PUNCH_LIFE, 0)
+		yeSetFloatAt(pc_canel, PC_PUNCH_LIFE, 0)
 	    }
 	}
 	/* can't jump in dash */
-	if (yeGetIntAt(pc_canel, PC_DASH) < 1) {
+	if (pc_canel.getf(PC_DASH) < 1) {
 	    let kd = wid.geti("keydown")
 
-	    if (pc_canel.geti(PC_JMP_POWER_LEFT) > 0 && kd & KEYDOWN_SPACE) {
-		yeAddAt(pc_canel, PC_JMP_POWER_LEFT, -2 * mult);
+	    if (pc_canel.getf(PC_JMP_POWER_LEFT) > 0 && kd & KEYDOWN_SPACE) {
+		yeAddFloatAtIdx(pc_canel, PC_JMP_POWER_LEFT, -2 * mult);
 	    } else {
-		yeAddAt(pc_canel, PC_DROPSPEED_IDX, 2 * mult);
+		yeAddFloatAtIdx(pc_canel, PC_DROPSPEED_IDX, 2 * mult);
 	    }
 	}
 	yeSetIntAt(pc_canel, PC_TURN_CNT_IDX, 0);
-	if (pc_canel.geti(PC_HURT)) {
-	    yeSubIntMin(pc_canel.get(PC_HURT), 1 * mult, 0);
+	if (pc_canel.getf(PC_HURT)) {
+	    yeSetFloatAt(pc_canel, PC_HURT, Math.max(pc_canel.getf(PC_HURT) - 1 * mult, 0));
 	}
     } else {
 	yeAddAt(pc_canel, PC_TURN_CNT_IDX, turn_timer);
     }
 
-    if (pc_canel.geti(PC_DASH) < 1) {
-	y_move_set_yspeed(pc_minfo, yeGetIntAt(pc_canel, PC_DROPSPEED_IDX));
+    if (pc_canel.getf(PC_DASH) < 1) {
+	y_move_set_yspeed(pc_minfo, pc_canel.getf(PC_DROPSPEED_IDX));
     }
     y_move_pos(pc_pos, pc_minfo, turn_timer);
-    if (yeGetIntAt(pc_canel, PC_HURT) <= 0) {
+    if (pc_canel.getf(PC_HURT) <= 0) {
 	pc_handler.rm("colorMod")
     }
     let map_pixs_l = yeGet(wid, "map-pixs-l");
@@ -766,9 +782,9 @@ function amap_action(wid, events)
     if (ywPosX(pc_pos) < 0 || ywPosX(pc_pos) + SPRITE_SIZE > ywSizeW(map_pixs_l))
 	stop_x = true;
     if (wid.geti("block-up") > 0 && ywPosY(pc_pos) < 0) {
-	if (pc_canel.geti(PC_DROPSPEED_IDX) < 0)
-	    yeSetIntAt(pc_canel, PC_DROPSPEED_IDX, 0);
-	pc_canel.setAt(PC_JMP_POWER_LEFT, 0)
+	if (pc_canel.getf(PC_DROPSPEED_IDX) < 0)
+	    yeSetFloatAt(pc_canel, PC_DROPSPEED_IDX, 0);
+	yeSetFloatAt(pc_canel, PC_JMP_POWER_LEFT, 0)
     }
 
     if (no_fall && (ywPosY(pc_pos) + SPRITE_SIZE) > ywSizeH(map_pixs_l)) {
@@ -838,7 +854,7 @@ function amap_action(wid, events)
 	}
     }
 
-    if (yeGetIntAt(pc_canel, PC_PUNCH_LIFE) > 0) {
+    if (pc_canel.getf(PC_PUNCH_LIFE) > 0) {
 	let punch_obj = yeGet(pc_canel, PC_PUNCH_OBJ)
 	let cols = ywCanvasNewProjectedCollisionsArrayExt(wid, punch_obj, null, null, null)
 
@@ -850,7 +866,7 @@ function amap_action(wid, events)
 		let ctype = yeGetIntAt(c, YCANVAS_UDATA_IDX)
 		if (ctype == TYPE_MONSTER) {
 		    if (ywCanvasObjectsCheckColisions(c, punch_obj)) {
-			yeAddAt(pc_canel, PC_PUNCH_LIFE, -2)
+			yeAddFloatAtIdx(pc_canel, PC_PUNCH_LIFE, -2)
 			let mon_idx = yeGetIntAt(c, CANVAS_MONSTER_IDX)
 			let mon = monsters.get(mon_idx)
 			yeAddAt(mon, MONSTER_LIFE, -dmg)
@@ -870,20 +886,20 @@ function amap_action(wid, events)
 		    }
 		} else if (ctype == TYPE_BREAKABLE_BLOCK) {
 		    ywCanvasRemoveObj(wid, c)
-		    yeAddAt(pc_canel, PC_PUNCH_LIFE, -25)
+		    yeAddFloatAtIdx(pc_canel, PC_PUNCH_LIFE, -25)
 		} else if (ctype == TYPE_BOSS) {
 		    let boss_i = yeGet(mi, "boss")
 
 		    yeAddAt(boss_i, "life", -dmg)
-		    yeAddAt(pc_canel, PC_PUNCH_LIFE, -25)
+		    yeAddFloatAtIdx(pc_canel, PC_PUNCH_LIFE, -25)
 		    ywCanvasSetColorModRGBA(boss.get(0), 255, 100, 0, 255)
 		    wid.setAt("boss-h-timer", 100000)
 		    have_boss_take_dmg = true
 		}
 
-		if (yeGetIntAt(pc_canel, PC_PUNCH_LIFE) <= 0) {
+		if (pc_canel.getf(PC_PUNCH_LIFE) <= 0) {
 		    ywCanvasRemoveObj(wid, yeGet(pc_canel, PC_PUNCH_OBJ))
-		    yeSetIntAt(pc_canel, PC_PUNCH_LIFE, 0)
+		    yeSetFloatAt(pc_canel, PC_PUNCH_LIFE, 0)
 		    yeDestroy(cols)
 		    return true
 		}
@@ -989,16 +1005,17 @@ function amap_action(wid, events)
 		if (ywPosY(old_pos) <= ywPosY(obj_pos) + ywCanvasObjSize(wid, c)) {
 		    stop_x = true
 		}
-		if ((ywPosY(old_pos) + SPRITE_SIZE) <= ywPosY(obj_pos)) {
+		if (pc_canel.getf(PC_DROPSPEED_IDX) >= 0 &&
+		    (ywPosY(old_pos) + SPRITE_SIZE) <= ywPosY(obj_pos)) {
 		    stop_fall = true
 		}
-		if (pc_canel.geti(PC_DROPSPEED_IDX) < 0)
-		    pc_canel.setAt(PC_DROPSPEED_IDX, 0)
+		if (pc_canel.getf(PC_DROPSPEED_IDX) < 0)
+		    yeSetFloatAt(pc_canel, PC_DROPSPEED_IDX, 0)
 		return false;
 	    } else if (ctype == TYPE_PIKE || ctype == TYPE_MONSTER || ctype == TYPE_BOSS) {
 		if (ywCanvasObjectsCheckColisions(c, pc_canvas_obj)) {
 		    if (ctype == TYPE_PIKE || ctype == TYPE_MONSTER || ctype == TYPE_BOSS) {
-			if (yeGetIntAt(pc_canel, PC_HURT) == 0) {
+			if (pc_canel.getf(PC_HURT) == 0) {
 			    let armor = yeGetIntAt(pc.get("armor"), "protect");
 			    let atk_str = 5 - armor;
 			    if (atk_str < 1)
@@ -1006,10 +1023,10 @@ function amap_action(wid, events)
 			    yeAddAt(pc, "life", -atk_str)
 			    pc_handler.setAt("colorMod", yeCreateQuadInt(255, 100, 0, 255))
 			    need_pc_refresh = true
-			    yeSetIntAt(pc_canel, PC_HURT, 7);
-			    yeSetIntAt(pc_canel, PC_DROPSPEED_IDX, -10);
+			    yeSetFloatAt(pc_canel, PC_HURT, 7);
+			    yeSetFloatAt(pc_canel, PC_DROPSPEED_IDX, -10);
 			    if (ctype == TYPE_PIKE)
-				yeSetIntAt(pc_canel, PC_DROPSPEED_IDX, -25);
+				yeSetFloatAt(pc_canel, PC_DROPSPEED_IDX, -25);
 			}
 		    }
 		}
@@ -1020,18 +1037,19 @@ function amap_action(wid, events)
 		let pc_canvasobj = yGenericCurCanvas(pc_handler)
 		let pc_size = ywCanvasObjSize(wid, pc_canvasobj)
 
-		if ((ywPosY(old_pos) + SPRITE_SIZE) <= ywPosY(obj_pos)) {
+		if (pc_canel.getf(PC_DROPSPEED_IDX) >= 0 &&
+		    (ywPosY(old_pos) + SPRITE_SIZE) <= ywPosY(obj_pos)) {
 		    stop_fall = true
 		} else if (ctype != TYPE_LIGHT_FLOOR &&
-			   (wid.geti("#-yblock") > 0 || yeGetIntAt(pc_canel, PC_DROPSPEED_IDX) >= 0) &&
+			   (wid.geti("#-yblock") > 0 || pc_canel.getf(PC_DROPSPEED_IDX) >= 0) &&
 			   (ywPosY(old_pos) + ywSizeH(pc_size) - 1) >
 			   ywPosY(obj_pos) + 4) {
 
 		    if (ywPosY(old_pos) + 4 <= ywPosY(obj_pos) + ywSizeH(obj_size)) {
 			stop_x = true
 		    }
-		    if (wid.geti("#-yblock") > 0 && pc_canel.geti(PC_DROPSPEED_IDX) < 0) {
-			pc_canel.setAt(PC_DROPSPEED_IDX, 0)
+		    if (wid.geti("#-yblock") > 0 && pc_canel.getf(PC_DROPSPEED_IDX) < 0) {
+			yeSetFloatAt(pc_canel, PC_DROPSPEED_IDX, 0)
 		    }
 		}
 	    }
@@ -1048,7 +1066,7 @@ function amap_action(wid, events)
     if (stop_fall) {
 	y_move_undo_y(pc_pos, pc_minfo)
 	yeSetIntAt(pc_canel, PC_JMP_NUMBER, 0);
-	yeSetIntAt(pc_canel, PC_DROPSPEED_IDX, 0);
+	yeSetFloatAt(pc_canel, PC_DROPSPEED_IDX, 0);
     }
     print_life(wid, pc, pc_canel)
     move_punch(wid, pc_canel, turn_timer)
@@ -1238,7 +1256,7 @@ function init_map(wid, map_str, pc_pos_orig)
 	yePushBack(boss, ywCanvasNewTextByStr(wid, 0, 0, base_txt))
     }
 
-    yeSetIntAt(pc_canel, PC_DROPSPEED_IDX, 0);
+    yeSetFloatAt(pc_canel, PC_DROPSPEED_IDX, 0);
     y_move_set_xspeed(yeGet(pc_canel, PC_PUNCH_MINFO), 0)
     y_move_set_yspeed(yeGet(pc_canel, PC_PUNCH_MINFO), 0)
     y_move_set_xspeed(yeGet(pc_canel, PC_MOVER_IDX), 0)
@@ -1296,7 +1314,7 @@ function amap_init(wid)
     // push at PC_POS_IDX (0) in pc_canel
     ywPosCreate(0, 0, pc_canel)
     y_mover_new(pc_canel) // create at PC_MOVER_IDX(1)
-    yeCreateInt(0, pc_canel) // PC_DROPSPEED_IDX (2)
+    yeCreateFloat(0.0, pc_canel) // PC_DROPSPEED_IDX (2)
     yeCreateInt(0, pc_canel) // PC_TURN_CNT_IDX (3)
 
     ret = ywidNewWidget(wid, "canvas")
@@ -1432,12 +1450,13 @@ function amap_init(wid)
     }
 
     yeCreateIntAt(0, pc_canel, "jmp-n", PC_JMP_NUMBER)
-    yeCreateIntAt(0, pc_canel, "hurt", PC_HURT)
+    yeCreateFloatAt(0.0, pc_canel, "hurt", PC_HURT)
     yeCreateArrayAt(pc_canel, "life-array", PC_LIFE_ARRAY)
-    yeCreateIntAt(0, pc_canel, "pl", PC_PUNCH_LIFE)
-    yeCreateIntAt(0, pc_canel, "dash", PC_DASH)
+    yeCreateFloatAt(0.0, pc_canel, "pl", PC_PUNCH_LIFE)
+    yeCreateFloatAt(0.0, pc_canel, "dash", PC_DASH)
     yeCreateIntAt(DIR_RIGHT, pc_canel, "dir", PC_DIR)
     yeCreateIntAt(0, pc_canel, "nb_turn", PC_NB_TURN_IDX)
+    yeCreateFloatAt(0.0, pc_canel, "jmp-power-left", PC_JMP_POWER_LEFT)
     y_mover_new_at(pc_canel, "p_minfo", PC_PUNCH_MINFO)
     init_map(wid, map)
     return ret
