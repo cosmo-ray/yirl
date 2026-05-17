@@ -9,11 +9,11 @@ struct gravier_str {
 static inline int32_t next_power_of_2(int32_t i)
 {
 	--i;
-	i |= 1 >> 1;
-	i |= 1 >> 2;
-	i |= 1 >> 4;
-	i |= 1 >> 8;
-	i |= 1 >> 16;
+	i |= i >> 1;
+	i |= i >> 2;
+	i |= i >> 4;
+	i |= i >> 8;
+	i |= i >> 16;
 	++i;
 	return i;
 }
@@ -25,16 +25,16 @@ int gravier_str_init(struct gravier_str *gstr, const char *base) {
 		return 0;
 	}
 	gstr->len = strlen(base);
-	gstr->str = malloc(next_power_of_2(gstr->len));
+	gstr->str = malloc(next_power_of_2(gstr->len + 1));
 	strcpy(gstr->str, base);
 	return 0;
 }
 
 int gravier_str_append(struct gravier_str *gstr, char *str) {
 	int other_len = strlen(str);
-	int next_big = next_power_of_2(gstr->len);
+	int next_big = next_power_of_2(gstr->len + other_len + 1);
 
-	if (gstr->len + other_len >= next_big) {
+	if (next_big > next_power_of_2(gstr->len + 1)) {
 		char *tmp = malloc(next_big);
 
 		if (gstr->str)
@@ -48,10 +48,10 @@ int gravier_str_append(struct gravier_str *gstr, char *str) {
 }
 
 int gravier_str_append_int(struct gravier_str *gstr, intptr_t i) {
-	int next_big = next_power_of_2(gstr->len);
 	int other_len = 64;
+	int next_big = next_power_of_2(gstr->len + other_len + 1);
 
-	if (gstr->len + other_len >= next_big) {
+	if (next_big > next_power_of_2(gstr->len + 1)) {
 		char *tmp = malloc(next_big);
 
 		if (gstr->str)
@@ -65,10 +65,10 @@ int gravier_str_append_int(struct gravier_str *gstr, intptr_t i) {
 }
 
 int gravier_str_append_float(struct gravier_str *gstr, double d) {
-	int next_big = next_power_of_2(gstr->len);
 	int other_len = 128;
+	int next_big = next_power_of_2(gstr->len + other_len + 1);
 
-	if (gstr->len + other_len >= next_big) {
+	if (next_big > next_power_of_2(gstr->len + 1)) {
 		char *tmp = malloc(next_big);
 
 		if (gstr->str)
