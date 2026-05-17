@@ -1183,7 +1183,7 @@ static JSValue array_set_at(JSContext *ctx, JSValueConst this_val,
 {
 	Entity *e = GET_E_(this_val);
 
-	if (JS_IsNumber(argv[1])) {
+	if (JS_IsNumber(argv[1]) || JS_IsBool(argv[1])) {
 		if (JS_IsNumber(argv[0])) {
 			return mk_ent(ctx, yeCreateIntAt(GET_I(ctx, 1), e, NULL, GET_I(ctx, 0)), 0);
 		} else {
