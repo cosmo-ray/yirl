@@ -83,9 +83,9 @@ int gravier_str_append_float(struct gravier_str *gstr, double d) {
 
 int gravier_str_append_n(struct gravier_str *gstr, char *str, int n) {
 	int other_len = n;
-	int next_big = next_power_of_2(gstr->len);
+	int next_big = next_power_of_2(gstr->len + other_len + 1);
 
-	if (gstr->len + other_len >= next_big) {
+	if (next_big > next_power_of_2(gstr->len + 1)) {
 		char *tmp = malloc(next_big);
 
 		if (gstr->str)
