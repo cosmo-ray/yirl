@@ -66,6 +66,8 @@ void testS7ScriptCall(void);
 
 void testQjsScriptCall(void);
 
+void testPH7ScriptCall(void);
+
 void testTccScritLifecycle(void);
 void testTccTestsMacros(void);
 void testTccAddDefine(void);

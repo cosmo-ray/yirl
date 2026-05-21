@@ -117,6 +117,8 @@ int main(int argc, char **argv)
 
   TEST_TRY_ADD("/script/quickjs/call", testQjsScriptCall, only);
 
+  TEST_TRY_ADD("/script/ph7/call", testPH7ScriptCall, only);
+
   TEST_TRY_ADD("/script/scripts/add-function", testScriptAddFunction, only);
 
   TEST_TRY_ADD("/parser/json/simple-file", testJsonLoadFile, only);
