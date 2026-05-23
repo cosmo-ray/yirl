@@ -486,6 +486,7 @@ int set_mem_atari(uint16_t addr, char val)
 			break;
 		case CTRLPF:
 			tia.ctrlpf = val;
+			break;
 		case ENABL:
 			tia.enabl = val;
 			break;
