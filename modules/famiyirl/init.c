@@ -110,6 +110,7 @@ static struct tia {
 	uint8_t enabl;
 	uint8_t enam0;
 	uint8_t enam1;
+	uint8_t pf[3];
  	uint8_t players_px[2];
  	uint8_t missils_px[2];
 } tia;
@@ -381,6 +382,22 @@ skipp_player:
 	}
 }
 
+static void atari_pf_show_block(int pix_per_pix_x, int pix_per_pix_y, int cur, int v, int pf_add, int bcheck)
+{
+	int bit = bcheck & v;
+	if (bit) {
+		ywCanvasMergeRectangle(main_canvas, pf_add * pix_per_pix_x,
+				       ATARI_SCREEN_THRESHOLD_Y + (cur - 40) * pix_per_pix_y,
+				       pix_per_pix_x * 4, pix_per_pix_y,
+				       atari_get_color(tia.col_playfield));
+		ywCanvasMergeRectangle(main_canvas, 160 * pix_per_pix_x - pf_add * pix_per_pix_x - 4 * pix_per_pix_x,
+				       ATARI_SCREEN_THRESHOLD_Y + (cur - 40) * pix_per_pix_y,
+				       pix_per_pix_x * 4, pix_per_pix_y,
+				       atari_get_color(tia.col_playfield));
+
+	}	
+}
+
 static void atari_do_scan_line(void)
 {
 	if (tia.vblank_mode)
@@ -388,6 +405,7 @@ static void atari_do_scan_line(void)
 	int cur = atari_curent_scane_line();
 	int pix_per_pix_x = wid_width / 160;
 	int pix_per_pix_y = wid_height / 192;
+	int pf_add = 0;
 	if (cur < 40) {
 		/* in blank */
 		return;
@@ -410,6 +428,32 @@ static void atari_do_scan_line(void)
 				       pix_per_pix_x, pix_per_pix_y,
 				       atari_get_color(tia.col_playfield));
 	}
+	if (tia.pf[0] || tia.pf[1] || tia.pf[2]) {
+		unsigned int v = tia.pf[0] & 0xf0;
+
+		while (v) {
+			atari_pf_show_block(pix_per_pix_x, pix_per_pix_y, cur, v, pf_add, 0x10);
+			pf_add += 4;
+			v = v >> 1;
+			v &= 0xf0;
+		}
+		v = tia.pf[1];
+		pf_add = 4 * 4;
+		while (v) {
+			atari_pf_show_block(pix_per_pix_x, pix_per_pix_y, cur, v, pf_add, 0x80);
+			pf_add += 4;
+			v = v << 1;
+			v &= 0xff;
+		}
+		v = tia.pf[2];
+		pf_add = 12 * 4;
+		while (v) {
+			atari_pf_show_block(pix_per_pix_x, pix_per_pix_y, cur, v, pf_add, 0x01);
+			pf_add += 4;
+			v = v >> 1;
+			v &= 0xff;
+		}
+	}
 }
 
 int set_mem_atari(uint16_t addr, char val)
@@ -429,6 +473,15 @@ int set_mem_atari(uint16_t addr, char val)
 		switch (addr) {
 		case VBLANK:
 			tia.vblank_mode = val;
+			break;
+		case PF0:  //    ; $0D   xxxx 0000   Playfield Register Byte 0
+			tia.pf[0] = val;
+			break;
+		case PF1:  //    ; $0E   xxxx xxxx   Playfield Register Byte 1
+			tia.pf[1] = val;
+			break;
+		case PF2:  //    ; $0F   xxxx xxxx   Playfield Register Byte 2
+			tia.pf[2] = val;
 			break;
 		case ENABL:
 			tia.enabl = val;
