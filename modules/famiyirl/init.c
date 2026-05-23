@@ -110,6 +110,7 @@ static struct tia {
 	uint8_t enabl;
 	uint8_t enam0;
 	uint8_t enam1;
+	uint8_t ctrlpf;
 	uint8_t pf[3];
  	uint8_t players_px[2];
  	uint8_t missils_px[2];
@@ -483,6 +484,8 @@ int set_mem_atari(uint16_t addr, char val)
 		case PF2:  //    ; $0F   xxxx xxxx   Playfield Register Byte 2
 			tia.pf[2] = val;
 			break;
+		case CTRLPF:
+			tia.ctrlpf = val;
 		case ENABL:
 			tia.enabl = val;
 			break;
