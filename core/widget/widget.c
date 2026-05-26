@@ -328,6 +328,24 @@ int ywidColorFromString(const char *str, uint8_t *r, uint8_t *g,
 		*b = c & 0x000000ff;
 		*a = 0xff;
 		ret = 0;
+	} else if (!strcmp(str, "red")) {
+		*r = 255;
+		*g = 0;
+		*b = 0;
+		*a = 255;
+		ret = 0;
+	} else if (!strcmp(str, "blue")) {
+		*r = 0;
+		*g = 0;
+		*b = 255;
+		*a = 255;
+		ret = 0;
+	} else if (!strcmp(str, "green")) {
+		*r = 0;
+		*g = 255;
+		*b = 0;
+		*a = 255;
+		ret = 0;
 	} else if (!strcmp(str, "white")) {
 		*r = 255;
 		*g = 255;
