@@ -704,6 +704,16 @@ Entity *yeCreateDataExt(void *value, Entity *father, const char *name,
 	return ((Entity *)ret);
 }
 
+Entity *yeCreateHashAt(Entity *father, const char *name, int idx)
+{
+	HashEntity * restrict ret;
+
+	YE_ALLOC_ENTITY(ret, HashEntity);
+	yeInitAt((Entity *)ret, YHASH, father, name, idx);
+	ret->values = kh_init(entity_hash);
+	return (YE_TO_ENTITY(ret));
+}
+
 Entity *yeCreateHash(Entity *father, const char *name)
 {
 	HashEntity * restrict ret;

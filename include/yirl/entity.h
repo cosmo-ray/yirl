@@ -1020,6 +1020,7 @@ static inline Entity *yeCreateArrayByEntity(Entity *parent, Entity *name)
 Entity *yeCreateVector(Entity *father, const char *name);
 
 Entity *yeCreateHash(Entity *parent, const char *name);
+Entity *yeCreateHashAt(Entity *parent, const char *name, int idx);
 
 #ifndef __cplusplus
 #define yeCreateArray(mother, name)					\
