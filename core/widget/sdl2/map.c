@@ -93,8 +93,9 @@ static void sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
   for(int i = 0, curx = 0, cury = 0; i < wCam * hCam; ++i) {
 	  int idx = begX + curx + ((cury + begY) * wMap);
 	  Entity *mapCase = yeGet(map, idx);
+	  Entity *mapElem;
 
-	  YE_ARRAY_FOREACH(mapCase, mapElem) {
+	  YE_FOREACH(mapCase, mapElem) {
 		  if (cam_getter &&
 		      yeGetInt(cam_getter) == ywMapGetIdByElem(mapElem)) {
 			  yePushBack(elem_get, mapElem, NULL);
@@ -132,8 +133,9 @@ static int sdl2FullRender(YWidgetState *state, SDLWid *wid, Entity *entity)
 	YE_ARRAY_FOREACH_EXT(map, mapCase, it) {
 		unsigned int curx = yBlockArrayIteratorIdx(it) % wMap;
 		unsigned int cury = yBlockArrayIteratorIdx(it) / wMap;
+		Entity *mapElem;
 
-		YE_ARRAY_FOREACH(mapCase, mapElem) {
+		YE_FOREACH(mapCase, mapElem) {
 			sdlDisplaySprites(state, wid, curx,
 					  cury, mapElem,
 					  sizeSpriteW,

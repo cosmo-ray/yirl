@@ -32,8 +32,9 @@ static inline Entity *getEntry(Entity *father, Entity *tmp)
 int ywContainerUpdate(Entity *container, Entity *widEnt)
 {
 	Entity *entries = yeGet(container, "entries");
+	Entity *tmp;
 
-	YE_ARRAY_FOREACH(entries, tmp) {
+	YE_FOREACH(entries, tmp) {
 		YWidgetState *wid;
 
 		wid = ywidGetState(tmp);
@@ -49,8 +50,9 @@ int ywContainerUpdate(Entity *container, Entity *widEnt)
 Entity *ywContainerGetWidgetAt(Entity *container, int posX, int posY)
 {
 	Entity *entries = yeGet(container, "entries");
+	Entity *tmp;
 
-	YE_ARRAY_FOREACH(entries, tmp) {
+	YE_FOREACH(entries, tmp) {
 		if (ywIsPixsOnWid(tmp, posX, posY))
 			return tmp;
 	}
@@ -167,6 +169,7 @@ static void cntResize(YWidgetState *opac)
 	int casePos = 0;
 	int caseLen = 0;
 	Entity *bg = yeGet(entity, "$bg");
+	Entity *tmp;
 	cnt->type = cntGetTypeFromEntity(entity);
 
 	widSize =  ywCntType(opac) == CNT_HORIZONTAL ?
@@ -178,7 +181,7 @@ static void cntResize(YWidgetState *opac)
 		ywidResize(ywidGetState(bg));
 	}
 
-	YE_ARRAY_FOREACH(entries, tmp) {
+	YE_FOREACH(entries, tmp) {
 		YWidgetState *wid = ywidGetState(tmp);
 		Entity *ptr;
 		Entity *tmpPos;
@@ -268,7 +271,8 @@ static int cntInit(YWidgetState *opac, Entity *entity, void *args)
 	}
 
 	yeTryCreateInt(0, entity, "current");
-	YE_ARRAY_FOREACH(entries, tmp) {
+	Entity *tmp;
+	YE_FOREACH(entries, tmp) {
 		Entity *ptr = getEntry(entity, tmp);
 		Entity *copyTmp = NULL;
 
@@ -308,13 +312,14 @@ static int cntDestroy(YWidgetState *opac)
 {
 	Entity *entries = yeGet(opac->entity, "entries");
 	Entity *bg = yeGet(opac->entity, "$bg");
+	Entity *tmp;
 
 	if (bg) {
 		YWidDestroy(yeGetData(yeGet(bg, "$wid")));
 		yeRemoveChild(opac->entity, bg);
 	}
 
-	YE_ARRAY_FOREACH(entries, tmp) {
+	YE_FOREACH(entries, tmp) {
 		YWidgetState *cur = ywidGetState(tmp);
 
 		yeRemoveChildByStr(tmp, "$father-container");
@@ -402,11 +407,12 @@ void ywCntConstructChilds(Entity *ent)
 {
 	Entity *entries = yeGet(ent, "entries");
 	YWidgetState *opac = ywidGetState(ent);
+	Entity *tmp;
 
 	if (unlikely(!opac))
 		return;
 
-	YE_ARRAY_FOREACH(entries, tmp) {
+	YE_FOREACH(entries, tmp) {
 		YWidgetState *wid = ywidGetState(tmp);
 
 		/* try to create the widget */
@@ -440,6 +446,7 @@ static int cntRend(YWidgetState *opac)
 	YWidgetState *bg_wid = ywidGetState(yeGet(opac->entity, "$bg"));
 	Entity *auto_foreground;
 	int32_t idx = 0;
+	Entity *tmp;
 
 	if (bg_wid) {
 		yeReplaceBack(bg_wid->entity, yeGet(ent, "wid-pos"), "wid-pos");
@@ -447,7 +454,7 @@ static int cntRend(YWidgetState *opac)
 	}
 
 	auto_foreground = yeGet(ent, "auto_foreground");
-	YE_ARRAY_FOREACH(entries, tmp) {
+	YE_FOREACH(entries, tmp) {
 		YWidgetState *wid = ywidGetState(tmp);
 
 		/* try to create the widget */
@@ -483,8 +490,9 @@ static int cntRend(YWidgetState *opac)
 static void midRendEnd(YWidgetState *opac)
 {
 	Entity *entries = yeGet(opac->entity, "entries");
+	Entity *tmp;
 
-	YE_ARRAY_FOREACH(entries, tmp) {
+	YE_FOREACH(entries, tmp) {
 		YWidgetState *wid = ywidGetState(tmp);
 		if (!wid)
 			continue;
