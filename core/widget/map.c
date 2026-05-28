@@ -186,8 +186,8 @@ static int mapInitCheckResources(Entity *resources)
 {
 	Entity *firstELem = yeGet(resources, 0);
 
-	if (unlikely(!resources || (yeType(resources) != YARRAY) ||
-		     !yeLen(resources))) {
+	if ((yeType(resources) != YARRAY) || yeType(resources) != YVECTOR ||
+	    !yeLen(resources)) {
 		DPRINT_ERR("can retrive ressources");
 		return -1;
 	} else if (unlikely(!firstELem || !yeLen(firstELem) ||
@@ -213,8 +213,14 @@ static int mapInit(YWidgetState *opac, Entity *entity, void *args)
 	if (yeType(resources) == YSTRING)
 		resources = ygGet(yeGetString(resources));
 	((YMapState *)opac)->resources = resources;
-	if (mapInitCheckResources(resources) < 0)
+	if (yeGetIntAt(entity, "self-desc-map")) {
+		if (!resources) {
+			resources = yeCreateArray(entity, "resources");
+			((YMapState *)opac)->resources = resources;
+		}
+	} else if (mapInitCheckResources(resources) < 0) {
 		return -1;
+	}
 
 	if (!yeStrCmp(yeGet(entity, "cam-type"), "center")) {
 		yeReCreateInt(YMAP_PARTIAL, entity, "map-type");

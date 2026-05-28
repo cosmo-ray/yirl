@@ -1866,12 +1866,20 @@ int sdlDisplaySprites(YWidgetState *state, SDLWid *wid,
 	SDL_Texture *texture;
 	int id;
 	Entity *elem;
+	Entity *resources = ywMapGetResources(state);
 
 	if (unlikely(!mapElem))
 		return 0;
 	id = ywMapGetIdByElem(mapElem);
-	elem = yeGet(ywMapGetResources(state), id);
+	elem = yeGet(resources, id);
 
+	if (!elem) {
+		if (!isgraph(id)) {
+			DPRINT_ERR("unprintable character %d\n", id);
+		}
+		elem = yeCreateHashAt(resources, NULL, id);
+		yeCreateString((char [2]){id, 0}, elem, "map-char");
+	}
 	texture = sdlLoasAndCachTexture(elem);
 
 	if (texture) {
