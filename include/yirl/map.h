@@ -17,8 +17,9 @@
 
 /*
  * Important entity options at map init are:
- * cam-type: if set to center it zoom the map using 'cam', otherwise, the whole map is printed
- * cam: camera, which is a rect, containing positiong and size of the cam (so [x,y,w,h])
+ * cam-type(STR): if set to center it zoom the map using 'cam', otherwise, the whole map is printed
+ * cam (POS): camera, which is a rect, containing positiong and size of the cam (so [x,y,w,h])
+ * self-desc-map (BOOL): if true, will autocreate resources, interpreting id as ascii representation
  */
 
 #ifndef	_YIRL_MAP_H_

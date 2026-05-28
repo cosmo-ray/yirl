@@ -1253,12 +1253,14 @@ static int init(void *sm, void *args)
 	krk_initVM(0); // Initialize the VM with default flags
 	this->module = krk_startModule("__main__");
 
+#define PUSH_I_GLOBAL_VAL(str, val)					\
+	krk_attachNamedValue(&vm.builtins->fields, #str, INTEGER_VAL(val));
+
+#define PUSH_I_GLOBAL(glob)						\
+	krk_attachNamedValue(&vm.builtins->fields, #glob, INTEGER_VAL(glob));
+
 #define BIND(x, args...)					\
 	krk_defineNative(&vm.builtins->fields, #x, krk##x);
-
-#define PUSH_I_GLOBAL(x)
-
-#define PUSH_I_GLOBAL_VAL(x, val)
 
 	BIND(ygFileToEnt);
 
