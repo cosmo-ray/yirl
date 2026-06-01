@@ -74,10 +74,11 @@ static void sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
 	  elem_get = yeReCreateArray(entity, "elem-get", NULL);
   ywMapGetSpriteSize(entity, &sizeSpriteW, &sizeSpriteH, &thresholdX);
 
+  printf("begx: %d wmap: %d wcam: %d\n", begX, wMap, wCam);
   if (begX < 0) {
 	  cptr_x = begX;
 	  begX = 0;
-  } else if (begX > (wMap - wCam)) {
+  } else if (begX > wMap - wCam) {
 	  cptr_x = begX - (wMap - wCam);
 	  begX = wMap - wCam;
   }
@@ -111,12 +112,13 @@ static void sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
 		  ++cury;
 	  }
   }
-  if (cam_ptr)
+  if (cam_ptr) {
 	  sdlDisplaySprites(state, wid,
 			    -ywPosX(cam_threshold) + cptr_x,
 			    -ywPosY(cam_threshold) + cptr_y,
 			    cam_ptr, sizeSpriteW, sizeSpriteH,
 			    thresholdX, 0, NULL);
+  }
 }
 
 /* rend all the map, regardeless if the map is bigger than the screen */

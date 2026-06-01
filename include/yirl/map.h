@@ -330,19 +330,17 @@ static inline Entity *ywMapCam(Entity *state)
 static inline void ywMapSetCamPos(Entity *state, Entity *pos)
 {
 	Entity *cam = ywMapCam(state);
-	Entity *cam_threshold = yeGet(state, "cam-threshold");
-	int tx = ywPosX(cam_threshold);
-	int ty = ywPosY(cam_threshold);
 
 	ywRectSetPos(cam, pos);
-	if (unlikely(ywRectX(cam) + ywRectW(cam) + tx > ywMapW(state))) {
-		ywPosSetX(cam, ywMapW(state) - ywRectW(cam) - tx);
-	} else if (unlikely(ywRectX(cam) < 0)) {
+
+	if (ywRectX(cam) > ywMapW(state) - 1) {
+		ywPosSetX(cam, ywMapW(state) - 1);
+	} else if (ywRectX(cam) < 0) {
 		ywPosSetX(cam, 0);
 	}
-	if (unlikely(ywRectY(cam) + ywRectH(cam) + ty > ywMapH(state))) {
-		ywPosSetY(cam, ywMapH(state) - ywRectH(cam) - ty);
-	} else if (unlikely(ywRectY(cam) < 0)) {
+	if (ywRectY(cam) > ywMapH(state) - 1) {
+		ywPosSetY(cam, ywMapH(state) - 1);
+	} else if (ywRectY(cam) < 0) {
 		ywPosSetY(cam, 0);
 	}
 }
