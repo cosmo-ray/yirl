@@ -382,6 +382,13 @@ NO_SIDE_EFFECT static inline _Bool yeIsVector(const Entity * const e)
 	return yeType(e) == YVECTOR;
 }
 
+NO_SIDE_EFFECT static inline _Bool yeIsVectorLike(const Entity * const e, _Bool include_qint)
+{
+	if (include_qint)
+		return yeIsVector(e) || yeIsQuadInt(e) || yeIsArray(e);
+	return yeIsVector(e) || yeIsArray(e);
+}
+
 NO_SIDE_EFFECT static inline _Bool yeIsContainer(const Entity * const e)
 {
 	return yeType(e) == YVECTOR || yeType(e) == YHASH || yeType(e) == YARRAY;

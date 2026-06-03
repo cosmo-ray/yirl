@@ -465,6 +465,8 @@ BIND_II(yuiPercentOf, 2, 0);
 
 BIND_III(yuiMinMax, 3, 0);
 
+BIND_EI(yeIsVectorLike, 2, 0);
+
 BIND_EI(ywMenuSliderFromEntryAt, 2, 0);
 BIND_EI(ywMapReset, 1, 1);
 

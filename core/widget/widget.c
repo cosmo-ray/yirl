@@ -364,6 +364,22 @@ int ywidColorFromString(const char *str, uint8_t *r, uint8_t *g,
 
 int ywidBgConfFill(Entity *entity, YBgConf *cfg)
 {
+	if (yeIsInt(entity)) {
+		uint32_t i = yeGetInt(entity);
+		cfg->type = BG_COLOR;
+		cfg->r = (i & 0xff);
+		cfg->g = ((i >> 8) & 0xff);
+		cfg->b = ((i >> 16) & 0xff);
+		cfg->a = 0xff;
+		return 0;
+	} else if (yeIsVectorLike(entity, 1)) {
+		cfg->type = BG_COLOR;
+		cfg->r = yeGetIntAt(entity, 0);
+		cfg->g = yeGetIntAt(entity, 1);
+		cfg->b = yeGetIntAt(entity, 2);
+		cfg->a = yeGetIntAt(entity, 3);
+		return 0;
+	}
 	char *str = (char *)yeGetString(entity);
 
 	cfg->type = BG_BUG;
