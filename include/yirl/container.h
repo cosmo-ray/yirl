@@ -15,6 +15,11 @@
 **along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+ * entity elem:
+ * cnt-type (STRING): "vertical" | "stack" | "stacking" (if not present, or somethign else is horizontal)
+ */
+
 #ifndef	_YIRL_CONTENER_H_
 #define	_YIRL_CONTENER_H_
 

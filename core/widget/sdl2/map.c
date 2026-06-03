@@ -74,7 +74,6 @@ static void sdl2PartialRender(YWidgetState *state, SDLWid *wid, Entity *entity)
 	  elem_get = yeReCreateArray(entity, "elem-get", NULL);
   ywMapGetSpriteSize(entity, &sizeSpriteW, &sizeSpriteH, &thresholdX);
 
-  printf("begx: %d wmap: %d wcam: %d\n", begX, wMap, wCam);
   if (begX < 0) {
 	  cptr_x = begX;
 	  begX = 0;
