@@ -687,6 +687,23 @@ KRK_Method(yent_krk_int_class, __lt__) {
 	return BOOLEAN_VAL(yeGetLongDirect(self->e) < second_i);
 }
 
+KRK_Method(yent_krk_int_class, __eq__) {
+	KrkValue second;
+	int second_i;
+	if (!krk_parseArgs(".V", (const char *[]){"second"}, &second)) {
+		DPRINT_ERR("krk error:");
+		krk_dumpTraceback();
+		return NONE_VAL();
+	}
+
+	if (IS_INTEGER(second)) {
+		second_i = AS_INTEGER(second);
+	} else {
+		second_i = yeGetLong(AS_yent_krk_class(second)->e);
+	}
+	return BOOLEAN_VAL(yeGetLongDirect(self->e) == second_i);
+}
+
 KRK_Method(yent_krk_int_class, __le__) {
 	KrkValue second;
 	int second_i;
@@ -1312,6 +1329,7 @@ static int init(void *sm, void *args)
 	BIND_METHOD(yent_krk_int_class, __add__);
 	BIND_METHOD(yent_krk_int_class, __mul__);
 	BIND_METHOD(yent_krk_int_class, __truediv__);
+	BIND_METHOD(yent_krk_int_class, __eq__);
 	BIND_METHOD(yent_krk_int_class, __lt__);
 	BIND_METHOD(yent_krk_int_class, __gt__);
 	BIND_METHOD(yent_krk_int_class, __le__);
