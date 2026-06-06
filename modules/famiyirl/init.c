@@ -387,48 +387,23 @@ static void atari_pf_show_block(int pix_per_pix_x, int pix_per_pix_y, int cur, i
 {
 	int bit = bcheck & v;
 	if (bit) {
+		uint8_t col_p0 = (tia.ctrlpf & 0x02) ? tia.col_p[0] : tia.col_playfield;
+		uint8_t col_p1 = (tia.ctrlpf & 0x02) ? tia.col_p[1] : tia.col_playfield;
 		ywCanvasMergeRectangle(main_canvas, pf_add * pix_per_pix_x,
 				       ATARI_SCREEN_THRESHOLD_Y + (cur - 40) * pix_per_pix_y,
 				       pix_per_pix_x * 4, pix_per_pix_y,
-				       atari_get_color(tia.col_playfield));
+				       atari_get_color(col_p0));
 		ywCanvasMergeRectangle(main_canvas, 160 * pix_per_pix_x - pf_add * pix_per_pix_x - 4 * pix_per_pix_x,
 				       ATARI_SCREEN_THRESHOLD_Y + (cur - 40) * pix_per_pix_y,
 				       pix_per_pix_x * 4, pix_per_pix_y,
-				       atari_get_color(tia.col_playfield));
+				       atari_get_color(col_p1));
 
-	}	
+	}
 }
 
-static void atari_do_scan_line(void)
+static void atari_pf(int pix_per_pix_x, int pix_per_pix_y, int cur)
 {
-	if (tia.vblank_mode)
-		return;
-	int cur = atari_curent_scane_line();
-	int pix_per_pix_x = wid_width / 160;
-	int pix_per_pix_y = wid_height / 192;
 	int pf_add = 0;
-	if (cur < 40) {
-		/* in blank */
-		return;
-	}
-	if (cur > 232)
-		return;
-	ywCanvasMergeRectangle(main_canvas, 0,
-			       ATARI_SCREEN_THRESHOLD_Y + (cur - 40) * pix_per_pix_y,
-			       160 * pix_per_pix_x, pix_per_pix_y,
-			       atari_get_color(tia.col_bg));
-	if (tia.gr_p0 || tia.enam0) {
-		atari_show_player(0, tia.gr_p0, cur);
-	}
-	if (tia.gr_p1 || tia.enam1) {
-		atari_show_player(1, tia.gr_p1, cur);
-	}
-	if (tia.enabl & 0x02) {
-		ywCanvasMergeRectangle(main_canvas, tia.ball_p * pix_per_pix_x,
-				       ATARI_SCREEN_THRESHOLD_Y + (cur - 40) * pix_per_pix_y,
-				       pix_per_pix_x, pix_per_pix_y,
-				       atari_get_color(tia.col_playfield));
-	}
 	if (tia.pf[0] || tia.pf[1] || tia.pf[2]) {
 		unsigned int v = tia.pf[0] & 0xf0;
 
@@ -455,6 +430,45 @@ static void atari_do_scan_line(void)
 			v &= 0xff;
 		}
 	}
+
+}
+
+static void atari_do_scan_line(void)
+{
+	if (tia.vblank_mode)
+		return;
+	int cur = atari_curent_scane_line();
+	int pix_per_pix_x = wid_width / 160;
+	int pix_per_pix_y = wid_height / 192;
+	if (cur < 40) {
+		/* in blank */
+		return;
+	}
+	if (cur > 232)
+		return;
+	ywCanvasMergeRectangle(main_canvas, 0,
+			       ATARI_SCREEN_THRESHOLD_Y + (cur - 40) * pix_per_pix_y,
+			       160 * pix_per_pix_x, pix_per_pix_y,
+			       atari_get_color(tia.col_bg));
+
+	if (tia.ctrlpf & 0x04)
+		atari_pf(pix_per_pix_x, pix_per_pix_y, cur);
+
+
+	if (tia.gr_p0 || tia.enam0) {
+		atari_show_player(0, tia.gr_p0, cur);
+	}
+	if (tia.gr_p1 || tia.enam1) {
+		atari_show_player(1, tia.gr_p1, cur);
+	}
+	if (tia.enabl & 0x02) {
+		ywCanvasMergeRectangle(main_canvas, tia.ball_p * pix_per_pix_x,
+				       ATARI_SCREEN_THRESHOLD_Y + (cur - 40) * pix_per_pix_y,
+				       pix_per_pix_x, pix_per_pix_y,
+				       atari_get_color(tia.col_playfield));
+	}
+	if (!(tia.ctrlpf & 0x04))
+		atari_pf(pix_per_pix_x, pix_per_pix_y, cur);
 }
 
 int set_mem_atari(uint16_t addr, char val)
