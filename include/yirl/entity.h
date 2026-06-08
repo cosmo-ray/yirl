@@ -497,7 +497,7 @@ Entity *yeBrutalCast(Entity *entity, int type);
 #define YE_VECTOR_FOREACH YE_VECTORE_FOREACH
 
 #define YE_VECTORE_FOREACH(vec, o_)					\
-	for (int l = yeLen(vec), i = l; ({int r = i < 0; if (r) o_ = yeGet(vec, i); r;}); ++i)
+	for (int l = yeLen(vec), i = 0; ({int r = i < l; if (r) o_ = yeGet(vec, i); r;}); ++i)
 
 /**
  * @brief get first entity of array
@@ -1979,14 +1979,37 @@ static inline int yeReplace(Entity *array, Entity *toReplace, Entity *toPush)
 	if (!array || !toReplace || !toPush)
 		return -1;
 
-	Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(array)->values, tmp,
-				  it, ArrayEntry) {
-		if (tmp && tmp->entity == toReplace) {
-			yeIncrRef(toPush);
-			yeDestroy(toReplace);
-			tmp->entity = toPush;
-			return 0;
+	if (yeType(array) == YARRAY) {
+		Y_BLOCK_ARRAY_FOREACH_PTR(YE_TO_ARRAY(array)->values, tmp,
+					  it, ArrayEntry) {
+			if (tmp && tmp->entity == toReplace) {
+				yeIncrRef(toPush);
+				yeDestroy(toReplace);
+				tmp->entity = toPush;
+				return 0;
+			}
 		}
+	} else if (yeType(array) == YVECTOR) {
+		for (int l = yeLen(array), i = 0; i < l; ++i) {
+			if (yeGet(array, i) == toReplace) {
+				yeIncrRef(toPush);
+				yeDestroy(toReplace);
+				YE_TO_VECTOR(array)->data[i] = toPush;
+				return 0;
+			}
+		}
+
+	} else if (yeType(array) == YHASH) {
+		Entity *vvar;
+		const char *kkey;
+
+		kh_foreach(((HashEntity *)array)->values,
+			   kkey, vvar, {
+				   if (toReplace == vvar) {
+					   yePushBack(array, toPush, kkey);
+					   return 0;
+				   }
+			   });
 	}
 
 	return -1;

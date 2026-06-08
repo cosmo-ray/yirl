@@ -1257,6 +1257,7 @@ Entity *yeRemoveChildByEntity(Entity *array, Entity *toRemove)
 			if (kh_exist(h, k) && kh_value(h, k) == toRemove) {
 				Entity *to_destroy = kh_val(h, k);
 
+				free((char *)kh_key(h, k));
 				yeDestroy(to_destroy);
 				kh_del(entity_hash, h, k);
 				return to_destroy;
@@ -1347,6 +1348,7 @@ Entity *yeRemoveChildByStr(Entity *array, const char *toRemove)
 		Entity *to_destroy = kh_val(hon->values, iterator);
 
 		yeDestroy(to_destroy);
+		free((char *)kh_key(hon->values, iterator));
 		kh_del(entity_hash, hon->values, iterator);
 	} else if (array->type != YARRAY) {
 		DPRINT_ERR("bad argument 1 of type '%s', should be array/hash\n",
