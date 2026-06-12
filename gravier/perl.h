@@ -482,7 +482,7 @@ static inline void newXS(const char *oname,
 			 int (*nat_func)(struct sym *func_sym, int items),
 			 const char *file)
 {
-	char *namespace = strstr(oname, "::");
+	const char *namespace = strstr(oname, "::");
 	int ret = 0;
 	if (!namespace)
 		return;
@@ -642,15 +642,15 @@ static inline int call_pv(const char *str, int flag)
 	if (!str)
 		return -1;
 
-	char *namespace = strstr(str, "::");
+	const char *namespace = strstr(str, "::");
 	struct file * cur_pkg = cur_pi->cur_pkg;
 	const char *name = str;
 
 	if (namespace) {
 		name = namespace + 2;
-		namespace = gr_strndup(str, namespace - str);
-		khiter_t iterator = kh_get(file_list, cur_pi->files, namespace);
-		free(namespace);
+		char *tmp_namespace = gr_strndup(str, namespace - str);
+		khiter_t iterator = kh_get(file_list, cur_pi->files, tmp_namespace);
+		free(tmp_namespace);
 		khiter_t end = kh_end(cur_pi->files);
 
 		if (iterator == end)
@@ -2228,7 +2228,7 @@ static int perl_parse(PerlInterpreter * my_perl, void (*xs_init)(void *stuff), i
 		fprintf(stderr, "perl_parse: cannot open/stat '%s'", file_name);
 		return -1;
 	}
-	char *dir = strrchr(file_name, GR_PATH_SEPARATOR);
+	const char *dir = strrchr(file_name, GR_PATH_SEPARATOR);
 	if (dir) {
 		if (dir - file_name + 1 > 2048) {
 			fprintf(stderr, "perl_parse: path too long for %s\n", file_name);
