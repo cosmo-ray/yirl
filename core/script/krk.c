@@ -952,7 +952,12 @@ KRK_Method(yent_krk_array_class, __setitem__) {
 		if (IS_INTEGER(val)) {
 			yeReCreateLong(AS_INTEGER(val), self->e, k);
 		} else if (IS_yent_krk_class(val)) {
-			yeReplaceBack(self->e, AS_yent_krk_class(val)->e, k);
+			Entity *e = AS_yent_krk_class(val)->e;
+			if (yeType(e) == YINT) {
+				yeReCreateLong(yeGetLong(e), self->e, k);
+			} else {
+				yeReplaceBack(self->e, AS_yent_krk_class(val)->e, k);
+			}
 		} else if (IS_NATIVE(val) | IS_CLOSURE(val)) {
 			if (yeGet(self->e, k))
 				yeRemoveChild(self->e, k);
@@ -1002,7 +1007,12 @@ KRK_Method(yent_krk_hash_class, __setitem__) {
 	if (IS_INTEGER(val)) {
 		yeReCreateLong(AS_INTEGER(val), self->e, key);
 	} else if (IS_yent_krk_class(val)) {
-		yeReplaceBack(self->e, AS_yent_krk_class(val)->e, key);
+		Entity *e = AS_yent_krk_class(val)->e;
+		if (yeType(e) == YINT) {
+			yeReCreateLong(yeGetLong(e), self->e, key);
+		} else {
+			yeReplaceBack(self->e, e, key);
+		}
 	} else if (IS_NATIVE(val) | IS_CLOSURE(val)) {
 		if (yeGet(self->e, key))
 			yeRemoveChild(self->e, key);
