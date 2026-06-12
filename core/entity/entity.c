@@ -371,7 +371,7 @@ NO_SIDE_EFFECT char *yeLastKey(Entity *array)
  */
 NO_SIDE_EFFECT static inline int findIdxPoint(const char *name)
 {
-	char *res = strchr(name, '.');
+	const char *res = strchr(name, '.');
 	return (res == NULL)
 		? -1
 		: res - name;

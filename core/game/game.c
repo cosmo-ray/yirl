@@ -874,7 +874,7 @@ Entity *ygLoadMod(const char *path)
 	  name = yeGet(mod, "Name");
 
 	if (!name) {
-		char *last_slash = strrchr(path, PATH_SEPARATOR);
+		const char *last_slash = strrchr(path, PATH_SEPARATOR);
 		int short_end = 0;
 
 		if (!last_slash) {
