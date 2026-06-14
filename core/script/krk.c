@@ -829,7 +829,9 @@ KRK_Method(yent_krk_hash_class, __len__) {
 	return INTEGER_VAL(yeLen(self->e));
 }
 
-KRK_Method(yent_krk_hash_class, items) {
+
+static KrkValue make_items(struct YKrkEntity* self)
+{
 	KrkValue ret = krk_list_of(0, NULL, 0);
 
 	Entity *child;
@@ -843,12 +845,22 @@ KRK_Method(yent_krk_hash_class, items) {
 
 		tup->values.values[0] = key_val;
 		tup->values.values[1] = child_val;
+		tup->values.count = 2;
 
 		krk_writeValueArray(AS_LIST(ret), OBJECT_VAL(tup));
 
 	}
 
 	return ret;
+
+}
+
+KRK_Method(yent_krk_hash_class, items) {
+	return make_items(self);
+}
+
+KRK_Method(yent_krk_array_class, items) {
+	return make_items(self);
 }
 
 
@@ -1406,6 +1418,7 @@ static int init(void *sm, void *args)
 	BIND_METHOD(yent_krk_array_class, __getitem__);
 	BIND_METHOD(yent_krk_array_class, __setitem__);
 	BIND_METHOD(yent_krk_array_class, __len__);
+	BIND_METHOD(yent_krk_array_class, items);
 	BIND_METHOD(yent_krk_array_class, append);
 	krk_finalizeClass(yent_krk_array_class);
 
