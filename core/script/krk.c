@@ -829,6 +829,29 @@ KRK_Method(yent_krk_hash_class, __len__) {
 	return INTEGER_VAL(yeLen(self->e));
 }
 
+KRK_Method(yent_krk_hash_class, items) {
+	KrkValue ret = krk_list_of(0, NULL, 0);
+
+	Entity *child;
+	for (struct EntityIterator it = yeIteratorInit(self->e);
+	     (child = yeIteratorGet(&it)) != NULL;
+	     yeIteratorStep(&it)) {
+		const char *key = yeIteratorKey(&it);
+		KrkValue key_val = OBJECT_VAL(krk_copyString(key, strlen(key)));
+		KrkValue child_val = make_ent(child);
+		KrkTuple *tup = krk_newTuple(2);
+
+		tup->values.values[0] = key_val;
+		tup->values.values[1] = child_val;
+
+		krk_writeValueArray(AS_LIST(ret), OBJECT_VAL(tup));
+
+	}
+
+	return ret;
+}
+
+
 KRK_Method(yent_krk_array_class, __contains__) {
 	const char *str;
 
@@ -1394,6 +1417,7 @@ static int init(void *sm, void *args)
 	BIND_METHOD(yent_krk_hash_class, __getitem__);
 	BIND_METHOD(yent_krk_hash_class, __setitem__);
 	BIND_METHOD(yent_krk_hash_class, __len__);
+	BIND_METHOD(yent_krk_hash_class, items);
 	krk_finalizeClass(yent_krk_hash_class);
 
 	yent_krk_vector_class = krk_makeClass(this->module, &yent_krk_vector_class, "VectorEntity",
