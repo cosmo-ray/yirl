@@ -650,6 +650,10 @@ KRK_Method(yent_krk_str_class, __contains__) {
 	return BOOLEAN_VAL(!!strstr(first, second_s));
 }
 
+KRK_Method(yent_krk_int_class, i) {
+	return INTEGER_VAL(yeGetInt(self->e));
+}
+
 KRK_Method(yent_krk_int_class, __mul__) {
 	int i;
 	if (!krk_parseArgs(".i", (const char *[]){"int"}, &i)) {
@@ -1362,6 +1366,7 @@ static int init(void *sm, void *args)
 	BIND_METHOD(yent_krk_int_class, __gt__);
 	BIND_METHOD(yent_krk_int_class, __le__);
 	BIND_METHOD(yent_krk_int_class, __ge__);
+	BIND_METHOD(yent_krk_int_class, i);
 	krk_finalizeClass(yent_krk_int_class);
 
 	yent_krk_float_class = krk_makeClass(this->module, &yent_krk_float_class, "FloatEntity",
