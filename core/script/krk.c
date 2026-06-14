@@ -825,6 +825,24 @@ KRK_Method(yent_krk_hash_class, __len__) {
 	return INTEGER_VAL(yeLen(self->e));
 }
 
+KRK_Method(yent_krk_array_class, __contains__) {
+	const char *str;
+
+	if (!krk_parseArgs(".s", (const char *[]){"key"}, &str))
+		return NONE_VAL();
+
+	return BOOLEAN_VAL(!!yeGet(self->e, str));
+}
+
+KRK_Method(yent_krk_hash_class, __contains__) {
+	const char *str;
+
+	if (!krk_parseArgs(".s", (const char *[]){"key"}, &str))
+		return NONE_VAL();
+
+	return BOOLEAN_VAL(!!yeGet(self->e, str));
+}
+
 KRK_Method(yent_krk_array_class, __getitem__) {
 	KrkValue v;
 	Entity *eret = NULL;
@@ -1356,6 +1374,7 @@ static int init(void *sm, void *args)
 					     yent_krk_class);
 	yent_krk_class->allocSize = sizeof(struct YKrkEntity);
 	BIND_METHOD(yent_krk_array_class, __init__);
+	BIND_METHOD(yent_krk_array_class, __contains__);
 	BIND_METHOD(yent_krk_array_class, __getitem__);
 	BIND_METHOD(yent_krk_array_class, __setitem__);
 	BIND_METHOD(yent_krk_array_class, __len__);
@@ -1366,6 +1385,7 @@ static int init(void *sm, void *args)
 					    yent_krk_class);
 	yent_krk_class->allocSize = sizeof(struct YKrkEntity);
 	BIND_METHOD(yent_krk_hash_class, __init__);
+	BIND_METHOD(yent_krk_hash_class, __contains__);
 	BIND_METHOD(yent_krk_hash_class, __getitem__);
 	BIND_METHOD(yent_krk_hash_class, __setitem__);
 	BIND_METHOD(yent_krk_hash_class, __len__);

@@ -424,6 +424,7 @@ BIND_EE(ywCanvasRemoveObj, 2, 0);
 BIND_NONE(yeIncrAt, 2, 0);
 BIND_NONE(yeAddAt, 3, 0);
 BIND_EE(yeAddEnt, 2, 0);
+BIND_EE(yeSubEnt, 2, 0);
 
 BIND_EI(yeAddInt, 2, 0);
 
