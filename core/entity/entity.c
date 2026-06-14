@@ -264,6 +264,18 @@ struct EntityIterator yeIteratorInit(Entity e[static 1])
 	return ret;
 }
 
+const char *yeIteratorKey(struct EntityIterator it[static 1])
+{
+	if (yeIsHash(it->e)) {
+		HashEntity *hon = (void *)it->e;
+		return kh_key(hon->values, it->kh_it);
+	}
+	else if (yeIsArray(it->e)) {
+		return yBlockArrayIteratorGetPtr(it->it, ArrayEntry)->name;
+	}
+	return NULL;
+}
+
 Entity *yeIteratorGet(struct EntityIterator it[static 1])
 {
 	if (yeIsArray(it->e)) {
@@ -281,8 +293,10 @@ Entity *yeIteratorGet(struct EntityIterator it[static 1])
 	recheck:
 		if (it->kh_it == kh_end(h))
 			return NULL;
-		if (!kh_exist(h, it->kh_it))
+		if (!kh_exist(h, it->kh_it)) {
+			++it->kh_it;
 			goto recheck;
+		}
 		return kh_val(hon->values, it->kh_it);
 	}
 	return NULL;
