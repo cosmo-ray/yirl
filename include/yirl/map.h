@@ -92,6 +92,11 @@ static inline int ywMapW(Entity *state)
 
 static inline int ywMapH(Entity *state)
 {
+  int l = ywMapLen(state);
+  if (!l) {
+    DPRINT_ERR("can't retrive len\n");
+    return 0;
+  }
   return ywMapLen(state) / ywMapW(state);
 }
 

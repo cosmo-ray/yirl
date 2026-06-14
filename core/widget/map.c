@@ -186,7 +186,7 @@ static int mapInitCheckResources(Entity *resources)
 {
 	Entity *firstELem = yeGet(resources, 0);
 
-	if ((yeType(resources) != YARRAY) || yeType(resources) != YVECTOR ||
+	if ((yeType(resources) != YARRAY && yeType(resources) != YVECTOR) ||
 	    !yeLen(resources)) {
 		DPRINT_ERR("can retrive ressources");
 		return -1;
