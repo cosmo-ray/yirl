@@ -336,6 +336,8 @@ NO_SIDE_EFFECT static inline EntityType yeTypeNoCheck(const Entity entity[static
 
 struct EntityIterator yeIteratorInit(Entity e[static 1]);
 
+const char *yeIteratorKey(struct EntityIterator it[static 1]);
+
 Entity *yeIteratorGet(struct EntityIterator it[static 1]);
 
 void yeIteratorStep(struct EntityIterator it[static 1]);
@@ -1692,6 +1694,31 @@ static inline int yeAddStr(Entity *e, const char *str)
 	}
 }
 
+static inline int yeAddEnt(Entity *e, Entity *e2);
+
+static int yeAddEntContainer(Entity *e, Entity *e2)
+{
+	switch (yeType(e)) {
+	case YHASH:
+	case YARRAY:
+	{
+		Entity *child;
+		for (struct EntityIterator it = yeIteratorInit(e);
+		     (child = yeIteratorGet(&it)) != NULL; yeIteratorStep(&it)) {
+			const char *k = yeIteratorKey(&it);
+			Entity *other_child = yeGet(e2, k);
+			if (!other_child)
+				continue;
+			yeAddEnt(child, other_child);
+		}
+		break;
+	}
+	default:
+		return -1;
+	}
+	return 0;
+}
+
 static inline int yeAddEnt(Entity *e, Entity *e2)
 {
 	/* yeToCStr add a \n and do pretty stuff which can be buggy */
@@ -1705,8 +1732,13 @@ static inline int yeAddEnt(Entity *e, Entity *e2)
 	switch (yeType(e2)) {
 	case YINT:
 		return yeAddInt(e, yeGetInt(e2));
+	case YFLOAT:
+		return yeAddFloat(e, YE_TO_FLOAT(e2)->value);
 	case YSTRING:
 		return yeAddStr(e, yeGetString(e2));
+	case YHASH:
+	case YARRAY:
+		return yeAddEntContainer(e, e2);
 	default :
 		return -1;
 	}
@@ -1755,6 +1787,16 @@ static inline int yeSubInt(Entity *e, int i)
 	case YFLOAT:
 		YE_TO_FLOAT(e)->value -= i;
 		return 0;
+	case YHASH:
+	case YARRAY:
+	case YVECTOR:
+	{
+		Entity *c;
+		YE_FOREACH(e, c) {
+			yeSubInt(c, i);
+		}
+		return 0;
+	}
 	default :
 		return -1;
 	}
@@ -1779,11 +1821,41 @@ static inline int yeSubEntInt(Entity *e, IntEntity *ie)
 	return yeSubInt(e, yeGetInt(YE_TO_ENTITY(ie)));
 }
 
+static inline int yeSubEnt(Entity *e, Entity *e2);
+
+static int yeSubEntContainer(Entity *e, Entity *e2)
+{
+	switch (yeType(e)) {
+	case YHASH:
+	case YARRAY:
+	{
+		Entity *child;
+		for (struct EntityIterator it = yeIteratorInit(e);
+		     (child = yeIteratorGet(&it)) != NULL; yeIteratorStep(&it)) {
+			const char *k = yeIteratorKey(&it);
+			Entity *other_child = yeGet(e2, k);
+			if (!other_child)
+				continue;
+			yeSubEnt(child, other_child);
+		}
+		break;
+	}
+	default:
+		return -1;
+	}
+	return 0;
+}
+
 static inline int yeSubEnt(Entity *e, Entity *e2)
 {
 	switch (yeType(e2)) {
+	case YHASH:
+	case YARRAY:
+		return yeSubEntContainer(e, e2);
 	case YINT:
 		return yeSubEntInt(e, YE_TO_INT(e2));
+	case YFLOAT:
+		return yeAddFloat(e, -YE_TO_FLOAT(e2)->value);
 	default :
 		return -1;
 	}
