@@ -20,3 +20,6 @@
 [submodule "kuroko"]
 	path = kuroko
 	url = https://github.com/kuroko-lang/kuroko.git
+[submodule "quickjs"]
+	path = quickjs-2020-03-16
+	url = https://github.com/cosmo-ray/quickjs.git

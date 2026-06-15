@@ -149,7 +149,7 @@ sdl-gpu-build:
 	bash -c "$(EMCMAKE) cmake -B ./sdl-gpu-build ./sdl-gpu/ $(CMAKE_ARGS)"
 
 $(QUICKJS_PATH):
-	git clone https://github.com/cosmo-ray/quickjs.git quickjs-$(QUICKJS_V)
+	git submodule update --init
 
 $(QUICKJS_LIB_PATH): $(QUICKJS_PATH)
 	CONFIG_FPIC=1 $(EMMAKE) make -C $(QUICKJS_PATH) libquickjs.a
