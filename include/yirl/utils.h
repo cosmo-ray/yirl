@@ -58,6 +58,8 @@ static inline char* stpcpy(char *dest, const char *src)
 	return dest;
 }
 
+#if __STDC_VERSION__ < 202311L
+
 static char *strndup(const char *str, size_t chars)
 {
     char *buffer;
@@ -72,6 +74,8 @@ static char *strndup(const char *str, size_t chars)
 
     return buffer;
 }
+
+#endif
 
 #define PATH_SEPARATOR '\\'
 #define PATH_SEPARATOR_STR "\\"

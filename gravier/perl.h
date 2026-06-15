@@ -323,7 +323,9 @@ static inline void XPUSHs(struct stack_val val)
 
 typedef intptr_t IV;
 
+#ifndef EXTERN_C
 #define EXTERN_C
+#endif
 
 KHASH_MAP_INIT_STR(file_list, struct file *);
 KHASH_MAP_INIT_STR(func_syms, struct sym *);
