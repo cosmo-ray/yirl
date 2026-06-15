@@ -58,7 +58,7 @@ static inline char* stpcpy(char *dest, const char *src)
 	return dest;
 }
 
-#if __STDC_VERSION__ < 202311L
+#if !defined(HAVE_STRNDUP)
 
 static char *strndup(const char *str, size_t chars)
 {

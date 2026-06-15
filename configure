@@ -108,6 +108,20 @@ for arg in $args; do
 
 done
 
+function check_strndup {
+    echo "#include <string.h>
+int main(void) { char *p = strndup(\"test\", 4); return 0; }" > /tmp/strndup_test.c
+    ${CC:-gcc} /tmp/strndup_test.c -o /tmp/strndup_test 2>/dev/null
+    if [ $? -eq 0 ]; then
+        echo "HAVE_STRNDUP=1" >> config.mk
+        echo "COMMON_CFLAGS+=-DHAVE_STRNDUP=1" >> config.mk
+        echo "strndup found, defining HAVE_STRNDUP"
+    else
+        echo "strndup not found, using built-in fallback"
+    fi
+    rm -f /tmp/strndup_test /tmp/strndup_test.c
+}
+
 add_toolchain mingw-i686
 function mingw-i686 {
     export TCC_LIB_NAME="libtcc.a"
@@ -122,6 +136,7 @@ function mingw-i686 {
     export WIN_SDL_EXTRA="opus vorbis libmpg123 opusfile vorbisfile libmodplug msmpi fluidsynth"
     export WIN_SDL_EXTRA2="-lfreeglut -lopengl32 -lFLAC -lwinmm"
     var_add BIN_EXT .exe
+    check_strndup
 }
 
 add_toolchain mingw-64
@@ -142,6 +157,7 @@ function mingw-64 {
     export PERL_CFLAGS="-DPERL_ENABLE=1 -Igravier/"
     export KRK_CC=/mingw64/bin/gcc
     var_add BIN_EXT .exe
+    check_strndup
 }
 
 add_toolchain ubuntu
