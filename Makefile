@@ -174,7 +174,7 @@ $(SCRIPT_DIR)/krk.o: kuroko/libkuroko.a $(SCRIPT_DIR)/krk.c
 
 
 $(SCRIPT_DIR)/perl.o: $(PERL_SRC)
-	$(CC) -c -o $(SCRIPT_DIR)/perl.o $(SCRIPT_DIR)/perl.c -g $(PERL_CFLAGS) -I$(YIRL_INCLUDE_PATH2) $(EMCFLAGS) -fPIC
+	$(CC) -c -o $(SCRIPT_DIR)/perl.o $(SCRIPT_DIR)/perl.c -g $(NEEDED_CFLAGS) $(PERL_CFLAGS) -I$(YIRL_INCLUDE_PATH2) $(EMCFLAGS) -fPIC
 
 SDL_mixer/:
 	git submodule update --init

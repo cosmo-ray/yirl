@@ -103,7 +103,7 @@ function define_add {
     eval "echo \$$1" >>  config.mk
     echo -n "KRK_CFLAGS+=-D$1=" >> config.mk
     eval "echo \$$1" >>  config.mk
-    echo -n "PERL_CFLAGS+=-D$1=" >> config.mk
+    echo -n "NEEDED_CFLAGS+=-D$1=" >> config.mk
     eval "echo \$$1" >>  config.mk
 }
 
