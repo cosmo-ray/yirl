@@ -100,7 +100,9 @@ function define_add {
     echo -n "add define: "
     var_add $1 $2
     echo -n "COMMON_CFLAGS+=-D$1=" >> config.mk
+    eval "echo \$$1" >>  config.mk
     echo -n "KRK_CFLAGS+=-D$1=" >> config.mk
+    eval "echo \$$1" >>  config.mk
     echo -n "PERL_CFLAGS+=-D$1=" >> config.mk
     eval "echo \$$1" >>  config.mk
 }
