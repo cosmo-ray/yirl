@@ -60,6 +60,16 @@ const TYPE_OBJ = 6
 const TYPE_BOSS = 7
 const TYPE_BREAKABLE_BLOCK = 8
 const TYPE_LIGHT_FLOOR = 9
+const TYPE_MOVING_PLATFORM = 10
+
+const PLATFORM_CHARS = "~<>"
+
+const PLATFORM_CHAR = 0
+const PLATFORM_MOVER = 1
+const PLATFORM_ORIGIN = 2
+const PLATFORM_OLD_POS = 3
+const PLATFORM_CONF = 4
+const PLATFORM_CANVAS_OBJ = 5
 
 const BOSS_OBJ = 0
 const BOSS_MOVER = 1
@@ -73,6 +83,7 @@ const KEYDOWN_SPACE = 1 << 3
 const CANVAS_OBJ_IDX = YCANVAS_UDATA_IDX + 1
 
 const CANVAS_MONSTER_IDX = YCANVAS_UDATA_IDX + 1
+const CANVAS_PLATFORM_IDX = YCANVAS_UDATA_IDX + 1
 
 const OBJECT_CANEL = 5
 const OBJECT_MOVER = 6
@@ -483,9 +494,38 @@ function print_all(wid)
     yGenericUsePos(pc_handler, pc_pos)
     yePushAt2(pc_canel, pc_handler, PC_HANDLER_OBJ)
 
-    monsters.forEach(function(mon, idx) {
-	yamap_generate_monster_canvasobj(wid, textures, mon, monsters_info, idx)
-    })
+    {
+	let idx = 0
+	for (mon of monsters) {
+	    yamap_generate_monster_canvasobj(wid, textures, mon, monsters_info, idx)
+	    idx++
+	}
+    }
+    let platforms = wid.get("_platforms")
+    if (platforms) {
+	let plat_idx = 0
+	for (plat of platforms) {
+	    let conf = plat.get(PLATFORM_CONF)
+	    let render_info = conf.get("render")
+	    let rect = conf.get("rect")
+	    let w = SPRITE_SIZE, h = Math.floor(SPRITE_SIZE / 2)
+	    let ox = 0, oy = 0
+	    if (rect) {
+		if (yeLen(rect) > 2) {
+		    ox = yeGetIntAt(rect, 0)
+		    oy = yeGetIntAt(rect, 1)
+		}
+		w = yeGetIntAt(rect, yeLen(rect) - 2)
+		h = yeGetIntAt(rect, yeLen(rect) - 1)
+	    }
+	    let pos = plat.get(PLATFORM_ORIGIN)
+	    let canvas = show_block(render_info, ywPosX(pos) + ox, ywPosY(pos) + oy, w, h)
+	    yeCreateIntAt(TYPE_MOVING_PLATFORM, canvas, "amap-t", YCANVAS_UDATA_IDX)
+	    yeCreateIntAt(plat_idx, canvas, "plat-idx", CANVAS_PLATFORM_IDX)
+	    plat.setAt(PLATFORM_CANVAS_OBJ, canvas)
+	    plat_idx++
+	}
+    }
     print_life(wid, pc, pc_canel)
 }
 
@@ -534,6 +574,7 @@ function amap_action(wid, events)
     }
     let have_upkey = -1
     let pc_handler = yeGet(pc_canel, PC_HANDLER_OBJ)
+    let ride_mv_x = 0
 
     let on = wid.get("on")
     if (on) {
@@ -920,6 +961,42 @@ function amap_action(wid, events)
 	}
     }
 
+    let platforms = wid.get("_platforms")
+    if (platforms) {
+	// move all platform
+	for (plat of platforms) {
+	    let canvas = plat.get(PLATFORM_CANVAS_OBJ)
+	    if (!canvas)
+		continue
+	    let old_pos = plat.get(PLATFORM_OLD_POS)
+	    let cur_pos = ywCanvasObjPos(canvas)
+	    ywPosSet(old_pos, cur_pos)
+	    let mover = plat.get(PLATFORM_MOVER)
+	    y_move_obj(canvas, mover, turn_timer)
+	    let conf = plat.get(PLATFORM_CONF)
+	    let dist = conf.geti("distance")
+	    if (dist > 0) {
+		let origin = plat.get(PLATFORM_ORIGIN)
+		let dx = ywPosX(cur_pos) - ywPosX(origin)
+		if (dx > dist) {
+		    y_move_undo_x(cur_pos, mover)
+		    y_move_set_xspeed(mover, -Math.abs(y_move_x_speed(mover)))
+		} else if (dx < -dist) {
+		    y_move_undo_x(cur_pos, mover)
+		    y_move_set_xspeed(mover, Math.abs(y_move_x_speed(mover)))
+		}
+		let dy = ywPosY(cur_pos) - ywPosY(origin)
+		if (dy > dist) {
+		    y_move_undo_y(cur_pos, mover)
+		    y_move_set_yspeed(mover, -Math.abs(y_move_y_speed(mover)))
+		} else if (dy < -dist) {
+		    y_move_undo_y(cur_pos, mover)
+		    y_move_set_yspeed(mover, Math.abs(y_move_y_speed(mover)))
+		}
+	    }
+	}
+    }
+
     let movable_objs = mi.get("move_objs")
     if (movable_objs) {
 	let objs = yeGet(mi, "objs");
@@ -974,7 +1051,7 @@ function amap_action(wid, events)
     let need_pc_refresh = false
     //yePrint(cols)
     if (cols) {
-	cols.forEach(function(c) {
+	for (c of cols) {
 	    let ctype = yeGetIntAt(c, YCANVAS_UDATA_IDX)
 
 	    if (ctype == TYPE_OBJ) {
@@ -992,7 +1069,7 @@ function amap_action(wid, events)
 
 		    if (ret == 1) {
 			direct_ret = true
-			return true
+			break
 		    }
 		    if (ret == 2) {
 			const idx = c.geti("objidx")
@@ -1011,7 +1088,15 @@ function amap_action(wid, events)
 		}
 		if (pc_canel.getf(PC_DROPSPEED_IDX) < 0)
 		    yeSetFloatAt(pc_canel, PC_DROPSPEED_IDX, 0)
-		return false;
+	    } else if (ctype == TYPE_MOVING_PLATFORM) {
+		let obj_pos = ywCanvasObjPos(c)
+		if (pc_canel.getf(PC_DROPSPEED_IDX) >= 0 &&
+		    (ywPosY(old_pos) + SPRITE_SIZE) <= ywPosY(obj_pos)) {
+		    stop_fall = true
+		    let plat_idx = yeGetIntAt(c, CANVAS_PLATFORM_IDX)
+		    let plat = yeGet(platforms, plat_idx)
+		    ride_mv_x += ywPosX(obj_pos) - ywPosX(plat.get(PLATFORM_OLD_POS))
+		}
 	    } else if (ctype == TYPE_PIKE || ctype == TYPE_MONSTER || ctype == TYPE_BOSS) {
 		if (ywCanvasObjectsCheckColisions(c, pc_canvas_obj)) {
 		    if (ctype == TYPE_PIKE || ctype == TYPE_MONSTER || ctype == TYPE_BOSS) {
@@ -1030,7 +1115,6 @@ function amap_action(wid, events)
 			}
 		    }
 		}
-		return false;
 	    } else if (ctype != TYPE_ANIMATION && ctype != TYPE_PUNCH) {
 		let obj_pos = ywCanvasObjPos(c)
 		let obj_size = ywCanvasObjSize(wid, c)
@@ -1053,7 +1137,7 @@ function amap_action(wid, events)
 		    }
 		}
 	    }
-	})
+	}
 	if (need_pc_refresh)
 	    yGenericHandlerRefresh(pc_handler)
 	yeDestroy(cols)
@@ -1068,11 +1152,13 @@ function amap_action(wid, events)
 	yeSetIntAt(pc_canel, PC_JMP_NUMBER, 0);
 	yeSetFloatAt(pc_canel, PC_DROPSPEED_IDX, 0);
     }
+    if (ride_mv_x)
+	ywPosAddXY(pc_pos, ride_mv_x, 0)
     print_life(wid, pc, pc_canel)
     move_punch(wid, pc_canel, turn_timer)
-    monsters.forEach(function(c, idx) {
+    for (c of monsters) {
 	if (!c)
-	    return;
+	    continue;
 
 	let tuple = yeCreateArray()
 	let mon_key = yeGetStringAt(c, 0)
@@ -1093,14 +1179,14 @@ function amap_action(wid, events)
 		}
 	    }
 	    if (ret) {
-		return;
+		continue;
 	    }
 	}
 
 	yePushBack(tuple, c)
 	yeCreateInt(turn_timer, tuple)
 	ywidActions(wid, mon_info, tuple)
-    })
+    }
 
     let monsters_hurt = wid.get("monsters_hurt")
     for (m_h of monsters_hurt) {
@@ -1217,6 +1303,41 @@ function init_map(wid, map_str, pc_pos_orig)
 	    }
 	}
 
+    })
+
+    let platforms = yeReCreateArray(wid, "_platforms")
+    map_a.forEach(function(s, i) {
+	s = yeGetString(s)
+	for (let j = 0; j < s.length; ++j) {
+	    let c = s[j];
+	    if (PLATFORM_CHARS.includes(c)) {
+		let conf = mi.get(c)
+		if (!conf || !conf.get("move"))
+		    continue
+		let move_arr = conf.get("move")
+		let plat = yeCreateArray(platforms)
+		yeCreateString(c, plat)
+		let mover = y_mover_new(plat)
+		y_move_set_xspeed(mover, yeGetIntAt(move_arr, 0))
+		y_move_set_yspeed(mover, yeGetIntAt(move_arr, 1))
+		let rect = conf.get("rect")
+		let w = SPRITE_SIZE, h = Math.floor(SPRITE_SIZE / 2)
+		let ox = 0, oy = 0
+		if (rect) {
+		    if (yeLen(rect) > 2) {
+			ox = yeGetIntAt(rect, 0)
+			oy = yeGetIntAt(rect, 1)
+		    }
+		    w = yeGetIntAt(rect, yeLen(rect) - 2)
+		    h = yeGetIntAt(rect, yeLen(rect) - 1)
+		}
+		ywPosCreate(j * SPRITE_SIZE + ox, i * SPRITE_SIZE + oy, plat)
+		let orig = yeGet(plat, PLATFORM_ORIGIN)
+		let old = yeCreateCopy(orig)
+		yePushBack(plat, old)
+		yePushBack(plat, conf)
+	    }
+	}
     })
 
     yeSetIntAt(pc_canel, PC_NB_TURN_IDX, 0)
