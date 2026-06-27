@@ -18,6 +18,7 @@ will be use to make the corespondance from what's in `lvl0` and `lvl0.json`
 - `a-z`: are monsters, each map can have up to 24 kind of monsters per maps
 - `0-9`: represent a kind of object
 - `A-M`: represent a background obj.
+- `~`, `<`, `>`: represent a moving platform. (see moving platform section in json Format)
 
 Anything else is not yet used.
 
@@ -34,6 +35,29 @@ Anything else is not yet used.
 | ` | Object or string | same as `#` but for `\`` |
 | monsters | object of object | describe montsters |
 | next,next1,next2 | string | to be use in combinaison with callback of the same name |
+| ~, <, > | object | moving platform config (see below) |
+
+### Moving platforms
+
+Use characters `~`, `<`, `>` in the ASCII map. Each character is a key in JSON:
+
+```json
+"~": {
+    "move": [18, 0],
+    "distance": 96,
+    "render": "rgba: 180 120 60 255",
+    "rect": [0, 0, 32, 16]
+}
+```
+
+| field | type | description |
+|-|-|-|
+| move | Array | speed in yirl unit (pixels/s * 100). `[x, y]` |
+| distance | int | max travel distance from origin in pixel (one direction) |
+| render | string or object | rendering (same format as `#`) |
+| rect | Array | `[x, y, w, h]` or `[w, h]`. default `[0, 0, 32, 16]` |
+
+Platforms are one-way (can be jumped through from below). The player can ride them.
 
 ## example
 example of a simple lvl:
