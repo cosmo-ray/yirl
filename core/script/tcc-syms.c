@@ -275,6 +275,10 @@ void	tccAddSyms(TCCState *l)
   ADD_SYM(yeShuffle);
   ADD_SYM(yeStringShrink);
   ADD_SYM(yeToCStr2);
+  ADD_SYM(yeIteratorInit);
+  ADD_SYM(yeIteratorGet);
+  ADD_SYM(yeIteratorStep);
+  ADD_SYM(yeIteratorKey);
 
 #if defined(__unix__) || defined(__APPLE__)
   tcc_add_symbol(l, "yuiDebugPrint", yuiDebugPrint);
