@@ -1102,16 +1102,22 @@ static int process_inst(void)
 	}
 	break;
 	case LDA_addx:
+	case LDA_addy:
 	{
-		unsigned char base_addr =  get_mem(++cpu.pc);
-		base_addr += cpu.x;
-		int addr = base_addr;
+		unsigned char base_addr = get_mem(++cpu.pc);
+		unsigned char to_add = opcode == LDA_addx ? cpu.x : cpu.y;
+		unsigned char base_addr2 = base_addr + to_add;
+		int page_cross = 0;
+		if (base_addr2 < base_addr) {
+		  page_cross = 1;
+		}
+		int addr = base_addr2;
 
-		addr |= get_mem(++cpu.pc) << 8;
+		addr |= (get_mem(++cpu.pc) + page_cross) << 8;
 		cpu.a = get_mem(addr);
 		SET_ZERO(!!cpu.a);
 		SET_NEGATIVE(!!(cpu.a & 0x80));
-		cpu.cycle_cnt += 4; // + 1 if page is cross ?
+		cpu.cycle_cnt += (4 + page_cross); // + 1 if page is cross ?
 	}
 	break;
 	case LDA_ab:

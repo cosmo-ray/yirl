@@ -59,6 +59,7 @@
   OPCODE(LDA_im, 0xA9) //load accumulator
   OPCODE(LDA_ab, 0xad) //load accumulator
   OPCODE(LDA_addx, 0xbd) //load accumulator
+  OPCODE(LDA_addy, 0xb9) //load accumulator
   OPCODE(TAX, 0xAA) //transfer accumulator to X
   OPCODE(BCS, 0xB0) //branch on carry set
   OPCODE(CLV, 0xB8) //clear overflow
