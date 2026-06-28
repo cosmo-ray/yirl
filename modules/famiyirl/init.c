@@ -733,6 +733,11 @@ unsigned char get_mem_nes(uint16_t addr)
 	return 0xff;
 }
 
+static int check_new_page(int old, int new)
+{
+	return (old & 0xff00) != (new & 0xff00);
+}
+
 static int process_inst(void)
 {
 	unsigned char opcode = get_mem(cpu.pc);
@@ -893,15 +898,44 @@ static int process_inst(void)
 		cpu.cycle_cnt += 2;
 	}
 	break;
-	case BEQ:
+	/* cycle cnt here are kinda wrong, as it should +1 on "sucess", and +2 on new page */
+	case BCC:
 	{
-		int addr = get_mem(++cpu.pc);
+		signed char addr = get_mem(++cpu.pc);
 
-		if (cpu.flag & ZERO_FLAG) {
-			cpu.pc +=addr + 1;
+		cpu.cycle_cnt += 2;
+		if (!(cpu.flag & CARY_FLAG)) {
+			int old_pc = cpu.pc;
+			cpu.pc += addr + 1;
+			cpu.cycle_cnt += 1 + check_new_page(old_pc, cpu.pc);
 			goto out;
 		}
+	}
+	break;
+	case BCS:
+	{
+		signed char addr = get_mem(++cpu.pc);
+
 		cpu.cycle_cnt += 2;
+		if (cpu.flag & CARY_FLAG) {
+			int old_pc = cpu.pc;
+			cpu.pc +=addr + 1;
+			cpu.cycle_cnt += 1 + check_new_page(old_pc, cpu.pc);
+			goto out;
+		}
+	}
+	break;
+	case BEQ:
+	{
+		signed char addr = get_mem(++cpu.pc);
+
+		cpu.cycle_cnt += 2;
+		if (cpu.flag & ZERO_FLAG) {
+			int old_pc = cpu.pc;
+			cpu.pc +=addr + 1;
+			cpu.cycle_cnt += 1 + check_new_page(old_pc, cpu.pc);
+			goto out;
+		}
 	}
 	break;
 	case TXS:
@@ -1166,10 +1200,11 @@ static int process_inst(void)
 	{
 		signed char addr = get_mem(++cpu.pc);
 
-		cpu.cycle_cnt += 2; // +p ?
+		cpu.cycle_cnt += 2;
 		if (!(cpu.flag & NEGATIVE_FLAG)) {
+			int old_pc = cpu.pc;
 			cpu.pc += addr + 1;
-			cpu.cycle_cnt++;
+			cpu.cycle_cnt += 1 + check_new_page(old_pc, cpu.pc);
 			goto out;
 		}
 	}
@@ -1178,10 +1213,11 @@ static int process_inst(void)
 	{
 		signed char addr = get_mem(++cpu.pc);
 
-		cpu.cycle_cnt += 2; // +p ?
+		cpu.cycle_cnt += 2;
 		if (!(cpu.flag & ZERO_FLAG)) {
+			int old_pc = cpu.pc;
 			cpu.pc +=addr + 1;
-			cpu.cycle_cnt++;
+			cpu.cycle_cnt += 1 + check_new_page(old_pc, cpu.pc);
 			goto out;
 		}
 	}
