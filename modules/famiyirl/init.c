@@ -1034,11 +1034,15 @@ static int process_inst(void)
 	}
 	break;
 	case ADC_ab:
+	case ADC_zp:
 	{
 		int addr = get_mem(++cpu.pc);
 		char old_sign = cpu.a & 0x80;
 
-		addr |= get_mem(++cpu.pc) << 8;
+		if (opcode != ADC_zp) {
+			addr |= get_mem(++cpu.pc) << 8;
+			--cpu.cycle_cnt; /* small trick so I don't have to if/else cycle count below */
+		}
 		char res = get_mem(addr);
 		int check_carry = cpu.a + res;
 
@@ -1091,15 +1095,19 @@ static int process_inst(void)
 	}
 	break;
 	case SBC_ab:
+	case SBC_zp:
 	case SBC_im:
 	{
 		char res;
-		if (opcode == SBC_ab) {
+		if (opcode == SBC_ab || opcode == SBC_zp) {
 			int addr = get_mem(++cpu.pc);
+			cpu.cycle_cnt += 1;
 
-			addr |= get_mem(++cpu.pc) << 8;
+			if (opcode == SBC_ab) {
+				cpu.cycle_cnt += 1;
+				addr |= get_mem(++cpu.pc) << 8;
+			}
 			res = get_mem(addr);
-			cpu.cycle_cnt += 2;
 		} else {
 			res = get_mem(++cpu.pc);
 		}

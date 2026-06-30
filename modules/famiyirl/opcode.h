@@ -75,6 +75,7 @@
   OPCODE(BNE, 0xD0) //branch on not equal (zero clear)
   OPCODE(CLD, 0xD8) //clear decimal
   OPCODE(CPX, 0xE0) //compare with X
+  OPCODE(SBC_zp, 0xe5)
   OPCODE(SBC_im, 0xE9) //subtract with carry
   OPCODE(SBC_ab, 0xEd) //subtract with carry
   OPCODE(INX, 0xE8) //increment X
