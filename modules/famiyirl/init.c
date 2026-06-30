@@ -32,8 +32,7 @@ static struct cpu {
 	unsigned char flag;
 	int16_t pc;
 	int64_t cycle_cnt;
-} cpu = {.a = 0, .x = 0, .y = 0, .s = 0xff,
-	.flag = 0, .pc = 0xC000, .cycle_cnt = 0};
+} cpu = {.s = 0xff, .pc = 0xC000};
 
 static int breakpoints[64];
 static int breakpoints_cnt;
@@ -1011,11 +1010,25 @@ static int process_inst(void)
 		int addr = get_mem(++cpu.pc);
 
 		addr |= get_mem(++cpu.pc) << 8;
-		ram[0x100 | cpu.s] = cpu.pc & 0xff;
-		--cpu.s;
+		
 		ram[0x100 | cpu.s] = ((cpu.pc & 0xff00) >> 8);
 		--cpu.s;
+		ram[0x100 | cpu.s] = cpu.pc & 0xff;
+		--cpu.s;
 		cpu.pc = addr;
+		cpu.cycle_cnt += 6;
+		goto out;
+	}
+	break;
+	case RTS:
+	{
+		++cpu.s;
+		int16_t low  = ram[0x100 | cpu.s];
+		++cpu.s;
+		int16_t high = ram[0x100 | cpu.s];
+		++cpu.s;
+
+		cpu.pc = ((high << 8) | low) + 1;
 		cpu.cycle_cnt += 6;
 		goto out;
 	}
@@ -1109,7 +1122,7 @@ static int process_inst(void)
 		unsigned char base_addr2 = base_addr + to_add;
 		int page_cross = 0;
 		if (base_addr2 < base_addr) {
-		  page_cross = 1;
+			page_cross = 1;
 		}
 		int addr = base_addr2;
 

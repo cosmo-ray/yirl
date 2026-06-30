@@ -27,8 +27,9 @@
   OPCODE(BVC, 0x50) //branch on overflow clear
   OPCODE(RTS, 0x60) //return from subroutine
   OPCODE(CLI, 0x58) //clear interrupt disable
-  OPCODE(ADC_xindir_zp, 0x61) //add with carry
+  OPCODE(ADC_ind_x, 0x61) //add with carry
   OPCODE(ROR, 0x62) //rotate right
+  OPCODE(ADC_zp, 0x65) //add with carry
   OPCODE(PLA, 0x68) //pull accumulator
   OPCODE(ADC_im, 0x69) //add with carry
   OPCODE(ADC_ab, 0x6D) //add with carry
