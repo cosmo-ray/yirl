@@ -521,6 +521,11 @@ int set_mem_atari(uint16_t addr, char val)
 		case RESBL:
 			tia.ball_p = atari_current_col();
 			break;
+		case HMCLR:
+			tia.hmp[0] = tia.hmp[1] = 0;
+			tia.hmm[0] = tia.hmm[1] = 0;
+			tia.hmbl = 0;
+			break;
 		case HMOVE:
 			tia.hmove_p[0] = tia.hmp[0];
 			tia.hmove_p[1] = tia.hmp[1];
