@@ -111,6 +111,12 @@ static struct tia {
 	uint8_t enam1;
 	uint8_t ctrlpf;
 	uint8_t pf[3];
+	uint8_t hmp[2];
+	uint8_t hmm[2];
+	uint8_t hmbl;
+	uint8_t hmove_p[2];
+	uint8_t hmove_m[2];
+	uint8_t hmove_bl;
  	uint8_t players_px[2];
  	uint8_t missils_px[2];
 } tia;
@@ -302,6 +308,15 @@ void atari_show_player(int p, int val, int cur)
 	_Bool space_32 = 0;
 	_Bool space_64 = 0;
 	int x = tia.players_px[p];
+	if (tia.hmove_p[p]) {
+		int fine_adjuste = tia.hmove_p[p] >> 4;
+
+		if (fine_adjuste < 8) {
+			x -= fine_adjuste;
+		} else {
+			x += (0xf - fine_adjuste + 1);
+		}
+	}
 
 	switch (tia.nusiz[p]) {
 	case 3:
@@ -505,6 +520,28 @@ int set_mem_atari(uint16_t addr, char val)
 			break;
 		case RESBL:
 			tia.ball_p = atari_current_col();
+			break;
+		case HMOVE:
+			tia.hmove_p[0] = tia.hmp[0];
+			tia.hmove_p[1] = tia.hmp[1];
+			tia.hmove_m[0] = tia.hmm[0];
+			tia.hmove_m[1] = tia.hmm[1];
+			tia.hmove_bl = tia.hmbl;
+			break;
+		case HMP0:
+			tia.hmp[0] = val;
+			break;
+		case HMP1:
+			tia.hmp[1] = val;
+			break;
+		case HMM0:
+			tia.hmm[0] = val;
+			break;
+		case HMM1:
+			tia.hmm[1] = val;
+			break;
+		case HMBL:
+			tia.hmbl = val;
 			break;
 		case RESP0:
 			tia.players_px[0] = atari_current_col();
