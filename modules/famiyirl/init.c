@@ -989,7 +989,7 @@ static int process_inst(void)
 		int addr = get_mem(++cpu.pc);
 		cpu.a &= addr;
 		SET_ZERO(!cpu.a);
-		SET_NEGATIVE(!!(cpu.a & 0x70));
+		SET_NEGATIVE(!!(cpu.a & 0x80));
 		cpu.cycle_cnt += 2;
 	}
 	break;
