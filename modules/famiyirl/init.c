@@ -1003,8 +1003,12 @@ static int process_inst(void)
 		cpu.cycle_cnt += 2;
 	}
 	break;
-	case SEI:
+	case CLI:
 		cpu.flag &= 0xfb; // & 11111011
+		cpu.cycle_cnt += 2;
+		break;
+	case SEI:
+		cpu.flag |= IRQ_DISABLE_FLAG; // & 11111011
 		cpu.cycle_cnt += 2;
 		break;
 	case CLD:
