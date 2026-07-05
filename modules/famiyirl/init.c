@@ -1019,6 +1019,10 @@ static int process_inst(void)
 		cpu.flag &= 0xfe;
 		cpu.cycle_cnt += 2;
 		break;
+	case CLV:
+		cpu.flag &= 0xbf;
+		cpu.cycle_cnt += 2;
+		break;
 	case SEC:
 		cpu.flag |= 1;
 		cpu.cycle_cnt += 2;
