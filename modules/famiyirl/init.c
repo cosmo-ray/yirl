@@ -829,7 +829,7 @@ static int process_inst(void)
 	  {
 	    unsigned char addr = get_mem(++cpu.pc);
 
-	    cpu.a |= addr;
+	    cpu.a ^= addr;
 	    SET_NEGATIVE(!!(0x80 & cpu.a));
 	    SET_ZERO(!cpu.a);
 	    cpu.cycle_cnt += 2;
@@ -841,7 +841,7 @@ static int process_inst(void)
 	    addr |= get_mem(++cpu.pc) << 8;
 	    char c = get_mem(addr);
 
-	    cpu.a |= c;
+	    cpu.a ^= c;
 	    SET_NEGATIVE(!!(0x80 & cpu.a));
 	    SET_ZERO(!cpu.a);
 	    cpu.cycle_cnt += 4;
