@@ -67,6 +67,7 @@
   OPCODE(TSX, 0xBA) //transfer stack pointer to X
   OPCODE(CPY, 0xC0) //compare with Y
   OPCODE(CMP, 0xC1) //compare (with accumulator)
+  OPCODE(CPY_zp, 0xC4) //compare with Y
   OPCODE(INY, 0xC8) //increment Y
   OPCODE(INC_zp, 0xe6) // increment a, zeropage
   OPCODE(CMP_imediate, 0xC9) //branch on equal (zero set)
@@ -75,6 +76,7 @@
   OPCODE(BNE, 0xD0) //branch on not equal (zero clear)
   OPCODE(CLD, 0xD8) //clear decimal
   OPCODE(CPX, 0xE0) //compare with X
+  OPCODE(CPX_zp, 0xE4) //compare with X
   OPCODE(SBC_zp, 0xe5)
   OPCODE(SBC_im, 0xE9) //subtract with carry
   OPCODE(SBC_ab, 0xEd) //subtract with carry

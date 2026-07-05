@@ -255,10 +255,11 @@ static uint8_t atari_current_col(void)
 {
 	int line_cycle = cpu.cycle_cnt % CYCLE_PER_SCANE_LINE;
 	int color_blocks = line_cycle * 3;
-	if (color_blocks < 68)
+	if (color_blocks < 68) {
 		return 161; // out of screen
+	}
 	int pixel_pos = color_blocks - 68;
-	return pixel_pos;
+	return pixel_pos + 4;
 }
 
 static int atari_curent_scane_line(void)
@@ -574,7 +575,7 @@ int set_mem_atari(uint16_t addr, char val)
 		{
 			int cycle_cur = cpu.cycle_cnt % CYCLE_PER_FRAME;
 			cpu.cycle_cnt += CYCLE_PER_FRAME - cycle_cur;
-			return 1;
+			return 0;
 		}
 		case WSYNC:
 			cpu.cycle_cnt += CYCLE_PER_SCANE_LINE - cpu.cycle_cnt % CYCLE_PER_SCANE_LINE;
@@ -817,8 +818,8 @@ static int process_inst(void)
 		int val = get_mem(addr);
 		char new_c = val & 0x1;
 		val = (val << 1) | cpu.flag & 0x1;
-		if (!set_mem(addr, val))
-			cpu.cycle_cnt += 6;
+		cpu.cycle_cnt += 6;
+		set_mem(addr, val);
 		SET_CARY(new_c);
 		SET_NEGATIVE(!!(0x80 & val));
 		SET_ZERO(!val);
@@ -843,7 +844,7 @@ static int process_inst(void)
 	    cpu.a |= c;
 	    SET_NEGATIVE(!!(0x80 & cpu.a));
 	    SET_ZERO(!cpu.a);
-	    cpu.cycle_cnt += 3;
+	    cpu.cycle_cnt += 4;
 	  }
 	  break;
 	case LSR_A:
@@ -863,8 +864,8 @@ static int process_inst(void)
 		c = c >> 1;
 		SET_NEGATIVE(0);
 		SET_ZERO(!c);
-		if (!set_mem(addr, c))
-			cpu.cycle_cnt += 6;
+		cpu.cycle_cnt += 6;
+		set_mem(addr, c);
 	}
 	break;
 	case ASL_a:
@@ -899,10 +900,10 @@ static int process_inst(void)
 	{
 		int addr = get_mem(++cpu.pc);
 		char val = get_mem(addr);
+		cpu.cycle_cnt += 5;
 		set_mem(addr, val + 1);
 		SET_NEGATIVE(!!(val & 0x80));
 		SET_ZERO(!val);
-		cpu.cycle_cnt += 5;
 		break;
 	}
 	case INX:
@@ -1027,7 +1028,7 @@ static int process_inst(void)
 		int addr = get_mem(++cpu.pc);
 		if (opcode == CPX_var || opcode == CPY_var) {
 			addr |= get_mem(++cpu.pc) << 8;
-			cpu.cycle_cnt += 1;
+			cpu.cycle_cnt += 2;
 		}
 		unsigned char reg = (opcode == CPY || opcode == CPY_var) ? cpu.y : cpu.x;
 		unsigned char val = get_mem(addr);
@@ -1035,7 +1036,7 @@ static int process_inst(void)
 		SET_ZERO(reg == val);
 		SET_CARY(reg >= val);
 		SET_NEGATIVE(res & 0x80);
-		cpu.cycle_cnt += 2 + ((opcode == CPX_var) || (opcode == CPY_var));
+		cpu.cycle_cnt += 2;
 	}
 	break;
 	case JMP_ab:
@@ -1083,7 +1084,7 @@ static int process_inst(void)
 
 		if (opcode != ADC_zp) {
 			addr |= get_mem(++cpu.pc) << 8;
-			--cpu.cycle_cnt; /* small trick so I don't have to if/else cycle count below */
+			++cpu.cycle_cnt; /* small trick so I don't have to if/else cycle count below */
 		}
 		char res = get_mem(addr);
 		int check_carry = cpu.a + res;
@@ -1093,7 +1094,7 @@ static int process_inst(void)
 		SET_OVERFLOW(old_sign != (cpu.a & 0x80));
 		SET_NEGATIVE(!!(0x80 & cpu.a));
 		SET_ZERO(!cpu.a);
-		cpu.cycle_cnt += 4;
+		cpu.cycle_cnt += 3;
 	}
 	break;
 	case ADC_im:
@@ -1223,6 +1224,7 @@ static int process_inst(void)
 	case LDY_ab:
 	{
 		char res;
+		unsigned char flag_check;
 
 		if (opcode == LDY_ab || opcode == LDX_ab) {
 			int addr = get_mem(++cpu.pc);
@@ -1234,12 +1236,15 @@ static int process_inst(void)
 			res = get_mem(++cpu.pc);
 		}
 
-		if (opcode == LDX_im || opcode == LDX_ab)
+		if (opcode == LDX_im || opcode == LDX_ab) {
 			cpu.x = res;
-		else
+			flag_check = cpu.x;
+		} else {
+			flag_check = cpu.y;
 			cpu.y = res;
-		SET_ZERO(!cpu.x);
-		SET_NEGATIVE(!!(cpu.x & 0x80));
+		}
+		SET_ZERO(!flag_check);
+		SET_NEGATIVE(!!(flag_check & 0x80));
 		cpu.cycle_cnt += 2;
 	}
 	break;
@@ -1248,8 +1253,8 @@ static int process_inst(void)
 		int addr = get_mem(++cpu.pc);
 
 		addr |= get_mem(++cpu.pc) << 8;
-		if (!set_mem(addr, cpu.x))
-			cpu.cycle_cnt += 4;
+		cpu.cycle_cnt += 4;
+		set_mem(addr, cpu.x);
 	}
 	break;
 	case BIT_ab:
@@ -1262,7 +1267,7 @@ static int process_inst(void)
 		SET_ZERO(!(res & cpu.a));
 		SET_OVERFLOW(!!(res & 0x40));
 		SET_NEGATIVE(!!(res & 0x80));
-		cpu.cycle_cnt += 3;
+		cpu.cycle_cnt += 4;
 	}
 	break;
 	case BPL:
@@ -1296,24 +1301,24 @@ static int process_inst(void)
 		int addr = get_mem(++cpu.pc);
 
 		addr |= get_mem(++cpu.pc) << 8;
-		if (!set_mem(addr, cpu.a))
-			cpu.cycle_cnt += 4;
+		cpu.cycle_cnt += 4;
+		set_mem(addr, cpu.a);
 	}
 	break;
 	case STA_z:
 	{
 		int addr = get_mem(++cpu.pc);
 
-		if (!set_mem(addr, cpu.a))
-			cpu.cycle_cnt += 3;
+		cpu.cycle_cnt += 3;
+		set_mem(addr, cpu.a);
 	}
 	break;
 	case STA_zaddr:
 	{
 		int addr = get_mem(++cpu.pc) + cpu.x;
 
-		if (!set_mem(addr, cpu.a))
-			cpu.cycle_cnt += 4;
+		cpu.cycle_cnt += 4;
+		set_mem(addr, cpu.a);
 	}
 	break;
 	case STA_xaddr:
@@ -1321,8 +1326,8 @@ static int process_inst(void)
 		int addr = get_mem(++cpu.pc) + cpu.x;
 
 		addr |= get_mem(++cpu.pc) << 8;
-		if (!set_mem(addr, cpu.a))
-			cpu.cycle_cnt += 5;
+		cpu.cycle_cnt += 5;
+		set_mem(addr, cpu.a);
 	}
 	break;
 	default:
