@@ -332,6 +332,8 @@ NO_SIDE_EFFECT size_t yeLen(Entity *entity)
 		return ret;
 	} else if (entity->type == YVECTOR) {
 		return YE_TO_VECTOR(entity)->len;
+	} else if (entity->type == YQUADINT) {
+		return 4;
 	} else if (entity->type == YSTRING) {
 		return YE_TO_STRING(entity)->len;
 	} else if (entity->type == YDATA) {
