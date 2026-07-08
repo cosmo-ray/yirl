@@ -935,7 +935,13 @@ static JSValue qjsywCanvasNewCollisionsArrayWithRectangle(
 static JSValue qjsyeCreateArray(JSContext *ctx, JSValueConst this_val,
 				int argc, JSValueConst *argv)
 {
-	return mk_ent(ctx, yeCreateArray(GET_E(ctx, 0), GET_S(ctx, 1)),
+	const char *s;
+	if (JS_IsUndefined(argv[1]) || JS_IsNull(argv[1])) {
+		s = NULL;
+	} else {
+		s = GET_S(ctx, 1);
+	}
+	return mk_ent(ctx, yeCreateArray(GET_E(ctx, 0), s),
 		      !GET_E(ctx, 0));
 }
 
@@ -943,6 +949,13 @@ static JSValue qjsyeCreateHash(JSContext *ctx, JSValueConst this_val,
 			       int argc, JSValueConst *argv)
 {
 	return mk_ent(ctx, yeCreateHash(GET_E(ctx, 0), GET_S(ctx, 1)),
+		      !GET_E(ctx, 0));
+}
+
+static JSValue qjsyeCreateVector(JSContext *ctx, JSValueConst this_val,
+			       int argc, JSValueConst *argv)
+{
+	return mk_ent(ctx, yeCreateVector(GET_E(ctx, 0), GET_S(ctx, 1)),
 		      !GET_E(ctx, 0));
 }
 
@@ -1643,6 +1656,7 @@ static int init(void *sm, void *args)
 	BIND(yeCreateInt, 1, 2);
 	BIND(yeCreateArray, 0, 2);
 	BIND(yeCreateHash, 0, 2);
+	BIND(yeCreateVector, 0, 2);
 	BIND(yeCreateCopy, 0, 3);
 	BIND(yeCreateCopy2, 0, 4);
 	BIND(ywPosAddCopy, 3, 2);
