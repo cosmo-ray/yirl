@@ -2237,7 +2237,7 @@ static void yeToCStrInternal(Entity *entity, int deep, Entity *str,
 
 				if (!(flag & YE_FORMAT_OPT_PRINT_ONLY_VAL_ARRAY)) {
 					if (flag & YE_FORMAT_PRETTY) {
-						append_pretty(str, deep,
+						append_pretty(str, deep -1,
 							      origDeep, flag);
 					} else {
 						yeStringAdd(str, ", ");
