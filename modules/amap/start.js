@@ -62,8 +62,6 @@ const TYPE_BREAKABLE_BLOCK = 8
 const TYPE_LIGHT_FLOOR = 9
 const TYPE_MOVING_PLATFORM = 10
 
-const PLATFORM_CHARS = "~<>"
-
 const PLATFORM_CHAR = 0
 const PLATFORM_MOVER = 1
 const PLATFORM_ORIGIN = 2
@@ -508,16 +506,10 @@ function print_all(wid)
 	    let conf = plat.get(PLATFORM_CONF)
 	    let render_info = conf.get("render")
 	    let rect = conf.get("rect")
-	    let w = SPRITE_SIZE, h = Math.floor(SPRITE_SIZE / 2)
-	    let ox = 0, oy = 0
-	    if (rect) {
-		if (yeLen(rect) > 2) {
-		    ox = yeGetIntAt(rect, 0)
-		    oy = yeGetIntAt(rect, 1)
-		}
-		w = yeGetIntAt(rect, yeLen(rect) - 2)
-		h = yeGetIntAt(rect, yeLen(rect) - 1)
-	    }
+	    let ox = yeGetIntAt(rect, 0);
+	    let oy = yeGetIntAt(rect, 1);
+	    let w = yeGetIntAt(rect, 2);
+	    let h = yeGetIntAt(rect, 3);
 	    let pos = plat.get(PLATFORM_ORIGIN)
 	    let canvas = show_block(render_info, ywPosX(pos) + ox, ywPosY(pos) + oy, w, h)
 	    yeCreateIntAt(TYPE_MOVING_PLATFORM, canvas, "amap-t", YCANVAS_UDATA_IDX)
@@ -1049,6 +1041,7 @@ function amap_action(wid, events)
     let cols = ywCanvasNewProjectedCollisionsArrayExt(wid, pc_canvas_obj, projection)
     let direct_ret = false
     let need_pc_refresh = false
+    let no_platform_under = true
     //yePrint(cols)
     if (cols) {
 	for (c of cols) {
@@ -1089,13 +1082,16 @@ function amap_action(wid, events)
 		if (pc_canel.getf(PC_DROPSPEED_IDX) < 0)
 		    yeSetFloatAt(pc_canel, PC_DROPSPEED_IDX, 0)
 	    } else if (ctype == TYPE_MOVING_PLATFORM) {
-		let obj_pos = ywCanvasObjPos(c)
-		if (pc_canel.getf(PC_DROPSPEED_IDX) >= 0 &&
-		    (ywPosY(old_pos) + SPRITE_SIZE) <= ywPosY(obj_pos)) {
-		    stop_fall = true
-		    let plat_idx = yeGetIntAt(c, CANVAS_PLATFORM_IDX)
-		    let plat = yeGet(platforms, plat_idx)
-		    ride_mv_x += ywPosX(obj_pos) - ywPosX(plat.get(PLATFORM_OLD_POS))
+		if (no_platform_under) { /* no need to compute platform col more than once */
+		    let obj_pos = ywCanvasObjPos(c)
+		    if (pc_canel.getf(PC_DROPSPEED_IDX) >= 0 &&
+			(ywPosY(old_pos) + SPRITE_SIZE) <= ywPosY(obj_pos)) {
+			stop_fall = true
+			let plat_idx = yeGetIntAt(c, CANVAS_PLATFORM_IDX)
+			let plat = yeGet(platforms, plat_idx)
+			ride_mv_x = plat.get(PLATFORM_MOVER).geti("last_x")
+			no_platform_under = false
+		    }
 		}
 	    } else if (ctype == TYPE_PIKE || ctype == TYPE_MONSTER || ctype == TYPE_BOSS) {
 		if (ywCanvasObjectsCheckColisions(c, pc_canvas_obj)) {
@@ -1142,6 +1138,23 @@ function amap_action(wid, events)
 	    yGenericHandlerRefresh(pc_handler)
 	yeDestroy(cols)
     }
+    if (no_platform_under) {
+	let under_pc_rect = ywRectCreateInts(ywPosX(pc_pos),
+					     ywPosY(pc_pos) + SPRITE_SIZE,
+					     SPRITE_SIZE, 3)
+	let cols = ywCanvasNewCollisionsArrayWithRectangle(wid, under_pc_rect)
+	for (c of cols) {
+	    let ctype = yeGetIntAt(c, YCANVAS_UDATA_IDX)
+	    if (ctype == TYPE_MOVING_PLATFORM) {
+		let plat_idx = yeGetIntAt(c, CANVAS_PLATFORM_IDX);
+		let plat = yeGet(platforms, plat_idx);
+		ride_mv_x = plat.get(PLATFORM_MOVER).geti("last_x");
+		break;
+	    }
+	}
+
+	yeDestroy(cols)
+    }
     if (direct_ret)
 	return
 
@@ -1152,8 +1165,9 @@ function amap_action(wid, events)
 	yeSetIntAt(pc_canel, PC_JMP_NUMBER, 0);
 	yeSetFloatAt(pc_canel, PC_DROPSPEED_IDX, 0);
     }
-    if (ride_mv_x)
+    if (ride_mv_x) {
 	ywPosAddXY(pc_pos, ride_mv_x, 0)
+    }
     print_life(wid, pc, pc_canel)
     move_punch(wid, pc_canel, turn_timer)
     for (c of monsters) {
@@ -1289,6 +1303,7 @@ function init_map(wid, map_str, pc_pos_orig)
     let map_pixs_l = ywSizeCreate(ywSizeW(size) * SPRITE_SIZE, ywSizeH(size) * SPRITE_SIZE)
     yeReplaceBack(wid, map_pixs_l, "map-pixs-l")
     let monsters = yeReCreateArray(wid, "_monsters")
+    let platforms = yeReCreateArray(wid, "_platforms")
 
     map_a.forEach(function(s, i) {
 	s = yeGetString(s)
@@ -1300,45 +1315,42 @@ function init_map(wid, map_str, pc_pos_orig)
 		yeCreateString(c, mon) // MONSTER_STR_KEY 0
 		ywPosCreate(j * SPRITE_SIZE, i * SPRITE_SIZE, mon) // MONSTER_POS 1
 		y_mover_new(mon) // MONSTER_MOVER 2
-	    }
-	}
+	    } else if (c == '~' || c == '<' || c == '>') {
+		let plat = yeCreateVector(platforms)
+		yeCreateString(c, plat) // PLATFORM_CHAR
+		let mover = y_mover_new(plat) // PLATFORM_MOVER
 
-    })
-
-    let platforms = yeReCreateArray(wid, "_platforms")
-    map_a.forEach(function(s, i) {
-	s = yeGetString(s)
-	for (let j = 0; j < s.length; ++j) {
-	    let c = s[j];
-	    if (PLATFORM_CHARS.includes(c)) {
 		let conf = mi.get(c)
-		if (!conf || !conf.get("move"))
-		    continue
-		let move_arr = conf.get("move")
-		let plat = yeCreateArray(platforms)
-		yeCreateString(c, plat)
-		let mover = y_mover_new(plat)
+		let move_arr = null
+		let rect = null
+		if (!conf) {
+		    conf = yeCreateHash()
+		    yeCreateQuadInt(0, 0, SPRITE_SIZE, Math.floor(SPRITE_SIZE / 2),
+				    conf, "rect")
+		} else {
+		    move_arr = conf.get("move")
+		}
+
+		if (!move_arr) {
+		    move_arr = yeCreateQuadInt(5, 0, 0, 0, conf, "move")
+		}
+		if (conf.geti("distance") < 1) {
+		    conf.setAt("distance", 64)
+		}
+
 		y_move_set_xspeed(mover, yeGetIntAt(move_arr, 0))
 		y_move_set_yspeed(mover, yeGetIntAt(move_arr, 1))
-		let rect = conf.get("rect")
-		let w = SPRITE_SIZE, h = Math.floor(SPRITE_SIZE / 2)
-		let ox = 0, oy = 0
-		if (rect) {
-		    if (yeLen(rect) > 2) {
-			ox = yeGetIntAt(rect, 0)
-			oy = yeGetIntAt(rect, 1)
-		    }
-		    w = yeGetIntAt(rect, yeLen(rect) - 2)
-		    h = yeGetIntAt(rect, yeLen(rect) - 1)
-		}
-		ywPosCreate(j * SPRITE_SIZE + ox, i * SPRITE_SIZE + oy, plat)
-		let orig = yeGet(plat, PLATFORM_ORIGIN)
-		let old = yeCreateCopy(orig)
-		yePushBack(plat, old)
-		yePushBack(plat, conf)
+		rect = conf.get("rect")
+		let ox = yeGetIntAt(rect, 0), oy = yeGetIntAt(rect, 1)
+		let w = yeGetIntAt(rect, 2), h = yeGetIntAt(rect, 3)
+		let orig = ywPosCreate(j * SPRITE_SIZE + ox, i * SPRITE_SIZE + oy, plat) // PLATFORM_ORIGIN
+		yePushBack(plat, yeCreateCopy(orig)) // PLATFORM_OLD_POS
+		yePushBack(plat, conf) // PLATFORM_CONF
 	    }
 	}
+
     })
+
 
     yeSetIntAt(pc_canel, PC_NB_TURN_IDX, 0)
 
