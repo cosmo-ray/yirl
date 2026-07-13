@@ -85,6 +85,21 @@ enum {
 	CXCLR       , //    ; $2C   ---- ----   Clear Collision Latches
 };
 
+enum {
+	SWCHA  = 0x280, //      Port A data register for joysticks:
+			//      Bits 4-7 for player 1.  Bits 0-3 for player 2.
+	SWACNT = 0x281, //      Port A data direction register (DDR)
+	SWCHB = 0x282,  //      Port B data (console switches)
+	SWBCNT = 0x283, //      Port B DDR
+	INTIM = 0x284,  //      Timer output
+	TIMINT = 0x285, //
+
+	TIM1T = 0x294,  //      set 1 clock interval
+	TIM8T = 0x295,  //      set 8 clock interval
+	TIM64T = 0x296, //      set 64 clock interval
+	T1024T = 0x297  //      set 1024 clock interval
+};
+
 #define CYCLE_PER_FRAME 19912
 
 // #define CYCLE_PER_SCANE_LINE 104
@@ -120,6 +135,12 @@ static struct tia {
  	uint8_t players_px[2];
  	uint8_t missils_px[2];
 } tia;
+
+static struct riot {
+	uint64_t timer_cycle_start;
+	uint16_t timer_l;
+	uint8_t timer;
+} riot;
 
 /**
  * NES PPU:
@@ -249,6 +270,7 @@ unsigned char get_mem_yirl(uint16_t addr)
 	} else if (addr >= 0xff00) {
 		return ppu_mem[addr & 0xff];
 	}
+	return 0;
 }
 
 static uint8_t atari_current_col(void)
@@ -490,7 +512,7 @@ int set_mem_atari(uint16_t addr, char val)
 {
 	if (turn_mode == DEBUG_MODE)
 		printf("set_mem_atari at %d(%x): %d\n", addr, addr, val);
-	if (addr < 0x2c) {
+	if (addr < 0x2c || (addr >= SWCHA && addr <= T1024T)) {
 		/**
 		 **  262 row total: **
 		 * 3 vertical sync (first lines)
@@ -568,13 +590,38 @@ int set_mem_atari(uint16_t addr, char val)
 		case NUSIZ0:
 			tia.nusiz[0] = val;
 			break;
+		case TIM1T:
+		case TIM8T:
+		case TIM64T:
+		case T1024T:
+			riot.timer = val;
+			riot.timer_cycle_start = cpu.cycle_cnt;
+			if (addr == TIM1T)
+				riot.timer_l = 1;
+			else if (addr == TIM8T)
+				riot.timer_l = 8;
+			else if (addr == TIM64T)
+				riot.timer_l = 64;
+			else
+				riot.timer_l = 1024;
+			break;
 		case NUSIZ1:
 			tia.nusiz[1] = val;
 			break;
 		case VSYNC:
 		{
+		  /*
+		    in theory, vsync should only take a STA,
+		    plus the 3 WSYNC done after,
+		    and not teleport in time like I do with += CYCLE_PER_FRAME - cycle_cur
+		    VSYNC	3	228
+		    VBLANK	37	2812
+		    Visible	192	14592
+		   */
 			int cycle_cur = cpu.cycle_cnt % CYCLE_PER_FRAME;
-			cpu.cycle_cnt += CYCLE_PER_FRAME - cycle_cur;
+			int diff = CYCLE_PER_FRAME - cycle_cur;
+			cpu.cycle_cnt += diff;
+			riot.timer_cycle_start += diff;
 			return 0;
 		}
 		case WSYNC:
@@ -622,11 +669,24 @@ unsigned char get_mem_atari(uint16_t addr)
 {
 	if (turn_mode == DEBUG_MODE)
 		printf("get_mem_atari at %d - %x\n", addr, addr);
-	if (addr >= 0xf000)
+	if (addr >= 0xf000) {
 		return cartridge[addr - 0xf000];
-	else if (addr > 0x2c)
+	} else if (addr >= SWCHA && addr <= T1024T) {
+		switch(addr) {
+		case INTIM:
+		{
+			int cycle_pass = cpu.cycle_cnt - riot.timer_cycle_start;
+			int timer_pass = cycle_pass / riot.timer_l;
+			/* printf("INTIM !\n"); */
+			/* printf("%d %d\n", riot.timer_l, riot.timer); */
+			/* printf("%d %d %u\n", cycle_pass, timer_pass, riot.timer - timer_pass & 0xff); */
+			return (riot.timer - timer_pass) & 0xff;
+		}
+		default:
+		}
+	} else if (addr > 0x2c) {
 		return ram[addr];
-	else {
+	} else {
 		/* printf("peripheric read at %x\n", addr); */
 	}
 	return 0;
@@ -790,9 +850,10 @@ static int process_inst(void)
 	if (current_emu_mode == ATARI_MODE) {
 		static int64_t old_sl_cycle;
 		int64_t elapse = cpu.cycle_cnt - old_sl_cycle;
-		if (elapse > CYCLE_PER_SCANE_LINE) {
+		while (elapse > CYCLE_PER_SCANE_LINE) {
 			atari_do_scan_line();
 			old_sl_cycle += CYCLE_PER_SCANE_LINE;
+			elapse = cpu.cycle_cnt - old_sl_cycle;
 		}
 	}
 
