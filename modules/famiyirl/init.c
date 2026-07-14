@@ -134,6 +134,7 @@ static struct tia {
 	uint8_t hmove_bl;
  	uint8_t players_px[2];
  	uint8_t missils_px[2];
+	uint64_t vsync_cycle;
 } tia;
 
 static struct riot {
@@ -286,8 +287,7 @@ static uint8_t atari_current_col(void)
 
 static int atari_curent_scane_line(void)
 {
-	int cycle_cur = cpu.cycle_cnt % CYCLE_PER_FRAME;
-	return (cycle_cur / CYCLE_PER_SCANE_LINE) % ATARI_SCREEN_H;
+	return ((cpu.cycle_cnt - tia.vsync_cycle) / CYCLE_PER_SCANE_LINE) % ATARI_SCREEN_H;
 }
 
 
@@ -609,21 +609,8 @@ int set_mem_atari(uint16_t addr, char val)
 			tia.nusiz[1] = val;
 			break;
 		case VSYNC:
-		{
-		  /*
-		    in theory, vsync should only take a STA,
-		    plus the 3 WSYNC done after,
-		    and not teleport in time like I do with += CYCLE_PER_FRAME - cycle_cur
-		    VSYNC	3	228
-		    VBLANK	37	2812
-		    Visible	192	14592
-		   */
-			int cycle_cur = cpu.cycle_cnt % CYCLE_PER_FRAME;
-			int diff = CYCLE_PER_FRAME - cycle_cur;
-			cpu.cycle_cnt += diff;
-			riot.timer_cycle_start += diff;
-			return 0;
-		}
+			tia.vsync_cycle = cpu.cycle_cnt;
+			break;
 		case WSYNC:
 			cpu.cycle_cnt += CYCLE_PER_SCANE_LINE - cpu.cycle_cnt % CYCLE_PER_SCANE_LINE;
 			return 0;
