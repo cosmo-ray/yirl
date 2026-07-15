@@ -65,7 +65,7 @@
   OPCODE(BCS, 0xB0) //branch on carry set
   OPCODE(CLV, 0xB8) //clear overflow
   OPCODE(TSX, 0xBA) //transfer stack pointer to X
-  OPCODE(CPY, 0xC0) //compare with Y
+  OPCODE(CPY_im, 0xC0) //compare with Y
   OPCODE(CMP, 0xC1) //compare (with accumulator)
   OPCODE(CPY_zp, 0xC4) //compare with Y
   OPCODE(INY, 0xC8) //increment Y

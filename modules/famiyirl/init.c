@@ -1077,17 +1077,21 @@ static int process_inst(void)
 		break;
 
 	case CPX:
-	case CPY:
+	case CPY_im:
 	case CPX_var:
 	case CPY_var:
+	case CPX_zp:
+	case CPY_zp:
 	{
 		int addr = get_mem(++cpu.pc);
-		if (opcode == CPX_var || opcode == CPY_var) {
+		unsigned char val = addr;
+		if (opcode != CPX && opcode != CPY_im) {
+			if (opcode == CPX_var || opcode == CPY_var)
 			addr |= get_mem(++cpu.pc) << 8;
 			cpu.cycle_cnt += 2;
+			val = get_mem(addr);
 		}
-		unsigned char reg = (opcode == CPY || opcode == CPY_var) ? cpu.y : cpu.x;
-		unsigned char val = get_mem(addr);
+		unsigned char reg = (opcode == CPY_im || opcode == CPY_var) ? cpu.y : cpu.x;
 		unsigned char res = reg - val;
 		SET_ZERO(reg == val);
 		SET_CARY(reg >= val);
