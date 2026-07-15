@@ -137,6 +137,8 @@ static struct tia {
 	uint64_t vsync_cycle;
 } tia;
 
+static int64_t old_sl_cycle;
+
 static struct riot {
 	uint64_t timer_cycle_start;
 	uint16_t timer_l;
@@ -609,7 +611,11 @@ int set_mem_atari(uint16_t addr, char val)
 			tia.nusiz[1] = val;
 			break;
 		case VSYNC:
-			tia.vsync_cycle = cpu.cycle_cnt;
+			/* in theory we should handle other value, and see if enough scanline have pass since 0x2 */
+			if (val & 0x2) {
+				tia.vsync_cycle = cpu.cycle_cnt;
+				old_sl_cycle = 0;
+			}
 			break;
 		case WSYNC:
 			cpu.cycle_cnt += CYCLE_PER_SCANE_LINE - cpu.cycle_cnt % CYCLE_PER_SCANE_LINE;
@@ -835,7 +841,6 @@ static int process_inst(void)
 		printf("code (a: %x, x: %x, y: %x, f: %x): 0x%x: %x - %s\n", cpu.a, cpu.x, cpu.y, cpu.flag,
 		       cpu.pc & 0xffff, get_mem(cpu.pc), opcode_str[get_mem(cpu.pc)]);
 	if (current_emu_mode == ATARI_MODE) {
-		static int64_t old_sl_cycle;
 		int64_t elapse = cpu.cycle_cnt - old_sl_cycle;
 		while (elapse > CYCLE_PER_SCANE_LINE) {
 			atari_do_scan_line();
