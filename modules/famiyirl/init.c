@@ -143,7 +143,11 @@ static struct riot {
 	uint64_t timer_cycle_start;
 	uint16_t timer_l;
 	uint8_t timer;
-} riot;
+	uint8_t direction_press;
+	uint8_t p_fire_press[2];
+} riot = {
+	.direction_press = 0xFF,
+};
 
 /**
  * NES PPU:
@@ -675,6 +679,8 @@ unsigned char get_mem_atari(uint16_t addr)
 			/* printf("%d %d %u\n", cycle_pass, timer_pass, riot.timer - timer_pass & 0xff); */
 			return (riot.timer - timer_pass) & 0xff;
 		}
+		case SWCHA:
+			return riot.direction_press;
 		default:
 		}
 	} else if (addr > 0x2c) {
@@ -1371,11 +1377,18 @@ static int process_inst(void)
 	}
 	break;
 	case STA_z:
+	case STX_zp:
+	case STY_zp:
 	{
 		int addr = get_mem(++cpu.pc);
 
 		cpu.cycle_cnt += 3;
-		set_mem(addr, cpu.a);
+		if (opcode == STX_zp)
+		  set_mem(addr, cpu.x);
+		else if (opcode == STY_zp)
+		  set_mem(addr, cpu.y);
+		else
+		  set_mem(addr, cpu.a);
 	}
 	break;
 	case STA_zaddr:
@@ -1424,6 +1437,53 @@ void *fy_action(int nbArgs, void **args)
 	} else {
 		get_mem = get_mem_atari;
 		set_mem = set_mem_atari;
+	}
+
+	/* handle atari events, curently, we'll use arrow + enter for player 2 and wasd, + e for player 1 */
+	if (current_emu_mode == ATARI_MODE) {
+		/* player 1: wasd + e, bits 4-7 of SWCHA */
+		if (yevIsKeyDown(events, 'w'))
+			riot.direction_press &= ~(1 << 4);
+		else if (yevIsKeyUp(events, 'w'))
+			riot.direction_press |= (1 << 4);
+		if (yevIsKeyDown(events, 's'))
+			riot.direction_press &= ~(1 << 5);
+		else if (yevIsKeyUp(events, 's'))
+			riot.direction_press |= (1 << 5);
+		if (yevIsKeyDown(events, 'a'))
+			riot.direction_press &= ~(1 << 6);
+		else if (yevIsKeyUp(events, 'a'))
+			riot.direction_press |= (1 << 6);
+		if (yevIsKeyDown(events, 'd'))
+			riot.direction_press &= ~(1 << 7);
+		else if (yevIsKeyUp(events, 'd'))
+			riot.direction_press |= (1 << 7);
+		if (yevIsKeyDown(events, 'e'))
+			riot.p_fire_press[0] = 1;
+		else if (yevIsKeyUp(events, 'e'))
+			riot.p_fire_press[0] = 0;
+
+		/* player 2: arrows + enter, bits 0-3 of SWCHA */
+		if (yevIsKeyDown(events, Y_UP_KEY))
+			riot.direction_press &= ~(1 << 0);
+		else if (yevIsKeyUp(events, Y_UP_KEY))
+			riot.direction_press |= (1 << 0);
+		if (yevIsKeyDown(events, Y_DOWN_KEY))
+			riot.direction_press &= ~(1 << 1);
+		else if (yevIsKeyUp(events, Y_DOWN_KEY))
+			riot.direction_press |= (1 << 1);
+		if (yevIsKeyDown(events, Y_LEFT_KEY))
+			riot.direction_press &= ~(1 << 2);
+		else if (yevIsKeyUp(events, Y_LEFT_KEY))
+			riot.direction_press |= (1 << 2);
+		if (yevIsKeyDown(events, Y_RIGHT_KEY))
+			riot.direction_press &= ~(1 << 3);
+		else if (yevIsKeyUp(events, Y_RIGHT_KEY))
+			riot.direction_press |= (1 << 3);
+		if (yevIsKeyDown(events, '\n'))
+			riot.p_fire_press[1] = 1;
+		else if (yevIsKeyUp(events, '\n'))
+			riot.p_fire_press[1] = 0;
 	}
 
 	if (yevIsKeyDown(events, 'i')) {

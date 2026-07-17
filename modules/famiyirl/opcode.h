@@ -1,32 +1,32 @@
-  OPCODE(BIT_ab, 0x2c) //break / interrupt
   OPCODE(ORA_zp, 0x05) //or with accumulator
+  OPCODE(PHP, 0x08) //push processor status (SR)
   OPCODE(ORA_im, 0x09) //or with accumulator
   OPCODE(ORA_ab, 0x0D) //or with accumulator
   OPCODE(ASL_a, 0x0a) //arithmetic shift left
-  OPCODE(PHP, 0x08) //push processor status (SR)
   OPCODE(BPL, 0x10) //branch on plus (negative clear)
   OPCODE(CLC, 0x18) //clear carry
   OPCODE(JSR, 0x20)
   OPCODE(AND_xindir_zp, 0x21) //and (with accumulator)
-  OPCODE(ROL_a, 0x2a) //rotate left
-  OPCODE(ROL_ab, 0x2e) //rotate left
   OPCODE(PLP, 0x28) //pull processor status (SR)
+  OPCODE(ROL_a, 0x2a) //rotate left
+  OPCODE(BIT_ab, 0x2c) //break / interrupt
+  OPCODE(ROL_ab, 0x2e) //rotate left
   OPCODE(AND_im, 0x29) //and (with accumulator)
   OPCODE(BMI, 0x30) //branch on minus (negative set)
   OPCODE(SEC, 0x38) //set carry
   OPCODE(EOR_X_ZP_I, 0x41) //exclusive or (with accumulator)
   OPCODE(EOR_ZP, 0x45)
+  OPCODE(PHA, 0x48) //push accumulator
   OPCODE(EOR_IM, 0x49)
   OPCODE(EOR_AB, 0x4D)
-  OPCODE(EOR_Y_AB, 0x59)
-  OPCODE(EOR_X_AB, 0x5D)
   OPCODE(LSR_A, 0x4A) //logical shift right
   OPCODE(LSR_ab, 0x4E) //logical shift right
-  OPCODE(PHA, 0x48) //push accumulator
   OPCODE(JMP_ab, 0x4c) //jump //return from interrupt
   OPCODE(BVC, 0x50) //branch on overflow clear
-  OPCODE(RTS, 0x60) //return from subroutine
   OPCODE(CLI, 0x58) //clear interrupt disable
+  OPCODE(EOR_Y_AB, 0x59)
+  OPCODE(EOR_X_AB, 0x5D)
+  OPCODE(RTS, 0x60) //return from subroutine
   OPCODE(ADC_ind_x, 0x61) //add with carry
   OPCODE(ROR, 0x62) //rotate right
   OPCODE(ADC_zp, 0x65) //add with carry
@@ -35,10 +35,10 @@
   OPCODE(ADC_ab, 0x6D) //add with carry
   OPCODE(BVS, 0x70) //branch on overflow set
   OPCODE(SEI, 0x78) //set interrupt disable
-  OPCODE(STY, 0x80) //store Y
   OPCODE(STA, 0x81) //store accumulator
-  OPCODE(STX, 0x82) //store X
+  OPCODE(STY_zp, 0x84) //store X
   OPCODE(STA_z, 0x85) //store accumulator zeropae
+  OPCODE(STX_zp, 0x86) //store X
   OPCODE(DEY, 0x88) //decrement Y
   OPCODE(TXA, 0x8A) //transfer X to accumulator
   OPCODE(STA_ab, 0x8D) //load accumulator
