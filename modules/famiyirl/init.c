@@ -1023,11 +1023,17 @@ static int process_inst(void)
 	break;
 	/* cycle cnt here are kinda wrong, as it should +1 on "sucess", and +2 on new page */
 	case BCC:
+	case BMI:
 	{
 		signed char addr = get_mem(++cpu.pc);
+		int check;
 
 		cpu.cycle_cnt += 2;
-		if (!(cpu.flag & CARY_FLAG)) {
+		if (opcode == BMI)
+			check = !!(cpu.flag & NEGATIVE_FLAG);
+		else
+			check = !(cpu.flag & CARY_FLAG);
+		if (check) {
 			int old_pc = cpu.pc;
 			cpu.pc += addr + 1;
 			cpu.cycle_cnt += 1 + check_new_page(old_pc, cpu.pc);
