@@ -859,6 +859,22 @@ static int process_inst(void)
 	case NOP:
 		cpu.cycle_cnt += 2;
 		break;
+	case PHP:
+	{
+		ram[0x100 | cpu.s] = cpu.flag | 0x30;
+		--cpu.s;
+		cpu.cycle_cnt += 3;
+		break;
+	}
+	case PLA:
+	{
+		++cpu.s;
+		cpu.a = ram[0x100 | cpu.s];
+		SET_ZERO(!cpu.a);
+		SET_NEGATIVE(!!(0x80 & cpu.a));
+		cpu.cycle_cnt += 4;
+		break;
+	}
 	case ROL_a:
 	{
 		char new_c = cpu.a & 0x1;
