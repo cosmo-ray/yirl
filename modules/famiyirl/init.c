@@ -956,13 +956,19 @@ static int process_inst(void)
 		cpu.cycle_cnt += 2;
 		break;
 	case INC_zp:
+	case DEC_zp:
 	{
 		int addr = get_mem(++cpu.pc);
 		char val = get_mem(addr);
+		char result;
 		cpu.cycle_cnt += 5;
-		set_mem(addr, val + 1);
-		SET_NEGATIVE(!!(val & 0x80));
-		SET_ZERO(!val);
+		if (opcode == INC_zp)
+		  result = val + 1;
+		else
+		  result = val - 1;
+		set_mem(addr, result);
+		SET_NEGATIVE(!!(result & 0x80));
+		SET_ZERO(!result);
 		break;
 	}
 	case INX:
