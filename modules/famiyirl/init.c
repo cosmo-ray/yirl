@@ -412,9 +412,9 @@ void atari_show_player(int p, int val, int cur)
 		}
 	}
 skipp_player:
-	if (p == 0 && !tia.enam0)
+	if (p == 0 && !(tia.enam0 & 0x2))
 		return;
-	if (p == 1 && !tia.enam1)
+	if (p == 1 && !(tia.enam1 & 0x2))
 		return;
 	ywCanvasMergeRectangle(main_canvas,
 			       tia.missils_px[p] * pix_per_pix_x,
