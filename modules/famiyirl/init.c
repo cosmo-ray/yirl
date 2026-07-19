@@ -85,6 +85,26 @@ enum {
 	CXCLR       , //    ; $2C   ---- ----   Clear Collision Latches
 };
 
+/* SEG.U TIA_REGISTERS_READ */
+/* ORG TIA_BASE_READ_ADDRESS */
+enum {
+	CXM0P     = 0x00, //       xx00 0000       Read Collision  M0-P1   M0-P0
+	CXM1P     = 0x01, //       xx00 0000                       M1-P0   M1-P1
+	CXP0FB    = 0x02, //       xx00 0000                       P0-PF   P0-BL
+	CXP1FB    = 0x03, //       xx00 0000                       P1-PF   P1-BL
+	CXM0FB    = 0x04, //       xx00 0000                       M0-PF   M0-BL
+	CXM1FB    = 0x05, //       xx00 0000                       M1-PF   M1-BL
+	CXBLPF    = 0x06, //       x000 0000                       BL-PF   -----
+	CXPPMM    = 0x07, //       xx00 0000                       P0-P1   M0-M1
+	INPT0     = 0x08, //       x000 0000       Read Pot Port 0
+	INPT1     = 0x09, //       x000 0000       Read Pot Port 1
+	INPT2     = 0x0A, //       x000 0000       Read Pot Port 2
+	INPT3     = 0x0B, //       x000 0000       Read Pot Port 3
+	INPT4     = 0x0C, //       x000 0000       Read Input (Trigger) 0
+	INPT5     = 0x0D  //       x000 0000       Read Input (Trigger) 1
+};
+
+
 enum {
 	SWCHA  = 0x280, //      Port A data register for joysticks:
 			//      Bits 4-7 for player 1.  Bits 0-3 for player 2.
@@ -583,6 +603,12 @@ int set_mem_atari(uint16_t addr, char val)
 		case RESP1:
 			tia.players_px[1] = atari_current_col();
 			break;
+		case RESM0:
+			tia.missils_px[0] = atari_current_col();
+			break;
+		case RESM1:
+			tia.missils_px[1] = atari_current_col();
+			break;
 		/* RESMP0 and RESMP1 are oversimplify here,
 		 * in theory I must write 2 then 0 after 76 cpu instructions are pass */
 		case RESMP0:
@@ -668,6 +694,13 @@ unsigned char get_mem_atari(uint16_t addr)
 		printf("get_mem_atari at %d - %x\n", addr, addr);
 	if (addr >= 0xf000) {
 		return cartridge[addr - 0xf000];
+	} else if (addr <= INPT5) {
+		switch (addr) {
+		case INPT4:
+			return ((!riot.p_fire_press[0]) << 7);
+		case INPT5:
+			return ((!riot.p_fire_press[1]) << 7);
+		}
 	} else if (addr >= SWCHA && addr <= T1024T) {
 		switch(addr) {
 		case INTIM:
