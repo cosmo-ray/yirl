@@ -416,14 +416,25 @@ skipp_player:
 		return;
 	if (p == 1 && !(tia.enam1 & 0x2))
 		return;
+	x = tia.missils_px[p];
+	if (tia.hmove_m[p]) {
+		int fine_adjuste = tia.hmove_m[p] >> 4;
+
+		if (fine_adjuste < 8) {
+			x -= fine_adjuste;
+		} else {
+			x += (0xf - fine_adjuste + 1);
+		}
+	}
+
 	ywCanvasMergeRectangle(main_canvas,
-			       tia.missils_px[p] * pix_per_pix_x,
+			       x * pix_per_pix_x,
 			       ATARI_SCREEN_THRESHOLD_Y + (cur - 40) * pix_per_pix_y,
 			       pix_per_pix_x, pix_per_pix_y,
 			       atari_get_color(tia.col_p[p]));
 	if (space_16) {
 		ywCanvasMergeRectangle(main_canvas,
-				       (tia.missils_px[p] + 16) * pix_per_pix_x,
+				       (x + 16) * pix_per_pix_x,
 				       ATARI_SCREEN_THRESHOLD_Y + (cur - 40) * pix_per_pix_y,
 				       pix_per_pix_x, pix_per_pix_y,
 				       atari_get_color(tia.col_p[p]));
@@ -431,7 +442,7 @@ skipp_player:
 
 	if (space_32) {
 		ywCanvasMergeRectangle(main_canvas,
-				       (tia.missils_px[p] + 32) * pix_per_pix_x,
+				       (x + 32) * pix_per_pix_x,
 				       ATARI_SCREEN_THRESHOLD_Y + (cur - 40) * pix_per_pix_y,
 				       pix_per_pix_x, pix_per_pix_y,
 				       atari_get_color(tia.col_p[p]));
@@ -439,7 +450,7 @@ skipp_player:
 
 	if (space_64) {
 		ywCanvasMergeRectangle(main_canvas,
-				       (tia.missils_px[p] + 64) * pix_per_pix_x,
+				       (x + 64) * pix_per_pix_x,
 				       ATARI_SCREEN_THRESHOLD_Y + (cur - 40) * pix_per_pix_y,
 				       pix_per_pix_x, pix_per_pix_y,
 				       atari_get_color(tia.col_p[p]));
