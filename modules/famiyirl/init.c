@@ -536,7 +536,18 @@ static void atari_do_scan_line(void)
 		atari_show_player(1, tia.gr_p1, cur);
 	}
 	if (tia.enabl & 0x02) {
-		ywCanvasMergeRectangle(main_canvas, tia.ball_p * pix_per_pix_x,
+		int x = tia.ball_p;
+		if (tia.hmove_bl) {
+			int fine_adjuste = tia.hmove_bl >> 4;
+
+			if (fine_adjuste < 8) {
+				x -= fine_adjuste;
+			} else {
+				x += (0xf - fine_adjuste + 1);
+			}
+		}
+
+		ywCanvasMergeRectangle(main_canvas, x * pix_per_pix_x,
 				       ATARI_SCREEN_THRESHOLD_Y + (cur - 40) * pix_per_pix_y,
 				       pix_per_pix_x, pix_per_pix_y,
 				       atari_get_color(tia.col_playfield));
