@@ -134,8 +134,7 @@ enum {
 /* another souce seems to say 76 cycles */
 static struct tia {
 	uint8_t col_p[2];
-	uint8_t gr_p0;
-	uint8_t gr_p1;
+	uint8_t gr_p[2];
 	uint8_t col_bg;
 	uint8_t col_playfield;
 	uint8_t vblank_mode;
@@ -154,6 +153,11 @@ static struct tia {
 	uint8_t hmove_bl;
  	uint8_t players_px[2];
  	uint8_t missils_px[2];
+	uint8_t cxmp[2];
+	uint8_t cxpfb[2];
+	uint8_t cxmfb[2];
+	uint8_t cxblpf;
+	uint8_t cxppmm;
 	uint64_t vsync_cycle;
 } tia;
 
@@ -357,6 +361,7 @@ void atari_show_player(int p, int val, int cur)
 	_Bool space_32 = 0;
 	_Bool space_64 = 0;
 	int x = tia.players_px[p];
+	int x_p = -8;
 	if (tia.hmove_p[p]) {
 		int fine_adjuste = tia.hmove_p[p] >> 4;
 
@@ -392,10 +397,10 @@ void atari_show_player(int p, int val, int cur)
 	default:
 		break;
 	}
-	if (p == 0 && !tia.gr_p0)
+	if (!tia.gr_p[p])
 		goto skipp_player;
-	if (p == 1 && !tia.gr_p1)
-		goto skipp_player;
+
+	x_p = x; /* save here for latter use in colision */
 	for (int i = 0; i < 8; ++i) {
 		int pix_val = !!(val & (1 << i));
 		if (!pix_val)
@@ -416,6 +421,7 @@ skipp_player:
 		return;
 	if (p == 1 && !(tia.enam1 & 0x2))
 		return;
+
 	x = tia.missils_px[p];
 	if (tia.hmove_m[p]) {
 		int fine_adjuste = tia.hmove_m[p] >> 4;
@@ -425,6 +431,27 @@ skipp_player:
 		} else {
 			x += (0xf - fine_adjuste + 1);
 		}
+	}
+
+	/* collision: missile x vs player x_p, pixel-perfect via gr bitmap */
+	int offset = x - x_p;
+	if (offset >= 0 && offset < 8 && (val & (1 << offset))) {
+	  tia.cxmp[p] |= 0x40; /* M0-P0 */
+	}
+	/* cross: M0-P1 or M1-P0 */
+	int other_p = p ^ 1;
+	int other_x = tia.players_px[other_p];
+	if (tia.hmove_p[other_p]) {
+	  int fa = tia.hmove_p[other_p] >> 4;
+	  if (fa < 8)
+	    other_x -= fa;
+	  else
+	    other_x += (0xf - fa + 1);
+	}
+	int other_val = tia.gr_p[other_p];
+	int cross_offset = x - other_x;
+	if (cross_offset >= 0 && cross_offset < 8 && (other_val & (1 << cross_offset))) {
+	  tia.cxmp[p] |= 0x80; /* M0-P1 */
 	}
 
 	ywCanvasMergeRectangle(main_canvas,
@@ -529,11 +556,11 @@ static void atari_do_scan_line(void)
 		atari_pf(pix_per_pix_x, pix_per_pix_y, cur);
 
 
-	if (tia.gr_p0 || tia.enam0) {
-		atari_show_player(0, tia.gr_p0, cur);
+	if (tia.gr_p[0] || tia.enam0) {
+		atari_show_player(0, tia.gr_p[0], cur);
 	}
-	if (tia.gr_p1 || tia.enam1) {
-		atari_show_player(1, tia.gr_p1, cur);
+	if (tia.gr_p[1] || tia.enam1) {
+		atari_show_player(1, tia.gr_p[1], cur);
 	}
 	if (tia.enabl & 0x02) {
 		int x = tia.ball_p;
@@ -560,7 +587,7 @@ int set_mem_atari(uint16_t addr, char val)
 {
 	if (turn_mode == DEBUG_MODE)
 		printf("set_mem_atari at %d(%x): %d\n", addr, addr, val);
-	if (addr < 0x2c || (addr >= SWCHA && addr <= T1024T)) {
+	if (addr <= 0x2c || (addr >= SWCHA && addr <= T1024T)) {
 		/**
 		 **  262 row total: **
 		 * 3 vertical sync (first lines)
@@ -591,6 +618,16 @@ int set_mem_atari(uint16_t addr, char val)
 			break;
 		case RESBL:
 			tia.ball_p = atari_current_col();
+			break;
+		case CXCLR:
+			tia.cxmp[0] = 0;
+			tia.cxmp[1] = 0;
+			tia.cxpfb[0] = 0;
+			tia.cxpfb[1] = 0;
+			tia.cxmfb[0] = 0;
+			tia.cxmfb[1] = 0;
+			tia.cxblpf = 0;
+			tia.cxppmm = 0;
 			break;
 		case HMCLR:
 			tia.hmp[0] = tia.hmp[1] = 0;
@@ -674,12 +711,12 @@ int set_mem_atari(uint16_t addr, char val)
 			return 0;
 		case GRP0:
 		{
-			tia.gr_p0 = val;
+			tia.gr_p[0] = val;
 			return 0;
 		}
 		case GRP1:
 		{
-			tia.gr_p1 = val;
+			tia.gr_p[1] = val;
 			return 0;
 		}
 		case COLUP0:
@@ -718,10 +755,16 @@ unsigned char get_mem_atari(uint16_t addr)
 		return cartridge[addr - 0xf000];
 	} else if (addr <= INPT5) {
 		switch (addr) {
+		case CXM0P:
+			return tia.cxmp[0];
+		case CXM1P:
+			return tia.cxmp[1];
 		case INPT4:
 			return ((!riot.p_fire_press[0]) << 7);
 		case INPT5:
 			return ((!riot.p_fire_press[1]) << 7);
+		default:
+			printf("unimplented tia read %x\n", addr);
 		}
 	} else if (addr >= SWCHA && addr <= T1024T) {
 		switch(addr) {
@@ -737,6 +780,7 @@ unsigned char get_mem_atari(uint16_t addr)
 		case SWCHA:
 			return riot.direction_press;
 		default:
+			printf("unimplented riot read %x\n", addr);
 		}
 	} else if (addr > 0x2c) {
 		return ram[addr];
