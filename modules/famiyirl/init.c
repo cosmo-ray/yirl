@@ -141,8 +141,7 @@ static struct tia {
 	uint8_t nusiz[2];
  	uint8_t ball_p;
 	uint8_t enabl;
-	uint8_t enam0;
-	uint8_t enam1;
+	uint8_t enam[2];
 	uint8_t ctrlpf;
 	uint8_t pf[3];
 	uint8_t hmp[2];
@@ -341,7 +340,7 @@ void arati_print_player_pixel(int p, int x, int i, int width,
 
 }
 
-void atari_show_player(int p, int val, int cur)
+void atari_show_player(int p, int val, int cur, int x_p[static 2], int m_x[static 2])
 {
 	/* | Bits (2–0) | Copies | Spacing (TIA pixels) | Notes              | */
 	/* | ---------- | ------ | -------------------- | ------------------ | */
@@ -360,17 +359,7 @@ void atari_show_player(int p, int val, int cur)
 	_Bool space_16 = 0;
 	_Bool space_32 = 0;
 	_Bool space_64 = 0;
-	int x = tia.players_px[p];
-	int x_p = -8;
-	if (tia.hmove_p[p]) {
-		int fine_adjuste = tia.hmove_p[p] >> 4;
-
-		if (fine_adjuste < 8) {
-			x -= fine_adjuste;
-		} else {
-			x += (0xf - fine_adjuste + 1);
-		}
-	}
+	int x = x_p[p];
 
 	switch (tia.nusiz[p]) {
 	case 3:
@@ -400,7 +389,6 @@ void atari_show_player(int p, int val, int cur)
 	if (!tia.gr_p[p])
 		goto skipp_player;
 
-	x_p = x; /* save here for latter use in colision */
 	for (int i = 0; i < 8; ++i) {
 		int pix_val = !!(val & (1 << i));
 		if (!pix_val)
@@ -417,37 +405,19 @@ void atari_show_player(int p, int val, int cur)
 		}
 	}
 skipp_player:
-	if (p == 0 && !(tia.enam0 & 0x2))
-		return;
-	if (p == 1 && !(tia.enam1 & 0x2))
+	if (!(tia.enam[p] & 0x2))
 		return;
 
-	x = tia.missils_px[p];
-	if (tia.hmove_m[p]) {
-		int fine_adjuste = tia.hmove_m[p] >> 4;
-
-		if (fine_adjuste < 8) {
-			x -= fine_adjuste;
-		} else {
-			x += (0xf - fine_adjuste + 1);
-		}
-	}
+	x = m_x[p];
 
 	/* collision: missile x vs player x_p, pixel-perfect via gr bitmap */
-	int offset = x - x_p;
+	int offset = x - x_p[p];
 	if (offset >= 0 && offset < 8 && (val & (1 << offset))) {
 	  tia.cxmp[p] |= 0x40; /* M0-P0 */
 	}
 	/* cross: M0-P1 or M1-P0 */
 	int other_p = p ^ 1;
-	int other_x = tia.players_px[other_p];
-	if (tia.hmove_p[other_p]) {
-	  int fa = tia.hmove_p[other_p] >> 4;
-	  if (fa < 8)
-	    other_x -= fa;
-	  else
-	    other_x += (0xf - fa + 1);
-	}
+	int other_x = x_p[other_p];
 	int other_val = tia.gr_p[other_p];
 	int cross_offset = x - other_x;
 	if (cross_offset >= 0 && cross_offset < 8 && (other_val & (1 << cross_offset))) {
@@ -541,6 +511,8 @@ static void atari_do_scan_line(void)
 	int cur = atari_curent_scane_line();
 	int pix_per_pix_x = wid_width / 160;
 	int pix_per_pix_y = wid_height / 192;
+	int players_x[2] = {-8, -8}; /* out of screen by default */
+	int missils_x[2] = {-8, -8}; /* out of screen by default */
 	if (cur < 40) {
 		/* in blank */
 		return;
@@ -556,12 +528,37 @@ static void atari_do_scan_line(void)
 		atari_pf(pix_per_pix_x, pix_per_pix_y, cur);
 
 
-	if (tia.gr_p[0] || tia.enam0) {
-		atari_show_player(0, tia.gr_p[0], cur);
+	for (int i = 0; i < 2; ++i) {
+		if (tia.gr_p[i]) {
+			players_x[i] = tia.players_px[i];
+			if (tia.hmove_p[i]) {
+				int fine_adjuste = tia.hmove_p[i] >> 4;
+
+				if (fine_adjuste < 8) {
+					players_x[i] -= fine_adjuste;
+				} else {
+					players_x[i] += (0xf - fine_adjuste + 1);
+				}
+			}
+		}
+		if (tia.enam[i] & 0x2) {
+			missils_x[i] = tia.missils_px[i];
+			if (tia.hmove_m[i]) {
+				int fine_adjuste = tia.hmove_m[i] >> 4;
+
+				if (fine_adjuste < 8) {
+					missils_x[i] -= fine_adjuste;
+				} else {
+					missils_x[i] += (0xf - fine_adjuste + 1);
+				}
+			}
+		}
 	}
-	if (tia.gr_p[1] || tia.enam1) {
-		atari_show_player(1, tia.gr_p[1], cur);
-	}
+
+	for (int i = 0; i < 2; ++i)
+		if (tia.gr_p[i] || tia.enam[i])
+			atari_show_player(i, tia.gr_p[i], cur, players_x, missils_x);
+
 	if (tia.enabl & 0x02) {
 		int x = tia.ball_p;
 		if (tia.hmove_bl) {
@@ -732,10 +729,10 @@ int set_mem_atari(uint16_t addr, char val)
 			tia.col_playfield = val;
 			return 0;
 		case ENAM0:
-			tia.enam0 = val;
+			tia.enam[0] = val;
 			return 0;
 		case ENAM1:
-			tia.enam1 = val;
+			tia.enam[1] = val;
 			return 0;
 		default:
 		  printf("peripheric write at %x\n", addr);
