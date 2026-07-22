@@ -555,6 +555,15 @@ static void atari_do_scan_line(void)
 		}
 	}
 
+	tia.cxppmm |= ((missils_x[0] == missils_x[1] && missils_x[0]) << 6);
+	int offset = players_x[0] - players_x[1];
+
+	if (offset >= 0 && offset < 8 && (tia.gr_p[0] & (tia.gr_p[1] >> offset)))
+		tia.cxppmm |= 0x80;
+	else if (offset < 0 && offset > -8 && (tia.gr_p[1] & (tia.gr_p[0] >> -offset)))
+		tia.cxppmm |= 0x80;
+
+
 	for (int i = 0; i < 2; ++i)
 		if (tia.gr_p[i] || tia.enam[i])
 			atari_show_player(i, tia.gr_p[i], cur, players_x, missils_x);
