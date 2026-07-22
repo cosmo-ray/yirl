@@ -554,6 +554,16 @@ static void atari_do_scan_line(void)
 			}
 		}
 	}
+	int xball = tia.ball_p;
+	if (tia.hmove_bl) {
+		int fine_adjuste = tia.hmove_bl >> 4;
+
+		if (fine_adjuste < 8) {
+			xball -= fine_adjuste;
+		} else {
+			xball += (0xf - fine_adjuste + 1);
+		}
+	}
 
 	tia.cxppmm |= ((missils_x[0] == missils_x[1] && missils_x[0]) << 6);
 	int offset = players_x[0] - players_x[1];
@@ -564,21 +574,23 @@ static void atari_do_scan_line(void)
 		tia.cxppmm |= 0x80;
 
 
-	for (int i = 0; i < 2; ++i)
+	for (int i = 0; i < 2; ++i) {
 		if (tia.gr_p[i] || tia.enam[i])
 			atari_show_player(i, tia.gr_p[i], cur, players_x, missils_x);
 
-	if (tia.enabl & 0x02) {
-		int x = tia.ball_p;
-		if (tia.hmove_bl) {
-			int fine_adjuste = tia.hmove_bl >> 4;
+		
+		if (tia.enabl & 0x02) {
+			tia.cxmfb[i] |= (xball == missils_x[i]) << 6;
 
-			if (fine_adjuste < 8) {
-				x -= fine_adjuste;
-			} else {
-				x += (0xf - fine_adjuste + 1);
+			offset = xball - players_x[i];
+			if (offset >= 0 && offset < 8 && (tia.gr_p[i] & (1 << offset))) {
+				tia.cxpfb[i] |= 0x40;
 			}
 		}
+	}
+
+	if (tia.enabl & 0x02) {
+		int x = xball;
 
 		ywCanvasMergeRectangle(main_canvas, x * pix_per_pix_x,
 				       ATARI_SCREEN_THRESHOLD_Y + (cur - 40) * pix_per_pix_y,
@@ -765,6 +777,18 @@ unsigned char get_mem_atari(uint16_t addr)
 			return tia.cxmp[0];
 		case CXM1P:
 			return tia.cxmp[1];
+		case CXP0FB:
+			return tia.cxpfb[0];
+		case CXP1FB:
+			return tia.cxpfb[1];
+		case CXM0FB:
+			return tia.cxmfb[0];
+		case CXM1FB:
+			return tia.cxmfb[1];
+		case CXBLPF:
+			return tia.cxblpf;
+		case CXPPMM:
+			return tia.cxppmm;
 		case INPT4:
 			return ((!riot.p_fire_press[0]) << 7);
 		case INPT5:
