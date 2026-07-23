@@ -454,22 +454,22 @@ skipp_player:
 	}
 }
 
-static void atari_pf_show_block(int pix_per_pix_x, int pix_per_pix_y, int cur, int v, int pf_add, int bcheck)
+static void atari_pf_show_block(int pix_per_pix_x, int pix_per_pix_y, int cur, int v, int pf_add)
 {
-	int bit = bcheck & v;
-	if (bit) {
-		uint8_t col_p0 = (tia.ctrlpf & 0x02) ? tia.col_p[0] : tia.col_playfield;
-		uint8_t col_p1 = (tia.ctrlpf & 0x02) ? tia.col_p[1] : tia.col_playfield;
-		ywCanvasMergeRectangle(main_canvas, pf_add * pix_per_pix_x,
-				       ATARI_SCREEN_THRESHOLD_Y + (cur - 40) * pix_per_pix_y,
-				       pix_per_pix_x * 4, pix_per_pix_y,
-				       atari_get_color(col_p0));
-		ywCanvasMergeRectangle(main_canvas, 160 * pix_per_pix_x - pf_add * pix_per_pix_x - 4 * pix_per_pix_x,
-				       ATARI_SCREEN_THRESHOLD_Y + (cur - 40) * pix_per_pix_y,
-				       pix_per_pix_x * 4, pix_per_pix_y,
-				       atari_get_color(col_p1));
-
-	}
+	uint8_t col_p0 = (tia.ctrlpf & 0x02) ? tia.col_p[0] : tia.col_playfield;
+	uint8_t col_p1 = (tia.ctrlpf & 0x02) ? tia.col_p[1] : tia.col_playfield;
+	/* I guess I could check for colision with player and missils here */
+	ywCanvasMergeRectangle(main_canvas, pf_add * pix_per_pix_x,
+			       ATARI_SCREEN_THRESHOLD_Y + (cur - 40) * pix_per_pix_y,
+			       pix_per_pix_x * 4, pix_per_pix_y,
+			       atari_get_color(col_p0));
+	int xpos = tia.ctrlpf & 1 ?
+		160 * pix_per_pix_x - pf_add * pix_per_pix_x - 4 * pix_per_pix_x :
+		80 * pix_per_pix_x + pf_add * pix_per_pix_x;
+	ywCanvasMergeRectangle(main_canvas, xpos,
+			       ATARI_SCREEN_THRESHOLD_Y + (cur - 40) * pix_per_pix_y,
+			       pix_per_pix_x * 4, pix_per_pix_y,
+			       atari_get_color(col_p1));
 }
 
 static void atari_pf(int pix_per_pix_x, int pix_per_pix_y, int cur)
@@ -479,7 +479,8 @@ static void atari_pf(int pix_per_pix_x, int pix_per_pix_y, int cur)
 		unsigned int v = tia.pf[0] & 0xf0;
 
 		while (v) {
-			atari_pf_show_block(pix_per_pix_x, pix_per_pix_y, cur, v, pf_add, 0x10);
+			if (v & 0x10)
+				atari_pf_show_block(pix_per_pix_x, pix_per_pix_y, cur, v, pf_add);
 			pf_add += 4;
 			v = v >> 1;
 			v &= 0xf0;
@@ -487,7 +488,8 @@ static void atari_pf(int pix_per_pix_x, int pix_per_pix_y, int cur)
 		v = tia.pf[1];
 		pf_add = 4 * 4;
 		while (v) {
-			atari_pf_show_block(pix_per_pix_x, pix_per_pix_y, cur, v, pf_add, 0x80);
+			if (v & 0x80)
+				atari_pf_show_block(pix_per_pix_x, pix_per_pix_y, cur, v, pf_add);
 			pf_add += 4;
 			v = v << 1;
 			v &= 0xff;
@@ -495,7 +497,8 @@ static void atari_pf(int pix_per_pix_x, int pix_per_pix_y, int cur)
 		v = tia.pf[2];
 		pf_add = 12 * 4;
 		while (v) {
-			atari_pf_show_block(pix_per_pix_x, pix_per_pix_y, cur, v, pf_add, 0x01);
+			if (v & 0x01)
+				atari_pf_show_block(pix_per_pix_x, pix_per_pix_y, cur, v, pf_add);
 			pf_add += 4;
 			v = v >> 1;
 			v &= 0xff;
@@ -519,14 +522,6 @@ static void atari_do_scan_line(void)
 	}
 	if (cur > 232)
 		return;
-	ywCanvasMergeRectangle(main_canvas, 0,
-			       ATARI_SCREEN_THRESHOLD_Y + (cur - 40) * pix_per_pix_y,
-			       160 * pix_per_pix_x, pix_per_pix_y,
-			       atari_get_color(tia.col_bg));
-
-	if (tia.ctrlpf & 0x04)
-		atari_pf(pix_per_pix_x, pix_per_pix_y, cur);
-
 
 	for (int i = 0; i < 2; ++i) {
 		if (tia.gr_p[i]) {
@@ -573,6 +568,14 @@ static void atari_do_scan_line(void)
 	else if (offset < 0 && offset > -8 && (tia.gr_p[1] & (tia.gr_p[0] >> -offset)))
 		tia.cxppmm |= 0x80;
 
+
+	ywCanvasMergeRectangle(main_canvas, 0,
+			       ATARI_SCREEN_THRESHOLD_Y + (cur - 40) * pix_per_pix_y,
+			       160 * pix_per_pix_x, pix_per_pix_y,
+			       atari_get_color(tia.col_bg));
+
+	if (tia.ctrlpf & 0x04)
+		atari_pf(pix_per_pix_x, pix_per_pix_y, cur);
 
 	for (int i = 0; i < 2; ++i) {
 		if (tia.gr_p[i] || tia.enam[i])
