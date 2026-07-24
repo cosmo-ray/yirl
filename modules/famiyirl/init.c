@@ -168,8 +168,12 @@ static struct riot {
 	uint8_t timer;
 	uint8_t direction_press;
 	uint8_t p_fire_press[2];
+	uint8_t console_button;
+	/* unused so far, but maybe someday */
+	_Bool swacnt;
+	_Bool swbcnt;
 } riot = {
-	.direction_press = 0xFF,
+	.direction_press = 0xFF, .console_button = 0xff
 };
 
 /**
@@ -779,6 +783,12 @@ int set_mem_atari(uint16_t addr, char val)
 		case ENAM1:
 			tia.enam[1] = val;
 			return 0;
+		case SWACNT:
+			riot.swacnt = val;
+			break;
+		case SWBCNT:
+			riot.swbcnt = val;
+			break;
 		default:
 		  printf("peripheric write at %x\n", addr);
 		}
@@ -833,6 +843,8 @@ unsigned char get_mem_atari(uint16_t addr)
 		}
 		case SWCHA:
 			return riot.direction_press;
+		case SWCHB:
+			return riot.console_button;
 		default:
 			printf("unimplented riot read %x\n", addr);
 		}
@@ -1665,6 +1677,36 @@ void *fy_action(int nbArgs, void **args)
 			riot.p_fire_press[1] = 1;
 		else if (yevIsKeyUp(events, '\n'))
 			riot.p_fire_press[1] = 0;
+
+		/* player 1 dificulty */
+		if (yevIsKeyDown(events, "1"))
+			riot.console_button &= 0xbf;
+		if (yevIsKeyDown(events, "2"))
+			riot.console_button |= 0x40;
+
+		/* player 2 dificulty */
+		if (yevIsKeyDown(events, "9"))
+			riot.console_button &= 0x7f;
+		if (yevIsKeyDown(events, "0"))
+			riot.console_button |= 0x80;
+
+		/* color button */
+		if (yevIsKeyDown(events, "4"))
+			riot.console_button &= 0xfb;
+		if (yevIsKeyDown(events, "5"))
+			riot.console_button |= 0x04;
+
+		/* reset */
+		if (yevIsKeyDown(events, '6'))
+			riot.console_button &= 0xfe;
+		else if (yevIsKeyUp(events, '6'))
+			riot.console_button |= 1;
+
+		/* select */
+		if (yevIsKeyDown(events, ' '))
+			riot.console_button &= 0xfd;
+		else if (yevIsKeyUp(events, ' '))
+			riot.console_button |= 2;
 	}
 
 	if (yevIsKeyDown(events, 'i')) {
