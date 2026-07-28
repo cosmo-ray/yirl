@@ -24,6 +24,7 @@
 #include "keydef.h"
 #include "events.h"
 #include "menu.h"
+#include "text-screen.h"
 #include "game.h"
 #include "container.h"
 #include "canvas.h"

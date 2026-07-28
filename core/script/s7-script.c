@@ -33,6 +33,7 @@
 #include "filesystem.h"
 #include "event-base-objs.h"
 #include "timer.h"
+#include "text-screen.h"
 
 static int t = -1;
 

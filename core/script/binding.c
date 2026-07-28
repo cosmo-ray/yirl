@@ -284,6 +284,8 @@ BIND_EI(ywMapCamPointedContainId, 2, 0);
 
 BIND_SS(ygReCreateString, 2, 0);
 
+BIND_E(ywTextScreenTextEnt, 1, 0);
+
 BIND_E(ywMapLen, 1, 0);
 BIND_E(ywMapW, 1, 0);
 BIND_E(ywMapH, 1, 0);
