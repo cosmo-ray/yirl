@@ -155,6 +155,9 @@ static struct tia {
 	uint8_t cxmp[2];
 	uint8_t cxpfb[2];
 	uint8_t cxmfb[2];
+	uint8_t audc[2];
+	uint8_t audf[2];
+	uint8_t audv[2];
 	uint8_t cxblpf;
 	uint8_t cxppmm;
 	uint64_t vsync_cycle;
@@ -765,6 +768,18 @@ int set_mem_atari(uint16_t addr, char val)
 			tia.gr_p[1] = val;
 			return 0;
 		}
+		case AUDC0:
+		case AUDC1:
+			tia.audc[addr - AUDC0] = val;
+			break;
+		case AUDF0:
+		case AUDF1:
+			tia.audf[addr - AUDF0] = val;
+			break;
+		case AUDV0:
+		case AUDV1:
+			tia.audv[addr - AUDV0] = val;
+			break;
 		case COLUP0:
 			tia.col_p[0] = val;
 			return 0;
