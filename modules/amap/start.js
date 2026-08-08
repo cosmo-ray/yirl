@@ -462,6 +462,23 @@ function print_all(wid)
 		}
 		let txt_name = yeGetStringAt(object, 0)
 		let obj_texture = yeGet(textures, txt_name)
+		if (yeType(obj_texture) == YHASH) {
+		    let path = obj_texture.gets("path")
+		    let sizes = obj_texture.get("rects")
+		    let mv_objs = yeTryCreateArray(mi, "_mv_animation")
+		    let mv_info = yeCreateArray(mv_objs)
+		    let o = ywCanvasNewImg(wid, j * SPRITE_SIZE, i * SPRITE_SIZE,
+					  path, sizes.get(0))
+		    yePushBack(mv_info, sizes)
+		    yePushBack(mv_info, o)
+		    yeCreateString(path, mv_info)
+		    yeCreateInt(0, mv_info)
+		    yeCreateInt(0, mv_info)
+		    yeCreateIntAt(TYPE_OBJ, o, "amap-t", YCANVAS_UDATA_IDX)
+		    yeCreateIntAt(ic, o, "objidx", CANVAS_OBJ_IDX)
+		    object.setAt(OBJECT_CANEL, o)
+		    continue;
+		}
 		let o = ywCanvasNewImgFromTexture(wid, j * SPRITE_SIZE, i * SPRITE_SIZE,
 						  obj_texture)
 		let scale = texture_32x32.getf(txt_name)
@@ -1023,14 +1040,25 @@ function amap_action(wid, events)
 	    let tt = o_info.geti(ANIM_MV_TT)
 	    if (tt > 100000) {
 		let c = o_info.get(ANIM_MV_CANVAS)
+		let ctype = yeGetIntAt(c, YCANVAS_UDATA_IDX)
 		let path = o_info.get(ANIM_MV_PATH)
 		let c_pos = ywCanvasObjPos(c)
+		let objidx = null
+		if (ctype == TYPE_OBJ)
+		    objidx = c.geti(CANVAS_OBJ_IDX)
 		yeIncrAt(o_info, ANIM_MV_IDX)
 		let tmp = ywCanvasNewImg(wid, ywPosX(c_pos), ywPosY(c_pos), path.s(),
 					 sizes.get(o_info.geti(ANIM_MV_IDX) % sizes.len()))
 		ywCanvasRemoveObj(wid, c)
 		o_info.setAt(ANIM_MV_CANVAS, tmp)
-		yeCreateIntAt(TYPE_ANIMATION, tmp, "amap-t", YCANVAS_UDATA_IDX)
+		if (ctype == TYPE_OBJ) {
+		    yeCreateIntAt(TYPE_OBJ, tmp, "amap-t", YCANVAS_UDATA_IDX)
+		    yeCreateIntAt(objidx, tmp, "objidx", CANVAS_OBJ_IDX)
+		    let obj = yeGet(mi.get("objs"), objidx)
+		    obj.setAt(OBJECT_CANEL, tmp)
+		} else {
+		    yeCreateIntAt(TYPE_ANIMATION, tmp, "amap-t", YCANVAS_UDATA_IDX)
+		}
 		o_info.setAt(ANIM_MV_TT, 0)
 	    }
 	}
@@ -1572,6 +1600,10 @@ function amap_init(wid)
 	for (let i = 0; i < yeLen(extra_textures); ++i) {
 	    let name = yeGetKeyAt(extra_textures, i)
 	    let txt = extra_textures.get(i)
+	    if (yeType(txt) == YHASH) {
+		textures.setAt(name, txt)
+		continue;
+	    }
 	    let rect = null
 
 	    if (yeType(txt) != YSTRING) {
