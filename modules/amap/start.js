@@ -462,6 +462,12 @@ function print_all(wid)
 		}
 		let txt_name = yeGetStringAt(object, 0)
 		let obj_texture = yeGet(textures, txt_name)
+		let objs_anim = wid.get("_objs_anim")
+		if (objs_anim) {
+		    let seq = objs_anim.get(txt_name)
+		    if (seq)
+			obj_texture = seq.get(0)
+		}
 		let o = ywCanvasNewImgFromTexture(wid, j * SPRITE_SIZE, i * SPRITE_SIZE,
 						  obj_texture)
 		let scale = texture_32x32.getf(txt_name)
@@ -1036,6 +1042,33 @@ function amap_action(wid, events)
 	}
     }
 
+    let objs_anim = wid.get("_objs_anim")
+    let _objs_anim_t = wid.geti("_objs-anim-t") + turn_timer
+    if (objs_anim && _objs_anim_t > 250000) {
+	_objs_anim_t = 0
+	let _objs_anim_idx = wid.geti("_objs-anim-idx")
+	let objs = mi.get("objs")
+	for (o of objs) {
+	    let txt_name = o.gets(0)
+	    let frames = objs_anim.get(txt_name)
+	    if (!frames || frames.len() < 2)
+		continue
+	    let o_canel = o.get(OBJECT_CANEL)
+	    if (!o_canel)
+		continue
+	    let pos = ywCanvasObjPos(o_canel)
+	    let objidx = o_canel.geti(CANVAS_OBJ_IDX)
+	    let new_o = ywCanvasNewImgFromTexture(wid, ywPosX(pos), ywPosY(pos),
+						  frames.get(_objs_anim_idx % frames.len()))
+	    yeCreateIntAt(TYPE_OBJ, new_o, "amap-t", YCANVAS_UDATA_IDX)
+	    yeCreateIntAt(objidx, new_o, "objidx", CANVAS_OBJ_IDX)
+	    ywCanvasRemoveObj(wid, o_canel)
+	    o.setAt(OBJECT_CANEL, new_o)
+	}
+	wid.setAt("_objs-anim-idx", _objs_anim_idx + 1)
+    }
+    wid.setAt("_objs-anim-t", _objs_anim_t)
+
     let pc_canvas_obj = yGenericCurCanvas(pc_handler)
     let projection = wid.get("pc-collision-projection")
     let cols = ywCanvasNewProjectedCollisionsArrayExt(wid, pc_canvas_obj, projection)
@@ -1569,9 +1602,17 @@ function amap_init(wid)
 
     let extra_textures = wid.get("extra-textures")
     if (extra_textures) {
+	let objs_anim = yeCreateHash(wid, "_objs_anim")
 	for (let i = 0; i < yeLen(extra_textures); ++i) {
 	    let name = yeGetKeyAt(extra_textures, i)
 	    let txt = extra_textures.get(i)
+	    if (yeType(txt) == YHASH) {
+		let path = txt.gets("path")
+		let frames = yeCreateArray(objs_anim, name)
+		for (r of txt.get("rects"))
+		    ywTextureNewImg(path, r, frames, null)
+		continue;
+	    }
 	    let rect = null
 
 	    if (yeType(txt) != YSTRING) {
