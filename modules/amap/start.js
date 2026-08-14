@@ -1213,6 +1213,9 @@ function amap_action(wid, events)
 		ret = ygGet(mon_info.gets("dead")).call(wid, c, mon_info, turn_timer)
 	    }
 	    if (ret & 2) {
+		let drop_cb = wid.get("_mi").gets("monster-drop")
+		if (drop_cb)
+		    ygGet(drop_cb).call(wid, c, mon_info)
 		ywCanvasRemoveObj(wid, c.get(MONSTER_OBJ))
 		yeRemoveChildByEntity(monsters, c)
 		let next_lvl = wid.geti("next-lvl")
