@@ -109,8 +109,14 @@ function print_life(wid, pc, pc_canel)
     if (wid.geti("life-bar")) {
 	const max_life = pc.geti("max_life")
 	const life = pc.geti("life")
+	let next_lvl = wid.geti("next-lvl")
 
 	start_y += 20
+	life_array.push(ywCanvasNewRectangleExt(wid, start_x - 10, start_y - 10,
+						 Math.max(max_life * 2 + 10,
+							  next_lvl > 0 ? next_lvl * 2 + 10 : 0) + 132,
+						 next_lvl > 0 ? 58 : 28,
+						"rgba: 255 255 255 100", 3))
 	life_array.push(ywCanvasNewTextByStr(wid, start_x, start_y, "life:"))
 	start_x += 60
 	life_array.push(ywCanvasNewRectangle(wid, start_x, start_y, max_life * 2 + 10, 16,
