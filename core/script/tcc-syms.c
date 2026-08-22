@@ -33,6 +33,7 @@
 #include "events.h"
 #include "menu.h"
 #include "simple-net.h"
+#include <SDL2/SDL.h>
 
 void	fflushout(void)
 {
@@ -279,6 +280,14 @@ void	tccAddSyms(TCCState *l)
   ADD_SYM(yeIteratorGet);
   ADD_SYM(yeIteratorStep);
   ADD_SYM(yeIteratorKey);
+
+  /* SDL audio (famiyirl, ...) */
+  ADD_SYM(SDL_OpenAudioDevice);
+  ADD_SYM(SDL_QueueAudio);
+  ADD_SYM(SDL_PauseAudioDevice);
+  ADD_SYM(SDL_GetQueuedAudioSize);
+  ADD_SYM(SDL_ClearQueuedAudio);
+  ADD_SYM(SDL_GetError);
 
 #if defined(__unix__) || defined(__APPLE__)
   tcc_add_symbol(l, "yuiDebugPrint", yuiDebugPrint);

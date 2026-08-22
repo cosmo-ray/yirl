@@ -1,5 +1,41 @@
 #include <yirl/all.h>
 
+/**
+ * SDL audio API: declarations minimales pour tcc.
+ * A remplacer par #include <SDL.h> quand tcc aura acces aux headers SDL.
+ * Symboles a exporter cote tcc-syms.c:
+ *   SDL_OpenAudioDevice, SDL_QueueAudio, SDL_PauseAudioDevice,
+ *   SDL_GetQueuedAudioSize, SDL_ClearQueuedAudio, SDL_GetError
+ */
+typedef unsigned char Uint8;
+typedef unsigned short Uint16;
+typedef unsigned int Uint32;
+typedef Uint32 SDL_AudioDeviceID;
+
+typedef struct SDL_AudioSpec {
+	int freq;
+	Uint16 format;
+	Uint8 channels;
+	Uint8 silence;
+	Uint16 samples;
+	Uint16 padding;
+	Uint32 size;
+	void (*callback)(void *userdata, Uint8 *stream, int len);
+	void *userdata;
+} SDL_AudioSpec;
+
+#define AUDIO_S16SYS 0x8010
+
+extern SDL_AudioDeviceID SDL_OpenAudioDevice(const char *device, int iscapture,
+					     const SDL_AudioSpec *desired,
+					     SDL_AudioSpec *obtained,
+					     int allowed_changes);
+extern int SDL_QueueAudio(SDL_AudioDeviceID dev, const void *data, Uint32 len);
+extern void SDL_PauseAudioDevice(SDL_AudioDeviceID dev, int pause_on);
+extern Uint32 SDL_GetQueuedAudioSize(SDL_AudioDeviceID dev);
+extern void SDL_ClearQueuedAudio(SDL_AudioDeviceID dev);
+extern const char *SDL_GetError(void);
+
 #define YIRL_0_MODE 0
 #define NES_MODE 1
 #define ATARI_MODE 2
@@ -178,6 +214,172 @@ static struct riot {
 } riot = {
 	.direction_press = 0xFF, .console_button = 0xff
 };
+
+/* ----------------- TIA audio (d'apres Ron Fries / MAME) ------------------ */
+
+#define AU_POLY4_SIZE 15
+#define AU_POLY5_SIZE 31
+#define AU_POLY9_SIZE 511
+#define AU_SAMPLE_RATE 31440
+#define AU_GAIN 1092          /* 2 canaux * 15 * 1092 < 32768 */
+#define AU_QUEUE_MAX 16384    /* bytes queues max, backpressure fast-forward */
+
+static const Uint8 au_bit4[AU_POLY4_SIZE] = {1,1,0,1,1,1,0,0,0,0,1,0,1,0,0};
+static const Uint8 au_bit5[AU_POLY5_SIZE] = {
+	0,0,1,0,1,1,0,0,1,1,1,1,1,0,0,0,1,1,0,1,
+	1,1,0,1,0,1,0,0,0,0,1 };
+/* une seule impulsion par cycle de 31: toggle 1x/31 ticks -> f = 31400/62 */
+static const Uint8 au_div31[AU_POLY5_SIZE] = {
+	0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+	0,0,0,0,0,0,0,0,0,0,0 };
+static Uint8 au_bit9[AU_POLY9_SIZE];
+
+static SDL_AudioDeviceID au_dev;
+
+struct tia_au_channel {
+	Uint8 p4;
+	Uint8 p5;
+	Uint16 p9;
+	Uint8 div_n_cnt;
+	Uint8 div_3_cnt;
+	int outvol;
+};
+
+static struct tia_au_channel au_ch[2];
+
+static int16_t au_buf[512];
+static int au_buf_cnt;
+
+static void atari_audio_init(void)
+{
+	/* poly9: LFSR 9 bits, taps 9/5 (comme MAME), deterministe */
+	unsigned int x = AU_POLY9_SIZE;
+
+	for (int i = 0; i < AU_POLY9_SIZE; ++i) {
+		int bit0 = x & 1;
+		int bit1 = (x >> 4) & 1;
+
+		au_bit9[i] = x & 1;
+		x = (x >> 1) | ((bit0 ^ bit1) << 8);
+	}
+	au_ch[0] = (struct tia_au_channel){.div_3_cnt = 3};
+	au_ch[1] = (struct tia_au_channel){.div_3_cnt = 3};
+
+	au_dev = SDL_OpenAudioDevice(NULL, 0, &(SDL_AudioSpec){
+		.freq = AU_SAMPLE_RATE,
+		.format = AUDIO_S16SYS,
+		.channels = 1,
+		.samples = 512,
+	}, NULL, 0);
+	if (!au_dev) {
+		printf("audio open fail: %s\n", SDL_GetError());
+		return;
+	}
+	SDL_PauseAudioDevice(au_dev, 0);
+}
+
+static void atari_audio_flush(void)
+{
+	if (!au_dev || !au_buf_cnt)
+		return;
+	/* si on a trop d'avance (fast-forward), on drop */
+	if (SDL_GetQueuedAudioSize(au_dev) > AU_QUEUE_MAX) {
+		au_buf_cnt = 0;
+		return;
+	}
+	SDL_QueueAudio(au_dev, au_buf, au_buf_cnt * sizeof(int16_t));
+	au_buf_cnt = 0;
+}
+
+static void atari_audio_tick_chan(int c)
+{
+	struct tia_au_channel *ch = &au_ch[c];
+	Uint8 audc = tia.audc[c] & 0x0f;
+	Uint8 audf = tia.audf[c] & 0x1f;
+	Uint8 audv = tia.audv[c] & 0x0f;
+
+	/* modes sortie constante (set to 1) */
+	if (audc == 0x0 || audc == 0xb) {
+		ch->outvol = audv;
+		return;
+	}
+
+	Uint8 div_n_max = audf + 1;
+	/* div6/div93: le diviseur de base est multiplie par 3 */
+	if ((audc & 0x0c) == 0x0c && audc != 0x0f)
+		div_n_max *= 3;
+
+	/* on ne descend jamais a 0: 0 veut dire pas de clock ce tick */
+	if (ch->div_n_cnt > 1) {
+		--ch->div_n_cnt;
+		return;
+	}
+	ch->div_n_cnt = div_n_max;
+
+	Uint8 prev_bit5 = au_bit5[ch->p5];
+	/* p5 sert a plusieurs choses, il avance a chaque tick d'horloge */
+	if (++ch->p5 == AU_POLY5_SIZE)
+		ch->p5 = 0;
+
+	switch (audc) {
+	case 0x1:               /* poly4 */
+	case 0x2:               /* div31 -> poly4 */
+	case 0x3:               /* poly5 -> poly4 */
+		if ((audc == 0x1) ||
+		    (audc == 0x2 && au_div31[ch->p5]) ||
+		    (audc == 0x3 && au_bit5[ch->p5])) {
+			if (++ch->p4 == AU_POLY4_SIZE)
+				ch->p4 = 0;
+			ch->outvol = au_bit4[ch->p4] ? audv : 0;
+		}
+		break;
+	case 0x4:               /* pure */
+	case 0x5:               /* pure */
+	case 0x6:               /* div31 -> pure */
+	case 0x7:               /* poly5 -> pure */
+		if ((audc < 0x6) ||
+		    (audc == 0x6 && au_div31[ch->p5]) ||
+		    (audc == 0x7 && au_bit5[ch->p5]))
+			ch->outvol = ch->outvol ? 0 : audv;
+		break;
+	case 0x8:               /* poly9 */
+		if (++ch->p9 == AU_POLY9_SIZE)
+			ch->p9 = 0;
+		ch->outvol = au_bit9[ch->p9] ? audv : 0;
+		break;
+	case 0x9:               /* poly5 */
+		ch->outvol = au_bit5[ch->p5] ? audv : 0;
+		break;
+	case 0xa:               /* div31 -> poly5 */
+		if (au_div31[ch->p5])
+			ch->outvol = au_bit5[ch->p5] ? audv : 0;
+		break;
+	case 0xc:               /* div6 pure */
+	case 0xd:               /* div6 pure */
+	case 0xe:               /* div93 pure */
+		if (audc < 0xe || au_div31[ch->p5])
+			ch->outvol = ch->outvol ? 0 : audv;
+		break;
+	case 0xf:               /* poly5 -> div3 -> pure */
+		if (au_bit5[ch->p5] != prev_bit5 && !--ch->div_3_cnt) {
+			ch->div_3_cnt = 3;
+			ch->outvol = ch->outvol ? 0 : audv;
+		}
+		break;
+	}
+}
+
+/* 2 clocks audio par scanline: 3.58Mhz / 114 = 31400hz, 228 color clocks */
+static void atari_do_audio_line(void)
+{
+	atari_audio_tick_chan(0);
+	atari_audio_tick_chan(1);
+
+	au_buf[au_buf_cnt++] =
+		(au_ch[0].outvol + au_ch[1].outvol) * AU_GAIN;
+	if (au_buf_cnt >= (int)(sizeof au_buf / sizeof au_buf[0]))
+		atari_audio_flush();
+}
 
 /**
  * NES PPU:
@@ -1030,6 +1232,7 @@ static int process_inst(void)
 		int64_t elapse = cpu.cycle_cnt - old_sl_cycle;
 		while (elapse > CYCLE_PER_SCANE_LINE) {
 			atari_do_scan_line();
+			atari_do_audio_line();
 			old_sl_cycle += CYCLE_PER_SCANE_LINE;
 			elapse = cpu.cycle_cnt - old_sl_cycle;
 		}
@@ -1733,6 +1936,8 @@ void *fy_action(int nbArgs, void **args)
 		turn_mode = DEBUG_MODE;
 		ywSetTurnLengthOverwrite(0);
 	}
+	if ((yevIsKeyDown(events, 'i') || yevIsKeyDown(events, 'o')) && au_dev)
+		SDL_ClearQueuedAudio(au_dev);
 
 	if (turn_mode == DEBUG_MODE && !yevIsKeyDown(events, 's')) {
 		Entity *eve;
@@ -1889,6 +2094,7 @@ void *fy_init(int nbArgs, void **args)
 		current_emu_mode = ATARI_MODE;
 		colors_json = yeGet(wid, "atari_color");
 		cpu.pc = 0xf000;
+		atari_audio_init();
 	}
 	void *ret = ywidNewWidget(wid, "canvas");
 	for (int i = 0; i < 0x100; ++i) {
