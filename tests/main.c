@@ -33,13 +33,19 @@ static int list;
       g_test_add_func(name, func);			\
   } while (0)
 
+#define TEST_TRY_ADD_SLOW(name, func, only) do	{	\
+    if (!no_slow)					\
+      TEST_TRY_ADD(name, func, only);			\
+  } while (0)
+
 int main(int argc, char **argv)
 {
   int only_wid = 0;
   int no_wid = 0;
+  int no_slow = 0;
   char *only = NULL;
   GOptionContext *ctx;
-  const GOptionEntry entries[5] = {
+  const GOptionEntry entries[6] = {
     {"no-widgets", 'w', 0,  G_OPTION_ARG_NONE,
      &no_wid, "don't test gui", NULL},
     {"only-widgets", 'W', 0,  G_OPTION_ARG_NONE,
@@ -48,6 +54,8 @@ int main(int argc, char **argv)
      "list all the tests and quit", NULL},
     {"just", 'j', 0,  G_OPTION_ARG_STRING, &only,
      "jut do the given test", NULL},
+    {"no-slow", 's', 0, G_OPTION_ARG_NONE, &no_slow,
+     "don't run slow tests", NULL},
     {NULL, 0, 0, 0, NULL, NULL, NULL}};
   GError *error = NULL;
 
@@ -96,13 +104,13 @@ int main(int argc, char **argv)
   TEST_TRY_ADD("/entity/swap/all", testSwap, only);
   TEST_TRY_ADD("/entity/sort/all", testSorting, only);
 
-  TEST_TRY_ADD("/script/ybytecode/bench/add", yscriptLoop, only);
-  TEST_TRY_ADD("/script/ybytecode/bench/loop", yscriptBenchLoop, only);
+  TEST_TRY_ADD_SLOW("/script/ybytecode/bench/add", yscriptLoop, only);
+  TEST_TRY_ADD_SLOW("/script/ybytecode/bench/loop", yscriptBenchLoop, only);
   TEST_TRY_ADD("/script/ybytecode/loop", yscriptLoop, only);
   TEST_TRY_ADD("/script/ybytecode/script", ybytecodeScript, only);
-  TEST_TRY_ADD("/script/ybytecode/add-function", ybytecodeAddFunction, only);
-  TEST_TRY_ADD("/script/ybytecode/loop-function",
-  	       ybytecodeLoopCallFunction, only);
+  TEST_TRY_ADD_SLOW("/script/ybytecode/add-function", ybytecodeAddFunction, only);
+  TEST_TRY_ADD_SLOW("/script/ybytecode/loop-function",
+		    ybytecodeLoopCallFunction, only);
   TEST_TRY_ADD("/script/ybytecode/conditions", ybytecodeConditions, only);
   TEST_TRY_ADD("/script/ybytecode/read-file", ybytecodeReadFile, only);
 
@@ -119,7 +127,7 @@ int main(int argc, char **argv)
 
   TEST_TRY_ADD("/script/ph7/call", testPH7ScriptCall, only);
 
-  TEST_TRY_ADD("/script/scripts/add-function", testScriptAddFunction, only);
+  TEST_TRY_ADD_SLOW("/script/scripts/add-function", testScriptAddFunction, only);
 
   TEST_TRY_ADD("/parser/json/simple-file", testJsonLoadFile, only);
   TEST_TRY_ADD("/parser/json/complex-file", testJsonMultipleObj, only);
@@ -176,3 +184,4 @@ int main(int argc, char **argv)
 }
 
 #undef TEST_TRY_ADD
+#undef TEST_TRY_ADD_SLOW
