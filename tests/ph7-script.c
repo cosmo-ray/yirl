@@ -22,17 +22,19 @@
 #include <glib.h>
 #include <stdio.h>
 #include "tests.h"
+#include "game.h"
 #include "ph7-script.h"
 #include "entity-script.h"
 
 void testPH7ScriptCall(void)
 {
 	void *sm = NULL;
+	GameConfig cfg;
 
-	yeInitMem();
-	g_assert(!ysPH7Init());
-	g_assert(!ysPH7GetType());
-	sm = ysNewManager(NULL, 0);
+	g_assert(!ygInitGameConfig(&cfg, NULL, YNONE));
+	g_assert(!ygInit(&cfg));
+
+	sm = ygPH7Manager();
 	g_assert(sm);
 
 	Entity *e = yeCreateArray(NULL, NULL);
@@ -77,7 +79,6 @@ void testPH7ScriptCall(void)
 	}
 	g_assert(acc == 15);
 
-	g_assert(!ysDestroyManager(sm));
-	g_assert(!ysPH7End());
-	yeEnd();
+	ygEnd();
+	ygCleanGameConfig(&cfg);
 }

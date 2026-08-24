@@ -975,6 +975,11 @@ static int loadFile(void *s, const char *file)
 {
 	int ret;
 	yeAutoFree Entity *f = ygFileToEnt(YRAW_FILE, file, NULL);
+
+	if (!f) {
+		DPRINT_ERR("cannot load '%s'\n", file);
+		return -1;
+	}
 	ret = loadString_(s, yeGetString(f), 0);
 	/* if (!ret) { */
 	/* 	manager->vms[manager->cur_vm].file_hash = */
