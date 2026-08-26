@@ -44,6 +44,7 @@ jobs:
         cd ..
         make quickjs-2020-03-16
         make yirl-loader.exe
+        ./yirl-loader.exe --no-graphic tests/ci-test
         ./package-maker.sh ./yirl-loader.exe tmp/
         rm -f tmp/shcore.dll
         mv tmp/* .

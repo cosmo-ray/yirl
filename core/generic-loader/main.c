@@ -41,6 +41,7 @@ int main(int argc, char **argv)
   int width = -1;
   int height = -1;
   int linux_user_path = 0;
+  int no_graphic = 0;
 
 #ifdef _WIN32
   setvbuf(stdout, NULL, _IONBF, 0);
@@ -70,6 +71,8 @@ int main(int argc, char **argv)
 		  yProgramArg = argv[i];
 	  } else if (!strcmp(argv[i], "--linux-user-path") || !strcmp(argv[i], "-L")) {
 		  linux_user_path = 1;
+	  } else if (!strcmp(argv[i], "--no-graphic")) {
+		  no_graphic = 1;
 	  } else if (!strcmp(argv[i], "--binary-root-path") || !strcmp(argv[i], "-P")) {
 		  if (i + 1 == argc)
 			  FAIL("binary-root-path require a path\n");
@@ -88,7 +91,8 @@ int main(int argc, char **argv)
 			 "--arg	<arg>			main module argument\n"
 			 "-L, --linux-user-path		store user data in ~/.yirl\n"
 			 "-P, --binary-root-path <path>	set path to binary directory(which contain, tcc, script-dependancies, and defaults polices)\n"
-			 "-d, --start-dir <path>	move on the given directorry, use as starting module\n",
+			 "-d, --start-dir <path>	move on the given directorry, use as starting module\n"
+			 "--no-graphic		load and run module init without graphical loop\n",
 			 argv[0]);
 		  return 0;
 	  } else {
@@ -146,8 +150,13 @@ int main(int argc, char **argv)
 
   if (ygInit(&cfg) < 0)
     goto end;
-  if (ygStartLoop(&cfg) < 0)
-    goto end;
+  if (no_graphic) {
+    if (!ygLoadMod(start))
+      DPRINT_ERR("failed to load module");
+  } else {
+    if (ygStartLoop(&cfg) < 0)
+      goto end;
+  }
   ret = 0;
  end:
   ygEnd();

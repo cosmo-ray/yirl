@@ -37,4 +37,6 @@ jobs:
         make
     - name: tests
       run: ./tests.sh -w -s
+    - name: loader integration test
+      run: ./yirl-loader.sh --no-graphic tests/ci-test
 

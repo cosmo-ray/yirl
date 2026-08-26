@@ -1,0 +1,7 @@
+{
+    "name": "ci-test",
+    "pre-load": [
+        { "file": "test.js", "type": "js" }
+    ],
+    "init-scripts": [["js", "test"]]
+}
