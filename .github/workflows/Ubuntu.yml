@@ -35,4 +35,6 @@ jobs:
         make sdl-gpu-build
         make quickjs-2020-03-16
         make
+    - name: tests
+      run: ./tests.sh -w -s
 
