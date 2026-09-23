@@ -56,18 +56,13 @@ extern const char *SDL_GetError(void);
 #define AU_POLY4_SIZE 15
 #define AU_POLY5_SIZE 31
 #define AU_POLY9_SIZE 511
-#define AU_SAMPLE_RATE 31440
-#define AU_GAIN 1092          /* 2 channels * 15 * 1092 < 32768 */
+#define AU_SAMPLE_RATE 31400
+#define AU_GAIN 1024          /* headroom for filter overshoot */
 #define AU_QUEUE_MAX 16384    /* max queued bytes, backpressure fast-forward */
 
-static const Uint8 au_bit4[AU_POLY4_SIZE] = {1,1,0,1,1,1,0,0,0,0,1,0,1,0,0};
-static const Uint8 au_bit5[AU_POLY5_SIZE] = {
-	0,0,1,0,1,1,0,0,1,1,1,1,1,0,0,0,1,1,0,1,
-	1,1,0,1,0,1,0,0,0,0,1 };
-/* single pulse per 31-cycle: toggle 1x/31 ticks -> f = 31440/62 */
-static const Uint8 au_div31[AU_POLY5_SIZE] = {
-	0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-	0,0,0,0,0,0,0,0,0,0,0 };
+static Uint8 au_bit4[AU_POLY4_SIZE];
+static Uint8 au_bit5[AU_POLY5_SIZE];
+static Uint8 au_div31[AU_POLY5_SIZE];
 static Uint8 au_bit9[AU_POLY9_SIZE];
 
 static SDL_AudioDeviceID au_dev;
@@ -78,13 +73,17 @@ struct tia_au_channel {
 	Uint16 p9;
 	Uint8 div_n_cnt;
 	Uint8 div_3_cnt;
-	int outvol;
+	Uint8 bit;
 };
 
 static struct tia_au_channel au_ch[2];
 
 static short au_buf[512];
 static int au_buf_cnt;
+
+/* simple high-pass filter to remove DC and improve "Atari" feel */
+static int au_hp_y;
+static int au_hp_x;
 
 static void tia_audio_flush(void)
 {
@@ -101,16 +100,15 @@ static void tia_audio_flush(void)
 
 /**
  * advance one audio tick on channel c (0 or 1); audc/audf/audv are the
- * current TIA register values. output accumulates in ch->outvol and is
- * mixed in tia_audio_gen().
+ * current TIA register values.
  */
-static void tia_audio_tick_chan(int c, Uint8 audc, Uint8 audf, Uint8 audv)
+static void tia_audio_tick_chan(int c, Uint8 audc, Uint8 audf)
 {
 	struct tia_au_channel *ch = &au_ch[c];
 
 	/* constant output modes (set to 1) */
 	if (audc == 0x0 || audc == 0xb) {
-		ch->outvol = audv;
+		ch->bit = 1;
 		return;
 	}
 
@@ -126,8 +124,7 @@ static void tia_audio_tick_chan(int c, Uint8 audc, Uint8 audf, Uint8 audv)
 	}
 	ch->div_n_cnt = div_n_max;
 
-	Uint8 prev_bit5 = au_bit5[ch->p5];
-	/* p5 serves several purposes, it advances on every clock tick */
+	/* p5 advances on every clock tick */
 	if (++ch->p5 == AU_POLY5_SIZE)
 		ch->p5 = 0;
 
@@ -140,7 +137,7 @@ static void tia_audio_tick_chan(int c, Uint8 audc, Uint8 audf, Uint8 audv)
 		    (audc == 0x3 && au_bit5[ch->p5])) {
 			if (++ch->p4 == AU_POLY4_SIZE)
 				ch->p4 = 0;
-			ch->outvol = au_bit4[ch->p4] ? audv : 0;
+			ch->bit = au_bit4[ch->p4];
 		}
 		break;
 	case 0x4:               /* pure */
@@ -150,50 +147,64 @@ static void tia_audio_tick_chan(int c, Uint8 audc, Uint8 audf, Uint8 audv)
 		if ((audc < 0x6) ||
 		    (audc == 0x6 && au_div31[ch->p5]) ||
 		    (audc == 0x7 && au_bit5[ch->p5]))
-			ch->outvol = ch->outvol ? 0 : audv;
+			ch->bit ^= 1;
 		break;
 	case 0x8:               /* poly9 */
 		if (++ch->p9 == AU_POLY9_SIZE)
 			ch->p9 = 0;
-		ch->outvol = au_bit9[ch->p9] ? audv : 0;
+		ch->bit = au_bit9[ch->p9];
 		break;
 	case 0x9:               /* poly5 */
-		ch->outvol = au_bit5[ch->p5] ? audv : 0;
+		ch->bit = au_bit5[ch->p5];
 		break;
 	case 0xa:               /* div31 -> poly5 */
 		if (au_div31[ch->p5])
-			ch->outvol = au_bit5[ch->p5] ? audv : 0;
+			ch->bit = au_bit5[ch->p5];
 		break;
 	case 0xc:               /* div6 pure */
 	case 0xd:               /* div6 pure */
 	case 0xe:               /* div93 pure */
 		if (audc < 0xe || au_div31[ch->p5])
-			ch->outvol = ch->outvol ? 0 : audv;
+			ch->bit ^= 1;
 		break;
 	case 0xf:               /* poly5 -> div3 -> pure */
-		if (au_bit5[ch->p5] != prev_bit5 && !--ch->div_3_cnt) {
+		if (au_bit5[ch->p5] && !--ch->div_3_cnt) {
 			ch->div_3_cnt = 3;
-			ch->outvol = ch->outvol ? 0 : audv;
+			ch->bit ^= 1;
 		}
 		break;
 	}
 }
 
 /**
- * generate n samples @31440hz and queue them (built-in backpressure).
+ * generate n samples @31400hz and queue them (built-in backpressure).
  * audc/audf/audv are arrays of 2 elements (channel 0 and 1).
  */
 static void tia_audio_gen(int n, const Uint8 audc[2], const Uint8 audf[2],
 			  const Uint8 audv[2])
 {
 	for (int i = 0; i < n; ++i) {
-		tia_audio_tick_chan(0, audc[0], audf[0], audv[0]);
-		tia_audio_tick_chan(1, audc[1], audf[1], audv[1]);
-
-		au_buf[au_buf_cnt++] =
-			(au_ch[0].outvol + au_ch[1].outvol) * AU_GAIN;
 		if (au_buf_cnt >= (int)(sizeof au_buf / sizeof au_buf[0]))
 			tia_audio_flush();
+
+		tia_audio_tick_chan(0, audc[0], audf[0]);
+		tia_audio_tick_chan(1, audc[1], audf[1]);
+
+		int vol0 = au_ch[0].bit ? audv[0] : 0;
+		int vol1 = au_ch[1].bit ? audv[1] : 0;
+
+		int out = (vol0 + vol1) * AU_GAIN;
+
+		/* High-pass filter (DC blocker) */
+		au_hp_y = out - au_hp_x + (au_hp_y * 1019) / 1024;
+		au_hp_x = out;
+
+		/* Clamping to avoid "bzzz" from wrap-around */
+		int res = au_hp_y;
+		if (res > 32767) res = 32767;
+		else if (res < -32768) res = -32768;
+
+		au_buf[au_buf_cnt++] = (short)res;
 	}
 }
 
@@ -203,24 +214,40 @@ static void tia_audio_gen(int n, const Uint8 audc[2], const Uint8 audf[2],
 static void tia_audio_clear(void)
 {
 	au_buf_cnt = 0;
+	au_hp_y = 0;
+	au_hp_x = 0;
 	if (au_dev)
 		SDL_ClearQueuedAudio(au_dev);
 }
 
 static void tia_audio_init(void)
 {
-	/* poly9: LFSR 9 bits, taps 9/5 (like MAME), deterministic */
-	unsigned int x = AU_POLY9_SIZE;
-
-	for (int i = 0; i < AU_POLY9_SIZE; ++i) {
-		int bit0 = x & 1;
-		int bit1 = (x >> 4) & 1;
-
-		au_bit9[i] = x & 1;
-		x = (x >> 1) | ((bit0 ^ bit1) << 8);
+	/* Poly4: x^4 + x + 1 */
+	Uint8 x4 = 0xf;
+	for (int i = 0; i < AU_POLY4_SIZE; ++i) {
+		au_bit4[i] = x4 & 1;
+		x4 = (x4 >> 1) | (((x4 & 1) ^ ((x4 >> 1) & 1)) << 3);
 	}
+
+	/* Poly5: x^5 + x^2 + 1 */
+	Uint8 x5 = 0x1f;
+	for (int i = 0; i < AU_POLY5_SIZE; ++i) {
+		au_bit5[i] = x5 & 1;
+		au_div31[i] = (i == 0); /* one pulse per 31 AUDF ticks */
+		x5 = (x5 >> 1) | (((x5 & 1) ^ ((x5 >> 2) & 1)) << 4);
+	}
+
+	/* poly9: LFSR 9 bits, taps 9/5 (Stella style) */
+	unsigned int x9 = 0x1ff;
+	for (int i = 0; i < AU_POLY9_SIZE; ++i) {
+		au_bit9[i] = x9 & 1;
+		x9 = (x9 >> 1) | ((((x9 & 1) ^ ((x9 >> 4) & 1)) & 1) << 8);
+	}
+
 	au_ch[0] = (struct tia_au_channel){.div_3_cnt = 3};
 	au_ch[1] = (struct tia_au_channel){.div_3_cnt = 3};
+	au_hp_y = 0;
+	au_hp_x = 0;
 
 	au_dev = SDL_OpenAudioDevice(NULL, 0, &(SDL_AudioSpec){
 		.freq = AU_SAMPLE_RATE,
