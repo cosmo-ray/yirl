@@ -26,8 +26,15 @@
  *    "action": FUNC
  *  } // ...
  *  ],
- * "mn-type": "panel", // optional, use if panel needed
- * // TODO
+ * "mn-type": "panel", // optional, set to "panel" for horizontal layout
+ * "pre-text": "text", // optional text to display before entries
+ * "current": 0,       // index of the current selection
+ * "moveOn": FUNC,    // callback (menu_ent, idx, entry) called on move
+ * "onEsc": FUNC,     // callback (menu_ent, idx, entry) called on Escape
+ *
+ * // Entries properties:
+ * // "hiden": 1,     // entry is invisible and skipped
+ * // "disabled": 1,  // entry is visible but inactive and skipped
  * }
  */
 
