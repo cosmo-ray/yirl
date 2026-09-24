@@ -92,9 +92,10 @@ void *ywMenuMove(Entity *ent, uint32_t at)
 
 static void *mn_up_down(YWidgetState *wid, int to_add)
 {
+	int len = yeLenAt(wid->entity, "entries"), count = 0;
+restart:;
 	Entity *cur = ywMenuGetCurrentEntry(wid->entity);
 	Entity *subentries = yeGet(cur, "subentries");
-	int len = yeLen(yeGet(wid->entity, "entries"));
 	if (subentries) {
 		if (!yeGetIntAt(cur, "is-click"))
 			goto out_sub;
@@ -125,8 +126,9 @@ static void *mn_up_down(YWidgetState *wid, int to_add)
 		yeSetAt(cur, "slider_idx", yeLen(subentries) - 1);
 	}
 skip_add:
-	if (yeGetInt(yeGet(ywMenuGetCurrentEntry(wid->entity), "hiden")))
-		return mn_up_down(wid, to_add);
+	if ((yeGetIntAt(ywMenuGetCurrentEntry(wid->entity), "hiden") ||
+	     yeGetIntAt(ywMenuGetCurrentEntry(wid->entity), "disabled")) && count++ < len)
+		goto restart;
 	return MoveOn(wid, ((YMenuState *)wid)->current);
 
 }
@@ -223,7 +225,7 @@ static void *nmMenuMainWidNext(int nb, union ycall_arg *args, int *types)
 InputStatue mnActions_(Entity *menu, Entity *event, Entity *current_entry)
 {
 	Entity *s;
-
+	if (yeGetIntAt(current_entry, "disabled")) return (InputStatue)NOTHANDLE;
 	if ((s = yeGet(current_entry, "slider")) || (s = yeGet(current_entry, "subentries"))) {
 		Entity *option =
 			yeGet(s, yeGetIntAt(current_entry, "slider_idx"));
