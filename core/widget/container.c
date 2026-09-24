@@ -168,9 +168,10 @@ static void cntResize(YWidgetState *opac)
 	int usable;
 	int casePos = 0, total = 0;
 	const char *jc = yeGetString(yeGet(entity, "justify-content"));
+	Entity *tmp;
 	if (jc) {
 		YE_FOREACH(entries, tmp) {
-			int s = yeGetIntAt(tmp, "size");
+			size_t s = yeGetIntAt(tmp, "size");
 			total += s > 0 ? widSize * s / 100 : widSize / len;
 		}
 		if (!strcmp(jc, "center")) casePos = (widSize - total) / 2;
@@ -178,7 +179,6 @@ static void cntResize(YWidgetState *opac)
 	}
 	int caseLen = 0;
 	Entity *bg = yeGet(entity, "$bg");
-	Entity *tmp;
 	cnt->type = cntGetTypeFromEntity(entity);
 
 	widSize =  ywCntType(opac) == CNT_HORIZONTAL ?
