@@ -166,7 +166,16 @@ static void cntResize(YWidgetState *opac)
 	size_t len = yeLen(entries);
 	int widSize = 0;
 	int usable;
-	int casePos = 0;
+	int casePos = 0, total = 0;
+	const char *jc = yeGetString(yeGet(entity, "justify-content"));
+	if (jc) {
+		YE_FOREACH(entries, tmp) {
+			int s = yeGetIntAt(tmp, "size");
+			total += s > 0 ? widSize * s / 100 : widSize / len;
+		}
+		if (!strcmp(jc, "center")) casePos = (widSize - total) / 2;
+		else if (!strcmp(jc, "end")) casePos = widSize - total;
+	}
 	int caseLen = 0;
 	Entity *bg = yeGet(entity, "$bg");
 	Entity *tmp;
