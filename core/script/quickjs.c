@@ -801,6 +801,9 @@ static inline void call_set_arg(JSContext *L, int i, union ycall_arg *yargs,
 	} else if (JS_IsObject(argv[i])) {
 		types[nb] = YS_ENTITY;
 		yargs[nb].e = GET_E(L, i);
+	} else {
+		types[nb] = YS_VPTR;
+		yargs[nb].vptr = NULL;
 	}
 }
 

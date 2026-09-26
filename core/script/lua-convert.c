@@ -71,7 +71,10 @@ int     luaPtrToString(lua_State *l)
 {
   if (lua_isstring(l, 1))
     return 1;
-  lua_pushstring(l, (char *)lua_topointer(l, 1));
+  const char *p = lua_topointer(l, 1);
+  if (!p)
+    return 0;
+  lua_pushstring(l, p);
   return 1;
 }
 
