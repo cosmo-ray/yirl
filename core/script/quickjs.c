@@ -1232,8 +1232,10 @@ static JSValue array_set_at(JSContext *ctx, JSValueConst this_val,
 			Entity *to_push = GET_E_(argv[1]);
 			yePushAt(e, to_push, GET_I(ctx, 0));
 			return mk_ent(ctx, to_push, 0);
-		} else {
+		} else if (JS_IsString(argv[0])) {
 			return new_ent(ctx, yeReplaceBack(e, GET_E_(argv[1]), GET_S(ctx, 0)));
+		} else {
+			DPRINT_ERR("wrong type in push\n");
 		}
 	}
 	return JS_NULL;
