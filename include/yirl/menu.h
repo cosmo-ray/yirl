@@ -23,7 +23,7 @@
  * "entries": [
  *  {
  *    "text": "xxx",
- *    "action": FUNC
+ *    "action": FUNC   // see "Action callbacks" below
  *  } // ...
  *  ],
  * "mn-type": "panel", // optional, set to "panel" for horizontal layout
@@ -36,6 +36,44 @@
  * // "hiden": 1,     // entry is invisible and skipped
  * // "disabled": 1,  // entry is visible but inactive and skipped
  * }
+ *
+ * Action callbacks
+ * ----------------
+ * "moveOn", "on" and "onEsc" all receive the current entry as their last
+ * argument:
+ *
+ *     func(menu, idx, entry)
+ *
+ * "action" is the exception, it receives only the menu and the event:
+ *
+ *     func(menu, event)
+ *
+ * The entry owning the action is NOT passed. The entry is an ordinary
+ * entity owned by the caller, so the caller can store its own data on it
+ * at build time and read it back to know which entry fired:
+ *
+ *     Entity *entry = ywMenuGetCurrentEntry(menu);
+ *     int idx = yeGetIntAt(entry, "my-own-key");
+ *
+ * For a slider or subentries entry, ywMenuMove() moves between the options
+ * and the OPTION is dispatched, not the entry. ywMenuGetCurrentEntry() then
+ * returns the slider entry, and the selected option is obtained with:
+ *
+ *     Entity *option = ywMenuGetCurSliderSlide(menu);
+ *
+ * or, starting from an entry, with ywMenuSliderFromEntry() and
+ * ywMenuSliderFromEntryAt().
+ *
+ * An entry with "disabled" set is skipped by ywMenuMove() and never
+ * dispatches anything: mnActions_() returns NOTHANDLE before calling the
+ * action.
+ *
+ * To trigger the action of a known entry index:
+ *
+ *     ywMenuCallActionOn(menu, event, idx);
+ *
+ * All accessors used above are exposed to the script bindings, where a NULL
+ * return is a NULL entity (null in JS).
  */
 
 #ifndef	_YIRL_MENU_H_
@@ -65,12 +103,14 @@ static inline void ywMenuSliderClear(Entity *entry)
 	yeClearArray(sub);
 }
 
+/* option of a slider or subentries entry, by index */
 static inline Entity *ywMenuSliderFromEntryAt(Entity *entry, int at)
 {
 	Entity *sub = ywMenuSliderEntries(entry);
 	return yeGet(sub, at);
 }
 
+/* option currently selected in a slider or subentries entry */
 static inline Entity *ywMenuSliderFromEntry(Entity *entry)
 {
 	Entity *sub = ywMenuSliderEntries(entry);
@@ -81,6 +121,14 @@ static inline int ywMenuGetCurrentByEntity(Entity *entity) {
 	return ywMenuGetCurrent(ywidGetState(entity));
 }
 
+/*
+ * Entry currently selected in a menu, NULL if the menu has none.
+ *
+ * This is the way to reach the entry from inside its own "action", which
+ * only gets (menu, event). Note that for a slider or subentries entry this
+ * returns the slider entry, not the selected option: use
+ * ywMenuGetCurSliderSlide() for the latter.
+ */
 Entity *ywMenuGetCurrentEntry(Entity *entity);
 
 void ywMenuSetCurrentEntry(Entity *entity, Entity *newCur);
@@ -139,10 +187,18 @@ Entity *ywMenuPushSlideDownSubMenu(Entity *menu, const char *name, Entity *suben
 
 Entity *ywMenuPushTextInput(Entity *menu, const char *name);
 
+/* entry at index idx, NULL if out of range */
 Entity *ywMenuGetEntry(Entity *menu, int idx);
 
 _Bool ywMenuRemoveLastEntry(Entity *menu);
 
+/*
+ * Option currently selected in the current slider or subentries entry,
+ * NULL if the current entry is a plain one.
+ *
+ * A slider entry dispatches its OPTION, so the option is what carries the
+ * data an action needs.
+ */
 static inline Entity *ywMenuGetCurSliderSlide(Entity *menu)
 {
 	Entity *entry = ywMenuGetCurrentEntry(menu);
@@ -171,6 +227,11 @@ static inline void ywMenuSetLoaderPercent(Entity *loader, int val)
 	yeSetAt(loader, "loading-bar-%", val);
 }
 
+/*
+ * Dispatch the action of the entry at index idx, and make it the current
+ * entry. Like a user activation, the action only gets (menu, event), and a
+ * slider or subentries entry dispatches its selected option.
+ */
 InputStatue ywMenuCallActionOnByEntity(Entity *opac, Entity *event, int idx);
 InputStatue ywMenuCallActionOnByState(YWidgetState *opac, Entity *event,
 				      int idx);
