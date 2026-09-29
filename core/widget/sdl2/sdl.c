@@ -748,6 +748,14 @@ static SDL_Surface *makeHeadacheSurface(Entity *map, Entity *info)
 {
 	const char *map_pixiels = yeGetString(map);
 	Entity *pix_mapping = yeGet(info, "mapping");
+	
+	if (!yeIsArray(pix_mapping) && !yeIsHash(pix_mapping)) {
+		DPRINT_ERR("headache img: \"mapping\" must be an array or a"
+			   " hash, got %s\n",
+			   yeTypeToString(yeType(pix_mapping)));
+		return NULL;
+	}
+
 	Entity *pix_per_char = yeGet(info, "pix_per_char");
 	Entity *size = yeGet(info, "size");
 	int char_map[127] = {0}; // ascii table
@@ -756,11 +764,15 @@ static SDL_Surface *makeHeadacheSurface(Entity *map, Entity *info)
 		ywSizeH(pix_per_char) * ywSizeH(size), 32,
 		0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);
 	uint32_t *pixels = surface->pixels;
+	Entity *val;
 
-	for (int i = 0, map_len = yeLen(pix_mapping); i < map_len; ++i) {
-		int k = *yeGetKeyAt(pix_mapping, i);
+	for (struct EntityIterator it = yeIteratorInit(pix_mapping);
+	     (val = yeIteratorGet(&it)) != NULL; yeIteratorStep(&it)) {
+	  const char *key = yeIteratorKey(&it);
+	  int k = key ? (unsigned char)*key : -1;
 
-		char_map[k] = yeGetIntAt(pix_mapping, i);
+	  if (k >= 0 && k < 127)
+	    char_map[k] = yeGetInt(val);
 	}
 
 	int size_h = ywSizeH(size);

@@ -365,6 +365,22 @@ Entity *ywCanvasNewBicolorImg(Entity *wid, int x, int y, uint8_t *map,
 int ywCanvasCacheBicolorImg(Entity *obj, const uint8_t *map, Entity *info);
 
 int ywCanvasCacheHeadacheImg(Entity *obj, Entity *map, Entity *info);
+/**
+ * Draw a pixel art image described by characters.
+ *
+ * @map    string where every character is one pixel, read row by row on a
+ *         grid of "size" width.
+ * @info   hash holding:
+ *           "size"        : size of the @map grid, in characters
+ *           "pix_per_char": size, on screen, of a single character of @map
+ *           "mapping"     : array or hash, mapping a character of @map to
+ *                           the int color to paint it with, as 0xAARRGGBB.
+ *                           Characters absent from the mapping stay
+ *                           transparent.
+ *
+ * Passing anything else than an array or a hash as "mapping" is refused with
+ * an error instead of being read as if it was an array.
+ */
 Entity *ywCanvasNewHeadacheImg(Entity *c, int x, int y, Entity *map, Entity *info);
 
 Entity *ywCanvasNewImgByPath(Entity *wid, int x, int y, const char *path);
