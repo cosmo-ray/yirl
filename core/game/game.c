@@ -808,7 +808,7 @@ int ygEntToFile(YFileType t, const char *path, Entity *ent)
 	return -1;
 }
 
-Entity *ygLoadMod(const char *path)
+static Entity *ygLoadMod_(const char *path, int first)
 {
 	char *tmp;
 	Entity *mod = NULL;
@@ -909,6 +909,11 @@ Entity *ygLoadMod(const char *path)
 	preLoad = yeGet(mod, "pre-load");
 	initScripts = yeGet(mod, "init-scripts");
 
+	Entity *ws = yeGet(mod, "window size");
+	if (ws)
+		ywidChangeResolution(yeGetIntAt(ws, 0), yeGetIntAt(ws, 1));
+
+
 	YE_ARRAY_FOREACH(preLoad, var) {
 		Entity *tmpType = yeGet(var, "type");
 		Entity *tmpFile = yeGet(var, "file");
@@ -933,7 +938,6 @@ Entity *ygLoadMod(const char *path)
 #ifdef WIN32
 			yeStringReplace(pathEnt, "YIRL_MODULES_PATH/",
 					mod_path);
-			
 #endif
 			free(mod_path);
 			pathCstr = yeGetString(pathEnt);
@@ -1106,6 +1110,11 @@ failure:
 exit:
 	free(tmp);
 	return mod;
+}
+
+Entity *ygLoadMod(const char *path)
+{
+	return ygLoadMod_(path, 0);
 }
 
 Entity *ygGetMod(const char *path)
@@ -1312,18 +1321,13 @@ int ygBind(YWidgetState *wid, const char *callback)
 static int ygParseStartAndGame(GameConfig *config)
 {
 	Entity *starting_widget;
-	Entity *ws;
 	Entity *wn;
 
-	mainMod = ygLoadMod(config->startingMod->path);
-	ws = yeGet(mainMod, "window size");
+	mainMod = ygLoadMod_(config->startingMod->path, 1);
 	wn = yeGet(mainMod, "window name");
 
 
 	starting_widget = yeGet(mainMod, "$starting widget");
-
-	if (ws)
-		ywidChangeResolution(yeGetIntAt(ws, 0), yeGetIntAt(ws, 1));
 	if (wn)
 		ywidSetWindowName(yeGetString(wn));
 
