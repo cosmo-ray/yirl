@@ -1509,6 +1509,49 @@ static JSValue array_forEachNN(JSContext *ctx, JSValueConst this_val,
 	return array_forEach_(ctx, this_val, argc, argv, 1);
 }
 
+static JSValue array_filter(JSContext *ctx, JSValueConst this_val,
+			    int argc, JSValueConst *argv)
+{
+	Entity *e = GET_E_(this_val);
+
+	if (!yeIsContainer(e))
+		return mk_ent(ctx, yeCreateArray(NULL, NULL), 1);
+
+	JSValue callback = argv[0];
+	JSValue arg = argc > 1 ? argv[1] : JS_UNDEFINED;
+	Entity *ret = yeCreateArray(NULL, NULL);
+	JSValue r;
+	EntityType t = yeType(e);
+	struct EntityIterator it = yeIteratorInit(e);
+
+	for (Entity *ent = yeIteratorGet(&it); ent != NULL; yeIteratorStep(&it)) {
+		JSValue jse = new_ent(ctx, ent);
+		JSValue jsidx;
+
+		if (t == YHASH) {
+			const char *kkey = yeIteratorKey(&it);
+			jsidx = kkey ? JS_NewString(ctx, kkey) : JS_NewInt32(ctx, 0);
+		} else if (t == YARRAY) {
+			jsidx = JS_NewInt32(ctx, yBlockArrayIteratorIdx(it.it));
+		} else {
+			jsidx = JS_NewInt32(ctx, it.idx);
+		}
+
+		r = call_exept(ctx, callback,
+			       argc > 1 ? arg : JS_GetGlobalObject(ctx),
+			       4,
+			       (JSValueConst[]){
+				       jse,
+				       jsidx,
+				       this_val,
+				       arg
+			       });
+		if (JS_ToBool(ctx, r))
+			yePushBack(ret, ent, NULL);
+	}
+	return mk_ent(ctx, ret, 1);
+}
+
 static JSValue container_it_next(JSContext *ctx, JSValueConst this_val,
 				 int argc, JSValueConst *argv)
 {
@@ -1582,6 +1625,7 @@ static JSValue array_iterator(JSContext *ctx, JSValueConst this_val,
 static const JSCFunctionListEntry js_ent_proto_funcs[] = {
     JS_CFUNC_DEF("forEachNonNull", 0, array_forEachNN),
     JS_CFUNC_DEF("forEach", 0, array_forEach),
+    JS_CFUNC_DEF("filter", 1, array_filter),
     JS_CFUNC_DEF("clear", 0, array_clear),
     JS_CFUNC_DEF("call", 0, entity_call),
     JS_CFUNC_DEF("rm", 0, array_remove),
