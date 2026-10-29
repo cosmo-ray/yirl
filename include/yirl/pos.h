@@ -182,6 +182,8 @@ static inline _Bool ywPosIsSameInts(Entity *pos1, int x, int y)
 		 int : ywPosIsSameInts) (pos, x, y)
 
 
+#define ywPosEq(a, b) ywPosIsSameEnt(a, b, 0)
+
 static inline int ywPosIsSameXEnt(Entity *pos1, Entity *pos2)
 {
   if (yeType(pos2) == YINT)

@@ -909,9 +909,13 @@ static Entity *ygLoadMod_(const char *path, int first)
 	preLoad = yeGet(mod, "pre-load");
 	initScripts = yeGet(mod, "init-scripts");
 
-	Entity *ws = yeGet(mod, "window size");
-	if (ws)
-		ywidChangeResolution(yeGetIntAt(ws, 0), yeGetIntAt(ws, 1));
+	yeAutoFree Entity *ws = NULL;
+	if (first) {
+		ws = yeCreateCopy(yeGet(mod, "window size"), NULL);
+		if (ws) {
+			ywidChangeResolution(yeGetIntAt(ws, 0), yeGetIntAt(ws, 1));
+		}
+	}
 
 
 	YE_ARRAY_FOREACH(preLoad, var) {
@@ -1103,6 +1107,14 @@ static Entity *ygLoadMod_(const char *path, int first)
 	if (init_post_action) {
 		yesCall(init_post_action, mod);
 	}
+
+	if (first) {
+		Entity *nws = yeGet(mod, "window size");
+		if (nws && !ywPosEq(ws, nws)) {
+			ywidChangeResolution(yeGetIntAt(nws, 0), yeGetIntAt(nws, 1));
+		}
+	}
+
 	goto exit;
 failure:
 	yeRemoveChild(modList, mod);
