@@ -654,6 +654,15 @@ KRK_Method(yent_krk_int_class, i) {
 	return INTEGER_VAL(yeGetInt(self->e));
 }
 
+KRK_Method(yent_krk_int_class, __chr__) {
+	int64_t v = yeGetLongDirect(self->e);
+	unsigned char bytes[5] = {0};
+	size_t len = krk_codepointToBytes((krk_integer_type)v, bytes);
+	if (!len)
+		return krk_runtimeError(vm.exceptions->valueError, "chr() arg not in range(0x110000)");
+	return OBJECT_VAL(krk_copyString((char*)bytes, len));
+}
+
 KRK_Method(yent_krk_int_class, __mul__) {
 	int i;
 	if (!krk_parseArgs(".i", (const char *[]){"int"}, &i)) {
@@ -1401,6 +1410,7 @@ static int init(void *sm, void *args)
 	BIND_METHOD(yent_krk_int_class, __gt__);
 	BIND_METHOD(yent_krk_int_class, __le__);
 	BIND_METHOD(yent_krk_int_class, __ge__);
+	BIND_METHOD(yent_krk_int_class, __chr__);
 	BIND_METHOD(yent_krk_int_class, i);
 	krk_finalizeClass(yent_krk_int_class);
 
