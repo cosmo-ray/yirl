@@ -911,7 +911,7 @@ static Entity *ygLoadMod_(const char *path, int first)
 
 	yeAutoFree Entity *ws = NULL;
 	if (first) {
-		ws = yeCreateCopy(yeGet(mod, "window size"), NULL);
+		ws = yeCreateCopy(yeGet(mod, "window size"), NULL, NULL);
 		if (ws) {
 			ywidChangeResolution(yeGetIntAt(ws, 0), yeGetIntAt(ws, 1));
 		}
