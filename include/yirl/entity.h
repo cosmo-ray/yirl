@@ -396,6 +396,12 @@ NO_SIDE_EFFECT static inline _Bool yeIsContainer(const Entity * const e)
 	return yeType(e) == YVECTOR || yeType(e) == YHASH || yeType(e) == YARRAY;
 }
 
+NO_SIDE_EFFECT static inline _Bool yeIsScalar(const Entity * const e)
+{
+	int t = yeType(e);
+	return t == YINT || t == YFLOAT || t == YSTRING || t == YQUADINT;
+}
+
 /**
  * @return 1 if e is an array that doen't contain any named key
  */
@@ -1378,7 +1384,7 @@ Entity *yeCopy(Entity* src, Entity* dest);
 #define yecpy(dest, src)			\
 	yeCopy(src, dest)
 
-Entity *yeCreateCopy2(Entity *src, Entity *father, const char *name, _Bool just_ref);
+Entity *yeCreateCopy2(Entity *src, Entity *father, const char *name, int just_ref);
 Entity *yeCreateCopy(Entity *src, Entity *father, const char *name);
 
 /**

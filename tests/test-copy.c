@@ -58,6 +58,26 @@ void	testCopy(void)
   g_assert(yeGet(array2, 0) == yeGet(array2, "other"));
   g_assert(yeGet(array2, 0)->refCount == 2);
 
+  /* just_ref == 2: scalars are copied, objects are referenced */
+  Entity *refSrc = yeCreateArray(NULL, NULL);
+  Entity *refInt = yeCreateInt(42, refSrc, NULL);
+  Entity *refStr = yeCreateString("hello", refSrc, NULL);
+  Entity *refObj = yeCreateArray(refSrc, NULL);
+  Entity *refCopy = yeCreateCopy2(refSrc, NULL, NULL, 2);
+
+  g_assert(refCopy);
+  g_assert(yeGetInt(yeGet(refCopy, 0)) == 42);
+  g_assert(yeGet(refCopy, 0) != refInt);
+  g_assert(!strcmp(yeGetString(yeGet(refCopy, 1)), "hello"));
+  g_assert(yeGet(refCopy, 1) != refStr);
+  g_assert(yeGet(refCopy, 2) == refObj);
+
+  yeSetInt(yeGet(refCopy, 0), 7);
+  g_assert(yeGetInt(refInt) == 42);
+
+  yeDestroy(refCopy);
+  yeDestroy(refSrc);
+
   yeDestroy(array);
   yeDestroy(array2);
   yeEnd();

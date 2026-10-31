@@ -422,7 +422,7 @@ KRK_Method(yent_krk_class, __repr__) {
 }
 
 KRK_Method(yent_krk_class, copy) {
-	Entity *ret = yeCreateCopy2(self->e, NULL, NULL, 1);
+	Entity *ret = yeCreateCopy2(self->e, NULL, NULL, 2);
 	return make_ent_(ret, 1);
 }
 

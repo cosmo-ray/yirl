@@ -1560,7 +1560,14 @@ static inline void yeInit(Entity *entity, EntityType type,
 	yeAttachChild(father, entity, name);
 }
 
-Entity *yeCreateCopy2(Entity *src, Entity *father, const char *name, _Bool just_ref)
+/*
+ * just_ref:
+ *   0 -> deep copy (recursive)
+ *   1 -> shallow copy, every child is referenced
+ *   2 -> copy scalars (int, float, string, quadint) by value,
+ *        only objects (array, hash, vector, function, data) are referenced
+ */
+Entity *yeCreateCopy2(Entity *src, Entity *father, const char *name, int just_ref)
 {
 	Entity *ret;
 
@@ -1585,8 +1592,12 @@ Entity *yeCreateCopy2(Entity *src, Entity *father, const char *name, _Bool just_
 		if (src->type == YARRAY && just_ref) {
 			for (size_t i = 0; i < yeLen(src); ++i) {
 				char *key = yeGetKeyAt(src, i);
+				Entity *child = yeGet(src, i);
 
-				yePushBack(ret, yeGet(src, i), key);
+				if (just_ref >= 2 && yeIsScalar(child))
+					yeCreateCopy2(child, ret, key, 0);
+				else
+					yePushBack(ret, child, key);
 			}
 
 		} else {
@@ -1607,7 +1618,9 @@ Entity *yeCreateCopy2(Entity *src, Entity *father, const char *name, _Bool just_
 
 			kh_foreach(((HashEntity *)src)->values,
 				   kkey, vvar, {
-					   if (just_ref) {
+					   if (just_ref >= 2 && yeIsScalar(vvar)) {
+						   yeCreateCopy2(vvar, ret, kkey, 0);
+					   } else if (just_ref) {
 						   yePushBack(ret, vvar, kkey);
 					   } else {
 						   yeCreateCopy2(vvar, ret, kkey, 0);
@@ -1621,7 +1634,9 @@ Entity *yeCreateCopy2(Entity *src, Entity *father, const char *name, _Bool just_
 			VectorEntity *vec = (void *)src;
 
 			for (int i = 0; i < vec->len; ++i) {
-				if (just_ref) {
+				if (just_ref >= 2 && yeIsScalar(vec->data[i])) {
+					yeCreateCopy2(vec->data[i], ret, NULL, 0);
+				} else if (just_ref) {
 					yePushBack(ret, vec->data[i], NULL);
 				} else {
 					yeCreateCopy2(vec->data[i], ret, NULL, 0);
