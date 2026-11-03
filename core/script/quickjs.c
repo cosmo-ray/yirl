@@ -1290,19 +1290,59 @@ static JSValue entity_mult(JSContext *ctx, JSValueConst this_val,
 	return JS_NULL;
 }
 
+
+static JSValue array_push_(JSContext *ctx, Entity *e,
+			   JSValueConst arg0, const char *name)
+{
+
+	if (JS_IsNumber(arg0)) {
+		int64_t res;
+		JS_ToInt64(ctx, &res, arg0);
+		yeCreateInt(res, e, name);
+	} else if (JS_IsString(arg0)) {
+		yeCreateString(JS_ToCString(ctx, arg0), e, name);
+	} else if (JS_IsObject(arg0)) {
+		Entity *child = GET_E_(arg0);
+		if (!child) {
+			    JSPropertyEnum *tab;
+			    uint32_t len;
+
+			    // Récupérer les clés de l'objet
+			    if (JS_GetOwnPropertyNames(ctx, &tab, &len, arg0,
+						       JS_GPN_STRING_MASK | JS_GPN_ENUM_ONLY) < 0) {
+				    return JS_NULL;
+			    }
+
+			    child = yeCreateHash(e, name);
+			    for (uint32_t i = 0; i < len; i++) {
+
+				    // Convertir la clé en chaîne C
+				    const char *key = JS_AtomToCString(ctx, tab[i].atom);
+
+				    // Récupérer la valeur associée
+				    JSValue value = JS_GetProperty(ctx, arg0, tab[i].atom);
+
+				    array_push_(ctx, child, value, key);
+
+				    JS_FreeCString(ctx, key);
+				    JS_FreeValue(ctx, value);
+				    JS_FreeAtom(ctx, tab[i].atom);
+			    }
+
+			    // Libérer le tableau de propriétés
+			    js_free(ctx, tab);
+		} else {
+			yePushBack(e, child, name);
+		}
+	}
+	return JS_NULL;
+}
+
 static JSValue array_push(JSContext *ctx, JSValueConst this_val,
 			  int argc, JSValueConst *argv)
 {
 	Entity *e = GET_E_(this_val);
-
-	if (JS_IsNumber(argv[0])) {
-		yeCreateInt(GET_I(ctx, 0), e, GET_S(ctx, 1));
-	} else if (JS_IsString(argv[0])) {
-		yeCreateString(GET_S(ctx, 0), e, GET_S(ctx, 1));
-	} else {
-		yePushBack(e, GET_E(ctx, 0), GET_S(ctx, 1));
-	}
-	return JS_NULL;
+	return array_push_(ctx, e, argv[0], GET_S(ctx, 1));
 }
 
 static JSValue entity_type(JSContext *ctx, JSValueConst this_val,
