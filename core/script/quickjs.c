@@ -1559,20 +1559,31 @@ static JSValue array_filter(JSContext *ctx, JSValueConst this_val,
 
 	JSValue callback = argv[0];
 	JSValue arg = argc > 1 ? argv[1] : JS_UNDEFINED;
-	Entity *ret = yeCreateArray(NULL, NULL);
-	JSValue r;
-	EntityType t = yeType(e);
-	struct EntityIterator it = yeIteratorInit(e);
+	Entity *ret = NULL;
+	int t = yeType(e);
+	if (t == YHASH)
+		ret = yeCreateHash(NULL, NULL);
+	else if (t == YARRAY)
+		ret = yeCreateArray(NULL, NULL);
+	else
+		ret = yeCreateHash(NULL, NULL);
 
-	for (Entity *ent = yeIteratorGet(&it); ent != NULL; yeIteratorStep(&it)) {
+	JSValue r;
+	struct EntityIterator it = yeIteratorInit(e);
+	Entity *ent = NULL;
+
+	for (;(ent = yeIteratorGet(&it)) != NULL; yeIteratorStep(&it)) {
 		JSValue jse = new_ent(ctx, ent);
 		JSValue jsidx;
 
 		if (t == YHASH) {
-			const char *kkey = yeIteratorKey(&it);
-			jsidx = kkey ? JS_NewString(ctx, kkey) : JS_NewInt32(ctx, 0);
+			jsidx = JS_NewString(ctx, yeIteratorKey(&it));
 		} else if (t == YARRAY) {
-			jsidx = JS_NewInt32(ctx, yBlockArrayIteratorIdx(it.it));
+			const char *kkey = yeIteratorKey(&it);
+			if (kkey)
+				jsidx = JS_NewString(ctx, yeIteratorKey(&it));
+			else
+				jsidx = JS_NewInt32(ctx, yBlockArrayIteratorIdx(it.it));
 		} else {
 			jsidx = JS_NewInt32(ctx, it.idx);
 		}
