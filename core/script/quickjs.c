@@ -685,6 +685,42 @@ BIND_IIIIES(yeCreateQuadInt, 4, 2);
 /* make all bindings here */
 #include "binding.c"
 
+static JSValue array_push_(JSContext *ctx, Entity *e,
+			   JSValueConst arg0, const char *name);
+
+static Entity *js_obj_to_entity(JSContext *ctx, JSValueConst jsobj, Entity *parent, const char *name)
+{
+	Entity *child;
+	JSPropertyEnum *tab;
+	uint32_t len;
+
+	// Récupérer les clés de l'objet
+	if (JS_GetOwnPropertyNames(ctx, &tab, &len, jsobj,
+				   JS_GPN_STRING_MASK | JS_GPN_ENUM_ONLY) < 0) {
+		return NULL;
+	}
+
+	child = yeCreateHash(parent, name);
+	for (uint32_t i = 0; i < len; i++) {
+
+		// Convertir la clé en chaîne C
+		const char *key = JS_AtomToCString(ctx, tab[i].atom);
+
+		// Récupérer la valeur associée
+		JSValue value = JS_GetProperty(ctx, jsobj, tab[i].atom);
+
+		array_push_(ctx, child, value, key);
+
+		JS_FreeCString(ctx, key);
+		JS_FreeValue(ctx, value);
+		JS_FreeAtom(ctx, tab[i].atom);
+	}
+
+	// Libérer le tableau de propriétés
+	js_free(ctx, tab);
+	return child;
+}
+
 static JSValue functions[32 * 64];
 static uint64_t f_mask[32];
 
@@ -1228,12 +1264,20 @@ static JSValue array_set_at(JSContext *ctx, JSValueConst this_val,
 	} else if (JS_IsFunction(ctx, argv[1])) {
 		return qjsyeCreateFunction(ctx, this_val, argc + 1, (JSValueConst[]){argv[1], this_val, argv[0]});
 	} else if (JS_IsObject(argv[1])) {
+		Entity *to_push = GET_E_(argv[1]);
+		yeAutoFree Entity *gc = NULL;
+
+		if (!to_push) {
+			to_push = js_obj_to_entity(ctx, argv[1], NULL, NULL);
+			gc = to_push;
+			if (!to_push)
+				return JS_NULL;
+		}
 		if (JS_IsNumber(argv[0])) {
-			Entity *to_push = GET_E_(argv[1]);
 			yePushAt(e, to_push, GET_I(ctx, 0));
 			return mk_ent(ctx, to_push, 0);
 		} else if (JS_IsString(argv[0])) {
-			return new_ent(ctx, yeReplaceBack(e, GET_E_(argv[1]), GET_S(ctx, 0)));
+			return new_ent(ctx, yeReplaceBack(e, to_push, GET_S(ctx, 0)));
 		} else {
 			DPRINT_ERR("wrong type in push\n");
 		}
@@ -1304,33 +1348,7 @@ static JSValue array_push_(JSContext *ctx, Entity *e,
 	} else if (JS_IsObject(arg0)) {
 		Entity *child = GET_E_(arg0);
 		if (!child) {
-			    JSPropertyEnum *tab;
-			    uint32_t len;
-
-			    // Récupérer les clés de l'objet
-			    if (JS_GetOwnPropertyNames(ctx, &tab, &len, arg0,
-						       JS_GPN_STRING_MASK | JS_GPN_ENUM_ONLY) < 0) {
-				    return JS_NULL;
-			    }
-
-			    child = yeCreateHash(e, name);
-			    for (uint32_t i = 0; i < len; i++) {
-
-				    // Convertir la clé en chaîne C
-				    const char *key = JS_AtomToCString(ctx, tab[i].atom);
-
-				    // Récupérer la valeur associée
-				    JSValue value = JS_GetProperty(ctx, arg0, tab[i].atom);
-
-				    array_push_(ctx, child, value, key);
-
-				    JS_FreeCString(ctx, key);
-				    JS_FreeValue(ctx, value);
-				    JS_FreeAtom(ctx, tab[i].atom);
-			    }
-
-			    // Libérer le tableau de propriétés
-			    js_free(ctx, tab);
+			js_obj_to_entity(ctx, arg0, e, name);
 		} else {
 			yePushBack(e, child, name);
 		}
