@@ -776,8 +776,9 @@ static JSValue qjsyjsCall(JSContext *ctx, JSValueConst this_val,
 	JSValue r = argv[0];
 	JSValue func = JS_NULL;
 	int own_func = 0;
-	JSValue global_obj = JS_GetGlobalObject(ctx);
+	yJsAuto global_obj = JS_GetGlobalObject(ctx);
 
+	js_auto_ctx = ctx;
 	if (JS_IsObject(r)) {
 		Entity *er = GET_E_(r);
 
@@ -801,7 +802,6 @@ static JSValue qjsyjsCall(JSContext *ctx, JSValueConst this_val,
 		func = r;
 	}
 call:
-	global_obj = JS_GetGlobalObject(ctx);
 	r = call_exept(ctx, func, global_obj, argc - 1, argv + 1);
 	if (own_func)
 		JS_FreeValue(ctx, func);
@@ -1838,10 +1838,10 @@ static struct ys_ret _call(void *sm, int nb, union ycall_arg *args,
 			   int *types, JSValue func)
 {
 	JSContext *ctx = CTX(sm);
-	JSValueConst global_obj = JS_GetGlobalObject(ctx);
+	js_auto_ctx = ctx;
+	yJsAuto global_obj = JS_GetGlobalObject(ctx);
 
 	JSValue vals[nb];
-	JSValue  r;
 
 	cur_manager = sm;
 	for (int i = 0; i < nb; ++i) {
@@ -1861,7 +1861,9 @@ static struct ys_ret _call(void *sm, int nb, union ycall_arg *args,
 		}
 	}
 
-	r = call_exept(ctx, func, global_obj, nb, vals);
+	yJsAuto r = call_exept(ctx, func, global_obj, nb, vals);
+	for (int i = 0; i < nb; ++i)
+		JS_FreeValue(ctx, vals[i]);
 	if (JS_IsObject(r)) {
 		void *e = GET_E_(r);
 		if (likely(e))
@@ -1898,6 +1900,7 @@ static struct ys_ret call2(void *sm, const char *name, int nb, union ycall_arg *
 	struct ys_ret r = _call(sm, nb, args, types, func);
 
 	JS_FreeValue(ctx, func);
+	JS_FreeValue(ctx, global_obj);
 	return r;
 }
 
@@ -1916,6 +1919,7 @@ static void *call(void *sm, const char *name, int nb, union ycall_arg *args,
 	void *r = _call(sm, nb, args, types, func).v.vptr;
 
 	JS_FreeValue(ctx, func);
+	JS_FreeValue(ctx, global_obj);
 	return r;
 }
 
