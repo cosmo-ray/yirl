@@ -1616,7 +1616,7 @@ static JSValue array_filter(JSContext *ctx, JSValueConst this_val,
 				       arg
 			       });
 		if (JS_ToBool(ctx, r))
-			yePushBack(ret, ent, NULL);
+			yePushBack(ret, ent, yeIteratorKey(&it));
 	}
 	return mk_ent(ctx, ret, 1);
 }
