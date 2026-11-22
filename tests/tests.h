@@ -65,6 +65,7 @@ void testLuaScritEntityBind(void);
 void testS7ScriptCall(void);
 
 void testQjsScriptCall(void);
+void testQjsNoDoubleFree(void);
 
 void testPH7ScriptCall(void);
 

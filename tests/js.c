@@ -24,6 +24,7 @@
 #include "tests.h"
 #include "quickjs-script.h"
 #include "entity-script.h"
+#include "script.h"
 
 void testQjsScriptCall(void)
 {
@@ -59,6 +60,41 @@ void testQjsScriptCall(void)
 	printf("%d - %d\n", e->refCount,  s2->refCount);
 	yeMultDestroy(e, s2);
 	/* g_assert(!ysDestroyManager(sm)); */
+	g_assert(!ysQjsEnd());
+	yeEnd();
+}
+
+void testQjsNoDoubleFree(void)
+{
+	void *sm = NULL;
+
+	yeInitMem();
+	g_assert(!ysQjsInit());
+	sm = ysNewManager(NULL, 0);
+	g_assert(sm);
+
+	for (int i = 0; i < 10000; ++i) {
+		g_assert(!ysLoadString(sm, "'x';"));
+		g_assert(!ysLoadString(sm, "({a:1});"));
+		g_assert(!ysLoadString(sm, "[1,2,3];"));
+	}
+	g_assert(ysLoadString(sm, "throw 1;") < 0);
+
+	Entity *arr = yeCreateArray(NULL, NULL);
+	yeCreateInt(1, arr, NULL);
+	yeCreateInt(2, arr, NULL);
+	yeCreateInt(3, arr, NULL);
+
+	g_assert(!ysLoadString(sm,
+		"function fe(a){var n=0; a.forEach(function(v){n=n+1; return {x:v};}); return n;}"));
+	g_assert(!ysLoadString(sm,
+		"function ff(a){return a.filter(function(v){return {k:v};}).len();}"));
+	for (int i = 0; i < 2000; ++i) {
+		g_assert((intptr_t)ysCall(sm, "fe", arr) == 3);
+		g_assert((intptr_t)ysCall(sm, "ff", arr) == 3);
+	}
+
+	yeDestroy(arr);
 	g_assert(!ysQjsEnd());
 	yeEnd();
 }

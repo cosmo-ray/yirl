@@ -92,6 +92,10 @@ static inline int GET_I_(JSContext *ctx, int idx,
 #define GET_D(ctx, idx)				\
 	GET_D_(ctx, idx, argc, argv)
 
+static JSContext *js_auto_ctx;
+static void js_auto_free(JSValue *v) { JS_FreeValue(js_auto_ctx, *v); }
+#define yJsAuto __attribute__((cleanup(js_auto_free))) JSValue
+
 static JSValue call_exept(JSContext *ctx, JSValueConst func_obj, JSValueConst this_obj,
 		  int argc, JSValueConst *argv) {
 	JSValue r = JS_Call(ctx, func_obj, this_obj, argc, argv);
@@ -1510,8 +1514,9 @@ static JSValue array_forEach_(JSContext *ctx, JSValueConst this_val,
 	Entity *e = GET_E_(this_val);
 	JSValue callback = argv[0];
 	JSValue arg = argv[1];
-	JSValue r;
+	yJsAuto r = JS_UNDEFINED;
 
+	js_auto_ctx = ctx;
 	if (yeType(e) == YHASH) {
 		Entity *vvar;
 		const char *kkey;
@@ -1586,10 +1591,11 @@ static JSValue array_filter(JSContext *ctx, JSValueConst this_val,
 	else
 		ret = yeCreateHash(NULL, NULL);
 
-	JSValue r;
+	yJsAuto r = JS_UNDEFINED;
 	struct EntityIterator it = yeIteratorInit(e);
 	Entity *ent = NULL;
 
+	js_auto_ctx = ctx;
 	for (;(ent = yeIteratorGet(&it)) != NULL; yeIteratorStep(&it)) {
 		JSValue jse = new_ent(ctx, ent);
 		JSValue jsidx;
@@ -1916,7 +1922,8 @@ static int destroy(void *sm)
 static int eval_str_(JSContext *ctx, const char *str, int l,
 		     const char *filename)
 {
-	JSValue r = JS_Eval(ctx, str, l, filename, JS_EVAL_TYPE_GLOBAL);
+	js_auto_ctx = ctx;
+	yJsAuto r = JS_Eval(ctx, str, l, filename, JS_EVAL_TYPE_GLOBAL);
 
 	if (JS_IsException(r)) {
 		js_std_dump_error(ctx);
