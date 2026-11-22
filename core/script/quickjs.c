@@ -775,6 +775,7 @@ static JSValue qjsyjsCall(JSContext *ctx, JSValueConst this_val,
 	const char *name = NULL;
 	JSValue r = argv[0];
 	JSValue func = JS_NULL;
+	int own_func = 0;
 	JSValue global_obj = JS_GetGlobalObject(ctx);
 
 	if (JS_IsObject(r)) {
@@ -791,7 +792,9 @@ static JSValue qjsyjsCall(JSContext *ctx, JSValueConst this_val,
 			}
 		}
 		func = JS_GetPropertyStr(ctx, global_obj, name);
+		own_func = 1;
 		if (!JS_IsFunction(ctx, func)) {
+			JS_FreeValue(ctx, func);
 			return JS_NULL;
 		}
 	} else if (JS_IsFunction(ctx, r)) {
@@ -800,6 +803,8 @@ static JSValue qjsyjsCall(JSContext *ctx, JSValueConst this_val,
 call:
 	global_obj = JS_GetGlobalObject(ctx);
 	r = call_exept(ctx, func, global_obj, argc - 1, argv + 1);
+	if (own_func)
+		JS_FreeValue(ctx, func);
 	return r;
 }
 
@@ -1514,7 +1519,6 @@ static JSValue array_forEach_(JSContext *ctx, JSValueConst this_val,
 	Entity *e = GET_E_(this_val);
 	JSValue callback = argv[0];
 	JSValue arg = argv[1];
-	yJsAuto r = JS_UNDEFINED;
 
 	js_auto_ctx = ctx;
 	if (yeType(e) == YHASH) {
@@ -1525,9 +1529,9 @@ static JSValue array_forEach_(JSContext *ctx, JSValueConst this_val,
 			   kkey, vvar, {
 				   if (skipp_null && !vvar)
 					   continue;
-				   JSValue jse = new_ent(ctx, vvar);
-				   JSValue jsidx = JS_NewString(ctx, kkey);
-				   r = call_exept(ctx, callback, JS_GetGlobalObject(ctx), 4,
+				   yJsAuto jse = new_ent(ctx, vvar);
+				   yJsAuto jsidx = JS_NewString(ctx, kkey);
+				   yJsAuto r = call_exept(ctx, callback, JS_GetGlobalObject(ctx), 4,
 					       (JSValueConst []){
 						   jse,
 						   jsidx,
@@ -1545,9 +1549,9 @@ static JSValue array_forEach_(JSContext *ctx, JSValueConst this_val,
 	for (int l = yeLen(e), i = 0; i < l; ++i) {
 		if (skipp_null && !yeGet(e, i))
 			continue;
-		JSValue jse = new_ent(ctx, yeGet(e, i));
-		JSValue jsidx = JS_NewInt32(ctx, i);
-		r = call_exept(ctx, callback, JS_GetGlobalObject(ctx), 4, (JSValueConst []){
+		yJsAuto jse = new_ent(ctx, yeGet(e, i));
+		yJsAuto jsidx = JS_NewInt32(ctx, i);
+		yJsAuto r = call_exept(ctx, callback, JS_GetGlobalObject(ctx), 4, (JSValueConst []){
 				jse,
 				jsidx,
 				this_val,
@@ -1591,14 +1595,13 @@ static JSValue array_filter(JSContext *ctx, JSValueConst this_val,
 	else
 		ret = yeCreateHash(NULL, NULL);
 
-	yJsAuto r = JS_UNDEFINED;
 	struct EntityIterator it = yeIteratorInit(e);
 	Entity *ent = NULL;
 
 	js_auto_ctx = ctx;
 	for (;(ent = yeIteratorGet(&it)) != NULL; yeIteratorStep(&it)) {
-		JSValue jse = new_ent(ctx, ent);
-		JSValue jsidx;
+		yJsAuto jse = new_ent(ctx, ent);
+		yJsAuto jsidx = JS_UNDEFINED;
 
 		if (t == YHASH) {
 			jsidx = JS_NewString(ctx, yeIteratorKey(&it));
@@ -1612,7 +1615,7 @@ static JSValue array_filter(JSContext *ctx, JSValueConst this_val,
 			jsidx = JS_NewInt32(ctx, it.idx);
 		}
 
-		r = call_exept(ctx, callback,
+		yJsAuto r = call_exept(ctx, callback,
 			       argc > 1 ? arg : JS_GetGlobalObject(ctx),
 			       4,
 			       (JSValueConst[]){
@@ -1892,8 +1895,10 @@ static struct ys_ret call2(void *sm, const char *name, int nb, union ycall_arg *
 	JSContext *ctx = CTX(sm);
 	JSValueConst global_obj = JS_GetGlobalObject(ctx);
 	JSValue func = JS_GetPropertyStr(ctx, global_obj, name);
+	struct ys_ret r = _call(sm, nb, args, types, func);
 
-	return _call(sm, nb, args, types, func);
+	JS_FreeValue(ctx, func);
+	return r;
 }
 
 static void *fCall(void *sm, void *sym, int nb,
@@ -1908,8 +1913,10 @@ static void *call(void *sm, const char *name, int nb, union ycall_arg *args,
 	JSContext *ctx = CTX(sm);
 	JSValueConst global_obj = JS_GetGlobalObject(ctx);
 	JSValue func = JS_GetPropertyStr(ctx, global_obj, name);
+	void *r = _call(sm, nb, args, types, func).v.vptr;
 
-	return _call(sm, nb, args, types, func).v.vptr;
+	JS_FreeValue(ctx, func);
+	return r;
 }
 
 static int destroy(void *sm)
@@ -1993,6 +2000,11 @@ static void trace(void *sm)
 	JSContext *ctx = CTX(sm);
 	JS_ThrowTypeError(ctx, "abort in quickjs:");
 	js_std_dump_error(ctx);
+}
+
+JSRuntime *ysQjsGetRuntime(void *sm)
+{
+	return RUNTIME(sm);
 }
 
 static void *allocator(void)

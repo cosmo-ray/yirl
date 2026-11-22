@@ -25,6 +25,7 @@
 #include "quickjs-script.h"
 #include "entity-script.h"
 #include "script.h"
+#include "quickjs.h"
 
 void testQjsScriptCall(void)
 {
@@ -64,6 +65,12 @@ void testQjsScriptCall(void)
 	yeEnd();
 }
 
+static void qjs_gc(void *sm)
+{
+	JSRuntime *rt = ysQjsGetRuntime(sm);
+	JS_RunGC(rt);
+}
+
 void testQjsNoDoubleFree(void)
 {
 	void *sm = NULL;
@@ -93,6 +100,44 @@ void testQjsNoDoubleFree(void)
 		g_assert((intptr_t)ysCall(sm, "fe", arr) == 3);
 		g_assert((intptr_t)ysCall(sm, "ff", arr) == 3);
 	}
+
+	yeDestroy(arr);
+	g_assert(!ysQjsEnd());
+	yeEnd();
+}
+
+void testQjsCallNoLeak(void)
+{
+	void *sm = NULL;
+	JSMemoryUsage mu1, mu2;
+
+	yeInitMem();
+	g_assert(!ysQjsInit());
+	sm = ysNewManager(NULL, 0);
+	g_assert(sm);
+
+	Entity *arr = yeCreateArray(NULL, NULL);
+	for (int i = 0; i < 20; ++i)
+		yeCreateInt(i, arr, NULL);
+
+	g_assert(!ysLoadString(sm,
+		"function fe(a){a.forEach(function(v){return {x:v, s:'str'};}); return 1;}"));
+	g_assert(!ysLoadString(sm,
+		"function ff(a){return a.filter(function(v){return {k:v, s:'str'};}).len();}"));
+
+	ysCall(sm, "fe", arr);
+	ysCall(sm, "ff", arr);
+	qjs_gc(sm);
+	JS_ComputeMemoryUsage(ysQjsGetRuntime(sm), &mu1);
+
+	for (int i = 0; i < 5000; ++i) {
+		ysCall(sm, "fe", arr);
+		ysCall(sm, "ff", arr);
+	}
+	qjs_gc(sm);
+	JS_ComputeMemoryUsage(ysQjsGetRuntime(sm), &mu2);
+
+	g_assert(mu2.malloc_size <= mu1.malloc_size + 64 * 1024);
 
 	yeDestroy(arr);
 	g_assert(!ysQjsEnd());

@@ -125,6 +125,7 @@ int main(int argc, char **argv)
 
   TEST_TRY_ADD("/script/quickjs/call", testQjsScriptCall, only);
   TEST_TRY_ADD("/script/quickjs/no-double-free", testQjsNoDoubleFree, only);
+  TEST_TRY_ADD("/script/quickjs/no-leak", testQjsCallNoLeak, only);
 
   TEST_TRY_ADD("/script/ph7/call", testPH7ScriptCall, only);
 

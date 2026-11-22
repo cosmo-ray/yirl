@@ -20,8 +20,11 @@
 
 #include "script.h"
 
+typedef struct JSRuntime JSRuntime;
+
 int ysQjsInit(void);
 int ysQjsEnd(void);
 int ysQjsGetType(void);
+JSRuntime *ysQjsGetRuntime(void *sm);
 
 #endif
